@@ -3,6 +3,14 @@ const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 
+// 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
+const required = ['TELEGRAM_BOT_TOKEN', 'LTA_ACCOUNT_KEY', 'REDIS_URL'];
+const missing = required.filter((k) => !process.env[k]);
+if (missing.length) {
+  console.error(`[Fatal] Missing required env vars: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 // 1. Setup Clients
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const redis = createClient({ url: process.env.REDIS_URL });
