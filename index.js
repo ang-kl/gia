@@ -86,9 +86,13 @@ bot.onText(/^\/lunch(?:@\w+)?$/, async (msg) => {
       await safeSend(msg.chat.id, "Gia has no listings yet. Try again in a few minutes.");
       return;
     }
-    const lines = picks.map((p, i) =>
-      `${i + 1}. ${p.name} — ${p.area}\n   ${p.blurb}\n   ${p.url}`
-    );
+    const lines = picks.map((p, i) => {
+      const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
+      const open = p.openNow === true ? ' · Open now'
+        : p.openNow === false ? ' · Closed'
+        : '';
+      return `${i + 1}. ${p.name}${rating}${open}\n   ${p.area}\n   ${p.url}`;
+    });
     await safeSend(msg.chat.id, `Gia's Sanctuary Picks\n\n${lines.join('\n\n')}`);
   } catch (err) {
     console.error('[Error] /lunch handler failed:', err.message);
