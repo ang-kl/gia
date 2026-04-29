@@ -68,8 +68,11 @@
         title: v.name,
         label: { text: String(i + 1), color: 'white', fontWeight: 'bold' }
       });
+      const placeUrl = v.placeId
+        ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
+        : v.url;
       const info = new google.maps.InfoWindow({
-        content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${v.url ? `<br><a href="${v.url}" target="_blank">Open in Maps</a>` : ''}</div>`
+        content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${placeUrl ? `<br><a href="${placeUrl}" target="_blank" rel="noopener">Open in Maps</a>` : ''}</div>`
       });
       marker.addListener('click', () => info.open({ anchor: marker, map }));
       venueMarkers.push(marker);

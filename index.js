@@ -96,9 +96,9 @@ async function safeSend(chatId, text) {
   }
 }
 
-async function safeVenue(chatId, lat, lng, title, address) {
+async function safeVenue(chatId, lat, lng, title, address, opts = {}) {
   try {
-    await bot.sendVenue(chatId, lat, lng, title, address);
+    await bot.sendVenue(chatId, lat, lng, title, address, opts);
   } catch (err) {
     console.error(`[Error] sendVenue to ${chatId} failed:`, err.message);
   }
@@ -122,7 +122,11 @@ async function deliverPicks(chatId, mealLabel, picks) {
 
   for (const p of picks) {
     if (p.lat != null && p.lng != null) {
-      await safeVenue(chatId, p.lat, p.lng, p.name, p.area);
+      const placeId = p.placeId ?? p.id;
+      const venueOpts = placeId
+        ? { google_place_id: placeId, google_place_type: p.primaryType ?? 'restaurant' }
+        : {};
+      await safeVenue(chatId, p.lat, p.lng, p.name, p.area, venueOpts);
     } else {
       await safeSend(chatId, `${p.name}\n${p.area}\n${p.url}`);
     }

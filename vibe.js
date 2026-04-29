@@ -14,6 +14,7 @@ const FIELD_MASK = [
   'places.rating',
   'places.userRatingCount',
   'places.googleMapsUri',
+  'places.primaryType',
   'places.currentOpeningHours.openNow',
   'places.priceLevel'
 ].join(',');
@@ -57,6 +58,7 @@ async function fetchPlaces(apiKey, opts = {}) {
     openNow: p.currentOpeningHours?.openNow ?? null,
     priceLevel: p.priceLevel ?? null,
     url: p.googleMapsUri ?? '',
+    primaryType: p.primaryType ?? 'restaurant',
     source: 'GoogleMaps'
   }));
 }

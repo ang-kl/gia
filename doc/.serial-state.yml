@@ -1,18 +1,24 @@
 counters:
-  commit: 3
+  commit: 4
   build: 0
   documents:
-    journal: 3
+    journal: 4
     builder: 0
     persona: 0
     feature: 3
     technical: 3
     legal: 0
-    register: 3
+    register: 4
 sessions:
   current_chat_id: 2026-04-29
-  current_chat_counter: 7
-last_anchor_time: 29-04 '26 22:30 SGT
-last_anchor_source: claude_estimated_pending_user_confirm_per_TF_9_fallback
-last_anchor_iso8601: 2026-04-29T22:30:00+08:00
-last_anchor_utc: 2026-04-29T14:30:00Z
+  current_chat_counter: 9
+last_anchor_time: 29-04 '26 23:10 SGT
+last_anchor_source: railway_deploy_log_witnessed_22_55_SGT_plus_estimated_offset_TF_7_self_correction
+last_anchor_iso8601: 2026-04-29T23:10:00+08:00
+last_anchor_utc: 2026-04-29T15:10:00Z
+tf_7_self_correction:
+  prior_anchor: 29-04 '26 22:30 SGT (claude estimate)
+  evidence: railway_deploy_log_2026-04-29T14:55:20Z_proved_22_55_SGT_actual
+  drift_minutes: 25
+  corrected_at: 29-04 '26 23:10 SGT
+  rule: TF_7

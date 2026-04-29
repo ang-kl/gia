@@ -92,6 +92,7 @@ async function validateWithPlaces(candidate, near) {
             'places.location',
             'places.rating',
             'places.googleMapsUri',
+            'places.primaryType',
             'places.currentOpeningHours.openNow'
           ].join(',')
         },
@@ -112,6 +113,7 @@ async function validateWithPlaces(candidate, near) {
       rating: place.rating ?? null,
       openNow: place.currentOpeningHours?.openNow ?? null,
       url: place.googleMapsUri ?? '',
+      primaryType: place.primaryType ?? 'restaurant',
       vibe: candidate.vibe ?? '',
       source: 'gemini+places'
     };
