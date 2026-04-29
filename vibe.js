@@ -19,11 +19,11 @@ const FIELD_MASK = [
 ].join(',');
 
 const SEED_LISTINGS = [
-  { name: 'Lau Pa Sat', area: '18 Raffles Quay', lat: 1.2806, lng: 103.8504, rating: 4.2, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://www.laupasat.sg/', source: 'seed' },
-  { name: 'Amoy Street Food Centre', area: '7 Maxwell Road', lat: 1.2802, lng: 103.8470, rating: 4.4, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Amoy+Street+Food+Centre', source: 'seed' },
-  { name: 'Maxwell Food Centre', area: '1 Kadayanallur Street', lat: 1.2802, lng: 103.8444, rating: 4.3, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Maxwell+Food+Centre', source: 'seed' },
-  { name: 'Telok Ayer Hawker Centre', area: '2 Telok Ayer Street', lat: 1.2811, lng: 103.8477, rating: 4.1, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Telok+Ayer+Hawker+Centre', source: 'seed' },
-  { name: 'Far East Square', area: '45 Pekin Street', lat: 1.2832, lng: 103.8478, rating: 4.0, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_MODERATE', url: 'https://maps.google.com/?q=Far+East+Square+Singapore', source: 'seed' }
+  { id: null, name: 'Lau Pa Sat', area: '18 Raffles Quay', lat: 1.2806, lng: 103.8504, rating: 4.2, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://www.laupasat.sg/', source: 'seed' },
+  { id: null, name: 'Amoy Street Food Centre', area: '7 Maxwell Road', lat: 1.2802, lng: 103.8470, rating: 4.4, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Amoy+Street+Food+Centre', source: 'seed' },
+  { id: null, name: 'Maxwell Food Centre', area: '1 Kadayanallur Street', lat: 1.2802, lng: 103.8444, rating: 4.3, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Maxwell+Food+Centre', source: 'seed' },
+  { id: null, name: 'Telok Ayer Hawker Centre', area: '2 Telok Ayer Street', lat: 1.2811, lng: 103.8477, rating: 4.1, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Telok+Ayer+Hawker+Centre', source: 'seed' },
+  { id: null, name: 'Far East Square', area: '45 Pekin Street', lat: 1.2832, lng: 103.8478, rating: 4.0, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_MODERATE', url: 'https://maps.google.com/?q=Far+East+Square+Singapore', source: 'seed' }
 ];
 
 async function fetchPlaces(apiKey) {
@@ -44,6 +44,7 @@ async function fetchPlaces(apiKey) {
   });
 
   return (data.places ?? []).map((p) => ({
+    id: p.id ?? null,
     name: p.displayName?.text ?? 'Unknown',
     area: p.formattedAddress ?? '',
     lat: p.location?.latitude ?? null,

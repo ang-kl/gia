@@ -5,6 +5,7 @@ const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const { refreshVibeListings, pickLunch } = require('./vibe');
+const { getOrCacheSummary } = require('./vibe-summary');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -117,6 +118,16 @@ bot.onText(/^\/lunch(?:@\w+)?$/, async (msg) => {
         await safeVenue(msg.chat.id, p.lat, p.lng, p.name, p.area);
       } else {
         await safeSend(msg.chat.id, `${p.name}\n${p.area}\n${p.url}`);
+      }
+      if (p.id) {
+        try {
+          const summary = await getOrCacheSummary(redis, p.id);
+          if (summary) {
+            await safeSend(msg.chat.id, `🌿 Sanctuary read for ${p.name}\n${summary}`);
+          }
+        } catch (err) {
+          console.error('[Error] vibe summary fetch failed:', err.message);
+        }
       }
     }
   } catch (err) {
