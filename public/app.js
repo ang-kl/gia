@@ -5,10 +5,13 @@
   const RAFFLES_PLACE = { lat: 1.2839, lng: 103.8517 };
   const GMAPS_INSTALL_URL = 'https://apps.apple.com/app/google-maps/id585027354';
   const APP_PROBE_TIMEOUT_MS = 1500;
+  const MAP_ID = 'GIA_SANCTUARY';
+  const FOCUS_PLACE_ID = new URLSearchParams(window.location.search).get('placeId');
   const statusEl = document.getElementById('status');
   let map;
   let venueMarkers = [];
   let userMarker;
+  let AdvancedMarkerElement;
 
   function setStatus(text, hide) {
     if (!statusEl) return;
@@ -18,9 +21,7 @@
 
   async function authedFetch(url) {
     const initData = tg?.initData || '';
-    const res = await fetch(url, {
-      headers: { 'X-Telegram-Init-Data': initData }
-    });
+    const res = await fetch(url, { headers: { 'X-Telegram-Init-Data': initData } });
     if (!res.ok) throw new Error(`${url} → ${res.status}`);
     return res.json();
   }
@@ -29,7 +30,7 @@
     return new Promise((resolve, reject) => {
       if (window.google?.maps) return resolve();
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=marker&v=weekly`;
       script.async = true;
       script.defer = true;
       script.onload = resolve;
@@ -45,19 +46,13 @@
   }
 
   function externalOpen(url) {
-    if (tg && typeof tg.openLink === 'function') {
-      tg.openLink(url, { try_instant_view: false });
-    } else {
-      window.open(url, '_blank', 'noopener');
-    }
+    if (tg && typeof tg.openLink === 'function') tg.openLink(url, { try_instant_view: false });
+    else window.open(url, '_blank', 'noopener');
   }
 
   function ask(message, callback) {
-    if (tg && typeof tg.showConfirm === 'function') {
-      tg.showConfirm(message, callback);
-    } else {
-      callback(window.confirm(message));
-    }
+    if (tg && typeof tg.showConfirm === 'function') tg.showConfirm(message, callback);
+    else callback(window.confirm(message));
   }
 
   function openMapsForVenue(v) {
@@ -70,18 +65,13 @@
       : (v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`);
     const appUrl = `comgooglemaps://?q=${encodeURIComponent(name)}&center=${lat},${lng}&zoom=17`;
 
-    if (!isIOS()) {
-      externalOpen(httpsUrl);
-      return;
-    }
+    if (!isIOS()) { externalOpen(httpsUrl); return; }
 
     let appOpened = false;
     const onHide = () => { if (document.hidden) appOpened = true; };
     document.addEventListener('visibilitychange', onHide);
-
     const start = Date.now();
     window.location.href = appUrl;
-
     setTimeout(() => {
       document.removeEventListener('visibilitychange', onHide);
       if (appOpened || document.hidden) return;
@@ -93,37 +83,56 @@
     }, APP_PROBE_TIMEOUT_MS);
   }
 
+  function makePinContent(num, name, isUser) {
+    const div = document.createElement('div');
+    div.className = isUser ? 'gia-pin user' : 'gia-pin';
+    const n = document.createElement('span');
+    n.className = 'num';
+    n.textContent = String(num);
+    const t = document.createElement('span');
+    t.className = 'name';
+    t.textContent = name;
+    div.appendChild(n);
+    div.appendChild(t);
+    return div;
+  }
+
   function initMap(center) {
     map = new google.maps.Map(document.getElementById('map'), {
       center,
       zoom: 16,
+      mapId: MAP_ID,
       disableDefaultUI: true,
       zoomControl: true,
-      styles: [
-        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
-      ]
+      gestureHandling: 'greedy'
     });
   }
 
   function clearMarkers() {
-    venueMarkers.forEach((m) => m.setMap(null));
+    venueMarkers.forEach((m) => { m.map = null; });
     venueMarkers = [];
   }
 
   function renderVenues(label, venues) {
     clearMarkers();
-    if (!venues.length) {
+    let list = venues;
+    if (FOCUS_PLACE_ID) {
+      const focused = venues.filter((v) => v.placeId === FOCUS_PLACE_ID);
+      if (focused.length) list = focused;
+    }
+    if (!list.length) {
       setStatus(`No ${label} sanctuary nearby — try later.`);
       return;
     }
     const bounds = new google.maps.LatLngBounds();
-    venues.forEach((v, i) => {
+    list.forEach((v, i) => {
       const pos = { lat: v.lat, lng: v.lng };
-      const marker = new google.maps.Marker({
-        position: pos,
+      const content = makePinContent(i + 1, v.name, false);
+      const marker = new AdvancedMarkerElement({
         map,
+        position: pos,
         title: v.name,
-        label: { text: String(i + 1), color: 'white', fontWeight: 'bold' }
+        content
       });
       const linkId = `open-maps-${i}`;
       const linkHtml = (v.placeId || v.url || v.name)
@@ -135,19 +144,16 @@
       marker.addListener('click', () => info.open({ anchor: marker, map }));
       info.addListener('domready', () => {
         const a = document.getElementById(linkId);
-        if (a) {
-          a.onclick = (ev) => {
-            ev.preventDefault();
-            openMapsForVenue(v);
-          };
-        }
+        if (a) a.onclick = (ev) => { ev.preventDefault(); openMapsForVenue(v); };
       });
       venueMarkers.push(marker);
       bounds.extend(pos);
     });
-    if (userMarker) bounds.extend(userMarker.getPosition());
-    map.fitBounds(bounds, 60);
-    setStatus(`${venues.length} ${label} picks within 800m`, true);
+    if (userMarker) bounds.extend(userMarker.position);
+    if (list.length > 1) map.fitBounds(bounds, 80);
+    else { map.setCenter(list[0]); map.setZoom(17); }
+    const focusNote = FOCUS_PLACE_ID ? ` (focused)` : '';
+    setStatus(`${list.length} ${label} pick${list.length === 1 ? '' : 's'}${focusNote}`, true);
   }
 
   function getUserPosition() {
@@ -163,21 +169,17 @@
 
   async function boot() {
     let mapsKey;
+    try { mapsKey = (await authedFetch('/maps-key')).key; }
+    catch { setStatus('Could not authenticate with Gia. Open from inside Telegram.'); return; }
+    if (!mapsKey) { setStatus('Maps key not configured.'); return; }
+    try { await loadMapsScript(mapsKey); }
+    catch { setStatus('Maps failed to load.'); return; }
+
     try {
-      const data = await authedFetch('/maps-key');
-      mapsKey = data.key;
-    } catch (err) {
-      setStatus('Could not authenticate with Gia. Open from inside Telegram.');
-      return;
-    }
-    if (!mapsKey) {
-      setStatus('Maps key not configured.');
-      return;
-    }
-    try {
-      await loadMapsScript(mapsKey);
-    } catch (err) {
-      setStatus('Maps failed to load.');
+      const lib = await google.maps.importLibrary('marker');
+      AdvancedMarkerElement = lib.AdvancedMarkerElement;
+    } catch {
+      setStatus('Marker library failed to load.');
       return;
     }
 
@@ -185,18 +187,11 @@
     const center = userPos || RAFFLES_PLACE;
     initMap(center);
     if (userPos) {
-      userMarker = new google.maps.Marker({
-        position: userPos,
+      userMarker = new AdvancedMarkerElement({
         map,
+        position: userPos,
         title: 'You',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: '#1e88e5',
-          fillOpacity: 0.9,
-          strokeColor: '#fff',
-          strokeWeight: 2
-        }
+        content: makePinContent('•', 'You', true)
       });
     }
 
@@ -205,14 +200,11 @@
       const url = `/api/sanctuary?lat=${center.lat}&lng=${center.lng}`;
       const data = await authedFetch(url);
       renderVenues(data.label || 'sanctuary', data.venues || []);
-    } catch (err) {
+    } catch {
       setStatus('Could not load picks. Try again in a moment.');
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();

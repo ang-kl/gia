@@ -15,6 +15,29 @@
       pointer-events: none; transition: opacity 0.25s;
     }
     #status.hidden { opacity: 0; }
+    .gia-pin {
+      display: flex; align-items: center; gap: 6px;
+      background: #fff; color: #222;
+      border-radius: 18px; padding: 4px 10px 4px 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+      transform: translateY(-50%);
+      cursor: pointer;
+      max-width: 220px;
+    }
+    .gia-pin .num {
+      flex: 0 0 auto;
+      width: 24px; height: 24px;
+      background: #d32f2f; color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+    }
+    .gia-pin .name {
+      font-weight: 500; font-size: 13px; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gia-pin.user { background: #1e88e5; color: #fff; padding: 6px 10px; }
+    .gia-pin.user .num { background: #fff; color: #1e88e5; width: 18px; height: 18px; font-size: 11px; }
   </style>
 </head>
 <body>
