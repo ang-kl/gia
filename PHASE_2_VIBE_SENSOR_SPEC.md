@@ -22,26 +22,29 @@ Prove the Vibe spoke wires up to the same Redis backbone as the LTA spoke, and g
 
 ---
 
-## 3. Sensing — RSS Discovery
+## 3. Sensing — Google Places (V2)
 
-**Why RSS, not HTML scraping (yet):** RSS endpoints are stable, machine-readable, and don't break when a site re-skins. HTML scraping is V2 territory once we have signal we actually need it.
+V1 used RSS (SethLui + Honeycombers); replaced because feed posts were lifestyle articles rather than venue records, and CBD-keyword filtering still let off-topic content through.
 
-| Source | Feed URL |
+**Source:** Google Places API (New) — `places:searchNearby`.
+
+| Parameter | Value |
 | :--- | :--- |
-| SethLui | `https://sethlui.com/feed/` |
-| Honeycombers (SG) | `https://thehoneycombers.com/singapore/feed/` |
-
-### Filter
-
-A post matches if its title or content contains any of:
-`raffles place`, `cbd`, `tanjong pagar`, `shenton way`, `marina bay`, `downtown`, `one raffles`, `ocbc centre`, `lau pa sat`, `amoy street`, `telok ayer`, `china square`, `maxwell`, `far east square`.
-
-Case-insensitive substring match. Dumb but transparent — easy to tune.
+| Center | Raffles Place MRT (1.2839, 103.8517) |
+| Radius | 500 m |
+| Included types | `restaurant`, `cafe` |
+| Rank | `POPULARITY` |
+| Min rating filter | 4.0 |
+| Cap | top 25 by rating |
 
 ### Refresh cadence
 
-- On startup (synchronous, blocks `🚀` banner only if it succeeds — failure logs and continues).
-- Every 6 hours.
+- On startup.
+- Every 24 hours (Places quota-friendly, well under the $200/month free tier).
+
+### Out-of-scope for V2
+
+Live "Popular Times" / quietness — Google Places API does **not** expose this. The Sanctuary Score remains a Phase 3+ deliverable, planned via the GrabID OAuth path per the README.
 
 ---
 
@@ -56,10 +59,13 @@ Case-insensitive substring match. Dumb but transparent — easy to tune.
 ```json
 {
   "name": "Lau Pa Sat",
-  "area": "Telok Ayer",
-  "blurb": "Heritage hawker centre — go for satay street after 7pm…",
-  "url": "https://www.laupasat.sg/",
-  "source": "SethLui" | "Honeycombers" | "seed"
+  "area": "18 Raffles Quay",
+  "rating": 4.2,
+  "ratingCount": 12345,
+  "openNow": true,
+  "priceLevel": "PRICE_LEVEL_INEXPENSIVE",
+  "url": "https://maps.google.com/?cid=…",
+  "source": "GoogleMaps" | "seed"
 }
 ```
 

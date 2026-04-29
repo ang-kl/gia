@@ -1,90 +1,92 @@
-const Parser = require('rss-parser');
+const axios = require('axios');
 
-const parser = new Parser({
-  timeout: 10000,
-  headers: { 'User-Agent': 'Gia4lunch/1.0 (+https://github.com/ang-kl/gia)' }
-});
+const PLACES_URL = 'https://places.googleapis.com/v1/places:searchNearby';
+const RAFFLES_PLACE = { latitude: 1.2839, longitude: 103.8517 };
+const SEARCH_RADIUS_M = 500;
+const MIN_RATING = 4.0;
+const MAX_LISTINGS = 25;
 
-const FEEDS = [
-  { source: 'SethLui', url: 'https://sethlui.com/feed/' },
-  { source: 'Honeycombers', url: 'https://thehoneycombers.com/singapore/feed/' }
-];
-
-const CBD_KEYWORDS = [
-  'raffles place', 'cbd', 'tanjong pagar', 'shenton way',
-  'marina bay', 'downtown', 'one raffles', 'ocbc centre',
-  'lau pa sat', 'amoy street', 'telok ayer', 'china square',
-  'maxwell', 'far east square'
-];
-
-const FOOD_KEYWORDS = [
-  'restaurant', 'cafe', 'café', 'hawker', 'food court', 'eatery',
-  'lunch', 'dinner', 'brunch', 'breakfast', 'menu', 'dish',
-  'chef', 'cuisine', 'omakase', 'kopitiam', 'zi char', 'dim sum',
-  'noodle', 'ramen', 'pasta', 'pizza', 'burger', 'sushi',
-  'coffee', 'bakery', 'dessert', 'bistro', 'bar &', 'speakeasy',
-  'best place to eat', 'where to eat', 'food guide'
-];
-
-const NON_FOOD_BLACKLIST = [
-  'feng shui', 'real estate', 'property guide', 'condo launch',
-  'salon', 'spa ', 'gym', 'fitness', 'yoga', 'pilates',
-  'mrt line', 'bus route', 'co-working', 'coworking',
-  'school', 'tuition', 'haircut', 'barber'
-];
+const FIELD_MASK = [
+  'places.id',
+  'places.displayName',
+  'places.formattedAddress',
+  'places.rating',
+  'places.userRatingCount',
+  'places.googleMapsUri',
+  'places.currentOpeningHours.openNow',
+  'places.priceLevel'
+].join(',');
 
 const SEED_LISTINGS = [
-  { name: 'Lau Pa Sat', area: 'Telok Ayer', blurb: 'Heritage hawker centre — go for satay street after 7pm or quick lunch upstairs.', url: 'https://www.laupasat.sg/', source: 'seed' },
-  { name: 'Amoy Street Food Centre', area: 'Amoy Street', blurb: 'Two floors of CBD-favourite stalls; arrive 11:30 or after 1:15 to avoid queues.', url: 'https://en.wikipedia.org/wiki/Amoy_Street_Food_Centre', source: 'seed' },
-  { name: 'Maxwell Food Centre', area: 'Maxwell', blurb: 'Tian Tian chicken rice + neighbours; 10-min walk from Raffles Place.', url: 'https://en.wikipedia.org/wiki/Maxwell_Food_Centre', source: 'seed' },
-  { name: 'Telok Ayer Hawker Centre', area: 'Telok Ayer', blurb: 'Smaller, quieter alternative to Lau Pa Sat with strong economy rice options.', url: 'https://en.wikipedia.org/wiki/Telok_Ayer_Market', source: 'seed' },
-  { name: 'Far East Square', area: 'Telok Ayer', blurb: 'Quiet courtyard cafés and casual sit-down spots — sanctuary territory.', url: 'https://en.wikipedia.org/wiki/Far_East_Square', source: 'seed' }
+  { name: 'Lau Pa Sat', area: '18 Raffles Quay', rating: 4.2, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://www.laupasat.sg/', source: 'seed' },
+  { name: 'Amoy Street Food Centre', area: '7 Maxwell Road', rating: 4.4, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Amoy+Street+Food+Centre', source: 'seed' },
+  { name: 'Maxwell Food Centre', area: '1 Kadayanallur Street', rating: 4.3, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Maxwell+Food+Centre', source: 'seed' },
+  { name: 'Telok Ayer Hawker Centre', area: '2 Telok Ayer Street', rating: 4.1, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://maps.google.com/?q=Telok+Ayer+Hawker+Centre', source: 'seed' },
+  { name: 'Far East Square', area: '45 Pekin Street', rating: 4.0, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_MODERATE', url: 'https://maps.google.com/?q=Far+East+Square+Singapore', source: 'seed' }
 ];
 
-function isFoodRelevant(text) {
-  if (!text) return false;
-  const lower = text.toLowerCase();
-  if (NON_FOOD_BLACKLIST.some((kw) => lower.includes(kw))) return false;
-  const hasLocation = CBD_KEYWORDS.some((kw) => lower.includes(kw));
-  const hasFood = FOOD_KEYWORDS.some((kw) => lower.includes(kw));
-  return hasLocation && hasFood;
-}
+async function fetchPlaces(apiKey) {
+  const { data } = await axios.post(PLACES_URL, {
+    includedTypes: ['restaurant', 'cafe'],
+    maxResultCount: 20,
+    locationRestriction: {
+      circle: { center: RAFFLES_PLACE, radius: SEARCH_RADIUS_M }
+    },
+    rankPreference: 'POPULARITY'
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': FIELD_MASK
+    },
+    timeout: 10000
+  });
 
-function trimBlurb(text, max = 220) {
-  if (!text) return '';
-  const stripped = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  return stripped.length > max ? stripped.slice(0, max - 1) + '…' : stripped;
-}
-
-async function fetchFeedItems(feed) {
-  const parsed = await parser.parseURL(feed.url);
-  return (parsed.items ?? [])
-    .filter((item) => isFoodRelevant(`${item.title ?? ''} ${item.contentSnippet ?? ''} ${item.content ?? ''}`))
-    .map((item) => ({
-      name: item.title?.trim() ?? 'Untitled',
-      area: 'CBD',
-      blurb: trimBlurb(item.contentSnippet ?? item.content ?? ''),
-      url: item.link ?? feed.url,
-      source: feed.source
-    }));
+  return (data.places ?? []).map((p) => ({
+    name: p.displayName?.text ?? 'Unknown',
+    area: p.formattedAddress ?? '',
+    rating: p.rating ?? null,
+    ratingCount: p.userRatingCount ?? null,
+    openNow: p.currentOpeningHours?.openNow ?? null,
+    priceLevel: p.priceLevel ?? null,
+    url: p.googleMapsUri ?? '',
+    source: 'GoogleMaps'
+  }));
 }
 
 async function refreshVibeListings(redis) {
-  const collected = [];
-  for (const feed of FEEDS) {
-    try {
-      const items = await fetchFeedItems(feed);
-      collected.push(...items);
-      console.log(`[Vibe] ${feed.source}: ${items.length} CBD-matching items.`);
-    } catch (err) {
-      console.error(`[Vibe] ${feed.source} fetch failed:`, err.message);
-    }
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+  const writeFallback = async (reason) => {
+    if (!redis.isOpen) await redis.connect();
+    await redis.set('vibe:listings', JSON.stringify(SEED_LISTINGS));
+    console.log(`[Vibe] Using seed fallback (${reason}).`);
+  };
+
+  if (!apiKey) {
+    await writeFallback('no GOOGLE_MAPS_API_KEY');
+    return;
   }
 
-  const listings = collected.length ? collected : SEED_LISTINGS;
-  if (!redis.isOpen) await redis.connect();
-  await redis.set('vibe:listings', JSON.stringify(listings));
-  console.log(`[Vibe] Cached ${listings.length} listings (${collected.length ? 'live' : 'seed fallback'}).`);
+  try {
+    const all = await fetchPlaces(apiKey);
+    const filtered = all
+      .filter((p) => (p.rating ?? 0) >= MIN_RATING)
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      .slice(0, MAX_LISTINGS);
+
+    if (!filtered.length) {
+      await writeFallback('no places matched filter');
+      return;
+    }
+
+    if (!redis.isOpen) await redis.connect();
+    await redis.set('vibe:listings', JSON.stringify(filtered));
+    console.log(`[Vibe] Cached ${filtered.length} live places (Google Maps).`);
+  } catch (err) {
+    console.error('[Vibe] Places fetch failed:', err.message);
+    await writeFallback('Places fetch failed');
+  }
 }
 
 async function pickLunch(redis, count = 3) {

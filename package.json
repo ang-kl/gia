@@ -9,7 +9,6 @@
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",
     "node-telegram-bot-api": "^0.64.0",
-    "redis": "^4.6.10",
-    "rss-parser": "^3.13.0"
+    "redis": "^4.6.10"
   }
 }
