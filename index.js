@@ -1,4 +1,6 @@
+const crypto = require('crypto');
 const axios = require('axios');
+const express = require('express');
 const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
@@ -13,9 +15,15 @@ if (missing.length) {
 }
 
 const ltaEnabled = Boolean(process.env.LTA_ACCOUNT_KEY);
+const webhookDomain = process.env.WEBHOOK_DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN;
+const useWebhook = Boolean(webhookDomain);
+const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || crypto.randomBytes(16).toString('hex');
 
 // 1. Setup Clients
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(
+  process.env.TELEGRAM_BOT_TOKEN,
+  useWebhook ? {} : { polling: true }
+);
 const redis = createClient({ url: process.env.REDIS_URL });
 
 const lta = ltaEnabled ? axios.create({
@@ -57,7 +65,6 @@ async function updateTransitStatus() {
     console.log(`[Pulse] Status updated at ${nowSGT()}`);
   } catch (err) {
     console.error('[Error] LTA Sniffer failed:', err.message);
-    // Write a fallback so /status never goes silent when LTA misbehaves.
     try {
       await writeStatus({
         status: '🟡 LTA sensor degraded',
@@ -70,12 +77,20 @@ async function updateTransitStatus() {
   }
 }
 
-// 3. Telegram Handler
+// 3. Telegram Handlers
 async function safeSend(chatId, text) {
   try {
     await bot.sendMessage(chatId, text);
   } catch (err) {
     console.error(`[Error] sendMessage to ${chatId} failed:`, err.message);
+  }
+}
+
+async function safeVenue(chatId, lat, lng, title, address) {
+  try {
+    await bot.sendVenue(chatId, lat, lng, title, address);
+  } catch (err) {
+    console.error(`[Error] sendVenue to ${chatId} failed:`, err.message);
   }
 }
 
@@ -86,14 +101,24 @@ bot.onText(/^\/lunch(?:@\w+)?$/, async (msg) => {
       await safeSend(msg.chat.id, "Gia has no listings yet. Try again in a few minutes.");
       return;
     }
-    const lines = picks.map((p, i) => {
-      const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
-      const open = p.openNow === true ? ' · Open now'
-        : p.openNow === false ? ' · Closed'
-        : '';
-      return `${i + 1}. ${p.name}${rating}${open}\n   ${p.area}\n   ${p.url}`;
-    });
-    await safeSend(msg.chat.id, `Gia's Sanctuary Picks\n\n${lines.join('\n\n')}`);
+    const header = picks
+      .map((p, i) => {
+        const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
+        const open = p.openNow === true ? ' · Open now'
+          : p.openNow === false ? ' · Closed'
+          : '';
+        return `${i + 1}. ${p.name}${rating}${open}`;
+      })
+      .join('\n');
+    await safeSend(msg.chat.id, `Gia's Sanctuary Picks\n\n${header}`);
+
+    for (const p of picks) {
+      if (p.lat != null && p.lng != null) {
+        await safeVenue(msg.chat.id, p.lat, p.lng, p.name, p.area);
+      } else {
+        await safeSend(msg.chat.id, `${p.name}\n${p.area}\n${p.url}`);
+      }
+    }
   } catch (err) {
     console.error('[Error] /lunch handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I can't reach my listings right now.");
@@ -117,16 +142,57 @@ bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
   }
 });
 
+bot.onText(/^\/start(?:@\w+)?$/, async (msg) => {
+  await safeSend(
+    msg.chat.id,
+    "I'm Gia — your Raffles Place lunch concierge.\n\n" +
+    "/status — CBD train pulse\n" +
+    "/lunch — 3 sanctuary picks near Raffles Place"
+  );
+});
+
 // 4. Initialization
-(async () => {
-  // Clear any stale webhook so getUpdates can't 409 against a leftover one.
+async function registerCommandsMenu() {
   try {
-    await bot.deleteWebHook({ drop_pending_updates: true });
+    await bot.setMyCommands([
+      { command: 'status', description: 'CBD train pulse' },
+      { command: 'lunch', description: '3 sanctuary picks near Raffles Place' }
+    ]);
+    await bot.setChatMenuButton({ menu_button: { type: 'commands' } });
   } catch (err) {
-    console.error('[Warn] deleteWebHook failed:', err.message);
+    console.error('[Warn] setMyCommands/setChatMenuButton failed:', err.message);
   }
+}
+
+async function configureUpdates() {
+  if (useWebhook) {
+    const url = `https://${webhookDomain}/webhook`;
+    try {
+      await bot.setWebHook(url, {
+        secret_token: webhookSecret,
+        drop_pending_updates: true
+      });
+      console.log(`[Updates] Webhook registered: ${url}`);
+    } catch (err) {
+      console.error('[Fatal] setWebHook failed:', err.message);
+      process.exit(1);
+    }
+  } else {
+    try {
+      await bot.deleteWebHook({ drop_pending_updates: true });
+      console.log('[Updates] Polling mode (no WEBHOOK_DOMAIN / RAILWAY_PUBLIC_DOMAIN).');
+    } catch (err) {
+      console.error('[Warn] deleteWebHook failed:', err.message);
+    }
+  }
+}
+
+(async () => {
+  await configureUpdates();
+  await registerCommandsMenu();
+
   await updateTransitStatus();
-  setInterval(updateTransitStatus, 300000); // Every 5 minutes
+  setInterval(updateTransitStatus, 300000); // 5 min
 
   try {
     await refreshVibeListings(redis);
@@ -137,7 +203,25 @@ bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
     refreshVibeListings(redis).catch((err) =>
       console.error('[Warn] Vibe refresh failed:', err.message)
     );
-  }, 6 * 60 * 60 * 1000); // Every 6 hours
+  }, 24 * 60 * 60 * 1000); // 24 h
+
+  if (useWebhook) {
+    const app = express();
+    app.use(express.json());
+
+    app.get('/health', (_req, res) => res.send('ok'));
+
+    app.post('/webhook', (req, res) => {
+      if (req.headers['x-telegram-bot-api-secret-token'] !== webhookSecret) {
+        return res.sendStatus(401);
+      }
+      bot.processUpdate(req.body);
+      res.sendStatus(200);
+    });
+
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => console.log(`[HTTP] Listening on :${port}`));
+  }
 
   console.log("🚀 Gia4lunch is live and sniffing...");
 })();
