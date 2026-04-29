@@ -108,9 +108,9 @@ The following three variables are mandatory for Phase 1. All other env vars must
 
 | Variable | Source | Notes |
 | :--- | :--- | :--- |
-| `TELEGRAM_BOT_TOKEN` | @BotFather | Required for polling. |
-| `LTA_ACCOUNT_KEY` | LTA DataMall portal | DataMall v6.8 account key. |
-| `REDIS_URL` | `${{Redis.REDIS_URL}}` | **Must** be the internal Railway reference, not a public URL. |
+| `TELEGRAM_BOT_TOKEN` | @BotFather | **Required** for polling. |
+| `REDIS_URL` | `${{Redis.REDIS_URL}}` | **Required.** Must be the internal Railway reference, not a public URL. |
+| `LTA_ACCOUNT_KEY` | LTA DataMall portal | **Optional in Phase 1.** If unset, the sniffer writes a `🟡 LTA sensor offline` stub so Telegram + Redis can still be verified. |
 
 See `.env.example` for the canonical template.
 
