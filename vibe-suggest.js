@@ -93,6 +93,7 @@ async function validateWithPlaces(candidate, near) {
             'places.rating',
             'places.googleMapsUri',
             'places.primaryType',
+            'places.businessStatus',
             'places.currentOpeningHours.openNow'
           ].join(',')
         },
@@ -104,6 +105,8 @@ async function validateWithPlaces(candidate, near) {
     const placeCoord = { lat: place.location.latitude, lng: place.location.longitude };
     const distance = haversineMeters(near, placeCoord);
     if (distance > MAX_DISTANCE_M) return null;
+    if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') return null;
+    if (place.currentOpeningHours?.openNow === false) return null;
     return {
       placeId: place.id,
       name: place.displayName?.text ?? candidate.name,
@@ -111,6 +114,7 @@ async function validateWithPlaces(candidate, near) {
       lat: placeCoord.lat,
       lng: placeCoord.lng,
       rating: place.rating ?? null,
+      businessStatus: place.businessStatus ?? null,
       openNow: place.currentOpeningHours?.openNow ?? null,
       url: place.googleMapsUri ?? '',
       primaryType: place.primaryType ?? 'restaurant',

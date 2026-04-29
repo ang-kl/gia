@@ -1,21 +1,29 @@
 counters:
-  commit: 7
+  commit: 8
   build: 0
   documents:
-    journal: 7
+    journal: 8
     builder: 0
     persona: 0
     feature: 4
     technical: 4
     legal: 0
-    register: 7
+    register: 8
 sessions:
   current_chat_id: 2026-04-30
-  current_chat_counter: 15
-last_anchor_time: 30-04 '26 00:10 SGT
-last_anchor_source: claude_estimated_post_v0_4_3_anchor_plus_20_min_observed_round_trip_crosses_midnight
-last_anchor_iso8601: 2026-04-30T00:10:00+08:00
-last_anchor_utc: 2026-04-29T16:10:00Z
+  current_chat_counter: 17
+last_anchor_time: 30-04 '26 07:30 SGT
+last_anchor_source: railway_log_witnessed_2026-04-29T23:10:49Z_equals_07_10_SGT_30_04_plus_screenshot_07_16
+last_anchor_iso8601: 2026-04-30T07:30:00+08:00
+last_anchor_utc: 2026-04-29T23:30:00Z
+tf_7_self_correction_2:
+  prior_anchor: 30-04 '26 00:10 SGT (claude estimate)
+  evidence: railway_deploy_log_2026-04-29T23:10:49Z_proved_07_10_SGT_30_04_actual_plus_user_screenshot_at_07_16
+  drift_minutes: 440
+  cause: claude_estimated_20_min_round_trips_when_real_session_spanned_overnight_pause
+  corrected_at: 30-04 '26 07:30 SGT
+  rule: TF_7
+  prior_correction: 29-04 '26 23:10 SGT (was correcting a 25-min drift; that one held)
 tf_7_self_correction:
   prior_anchor: 29-04 '26 22:30 SGT (claude estimate)
   evidence: railway_deploy_log_2026-04-29T14:55:20Z_proved_22_55_SGT_actual
