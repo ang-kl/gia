@@ -69,10 +69,26 @@
         label: { text: String(i + 1), color: 'white', fontWeight: 'bold' }
       });
       const placeUrl = v.placeId
-        ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name || '')}&query_place_id=${encodeURIComponent(v.placeId)}`
         : v.url;
+      const linkHtml = placeUrl
+        ? `<br><a href="#" data-href="${placeUrl}" class="open-maps">Open in Maps</a>`
+        : '';
       const info = new google.maps.InfoWindow({
-        content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${placeUrl ? `<br><a href="${placeUrl}" target="_blank" rel="noopener">Open in Maps</a>` : ''}</div>`
+        content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${linkHtml}</div>`
+      });
+      google.maps.event.addListener(info, 'domready', () => {
+        document.querySelectorAll('a.open-maps').forEach((a) => {
+          a.onclick = (ev) => {
+            ev.preventDefault();
+            const href = a.getAttribute('data-href');
+            if (tg && typeof tg.openLink === 'function') {
+              tg.openLink(href, { try_instant_view: false });
+            } else {
+              window.open(href, '_blank', 'noopener');
+            }
+          };
+        });
       });
       marker.addListener('click', () => info.open({ anchor: marker, map }));
       venueMarkers.push(marker);
