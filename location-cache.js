@@ -1,0 +1,41 @@
+const crypto = require('crypto');
+
+const LOC_TTL = 30 * 60;       // 30 minutes
+const PENDING_TTL = 5 * 60;    // 5 minutes
+
+function hashChatId(chatId) {
+  return crypto.createHash('sha256').update(String(chatId)).digest('hex').slice(0, 16);
+}
+
+async function setUserLocation(redis, chatId, lat, lng) {
+  if (!redis.isOpen) await redis.connect();
+  const key = `loc:${hashChatId(chatId)}`;
+  await redis.setEx(key, LOC_TTL, JSON.stringify({ lat, lng }));
+}
+
+async function getUserLocation(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  const cached = await redis.get(`loc:${hashChatId(chatId)}`);
+  return cached ? JSON.parse(cached) : null;
+}
+
+async function setPendingMeal(redis, chatId, mealId) {
+  if (!redis.isOpen) await redis.connect();
+  await redis.setEx(`loc:pending:${hashChatId(chatId)}`, PENDING_TTL, mealId);
+}
+
+async function consumePendingMeal(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  const key = `loc:pending:${hashChatId(chatId)}`;
+  const value = await redis.get(key);
+  if (value) await redis.del(key);
+  return value;
+}
+
+module.exports = {
+  hashChatId,
+  setUserLocation,
+  getUserLocation,
+  setPendingMeal,
+  consumePendingMeal
+};

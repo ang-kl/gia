@@ -26,12 +26,15 @@ const SEED_LISTINGS = [
   { id: null, name: 'Far East Square', area: '45 Pekin Street', lat: 1.2832, lng: 103.8478, rating: 4.0, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_MODERATE', url: 'https://maps.google.com/?q=Far+East+Square+Singapore', source: 'seed' }
 ];
 
-async function fetchPlaces(apiKey) {
+async function fetchPlaces(apiKey, opts = {}) {
+  const center = opts.center ?? RAFFLES_PLACE;
+  const radius = opts.radius ?? SEARCH_RADIUS_M;
+  const includedTypes = opts.types ?? ['restaurant', 'cafe'];
   const { data } = await axios.post(PLACES_URL, {
-    includedTypes: ['restaurant', 'cafe'],
+    includedTypes,
     maxResultCount: 20,
     locationRestriction: {
-      circle: { center: RAFFLES_PLACE, radius: SEARCH_RADIUS_M }
+      circle: { center, radius }
     },
     rankPreference: 'POPULARITY'
   }, {
