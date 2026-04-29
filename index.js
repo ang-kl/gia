@@ -130,20 +130,38 @@ async function deliverPicks(chatId, mealLabel, picks) {
     } else {
       await safeSend(chatId, `${p.name}\n${p.area}\n${p.url}`);
     }
+
     const pid = p.placeId ?? p.id;
+    let summary = null;
     if (pid) {
-      try {
-        const summary = await getOrCacheSummary(redis, pid);
-        if (summary) {
-          await safeSend(chatId, `🌿 Sanctuary read for ${p.name}\n${summary}`);
-        } else if (p.vibe) {
-          await safeSend(chatId, `🌿 ${p.name}\n${p.vibe}`);
-        }
-      } catch (err) {
-        console.error('[Error] vibe summary fetch failed:', err.message);
+      try { summary = await getOrCacheSummary(redis, pid); }
+      catch (err) { console.error('[Error] vibe summary fetch failed:', err.message); }
+    }
+    const body = summary
+      ? `🌿 Sanctuary read for ${p.name}\n${summary}`
+      : (p.vibe ? `🌿 ${p.name}\n${p.vibe}` : null);
+
+    const buttons = [];
+    if (pid) {
+      if (useWebhook) {
+        buttons.push({
+          text: '📍 Open Map',
+          web_app: { url: `https://${webhookDomain}/app?placeId=${encodeURIComponent(pid)}` }
+        });
       }
-    } else if (p.vibe) {
-      await safeSend(chatId, `🌿 ${p.name}\n${p.vibe}`);
+      buttons.push({
+        text: '🚗 Directions',
+        url: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name)}&destination_place_id=${encodeURIComponent(pid)}`
+      });
+    }
+    const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
+
+    if (body) {
+      try { await bot.sendMessage(chatId, body, replyMarkup); }
+      catch (err) { console.error('[Error] sendMessage with markup failed:', err.message); }
+    } else if (buttons.length) {
+      try { await bot.sendMessage(chatId, `🌿 ${p.name}`, replyMarkup); }
+      catch (err) { console.error('[Error] sendMessage with markup failed:', err.message); }
     }
   }
 }
