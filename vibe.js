@@ -15,6 +15,7 @@ const FIELD_MASK = [
   'places.userRatingCount',
   'places.googleMapsUri',
   'places.primaryType',
+  'places.businessStatus',
   'places.currentOpeningHours.openNow',
   'places.priceLevel'
 ].join(',');
@@ -47,20 +48,24 @@ async function fetchPlaces(apiKey, opts = {}) {
     timeout: 10000
   });
 
-  return (data.places ?? []).map((p) => ({
-    id: p.id ?? null,
-    name: p.displayName?.text ?? 'Unknown',
-    area: p.formattedAddress ?? '',
-    lat: p.location?.latitude ?? null,
-    lng: p.location?.longitude ?? null,
-    rating: p.rating ?? null,
-    ratingCount: p.userRatingCount ?? null,
-    openNow: p.currentOpeningHours?.openNow ?? null,
-    priceLevel: p.priceLevel ?? null,
-    url: p.googleMapsUri ?? '',
-    primaryType: p.primaryType ?? 'restaurant',
-    source: 'GoogleMaps'
-  }));
+  return (data.places ?? [])
+    .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
+    .filter((p) => p.currentOpeningHours?.openNow !== false)
+    .map((p) => ({
+      id: p.id ?? null,
+      name: p.displayName?.text ?? 'Unknown',
+      area: p.formattedAddress ?? '',
+      lat: p.location?.latitude ?? null,
+      lng: p.location?.longitude ?? null,
+      rating: p.rating ?? null,
+      ratingCount: p.userRatingCount ?? null,
+      openNow: p.currentOpeningHours?.openNow ?? null,
+      businessStatus: p.businessStatus ?? null,
+      priceLevel: p.priceLevel ?? null,
+      url: p.googleMapsUri ?? '',
+      primaryType: p.primaryType ?? 'restaurant',
+      source: 'GoogleMaps'
+    }));
 }
 
 async function refreshVibeListings(redis) {
