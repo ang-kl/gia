@@ -24,11 +24,13 @@ const lta = axios.create({
 async function updateTransitStatus() {
   try {
     const { data } = await lta.get('/TrainServiceAlerts');
-    const isHealthy = !data.value || data.value.length === 0;
-    
+    const v = data?.value ?? {};
+    const isHealthy = v.Status === 1 || !v.Message?.length;
+    const firstMessage = v.Message?.[0]?.Content ?? '';
+
     const statusData = {
       status: isHealthy ? '🟢 Healthy' : '🔴 Disruption',
-      message: isHealthy ? 'All CBD lines normal.' : data.value[0].Message,
+      message: isHealthy ? 'All CBD lines normal.' : firstMessage,
       updatedAt: new Date().toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore' })
     };
 
