@@ -2,6 +2,7 @@ const axios = require('axios');
 const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
+const { refreshVibeListings, pickLunch } = require('./vibe');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -78,6 +79,23 @@ async function safeSend(chatId, text) {
   }
 }
 
+bot.onText(/^\/lunch(?:@\w+)?$/, async (msg) => {
+  try {
+    const picks = await pickLunch(redis, 3);
+    if (!picks.length) {
+      await safeSend(msg.chat.id, "Gia has no listings yet. Try again in a few minutes.");
+      return;
+    }
+    const lines = picks.map((p, i) =>
+      `${i + 1}. ${p.name} — ${p.area}\n   ${p.blurb}\n   ${p.url}`
+    );
+    await safeSend(msg.chat.id, `Gia's Sanctuary Picks\n\n${lines.join('\n\n')}`);
+  } catch (err) {
+    console.error('[Error] /lunch handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach my listings right now.");
+  }
+});
+
 bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
   try {
     if (!redis.isOpen) await redis.connect();
@@ -105,5 +123,17 @@ bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
   }
   await updateTransitStatus();
   setInterval(updateTransitStatus, 300000); // Every 5 minutes
+
+  try {
+    await refreshVibeListings(redis);
+  } catch (err) {
+    console.error('[Warn] Initial Vibe refresh failed:', err.message);
+  }
+  setInterval(() => {
+    refreshVibeListings(redis).catch((err) =>
+      console.error('[Warn] Vibe refresh failed:', err.message)
+    );
+  }, 6 * 60 * 60 * 1000); // Every 6 hours
+
   console.log("🚀 Gia4lunch is live and sniffing...");
 })();
