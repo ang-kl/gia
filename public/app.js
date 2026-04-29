@@ -3,6 +3,8 @@
   if (tg) tg.expand();
 
   const RAFFLES_PLACE = { lat: 1.2839, lng: 103.8517 };
+  const GMAPS_INSTALL_URL = 'https://apps.apple.com/app/google-maps/id585027354';
+  const APP_PROBE_TIMEOUT_MS = 1500;
   const statusEl = document.getElementById('status');
   let map;
   let venueMarkers = [];
@@ -34,6 +36,61 @@
       script.onerror = () => reject(new Error('maps script load failed'));
       document.head.appendChild(script);
     });
+  }
+
+  function isIOS() {
+    const ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  }
+
+  function externalOpen(url) {
+    if (tg && typeof tg.openLink === 'function') {
+      tg.openLink(url, { try_instant_view: false });
+    } else {
+      window.open(url, '_blank', 'noopener');
+    }
+  }
+
+  function ask(message, callback) {
+    if (tg && typeof tg.showConfirm === 'function') {
+      tg.showConfirm(message, callback);
+    } else {
+      callback(window.confirm(message));
+    }
+  }
+
+  function openMapsForVenue(v) {
+    const name = v.name || '';
+    const placeId = v.placeId || '';
+    const lat = v.lat;
+    const lng = v.lng;
+    const httpsUrl = placeId
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(placeId)}`
+      : (v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`);
+    const appUrl = `comgooglemaps://?q=${encodeURIComponent(name)}&center=${lat},${lng}&zoom=17`;
+
+    if (!isIOS()) {
+      externalOpen(httpsUrl);
+      return;
+    }
+
+    let appOpened = false;
+    const onHide = () => { if (document.hidden) appOpened = true; };
+    document.addEventListener('visibilitychange', onHide);
+
+    const start = Date.now();
+    window.location.href = appUrl;
+
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', onHide);
+      if (appOpened || document.hidden) return;
+      if (Date.now() - start > APP_PROBE_TIMEOUT_MS + 800) return;
+      ask(
+        'Google Maps app is not installed. Install it from the App Store for the best experience? (Cancel opens the web map.)',
+        (wantsInstall) => externalOpen(wantsInstall ? GMAPS_INSTALL_URL : httpsUrl)
+      );
+    }, APP_PROBE_TIMEOUT_MS);
   }
 
   function initMap(center) {
@@ -68,29 +125,23 @@
         title: v.name,
         label: { text: String(i + 1), color: 'white', fontWeight: 'bold' }
       });
-      const placeUrl = v.placeId
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name || '')}&query_place_id=${encodeURIComponent(v.placeId)}`
-        : v.url;
-      const linkHtml = placeUrl
-        ? `<br><a href="#" data-href="${placeUrl}" class="open-maps">Open in Maps</a>`
+      const linkId = `open-maps-${i}`;
+      const linkHtml = (v.placeId || v.url || v.name)
+        ? `<br><a href="#" id="${linkId}">Open in Google Maps</a>`
         : '';
       const info = new google.maps.InfoWindow({
         content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${linkHtml}</div>`
       });
-      google.maps.event.addListener(info, 'domready', () => {
-        document.querySelectorAll('a.open-maps').forEach((a) => {
+      marker.addListener('click', () => info.open({ anchor: marker, map }));
+      info.addListener('domready', () => {
+        const a = document.getElementById(linkId);
+        if (a) {
           a.onclick = (ev) => {
             ev.preventDefault();
-            const href = a.getAttribute('data-href');
-            if (tg && typeof tg.openLink === 'function') {
-              tg.openLink(href, { try_instant_view: false });
-            } else {
-              window.open(href, '_blank', 'noopener');
-            }
+            openMapsForVenue(v);
           };
-        });
+        }
       });
-      marker.addListener('click', () => info.open({ anchor: marker, map }));
       venueMarkers.push(marker);
       bounds.extend(pos);
     });
