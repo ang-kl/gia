@@ -17,6 +17,22 @@ const CBD_KEYWORDS = [
   'maxwell', 'far east square'
 ];
 
+const FOOD_KEYWORDS = [
+  'restaurant', 'cafe', 'café', 'hawker', 'food court', 'eatery',
+  'lunch', 'dinner', 'brunch', 'breakfast', 'menu', 'dish',
+  'chef', 'cuisine', 'omakase', 'kopitiam', 'zi char', 'dim sum',
+  'noodle', 'ramen', 'pasta', 'pizza', 'burger', 'sushi',
+  'coffee', 'bakery', 'dessert', 'bistro', 'bar &', 'speakeasy',
+  'best place to eat', 'where to eat', 'food guide'
+];
+
+const NON_FOOD_BLACKLIST = [
+  'feng shui', 'real estate', 'property guide', 'condo launch',
+  'salon', 'spa ', 'gym', 'fitness', 'yoga', 'pilates',
+  'mrt line', 'bus route', 'co-working', 'coworking',
+  'school', 'tuition', 'haircut', 'barber'
+];
+
 const SEED_LISTINGS = [
   { name: 'Lau Pa Sat', area: 'Telok Ayer', blurb: 'Heritage hawker centre — go for satay street after 7pm or quick lunch upstairs.', url: 'https://www.laupasat.sg/', source: 'seed' },
   { name: 'Amoy Street Food Centre', area: 'Amoy Street', blurb: 'Two floors of CBD-favourite stalls; arrive 11:30 or after 1:15 to avoid queues.', url: 'https://en.wikipedia.org/wiki/Amoy_Street_Food_Centre', source: 'seed' },
@@ -25,10 +41,13 @@ const SEED_LISTINGS = [
   { name: 'Far East Square', area: 'Telok Ayer', blurb: 'Quiet courtyard cafés and casual sit-down spots — sanctuary territory.', url: 'https://en.wikipedia.org/wiki/Far_East_Square', source: 'seed' }
 ];
 
-function matchesCBD(text) {
+function isFoodRelevant(text) {
   if (!text) return false;
   const lower = text.toLowerCase();
-  return CBD_KEYWORDS.some((kw) => lower.includes(kw));
+  if (NON_FOOD_BLACKLIST.some((kw) => lower.includes(kw))) return false;
+  const hasLocation = CBD_KEYWORDS.some((kw) => lower.includes(kw));
+  const hasFood = FOOD_KEYWORDS.some((kw) => lower.includes(kw));
+  return hasLocation && hasFood;
 }
 
 function trimBlurb(text, max = 220) {
@@ -40,7 +59,7 @@ function trimBlurb(text, max = 220) {
 async function fetchFeedItems(feed) {
   const parsed = await parser.parseURL(feed.url);
   return (parsed.items ?? [])
-    .filter((item) => matchesCBD(`${item.title ?? ''} ${item.contentSnippet ?? ''} ${item.content ?? ''}`))
+    .filter((item) => isFoodRelevant(`${item.title ?? ''} ${item.contentSnippet ?? ''} ${item.content ?? ''}`))
     .map((item) => ({
       name: item.title?.trim() ?? 'Untitled',
       area: 'CBD',
