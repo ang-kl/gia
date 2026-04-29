@@ -56,6 +56,16 @@ async function updateTransitStatus() {
     console.log(`[Pulse] Status updated at ${nowSGT()}`);
   } catch (err) {
     console.error('[Error] LTA Sniffer failed:', err.message);
+    // Write a fallback so /status never goes silent when LTA misbehaves.
+    try {
+      await writeStatus({
+        status: '🟡 LTA sensor degraded',
+        message: `LTA call failed (${err.message}). Telegram & memory layer healthy.`,
+        updatedAt: nowSGT()
+      });
+    } catch (writeErr) {
+      console.error('[Error] Fallback status write failed:', writeErr.message);
+    }
   }
 }
 
