@@ -1,86 +1,148 @@
-# gia
-Gia4lunch. Telegram - Raffles Place Lunch Dilemma
-# Gia4lunch (v1.0) 🌿
+# Gia4lunch 🌿
 
-**Gia4lunch** is a predictive urban guide and "Vibe-Sensing" agent designed for the solo female diner in Singapore’s CBD. It transforms real-time transit data and merchant intelligence into a "Sanctuary Score," helping users navigate subterranean linkways and find quiet, high-quality dining spots during peak hours.
+**Gia4lunch** is a predictive urban guide and "Vibe-Sensing" Telegram agent for the solo female diner in Singapore's CBD. It blends real-time MRT/bus health with curated lunch listings near Raffles Place, helping users find a quiet, high-quality "Sanctuary" without the stress of crowds or weather.
 
----
-
-## 🏗 System Architecture
-
-The project utilizes a **Zero-Server, Utility-First Personalization** strategy. Personal data stays in the user's private vault (Google Drive), while the intelligence layer runs on **Railway** via a multi-service "Hub and Spoke" model.
-
-- **Hub:** Railway Orchestrator (Node.js/TypeScript)
-- **Memory:** Redis (Internal Private Network)
-- **Sensing Spokes:** - **LTA Sensor:** Real-time MRT/Bus sniffing via DataMall v6.8.
-    - **Vibe Sensor:** Cheerio-based scrapers for SethLui, Honeycombers, and RSS discovery.
-    - **Intelligence Layer:** GrabID OAuth 2.0 PKCE integration for merchant occupancy and indoor maps.
+| Phase | Spoke | Status |
+| :--- | :--- | :--- |
+| 1 | LTA Pulse — `/status` | ✅ live |
+| 2.5 | Google Places Vibe — `/lunch` | ✅ live |
+| 3 (next) | Telegram Mini App + GrabID PKCE Sanctuary Score | ⏳ planned |
 
 ---
 
-## 👤 Personas & Workflows
+## Commands
 
-### The "Gia" User
-- **Profile:** Professional woman, mid-50s, working in Raffles Place.
-- **Goal:** Find a "Sanctuary" (quiet, high-vibe) lunch spot without the stress of crowds or weather.
-- **Workflow:** 1. **11:45 AM Pulse:** Gia checks the user's "Favorites" against LTA disruptions and merchant "quietness" signals.
-    2. **DryRoute Guidance:** If it's raining, Gia generates a subterranean route through B1/B2 linkways.
-    3. **Handshake:** Securely logs in via GrabID to see live queue times without sharing data with the server.
+| Command | Behaviour |
+| :--- | :--- |
+| `/start` | Quick intro + command list. |
+| `/status` | CBD train pulse from LTA DataMall. Falls back to a degraded card if LTA is unreachable, never goes silent. |
+| `/lunch` | Three sanctuary picks near Raffles Place MRT, returned as Telegram venue cards (tappable map pins) with ⭐ rating and "Open now" status. |
+
+Commands are registered with `setMyCommands` and surfaced via the chat menu button — type `/` to autocomplete.
 
 ---
 
-## 🛠 Tech Stack
+## System Architecture
+
+Single Node.js service on Railway, talking to Redis over Railway's private network. No user identity ever lands on the server (Zero-Footprint mandate).
+
+```
+┌──────────────┐     webhook     ┌────────────────────┐
+│   Telegram   │ ──────────────▶ │  Railway: gia-bot  │
+└──────────────┘                 │  (Node + Express)  │
+                                 │                    │
+                                 │  /start /status    │
+                                 │  /lunch handlers   │
+                                 └────────┬───────────┘
+                              private net │
+                                          ▼
+                                 ┌────────────────────┐
+                                 │  Railway: Redis    │
+                                 │  lta:train_status  │
+                                 │  vibe:listings     │
+                                 └────────────────────┘
+                                          ▲
+                              egress over │ HTTPS
+                          ┌───────────────┴───────────────┐
+                          │                               │
+                ┌─────────▼──────────┐         ┌──────────▼─────────┐
+                │  LTA DataMall v6.8 │         │  Google Places API │
+                │  /TrainServiceAlerts│         │  searchNearby      │
+                └────────────────────┘         └────────────────────┘
+```
+
+### Update transport
+
+- **Webhooks** when `RAILWAY_PUBLIC_DOMAIN` (or `WEBHOOK_DOMAIN`) is set. Telegram pushes updates to `https://<domain>/webhook`, verified by `X-Telegram-Bot-Api-Secret-Token`. No `getUpdates` call → no 409 polling conflicts.
+- **Long-polling fallback** locally and anywhere a public domain isn't available.
+
+### Memory (Redis)
+
+| Key | Type | Writer | Readers | Refresh |
+| :--- | :--- | :--- | :--- | :--- |
+| `lta:train_status` | JSON | LTA Sniffer | `/status` | every 5 min |
+| `vibe:listings` | JSON array | Vibe Sensor | `/lunch` | every 24 h |
+
+Both keys are overwritten — no append, no audit log, no PII.
+
+---
+
+## Tech Stack
 
 | Component | Technology |
 | :--- | :--- |
-| **Runtime** | Node.js (TypeScript) |
-| **Hosting** | [Railway](https://railway.app) (Hobby Plan) |
-| **State** | Redis (Upstash / Railway Plugin) |
-| **Interface** | Telegram Mini App (TMA) |
-| **Scraping** | Cheerio / Axios |
-| **Auth** | OAuth 2.0 PKCE (Zero-Secret) |
+| Runtime | Node.js |
+| HTTP | Express (webhook receiver) |
+| Hosting | [Railway](https://railway.app) — Railpack 2026 |
+| State | Redis (Railway plugin) |
+| Interface | Telegram Bot API + (planned) Mini App |
+| Sensors | LTA DataMall v6.8 · Google Places API (New) |
 
 ---
 
-## 🚀 Deployment (Railway Browser Workflow)
+## Deployment
 
-This repository is optimized for **Railpack (2026)** deployment.
+1. **Connect this repo** to a Railway project.
+2. **Add a Redis plugin** to the project.
+3. **Service Settings → Networking → Generate Domain** so `RAILWAY_PUBLIC_DOMAIN` is auto-set (enables webhook mode).
+4. **Set environment variables** (see `.env.example`):
+   - `TELEGRAM_BOT_TOKEN` — from @BotFather (required)
+   - `REDIS_URL` — `${{Redis.REDIS_URL}}` for internal networking (required)
+   - `LTA_ACCOUNT_KEY` — DataMall AccountKey (optional; `/status` shows a stub if absent)
+   - `GOOGLE_MAPS_API_KEY` — Cloud Console → Places API (New) → Credentials (optional; `/lunch` falls back to a 5-spot seed list)
+   - `TELEGRAM_WEBHOOK_SECRET` — optional; auto-generated if absent
+5. **Deploy.** Logs should show:
 
-1. **GitHub Link:** Connect this private repo to your Railway project.
-2. **Environment Variables:**
-   - `TELEGRAM_BOT_TOKEN`: From @BotFather.
-   - `LTA_ACCOUNT_KEY`: Your LTA DataMall v6.8 Key.
-   - `REDIS_URL`: `${{Redis.REDIS_URL}}` (Internal reference).
-3. **Internal Networking:** The bot and worker services communicate over Railway's private network for maximum security.
+   ```
+   [Updates] Webhook registered: https://<domain>/webhook
+   [HTTP] Listening on :PORT
+   [Pulse] Status updated at HH:MM:SS
+   [Vibe] Cached N live places (Google Maps).
+   🚀 Gia4lunch is live and sniffing...
+   ```
+
+6. **Verify in Telegram:** type `/` — autocomplete shows `status` and `lunch`. Send `/lunch` and expect three venue cards with map pins.
 
 ---
 
-## 📝 Governance & Principles
+## Local development
 
-- **[Agur's Wisdom]:** Restraint over provocation. The bot provides "smallness with wisdom"—precise, quiet notifications only when necessary.
-- **Zero-Footprint:** No user identity or location history is stored on Railway; the "Personal Vault" (Google Drive) is the only source of truth.
-- **Singaporean Context:** Adheres to local linguistic nuances and CBD-specific geographic data (e.g., Raffles Place linkway mapping).
+```bash
+git clone https://github.com/ang-kl/gia.git
+cd gia
+npm install
+cp .env.example .env   # fill in real values
+npm start              # falls back to long-polling if WEBHOOK_DOMAIN unset
+```
 
 ---
 
-## 📜 License
-Internal Study Project. Proprietary to the Gia4lunch Development Team.
+## Personas & Workflows
 
+### The "Gia" user
 
-## Consolidating the Phase 1 Specification
+- **Profile:** professional woman, mid-50s, Raffles Place.
+- **Goal:** find a "Sanctuary" — quiet, high-vibe lunch — without crowds or weather drama.
+- **11:45 AM Pulse** *(planned, Phase 3+)*: a daily nudge with `/status` + 3 picks tailored to the user.
+- **DryRoute** *(planned, Phase 3+)*: subterranean B1/B2 linkway routing for rainy days.
+- **Sanctuary Score** *(planned, Phase 3+)*: real quietness signal from GrabID OAuth 2.0 PKCE merchant occupancy.
 
-I have generated the comprehensive **PHASE_1_SETUP_SPEC.md**. This document integrates the high-level project vision (Gia's persona and touchpoints) with the granular technical requirements for the Railway deployment and LTA sensing. [§82.1]
+---
 
-### 1. Expanded Functional Sections
-* **Persona Calibration:** Formalizes the mid-50s professional's journey, focusing on the 11:45 AM "Pulse" and the "DryRoute" subterranean guidance. [§82.2]
-* **Redis State Logic:** Defines exactly how Gia should remember the transit status to avoid excessive API calls, ensuring "Smallness with Wisdom" [Agur's Wisdom - context: Strategy]. [§82.3]
-* **Verification Protocol:** Links the success of your Macbook CLI tests directly to the Railway environment variables. [§82.4]
+## Governance & Principles
 
-### 2. The "Zero-Server" Mandate
-The document reaffirms that no user identity will be held in the Redis memory or the Node.js runtime. By setting this standard in Phase 1, we ensure that as you scale into Phase 2 (Google/Grab), the privacy architecture remains uncompromised. [§82.5]
+- **Agur's Wisdom — restraint over provocation.** The bot speaks only when necessary; it fails fast on missing config rather than spinning in error loops.
+- **Zero-Footprint.** No user identity or location history is held in Redis or in process memory. The future "Personal Vault" (Google Drive) will be the only source of truth for user data.
+- **Singaporean context.** CBD-specific geography (Raffles Place, Tanjong Pagar, Telok Ayer, Maxwell, Far East Square) and SGT timestamps throughout.
 
-### 3. Immediate Action Plan
-1.  **Commit the Spec:** Upload `PHASE_1_SETUP_SPEC.md` to your GitHub. This will be the "Source of Truth" for your build. [§82.6]
-2.  **Verify Redis Internal Link:** Ensure your Railway "App" box is connected to your "Redis" box via the `${{Redis.REDIS_URL}}` variable. [§82.7]
-3.  **The "Pulse" Test:** Deploy the provided boilerplate code and check if the `/status` command works in your Telegram bot. [§82.8]
+---
 
+## Contributing / docs
+
+This repo follows the documentation orchestrator at `doc/CLAUDE.md`. Phase specs and journal entries live (or are migrating to) `doc/Feature/` and `doc/Journal/` per that contract.
+
+---
+
+## License
+
+Internal study project. Proprietary to the Gia4lunch Development Team.
