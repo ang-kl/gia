@@ -60,24 +60,40 @@ async function updateTransitStatus() {
 }
 
 // 3. Telegram Handler
-bot.onText(/\/status/, async (msg) => {
+async function safeSend(chatId, text) {
+  try {
+    await bot.sendMessage(chatId, text);
+  } catch (err) {
+    console.error(`[Error] sendMessage to ${chatId} failed:`, err.message);
+  }
+}
+
+bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
   try {
     if (!redis.isOpen) await redis.connect();
     const cached = await redis.get('lta:train_status');
     const data = cached ? JSON.parse(cached) : null;
 
-    const response = data 
-      ? `*Gia CBD Pulse*\n\nStatus: ${data.status}\nNotes: ${data.message}\n_Refreshed: ${data.updatedAt}_`
+    const response = data
+      ? `Gia CBD Pulse\n\nStatus: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
       : "Gia is still waking up. Try again in 30 seconds.";
 
-    bot.sendMessage(msg.chat.id, response, { parse_mode: 'Markdown' });
+    await safeSend(msg.chat.id, response);
   } catch (err) {
-    bot.sendMessage(msg.chat.id, "Sorry, I can't reach my memory right now.");
+    console.error('[Error] /status handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach my memory right now.");
   }
 });
 
 // 4. Initialization
-updateTransitStatus();
-setInterval(updateTransitStatus, 300000); // Check every 5 minutes
-
-console.log("🚀 Gia4lunch is live and sniffing...");
+(async () => {
+  // Clear any stale webhook so getUpdates can't 409 against a leftover one.
+  try {
+    await bot.deleteWebHook({ drop_pending_updates: true });
+  } catch (err) {
+    console.error('[Warn] deleteWebHook failed:', err.message);
+  }
+  await updateTransitStatus();
+  setInterval(updateTransitStatus, 300000); // Every 5 minutes
+  console.log("🚀 Gia4lunch is live and sniffing...");
+})();
