@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { withRetry } = require('./gemini-retry');
 
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const CACHE_TTL_SECONDS = 60;
@@ -45,7 +46,10 @@ async function classifyAndReply(text) {
       model: MODEL_NAME,
       generationConfig: { responseMimeType: 'application/json' }
     });
-    const result = await model.generateContent(`${SYSTEM_PROMPT}\n\nUser message:\n${text}`);
+    const result = await withRetry(
+      () => model.generateContent(`${SYSTEM_PROMPT}\n\nUser message:\n${text}`),
+      { label: 'Gatekeeper' }
+    );
     const parsed = JSON.parse(result.response.text());
     if (typeof parsed.reply === 'string' && typeof parsed.intent === 'string') {
       return { intent: parsed.intent, reply: parsed.reply };
