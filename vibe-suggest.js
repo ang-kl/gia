@@ -180,26 +180,30 @@ async function rankByWalkingTime(userLat, userLng, venues) {
   }
 }
 
-async function pickValidated(lat, lng, count = 3, fallbackList = [], opts = {}) {
+async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
+  // Fail-fast policy (v0.8.1):
+  //   The first Gemini candidate is the gate. If it doesn't validate
+  //   within 200 m, return zero picks immediately — caller surfaces
+  //   the handleNoResults message. No retry, no seed-fallback re-poll.
+  //   If the first candidate validates, continue through candidates 2–N
+  //   to fill up to `count` picks.
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
   const meal = override.hint
     ? { id: category, label: override.label, hint: override.hint }
     : mealPeriodSGT();
   const candidates = await geminiCandidates(meal, lat, lng);
-  const validated = [];
-  for (const candidate of candidates) {
-    if (validated.length >= count) break;
-    const v = await validateWithPlaces(candidate, { lat, lng });
+  if (!candidates.length) return { meal, venues: [] };
+
+  const first = await validateWithPlaces(candidates[0], { lat, lng });
+  if (!first) return { meal, venues: [] };
+
+  const validated = [first];
+  for (let i = 1; i < candidates.length && validated.length < count; i++) {
+    const v = await validateWithPlaces(candidates[i], { lat, lng });
     if (v) validated.push(v);
   }
-  if (validated.length < count && fallbackList.length) {
-    for (const item of fallbackList) {
-      if (validated.length >= count) break;
-      if (item.lat == null || item.lng == null) continue;
-      validated.push({ ...item, vibe: '', source: 'fallback' });
-    }
-  }
+
   const ranked = await rankByWalkingTime(lat, lng, validated.slice(0, count));
   return { meal, venues: ranked };
 }
