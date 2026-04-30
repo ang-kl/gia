@@ -10,7 +10,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id}`;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
 const RADIUS_M = 300;
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;

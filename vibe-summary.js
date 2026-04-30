@@ -5,7 +5,7 @@ const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places
 const REVIEWS_FIELD_MASK = 'reviews';
 const SUMMARY_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const REVIEW_RECENCY_DAYS = 30;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
