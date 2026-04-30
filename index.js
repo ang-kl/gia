@@ -5,7 +5,7 @@ const express = require('express');
 const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
-const { refreshVibeListings, pickLunch } = require('./vibe');
+const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
 const {
@@ -105,9 +105,17 @@ async function safeVenue(chatId, lat, lng, title, address, opts = {}) {
   }
 }
 
+async function handleNoResults(chatId, mealLabel) {
+  await safeSend(
+    chatId,
+    `Gia couldn't find a ${mealLabel} sanctuary within 200m of you right now. ` +
+    `Try sharing a different location or typing a place name.`
+  );
+}
+
 async function deliverPicks(chatId, mealLabel, picks) {
   if (!picks.length) {
-    await safeSend(chatId, "Gia has no sanctuary picks for you right now. Try again in a few minutes.");
+    await handleNoResults(chatId, mealLabel);
     return;
   }
   const header = picks
@@ -169,10 +177,9 @@ async function deliverPicks(chatId, mealLabel, picks) {
 }
 
 async function runFlow(chatId, lat, lng, category) {
-  const seedFallback = category === 'food'
-    ? await pickLunch(redis, 5).catch(() => [])
-    : [];
-  const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback, { category });
+  // Fail-fast policy (v0.8.1): no seed-fallback re-poll. If pickValidated
+  // returns zero venues, deliverPicks → handleNoResults takes over.
+  const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
   await deliverPicks(chatId, meal.label, venues);
 }
 
@@ -237,10 +244,11 @@ bot.onText(/^\/groceries(?:@\w+)?$/, async (msg) => {
 
 bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   try {
-    const category = (await consumePendingMeal(redis, msg.chat.id)) || 'food';
+    const pending = await consumePendingMeal(redis, msg.chat.id);
+    const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
     const baseLabel = category === 'food' ? mealPeriodSGT().label : category;
     await safeSend(msg.chat.id, `Looking for ${baseLabel} around Raffles Place…`);
-    await runFlow(msg.chat.id, 1.2839, 103.8517, category === 'food' || category === 'drink' || category === 'groceries' ? category : 'food');
+    await runFlow(msg.chat.id, 1.2839, 103.8517, category);
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I can't reach my listings right now.");
@@ -427,10 +435,7 @@ async function configureUpdates() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'lat and lng query params required' });
         }
-        const seedFallback = category === 'food'
-          ? await pickLunch(redis, 5).catch(() => [])
-          : [];
-        const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback, { category });
+        const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
         res.json({ category, meal: meal.id, label: meal.label, venues });
       } catch (err) {
         console.error('[Error] /api/sanctuary failed:', err.message);
