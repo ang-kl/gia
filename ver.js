@@ -103,6 +103,17 @@ async function checkLta() {
   });
 }
 
+async function checkDataGov() {
+  return probe('data.gov.sg', async () => {
+    const headers = process.env.DATA_GOV_SG_API_KEY ? { 'x-api-key': process.env.DATA_GOV_SG_API_KEY } : {};
+    await axios.get('https://api.data.gov.sg/v1/environment/2-hour-weather-forecast', {
+      headers,
+      timeout: TIMEOUT_MS
+    });
+    return process.env.DATA_GOV_SG_API_KEY ? 'NEA ok (auth)' : 'NEA ok (no key)';
+  });
+}
+
 async function checkRedis(redis) {
   return probe('Redis', async () => {
     if (!redis.isOpen) await redis.connect();
@@ -117,13 +128,14 @@ function fmtRow(label, r) {
 }
 
 async function runHealthCheck(bot, redis) {
-  const [places, routes, gemini, telegram, lta, redisRes] = await Promise.all([
+  const [places, routes, gemini, telegram, lta, redisRes, dataGov] = await Promise.all([
     checkGooglePlaces(),
     checkRoutes(),
     checkGemini(),
     checkTelegram(bot),
     checkLta(),
-    checkRedis(redis)
+    checkRedis(redis),
+    checkDataGov()
   ]);
   const lines = [
     `soleat v${pkg.version}`,
@@ -133,7 +145,8 @@ async function runHealthCheck(bot, redis) {
     fmtRow('Google Places',places),
     fmtRow('Routes API',   routes),
     fmtRow('Gemini',       gemini),
-    fmtRow('LTA DataMall', lta)
+    fmtRow('LTA DataMall', lta),
+    fmtRow('data.gov.sg',  dataGov)
   ];
   return lines.join('\n');
 }
