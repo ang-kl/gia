@@ -165,9 +165,13 @@ async function deliverPicks(chatId, mealLabel, picks) {
           web_app: { url: `https://${webhookDomain}/app?placeId=${encodeURIComponent(pid)}` }
         });
       }
+      // Prefer Google's authoritative directionsUri (from googleMapsLinks)
+      // when available; fall back to constructed Search-action URL.
+      const directionsUrl = p.directionsUri
+        || `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name)}&destination_place_id=${encodeURIComponent(pid)}`;
       buttons.push({
         text: '🚗 Directions',
-        url: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name)}&destination_place_id=${encodeURIComponent(pid)}`
+        url: directionsUrl
       });
     }
     const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};

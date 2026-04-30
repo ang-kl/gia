@@ -127,6 +127,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
             'places.location',
             'places.rating',
             'places.googleMapsUri',
+            'places.googleMapsLinks',
             'places.primaryType',
             'places.businessStatus',
             'places.currentOpeningHours.openNow'
@@ -152,7 +153,10 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
       rating: place.rating ?? null,
       businessStatus: place.businessStatus ?? null,
       openNow: place.currentOpeningHours?.openNow ?? null,
-      url: place.googleMapsUri ?? '',
+      url: place.googleMapsLinks?.placeUri ?? place.googleMapsUri ?? '',
+      directionsUri: place.googleMapsLinks?.directionsUri ?? '',
+      reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
+      photosUri: place.googleMapsLinks?.photosUri ?? '',
       primaryType: place.primaryType ?? 'restaurant',
       vibe: candidate.vibe ?? '',
       source: 'gemini+places'

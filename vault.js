@@ -42,6 +42,10 @@ async function queryVault(redis, lat, lng, radiusM = DEFAULT_RADIUS_M) {
       lng: coord ? Number(coord[0]) : null,
       lat: coord ? Number(coord[1]) : null,
       walkMeters: Number.isFinite(distance) ? Math.round(distance) : null,
+      placeUri: meta.placeUri || '',
+      directionsUri: meta.directionsUri || '',
+      reviewsUri: meta.reviewsUri || '',
+      photosUri: meta.photosUri || '',
       source: 'vault'
     });
   }
@@ -60,14 +64,17 @@ async function verifyOpenNow(placeId) {
     const { data } = await axios.get(`${PLACES_BASE}/${placeId}`, {
       headers: {
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'currentOpeningHours.openNow,businessStatus,googleMapsUri,rating'
+        'X-Goog-FieldMask': 'currentOpeningHours.openNow,businessStatus,googleMapsUri,googleMapsLinks,rating'
       },
       timeout: 6000
     });
     return {
       openNow: data?.currentOpeningHours?.openNow ?? null,
       businessStatus: data?.businessStatus ?? null,
-      url: data?.googleMapsUri ?? '',
+      url: data?.googleMapsLinks?.placeUri ?? data?.googleMapsUri ?? '',
+      directionsUri: data?.googleMapsLinks?.directionsUri ?? '',
+      reviewsUri: data?.googleMapsLinks?.reviewsUri ?? '',
+      photosUri: data?.googleMapsLinks?.photosUri ?? '',
       rating: typeof data?.rating === 'number' ? data.rating : null
     };
   } catch (err) {
@@ -90,6 +97,9 @@ async function fetchOpenVaultPicks(redis, lat, lng, radiusM = DEFAULT_RADIUS_M, 
       ...c,
       openNow: live.openNow ?? null,
       url: live.url || `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(c.placeId)}`,
+      directionsUri: live.directionsUri || '',
+      reviewsUri: live.reviewsUri || '',
+      photosUri: live.photosUri || '',
       rating: live.rating ?? null,
       vibe: ''
     });
