@@ -106,11 +106,11 @@ async function checkLta() {
 async function checkDataGov() {
   return probe('data.gov.sg', async () => {
     const headers = process.env.DATA_GOV_SG_API_KEY ? { 'x-api-key': process.env.DATA_GOV_SG_API_KEY } : {};
-    await axios.get('https://api.data.gov.sg/v1/environment/2-hour-weather-forecast', {
+    await axios.get('https://api-open.data.gov.sg/v2/real-time/api/air-temperature', {
       headers,
       timeout: TIMEOUT_MS
     });
-    return process.env.DATA_GOV_SG_API_KEY ? 'NEA ok (auth)' : 'NEA ok (no key)';
+    return process.env.DATA_GOV_SG_API_KEY ? 'NEA v2 ok (auth)' : 'NEA v2 ok (no key)';
   });
 }
 

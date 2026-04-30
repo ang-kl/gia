@@ -1,14 +1,19 @@
-// weather.js — NEA weather data via api.data.gov.sg.
+// weather.js — NEA real-time weather + 2-hour forecast.
 //
-// v1 endpoints currently unauthenticated and free; the optional
-// DATA_GOV_SG_API_KEY env (per data.gov.sg v2 docs) is sent as
-// x-api-key when present. Harmless on v1 today, forward-compatible
-// for whenever data.gov.sg requires auth on these endpoints.
+// v2 real-time API (api-open.data.gov.sg/v2/real-time/api) provides
+// air-temperature, rainfall, relative-humidity, wind-direction,
+// wind-speed. v2 specs are in data/gov_sg/.
+//
+// v1 environment API (api.data.gov.sg/v1/environment) still hosts
+// the 2-hour weather forecast; kept for that one call.
+//
+// Both honour the optional DATA_GOV_SG_API_KEY env via x-api-key
+// header (higher rate limits per v2 docs).
 
 const axios = require('axios');
 
-const NEA_2HR = 'https://api.data.gov.sg/v1/environment/2-hour-weather-forecast';
-const NEA_AIR_TEMP = 'https://api.data.gov.sg/v1/environment/air-temperature';
+const V2_REALTIME = 'https://api-open.data.gov.sg/v2/real-time/api';
+const V1_FORECAST_2HR = 'https://api.data.gov.sg/v1/environment/2-hour-weather-forecast';
 
 function authHeaders() {
   const key = process.env.DATA_GOV_SG_API_KEY;
@@ -26,8 +31,40 @@ function haversineKm(a, b) {
   return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
+// Generic v2 real-time fetcher. Returns:
+//   { unit, readingType, timestamp, stations: [{id, name, lat, lng, value}] }
+async function fetchV2Realtime(endpointPath) {
+  const url = `${V2_REALTIME}${endpointPath}`;
+  const { data } = await axios.get(url, { timeout: 6000, headers: authHeaders() });
+  if (data?.code !== 0 && data?.code !== undefined) {
+    throw new Error(data?.errorMsg || `non-zero code ${data?.code}`);
+  }
+  const stations = (data?.data?.stations ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    lat: s.labelLocation?.latitude ?? null,
+    lng: s.labelLocation?.longitude ?? null
+  }));
+  const stationById = new Map(stations.map((s) => [s.id, s]));
+  const reading = data?.data?.readings?.[0]; // latest snapshot
+  const items = (reading?.data ?? [])
+    .map((r) => {
+      const s = stationById.get(r.stationId);
+      if (!s || !Number.isFinite(s.lat) || !Number.isFinite(s.lng)) return null;
+      return { ...s, value: r.value };
+    })
+    .filter(Boolean);
+  return {
+    unit: data?.data?.readingUnit ?? '',
+    readingType: data?.data?.readingType ?? '',
+    timestamp: reading?.timestamp ?? null,
+    stations: items
+  };
+}
+
 async function fetchTwoHourForecast() {
-  const { data } = await axios.get(NEA_2HR, { timeout: 6000, headers: authHeaders() });
+  // v1 still hosts this one; v2 spec not yet available.
+  const { data } = await axios.get(V1_FORECAST_2HR, { timeout: 6000, headers: authHeaders() });
   const item = data?.items?.[0];
   if (!item) return null;
   const areaMetadata = data?.area_metadata ?? [];
@@ -44,23 +81,14 @@ async function fetchTwoHourForecast() {
   };
 }
 
-async function fetchAirTemp() {
-  const { data } = await axios.get(NEA_AIR_TEMP, { timeout: 6000, headers: authHeaders() });
-  const item = data?.items?.[0];
-  if (!item) return null;
-  const stations = data?.metadata?.stations ?? [];
-  const stationById = new Map(stations.map((s) => [s.id, s]));
-  const readings = (item.readings ?? []).map((r) => {
-    const s = stationById.get(r.station_id);
-    return {
-      stationId: r.station_id,
-      stationName: s?.name ?? r.station_id,
-      lat: s?.location?.latitude ?? null,
-      lng: s?.location?.longitude ?? null,
-      tempC: r.value
-    };
-  }).filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
-  return { timestamp: item.timestamp, readings };
+function nearestStation(stations, lat, lng) {
+  if (!Array.isArray(stations) || !stations.length) return null;
+  let best = null;
+  for (const s of stations) {
+    const d = haversineKm({ lat, lng }, { lat: s.lat, lng: s.lng });
+    if (!best || d < best.distanceKm) best = { ...s, distanceKm: d };
+  }
+  return best;
 }
 
 function nearestForecast(forecasts, lat, lng) {
@@ -71,34 +99,39 @@ function nearestForecast(forecasts, lat, lng) {
     const d = haversineKm({ lat, lng }, { lat: f.location.latitude, lng: f.location.longitude });
     if (!best || d < best.distanceKm) best = { ...f, distanceKm: d };
   }
-  return best || forecasts[0]; // any forecast is better than none
-}
-
-function nearestStation(readings, lat, lng) {
-  if (!Array.isArray(readings) || !readings.length) return null;
-  let best = null;
-  for (const r of readings) {
-    const d = haversineKm({ lat, lng }, { lat: r.lat, lng: r.lng });
-    if (!best || d < best.distanceKm) best = { ...r, distanceKm: d };
-  }
-  return best;
+  return best || forecasts[0];
 }
 
 async function summary(lat, lng) {
-  const [forecast, temp] = await Promise.all([
-    fetchTwoHourForecast().catch((e) => { console.error('[Weather] 2hr forecast failed:', e.message); return null; }),
-    fetchAirTemp().catch((e) => { console.error('[Weather] air temp failed:', e.message); return null; })
+  const [tempRes, rainRes, humidityRes, windDirRes, windSpdRes, forecast] = await Promise.allSettled([
+    fetchV2Realtime('/air-temperature'),
+    fetchV2Realtime('/rainfall'),
+    fetchV2Realtime('/relative-humidity'),
+    fetchV2Realtime('/wind-direction'),
+    fetchV2Realtime('/wind-speed'),
+    fetchTwoHourForecast()
   ]);
-  const fc = forecast ? nearestForecast(forecast.forecasts, lat, lng) : null;
-  const ts = temp ? nearestStation(temp.readings, lat, lng) : null;
+  const ok = (r) => (r.status === 'fulfilled' ? r.value : null);
+  const fc = ok(forecast) ? nearestForecast(ok(forecast).forecasts, lat, lng) : null;
+  const temp = ok(tempRes) ? nearestStation(ok(tempRes).stations, lat, lng) : null;
+  const rain = ok(rainRes) ? nearestStation(ok(rainRes).stations, lat, lng) : null;
+  const humidity = ok(humidityRes) ? nearestStation(ok(humidityRes).stations, lat, lng) : null;
+  const windDir = ok(windDirRes) ? nearestStation(ok(windDirRes).stations, lat, lng) : null;
+  const windSpd = ok(windSpdRes) ? nearestStation(ok(windSpdRes).stations, lat, lng) : null;
   return {
     forecastArea: fc?.area ?? null,
     forecast: fc?.forecast ?? null,
-    forecastValidTo: forecast?.validTo ?? null,
-    tempStationName: ts?.stationName ?? null,
-    tempC: ts?.tempC ?? null,
-    tempTimestamp: temp?.timestamp ?? null
+    forecastValidTo: ok(forecast)?.validTo ?? null,
+    tempStationName: temp?.name ?? null,
+    tempC: temp?.value ?? null,
+    rainStationName: rain?.name ?? null,
+    rainMm: rain?.value ?? null,
+    humidityStationName: humidity?.name ?? null,
+    humidityPct: humidity?.value ?? null,
+    windDirDeg: windDir?.value ?? null,
+    windSpdKt: windSpd?.value ?? null,
+    timestamp: ok(tempRes)?.timestamp ?? null
   };
 }
 
-module.exports = { summary, fetchTwoHourForecast, fetchAirTemp };
+module.exports = { summary, fetchV2Realtime, fetchTwoHourForecast };
