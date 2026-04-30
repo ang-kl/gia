@@ -1,10 +1,19 @@
-// weather.js — NEA 2-hour weather forecast for Singapore via api.data.gov.sg.
-// No API key required. Free public sovereign-Singapore endpoint.
+// weather.js — NEA weather data via api.data.gov.sg.
+//
+// v1 endpoints currently unauthenticated and free; the optional
+// DATA_GOV_SG_API_KEY env (per data.gov.sg v2 docs) is sent as
+// x-api-key when present. Harmless on v1 today, forward-compatible
+// for whenever data.gov.sg requires auth on these endpoints.
 
 const axios = require('axios');
 
 const NEA_2HR = 'https://api.data.gov.sg/v1/environment/2-hour-weather-forecast';
 const NEA_AIR_TEMP = 'https://api.data.gov.sg/v1/environment/air-temperature';
+
+function authHeaders() {
+  const key = process.env.DATA_GOV_SG_API_KEY;
+  return key ? { 'x-api-key': key } : {};
+}
 
 function haversineKm(a, b) {
   const R = 6371;
@@ -18,7 +27,7 @@ function haversineKm(a, b) {
 }
 
 async function fetchTwoHourForecast() {
-  const { data } = await axios.get(NEA_2HR, { timeout: 6000 });
+  const { data } = await axios.get(NEA_2HR, { timeout: 6000, headers: authHeaders() });
   const item = data?.items?.[0];
   if (!item) return null;
   const areaMetadata = data?.area_metadata ?? [];
@@ -36,7 +45,7 @@ async function fetchTwoHourForecast() {
 }
 
 async function fetchAirTemp() {
-  const { data } = await axios.get(NEA_AIR_TEMP, { timeout: 6000 });
+  const { data } = await axios.get(NEA_AIR_TEMP, { timeout: 6000, headers: authHeaders() });
   const item = data?.items?.[0];
   if (!item) return null;
   const stations = data?.metadata?.stations ?? [];
