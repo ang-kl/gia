@@ -74,6 +74,35 @@ Return ONLY the JSON array, no preamble.`;
   }
 }
 
+const NEGATIVE_KEYWORDS = /\b(loud music|extremely (?:noisy|loud)|under construction|under renovation|renovation works?|closed for renovation|too crowded|over[-\s]?crowded|packed beyond)\b/i;
+const RECENT_REVIEW_DAYS = 30;
+
+function isRecentReview(review, now = Date.now()) {
+  const t = Date.parse(review?.publishTime ?? '');
+  if (!Number.isFinite(t)) return false;
+  return now - t <= RECENT_REVIEW_DAYS * 24 * 60 * 60 * 1000;
+}
+
+async function hasNegativeRecentReview(placeId) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey || !placeId) return false;
+  try {
+    const { data } = await axios.get(`https://places.googleapis.com/v1/places/${placeId}`, {
+      headers: { 'X-Goog-Api-Key': mapsApiKey, 'X-Goog-FieldMask': 'reviews' },
+      timeout: 6000
+    });
+    const recent = (data.reviews ?? []).filter(isRecentReview);
+    const pool = recent.length ? recent : (data.reviews ?? []).slice(0, 5);
+    return pool.some((r) => {
+      const text = `${r.text?.text ?? ''} ${r.originalText?.text ?? ''}`;
+      return NEGATIVE_KEYWORDS.test(text);
+    });
+  } catch (err) {
+    console.error(`[Vibe-Suggest] review keyword screen ${placeId} failed:`, err.message);
+    return false; // do not block on transient errors
+  }
+}
+
 async function validateWithPlaces(candidate, near) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) return null;
@@ -113,6 +142,7 @@ async function validateWithPlaces(candidate, near) {
     if (distance > MAX_DISTANCE_M) return null;
     if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') return null;
     if (place.currentOpeningHours?.openNow === false) return null;
+    if (await hasNegativeRecentReview(place.id)) return null;
     return {
       placeId: place.id,
       name: place.displayName?.text ?? candidate.name,
