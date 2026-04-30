@@ -8,38 +8,21 @@
       return;
     }
     tg.sendData(JSON.stringify(payload));
-    // Telegram closes the TMA automatically after sendData.
   }
 
-  function openMap() {
-    const url = '/app/map' + (location.search || '');
-    if (tg && typeof tg.openLink === 'function') tg.openLink(window.location.origin + url, { try_instant_view: false });
-    else window.location.href = url;
+  function openInternal(path) {
+    // Navigate inside the same WebApp container so the user stays inside
+    // the TMA shell (used for /app/cuisine and /app/map).
+    const url = path + (location.search || '');
+    window.location.href = url;
   }
 
   document.querySelectorAll('.tile').forEach((el) => {
     el.addEventListener('click', () => {
       const cmd = el.dataset.cmd;
-      if (cmd === 'cuisine') {
-        document.getElementById('cuisine-modal').classList.add('show');
-        return;
-      }
-      if (cmd === 'map') {
-        openMap();
-        return;
-      }
+      if (cmd === 'cuisine') { openInternal('/app/cuisine'); return; }
+      if (cmd === 'map')     { openInternal('/app/map');     return; }
       send({ cmd });
     });
-  });
-
-  document.querySelectorAll('#cuisine-modal .types button').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const type = btn.dataset.type;
-      send({ cmd: 'cuisine', type });
-    });
-  });
-
-  document.getElementById('cuisine-cancel').addEventListener('click', () => {
-    document.getElementById('cuisine-modal').classList.remove('show');
   });
 })();

@@ -4,3 +4,6 @@ node_modules/
 *.log
 .DS_Store
 dist/
+# Vite build output for the Cuisine Picker TMA — emitted by `npm run build`
+# (which runs as a postinstall on Railway). Source lives in web/cuisine/.
+public/cuisine/

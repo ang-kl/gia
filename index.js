@@ -122,6 +122,65 @@ async function handleNoResults(chatId, mealLabel) {
   );
 }
 
+// Fetches a single place by ID for the cuisine-pick TMA round-trip.
+// Mirrors the venue shape produced by validateWithPlaces so deliverPicks
+// renders identically to /eat picks.
+async function fetchSinglePlaceForPick(placeId, fallbackName, near) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey || !placeId) return null;
+  try {
+    const { data } = await axios.get(
+      `https://places.googleapis.com/v1/places/${placeId}`,
+      {
+        headers: {
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': [
+            'id',
+            'displayName',
+            'formattedAddress',
+            'location',
+            'rating',
+            'googleMapsUri',
+            'googleMapsLinks',
+            'generativeSummary',
+            'primaryType',
+            'businessStatus',
+            'currentOpeningHours.openNow'
+          ].join(',')
+        },
+        timeout: 8000
+      }
+    );
+    if (!data?.location) return null;
+    return {
+      placeId: data.id,
+      name: data.displayName?.text ?? fallbackName ?? 'venue',
+      area: data.formattedAddress ?? '',
+      lat: data.location.latitude,
+      lng: data.location.longitude,
+      rating: data.rating ?? null,
+      businessStatus: data.businessStatus ?? null,
+      openNow: data.currentOpeningHours?.openNow ?? null,
+      url: data.googleMapsLinks?.placeUri ?? data.googleMapsUri ?? '',
+      directionsUri: data.googleMapsLinks?.directionsUri ?? '',
+      reviewsUri: data.googleMapsLinks?.reviewsUri ?? '',
+      photosUri: data.googleMapsLinks?.photosUri ?? '',
+      primaryType: data.primaryType ?? 'restaurant',
+      vibe: '',
+      googleSummary: data.generativeSummary
+        ? {
+            overview: data.generativeSummary.overview?.text ?? null,
+            disclosure: data.generativeSummary.overviewFlagContentUri ? 'Summarized with Gemini' : 'Summarized with Gemini'
+          }
+        : null,
+      source: 'cuisine-pick'
+    };
+  } catch (err) {
+    console.error('[Error] fetchSinglePlaceForPick failed:', err.message);
+    return null;
+  }
+}
+
 async function deliverPicks(chatId, mealLabel, picks) {
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
@@ -304,52 +363,30 @@ bot.onText(/^\/(?:groceries|grocery)(?:@\w+)?$/, async (msg) => {
 
 const PENDING_CUISINE_PREFIX = 'cuisine:';
 
-const CUISINE_KEYBOARD = {
-  reply_markup: {
-    inline_keyboard: [
-      [
-        { text: '🍣 Japanese', callback_data: 'cuisine:Japanese' },
-        { text: '🍲 Korean',   callback_data: 'cuisine:Korean' },
-        { text: '🥟 Chinese',  callback_data: 'cuisine:Chinese' }
-      ],
-      [
-        { text: '🍝 Italian',   callback_data: 'cuisine:Italian' },
-        { text: '🍛 Indian',    callback_data: 'cuisine:Indian' },
-        { text: '🍜 Thai',      callback_data: 'cuisine:Thai' }
-      ],
-      [
-        { text: '🥢 Vietnamese', callback_data: 'cuisine:Vietnamese' },
-        { text: '🍱 Malay',      callback_data: 'cuisine:Malay' },
-        { text: '🍔 Western',    callback_data: 'cuisine:Western' }
-      ]
-    ]
-  }
-};
-
-bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
+// /cuisine v0.22.0: deep-link straight to the Cuisine Picker TMA. The
+// 9-cuisine inline keyboard (v0.18.0–v0.21.2) was retired because the
+// TMA supports multi-select chips, dual radius, transport mode, time
+// dropdown, and 4 preset combos — strictly richer.
+bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
   try {
-    const arg = (match?.[1] || '').trim();
-    if (!arg) {
-      await bot.sendMessage(msg.chat.id, "Tell Gia what cuisine — pick one:", CUISINE_KEYBOARD);
+    if (!useWebhook) {
+      await safeSend(
+        msg.chat.id,
+        "The Cuisine Picker needs the webhook-mode TMA. Use /eat or /drink for chat-based picks."
+      );
       return;
     }
-    // Encode the cuisine type into the pending state so the location flow
-    // can route to runFlow with category=cuisine + cuisineType=<arg>.
-    await setPendingMeal(redis, msg.chat.id, `${PENDING_CUISINE_PREFIX}${arg}`);
-    const cached = await getUserLocation(redis, msg.chat.id);
-    if (cached) {
-      await safeSend(msg.chat.id, ACK_SENSING_VIBE);
-      await runCuisineFlow(msg.chat.id, cached.lat, cached.lng, arg);
-      return;
-    }
-    await bot.sendMessage(
-      msg.chat.id,
-      `Where are you for ${arg}? Please tap to share your location, or type a place name (Gia will search within 200 m).`,
-      LOCATION_REQUEST_KEYBOARD
-    );
+    await bot.sendMessage(msg.chat.id, "🍴 Tap to open the Cuisine Picker:", {
+      reply_markup: {
+        inline_keyboard: [[{
+          text: '🍴 Open Cuisine Picker',
+          web_app: { url: `https://${webhookDomain}/app/cuisine` }
+        }]]
+      }
+    });
   } catch (err) {
     console.error('[Error] /cuisine handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't think of cuisine picks right now.");
+    await safeSend(msg.chat.id, "Sorry, I can't open the Cuisine Picker right now.");
   }
 });
 
@@ -424,25 +461,17 @@ bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
 });
 
 // callback_query — fired when user taps an inline-keyboard button with
-// callback_data. Two patterns supported:
-//   refresh:transport         → re-run /transport for the same chat
-//   cuisine:<TypeName>        → start cuisine flow with that type
+// callback_data. The cuisine:<Type> pattern was retired in v0.22.0 with
+// the move to the Cuisine Picker TMA; only refresh:transport remains.
 bot.on('callback_query', async (q) => {
   try {
     const data = q.data || '';
     const chatId = q.message?.chat?.id ?? q.from?.id;
     if (!chatId) return;
-    // Always answer to dismiss the spinner on the user's tap.
     bot.answerCallbackQuery(q.id).catch(() => {});
 
     if (data === 'refresh:transport') {
       await runTransportCommand(chatId);
-      return;
-    }
-    if (data.startsWith('cuisine:')) {
-      const type = data.slice('cuisine:'.length).trim();
-      if (!type) return;
-      await routeMenuCommand(chatId, 'cuisine', { type });
       return;
     }
   } catch (err) {
@@ -532,15 +561,41 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'grocery':
     case 'groceries': await startSanctuaryFlow(chatId, 'groceries', 'groceries'); return true;
     case 'cuisine': {
-      const type = (payload?.type || '').trim();
-      if (!type) {
-        await safeSend(chatId, "Tell Gia what cuisine — e.g. /cuisine Japanese.");
+      // v0.22.0: cuisine command opens the TMA picker (multi-select chips,
+      // dual radius, transport mode, time, presets). Direct legacy callers
+      // that pass payload.type fall through to the same TMA — chip is
+      // pre-selected via querystring so the round-trip stays one-tap.
+      if (!useWebhook) {
+        await safeSend(chatId, "The Cuisine Picker needs the webhook-mode TMA.");
         return true;
       }
-      await setPendingMeal(redis, chatId, `${PENDING_CUISINE_PREFIX}${type}`);
-      const cached = await getUserLocation(redis, chatId);
-      if (cached) { await safeSend(chatId, ACK_SENSING_VIBE); await runCuisineFlow(chatId, cached.lat, cached.lng, type); }
-      else await bot.sendMessage(chatId, `Where are you for ${type}? Please tap to share your location, or type a place name.`, LOCATION_REQUEST_KEYBOARD);
+      const type = (payload?.type || '').trim();
+      const url = type
+        ? `https://${webhookDomain}/app/cuisine?cuisine=${encodeURIComponent(type)}`
+        : `https://${webhookDomain}/app/cuisine`;
+      await bot.sendMessage(chatId, "🍴 Tap to open the Cuisine Picker:", {
+        reply_markup: { inline_keyboard: [[{ text: '🍴 Open Cuisine Picker', web_app: { url } }]] }
+      });
+      return true;
+    }
+    case 'cuisine-pick': {
+      // TMA card tap → bot delivers Sanctuary read for the single venue.
+      const placeId = String(payload?.placeId || '').trim();
+      const name = String(payload?.name || '').trim();
+      if (!placeId) return true;
+      try {
+        await safeSend(chatId, ACK_SENSING_VIBE);
+        const cached = await getUserLocation(redis, chatId);
+        const single = await fetchSinglePlaceForPick(placeId, name, cached);
+        if (!single) {
+          await safeSend(chatId, `Sorry, I couldn't load details for ${name || 'that pick'}.`);
+          return true;
+        }
+        await deliverPicks(chatId, name || single.name || 'cuisine pick', [single]);
+      } catch (err) {
+        console.error('[Error] cuisine-pick failed:', err.message);
+        await safeSend(chatId, "Sorry, I couldn't load that pick.");
+      }
       return true;
     }
     case 'weather':   await runWeatherCommand(chatId); return true;
@@ -842,6 +897,15 @@ async function configureUpdates() {
   await configureUpdates();
   await registerCommandsMenu();
 
+  // Warm SG public-holiday cache so the holiday-special preset can
+  // answer instantly. Tolerant of data.gov.sg downtime via inline fallback.
+  try {
+    const holidays = require('./holidays');
+    await holidays.warmCache(redis);
+  } catch (err) {
+    console.error('[Warn] Holiday warm-cache failed:', err.message);
+  }
+
   await updateTransitStatus();
   setInterval(updateTransitStatus, 300000); // 5 min
 
@@ -889,12 +953,38 @@ async function configureUpdates() {
     app.get(['/app', '/app/menu'], (_req, res) => res.sendFile(path.join(__dirname, 'public', 'menu.html')));
     // Live sanctuary map (the v0.4.0 TMA, now under /app/map).
     app.get('/app/map', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+    // Cuisine Picker TMA (v0.22.0). Vite-built React+Tailwind app.
+    app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine')));
+    app.get('/app/cuisine', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html')));
 
     app.get('/maps-key', requireInitData, (_req, res) => {
       res.json({
         key: process.env.GOOGLE_MAPS_API_KEY ?? '',
         mapId: process.env.MAP_ID || 'GIA_SANCTUARY'
       });
+    });
+
+    app.post('/api/cuisine-search', requireInitData, async (req, res) => {
+      try {
+        const { lat, lng, cuisines, radius, mode, when, preset } = req.body || {};
+        if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
+          return res.status(400).json({ error: 'lat and lng required' });
+        }
+        const { searchCuisine } = require('./cuisine-search');
+        const result = await searchCuisine({
+          lat: Number(lat),
+          lng: Number(lng),
+          cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 9) : [],
+          radius: Number(radius) || 1000,
+          mode: typeof mode === 'string' ? mode : 'walk',
+          when: typeof when === 'string' ? when : 'now',
+          preset: typeof preset === 'string' ? preset : null
+        });
+        res.json(result);
+      } catch (err) {
+        console.error('[Error] /api/cuisine-search failed:', err.message);
+        res.status(500).json({ error: 'cuisine search failed' });
+      }
     });
 
     app.get('/api/sanctuary', requireInitData, async (req, res) => {
