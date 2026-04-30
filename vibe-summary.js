@@ -4,10 +4,19 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places/${placeId}`;
 const REVIEWS_FIELD_MASK = 'reviews';
 const SUMMARY_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+const REVIEW_RECENCY_DAYS = 30;
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+
+function isRecentReview(review, now = Date.now()) {
+  const publishTime = review?.publishTime ?? review?.relativePublishTimeDescription;
+  if (!publishTime) return true; // unknown → don't drop
+  const t = Date.parse(publishTime);
+  if (Number.isNaN(t)) return true;
+  return now - t <= REVIEW_RECENCY_DAYS * 24 * 60 * 60 * 1000;
+}
 
 async function fetchReviewText(placeId) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -20,7 +29,9 @@ async function fetchReviewText(placeId) {
       },
       timeout: 8000
     });
-    return (data.reviews ?? [])
+    const recent = (data.reviews ?? []).filter(isRecentReview);
+    const pool = recent.length ? recent : (data.reviews ?? []); // recent-only, fall back to all if empty
+    return pool
       .map((r) => r.text?.text ?? r.originalText?.text ?? '')
       .filter(Boolean)
       .slice(0, 8)

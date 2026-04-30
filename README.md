@@ -1,6 +1,6 @@
-# Gia4lunch 🌿
+# soleat 🌿  (formerly Gia4lunch)
 
-**Gia4lunch** is a predictive urban guide and "Vibe-Sensing" Telegram agent for the solo female diner in Singapore's CBD. It blends real-time MRT/bus health with curated lunch listings near Raffles Place, helping users find a quiet, high-quality "Sanctuary" without the stress of crowds or weather.
+**soleat** is a predictive urban guide and "Vibe-Sensing" Telegram agent — voiced by **Gia**, a wise mid-50s concierge — for the solo diner in Singapore's CBD. It blends real-time MRT/bus health with intelligent food, drink, and grocery discovery near you, helping users find a quiet, high-quality "Sanctuary" without the stress of crowds or weather.
 
 | Phase | Spoke | Status |
 | :--- | :--- | :--- |
@@ -98,7 +98,7 @@ Both keys are overwritten — no append, no audit log, no PII.
    [HTTP] Listening on :PORT
    [Pulse] Status updated at HH:MM:SS
    [Vibe] Cached N live places (Google Maps).
-   🚀 Gia4lunch is live and sniffing...
+   🚀 soleat is live and sniffing...
    ```
 
 6. **Verify in Telegram:** type `/` — autocomplete shows `status` and `lunch`. Send `/lunch` and expect three venue cards with map pins.
@@ -145,4 +145,4 @@ This repo follows the documentation orchestrator at `doc/CLAUDE.md`. Phase specs
 
 ## License
 
-Internal study project. Proprietary to the Gia4lunch Development Team.
+Internal study project. Proprietary to the soleat Development Team (formerly Gia4lunch).
