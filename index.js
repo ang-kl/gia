@@ -167,12 +167,6 @@ async function deliverPicks(chatId, mealLabel, picks) {
 
     const buttons = [];
     if (pid) {
-      if (useWebhook) {
-        buttons.push({
-          text: '📍 Open Map',
-          web_app: { url: `https://${webhookDomain}/app?placeId=${encodeURIComponent(pid)}` }
-        });
-      }
       // Prefer Google's authoritative directionsUri (from googleMapsLinks)
       // when available; fall back to constructed Search-action URL.
       const directionsUrl = p.directionsUri
