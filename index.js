@@ -305,14 +305,17 @@ bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
 
 bot.on('location', async (msg) => {
   if (!msg.location) return;
-  const pending = await consumePendingMeal(redis, msg.chat.id);
-  if (!pending) return;
   try {
+    const pending = await consumePendingMeal(redis, msg.chat.id);
+    if (!pending) return;
     const { latitude, longitude } = msg.location;
-    await setUserLocation(redis, msg.chat.id, latitude, longitude);
     const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
     const label = category === 'food' ? mealPeriodSGT().label : category;
-    await safeSend(msg.chat.id, `Got it. Looking for ${label} within 200m…`);
+    // Immediate ack BEFORE any expensive call (Vault verify, Gemini,
+    // Places searchText, review screen, Routes Matrix). Stops the
+    // iPadOS perceived-timeout that surfaces as a system error modal.
+    await safeSend(msg.chat.id, `📍 Got it — looking for ${label} within 200m…`);
+    await setUserLocation(redis, msg.chat.id, latitude, longitude);
     await runFlow(msg.chat.id, latitude, longitude, category);
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
