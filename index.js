@@ -16,6 +16,7 @@ const {
 } = require('./location-cache');
 const { requireInitData } = require('./twa-auth');
 const { gatekeep } = require('./gatekeeper');
+const { fetchOpenVaultPicks } = require('./vault');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -177,8 +178,26 @@ async function deliverPicks(chatId, mealLabel, picks) {
 }
 
 async function runFlow(chatId, lat, lng, category) {
-  // Fail-fast policy (v0.8.1): no seed-fallback re-poll. If pickValidated
-  // returns zero venues, deliverPicks → handleNoResults takes over.
+  // Vault-first policy (v0.9.0) for /eat and /drink:
+  //   1. GEOSEARCH gia:vault within 300m
+  //   2. Live-verify open_now via Place Details
+  //   3. If <3 open vault hits, fall through to broad pickValidated
+  //
+  // /groceries skips the Vault and goes straight to pickValidated.
+  if (category === 'food' || category === 'drink') {
+    try {
+      const vaultPicks = await fetchOpenVaultPicks(redis, lat, lng, 300, 3);
+      if (vaultPicks.length >= 3) {
+        const label = category === 'food' ? mealPeriodSGT().label : category;
+        await deliverPicks(chatId, label, vaultPicks);
+        return;
+      }
+    } catch (err) {
+      console.error('[Vault] runtime query failed; falling through to pickValidated:', err.message);
+    }
+  }
+  // Fail-fast pickValidated (v0.8.1): no seed re-poll. handleNoResults
+  // fires inside deliverPicks if zero venues come back.
   const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
   await deliverPicks(chatId, meal.label, venues);
 }
