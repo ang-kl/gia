@@ -4,7 +4,13 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
 const MAX_DISTANCE_M = 200; // accept Place if within 200m of user
-const SEARCH_RADIUS_M = 800;
+const SEARCH_RADIUS_M = 300; // §3.1 02_Expand walking radius
+
+const CATEGORIES = {
+  food: { label: null, hint: null }, // time-of-day branched in mealPeriodSGT
+  drink: { label: 'drinks', hint: 'bars, coffee bars, tea spots, juice bars — solo-friendly counter seating' },
+  groceries: { label: 'groceries', hint: 'supermarkets, fresh-market grocers, gourmet food stores within walking distance' }
+};
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
@@ -127,8 +133,12 @@ async function validateWithPlaces(candidate, near) {
   }
 }
 
-async function pickValidated(lat, lng, count = 3, fallbackList = []) {
-  const meal = mealPeriodSGT();
+async function pickValidated(lat, lng, count = 3, fallbackList = [], opts = {}) {
+  const category = opts.category || 'food';
+  const override = CATEGORIES[category] ?? CATEGORIES.food;
+  const meal = override.hint
+    ? { id: category, label: override.label, hint: override.hint }
+    : mealPeriodSGT();
   const candidates = await geminiCandidates(meal, lat, lng);
   const validated = [];
   for (const candidate of candidates) {

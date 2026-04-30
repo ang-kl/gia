@@ -15,6 +15,7 @@ const {
   consumePendingMeal
 } = require('./location-cache');
 const { requireInitData } = require('./twa-auth');
+const { gatekeep } = require('./gatekeeper');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -88,9 +89,9 @@ async function updateTransitStatus() {
 }
 
 // 3. Telegram Handlers
-async function safeSend(chatId, text) {
+async function safeSend(chatId, text, opts = {}) {
   try {
-    await bot.sendMessage(chatId, text);
+    await bot.sendMessage(chatId, text, opts);
   } catch (err) {
     console.error(`[Error] sendMessage to ${chatId} failed:`, err.message);
   }
@@ -166,50 +167,75 @@ async function deliverPicks(chatId, mealLabel, picks) {
   }
 }
 
-async function runEatFlow(chatId, lat, lng) {
-  const seedFallback = await pickLunch(redis, 5).catch(() => []);
-  const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback);
+async function runFlow(chatId, lat, lng, category) {
+  const seedFallback = category === 'food'
+    ? await pickLunch(redis, 5).catch(() => [])
+    : [];
+  const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback, { category });
   await deliverPicks(chatId, meal.label, venues);
+}
+
+const LOCATION_REQUEST_KEYBOARD = {
+  reply_markup: {
+    keyboard: [
+      [{ text: '📍 Share my location', request_location: true }],
+      [{ text: '⛔ Use Raffles Place default' }]
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true
+  }
+};
+
+const KEYBOARD_TEXTS = new Set([
+  '📍 Share my location',
+  '⛔ Use Raffles Place default'
+]);
+
+async function startSanctuaryFlow(chatId, category, prompt) {
+  const cached = await getUserLocation(redis, chatId);
+  if (cached) {
+    await safeSend(chatId, `Looking for ${prompt} near your last shared spot…`);
+    await runFlow(chatId, cached.lat, cached.lng, category);
+    return;
+  }
+  await setPendingMeal(redis, chatId, category);
+  await bot.sendMessage(chatId, `Where are you for ${prompt}? Tap to share once.`, LOCATION_REQUEST_KEYBOARD);
 }
 
 bot.onText(/^\/eat(?:@\w+)?$/, async (msg) => {
   try {
     const meal = mealPeriodSGT();
-    const cached = await getUserLocation(redis, msg.chat.id);
-    if (cached) {
-      await safeSend(msg.chat.id, `Looking for ${meal.label} near your last shared spot…`);
-      await runEatFlow(msg.chat.id, cached.lat, cached.lng);
-      return;
-    }
-    await setPendingMeal(redis, msg.chat.id, meal.id);
-    await bot.sendMessage(
-      msg.chat.id,
-      `Where are you for ${meal.label}? Tap to share once.`,
-      {
-        reply_markup: {
-          keyboard: [
-            [{ text: '📍 Share my location', request_location: true }],
-            [{ text: '⛔ Use Raffles Place default' }]
-          ],
-          resize_keyboard: true,
-          one_time_keyboard: true
-        }
-      }
-    );
+    await startSanctuaryFlow(msg.chat.id, 'food', meal.label);
   } catch (err) {
     console.error('[Error] /eat handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I can't think of where to eat right now.");
   }
 });
 
+bot.onText(/^\/drink(?:@\w+)?$/, async (msg) => {
+  try {
+    await startSanctuaryFlow(msg.chat.id, 'drink', 'drinks');
+  } catch (err) {
+    console.error('[Error] /drink handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't think of where to drink right now.");
+  }
+});
+
+bot.onText(/^\/groceries(?:@\w+)?$/, async (msg) => {
+  try {
+    await startSanctuaryFlow(msg.chat.id, 'groceries', 'groceries');
+  } catch (err) {
+    console.error('[Error] /groceries handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach my grocery list right now.");
+  }
+});
+
 bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   try {
-    await consumePendingMeal(redis, msg.chat.id);
-    const meal = mealPeriodSGT();
-    await safeSend(msg.chat.id, `Looking for ${meal.label} around Raffles Place…`, );
-    const seedFallback = await pickLunch(redis, 5).catch(() => []);
-    const { venues } = await pickValidated(1.2839, 103.8517, 3, seedFallback);
-    await deliverPicks(msg.chat.id, meal.label, venues);
+    const category = (await consumePendingMeal(redis, msg.chat.id)) || 'food';
+    const baseLabel = category === 'food' ? mealPeriodSGT().label : category;
+    await safeSend(msg.chat.id, `Looking for ${baseLabel} around Raffles Place…`);
+    await runFlow(msg.chat.id, 1.2839, 103.8517, category === 'food' || category === 'drink' || category === 'groceries' ? category : 'food');
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I can't reach my listings right now.");
@@ -223,9 +249,10 @@ bot.on('location', async (msg) => {
   try {
     const { latitude, longitude } = msg.location;
     await setUserLocation(redis, msg.chat.id, latitude, longitude);
-    const meal = mealPeriodSGT();
-    await safeSend(msg.chat.id, `Got it. Looking for ${meal.label} within 800m…`);
-    await runEatFlow(msg.chat.id, latitude, longitude);
+    const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
+    const label = category === 'food' ? mealPeriodSGT().label : category;
+    await safeSend(msg.chat.id, `Got it. Looking for ${label} within 300m…`);
+    await runFlow(msg.chat.id, latitude, longitude, category);
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I couldn't process that location.");
@@ -252,25 +279,47 @@ bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
 bot.onText(/^\/start(?:@\w+)?$/, async (msg) => {
   await safeSend(
     msg.chat.id,
-    "I'm Gia — your CBD sanctuary concierge.\n\n" +
-    "/status — CBD train pulse\n" +
-    "/eat — 3 sanctuary picks tuned to the time of day\n" +
-    "Tap the menu button (🌿 Gia Map) for the live map view."
+    "I'm Gia, the concierge inside soleat — your CBD sanctuary guide.\n\n" +
+    "/eat — solo-diner food picks for now\n" +
+    "/drink — bars, coffee, tea spots\n" +
+    "/groceries — supermarkets & fresh markets\n" +
+    "/status — live MRT pulse\n\n" +
+    "Tap the menu button (🌿 soleat Map) for the live map view, or just message me what you're craving."
   );
+});
+
+// Topic Gatekeeper — handles free-text messages that aren't slash commands or keyboard taps.
+bot.on('message', async (msg) => {
+  try {
+    if (!msg.text) return;
+    const text = msg.text.trim();
+    if (!text) return;
+    if (text.startsWith('/')) return;
+    if (KEYBOARD_TEXTS.has(text)) return;
+    const hasCommand = (msg.entities ?? []).some((e) => e.type === 'bot_command');
+    if (hasCommand) return;
+
+    const result = await gatekeep(redis, text);
+    if (result?.reply) await safeSend(msg.chat.id, result.reply);
+  } catch (err) {
+    console.error('[Error] Gatekeeper handler failed:', err.message);
+  }
 });
 
 // 4. Initialization
 async function registerCommandsMenu() {
   try {
     await bot.setMyCommands([
-      { command: 'status', description: 'CBD train pulse' },
-      { command: 'eat', description: '3 sanctuary picks for now (breakfast/lunch/dinner/supper)' }
+      { command: 'eat', description: 'Solo-diner food picks for now' },
+      { command: 'drink', description: 'Bars, coffee, tea spots near you' },
+      { command: 'groceries', description: 'Supermarkets and fresh markets near you' },
+      { command: 'status', description: 'CBD train pulse' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
         menu_button: {
           type: 'web_app',
-          text: '🌿 Gia Map',
+          text: '🌿 soleat Map',
           web_app: { url: `https://${webhookDomain}/app` }
         }
       });
@@ -348,12 +397,16 @@ async function configureUpdates() {
       try {
         const lat = Number(req.query.lat);
         const lng = Number(req.query.lng);
+        const categoryParam = (req.query.category || 'food').toString();
+        const category = ['food', 'drink', 'groceries'].includes(categoryParam) ? categoryParam : 'food';
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'lat and lng query params required' });
         }
-        const seedFallback = await pickLunch(redis, 5).catch(() => []);
-        const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback);
-        res.json({ meal: meal.id, label: meal.label, venues });
+        const seedFallback = category === 'food'
+          ? await pickLunch(redis, 5).catch(() => [])
+          : [];
+        const { meal, venues } = await pickValidated(lat, lng, 3, seedFallback, { category });
+        res.json({ category, meal: meal.id, label: meal.label, venues });
       } catch (err) {
         console.error('[Error] /api/sanctuary failed:', err.message);
         res.status(500).json({ error: 'sanctuary fetch failed' });
@@ -364,5 +417,5 @@ async function configureUpdates() {
     app.listen(port, () => console.log(`[HTTP] Listening on :${port}`));
   }
 
-  console.log("🚀 Gia4lunch is live and sniffing...");
+  console.log("🚀 soleat is live and sniffing...");
 })();

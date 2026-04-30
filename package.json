@@ -1,6 +1,6 @@
 {
-  "name": "gia4lunch",
-  "version": "0.5.1",
+  "name": "soleat",
+  "version": "0.6.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
