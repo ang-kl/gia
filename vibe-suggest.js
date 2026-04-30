@@ -2,7 +2,7 @@ const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const MAX_DISTANCE_M = 200; // accept Place if within 200m of user
 const SEARCH_RADIUS_M = 200; // walking radius from user-set centre
 
