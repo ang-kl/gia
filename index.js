@@ -21,6 +21,7 @@ const { requireInitData } = require('./twa-auth');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
+const { runHealthCheck } = require('./ver');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -340,6 +341,19 @@ bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
   }
 });
 
+bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
+  try {
+    await safeSend(msg.chat.id, '🩺 Running health check…');
+    const report = await runHealthCheck(bot, redis);
+    const escaped = report.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    await bot.sendMessage(msg.chat.id, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
+      .catch(async () => { await safeSend(msg.chat.id, report); });
+  } catch (err) {
+    console.error('[Error] /ver handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I couldn't run the health check.");
+  }
+});
+
 bot.onText(/^\/start(?:@\w+)?$/, async (msg) => {
   await safeSend(
     msg.chat.id,
@@ -397,7 +411,8 @@ async function registerCommandsMenu() {
       { command: 'eat', description: 'Solo-diner food picks for now' },
       { command: 'drink', description: 'Bars, coffee, tea spots near you' },
       { command: 'groceries', description: 'Supermarkets and fresh markets near you' },
-      { command: 'status', description: 'CBD train pulse' }
+      { command: 'status', description: 'CBD train pulse' },
+      { command: 'ver', description: 'Version + upstream API health' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
