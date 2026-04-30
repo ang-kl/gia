@@ -7,6 +7,7 @@
 
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { withRetry } = require('./gemini-retry');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id}`;
@@ -96,7 +97,7 @@ ${reviewText}`;
       model: MODEL_NAME,
       generationConfig: { responseMimeType: 'application/json' }
     });
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt), { label: 'Consultant' });
     const parsed = JSON.parse(result.response.text());
     if (typeof parsed.is_sanctuary === 'boolean' && typeof parsed.reason === 'string') {
       return { is_sanctuary: parsed.is_sanctuary, reason: parsed.reason, approach: typeof parsed.approach === 'string' ? parsed.approach : null };

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { withRetry } = require('./gemini-retry');
 
 const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places/${placeId}`;
 const REVIEWS_FIELD_MASK = 'reviews';
@@ -56,7 +57,7 @@ Reviews:
 ${reviews}`;
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt), { label: 'Vibe-Summary' });
     return result.response.text().trim();
   } catch (err) {
     console.error(`[Vibe-Summary] Gemini call failed (model=${MODEL_NAME}):`, err.message);

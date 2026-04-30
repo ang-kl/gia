@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { withRetry } = require('./gemini-retry');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -78,7 +79,7 @@ Return ONLY the JSON array, no preamble.`;
       model: MODEL_NAME,
       generationConfig: { responseMimeType: 'application/json' }
     });
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt), { label: 'Vibe-Suggest' });
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) return [];
     return parsed
