@@ -46,7 +46,7 @@ const MAX_RETRIES = 3;
 const BACKOFF_BASE_MS = 1000;
 const PLACE_DETAILS_FIELDS = [
   'id', 'businessStatus', 'regularOpeningHours', 'location',
-  'displayName', 'formattedAddress', 'primaryType'
+  'displayName', 'formattedAddress', 'primaryType', 'googleMapsLinks'
 ].join(',');
 
 // Singapore bounding box (rough: Tuas → Changi, north of equator)
@@ -315,6 +315,10 @@ async function vaultUpsert(redis, place, sourceTag) {
     primaryType: place.primaryType ?? '',
     hours: JSON.stringify(place.regularOpeningHours ?? {}),
     businessStatus: place.businessStatus ?? '',
+    placeUri: place.googleMapsLinks?.placeUri ?? '',
+    directionsUri: place.googleMapsLinks?.directionsUri ?? '',
+    reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
+    photosUri: place.googleMapsLinks?.photosUri ?? '',
     source: sourceTag
   });
   await redis.sendCommand([
