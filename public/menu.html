@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>soleat menu</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #f7f8fa);
+      --card: var(--tg-theme-secondary-bg-color, #ffffff);
+      --text: var(--tg-theme-text-color, #1f2933);
+      --hint: var(--tg-theme-hint-color, #6b7785);
+      --accent: var(--tg-theme-button-color, #1e88e5);
+      --accent-text: var(--tg-theme-button-text-color, #ffffff);
+    }
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .header {
+      padding: 24px 16px 8px;
+    }
+    .header h1 {
+      margin: 0; font-size: 22px; font-weight: 700;
+    }
+    .header p {
+      margin: 4px 0 0; color: var(--hint); font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 16px;
+    }
+    .tile {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px 16px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: transform 0.08s ease, box-shadow 0.12s ease;
+      display: flex; flex-direction: column; gap: 6px;
+      min-height: 96px;
+      -webkit-tap-highlight-color: transparent;
+      border: 0;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+    }
+    .tile:active { transform: scale(0.97); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .tile .icon { font-size: 28px; line-height: 1; }
+    .tile .label { font-weight: 600; font-size: 15px; }
+    .tile .sub { font-size: 12px; color: var(--hint); line-height: 1.3; }
+    .tile.full { grid-column: 1 / -1; }
+    .footer {
+      padding: 16px; color: var(--hint); font-size: 12px; text-align: center;
+    }
+    #cuisine-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: flex-end; justify-content: center;
+      z-index: 50;
+    }
+    #cuisine-modal.show { display: flex; }
+    #cuisine-modal .sheet {
+      background: var(--card);
+      width: 100%; max-width: 520px;
+      border-radius: 20px 20px 0 0;
+      padding: 16px 16px 24px;
+    }
+    #cuisine-modal h2 {
+      margin: 4px 0 12px; font-size: 17px;
+    }
+    #cuisine-modal .types {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    #cuisine-modal .types button {
+      background: var(--bg);
+      border: 0; padding: 12px 8px; border-radius: 12px;
+      font: inherit; color: inherit; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #cuisine-modal .types button:active { background: var(--accent); color: var(--accent-text); }
+    #cuisine-modal .cancel {
+      width: 100%; margin-top: 12px;
+      background: transparent; border: 0; color: var(--hint);
+      padding: 10px; font: inherit; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🌿 soleat</h1>
+    <p>Tap a tile, share your location, and Gia handles the rest.</p>
+  </div>
+
+  <div class="grid">
+    <button class="tile" data-cmd="eat">
+      <div class="icon">🍽</div>
+      <div class="label">Eat</div>
+      <div class="sub">Solo-diner sanctuary picks for now</div>
+    </button>
+    <button class="tile" data-cmd="drink">
+      <div class="icon">🥤</div>
+      <div class="label">Drink</div>
+      <div class="sub">Bars, coffee, tea, juice</div>
+    </button>
+    <button class="tile" data-cmd="grocery">
+      <div class="icon">🛒</div>
+      <div class="label">Grocery</div>
+      <div class="sub">Supermarkets &amp; fresh markets</div>
+    </button>
+    <button class="tile" data-cmd="cuisine">
+      <div class="icon">🍣</div>
+      <div class="label">Cuisine</div>
+      <div class="sub">Pick a style</div>
+    </button>
+    <button class="tile" data-cmd="weather">
+      <div class="icon">☀️</div>
+      <div class="label">Weather</div>
+      <div class="sub">Now + 2-hour forecast</div>
+    </button>
+    <button class="tile" data-cmd="transport">
+      <div class="icon">🚉</div>
+      <div class="label">Transport</div>
+      <div class="sub">MRT pulse</div>
+    </button>
+    <button class="tile" data-cmd="carpark">
+      <div class="icon">🅿️</div>
+      <div class="label">Carpark</div>
+      <div class="sub">Nearest 5 with available lots</div>
+    </button>
+    <button class="tile" data-cmd="map">
+      <div class="icon">📍</div>
+      <div class="label">Map</div>
+      <div class="sub">Live sanctuary map</div>
+    </button>
+  </div>
+
+  <div class="footer">soleat · powered by Gia</div>
+
+  <div id="cuisine-modal">
+    <div class="sheet">
+      <h2>What cuisine?</h2>
+      <div class="types">
+        <button data-type="Japanese">🍣 Japanese</button>
+        <button data-type="Korean">🍲 Korean</button>
+        <button data-type="Chinese">🥟 Chinese</button>
+        <button data-type="Italian">🍝 Italian</button>
+        <button data-type="Indian">🍛 Indian</button>
+        <button data-type="Thai">🍜 Thai</button>
+        <button data-type="Vietnamese">🍲 Vietnamese</button>
+        <button data-type="Malay">🍱 Malay</button>
+        <button data-type="Western">🍔 Western</button>
+      </div>
+      <button class="cancel" id="cuisine-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <script src="/static/menu.js"></script>
+</body>
+</html>

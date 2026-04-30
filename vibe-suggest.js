@@ -9,7 +9,8 @@ const SEARCH_RADIUS_M = 200; // walking radius from user-set centre
 const CATEGORIES = {
   food: { label: null, hint: null }, // time-of-day branched in mealPeriodSGT
   drink: { label: 'drinks', hint: 'bars, coffee bars, tea spots, juice bars — solo-friendly counter seating' },
-  groceries: { label: 'groceries', hint: 'supermarkets, fresh-market grocers, gourmet food stores within walking distance' }
+  groceries: { label: 'groceries', hint: 'supermarkets, fresh-market grocers, gourmet food stores within walking distance' },
+  cuisine: { label: 'cuisine picks', hint: null } // hint composed at runtime from cuisineType
 };
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -236,16 +237,26 @@ const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
 async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
   // Radial expansion policy (v0.11.0, supersedes v0.8.1 fail-fast):
   //   Try the first Gemini candidate at progressively larger radii
-  //   (200 m → 500 m → 1000 m). The first radius at which the
-  //   candidate validates becomes the "active" radius; subsequent
+  //   (200 m → 500 m → 1000 m → 2000 m). The first radius at which
+  //   the candidate validates becomes the "active" radius; subsequent
   //   candidates 2–N use the same radius to fill up to `count` picks.
   //   If all radii fail, return zero — caller falls through to the
   //   Hidden Sanctuary consultant, then handleNoResults.
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
-  const meal = override.hint
-    ? { id: category, label: override.label, hint: override.hint }
-    : mealPeriodSGT();
+  let meal;
+  if (category === 'cuisine' && opts.cuisineType) {
+    const c = String(opts.cuisineType).trim();
+    meal = {
+      id: 'cuisine',
+      label: `${c} cuisine`,
+      hint: `${c} restaurants and cafés serving authentic ${c} food, suitable for a solo diner`
+    };
+  } else if (override.hint) {
+    meal = { id: category, label: override.label, hint: override.hint };
+  } else {
+    meal = mealPeriodSGT();
+  }
   const candidates = await geminiCandidates(meal, lat, lng);
   if (!candidates.length) return { meal, venues: [] };
 
