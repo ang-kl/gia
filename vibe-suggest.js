@@ -235,13 +235,12 @@ async function rankByWalkingTime(userLat, userLng, venues) {
 const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
 
 async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
-  // Radial expansion policy (v0.11.0, supersedes v0.8.1 fail-fast):
-  //   Try the first Gemini candidate at progressively larger radii
-  //   (200 m → 500 m → 1000 m → 2000 m). The first radius at which
-  //   the candidate validates becomes the "active" radius; subsequent
-  //   candidates 2–N use the same radius to fill up to `count` picks.
-  //   If all radii fail, return zero — caller falls through to the
-  //   Hidden Sanctuary consultant, then handleNoResults.
+  // Radial expansion policy (v0.19.0, supersedes v0.11.0 first-candidate-radial):
+  //   Try ALL Gemini candidates at 200 m. If any validate, use those
+  //   (no expansion needed). If 0 validate at 200 m, try all candidates
+  //   at 500 m, then 1000 m, then 2000 m. This maximizes 200 m hit rate
+  //   instead of locking the active radius to wherever candidates[0]
+  //   first succeeded.
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
   let meal;
@@ -260,19 +259,22 @@ async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {})
   const candidates = await geminiCandidates(meal, lat, lng);
   if (!candidates.length) return { meal, venues: [] };
 
-  let first = null;
+  let validated = [];
   let activeRadius = RADIAL_EXPANSION_M[0];
   for (const r of RADIAL_EXPANSION_M) {
-    first = await validateWithPlaces(candidates[0], { lat, lng }, r);
-    if (first) { activeRadius = r; break; }
+    const acc = [];
+    for (const candidate of candidates) {
+      if (acc.length >= count) break;
+      const v = await validateWithPlaces(candidate, { lat, lng }, r);
+      if (v) acc.push(v);
+    }
+    if (acc.length) {
+      validated = acc;
+      activeRadius = r;
+      break; // first radius with any hits wins; tighter is better
+    }
   }
-  if (!first) return { meal, venues: [] };
-
-  const validated = [first];
-  for (let i = 1; i < candidates.length && validated.length < count; i++) {
-    const v = await validateWithPlaces(candidates[i], { lat, lng }, activeRadius);
-    if (v) validated.push(v);
-  }
+  if (!validated.length) return { meal, venues: [] };
 
   const ranked = await rankByWalkingTime(lat, lng, validated.slice(0, count));
   return { meal, venues: ranked, activeRadius };

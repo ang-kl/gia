@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const LOC_TTL = 30 * 60;       // 30 minutes
+const LOC_TTL = 24 * 60 * 60;  // 24 hours
 const PENDING_TTL = 5 * 60;    // 5 minutes
 
 function hashChatId(chatId) {
