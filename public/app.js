@@ -2,6 +2,17 @@
   const tg = window.Telegram?.WebApp;
   if (tg) tg.expand();
 
+  // Global error swallow — keeps unhandled errors out of the iPadOS
+  // native "An error occurred" system modal that locks the screen.
+  window.addEventListener('error', (e) => {
+    e.preventDefault();
+    setStatus('Gia hit a snag. Reopen from inside Telegram to retry.', false);
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    e.preventDefault();
+    setStatus('Gia hit a snag. Reopen from inside Telegram to retry.', false);
+  });
+
   const RAFFLES_PLACE = { lat: 1.2839, lng: 103.8517 };
   const GMAPS_INSTALL_URL = 'https://apps.apple.com/app/google-maps/id585027354';
   const APP_PROBE_TIMEOUT_MS = 1500;
@@ -15,8 +26,10 @@
 
   function setStatus(text, hide) {
     if (!statusEl) return;
-    statusEl.textContent = text;
+    const msgEl = statusEl.querySelector('.msg') || statusEl;
+    msgEl.textContent = text;
     statusEl.classList.toggle('hidden', !!hide);
+    statusEl.classList.toggle('done', !!hide);
   }
 
   async function authedFetch(url) {

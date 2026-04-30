@@ -12,11 +12,15 @@ const {
   setUserLocation,
   getUserLocation,
   setPendingMeal,
-  consumePendingMeal
+  consumePendingMeal,
+  isProcessing,
+  setProcessing,
+  clearProcessing
 } = require('./location-cache');
 const { requireInitData } = require('./twa-auth');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
+const { findHiddenSanctuary } = require('./consultant');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -178,28 +182,53 @@ async function deliverPicks(chatId, mealLabel, picks) {
 }
 
 async function runFlow(chatId, lat, lng, category) {
-  // Vault-first policy (v0.9.0) for /eat and /drink:
-  //   1. GEOSEARCH gia:vault within 300m
-  //   2. Live-verify open_now via Place Details
-  //   3. If <3 open vault hits, fall through to broad pickValidated
-  //
-  // /groceries skips the Vault and goes straight to pickValidated.
-  if (category === 'food' || category === 'drink') {
+  // v0.10.0: per-chat processing lock prevents duplicate parallel pipelines
+  // when the user impatiently re-taps /eat or types again before the
+  // previous run completes.
+  if (await isProcessing(redis, chatId)) {
+    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    return;
+  }
+  await setProcessing(redis, chatId);
+  try {
+    // Vault-first (v0.9.0) for /eat and /drink:
+    if (category === 'food' || category === 'drink') {
+      try {
+        const vaultPicks = await fetchOpenVaultPicks(redis, lat, lng, 300, 3);
+        if (vaultPicks.length >= 3) {
+          const label = category === 'food' ? mealPeriodSGT().label : category;
+          await deliverPicks(chatId, label, vaultPicks);
+          return;
+        }
+      } catch (err) {
+        console.error('[Vault] runtime query failed; falling through to pickValidated:', err.message);
+      }
+    }
+    // Fail-fast pickValidated (v0.8.1).
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
+    if (venues.length) {
+      await deliverPicks(chatId, meal.label, venues);
+      return;
+    }
+    // v0.10.0 Consultant Layer: zero results → ask Gemini to surface
+    // a Hidden Sanctuary from broader Places searchNearby + reviews.
     try {
-      const vaultPicks = await fetchOpenVaultPicks(redis, lat, lng, 300, 3);
-      if (vaultPicks.length >= 3) {
-        const label = category === 'food' ? mealPeriodSGT().label : category;
-        await deliverPicks(chatId, label, vaultPicks);
+      const hidden = await findHiddenSanctuary(lat, lng);
+      if (hidden) {
+        await safeSend(
+          chatId,
+          `I couldn't find a standard ${meal.label} sanctuary, but I've identified a 'Hidden Sanctuary' at ${hidden.name} based on recent reviews mentioning ${hidden.vibe}.`
+        );
+        await deliverPicks(chatId, meal.label, [hidden]);
         return;
       }
     } catch (err) {
-      console.error('[Vault] runtime query failed; falling through to pickValidated:', err.message);
+      console.error('[Consultant] findHiddenSanctuary failed:', err.message);
     }
+    await deliverPicks(chatId, meal.label, []);
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
   }
-  // Fail-fast pickValidated (v0.8.1): no seed re-poll. handleNoResults
-  // fires inside deliverPicks if zero venues come back.
-  const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
-  await deliverPicks(chatId, meal.label, venues);
 }
 
 const LOCATION_REQUEST_KEYBOARD = {

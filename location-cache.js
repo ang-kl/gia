@@ -32,10 +32,30 @@ async function consumePendingMeal(redis, chatId) {
   return value;
 }
 
+const PROCESSING_TTL = 60; // 60 s — covers a full pickValidated + Routes round trip
+
+async function isProcessing(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  return Boolean(await redis.get(`proc:${hashChatId(chatId)}`));
+}
+
+async function setProcessing(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  await redis.setEx(`proc:${hashChatId(chatId)}`, PROCESSING_TTL, '1');
+}
+
+async function clearProcessing(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  await redis.del(`proc:${hashChatId(chatId)}`).catch(() => {});
+}
+
 module.exports = {
   hashChatId,
   setUserLocation,
   getUserLocation,
   setPendingMeal,
-  consumePendingMeal
+  consumePendingMeal,
+  isProcessing,
+  setProcessing,
+  clearProcessing
 };
