@@ -116,7 +116,8 @@ async function deliverPicks(chatId, mealLabel, picks) {
       const open = p.openNow === true ? ' · Open now'
         : p.openNow === false ? ' · Closed'
         : '';
-      return `${i + 1}. ${p.name}${rating}${open}`;
+      const walk = Number.isFinite(p.walkMinutes) ? ` · ${p.walkMinutes} min walk` : '';
+      return `${i + 1}. ${p.name}${rating}${open}${walk}`;
     })
     .join('\n');
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);

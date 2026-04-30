@@ -133,6 +133,53 @@ async function validateWithPlaces(candidate, near) {
   }
 }
 
+async function rankByWalkingTime(userLat, userLng, venues) {
+  if (!venues.length) return venues;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return venues;
+  const candidates = venues.filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng));
+  if (!candidates.length) return venues;
+  try {
+    const body = {
+      origins: [{ waypoint: { location: { latLng: { latitude: userLat, longitude: userLng } } } }],
+      destinations: candidates.map((v) => ({
+        waypoint: { location: { latLng: { latitude: v.lat, longitude: v.lng } } }
+      })),
+      travelMode: 'WALK'
+    };
+    const { data } = await axios.post(
+      'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix',
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters,condition'
+        },
+        timeout: 8000
+      }
+    );
+    const elems = Array.isArray(data) ? data : [];
+    candidates.forEach((v, i) => {
+      const elem = elems.find((e) => e.destinationIndex === i && e.originIndex === 0);
+      if (!elem || !elem.duration) return;
+      const seconds = parseInt(String(elem.duration).replace(/s$/, ''), 10);
+      if (!Number.isFinite(seconds)) return;
+      v.walkSeconds = seconds;
+      v.walkMinutes = Math.max(1, Math.round(seconds / 60));
+      v.walkMeters = Number.isFinite(elem.distanceMeters) ? elem.distanceMeters : null;
+    });
+    return [...venues].sort((a, b) => {
+      const av = a.walkSeconds ?? Number.POSITIVE_INFINITY;
+      const bv = b.walkSeconds ?? Number.POSITIVE_INFINITY;
+      return av - bv;
+    });
+  } catch (err) {
+    console.error('[Vibe-Suggest] rankByWalkingTime failed:', err.message);
+    return venues;
+  }
+}
+
 async function pickValidated(lat, lng, count = 3, fallbackList = [], opts = {}) {
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
@@ -153,7 +200,8 @@ async function pickValidated(lat, lng, count = 3, fallbackList = [], opts = {}) 
       validated.push({ ...item, vibe: '', source: 'fallback' });
     }
   }
-  return { meal, venues: validated.slice(0, count) };
+  const ranked = await rankByWalkingTime(lat, lng, validated.slice(0, count));
+  return { meal, venues: ranked };
 }
 
 async function geocodeQuery(text) {
@@ -190,4 +238,4 @@ async function geocodeQuery(text) {
   }
 }
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, geocodeQuery };
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, geocodeQuery, rankByWalkingTime };
