@@ -22,6 +22,8 @@ const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
 const { runHealthCheck } = require('./ver');
+const weather = require('./weather');
+const carpark = require('./carpark');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -296,7 +298,7 @@ bot.onText(/^\/drink(?:@\w+)?$/, async (msg) => {
   }
 });
 
-bot.onText(/^\/groceries(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:groceries|grocery)(?:@\w+)?$/, async (msg) => {
   try {
     await startSanctuaryFlow(msg.chat.id, 'groceries', 'groceries');
   } catch (err) {
@@ -305,12 +307,162 @@ bot.onText(/^\/groceries(?:@\w+)?$/, async (msg) => {
   }
 });
 
+const PENDING_CUISINE_PREFIX = 'cuisine:';
+
+bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
+  try {
+    const arg = (match?.[1] || '').trim();
+    if (!arg) {
+      await safeSend(
+        msg.chat.id,
+        "Tell Gia what cuisine — e.g. /cuisine Japanese, /cuisine Italian, /cuisine Korean."
+      );
+      return;
+    }
+    // Encode the cuisine type into the pending state so the location flow
+    // can route to runFlow with category=cuisine + cuisineType=<arg>.
+    await setPendingMeal(redis, msg.chat.id, `${PENDING_CUISINE_PREFIX}${arg}`);
+    const cached = await getUserLocation(redis, msg.chat.id);
+    if (cached) {
+      await safeSend(msg.chat.id, ACK_SENSING_VIBE);
+      await runCuisineFlow(msg.chat.id, cached.lat, cached.lng, arg);
+      return;
+    }
+    await bot.sendMessage(
+      msg.chat.id,
+      `Where are you for ${arg}? Please tap to share your location, or type a place name (Gia will search within 200 m).`,
+      LOCATION_REQUEST_KEYBOARD
+    );
+  } catch (err) {
+    console.error('[Error] /cuisine handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't think of cuisine picks right now.");
+  }
+});
+
+async function runCuisineFlow(chatId, lat, lng, cuisineType) {
+  if (await isProcessing(redis, chatId)) {
+    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    return;
+  }
+  await setProcessing(redis, chatId);
+  try {
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType });
+    if (venues.length) {
+      await deliverPicks(chatId, meal.label, venues);
+      return;
+    }
+    try {
+      const hidden = await findHiddenSanctuary(lat, lng);
+      if (hidden) {
+        const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
+        await safeSend(
+          chatId,
+          `I couldn't find a strictly ${cuisineType} sanctuary, but I've identified a 'Hidden Sanctuary' at ${hidden.name} based on recent reviews mentioning ${hidden.vibe}.${approachLine}`
+        );
+        await deliverPicks(chatId, `${cuisineType} cuisine`, [hidden]);
+        return;
+      }
+    } catch (err) {
+      console.error('[Consultant] findHiddenSanctuary failed:', err.message);
+    }
+    await deliverPicks(chatId, `${cuisineType} cuisine`, []);
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
+
+bot.onText(/^\/weather(?:@\w+)?$/, async (msg) => {
+  try {
+    const cached = await getUserLocation(redis, msg.chat.id);
+    const lat = cached?.lat ?? 1.2839;
+    const lng = cached?.lng ?? 103.8517;
+    const w = await weather.summary(lat, lng);
+    if (!w?.forecast && !w?.tempC) {
+      await safeSend(msg.chat.id, "Sorry, I can't reach the NEA weather feed right now.");
+      return;
+    }
+    const lines = ['☀️ Singapore weather'];
+    if (Number.isFinite(w.tempC)) {
+      lines.push(`Now: ${w.tempC.toFixed(1)}°C at ${w.tempStationName}`);
+    }
+    if (w.forecast) {
+      const valid = w.forecastValidTo ? ` (until ${new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' })})` : '';
+      lines.push(`Next 2h in ${w.forecastArea}: ${w.forecast}${valid}`);
+    }
+    await safeSend(msg.chat.id, lines.join('\n'));
+  } catch (err) {
+    console.error('[Error] /weather handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach the NEA weather feed right now.");
+  }
+});
+
+bot.onText(/^\/transport(?:@\w+)?$/, async (msg) => {
+  // Alias of /status for now (MRT pulse). Bus arrivals to follow in a later patch.
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const cached = await redis.get('lta:train_status');
+    const data = cached ? JSON.parse(cached) : null;
+    const response = data
+      ? `🚉 Singapore transport\n\nMRT: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
+      : "Gia is still waking up. Try again in 30 seconds.";
+    await safeSend(msg.chat.id, response);
+  } catch (err) {
+    console.error('[Error] /transport handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach my transport memory right now.");
+  }
+});
+
+bot.onText(/^\/carpark(?:@\w+)?$/, async (msg) => {
+  try {
+    if (!process.env.LTA_ACCOUNT_KEY) {
+      await safeSend(msg.chat.id, "Carpark lookup is offline (LTA key not configured).");
+      return;
+    }
+    const cached = await getUserLocation(redis, msg.chat.id);
+    const lat = cached?.lat ?? 1.2839;
+    const lng = cached?.lng ?? 103.8517;
+    if (!cached) {
+      await safeSend(msg.chat.id, "I don't have your location — using Raffles Place as default. Share your location once and Gia will remember.");
+    }
+    await safeSend(msg.chat.id, "🅿️ Looking up nearest carparks…");
+    const list = await carpark.nearest(lat, lng, 5);
+    if (!list.length) {
+      await safeSend(msg.chat.id, "No carparks with available lots near here.");
+      return;
+    }
+    const lines = ['🅿️ Nearest carparks with available lots'];
+    list.forEach((c, i) => {
+      lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`);
+    });
+    await safeSend(msg.chat.id, lines.join('\n'));
+  } catch (err) {
+    console.error('[Error] /carpark handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I can't reach the LTA carpark feed right now.");
+  }
+});
+
+// Resolves a pending-state string into a routing decision.
+function resolvePending(pending) {
+  if (!pending) return null;
+  if (pending.startsWith(PENDING_CUISINE_PREFIX)) {
+    return { kind: 'cuisine', cuisineType: pending.slice(PENDING_CUISINE_PREFIX.length) };
+  }
+  if (['food', 'drink', 'groceries'].includes(pending)) {
+    return { kind: 'sanctuary', category: pending };
+  }
+  return { kind: 'sanctuary', category: 'food' };
+}
+
 bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   try {
     const pending = await consumePendingMeal(redis, msg.chat.id);
-    const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
+    const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
-    await runFlow(msg.chat.id, 1.2839, 103.8517, category);
+    if (resolved.kind === 'cuisine') {
+      await runCuisineFlow(msg.chat.id, 1.2839, 103.8517, resolved.cuisineType);
+    } else {
+      await runFlow(msg.chat.id, 1.2839, 103.8517, resolved.category);
+    }
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
     await safeSend(msg.chat.id, MANUAL_FALLBACK_PROMPT);
@@ -333,9 +485,13 @@ bot.on('location', async (msg) => {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       throw new Error('coordinates missing or malformed');
     }
-    const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
     await setUserLocation(redis, msg.chat.id, lat, lng);
-    await runFlow(msg.chat.id, lat, lng, category);
+    const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
+    if (resolved.kind === 'cuisine') {
+      await runCuisineFlow(msg.chat.id, lat, lng, resolved.cuisineType);
+    } else {
+      await runFlow(msg.chat.id, lat, lng, resolved.category);
+    }
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
     // Validation gate: restore pending so the next typed message is
@@ -377,24 +533,150 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   }
 });
 
-bot.onText(/^\/start(?:@\w+)?$/, async (msg) => {
+// /start handler — greets the user, optionally accepts a deep-link param
+// (e.g. /start eat from a t.me/<bot>?start=eat link) to immediately route
+// to a flow.
+bot.onText(/^\/start(?:@\w+)?(?:\s+(\w+))?$/, async (msg, match) => {
+  const param = (match?.[1] || '').trim().toLowerCase();
+  if (param) {
+    const routed = await routeMenuCommand(msg.chat.id, param);
+    if (routed) return;
+  }
   await safeSend(
     msg.chat.id,
     "I'm Gia, the concierge inside soleat — your CBD sanctuary guide.\n\n" +
-    "/eat — solo-diner food picks for now\n" +
-    "/drink — bars, coffee, tea spots\n" +
-    "/groceries — supermarkets & fresh markets\n" +
-    "/status — live MRT pulse\n\n" +
-    "Tap the menu button (🌿 soleat Map) for the live map view, or just message me what you're craving."
+    "/eat       — solo-diner food picks for now\n" +
+    "/drink     — bars, coffee, tea spots\n" +
+    "/grocery   — supermarkets & fresh markets\n" +
+    "/cuisine X — by cuisine type (Japanese / Korean / Italian / …)\n" +
+    "/weather   — now + 2-hour NEA forecast\n" +
+    "/transport — live MRT pulse\n" +
+    "/carpark   — nearest 5 with available lots\n" +
+    "/status    — train pulse (alias of /transport)\n" +
+    "/ver       — version + upstream API health\n\n" +
+    "Or tap the menu button (🌿 soleat Menu) for the tile UI."
   );
 });
 
-// Free-text handler. If a sanctuary flow is pending (user just got the
-// "share location or type a place" prompt), interpret the text as a
-// place name → geocode → run the flow. Otherwise fall through to the
-// Topic Gatekeeper.
+// Routes a single-word command name to the appropriate flow. Used by
+// (a) /start <cmd> deep links and (b) web_app_data tile taps. Returns
+// true if it routed something.
+async function routeMenuCommand(chatId, raw, payload = null) {
+  const cmd = String(raw || '').trim().toLowerCase();
+  switch (cmd) {
+    case 'eat':       await startSanctuaryFlow(chatId, 'food', mealPeriodSGT().label); return true;
+    case 'drink':     await startSanctuaryFlow(chatId, 'drink', 'drinks'); return true;
+    case 'grocery':
+    case 'groceries': await startSanctuaryFlow(chatId, 'groceries', 'groceries'); return true;
+    case 'cuisine': {
+      const type = (payload?.type || '').trim();
+      if (!type) {
+        await safeSend(chatId, "Tell Gia what cuisine — e.g. /cuisine Japanese.");
+        return true;
+      }
+      await setPendingMeal(redis, chatId, `${PENDING_CUISINE_PREFIX}${type}`);
+      const cached = await getUserLocation(redis, chatId);
+      if (cached) { await safeSend(chatId, ACK_SENSING_VIBE); await runCuisineFlow(chatId, cached.lat, cached.lng, type); }
+      else await bot.sendMessage(chatId, `Where are you for ${type}? Please tap to share your location, or type a place name.`, LOCATION_REQUEST_KEYBOARD);
+      return true;
+    }
+    case 'weather':   await runWeatherCommand(chatId); return true;
+    case 'transport':
+    case 'status':    await runTransportCommand(chatId); return true;
+    case 'carpark':   await runCarparkCommand(chatId); return true;
+    case 'ver':       await runVerCommand(chatId); return true;
+    default:          return false;
+  }
+}
+
+async function runWeatherCommand(chatId) {
+  try {
+    const cached = await getUserLocation(redis, chatId);
+    const lat = cached?.lat ?? 1.2839;
+    const lng = cached?.lng ?? 103.8517;
+    const w = await weather.summary(lat, lng);
+    if (!w?.forecast && !w?.tempC) { await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now."); return; }
+    const lines = ['☀️ Singapore weather'];
+    if (Number.isFinite(w.tempC)) lines.push(`Now: ${w.tempC.toFixed(1)}°C at ${w.tempStationName}`);
+    if (w.forecast) {
+      const valid = w.forecastValidTo ? ` (until ${new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' })})` : '';
+      lines.push(`Next 2h in ${w.forecastArea}: ${w.forecast}${valid}`);
+    }
+    await safeSend(chatId, lines.join('\n'));
+  } catch (err) {
+    console.error('[Error] weather command failed:', err.message);
+    await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now.");
+  }
+}
+
+async function runTransportCommand(chatId) {
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const cached = await redis.get('lta:train_status');
+    const data = cached ? JSON.parse(cached) : null;
+    const response = data
+      ? `🚉 Singapore transport\n\nMRT: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
+      : "Gia is still waking up. Try again in 30 seconds.";
+    await safeSend(chatId, response);
+  } catch (err) {
+    console.error('[Error] transport command failed:', err.message);
+    await safeSend(chatId, "Sorry, I can't reach my transport memory right now.");
+  }
+}
+
+async function runCarparkCommand(chatId) {
+  try {
+    if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, "Carpark lookup is offline (LTA key not configured)."); return; }
+    const cached = await getUserLocation(redis, chatId);
+    const lat = cached?.lat ?? 1.2839;
+    const lng = cached?.lng ?? 103.8517;
+    if (!cached) await safeSend(chatId, "I don't have your location — using Raffles Place as default. Share your location once and Gia will remember.");
+    await safeSend(chatId, "🅿️ Looking up nearest carparks…");
+    const list = await carpark.nearest(lat, lng, 5);
+    if (!list.length) { await safeSend(chatId, "No carparks with available lots near here."); return; }
+    const lines = ['🅿️ Nearest carparks with available lots'];
+    list.forEach((c, i) => lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`));
+    await safeSend(chatId, lines.join('\n'));
+  } catch (err) {
+    console.error('[Error] carpark command failed:', err.message);
+    await safeSend(chatId, "Sorry, I can't reach the LTA carpark feed right now.");
+  }
+}
+
+async function runVerCommand(chatId) {
+  try {
+    await safeSend(chatId, '🩺 Running health check…');
+    const report = await runHealthCheck(bot, redis);
+    const escaped = report.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, report); });
+  } catch (err) {
+    console.error('[Error] ver command failed:', err.message);
+    await safeSend(chatId, "Sorry, I couldn't run the health check.");
+  }
+}
+
+// Free-text + web_app_data handler.
+//
+// Order:
+//   1. Tile-tap: msg.web_app_data → JSON.parse → routeMenuCommand
+//   2. If a sanctuary flow is pending, interpret text as place name
+//      → geocode → run the flow
+//   3. Otherwise fall through to the Topic Gatekeeper
 bot.on('message', async (msg) => {
   try {
+    // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
+    if (msg.web_app_data?.data) {
+      try {
+        const payload = JSON.parse(msg.web_app_data.data);
+        const handled = await routeMenuCommand(msg.chat.id, payload?.cmd, payload);
+        if (!handled) await safeSend(msg.chat.id, "Unrecognised menu action.");
+      } catch (err) {
+        console.error('[Error] web_app_data parse failed:', err.message);
+        await safeSend(msg.chat.id, "Sorry, I couldn't read that menu tap.");
+      }
+      return;
+    }
+
     if (!msg.text) return;
     const text = msg.text.trim();
     if (!text) return;
@@ -405,18 +687,22 @@ bot.on('message', async (msg) => {
 
     const pending = await consumePendingMeal(redis, msg.chat.id);
     if (pending) {
-      const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
+      const resolved = resolvePending(pending);
       // §1 Universal ack — same copy across all entry points.
       await safeSend(msg.chat.id, ACK_SENSING_VIBE);
       const place = await geocodeQuery(text);
       if (!place) {
         await safeSend(msg.chat.id, `I couldn't place "${text}". ${MANUAL_FALLBACK_PROMPT}`);
-        await setPendingMeal(redis, msg.chat.id, category); // §4 stay locked in original intent
+        await setPendingMeal(redis, msg.chat.id, pending); // §4 stay locked in original intent
         return;
       }
       await setUserLocation(redis, msg.chat.id, place.lat, place.lng);
       await safeSend(msg.chat.id, `Centred on ${place.name}.`);
-      await runFlow(msg.chat.id, place.lat, place.lng, category);
+      if (resolved?.kind === 'cuisine') {
+        await runCuisineFlow(msg.chat.id, place.lat, place.lng, resolved.cuisineType);
+      } else {
+        await runFlow(msg.chat.id, place.lat, place.lng, resolved?.category || 'food');
+      }
       return;
     }
 
@@ -431,18 +717,22 @@ bot.on('message', async (msg) => {
 async function registerCommandsMenu() {
   try {
     await bot.setMyCommands([
-      { command: 'eat', description: 'Solo-diner food picks for now' },
-      { command: 'drink', description: 'Bars, coffee, tea spots near you' },
-      { command: 'groceries', description: 'Supermarkets and fresh markets near you' },
-      { command: 'status', description: 'CBD train pulse' },
-      { command: 'ver', description: 'Version + upstream API health' }
+      { command: 'eat',       description: 'Solo-diner food picks for now' },
+      { command: 'drink',     description: 'Bars, coffee, tea spots' },
+      { command: 'grocery',   description: 'Supermarkets and fresh markets' },
+      { command: 'cuisine',   description: 'Picks by cuisine type — e.g. /cuisine Japanese' },
+      { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
+      { command: 'transport', description: 'Live MRT pulse' },
+      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
+      { command: 'status',    description: 'CBD train pulse (alias)' },
+      { command: 'ver',       description: 'Version + upstream API health' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
         menu_button: {
           type: 'web_app',
-          text: '🌿 soleat Map',
-          web_app: { url: `https://${webhookDomain}/app` }
+          text: '🌿 soleat Menu',
+          web_app: { url: `https://${webhookDomain}/app/menu` }
         }
       });
     } else {
@@ -509,7 +799,11 @@ async function configureUpdates() {
     });
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
-    app.get('/app', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+    // Menu page (Durger-King-style tile grid). New default for the
+    // chat menu button as of v0.18.0.
+    app.get(['/app', '/app/menu'], (_req, res) => res.sendFile(path.join(__dirname, 'public', 'menu.html')));
+    // Live sanctuary map (the v0.4.0 TMA, now under /app/map).
+    app.get('/app/map', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
     app.get('/maps-key', requireInitData, (_req, res) => {
       res.json({
