@@ -106,11 +106,33 @@ async function checkLta() {
 async function checkDataGov() {
   return probe('data.gov.sg', async () => {
     const headers = process.env.DATA_GOV_SG_API_KEY ? { 'x-api-key': process.env.DATA_GOV_SG_API_KEY } : {};
-    await axios.get('https://api-open.data.gov.sg/v2/real-time/api/air-temperature', {
-      headers,
-      timeout: TIMEOUT_MS
-    });
-    return process.env.DATA_GOV_SG_API_KEY ? 'NEA v2 ok (auth)' : 'NEA v2 ok (no key)';
+    // Try v2 first; fall back to v1 if v2 is empty/errors. Report which served.
+    const auth = process.env.DATA_GOV_SG_API_KEY ? 'auth' : 'no key';
+    try {
+      const { data } = await axios.get('https://api-open.data.gov.sg/v2/real-time/api/air-temperature', {
+        headers, timeout: TIMEOUT_MS
+      });
+      const stations = data?.data?.stations?.length || 0;
+      const readings = data?.data?.readings?.[0]?.data?.length || 0;
+      if (stations > 0 && readings > 0) return `NEA v2 ${stations} stations (${auth})`;
+      // v2 returned but empty — try v1.
+      const v1 = await axios.get('https://api.data.gov.sg/v1/environment/air-temperature', {
+        headers, timeout: TIMEOUT_MS
+      });
+      const v1Readings = v1.data?.items?.[0]?.readings?.length || 0;
+      return `NEA v2 empty → v1 ${v1Readings} readings (${auth})`;
+    } catch (err) {
+      // v2 errored — last-resort v1 probe.
+      try {
+        const v1 = await axios.get('https://api.data.gov.sg/v1/environment/air-temperature', {
+          headers, timeout: TIMEOUT_MS
+        });
+        const v1Readings = v1.data?.items?.[0]?.readings?.length || 0;
+        return `v2 fail → v1 ${v1Readings} readings (${auth})`;
+      } catch {
+        throw err;
+      }
+    }
   });
 }
 
