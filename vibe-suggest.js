@@ -2,7 +2,7 @@ const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
 const MAX_DISTANCE_M = 200; // accept Place if within 200m of user
 const SEARCH_RADIUS_M = 200; // walking radius from user-set centre
 
@@ -12,7 +12,7 @@ const CATEGORIES = {
   groceries: { label: 'groceries', hint: 'supermarkets, fresh-market grocers, gourmet food stores within walking distance' }
 };
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 function mealPeriodSGT(date = new Date()) {

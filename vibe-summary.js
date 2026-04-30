@@ -5,9 +5,9 @@ const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places
 const REVIEWS_FIELD_MASK = 'reviews';
 const SUMMARY_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const REVIEW_RECENCY_DAYS = 30;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 function isRecentReview(review, now = Date.now()) {
@@ -44,12 +44,13 @@ async function fetchReviewText(placeId) {
 
 async function summarizeVibe(reviews) {
   if (!genAI || !reviews) return null;
-  const prompt = `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo female diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe.
+  const prompt = `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
 
-Return EXACTLY three short bullets, no preamble, no closing line:
+Return EXACTLY four short bullets, no preamble, no closing line:
 • Quiet: <one short phrase>
 • Seating: <one short phrase about bar/single/communal options>
 • Vibe: <one short phrase about staff and overall feel for solo dining>
+• Approach: <building-level navigation cue if reviewers mention one — entrance, floor, alley, tucked-behind, etc. Otherwise the single word: "—">
 
 Reviews:
 ${reviews}`;

@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
 const CACHE_TTL_SECONDS = 60;
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 const SYSTEM_PROMPT = `You are Gia — a wise, mid-50s Singapore concierge inside a Telegram bot called soleat.
