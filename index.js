@@ -216,9 +216,10 @@ async function runFlow(chatId, lat, lng, category) {
     try {
       const hidden = await findHiddenSanctuary(lat, lng);
       if (hidden) {
+        const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
         await safeSend(
           chatId,
-          `I couldn't find a standard ${meal.label} sanctuary, but I've identified a 'Hidden Sanctuary' at ${hidden.name} based on recent reviews mentioning ${hidden.vibe}.`
+          `I couldn't find a standard ${meal.label} sanctuary, but I've identified a 'Hidden Sanctuary' at ${hidden.name} based on recent reviews mentioning ${hidden.vibe}.${approachLine}`
         );
         await deliverPicks(chatId, meal.label, [hidden]);
         return;
