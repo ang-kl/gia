@@ -149,11 +149,128 @@ function arrivalToObject(b, nowMs) {
   };
 }
 
+// === MRT stations + platform crowd ===
+
+const MRT_LINES = ['NSL', 'EWL', 'CCL', 'NEL', 'DTL', 'CGL', 'BPL', 'TEL', 'SLRT', 'PLRT'];
+const PCD_URL = `${LTA_BASE}/PCDRealTime`;
+const CROWD_LABEL = { l: 'low', m: 'medium', h: 'high' };
+
+// Use Google Places (New) to find nearest MRT/subway stations.
+// More reliable than maintaining a hardcoded coord table for ~140 stations.
+async function nearestMrtStations(lat, lng, radiusM = 1500, count = 3) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const { data } = await axios.post(
+      'https://places.googleapis.com/v1/places:searchNearby',
+      {
+        includedTypes: ['subway_station'],
+        maxResultCount: Math.max(count, 5),
+        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: radiusM } },
+        rankPreference: 'DISTANCE'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
+        },
+        timeout: 8000
+      }
+    );
+    return (data.places ?? []).slice(0, count).map((p) => ({
+      placeId: p.id,
+      name: p.displayName?.text ?? '',
+      address: p.formattedAddress ?? '',
+      lat: p.location?.latitude ?? null,
+      lng: p.location?.longitude ?? null
+    }));
+  } catch (err) {
+    console.error('[Transport] MRT searchNearby failed:', err.message);
+    return [];
+  }
+}
+
+// Fetches crowd density for a single LTA train line.
+async function fetchLineCrowd(trainLine) {
+  if (!process.env.LTA_ACCOUNT_KEY) return [];
+  try {
+    const { data } = await axios.get(PCD_URL, {
+      headers: authHeaders(),
+      params: { TrainLine: trainLine },
+      timeout: 6000
+    });
+    return data?.value ?? [];
+  } catch (err) {
+    // 400 is common when a line code isn't supported on this endpoint version.
+    return [];
+  }
+}
+
+// Fetches all 10 lines in parallel. Returns a Map keyed by uppercased
+// station name → crowd label. LTA's PCDRealTime returns Station as the
+// short station code (e.g. NS1, EW24); we key on that and on a derived
+// human-readable variant if available.
+async function fetchPlatformCrowdAll() {
+  const results = await Promise.all(MRT_LINES.map(fetchLineCrowd));
+  const byCode = new Map();
+  for (const arr of results) {
+    for (const row of arr) {
+      const code = (row.Station || '').toUpperCase().trim();
+      if (!code) continue;
+      const level = (row.CrowdLevel || '').toLowerCase();
+      if (!byCode.has(code)) byCode.set(code, level);
+    }
+  }
+  return byCode;
+}
+
+// Lightweight name → crowd lookup. Tries to match the Places station
+// "displayName" against LTA station codes by stripping common suffixes
+// and uppercasing. Match success is best-effort; null if no match.
+function lookupCrowdForPlace(crowdByCode, placeName) {
+  if (!placeName) return null;
+  // Strip common suffixes: "MRT Station", "Station"
+  const norm = String(placeName)
+    .replace(/\s+(MRT|LRT)\s+Station\s*$/i, '')
+    .replace(/\s+Station\s*$/i, '')
+    .trim();
+  // LTA PCDRealTime uses station CODES (NS27, etc.), not names.
+  // Without an authoritative name→code table we can only show the
+  // worst-case crowd across the whole network. Until a mapping table
+  // is added, return null and let callers omit the crowd line.
+  // (Future patch: hardcode top ~30 station name → code.)
+  return null; // intentional — see comment above
+}
+
+// Compute a coarse city-wide crowd: highest level seen across all lines.
+// Useful as a fallback when per-station mapping isn't available.
+function networkCrowdSummary(crowdByCode) {
+  let counts = { l: 0, m: 0, h: 0 };
+  for (const level of crowdByCode.values()) {
+    if (counts[level] !== undefined) counts[level]++;
+  }
+  const total = counts.l + counts.m + counts.h;
+  if (!total) return null;
+  return {
+    total,
+    low: counts.l,
+    medium: counts.m,
+    high: counts.h,
+    overall: counts.h > total * 0.2 ? 'high' : counts.m > total * 0.4 ? 'medium' : 'low'
+  };
+}
+
 module.exports = {
   refreshStops,
   nearestStops,
   busArrivals,
   isCacheFresh,
+  nearestMrtStations,
+  fetchPlatformCrowdAll,
+  lookupCrowdForPlace,
+  networkCrowdSummary,
+  CROWD_LABEL,
   STOPS_GEO,
   STOPS_HASH_PREFIX
 };

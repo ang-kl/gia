@@ -310,14 +310,33 @@ bot.onText(/^\/(?:groceries|grocery)(?:@\w+)?$/, async (msg) => {
 
 const PENDING_CUISINE_PREFIX = 'cuisine:';
 
+const CUISINE_KEYBOARD = {
+  reply_markup: {
+    inline_keyboard: [
+      [
+        { text: '🍣 Japanese', callback_data: 'cuisine:Japanese' },
+        { text: '🍲 Korean',   callback_data: 'cuisine:Korean' },
+        { text: '🥟 Chinese',  callback_data: 'cuisine:Chinese' }
+      ],
+      [
+        { text: '🍝 Italian',   callback_data: 'cuisine:Italian' },
+        { text: '🍛 Indian',    callback_data: 'cuisine:Indian' },
+        { text: '🍜 Thai',      callback_data: 'cuisine:Thai' }
+      ],
+      [
+        { text: '🥢 Vietnamese', callback_data: 'cuisine:Vietnamese' },
+        { text: '🍱 Malay',      callback_data: 'cuisine:Malay' },
+        { text: '🍔 Western',    callback_data: 'cuisine:Western' }
+      ]
+    ]
+  }
+};
+
 bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
   try {
     const arg = (match?.[1] || '').trim();
     if (!arg) {
-      await safeSend(
-        msg.chat.id,
-        "Tell Gia what cuisine — e.g. /cuisine Japanese, /cuisine Italian, /cuisine Korean."
-      );
+      await bot.sendMessage(msg.chat.id, "Tell Gia what cuisine — pick one:", CUISINE_KEYBOARD);
       return;
     }
     // Encode the cuisine type into the pending state so the location flow
@@ -467,6 +486,33 @@ bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
     await safeSend(msg.chat.id, MANUAL_FALLBACK_PROMPT);
+  }
+});
+
+// callback_query — fired when user taps an inline-keyboard button with
+// callback_data. Two patterns supported:
+//   refresh:transport         → re-run /transport for the same chat
+//   cuisine:<TypeName>        → start cuisine flow with that type
+bot.on('callback_query', async (q) => {
+  try {
+    const data = q.data || '';
+    const chatId = q.message?.chat?.id ?? q.from?.id;
+    if (!chatId) return;
+    // Always answer to dismiss the spinner on the user's tap.
+    bot.answerCallbackQuery(q.id).catch(() => {});
+
+    if (data === 'refresh:transport') {
+      await runTransportCommand(chatId);
+      return;
+    }
+    if (data.startsWith('cuisine:')) {
+      const type = data.slice('cuisine:'.length).trim();
+      if (!type) return;
+      await routeMenuCommand(chatId, 'cuisine', { type });
+      return;
+    }
+  } catch (err) {
+    console.error('[Error] callback_query handler failed:', err.message);
   }
 });
 
@@ -634,13 +680,43 @@ async function runTransportCommand(chatId) {
       lines.push('', 'MRT: 🟡 status warming up; try again in 30 s.');
     }
 
+    // Network-wide crowd snapshot from LTA PCDRealTime across all lines.
+    if (process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const crowdMap = await transport.fetchPlatformCrowdAll();
+        const summary = transport.networkCrowdSummary(crowdMap);
+        if (summary) {
+          lines.push(`Network crowd: ${summary.overall} (${summary.low}L / ${summary.medium}M / ${summary.high}H of ${summary.total})`);
+        }
+      } catch (err) {
+        console.error('[Transport] platform crowd failed:', err.message);
+      }
+    }
+
+    // Nearest MRT stations (Places searchNearby for subway_station).
+    if (cachedLoc && process.env.GOOGLE_MAPS_API_KEY) {
+      try {
+        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
+        if (mrt.length) {
+          lines.push('', '🚇 Nearest MRT stations:');
+          for (const s of mrt) {
+            lines.push(`· ${s.name}`);
+          }
+        }
+      } catch (err) {
+        console.error('[Transport] nearestMrtStations failed:', err.message);
+      }
+    }
+
     // Nearby bus arrivals — only when we have a location and bus-stops cache.
+    let firstBusStopCode = null;
     if (cachedLoc && process.env.LTA_ACCOUNT_KEY) {
       try {
         const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
         if (!stops.length) {
           lines.push('', 'No bus stops within 800 m of your saved location.');
         } else {
+          firstBusStopCode = stops[0]?.code || null;
           lines.push('', '🚌 Nearest bus stops + next arrivals:');
           for (const stop of stops) {
             const arrivals = await transport.busArrivals(stop.code);
@@ -650,7 +726,6 @@ async function runTransportCommand(chatId) {
               lines.push('  no real-time arrivals');
               continue;
             }
-            // Show up to 4 services per stop, each with next 1–2 buses + crowd.
             for (const svc of arrivals.slice(0, 4)) {
               const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
               const next2Str = svc.next2 ? ` · then ${svc.next2.minutes} min` : '';
@@ -663,10 +738,14 @@ async function runTransportCommand(chatId) {
         lines.push('', 'Bus arrivals temporarily unavailable.');
       }
     } else if (!cachedLoc) {
-      lines.push('', '🚌 Tap /eat or /drink first to share your location, then /transport will list nearby bus arrivals too.');
+      lines.push('', '🚌 Tap /eat or /drink first to share your location, then /transport will list nearby bus arrivals + MRT stations too.');
     }
 
-    await safeSend(chatId, lines.join('\n'));
+    // Inline-keyboard refresh button on the first bus stop (#9).
+    const replyMarkup = firstBusStopCode
+      ? { reply_markup: { inline_keyboard: [[{ text: '🔄 Refresh transport', callback_data: 'refresh:transport' }]] } }
+      : {};
+    await safeSend(chatId, lines.join('\n'), replyMarkup);
   } catch (err) {
     console.error('[Error] transport command failed:', err.message);
     await safeSend(chatId, "Sorry, I can't reach my transport memory right now.");
