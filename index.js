@@ -7,7 +7,7 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const { refreshVibeListings, pickLunch } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
-const { mealPeriodSGT, pickValidated } = require('./vibe-suggest');
+const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
 const {
   setUserLocation,
   getUserLocation,
@@ -199,7 +199,11 @@ async function startSanctuaryFlow(chatId, category, prompt) {
     return;
   }
   await setPendingMeal(redis, chatId, category);
-  await bot.sendMessage(chatId, `Where are you for ${prompt}? Tap to share once.`, LOCATION_REQUEST_KEYBOARD);
+  await bot.sendMessage(
+    chatId,
+    `Please tap to share your location, or type a place name and Gia will search within 200 m of it.`,
+    LOCATION_REQUEST_KEYBOARD
+  );
 }
 
 bot.onText(/^\/eat(?:@\w+)?$/, async (msg) => {
@@ -251,7 +255,7 @@ bot.on('location', async (msg) => {
     await setUserLocation(redis, msg.chat.id, latitude, longitude);
     const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
     const label = category === 'food' ? mealPeriodSGT().label : category;
-    await safeSend(msg.chat.id, `Got it. Looking for ${label} within 300m…`);
+    await safeSend(msg.chat.id, `Got it. Looking for ${label} within 200m…`);
     await runFlow(msg.chat.id, latitude, longitude, category);
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
@@ -288,7 +292,10 @@ bot.onText(/^\/start(?:@\w+)?$/, async (msg) => {
   );
 });
 
-// Topic Gatekeeper — handles free-text messages that aren't slash commands or keyboard taps.
+// Free-text handler. If a sanctuary flow is pending (user just got the
+// "share location or type a place" prompt), interpret the text as a
+// place name → geocode → run the flow. Otherwise fall through to the
+// Topic Gatekeeper.
 bot.on('message', async (msg) => {
   try {
     if (!msg.text) return;
@@ -299,10 +306,27 @@ bot.on('message', async (msg) => {
     const hasCommand = (msg.entities ?? []).some((e) => e.type === 'bot_command');
     if (hasCommand) return;
 
+    const pending = await consumePendingMeal(redis, msg.chat.id);
+    if (pending) {
+      const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
+      const label = category === 'food' ? mealPeriodSGT().label : category;
+      await safeSend(msg.chat.id, `Looking up "${text}"…`);
+      const place = await geocodeQuery(text);
+      if (!place) {
+        await safeSend(msg.chat.id, `I couldn't place "${text}". Try a building or street name, or tap 📍 Share my location.`);
+        await setPendingMeal(redis, msg.chat.id, category); // restore so they can try again
+        return;
+      }
+      await setUserLocation(redis, msg.chat.id, place.lat, place.lng);
+      await safeSend(msg.chat.id, `Centred on ${place.name}. Looking for ${label} within 200m…`);
+      await runFlow(msg.chat.id, place.lat, place.lng, category);
+      return;
+    }
+
     const result = await gatekeep(redis, text);
     if (result?.reply) await safeSend(msg.chat.id, result.reply);
   } catch (err) {
-    console.error('[Error] Gatekeeper handler failed:', err.message);
+    console.error('[Error] free-text handler failed:', err.message);
   }
 });
 
