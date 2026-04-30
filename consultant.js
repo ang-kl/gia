@@ -39,6 +39,7 @@ async function nearbyAnyOperational(lat, lng) {
             'places.rating',
             'places.googleMapsUri',
             'places.googleMapsLinks',
+            'places.generativeSummary',
             'places.primaryType',
             'places.businessStatus',
             'places.currentOpeningHours.openNow'
@@ -116,6 +117,15 @@ async function findHiddenSanctuary(lat, lng) {
     if (!reviews.length) continue;
     const verdict = await geminiSanctuaryRead(name, reviews);
     if (verdict?.is_sanctuary) {
+      const g = place.generativeSummary;
+      const overview = g?.overview?.text?.trim();
+      const googleSummary = overview
+        ? {
+            overview,
+            disclosure: (g?.disclosureText?.text || g?.disclaimerText?.text || 'Summarized with Gemini').trim(),
+            flagUri: g?.overviewFlagContentUri || ''
+          }
+        : null;
       return {
         placeId: place.id,
         name,
@@ -131,6 +141,7 @@ async function findHiddenSanctuary(lat, lng) {
         openNow: place.currentOpeningHours?.openNow ?? null,
         vibe: verdict.reason,
         approach: verdict.approach || null,
+        googleSummary,
         source: 'hidden-sanctuary'
       };
     }

@@ -31,6 +31,21 @@ function mealPeriodSGT(date = new Date()) {
   return { id: 'night_supper', label: 'night supper', hint: 'anything still open after midnight' };
 }
 
+// Extract Google's "Summarized with Gemini" overview from a Place object.
+// Safely handles missing field, region/place-type non-coverage, and the docs'
+// inconsistent disclosureText vs disclaimerText naming.
+function extractGenerativeSummary(place) {
+  const g = place?.generativeSummary;
+  const overview = g?.overview?.text?.trim();
+  if (!overview) return null;
+  const disclosure = (g?.disclosureText?.text || g?.disclaimerText?.text || 'Summarized with Gemini').trim();
+  return {
+    overview,
+    disclosure,
+    flagUri: g?.overviewFlagContentUri || ''
+  };
+}
+
 function haversineMeters(a, b) {
   const R = 6371000;
   const toRad = (deg) => (deg * Math.PI) / 180;
@@ -128,6 +143,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
             'places.rating',
             'places.googleMapsUri',
             'places.googleMapsLinks',
+            'places.generativeSummary',
             'places.primaryType',
             'places.businessStatus',
             'places.currentOpeningHours.openNow'
@@ -159,6 +175,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
       photosUri: place.googleMapsLinks?.photosUri ?? '',
       primaryType: place.primaryType ?? 'restaurant',
       vibe: candidate.vibe ?? '',
+      googleSummary: extractGenerativeSummary(place),
       source: 'gemini+places'
     };
   } catch (err) {
