@@ -489,7 +489,10 @@ async function configureUpdates() {
     app.get('/app', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
     app.get('/maps-key', requireInitData, (_req, res) => {
-      res.json({ key: process.env.GOOGLE_MAPS_API_KEY ?? '' });
+      res.json({
+        key: process.env.GOOGLE_MAPS_API_KEY ?? '',
+        mapId: process.env.MAP_ID || 'GIA_SANCTUARY'
+      });
     });
 
     app.get('/api/sanctuary', requireInitData, async (req, res) => {

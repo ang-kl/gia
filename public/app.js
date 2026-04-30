@@ -16,7 +16,7 @@
   const RAFFLES_PLACE = { lat: 1.2839, lng: 103.8517 };
   const GMAPS_INSTALL_URL = 'https://apps.apple.com/app/google-maps/id585027354';
   const APP_PROBE_TIMEOUT_MS = 1500;
-  const MAP_ID = 'GIA_SANCTUARY';
+  let MAP_ID = 'GIA_SANCTUARY'; // overridden from /maps-key when MAP_ID env is set
   const FOCUS_PLACE_ID = new URLSearchParams(window.location.search).get('placeId');
   const statusEl = document.getElementById('status');
   let map;
@@ -182,8 +182,11 @@
 
   async function boot() {
     let mapsKey;
-    try { mapsKey = (await authedFetch('/maps-key')).key; }
-    catch { setStatus('Could not authenticate with Gia. Open from inside Telegram.'); return; }
+    try {
+      const data = await authedFetch('/maps-key');
+      mapsKey = data.key;
+      if (data.mapId) MAP_ID = data.mapId;
+    } catch { setStatus('Could not authenticate with Gia. Open from inside Telegram.'); return; }
     if (!mapsKey) { setStatus('Maps key not configured.'); return; }
     try { await loadMapsScript(mapsKey); }
     catch { setStatus('Maps failed to load.'); return; }
