@@ -10,8 +10,11 @@
 // Or with railway CLI:
 //   railway run node sync-vault.js
 
+const fs = require('fs');
+const path = require('path');
 const axios = require('axios');
 const { createClient } = require('redis');
+const cheerio = require('cheerio');
 require('dotenv').config();
 
 const PLACES_BASE = 'https://places.googleapis.com/v1/places';
@@ -32,7 +35,7 @@ const PLACE_DETAILS_FIELDS = [
   'primaryType'
 ].join(',');
 
-const URLS = [
+const HARDCODED_URLS = [
   'https://maps.app.goo.gl/v32FSZtCcWxmt4tW6?g_st=i',
   'https://maps.app.goo.gl/9Es6p6h5earnLHyk7?g_st=i',
   'https://maps.app.goo.gl/72STf7BwtHWWXbEC7?g_st=i',
@@ -48,6 +51,50 @@ const URLS = [
   'https://maps.app.goo.gl/oAAvxLQ5RnWou9zG6?g_st=i',
   'https://maps.app.goo.gl/cuHSjJmLcuB32uV47?g_st=i'
 ];
+
+// Resolve URLs from (in priority order):
+//   1. CLI arg --html=<path> (parse with cheerio)
+//   2. data/Saved Places.html (auto-detect, parse with cheerio)
+//   3. Any data/*.html that contains maps.app.goo.gl or maps.google.com links
+//   4. HARDCODED_URLS fallback
+function resolveUrlSet() {
+  const argv = process.argv.slice(2);
+  const htmlArg = argv.find((a) => a.startsWith('--html='));
+  if (htmlArg) {
+    const file = htmlArg.slice('--html='.length);
+    const urls = parseHtmlForMapUrls(file);
+    console.log(`[Sync] CLI --html=${file} → ${urls.length} URL(s)`);
+    return urls;
+  }
+  const candidate = path.join(__dirname, 'data', 'Saved Places.html');
+  if (fs.existsSync(candidate)) {
+    const urls = parseHtmlForMapUrls(candidate);
+    if (urls.length) {
+      console.log(`[Sync] Auto-detected ${candidate} → ${urls.length} URL(s)`);
+      return urls;
+    }
+  }
+  console.log(`[Sync] No HTML input — using hardcoded URL list (${HARDCODED_URLS.length}).`);
+  return HARDCODED_URLS;
+}
+
+function parseHtmlForMapUrls(filePath) {
+  const html = fs.readFileSync(filePath, 'utf8');
+  const $ = cheerio.load(html);
+  const urls = new Set();
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href') ?? '';
+    if (
+      href.includes('maps.app.goo.gl') ||
+      href.includes('goo.gl/maps') ||
+      /https?:\/\/(?:www\.)?google\.[a-z.]+\/maps\//i.test(href) ||
+      /https?:\/\/maps\.google\./i.test(href)
+    ) {
+      urls.add(href.trim());
+    }
+  });
+  return [...urls];
+}
 
 function requireEnv(name) {
   if (!process.env[name]) {
@@ -201,12 +248,18 @@ async function main() {
   redis.on('error', (e) => console.error('[Redis]', e.message));
   await redis.connect();
 
-  console.log(`[Sync] Processing ${URLS.length} URLs (concurrency ${CONCURRENCY})…`);
+  const urls = resolveUrlSet();
+  if (!urls.length) {
+    console.error('[Fatal] No URLs to process. Check --html=<path> or data/Saved Places.html.');
+    await redis.quit();
+    process.exit(1);
+  }
+  console.log(`[Sync] Processing ${urls.length} URLs (concurrency ${CONCURRENCY})…`);
   let imported = 0;
   let skipped = 0;
   let failed = 0;
 
-  await withConcurrency(URLS, CONCURRENCY, async (url) => {
+  await withConcurrency(urls, CONCURRENCY, async (url) => {
     try {
       const longUrl = await expandShortUrl(url);
       const parsed = parseLongMapsUrl(longUrl);

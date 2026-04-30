@@ -4,15 +4,17 @@ const PLACES_BASE = 'https://places.googleapis.com/v1/places';
 const VAULT_GEO_KEY = 'gia:vault';
 const VAULT_HASH_PREFIX = 'gia:place:';
 const DEFAULT_RADIUS_M = 300;
+const FUZZY_BUFFER_M = 50; // tolerate GPS / coord drift between live tap and stored Vault entry
 
 async function queryVault(redis, lat, lng, radiusM = DEFAULT_RADIUS_M) {
   if (!redis.isOpen) await redis.connect();
   let hits;
+  const effectiveRadius = radiusM + FUZZY_BUFFER_M;
   try {
     hits = await redis.sendCommand([
       'GEOSEARCH', VAULT_GEO_KEY,
       'FROMLONLAT', String(lng), String(lat),
-      'BYRADIUS', String(radiusM), 'm',
+      'BYRADIUS', String(effectiveRadius), 'm',
       'ASC',
       'WITHCOORD', 'WITHDIST'
     ]);

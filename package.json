@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -8,6 +8,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.6.0",
+    "cheerio": "^1.2.0",
     "dotenv": "^16.3.1",
     "express": "^5.2.1",
     "node-telegram-bot-api": "^0.64.0",

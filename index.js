@@ -314,7 +314,7 @@ bot.on('location', async (msg) => {
     // Immediate ack BEFORE any expensive call (Vault verify, Gemini,
     // Places searchText, review screen, Routes Matrix). Stops the
     // iPadOS perceived-timeout that surfaces as a system error modal.
-    await safeSend(msg.chat.id, `📍 Got it — looking for ${label} within 200m…`);
+    await safeSend(msg.chat.id, `🌿 Sensing the sanctuary vibe — looking for ${label} within 200m…`);
     await setUserLocation(redis, msg.chat.id, latitude, longitude);
     await runFlow(msg.chat.id, latitude, longitude, category);
   } catch (err) {

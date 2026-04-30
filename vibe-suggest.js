@@ -23,7 +23,7 @@ function mealPeriodSGT(date = new Date()) {
   if (h >= 11 && h < 15)
     return { id: 'lunch', label: 'lunch', hint: 'lunch spots — restaurants and cafés serving meals now' };
   if (h >= 15 && h < 17)
-    return { id: 'afternoon', label: 'afternoon snack', hint: 'desserts, cafés, coffee, tea spots' };
+    return { id: 'afternoon', label: 'afternoon snack', hint: 'cafés, bakeries, tea houses, coffee bars, dessert spots' };
   if (h >= 17 && h < 21)
     return { id: 'dinner', label: 'dinner', hint: 'dinner spots — restaurants, omakase, hawker stalls' };
   if (h >= 21 || h < 3)
@@ -103,7 +103,7 @@ async function hasNegativeRecentReview(placeId) {
   }
 }
 
-async function validateWithPlaces(candidate, near) {
+async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) return null;
   try {
@@ -113,7 +113,7 @@ async function validateWithPlaces(candidate, near) {
         textQuery: `${candidate.name} Singapore`,
         maxResultCount: 1,
         locationBias: {
-          circle: { center: { latitude: near.lat, longitude: near.lng }, radius: SEARCH_RADIUS_M }
+          circle: { center: { latitude: near.lat, longitude: near.lng }, radius: radiusM }
         }
       },
       {
@@ -139,7 +139,7 @@ async function validateWithPlaces(candidate, near) {
     if (!place?.location) return null;
     const placeCoord = { lat: place.location.latitude, lng: place.location.longitude };
     const distance = haversineMeters(near, placeCoord);
-    if (distance > MAX_DISTANCE_M) return null;
+    if (distance > radiusM) return null;
     if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') return null;
     if (place.currentOpeningHours?.openNow === false) return null;
     if (await hasNegativeRecentReview(place.id)) return null;
@@ -210,13 +210,16 @@ async function rankByWalkingTime(userLat, userLng, venues) {
   }
 }
 
+const RADIAL_EXPANSION_M = [200, 500, 1000];
+
 async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
-  // Fail-fast policy (v0.8.1):
-  //   The first Gemini candidate is the gate. If it doesn't validate
-  //   within 200 m, return zero picks immediately — caller surfaces
-  //   the handleNoResults message. No retry, no seed-fallback re-poll.
-  //   If the first candidate validates, continue through candidates 2–N
-  //   to fill up to `count` picks.
+  // Radial expansion policy (v0.11.0, supersedes v0.8.1 fail-fast):
+  //   Try the first Gemini candidate at progressively larger radii
+  //   (200 m → 500 m → 1000 m). The first radius at which the
+  //   candidate validates becomes the "active" radius; subsequent
+  //   candidates 2–N use the same radius to fill up to `count` picks.
+  //   If all radii fail, return zero — caller falls through to the
+  //   Hidden Sanctuary consultant, then handleNoResults.
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
   const meal = override.hint
@@ -225,17 +228,22 @@ async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {})
   const candidates = await geminiCandidates(meal, lat, lng);
   if (!candidates.length) return { meal, venues: [] };
 
-  const first = await validateWithPlaces(candidates[0], { lat, lng });
+  let first = null;
+  let activeRadius = RADIAL_EXPANSION_M[0];
+  for (const r of RADIAL_EXPANSION_M) {
+    first = await validateWithPlaces(candidates[0], { lat, lng }, r);
+    if (first) { activeRadius = r; break; }
+  }
   if (!first) return { meal, venues: [] };
 
   const validated = [first];
   for (let i = 1; i < candidates.length && validated.length < count; i++) {
-    const v = await validateWithPlaces(candidates[i], { lat, lng });
+    const v = await validateWithPlaces(candidates[i], { lat, lng }, activeRadius);
     if (v) validated.push(v);
   }
 
   const ranked = await rankByWalkingTime(lat, lng, validated.slice(0, count));
-  return { meal, venues: ranked };
+  return { meal, venues: ranked, activeRadius };
 }
 
 async function geocodeQuery(text) {
