@@ -153,9 +153,14 @@ async function deliverPicks(chatId, mealLabel, picks) {
       try { summary = await getOrCacheSummary(redis, pid); }
       catch (err) { console.error('[Error] vibe summary fetch failed:', err.message); }
     }
+    // Google generative summary (region-restricted; null for SG today).
+    // Attribution required per Places API policy when displayed.
+    const googleLine = p.googleSummary?.overview
+      ? `\n💡 ${p.googleSummary.overview} _(${p.googleSummary.disclosure || 'Summarized with Gemini'})_`
+      : '';
     const body = summary
-      ? `🌿 Sanctuary read for ${p.name}\n${summary}`
-      : (p.vibe ? `🌿 ${p.name}\n${p.vibe}` : null);
+      ? `🌿 Sanctuary read for ${p.name}\n${summary}${googleLine}`
+      : (p.vibe ? `🌿 ${p.name}\n${p.vibe}${googleLine}` : (googleLine ? `🌿 ${p.name}${googleLine}` : null));
 
     const buttons = [];
     if (pid) {

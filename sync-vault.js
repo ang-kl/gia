@@ -46,7 +46,8 @@ const MAX_RETRIES = 3;
 const BACKOFF_BASE_MS = 1000;
 const PLACE_DETAILS_FIELDS = [
   'id', 'businessStatus', 'regularOpeningHours', 'location',
-  'displayName', 'formattedAddress', 'primaryType', 'googleMapsLinks'
+  'displayName', 'formattedAddress', 'primaryType', 'googleMapsLinks',
+  'generativeSummary'
 ].join(',');
 
 // Singapore bounding box (rough: Tuas → Changi, north of equator)
@@ -309,6 +310,9 @@ async function fetchPlaceDetails(placeId) {
 }
 
 async function vaultUpsert(redis, place, sourceTag) {
+  const g = place.generativeSummary;
+  const generativeOverview = g?.overview?.text?.trim() || '';
+  const generativeDisclosure = (g?.disclosureText?.text || g?.disclaimerText?.text || (generativeOverview ? 'Summarized with Gemini' : '')).trim();
   await redis.hSet(`${VAULT_HASH_PREFIX}${place.id}`, {
     name: place.displayName?.text ?? '',
     address: place.formattedAddress ?? '',
@@ -319,6 +323,9 @@ async function vaultUpsert(redis, place, sourceTag) {
     directionsUri: place.googleMapsLinks?.directionsUri ?? '',
     reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
     photosUri: place.googleMapsLinks?.photosUri ?? '',
+    generativeOverview,
+    generativeDisclosure,
+    generativeFlagUri: g?.overviewFlagContentUri || '',
     source: sourceTag
   });
   await redis.sendCommand([

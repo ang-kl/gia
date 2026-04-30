@@ -32,6 +32,7 @@ async function queryVault(redis, lat, lng, radiusM = DEFAULT_RADIUS_M) {
     const coord = Array.isArray(row) && Array.isArray(row[2]) ? row[2] : null;
     const meta = await redis.hGetAll(`${VAULT_HASH_PREFIX}${placeId}`).catch(() => ({}));
     if (!meta || !meta.name) continue;
+    const summaryOverview = (meta.generativeOverview || '').trim();
     enriched.push({
       placeId,
       name: meta.name,
@@ -46,6 +47,9 @@ async function queryVault(redis, lat, lng, radiusM = DEFAULT_RADIUS_M) {
       directionsUri: meta.directionsUri || '',
       reviewsUri: meta.reviewsUri || '',
       photosUri: meta.photosUri || '',
+      googleSummary: summaryOverview
+        ? { overview: summaryOverview, disclosure: meta.generativeDisclosure || 'Summarized with Gemini', flagUri: meta.generativeFlagUri || '' }
+        : null,
       source: 'vault'
     });
   }
@@ -64,10 +68,13 @@ async function verifyOpenNow(placeId) {
     const { data } = await axios.get(`${PLACES_BASE}/${placeId}`, {
       headers: {
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'currentOpeningHours.openNow,businessStatus,googleMapsUri,googleMapsLinks,rating'
+        'X-Goog-FieldMask': 'currentOpeningHours.openNow,businessStatus,googleMapsUri,googleMapsLinks,generativeSummary,rating'
       },
       timeout: 6000
     });
+    const g = data?.generativeSummary;
+    const overview = g?.overview?.text?.trim() || '';
+    const disclosure = (g?.disclosureText?.text || g?.disclaimerText?.text || (overview ? 'Summarized with Gemini' : '')).trim();
     return {
       openNow: data?.currentOpeningHours?.openNow ?? null,
       businessStatus: data?.businessStatus ?? null,
@@ -75,6 +82,7 @@ async function verifyOpenNow(placeId) {
       directionsUri: data?.googleMapsLinks?.directionsUri ?? '',
       reviewsUri: data?.googleMapsLinks?.reviewsUri ?? '',
       photosUri: data?.googleMapsLinks?.photosUri ?? '',
+      googleSummary: overview ? { overview, disclosure, flagUri: g?.overviewFlagContentUri || '' } : null,
       rating: typeof data?.rating === 'number' ? data.rating : null
     };
   } catch (err) {
@@ -100,6 +108,7 @@ async function fetchOpenVaultPicks(redis, lat, lng, radiusM = DEFAULT_RADIUS_M, 
       directionsUri: live.directionsUri || '',
       reviewsUri: live.reviewsUri || '',
       photosUri: live.photosUri || '',
+      googleSummary: live.googleSummary || c.googleSummary || null,
       rating: live.rating ?? null,
       vibe: ''
     });
