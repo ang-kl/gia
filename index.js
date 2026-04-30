@@ -24,6 +24,7 @@ const { findHiddenSanctuary } = require('./consultant');
 const { runHealthCheck } = require('./ver');
 const weather = require('./weather');
 const carpark = require('./carpark');
+const transport = require('./transport');
 
 // 0. Fail fast on missing env vars — Agur's Wisdom: refuse to run noisily.
 const required = ['TELEGRAM_BOT_TOKEN', 'REDIS_URL'];
@@ -620,12 +621,52 @@ async function runWeatherCommand(chatId) {
 async function runTransportCommand(chatId) {
   try {
     if (!redis.isOpen) await redis.connect();
-    const cached = await redis.get('lta:train_status');
-    const data = cached ? JSON.parse(cached) : null;
-    const response = data
-      ? `🚉 Singapore transport\n\nMRT: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
-      : "Gia is still waking up. Try again in 30 seconds.";
-    await safeSend(chatId, response);
+    const cachedStatus = await redis.get('lta:train_status');
+    const status = cachedStatus ? JSON.parse(cachedStatus) : null;
+    const cachedLoc = await getUserLocation(redis, chatId);
+
+    const lines = ['🚉 Singapore transport'];
+    if (status) {
+      lines.push('', `MRT: ${status.status}`);
+      if (status.message) lines.push(`Notes: ${status.message}`);
+      lines.push(`Refreshed: ${status.updatedAt}`);
+    } else {
+      lines.push('', 'MRT: 🟡 status warming up; try again in 30 s.');
+    }
+
+    // Nearby bus arrivals — only when we have a location and bus-stops cache.
+    if (cachedLoc && process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
+        if (!stops.length) {
+          lines.push('', 'No bus stops within 800 m of your saved location.');
+        } else {
+          lines.push('', '🚌 Nearest bus stops + next arrivals:');
+          for (const stop of stops) {
+            const arrivals = await transport.busArrivals(stop.code);
+            const header = `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`;
+            lines.push('', header);
+            if (!arrivals.length) {
+              lines.push('  no real-time arrivals');
+              continue;
+            }
+            // Show up to 4 services per stop, each with next 1–2 buses + crowd.
+            for (const svc of arrivals.slice(0, 4)) {
+              const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
+              const next2Str = svc.next2 ? ` · then ${svc.next2.minutes} min` : '';
+              lines.push(`  ${svc.service}: ${nextStr}${next2Str}`);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[Error] transport bus arrivals failed:', err.message);
+        lines.push('', 'Bus arrivals temporarily unavailable.');
+      }
+    } else if (!cachedLoc) {
+      lines.push('', '🚌 Tap /eat or /drink first to share your location, then /transport will list nearby bus arrivals too.');
+    }
+
+    await safeSend(chatId, lines.join('\n'));
   } catch (err) {
     console.error('[Error] transport command failed:', err.message);
     await safeSend(chatId, "Sorry, I can't reach my transport memory right now.");
@@ -791,6 +832,19 @@ async function configureUpdates() {
       console.error('[Warn] Vibe refresh failed:', err.message)
     );
   }, 24 * 60 * 60 * 1000); // 24 h
+
+  // LTA bus stops geo cache (~5500 entries). Refresh on boot if stale,
+  // then once every 24 h. /transport uses this for nearest-bus-stop
+  // GEOSEARCH; without it the bus-arrivals section is silently skipped.
+  if (ltaEnabled) {
+    transport.refreshStops(redis)
+      .then((res) => console.log(`[Transport] Bus stops cache: imported=${res.imported}, skipped=${res.skipped || '-'}`))
+      .catch((err) => console.error('[Warn] Bus stops cache refresh failed:', err.message));
+    setInterval(() => {
+      transport.refreshStops(redis)
+        .catch((err) => console.error('[Warn] Bus stops cache refresh failed:', err.message));
+    }, 24 * 60 * 60 * 1000); // 24 h
+  }
 
   if (useWebhook) {
     const app = express();
