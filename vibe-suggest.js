@@ -4,7 +4,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-flash';
 const MAX_DISTANCE_M = 200; // accept Place if within 200m of user
-const SEARCH_RADIUS_M = 300; // §3.1 02_Expand walking radius
+const SEARCH_RADIUS_M = 200; // walking radius from user-set centre
 
 const CATEGORIES = {
   food: { label: null, hint: null }, // time-of-day branched in mealPeriodSGT
@@ -156,4 +156,38 @@ async function pickValidated(lat, lng, count = 3, fallbackList = [], opts = {}) 
   return { meal, venues: validated.slice(0, count) };
 }
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated };
+async function geocodeQuery(text) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey || !text || !text.trim()) return null;
+  try {
+    const { data } = await axios.post(
+      PLACES_TEXT_URL,
+      {
+        textQuery: `${text.trim()} Singapore`,
+        maxResultCount: 1
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': mapsApiKey,
+          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress'].join(',')
+        },
+        timeout: 8000
+      }
+    );
+    const place = (data.places ?? [])[0];
+    if (!place?.location) return null;
+    return {
+      lat: place.location.latitude,
+      lng: place.location.longitude,
+      name: place.displayName?.text ?? text.trim(),
+      address: place.formattedAddress ?? '',
+      placeId: place.id ?? null
+    };
+  } catch (err) {
+    console.error(`[Vibe-Suggest] geocodeQuery for "${text}" failed:`, err.message);
+    return null;
+  }
+}
+
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, geocodeQuery };
