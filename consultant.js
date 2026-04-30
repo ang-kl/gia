@@ -22,7 +22,7 @@ async function nearbyAnyOperational(lat, lng) {
     const { data } = await axios.post(
       PLACES_NEARBY_URL,
       {
-        includedTypes: ['restaurant', 'cafe', 'bar', 'bakery', 'food_court', 'meal_takeaway', 'point_of_interest'],
+        includedTypes: ['restaurant', 'cafe', 'coffee_shop', 'tea_house', 'bar', 'bakery', 'food_court', 'meal_takeaway'],
         maxResultCount: 5,
         locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: RADIUS_M } },
         rankPreference: 'DISTANCE'
@@ -78,9 +78,12 @@ async function geminiSanctuaryRead(name, reviews) {
     .slice(0, 5)
     .join('\n---\n');
   if (!reviewText.trim()) return null;
-  const prompt = `Reviews of "${name}" in Singapore. Determine if it can serve as a makeshift "Sanctuary" for a solo diner — meaning quiet, comfortable seating, welcoming staff, suitable for sitting alone with food/coffee.
+  const prompt = `Reviews of "${name}" in Singapore. Read for these specific keywords/themes: quiet, coffee, sanctuary, solo-friendly, calm, peaceful, study, work, single-seat, bar-seat, comfortable for one.
 
-Return ONLY a JSON object: {"is_sanctuary": <bool>, "reason": "<one short phrase grounded in the reviews>"}.
+Determine if it can serve as a makeshift Sanctuary for a solo diner — based on whether recent reviews mention these themes positively.
+
+Return ONLY a JSON object:
+  {"is_sanctuary": <bool>, "reason": "<one short phrase quoting or paraphrasing the relevant review signal>"}.
 
 Reviews:
 ${reviewText}`;
