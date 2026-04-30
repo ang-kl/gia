@@ -261,6 +261,57 @@ function networkCrowdSummary(crowdByCode) {
   };
 }
 
+// LTA TrafficIncidents — live accidents, roadworks, vehicle breakdowns.
+// Each entry: { Type, Latitude, Longitude, Message }.
+// Message is pre-formatted by LTA, e.g. "(15/4)18:30 Accident on PIE..."
+const TRAFFIC_INCIDENTS_URL = `${LTA_BASE}/TrafficIncidents`;
+
+async function fetchTrafficIncidents() {
+  if (!process.env.LTA_ACCOUNT_KEY) return [];
+  try {
+    const { data } = await axios.get(TRAFFIC_INCIDENTS_URL, {
+      headers: authHeaders(),
+      timeout: 6000
+    });
+    const rows = data?.value ?? [];
+    return rows.map((r) => ({
+      type: r.Type || 'Incident',
+      lat: Number(r.Latitude),
+      lng: Number(r.Longitude),
+      message: r.Message || ''
+    })).filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+  } catch (err) {
+    console.error('[Transport] TrafficIncidents fetch failed:', err.message);
+    return [];
+  }
+}
+
+// Haversine distance in metres.
+function haversineM(aLat, aLng, bLat, bLng) {
+  const R = 6371000;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(bLat - aLat);
+  const dLng = toRad(bLng - aLng);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+// Filter incidents to those within `radiusM` of (lat,lng), sorted nearest first.
+// If lat/lng absent, returns the full list (caller can slice).
+function nearestIncidents(incidents, lat, lng, radiusM = 5000, count = 3) {
+  if (!Array.isArray(incidents) || !incidents.length) return [];
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return incidents.slice(0, count);
+  }
+  const ranked = incidents
+    .map((i) => ({ ...i, distanceM: Math.round(haversineM(lat, lng, i.lat, i.lng)) }))
+    .filter((i) => i.distanceM <= radiusM)
+    .sort((a, b) => a.distanceM - b.distanceM);
+  return ranked.slice(0, count);
+}
+
 module.exports = {
   refreshStops,
   nearestStops,
@@ -270,6 +321,8 @@ module.exports = {
   fetchPlatformCrowdAll,
   lookupCrowdForPlace,
   networkCrowdSummary,
+  fetchTrafficIncidents,
+  nearestIncidents,
   CROWD_LABEL,
   STOPS_GEO,
   STOPS_HASH_PREFIX

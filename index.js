@@ -398,7 +398,6 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 bot.onText(/^\/weather(?:@\w+)?$/, (msg) => runWeatherCommand(msg.chat.id));
 
 bot.onText(/^\/transport(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
-bot.onText(/^\/status(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
 
 bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
@@ -521,9 +520,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\w+))?$/, async (msg, match) => {
     "/grocery   — supermarkets & fresh markets\n" +
     "/cuisine X — by cuisine type (Japanese / Korean / Italian / …)\n" +
     "/weather   — now + 2-hour NEA forecast\n" +
-    "/transport — live MRT pulse\n" +
+    "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
     "/carpark   — nearest 5 with available lots\n" +
-    "/status    — train pulse (alias of /transport)\n" +
     "/ver       — version + upstream API health\n\n" +
     "Or tap the menu button (🌿 soleat Menu) for the tile UI."
   );
@@ -552,8 +550,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       return true;
     }
     case 'weather':   await runWeatherCommand(chatId); return true;
-    case 'transport':
-    case 'status':    await runTransportCommand(chatId); return true;
+    case 'transport': await runTransportCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
@@ -629,6 +626,36 @@ async function runTransportCommand(chatId) {
         }
       } catch (err) {
         console.error('[Transport] nearestMrtStations failed:', err.message);
+      }
+    }
+
+    // Live traffic incidents (LTA TrafficIncidents) — global feed, ranked by
+    // distance from cached location when available. Surfaces accidents,
+    // roadworks, vehicle breakdowns; keeps reply terse with top 3 nearest.
+    if (process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const all = await transport.fetchTrafficIncidents();
+        const near = transport.nearestIncidents(
+          all,
+          cachedLoc?.lat ?? 1.2839,
+          cachedLoc?.lng ?? 103.8517,
+          5000,
+          3
+        );
+        if (near.length) {
+          lines.push('', `🚦 Traffic (top ${near.length} of ${all.length} island-wide):`);
+          for (const inc of near) {
+            const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+            lines.push(`· ${inc.type}${dist}`);
+            lines.push(`  ${inc.message}`);
+          }
+        } else if (all.length) {
+          lines.push('', `🚦 Traffic: ${all.length} incidents island-wide; none within 5 km.`);
+        } else {
+          lines.push('', '🚦 Traffic: no live incidents reported.');
+        }
+      } catch (err) {
+        console.error('[Transport] traffic incidents failed:', err.message);
       }
     }
 
@@ -774,9 +801,8 @@ async function registerCommandsMenu() {
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
       { command: 'cuisine',   description: 'Picks by cuisine type — e.g. /cuisine Japanese' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'Live MRT pulse' },
+      { command: 'transport', description: 'MRT + crowd + traffic + nearest bus stops' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
-      { command: 'status',    description: 'CBD train pulse (alias)' },
       { command: 'ver',       description: 'Version + upstream API health' }
     ]);
     if (useWebhook) {
