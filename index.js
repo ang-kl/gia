@@ -595,9 +595,17 @@ async function runWeatherCommand(chatId) {
     const lat = cached?.lat ?? 1.2839;
     const lng = cached?.lng ?? 103.8517;
     const w = await weather.summary(lat, lng);
-    if (!w?.forecast && !w?.tempC) { await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now."); return; }
+    const hasAny = Number.isFinite(w?.tempC) || Number.isFinite(w?.humidityPct) ||
+      Number.isFinite(w?.rainMm) || w?.forecast;
+    if (!hasAny) { await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now."); return; }
     const lines = ['☀️ Singapore weather'];
-    if (Number.isFinite(w.tempC)) lines.push(`Now: ${w.tempC.toFixed(1)}°C at ${w.tempStationName}`);
+    if (Number.isFinite(w.tempC)) lines.push(`Temp: ${w.tempC.toFixed(1)}°C @ ${w.tempStationName}`);
+    if (Number.isFinite(w.humidityPct)) lines.push(`Humidity: ${w.humidityPct.toFixed(0)}% @ ${w.humidityStationName}`);
+    if (Number.isFinite(w.rainMm) && w.rainMm > 0) lines.push(`Rain: ${w.rainMm} mm @ ${w.rainStationName}`);
+    if (Number.isFinite(w.windSpdKt)) {
+      const dir = Number.isFinite(w.windDirDeg) ? `, ${Math.round(w.windDirDeg)}°` : '';
+      lines.push(`Wind: ${w.windSpdKt} kt${dir}`);
+    }
     if (w.forecast) {
       const valid = w.forecastValidTo ? ` (until ${new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' })})` : '';
       lines.push(`Next 2h in ${w.forecastArea}: ${w.forecast}${valid}`);
