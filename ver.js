@@ -15,7 +15,7 @@ async function probe(label, fn) {
     const note = await fn();
     return { ok: true, ms: Date.now() - start, note: note || 'ok' };
   } catch (err) {
-    return { ok: false, ms: Date.now() - start, note: (err.response?.status ? `HTTP ${err.response.status}` : err.message).slice(0, 80) };
+    return { ok: false, ms: Date.now() - start, note: (err.response?.status ? `HTTP ${err.response.status}` : err.message).slice(0, 250) };
   }
 }
 

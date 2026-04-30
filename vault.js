@@ -3,7 +3,7 @@ const axios = require('axios');
 const PLACES_BASE = 'https://places.googleapis.com/v1/places';
 const VAULT_GEO_KEY = 'gia:vault';
 const VAULT_HASH_PREFIX = 'gia:place:';
-const DEFAULT_RADIUS_M = 300;
+const DEFAULT_RADIUS_M = 500;
 const FUZZY_BUFFER_M = 50; // tolerate GPS / coord drift between live tap and stored Vault entry
 
 async function queryVault(redis, lat, lng, radiusM = DEFAULT_RADIUS_M) {

@@ -195,7 +195,7 @@ async function runFlow(chatId, lat, lng, category) {
     // Vault-first (v0.9.0) for /eat and /drink:
     if (category === 'food' || category === 'drink') {
       try {
-        const vaultPicks = await fetchOpenVaultPicks(redis, lat, lng, 300, 3);
+        const vaultPicks = await fetchOpenVaultPicks(redis, lat, lng, 500, 3);
         if (vaultPicks.length >= 3) {
           const label = category === 'food' ? mealPeriodSGT().label : category;
           await deliverPicks(chatId, label, vaultPicks);
