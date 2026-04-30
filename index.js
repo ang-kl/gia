@@ -391,75 +391,15 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   }
 }
 
-bot.onText(/^\/weather(?:@\w+)?$/, async (msg) => {
-  try {
-    const cached = await getUserLocation(redis, msg.chat.id);
-    const lat = cached?.lat ?? 1.2839;
-    const lng = cached?.lng ?? 103.8517;
-    const w = await weather.summary(lat, lng);
-    if (!w?.forecast && !w?.tempC) {
-      await safeSend(msg.chat.id, "Sorry, I can't reach the NEA weather feed right now.");
-      return;
-    }
-    const lines = ['☀️ Singapore weather'];
-    if (Number.isFinite(w.tempC)) {
-      lines.push(`Now: ${w.tempC.toFixed(1)}°C at ${w.tempStationName}`);
-    }
-    if (w.forecast) {
-      const valid = w.forecastValidTo ? ` (until ${new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' })})` : '';
-      lines.push(`Next 2h in ${w.forecastArea}: ${w.forecast}${valid}`);
-    }
-    await safeSend(msg.chat.id, lines.join('\n'));
-  } catch (err) {
-    console.error('[Error] /weather handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach the NEA weather feed right now.");
-  }
-});
+// Slash-command handlers delegate to the unified run* functions defined
+// below. Prior to v0.20.1 these handlers carried inline copies that drifted
+// behind /menu tile routing — /weather emitted the v0.18.0 "Now: X°C at Y"
+// line instead of the full humidity / rain / wind block.
+bot.onText(/^\/weather(?:@\w+)?$/, (msg) => runWeatherCommand(msg.chat.id));
 
-bot.onText(/^\/transport(?:@\w+)?$/, async (msg) => {
-  // Alias of /status for now (MRT pulse). Bus arrivals to follow in a later patch.
-  try {
-    if (!redis.isOpen) await redis.connect();
-    const cached = await redis.get('lta:train_status');
-    const data = cached ? JSON.parse(cached) : null;
-    const response = data
-      ? `🚉 Singapore transport\n\nMRT: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
-      : "Gia is still waking up. Try again in 30 seconds.";
-    await safeSend(msg.chat.id, response);
-  } catch (err) {
-    console.error('[Error] /transport handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach my transport memory right now.");
-  }
-});
+bot.onText(/^\/transport(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
 
-bot.onText(/^\/carpark(?:@\w+)?$/, async (msg) => {
-  try {
-    if (!process.env.LTA_ACCOUNT_KEY) {
-      await safeSend(msg.chat.id, "Carpark lookup is offline (LTA key not configured).");
-      return;
-    }
-    const cached = await getUserLocation(redis, msg.chat.id);
-    const lat = cached?.lat ?? 1.2839;
-    const lng = cached?.lng ?? 103.8517;
-    if (!cached) {
-      await safeSend(msg.chat.id, "I don't have your location — using Raffles Place as default. Share your location once and Gia will remember.");
-    }
-    await safeSend(msg.chat.id, "🅿️ Looking up nearest carparks…");
-    const list = await carpark.nearest(lat, lng, 5);
-    if (!list.length) {
-      await safeSend(msg.chat.id, "No carparks with available lots near here.");
-      return;
-    }
-    const lines = ['🅿️ Nearest carparks with available lots'];
-    list.forEach((c, i) => {
-      lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`);
-    });
-    await safeSend(msg.chat.id, lines.join('\n'));
-  } catch (err) {
-    console.error('[Error] /carpark handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach the LTA carpark feed right now.");
-  }
-});
+bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 // Resolves a pending-state string into a routing decision.
 function resolvePending(pending) {
@@ -550,23 +490,6 @@ bot.on('location', async (msg) => {
   }
 });
 
-bot.onText(/^\/status(?:@\w+)?$/, async (msg) => {
-  try {
-    if (!redis.isOpen) await redis.connect();
-    const cached = await redis.get('lta:train_status');
-    const data = cached ? JSON.parse(cached) : null;
-
-    const response = data
-      ? `Gia CBD Pulse\n\nStatus: ${data.status}\nNotes: ${data.message}\nRefreshed: ${data.updatedAt}`
-      : "Gia is still waking up. Try again in 30 seconds.";
-
-    await safeSend(msg.chat.id, response);
-  } catch (err) {
-    console.error('[Error] /status handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach my memory right now.");
-  }
-});
-
 bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   try {
     await safeSend(msg.chat.id, '🩺 Running health check…');
@@ -597,9 +520,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\w+))?$/, async (msg, match) => {
     "/grocery   — supermarkets & fresh markets\n" +
     "/cuisine X — by cuisine type (Japanese / Korean / Italian / …)\n" +
     "/weather   — now + 2-hour NEA forecast\n" +
-    "/transport — live MRT pulse\n" +
+    "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
     "/carpark   — nearest 5 with available lots\n" +
-    "/status    — train pulse (alias of /transport)\n" +
     "/ver       — version + upstream API health\n\n" +
     "Or tap the menu button (🌿 soleat Menu) for the tile UI."
   );
@@ -628,8 +550,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       return true;
     }
     case 'weather':   await runWeatherCommand(chatId); return true;
-    case 'transport':
-    case 'status':    await runTransportCommand(chatId); return true;
+    case 'transport': await runTransportCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
@@ -705,6 +626,36 @@ async function runTransportCommand(chatId) {
         }
       } catch (err) {
         console.error('[Transport] nearestMrtStations failed:', err.message);
+      }
+    }
+
+    // Live traffic incidents (LTA TrafficIncidents) — global feed, ranked by
+    // distance from cached location when available. Surfaces accidents,
+    // roadworks, vehicle breakdowns; keeps reply terse with top 3 nearest.
+    if (process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const all = await transport.fetchTrafficIncidents();
+        const near = transport.nearestIncidents(
+          all,
+          cachedLoc?.lat ?? 1.2839,
+          cachedLoc?.lng ?? 103.8517,
+          5000,
+          3
+        );
+        if (near.length) {
+          lines.push('', `🚦 Traffic (top ${near.length} of ${all.length} island-wide):`);
+          for (const inc of near) {
+            const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+            lines.push(`· ${inc.type}${dist}`);
+            lines.push(`  ${inc.message}`);
+          }
+        } else if (all.length) {
+          lines.push('', `🚦 Traffic: ${all.length} incidents island-wide; none within 5 km.`);
+        } else {
+          lines.push('', '🚦 Traffic: no live incidents reported.');
+        }
+      } catch (err) {
+        console.error('[Transport] traffic incidents failed:', err.message);
       }
     }
 
@@ -850,9 +801,8 @@ async function registerCommandsMenu() {
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
       { command: 'cuisine',   description: 'Picks by cuisine type — e.g. /cuisine Japanese' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'Live MRT pulse' },
+      { command: 'transport', description: 'MRT + crowd + traffic + nearest bus stops' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
-      { command: 'status',    description: 'CBD train pulse (alias)' },
       { command: 'ver',       description: 'Version + upstream API health' }
     ]);
     if (useWebhook) {

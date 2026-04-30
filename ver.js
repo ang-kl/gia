@@ -149,6 +149,31 @@ function fmtRow(label, r) {
   return `${icon} ${label.padEnd(14)} ${String(r.ms).padStart(5)}ms  ${r.note}`;
 }
 
+// Boot time = when this Node process started = when Railway last redeployed.
+// Captured at module load; SGT formatting deferred to render time.
+const BOOT_MS = Date.now() - Math.floor(process.uptime() * 1000);
+
+function fmtBoot(ms) {
+  const d = new Date(ms);
+  // e.g. "30-04-26 14:55 SGT"
+  const sgt = d.toLocaleString('en-GB', {
+    timeZone: 'Asia/Singapore',
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }).replace(',', '');
+  return `${sgt} SGT`;
+}
+
+function fmtUptime(ms) {
+  const s = Math.floor((Date.now() - ms) / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  return rm ? `${h}h ${rm}m` : `${h}h`;
+}
+
 async function runHealthCheck(bot, redis) {
   const [places, routes, gemini, telegram, lta, redisRes, dataGov] = await Promise.all([
     checkGooglePlaces(),
@@ -168,7 +193,9 @@ async function runHealthCheck(bot, redis) {
     fmtRow('Routes API',   routes),
     fmtRow('Gemini',       gemini),
     fmtRow('LTA DataMall', lta),
-    fmtRow('data.gov.sg',  dataGov)
+    fmtRow('data.gov.sg',  dataGov),
+    '',
+    `Deployed: ${fmtBoot(BOOT_MS)} (uptime ${fmtUptime(BOOT_MS)})`
   ];
   return lines.join('\n');
 }
