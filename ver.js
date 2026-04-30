@@ -72,7 +72,7 @@ async function checkGemini() {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) throw new Error('no key');
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-3-pro' });
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-pro' });
     const result = await Promise.race([
       model.generateContent('Reply with just OK.'),
       new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), TIMEOUT_MS))

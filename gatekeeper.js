@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3-pro';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
 const CACHE_TTL_SECONDS = 60;
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
