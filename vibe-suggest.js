@@ -210,7 +210,7 @@ async function rankByWalkingTime(userLat, userLng, venues) {
   }
 }
 
-const RADIAL_EXPANSION_M = [200, 500, 1000];
+const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
 
 async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
   // Radial expansion policy (v0.11.0, supersedes v0.8.1 fail-fast):

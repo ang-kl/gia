@@ -248,10 +248,14 @@ const KEYBOARD_TEXTS = new Set([
   '⛔ Use Raffles Place default'
 ]);
 
+const ACK_SENSING_VIBE = '🌿 Sensing the vibe…';
+const MANUAL_FALLBACK_PROMPT =
+  "I'm having a bit of trouble pinning your exact location. Could you type the name of the building or area you are at?";
+
 async function startSanctuaryFlow(chatId, category, prompt) {
   const cached = await getUserLocation(redis, chatId);
   if (cached) {
-    await safeSend(chatId, `Looking for ${prompt} near your last shared spot…`);
+    await safeSend(chatId, ACK_SENSING_VIBE);
     await runFlow(chatId, cached.lat, cached.lng, category);
     return;
   }
@@ -295,32 +299,41 @@ bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   try {
     const pending = await consumePendingMeal(redis, msg.chat.id);
     const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
-    const baseLabel = category === 'food' ? mealPeriodSGT().label : category;
-    await safeSend(msg.chat.id, `Looking for ${baseLabel} around Raffles Place…`);
+    await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     await runFlow(msg.chat.id, 1.2839, 103.8517, category);
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach my listings right now.");
+    await safeSend(msg.chat.id, MANUAL_FALLBACK_PROMPT);
   }
 });
 
 bot.on('location', async (msg) => {
-  if (!msg.location) return;
+  // §2 Location Validation Gate: any failure restores pending state
+  // and asks the user to type a place name instead of erroring out.
+  let pending;
   try {
-    const pending = await consumePendingMeal(redis, msg.chat.id);
-    if (!pending) return;
-    const { latitude, longitude } = msg.location;
+    pending = await consumePendingMeal(redis, msg.chat.id);
+    if (!pending) return; // not part of a sanctuary flow
+
+    // Universal immediate ack — keeps socket warm across all platforms.
+    await safeSend(msg.chat.id, ACK_SENSING_VIBE);
+
+    const lat = msg.location?.latitude;
+    const lng = msg.location?.longitude;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      throw new Error('coordinates missing or malformed');
+    }
     const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
-    const label = category === 'food' ? mealPeriodSGT().label : category;
-    // Immediate ack BEFORE any expensive call (Vault verify, Gemini,
-    // Places searchText, review screen, Routes Matrix). Stops the
-    // iPadOS perceived-timeout that surfaces as a system error modal.
-    await safeSend(msg.chat.id, `🌿 Sensing the sanctuary vibe — looking for ${label} within 200m…`);
-    await setUserLocation(redis, msg.chat.id, latitude, longitude);
-    await runFlow(msg.chat.id, latitude, longitude, category);
+    await setUserLocation(redis, msg.chat.id, lat, lng);
+    await runFlow(msg.chat.id, lat, lng, category);
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I couldn't process that location.");
+    // Validation gate: restore pending so the next typed message is
+    // treated as a manual location query, then prompt for it.
+    if (pending) {
+      try { await setPendingMeal(redis, msg.chat.id, pending); } catch { /* best-effort */ }
+    }
+    await safeSend(msg.chat.id, MANUAL_FALLBACK_PROMPT);
   }
 });
 
@@ -383,16 +396,16 @@ bot.on('message', async (msg) => {
     const pending = await consumePendingMeal(redis, msg.chat.id);
     if (pending) {
       const category = ['food', 'drink', 'groceries'].includes(pending) ? pending : 'food';
-      const label = category === 'food' ? mealPeriodSGT().label : category;
-      await safeSend(msg.chat.id, `Looking up "${text}"…`);
+      // §1 Universal ack — same copy across all entry points.
+      await safeSend(msg.chat.id, ACK_SENSING_VIBE);
       const place = await geocodeQuery(text);
       if (!place) {
-        await safeSend(msg.chat.id, `I couldn't place "${text}". Try a building or street name, or tap 📍 Share my location.`);
-        await setPendingMeal(redis, msg.chat.id, category); // restore so they can try again
+        await safeSend(msg.chat.id, `I couldn't place "${text}". ${MANUAL_FALLBACK_PROMPT}`);
+        await setPendingMeal(redis, msg.chat.id, category); // §4 stay locked in original intent
         return;
       }
       await setUserLocation(redis, msg.chat.id, place.lat, place.lng);
-      await safeSend(msg.chat.id, `Centred on ${place.name}. Looking for ${label} within 200m…`);
+      await safeSend(msg.chat.id, `Centred on ${place.name}.`);
       await runFlow(msg.chat.id, place.lat, place.lng, category);
       return;
     }
