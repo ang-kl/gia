@@ -34,9 +34,18 @@ export default function VenueCard({ venue }) {
         {dist && <span>{dist}</span>}
         {queue && <span>{queue}</span>}
         {venue.bookingRequired && <span>📅 Booking advised</span>}
+        {venue.costEstimateSgd && Number.isFinite(venue.costEstimateSgd.low) && Number.isFinite(venue.costEstimateSgd.high) && (
+          <span>💵 S${venue.costEstimateSgd.low}–{venue.costEstimateSgd.high}</span>
+        )}
       </div>
       {venue.signatureDish && (
         <div className="mt-1 text-[11px] text-tg-text">🍴 try the <span className="font-medium">{venue.signatureDish}</span></div>
+      )}
+      {venue.travelAdvice && (
+        <div className="mt-0.5 text-[11px] text-tg-hint">🧭 {venue.travelAdvice}</div>
+      )}
+      {venue.shelterNote && (
+        <div className="mt-0.5 text-[11px] text-tg-hint">☂️ {venue.shelterNote}</div>
       )}
     </div>
   );

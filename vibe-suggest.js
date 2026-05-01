@@ -108,8 +108,16 @@ async function hasNegativeRecentReview(placeId) {
       headers: { 'X-Goog-Api-Key': mapsApiKey, 'X-Goog-FieldMask': 'reviews' },
       timeout: 6000
     });
-    const recent = (data.reviews ?? []).filter(isRecentReview);
-    const pool = recent.length ? recent : (data.reviews ?? []).slice(0, 5);
+    const all = data.reviews ?? [];
+    // v0.26.0: persist the last-5 reviews to place-reviews:<placeId> for the
+    // vault-index. Fire-and-forget — never block the validate flow on this.
+    try {
+      const { cacheReviews } = require('./vault-index');
+      cacheReviews(null, placeId, all).catch(() => {});
+    } catch { /* vault-index optional */ }
+
+    const recent = all.filter(isRecentReview);
+    const pool = recent.length ? recent : all.slice(0, 5);
     return pool.some((r) => {
       const text = `${r.text?.text ?? ''} ${r.originalText?.text ?? ''}`;
       return NEGATIVE_KEYWORDS.test(text);
