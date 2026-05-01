@@ -39,6 +39,38 @@ export function sendData(payload) {
   return true;
 }
 
+// v0.26.3: launch-context snapshot for diagnostics. Lets us tell whether
+// the TMA was opened from a chat-menu-button (initData populated, sendData
+// usable, fetch path ideal) vs an inline button (sendData NOT available;
+// fetch is the only outbound) vs a direct t.me/<bot>/<app> link (similar
+// to inline). The exact rules per Telegram WebApp docs:
+//   - sendData() works ONLY when the WebApp was opened from a
+//     KeyboardButton or chat-menu button. Inline-button + direct-link
+//     launches throw on sendData.
+export function launchContext() {
+  const w = tg();
+  if (!w) {
+    return { hasWebApp: false, canSendData: false };
+  }
+  return {
+    hasWebApp: true,
+    platform: w.platform || null,
+    version: w.version || null,
+    initDataLength: (w.initData || '').length,
+    hasUser: !!w.initDataUnsafe?.user?.id,
+    startParam: w.initDataUnsafe?.start_param || null,
+    isExpanded: !!w.isExpanded,
+    // Heuristic: sendData is documented as usable for KeyboardButton +
+    // chat-menu-button launches. There's no API that tells us "you were
+    // launched from X", so the safest probe is: sendData is a function
+    // AND we have initData (so the bot can attribute the message to a
+    // user). Inline-button-launched WebApps still expose sendData as a
+    // function but Telegram throws when called. We can only know by
+    // trying it; the search-fallback path handles that exception.
+    canSendData: typeof w.sendData === 'function'
+  };
+}
+
 export function closeWebApp() {
   tg()?.close?.();
 }

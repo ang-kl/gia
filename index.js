@@ -663,6 +663,50 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       });
       return true;
     }
+    case 'cuisine-search': {
+      // v0.26.3 dual-channel fallback. When the TMA's primary HTTPS path
+      // (POST /api/cuisine-search) fails — initData empty, fetch blocked
+      // by webview, network blip — the front-end retries via
+      // Telegram.WebApp.sendData({cmd:'cuisine-search', ...payload}).
+      // That arrives here as web_app_data; we run the SAME searchCuisine
+      // pipeline server-side, then deliver the picks to the chat (not
+      // the TMA, which has already been closed by sendData).
+      console.log(`[Cuisine-Diag] D720 web_app_data fallback received chat=${chatId} preset=${payload?.preset} cuisines=${Array.isArray(payload?.cuisines) ? payload.cuisines.length : 0}`);
+      try {
+        await safeSend(chatId, '🌿 Sensing the vibe… (chat-delivery fallback)');
+        const lat = Number(payload?.lat);
+        const lng = Number(payload?.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          console.warn('[Cuisine-Diag] D721 fallback rejected — lat/lng missing');
+          await safeSend(chatId, "I didn't catch your location — open /cuisine and tap 📍 first.");
+          return true;
+        }
+        const { searchCuisine } = require('./cuisine-search');
+        const result = await searchCuisine({
+          lat, lng,
+          cuisines: Array.isArray(payload?.cuisines) ? payload.cuisines.slice(0, 10) : [],
+          radius: Number(payload?.radius) || 1000,
+          recencyDays: Number(payload?.recencyDays) || 90,
+          queueMaxMin: Number(payload?.queueMaxMin) || 15,
+          mode: typeof payload?.mode === 'string' ? payload.mode : 'walk',
+          when: typeof payload?.when === 'string' ? payload.when : 'now',
+          preset: typeof payload?.preset === 'string' ? payload.preset : null,
+          redis
+        });
+        const venues = (result?.venues || []).slice(0, 5);
+        if (!venues.length) {
+          await safeSend(chatId, "Gia couldn't find sanctuary picks for those filters. Open /cuisine and try a wider radius or different cuisine.");
+          return true;
+        }
+        const label = result?.meal?.label || 'cuisine';
+        await deliverPicks(chatId, label, venues);
+        console.log(`[Cuisine-Diag] D722 fallback delivered chat=${chatId} venues=${venues.length}`);
+      } catch (err) {
+        console.error('[Cuisine-Diag] D723 fallback failed:', err.message);
+        await safeSend(chatId, "Sorry, the chat-delivery fallback hit an error.");
+      }
+      return true;
+    }
     case 'cuisine-pick': {
       // TMA card tap → bot delivers Sanctuary read for the single venue.
       const placeId = String(payload?.placeId || '').trim();
@@ -949,10 +993,18 @@ bot.on('message', async (msg) => {
   try {
     // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
     if (msg.web_app_data?.data) {
+      // v0.26.3: log every web_app_data inbound so the Railway console
+      // shows the full simulation trace per the bridge-audit spec.
+      const rawPreview = String(msg.web_app_data.data).slice(0, 240);
+      console.log(`[Cuisine-Diag] D730 web_app_data inbound chat=${msg.chat.id} bytes=${msg.web_app_data.data.length} preview=${rawPreview}`);
       try {
         const payload = JSON.parse(msg.web_app_data.data);
+        console.log(`[Cuisine-Diag] D731 web_app_data parsed cmd=${payload?.cmd}`);
         const handled = await routeMenuCommand(msg.chat.id, payload?.cmd, payload);
-        if (!handled) await safeSend(msg.chat.id, "Unrecognised menu action.");
+        if (!handled) {
+          console.warn(`[Cuisine-Diag] D732 web_app_data unhandled cmd=${payload?.cmd}`);
+          await safeSend(msg.chat.id, "Unrecognised menu action.");
+        }
       } catch (err) {
         console.error('[Error] web_app_data parse failed:', err.message);
         await safeSend(msg.chat.id, "Sorry, I couldn't read that menu tap.");
