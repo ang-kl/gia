@@ -885,7 +885,7 @@ async function runSurpriseCommand(chatId) {
     await setProcessing(redis, chatId);
     await safeSend(chatId, '🎲 Hunting for one hidden gem 1.5–3 km away…');
     const { findSurprise } = require('./surprise');
-    const venue = await findSurprise({ lat: cached.lat, lng: cached.lng });
+    const venue = await findSurprise({ lat: cached.lat, lng: cached.lng, redis });
     if (!venue) {
       await safeSend(
         chatId,
@@ -913,11 +913,14 @@ async function deliverSurprise(chatId, v) {
   const booking = v.bookingRequired
     ? '\n\n📅 Booking is usually advised at peak.'
     : '\n\n🪑 Walk-ins generally fine.';
+  // v0.26.0 Refine layer outputs:
+  const travel = v.travelAdvice ? `\n\n🧭 ${v.travelAdvice}` : '';
+  const shelter = v.shelterNote ? `\n☂️ ${v.shelterNote}` : '';
   const text = [
     `🎲 *${v.name}*`,
     `${v.area}`,
     `${rating}${open ? ' · ' + open : ''} · ${km} km away`,
-    dishes + why + booking
+    dishes + why + booking + travel + shelter
   ].join('\n');
 
   const row = [
@@ -1093,6 +1096,23 @@ async function cacheBotUsername() {
     console.error('[Warn] Holiday warm-cache failed:', err.message);
   }
 
+  // v0.26.0: vault-index aggregator. setRedisRef wires the singleton so
+  // vibe-suggest's review fetcher (called inside validateWithPlaces) can
+  // persist last-5 reviews under place-reviews:<placeId>. The 5-min refresh
+  // re-scans Redis so newly cached reviews / summaries become visible to
+  // the next pipeline.reason() call.
+  try {
+    const vaultIndex = require('./vault-index');
+    vaultIndex.setRedisRef(redis);
+    await vaultIndex.refreshIndex(redis);
+    setInterval(() => {
+      vaultIndex.refreshIndex(redis).catch((err) =>
+        console.error('[Warn] vault-index refresh failed:', err.message));
+    }, 5 * 60 * 1000);
+  } catch (err) {
+    console.error('[Warn] vault-index init failed:', err.message);
+  }
+
   await updateTransitStatus();
   setInterval(updateTransitStatus, 300000); // 5 min
 
@@ -1173,7 +1193,9 @@ async function cacheBotUsername() {
           queueMaxMin: Number(queueMaxMin) || 15,
           mode: typeof mode === 'string' ? mode : 'walk',
           when: typeof when === 'string' ? when : 'now',
-          preset: typeof preset === 'string' ? preset : null
+          preset: typeof preset === 'string' ? preset : null,
+          // v0.26.0: pass redis so pipeline can read vault snapshot + cache reviews.
+          redis
         });
         const dt = Date.now() - t0;
         console.log(`[Cuisine-Diag] D702 OK ${dt}ms venues=${result.venues?.length ?? 0}`);

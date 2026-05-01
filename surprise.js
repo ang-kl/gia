@@ -212,7 +212,7 @@ Return ONLY the JSON object.`;
   }
 }
 
-async function findSurprise({ lat, lng }) {
+async function findSurprise({ lat, lng, redis = null }) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) throw new Error('GOOGLE_MAPS_API_KEY missing');
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error('lat/lng required');
@@ -252,6 +252,36 @@ async function findSurprise({ lat, lng }) {
     if (!passesRecentReviewGate(detail)) continue;
 
     const enrich = await geminiEnrich(detail);
+    // v0.26.0: optional Refine pass — fetch weather/traffic/carpark for
+    // this single venue and ask Gemini to weather-adjust travel advice.
+    let travelAdvice = '';
+    let shelterNote = '';
+    let weatherFlag = 'unknown';
+    if (redis && process.env.PIPELINE_ENABLED !== 'false') {
+      try {
+        const { fetchContext, refine } = require('./pipeline');
+        const venue = {
+          placeId: detail.id,
+          name: detail.displayName?.text,
+          area: detail.formattedAddress,
+          lat: detail.location.latitude,
+          lng: detail.location.longitude,
+          dishes: enrich.dishes,
+          signatureDish: enrich.dishes?.[0] || '',
+          queueMinEstimate: null,
+          costEstimateSgd: null
+        };
+        const ctx = await fetchContext([venue]);
+        const refined = await refine({ draft: [venue], context: ctx, query: { label: 'now' } });
+        if (refined?.[0]) {
+          travelAdvice = refined[0].travelAdvice || '';
+          shelterNote  = refined[0].shelterNote || '';
+          weatherFlag  = refined[0].weatherFlag || 'unknown';
+        }
+      } catch (err) {
+        console.error('[Surprise] pipeline refine failed:', err.message);
+      }
+    }
     return {
       placeId: detail.id,
       name: detail.displayName?.text ?? cand.displayName?.text ?? 'venue',
@@ -271,6 +301,9 @@ async function findSurprise({ lat, lng }) {
       dishes: enrich.dishes,
       whyOrdered: enrich.whyOrdered,
       bookingRequired: enrich.bookingRequired,
+      travelAdvice,
+      shelterNote,
+      weatherFlag,
       source: 'surprise'
     };
   }

@@ -161,7 +161,8 @@ function sortVenues(venues) {
 async function searchCuisine({
   lat, lng, cuisines = [], radius = 1000,
   recencyDays = 90, queueMaxMin = 15,
-  mode = 'walk', when = 'now', preset = null
+  mode = 'walk', when = 'now', preset = null,
+  redis = null
 }) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     throw new Error('lat/lng required');
@@ -180,10 +181,36 @@ async function searchCuisine({
     holidayContext = { isToday: !!today, name: today?.name || null, next };
   }
 
-  const candidates = await geminiCandidates15({
-    lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext
-  });
-  if (!candidates.length) return { venues: [], meal, holidayContext, recencyDays, queueMaxMin };
+  // v0.26.0: Reason–Fetch–Refine pipeline. Behind PIPELINE_ENABLED env
+  // flag (default ON). When disabled or pipeline returns nothing,
+  // falls back to the legacy geminiCandidates15 path.
+  const pipelineEnabled = process.env.PIPELINE_ENABLED !== 'false';
+  let candidates = [];
+  let pipelineDiag = null;
+  if (pipelineEnabled && redis) {
+    const { runPipeline } = require('./pipeline');
+    const draftRun = await runPipeline({
+      redis,
+      lat, lng,
+      query: {
+        label: meal.label, detail: meal.hint,
+        cuisines, recencyDays, queueMaxMin, radius
+      },
+      validatedVenues: null,
+      count: 15
+    });
+    candidates = draftRun.candidates;
+    pipelineDiag = draftRun.diag;
+  }
+  if (!candidates.length) {
+    // Legacy fallback (pipeline disabled, no Redis, or empty draft).
+    candidates = await geminiCandidates15({
+      lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext
+    });
+  }
+  if (!candidates.length) {
+    return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
+  }
 
   const validated = [];
   for (const c of candidates) {
@@ -193,20 +220,39 @@ async function searchCuisine({
     v.signatureDish    = c.signatureDish    || '';
     v.queueMinEstimate = c.queueMinEstimate != null ? c.queueMinEstimate : null;
     v.bookingRequired  = !!c.bookingRequired;
+    v.dishes           = Array.isArray(c.dishes) ? c.dishes : (c.signatureDish ? [c.signatureDish] : []);
+    v.costEstimateSgd  = c.costEstimateSgd || null;
     validated.push(v);
   }
-  if (!validated.length) return { venues: [], meal, holidayContext, recencyDays, queueMaxMin };
+  if (!validated.length) {
+    return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
+  }
 
   const ranked = await rankByWalkingTime(lat, lng, validated);
 
-  let filtered = applyPostFilters(ranked, preset);
-  // Queue tolerance filter: drop venues whose Gemini-estimated queue
-  // exceeds the user's slider. If Gemini didn't return an estimate
-  // (null), keep the venue rather than punish the absence.
+  // v0.26.0: Refine pass — fetches per-cluster context (weather/traffic/
+  // carpark) and rewrites travel advice + queue minutes + cost based on
+  // what's happening on the ground right now.
+  let postRefine = ranked;
+  if (pipelineEnabled && redis) {
+    try {
+      const { fetchContext, refine } = require('./pipeline');
+      const diag = (code, label, ok, detail) => {
+        if (!pipelineDiag) pipelineDiag = [];
+        pipelineDiag.push({ code, label, ok, detail, t: Date.now() });
+      };
+      const context = await fetchContext(ranked, diag);
+      postRefine = await refine({ draft: ranked, context, query: { label: meal.label }, diag });
+    } catch (err) {
+      console.error('[Cuisine-Search] Refine pass failed (using ranked draft):', err.message);
+    }
+  }
+
+  let filtered = applyPostFilters(postRefine, preset);
   filtered = filtered.filter((v) => v.queueMinEstimate == null || v.queueMinEstimate <= queueMaxMin);
   const sorted = sortVenues(filtered);
 
-  return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin };
+  return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
 }
 
 module.exports = { searchCuisine, PRESETS };
