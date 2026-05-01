@@ -652,6 +652,9 @@ bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
+// v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
+bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
+
 // v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
 // every step of the NL pipeline emits a "🔍 step …" message to the
 // chat for real-time debugging. Auto-clears after 24 h.
@@ -869,6 +872,23 @@ bot.on('callback_query', async (q) => {
       await runTransportDrive(chatId);
       return;
     }
+    // v0.33.0 hawker sub-menu dispatch:
+    //   hawker:menu         → top-level menu
+    //   hawker:nearest      → nearest 3 from saved location
+    //   hawker:zones        → render zone-picker keyboard
+    //   hawker:zone:<Zone>  → centres in that zone
+    //   hawker:cleaning     → NEA cleaning-schedule disclaimer + link
+    //   hawker:crowd        → honest "no live API; use carpark proxy"
+    if (data === 'hawker:menu') { await sendHawkerMenu(chatId); return; }
+    if (data === 'hawker:nearest') { await runHawkerNearest(chatId); return; }
+    if (data === 'hawker:zones') { await sendHawkerZonesMenu(chatId); return; }
+    if (data.startsWith('hawker:zone:')) {
+      const z = data.slice('hawker:zone:'.length);
+      await runHawkerZone(chatId, z);
+      return;
+    }
+    if (data === 'hawker:cleaning') { await runHawkerCleaning(chatId); return; }
+    if (data === 'hawker:crowd') { await runHawkerCrowd(chatId); return; }
     // v0.31.0 Buddy Level 2 callback dispatch.
     if (data.startsWith('buddy:')) {
       await handleBuddyCallback(data, chatId, q);
@@ -1090,6 +1110,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     }
     case 'weather':   await runWeatherCommand(chatId); return true;
     case 'transport': await sendTransportMenu(chatId); return true;
+    case 'hawker':    await sendHawkerMenu(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'surprise':  await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
@@ -1445,6 +1466,158 @@ async function runTransportDrive(chatId) {
   } catch (err) {
     console.error('[Error] transport drive failed:', err.message);
     await safeSend(chatId, "Sorry, the drive view failed.");
+  }
+}
+
+// v0.33.0: /hawker sub-menu + handlers.
+async function sendHawkerMenu(chatId) {
+  const hawker = require('./hawker');
+  const total = hawker.totalCount();
+  await safeSend(chatId, `🍜 Singapore hawker centres (${total} curated, dataset ${hawker.datasetVersion()})`, {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🚏 Nearest 3',     callback_data: 'hawker:nearest' },
+          { text: '🗺 By zone',       callback_data: 'hawker:zones' }
+        ],
+        [
+          { text: '🧹 Cleaning info', callback_data: 'hawker:cleaning' },
+          { text: '👥 Crowd',         callback_data: 'hawker:crowd' }
+        ]
+      ]
+    }
+  });
+}
+
+async function sendHawkerZonesMenu(chatId) {
+  const hawker = require('./hawker');
+  const zones = hawker.allZones();
+  const buttons = zones.map((z) => {
+    const n = hawker.centresInZone(z).length;
+    return { text: `${z} (${n})`, callback_data: `hawker:zone:${z}` };
+  });
+  // Two columns when possible.
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 2) rows.push(buttons.slice(i, i + 2));
+  rows.push([{ text: '⬅️ Back', callback_data: 'hawker:menu' }]);
+  await safeSend(chatId, '🗺 Pick a zone — Singapore hawker centres', { reply_markup: { inline_keyboard: rows } });
+}
+
+async function runHawkerNearest(chatId) {
+  try {
+    const hawker = require('./hawker');
+    const cached = await getUserLocation(redis, chatId);
+    const back = [{ text: '⬅️ Back', callback_data: 'hawker:menu' }];
+    if (!cached) {
+      await safeSend(chatId,
+        '🚏 Share your location once via the menu (📍) and Gia will list the nearest hawker centres.',
+        { reply_markup: { inline_keyboard: [back] } });
+      return;
+    }
+    const nearest = hawker.nearestCentres(cached.lat, cached.lng, 3);
+    const lines = ['🚏 Nearest hawker centres'];
+    nearest.forEach((c) => {
+      lines.push('', `· ${c.name} — ${c.distanceM} m (${c.zone})`);
+      lines.push(`  ${c.address}`);
+    });
+    lines.push('', `_Cleaning schedules vary; verify at ${hawker.NEA_SCHEDULE_URL} before you go._`);
+    const mapButtons = nearest.map((c) => [{ text: `🗺 ${c.name.slice(0, 24)}…`, url: hawker.googleMapsUrl(c) }]);
+    await safeSend(chatId, lines.join('\n'), {
+      reply_markup: { inline_keyboard: [...mapButtons, back] }
+    });
+  } catch (err) {
+    console.error('[Error] hawker nearest failed:', err.message);
+    await safeSend(chatId, "Sorry, the hawker lookup failed.");
+  }
+}
+
+async function runHawkerZone(chatId, zone) {
+  try {
+    const hawker = require('./hawker');
+    if (!hawker.allZones().some((z) => z.toLowerCase() === String(zone).toLowerCase())) {
+      await safeSend(chatId, `Unknown zone "${zone}". Try Central / South / East / West / North.`);
+      return;
+    }
+    const centres = hawker.centresInZone(zone);
+    if (!centres.length) {
+      await safeSend(chatId, `No centres curated for ${zone} yet.`, {
+        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }]] }
+      });
+      return;
+    }
+    const lines = [`🗺 ${zone} — ${centres.length} hawker centres`];
+    centres.forEach((c) => {
+      lines.push('', `· ${c.name}`);
+      lines.push(`  ${c.address}`);
+    });
+    lines.push('', `_Verify cleaning schedule at ${hawker.NEA_SCHEDULE_URL} before you go._`);
+    await safeSend(chatId, lines.join('\n'), {
+      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }]] }
+    });
+  } catch (err) {
+    console.error('[Error] hawker zone failed:', err.message);
+    await safeSend(chatId, "Sorry, the zone lookup failed.");
+  }
+}
+
+async function runHawkerCleaning(chatId) {
+  const hawker = require('./hawker');
+  const data = hawker.loadData();
+  const text = [
+    '🧹 *Hawker cleaning schedule*',
+    '',
+    'NEA closes hawker centres for thorough cleaning each quarter (typically 1 weekday + 1 weekend per centre per quarter).',
+    '',
+    "Schedules vary by centre and aren't embedded in this bot — they change every quarter and Gia doesn't want to send you to a closed centre.",
+    '',
+    `📅 Authoritative schedule: ${hawker.NEA_SCHEDULE_URL}`,
+    '',
+    `_Dataset: ${data.version}_`
+  ].join('\n');
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '📅 Open NEA schedule', url: hawker.NEA_SCHEDULE_URL }],
+        [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
+      ]
+    }
+  });
+}
+
+async function runHawkerCrowd(chatId) {
+  // Honest framing — no public live-crowd API for SG hawker centres.
+  // Offer the nearest carpark availability as a footfall proxy.
+  try {
+    const cached = await getUserLocation(redis, chatId);
+    const back = [{ text: '⬅️ Back', callback_data: 'hawker:menu' }];
+    const lines = ['👥 *Hawker crowd*', ''];
+    lines.push('NEA does not expose a live hawker-centre crowd API. Gia is honest about this.');
+    lines.push('');
+    lines.push('Closest available proxy: nearby carpark availability via LTA DataMall. When carparks are >90% full at lunch/dinner peak, the centre next door is usually slammed too.');
+    if (cached && process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const carpark = require('./carpark');
+        const list = await carpark.nearest(cached.lat, cached.lng, 5);
+        if (list.length) {
+          lines.push('', '🅿️ Carparks within reach (avail = lots open):');
+          list.forEach((c) => {
+            lines.push(`· ${c.development} — ${c.availableLots} lots — ${c.distanceM} m`);
+          });
+        }
+      } catch (err) {
+        console.error('[Hawker] crowd proxy carpark failed:', err.message);
+      }
+    } else if (!cached) {
+      lines.push('', 'Share your location once and Gia will surface nearby carpark availability as a proxy.');
+    }
+    await safeSend(chatId, lines.join('\n'), {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [back] }
+    });
+  } catch (err) {
+    console.error('[Error] hawker crowd failed:', err.message);
+    await safeSend(chatId, "Sorry, the crowd view failed.");
   }
 }
 
@@ -1892,6 +2065,7 @@ async function registerCommandsMenu() {
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
+      { command: 'hawker',    description: 'Hawker centres — nearest, by zone, cleaning info' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' }
     ]);
     if (useWebhook) {
