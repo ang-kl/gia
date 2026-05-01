@@ -11,6 +11,18 @@ export function initData() {
   return tg()?.initData || '';
 }
 
+// v0.27.2: ISO 639-1 from Telegram. Falls back to navigator language
+// then 'en'. Used to localise the cuisine accordion + category headers.
+export function getLanguage() {
+  const w = tg();
+  const tgLang = w?.initDataUnsafe?.user?.language_code;
+  if (tgLang) return String(tgLang).slice(0, 2).toLowerCase();
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language.slice(0, 2).toLowerCase();
+  }
+  return 'en';
+}
+
 export function applyTelegramTheme() {
   const w = tg();
   if (!w) return;

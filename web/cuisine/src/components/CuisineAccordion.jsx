@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { CUISINE_CATEGORIES, MAX_CUISINE_SELECTIONS } from '../state/cuisines.js';
+import { localizedCuisine, localizedCategory, SUPPORTED_LANGS } from '../state/cuisine-i18n.js';
+import { getLanguage } from '../api/tg.js';
 
 export default function CuisineAccordion({ selected, onToggle }) {
+  // v0.27.2: localise labels but preserve canonical English in state.
+  const tgLang = getLanguage();
+  const lang = SUPPORTED_LANGS.includes(tgLang) ? tgLang : 'en';
   const initialOpen = Object.fromEntries(
     CUISINE_CATEGORIES.map((c) => [c.id, !!c.defaultOpen])
   );
@@ -17,7 +22,7 @@ export default function CuisineAccordion({ selected, onToggle }) {
               key={c}
               className="text-[11px] px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text"
             >
-              {c} <button onClick={() => onToggle(c)} className="ml-1 opacity-80">✕</button>
+              {localizedCuisine(c, lang)} <button onClick={() => onToggle(c)} className="ml-1 opacity-80">✕</button>
             </span>
           ))}
           <span className="text-[11px] text-tg-hint self-center ml-1">
@@ -33,7 +38,7 @@ export default function CuisineAccordion({ selected, onToggle }) {
               onClick={() => setOpen((o) => ({ ...o, [cat.id]: !o[cat.id] }))}
               className="w-full flex items-center justify-between px-2.5 py-1.5 bg-tg-card text-xs"
             >
-              <span className="font-medium">{cat.label}</span>
+              <span className="font-medium">{localizedCategory(cat.id, lang)}</span>
               <span className="text-tg-hint">{isOpen ? '▾' : '▸'}</span>
             </button>
             {isOpen && (
@@ -55,7 +60,7 @@ export default function CuisineAccordion({ selected, onToggle }) {
                             : 'bg-tg-card text-tg-text border-tg-border')
                       }
                     >
-                      {item}
+                      {localizedCuisine(item, lang)}
                     </button>
                   );
                 })}
