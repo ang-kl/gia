@@ -44,6 +44,9 @@ export default function VenueCard({ venue }) {
           <span>💵 S${venue.costEstimateSgd.low}–{venue.costEstimateSgd.high}</span>
         )}
       </div>
+      {venue.verifiedOpeningDate && (
+        <div className="mt-1 text-[11px] text-tg-hint">🆕 opened <span className="font-mono">{venue.verifiedOpeningDate}</span> <span className="opacity-60">(web-grounded)</span></div>
+      )}
       {venue.signatureDish && (
         <div className="mt-1 text-[11px] text-tg-text">🍴 try the <span className="font-medium">{venue.signatureDish}</span></div>
       )}
