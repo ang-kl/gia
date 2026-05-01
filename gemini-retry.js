@@ -12,16 +12,27 @@
 // transient error, withRetry invokes an optional `fallbackFn` (typically
 // the same prompt against gemini-2.5-flash). Designed for the Pro-
 // overload class of outage where Flash is fine and Pro isn't.
+//
+// v0.31.2: 400/401/403/404 are deterministic client errors and MUST NOT
+// retry. Production trace 2026-05-01 11:10 SGT showed 50 s wasted on a
+// retryable-loop chasing a 400 that would never succeed.
 
-const RETRYABLE_STATUSES = new Set([429, 503]);
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+const NON_RETRYABLE_STATUSES = new Set([400, 401, 403, 404]);
 const DEFAULT_DELAYS_MS = [1000, 2000, 4000];
 const FLASH_MODEL = 'gemini-2.5-flash';
 
 function isRetryable(err) {
   // SDK exposes status on err.status; also surfaces it inside the message.
-  if (RETRYABLE_STATUSES.has(err?.status)) return true;
+  const status = err?.status;
   const msg = String(err?.message || '');
-  return /\[(429|503)\s/.test(msg);
+  if (NON_RETRYABLE_STATUSES.has(status)) return false;
+  if (/\[(400|401|403|404)\s/.test(msg)) return false;
+  if (RETRYABLE_STATUSES.has(status)) return true;
+  if (/\[(429|500|502|503|504)\s/.test(msg)) return true;
+  // Network failures (no status, but fetch-level errors) are retryable.
+  if (!status && /(ECONNRESET|ETIMEDOUT|ENOTFOUND|fetch failed|network)/i.test(msg)) return true;
+  return false;
 }
 
 async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'gemini', fallbackFn = null } = {}) {
