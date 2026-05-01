@@ -646,7 +646,7 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // line instead of the full humidity / rain / wind block.
 bot.onText(/^\/weather(?:@\w+)?$/, (msg) => runWeatherCommand(msg.chat.id));
 
-bot.onText(/^\/transport(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
+bot.onText(/^\/transport(?:@\w+)?$/, (msg) => sendTransportMenu(msg.chat.id));
 
 bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
@@ -831,7 +831,42 @@ bot.on('callback_query', async (q) => {
     bot.answerCallbackQuery(q.id).catch(() => {});
 
     if (data === 'refresh:transport') {
-      await runTransportCommand(chatId);
+      await runTransportTrain(chatId); // legacy refresh button on bus stop list — point at train view
+      return;
+    }
+    // v0.31.1 transport sub-menu dispatch:
+    //   transport:menu              → top-level menu
+    //   transport:train             → MRT status + crowd + nearest stations
+    //   transport:bus               → bus sub-sub-menu
+    //   transport:bus:nearest       → nearest 3 stops (no arrivals)
+    //   transport:bus:arrivals      → arrivals at nearest stops (current /transport bus block)
+    //   transport:bus:crowd         → bus load summary across nearest arrivals
+    //   transport:bus:route         → Google Maps transit deep link from current location
+    //   transport:taxi              → traffic + Grab/Gojek/CDG deep links
+    //   transport:drive             → traffic incidents + driving directions deep link
+    if (data === 'transport:menu') {
+      await sendTransportMenu(chatId);
+      return;
+    }
+    if (data === 'transport:train') {
+      await runTransportTrain(chatId);
+      return;
+    }
+    if (data === 'transport:bus') {
+      await sendBusMenu(chatId);
+      return;
+    }
+    if (data.startsWith('transport:bus:')) {
+      const sub = data.slice('transport:bus:'.length);
+      await runTransportBus(chatId, sub);
+      return;
+    }
+    if (data === 'transport:taxi') {
+      await runTransportTaxi(chatId);
+      return;
+    }
+    if (data === 'transport:drive') {
+      await runTransportDrive(chatId);
       return;
     }
     // v0.31.0 Buddy Level 2 callback dispatch.
@@ -1051,7 +1086,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       return true;
     }
     case 'weather':   await runWeatherCommand(chatId); return true;
-    case 'transport': await runTransportCommand(chatId); return true;
+    case 'transport': await sendTransportMenu(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'surprise':  await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
@@ -1087,53 +1122,233 @@ async function runWeatherCommand(chatId) {
   }
 }
 
-async function runTransportCommand(chatId) {
+// v0.31.1: /transport is now a 4-button sub-menu (Train, Bus, Taxi/PHD,
+// Drive). Bus opens its own sub-sub-menu (nearest stops, arrivals, crowd,
+// route). The original "everything-in-one-message" runTransportCommand is
+// retained as runTransportFull below for any internal caller that still
+// wants the dense view, but the user-facing entry point is sendTransportMenu.
+
+async function sendTransportMenu(chatId) {
+  await safeSend(chatId, '🚉 Singapore transport — pick a mode', {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🚇 Train',     callback_data: 'transport:train' },
+          { text: '🚌 Bus',       callback_data: 'transport:bus' }
+        ],
+        [
+          { text: '🚖 Taxi/PHD',  callback_data: 'transport:taxi' },
+          { text: '🚗 Drive',     callback_data: 'transport:drive' }
+        ]
+      ]
+    }
+  });
+}
+
+async function sendBusMenu(chatId) {
+  await safeSend(chatId, '🚌 Bus — pick what you need', {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🚏 Nearest stops',   callback_data: 'transport:bus:nearest' },
+          { text: '⏱ Arrivals',         callback_data: 'transport:bus:arrivals' }
+        ],
+        [
+          { text: '👥 Crowd / load',    callback_data: 'transport:bus:crowd' },
+          { text: '🗺 Plan a route',    callback_data: 'transport:bus:route' }
+        ],
+        [
+          { text: '⬅️ Back',            callback_data: 'transport:menu' }
+        ]
+      ]
+    }
+  });
+}
+
+async function runTransportTrain(chatId) {
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedStatus = await redis.get('lta:train_status');
     const status = cachedStatus ? JSON.parse(cachedStatus) : null;
     const cachedLoc = await getUserLocation(redis, chatId);
 
-    const lines = ['🚉 Singapore transport'];
+    const lines = ['🚇 Train (MRT)'];
     if (status) {
-      lines.push('', `MRT: ${status.status}`);
+      lines.push('', `Status: ${status.status}`);
       if (status.message) lines.push(`Notes: ${status.message}`);
       lines.push(`Refreshed: ${status.updatedAt}`);
     } else {
-      lines.push('', 'MRT: 🟡 status warming up; try again in 30 s.');
+      lines.push('', 'Status: 🟡 warming up; try again in 30 s.');
     }
 
-    // Network-wide crowd snapshot from LTA PCDRealTime across all lines.
     if (process.env.LTA_ACCOUNT_KEY) {
       try {
         const crowdMap = await transport.fetchPlatformCrowdAll();
         const summary = transport.networkCrowdSummary(crowdMap);
         if (summary) {
-          lines.push(`Network crowd: ${summary.overall} (${summary.low}L / ${summary.medium}M / ${summary.high}H of ${summary.total})`);
+          lines.push('', `Network crowd: ${summary.overall} (${summary.low}L / ${summary.medium}M / ${summary.high}H of ${summary.total})`);
         }
       } catch (err) {
         console.error('[Transport] platform crowd failed:', err.message);
       }
     }
 
-    // Nearest MRT stations (Places searchNearby for subway_station).
     if (cachedLoc && process.env.GOOGLE_MAPS_API_KEY) {
       try {
         const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
         if (mrt.length) {
           lines.push('', '🚇 Nearest MRT stations:');
-          for (const s of mrt) {
-            lines.push(`· ${s.name}`);
-          }
+          for (const s of mrt) lines.push(`· ${s.name}`);
         }
       } catch (err) {
         console.error('[Transport] nearestMrtStations failed:', err.message);
       }
+    } else if (!cachedLoc) {
+      lines.push('', '🚇 Share your location once and Gia will list the nearest MRT stations too.');
     }
 
-    // Live traffic incidents (LTA TrafficIncidents) — global feed, ranked by
-    // distance from cached location when available. Surfaces accidents,
-    // roadworks, vehicle breakdowns; keeps reply terse with top 3 nearest.
+    await safeSend(chatId, lines.join('\n'), {
+      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
+    });
+  } catch (err) {
+    console.error('[Error] transport train failed:', err.message);
+    await safeSend(chatId, "Sorry, I can't reach the MRT feed right now.");
+  }
+}
+
+async function runTransportBus(chatId, sub) {
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const cachedLoc = await getUserLocation(redis, chatId);
+    const backRow = [{ text: '⬅️ Back', callback_data: 'transport:bus' }];
+
+    if (!cachedLoc) {
+      await safeSend(chatId, '🚌 I need your location first — share it once via the menu (📍) and Gia will remember.', {
+        reply_markup: { inline_keyboard: [backRow] }
+      });
+      return;
+    }
+    if (!process.env.LTA_ACCOUNT_KEY) {
+      await safeSend(chatId, '🚌 Bus lookup is offline (LTA key not configured).', {
+        reply_markup: { inline_keyboard: [backRow] }
+      });
+      return;
+    }
+
+    if (sub === 'nearest') {
+      const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 5);
+      if (!stops.length) {
+        await safeSend(chatId, '🚏 No bus stops within 800 m of your saved location.', {
+          reply_markup: { inline_keyboard: [backRow] }
+        });
+        return;
+      }
+      const lines = ['🚏 Nearest bus stops'];
+      for (const stop of stops) {
+        lines.push('', `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`);
+        lines.push(`  Code: ${stop.code}`);
+      }
+      await safeSend(chatId, lines.join('\n'), {
+        reply_markup: { inline_keyboard: [backRow] }
+      });
+      return;
+    }
+
+    if (sub === 'arrivals') {
+      const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
+      if (!stops.length) {
+        await safeSend(chatId, '⏱ No bus stops within 800 m of your saved location.', {
+          reply_markup: { inline_keyboard: [backRow] }
+        });
+        return;
+      }
+      const lines = ['⏱ Next arrivals — top 3 nearest stops'];
+      for (const stop of stops) {
+        const arrivals = await transport.busArrivals(stop.code);
+        lines.push('', `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`);
+        if (!arrivals.length) { lines.push('  no real-time arrivals'); continue; }
+        for (const svc of arrivals.slice(0, 4)) {
+          const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
+          const next2Str = svc.next2 ? ` · then ${svc.next2.minutes} min` : '';
+          lines.push(`  ${svc.service}: ${nextStr}${next2Str}`);
+        }
+      }
+      await safeSend(chatId, lines.join('\n'), {
+        reply_markup: { inline_keyboard: [backRow] }
+      });
+      return;
+    }
+
+    if (sub === 'crowd') {
+      // Bus load is reported per-arrival via the LTA BusArrivalv2 Load field
+      // (SEA / SDA / LSD). Aggregate across the nearest 3 stops as a quick
+      // "is the next bus full?" snapshot.
+      const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
+      if (!stops.length) {
+        await safeSend(chatId, '👥 No bus stops within 800 m to sample.', {
+          reply_markup: { inline_keyboard: [backRow] }
+        });
+        return;
+      }
+      let SEA = 0, SDA = 0, LSD = 0, total = 0;
+      const detail = [];
+      for (const stop of stops) {
+        const arrivals = await transport.busArrivals(stop.code);
+        for (const svc of arrivals) {
+          const load = svc.next?.loadLabel || '';
+          if (load) {
+            total += 1;
+            if (/seats/i.test(load)) SEA += 1;
+            else if (/standing/i.test(load)) SDA += 1;
+            else if (/limited/i.test(load)) LSD += 1;
+          }
+        }
+        detail.push(`· ${stop.description}: ${arrivals.length} services`);
+      }
+      const lines = ['👥 Bus load — sampled across nearest 3 stops'];
+      lines.push('');
+      if (total) {
+        lines.push(`Seats Available: ${SEA}`);
+        lines.push(`Standing Available: ${SDA}`);
+        lines.push(`Limited Standing: ${LSD}`);
+        lines.push(`(of ${total} services with live load data)`);
+      } else {
+        lines.push('No live load data right now — try again in 30 s.');
+      }
+      lines.push('', ...detail);
+      await safeSend(chatId, lines.join('\n'), {
+        reply_markup: { inline_keyboard: [backRow] }
+      });
+      return;
+    }
+
+    if (sub === 'route') {
+      // Open Google Maps in transit mode from the saved location. The user
+      // types the destination in the Maps app.
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${cachedLoc.lat},${cachedLoc.lng}&travelmode=transit`;
+      await safeSend(chatId, '🗺 Tap below to open Google Maps in transit mode from your saved location. Type your destination in Maps.', {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🗺 Open Google Maps (transit)', url }],
+            backRow
+          ]
+        }
+      });
+      return;
+    }
+
+    await sendBusMenu(chatId);
+  } catch (err) {
+    console.error('[Error] transport bus failed:', err.message);
+    await safeSend(chatId, "Sorry, the bus feed is unavailable right now.");
+  }
+}
+
+async function runTransportTaxi(chatId) {
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const cachedLoc = await getUserLocation(redis, chatId);
+    const lines = ['🚖 Taxi / Private-Hire'];
     if (process.env.LTA_ACCOUNT_KEY) {
       try {
         const all = await transport.fetchTrafficIncidents();
@@ -1143,6 +1358,59 @@ async function runTransportCommand(chatId) {
           cachedLoc?.lng ?? 103.8517,
           5000,
           3
+        );
+        if (near.length) {
+          lines.push('', `🚦 Traffic near you (top ${near.length} of ${all.length}):`);
+          for (const inc of near) {
+            const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+            lines.push(`· ${inc.type}${dist}`);
+            lines.push(`  ${inc.message}`);
+          }
+        } else if (all.length) {
+          lines.push('', `🚦 Traffic: ${all.length} incidents island-wide; none within 5 km.`);
+        } else {
+          lines.push('', '🚦 Traffic: no live incidents reported.');
+        }
+      } catch (err) {
+        console.error('[Transport] traffic incidents failed:', err.message);
+      }
+    }
+    lines.push('', 'Hail a ride:');
+    await safeSend(chatId, lines.join('\n'), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Grab',     url: 'https://grab.onelink.me/2695613898' },
+            { text: 'Gojek',    url: 'https://www.gojek.com/sg/' }
+          ],
+          [
+            { text: 'CDG Zig',  url: 'https://www.cdgzig.com/' },
+            { text: 'TADA',     url: 'https://www.tada.global/' }
+          ],
+          [{ text: '⬅️ Back',   callback_data: 'transport:menu' }]
+        ]
+      }
+    });
+  } catch (err) {
+    console.error('[Error] transport taxi failed:', err.message);
+    await safeSend(chatId, "Sorry, the taxi view failed.");
+  }
+}
+
+async function runTransportDrive(chatId) {
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const cachedLoc = await getUserLocation(redis, chatId);
+    const lines = ['🚗 Drive'];
+    if (process.env.LTA_ACCOUNT_KEY) {
+      try {
+        const all = await transport.fetchTrafficIncidents();
+        const near = transport.nearestIncidents(
+          all,
+          cachedLoc?.lat ?? 1.2839,
+          cachedLoc?.lng ?? 103.8517,
+          5000,
+          5
         );
         if (near.length) {
           lines.push('', `🚦 Traffic (top ${near.length} of ${all.length} island-wide):`);
@@ -1160,48 +1428,20 @@ async function runTransportCommand(chatId) {
         console.error('[Transport] traffic incidents failed:', err.message);
       }
     }
-
-    // Nearby bus arrivals — only when we have a location and bus-stops cache.
-    let firstBusStopCode = null;
-    if (cachedLoc && process.env.LTA_ACCOUNT_KEY) {
-      try {
-        const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
-        if (!stops.length) {
-          lines.push('', 'No bus stops within 800 m of your saved location.');
-        } else {
-          firstBusStopCode = stops[0]?.code || null;
-          lines.push('', '🚌 Nearest bus stops + next arrivals:');
-          for (const stop of stops) {
-            const arrivals = await transport.busArrivals(stop.code);
-            const header = `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`;
-            lines.push('', header);
-            if (!arrivals.length) {
-              lines.push('  no real-time arrivals');
-              continue;
-            }
-            for (const svc of arrivals.slice(0, 4)) {
-              const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
-              const next2Str = svc.next2 ? ` · then ${svc.next2.minutes} min` : '';
-              lines.push(`  ${svc.service}: ${nextStr}${next2Str}`);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('[Error] transport bus arrivals failed:', err.message);
-        lines.push('', 'Bus arrivals temporarily unavailable.');
-      }
-    } else if (!cachedLoc) {
-      lines.push('', '🚌 Tap /eat or /drink first to share your location, then /transport will list nearby bus arrivals + MRT stations too.');
+    const buttons = [];
+    if (cachedLoc) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${cachedLoc.lat},${cachedLoc.lng}&travelmode=driving`;
+      buttons.push([{ text: '🗺 Open Google Maps (driving)', url }]);
+    } else {
+      lines.push('', 'Share your location once and Gia will offer a one-tap driving directions link.');
     }
-
-    // Inline-keyboard refresh button on the first bus stop (#9).
-    const replyMarkup = firstBusStopCode
-      ? { reply_markup: { inline_keyboard: [[{ text: '🔄 Refresh transport', callback_data: 'refresh:transport' }]] } }
-      : {};
-    await safeSend(chatId, lines.join('\n'), replyMarkup);
+    buttons.push([{ text: '🅿️ Carpark', callback_data: 'transport:menu' }, { text: '⬅️ Back', callback_data: 'transport:menu' }]);
+    await safeSend(chatId, lines.join('\n'), {
+      reply_markup: { inline_keyboard: buttons }
+    });
   } catch (err) {
-    console.error('[Error] transport command failed:', err.message);
-    await safeSend(chatId, "Sorry, I can't reach my transport memory right now.");
+    console.error('[Error] transport drive failed:', err.message);
+    await safeSend(chatId, "Sorry, the drive view failed.");
   }
 }
 
@@ -1619,18 +1859,18 @@ async function registerCommandsMenu() {
     // for muscle memory but de-emphasized). /cuisine surfaces first as the
     // primary entry point. Chat menu button now opens /app/cuisine directly
     // so the default landing inside the TMA shell is the Cuisine Picker.
+    // v0.31.1: /log, /drink, /grocery, /ver hidden from the slash autocomplete
+    // (still wired internally — power users keep muscle memory). /transport now
+    // surfaces an inline sub-menu (Train/Bus/Taxi-PHD/Drive) with bus offering
+    // a sub-sub-menu for nearest-stops/arrivals/crowd/route.
     await bot.setMyCommands([
       { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
       { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'share',     description: 'Forward a recent pick to a buddy' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'log',       description: 'Verbose mode on/off — stream NL pipeline trace to chat' },
-      { command: 'drink',     description: 'Bars, coffee, tea spots' },
-      { command: 'grocery',   description: 'Supermarkets and fresh markets' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'MRT + crowd + traffic + nearest bus stops' },
-      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
-      { command: 'ver',       description: 'Version + upstream API health' }
+      { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
+      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
