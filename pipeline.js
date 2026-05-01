@@ -157,13 +157,18 @@ function clusterByGrid(venues, gridM = GRID_M) {
 async function fetchClusterContext(cell) {
   const { lat, lng } = cell.center;
   const t0 = Date.now();
-  // Run all three in parallel with permissive failure handling.
-  const [w, traffic, parks] = await Promise.allSettled([
+  // v0.29.0: nearest MRT now joins the per-cluster context. The Refine
+  // layer can then anchor travel advice to a real station ("3 min walk
+  // from Raffles Place MRT") instead of generic "transit clear".
+  const [w, traffic, parks, mrt] = await Promise.allSettled([
     weather.summary(lat, lng).catch(() => null),
     transport.fetchTrafficIncidents
       ? transport.fetchTrafficIncidents().catch(() => [])
       : Promise.resolve([]),
-    carpark.nearest(lat, lng, 3).catch(() => [])
+    carpark.nearest(lat, lng, 3).catch(() => []),
+    transport.nearestMrtStations
+      ? transport.nearestMrtStations(lat, lng, 1500, 2).catch(() => [])
+      : Promise.resolve([])
   ]);
   // Filter traffic to this cluster's 1.5 km bubble using transport's
   // own helper if exposed; otherwise pass full list and let refine see.
@@ -178,6 +183,7 @@ async function fetchClusterContext(cell) {
     weather: w.status === 'fulfilled' ? w.value : null,
     trafficIncidents: trafficNear,
     carparks: parks.status === 'fulfilled' ? parks.value : [],
+    mrtStations: mrt.status === 'fulfilled' ? mrt.value : [],
     elapsedMs: Date.now() - t0
   };
 }
@@ -213,7 +219,13 @@ function summariseClusterCtx(ctx) {
   const parks = (ctx.carparks || []).slice(0, 2)
     .map((p) => `${p.name || 'cp'}: ${p.lots ?? '?'} lots`)
     .join(', ') || 'no nearby carpark data';
-  return `[${wLine}] [traffic: ${tIncidents}] [foot-traffic proxy via carpark: ${parks}]`;
+  // v0.29.0: nearest MRT joins the cluster summary so refine can anchor
+  // travel advice on a real station instead of generic transit copy.
+  const mrt = (ctx.mrtStations || []).slice(0, 2)
+    .map((s) => s.name)
+    .filter(Boolean)
+    .join(', ') || 'no MRT in 1.5 km';
+  return `[${wLine}] [traffic: ${tIncidents}] [foot-traffic proxy via carpark: ${parks}] [nearest MRT: ${mrt}]`;
 }
 
 async function refine({ draft, context, query, diag = noopDiag() }) {

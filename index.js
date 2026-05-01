@@ -1323,16 +1323,38 @@ async function cacheBotUsername() {
     });
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
+
+    // v0.29.0: aggressive no-cache headers on TMA HTML responses so
+    // Telegram's in-app webview can't pin a stale bundle. Vite-built
+    // assets are content-hashed (e.g. index-Bf6IG4pc.js) so they remain
+    // safe to cache; only the unhashed index.html needs no-store. This
+    // closes the "I redeployed but the user is still on the old bundle"
+    // failure mode.
+    function noCacheHtml(res) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+    }
+
     // Menu TMA — Vite-built React app since v0.28.0 (replaces the
     // hand-rolled public/menu.html + menu.js).
     app.use('/app/menu', express.static(path.join(__dirname, 'public', 'menu')));
-    app.get(['/app', '/app/menu'], (_req, res) => res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html')));
+    app.get(['/app', '/app/menu'], (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html'));
+    });
     // Live sanctuary map (the v0.4.0 TMA, still vanilla JS — Google
     // Maps imperative integration doesn't benefit from React).
-    app.get('/app/map', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+    app.get('/app/map', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    });
     // Cuisine Picker TMA (v0.22.0). Vite-built React+Tailwind app.
     app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine')));
-    app.get('/app/cuisine', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html')));
+    app.get('/app/cuisine', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
+    });
 
     app.get('/maps-key', requireInitData, (_req, res) => {
       res.json({
