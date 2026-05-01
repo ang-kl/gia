@@ -12,6 +12,7 @@ const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest')
 const {
   setUserLocation,
   getUserLocation,
+  getLocationAgeMinutes,
   setPendingMeal,
   consumePendingMeal,
   isProcessing,
@@ -291,6 +292,23 @@ async function deliverPicks(chatId, mealLabel, picks) {
       try { await bot.sendMessage(chatId, `🌿 ${p.name}`, replyMarkup); }
       catch (err) { console.error('[Error] sendMessage with markup failed:', err.message); }
     }
+  }
+  // v0.30.2: 15-minute staleness reminder. After picks are delivered,
+  // if the user's stored location is older than 15 min, surface a
+  // gentle nudge so they can refresh before the next query. Doesn't
+  // block delivery; fire-and-forget single message.
+  try {
+    const ageMin = await getLocationAgeMinutes(redis, chatId);
+    if (Number.isFinite(ageMin) && ageMin >= 15) {
+      await safeSend(
+        chatId,
+        `📍 _Heads up_ — your location is **${ageMin} min old**. ` +
+        `Type _"my location changed"_ (any language) or share a new pin to refresh, ` +
+        `or this set will keep using the old location.`
+      );
+    }
+  } catch (err) {
+    console.warn('[Stale-Location] reminder failed:', err.message);
   }
 }
 
@@ -1013,11 +1031,16 @@ async function deliverSurprise(chatId, v) {
   // v0.26.0 Refine layer outputs:
   const travel = v.travelAdvice ? `\n\n🧭 ${v.travelAdvice}` : '';
   const shelter = v.shelterNote ? `\n☂️ ${v.shelterNote}` : '';
+  // v0.30.2: soft-fallback disclosure when no venue passed the strict
+  // 4-day fresh-review gate. User still gets a venue, just flagged.
+  const fallbackNote = v.isFallback
+    ? '\n\n💡 _Best match in your annulus — no fresh review this week, but rating + price profile fits._'
+    : '';
   const text = [
     `🎲 *${v.name}*`,
     `${v.area}`,
     `${rating}${open ? ' · ' + open : ''} · ${km} km away`,
-    dishes + why + booking + travel + shelter
+    dishes + why + booking + travel + shelter + fallbackNote
   ].join('\n');
 
   // v0.26.2 per Human Lead: single 📍 Google Maps link per surprise card.
@@ -1116,6 +1139,19 @@ bot.on('message', async (msg) => {
       const langCode = msg.from?.language_code || 'en';
       console.log(`[NL-Intent] D750 received chat=${msg.chat.id} lang=${langCode} bytes=${text.length}`);
       const cls = await classifyIntent({ text, langCode, redis });
+      // v0.30.2: handle "update-location" intent. NL classifier flagged
+      // a location-change request (any language) — drop pending state +
+      // surface the share-location keyboard with the localised ack.
+      if (cls && cls.intent === 'update-location' && cls.confidence >= MIN_CONFIDENCE) {
+        console.log(`[NL-Intent] D754 update-location intent confidence=${cls.confidence}`);
+        await consumePendingMeal(redis, msg.chat.id).catch(() => {});
+        await bot.sendMessage(
+          msg.chat.id,
+          cls.ack_text || "📍 Tap to share your new location, or type a place name.",
+          LOCATION_REQUEST_KEYBOARD
+        );
+        return;
+      }
       if (cls && (cls.intent === 'food' || cls.intent === 'drinks' || cls.intent === 'groceries') && cls.confidence >= MIN_CONFIDENCE) {
         console.log(`[NL-Intent] D751 dispatching intent=${cls.intent} confidence=${cls.confidence}`);
         if (cls.ack_text) await safeSend(msg.chat.id, cls.ack_text);

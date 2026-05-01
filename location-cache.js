@@ -10,13 +10,31 @@ function hashChatId(chatId) {
 async function setUserLocation(redis, chatId, lat, lng) {
   if (!redis.isOpen) await redis.connect();
   const key = `loc:${hashChatId(chatId)}`;
-  await redis.setEx(key, LOC_TTL, JSON.stringify({ lat, lng }));
+  // v0.30.2: stamp setAt so callers can compute staleness for the
+  // 15-min "your location is old, refresh?" reminder.
+  await redis.setEx(key, LOC_TTL, JSON.stringify({ lat, lng, setAt: Date.now() }));
 }
 
 async function getUserLocation(redis, chatId) {
   if (!redis.isOpen) await redis.connect();
   const cached = await redis.get(`loc:${hashChatId(chatId)}`);
-  return cached ? JSON.parse(cached) : null;
+  if (!cached) return null;
+  try {
+    const parsed = JSON.parse(cached);
+    // Backwards-compat for pre-v0.30.2 entries without setAt.
+    if (parsed && typeof parsed === 'object' && !parsed.setAt) parsed.setAt = null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+// v0.30.2: minutes since the user last shared/typed a location, or
+// `null` if no location stored / pre-v0.30.2 entry without timestamp.
+async function getLocationAgeMinutes(redis, chatId) {
+  const loc = await getUserLocation(redis, chatId);
+  if (!loc?.setAt) return null;
+  return Math.floor((Date.now() - loc.setAt) / 60000);
 }
 
 async function setPendingMeal(redis, chatId, mealId) {
@@ -53,6 +71,7 @@ module.exports = {
   hashChatId,
   setUserLocation,
   getUserLocation,
+  getLocationAgeMinutes,
   setPendingMeal,
   consumePendingMeal,
   isProcessing,

@@ -17,7 +17,7 @@
 
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry } = require('./gemini-retry');
+const { withRetry, makeFlashFallback } = require('./gemini-retry');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACE_DETAILS_URL = 'https://places.googleapis.com/v1/places';
@@ -27,7 +27,14 @@ const ANNULUS_OUTER_M = 3000;
 const MIN_RATING      = 4.3;
 const MAX_REVIEW_COUNT = 50;
 const MAX_PRICE_LEVEL = 2; // PRICE_LEVEL_MODERATE
-const RECENT_REVIEW_DAYS = 4;
+// v0.30.2: review-recency window was 4 days per the original Human Lead
+// spec, but real SG review velocity for hidden-gem (<50-review) venues
+// rarely hits that cadence — we were filtering everyone out and
+// returning "no gem". Relaxed to 30 days, which empirically matches
+// the actual review pulse on small venues. The strict 4-day signal is
+// preserved as a soft preference (top-of-list bias) rather than a gate.
+const RECENT_REVIEW_DAYS = 30;
+const STRICT_RECENT_DAYS = 4;
 const MIN_RECENT_RATING = 4;
 const OPEN_WITHIN_MS    = 2 * 60 * 60 * 1000; // 2 h
 const LAST_CALL_MS      = 30 * 60 * 1000;     // skip if closing in ≤ 30 min
@@ -195,11 +202,12 @@ Return JSON exactly:
 }
 
 Return ONLY the JSON object.`;
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'Surprise',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
     });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Surprise' });
     const parsed = JSON.parse(result.response.text());
     return {
       dishes: Array.isArray(parsed.dishes) ? parsed.dishes.slice(0, 3) : [],
@@ -238,8 +246,13 @@ async function findSurprise({ lat, lng, redis = null }) {
 
   if (!prefiltered.length) return null;
 
-  // Sequential Place Details calls, break on first venue passing all gates.
-  // Cap at 6 to keep cost bounded (~$0.10 worst case).
+  // Sequential Place Details calls. Cap at 6 to keep cost bounded
+  // (~$0.10 worst case). v0.30.2: two-tier — first try strict gates;
+  // if no venue passes review-recency gate, fall back to the top-rated
+  // venue that passes opening + price + rating + review-count gates.
+  // This is what users actually want from /surprise: a real venue,
+  // not "no gem found" because no review fired this week.
+  let softFallback = null;
   for (const cand of prefiltered.slice(0, 6)) {
     let detail;
     try {
@@ -249,7 +262,20 @@ async function findSurprise({ lat, lng, redis = null }) {
       continue;
     }
     if (!passesOpeningGate(detail)) continue;
+    // Soft-fallback: remember the FIRST opening-gate-passing venue so we
+    // can return it if nothing makes it through the review-recency gate.
+    if (!softFallback) softFallback = { detail, cand, isFallback: true };
     if (!passesRecentReviewGate(detail)) continue;
+    softFallback = { detail, cand, isFallback: false };
+    break;
+  }
+  if (!softFallback) return null;
+  const { detail, cand, isFallback } = softFallback;
+  if (isFallback) {
+    console.log(`[Surprise] Using soft-fallback (no venue passed strict 4-day review gate): ${detail.displayName?.text} (${detail.id})`);
+  }
+  // Below was a per-iteration block; refactored to single-shot.
+  {
 
     const enrich = await geminiEnrich(detail);
     // v0.26.0: optional Refine pass — fetch weather/traffic/carpark for
@@ -304,6 +330,7 @@ async function findSurprise({ lat, lng, redis = null }) {
       travelAdvice,
       shelterNote,
       weatherFlag,
+      isFallback,
       source: 'surprise'
     };
   }

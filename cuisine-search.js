@@ -8,7 +8,7 @@
 //   - sort: open_now first, then walk minutes asc, then rating desc
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry } = require('./gemini-retry');
+const { withRetry, makeFlashFallback } = require('./gemini-retry');
 const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const holidays = require('./holidays');
 
@@ -119,12 +119,13 @@ Return ONLY the JSON array, no preamble.`;
 async function geminiCandidates15(promptArgs) {
   if (!genAI) return [];
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
-    });
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
     const prompt = buildPrompt(promptArgs);
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Cuisine-Search' });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'Cuisine-Search',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
+    });
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) return [];
     return parsed
