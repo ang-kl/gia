@@ -222,18 +222,31 @@ async function searchCuisine({
     return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
   }
 
+  // v0.30.3: place-validate phase parallelised. Was sequential
+  // (~1s × 15 candidates = ~15s); now Promise.allSettled fans out and
+  // typically completes in ~2-3s. This was the dominant slow phase
+  // pushing total pipeline latency past the 25s TMA timeout.
+  const validateLimit = Math.min(candidates.length, 15);
+  const settled = await Promise.allSettled(
+    candidates.slice(0, validateLimit).map((c) => validateWithPlaces(c, { lat, lng }, radius))
+  );
   const validated = [];
-  for (const c of candidates) {
-    if (validated.length >= 15) break;
-    const v = await validateWithPlaces(c, { lat, lng }, radius);
-    if (!v) continue;
+  settled.forEach((s, i) => {
+    if (s.status !== 'fulfilled' || !s.value) return;
+    const v = s.value;
+    const c = candidates[i];
     v.signatureDish    = c.signatureDish    || '';
     v.queueMinEstimate = c.queueMinEstimate != null ? c.queueMinEstimate : null;
     v.bookingRequired  = !!c.bookingRequired;
     v.dishes           = Array.isArray(c.dishes) ? c.dishes : (c.signatureDish ? [c.signatureDish] : []);
     v.costEstimateSgd  = c.costEstimateSgd || null;
+    // v0.30.3 GEOSPATIAL_CULINARY_ANALYST fields. Note: Places URL
+    // remains authoritative — verifiedGoogleMapsUrl is purely the
+    // model's claimed reference and shown as supporting evidence.
+    v.verifiedOpeningDate    = c.verifiedOpeningDate || null;
+    v.verifiedGoogleMapsUrl  = c.verifiedGoogleMapsUrl || null;
     validated.push(v);
-  }
+  });
   if (!validated.length) {
     return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
   }

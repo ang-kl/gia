@@ -201,7 +201,7 @@ export default function App() {
       record(D.D402_FETCH_START, 'POST /api/cuisine-search (25s timeout)');
       result = await searchCuisine(payload);
       if (result.timedOut) {
-        record(D.D406_FETCH_NETWORK_FAIL, 'Fetch timed out (>6s)', false);
+        record(D.D406_FETCH_NETWORK_FAIL, 'Fetch timed out (>25s)', false);
         fetchFailed = true;
       }
     } catch (err) {

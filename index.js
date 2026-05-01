@@ -266,9 +266,14 @@ async function deliverPicks(chatId, mealLabel, picks) {
     const googleLine = p.googleSummary?.overview
       ? `\n💡 ${p.googleSummary.overview} _(${p.googleSummary.disclosure || 'Summarized with Gemini'})_`
       : '';
+    // v0.30.3 GEOSPATIAL_CULINARY_ANALYST: surface model-asserted opening
+    // date (Places doesn't expose this) when grounded by Google Search.
+    const openingLine = p.verifiedOpeningDate
+      ? `\n🆕 Opened ${p.verifiedOpeningDate} _(model-asserted, web-grounded)_`
+      : '';
     const body = summary
-      ? `🌿 Sanctuary read for ${p.name}\n${summary}${googleLine}`
-      : (p.vibe ? `🌿 ${p.name}\n${p.vibe}${googleLine}` : (googleLine ? `🌿 ${p.name}${googleLine}` : null));
+      ? `🌿 Sanctuary read for ${p.name}${openingLine}\n${summary}${googleLine}`
+      : (p.vibe ? `🌿 ${p.name}${openingLine}\n${p.vibe}${googleLine}` : (openingLine || googleLine ? `🌿 ${p.name}${openingLine}${googleLine}` : null));
 
     const buttons = [];
     if (pid) {
@@ -1628,6 +1633,15 @@ async function cacheBotUsername() {
         if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
           console.warn('[Cuisine-Diag] D701 rejecting — lat/lng invalid');
           return res.status(400).json({ error: 'lat and lng required', diag: 'D701' });
+        }
+        // v0.30.3: persist TMA-supplied coords to Redis so the chat-side
+        // flow (free-text NL, /eat, /surprise) sees the same location
+        // without re-asking. Fixes "asks twice" complaint where the TMA
+        // got iOS geolocation but the bot's getUserLocation was empty.
+        if (tgUserId) {
+          setUserLocation(redis, tgUserId, Number(lat), Number(lng))
+            .then(() => console.log(`[Cuisine-Diag] D707 location synced to Redis user=${tgUserId}`))
+            .catch((err) => console.warn('[Cuisine-Diag] D707 location sync failed:', err.message));
         }
         const params = {
           lat: Number(lat),

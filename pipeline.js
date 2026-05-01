@@ -46,6 +46,10 @@ const GRID_M = 500;
 // REASON
 // ---------------------------------------------------------------------
 
+// v0.30.3: GEOSPATIAL_CULINARY_ANALYST persona, sourced from the
+// Human Lead's canonical recipe at prompt-templates/geospatial-
+// culinary-analyst.md. Pairs with Google Search grounding so the
+// model can hit live web sources for "newly opened" recall.
 function buildReasonPrompt({ lat, lng, query, snapshot, count }) {
   const vaultBlock = snapshot.vault.length
     ? snapshot.vault.map((v, i) => {
@@ -58,31 +62,48 @@ function buildReasonPrompt({ lat, lng, query, snapshot, count }) {
       }).join('\n\n')
     : '(vault is empty for this area)';
 
-  return `You are Gia, a Singapore solo-diner concierge. Reason from the cached vault below first; only fall back to your training-data knowledge if the vault is silent.
+  const radiusKm = ((query.radius || 1000) / 1000).toFixed(1);
+  const cuisinesList = query.cuisines?.length ? query.cuisines.join(', ') : 'any cuisine appropriate to the period';
+  const recencyClause = query.recencyDays
+    ? `confirmed grand opening dates within the last ${query.recencyDays} day(s) (use Google Search to verify opening dates)`
+    : 'verified OPERATIONAL business status';
+  const queueLine = query.queueMaxMin ? `User queue tolerance: ≤ ${query.queueMaxMin} minutes — estimate honestly per pick.` : '';
+  const specialLine = query.specialRequest && query.specialRequest.trim()
+    ? `Distinctive user qualifier (HONOUR THIS): ${query.specialRequest.trim()}.`
+    : '';
 
-User location: ${lat}, ${lng}
-User query/period: ${query.label || 'now'} ${query.detail ? `(${query.detail})` : ''}
-${query.cuisines?.length ? `Cuisines: ${query.cuisines.join(', ')}` : ''}
-${query.recencyDays ? `"Newly opened" bias: last ${query.recencyDays} days` : ''}
-${query.queueMaxMin ? `Queue tolerance: ≤ ${query.queueMaxMin} minutes` : ''}
-${query.specialRequest && query.specialRequest.trim() ? `Distinctive user qualifier (HONOUR THIS): ${query.specialRequest.trim()}` : ''}
+  return `[ACT: GEOSPATIAL_CULINARY_ANALYST]
 
-VAULT SNAPSHOT (${snapshot.vault.length} venues; reviews are most recent on file):
+Execute a deep-crawl search USING GOOGLE SEARCH GROUNDING to identify ${cuisinesList} establishments located within ${radiusKm} km of latitude ${lat}, longitude ${lng} in Singapore.
+
+User period: ${query.label || 'now'}${query.detail ? ` (${query.detail})` : ''}.
+Filter results to include only venues with ${recencyClause}.
+${queueLine}
+${specialLine}
+
+For each qualifying entry, return JSON with:
+  "name"                      — exact common name
+  "verified_opening_date"     — ISO date YYYY-MM-DD if cross-referenced via Google Search; null otherwise
+  "verified_google_maps_url"  — canonical Google Maps URL if you found it; null otherwise (server will overlay authoritative URL from Places)
+  "area"                      — street or building
+  "vibe"                      — one short phrase suitable for a solo diner
+  "dishes"                    — array of 1–3 specific dish strings (the order recommendation)
+  "signature_dish"            — single most-recommended dish from "dishes"
+  "cost_estimate_sgd"         — { "low": <int>, "high": <int> } per-person typical spend (cite review snippets verbatim when possible)
+  "queue_min_estimate"        — integer minutes
+  "booking_required"          — boolean
+
+NEGATIVE CONSTRAINTS (exclude):
+  - Major fast-food chains (McDonald's, KFC, Subway, Burger King, Starbucks, Coffee Bean & Tea Leaf, Domino's, Pizza Hut, Jollibee, Texas Chicken)
+  - Closed venues
+  - Venues outside Singapore
+
+Cross-reference between real-time social media activity (Instagram, TikTok, Reddit r/singapore, r/SingaporeEats) AND verified F&B editorial sources (Time Out Singapore, SethLui, Honeycombers, MICHELIN Guide SG, Tatler) for maximum factual density.
+
+VAULT SNAPSHOT (${snapshot.vault.length} venues — ground first on these cached entries with their recent reviews; only invoke Google Search grounding when the vault is silent for the requested cuisines):
 ${vaultBlock}
 
-Return EXACTLY a JSON array of ${count} candidate venues. Each item:
-  "name"               — exact common name
-  "area"               — street or building
-  "vibe"               — one short phrase (solo-diner appropriate)
-  "dishes"             — array of 1–3 specific dish strings (the order recommendation)
-  "cost_estimate_sgd"  — { "low": <int>, "high": <int> } per-person typical spend, derived
-                         from the review snippets above when present (use phrases like
-                         "$15 mains" / "expensive but worth it" verbatim if you can quote)
-  "signature_dish"     — the single most-recommended dish from "dishes"
-  "queue_min_estimate" — integer minutes
-  "booking_required"   — boolean
-
-Return ONLY the JSON array.`;
+Return EXACTLY a JSON array of ${count} venues. Return ONLY the JSON array.`;
 }
 
 async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag() }) {
@@ -92,12 +113,33 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
   }
   diag('D610', 'Reason call start', true, { count, vault_n: snapshot.vault.length });
   try {
+    // v0.30.3: enable Google Search grounding so the model can hit
+    // real-time web sources (Instagram, Reddit, Time Out, SethLui,
+    // Honeycombers, MICHELIN Guide) for the GEOSPATIAL_CULINARY_ANALYST
+    // persona's "newly opened" + "verified opening date" claims that
+    // training-data alone cannot supply. Adds ~$0.0035 per call.
     const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    const tools = [{ googleSearch: {} }];
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig, tools });
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
+    // Flash fallback also enables Search grounding for parity.
+    const fallbackFn = (() => {
+      const base = makeFlashFallback(genAI, prompt, generationConfig);
+      if (!base) return null;
+      // Re-create the fallback with tools too — makeFlashFallback's default
+      // signature doesn't carry tools, so wrap it.
+      return async () => {
+        const flashModel = genAI.getGenerativeModel({
+          model: 'gemini-2.5-flash',
+          generationConfig,
+          tools
+        });
+        return flashModel.generateContent(prompt);
+      };
+    })();
     const result = await withRetry(() => model.generateContent(prompt), {
       label: 'Pipeline-Reason',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
+      fallbackFn
     });
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) {
@@ -115,7 +157,11 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
       signatureDish: c.signature_dish || (Array.isArray(c.dishes) ? c.dishes[0] : ''),
       queueMinEstimate: Number.isFinite(Number(c.queue_min_estimate))
         ? Math.round(Number(c.queue_min_estimate)) : null,
-      bookingRequired: c.booking_required === true || c.booking_required === 'true'
+      bookingRequired: c.booking_required === true || c.booking_required === 'true',
+      // v0.30.3 GEOSPATIAL_CULINARY_ANALYST schema additions:
+      verifiedOpeningDate: typeof c.verified_opening_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c.verified_opening_date)
+        ? c.verified_opening_date : null,
+      verifiedGoogleMapsUrl: typeof c.verified_google_maps_url === 'string' ? c.verified_google_maps_url : null
     }));
     diag('D611', 'Reason returned candidates', true, { n: candidates.length });
     return candidates;
