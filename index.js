@@ -504,6 +504,35 @@ bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
+// v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
+// every step of the NL pipeline emits a "🔍 step …" message to the
+// chat for real-time debugging. Auto-clears after 24 h.
+bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
+  try {
+    const verbose = require('./verbose-log');
+    const action = (match?.[1] || 'status').toLowerCase();
+    if (action === 'on') {
+      await verbose.enable(redis, msg.chat.id);
+      await safeSend(msg.chat.id,
+        '🔍 *Verbose mode ON.* Every step of the NL pipeline will be ' +
+        'mirrored back to this chat for the next 24 h. Send `/log off` ' +
+        'to disable, `/log status` to check.'
+      );
+      return;
+    }
+    if (action === 'off') {
+      await verbose.disable(redis, msg.chat.id);
+      await safeSend(msg.chat.id, '🔍 Verbose mode OFF.');
+      return;
+    }
+    const on = await verbose.isEnabled(redis, msg.chat.id);
+    await safeSend(msg.chat.id, `🔍 Verbose mode is currently *${on ? 'ON' : 'OFF'}*. Use \`/log on\` or \`/log off\` to toggle.`);
+  } catch (err) {
+    console.error('[Error] /log handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, /log hit an error.");
+  }
+});
+
 // v0.27.1: /share — list user's last-5 picks with a 👋 Send to buddy
 // inline button per pick. Replaces the per-pick share button removed in
 // v0.26.2; surfaces buddy-share as an explicit on-demand action.
@@ -1141,9 +1170,14 @@ bot.on('message', async (msg) => {
     // fall through to the existing gatekeeper (off-topic steering).
     try {
       const { classifyIntent, MIN_CONFIDENCE } = require('./nl-intent');
+      const verbose = require('./verbose-log');
       const langCode = msg.from?.language_code || 'en';
       console.log(`[NL-Intent] D750 received chat=${msg.chat.id} lang=${langCode} bytes=${text.length}`);
+      await verbose.say(redis, msg.chat.id, safeSend, `D750 received text (lang=${langCode}, ${text.length} chars). Classifying intent…`);
       const cls = await classifyIntent({ text, langCode, redis });
+      await verbose.say(redis, msg.chat.id, safeSend, cls
+        ? `D751 intent=${cls.intent} confidence=${cls.confidence.toFixed(2)} cuisines=[${cls.cuisines.join(', ')}] qualifier="${cls.special_request}" lang=${cls.lang}`
+        : 'D751 classifyIntent returned null (Gemini unavailable or call failed)');
       // v0.30.2: handle "update-location" intent. NL classifier flagged
       // a location-change request (any language) — drop pending state +
       // surface the share-location keyboard with the localised ack.
@@ -1195,13 +1229,19 @@ bot.on('message', async (msg) => {
 // searchCuisine pipeline the TMA Search button uses; delivers picks
 // to chat via deliverPicks.
 async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '', intent = 'food' }) {
+  const verbose = require('./verbose-log');
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
+    await verbose.say(redis, chatId, safeSend,
+      `runNLFlow start lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} cuisines=[${cuisines.join(', ')}] qualifier="${specialRequest}" intent=${intent}`);
+    await verbose.say(redis, chatId, safeSend,
+      `Calling searchCuisine pipeline (Reason → Validate → Refine, ~12-15 s typical with Google Search grounding)…`);
     const { searchCuisine } = require('./cuisine-search');
+    const t0 = Date.now();
     const result = await searchCuisine({
       lat, lng,
       cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 5) : [],
@@ -1210,7 +1250,14 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
       specialRequest,
       redis
     });
+    const dt = Date.now() - t0;
     const venues = (result?.venues || []).slice(0, 5);
+    await verbose.say(redis, chatId, safeSend,
+      `searchCuisine returned ${venues.length} venues in ${dt} ms ` +
+      `(meal=${result?.meal?.label || '?'}, pipelineDiag=${result?.pipelineDiag?.length || 0} events). ` +
+      (venues.length === 0
+        ? '⚠ No venues to deliver. Likely cause: Reason returned no candidates OR Places-validate filtered all (check GOOGLE_MAPS_API_KEY 403). Inspect Railway logs for [Cuisine-Diag] D610/D611/D502.'
+        : 'Delivering now…'));
     if (!venues.length) {
       await safeSend(chatId, "Gia couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /surprise for a hidden gem.");
       return;
@@ -1219,6 +1266,7 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
     await deliverPicks(chatId, label, venues);
   } catch (err) {
     console.error('[NL-Intent] D752 runNLFlow failed:', err.message);
+    await verbose.say(redis, chatId, safeSend, `D752 runNLFlow EXCEPTION: ${err.message}`);
     await safeSend(chatId, "Sorry, NL search hit an error.");
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
@@ -1236,6 +1284,7 @@ async function registerCommandsMenu() {
       { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
       { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'share',     description: 'Forward a recent pick to a buddy' },
+      { command: 'log',       description: 'Verbose mode on/off — stream NL pipeline trace to chat' },
       { command: 'drink',     description: 'Bars, coffee, tea spots' },
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
