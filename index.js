@@ -1109,6 +1109,102 @@ async function runVerCommand(chatId) {
 //   2. If a sanctuary flow is pending, interpret text as place name
 //      → geocode → run the flow
 //   3. Otherwise fall through to the Topic Gatekeeper
+// v0.30.8: voice-message handler. Telegram delivers OGG/Opus voice
+// notes; Gemini 2.5 Flash transcribes + classifies in a single call,
+// then we route through the existing NL pipeline (location_override
+// geocode + runNLFlow / update-location keyboard / gatekeeper).
+bot.on('voice', async (msg) => {
+  try {
+    if (!msg.voice) return;
+    const langCode = msg.from?.language_code || 'en';
+    console.log(`[Voice] D760 received chat=${msg.chat.id} duration=${msg.voice.duration}s mime=${msg.voice.mime_type}`);
+    const verbose = require('./verbose-log');
+    await verbose.say(redis, msg.chat.id, safeSend, `D760 voice received (${msg.voice.duration}s). Transcribing + classifying via Gemini Flash audio…`);
+    await safeSend(msg.chat.id, '🎙 Heard you — transcribing…');
+
+    const { classifyVoice, MIN_CONFIDENCE: VOICE_MIN_CONF } = require('./voice-input');
+    const cls = await classifyVoice({ bot, voice: msg.voice, redis });
+    if (!cls || cls.error) {
+      console.warn(`[Voice] D761 classify error=${cls?.error || 'null'}`);
+      await verbose.say(redis, msg.chat.id, safeSend, `D761 classify error=${cls?.error || 'gemini unavailable'}`);
+      if (cls?.error === 'clip_too_long') {
+        await safeSend(msg.chat.id, `⏱ Voice clip too long (${cls.duration}s, max 90s). Send a shorter one or type the question.`);
+      } else {
+        await safeSend(msg.chat.id, "Sorry, I couldn't transcribe that. Try typing the question instead.");
+      }
+      return;
+    }
+
+    // Mirror transcript so user can sanity-check what we heard.
+    if (cls.transcript) {
+      await safeSend(msg.chat.id, `📝 _Heard:_ "${cls.transcript}"`);
+    }
+    await verbose.say(redis, msg.chat.id, safeSend,
+      `D762 voice intent=${cls.intent} conf=${cls.confidence.toFixed(2)} cuisines=[${cls.cuisines.join(', ')}] qualifier="${cls.special_request}" loc_override="${cls.location_override}" lang=${cls.lang}`);
+
+    // update-location intent: drop pending state + show share keyboard.
+    if (cls.intent === 'update-location' && cls.confidence >= VOICE_MIN_CONF) {
+      await consumePendingMeal(redis, msg.chat.id).catch(() => {});
+      await bot.sendMessage(
+        msg.chat.id,
+        cls.ack_text || "📍 Tap to share your new location, or type a place name.",
+        LOCATION_REQUEST_KEYBOARD
+      );
+      return;
+    }
+
+    // food / drinks / groceries: dispatch into runNLFlow with same
+    // location_override + cuisines + special_request semantics as the
+    // text-NL handler.
+    if ((cls.intent === 'food' || cls.intent === 'drinks' || cls.intent === 'groceries') && cls.confidence >= VOICE_MIN_CONF) {
+      if (cls.ack_text) await safeSend(msg.chat.id, cls.ack_text);
+      let searchLat = null, searchLng = null, searchSource = '';
+      if (cls.location_override) {
+        await verbose.say(redis, msg.chat.id, safeSend, `D708 geocoding location_override="${cls.location_override}"…`);
+        try {
+          const place = await geocodeQuery(cls.location_override + ' Singapore');
+          if (place?.lat && place?.lng) {
+            searchLat = place.lat;
+            searchLng = place.lng;
+            searchSource = `override "${cls.location_override}" → ${place.name} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
+          }
+        } catch (err) {
+          console.error('[Voice] geocode failed:', err.message);
+        }
+      }
+      if (searchLat == null) {
+        const cached = await getUserLocation(redis, msg.chat.id);
+        if (!cached) {
+          await setPendingMeal(redis, msg.chat.id, `nl:${JSON.stringify({
+            cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent, lang: cls.lang
+          })}`);
+          await bot.sendMessage(
+            msg.chat.id,
+            "Where are you? Tap to share your location, or type a place name.",
+            LOCATION_REQUEST_KEYBOARD
+          );
+          return;
+        }
+        searchLat = cached.lat;
+        searchLng = cached.lng;
+        searchSource = `cached GPS (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
+      }
+      await verbose.say(redis, msg.chat.id, safeSend, `Search anchored at ${searchSource}`);
+      await runNLFlow(msg.chat.id, searchLat, searchLng, {
+        cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent
+      });
+      return;
+    }
+
+    // Off-topic voice — politely decline.
+    await safeSend(msg.chat.id,
+      "I heard you, but that doesn't sound like a food/drinks/groceries question I can help with. Try asking about a cuisine, a venue, or a meal.");
+  } catch (err) {
+    console.error('[Voice] handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, voice handling hit an error.");
+  }
+});
+
 bot.on('message', async (msg) => {
   try {
     // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
