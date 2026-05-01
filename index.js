@@ -226,6 +226,11 @@ async function deliverPicks(chatId, mealLabel, picks) {
     await handleNoResults(chatId, mealLabel);
     return;
   }
+  // v0.27.1: track for /share. Fire-and-forget; never blocks delivery.
+  try {
+    const { addRecent } = require('./recent-picks');
+    for (const p of picks) addRecent(redis, chatId, { ...p, kind: 'pick' }).catch(() => {});
+  } catch { /* recent-picks optional */ }
   const header = picks
     .map((p, i) => {
       const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
@@ -475,6 +480,46 @@ bot.onText(/^\/transport(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
 bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
+
+// v0.27.1: /share — list user's last-5 picks with a 👋 Send to buddy
+// inline button per pick. Replaces the per-pick share button removed in
+// v0.26.2; surfaces buddy-share as an explicit on-demand action.
+bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
+  try {
+    const { getRecent } = require('./recent-picks');
+    const recent = await getRecent(redis, msg.chat.id);
+    if (!recent.length) {
+      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine, /eat, or /surprise first, then /share to forward to a buddy.");
+      return;
+    }
+    const { saveShare } = require('./share');
+    const rows = [];
+    for (const p of recent) {
+      try {
+        const token = await saveShare(redis, {
+          kind: p.kind || 'pick',
+          ...(p.kind === 'surprise' ? { surprise: p } : { mealLabel: 'shared', pick: p })
+        });
+        const label = `👋 ${p.name.length > 30 ? p.name.slice(0, 28) + '…' : p.name}`;
+        rows.push([{ text: label, callback_data: `share:${token}` }]);
+      } catch (err) {
+        console.warn('[/share] saveShare failed for', p.placeId, err.message);
+      }
+    }
+    if (!rows.length) {
+      await safeSend(msg.chat.id, "Sorry, I couldn't mint share links right now.");
+      return;
+    }
+    await bot.sendMessage(
+      msg.chat.id,
+      `Pick a venue to forward to your buddy (${rows.length} recent):`,
+      { reply_markup: { inline_keyboard: rows } }
+    );
+  } catch (err) {
+    console.error('[Error] /share failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, /share hit an error.");
+  }
+});
 
 // Resolves a pending-state string into a routing decision.
 function resolvePending(pending) {
@@ -937,6 +982,11 @@ async function runSurpriseCommand(chatId) {
 }
 
 async function deliverSurprise(chatId, v) {
+  // v0.27.1: track for /share.
+  try {
+    const { addRecent } = require('./recent-picks');
+    addRecent(redis, chatId, { ...v, kind: 'surprise', signatureDish: v.dishes?.[0] || '' }).catch(() => {});
+  } catch { /* optional */ }
   const km = (v.distanceM / 1000).toFixed(2);
   const rating = v.rating ? `⭐${v.rating.toFixed(1)} (${v.userRatingCount} reviews)` : '';
   const open = v.openNow === true ? 'Open now' : v.openNow === false ? 'Opens soon' : '';
@@ -1058,6 +1108,7 @@ async function registerCommandsMenu() {
     await bot.setMyCommands([
       { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
       { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
+      { command: 'share',     description: 'Forward a recent pick to a buddy' },
       { command: 'drink',     description: 'Bars, coffee, tea spots' },
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
