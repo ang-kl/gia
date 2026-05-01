@@ -108,55 +108,109 @@ export default function App() {
     }
   }, []);
 
-  const onSearch = async () => {
-    if (!state.loc) {
-      record(D.D202_GEO_DENIED, 'Search blocked — no location', false);
-      showAlert('Tap 📍 to share your location first.');
-      return;
-    }
-    if (state.preset === 'cuisine-discovery' && !state.cuisines.length && !state.otherCuisine.trim()) {
-      showAlert('Pick at least one cuisine for the Discovery preset.');
-      return;
-    }
-    a.searchStart();
+  // v0.26.4: SGT CBD centre as a hard default when geolocation never
+  // resolves (denied / blocked / corporate webview / hostile WebView).
+  // Search no longer hard-blocks on missing location — we proceed with a
+  // visible "Using CBD default" banner so the user always gets *some*
+  // result instead of a silently-disabled button.
+  const CBD_DEFAULT = { lat: 1.2839, lng: 103.8517 };
 
+  // [searchTaps, setSearchTaps] gives the user a manifestly visible counter
+  // confirming their click was received — addresses the "nothing happens"
+  // class of bug where the button ignores the tap.
+  const [searchTaps, setSearchTaps] = useState(0);
+  const [bannerText, setBannerText] = useState('');
+
+  const buildPayload = () => {
+    const loc = state.loc || CBD_DEFAULT;
     const cuisinesPayload = [
       ...state.cuisines,
       ...state.otherCuisine.split(',').map((s) => s.trim()).filter(Boolean)
     ];
-    const payload = {
-      lat: state.loc.lat,
-      lng: state.loc.lng,
-      cuisines: cuisinesPayload,
-      radius: state.radius,
-      recencyDays: state.recencyDays,
-      queueMaxMin: state.queueMaxMin,
-      mode: state.mode,
-      when: state.when,
-      preset: state.preset
+    return {
+      payload: {
+        lat: loc.lat, lng: loc.lng,
+        cuisines: cuisinesPayload,
+        radius: state.radius,
+        recencyDays: state.recencyDays,
+        queueMaxMin: state.queueMaxMin,
+        mode: state.mode,
+        when: state.when,
+        preset: state.preset
+      },
+      cuisinesPayload,
+      usedDefault: !state.loc
     };
+  };
+
+  // v0.26.4: bypass entirely — push payload as web_app_data and close TMA.
+  // Used for hostile-webview environments where fetch is blocked.
+  const forceChatDelivery = () => {
+    setSearchTaps((n) => n + 1);
+    setBannerText('🌿 Sending to chat… Telegram will close this window.');
+    if (state.preset === 'cuisine-discovery' && !state.cuisines.length && !state.otherCuisine.trim()) {
+      showAlert('Pick at least one cuisine for the Discovery preset.');
+      return;
+    }
+    const { payload, usedDefault } = buildPayload();
+    if (usedDefault) record(D.D202_GEO_DENIED, 'Force-chat with CBD default', false);
+    record(D.D400_SEARCH_START, 'Force-chat-delivery invoked');
+    try {
+      const ok = sendData({ cmd: 'cuisine-search', ...payload });
+      if (ok) {
+        record(D.D061_SENDDATA_OK, 'Force-chat sendData dispatched', true);
+        setTimeout(() => closeWebApp(), 800);
+        return;
+      }
+      record(D.D062_SENDDATA_FAIL, 'Force-chat sendData unavailable', false);
+      setBannerText('⚠ sendData not available in this Telegram client.');
+    } catch (err) {
+      record(D.D062_SENDDATA_FAIL, 'Force-chat sendData threw', false, err?.message || String(err));
+      setBannerText('⚠ sendData threw — open /cuisine in a different client.');
+    }
+  };
+
+  const onSearch = async () => {
+    // v0.26.4: paint synchronous feedback BEFORE any async / state update,
+    // so the user always sees the click landed even when something goes
+    // wrong downstream.
+    setSearchTaps((n) => n + 1);
+    setBannerText('🌿 Sensing the vibe… (this may take 5–10 s)');
+
+    if (state.preset === 'cuisine-discovery' && !state.cuisines.length && !state.otherCuisine.trim()) {
+      showAlert('Pick at least one cuisine for the Discovery preset.');
+      setBannerText('');
+      return;
+    }
+    a.searchStart();
+
+    const { payload, cuisinesPayload, usedDefault } = buildPayload();
+    if (usedDefault) record(D.D202_GEO_DENIED, 'Geolocation unavailable — proceeding with CBD default', false, CBD_DEFAULT);
 
     record(D.D400_SEARCH_START, 'onSearch invoked');
     record(D.D401_PAYLOAD_BUILT, 'Payload built', true, {
       n_cuisines: cuisinesPayload.length,
       radius: payload.radius,
-      preset: payload.preset
+      preset: payload.preset,
+      usedDefault
     });
 
     let result;
     let fetchFailed = false;
     try {
-      record(D.D402_FETCH_START, 'POST /api/cuisine-search');
+      record(D.D402_FETCH_START, 'POST /api/cuisine-search (6s timeout)');
       result = await searchCuisine(payload);
+      if (result.timedOut) {
+        record(D.D406_FETCH_NETWORK_FAIL, 'Fetch timed out (>6s)', false);
+        fetchFailed = true;
+      }
     } catch (err) {
       record(D.D406_FETCH_NETWORK_FAIL, 'Network/fetch threw', false, err?.message || String(err));
       fetchFailed = true;
     }
 
     // v0.26.3 dual-channel fallback: when the primary HTTPS path fails
-    // (network, 4xx, 5xx), try Telegram.WebApp.sendData() to ship the
-    // payload as a service message. Bot's web_app_data handler runs the
-    // SAME pipeline server-side and delivers the picks to the chat.
+    // (network, 4xx, 5xx, abort/timeout), try Telegram.WebApp.sendData().
     const httpFailed = fetchFailed || (result && !result.ok);
     if (httpFailed) {
       if (result && !result.ok) {
@@ -203,6 +257,7 @@ export default function App() {
       record(D.D502_VENUES_RECEIVED, `Received ${venues.length} venues`, true);
     }
     a.searchOk(result.body);
+    setBannerText('');
   };
 
   const showDiagAlways = useMemo(() => diag.some((e) => !e.ok), [diag]);
@@ -272,18 +327,33 @@ export default function App() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-3 py-2 bg-tg-bg border-t border-tg-border">
-        {locDenied && !state.loc && (
-          <div className="text-[11px] text-tg-hint pb-1.5 text-center">
-            Tap 📍 above to share your location.
+        {bannerText && (
+          <div className="text-[12px] text-tg-text bg-tg-accent/20 border border-tg-accent rounded-md px-2 py-1 mb-1.5 text-center">
+            {bannerText}
           </div>
         )}
-        <button
-          onClick={onSearch}
-          disabled={state.loading}
-          className="w-full text-sm font-medium px-4 py-2.5 rounded-md bg-tg-accent text-tg-accent-text disabled:opacity-50"
-        >
-          {state.loading ? 'Searching…' : '🔍 Search'}
-        </button>
+        {locDenied && !state.loc && !bannerText && (
+          <div className="text-[11px] text-tg-hint pb-1.5 text-center">
+            📍 unavailable — Search will use CBD default. Tap 📍 above to share your real location.
+          </div>
+        )}
+        <div className="flex gap-1.5">
+          <button
+            onClick={onSearch}
+            disabled={state.loading}
+            className="flex-1 text-sm font-medium px-4 py-2.5 rounded-md bg-tg-accent text-tg-accent-text disabled:opacity-50"
+          >
+            {state.loading ? 'Searching…' : `🔍 Search${searchTaps ? ` · ${searchTaps}` : ''}`}
+          </button>
+          <button
+            onClick={forceChatDelivery}
+            disabled={state.loading}
+            className="text-xs font-medium px-2.5 py-2.5 rounded-md bg-tg-card text-tg-text border border-tg-border disabled:opacity-50"
+            title="Bypass HTTPS, send to chat via Telegram service message"
+          >
+            💬 Chat
+          </button>
+        </div>
       </div>
     </div>
   );

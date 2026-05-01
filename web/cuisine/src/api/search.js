@@ -14,21 +14,33 @@ export async function diagPing() {
   }
 }
 
-// Returns {status, ok, body} so the caller can log diagnostics for each
-// outcome (HTTP 4xx, 5xx, parse failure, etc.) instead of just throwing.
-export async function searchCuisine(payload) {
+// Returns {status, ok, body, timedOut} so the caller can log diagnostics
+// for each outcome (4xx, 5xx, parse, abort) and pivot to sendData.
+// timeoutMs default 6000 — long enough for the Reason+Refine Gemini
+// round-trip on a slow link, short enough to give the fallback room.
+export async function searchCuisine(payload, { timeoutMs = 6000 } = {}) {
   const id = initData();
-  const res = await fetch('/api/cuisine-search', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Telegram-Init-Data': id
-    },
-    body: JSON.stringify(payload)
-  });
-  const status = res.status;
-  let body = null;
-  try { body = await res.json(); }
-  catch { body = await res.text().catch(() => ''); }
-  return { status, ok: res.ok, body };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch('/api/cuisine-search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Init-Data': id
+      },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
+    });
+    const status = res.status;
+    let body = null;
+    try { body = await res.json(); }
+    catch { body = await res.text().catch(() => ''); }
+    return { status, ok: res.ok, body, timedOut: false };
+  } catch (err) {
+    if (err?.name === 'AbortError') return { status: 0, ok: false, body: null, timedOut: true };
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
