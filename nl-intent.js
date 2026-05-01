@@ -72,6 +72,7 @@ Return JSON exactly:
   "confidence": <float 0..1>,
   "cuisines": [<canonical English cuisine names from this catalogue if mentioned or implied; omit if generic — pick from: ${CUISINE_CATALOGUE.join(', ')}>],
   "special_request": "<distinctive qualifier in English: 'Michelin-starred', 'halal', 'vegetarian', 'romantic dinner', 'kid-friendly', 'late-night', 'outdoor seating', 'budget under $20', etc.; empty string if none>",
+  "location_override": "<Singapore place name the user explicitly mentioned to anchor the search around — e.g. 'Tanjong Pagar MRT', 'Raffles Place', 'Bishan', 'Joo Chiat', 'Holland Village'. Empty string if the user didn't mention a specific anchor (in which case the bot uses their cached GPS).>",
   "lang": "<ISO 639-1 two-letter code of the input language>",
   "ack_text": "<short acknowledgement IN THE SAME LANGUAGE as the input>"
 }
@@ -86,14 +87,17 @@ Intent definitions:
   "other"           — greetings, off-topic, sensitive
 
 Examples:
-  "Show me Michelin star food" → {intent:"food",confidence:0.95,cuisines:[],special_request:"Michelin-starred",lang:"en",ack_text:"🌿 Searching for Michelin-starred restaurants near you…"}
-  "推荐附近的米其林法餐" → {intent:"food",confidence:0.95,cuisines:["French"],special_request:"Michelin-starred",lang:"zh",ack_text:"🌿 正在为您搜寻附近的米其林法式餐厅…"}
-  "where can I find good kopi" → {intent:"drinks",confidence:0.9,cuisines:["Singaporean"],special_request:"local kopi / coffee",lang:"en",ack_text:"🌿 Hunting for kopi near you…"}
-  "supermarket open now" → {intent:"groceries",confidence:0.9,cuisines:[],special_request:"open now",lang:"en",ack_text:"🌿 Finding supermarkets open now…"}
-  "My location change" → {intent:"update-location",confidence:0.95,cuisines:[],special_request:"",lang:"en",ack_text:"📍 Tap to share your new location, or type a place name."}
-  "我换地方了" → {intent:"update-location",confidence:0.9,cuisines:[],special_request:"",lang:"zh",ack_text:"📍 请发送新位置或输入地名。"}
-  "thanks" → {intent:"other",confidence:0.1,cuisines:[],special_request:"",lang:"en",ack_text:""}
-  "tell me about quantum physics" → {intent:"other",confidence:0.0,cuisines:[],special_request:"",lang:"en",ack_text:""}
+  "Show me Michelin star food" → {intent:"food",confidence:0.95,cuisines:[],special_request:"Michelin-starred",location_override:"",lang:"en",ack_text:"🌿 Searching for Michelin-starred restaurants near you…"}
+  "推荐附近的米其林法餐" → {intent:"food",confidence:0.95,cuisines:["French"],special_request:"Michelin-starred",location_override:"",lang:"zh",ack_text:"🌿 正在为您搜寻附近的米其林法式餐厅…"}
+  "Find Korean food near Tanjong Pagar MRT" → {intent:"food",confidence:0.95,cuisines:["Korean"],special_request:"",location_override:"Tanjong Pagar MRT",lang:"en",ack_text:"🌿 Searching for Korean food near Tanjong Pagar MRT…"}
+  "Newly opened restaurants 1km of Raffles Place" → {intent:"food",confidence:0.9,cuisines:[],special_request:"newly opened",location_override:"Raffles Place MRT",lang:"en",ack_text:"🌿 Hunting newly opened restaurants near Raffles Place…"}
+  "Bishan halal food" → {intent:"food",confidence:0.9,cuisines:[],special_request:"halal",location_override:"Bishan",lang:"en",ack_text:"🌿 Halal food near Bishan…"}
+  "where can I find good kopi" → {intent:"drinks",confidence:0.9,cuisines:["Singaporean"],special_request:"local kopi / coffee",location_override:"",lang:"en",ack_text:"🌿 Hunting for kopi near you…"}
+  "supermarket open now" → {intent:"groceries",confidence:0.9,cuisines:[],special_request:"open now",location_override:"",lang:"en",ack_text:"🌿 Finding supermarkets open now…"}
+  "My location change" → {intent:"update-location",confidence:0.95,cuisines:[],special_request:"",location_override:"",lang:"en",ack_text:"📍 Tap to share your new location, or type a place name."}
+  "我换地方了" → {intent:"update-location",confidence:0.9,cuisines:[],special_request:"",location_override:"",lang:"zh",ack_text:"📍 请发送新位置或输入地名。"}
+  "thanks" → {intent:"other",confidence:0.1,cuisines:[],special_request:"",location_override:"",lang:"en",ack_text:""}
+  "tell me about quantum physics" → {intent:"other",confidence:0.0,cuisines:[],special_request:"",location_override:"",lang:"en",ack_text:""}
 
 Return ONLY the JSON object.`;
 
@@ -112,10 +116,11 @@ Return ONLY the JSON object.`;
         ? parsed.cuisines.filter((c) => CUISINE_CATALOGUE.includes(c)).slice(0, 5)
         : [],
       special_request: typeof parsed.special_request === 'string' ? parsed.special_request.slice(0, 200) : '',
+      location_override: typeof parsed.location_override === 'string' ? parsed.location_override.slice(0, 100).trim() : '',
       lang: typeof parsed.lang === 'string' ? parsed.lang.slice(0, 2).toLowerCase() : 'en',
       ack_text: typeof parsed.ack_text === 'string' ? parsed.ack_text.slice(0, 240) : '🌿 Sensing the vibe…'
     };
-    console.log(`[NL-Intent] classified intent=${out.intent} confidence=${out.confidence} cuisines=${out.cuisines.join('|')} special="${out.special_request}" lang=${out.lang}`);
+    console.log(`[NL-Intent] classified intent=${out.intent} confidence=${out.confidence} cuisines=${out.cuisines.join('|')} special="${out.special_request}" location_override="${out.location_override}" lang=${out.lang}`);
     if (cacheKey && redis) {
       redis.set(cacheKey, JSON.stringify(out), { EX: CACHE_TTL_S }).catch(() => {});
     }
