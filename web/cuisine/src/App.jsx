@@ -305,7 +305,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }} />
+      <Header
+        loc={state.loc}
+        onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }}
+        debugOn={diagForcedVisible || showDiagAlways}
+        onToggleDebug={() => setDiagForcedVisible((v) => !v)}
+      />
+      {/* v0.29.2: Diagnostics rendered RIGHT BELOW the Header when on,
+          so the user doesn't have to scroll past 3 sliders + accordion
+          to see the D-codes. */}
+      {(showDiagAlways || diagForcedVisible) && (
+        <div className="px-3 pt-2"><Diagnostics entries={diag} /></div>
+      )}
       <div
         className={`px-3 py-1 text-[10px] font-mono select-none cursor-pointer ${bridgeBadge.color}`}
         onClick={onBadgeClick}
@@ -354,7 +365,7 @@ export default function App() {
 
         <PresetCombos active={state.preset} onPick={a.applyPreset} />
         <PromptPreview state={state} />
-        {(showDiagAlways || diagForcedVisible) && <Diagnostics entries={diag} />}
+        {/* Diagnostics now rendered directly under Header (v0.29.2). */}
 
         <div className="border-t border-tg-border my-1" />
 
