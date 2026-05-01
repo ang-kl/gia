@@ -63,7 +63,8 @@ function buildReasonPrompt({ lat, lng, query, snapshot, count }) {
     : '(vault is empty for this area)';
 
   const radiusKm = ((query.radius || 1000) / 1000).toFixed(1);
-  const cuisinesList = query.cuisines?.length ? query.cuisines.join(', ') : 'any cuisine appropriate to the period';
+  const hasCuisines = Array.isArray(query.cuisines) && query.cuisines.length > 0;
+  const cuisinesList = hasCuisines ? query.cuisines.join(', ') : 'any cuisine appropriate to the period';
   const recencyClause = query.recencyDays
     ? `confirmed grand opening dates within the last ${query.recencyDays} day(s) (use Google Search to verify opening dates)`
     : 'verified OPERATIONAL business status';
@@ -71,15 +72,25 @@ function buildReasonPrompt({ lat, lng, query, snapshot, count }) {
   const specialLine = query.specialRequest && query.specialRequest.trim()
     ? `Distinctive user qualifier (HONOUR THIS): ${query.specialRequest.trim()}.`
     : '';
+  // v0.30.6: when the user named cuisines explicitly, those override the
+  // meal-period bias. Previously "afternoon snack" hint pulled Gemini
+  // toward coffee/dessert even when the user asked for Korean food.
+  // Soften the period framing AND add an authoritative cuisine clause.
+  const periodLine = hasCuisines
+    ? `Time of day (informational only — DO NOT bias toward generic snack/café venues): ${query.label || 'now'}${query.detail ? ` (${query.detail})` : ''}.`
+    : `Period: ${query.label || 'now'}${query.detail ? ` (${query.detail})` : ''}.`;
+  const cuisineEnforcement = hasCuisines
+    ? `\nAUTHORITATIVE CUISINE CONSTRAINT: Every venue you return MUST primarily serve one of [${cuisinesList}]. Coffee shops, dessert specialists, generic cafés, kopitiams, and bakeries DO NOT QUALIFY unless they specialise in the named cuisines. If you cannot find venues matching the cuisines + area + recency, return fewer (or zero) — DO NOT pad with off-cuisine venues.`
+    : '';
 
   return `[ACT: GEOSPATIAL_CULINARY_ANALYST]
 
 Execute a deep-crawl search USING GOOGLE SEARCH GROUNDING to identify ${cuisinesList} establishments located within ${radiusKm} km of latitude ${lat}, longitude ${lng} in Singapore.
 
-User period: ${query.label || 'now'}${query.detail ? ` (${query.detail})` : ''}.
+${periodLine}
 Filter results to include only venues with ${recencyClause}.
 ${queueLine}
-${specialLine}
+${specialLine}${cuisineEnforcement}
 
 For each qualifying entry, return JSON with:
   "name"                      — exact common name
