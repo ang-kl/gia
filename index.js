@@ -527,6 +527,15 @@ function resolvePending(pending) {
   if (pending.startsWith(PENDING_CUISINE_PREFIX)) {
     return { kind: 'cuisine', cuisineType: pending.slice(PENDING_CUISINE_PREFIX.length) };
   }
+  // v0.30.0: NL-search pending state, encoded as `nl:<json-payload>`.
+  if (pending.startsWith('nl:')) {
+    try {
+      const payload = JSON.parse(pending.slice('nl:'.length));
+      return { kind: 'nl', ...payload };
+    } catch {
+      return { kind: 'sanctuary', category: 'food' };
+    }
+  }
   if (['food', 'drink', 'groceries'].includes(pending)) {
     return { kind: 'sanctuary', category: pending };
   }
@@ -540,6 +549,8 @@ bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     if (resolved.kind === 'cuisine') {
       await runCuisineFlow(msg.chat.id, 1.2839, 103.8517, resolved.cuisineType);
+    } else if (resolved.kind === 'nl') {
+      await runNLFlow(msg.chat.id, 1.2839, 103.8517, resolved);
     } else {
       await runFlow(msg.chat.id, 1.2839, 103.8517, resolved.category);
     }
@@ -604,6 +615,8 @@ bot.on('location', async (msg) => {
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
     if (resolved.kind === 'cuisine') {
       await runCuisineFlow(msg.chat.id, lat, lng, resolved.cuisineType);
+    } else if (resolved.kind === 'nl') {
+      await runNLFlow(msg.chat.id, lat, lng, resolved);
     } else {
       await runFlow(msg.chat.id, lat, lng, resolved.category);
     }
@@ -1085,10 +1098,48 @@ bot.on('message', async (msg) => {
       await safeSend(msg.chat.id, `Centred on ${place.name}.`);
       if (resolved?.kind === 'cuisine') {
         await runCuisineFlow(msg.chat.id, place.lat, place.lng, resolved.cuisineType);
+      } else if (resolved?.kind === 'nl') {
+        await runNLFlow(msg.chat.id, place.lat, place.lng, resolved);
       } else {
         await runFlow(msg.chat.id, place.lat, place.lng, resolved?.category || 'food');
       }
       return;
+    }
+
+    // v0.30.0: Natural-language chat search (any language). Before
+    // falling through to the topic gatekeeper, ask Gemini Flash to
+    // classify intent. If food/drinks/groceries with confidence ≥ 0.6,
+    // dispatch the cuisine pipeline with extracted hints. Otherwise
+    // fall through to the existing gatekeeper (off-topic steering).
+    try {
+      const { classifyIntent, MIN_CONFIDENCE } = require('./nl-intent');
+      const langCode = msg.from?.language_code || 'en';
+      console.log(`[NL-Intent] D750 received chat=${msg.chat.id} lang=${langCode} bytes=${text.length}`);
+      const cls = await classifyIntent({ text, langCode, redis });
+      if (cls && (cls.intent === 'food' || cls.intent === 'drinks' || cls.intent === 'groceries') && cls.confidence >= MIN_CONFIDENCE) {
+        console.log(`[NL-Intent] D751 dispatching intent=${cls.intent} confidence=${cls.confidence}`);
+        if (cls.ack_text) await safeSend(msg.chat.id, cls.ack_text);
+        const cached = await getUserLocation(redis, msg.chat.id);
+        if (!cached) {
+          // Stash payload so the location handler can resume the NL flow.
+          await setPendingMeal(redis, msg.chat.id, `nl:${JSON.stringify({
+            cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent, lang: cls.lang
+          })}`);
+          await bot.sendMessage(
+            msg.chat.id,
+            "Where are you? Tap to share your location, or type a place name.",
+            LOCATION_REQUEST_KEYBOARD
+          );
+          return;
+        }
+        await runNLFlow(msg.chat.id, cached.lat, cached.lng, {
+          cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent
+        });
+        return;
+      }
+      console.log(`[NL-Intent] D753 falls through intent=${cls?.intent || '?'} confidence=${cls?.confidence ?? '?'}`);
+    } catch (err) {
+      console.error('[NL-Intent] classify branch failed:', err.message);
     }
 
     const result = await gatekeep(redis, text);
@@ -1097,6 +1148,41 @@ bot.on('message', async (msg) => {
     console.error('[Error] free-text handler failed:', err.message);
   }
 });
+
+// v0.30.0 — runs after NL classifier confirms food/drinks/groceries
+// intent and a location is present. Dispatches into the same
+// searchCuisine pipeline the TMA Search button uses; delivers picks
+// to chat via deliverPicks.
+async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '', intent = 'food' }) {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    await setProcessing(redis, chatId);
+    const { searchCuisine } = require('./cuisine-search');
+    const result = await searchCuisine({
+      lat, lng,
+      cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 5) : [],
+      radius: 1000, recencyDays: 90, queueMaxMin: 15,
+      mode: 'walk', when: 'now', preset: null,
+      specialRequest,
+      redis
+    });
+    const venues = (result?.venues || []).slice(0, 5);
+    if (!venues.length) {
+      await safeSend(chatId, "Gia couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /surprise for a hidden gem.");
+      return;
+    }
+    const label = result?.meal?.label || intent;
+    await deliverPicks(chatId, label, venues);
+  } catch (err) {
+    console.error('[NL-Intent] D752 runNLFlow failed:', err.message);
+    await safeSend(chatId, "Sorry, NL search hit an error.");
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
 
 // 4. Initialization
 async function registerCommandsMenu() {
