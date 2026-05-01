@@ -1276,10 +1276,12 @@ async function cacheBotUsername() {
     });
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
-    // Menu page (Durger-King-style tile grid). New default for the
-    // chat menu button as of v0.18.0.
-    app.get(['/app', '/app/menu'], (_req, res) => res.sendFile(path.join(__dirname, 'public', 'menu.html')));
-    // Live sanctuary map (the v0.4.0 TMA, now under /app/map).
+    // Menu TMA — Vite-built React app since v0.28.0 (replaces the
+    // hand-rolled public/menu.html + menu.js).
+    app.use('/app/menu', express.static(path.join(__dirname, 'public', 'menu')));
+    app.get(['/app', '/app/menu'], (_req, res) => res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html')));
+    // Live sanctuary map (the v0.4.0 TMA, still vanilla JS — Google
+    // Maps imperative integration doesn't benefit from React).
     app.get('/app/map', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
     // Cuisine Picker TMA (v0.22.0). Vite-built React+Tailwind app.
     app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine')));
