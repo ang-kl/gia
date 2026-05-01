@@ -113,27 +113,26 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
   }
   diag('D610', 'Reason call start', true, { count, vault_n: snapshot.vault.length });
   try {
-    // v0.30.3: enable Google Search grounding so the model can hit
-    // real-time web sources (Instagram, Reddit, Time Out, SethLui,
-    // Honeycombers, MICHELIN Guide) for the GEOSPATIAL_CULINARY_ANALYST
-    // persona's "newly opened" + "verified opening date" claims that
-    // training-data alone cannot supply. Adds ~$0.0035 per call.
+    // v0.30.3: Google Search grounding for the GEOSPATIAL_CULINARY_ANALYST
+    // persona's "newly opened" / "verified opening date" claims.
+    // v0.30.4: gated by GROUNDING_ENABLED env flag (default ON). Set
+    // GROUNDING_ENABLED=false in Railway to revert to no-tools behaviour
+    // if grounding is the regression cause for empty results.
+    const groundingEnabled = process.env.GROUNDING_ENABLED !== 'false';
     const generationConfig = { responseMimeType: 'application/json' };
-    const tools = [{ googleSearch: {} }];
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig, tools });
+    const tools = groundingEnabled ? [{ googleSearch: {} }] : undefined;
+    const modelOpts = tools ? { model: MODEL_NAME, generationConfig, tools } : { model: MODEL_NAME, generationConfig };
+    const model = genAI.getGenerativeModel(modelOpts);
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
-    // Flash fallback also enables Search grounding for parity.
+    console.log(`[Pipeline-Reason] grounding=${groundingEnabled ? 'ON' : 'OFF'} model=${MODEL_NAME} prompt_len=${prompt.length}`);
+    // Flash fallback uses the same tools setting for parity.
     const fallbackFn = (() => {
-      const base = makeFlashFallback(genAI, prompt, generationConfig);
-      if (!base) return null;
-      // Re-create the fallback with tools too — makeFlashFallback's default
-      // signature doesn't carry tools, so wrap it.
+      if (!makeFlashFallback(genAI, prompt, generationConfig)) return null;
       return async () => {
-        const flashModel = genAI.getGenerativeModel({
-          model: 'gemini-2.5-flash',
-          generationConfig,
-          tools
-        });
+        const flashOpts = tools
+          ? { model: 'gemini-2.5-flash', generationConfig, tools }
+          : { model: 'gemini-2.5-flash', generationConfig };
+        const flashModel = genAI.getGenerativeModel(flashOpts);
         return flashModel.generateContent(prompt);
       };
     })();
@@ -141,9 +140,24 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
       label: 'Pipeline-Reason',
       fallbackFn
     });
-    const parsed = JSON.parse(result.response.text());
+    // v0.30.4: capture raw text for diagnostic on parse error.
+    const rawText = result.response.text();
+    console.log(`[Pipeline-Reason] response length=${rawText.length} chars`);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      diag('D612', 'Reason JSON parse failed', false, {
+        err: parseErr.message,
+        head: rawText.slice(0, 200),
+        tail: rawText.slice(-100)
+      });
+      console.error('[Pipeline-Reason] JSON parse failed:', parseErr.message, '\n  head:', rawText.slice(0, 200));
+      return [];
+    }
     if (!Array.isArray(parsed)) {
-      diag('D612', 'Reason returned non-array', false);
+      diag('D612', 'Reason returned non-array', false, { type: typeof parsed, keys: typeof parsed === 'object' ? Object.keys(parsed || {}).slice(0, 5) : [] });
+      console.error('[Pipeline-Reason] non-array response:', typeof parsed, JSON.stringify(parsed).slice(0, 200));
       return [];
     }
     const candidates = parsed.filter((c) => c && typeof c.name === 'string').slice(0, count).map((c) => ({
