@@ -154,6 +154,53 @@ function applyPostFilters(venues, preset) {
   return out;
 }
 
+// v0.30.6: server-side defense-in-depth chain-name exclusion. Gemini's
+// negative-constraint compliance is unreliable (v0.30.5 trace returned
+// "The Coffee Bean & Tea Leaf" despite explicit exclusion list). Match
+// venue names case-insensitively against unambiguously-global fast-food
+// + coffee chains. Conservative list — does NOT touch SG-local chains
+// like Toast Box, Ya Kun, Killiney, Old Chang Kee where the user might
+// genuinely want them.
+const FAST_FOOD_CHAIN_PATTERNS = [
+  /\bmcdonald'?s?\b/i,
+  /\bkfc\b/i,
+  /\bsubway\b/i,
+  /\bburger king\b/i,
+  /\bstarbucks\b/i,
+  /\bcoffee bean(?:\s*&?\s*tea leaf)?\b/i,
+  /\bdomino'?s?(?: pizza)?\b/i,
+  /\bpizza hut\b/i,
+  /\bjollibee\b/i,
+  /\btexas chicken\b/i,
+  /\bwendy'?s?\b/i,
+  /\bpopeye'?s?\b/i,
+  /\bshake shack\b/i,
+  /\bfive guys\b/i,
+  /\btaco bell\b/i,
+  /\blong john silver'?s?\b/i,
+  /\bcarl'?s? jr\b/i
+];
+
+function isFastFoodChain(venueName) {
+  if (!venueName) return false;
+  return FAST_FOOD_CHAIN_PATTERNS.some((re) => re.test(venueName));
+}
+
+function excludeChains(venues) {
+  const out = [];
+  let dropped = 0;
+  for (const v of venues) {
+    if (isFastFoodChain(v.name)) {
+      dropped++;
+      console.warn(`[Cuisine-Search] D709 chain-filter dropped "${v.name}"`);
+      continue;
+    }
+    out.push(v);
+  }
+  if (dropped) console.log(`[Cuisine-Search] chain-filter removed ${dropped} venue(s)`);
+  return out;
+}
+
 function sortVenues(venues) {
   return [...venues].sort((a, b) => {
     const ao = a.openNow === false ? 1 : 0;
@@ -273,6 +320,9 @@ async function searchCuisine({
 
   let filtered = applyPostFilters(postRefine, preset);
   filtered = filtered.filter((v) => v.queueMinEstimate == null || v.queueMinEstimate <= queueMaxMin);
+  // v0.30.6: defense-in-depth — drop any fast-food chain that slipped
+  // past Gemini's negative-constraint compliance.
+  filtered = excludeChains(filtered);
   const sorted = sortVenues(filtered);
 
   return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
