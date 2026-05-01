@@ -1314,6 +1314,94 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.29.1: black-box pipeline trace. Bypasses TMA + initData,
+    // runs the SAME searchCuisine pipeline server-side with explicit
+    // params, returns the full step-by-step result. The fastest way
+    // to answer "is the bridge broken or is the pipeline broken?"
+    // when /ver shows everything green but the user reports no Search.
+    //
+    // Usage:
+    //   curl "https://<host>/admin/test-pipeline?secret=<ADMIN_SYNC_SECRET>&lat=1.2839&lng=103.8517"
+    // Optional params: cuisines=Japanese,Korean | radius=1000 |
+    //                  recencyDays=90 | queueMaxMin=15 | preset=transit-efficiency
+    app.get('/admin/test-pipeline', async (req, res) => {
+      const expected = process.env.ADMIN_SYNC_SECRET;
+      const given = String(req.query.secret || '');
+      if (!expected) {
+        return res.status(503).json({ error: 'ADMIN_SYNC_SECRET not configured' });
+      }
+      const a = Buffer.from(expected);
+      const b = Buffer.from(given.padEnd(expected.length, ' ').slice(0, expected.length));
+      const ok = a.length === Buffer.byteLength(given) && crypto.timingSafeEqual(a, b);
+      if (!ok) return res.status(401).json({ error: 'invalid secret' });
+
+      const lat = Number(req.query.lat) || 1.2839;
+      const lng = Number(req.query.lng) || 103.8517;
+      const cuisines = String(req.query.cuisines || '').split(',').map((s) => s.trim()).filter(Boolean);
+      const radius = Number(req.query.radius) || 1000;
+      const recencyDays = Number(req.query.recencyDays) || 90;
+      const queueMaxMin = Number(req.query.queueMaxMin) || 15;
+      const preset = String(req.query.preset || '') || null;
+
+      const t0 = Date.now();
+      console.log(`[Admin] test-pipeline params lat=${lat} lng=${lng} cuisines=${cuisines.join('|')} radius=${radius} preset=${preset}`);
+      const trace = {
+        version: pkgJson.version,
+        bot: { username: botUsername },
+        env: {
+          PIPELINE_ENABLED: process.env.PIPELINE_ENABLED !== 'false',
+          GEMINI_API_KEY_present: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
+          GOOGLE_MAPS_API_KEY_present: !!process.env.GOOGLE_MAPS_API_KEY,
+          REDIS_open: !!redis?.isOpen
+        },
+        params: { lat, lng, cuisines, radius, recencyDays, queueMaxMin, preset },
+        steps: {}
+      };
+
+      try {
+        // Phase A: vault snapshot — confirms the vault index is alive.
+        const vaultIndex = require('./vault-index');
+        const snapshot = await vaultIndex.snapshotForLocation(redis, { lat, lng }, radius);
+        trace.steps.vault = {
+          n_vault: snapshot.vault.length,
+          n_summaries: Object.keys(snapshot.summaries).length,
+          n_reviews: Object.keys(snapshot.reviews).length,
+          firstFew: snapshot.vault.slice(0, 3).map((v) => v.name)
+        };
+
+        // Phase B: full pipeline. searchCuisine is the same path the
+        // TMA route invokes — only difference is the auth wrapper.
+        const { searchCuisine } = require('./cuisine-search');
+        const result = await searchCuisine({
+          lat, lng, cuisines, radius, recencyDays, queueMaxMin,
+          mode: 'walk', when: 'now', preset, redis
+        });
+        trace.steps.pipeline = {
+          venuesCount: result?.venues?.length ?? 0,
+          firstFewVenues: (result?.venues ?? []).slice(0, 3).map((v) => ({
+            name: v.name,
+            placeId: v.placeId,
+            queueMinEstimate: v.queueMinEstimate,
+            costEstimateSgd: v.costEstimateSgd,
+            travelAdvice: v.travelAdvice,
+            shelterNote: v.shelterNote,
+            signatureDish: v.signatureDish
+          })),
+          meal: result?.meal,
+          recencyDays: result?.recencyDays,
+          queueMaxMin: result?.queueMaxMin,
+          pipelineDiagEvents: result?.pipelineDiag?.length ?? 0,
+          pipelineDiagFirstFew: (result?.pipelineDiag ?? []).slice(0, 8)
+        };
+      } catch (err) {
+        trace.error = { message: err.message, stack: err.stack?.split('\n').slice(0, 5) };
+        console.error('[Admin] test-pipeline failed:', err.message);
+      }
+      trace.totalMs = Date.now() - t0;
+      console.log(`[Admin] test-pipeline complete ${trace.totalMs}ms err=${!!trace.error}`);
+      res.json(trace);
+    });
+
     app.post('/webhook', (req, res) => {
       if (req.headers['x-telegram-bot-api-secret-token'] !== webhookSecret) {
         return res.sendStatus(401);
