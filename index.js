@@ -1475,6 +1475,14 @@ async function cacheBotUsername() {
   await cacheBotUsername();
   await registerCommandsMenu();
 
+  // v0.30.9: flag missing MAP_ID at boot so the operator notices in
+  // Railway logs without needing to inspect /maps-key responses.
+  if (!process.env.MAP_ID) {
+    console.warn('[Boot] MAP_ID env var unset — Sanctuary Map TMA will render with default Google Maps styling (no vector branding). Register a Map ID at https://console.cloud.google.com/google/maps-apis/studio/maps and set MAP_ID in Railway. Steps in setup-cloud-map-id.md.');
+  } else {
+    console.log(`[Boot] MAP_ID configured: ${process.env.MAP_ID.slice(0, 16)}…`);
+  }
+
   // Warm SG public-holiday cache so the holiday-special preset can
   // answer instantly. Tolerant of data.gov.sg downtime via inline fallback.
   try {
@@ -1775,10 +1783,19 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
     });
 
+    // v0.30.9: surface whether MAP_ID is registered or running on the
+    // unregistered placeholder. The placeholder ID will cause Google
+    // Maps JS to render a default-styled map (no vector mapType) — not
+    // a fatal error but worth flagging so users know to register one
+    // for branded styling. See setup-cloud-map-id.md for steps.
     app.get('/maps-key', requireInitData, (_req, res) => {
+      const customMapId = !!process.env.MAP_ID;
       res.json({
         key: process.env.GOOGLE_MAPS_API_KEY ?? '',
-        mapId: process.env.MAP_ID || 'GIA_SANCTUARY'
+        mapId: process.env.MAP_ID || 'GIA_SANCTUARY',
+        mapIdSource: customMapId ? 'env:MAP_ID' : 'placeholder',
+        warning: customMapId ? null
+          : 'MAP_ID env var unset — using placeholder. Map renders but without custom vector styling. See setup-cloud-map-id.md.'
       });
     });
 
