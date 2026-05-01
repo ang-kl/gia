@@ -357,14 +357,37 @@ async function main() {
     await redis.quit();
     process.exit(1);
   }
-  console.log(`[Sync] Processing ${items.length} items (concurrency ${CONCURRENCY}, geo-fence=${FENCE_DISABLED ? 'OFF' : 'Singapore'})…`);
+
+  const result = await runSync({ redis, items, fenceDisabled: FENCE_DISABLED });
+
+  console.log('\n[Sync] Done.');
+  console.log(`[Sync]   imported: ${result.imported}`);
+  console.log(`[Sync]   skipped (closed/non-operational): ${result.skippedClosed}`);
+  console.log(`[Sync]   fenced (outside Singapore): ${result.fenced}`);
+  console.log(`[Sync]   failed (resolve/fetch): ${result.failed}`);
+  console.log(`[Sync]   vault size now: ${result.vaultCount}`);
+  console.log(`[Sync]   audit log file: ${AUDIT_LOG_FILE}`);
+  console.log(`[Sync]   redis cleanup list: LRANGE ${VAULT_CLEANUP_LIST} 0 -1`);
+
+  await redis.quit();
+}
+
+// v0.28.2: callable extracted from main() so the admin HTTPS endpoint
+// can run the same logic in-process (using the bot's existing redis
+// client) without spawning a child process or duplicating the env.
+async function runSync({ redis, items: providedItems = null, fenceDisabled = false } = {}) {
+  if (!redis) throw new Error('runSync requires a connected redis client');
+  if (!process.env.GOOGLE_MAPS_API_KEY) throw new Error('GOOGLE_MAPS_API_KEY env var required');
+  const items = providedItems || resolveInputs();
+  const t0 = Date.now();
+  console.log(`[Sync] Processing ${items.length} items (concurrency ${CONCURRENCY}, geo-fence=${fenceDisabled ? 'OFF' : 'Singapore'})…`);
 
   let imported = 0, fenced = 0, skippedClosed = 0, failed = 0;
+  const samples = []; // first 5 imported names for the route response
 
   await withConcurrency(items, CONCURRENCY, async (item) => {
     try {
-      // Coarse fence — drop on file-level coords if obviously out of scope.
-      if (Number.isFinite(item.lat) && Number.isFinite(item.lng) && !inSingapore(item.lat, item.lng)) {
+      if (!fenceDisabled && Number.isFinite(item.lat) && Number.isFinite(item.lng) && !inSingapore(item.lat, item.lng)) {
         await logSkip(redis, item, `fenced_outside_singapore lat=${item.lat} lng=${item.lng}`);
         fenced++;
         return;
@@ -381,8 +404,7 @@ async function main() {
         failed++;
         return;
       }
-      // Re-check fence on resolved coords (canonical Place location).
-      if (!inSingapore(details.location.latitude, details.location.longitude)) {
+      if (!fenceDisabled && !inSingapore(details.location.latitude, details.location.longitude)) {
         await logSkip(redis, item, `fenced_after_resolve placeId=${placeId} lat=${details.location.latitude} lng=${details.location.longitude}`);
         fenced++;
         return;
@@ -394,6 +416,7 @@ async function main() {
       }
       await vaultUpsert(redis, details, item.source);
       imported++;
+      if (samples.length < 5) samples.push(details.displayName?.text || placeId);
       console.log(`[Sync]  ${details.displayName?.text} (${placeId})`);
     } catch (err) {
       failed++;
@@ -402,16 +425,20 @@ async function main() {
   });
 
   const vaultCount = await redis.sendCommand(['ZCARD', VAULT_GEO_KEY]).catch(() => null);
-  console.log('\n[Sync] Done.');
-  console.log(`[Sync]   imported: ${imported}`);
-  console.log(`[Sync]   skipped (closed/non-operational): ${skippedClosed}`);
-  console.log(`[Sync]   fenced (outside Singapore): ${fenced}`);
-  console.log(`[Sync]   failed (resolve/fetch): ${failed}`);
-  console.log(`[Sync]   vault size now: ${vaultCount}`);
-  console.log(`[Sync]   audit log file: ${AUDIT_LOG_FILE}`);
-  console.log(`[Sync]   redis cleanup list: LRANGE ${VAULT_CLEANUP_LIST} 0 -1`);
-
-  await redis.quit();
+  return {
+    imported, skippedClosed, fenced, failed,
+    vaultCount: Number(vaultCount) || null,
+    samples,
+    durationMs: Date.now() - t0,
+    fenceDisabled,
+    inputCount: items.length
+  };
 }
 
-main().catch((err) => { console.error('[Fatal]', err.message); process.exit(1); });
+module.exports = { runSync, resolveInputs, HARDCODED_URLS };
+
+// CLI entrypoint preserved — only run when invoked directly, not when
+// the file is `require()`'d by the admin route.
+if (require.main === module) {
+  main().catch((err) => { console.error('[Fatal]', err.message); process.exit(1); });
+}
