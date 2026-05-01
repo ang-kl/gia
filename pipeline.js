@@ -386,7 +386,18 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
     n_summaries: Object.keys(snapshot.summaries).length,
     n_reviews: Object.keys(snapshot.reviews).length
   });
-  const draft = await reason({ lat, lng, query, snapshot, count, diag });
+  let draft = await reason({ lat, lng, query, snapshot, count, diag });
+  // v0.30.5: if Reason returned 0 candidates with a strict query (cuisines
+  // + recencyDays + specialRequest combined), retry once with the most
+  // restrictive constraint dropped. Order of relaxation (least → most
+  // valuable to keep): drop recencyDays first, then drop specialRequest.
+  if (!draft.length && (query.recencyDays || query.specialRequest)) {
+    diag('D613', 'Reason 0 candidates — retrying with relaxed query (drop recencyDays + specialRequest)', false);
+    console.warn('[Pipeline] D613 retry without recencyDays/specialRequest');
+    const relaxed = { ...query, recencyDays: null, specialRequest: '' };
+    draft = await reason({ lat, lng, query: relaxed, snapshot, count, diag });
+    if (draft.length) diag('D614', 'Relaxed retry yielded candidates', true, { n: draft.length });
+  }
   // Phase 2: callers may pass already-validated venues with placeId/lat/lng.
   // Refine works on whatever the caller has *after* validation; if no
   // validatedVenues passed, we just return the draft (no clusters, no refine).

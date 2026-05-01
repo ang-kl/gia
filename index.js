@@ -1192,22 +1192,52 @@ bot.on('message', async (msg) => {
         return;
       }
       if (cls && (cls.intent === 'food' || cls.intent === 'drinks' || cls.intent === 'groceries') && cls.confidence >= MIN_CONFIDENCE) {
-        console.log(`[NL-Intent] D751 dispatching intent=${cls.intent} confidence=${cls.confidence}`);
+        console.log(`[NL-Intent] D751 dispatching intent=${cls.intent} confidence=${cls.confidence} location_override="${cls.location_override}"`);
         if (cls.ack_text) await safeSend(msg.chat.id, cls.ack_text);
-        const cached = await getUserLocation(redis, msg.chat.id);
-        if (!cached) {
-          // Stash payload so the location handler can resume the NL flow.
-          await setPendingMeal(redis, msg.chat.id, `nl:${JSON.stringify({
-            cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent, lang: cls.lang
-          })}`);
-          await bot.sendMessage(
-            msg.chat.id,
-            "Where are you? Tap to share your location, or type a place name.",
-            LOCATION_REQUEST_KEYBOARD
-          );
-          return;
+
+        // v0.30.5: location_override takes precedence over cached GPS.
+        // If the user said "near Tanjong Pagar MRT", geocode that and
+        // anchor the search there — not on their actual GPS coords.
+        let searchLat = null;
+        let searchLng = null;
+        let searchSource = '';
+        if (cls.location_override) {
+          await verbose.say(redis, msg.chat.id, safeSend, `D708 geocoding location_override="${cls.location_override}"…`);
+          try {
+            const place = await geocodeQuery(cls.location_override + ' Singapore');
+            if (place?.lat && place?.lng) {
+              searchLat = place.lat;
+              searchLng = place.lng;
+              searchSource = `override "${cls.location_override}" → ${place.name} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
+              console.log(`[NL-Intent] D709 location_override geocoded: ${searchSource}`);
+            } else {
+              console.warn(`[NL-Intent] D710 location_override failed to geocode, falling back to user GPS`);
+              await verbose.say(redis, msg.chat.id, safeSend, `D710 geocode of "${cls.location_override}" failed; falling back to your stored GPS`);
+            }
+          } catch (err) {
+            console.error('[NL-Intent] D710 geocode threw:', err.message);
+          }
         }
-        await runNLFlow(msg.chat.id, cached.lat, cached.lng, {
+
+        if (searchLat == null) {
+          const cached = await getUserLocation(redis, msg.chat.id);
+          if (!cached) {
+            await setPendingMeal(redis, msg.chat.id, `nl:${JSON.stringify({
+              cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent, lang: cls.lang, locationOverride: cls.location_override
+            })}`);
+            await bot.sendMessage(
+              msg.chat.id,
+              "Where are you? Tap to share your location, or type a place name.",
+              LOCATION_REQUEST_KEYBOARD
+            );
+            return;
+          }
+          searchLat = cached.lat;
+          searchLng = cached.lng;
+          searchSource = `cached GPS (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
+        }
+        await verbose.say(redis, msg.chat.id, safeSend, `Search anchored at ${searchSource}`);
+        await runNLFlow(msg.chat.id, searchLat, searchLng, {
           cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent
         });
         return;
