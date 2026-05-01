@@ -13,7 +13,7 @@
 
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry } = require('./gemini-retry');
+const { withRetry, makeFlashFallback } = require('./gemini-retry');
 
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -68,33 +68,45 @@ User's Telegram language code (hint): ${langCode}
 
 Return JSON exactly:
 {
-  "intent": "food" | "drinks" | "groceries" | "other",
-  "confidence": <float 0..1 — your certainty the user wants food/drinks/groceries help; 'other' for greetings, off-topic, sensitive>,
+  "intent": "food" | "drinks" | "groceries" | "update-location" | "other",
+  "confidence": <float 0..1>,
   "cuisines": [<canonical English cuisine names from this catalogue if mentioned or implied; omit if generic — pick from: ${CUISINE_CATALOGUE.join(', ')}>],
   "special_request": "<distinctive qualifier in English: 'Michelin-starred', 'halal', 'vegetarian', 'romantic dinner', 'kid-friendly', 'late-night', 'outdoor seating', 'budget under $20', etc.; empty string if none>",
   "lang": "<ISO 639-1 two-letter code of the input language>",
-  "ack_text": "<short acknowledgement IN THE SAME LANGUAGE as the input, e.g. for English: '🌿 Searching for Michelin-starred French food near you…'; for Mandarin: '🌿 正在为您搜寻附近的米其林法式餐厅…'; for French: '🌿 Recherche de restaurants français étoilés près de toi…'>"
+  "ack_text": "<short acknowledgement IN THE SAME LANGUAGE as the input>"
 }
+
+Intent definitions:
+  "food"            — wants restaurant / dish / cuisine recommendations
+  "drinks"          — wants bars / coffee / tea / juice
+  "groceries"       — wants supermarkets / fresh markets
+  "update-location" — wants to change/refresh stored location
+                      ("I moved", "my location changed", "我换地方了",
+                      "use new location", "I'm somewhere else now")
+  "other"           — greetings, off-topic, sensitive
 
 Examples:
   "Show me Michelin star food" → {intent:"food",confidence:0.95,cuisines:[],special_request:"Michelin-starred",lang:"en",ack_text:"🌿 Searching for Michelin-starred restaurants near you…"}
   "推荐附近的米其林法餐" → {intent:"food",confidence:0.95,cuisines:["French"],special_request:"Michelin-starred",lang:"zh",ack_text:"🌿 正在为您搜寻附近的米其林法式餐厅…"}
   "where can I find good kopi" → {intent:"drinks",confidence:0.9,cuisines:["Singaporean"],special_request:"local kopi / coffee",lang:"en",ack_text:"🌿 Hunting for kopi near you…"}
   "supermarket open now" → {intent:"groceries",confidence:0.9,cuisines:[],special_request:"open now",lang:"en",ack_text:"🌿 Finding supermarkets open now…"}
+  "My location change" → {intent:"update-location",confidence:0.95,cuisines:[],special_request:"",lang:"en",ack_text:"📍 Tap to share your new location, or type a place name."}
+  "我换地方了" → {intent:"update-location",confidence:0.9,cuisines:[],special_request:"",lang:"zh",ack_text:"📍 请发送新位置或输入地名。"}
   "thanks" → {intent:"other",confidence:0.1,cuisines:[],special_request:"",lang:"en",ack_text:""}
   "tell me about quantum physics" → {intent:"other",confidence:0.0,cuisines:[],special_request:"",lang:"en",ack_text:""}
 
 Return ONLY the JSON object.`;
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'NL-Intent',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
     });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'NL-Intent' });
     const parsed = JSON.parse(result.response.text());
     const out = {
-      intent: ['food', 'drinks', 'groceries', 'other'].includes(parsed.intent) ? parsed.intent : 'other',
+      intent: ['food', 'drinks', 'groceries', 'update-location', 'other'].includes(parsed.intent) ? parsed.intent : 'other',
       confidence: Number(parsed.confidence) || 0,
       cuisines: Array.isArray(parsed.cuisines)
         ? parsed.cuisines.filter((c) => CUISINE_CATALOGUE.includes(c)).slice(0, 5)

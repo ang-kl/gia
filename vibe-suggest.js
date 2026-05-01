@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry } = require('./gemini-retry');
+const { withRetry, makeFlashFallback } = require('./gemini-retry');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -75,11 +75,12 @@ Do NOT include lat/lng — those will be looked up authoritatively.
 Return ONLY the JSON array, no preamble.`;
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'Vibe-Suggest',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
     });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Vibe-Suggest' });
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) return [];
     return parsed

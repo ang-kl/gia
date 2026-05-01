@@ -30,7 +30,7 @@
 //   D640  pipeline emit final (n_final)
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry } = require('./gemini-retry');
+const { withRetry, makeFlashFallback } = require('./gemini-retry');
 const vaultIndex = require('./vault-index');
 const weather = require('./weather');
 const transport = require('./transport');
@@ -92,12 +92,13 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
   }
   diag('D610', 'Reason call start', true, { count, vault_n: snapshot.vault.length });
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
-    });
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Pipeline-Reason' });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'Pipeline-Reason',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
+    });
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) {
       diag('D612', 'Reason returned non-array', false);
@@ -260,11 +261,12 @@ User period: ${query.label || 'now'}.
 
 Return ONLY the JSON array, in the same order as the input.`;
 
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
+    const generationConfig = { responseMimeType: 'application/json' };
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    const result = await withRetry(() => model.generateContent(prompt), {
+      label: 'Pipeline-Refine',
+      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
     });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Pipeline-Refine' });
     const refined = JSON.parse(result.response.text());
     if (!Array.isArray(refined)) {
       diag('D632', 'Refine non-array', false);
