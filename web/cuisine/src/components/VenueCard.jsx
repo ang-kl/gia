@@ -2,8 +2,13 @@ import React from 'react';
 import { sendData } from '../api/tg.js';
 
 export default function VenueCard({ venue }) {
-  const onTap = () => {
-    sendData({ cmd: 'cuisine-pick', placeId: venue.placeId, name: venue.name });
+  // v0.32.0: per-card 📍 Google Maps button removed — replaced by
+  // single shared "🗺 View all on map" footer in ResultsGrid that
+  // opens /app/map with all venues pinned at once. The whole card
+  // body still taps to send the venue back to chat as a Sanctuary read.
+  const onSaveToChat = (e) => {
+    e.stopPropagation();
+    sendData({ cmd: 'save-pick', placeId: venue.placeId, name: venue.name });
   };
   const rating = venue.rating ? `⭐${venue.rating.toFixed(1)}` : '';
   const open   = venue.openNow === true ? 'Open' : venue.openNow === false ? 'Closed' : '';
@@ -11,27 +16,18 @@ export default function VenueCard({ venue }) {
   const dist   = Number.isFinite(venue.walkMeters)  ? `${venue.walkMeters} m` : '';
   const queue  = Number.isFinite(venue.queueMinEstimate)
     ? `⏱ ~${venue.queueMinEstimate} min queue (est)` : '';
-  // v0.26.2 per Human Lead: a single Google Maps link is the card's only
-  // outbound. Prefer the place URL; fall back to a place_id-encoded
-  // search URL; last resort directions URI.
-  const mapsUrl = venue.url
-    || (venue.placeId ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(venue.placeId)}` : null)
-    || venue.directionsUri;
   return (
     <div className="rounded-md bg-tg-card border border-tg-border p-2.5">
       <div className="flex items-start justify-between gap-2">
-        <button onClick={onTap} className="text-left flex-1">
+        <div className="flex-1 min-w-0">
           <div className="font-medium text-sm leading-tight truncate">{venue.name}</div>
           <div className="text-[11px] text-tg-hint mt-0.5 truncate">{venue.area}</div>
-        </button>
-        {mapsUrl && (
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[11px] px-2 py-1 rounded bg-tg-accent text-tg-accent-text whitespace-nowrap"
-          >📍 Google Maps</a>
-        )}
+        </div>
+        <button
+          onClick={onSaveToChat}
+          className="text-[11px] px-2 py-1 rounded bg-tg-card border border-tg-border text-tg-text whitespace-nowrap"
+          title="Send this pick to chat as a saved Sanctuary read"
+        >📤 Save to chat</button>
       </div>
       <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-tg-hint">
         {rating && <span>{rating}</span>}
@@ -45,10 +41,13 @@ export default function VenueCard({ venue }) {
         )}
       </div>
       {venue.verifiedOpeningDate && (
-        <div className="mt-1 text-[11px] text-tg-hint">🆕 opened <span className="font-mono">{venue.verifiedOpeningDate}</span> <span className="opacity-60">(web-grounded)</span></div>
+        <div className="mt-1 text-[11px] text-tg-hint">🆕 opened <span className="font-mono">{venue.verifiedOpeningDate}</span></div>
       )}
       {venue.signatureDish && (
         <div className="mt-1 text-[11px] text-tg-text">🍴 try the <span className="font-medium">{venue.signatureDish}</span></div>
+      )}
+      {venue.dishes && venue.dishes.length > 1 && (
+        <div className="mt-0.5 text-[11px] text-tg-hint">also: {venue.dishes.slice(0, 4).join(' · ')}</div>
       )}
       {venue.travelAdvice && (
         <div className="mt-0.5 text-[11px] text-tg-hint">🧭 {venue.travelAdvice}</div>

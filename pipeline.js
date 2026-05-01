@@ -222,6 +222,89 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
   }
 }
 
+// v0.32.0: reasonExecute — accepts a Stage-A-constructed prompt object
+// `{system, user, schema, relaxations, reasoning}` and runs the executor
+// model. No internal prompt construction; no grounding tools (Stage A
+// notes this in its constructed prompt). Returns the same shape as
+// reason() so downstream code (cuisine-search, surprise) is uniform.
+//
+// On 0 candidates and a relaxation rule with trigger "0_candidates", the
+// caller (pipeline-task.js) is responsible for re-invoking with a
+// modified prompt — this function does NOT auto-retry; that policy lives
+// at the orchestrator layer.
+function normaliseCandidate(c, isSurprise = false) {
+  return {
+    name: c.name,
+    area: c.area || '',
+    vibe: c.vibe || '',
+    dishes: Array.isArray(c.dishes) ? c.dishes.slice(0, isSurprise ? 4 : 3) : [],
+    costEstimateSgd: c.cost_estimate_sgd && typeof c.cost_estimate_sgd === 'object'
+      ? { low: Number(c.cost_estimate_sgd.low) || null, high: Number(c.cost_estimate_sgd.high) || null }
+      : null,
+    signatureDish: c.signature_dish || (Array.isArray(c.dishes) ? c.dishes[0] : ''),
+    queueMinEstimate: Number.isFinite(Number(c.queue_min_estimate))
+      ? Math.round(Number(c.queue_min_estimate)) : null,
+    bookingRequired: c.booking_required === true || c.booking_required === 'true',
+    verifiedOpeningDate: typeof c.verified_opening_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c.verified_opening_date)
+      ? c.verified_opening_date : null,
+    verifiedGoogleMapsUrl: typeof c.verified_google_maps_url === 'string' ? c.verified_google_maps_url : null,
+    reviewerPraise: typeof c.reviewer_praise === 'string' ? c.reviewer_praise : null
+  };
+}
+
+async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = noopDiag() }) {
+  if (!genAI) {
+    diag('D612', 'Gemini unavailable (no API key)', false);
+    return { candidates: [], rawText: '', meta: { ok: false, error: 'no_api_key' } };
+  }
+  if (!prompt || !prompt.user) {
+    diag('D612', 'reasonExecute: missing prompt.user', false);
+    return { candidates: [], rawText: '', meta: { ok: false, error: 'no_prompt' } };
+  }
+  diag('D610', 'Reason call start', true, { count, executor: true });
+  const composed = (prompt.system ? `[SYSTEM]\n${prompt.system}\n\n` : '')
+    + `[USER]\n${prompt.user}\n\n`
+    + (prompt.schema ? `[SCHEMA]\n${prompt.schema}\n\n` : '')
+    + 'Return ONLY a JSON array.';
+  const generationConfig = { responseMimeType: 'application/json' };
+  const t0 = Date.now();
+  try {
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
+    console.log(`[Pipeline-Reason-Exec] model=${MODEL_NAME} prompt_len=${composed.length}`);
+    const result = await withRetry(() => model.generateContent(composed), {
+      label: 'Pipeline-Reason-Exec',
+      fallbackFn: makeFlashFallback(genAI, composed, generationConfig)
+    });
+    const rawText = result.response.text();
+    const ms = Date.now() - t0;
+    console.log(`[Pipeline-Reason-Exec] response length=${rawText.length} chars in ${ms}ms`);
+    let parsed;
+    try {
+      parsed = JSON.parse(extractJsonArray(rawText));
+    } catch (parseErr) {
+      diag('D612', 'Reason JSON parse failed', false, {
+        err: parseErr.message, head: rawText.slice(0, 200), tail: rawText.slice(-100)
+      });
+      return { candidates: [], rawText, meta: { ok: false, error: 'parse', ms } };
+    }
+    if (!Array.isArray(parsed)) {
+      diag('D612', 'Reason returned non-array', false, { type: typeof parsed });
+      return { candidates: [], rawText, meta: { ok: false, error: 'non_array', ms } };
+    }
+    const candidates = parsed
+      .filter((c) => c && typeof c.name === 'string')
+      .slice(0, count)
+      .map((c) => normaliseCandidate(c, isSurprise));
+    diag('D611', 'Reason returned candidates', true, { n: candidates.length });
+    return { candidates, rawText, meta: { ok: true, ms, raw_chars: rawText.length } };
+  } catch (err) {
+    const ms = Date.now() - t0;
+    diag('D612', 'Reason gemini failed', false, err.message);
+    console.error('[Pipeline-Reason-Exec] failed:', err.message);
+    return { candidates: [], rawText: '', meta: { ok: false, error: err.message?.slice(0, 200), ms } };
+  }
+}
+
 // ---------------------------------------------------------------------
 // FETCH (per-cluster)
 // ---------------------------------------------------------------------
@@ -448,4 +531,4 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
   return { candidates: refined, refined: true, diag: diag.events };
 }
 
-module.exports = { reason, fetchContext, refine, runPipeline, clusterByGrid };
+module.exports = { reason, reasonExecute, fetchContext, refine, runPipeline, clusterByGrid };

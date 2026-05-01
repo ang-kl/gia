@@ -211,6 +211,18 @@
       });
     }
 
+    // v0.32.0: when launched with #venues=<base64> hash from the
+    // Cuisine Picker TMA's "🗺 View all on map" button, decode and
+    // render those venues directly instead of fetching /api/sanctuary.
+    const hashVenues = parseHashVenues();
+    if (hashVenues && hashVenues.length) {
+      setStatus(`Showing ${hashVenues.length} pick${hashVenues.length === 1 ? '' : 's'} from Cuisine Picker.`);
+      renderVenues('cuisine picks', hashVenues);
+      // Auto-hide status after 3 s on the multi-marker view.
+      setTimeout(() => setStatus('', true), 3000);
+      return;
+    }
+
     setStatus('Asking Gia for sanctuary picks…');
     try {
       const url = `/api/sanctuary?lat=${center.lat}&lng=${center.lng}`;
@@ -218,6 +230,22 @@
       renderVenues(data.label || 'sanctuary', data.venues || []);
     } catch {
       setStatus('Could not load picks. Try again in a moment.');
+    }
+  }
+
+  function parseHashVenues() {
+    try {
+      const hash = window.location.hash || '';
+      const m = hash.match(/(?:^#|&)venues=([^&]+)/);
+      if (!m) return null;
+      // base64url → JSON. Each venue must have placeId, name, lat, lng.
+      const json = decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
+      const arr = JSON.parse(json);
+      if (!Array.isArray(arr)) return null;
+      return arr.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng));
+    } catch (err) {
+      console.warn('[Map] parseHashVenues failed:', err.message);
+      return null;
     }
   }
 
