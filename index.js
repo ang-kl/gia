@@ -1267,6 +1267,53 @@ async function cacheBotUsername() {
       });
     });
 
+    // v0.28.2: /admin/sync-vault — auth-gated one-shot endpoint that runs
+    // the curated-vault import in-process using the bot's existing Redis
+    // connection + GOOGLE_MAPS_API_KEY. Replaces the need to run
+    // `railway run node sync-vault.js` from a workstation. Auth via
+    // `?secret=<ADMIN_SYNC_SECRET>` query param compared with timing-
+    // safe equality. Re-runnable any time you add new venues to the
+    // hardcoded list (or upload Saved Places.json / KMZ to the repo).
+    app.get('/admin/sync-vault', async (req, res) => {
+      const expected = process.env.ADMIN_SYNC_SECRET;
+      const given = String(req.query.secret || '');
+      if (!expected) {
+        return res.status(503).json({
+          error: 'ADMIN_SYNC_SECRET env var not configured',
+          hint: 'Set ADMIN_SYNC_SECRET=<long random string> in Railway, then redeploy.'
+        });
+      }
+      // Timing-safe compare so the secret isn't leakable via response time.
+      const a = Buffer.from(expected);
+      const b = Buffer.from(given.padEnd(expected.length, ' ').slice(0, expected.length));
+      const ok = a.length === Buffer.byteLength(given) && crypto.timingSafeEqual(a, b);
+      if (!ok) {
+        return res.status(401).json({ error: 'invalid secret' });
+      }
+      console.log('[Admin] /admin/sync-vault triggered by IP=' + (req.ip || '?'));
+      try {
+        const { runSync } = require('./sync-vault');
+        const result = await runSync({
+          redis,
+          fenceDisabled: req.query.fence === 'off'
+        });
+        // Refresh the vault-index in-memory snapshot so the next
+        // pipeline.reason() call sees the freshly imported venues
+        // immediately instead of waiting up to 5 min for the cron tick.
+        try {
+          const vaultIndex = require('./vault-index');
+          await vaultIndex.refreshIndex(redis);
+        } catch (err) {
+          console.warn('[Admin] vault-index refresh after sync failed:', err.message);
+        }
+        console.log('[Admin] sync-vault complete:', JSON.stringify(result));
+        res.json({ ok: true, ...result });
+      } catch (err) {
+        console.error('[Admin] sync-vault failed:', err.message);
+        res.status(500).json({ error: err.message || 'sync-vault failed' });
+      }
+    });
+
     app.post('/webhook', (req, res) => {
       if (req.headers['x-telegram-bot-api-secret-token'] !== webhookSecret) {
         return res.sendStatus(401);
