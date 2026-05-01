@@ -42,6 +42,21 @@ const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 const GRID_M = 500;
 
+// v0.31.2: When grounding is on we cannot use responseMimeType:application/json
+// (Gemini API rejects the combination with HTTP 400). Grounded responses may
+// arrive wrapped in ```json fences or surrounded by prose; locate and return
+// the first top-level JSON array. Falls back to raw text for the existing
+// JSON.parse to surface a meaningful error in D612 diagnostics.
+function extractJsonArray(text) {
+  if (!text) return text;
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1] : text;
+  const start = candidate.indexOf('[');
+  const end = candidate.lastIndexOf(']');
+  if (start !== -1 && end > start) return candidate.slice(start, end + 1);
+  return candidate.trim();
+}
+
 // ---------------------------------------------------------------------
 // REASON
 // ---------------------------------------------------------------------
@@ -130,7 +145,12 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
     // GROUNDING_ENABLED=false in Railway to revert to no-tools behaviour
     // if grounding is the regression cause for empty results.
     const groundingEnabled = process.env.GROUNDING_ENABLED !== 'false';
-    const generationConfig = { responseMimeType: 'application/json' };
+    // v0.31.2: Gemini API rejects `tools` + `responseMimeType: 'application/json'`
+    // in the same generateContent call with HTTP 400 "Tool use with a response
+    // mime type: 'application/json' is unsupported". When grounding is on we
+    // omit responseMimeType; the v0.30.4 lenient JSON parser already handles
+    // free-text JSON-shaped responses.
+    const generationConfig = groundingEnabled ? {} : { responseMimeType: 'application/json' };
     const tools = groundingEnabled ? [{ googleSearch: {} }] : undefined;
     const modelOpts = tools ? { model: MODEL_NAME, generationConfig, tools } : { model: MODEL_NAME, generationConfig };
     const model = genAI.getGenerativeModel(modelOpts);
@@ -156,7 +176,12 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
     console.log(`[Pipeline-Reason] response length=${rawText.length} chars`);
     let parsed;
     try {
-      parsed = JSON.parse(rawText);
+      // v0.31.2: grounded responses arrive without responseMimeType, so
+      // Gemini may wrap JSON in markdown fences or surrounding prose.
+      // Strip ```json ... ``` fences and locate the first top-level
+      // `[ ... ]` array before parsing.
+      const cleaned = extractJsonArray(rawText);
+      parsed = JSON.parse(cleaned);
     } catch (parseErr) {
       diag('D612', 'Reason JSON parse failed', false, {
         err: parseErr.message,
