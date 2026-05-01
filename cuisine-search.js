@@ -34,7 +34,21 @@ const PRESETS = {
   }
 };
 
-const ALLOWED_RADIUS = new Set([250, 1000]);
+// v0.23.0: free-form radius 200..5000 m. The toggle (250/1000) was
+// retired with the slider UI. Server still clamps for safety so callers
+// can't trigger huge Places billable queries.
+const RADIUS_MIN_M = 200;
+const RADIUS_MAX_M = 5000;
+const RECENCY_MIN_D = 5;
+const RECENCY_MAX_D = 180;
+const QUEUE_MIN = 5;
+const QUEUE_MAX = 60;
+
+function clamp(n, lo, hi) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return lo;
+  return Math.max(lo, Math.min(hi, x));
+}
 
 function whenToMealHint(when, presetForceMeal) {
   if (presetForceMeal === 'supper') {
@@ -52,18 +66,22 @@ function whenToMealHint(when, presetForceMeal) {
   return { id: 'supper', label: 'supper', hint: 'late-night supper and drinks' };
 }
 
-function buildPrompt({ lat, lng, cuisines, radius, mode, meal, preset, holidayContext }) {
+function buildPrompt({ lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext }) {
   const cuisineLine = cuisines.length
     ? `Cuisines requested (any of these): ${cuisines.join(', ')}.`
     : 'Any cuisine appropriate to the period.';
   const radiusLine = `Within ${radius} m of latitude ${lat}, longitude ${lng} (transport mode: ${mode}).`;
+  const recencyLine = recencyDays
+    ? `Bias toward venues opened or significantly refreshed within the last ${recencyDays} day(s).`
+    : '';
+  const queueLine = `User's max queue tolerance: ${queueMaxMin} minutes. Estimate queue minutes for each pick honestly (use venue type + day of week + meal period); flag venues you expect to exceed the tolerance with queue_min_estimate, but still include them so the server can filter.`;
   const presetCfg = PRESETS[preset] || null;
   let presetLine = '';
   if (preset === 'holiday-special') {
     if (holidayContext?.isToday) {
-      presetLine = `Today is a Singapore public holiday (${holidayContext.name}). Surface venues well-known to remain open on PHs and "newly opened" venues (last 6 months).`;
+      presetLine = `Today is a Singapore public holiday (${holidayContext.name}). Surface venues well-known to remain open on PHs and "newly opened" venues.`;
     } else if (holidayContext?.next) {
-      presetLine = `The next Singapore public holiday is ${holidayContext.next.name} on ${holidayContext.next.date}. Surface venues well-known to remain open on PHs and "newly opened" venues (last 6 months).`;
+      presetLine = `The next Singapore public holiday is ${holidayContext.next.name} on ${holidayContext.next.date}. Surface venues well-known to remain open on PHs and "newly opened" venues.`;
     } else {
       presetLine = 'Surface venues well-known to remain open on Singapore public holidays.';
     }
@@ -75,13 +93,17 @@ function buildPrompt({ lat, lng, cuisines, radius, mode, meal, preset, holidayCo
 Period: ${meal.label} (${meal.hint}).
 ${cuisineLine}
 ${radiusLine}
+${recencyLine}
+${queueLine}
 ${presetLine}
 
 Return EXACTLY a JSON array of 15 candidate venues. Each item has the keys:
-  "name"            — the venue's exact common name
-  "area"            — the street or building it sits on
-  "vibe"            — one short phrase about why it suits a solo diner
-  "signature_dish"  — one specific dish or item to order (e.g. "char kway teow", "iced flat white", "sashimi moriawase")
+  "name"                 — the venue's exact common name
+  "area"                 — the street or building it sits on
+  "vibe"                 — one short phrase about why it suits a solo diner
+  "signature_dish"       — one specific dish or item to order
+  "queue_min_estimate"   — integer minutes you'd expect to queue at this venue at the requested period (best-effort)
+  "booking_required"     — boolean, true if reservations are usually needed at peak
 
 Do NOT include lat/lng — those will be looked up authoritatively.
 Return ONLY the JSON array, no preamble.`;
@@ -105,7 +127,10 @@ async function geminiCandidates15(promptArgs) {
         name: c.name,
         area: c.area || '',
         vibe: c.vibe || '',
-        signatureDish: c.signature_dish || c.signatureDish || ''
+        signatureDish: c.signature_dish || c.signatureDish || '',
+        queueMinEstimate: Number.isFinite(Number(c.queue_min_estimate))
+          ? Math.round(Number(c.queue_min_estimate)) : null,
+        bookingRequired: c.booking_required === true || c.booking_required === 'true'
       }));
   } catch (err) {
     console.error('[Cuisine-Search] Gemini failed:', err.message);
@@ -133,11 +158,17 @@ function sortVenues(venues) {
   });
 }
 
-async function searchCuisine({ lat, lng, cuisines = [], radius = 1000, mode = 'walk', when = 'now', preset = null }) {
+async function searchCuisine({
+  lat, lng, cuisines = [], radius = 1000,
+  recencyDays = 90, queueMaxMin = 15,
+  mode = 'walk', when = 'now', preset = null
+}) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     throw new Error('lat/lng required');
   }
-  if (!ALLOWED_RADIUS.has(radius)) radius = 1000;
+  radius = clamp(radius, RADIUS_MIN_M, RADIUS_MAX_M);
+  recencyDays = clamp(recencyDays, RECENCY_MIN_D, RECENCY_MAX_D);
+  queueMaxMin = clamp(queueMaxMin, QUEUE_MIN, QUEUE_MAX);
 
   const presetCfg = PRESETS[preset] || null;
   const meal = whenToMealHint(when, presetCfg?.forceMeal);
@@ -150,28 +181,32 @@ async function searchCuisine({ lat, lng, cuisines = [], radius = 1000, mode = 'w
   }
 
   const candidates = await geminiCandidates15({
-    lat, lng, cuisines, radius, mode, meal, preset, holidayContext
+    lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext
   });
-  if (!candidates.length) return { venues: [], meal, holidayContext };
+  if (!candidates.length) return { venues: [], meal, holidayContext, recencyDays, queueMaxMin };
 
-  // Validate each candidate via Places (single attempt at the explicit radius).
   const validated = [];
   for (const c of candidates) {
     if (validated.length >= 15) break;
     const v = await validateWithPlaces(c, { lat, lng }, radius);
     if (!v) continue;
-    v.signatureDish = c.signatureDish || '';
+    v.signatureDish    = c.signatureDish    || '';
+    v.queueMinEstimate = c.queueMinEstimate != null ? c.queueMinEstimate : null;
+    v.bookingRequired  = !!c.bookingRequired;
     validated.push(v);
   }
-  if (!validated.length) return { venues: [], meal, holidayContext };
+  if (!validated.length) return { venues: [], meal, holidayContext, recencyDays, queueMaxMin };
 
-  // Walking-time enrichment (single Routes Matrix call for all 15).
   const ranked = await rankByWalkingTime(lat, lng, validated);
 
-  const filtered = applyPostFilters(ranked, preset);
+  let filtered = applyPostFilters(ranked, preset);
+  // Queue tolerance filter: drop venues whose Gemini-estimated queue
+  // exceeds the user's slider. If Gemini didn't return an estimate
+  // (null), keep the venue rather than punish the absence.
+  filtered = filtered.filter((v) => v.queueMinEstimate == null || v.queueMinEstimate <= queueMaxMin);
   const sorted = sortVenues(filtered);
 
-  return { venues: sorted, meal, holidayContext };
+  return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin };
 }
 
 module.exports = { searchCuisine, PRESETS };
