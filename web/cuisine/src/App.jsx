@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine } from './api/search.js';
-import { requestLocation, showAlert } from './api/tg.js';
+import { requestLocation, showAlert, tg, initData } from './api/tg.js';
+import { makeLogger, DIAG_CODES as D } from './state/diagnostics.js';
 import Header from './components/Header.jsx';
 import RangeSlider from './components/RangeSlider.jsx';
 import ModeDropdown from './components/ModeDropdown.jsx';
@@ -11,6 +12,7 @@ import OtherCuisineInput from './components/OtherCuisineInput.jsx';
 import PresetCombos from './components/PresetCombos.jsx';
 import PromptPreview from './components/PromptPreview.jsx';
 import ResultsGrid from './components/ResultsGrid.jsx';
+import Diagnostics from './components/Diagnostics.jsx';
 
 function fmtMetres(m) {
   return m >= 1000 ? `${(m / 1000).toFixed(m % 1000 === 0 ? 0 : 1)} km` : `${m} m`;
@@ -24,23 +26,65 @@ function fmtDays(d) {
 export default function App() {
   const [state, a] = useCuisineState();
   const [locDenied, setLocDenied] = useState(false);
+  const [diag, setDiag] = useState([]);
+  const loggerRef = useRef(makeLogger());
+  const log = loggerRef.current;
+  const record = (code, label, ok = true, detail = null) => {
+    setDiag(log.push(code, label, ok, detail));
+  };
 
+  // D100 mount + D110 deep-link.
   useEffect(() => {
+    record(D.D100_MOUNT, 'TMA mounted');
     const url = new URL(window.location.href);
     const c = url.searchParams.get('cuisine');
-    if (c) a.toggleCuisine(c);
+    if (c) {
+      a.toggleCuisine(c);
+      record(D.D110_DEEP_LINK, 'Pre-selected from ?cuisine=', true, c);
+    }
   }, []);
 
+  // D200 geolocation.
   useEffect(() => {
     let cancelled = false;
+    record(D.D200_GEO_REQUEST, 'Requesting browser geolocation');
+    if (!navigator.geolocation) {
+      record(D.D203_GEO_UNSUPPORTED, 'navigator.geolocation undefined', false);
+      setLocDenied(true);
+      return;
+    }
     requestLocation()
-      .then((p) => { if (!cancelled) a.setLoc(p); })
-      .catch(() => { if (!cancelled) setLocDenied(true); });
+      .then((p) => {
+        if (cancelled) return;
+        a.setLoc(p);
+        record(D.D201_GEO_OK, 'Got location', true, `${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setLocDenied(true);
+        record(D.D202_GEO_DENIED, 'Geolocation rejected', false, err?.message || String(err));
+      });
     return () => { cancelled = true; };
+  }, []);
+
+  // D300 Telegram WebApp / initData health probe (one-shot at mount).
+  useEffect(() => {
+    const w = tg();
+    if (!w) {
+      record(D.D302_TG_WEBAPP_MISSING, 'Telegram.WebApp not present (running outside TG)', false);
+      return;
+    }
+    const id = initData();
+    if (!id) {
+      record(D.D301_INITDATA_MISSING, 'initData empty (auth header will be blank)', false);
+    } else {
+      record(D.D300_INITDATA_PRESENT, 'initData present', true, `len=${id.length}`);
+    }
   }, []);
 
   const onSearch = async () => {
     if (!state.loc) {
+      record(D.D202_GEO_DENIED, 'Search blocked — no location', false);
       showAlert('Tap 📍 to share your location first.');
       return;
     }
@@ -49,31 +93,73 @@ export default function App() {
       return;
     }
     a.searchStart();
+
     const cuisinesPayload = [
       ...state.cuisines,
       ...state.otherCuisine.split(',').map((s) => s.trim()).filter(Boolean)
     ];
+    const payload = {
+      lat: state.loc.lat,
+      lng: state.loc.lng,
+      cuisines: cuisinesPayload,
+      radius: state.radius,
+      recencyDays: state.recencyDays,
+      queueMaxMin: state.queueMaxMin,
+      mode: state.mode,
+      when: state.when,
+      preset: state.preset
+    };
+
+    record(D.D400_SEARCH_START, 'onSearch invoked');
+    record(D.D401_PAYLOAD_BUILT, 'Payload built', true, {
+      n_cuisines: cuisinesPayload.length,
+      radius: payload.radius,
+      preset: payload.preset
+    });
+
+    let result;
     try {
-      const result = await searchCuisine({
-        lat: state.loc.lat,
-        lng: state.loc.lng,
-        cuisines: cuisinesPayload,
-        radius: state.radius,
-        recencyDays: state.recencyDays,
-        queueMaxMin: state.queueMaxMin,
-        mode: state.mode,
-        when: state.when,
-        preset: state.preset
-      });
-      a.searchOk(result);
+      record(D.D402_FETCH_START, 'POST /api/cuisine-search');
+      result = await searchCuisine(payload);
     } catch (err) {
-      a.searchErr(err.message);
+      record(D.D406_FETCH_NETWORK_FAIL, 'Network/fetch threw', false, err?.message || String(err));
+      a.searchErr(`Network: ${err?.message || 'unknown'}`);
+      return;
     }
+
+    if (!result.ok) {
+      const code = result.status >= 500 ? D.D405_HTTP_5XX : D.D404_HTTP_4XX;
+      record(code, `HTTP ${result.status}`, false, typeof result.body === 'string'
+        ? result.body.slice(0, 160)
+        : (result.body?.error || JSON.stringify(result.body).slice(0, 160)));
+      a.searchErr(`HTTP ${result.status}: ${result.body?.error || 'see diagnostics'}`);
+      return;
+    }
+    record(D.D403_HTTP_OK, `HTTP ${result.status}`);
+
+    if (typeof result.body !== 'object' || result.body == null) {
+      record(D.D900_UNHANDLED, 'Response was not JSON object', false);
+      a.searchErr('Bad response shape — see diagnostics');
+      return;
+    }
+
+    const venues = result.body.venues || [];
+    record(D.D500_PARSE_OK, 'Response parsed');
+    if (!venues.length) {
+      record(D.D501_VENUES_EMPTY, 'No venues matched filters', false, {
+        meal: result.body.meal?.label, queueMaxMin: result.body.queueMaxMin
+      });
+    } else {
+      record(D.D502_VENUES_RECEIVED, `Received ${venues.length} venues`, true);
+    }
+    a.searchOk(result.body);
   };
+
+  const showDiagAlways = useMemo(() => diag.some((e) => !e.ok), [diag]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); }} />
+      <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }} />
 
       <div className="flex-1 px-3 pt-2 pb-24 flex flex-col gap-2">
         <RangeSlider
@@ -111,6 +197,7 @@ export default function App() {
 
         <PresetCombos active={state.preset} onPick={a.applyPreset} />
         <PromptPreview state={state} />
+        {(diag.length > 0 || showDiagAlways) && <Diagnostics entries={diag} />}
 
         <div className="border-t border-tg-border my-1" />
 

@@ -633,15 +633,15 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   await safeSend(
     msg.chat.id,
     "I'm Gia, the concierge inside soleat — your CBD sanctuary guide.\n\n" +
-    "/eat       — solo-diner food picks for now\n" +
+    "/cuisine   — full Cuisine Picker (sliders, 70 cuisines, queue)\n" +
+    "/surprise  — one hidden gem 1.5–3 km away\n" +
     "/drink     — bars, coffee, tea spots\n" +
     "/grocery   — supermarkets & fresh markets\n" +
-    "/cuisine X — by cuisine type (Japanese / Korean / Italian / …)\n" +
     "/weather   — now + 2-hour NEA forecast\n" +
     "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
     "/carpark   — nearest 5 with available lots\n" +
     "/ver       — version + upstream API health\n\n" +
-    "Or tap the menu button (🌿 soleat Menu) for the tile UI."
+    "Or tap the menu button (🍴 Cuisine Picker) to jump straight in."
   );
 });
 
@@ -889,7 +889,7 @@ async function runSurpriseCommand(chatId) {
     if (!venue) {
       await safeSend(
         chatId,
-        "Gia couldn't find a hidden gem matching the /surprise rules in your annulus right now. Try moving to a different area, or /eat for current-meal picks."
+        "Gia couldn't find a hidden gem matching the /surprise rules in your annulus right now. Try moving to a different area, or open /cuisine for full-control picks."
       );
       return;
     }
@@ -1013,12 +1013,15 @@ bot.on('message', async (msg) => {
 // 4. Initialization
 async function registerCommandsMenu() {
   try {
+    // v0.25.1: /eat removed from the slash autocomplete (still wired internally
+    // for muscle memory but de-emphasized). /cuisine surfaces first as the
+    // primary entry point. Chat menu button now opens /app/cuisine directly
+    // so the default landing inside the TMA shell is the Cuisine Picker.
     await bot.setMyCommands([
-      { command: 'eat',       description: 'Solo-diner food picks for now' },
+      { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
+      { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'drink',     description: 'Bars, coffee, tea spots' },
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
-      { command: 'cuisine',   description: 'Picks by cuisine type — Cuisine Picker TMA' },
-      { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'MRT + crowd + traffic + nearest bus stops' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
@@ -1028,8 +1031,8 @@ async function registerCommandsMenu() {
       await bot.setChatMenuButton({
         menu_button: {
           type: 'web_app',
-          text: '🌿 soleat Menu',
-          web_app: { url: `https://${webhookDomain}/app/menu` }
+          text: '🍴 Cuisine Picker',
+          web_app: { url: `https://${webhookDomain}/app/cuisine` }
         }
       });
     } else {
@@ -1149,12 +1152,15 @@ async function cacheBotUsername() {
     });
 
     app.post('/api/cuisine-search', requireInitData, async (req, res) => {
+      const t0 = Date.now();
       try {
         const {
           lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, when, preset
         } = req.body || {};
+        console.log(`[Cuisine-Diag] D700 request received lat=${lat} lng=${lng} radius=${radius} preset=${preset} cuisines=${Array.isArray(cuisines) ? cuisines.length : 0}`);
         if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
-          return res.status(400).json({ error: 'lat and lng required' });
+          console.warn('[Cuisine-Diag] D701 rejecting — lat/lng invalid');
+          return res.status(400).json({ error: 'lat and lng required', diag: 'D701' });
         }
         const { searchCuisine } = require('./cuisine-search');
         const result = await searchCuisine({
@@ -1169,10 +1175,13 @@ async function cacheBotUsername() {
           when: typeof when === 'string' ? when : 'now',
           preset: typeof preset === 'string' ? preset : null
         });
+        const dt = Date.now() - t0;
+        console.log(`[Cuisine-Diag] D702 OK ${dt}ms venues=${result.venues?.length ?? 0}`);
         res.json(result);
       } catch (err) {
-        console.error('[Error] /api/cuisine-search failed:', err.message);
-        res.status(500).json({ error: 'cuisine search failed' });
+        const dt = Date.now() - t0;
+        console.error(`[Cuisine-Diag] D703 ${dt}ms error:`, err.message);
+        res.status(500).json({ error: err.message || 'cuisine search failed', diag: 'D703' });
       }
     });
 
