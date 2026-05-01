@@ -1423,14 +1423,21 @@ async function cacheBotUsername() {
 
       const lat = Number(req.query.lat) || 1.2839;
       const lng = Number(req.query.lng) || 103.8517;
-      const cuisines = String(req.query.cuisines || '').split(',').map((s) => s.trim()).filter(Boolean);
+      let cuisines = String(req.query.cuisines || '').split(',').map((s) => s.trim()).filter(Boolean);
       const radius = Number(req.query.radius) || 1000;
       const recencyDays = Number(req.query.recencyDays) || 90;
       const queueMaxMin = Number(req.query.queueMaxMin) || 15;
       const preset = String(req.query.preset || '') || null;
+      // v0.30.1: free-text NL classification path. If `nl_text` is given,
+      // we run the same classifyIntent the chat handler uses, then merge
+      // the extracted cuisines + special_request into the pipeline call.
+      // `specialRequest` query param can override or stand alone too.
+      const nlText = String(req.query.nl_text || '').trim();
+      let specialRequest = String(req.query.specialRequest || req.query.special_request || '').trim();
+      const langCode = String(req.query.lang || 'en');
 
       const t0 = Date.now();
-      console.log(`[Admin] test-pipeline params lat=${lat} lng=${lng} cuisines=${cuisines.join('|')} radius=${radius} preset=${preset}`);
+      console.log(`[Admin] test-pipeline params lat=${lat} lng=${lng} cuisines=${cuisines.join('|')} radius=${radius} preset=${preset} nl_text="${nlText.slice(0, 80)}" specialRequest="${specialRequest}"`);
       const trace = {
         version: pkgJson.version,
         bot: { username: botUsername },
@@ -1440,11 +1447,33 @@ async function cacheBotUsername() {
           GOOGLE_MAPS_API_KEY_present: !!process.env.GOOGLE_MAPS_API_KEY,
           REDIS_open: !!redis?.isOpen
         },
-        params: { lat, lng, cuisines, radius, recencyDays, queueMaxMin, preset },
+        params: { lat, lng, cuisines, radius, recencyDays, queueMaxMin, preset, nlText, specialRequest, langCode },
         steps: {}
       };
 
       try {
+        // Phase 0 (optional): NL classify if nl_text was provided.
+        if (nlText) {
+          const { classifyIntent } = require('./nl-intent');
+          const cls = await classifyIntent({ text: nlText, langCode, redis });
+          trace.steps.nl = cls
+            ? {
+                intent: cls.intent,
+                confidence: cls.confidence,
+                cuisines: cls.cuisines,
+                special_request: cls.special_request,
+                lang: cls.lang,
+                ack_text: cls.ack_text
+              }
+            : { error: 'classifyIntent returned null (Gemini key missing or call failed)' };
+          if (cls) {
+            // Merge classifier's extracted hints into pipeline params.
+            // Explicit query-string params take precedence over NL.
+            if (!cuisines.length && Array.isArray(cls.cuisines)) cuisines = cls.cuisines;
+            if (!specialRequest && cls.special_request) specialRequest = cls.special_request;
+          }
+        }
+
         // Phase A: vault snapshot — confirms the vault index is alive.
         const vaultIndex = require('./vault-index');
         const snapshot = await vaultIndex.snapshotForLocation(redis, { lat, lng }, radius);
@@ -1460,7 +1489,7 @@ async function cacheBotUsername() {
         const { searchCuisine } = require('./cuisine-search');
         const result = await searchCuisine({
           lat, lng, cuisines, radius, recencyDays, queueMaxMin,
-          mode: 'walk', when: 'now', preset, redis
+          mode: 'walk', when: 'now', preset, specialRequest, redis
         });
         trace.steps.pipeline = {
           venuesCount: result?.venues?.length ?? 0,
