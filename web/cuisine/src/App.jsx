@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine, diagPing } from './api/search.js';
-import { requestLocation, showAlert, tg, initData } from './api/tg.js';
+import { requestLocation, showAlert, tg, initData, sendData, launchContext, closeWebApp } from './api/tg.js';
 import { makeLogger, DIAG_CODES as D } from './state/diagnostics.js';
 import Header from './components/Header.jsx';
 import RangeSlider from './components/RangeSlider.jsx';
@@ -47,6 +47,12 @@ export default function App() {
       a.toggleCuisine(c);
       record(D.D110_DEEP_LINK, 'Pre-selected from ?cuisine=', true, c);
     }
+
+    // v0.26.3: capture launch context so the Diagnostics panel + Railway
+    // simulation log show whether the TMA was opened from chat-menu /
+    // inline / direct-link, and whether sendData fallback is available.
+    const ctx = launchContext();
+    record(D.D060_LAUNCH_CONTEXT, 'Launch context', ctx.hasWebApp, ctx);
 
     record(D.D050_BRIDGE_PING, 'GET /api/diag/cuisine');
     diagPing().then((r) => {
@@ -138,21 +144,45 @@ export default function App() {
     });
 
     let result;
+    let fetchFailed = false;
     try {
       record(D.D402_FETCH_START, 'POST /api/cuisine-search');
       result = await searchCuisine(payload);
     } catch (err) {
       record(D.D406_FETCH_NETWORK_FAIL, 'Network/fetch threw', false, err?.message || String(err));
-      a.searchErr(`Network: ${err?.message || 'unknown'}`);
-      return;
+      fetchFailed = true;
     }
 
-    if (!result.ok) {
-      const code = result.status >= 500 ? D.D405_HTTP_5XX : D.D404_HTTP_4XX;
-      record(code, `HTTP ${result.status}`, false, typeof result.body === 'string'
-        ? result.body.slice(0, 160)
-        : (result.body?.error || JSON.stringify(result.body).slice(0, 160)));
-      a.searchErr(`HTTP ${result.status}: ${result.body?.error || 'see diagnostics'}`);
+    // v0.26.3 dual-channel fallback: when the primary HTTPS path fails
+    // (network, 4xx, 5xx), try Telegram.WebApp.sendData() to ship the
+    // payload as a service message. Bot's web_app_data handler runs the
+    // SAME pipeline server-side and delivers the picks to the chat.
+    const httpFailed = fetchFailed || (result && !result.ok);
+    if (httpFailed) {
+      if (result && !result.ok) {
+        const code = result.status >= 500 ? D.D405_HTTP_5XX : D.D404_HTTP_4XX;
+        record(code, `HTTP ${result.status}`, false, typeof result.body === 'string'
+          ? result.body.slice(0, 160)
+          : (result.body?.error || JSON.stringify(result.body).slice(0, 160)));
+      }
+      record(D.D063_FALLBACK_TRIGGER, 'Primary fetch failed, trying sendData fallback', false);
+      try {
+        const ok = sendData({ cmd: 'cuisine-search', ...payload });
+        if (ok) {
+          record(D.D061_SENDDATA_OK, 'sendData fallback dispatched', true);
+          a.searchErr('Bridge fallback: results will arrive in chat. TMA closing…');
+          // Telegram auto-closes after sendData; this hint stays briefly.
+          setTimeout(() => closeWebApp(), 800);
+          return;
+        }
+        record(D.D062_SENDDATA_FAIL, 'sendData unavailable in this launch context', false);
+        a.searchErr(result
+          ? `HTTP ${result.status}: ${result.body?.error || 'see diagnostics'}`
+          : 'Network unreachable — see diagnostics');
+      } catch (err) {
+        record(D.D062_SENDDATA_FAIL, 'sendData threw', false, err?.message || String(err));
+        a.searchErr('Both bridges failed — see diagnostics');
+      }
       return;
     }
     record(D.D403_HTTP_OK, `HTTP ${result.status}`);

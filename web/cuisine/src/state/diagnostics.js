@@ -38,7 +38,13 @@ export const DIAG_CODES = {
   D050_BRIDGE_PING:    'D050',
   D051_BRIDGE_OK:      'D051',
   D052_BRIDGE_FAIL:    'D052',
-  D053_PIPELINE_OFF:   'D053'
+  D053_PIPELINE_OFF:   'D053',
+
+  // v0.26.3 launch-context probe + sendData fallback.
+  D060_LAUNCH_CONTEXT:  'D060',  // platform, version, initData length
+  D061_SENDDATA_OK:     'D061',  // sendData fallback dispatched successfully
+  D062_SENDDATA_FAIL:   'D062',  // sendData unavailable in this launch context
+  D063_FALLBACK_TRIGGER: 'D063'  // primary fetch failed, switching channel
 };
 
 export function makeLogger() {
