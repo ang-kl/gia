@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCuisineState } from './state/useCuisineState.js';
-import { searchCuisine } from './api/search.js';
+import { searchCuisine, diagPing } from './api/search.js';
 import { requestLocation, showAlert, tg, initData } from './api/tg.js';
 import { makeLogger, DIAG_CODES as D } from './state/diagnostics.js';
 import Header from './components/Header.jsx';
@@ -27,21 +27,41 @@ export default function App() {
   const [state, a] = useCuisineState();
   const [locDenied, setLocDenied] = useState(false);
   const [diag, setDiag] = useState([]);
+  const [bridge, setBridge] = useState({ checked: false, ok: false, version: null });
   const loggerRef = useRef(makeLogger());
   const log = loggerRef.current;
   const record = (code, label, ok = true, detail = null) => {
     setDiag(log.push(code, label, ok, detail));
   };
 
-  // D100 mount + D110 deep-link.
+  // D100 mount + D110 deep-link + D050 bridge pre-flight ping.
   useEffect(() => {
     record(D.D100_MOUNT, 'TMA mounted');
+    // v0.26.1: log the resolved API URL so the dev can verify routing.
+    // eslint-disable-next-line no-console
+    console.log(`[Cuisine-Diag] API base = ${window.location.origin}/api/cuisine-search`);
+
     const url = new URL(window.location.href);
     const c = url.searchParams.get('cuisine');
     if (c) {
       a.toggleCuisine(c);
       record(D.D110_DEEP_LINK, 'Pre-selected from ?cuisine=', true, c);
     }
+
+    record(D.D050_BRIDGE_PING, 'GET /api/diag/cuisine');
+    diagPing().then((r) => {
+      if (!r.ok) {
+        record(D.D052_BRIDGE_FAIL, 'Bridge unreachable', false, { status: r.status, error: r.error });
+        setBridge({ checked: true, ok: false, version: null });
+        return;
+      }
+      const pipelineOn = !!r.body?.pipelineEnabled;
+      record(D.D051_BRIDGE_OK, 'Bridge OK', true, {
+        version: r.body?.version, pipelineOn, elapsedMs: r.elapsedMs
+      });
+      if (!pipelineOn) record(D.D053_PIPELINE_OFF, 'PIPELINE_ENABLED=false on server', false);
+      setBridge({ checked: true, ok: true, version: r.body?.version, pipelineOn });
+    });
   }, []);
 
   // D200 geolocation.
@@ -157,9 +177,18 @@ export default function App() {
 
   const showDiagAlways = useMemo(() => diag.some((e) => !e.ok), [diag]);
 
+  const bridgeBadge = !bridge.checked
+    ? { color: 'text-tg-hint', label: '… checking' }
+    : bridge.ok
+      ? { color: 'text-green-400', label: `● online ${bridge.version ? 'v' + bridge.version : ''}${bridge.pipelineOn ? '' : ' (pipeline OFF)'}` }
+      : { color: 'text-red-400', label: '● offline' };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }} />
+      <div className={`px-3 py-1 text-[10px] font-mono ${bridgeBadge.color}`}>
+        {bridgeBadge.label}
+      </div>
 
       <div className="flex-1 px-3 pt-2 pb-24 flex flex-col gap-2">
         <RangeSlider
