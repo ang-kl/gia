@@ -266,26 +266,15 @@ async function deliverPicks(chatId, mealLabel, picks) {
 
     const buttons = [];
     if (pid) {
-      // Prefer Google's authoritative directionsUri (from googleMapsLinks)
-      // when available; fall back to constructed Search-action URL.
-      const directionsUrl = p.directionsUri
-        || `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name)}&destination_place_id=${encodeURIComponent(pid)}`;
-      buttons.push({
-        text: '🚗 Directions',
-        url: directionsUrl
-      });
-      // v0.25.0 Buddy Level 1: pre-generate share token and embed it on
-      // a callback button. Tap → bot replies with the share deep link.
-      try {
-        const { saveShare } = require('./share');
-        const token = await saveShare(redis, {
-          kind: 'pick',
-          mealLabel,
-          pick: trimPickForShare(p)
-        });
-        buttons.push({ text: '👋 Send to buddy', callback_data: `share:${token}` });
-      } catch (err) {
-        console.error('[Error] saveShare failed:', err.message);
+      // v0.26.2 per Human Lead: single 📍 Google Maps link per card.
+      // Prefer the canonical Place URL (googleMapsLinks.placeUri /
+      // googleMapsUri); fall back to a place_id-encoded search URL,
+      // then to directionsUri as last resort.
+      const mapsUrl = p.url
+        || (pid ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(pid)}` : null)
+        || p.directionsUri;
+      if (mapsUrl) {
+        buttons.push({ text: '📍 Google Maps', url: mapsUrl });
       }
     }
     const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
@@ -924,18 +913,11 @@ async function deliverSurprise(chatId, v) {
     dishes + why + booking + travel + shelter
   ].join('\n');
 
-  const row = [
-    v.directionsUri ? { text: '🚗 Directions', url: v.directionsUri } : null,
-    v.url ? { text: '🔍 Google', url: v.url } : null
-  ].filter(Boolean);
-  // v0.25.0 share button on /surprise reads.
-  try {
-    const { saveShare } = require('./share');
-    const token = await saveShare(redis, { kind: 'surprise', surprise: trimSurpriseForShare(v) });
-    row.push({ text: '👋 Send to buddy', callback_data: `share:${token}` });
-  } catch (err) {
-    console.error('[Error] saveShare for surprise failed:', err.message);
-  }
+  // v0.26.2 per Human Lead: single 📍 Google Maps link per surprise card.
+  const mapsUrl = v.url
+    || (v.placeId ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}` : null)
+    || v.directionsUri;
+  const row = mapsUrl ? [{ text: '📍 Google Maps', url: mapsUrl }] : [];
   const reply_markup = { inline_keyboard: [row] };
   try {
     await bot.sendMessage(chatId, text, { parse_mode: 'Markdown', reply_markup });
