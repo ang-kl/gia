@@ -268,14 +268,16 @@ export default function App() {
   // v0.26.5: Diagnostics is dev-facing copy. Hide it from happy-path
   // users; auto-open on first failure (existing behaviour); also opt-in
   // via 600 ms long-press on the connectivity badge ("press here for
-  // diagnostics" easter egg).
+  // diagnostics" easter egg). v0.29.1: also opt-in via 5 taps in quick
+  // succession (within 2 s) for clients where PointerEvents long-press
+  // doesn't fire reliably.
   const [diagForcedVisible, setDiagForcedVisible] = useState(false);
   const longPressTimer = useRef(null);
+  const tapHistory = useRef([]);
   const startLongPress = () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
     longPressTimer.current = setTimeout(() => {
       setDiagForcedVisible((v) => !v);
-      // Haptic feedback if Telegram exposes it.
       try { tg()?.HapticFeedback?.impactOccurred?.('medium'); } catch { /* noop */ }
     }, 600);
   };
@@ -283,6 +285,15 @@ export default function App() {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
+    }
+  };
+  const onBadgeClick = () => {
+    const now = Date.now();
+    tapHistory.current = [...tapHistory.current.filter((t) => now - t < 2000), now];
+    if (tapHistory.current.length >= 5) {
+      setDiagForcedVisible((v) => !v);
+      tapHistory.current = [];
+      try { tg()?.HapticFeedback?.impactOccurred?.('medium'); } catch { /* noop */ }
     }
   };
 
@@ -297,11 +308,12 @@ export default function App() {
       <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }} />
       <div
         className={`px-3 py-1 text-[10px] font-mono select-none cursor-pointer ${bridgeBadge.color}`}
+        onClick={onBadgeClick}
         onPointerDown={startLongPress}
         onPointerUp={cancelLongPress}
         onPointerLeave={cancelLongPress}
         onPointerCancel={cancelLongPress}
-        title="Long-press for Diagnostics"
+        title="Long-press OR tap 5× quickly for Diagnostics"
       >
         {bridgeBadge.label}{diagForcedVisible ? ' · diag ON' : ''}
       </div>
