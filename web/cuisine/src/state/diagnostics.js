@@ -44,7 +44,11 @@ export const DIAG_CODES = {
   D060_LAUNCH_CONTEXT:  'D060',  // platform, version, initData length
   D061_SENDDATA_OK:     'D061',  // sendData fallback dispatched successfully
   D062_SENDDATA_FAIL:   'D062',  // sendData unavailable in this launch context
-  D063_FALLBACK_TRIGGER: 'D063'  // primary fetch failed, switching channel
+  D063_FALLBACK_TRIGGER: 'D063', // primary fetch failed, switching channel
+
+  // v0.27.0 60s pick cache. Server-side; surfaced here for completeness.
+  D705_CACHE_HIT:       'D705',
+  D706_CACHE_STORE:     'D706'
 };
 
 export function makeLogger() {

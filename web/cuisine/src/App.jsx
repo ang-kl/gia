@@ -256,6 +256,9 @@ export default function App() {
     } else {
       record(D.D502_VENUES_RECEIVED, `Received ${venues.length} venues`, true);
     }
+    if (result.body?.cached) {
+      record(D.D705_CACHE_HIT, 'Server cache hit (60s pick cache)', true);
+    }
     a.searchOk(result.body);
     setBannerText('');
   };
