@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react'; /* useRef already in v0.26.x for logger */
 import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine, diagPing } from './api/search.js';
 import { requestLocation, showAlert, tg, initData, sendData, launchContext, closeWebApp } from './api/tg.js';
@@ -262,6 +262,27 @@ export default function App() {
 
   const showDiagAlways = useMemo(() => diag.some((e) => !e.ok), [diag]);
 
+  // v0.26.5: Diagnostics is dev-facing copy. Hide it from happy-path
+  // users; auto-open on first failure (existing behaviour); also opt-in
+  // via 600 ms long-press on the connectivity badge ("press here for
+  // diagnostics" easter egg).
+  const [diagForcedVisible, setDiagForcedVisible] = useState(false);
+  const longPressTimer = useRef(null);
+  const startLongPress = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    longPressTimer.current = setTimeout(() => {
+      setDiagForcedVisible((v) => !v);
+      // Haptic feedback if Telegram exposes it.
+      try { tg()?.HapticFeedback?.impactOccurred?.('medium'); } catch { /* noop */ }
+    }, 600);
+  };
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
   const bridgeBadge = !bridge.checked
     ? { color: 'text-tg-hint', label: '… checking' }
     : bridge.ok
@@ -271,8 +292,15 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }} />
-      <div className={`px-3 py-1 text-[10px] font-mono ${bridgeBadge.color}`}>
-        {bridgeBadge.label}
+      <div
+        className={`px-3 py-1 text-[10px] font-mono select-none cursor-pointer ${bridgeBadge.color}`}
+        onPointerDown={startLongPress}
+        onPointerUp={cancelLongPress}
+        onPointerLeave={cancelLongPress}
+        onPointerCancel={cancelLongPress}
+        title="Long-press for Diagnostics"
+      >
+        {bridgeBadge.label}{diagForcedVisible ? ' · diag ON' : ''}
       </div>
 
       <div className="flex-1 px-3 pt-2 pb-24 flex flex-col gap-2">
@@ -311,7 +339,7 @@ export default function App() {
 
         <PresetCombos active={state.preset} onPick={a.applyPreset} />
         <PromptPreview state={state} />
-        {(diag.length > 0 || showDiagAlways) && <Diagnostics entries={diag} />}
+        {(showDiagAlways || diagForcedVisible) && <Diagnostics entries={diag} />}
 
         <div className="border-t border-tg-border my-1" />
 
