@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'; /* useRef already in v0.26.x for logger */
 import { useCuisineState } from './state/useCuisineState.js';
-import { searchCuisine, diagPing } from './api/search.js';
+import { searchCuisine, submitSearch, pollUntilDone, diagPing } from './api/search.js';
 import { requestLocation, showAlert, tg, initData, sendData, launchContext, closeWebApp } from './api/tg.js';
 import { makeLogger, DIAG_CODES as D } from './state/diagnostics.js';
 import Header from './components/Header.jsx';
@@ -195,13 +195,58 @@ export default function App() {
       usedDefault
     });
 
+    // v0.32.0: submit + poll. POST returns 202 + reqId; we poll the row
+    // every 1.5 s until status is done|empty|error. Stage transitions
+    // (building_prompt → reasoning → validating → ranking → refining)
+    // are surfaced in the banner so the user sees progress.
     let result;
     let fetchFailed = false;
+    let reqId = null;
     try {
-      record(D.D402_FETCH_START, 'POST /api/cuisine-search (25s timeout)');
-      result = await searchCuisine(payload);
-      if (result.timedOut) {
-        record(D.D406_FETCH_NETWORK_FAIL, 'Fetch timed out (>25s)', false);
+      record(D.D402_FETCH_START, 'POST /api/cuisine-search (submit)');
+      const submit = await submitSearch(payload);
+      if (submit.status === 202 && submit.body?.reqId) {
+        reqId = submit.body.reqId;
+        record(D.D403_HTTP_OK, `Submitted reqId=${reqId}`, true);
+        const finalState = await pollUntilDone(reqId, {
+          intervalMs: 1500,
+          timeoutMs: 90000,
+          onProgress: (row) => {
+            const stageLabel = ({
+              queued: '… queued',
+              building_prompt: 'Stage A — building prompt',
+              reasoning: 'Stage B — reasoning',
+              validating: 'Validating venues',
+              ranking: 'Ranking by walking time',
+              refining: 'Refining context'
+            })[row.stage] || row.stage;
+            setBannerText(`🌿 ${stageLabel}…`);
+          }
+        });
+        if (finalState.terminal === 'timeout') {
+          record(D.D406_FETCH_NETWORK_FAIL, 'Poll timed out (>90s)', false);
+          fetchFailed = true;
+        } else if (finalState.terminal === 'http_error') {
+          record(D.D405_HTTP_5XX, 'Poll HTTP error', false, finalState.httpStatus);
+          fetchFailed = true;
+        } else if (finalState.terminal === 'error') {
+          record(D.D900_UNHANDLED, 'Pipeline reported error', false, finalState.body?.error);
+          a.searchErr(finalState.body?.error || 'Pipeline error — see diagnostics');
+          return;
+        } else {
+          // done or empty — synthesize the legacy result shape so the
+          // downstream code path renders without further refactor.
+          result = {
+            status: 200,
+            ok: true,
+            body: { venues: finalState.body?.venues || [], reqId, stage: finalState.body?.stage }
+          };
+        }
+      } else if (submit.status === 200 && submit.body?.venues) {
+        // Legacy rollback path (PIPELINE_TASKS_ENABLED=false).
+        result = { status: 200, ok: true, body: submit.body };
+      } else {
+        record(D.D404_HTTP_4XX, `Submit HTTP ${submit.status}`, false, submit.body?.error);
         fetchFailed = true;
       }
     } catch (err) {

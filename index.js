@@ -1065,8 +1065,11 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       }
       return true;
     }
-    case 'cuisine-pick': {
+    case 'cuisine-pick':
+    case 'save-pick': {
       // TMA card tap → bot delivers Sanctuary read for the single venue.
+      // v0.32.0: 'save-pick' is the new explicit "📤 Save to chat" name;
+      // 'cuisine-pick' kept as alias for older bundles.
       const placeId = String(payload?.placeId || '').trim();
       const name = String(payload?.name || '').trim();
       if (!placeId) return true;
@@ -1080,7 +1083,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
         }
         await deliverPicks(chatId, name || single.name || 'cuisine pick', [single]);
       } catch (err) {
-        console.error('[Error] cuisine-pick failed:', err.message);
+        console.error('[Error] save-pick failed:', err.message);
         await safeSend(chatId, "Sorry, I couldn't load that pick.");
       }
       return true;
@@ -1465,6 +1468,10 @@ async function runCarparkCommand(chatId) {
 }
 
 async function runSurpriseCommand(chatId) {
+  // v0.32.0: /surprise becomes a 5-venue list driven by the same
+  // pipeline-task model as /cuisine. Rating window 4.0-4.3, <50 reviews,
+  // launched within 90 days, day-or-night temporal switch. Old
+  // single-venue flow is reachable via PIPELINE_TASKS_ENABLED=false rollback.
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
@@ -1472,25 +1479,40 @@ async function runSurpriseCommand(chatId) {
     }
     const cached = await getUserLocation(redis, chatId);
     if (!cached) {
-      await bot.sendMessage(
-        chatId,
-        "Where are you? Tap to share your location for /surprise.",
-        LOCATION_REQUEST_KEYBOARD
-      );
+      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /surprise.", LOCATION_REQUEST_KEYBOARD);
       return;
     }
     await setProcessing(redis, chatId);
-    await safeSend(chatId, '🎲 Hunting for one hidden gem 1.5–3 km away…');
-    const { findSurprise } = require('./surprise');
-    const venue = await findSurprise({ lat: cached.lat, lng: cached.lng, redis });
-    if (!venue) {
-      await safeSend(
-        chatId,
-        "Gia couldn't find a hidden gem matching the /surprise rules in your annulus right now. Try moving to a different area, or open /cuisine for full-control picks."
-      );
+
+    if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
+      await safeSend(chatId, '🎲 Hunting for one hidden gem 1.5–3 km away…');
+      const { findSurprise } = require('./surprise');
+      const venue = await findSurprise({ lat: cached.lat, lng: cached.lng, redis });
+      if (!venue) {
+        await safeSend(chatId, "Gia couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.");
+        return;
+      }
+      await deliverSurprise(chatId, venue);
       return;
     }
-    await deliverSurprise(chatId, venue);
+
+    await safeSend(chatId, '🎲 Hunting 5 hidden gems 1.5–3 km away — Stage A → Stage B…');
+    const requestStore = require('./request-store');
+    const pipelineTask = require('./pipeline-task');
+    const reqId = await requestStore.create(redis, {
+      kind: 'surprise',
+      chatId,
+      userId: chatId,
+      payload: { lat: cached.lat, lng: cached.lng, radius: 3000, mode: 'walk', lang: 'en' }
+    });
+    await pipelineTask.runTask(redis, reqId);
+    const row = await requestStore.get(redis, reqId);
+    const venues = row?.venues || [];
+    if (!venues.length) {
+      await safeSend(chatId, "Gia couldn't find 5 hidden gems matching the /surprise gates in your annulus right now (rating 4.0–4.3, <50 reviews, opened within 90 days). Try a denser area or /cuisine for unfiltered picks.");
+      return;
+    }
+    await deliverPicks(chatId, '🎲 5 surprise hidden gems', venues);
   } catch (err) {
     console.error('[Error] /surprise failed:', err.message);
     await safeSend(chatId, "Sorry, /surprise hit an error. Try again in a moment.");
@@ -2253,12 +2275,12 @@ async function cacheBotUsername() {
       });
     });
 
+    // v0.32.0: POST returns 202 + {reqId}. Background task drives the
+    // pipeline; TMA polls GET /api/cuisine-search/:reqId. Decouples slow
+    // Gemini calls from any HTTP timeout. PIPELINE_TASKS_ENABLED=false
+    // env reverts to the v0.31.x synchronous path.
     app.post('/api/cuisine-search', requireInitData, async (req, res) => {
       const t0 = Date.now();
-      // v0.26.1: fire-and-forget chat receipt so the user sees that the
-      // Search trigger landed even if the TMA's own "Sensing the vibe…"
-      // state never paints (network blip, Telegram in-app browser quirk).
-      // Throttled by isProcessing so a fat-fingered user can't spam.
       const tgUserId = req.tg?.user?.id;
       if (tgUserId) {
         (async () => {
@@ -2273,17 +2295,13 @@ async function cacheBotUsername() {
       }
       try {
         const {
-          lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, when, preset
+          lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, when, preset, specialRequest, lang
         } = req.body || {};
         console.log(`[Cuisine-Diag] D700 request received user=${tgUserId} lat=${lat} lng=${lng} radius=${radius} preset=${preset} cuisines=${Array.isArray(cuisines) ? cuisines.length : 0}`);
         if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
           console.warn('[Cuisine-Diag] D701 rejecting — lat/lng invalid');
           return res.status(400).json({ error: 'lat and lng required', diag: 'D701' });
         }
-        // v0.30.3: persist TMA-supplied coords to Redis so the chat-side
-        // flow (free-text NL, /eat, /surprise) sees the same location
-        // without re-asking. Fixes "asks twice" complaint where the TMA
-        // got iOS geolocation but the bot's getUserLocation was empty.
         if (tgUserId) {
           setUserLocation(redis, tgUserId, Number(lat), Number(lng))
             .then(() => console.log(`[Cuisine-Diag] D707 location synced to Redis user=${tgUserId}`))
@@ -2292,50 +2310,162 @@ async function cacheBotUsername() {
         const params = {
           lat: Number(lat),
           lng: Number(lng),
-          // v0.23.0: cap free-form cuisines at 10 (5 chip max + a handful of free-text additions).
           cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 10) : [],
           radius: Number(radius) || 1000,
           recencyDays: Number(recencyDays) || 90,
           queueMaxMin: Number(queueMaxMin) || 15,
           mode: typeof mode === 'string' ? mode : 'walk',
           when: typeof when === 'string' ? when : 'now',
-          preset: typeof preset === 'string' ? preset : null
+          preset: typeof preset === 'string' ? preset : null,
+          specialRequest: typeof specialRequest === 'string' ? specialRequest : null,
+          lang: typeof lang === 'string' ? lang : 'en'
         };
 
-        // v0.27.0: 60 s pick cache. Tap-spam (same chat, ~same location,
-        // same controls within a minute) hits Redis instead of running
-        // the full Reason+Validate+Refine pipeline. ~80% cost cut on
-        // typical "tap Search, see results, tap Search again to confirm".
-        const pickCache = require('./pick-cache');
-        if (tgUserId) {
-          const hit = await pickCache.get(redis, tgUserId, params);
-          if (hit) {
-            const dt = Date.now() - t0;
-            console.log(`[Cuisine-Diag] D705 cache HIT ${dt}ms venues=${hit.venues?.length ?? 0}`);
-            return res.json({ ...hit, cached: true });
+        // Rollback path — PIPELINE_TASKS_ENABLED=false reverts to
+        // synchronous v0.31.2 behaviour for emergency mitigation.
+        if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
+          const pickCache = require('./pick-cache');
+          if (tgUserId) {
+            const hit = await pickCache.get(redis, tgUserId, params);
+            if (hit) return res.json({ ...hit, cached: true });
           }
+          const { searchCuisine } = require('./cuisine-search');
+          const result = await searchCuisine({ ...params, redis });
+          const dt = Date.now() - t0;
+          console.log(`[Cuisine-Diag] D702 (sync rollback) OK ${dt}ms venues=${result.venues?.length ?? 0}`);
+          if (tgUserId && result?.venues?.length) {
+            pickCache.set(redis, tgUserId, params, result).catch(() => {});
+          }
+          return res.json(result);
         }
 
-        const { searchCuisine } = require('./cuisine-search');
-        const result = await searchCuisine({
-          ...params,
-          // v0.26.0: pass redis so pipeline can read vault snapshot + cache reviews.
-          redis
+        // v0.32.0 default: submit + 202 + reqId.
+        const requestStore = require('./request-store');
+        const pipelineTask = require('./pipeline-task');
+        const reqId = await requestStore.create(redis, {
+          kind: 'cuisine',
+          chatId: tgUserId,
+          userId: tgUserId,
+          payload: params
+        });
+        // Spawn background task — fire and forget. Errors are written
+        // into the row's status/error fields by pipeline-task.
+        pipelineTask.runTask(redis, reqId).catch((err) => {
+          console.error(`[Cuisine-Diag] D703 reqId=${reqId} background task crashed:`, err.message);
         });
         const dt = Date.now() - t0;
-        console.log(`[Cuisine-Diag] D702 OK ${dt}ms venues=${result.venues?.length ?? 0}`);
-        // Write-through cache for the next 60 s of tap-spam.
-        if (tgUserId && result?.venues?.length) {
-          pickCache.set(redis, tgUserId, params, result).catch(() => {});
-          console.log(`[Cuisine-Diag] D706 cache STORE ttl=${pickCache.TTL_S}s`);
-        }
-        res.json(result);
+        console.log(`[Cuisine-Diag] D712 submitted reqId=${reqId} ${dt}ms`);
+        return res.status(202).json({ reqId, pollUrl: `/api/cuisine-search/${reqId}` });
       } catch (err) {
         const dt = Date.now() - t0;
         console.error(`[Cuisine-Diag] D703 ${dt}ms error:`, err.message);
-        res.status(500).json({ error: err.message || 'cuisine search failed', diag: 'D703' });
+        res.status(500).json({ error: err.message || 'cuisine search submit failed', diag: 'D703' });
       } finally {
         if (tgUserId) clearProcessing(redis, tgUserId).catch(() => {});
+      }
+    });
+
+    // v0.32.0: poll endpoint. TMA polls every 1.5 s for the in-progress
+    // status + final venues. Auth identical to POST.
+    app.get('/api/cuisine-search/:reqId', requireInitData, async (req, res) => {
+      try {
+        const reqId = req.params.reqId;
+        if (!/^[A-Za-z0-9_-]{8,16}$/.test(reqId)) {
+          return res.status(400).json({ error: 'invalid reqId', diag: 'D713' });
+        }
+        const requestStore = require('./request-store');
+        const row = await requestStore.get(redis, reqId);
+        if (!row) return res.status(404).json({ error: 'reqId not found or expired', diag: 'D714' });
+        // Auth check: only the requesting user can poll their own row.
+        const tgUserId = String(req.tg?.user?.id || '');
+        if (tgUserId && row.userId && row.userId !== tgUserId) {
+          return res.status(403).json({ error: 'reqId belongs to a different user', diag: 'D715' });
+        }
+        return res.json({
+          reqId,
+          kind: row.kind,
+          status: row.status,
+          stage: row.stage,
+          venues: row.venues || null,
+          error: row.error || null,
+          diag: row.diag,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt
+        });
+      } catch (err) {
+        console.error('[Cuisine-Diag] D716 poll failed:', err.message);
+        res.status(500).json({ error: err.message || 'poll failed', diag: 'D716' });
+      }
+    });
+
+    // v0.32.0: /surprise TMA endpoint — same submit + poll pattern.
+    app.post('/api/surprise-search', requireInitData, async (req, res) => {
+      const t0 = Date.now();
+      const tgUserId = req.tg?.user?.id;
+      try {
+        const { lat, lng, mode, lang } = req.body || {};
+        if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
+          return res.status(400).json({ error: 'lat and lng required', diag: 'D721' });
+        }
+        if (tgUserId) {
+          setUserLocation(redis, tgUserId, Number(lat), Number(lng))
+            .catch((err) => console.warn('[Surprise-Diag] D727 location sync failed:', err.message));
+        }
+        const params = {
+          lat: Number(lat),
+          lng: Number(lng),
+          radius: 3000, // surprise annulus extends to 3 km
+          mode: typeof mode === 'string' ? mode : 'walk',
+          lang: typeof lang === 'string' ? lang : 'en'
+        };
+        const requestStore = require('./request-store');
+        const pipelineTask = require('./pipeline-task');
+        const reqId = await requestStore.create(redis, {
+          kind: 'surprise',
+          chatId: tgUserId,
+          userId: tgUserId,
+          payload: params
+        });
+        pipelineTask.runTask(redis, reqId).catch((err) => {
+          console.error(`[Surprise-Diag] D723 reqId=${reqId} background task crashed:`, err.message);
+        });
+        const dt = Date.now() - t0;
+        console.log(`[Surprise-Diag] D722 submitted reqId=${reqId} ${dt}ms`);
+        return res.status(202).json({ reqId, pollUrl: `/api/surprise-search/${reqId}` });
+      } catch (err) {
+        console.error('[Surprise-Diag] D720 submit failed:', err.message);
+        res.status(500).json({ error: err.message || 'surprise submit failed', diag: 'D720' });
+      }
+    });
+
+    app.get('/api/surprise-search/:reqId', requireInitData, async (req, res) => {
+      try {
+        const reqId = req.params.reqId;
+        if (!/^[A-Za-z0-9_-]{8,16}$/.test(reqId)) {
+          return res.status(400).json({ error: 'invalid reqId', diag: 'D724' });
+        }
+        const requestStore = require('./request-store');
+        const row = await requestStore.get(redis, reqId);
+        if (!row) return res.status(404).json({ error: 'reqId not found or expired', diag: 'D725' });
+        if (row.kind !== 'surprise') return res.status(400).json({ error: 'reqId is not a surprise request', diag: 'D726' });
+        const tgUserId = String(req.tg?.user?.id || '');
+        if (tgUserId && row.userId && row.userId !== tgUserId) {
+          return res.status(403).json({ error: 'reqId belongs to a different user', diag: 'D727' });
+        }
+        return res.json({
+          reqId,
+          kind: row.kind,
+          status: row.status,
+          stage: row.stage,
+          venues: row.venues || null,
+          error: row.error || null,
+          diag: row.diag,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt
+        });
+      } catch (err) {
+        console.error('[Surprise-Diag] D728 poll failed:', err.message);
+        res.status(500).json({ error: err.message || 'poll failed', diag: 'D728' });
       }
     });
 
