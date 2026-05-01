@@ -9,6 +9,8 @@ export default function VenueCard({ venue }) {
   const open   = venue.openNow === true ? 'Open' : venue.openNow === false ? 'Closed' : '';
   const walk   = Number.isFinite(venue.walkMinutes) ? `🚶 ${venue.walkMinutes}m` : '';
   const dist   = Number.isFinite(venue.walkMeters)  ? `${venue.walkMeters} m` : '';
+  const queue  = Number.isFinite(venue.queueMinEstimate)
+    ? `⏱ ~${venue.queueMinEstimate} min queue (est)` : '';
   return (
     <div className="rounded-md bg-tg-card border border-tg-border p-2.5">
       <div className="flex items-start justify-between gap-2">
@@ -30,6 +32,8 @@ export default function VenueCard({ venue }) {
         {open && <span>{open}</span>}
         {walk && <span>{walk}</span>}
         {dist && <span>{dist}</span>}
+        {queue && <span>{queue}</span>}
+        {venue.bookingRequired && <span>📅 Booking advised</span>}
       </div>
       {venue.signatureDish && (
         <div className="mt-1 text-[11px] text-tg-text">🍴 try the <span className="font-medium">{venue.signatureDish}</span></div>

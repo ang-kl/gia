@@ -3,28 +3,34 @@ import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine } from './api/search.js';
 import { requestLocation, showAlert } from './api/tg.js';
 import Header from './components/Header.jsx';
-import RadiusToggle from './components/RadiusToggle.jsx';
+import RangeSlider from './components/RangeSlider.jsx';
 import ModeDropdown from './components/ModeDropdown.jsx';
 import TimeDropdown from './components/TimeDropdown.jsx';
-import CuisineChips from './components/CuisineChips.jsx';
+import CuisineAccordion from './components/CuisineAccordion.jsx';
+import OtherCuisineInput from './components/OtherCuisineInput.jsx';
 import PresetCombos from './components/PresetCombos.jsx';
+import PromptPreview from './components/PromptPreview.jsx';
 import ResultsGrid from './components/ResultsGrid.jsx';
+
+function fmtMetres(m) {
+  return m >= 1000 ? `${(m / 1000).toFixed(m % 1000 === 0 ? 0 : 1)} km` : `${m} m`;
+}
+function fmtDays(d) {
+  if (d <= 14) return `${d} d`;
+  if (d <= 90) return `${Math.round(d / 7)} wk`;
+  return `${Math.round(d / 30)} mo`;
+}
 
 export default function App() {
   const [state, a] = useCuisineState();
   const [locDenied, setLocDenied] = useState(false);
 
-  // Pre-select cuisine from ?cuisine=Japanese deep-link.
   useEffect(() => {
     const url = new URL(window.location.href);
     const c = url.searchParams.get('cuisine');
     if (c) a.toggleCuisine(c);
   }, []);
 
-  // v0.22.1 fix: auto-detect on mount so the Search button isn't dead by
-  // default. If the user denies / browser blocks geolocation, we surface
-  // a clear inline notice and keep Search clickable — pressing it then
-  // reminds them to tap 📍.
   useEffect(() => {
     let cancelled = false;
     requestLocation()
@@ -35,20 +41,26 @@ export default function App() {
 
   const onSearch = async () => {
     if (!state.loc) {
-      showAlert('Tap 📍 Detect to share your location first.');
+      showAlert('Tap 📍 to share your location first.');
       return;
     }
-    if (state.preset === 'cuisine-discovery' && !state.cuisines.length) {
+    if (state.preset === 'cuisine-discovery' && !state.cuisines.length && !state.otherCuisine.trim()) {
       showAlert('Pick at least one cuisine for the Discovery preset.');
       return;
     }
     a.searchStart();
+    const cuisinesPayload = [
+      ...state.cuisines,
+      ...state.otherCuisine.split(',').map((s) => s.trim()).filter(Boolean)
+    ];
     try {
       const result = await searchCuisine({
         lat: state.loc.lat,
         lng: state.loc.lng,
-        cuisines: state.cuisines,
+        cuisines: cuisinesPayload,
         radius: state.radius,
+        recencyDays: state.recencyDays,
+        queueMaxMin: state.queueMaxMin,
         mode: state.mode,
         when: state.when,
         preset: state.preset
@@ -64,13 +76,41 @@ export default function App() {
       <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); }} />
 
       <div className="flex-1 px-3 pt-2 pb-24 flex flex-col gap-2">
-        <RadiusToggle value={state.radius} onChange={(v) => { a.setRadius(v); a.clearPreset(); }} />
+        <RangeSlider
+          label="Search radius"
+          min={200} max={5000} step={100}
+          value={state.radius}
+          onChange={a.setRadius}
+          format={fmtMetres}
+        />
+        <RangeSlider
+          label='"Newly opened" window'
+          min={5} max={180} step={5}
+          value={state.recencyDays}
+          onChange={a.setRecency}
+          format={fmtDays}
+        />
+        <RangeSlider
+          label="Max queue tolerance"
+          min={5} max={60} step={5}
+          value={state.queueMaxMin}
+          onChange={a.setQueueMax}
+          format={(v) => `${v} min`}
+        />
         <div className="grid grid-cols-2 gap-1.5">
-          <ModeDropdown value={state.mode} onChange={(v) => { a.setMode(v); a.clearPreset(); }} />
-          <TimeDropdown value={state.when} onChange={(v) => { a.setWhen(v); a.clearPreset(); }} />
+          <ModeDropdown value={state.mode} onChange={a.setMode} />
+          <TimeDropdown value={state.when} onChange={a.setWhen} />
         </div>
-        <CuisineChips selected={state.cuisines} onToggle={a.toggleCuisine} />
+
+        <div className="border-t border-tg-border my-1" />
+
+        <CuisineAccordion selected={state.cuisines} onToggle={a.toggleCuisine} />
+        <OtherCuisineInput value={state.otherCuisine} onChange={a.setOtherCuisine} />
+
+        <div className="border-t border-tg-border my-1" />
+
         <PresetCombos active={state.preset} onPick={a.applyPreset} />
+        <PromptPreview state={state} />
 
         <div className="border-t border-tg-border my-1" />
 

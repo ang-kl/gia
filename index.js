@@ -966,7 +966,9 @@ async function configureUpdates() {
 
     app.post('/api/cuisine-search', requireInitData, async (req, res) => {
       try {
-        const { lat, lng, cuisines, radius, mode, when, preset } = req.body || {};
+        const {
+          lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, when, preset
+        } = req.body || {};
         if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
           return res.status(400).json({ error: 'lat and lng required' });
         }
@@ -974,8 +976,11 @@ async function configureUpdates() {
         const result = await searchCuisine({
           lat: Number(lat),
           lng: Number(lng),
-          cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 9) : [],
+          // v0.23.0: cap free-form cuisines at 10 (5 chip max + a handful of free-text additions).
+          cuisines: Array.isArray(cuisines) ? cuisines.slice(0, 10) : [],
           radius: Number(radius) || 1000,
+          recencyDays: Number(recencyDays) || 90,
+          queueMaxMin: Number(queueMaxMin) || 15,
           mode: typeof mode === 'string' ? mode : 'walk',
           when: typeof when === 'string' ? when : 'now',
           preset: typeof preset === 'string' ? preset : null
