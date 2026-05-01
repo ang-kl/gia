@@ -1268,8 +1268,7 @@ async function cacheBotUsername() {
           console.warn('[Cuisine-Diag] D701 rejecting — lat/lng invalid');
           return res.status(400).json({ error: 'lat and lng required', diag: 'D701' });
         }
-        const { searchCuisine } = require('./cuisine-search');
-        const result = await searchCuisine({
+        const params = {
           lat: Number(lat),
           lng: Number(lng),
           // v0.23.0: cap free-form cuisines at 10 (5 chip max + a handful of free-text additions).
@@ -1279,12 +1278,36 @@ async function cacheBotUsername() {
           queueMaxMin: Number(queueMaxMin) || 15,
           mode: typeof mode === 'string' ? mode : 'walk',
           when: typeof when === 'string' ? when : 'now',
-          preset: typeof preset === 'string' ? preset : null,
+          preset: typeof preset === 'string' ? preset : null
+        };
+
+        // v0.27.0: 60 s pick cache. Tap-spam (same chat, ~same location,
+        // same controls within a minute) hits Redis instead of running
+        // the full Reason+Validate+Refine pipeline. ~80% cost cut on
+        // typical "tap Search, see results, tap Search again to confirm".
+        const pickCache = require('./pick-cache');
+        if (tgUserId) {
+          const hit = await pickCache.get(redis, tgUserId, params);
+          if (hit) {
+            const dt = Date.now() - t0;
+            console.log(`[Cuisine-Diag] D705 cache HIT ${dt}ms venues=${hit.venues?.length ?? 0}`);
+            return res.json({ ...hit, cached: true });
+          }
+        }
+
+        const { searchCuisine } = require('./cuisine-search');
+        const result = await searchCuisine({
+          ...params,
           // v0.26.0: pass redis so pipeline can read vault snapshot + cache reviews.
           redis
         });
         const dt = Date.now() - t0;
         console.log(`[Cuisine-Diag] D702 OK ${dt}ms venues=${result.venues?.length ?? 0}`);
+        // Write-through cache for the next 60 s of tap-spam.
+        if (tgUserId && result?.venues?.length) {
+          pickCache.set(redis, tgUserId, params, result).catch(() => {});
+          console.log(`[Cuisine-Diag] D706 cache STORE ttl=${pickCache.TTL_S}s`);
+        }
         res.json(result);
       } catch (err) {
         const dt = Date.now() - t0;
