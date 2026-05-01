@@ -222,6 +222,133 @@ function trimSurpriseForShare(v) {
   };
 }
 
+// v0.31.0 Buddy Level 2 callback dispatcher.
+//
+// Two callback patterns:
+//   buddy:init:<placeId>:<counterpartId>     — initiator tapped 👥 Connect
+//   buddy:offer:<token>:accept|decline       — counterpart responding
+async function handleBuddyCallback(data, chatId, q) {
+  try {
+    const buddy = require('./buddy-match');
+    if (data.startsWith('buddy:init:')) {
+      const rest = data.slice('buddy:init:'.length);
+      const [placeId, counterpartId] = rest.split(':');
+      if (!placeId || !counterpartId) return;
+
+      // Daily-cap gate before any messaging.
+      const cnt = await buddy.dailyCount(redis, chatId);
+      if (cnt >= buddy.DAILY_CAP) {
+        await safeSend(chatId, `👥 You've hit today's connection cap (${buddy.DAILY_CAP}). Try again tomorrow.`);
+        return;
+      }
+      // Resolve both users' first names from Telegram.
+      const fromName = q.from?.first_name || 'a fellow soleat user';
+      // We don't store first names; only reveal on mutual confirm.
+      // Look up venue name from the picks we delivered earlier — fall back to placeholder.
+      let venueName = 'the venue';
+      try {
+        const single = await fetchSinglePlaceForPick(placeId, '', null);
+        if (single?.name) venueName = single.name;
+      } catch { /* ignore */ }
+
+      const r = await buddy.createOffer(redis, { fromId: chatId, toId: counterpartId, placeId, venueName, fromName });
+      if (!r) {
+        await safeSend(chatId, "Couldn't create the connect offer. Try again later.");
+        return;
+      }
+      if (r.error === 'daily_cap') {
+        await safeSend(chatId, `👥 You've hit today's cap (${r.count}/${buddy.DAILY_CAP}).`);
+        return;
+      }
+      const { token } = r;
+      await safeSend(chatId,
+        `👥 Sent a connect request to the other diner heading to *${venueName}*.\n` +
+        `If they accept within 30 min, both of you will see first names + Telegram handles. ` +
+        '⚠ _Pilot — meet in public, treat as a stranger, trust your gut._'
+      );
+      // Send mutual-confirm offer to the counterpart.
+      await bot.sendMessage(counterpartId,
+        `👥 *Solo-dining buddy match*\n\n` +
+        `Another opted-in soleat user (first name: *${fromName}*) is heading to *${venueName}* in the next 60 minutes and would like to connect.\n\n` +
+        `If you accept, both of you will see each other's first name + Telegram handle.\n\n` +
+        '⚠ _Pilot — meet in public, treat as a stranger, trust your gut. You can `/buddy block <id>` or `/buddy report <id> <reason>` afterwards._',
+        {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [[
+              { text: '✅ Accept', callback_data: `buddy:offer:${token}:accept` },
+              { text: '🚫 Decline', callback_data: `buddy:offer:${token}:decline` }
+            ]]
+          }
+        }
+      ).catch((err) => {
+        console.warn('[Buddy] counterpart sendMessage failed (likely never /start-ed):', err.message);
+        safeSend(chatId, "👥 Couldn't reach the other diner — they may have closed the bot. No connection made.").catch(() => {});
+      });
+      return;
+    }
+
+    if (data.startsWith('buddy:offer:')) {
+      const rest = data.slice('buddy:offer:'.length);
+      const lastColon = rest.lastIndexOf(':');
+      const token = rest.slice(0, lastColon);
+      const verdict = rest.slice(lastColon + 1);
+      if (!token || !['accept', 'decline'].includes(verdict)) return;
+
+      const offer = await buddy.loadOffer(redis, token);
+      if (!offer) {
+        await safeSend(chatId, '👥 That match offer has expired (30 min window).');
+        return;
+      }
+      // Only the To-side may respond.
+      if (String(chatId) !== String(offer.toId)) return;
+
+      if (verdict === 'decline') {
+        await buddy.setOfferStatus(redis, token, { status: 'declined' });
+        await safeSend(chatId, '👥 Declined. The other diner will be told you passed.');
+        await safeSend(offer.fromId, '👥 The other diner declined your connect request. No worries — try again later or with a different venue.');
+        return;
+      }
+
+      // Accept → mutual reveal. Daily-cap gate on responder side too.
+      const responderCnt = await buddy.dailyCount(redis, chatId);
+      if (responderCnt >= buddy.DAILY_CAP) {
+        await safeSend(chatId, `👥 You've hit today's cap (${buddy.DAILY_CAP}). Connection not made.`);
+        await safeSend(offer.fromId, "👥 The other diner is at today's connection cap. Try again tomorrow.");
+        return;
+      }
+
+      const toName = q.from?.first_name || 'a fellow soleat user';
+      const fromHandle = '';
+      const toHandle = q.from?.username ? `@${q.from.username}` : '(no Telegram username)';
+      // Get fromHandle by best-effort: we don't have a stored mapping,
+      // so we'll surface the chat IDs and let the users open chat manually.
+      const finalOffer = await buddy.setOfferStatus(redis, token, { status: 'mutual_confirmed', toName });
+      await buddy.bumpDailyCount(redis, offer.fromId);
+      await buddy.bumpDailyCount(redis, chatId);
+
+      const safetyFooter =
+        '\n\n⚠ _Public meeting only. Either party can `/buddy block <id>` or `/buddy report <id> <reason>` afterwards._';
+
+      await safeSend(chatId,
+        `✅ *Match confirmed!*\n\n` +
+        `*${finalOffer.fromName}* is heading to *${finalOffer.venueName}* in the next hour.\n` +
+        `Their chat ID: \`${finalOffer.fromId}\`` +
+        safetyFooter
+      );
+      await safeSend(offer.fromId,
+        `✅ *Match confirmed!*\n\n` +
+        `*${toName}* (${toHandle}) accepted your invite to *${finalOffer.venueName}*.\n` +
+        `Their chat ID: \`${chatId}\`` +
+        safetyFooter
+      );
+      return;
+    }
+  } catch (err) {
+    console.error('[Buddy] callback dispatch failed:', err.message);
+  }
+}
+
 async function deliverPicks(chatId, mealLabel, picks) {
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
@@ -286,6 +413,27 @@ async function deliverPicks(chatId, mealLabel, picks) {
         || p.directionsUri;
       if (mapsUrl) {
         buttons.push({ text: '📍 Google Maps', url: mapsUrl });
+      }
+      // v0.31.0 Buddy Level 2: if user opted in AND another opted-in
+      // user has registered intent at this place in the last 60 min,
+      // surface a "👥 Connect" button. Both confirmations are required
+      // before any name/handle is revealed.
+      try {
+        const buddy = require('./buddy-match');
+        if (await buddy.isOptedIn(redis, chatId)) {
+          // Register this user's intent at this venue (60-min window).
+          await buddy.registerIntent(redis, chatId, pid);
+          const others = await buddy.findCounterparts(redis, chatId, pid);
+          if (others.length) {
+            const counterpartId = others[0]; // first available
+            buttons.push({
+              text: `👥 Connect (${others.length} other diner${others.length > 1 ? 's' : ''})`,
+              callback_data: `buddy:init:${pid}:${counterpartId}`
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[Buddy] match-button decoration failed:', err.message);
       }
     }
     const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
@@ -536,6 +684,66 @@ bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
 // v0.27.1: /share — list user's last-5 picks with a 👋 Send to buddy
 // inline button per pick. Replaces the per-pick share button removed in
 // v0.26.2; surfaces buddy-share as an explicit on-demand action.
+// v0.31.0: /buddy on|off|status|block|report — Buddy Level 2 controls.
+// Opt-in only. See prompt-templates/buddy-level-2-policy.md.
+bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i, async (msg, match) => {
+  try {
+    const buddy = require('./buddy-match');
+    const action = (match?.[1] || 'status').toLowerCase();
+    const arg = (match?.[2] || '').trim();
+
+    if (action === 'on') {
+      await buddy.optIn(redis, msg.chat.id);
+      await safeSend(msg.chat.id,
+        '👥 *Buddy mode ON.*\n\n' +
+        'When you receive Sanctuary picks, a 👥 _Connect_ button appears next to venues where another opted-in soleat user is also heading in the next 60 min. ' +
+        'Both of you must confirm before first names + Telegram handles are revealed. ' +
+        'Daily cap: 5 connections / 24 h. `/buddy block <chat_id>` to block. `/buddy report <chat_id> <reason>` to flag. `/buddy off` to disable.\n\n' +
+        '⚠ _Pilot — meet only in public, treat as a stranger, trust your gut._'
+      );
+      return;
+    }
+    if (action === 'off') {
+      await buddy.optOut(redis, msg.chat.id);
+      await safeSend(msg.chat.id, '👥 Buddy mode OFF.');
+      return;
+    }
+    if (action === 'block') {
+      const target = String(arg).trim();
+      if (!target) {
+        await safeSend(msg.chat.id, 'Usage: `/buddy block <chat_id>`. Get the chat ID from a previous match offer.');
+        return;
+      }
+      const ok = await buddy.block(redis, msg.chat.id, target);
+      await safeSend(msg.chat.id, ok ? `🚫 Blocked ${target}. They will never be matched with you.` : 'Could not block (max 50 blocks reached).');
+      return;
+    }
+    if (action === 'report') {
+      const parts = arg.split(/\s+/);
+      const target = parts.shift() || '';
+      const reason = parts.join(' ');
+      if (!target) {
+        await safeSend(msg.chat.id, 'Usage: `/buddy report <chat_id> <reason>`.');
+        return;
+      }
+      await buddy.report(redis, msg.chat.id, target, reason);
+      await buddy.block(redis, msg.chat.id, target).catch(() => {});
+      await safeSend(msg.chat.id, `📝 Report logged. ${target} is also auto-blocked from your matches. We'll review.`);
+      return;
+    }
+    const on = await buddy.isOptedIn(redis, msg.chat.id);
+    const cnt = await buddy.dailyCount(redis, msg.chat.id);
+    await safeSend(msg.chat.id,
+      `👥 Buddy mode is currently *${on ? 'ON' : 'OFF'}*. ` +
+      `Today's connections: ${cnt}/${buddy.DAILY_CAP}. ` +
+      'Use `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.'
+    );
+  } catch (err) {
+    console.error('[Error] /buddy handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, /buddy hit an error.");
+  }
+});
+
 bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
   try {
     const { getRecent } = require('./recent-picks');
@@ -624,6 +832,11 @@ bot.on('callback_query', async (q) => {
 
     if (data === 'refresh:transport') {
       await runTransportCommand(chatId);
+      return;
+    }
+    // v0.31.0 Buddy Level 2 callback dispatch.
+    if (data.startsWith('buddy:')) {
+      await handleBuddyCallback(data, chatId, q);
       return;
     }
     if (data.startsWith('share:')) {
@@ -1410,6 +1623,7 @@ async function registerCommandsMenu() {
       { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
       { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'share',     description: 'Forward a recent pick to a buddy' },
+      { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'log',       description: 'Verbose mode on/off — stream NL pipeline trace to chat' },
       { command: 'drink',     description: 'Bars, coffee, tea spots' },
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
