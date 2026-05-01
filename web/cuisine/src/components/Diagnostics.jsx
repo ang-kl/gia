@@ -4,13 +4,16 @@ import React, { useState } from 'react';
 // not OK, otherwise stays collapsed behind a small "🔧 N steps" toggle.
 
 export default function Diagnostics({ entries }) {
-  const [open, setOpen] = useState(false);
-  if (!entries.length) return null;
+  // v0.29.2: always render when mounted (parent decides visibility).
+  // Empty-state shows "no D-codes yet" so users know they got here.
+  const [open, setOpen] = useState(true);
   const lastBad = entries.find((e) => e.ok === false);
   const shouldShow = open || !!lastBad;
-  const label = lastBad
-    ? `🔧 Diagnostics — ${lastBad.code} failed`
-    : `🔧 Diagnostics — ${entries.length} steps`;
+  const label = entries.length === 0
+    ? '🔧 Diagnostics — no D-codes yet (tap Search)'
+    : lastBad
+      ? `🔧 Diagnostics — ${lastBad.code} failed`
+      : `🔧 Diagnostics — ${entries.length} steps`;
   return (
     <div className="border border-tg-border rounded-md bg-tg-card">
       <button
