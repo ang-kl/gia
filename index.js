@@ -432,6 +432,8 @@ bot.onText(/^\/transport(?:@\w+)?$/, (msg) => runTransportCommand(msg.chat.id));
 
 bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
+bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
+
 // Resolves a pending-state string into a routing decision.
 function resolvePending(pending) {
   if (!pending) return null;
@@ -601,6 +603,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'weather':   await runWeatherCommand(chatId); return true;
     case 'transport': await runTransportCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
+    case 'surprise':  await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
@@ -771,6 +774,73 @@ async function runCarparkCommand(chatId) {
   }
 }
 
+async function runSurpriseCommand(chatId) {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    const cached = await getUserLocation(redis, chatId);
+    if (!cached) {
+      await bot.sendMessage(
+        chatId,
+        "Where are you? Tap to share your location for /surprise.",
+        LOCATION_REQUEST_KEYBOARD
+      );
+      return;
+    }
+    await setProcessing(redis, chatId);
+    await safeSend(chatId, '🎲 Hunting for one hidden gem 1.5–3 km away…');
+    const { findSurprise } = require('./surprise');
+    const venue = await findSurprise({ lat: cached.lat, lng: cached.lng });
+    if (!venue) {
+      await safeSend(
+        chatId,
+        "Gia couldn't find a hidden gem matching the /surprise rules in your annulus right now. Try moving to a different area, or /eat for current-meal picks."
+      );
+      return;
+    }
+    await deliverSurprise(chatId, venue);
+  } catch (err) {
+    console.error('[Error] /surprise failed:', err.message);
+    await safeSend(chatId, "Sorry, /surprise hit an error. Try again in a moment.");
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
+
+async function deliverSurprise(chatId, v) {
+  const km = (v.distanceM / 1000).toFixed(2);
+  const rating = v.rating ? `⭐${v.rating.toFixed(1)} (${v.userRatingCount} reviews)` : '';
+  const open = v.openNow === true ? 'Open now' : v.openNow === false ? 'Opens soon' : '';
+  const dishes = v.dishes?.length
+    ? '\n\n🍴 *Try the:*\n' + v.dishes.map((d) => `  • ${d}`).join('\n')
+    : '';
+  const why = v.whyOrdered ? `\n\n_${v.whyOrdered}_` : '';
+  const booking = v.bookingRequired
+    ? '\n\n📅 Booking is usually advised at peak.'
+    : '\n\n🪑 Walk-ins generally fine.';
+  const text = [
+    `🎲 *${v.name}*`,
+    `${v.area}`,
+    `${rating}${open ? ' · ' + open : ''} · ${km} km away`,
+    dishes + why + booking
+  ].join('\n');
+
+  const reply_markup = {
+    inline_keyboard: [[
+      v.directionsUri ? { text: '🚗 Directions', url: v.directionsUri } : null,
+      v.url ? { text: '🔍 Google', url: v.url } : null
+    ].filter(Boolean)]
+  };
+  try {
+    await bot.sendMessage(chatId, text, { parse_mode: 'Markdown', reply_markup });
+  } catch (err) {
+    // Markdown can fail on stray chars in venue names; retry plain.
+    await bot.sendMessage(chatId, text, { reply_markup });
+  }
+}
+
 async function runVerCommand(chatId) {
   try {
     await safeSend(chatId, '🩺 Running health check…');
@@ -848,7 +918,8 @@ async function registerCommandsMenu() {
       { command: 'eat',       description: 'Solo-diner food picks for now' },
       { command: 'drink',     description: 'Bars, coffee, tea spots' },
       { command: 'grocery',   description: 'Supermarkets and fresh markets' },
-      { command: 'cuisine',   description: 'Picks by cuisine type — e.g. /cuisine Japanese' },
+      { command: 'cuisine',   description: 'Picks by cuisine type — Cuisine Picker TMA' },
+      { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'MRT + crowd + traffic + nearest bus stops' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
