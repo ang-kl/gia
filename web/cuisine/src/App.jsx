@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine } from './api/search.js';
-import { showAlert } from './api/tg.js';
+import { requestLocation, showAlert } from './api/tg.js';
 import Header from './components/Header.jsx';
 import RadiusToggle from './components/RadiusToggle.jsx';
 import ModeDropdown from './components/ModeDropdown.jsx';
@@ -12,12 +12,25 @@ import ResultsGrid from './components/ResultsGrid.jsx';
 
 export default function App() {
   const [state, a] = useCuisineState();
+  const [locDenied, setLocDenied] = useState(false);
 
   // Pre-select cuisine from ?cuisine=Japanese deep-link.
   useEffect(() => {
     const url = new URL(window.location.href);
     const c = url.searchParams.get('cuisine');
     if (c) a.toggleCuisine(c);
+  }, []);
+
+  // v0.22.1 fix: auto-detect on mount so the Search button isn't dead by
+  // default. If the user denies / browser blocks geolocation, we surface
+  // a clear inline notice and keep Search clickable — pressing it then
+  // reminds them to tap 📍.
+  useEffect(() => {
+    let cancelled = false;
+    requestLocation()
+      .then((p) => { if (!cancelled) a.setLoc(p); })
+      .catch(() => { if (!cancelled) setLocDenied(true); });
+    return () => { cancelled = true; };
   }, []);
 
   const onSearch = async () => {
@@ -48,7 +61,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header loc={state.loc} onLoc={a.setLoc} />
+      <Header loc={state.loc} onLoc={(p) => { a.setLoc(p); setLocDenied(false); }} />
 
       <div className="flex-1 px-3 pt-2 pb-24 flex flex-col gap-2">
         <RadiusToggle value={state.radius} onChange={(v) => { a.setRadius(v); a.clearPreset(); }} />
@@ -73,9 +86,14 @@ export default function App() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-3 py-2 bg-tg-bg border-t border-tg-border">
+        {locDenied && !state.loc && (
+          <div className="text-[11px] text-tg-hint pb-1.5 text-center">
+            Tap 📍 above to share your location.
+          </div>
+        )}
         <button
           onClick={onSearch}
-          disabled={state.loading || !state.loc}
+          disabled={state.loading}
           className="w-full text-sm font-medium px-4 py-2.5 rounded-md bg-tg-accent text-tg-accent-text disabled:opacity-50"
         >
           {state.loading ? 'Searching…' : '🔍 Search'}
