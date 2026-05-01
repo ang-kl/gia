@@ -181,6 +181,45 @@ async function fetchSinglePlaceForPick(placeId, fallbackName, near) {
   }
 }
 
+// Strips a pick down to the fields the buddy's deliver* call needs.
+// Keeps Redis payloads small and avoids leaking transient fields.
+function trimPickForShare(p) {
+  return {
+    placeId: p.placeId ?? p.id,
+    name: p.name,
+    area: p.area,
+    lat: p.lat,
+    lng: p.lng,
+    rating: p.rating ?? null,
+    openNow: p.openNow ?? null,
+    primaryType: p.primaryType ?? 'restaurant',
+    url: p.url ?? '',
+    directionsUri: p.directionsUri ?? '',
+    vibe: p.vibe ?? '',
+    signatureDish: p.signatureDish ?? '',
+    googleSummary: p.googleSummary ?? null
+  };
+}
+
+function trimSurpriseForShare(v) {
+  return {
+    placeId: v.placeId,
+    name: v.name,
+    area: v.area,
+    lat: v.lat,
+    lng: v.lng,
+    rating: v.rating ?? null,
+    userRatingCount: v.userRatingCount ?? null,
+    openNow: v.openNow ?? null,
+    distanceM: v.distanceM ?? null,
+    url: v.url ?? '',
+    directionsUri: v.directionsUri ?? '',
+    dishes: v.dishes ?? [],
+    whyOrdered: v.whyOrdered ?? '',
+    bookingRequired: !!v.bookingRequired
+  };
+}
+
 async function deliverPicks(chatId, mealLabel, picks) {
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
@@ -234,6 +273,19 @@ async function deliverPicks(chatId, mealLabel, picks) {
         text: '🚗 Directions',
         url: directionsUrl
       });
+      // v0.25.0 Buddy Level 1: pre-generate share token and embed it on
+      // a callback button. Tap → bot replies with the share deep link.
+      try {
+        const { saveShare } = require('./share');
+        const token = await saveShare(redis, {
+          kind: 'pick',
+          mealLabel,
+          pick: trimPickForShare(p)
+        });
+        buttons.push({ text: '👋 Send to buddy', callback_data: `share:${token}` });
+      } catch (err) {
+        console.error('[Error] saveShare failed:', err.message);
+      }
     }
     const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
 
@@ -476,6 +528,22 @@ bot.on('callback_query', async (q) => {
       await runTransportCommand(chatId);
       return;
     }
+    if (data.startsWith('share:')) {
+      // v0.25.0 Buddy Level 1: surface the deep link to the originating
+      // user. They forward it via any messenger; the buddy's tap on the
+      // link triggers /start share_<token> on this bot.
+      const token = data.slice('share:'.length).trim();
+      if (!token) return;
+      const link = `https://t.me/${botUsername}?start=share_${token}`;
+      await bot.sendMessage(
+        chatId,
+        '👋 *Send your buddy this link:*\n\n' +
+        '`' + link + '`\n\n' +
+        '_When they tap it, Gia will send them this exact pick. Link works for 7 days._',
+        { parse_mode: 'Markdown', disable_web_page_preview: true }
+      );
+      return;
+    }
   } catch (err) {
     console.error('[Error] callback_query handler failed:', err.message);
   }
@@ -531,8 +599,33 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
 // /start handler — greets the user, optionally accepts a deep-link param
 // (e.g. /start eat from a t.me/<bot>?start=eat link) to immediately route
 // to a flow.
-bot.onText(/^\/start(?:@\w+)?(?:\s+(\w+))?$/, async (msg, match) => {
-  const param = (match?.[1] || '').trim().toLowerCase();
+bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
+  const rawParam = (match?.[1] || '').trim();
+  // v0.25.0: share_<token> deep link — render the buddy's shared pick.
+  if (rawParam.startsWith('share_')) {
+    const token = rawParam.slice('share_'.length);
+    try {
+      const { loadShare } = require('./share');
+      const payload = await loadShare(redis, token);
+      if (!payload) {
+        await safeSend(msg.chat.id, "👋 Sorry, that share link has expired or never existed.");
+        return;
+      }
+      await safeSend(msg.chat.id, "👋 A friend shared a sanctuary pick with you via Gia:");
+      if (payload.kind === 'pick' && payload.pick) {
+        await deliverPicks(msg.chat.id, payload.mealLabel || 'shared', [payload.pick]);
+      } else if (payload.kind === 'surprise' && payload.surprise) {
+        await deliverSurprise(msg.chat.id, payload.surprise);
+      } else {
+        await safeSend(msg.chat.id, "Couldn't decode that share — sorry.");
+      }
+    } catch (err) {
+      console.error('[Error] /start share_<token> failed:', err.message);
+      await safeSend(msg.chat.id, "Couldn't load that share — sorry.");
+    }
+    return;
+  }
+  const param = rawParam.toLowerCase();
   if (param) {
     const routed = await routeMenuCommand(msg.chat.id, param);
     if (routed) return;
@@ -827,16 +920,22 @@ async function deliverSurprise(chatId, v) {
     dishes + why + booking
   ].join('\n');
 
-  const reply_markup = {
-    inline_keyboard: [[
-      v.directionsUri ? { text: '🚗 Directions', url: v.directionsUri } : null,
-      v.url ? { text: '🔍 Google', url: v.url } : null
-    ].filter(Boolean)]
-  };
+  const row = [
+    v.directionsUri ? { text: '🚗 Directions', url: v.directionsUri } : null,
+    v.url ? { text: '🔍 Google', url: v.url } : null
+  ].filter(Boolean);
+  // v0.25.0 share button on /surprise reads.
+  try {
+    const { saveShare } = require('./share');
+    const token = await saveShare(redis, { kind: 'surprise', surprise: trimSurpriseForShare(v) });
+    row.push({ text: '👋 Send to buddy', callback_data: `share:${token}` });
+  } catch (err) {
+    console.error('[Error] saveShare for surprise failed:', err.message);
+  }
+  const reply_markup = { inline_keyboard: [row] };
   try {
     await bot.sendMessage(chatId, text, { parse_mode: 'Markdown', reply_markup });
   } catch (err) {
-    // Markdown can fail on stray chars in venue names; retry plain.
     await bot.sendMessage(chatId, text, { reply_markup });
   }
 }
@@ -964,8 +1063,22 @@ async function configureUpdates() {
   }
 }
 
+// Cached bot username for share-link deep links (v0.25.0). Populated
+// at boot via getMe(); falls back to env BOT_USERNAME if API is offline.
+let botUsername = process.env.BOT_USERNAME || 'gia_bot';
+async function cacheBotUsername() {
+  try {
+    const me = await bot.getMe();
+    if (me?.username) botUsername = me.username;
+    console.log(`[Bot] Identity confirmed: @${botUsername}`);
+  } catch (err) {
+    console.warn('[Bot] getMe failed, using fallback username:', err.message);
+  }
+}
+
 (async () => {
   await configureUpdates();
+  await cacheBotUsername();
   await registerCommandsMenu();
 
   // Warm SG public-holiday cache so the holiday-special preset can
