@@ -16,9 +16,14 @@ export async function diagPing() {
 
 // Returns {status, ok, body, timedOut} so the caller can log diagnostics
 // for each outcome (4xx, 5xx, parse, abort) and pivot to sendData.
-// timeoutMs default 6000 — long enough for the Reason+Refine Gemini
-// round-trip on a slow link, short enough to give the fallback room.
-export async function searchCuisine(payload, { timeoutMs = 6000 } = {}) {
+//
+// timeoutMs default 25000 — pipeline is documented at 9–11 s (Reason +
+// Validate + Refine = 2 Gemini + ≤15 Place Details + Routes Matrix +
+// per-cluster data.gov.sg). v0.29.3 raised this from 6 s after a real-
+// world report of D406 firing on the happy path; the previous bound
+// was below the typical p50 latency and was triggering sendData
+// fallback unnecessarily, which closed the TMA mid-search.
+export async function searchCuisine(payload, { timeoutMs = 25000 } = {}) {
   const id = initData();
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);

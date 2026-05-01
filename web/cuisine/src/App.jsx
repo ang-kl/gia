@@ -175,7 +175,7 @@ export default function App() {
     // so the user always sees the click landed even when something goes
     // wrong downstream.
     setSearchTaps((n) => n + 1);
-    setBannerText('🌿 Sensing the vibe… (this may take 5–10 s)');
+    setBannerText('🌿 Sensing the vibe… (8–15 s typical — Reason → Fetch → Refine)');
 
     if (state.preset === 'cuisine-discovery' && !state.cuisines.length && !state.otherCuisine.trim()) {
       showAlert('Pick at least one cuisine for the Discovery preset.');
@@ -198,7 +198,7 @@ export default function App() {
     let result;
     let fetchFailed = false;
     try {
-      record(D.D402_FETCH_START, 'POST /api/cuisine-search (6s timeout)');
+      record(D.D402_FETCH_START, 'POST /api/cuisine-search (25s timeout)');
       result = await searchCuisine(payload);
       if (result.timedOut) {
         record(D.D406_FETCH_NETWORK_FAIL, 'Fetch timed out (>6s)', false);
