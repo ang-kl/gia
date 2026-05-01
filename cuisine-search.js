@@ -66,7 +66,7 @@ function whenToMealHint(when, presetForceMeal) {
   return { id: 'supper', label: 'supper', hint: 'late-night supper and drinks' };
 }
 
-function buildPrompt({ lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext }) {
+function buildPrompt({ lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext, specialRequest }) {
   const cuisineLine = cuisines.length
     ? `Cuisines requested (any of these): ${cuisines.join(', ')}.`
     : 'Any cuisine appropriate to the period.';
@@ -75,6 +75,12 @@ function buildPrompt({ lat, lng, cuisines, radius, recencyDays, queueMaxMin, mod
     ? `Bias toward venues opened or significantly refreshed within the last ${recencyDays} day(s).`
     : '';
   const queueLine = `User's max queue tolerance: ${queueMaxMin} minutes. Estimate queue minutes for each pick honestly (use venue type + day of week + meal period); flag venues you expect to exceed the tolerance with queue_min_estimate, but still include them so the server can filter.`;
+  // v0.30.0: free-form qualifier from NL chat search ("Michelin-starred",
+  // "halal", "kid-friendly", etc.). Surfaced verbatim so Gemini honours
+  // the user's intent across languages without us pre-coding categories.
+  const specialLine = specialRequest && specialRequest.trim()
+    ? `Distinctive user qualifier (HONOUR THIS): ${specialRequest.trim()}.`
+    : '';
   const presetCfg = PRESETS[preset] || null;
   let presetLine = '';
   if (preset === 'holiday-special') {
@@ -95,6 +101,7 @@ ${cuisineLine}
 ${radiusLine}
 ${recencyLine}
 ${queueLine}
+${specialLine}
 ${presetLine}
 
 Return EXACTLY a JSON array of 15 candidate venues. Each item has the keys:
@@ -162,6 +169,7 @@ async function searchCuisine({
   lat, lng, cuisines = [], radius = 1000,
   recencyDays = 90, queueMaxMin = 15,
   mode = 'walk', when = 'now', preset = null,
+  specialRequest = '', // v0.30.0: free-form qualifier from NL chat search
   redis = null
 }) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -194,7 +202,8 @@ async function searchCuisine({
       lat, lng,
       query: {
         label: meal.label, detail: meal.hint,
-        cuisines, recencyDays, queueMaxMin, radius
+        cuisines, recencyDays, queueMaxMin, radius,
+        specialRequest // threaded through pipeline.reason()
       },
       validatedVenues: null,
       count: 15
@@ -205,7 +214,7 @@ async function searchCuisine({
   if (!candidates.length) {
     // Legacy fallback (pipeline disabled, no Redis, or empty draft).
     candidates = await geminiCandidates15({
-      lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext
+      lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext, specialRequest
     });
   }
   if (!candidates.length) {

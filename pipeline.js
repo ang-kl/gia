@@ -65,6 +65,7 @@ User query/period: ${query.label || 'now'} ${query.detail ? `(${query.detail})` 
 ${query.cuisines?.length ? `Cuisines: ${query.cuisines.join(', ')}` : ''}
 ${query.recencyDays ? `"Newly opened" bias: last ${query.recencyDays} days` : ''}
 ${query.queueMaxMin ? `Queue tolerance: ≤ ${query.queueMaxMin} minutes` : ''}
+${query.specialRequest && query.specialRequest.trim() ? `Distinctive user qualifier (HONOUR THIS): ${query.specialRequest.trim()}` : ''}
 
 VAULT SNAPSHOT (${snapshot.vault.length} venues; reviews are most recent on file):
 ${vaultBlock}
