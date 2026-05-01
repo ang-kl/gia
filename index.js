@@ -4,6 +4,7 @@ const axios = require('axios');
 const express = require('express');
 const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
+const pkgJson = require('./package.json');
 require('dotenv').config();
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
@@ -1144,7 +1145,42 @@ async function cacheBotUsername() {
     const app = express();
     app.use(express.json());
 
+    // v0.26.1: permissive CORS on /api/* — auth is enforced via the
+    // X-Telegram-Init-Data header, not cookies, so wildcard origin is
+    // safe (no credentials traverse the boundary). This unblocks any
+    // future TMA hosted on a different origin (e.g. CDN preview).
+    app.use('/api', (req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Telegram-Init-Data');
+      res.setHeader('Access-Control-Max-Age', '600');
+      if (req.method === 'OPTIONS') return res.sendStatus(204);
+      next();
+    });
+
     app.get('/health', (_req, res) => res.send('ok'));
+
+    // v0.26.1: backend health probe for the TMA pre-flight ping. Returns
+    // a flat capability snapshot the Diagnostics panel renders. Auth-free
+    // by design — its purpose is to confirm "the bridge is up" before
+    // initData is even available (hence no requireInitData here).
+    app.get('/api/diag/cuisine', (_req, res) => {
+      const vaultIndex = (() => { try { return require('./vault-index'); } catch { return null; } })();
+      res.json({
+        ok: true,
+        version: pkgJson.version || 'unknown',
+        pipelineEnabled: process.env.PIPELINE_ENABLED !== 'false',
+        envPresent: {
+          TELEGRAM_BOT_TOKEN: !!process.env.TELEGRAM_BOT_TOKEN,
+          GOOGLE_MAPS_API_KEY: !!process.env.GOOGLE_MAPS_API_KEY,
+          GEMINI_API_KEY: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
+        },
+        vaultIndexLoaded: !!vaultIndex,
+        webhookDomain,
+        timestamp: new Date().toISOString(),
+        diag: 'D710'
+      });
+    });
 
     app.post('/webhook', (req, res) => {
       if (req.headers['x-telegram-bot-api-secret-token'] !== webhookSecret) {
@@ -1173,11 +1209,27 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine-search', requireInitData, async (req, res) => {
       const t0 = Date.now();
+      // v0.26.1: fire-and-forget chat receipt so the user sees that the
+      // Search trigger landed even if the TMA's own "Sensing the vibe…"
+      // state never paints (network blip, Telegram in-app browser quirk).
+      // Throttled by isProcessing so a fat-fingered user can't spam.
+      const tgUserId = req.tg?.user?.id;
+      if (tgUserId) {
+        (async () => {
+          try {
+            if (await isProcessing(redis, tgUserId)) return;
+            await setProcessing(redis, tgUserId);
+            await safeSend(tgUserId, '🌿 Sensing the vibe… (Cuisine Picker)');
+          } catch (err) {
+            console.error('[Cuisine-Diag] D704 chat receipt failed:', err.message);
+          }
+        })();
+      }
       try {
         const {
           lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, when, preset
         } = req.body || {};
-        console.log(`[Cuisine-Diag] D700 request received lat=${lat} lng=${lng} radius=${radius} preset=${preset} cuisines=${Array.isArray(cuisines) ? cuisines.length : 0}`);
+        console.log(`[Cuisine-Diag] D700 request received user=${tgUserId} lat=${lat} lng=${lng} radius=${radius} preset=${preset} cuisines=${Array.isArray(cuisines) ? cuisines.length : 0}`);
         if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
           console.warn('[Cuisine-Diag] D701 rejecting — lat/lng invalid');
           return res.status(400).json({ error: 'lat and lng required', diag: 'D701' });
@@ -1204,6 +1256,8 @@ async function cacheBotUsername() {
         const dt = Date.now() - t0;
         console.error(`[Cuisine-Diag] D703 ${dt}ms error:`, err.message);
         res.status(500).json({ error: err.message || 'cuisine search failed', diag: 'D703' });
+      } finally {
+        if (tgUserId) clearProcessing(redis, tgUserId).catch(() => {});
       }
     });
 

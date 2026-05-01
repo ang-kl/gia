@@ -32,7 +32,13 @@ export const DIAG_CODES = {
   D500_PARSE_OK: 'D500',
   D501_VENUES_EMPTY: 'D501',
   D502_VENUES_RECEIVED: 'D502',
-  D900_UNHANDLED: 'D900'
+  D900_UNHANDLED: 'D900',
+
+  // v0.26.1 bridge audit: pre-flight ping codes.
+  D050_BRIDGE_PING:    'D050',
+  D051_BRIDGE_OK:      'D051',
+  D052_BRIDGE_FAIL:    'D052',
+  D053_PIPELINE_OFF:   'D053'
 };
 
 export function makeLogger() {
