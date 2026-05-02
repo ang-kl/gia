@@ -2501,6 +2501,67 @@ async function cacheBotUsername() {
       });
     });
 
+    // v0.34.2: reverse-geocode endpoint. Turns raw lat/lng into a
+    // human-readable neighbourhood/place name for the TMA Header so the
+    // user sees "📍 Telok Blangah" instead of "📍 1.2722, 103.8112".
+    // Cached in Redis 24 h per ~50 m grid cell so repeated TMA opens
+    // at the same spot don't re-bill Google Geocoding (~$0.005/call).
+    app.get('/api/reverse-geocode', requireInitData, async (req, res) => {
+      try {
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return res.status(400).json({ error: 'lat and lng required' });
+        }
+        // Grid lat/lng to ~50 m so nearby pings hit the same cache key.
+        // 1 deg lat ≈ 111 km; 50 m → 4 decimal places.
+        const gLat = lat.toFixed(4);
+        const gLng = lng.toFixed(4);
+        const cacheKey = `revgeo:${gLat}:${gLng}`;
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!apiKey) {
+          return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        }
+        try {
+          const cached = await redis.get(cacheKey);
+          if (cached) {
+            return res.json({ ...JSON.parse(cached), cached: true });
+          }
+        } catch { /* cache miss is fine */ }
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&result_type=neighborhood|sublocality|locality&key=${apiKey}`;
+        const axios = require('axios');
+        const { data } = await axios.get(url, { timeout: 5000 });
+        if (data.status !== 'OK' || !Array.isArray(data.results) || !data.results.length) {
+          // Fallback: broader query without result_type filter.
+          const fallbackUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+          const fallback = await axios.get(fallbackUrl, { timeout: 5000 });
+          if (fallback.data.status !== 'OK' || !fallback.data.results.length) {
+            return res.json({ name: 'Singapore', formatted: `${lat.toFixed(4)}, ${lng.toFixed(4)}` });
+          }
+          data.results = fallback.data.results;
+        }
+        // Pick the most-specific result with a useful component.
+        const result = data.results[0];
+        const components = result.address_components || [];
+        const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
+        const name = findComp('neighborhood')
+          || findComp('sublocality_level_1')
+          || findComp('sublocality')
+          || findComp('locality')
+          || result.formatted_address?.split(',')[0]
+          || 'Singapore';
+        const formatted = result.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        const payload = { name, formatted };
+        try {
+          await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
+        } catch { /* cache write failure is non-fatal */ }
+        res.json(payload);
+      } catch (err) {
+        console.error('[Error] /api/reverse-geocode failed:', err.message);
+        res.status(500).json({ error: 'reverse-geocode failed', detail: err.message?.slice(0, 200) });
+      }
+    });
+
     // v0.34.0: recognised-venues admin endpoints. ADMIN_SYNC_SECRET
     // gates all three; same timing-safe compare as /admin/sync-vault.
     //

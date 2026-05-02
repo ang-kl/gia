@@ -352,6 +352,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header
         loc={state.loc}
+        locDenied={locDenied}
         onLoc={(p) => { a.setLoc(p); setLocDenied(false); record(D.D201_GEO_OK, 'Manual re-detect succeeded', true); }}
         debugOn={diagForcedVisible || showDiagAlways}
         onToggleDebug={() => setDiagForcedVisible((v) => !v)}
