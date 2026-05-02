@@ -14,9 +14,16 @@
 const requestStore = require('./request-store');
 const promptBuilder = require('./prompt-builder');
 const pipeline = require('./pipeline');
+const responseCache = require('./response-cache');
 const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const vaultIndex = require('./vault-index');
 const holidays = require('./holidays');
+
+// v0.41.0: rollback flag. When 'false' the legacy
+// Reason → Validate path runs (v0.40.1 behaviour). Default ON.
+function inversionEnabled() {
+  return process.env.PIPELINE_INVERSION_ENABLED !== 'false';
+}
 
 const NEAR_DAYS_DEFAULT = 90;
 const QUEUE_MAX_DEFAULT = 15;
@@ -181,7 +188,105 @@ async function refineIfPossible(redis, reqId, ranked, payload, mealLabel) {
   }
 }
 
-async function runCuisineTask(redis, reqId) {
+// v0.41.0: inverted /cuisine pipeline.
+//   tier-0  cache lookup (cross-user response cache)
+//   tier-1  Places-first discover → Claude rank+narrate → rank-by-walk → refine
+//   legacy  (PIPELINE_INVERSION_ENABLED=false) Reason→Validate path
+async function runCuisineTaskInverted(redis, reqId) {
+  const row = await requestStore.get(redis, reqId);
+  if (!row) throw new Error(`pipeline-task: row not found ${reqId}`);
+  const payload = row.payload;
+  const meal = mealPeriodSGT();
+  const diagPush = (code, label, ok, detail) => requestStore.pushDiag(redis, reqId, { code, label, ok, detail });
+  try {
+    // Tier 0 — cross-user cache lookup.
+    const cacheParams = {
+      lat: payload.lat,
+      lng: payload.lng,
+      cuisines: payload.cuisines || [],
+      mealPeriod: meal.label
+    };
+    await requestStore.setStage(redis, reqId, 'cache_lookup');
+    const cacheRead = await responseCache.get(redis, cacheParams);
+    if (cacheRead?.hit) {
+      await diagPush('D700', 'Cache HIT', true, { key: cacheRead.key, n: cacheRead.venues.length, ageMs: Date.now() - (cacheRead.cachedAt || 0) });
+      responseCache.incrHit(redis);
+      // Refine still runs against the cached candidates so weather /
+      // traffic copy is fresh per request.
+      const refined = await refineIfPossible(redis, reqId, cacheRead.venues, payload, meal.label);
+      await requestStore.setVenues(redis, reqId, refined);
+      await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
+      return;
+    }
+    await diagPush('D701', 'Cache MISS', true, { key: cacheRead?.key });
+    responseCache.incrMiss(redis);
+
+    // Tier 1 — Places-first discovery.
+    await requestStore.setStage(redis, reqId, 'discovering');
+    const candidates = await pipeline.discover({
+      lat: payload.lat,
+      lng: payload.lng,
+      cuisines: payload.cuisines || [],
+      radius: payload.radius || 1000,
+      mealPeriod: meal.label,
+      maxResults: 20,
+      diag: diagPush
+    });
+    if (!candidates.length) {
+      await requestStore.setVenues(redis, reqId, []);
+      await requestStore.setStatus(redis, reqId, 'empty');
+      return;
+    }
+
+    // Vault snapshot for narrative grounding.
+    const snapshot = await vaultIndex.snapshotForLocation(redis, { lat: payload.lat, lng: payload.lng }, payload.radius || 1500);
+
+    // Claude ranks + narrates (or deterministic fallback).
+    await requestStore.setStage(redis, reqId, 'narrating');
+    const narrated = await pipeline.rankAndNarrate({
+      candidates,
+      query: {
+        cuisines: payload.cuisines || [],
+        label: meal.label,
+        detail: meal.hint,
+        specialRequest: payload.specialRequest
+      },
+      snapshot,
+      count: 5,
+      diag: diagPush
+    });
+    if (!narrated.length) {
+      await requestStore.setVenues(redis, reqId, []);
+      await requestStore.setStatus(redis, reqId, 'empty');
+      return;
+    }
+
+    // Walking-time enrichment + sort.
+    await requestStore.setStage(redis, reqId, 'ranking');
+    const ranked = await rankByWalkingTime(payload.lat, payload.lng, narrated);
+    await diagPush('D840', 'Ranked', true, { n: ranked.length });
+
+    // Cache write BEFORE refine — refine adds per-request context, not
+    // cross-user-shareable content.
+    const writeKey = await responseCache.set(redis, cacheParams, ranked);
+    if (writeKey) {
+      await diagPush('D702', 'Cache WRITE', true, { key: writeKey, n: ranked.length });
+      responseCache.incrWrite(redis);
+    }
+
+    // Refine pass (weather/traffic/carpark) — per request, not cached.
+    const refined = await refineIfPossible(redis, reqId, ranked, payload, meal.label);
+    await requestStore.setVenues(redis, reqId, refined);
+    await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
+  } catch (err) {
+    console.error(`[pipeline-task ${reqId}] cuisine task (inverted) failed:`, err.message);
+    await requestStore.setError(redis, reqId, err);
+  }
+}
+
+// Legacy path — preserved verbatim for the PIPELINE_INVERSION_ENABLED=false
+// rollback. Identical to v0.40.1 behaviour.
+async function runCuisineTaskLegacy(redis, reqId) {
   const row = await requestStore.get(redis, reqId);
   if (!row) throw new Error(`pipeline-task: row not found ${reqId}`);
   const payload = row.payload;
@@ -204,9 +309,15 @@ async function runCuisineTask(redis, reqId) {
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
   } catch (err) {
-    console.error(`[pipeline-task ${reqId}] cuisine task failed:`, err.message);
+    console.error(`[pipeline-task ${reqId}] cuisine task (legacy) failed:`, err.message);
     await requestStore.setError(redis, reqId, err);
   }
+}
+
+async function runCuisineTask(redis, reqId) {
+  return inversionEnabled()
+    ? runCuisineTaskInverted(redis, reqId)
+    : runCuisineTaskLegacy(redis, reqId);
 }
 
 async function runSurpriseTask(redis, reqId) {
