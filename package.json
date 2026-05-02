@@ -1,12 +1,13 @@
 {
   "name": "soleat",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "npm run build:cuisine && npm run build:menu",
+    "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker",
     "build:cuisine": "cd web/cuisine && npm install --no-audit --no-fund && npm run build",
     "build:menu": "cd web/menu && npm install --no-audit --no-fund && npm run build",
+    "build:hawker": "cd web/hawker && npm install --no-audit --no-fund && npm run build",
     "postinstall": "npm run build"
   },
   "engines": {

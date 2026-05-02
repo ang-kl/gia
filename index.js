@@ -1550,6 +1550,34 @@ async function sendHawkerZonesMenu(chatId) {
   await safeSend(chatId, '🗺 Pick a zone — Singapore hawker centres', { reply_markup: { inline_keyboard: rows } });
 }
 
+// v0.38.0: per-centre enrichment helper. Returns 5 carparks within
+// reach of the centre's lat/lng with available lots. Skips when LTA
+// key not set; never throws (returns empty array on failure).
+async function carparksNearCentre(centre, count = 5) {
+  if (!process.env.LTA_ACCOUNT_KEY) return [];
+  try {
+    const carpark = require('./carpark');
+    const list = await carpark.nearest(centre.lat, centre.lng, count);
+    return Array.isArray(list) ? list : [];
+  } catch (err) {
+    console.warn(`[Hawker] carparks near "${centre.name}" failed:`, err.message);
+    return [];
+  }
+}
+
+function formatCentreBlock(c, carparks) {
+  const lines = [];
+  lines.push(`*${c.name}* — ${c.distanceM} m (${c.zone})`);
+  lines.push(c.address);
+  if (carparks?.length) {
+    lines.push('🅿️ Nearest carparks (lots available):');
+    for (const cp of carparks) {
+      lines.push(`  · ${cp.development} — ${cp.availableLots} lots — ${cp.distanceM} m`);
+    }
+  }
+  return lines.join('\n');
+}
+
 async function runHawkerNearest(chatId) {
   try {
     const hawker = require('./hawker');
@@ -1562,15 +1590,17 @@ async function runHawkerNearest(chatId) {
       return;
     }
     const nearest = hawker.nearestCentres(cached.lat, cached.lng, 3);
-    const lines = ['🚏 Nearest hawker centres'];
-    nearest.forEach((c) => {
-      lines.push('', `· ${c.name} — ${c.distanceM} m (${c.zone})`);
-      lines.push(`  ${c.address}`);
-    });
-    lines.push('', `_Cleaning schedules vary; verify at ${hawker.NEA_SCHEDULE_URL} before you go._`);
-    const mapButtons = nearest.map((c) => [{ text: `🗺 ${c.name.slice(0, 24)}…`, url: hawker.googleMapsUrl(c) }]);
-    await safeSend(chatId, lines.join('\n'), {
-      reply_markup: { inline_keyboard: [...mapButtons, back] }
+    // v0.38.0: parallel-fetch 5 carparks per centre (3 × 5 = 15 LTA calls,
+    // fan-out via Promise.allSettled keeps total wall time ~3s).
+    const carparkLists = await Promise.all(nearest.map((c) => carparksNearCentre(c, 5)));
+    const blocks = nearest.map((c, i) => formatCentreBlock(c, carparkLists[i]));
+    const text = ['🚏 *Nearest 3 hawker centres*', '', blocks.join('\n\n'), '',
+      `_Cleaning schedules vary; tap below to view NEA closures or visit ${hawker.NEA_SCHEDULE_URL}._`].join('\n');
+    const mapButtons = nearest.map((c) => [{ text: `🗺 ${c.name.slice(0, 30)}${c.name.length > 30 ? '…' : ''}`, url: hawker.googleMapsUrl(c) }]);
+    const neaButton = [{ text: '🧹 NEA closures (TMA)', web_app: { url: `https://${webhookDomain}/app/hawker` } }];
+    await safeSend(chatId, text, {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [...mapButtons, neaButton, back] }
     });
   } catch (err) {
     console.error('[Error] hawker nearest failed:', err.message);
@@ -1585,21 +1615,35 @@ async function runHawkerZone(chatId, zone) {
       await safeSend(chatId, `Unknown zone "${zone}". Try Central / South / East / West / North.`);
       return;
     }
-    const centres = hawker.centresInZone(zone);
-    if (!centres.length) {
+    const cached = await getUserLocation(redis, chatId);
+    const back = [{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }];
+    if (!cached) {
+      await safeSend(chatId,
+        `🗺 Share your location once via the menu (📍) and Gia will rank the nearest 3 ${zone} hawker centres for you.`,
+        { reply_markup: { inline_keyboard: [back] } }
+      );
+      return;
+    }
+    const zoneCentres = hawker.centresInZone(zone);
+    if (!zoneCentres.length) {
       await safeSend(chatId, `No centres curated for ${zone} yet.`, {
-        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }]] }
+        reply_markup: { inline_keyboard: [back] }
       });
       return;
     }
-    const lines = [`🗺 ${zone} — ${centres.length} hawker centres`];
-    centres.forEach((c) => {
-      lines.push('', `· ${c.name}`);
-      lines.push(`  ${c.address}`);
-    });
-    lines.push('', `_Verify cleaning schedule at ${hawker.NEA_SCHEDULE_URL} before you go._`);
-    await safeSend(chatId, lines.join('\n'), {
-      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }]] }
+    // v0.38.0: rank by haversine from user, take top 3, enrich.
+    const ranked = zoneCentres
+      .map((c) => ({ ...c, distanceM: hawker.haversineMeters(cached.lat, cached.lng, c.lat, c.lng) }))
+      .sort((a, b) => a.distanceM - b.distanceM)
+      .slice(0, 3);
+    const carparkLists = await Promise.all(ranked.map((c) => carparksNearCentre(c, 5)));
+    const blocks = ranked.map((c, i) => formatCentreBlock(c, carparkLists[i]));
+    const text = [`🗺 *${zone} — nearest 3 hawker centres*`, '', blocks.join('\n\n'), '',
+      `_${zoneCentres.length} centres total in ${zone}; verify cleaning at ${hawker.NEA_SCHEDULE_URL}._`].join('\n');
+    const mapButtons = ranked.map((c) => [{ text: `🗺 ${c.name.slice(0, 30)}${c.name.length > 30 ? '…' : ''}`, url: hawker.googleMapsUrl(c) }]);
+    await safeSend(chatId, text, {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [...mapButtons, back] }
     });
   } catch (err) {
     console.error('[Error] hawker zone failed:', err.message);
@@ -1608,27 +1652,46 @@ async function runHawkerZone(chatId, zone) {
 }
 
 async function runHawkerCleaning(chatId) {
+  // v0.38.0: pulls a quick summary from the NEA scrape (cached 6 h)
+  // and offers two buttons: Open the Hawker NEA TMA (full tables) and
+  // Open NEA's authoritative page directly.
   const hawker = require('./hawker');
   const data = hawker.loadData();
+  let summaryLine = '';
+  let stamp = '';
+  try {
+    const neaScrape = require('./nea-scrape');
+    const result = await neaScrape.getCachedOrFetch(redis);
+    const closuresN = result?.closures?.data?.length || 0;
+    const rnrN = result?.rnrWorks?.data?.length || 0;
+    if (result?.ok) {
+      summaryLine = `📊 Currently scraped: *${closuresN}* closure row${closuresN === 1 ? '' : 's'} · *${rnrN}* R&R row${rnrN === 1 ? '' : 's'}.`;
+      stamp = result.cached ? ' (cached)' : ' (just fetched)';
+    } else {
+      summaryLine = `⚠ NEA scrape failed (${result?.error?.slice(0, 80) || 'unknown'}). Use the NEA link below.`;
+    }
+  } catch (err) {
+    summaryLine = `⚠ NEA scrape unavailable: ${err.message?.slice(0, 80)}.`;
+  }
   const text = [
-    '🧹 *Hawker cleaning schedule*',
+    '🧹 *Hawker cleaning + R&R*',
     '',
-    'NEA closes hawker centres for thorough cleaning each quarter (typically 1 weekday + 1 weekend per centre per quarter).',
+    'NEA closes hawker centres quarterly for spring cleaning, plus longer R&R (Repairs & Redecoration / Renovation) closures throughout the year.',
     '',
-    "Schedules vary by centre and aren't embedded in this bot — they change every quarter and Gia doesn't want to send you to a closed centre.",
+    summaryLine + stamp,
     '',
-    `📅 Authoritative schedule: ${hawker.NEA_SCHEDULE_URL}`,
+    `📅 Source: ${hawker.NEA_SCHEDULE_URL}`,
     '',
-    `_Dataset: ${data.version}_`
+    `_Curated dataset: ${data.version}_`
   ].join('\n');
+  const buttons = [
+    [{ text: '🧹 Open closures TMA', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
+    [{ text: '📅 NEA hawker mgmt', url: hawker.NEA_SCHEDULE_URL }],
+    [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
+  ];
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '📅 Open NEA schedule', url: hawker.NEA_SCHEDULE_URL }],
-        [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
-      ]
-    }
+    reply_markup: { inline_keyboard: buttons }
   });
 }
 
@@ -2760,6 +2823,13 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
     });
 
+    // v0.38.0: Hawker NEA TMA — scraped Closures + R&R works.
+    app.use('/app/hawker', express.static(path.join(__dirname, 'public', 'hawker')));
+    app.get('/app/hawker', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'hawker', 'index.html'));
+    });
+
     // v0.30.9: surface whether MAP_ID is registered or running on the
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
@@ -2834,6 +2904,25 @@ async function cacheBotUsername() {
       } catch (err) {
         console.error('[Error] /api/reverse-geocode failed:', err.message);
         res.status(500).json({ error: 'reverse-geocode failed', detail: err.message?.slice(0, 200) });
+      }
+    });
+
+    // v0.38.0: NEA hawker closures + R&R works scrape. On-demand fetch
+    // with 6 h Redis cache. Auth via initData (TMA-callable). Returns
+    // structured tables that the Hawker TMA renders, plus diagnostics
+    // and the source URL for "view on NEA" deep-link.
+    app.get('/api/hawker/closures', requireInitData, async (_req, res) => {
+      try {
+        const neaScrape = require('./nea-scrape');
+        const result = await neaScrape.getCachedOrFetch(redis);
+        res.json(result);
+      } catch (err) {
+        console.error('[Error] /api/hawker/closures failed:', err.message);
+        res.status(500).json({
+          ok: false,
+          error: err.message?.slice(0, 200) || 'scrape failed',
+          sourceUrl: 'https://www.nea.gov.sg/our-services/hawker-management/announcements'
+        });
       }
     });
 

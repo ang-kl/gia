@@ -9,3 +9,5 @@ dist/
 public/cuisine/
 # Vite build output for the Menu TMA (v0.28.0). Source: web/menu/.
 public/menu/
+# Vite build output for the Hawker NEA TMA (v0.38.0). Source: web/hawker/.
+public/hawker/
