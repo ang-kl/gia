@@ -50,11 +50,30 @@ const GRID_M = 500;
 function extractJsonArray(text) {
   if (!text) return text;
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const candidate = fenced ? fenced[1] : text;
-  const start = candidate.indexOf('[');
-  const end = candidate.lastIndexOf(']');
-  if (start !== -1 && end > start) return candidate.slice(start, end + 1);
-  return candidate.trim();
+  const candidate = (fenced ? fenced[1] : text).trim();
+
+  // Preferred shape: top-level array.
+  const arrStart = candidate.indexOf('[');
+  const arrEnd = candidate.lastIndexOf(']');
+  if (arrStart !== -1 && arrEnd > arrStart) return candidate.slice(arrStart, arrEnd + 1);
+
+  // Tolerate top-level objects from occasional model drift:
+  // {"venues":[...]}, {"candidates":[...]}, {"results":[...]}.
+  const objStart = candidate.indexOf('{');
+  const objEnd = candidate.lastIndexOf('}');
+  if (objStart !== -1 && objEnd > objStart) {
+    try {
+      const obj = JSON.parse(candidate.slice(objStart, objEnd + 1));
+      const arr = Array.isArray(obj?.venues) ? obj.venues
+        : Array.isArray(obj?.candidates) ? obj.candidates
+        : Array.isArray(obj?.results) ? obj.results
+        : null;
+      if (arr) return JSON.stringify(arr);
+    } catch {
+      // fall through and return candidate for upstream parse diagnostics
+    }
+  }
+  return candidate;
 }
 
 // ---------------------------------------------------------------------
