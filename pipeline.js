@@ -357,16 +357,55 @@ async function fetchClusterContext(cell) {
   if (traffic.status === 'fulfilled' && Array.isArray(traffic.value) && transport.nearestIncidents) {
     trafficNear = transport.nearestIncidents(traffic.value, lat, lng, 1500, 3);
   }
+  const carparkList = parks.status === 'fulfilled' ? parks.value : [];
   return {
     cellKey: cell.key,
     center: cell.center,
     venueIds: cell.venues.map((v) => v.placeId),
     weather: w.status === 'fulfilled' ? w.value : null,
     trafficIncidents: trafficNear,
-    carparks: parks.status === 'fulfilled' ? parks.value : [],
+    carparks: carparkList,
+    // v0.36.0: carpark-as-footfall A/B test. Compute crowdSignal per
+    // cluster from the median availableLots of the nearest 3 carparks.
+    // Always computed (cheap); surfaced in refine prompt only when
+    // FOOTFALL_PROXY_ENABLED=on. See computeCrowdSignal() comment for
+    // honesty about the cars-not-diners caveat.
+    crowdSignal: computeCrowdSignal(carparkList),
     mrtStations: mrt.status === 'fulfilled' ? mrt.value : [],
     elapsedMs: Date.now() - t0
   };
+}
+
+// v0.36.0: hypothesis — packed carparks at lunch/dinner peak correlate
+// with packed eateries next door. WEAK signal: walk-in lunch crowd at
+// CBD hawker centres is overwhelmingly NOT car-based, so this proxy
+// will systematically under-detect crowd at Maxwell / Lau Pa Sat /
+// Amoy Street. The A/B test is whether the signal helps despite that
+// bias for non-CBD venues (suburban malls, drive-to F&B at HDB heartland).
+//
+// Thresholds are absolute (NOT ratio) because LTA's CarParkAvailabilityv2
+// API does not expose total capacity, only currently-available lots.
+//
+//   median lots (top 3) < 15  → 'high'   (carparks are full)
+//   median lots (top 3) > 150 → 'low'    (lots of space)
+//   else                      → 'medium' (no clear signal)
+//
+// Returns null when fewer than 2 carparks have data (signal too weak).
+function computeCrowdSignal(carparks) {
+  if (!Array.isArray(carparks) || carparks.length < 2) return null;
+  const lots = carparks
+    .map((c) => Number(c.availableLots))
+    .filter((n) => Number.isFinite(n))
+    .sort((a, b) => a - b);
+  if (lots.length < 2) return null;
+  const median = lots.length % 2
+    ? lots[(lots.length - 1) / 2]
+    : Math.round((lots[lots.length / 2 - 1] + lots[lots.length / 2]) / 2);
+  let level;
+  if (median < 15) level = 'high';
+  else if (median > 150) level = 'low';
+  else level = 'medium';
+  return { level, medianLots: median, sampleSize: lots.length };
 }
 
 async function fetchContext(venues, diag = noopDiag()) {
@@ -406,7 +445,16 @@ function summariseClusterCtx(ctx) {
     .map((s) => s.name)
     .filter(Boolean)
     .join(', ') || 'no MRT in 1.5 km';
-  return `[${wLine}] [traffic: ${tIncidents}] [foot-traffic proxy via carpark: ${parks}] [nearest MRT: ${mrt}]`;
+  // v0.36.0: surface crowdSignal in the refine prompt only when the
+  // env A/B flag is on. When off, refine sees the cluster ctx exactly
+  // as v0.35 (no behavioural change). Honest framing: tag the signal
+  // as "carpark-proxy" so the model knows it's not direct foot traffic.
+  let footfallLine = '';
+  if (process.env.FOOTFALL_PROXY_ENABLED === 'on' && ctx.crowdSignal) {
+    const cs = ctx.crowdSignal;
+    footfallLine = ` [footfall (carpark proxy, n=${cs.sampleSize}, median=${cs.medianLots} lots): ${cs.level}]`;
+  }
+  return `[${wLine}] [traffic: ${tIncidents}] [foot-traffic proxy via carpark: ${parks}] [nearest MRT: ${mrt}]${footfallLine}`;
 }
 
 async function refine({ draft, context, query, diag = noopDiag() }) {
@@ -424,8 +472,8 @@ async function refine({ draft, context, query, diag = noopDiag() }) {
 [
   {
     "placeId": "<unchanged>",
-    "travel_advice": "one short sentence, factor in heavy rain (suggest sheltered route / indoor sanctuary) or heavy traffic (note delay) when relevant",
-    "queue_min_estimate": <int — adjust UP if traffic in cluster is heavy or carpark occupancy is high; keep otherwise>,
+    "travel_advice": "one short sentence, factor in heavy rain (suggest sheltered route / indoor sanctuary) or heavy traffic (note delay); v0.36.0: when cluster context tag '[footfall (carpark proxy ...): high]' appears, mention 'lunch crowd peak — arrive 15 min early or go takeaway'. When 'low', mention 'quiet right now — easy to walk in'. The signal is a CARPARK proxy (cars-not-diners) so do NOT cite it as authoritative for CBD walk-in venues.",
+    "queue_min_estimate": <int — adjust UP if traffic in cluster is heavy, carpark occupancy is high, OR footfall=high; keep otherwise>,
     "weather_flag": "<'heavy_rain' | 'rain' | 'clear' | 'unknown'>",
     "shelter_note": "<empty string OR one phrase recommending a sheltered alternative if heavy_rain>",
     "cost_estimate_sgd": { "low": <int>, "high": <int> }
