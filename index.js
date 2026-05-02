@@ -689,7 +689,9 @@ bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
 // UNESCO ICH) within 5 km. Consumes the v0.34 recog:venue:* table —
 // returns "no venues yet, run /admin/seed-recognised" if the table is
 // empty.
-bot.onText(/^\/recognised(?:@\w+)?$/, (msg) => runRecognisedCommand(msg.chat.id));
+// v0.37.0: optional category filter — /recognised michelin, /recognised bib,
+// /recognised michelin-star, etc. Falls through to all-categories when no arg.
+bot.onText(/^\/recognised(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognisedCommand(msg.chat.id, match?.[1] || null));
 
 // v0.35.0: /heritage-food — nearest 5 venues from recog:venue:* within
 // 2 km that carry a heritage signal (UNESCO ICH award, multi-gen tag,
@@ -1704,7 +1706,39 @@ function isHeritageSignal(entry) {
   return false;
 }
 
-async function runRecognisedCommand(chatId) {
+// v0.37.0: shorthand → canonical category map for /recognised <arg>.
+// Accepts michelin, bib, asia, world, chef, unesco — and the full
+// canonical names too.
+const RECOGNISED_FILTER_ALIASES = {
+  'michelin':              'michelin-star',
+  'star':                  'michelin-star',
+  'michelin-star':         'michelin-star',
+  'bib':                   'bib-gourmand',
+  'bib-gourmand':          'bib-gourmand',
+  'gourmand':              'bib-gourmand',
+  'asia':                  'asia-50-best',
+  'asia-50-best':          'asia-50-best',
+  '50best':                'asia-50-best',
+  'world':                 'world-culinary-awards',
+  'wca':                   'world-culinary-awards',
+  'world-culinary-awards': 'world-culinary-awards',
+  'chef':                  'best-chef-awards',
+  'best-chef':             'best-chef-awards',
+  'best-chef-awards':      'best-chef-awards',
+  'unesco':                'unesco-ich',
+  'ich':                   'unesco-ich',
+  'unesco-ich':            'unesco-ich',
+  'hawker':                'unesco-ich',
+  'selected':              'michelin-selected',
+  'michelin-selected':     'michelin-selected'
+};
+
+function venueMatchesCategory(entry, category) {
+  if (!category) return true;
+  return Array.isArray(entry.awards) && entry.awards.some((a) => a?.category === category);
+}
+
+async function runRecognisedCommand(chatId, filterArg = null) {
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
@@ -1714,6 +1748,20 @@ async function runRecognisedCommand(chatId) {
     if (!cached) {
       await bot.sendMessage(chatId, "Where are you? Tap to share your location for /recognised.", LOCATION_REQUEST_KEYBOARD);
       return;
+    }
+    // v0.37.0: resolve filter argument.
+    let categoryFilter = null;
+    if (filterArg) {
+      const normalised = String(filterArg).toLowerCase().trim();
+      categoryFilter = RECOGNISED_FILTER_ALIASES[normalised] || null;
+      if (!categoryFilter) {
+        const allowed = [...new Set(Object.values(RECOGNISED_FILTER_ALIASES))].join(', ');
+        await safeSend(chatId,
+          `Unknown filter \`${filterArg}\`. Valid: \`michelin\`, \`bib\`, \`asia\`, \`world\`, \`chef\`, \`unesco\` (or full names: ${allowed}).`,
+          { parse_mode: 'Markdown' }
+        );
+        return;
+      }
     }
     await setProcessing(redis, chatId);
     const recogStore = require('./recognised-store');
@@ -1727,20 +1775,40 @@ async function runRecognisedCommand(chatId) {
       );
       return;
     }
-    const nearest = await recogStore.nearestLive(redis, cached.lat, cached.lng, RECOG_TOPN, RECOGNISED_RADIUS_M);
+    // Fetch wider candidate pool when filtering so we don't dead-end on
+    // a 5-result query that all happen to be in the wrong category.
+    const fetchN = categoryFilter ? 25 : RECOG_TOPN;
+    const candidates = await recogStore.nearestLive(redis, cached.lat, cached.lng, fetchN, RECOGNISED_RADIUS_M);
+    const nearest = (categoryFilter
+      ? candidates.filter((v) => venueMatchesCategory(v, categoryFilter))
+      : candidates).slice(0, RECOG_TOPN);
     if (!nearest.length) {
+      const filterLabel = categoryFilter ? ` filtered to *${categoryFilter}*` : '';
       await safeSend(chatId,
-        `🏆 No award-winning venues within ${RECOGNISED_RADIUS_M / 1000} km of your saved location. ` +
-        `(${counts.live} live entries island-wide.) Try `/cuisine` for unfiltered picks or move closer to a hub.`
+        `🏆 No award-winning venues${filterLabel} within ${RECOGNISED_RADIUS_M / 1000} km of your saved location. ` +
+        `(${counts.live} live entries island-wide.) Try /cuisine for unfiltered picks or move closer to a hub.`,
+        { parse_mode: 'Markdown' }
       );
       return;
     }
-    const lines = [`🏆 *Nearest ${nearest.length} recognised venue${nearest.length === 1 ? '' : 's'}*`];
-    for (const v of nearest) {
+    // v0.37.0: travel-time enrichment via Routes Matrix (~$0.015/call).
+    // Adds walkMinutes/walkSeconds/walkMeters to each entry. Falls back
+    // to haversine-only display if Routes Matrix fails.
+    let enriched = nearest;
+    try {
+      const { rankByWalkingTime } = require('./vibe-suggest');
+      enriched = await rankByWalkingTime(cached.lat, cached.lng, nearest);
+    } catch (err) {
+      console.warn('[Recognised] rankByWalkingTime failed, using haversine only:', err.message);
+    }
+    const filterLabel = categoryFilter ? ` (${categoryFilter})` : '';
+    const lines = [`🏆 *Nearest ${enriched.length} recognised venue${enriched.length === 1 ? '' : 's'}${filterLabel}*`];
+    for (const v of enriched) {
       const awardLine = summariseAwards(v.awards);
+      const walkLine = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
       lines.push(
         '',
-        `*${v.name}* — ${v.distanceM} m away`,
+        `*${v.name}* — ${v.distanceM} m${walkLine}`,
         v.address || '',
         awardLine ? `🏆 ${awardLine}` : ''
       );
@@ -1795,16 +1863,26 @@ async function runHeritageFoodCommand(chatId) {
       return;
     }
     const heritageSig = require('./heritage-significance');
+    // v0.37.0: travel-time enrichment + heritage-significance sigs in
+    // parallel. ~$0.015 Routes Matrix + 5 × Gemini Flash calls; both
+    // hit caches on repeat queries.
+    let enriched = heritage;
+    try {
+      const { rankByWalkingTime } = require('./vibe-suggest');
+      enriched = await rankByWalkingTime(cached.lat, cached.lng, heritage);
+    } catch (err) {
+      console.warn('[Heritage] rankByWalkingTime failed, using haversine only:', err.message);
+    }
     const lines = [`🏛 *Heritage food within ${HERITAGE_RADIUS_M / 1000} km*`];
-    // Resolve significance lines in parallel (cached → fast; cold → 1 Gemini call each).
     const sigs = await Promise.allSettled(
-      heritage.map((v) => heritageSig.getOrGenerate(redis, v))
+      enriched.map((v) => heritageSig.getOrGenerate(redis, v))
     );
-    heritage.forEach((v, i) => {
+    enriched.forEach((v, i) => {
       const sig = sigs[i].status === 'fulfilled' ? sigs[i].value : null;
+      const walkLine = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
       lines.push(
         '',
-        `*${v.name}* — ${v.distanceM} m away`,
+        `*${v.name}* — ${v.distanceM} m${walkLine}`,
         v.address || '',
         summariseAwards(v.awards) ? `🏆 ${summariseAwards(v.awards)}` : '',
         sig ? `🏛 ${sig}` : ''
@@ -1969,9 +2047,28 @@ async function runVerCommand(chatId) {
     } catch (err) {
       buddyLine = '\nBuddy: state unknown';
     }
-    const reportWithBuddy = report + buddyLine;
-    const escaped = reportWithBuddy.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, reportWithBuddy); });
+    // v0.37.0: footfall A/B telemetry row. Reads the Redis counters that
+    // pipeline-task#refineIfPossible bumps when FOOTFALL_PROXY_ENABLED=on.
+    // Only surfaces the row when the flag is on; stays quiet otherwise.
+    let footfallLine = '';
+    if (process.env.FOOTFALL_PROXY_ENABLED === 'on') {
+      try {
+        const [hi, med, lo, nul, runs] = await Promise.all([
+          redis.get('footfall:signal-fired:high'),
+          redis.get('footfall:signal-fired:medium'),
+          redis.get('footfall:signal-fired:low'),
+          redis.get('footfall:signal-fired:null'),
+          redis.get('footfall:fetch-context-runs')
+        ]);
+        const total = (Number(hi)||0) + (Number(med)||0) + (Number(lo)||0) + (Number(nul)||0);
+        footfallLine = `\nFootfall (A/B on, ${runs || 0} runs): high=${hi || 0} · med=${med || 0} · low=${lo || 0} · null=${nul || 0} (n=${total})`;
+      } catch {
+        footfallLine = '\nFootfall (A/B on): counters unavailable';
+      }
+    }
+    const reportWithExtras = report + buddyLine + footfallLine;
+    const escaped = reportWithExtras.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, reportWithExtras); });
   } catch (err) {
     console.error('[Error] ver command failed:', err.message);
     await safeSend(chatId, "Sorry, I couldn't run the health check.");

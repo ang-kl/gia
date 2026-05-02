@@ -154,6 +154,26 @@ async function refineIfPossible(redis, reqId, ranked, payload, mealLabel) {
     await requestStore.setStage(redis, reqId, 'refining');
     const diag = (code, label, ok, detail) => requestStore.pushDiag(redis, reqId, { code, label, ok, detail });
     const context = await pipeline.fetchContext(ranked, diag);
+    // v0.37.0: footfall A/B telemetry. Increment Redis counters per
+    // crowdSignal level so we can answer "how often does the signal
+    // actually fire, and how is it distributed?" without subjective
+    // recall. Counter only bumps when FOOTFALL_PROXY_ENABLED=on so
+    // turning the flag off cleanly stops measurement too.
+    if (process.env.FOOTFALL_PROXY_ENABLED === 'on' && context?.clusters?.length) {
+      const counts = { high: 0, medium: 0, low: 0, null: 0 };
+      for (const c of context.clusters) {
+        const level = c.crowdSignal?.level || 'null';
+        counts[level] = (counts[level] || 0) + 1;
+      }
+      // Fire-and-forget — never block refine on telemetry.
+      Promise.all([
+        counts.high ? redis.incrBy('footfall:signal-fired:high', counts.high) : null,
+        counts.medium ? redis.incrBy('footfall:signal-fired:medium', counts.medium) : null,
+        counts.low ? redis.incrBy('footfall:signal-fired:low', counts.low) : null,
+        counts.null ? redis.incrBy('footfall:signal-fired:null', counts.null) : null,
+        redis.incrBy('footfall:fetch-context-runs', 1)
+      ].filter(Boolean)).catch((err) => console.warn('[Footfall-Telemetry] incr failed:', err.message));
+    }
     return await pipeline.refine({ draft: ranked, context, query: { label: mealLabel }, diag });
   } catch (err) {
     await requestStore.pushDiag(redis, reqId, { code: 'D850', label: 'Refine failed (using ranked)', ok: false, detail: err.message?.slice(0, 200) });
