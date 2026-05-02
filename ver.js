@@ -6,6 +6,7 @@
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const pkg = require('./package.json');
+const { execSync } = require('child_process');
 
 const TIMEOUT_MS = 5000;
 
@@ -174,6 +175,19 @@ function fmtUptime(ms) {
   return rm ? `${h}h ${rm}m` : `${h}h`;
 }
 
+function detectBuildRef() {
+  const envRef = process.env.RAILWAY_GIT_COMMIT_SHA
+    || process.env.SOURCE_VERSION
+    || process.env.GITHUB_SHA
+    || '';
+  if (envRef) return String(envRef).slice(0, 12);
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
 async function runHealthCheck(bot, redis) {
   const [places, routes, gemini, telegram, lta, redisRes, dataGov] = await Promise.all([
     checkGooglePlaces(),
@@ -186,6 +200,7 @@ async function runHealthCheck(bot, redis) {
   ]);
   const lines = [
     `soleat v${pkg.version}`,
+    `build ${detectBuildRef()}`,
     '',
     fmtRow('Telegram',     telegram),
     fmtRow('Redis',        redisRes),

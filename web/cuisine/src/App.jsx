@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'; /* useRef already in v0.26.x for logger */
 import { useCuisineState } from './state/useCuisineState.js';
 import { searchCuisine, submitSearch, pollUntilDone, diagPing } from './api/search.js';
-import { requestLocation, showAlert, tg, initData, sendData, launchContext, closeWebApp } from './api/tg.js';
+import { requestLocation, showAlert, tg, initData, sendData, launchContext, closeWebApp, getLanguage } from './api/tg.js';
 import { makeLogger, DIAG_CODES as D } from './state/diagnostics.js';
 import Header from './components/Header.jsx';
 import RangeSlider from './components/RangeSlider.jsx';
@@ -136,7 +136,8 @@ export default function App() {
         queueMaxMin: state.queueMaxMin,
         mode: state.mode,
         when: state.when,
-        preset: state.preset
+        preset: state.preset,
+        lang: getLanguage()
       },
       cuisinesPayload,
       usedDefault: !state.loc
