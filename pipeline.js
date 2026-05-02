@@ -29,16 +29,14 @@
 //   D632  refine gemini fail
 //   D640  pipeline emit final (n_final)
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 const vaultIndex = require('./vault-index');
 const weather = require('./weather');
 const transport = require('./transport');
 const carpark = require('./carpark');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.DEFAULT_MODEL;
 
 const GRID_M = 500;
 
@@ -152,44 +150,22 @@ Return EXACTLY a JSON array of ${count} venues. Return ONLY the JSON array.`;
 }
 
 async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag() }) {
-  if (!genAI) {
-    diag('D612', 'Gemini unavailable (no API key)', false);
+  if (!llm.isReady()) {
+    diag('D612', 'LLM unavailable (no API key)', false);
     return [];
   }
   diag('D610', 'Reason call start', true, { count, vault_n: snapshot.vault.length });
   try {
-    // v0.30.3: Google Search grounding for the GEOSPATIAL_CULINARY_ANALYST
-    // persona's "newly opened" / "verified opening date" claims.
-    // v0.30.4: gated by GROUNDING_ENABLED env flag (default ON). Set
-    // GROUNDING_ENABLED=false in Railway to revert to no-tools behaviour
-    // if grounding is the regression cause for empty results.
-    const groundingEnabled = process.env.GROUNDING_ENABLED !== 'false';
-    // v0.31.2: Gemini API rejects `tools` + `responseMimeType: 'application/json'`
-    // in the same generateContent call with HTTP 400 "Tool use with a response
-    // mime type: 'application/json' is unsupported". When grounding is on we
-    // omit responseMimeType; the v0.30.4 lenient JSON parser already handles
-    // free-text JSON-shaped responses.
-    const generationConfig = groundingEnabled ? {} : { responseMimeType: 'application/json' };
-    const tools = groundingEnabled ? [{ googleSearch: {} }] : undefined;
-    const modelOpts = tools ? { model: MODEL_NAME, generationConfig, tools } : { model: MODEL_NAME, generationConfig };
-    const model = genAI.getGenerativeModel(modelOpts);
+    // v0.40.0: migrated to Anthropic. Web-search grounding (the Gemini
+    // googleSearch tool) is dropped — was already off by default since
+    // v0.31.2 (`GROUNDING_ENABLED=false`) due to the JSON-mime regression.
+    // The vault snapshot remains the primary grounding source.
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
-    console.log(`[Pipeline-Reason] grounding=${groundingEnabled ? 'ON' : 'OFF'} model=${MODEL_NAME} prompt_len=${prompt.length}`);
-    // Flash fallback uses the same tools setting for parity.
-    const fallbackFn = (() => {
-      if (!makeFlashFallback(genAI, prompt, generationConfig)) return null;
-      return async () => {
-        const flashOpts = tools
-          ? { model: 'gemini-2.5-flash', generationConfig, tools }
-          : { model: 'gemini-2.5-flash', generationConfig };
-        const flashModel = genAI.getGenerativeModel(flashOpts);
-        return flashModel.generateContent(prompt);
-      };
-    })();
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Pipeline-Reason',
-      fallbackFn
-    });
+    console.log(`[Pipeline-Reason] model=${MODEL_NAME} prompt_len=${prompt.length}`);
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 8192 }),
+      { label: 'Pipeline-Reason' }
+    );
     // v0.30.4: capture raw text for diagnostic on parse error.
     const rawText = result.response.text();
     console.log(`[Pipeline-Reason] response length=${rawText.length} chars`);
@@ -272,8 +248,8 @@ function normaliseCandidate(c, isSurprise = false) {
 }
 
 async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = noopDiag() }) {
-  if (!genAI) {
-    diag('D612', 'Gemini unavailable (no API key)', false);
+  if (!llm.isReady()) {
+    diag('D612', 'LLM unavailable (no API key)', false);
     return { candidates: [], rawText: '', meta: { ok: false, error: 'no_api_key' } };
   }
   if (!prompt || !prompt.user) {
@@ -281,19 +257,23 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
     return { candidates: [], rawText: '', meta: { ok: false, error: 'no_prompt' } };
   }
   diag('D610', 'Reason call start', true, { count, executor: true });
-  const composed = (prompt.system ? `[SYSTEM]\n${prompt.system}\n\n` : '')
-    + `[USER]\n${prompt.user}\n\n`
+  const composed = `[USER]\n${prompt.user}\n\n`
     + (prompt.schema ? `[SCHEMA]\n${prompt.schema}\n\n` : '')
     + 'Return ONLY a JSON array.';
-  const generationConfig = { responseMimeType: 'application/json' };
   const t0 = Date.now();
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
     console.log(`[Pipeline-Reason-Exec] model=${MODEL_NAME} prompt_len=${composed.length}`);
-    const result = await withRetry(() => model.generateContent(composed), {
-      label: 'Pipeline-Reason-Exec',
-      fallbackFn: makeFlashFallback(genAI, composed, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({
+        prompt: composed,
+        system: prompt.system || undefined,
+        model: MODEL_NAME,
+        json: true,
+        jsonShape: 'array',
+        maxTokens: 8192
+      }),
+      { label: 'Pipeline-Reason-Exec' }
+    );
     const rawText = result.response.text();
     const ms = Date.now() - t0;
     console.log(`[Pipeline-Reason-Exec] response length=${rawText.length} chars in ${ms}ms`);
@@ -477,7 +457,7 @@ function summariseClusterCtx(ctx) {
 }
 
 async function refine({ draft, context, query, diag = noopDiag() }) {
-  if (!genAI || !draft.length) return draft;
+  if (!llm.isReady() || !draft.length) return draft;
   diag('D630', 'Refine call start');
   try {
     const lines = draft.map((v, i) => {
@@ -507,12 +487,10 @@ User period: ${query.label || 'now'}.
 
 Return ONLY the JSON array, in the same order as the input.`;
 
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Pipeline-Refine',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: 'Pipeline-Refine' }
+    );
     const refined = JSON.parse(result.response.text());
     if (!Array.isArray(refined)) {
       diag('D632', 'Refine non-array', false);

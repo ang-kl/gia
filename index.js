@@ -2654,7 +2654,7 @@ async function cacheBotUsername() {
         envPresent: {
           TELEGRAM_BOT_TOKEN: !!process.env.TELEGRAM_BOT_TOKEN,
           GOOGLE_MAPS_API_KEY: !!process.env.GOOGLE_MAPS_API_KEY,
-          GEMINI_API_KEY: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
+          ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY
         },
         vaultIndexLoaded: !!vaultIndex,
         webhookDomain,
@@ -2753,7 +2753,7 @@ async function cacheBotUsername() {
         bot: { username: botUsername },
         env: {
           PIPELINE_ENABLED: process.env.PIPELINE_ENABLED !== 'false',
-          GEMINI_API_KEY_present: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
+          ANTHROPIC_API_KEY_present: !!process.env.ANTHROPIC_API_KEY,
           GOOGLE_MAPS_API_KEY_present: !!process.env.GOOGLE_MAPS_API_KEY,
           REDIS_open: !!redis?.isOpen
         },

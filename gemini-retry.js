@@ -1,41 +1,35 @@
-// gemini-retry.js — exponential-backoff wrapper for Gemini calls.
+// gemini-retry.js — exponential-backoff wrapper for LLM calls.
 //
-// 503 ("model experiencing high demand") and 429 ("rate limited") are the
-// transient error classes that benefit from a short retry. Other errors
-// (auth, bad request, depleted credits) bubble out immediately.
+// v0.40.0: migrated to Anthropic. The filename stays for minimal repo
+// churn; the export contract (`withRetry`, `isRetryable`) is unchanged.
+// `makeFlashFallback` is retained as a no-op factory returning null so
+// existing call sites compile without edits — Anthropic doesn't have a
+// "Pro→Flash" overload-class to fall back from, and the SDK already does
+// transient retries internally when configured to.
 //
-// Backoff schedule: 1s, 2s, 4s — three retries max. Total worst-case wait
-// added per call ≈ 7s, which fits inside Telegram's 30s server-side timeout
-// budget for bot replies.
-//
-// v0.30.2: when the configured GEMINI_MODEL has exhausted retries on a
-// transient error, withRetry invokes an optional `fallbackFn` (typically
-// the same prompt against gemini-2.5-flash). Designed for the Pro-
-// overload class of outage where Flash is fine and Pro isn't.
-//
-// v0.31.2: 400/401/403/404 are deterministic client errors and MUST NOT
-// retry. Production trace 2026-05-01 11:10 SGT showed 50 s wasted on a
-// retryable-loop chasing a 400 that would never succeed.
+// Backoff schedule: 1s, 2s, 4s — three retries max. Total worst-case
+// wait added per call ≈ 7s, which fits inside Telegram's 30s server-side
+// timeout budget for bot replies.
 
-const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
-const NON_RETRYABLE_STATUSES = new Set([400, 401, 403, 404]);
+const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504, 529]);
+const NON_RETRYABLE_STATUSES = new Set([400, 401, 403, 404, 422]);
 const DEFAULT_DELAYS_MS = [1000, 2000, 4000];
-const FLASH_MODEL = 'gemini-2.5-flash';
 
 function isRetryable(err) {
-  // SDK exposes status on err.status; also surfaces it inside the message.
-  const status = err?.status;
+  const status = err?.status ?? err?.response?.status;
   const msg = String(err?.message || '');
   if (NON_RETRYABLE_STATUSES.has(status)) return false;
-  if (/\[(400|401|403|404)\s/.test(msg)) return false;
+  if (/\b(400|401|403|404|422)\b/.test(msg) && !err?._retryHint) return false;
   if (RETRYABLE_STATUSES.has(status)) return true;
-  if (/\[(429|500|502|503|504)\s/.test(msg)) return true;
-  // Network failures (no status, but fetch-level errors) are retryable.
-  if (!status && /(ECONNRESET|ETIMEDOUT|ENOTFOUND|fetch failed|network)/i.test(msg)) return true;
+  if (/\b(408|429|500|502|503|504|529)\b/.test(msg)) return true;
+  if (err?.name === 'RateLimitError') return true;
+  if (err?.name === 'APIConnectionError' || err?.name === 'APIConnectionTimeoutError') return true;
+  // Network failures (no status, fetch-level errors) are retryable.
+  if (!status && /(ECONNRESET|ETIMEDOUT|ENOTFOUND|fetch failed|network|socket hang up)/i.test(msg)) return true;
   return false;
 }
 
-async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'gemini', fallbackFn = null } = {}) {
+async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'llm', fallbackFn = null } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= delays.length; attempt++) {
     try {
@@ -43,12 +37,8 @@ async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'gemini', fal
     } catch (err) {
       lastErr = err;
       if (attempt === delays.length || !isRetryable(err)) {
-        // v0.30.2: model fallback. Only on the terminal-retryable case
-        // (retries exhausted on 429/503). Skip when the error wasn't
-        // transient — auth / bad-request / schema errors won't be fixed
-        // by switching to Flash either.
         if (fallbackFn && isRetryable(err)) {
-          console.warn(`[${label}] primary model exhausted ${delays.length} retries on transient error; falling back to flash: ${err.message?.slice(0, 120)}`);
+          console.warn(`[${label}] primary exhausted ${delays.length} retries on transient error; falling back: ${err.message?.slice(0, 120)}`);
           try {
             return await fallbackFn();
           } catch (fallbackErr) {
@@ -66,21 +56,11 @@ async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'gemini', fal
   throw lastErr;
 }
 
-// v0.30.2: helper to wrap a `model.generateContent(prompt)` call with an
-// automatic Flash fallback when the configured model is something else
-// (typically Pro). Returns null when the configured model is already
-// Flash (no fallback target makes sense) — withRetry then skips the
-// fallback path.
-function makeFlashFallback(genAI, prompt, generationConfig = {}) {
-  const configuredModel = process.env.GEMINI_MODEL || FLASH_MODEL;
-  if (configuredModel === FLASH_MODEL || !genAI) return null;
-  return async () => {
-    const flashModel = genAI.getGenerativeModel({
-      model: FLASH_MODEL,
-      generationConfig
-    });
-    return flashModel.generateContent(prompt);
-  };
+// Anthropic has no Pro→Flash equivalent; this exists only so legacy call
+// sites that pass `fallbackFn: makeFlashFallback(...)` keep compiling.
+// Returning null tells withRetry to skip the fallback path.
+function makeFlashFallback() {
+  return null;
 }
 
-module.exports = { withRetry, isRetryable, makeFlashFallback, FLASH_MODEL };
+module.exports = { withRetry, isRetryable, makeFlashFallback };

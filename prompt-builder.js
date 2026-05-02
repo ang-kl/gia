@@ -19,12 +19,10 @@
 // Stage A is deliberately fast (~2 s, no grounding tools, no reasoning
 // chain). It's a query-rewrite step, not the search itself.
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const STAGE_A_MODEL = process.env.GEMINI_STAGE_A_MODEL || 'gemini-2.5-flash';
+const STAGE_A_MODEL = process.env.ANTHROPIC_STAGE_A_MODEL || llm.SONNET_MODEL;
 
 // Fallback prompt — used when Stage A Gemini call fails or returns
 // malformed JSON. Mirrors the v0.30.3 GEOSPATIAL_CULINARY_ANALYST prompt
@@ -61,7 +59,7 @@ function buildFallbackPrompt(input) {
 }
 
 async function buildPrompt(input) {
-  if (!genAI) return buildFallbackPrompt(input);
+  if (!llm.isReady()) return buildFallbackPrompt(input);
 
   const builderPrompt = `You are a Singapore culinary query architect. Given the user's filters and context below, build the SINGLE most effective prompt that will return ${input.kind === 'surprise' ? 5 : 15} venue candidates from Gemini Flash for the executor stage.
 
@@ -110,12 +108,10 @@ Return ONLY the JSON object.`;
 
   const t0 = Date.now();
   try {
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: STAGE_A_MODEL, generationConfig });
-    const result = await withRetry(() => model.generateContent(builderPrompt), {
-      label: 'PromptBuilder',
-      fallbackFn: makeFlashFallback(genAI, builderPrompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt: builderPrompt, model: STAGE_A_MODEL, json: true, maxTokens: 2048 }),
+      { label: 'PromptBuilder' }
+    );
     const rawText = result.response.text();
     let parsed;
     try {

@@ -16,14 +16,12 @@
 //   4. Caller reviews via /admin/list-staging then promotes / rejects
 //      via /admin/promote-recognised.
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 const { geocodeQuery } = require('./vibe-suggest');
 const recogStore = require('./recognised-store');
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const SCOUT_MODEL = process.env.GEMINI_SCOUT_MODEL || 'gemini-2.5-flash';
+const SCOUT_MODEL = process.env.ANTHROPIC_SCOUT_MODEL || llm.DEFAULT_MODEL;
 
 // Category → human-friendly Gemini prompt fragment + JSON schema hint.
 const CATEGORIES = {
@@ -107,15 +105,13 @@ function extractJsonArray(text) {
 }
 
 async function scoutCategory(category) {
-  if (!genAI) return { entries: [], err: 'no_api_key' };
+  if (!llm.isReady()) return { entries: [], err: 'no_api_key' };
   const prompt = buildScoutPrompt(category);
-  const generationConfig = { responseMimeType: 'application/json' };
   try {
-    const model = genAI.getGenerativeModel({ model: SCOUT_MODEL, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: `RecogScout-${category}`,
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: SCOUT_MODEL, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: `RecogScout-${category}` }
+    );
     const rawText = result.response.text();
     let parsed;
     try { parsed = JSON.parse(rawText); }
