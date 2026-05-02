@@ -2449,6 +2449,91 @@ async function cacheBotUsername() {
       });
     });
 
+    // v0.34.0: recognised-venues admin endpoints. ADMIN_SYNC_SECRET
+    // gates all three; same timing-safe compare as /admin/sync-vault.
+    //
+    // Workflow:
+    //   1. POST /admin/seed-recognised?secret=<x>&category=<one>|all
+    //      → Gemini scouts award winners, writes to recog:staging:*.
+    //   2. GET  /admin/list-staging?secret=<x>
+    //      → returns pending entries for redis-cli inspection.
+    //   3. POST /admin/promote-recognised?secret=<x>&placeId=<id>&decision=accept|reject
+    //      → moves staging → live (or rejects).
+    function adminAuth(req, res) {
+      const expected = process.env.ADMIN_SYNC_SECRET;
+      const given = String(req.query.secret || '');
+      if (!expected) {
+        res.status(503).json({ error: 'ADMIN_SYNC_SECRET env var not configured' });
+        return false;
+      }
+      const a = Buffer.from(expected);
+      const b = Buffer.from(given.padEnd(expected.length, ' ').slice(0, expected.length));
+      const ok = a.length === Buffer.byteLength(given) && crypto.timingSafeEqual(a, b);
+      if (!ok) { res.status(401).json({ error: 'invalid secret' }); return false; }
+      return true;
+    }
+
+    app.post('/admin/seed-recognised', async (req, res) => {
+      if (!adminAuth(req, res)) return;
+      try {
+        const seeder = require('./recognised-seeder');
+        const categoryParam = String(req.query.category || 'all');
+        const allCats = Object.keys(seeder.CATEGORIES);
+        const cats = categoryParam === 'all'
+          ? allCats
+          : categoryParam.split(',').map((s) => s.trim()).filter((c) => allCats.includes(c));
+        if (!cats.length) {
+          return res.status(400).json({
+            error: `no valid category. Use ?category=all or one of: ${allCats.join(',')}`
+          });
+        }
+        console.log(`[Admin] /admin/seed-recognised triggered for categories=${cats.join(',')}`);
+        const result = await seeder.runSeedAll({ redis, categories: cats });
+        const counts = await require('./recognised-store').counts(redis);
+        res.json({ ok: true, ...result, counts });
+      } catch (err) {
+        console.error('[Admin] seed-recognised failed:', err.message);
+        res.status(500).json({ error: err.message || 'seed failed' });
+      }
+    });
+
+    app.get('/admin/list-staging', async (req, res) => {
+      if (!adminAuth(req, res)) return;
+      try {
+        const recogStore = require('./recognised-store');
+        const limit = Math.min(Number(req.query.limit) || 100, 500);
+        const entries = await recogStore.listStaging(redis, limit);
+        const counts = await recogStore.counts(redis);
+        res.json({ ok: true, counts, entries });
+      } catch (err) {
+        console.error('[Admin] list-staging failed:', err.message);
+        res.status(500).json({ error: err.message || 'list-staging failed' });
+      }
+    });
+
+    app.post('/admin/promote-recognised', async (req, res) => {
+      if (!adminAuth(req, res)) return;
+      try {
+        const recogStore = require('./recognised-store');
+        const placeId = String(req.query.placeId || '').trim();
+        const decision = String(req.query.decision || '').trim().toLowerCase();
+        const reason = String(req.query.reason || '').slice(0, 200);
+        if (!placeId) return res.status(400).json({ error: 'placeId query param required' });
+        if (!['accept', 'reject'].includes(decision)) {
+          return res.status(400).json({ error: 'decision must be accept|reject' });
+        }
+        if (decision === 'accept') {
+          const promoted = await recogStore.promote(redis, placeId);
+          return res.json({ ok: true, decision, promoted });
+        }
+        await recogStore.reject(redis, placeId, reason);
+        return res.json({ ok: true, decision, reason });
+      } catch (err) {
+        console.error('[Admin] promote-recognised failed:', err.message);
+        res.status(500).json({ error: err.message || 'promote failed' });
+      }
+    });
+
     // v0.32.0: POST returns 202 + {reqId}. Background task drives the
     // pipeline; TMA polls GET /api/cuisine-search/:reqId. Decouples slow
     // Gemini calls from any HTTP timeout. PIPELINE_TASKS_ENABLED=false
