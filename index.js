@@ -463,6 +463,35 @@ async function deliverPicks(chatId, mealLabel, picks) {
   } catch (err) {
     console.warn('[Stale-Location] reminder failed:', err.message);
   }
+  // v0.34.1: buddy state footer. Ambient indicator so the user knows
+  // whether 👥 Connect buttons can appear on these picks. Fire-and-forget.
+  try {
+    await safeSend(chatId, await formatBuddyFooter(chatId));
+  } catch (err) {
+    console.warn('[Buddy] footer render failed:', err.message);
+  }
+}
+
+// v0.34.1: render a single-line buddy state footer. Reads opt-in flag
+// + today's connection count from buddy-match. Returns a formatted
+// Markdown string ready for safeSend.
+async function formatBuddyFooter(chatId) {
+  const buddy = require('./buddy-match');
+  try {
+    const on = await buddy.isOptedIn(redis, chatId);
+    if (!on) {
+      return '👥 Buddy: OFF — `/buddy on` to enable live solo-dining match.';
+    }
+    const count = await buddy.dailyCount(redis, chatId);
+    const cap = buddy.DAILY_CAP;
+    const remaining = Math.max(0, cap - count);
+    if (remaining === 0) {
+      return `👥 Buddy: ON · daily cap reached (${count}/${cap}). Resets in 24 h.`;
+    }
+    return `👥 Buddy: ON · ${count}/${cap} connections used today (${remaining} left).`;
+  } catch (err) {
+    return '👥 Buddy: state unknown (Redis blip).';
+  }
 }
 
 async function runFlow(chatId, lat, lng, category) {
@@ -1736,14 +1765,37 @@ async function deliverSurprise(chatId, v) {
   } catch (err) {
     await bot.sendMessage(chatId, text, { reply_markup });
   }
+  // v0.34.1: buddy state footer (same as deliverPicks).
+  try {
+    await safeSend(chatId, await formatBuddyFooter(chatId));
+  } catch (err) {
+    console.warn('[Buddy] footer render failed:', err.message);
+  }
 }
 
 async function runVerCommand(chatId) {
   try {
     await safeSend(chatId, '🩺 Running health check…');
     const report = await runHealthCheck(bot, redis);
-    const escaped = report.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, report); });
+    // v0.34.1: append per-chat buddy state below the deploy line so the
+    // user can see at a glance whether buddy mode is on, how many
+    // connections are left today, and (later) when their opt-in expires.
+    let buddyLine = '';
+    try {
+      const buddy = require('./buddy-match');
+      const on = await buddy.isOptedIn(redis, chatId);
+      if (on) {
+        const cnt = await buddy.dailyCount(redis, chatId);
+        buddyLine = `\nBuddy: ON · ${cnt}/${buddy.DAILY_CAP} connections used today`;
+      } else {
+        buddyLine = '\nBuddy: OFF (use /buddy on to enable)';
+      }
+    } catch (err) {
+      buddyLine = '\nBuddy: state unknown';
+    }
+    const reportWithBuddy = report + buddyLine;
+    const escaped = reportWithBuddy.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, reportWithBuddy); });
   } catch (err) {
     console.error('[Error] ver command failed:', err.message);
     await safeSend(chatId, "Sorry, I couldn't run the health check.");
