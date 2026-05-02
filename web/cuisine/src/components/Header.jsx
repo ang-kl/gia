@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { requestLocation, showAlert, initData } from '../api/tg.js';
+import { requestLocation, initData } from '../api/tg.js';
 
 // v0.29.0: build-time globals injected by vite.config.js#define.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -29,10 +29,11 @@ async function fetchPlaceName(lat, lng) {
 export default function Header({ loc, locDenied, onLoc, debugOn, onToggleDebug }) {
   const [busy, setBusy] = useState(false);
   const [placeName, setPlaceName] = useState('');
+  // v0.37.0: render the denial reason inline below the Enable button
+  // instead of a modal `showAlert`. The modal interrupts the user; the
+  // ambient banner already conveys the state.
+  const [lastErr, setLastErr] = useState('');
 
-  // v0.34.2: when location is set, reverse-geocode to a human place name
-  // (e.g. "Telok Blangah" instead of "1.2722, 103.8112"). Falls back to
-  // coords if the geocode call fails.
   useEffect(() => {
     if (!loc) { setPlaceName(''); return; }
     let cancelled = false;
@@ -44,11 +45,12 @@ export default function Header({ loc, locDenied, onLoc, debugOn, onToggleDebug }
 
   const detect = async () => {
     setBusy(true);
+    setLastErr('');
     try {
       const p = await requestLocation();
       onLoc(p);
     } catch (err) {
-      showAlert('Could not read your location: ' + err.message);
+      setLastErr(err.message || String(err));
     } finally {
       setBusy(false);
     }
@@ -106,6 +108,11 @@ export default function Header({ loc, locDenied, onLoc, debugOn, onToggleDebug }
           >
             {busy ? 'Asking…' : '📍 Enable location'}
           </button>
+          {lastErr && (
+            <p className="mt-2 text-[11px] text-tg-hint leading-snug">
+              Still blocked: <span className="font-mono">{lastErr}</span>. Open device <span className="font-medium">Settings → Privacy → Location Services</span> and grant Telegram permission, then tap Enable again.
+            </p>
+          )}
         </div>
       )}
       {!loc && !locDenied && (
