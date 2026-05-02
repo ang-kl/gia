@@ -116,6 +116,38 @@ async function safeVenue(chatId, lat, lng, title, address, opts = {}) {
   }
 }
 
+function buildGoogleMapsContainerUrl(items = [], opts = {}) {
+  const normalized = (Array.isArray(items) ? items : [])
+    .map((x) => {
+      if (!x) return null;
+      const placeId = x.placeId ?? x.id ?? null;
+      if (placeId) return { type: 'place', value: String(placeId) };
+      if (Number.isFinite(x.lat) && Number.isFinite(x.lng)) return { type: 'coord', value: `${x.lat},${x.lng}` };
+      return null;
+    })
+    .filter(Boolean);
+  if (normalized.length < 2) return null;
+  const [destination, ...rest] = normalized;
+  const waypoints = rest.slice(0, 4);
+  const route = ['https://www.google.com/maps/dir/?api=1', `travelmode=${encodeURIComponent(opts.travelmode || 'walking')}`];
+  if (destination.type === 'place') route.push(`destination_place_id=${encodeURIComponent(destination.value)}`);
+  else route.push(`destination=${encodeURIComponent(destination.value)}`);
+  if (waypoints.length) {
+    const key = waypoints[0].type === 'place' ? 'waypoint_place_ids' : 'waypoints';
+    route.push(`${key}=${encodeURIComponent(waypoints.map((w) => w.value).join('|'))}`);
+  }
+  return route.join('&');
+}
+
+async function sendGoogleMapsContainer(chatId, items = [], opts = {}) {
+  const url = buildGoogleMapsContainerUrl(items, opts);
+  if (!url) return false;
+  await bot.sendMessage(chatId, opts.caption || '🗺 Open this full set in Google Maps:', {
+    reply_markup: { inline_keyboard: [[{ text: opts.label || '🗺 View all picks', url }]] }
+  });
+  return true;
+}
+
 async function handleNoResults(chatId, mealLabel) {
   await safeSend(
     chatId,
@@ -371,6 +403,16 @@ async function deliverPicks(chatId, mealLabel, picks) {
     .join('\n');
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
 
+  try {
+    await sendGoogleMapsContainer(chatId, picks, {
+      travelmode: 'walking',
+      caption: '🗺 Open this full set in Google Maps:',
+      label: '🗺 View all picks'
+    });
+  } catch (err) {
+    console.warn('[Picks] route button render failed:', err.message);
+  }
+
   for (const p of picks) {
     if (p.lat != null && p.lng != null) {
       const placeId = p.placeId ?? p.id;
@@ -452,13 +494,8 @@ async function deliverPicks(chatId, mealLabel, picks) {
   // block delivery; fire-and-forget single message.
   try {
     const ageMin = await getLocationAgeMinutes(redis, chatId);
-    if (Number.isFinite(ageMin) && ageMin >= 15) {
-      await safeSend(
-        chatId,
-        `📍 _Heads up_ — your location is **${ageMin} min old**. ` +
-        `Type _"my location changed"_ (any language) or share a new pin to refresh, ` +
-        `or this set will keep using the old location.`
-      );
+    if (Number.isFinite(ageMin) && ageMin >= 10) {
+      await safeSend(chatId, `📍 Heads up: your location is ${ageMin} min old. Type "my location changed" (any language) or share a new pin to refresh; otherwise this set keeps using the old location.`);
     }
   } catch (err) {
     console.warn('[Stale-Location] reminder failed:', err.message);
@@ -1980,6 +2017,15 @@ async function runCarparkCommand(chatId) {
     const lines = ['🅿️ Nearest carparks with available lots'];
     list.forEach((c, i) => lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`));
     await safeSend(chatId, lines.join('\n'));
+    await sendGoogleMapsContainer(chatId, list, {
+      travelmode: 'driving',
+      caption: '🗺 Open all 5 carparks in one Google Maps container:',
+      label: '🗺 View all carparks'
+    });
+    const ageMin = await getLocationAgeMinutes(redis, chatId);
+    if (Number.isFinite(ageMin) && ageMin >= 10) {
+      await safeSend(chatId, `📍 Your last location is ${ageMin} min old. If these look far away, share a new pin or type "my location changed" to refresh before the next command.`);
+    }
   } catch (err) {
     console.error('[Error] carpark command failed:', err.message);
     await safeSend(chatId, "Sorry, I can't reach the LTA carpark feed right now.");
@@ -3057,13 +3103,20 @@ async function cacheBotUsername() {
           lang: typeof lang === 'string' ? lang : 'en'
         };
 
+        const debugEchoEnabled = process.env.CUISINE_DEBUG_ECHO === 'true' || req.query?.debug === '1';
+        const debugEcho = debugEchoEnabled ? {
+          lang: params.lang,
+          cuisinesCount: params.cuisines.length,
+          preset: params.preset
+        } : undefined;
+
         // Rollback path — PIPELINE_TASKS_ENABLED=false reverts to
         // synchronous v0.31.2 behaviour for emergency mitigation.
         if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
           const pickCache = require('./pick-cache');
           if (tgUserId) {
             const hit = await pickCache.get(redis, tgUserId, params);
-            if (hit) return res.json({ ...hit, cached: true });
+            if (hit) return res.json({ ...hit, cached: true, ...(debugEcho ? { debugEcho } : {}) });
           }
           const { searchCuisine } = require('./cuisine-search');
           const result = await searchCuisine({ ...params, redis });
@@ -3072,7 +3125,7 @@ async function cacheBotUsername() {
           if (tgUserId && result?.venues?.length) {
             pickCache.set(redis, tgUserId, params, result).catch(() => {});
           }
-          return res.json(result);
+          return res.json({ ...result, ...(debugEcho ? { debugEcho } : {}) });
         }
 
         // v0.32.0 default: submit + 202 + reqId.
@@ -3091,7 +3144,7 @@ async function cacheBotUsername() {
         });
         const dt = Date.now() - t0;
         console.log(`[Cuisine-Diag] D712 submitted reqId=${reqId} ${dt}ms`);
-        return res.status(202).json({ reqId, pollUrl: `/api/cuisine-search/${reqId}` });
+        return res.status(202).json({ reqId, pollUrl: `/api/cuisine-search/${reqId}`, ...(debugEcho ? { debugEcho } : {}) });
       } catch (err) {
         const dt = Date.now() - t0;
         console.error(`[Cuisine-Diag] D703 ${dt}ms error:`, err.message);
