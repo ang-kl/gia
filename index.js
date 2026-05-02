@@ -684,6 +684,19 @@ bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
 bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
 
+// v0.35.0: /recognised — nearest 5 award-winning venues (Michelin Star,
+// Bib Gourmand, Asia 50 Best, World Culinary Awards, Best Chef Awards,
+// UNESCO ICH) within 5 km. Consumes the v0.34 recog:venue:* table —
+// returns "no venues yet, run /admin/seed-recognised" if the table is
+// empty.
+bot.onText(/^\/recognised(?:@\w+)?$/, (msg) => runRecognisedCommand(msg.chat.id));
+
+// v0.35.0: /heritage-food — nearest 5 venues from recog:venue:* within
+// 2 km that carry a heritage signal (UNESCO ICH award, multi-gen tag,
+// or "heritage"/"traditional" notes). Each venue gets a cached
+// 1-2-sentence Gemini-generated heritage-significance line.
+bot.onText(/^\/heritage[-_]?food(?:@\w+)?$/, (msg) => runHeritageFoodCommand(msg.chat.id));
+
 // v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
 // every step of the NL pipeline emits a "🔍 step …" message to the
 // chat for real-time debugging. Auto-clears after 24 h.
@@ -1140,6 +1153,9 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'weather':   await runWeatherCommand(chatId); return true;
     case 'transport': await sendTransportMenu(chatId); return true;
     case 'hawker':    await sendHawkerMenu(chatId); return true;
+    case 'recognised': await runRecognisedCommand(chatId); return true;
+    case 'heritage-food':
+    case 'heritage_food': await runHeritageFoodCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'surprise':  await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
@@ -1650,6 +1666,166 @@ async function runHawkerCrowd(chatId) {
   }
 }
 
+// v0.35.0: /recognised + /heritage-food handlers. Both consume the
+// v0.34 recog:venue:* curated table (populated via the admin
+// /admin/seed-recognised + /admin/promote-recognised flow).
+
+const RECOGNISED_RADIUS_M = 5000;
+const HERITAGE_RADIUS_M = 2000;
+const RECOG_TOPN = 5;
+
+function summariseAwards(awards) {
+  if (!Array.isArray(awards) || !awards.length) return '';
+  const parts = awards.slice(0, 3).map((a) => {
+    const yr = a.year ? ` ${a.year}` : '';
+    const lvl = a.level ? ` ${a.level}★` : '';
+    const sub = a.subcategory ? ` (${a.subcategory})` : '';
+    const rk = a.rank ? ` #${a.rank}` : '';
+    switch (a.category) {
+      case 'michelin-star':       return `MICHELIN${lvl}${yr}`;
+      case 'bib-gourmand':        return `Bib Gourmand${yr}`;
+      case 'michelin-selected':   return `MICHELIN Selected${yr}`;
+      case 'asia-50-best':        return `Asia 50 Best${rk}${yr}`;
+      case 'world-culinary-awards': return `World Culinary${sub}${yr}`;
+      case 'best-chef-awards':    return `Best Chef${rk}${yr}`;
+      case 'unesco-ich':          return `UNESCO ICH (Hawker Culture, 2020)`;
+      default:                    return `${a.category}${yr}`;
+    }
+  });
+  return parts.join(' · ');
+}
+
+function isHeritageSignal(entry) {
+  const tags = Array.isArray(entry.tags) ? entry.tags : [];
+  if (tags.includes('multi-gen') || tags.includes('heritage') || tags.includes('traditional')) return true;
+  const awards = Array.isArray(entry.awards) ? entry.awards : [];
+  if (awards.some((a) => a.category === 'unesco-ich')) return true;
+  if (awards.some((a) => typeof a.notes === 'string' && /heritag|traditional|multi[- ]?gener|legacy|founded.*19[0-9]{2}/i.test(a.notes))) return true;
+  return false;
+}
+
+async function runRecognisedCommand(chatId) {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    const cached = await getUserLocation(redis, chatId);
+    if (!cached) {
+      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /recognised.", LOCATION_REQUEST_KEYBOARD);
+      return;
+    }
+    await setProcessing(redis, chatId);
+    const recogStore = require('./recognised-store');
+    const counts = await recogStore.counts(redis);
+    if (!counts.live) {
+      await safeSend(chatId,
+        "🏆 *Recognised venues — none in the live table yet.*\n\n" +
+        "An admin needs to run `/admin/seed-recognised` then promote entries via `/admin/promote-recognised`. " +
+        "After that, this command will return the nearest 5 award-winning venues within 5 km.",
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+    const nearest = await recogStore.nearestLive(redis, cached.lat, cached.lng, RECOG_TOPN, RECOGNISED_RADIUS_M);
+    if (!nearest.length) {
+      await safeSend(chatId,
+        `🏆 No award-winning venues within ${RECOGNISED_RADIUS_M / 1000} km of your saved location. ` +
+        `(${counts.live} live entries island-wide.) Try `/cuisine` for unfiltered picks or move closer to a hub.`
+      );
+      return;
+    }
+    const lines = [`🏆 *Nearest ${nearest.length} recognised venue${nearest.length === 1 ? '' : 's'}*`];
+    for (const v of nearest) {
+      const awardLine = summariseAwards(v.awards);
+      lines.push(
+        '',
+        `*${v.name}* — ${v.distanceM} m away`,
+        v.address || '',
+        awardLine ? `🏆 ${awardLine}` : ''
+      );
+    }
+    const buttons = nearest.slice(0, 5).map((v) => [{
+      text: `📍 ${v.name.slice(0, 30)}${v.name.length > 30 ? '…' : ''}`,
+      url: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
+    }]);
+    await safeSend(chatId, lines.filter(Boolean).join('\n'), {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: buttons }
+    });
+  } catch (err) {
+    console.error('[Error] /recognised failed:', err.message);
+    await safeSend(chatId, "Sorry, /recognised hit an error. Try again in a moment.");
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
+
+async function runHeritageFoodCommand(chatId) {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    const cached = await getUserLocation(redis, chatId);
+    if (!cached) {
+      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /heritage-food.", LOCATION_REQUEST_KEYBOARD);
+      return;
+    }
+    await setProcessing(redis, chatId);
+    const recogStore = require('./recognised-store');
+    const counts = await recogStore.counts(redis);
+    if (!counts.live) {
+      await safeSend(chatId,
+        "🏛 *Heritage food — none in the live table yet.*\n\n" +
+        "An admin needs to run `/admin/seed-recognised` then promote heritage-tagged entries. " +
+        "After that, this command will surface multi-generational venues within 2 km.",
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+    await safeSend(chatId, '🏛 Hunting heritage venues within 2 km…');
+    const nearby = await recogStore.nearestLive(redis, cached.lat, cached.lng, 25, HERITAGE_RADIUS_M);
+    const heritage = nearby.filter(isHeritageSignal).slice(0, 5);
+    if (!heritage.length) {
+      await safeSend(chatId,
+        `🏛 No heritage-tagged venues within ${HERITAGE_RADIUS_M / 1000} km. ` +
+        `(${nearby.length} recognised entries in range, none flagged heritage.) Try /recognised for the full set, or /hawker for traditional hawker centres.`
+      );
+      return;
+    }
+    const heritageSig = require('./heritage-significance');
+    const lines = [`🏛 *Heritage food within ${HERITAGE_RADIUS_M / 1000} km*`];
+    // Resolve significance lines in parallel (cached → fast; cold → 1 Gemini call each).
+    const sigs = await Promise.allSettled(
+      heritage.map((v) => heritageSig.getOrGenerate(redis, v))
+    );
+    heritage.forEach((v, i) => {
+      const sig = sigs[i].status === 'fulfilled' ? sigs[i].value : null;
+      lines.push(
+        '',
+        `*${v.name}* — ${v.distanceM} m away`,
+        v.address || '',
+        summariseAwards(v.awards) ? `🏆 ${summariseAwards(v.awards)}` : '',
+        sig ? `🏛 ${sig}` : ''
+      );
+    });
+    const buttons = heritage.slice(0, 5).map((v) => [{
+      text: `📍 ${v.name.slice(0, 30)}${v.name.length > 30 ? '…' : ''}`,
+      url: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
+    }]);
+    await safeSend(chatId, lines.filter(Boolean).join('\n'), {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: buttons }
+    });
+  } catch (err) {
+    console.error('[Error] /heritage-food failed:', err.message);
+    await safeSend(chatId, "Sorry, /heritage-food hit an error. Try again in a moment.");
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
+
 async function runCarparkCommand(chatId) {
   try {
     if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, "Carpark lookup is offline (LTA key not configured)."); return; }
@@ -2118,6 +2294,8 @@ async function registerCommandsMenu() {
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
       { command: 'hawker',    description: 'Hawker centres — nearest, by zone, cleaning info' },
+      { command: 'recognised', description: 'Nearest 5 award-winning venues (Michelin / Bib / 50 Best)' },
+      { command: 'heritage_food', description: 'Heritage food within 2 km — multi-gen, traditional' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' }
     ]);
     if (useWebhook) {
