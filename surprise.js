@@ -43,6 +43,18 @@ const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
+
+function extractJsonObject(text) {
+  if (typeof text !== 'string') return '{}';
+  const trimmed = text.trim();
+  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence && fence[1]) return fence[1].trim();
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start !== -1 && end > start) return trimmed.slice(start, end + 1);
+  return trimmed;
+}
+
 function haversine(a, b) {
   const R = 6371000;
   const toRad = (d) => (d * Math.PI) / 180;
@@ -208,7 +220,8 @@ Return ONLY the JSON object.`;
       label: 'Surprise',
       fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
     });
-    const parsed = JSON.parse(result.response.text());
+    const rawText = result.response.text();
+    const parsed = JSON.parse(extractJsonObject(rawText));
     return {
       dishes: Array.isArray(parsed.dishes) ? parsed.dishes.slice(0, 3) : [],
       whyOrdered: typeof parsed.why_ordered === 'string' ? parsed.why_ordered : '',
