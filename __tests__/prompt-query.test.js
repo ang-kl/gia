@@ -94,21 +94,49 @@ describe('runPromptQuery argument parsing', () => {
 
 describe('v0.44.1: data.gov.sg handler routing', () => {
   it('routes "d <prompt>" to viaDataGovSg', async () => {
-    // viaDataGovSg hits the public CKAN-style endpoint without an API
-    // key. We don't make a real network call here — assert it routes to
-    // the handler by checking the handler exists and is async.
     expect(typeof pq.viaDataGovSg).toBe('function');
-    // Calling with a parser-only check: bad provider letter should NOT
-    // route here; the regex now accepts d.
     const r = await pq.runPromptQuery('d');
     expect(r).toMatch(/Missing prompt after "d"/);
   });
 
   it('treats "d" as a known provider in the parser', async () => {
     const r = await pq.runPromptQuery('d hawker');
-    // Network call may succeed or fail in sandbox; either way the
-    // string returned should NOT be the "Unknown type" error.
     expect(r).not.toMatch(/Unknown type/);
+  });
+});
+
+describe('v0.44.2: data.gov.sg dual-mode routing', () => {
+  it('PATH_MODE_RE matches v2/... and /v2/... prefixes', () => {
+    expect(pq.PATH_MODE_RE.test('v2/real-time/api/2-hour-weather-forecast')).toBe(true);
+    expect(pq.PATH_MODE_RE.test('/v2/real-time/api/air-temperature')).toBe(true);
+    expect(pq.PATH_MODE_RE.test('v1/transport/carpark-availability')).toBe(true);
+  });
+
+  it('PATH_MODE_RE does NOT match free-text search queries', () => {
+    expect(pq.PATH_MODE_RE.test('hawker')).toBe(false);
+    expect(pq.PATH_MODE_RE.test('weather forecast')).toBe(false);
+    expect(pq.PATH_MODE_RE.test('v2 weather')).toBe(false); // no slash after v2
+  });
+
+  it('exposes viaDataGovSgPath and viaDataGovSgSearch separately', () => {
+    expect(typeof pq.viaDataGovSgPath).toBe('function');
+    expect(typeof pq.viaDataGovSgSearch).toBe('function');
+  });
+});
+
+describe('v0.44.2: SGT temporal context', () => {
+  it('withSgtContext prepends ISO date + day-of-week to the prompt', () => {
+    const r = pq.withSgtContext('What is tomorrow?');
+    expect(r).toMatch(/Current Singapore time: \d{4}-\d{2}-\d{2} \(\w+day\) \d{2}:\d{2} SGT/);
+    expect(r).toMatch(/What is tomorrow\?/);
+  });
+
+  it('withSgtContext returns a new string (does not mutate)', () => {
+    const original = 'hello';
+    const wrapped = pq.withSgtContext(original);
+    expect(original).toBe('hello');
+    expect(wrapped).not.toBe(original);
+    expect(wrapped.endsWith(original)).toBe(true);
   });
 });
 
