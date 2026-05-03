@@ -11,3 +11,5 @@ public/cuisine/
 public/menu/
 # Vite build output for the Hawker NEA TMA (v0.38.0). Source: web/hawker/.
 public/hawker/
+# Vite build output for the Transport TMA (v0.51.0). Source: web/transport/.
+public/transport/

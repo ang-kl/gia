@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SG MRT schematic — hand-authored simplified system map.
+  Coordinates are in a 1000×800 viewbox (not geographic; tube-map-style).
+  Each line is a polyline + station circles + labels.
+  IDs follow the pattern "line-<code>" for line paths and "stn-<code>"
+  for station circles so the TMA can highlight them dynamically.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800" font-family="-apple-system,system-ui,Helvetica,Arial,sans-serif" font-size="11">
+  <defs>
+    <style>
+      .line { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 8; }
+      .line-muted { opacity: 0.25; }
+      .line-flash { animation: flash 1.2s ease-in-out infinite; }
+      @keyframes flash { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+      .stn { fill: #fff; stroke: #333; stroke-width: 1.5; }
+      .stn-int { stroke: #000; stroke-width: 2.5; r: 6; }
+      .lbl { fill: #1a1a1a; font-weight: 500; }
+      .lbl-int { font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- ===================== Lines ===================== -->
+
+  <!-- East-West Line (green) -->
+  <polyline id="line-EWL" class="line" stroke="#009645"
+    points="50,500 130,500 200,500 280,500 360,500 430,500 500,500 570,500 640,500 710,500 780,500 850,500 920,500" />
+  <!-- Changi Airport Branch -->
+  <polyline id="line-CGL" class="line" stroke="#009645"
+    points="850,500 880,540 910,580" />
+
+  <!-- North-South Line (red) -->
+  <polyline id="line-NSL" class="line" stroke="#D42E12"
+    points="200,500 200,420 200,340 200,260 200,180 240,140 320,140 400,140 460,180 460,260 460,340 460,420 460,500 460,580 460,660 460,720" />
+
+  <!-- North-East Line (purple) -->
+  <polyline id="line-NEL" class="line" stroke="#9900AA"
+    points="500,720 540,660 580,580 620,500 660,420 700,340 740,260 780,180 820,120" />
+
+  <!-- Circle Line (orange) - approximate loop -->
+  <polyline id="line-CCL" class="line" stroke="#FA9E0D"
+    points="500,720 580,720 660,700 730,650 770,580 770,500 770,420 730,360 660,330 580,330 510,360 480,420 480,500 480,560 510,610 560,660 620,690" />
+
+  <!-- Downtown Line (blue) -->
+  <polyline id="line-DTL" class="line" stroke="#005EC4"
+    points="120,140 180,180 240,220 320,260 400,300 460,340 510,360 580,360 660,360 720,400 780,460 850,500 880,560" />
+
+  <!-- Thomson-East Coast (brown) -->
+  <polyline id="line-TEL" class="line" stroke="#9D5B25"
+    points="380,40 380,120 380,200 380,280 400,340 430,400 470,460 510,520 570,580 650,620 730,650 800,680 860,700" />
+
+  <!-- LRT lines (grey) -->
+  <polyline id="line-BPL" class="line" stroke="#718472" stroke-width="5"
+    points="120,140 100,180 80,220 100,260 140,260 140,180 120,140" />
+  <polyline id="line-SLRT" class="line" stroke="#718472" stroke-width="5"
+    points="780,180 800,160 820,180 800,200 780,180" />
+  <polyline id="line-PLRT" class="line" stroke="#718472" stroke-width="5"
+    points="820,120 840,100 860,120 840,140 820,120" />
+
+  <!-- ===================== Stations ===================== -->
+
+  <!-- Interchange / key stations (larger circles + bold label) -->
+  <g class="stn-int-group">
+    <circle id="stn-JE"  class="stn stn-int" cx="200" cy="500" r="6"/><text x="200" y="525" text-anchor="middle" class="lbl lbl-int">Jurong East</text>
+    <circle id="stn-BV"  class="stn stn-int" cx="460" cy="500" r="6"/><text x="460" y="525" text-anchor="middle" class="lbl lbl-int">City Hall</text>
+    <circle id="stn-DG"  class="stn stn-int" cx="480" cy="420" r="6"/><text x="480" y="412" text-anchor="end" class="lbl lbl-int">Dhoby Ghaut</text>
+    <circle id="stn-HF"  class="stn stn-int" cx="500" cy="720" r="6"/><text x="500" y="745" text-anchor="middle" class="lbl lbl-int">HarbourFront</text>
+    <circle id="stn-OP"  class="stn stn-int" cx="510" cy="610" r="6"/><text x="525" y="615" class="lbl lbl-int">Outram</text>
+    <circle id="stn-BG"  class="stn stn-int" cx="510" cy="360" r="6"/><text x="510" y="350" text-anchor="middle" class="lbl lbl-int">Bugis</text>
+    <circle id="stn-RP"  class="stn stn-int" cx="460" cy="580" r="6"/><text x="460" y="600" text-anchor="middle" class="lbl lbl-int">Raffles Pl.</text>
+    <circle id="stn-MB"  class="stn stn-int" cx="460" cy="660" r="6"/><text x="448" y="664" text-anchor="end" class="lbl lbl-int">Marina Bay</text>
+    <circle id="stn-MSP" class="stn stn-int" cx="460" cy="720" r="6"/><text x="448" y="724" text-anchor="end" class="lbl">Marina S.P.</text>
+    <circle id="stn-BSH" class="stn stn-int" cx="460" cy="260" r="6"/><text x="475" y="264" class="lbl lbl-int">Bishan</text>
+    <circle id="stn-SK"  class="stn stn-int" cx="780" cy="180" r="6"/><text x="795" y="184" class="lbl lbl-int">Sengkang</text>
+    <circle id="stn-PG"  class="stn stn-int" cx="820" cy="120" r="6"/><text x="835" y="124" class="lbl lbl-int">Punggol</text>
+    <circle id="stn-PR"  class="stn stn-int" cx="920" cy="500" r="6"/><text x="920" y="525" text-anchor="middle" class="lbl lbl-int">Pasir Ris</text>
+    <circle id="stn-CG"  class="stn stn-int" cx="910" cy="580" r="6"/><text x="920" y="595" class="lbl lbl-int">Changi Airport</text>
+    <circle id="stn-TL"  class="stn stn-int" cx="50" cy="500" r="6"/><text x="50" y="525" text-anchor="middle" class="lbl">Tuas Link</text>
+    <circle id="stn-PV"  class="stn stn-int" cx="120" cy="140" r="6"/><text x="120" y="125" text-anchor="middle" class="lbl lbl-int">Bukit Panjang</text>
+    <circle id="stn-CCK" class="stn stn-int" cx="80" cy="220" r="6"/><text x="65" y="224" text-anchor="end" class="lbl lbl-int">Choa Chu Kang</text>
+    <circle id="stn-WL"  class="stn stn-int" cx="380" cy="40"  r="6"/><text x="380" y="30" text-anchor="middle" class="lbl lbl-int">Woodlands</text>
+    <circle id="stn-AMK" class="stn stn-int" cx="460" cy="180" r="6"/><text x="475" y="184" class="lbl lbl-int">Ang Mo Kio</text>
+    <circle id="stn-YIO" class="stn" cx="380" cy="200" r="5"/><text x="370" y="204" text-anchor="end" class="lbl">Yio Chu Kang</text>
+    <circle id="stn-NV"  class="stn" cx="460" cy="340" r="5"/><text x="475" y="344" class="lbl">Novena</text>
+    <circle id="stn-NWT" class="stn" cx="460" cy="420" r="5"/><text x="475" y="424" class="lbl">Newton</text>
+    <circle id="stn-OR"  class="stn" cx="430" cy="400" r="5"/><text x="418" y="404" text-anchor="end" class="lbl">Orchard</text>
+    <circle id="stn-SR"  class="stn" cx="700" cy="340" r="5"/><text x="710" y="344" class="lbl">Serangoon</text>
+    <circle id="stn-PL"  class="stn" cx="660" cy="420" r="5"/><text x="660" y="442" text-anchor="middle" class="lbl">Paya Lebar</text>
+    <circle id="stn-EUN" class="stn" cx="730" cy="500" r="5"/><text x="730" y="488" text-anchor="middle" class="lbl">Eunos</text>
+    <circle id="stn-BD"  class="stn" cx="780" cy="500" r="5"/><text x="780" y="488" text-anchor="middle" class="lbl">Bedok</text>
+    <circle id="stn-TM"  class="stn stn-int" cx="850" cy="500" r="6"/><text x="850" y="488" text-anchor="middle" class="lbl">Tanah Merah</text>
+    <circle id="stn-EXP" class="stn" cx="880" cy="560" r="5"/><text x="895" y="564" class="lbl">Expo</text>
+    <circle id="stn-CMT" class="stn" cx="200" cy="180" r="5"/><text x="185" y="184" text-anchor="end" class="lbl">Choa Chu K.</text>
+    <circle id="stn-LV"  class="stn" cx="320" cy="140" r="5"/><text x="320" y="125" text-anchor="middle" class="lbl">Yew Tee</text>
+  </g>
+</svg>
