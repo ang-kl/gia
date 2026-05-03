@@ -1077,7 +1077,7 @@ bot.on('callback_query', async (q) => {
       await bot.sendMessage(
         chatId,
         '👋 *Send your buddy this link:*\n\n' +
-        '`' + link + '`\n\n' +
+        '[' + link + '](' + link + ')\n\n' +
         '_When they tap it, Gia will send them this exact pick. Link works for 7 days._',
         { parse_mode: 'Markdown', disable_web_page_preview: true }
       );
@@ -1826,11 +1826,38 @@ async function runHawkerCleaning(chatId) {
   });
 }
 
-// v0.48.0: live closure list via Claude + web_search tool. Renders the
-// user-supplied prompt template; results cached 12 h in Redis (closure
-// schedules don't change hourly). Honest disclaimer: dates depend on
-// public web data — verify via NEA portal before binding decisions.
+// v0.48.1: live closure list — prefer the NEA scrape (deterministic,
+// real dates from official source), fall back to Claude + web_search
+// when the scrape returns 0 / errors. The user reported v0.38.0's
+// /announcements URL was wrong; v0.48.1 fixed it to /overview.
 async function runHawkerClosureLive(chatId) {
+  const buttonRow = [
+    [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/overview' }],
+    [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
+    [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
+  ];
+
+  // 1. Try NEA scrape — fast, free, deterministic.
+  try {
+    const neaScrape = require('./nea-scrape');
+    const structured = await neaScrape.getStructuredClosures(redis);
+    if (structured.ok && structured.all.length) {
+      const blocks = neaScrape.formatClosureBlocks(structured.all.slice(0, 30));
+      const ageHours = Math.max(0, Math.round((Date.now() - structured.fetchedAt) / 3600000));
+      const stamp = structured.cached ? ` · cached ${ageHours}h ago` : ' · just fetched';
+      const text = `${structured.summary}${stamp}\n\n${blocks}\n\n_Source: NEA hawker management portal · scraped HTML._`;
+      await safeSend(chatId, text, {
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: buttonRow }
+      });
+      return;
+    }
+    console.warn('[HawkerClosureLive] scrape returned empty or errored:', structured.error || 'no rows');
+  } catch (err) {
+    console.warn('[HawkerClosureLive] scrape threw — falling back to web_search:', err.message);
+  }
+
+  // 2. Fall back to Claude + web_search.
   const llm = require('./llm-client');
   const cacheKey = 'hawker:closures-live';
   try {
@@ -1839,11 +1866,7 @@ async function runHawkerClosureLive(chatId) {
       if (cached) {
         await safeSend(chatId, cached, {
           parse_mode: 'Markdown',
-          reply_markup: { inline_keyboard: [
-            [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/hawker-centre-management/list-of-hawker-centres-closure-and-cleaning-schedules' }],
-            [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
-            [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
-          ] }
+          reply_markup: { inline_keyboard: buttonRow }
         });
         return;
       }
@@ -1851,7 +1874,7 @@ async function runHawkerClosureLive(chatId) {
   } catch (err) {
     console.warn('[HawkerClosureLive] cache read failed:', err.message);
   }
-  await safeSend(chatId, '⏳ Fetching live closure list via web search (~10–20 s)…');
+  await safeSend(chatId, '⏳ NEA scrape returned nothing — falling back to web search (~10–20 s)…');
   const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const prompt = `List all Singapore hawker centres that are closed for cleaning, R&R (Repairs & Redecoration), or Upgrading.
 
@@ -1908,8 +1931,14 @@ Do NOT use markdown tables (they wrap badly on mobile).`;
 }
 
 async function runHawkerClosureLiveRefresh(chatId) {
+  // v0.48.1: clear BOTH the web_search fallback cache AND the NEA
+  // scrape cache so a force-refresh hits live source.
   try {
-    if (redis.isOpen) await redis.del('hawker:closures-live').catch(() => {});
+    if (redis.isOpen) {
+      await redis.del('hawker:closures-live').catch(() => {});
+      const neaScrape = require('./nea-scrape');
+      await redis.del(neaScrape.SCRAPE_CACHE_KEY).catch(() => {});
+    }
   } catch {}
   return runHawkerClosureLive(chatId);
 }

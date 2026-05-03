@@ -1,30 +1,33 @@
-// nea-scrape.js — v0.38.0 NEA hawker announcements scraper.
+// nea-scrape.js — v0.48.1 NEA hawker closure scraper.
 //
-// Source: https://www.nea.gov.sg/our-services/hawker-management/announcements
+// Source: https://www.nea.gov.sg/our-services/hawker-management/overview
+//   (v0.38.0 hit /announcements — wrong URL; the actual closure table
+//    lives on /overview. User-confirmed via screenshot 03-05-26.)
 //
-// NEA's page is HTML, no public JSON API. We use cheerio to parse two
-// table types:
-//   1. "Hawker Centres & Market Closure" — quarterly cleaning schedule
-//   2. "R&R (Repairs and Redecoration / Renovation) Work" — longer
-//      multi-week / multi-month closures for refurbishment
+// The page renders a quarterly closure table:
+//   View By Closure Month: Jan-Mar / Apr-Jun / Jul-Sep / Oct-Dec
+//   View By Hawker Centre Name: ALL / A-E / F-J / K-O / P-T / U-Z
 //
-// CONTRACT RISK: NEA can change their HTML at any time and break this
-// parser. We mitigate by:
-//   1. Caching the last successful parse 6 h in Redis with a `fetchedAt`
-//      timestamp surfaced in the TMA.
-//   2. Returning a parser-failure flag distinguishable from a fetch
-//      failure so the UI can show "couldn't parse — visit NEA directly"
-//      without claiming there are zero closures.
-//   3. Permissive heuristic: any <table> within the page main body is
-//      parsed; we then partition by header text containing "closure"
-//      vs "R&R" vs other.
+// Tabs are client-side visibility toggles — the server sends all
+// quarters' data inline. A single fetch + cheerio parse picks up
+// every row across all 4 quarters.
+//
+// Table columns (consistent on the live page):
+//   Hawker Centre · Closure Date · Reason for Closure · Remarks
+//
+// CONTRACT RISK: NEA can redesign at any time. Mitigations:
+//   1. Cache last successful parse 6 h in Redis with `fetchedAt`.
+//   2. Distinguishable error states (fetch-failure vs parser-failure).
+//   3. v0.48.0 web_search fallback path still wired in index.js
+//      `runHawkerClosureLive` for the case where scrape returns 0.
 
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const ANNOUNCEMENTS_URL = 'https://www.nea.gov.sg/our-services/hawker-management/announcements';
+const OVERVIEW_URL = 'https://www.nea.gov.sg/our-services/hawker-management/overview';
+const ANNOUNCEMENTS_URL = OVERVIEW_URL; // v0.48.1 alias for back-compat
 const HAWKER_HOME_URL = 'https://www.nea.gov.sg/our-services/hawker-management';
-const SCRAPE_CACHE_KEY = 'nea:hawker-scrape:v1';
+const SCRAPE_CACHE_KEY = 'nea:hawker-scrape:v2'; // v2 because format changed
 const SCRAPE_CACHE_TTL_S = 6 * 60 * 60; // 6 h
 const FETCH_TIMEOUT_MS = 12000;
 
@@ -84,7 +87,7 @@ async function fetchAndParse() {
   const t0 = Date.now();
   let html;
   try {
-    const { data } = await axios.get(ANNOUNCEMENTS_URL, {
+    const { data } = await axios.get(OVERVIEW_URL, {
       timeout: FETCH_TIMEOUT_MS,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; soleat-bot/0.38; +https://gia4lunch-production.up.railway.app)',
@@ -99,7 +102,7 @@ async function fetchAndParse() {
       error: `fetch failed: ${err.message?.slice(0, 200)}`,
       fetchedAt: Date.now(),
       ms: Date.now() - t0,
-      sourceUrl: ANNOUNCEMENTS_URL,
+      sourceUrl: OVERVIEW_URL,
       hawkerHomeUrl: HAWKER_HOME_URL,
       closures: { headers: [], data: [] },
       rnrWorks: { headers: [], data: [] }
@@ -115,7 +118,7 @@ async function fetchAndParse() {
       error: `cheerio load failed: ${err.message?.slice(0, 200)}`,
       fetchedAt: Date.now(),
       ms: Date.now() - t0,
-      sourceUrl: ANNOUNCEMENTS_URL,
+      sourceUrl: OVERVIEW_URL,
       hawkerHomeUrl: HAWKER_HOME_URL,
       closures: { headers: [], data: [] },
       rnrWorks: { headers: [], data: [] }
@@ -190,11 +193,161 @@ async function getCachedOrFetch(redis) {
   return { ...result, cached: false };
 }
 
+// v0.48.1: parse a "30 Mar 2026 to 28 Jun 2026" / "4 May 2026 to 5
+// May 2026" date range from the NEA closure table cell. Returns
+// { start: Date|null, end: Date|null, raw }. Tolerates single-day
+// closures ("4 May 2026") by setting start == end.
+const MONTH = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+function parseDayMonthYear(s) {
+  if (!s) return null;
+  const m = String(s).trim().match(/(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})/);
+  if (!m) return null;
+  const day = parseInt(m[1], 10);
+  const monKey = m[2].slice(0, 3).toLowerCase();
+  const mon = MONTH[monKey];
+  const year = parseInt(m[3], 10);
+  if (mon == null) return null;
+  return new Date(Date.UTC(year, mon, day));
+}
+
+function parseClosureDateRange(raw) {
+  if (!raw) return { start: null, end: null, raw: '' };
+  const cleaned = String(raw).replace(/\s+/g, ' ').trim();
+  // "to" or "–" / "-" / "—" splits start from end.
+  const m = cleaned.match(/(.+?)\s+(?:to|–|—|-)\s+(.+)/i);
+  if (m) {
+    const start = parseDayMonthYear(m[1]);
+    const end = parseDayMonthYear(m[2]);
+    return { start, end, raw: cleaned };
+  }
+  // Single date — treat as 1-day closure.
+  const single = parseDayMonthYear(cleaned);
+  return { start: single, end: single, raw: cleaned };
+}
+
+// status: 'ongoing' | 'upcoming' | 'recently-ended' | 'historical' | 'unknown'
+function classifyClosureStatus(start, end, today = new Date()) {
+  if (!start || !end) return 'unknown';
+  const t = today.getTime();
+  if (start.getTime() <= t && t <= end.getTime() + 86400 * 1000) return 'ongoing'; // include end-day
+  if (start.getTime() > t) return 'upcoming';
+  // Recently ended — within last 30 days.
+  if (end.getTime() < t && (t - end.getTime()) <= 30 * 86400 * 1000) return 'recently-ended';
+  return 'historical';
+}
+
+function googleMapsSearchUrl(name) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' Singapore')}`;
+}
+
+// v0.48.1: enrich raw scraped rows with structured fields the user's
+// prompt template asks for.
+//
+// Input: raw rows from `closures.data` (4-cell arrays).
+// Output: array of { name, closureType, startDate, endDate, durationDays,
+//                    status, mapsUrl, raw }
+function enrichClosureRows(rows, today = new Date()) {
+  if (!Array.isArray(rows)) return [];
+  return rows.map((row) => {
+    const cells = Array.isArray(row) ? row : [];
+    const name = String(cells[0] || '').trim();
+    const dateText = String(cells[1] || '').trim();
+    const reason = String(cells[2] || '').trim();
+    const remarks = String(cells[3] || '').trim();
+    const { start, end, raw } = parseClosureDateRange(dateText);
+    // Derive closure type from "Reason for Closure" + "Remarks".
+    let closureType = 'Closure';
+    const combined = (reason + ' ' + remarks).toLowerCase();
+    if (/cleaning/.test(combined)) closureType = 'Cleaning';
+    else if (/r ?& ?r|repair|redecoration|renovation/.test(combined)) closureType = 'R&R';
+    else if (/upgrad/.test(combined)) closureType = 'Upgrading';
+    else if (/other/.test(reason.toLowerCase())) closureType = remarks || 'Other';
+    const status = classifyClosureStatus(start, end, today);
+    const durationDays = (start && end)
+      ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1)
+      : null;
+    return {
+      name,
+      closureType,
+      startDate: start ? start.toISOString().slice(0, 10) : null,
+      endDate: end ? end.toISOString().slice(0, 10) : null,
+      durationDays,
+      status,
+      mapsUrl: name ? googleMapsSearchUrl(name) : '',
+      reason,
+      remarks,
+      raw
+    };
+  }).filter((r) => r.name);
+}
+
+// v0.48.1: sort per Human Lead's prompt template.
+// 1. Ongoing — by nearest end date
+// 2. Upcoming — by nearest start date
+// 3. Recently-ended (within 30d) — by most recent end date
+// 4. Historical / unknown — drop (out of scope for the user-facing list)
+function sortClosuresByProximity(enriched) {
+  const ongoing = enriched.filter((r) => r.status === 'ongoing')
+    .sort((a, b) => (a.endDate || '').localeCompare(b.endDate || ''));
+  const upcoming = enriched.filter((r) => r.status === 'upcoming')
+    .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+  const recentlyEnded = enriched.filter((r) => r.status === 'recently-ended')
+    .sort((a, b) => (b.endDate || '').localeCompare(a.endDate || '')); // most recent first
+  return [...ongoing, ...upcoming, ...recentlyEnded];
+}
+
+// v0.48.1: produce a Telegram-friendly labeled-block string per
+// Human Lead's prompt template — one block per closure with all 6
+// columns. Caller wraps with their own header / footer.
+function formatClosureBlocks(enriched) {
+  return enriched.map((r, i) => {
+    const lines = [];
+    const statusEmoji = r.status === 'ongoing' ? '🔴' : r.status === 'upcoming' ? '🟡' : '⚪';
+    lines.push(`${i + 1}. ${statusEmoji} ${r.name}`);
+    if (r.closureType) lines.push(`   Type: ${r.closureType}`);
+    if (r.startDate || r.endDate) lines.push(`   Dates: ${r.startDate || '?'} → ${r.endDate || '?'}${r.durationDays ? ` (${r.durationDays}d)` : ''}`);
+    if (r.mapsUrl) lines.push(`   📍 ${r.mapsUrl}`);
+    return lines.join('\n');
+  }).join('\n\n');
+}
+
+// Convenience: wraps getCachedOrFetch + enrichment + sort. Returns
+// { ok, ongoing, upcoming, recentlyEnded, all, summary } where each
+// list is enriched + sorted, plus a 1-line summary string.
+async function getStructuredClosures(redis) {
+  const result = await getCachedOrFetch(redis);
+  if (!result.ok) return { ok: false, error: result.error, fetchedAt: result.fetchedAt };
+  const today = new Date(Date.now() + 8 * 60 * 60 * 1000); // SGT today (UTC+8)
+  const today00 = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const enriched = enrichClosureRows(result.closures?.data || [], today00);
+  const sorted = sortClosuresByProximity(enriched);
+  const ongoingN = sorted.filter((r) => r.status === 'ongoing').length;
+  const upcomingN = sorted.filter((r) => r.status === 'upcoming').length;
+  const recentN = sorted.filter((r) => r.status === 'recently-ended').length;
+  return {
+    ok: true,
+    fetchedAt: result.fetchedAt,
+    cached: !!result.cached,
+    sourceUrl: result.sourceUrl,
+    all: sorted,
+    summary: `🧹 ${sorted.length} closure${sorted.length === 1 ? '' : 's'} (${ongoingN} ongoing · ${upcomingN} upcoming · ${recentN} recently ended)`
+  };
+}
+
 module.exports = {
   ANNOUNCEMENTS_URL,
+  OVERVIEW_URL,
   HAWKER_HOME_URL,
   SCRAPE_CACHE_KEY,
   SCRAPE_CACHE_TTL_S,
   fetchAndParse,
-  getCachedOrFetch
+  getCachedOrFetch,
+  // v0.48.1 enrichment helpers:
+  parseClosureDateRange,
+  classifyClosureStatus,
+  enrichClosureRows,
+  sortClosuresByProximity,
+  formatClosureBlocks,
+  googleMapsSearchUrl,
+  getStructuredClosures
 };
