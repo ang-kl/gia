@@ -14,11 +14,14 @@ const FIELD_MASK = [
   'places.rating',
   'places.userRatingCount',
   'places.googleMapsUri',
+  'places.googleMapsLinks',
   'places.primaryType',
   'places.businessStatus',
   'places.currentOpeningHours.openNow',
   'places.priceLevel'
 ].join(',');
+
+const { googleMapsUrl } = require('./maps-url');
 
 const SEED_LISTINGS = [
   { id: null, name: 'Lau Pa Sat', area: '18 Raffles Quay', lat: 1.2806, lng: 103.8504, rating: 4.2, ratingCount: null, openNow: null, priceLevel: 'PRICE_LEVEL_INEXPENSIVE', url: 'https://www.laupasat.sg/', source: 'seed' },
@@ -62,7 +65,11 @@ async function fetchPlaces(apiKey, opts = {}) {
       openNow: p.currentOpeningHours?.openNow ?? null,
       businessStatus: p.businessStatus ?? null,
       priceLevel: p.priceLevel ?? null,
-      url: p.googleMapsUri ?? '',
+      // v0.45.0: prefer place_id deep-link over cid URL — fixes iOS
+      // Apple-Maps redirect for vibe-cached venues used by /eat /drink.
+      url: googleMapsUrl(p) ?? '',
+      googleMapsLinks: p.googleMapsLinks ?? null,
+      googleMapsUri: p.googleMapsUri ?? null,
       primaryType: p.primaryType ?? 'restaurant',
       source: 'GoogleMaps'
     }));

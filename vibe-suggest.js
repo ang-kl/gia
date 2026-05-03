@@ -2,6 +2,7 @@ const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 const { logger } = require('./logger');
+const { googleMapsUrl } = require('./maps-url');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = llm.DEFAULT_MODEL;
@@ -176,7 +177,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
       rating: place.rating ?? null,
       businessStatus: place.businessStatus ?? null,
       openNow: place.currentOpeningHours?.openNow ?? null,
-      url: place.googleMapsLinks?.placeUri ?? place.googleMapsUri ?? '',
+      url: googleMapsUrl(place) ?? '',
       directionsUri: place.googleMapsLinks?.directionsUri ?? '',
       reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
       photosUri: place.googleMapsLinks?.photosUri ?? '',
