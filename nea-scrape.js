@@ -336,8 +336,9 @@ function formatClosureBlocks(enriched) {
 // { ok, ongoing, upcoming, recentlyEnded, all, summary } where each
 // list is enriched + sorted, plus a 1-line summary string.
 //
-// v0.49.0: opportunistically pulls the canonical 125-centre vault to
-// validate names + use precise Maps URLs. Vault failure is non-fatal.
+// v0.50.0: pulls the canonical vault from the in-repo MD file (no
+// Redis, no async). Match-failures are non-fatal — unmatched rows
+// keep the v0.48.1 "<name> Singapore" Maps URL.
 async function getStructuredClosures(redis) {
   const result = await getCachedOrFetch(redis);
   if (!result.ok) return { ok: false, error: result.error, fetchedAt: result.fetchedAt };
@@ -346,8 +347,8 @@ async function getStructuredClosures(redis) {
   let vaultCentres = null;
   try {
     const vault = require('./hawker-vault');
-    const v = await vault.getAllCentres(redis);
-    if (v.ok && Array.isArray(v.centres) && v.centres.length) vaultCentres = v.centres;
+    vaultCentres = vault.getAllCentres();
+    if (!Array.isArray(vaultCentres) || !vaultCentres.length) vaultCentres = null;
   } catch (err) {
     console.warn('[NEA-Scrape] vault unavailable, falling back to unanchored maps URLs:', err.message);
   }
