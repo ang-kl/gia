@@ -20,7 +20,7 @@
 
 const TG_HASH_MAX = 4096; // Telegram URL practical limit; very generous
 
-// Single-venue URL preference order (v0.45.1 — corrected from v0.45.0).
+// Single-venue URL preference order (v0.48.2 — corrected from v0.45.1).
 //
 // Why this order matters: Google Places API returns TWO URL fields per
 // place:
@@ -33,26 +33,32 @@ const TG_HASH_MAX = 4096; // Telegram URL practical limit; very generous
 //
 // Critically, googleMapsLinks IS NOT ALWAYS POPULATED by the API.
 // Some places (especially newly-added ones) only have googleMapsUri.
-// In that case, our previous fallback chain went straight to the cid
-// URL — defeating the entire iOS Apple-Maps fix.
 //
-// The fix in v0.45.1: when placeUri is absent, SYNTHESISE the place_id
-// deep-link from place.id BEFORE falling through to the cid URL. This
-// guarantees an iOS-friendly URL whenever we have a place_id at all.
+// v0.45.1 attempted to synthesise the deep-link as
+// `https://www.google.com/maps/place/?q=place_id:<id>` but the Maps app
+// treats `place_id:CHIJ...` in the q= param as a literal search string
+// — the user sees the raw "place_id:ChIJ..." text in the search field
+// instead of a place pin.
+//
+// v0.48.2 fix: use the documented Google Maps URLs API
+// (https://developers.google.com/maps/documentation/urls/get-started):
+//   https://www.google.com/maps/search/?api=1&query=<NAME>&query_place_id=<PLACE_ID>
+// The query_place_id parameter pins the place; query supplies the
+// search-field text so the user sees the venue name (not the raw id).
 //
 // Order:
 //   1. place.googleMapsLinks.placeUri  (explicit deep-link, ideal)
-//   2. synthesised https://www.google.com/maps/place/?q=place_id:<id>
-//      — works as long as place.placeId or place.id exists. iOS-friendly.
-//   3. place.url                        (already-constructed URL from
-//                                        upstream code; trusted only if
-//                                        it's a real http URL)
-//   4. place.googleMapsUri              (cid URL — last resort, may go
-//                                        to Apple Maps on iOS)
-//   5. place.directionsUri              (directions-mode last resort)
-//   6. https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
+//   2. ?api=1&query=<name>&query_place_id=<id>  — when both available
+//   3. ?api=1&query=<name>          — name-only (no id)
+//   4. place.url                    (already-constructed URL from
+//                                    upstream code; trusted only if
+//                                    it's a real http URL)
+//   5. place.googleMapsUri          (cid URL — last resort, may go
+//                                    to Apple Maps on iOS)
+//   6. place.directionsUri          (directions-mode last resort)
+//   7. https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
 //      from coords (places without an id at all)
-//   7. null
+//   8. null
 //
 // place can come from many shapes — accept any of these field names.
 function googleMapsUrl(place) {
@@ -60,19 +66,23 @@ function googleMapsUrl(place) {
   // 1. Explicit deep-link from Places API (best when present).
   const placeUri = place.googleMapsLinks?.placeUri;
   if (placeUri) return placeUri;
-  // 2. Synthesise place_id deep-link — this is the v0.45.1 fix.
-  //    Was previously below googleMapsUri in the chain, which meant the
-  //    cid URL won every time placeUri was absent. Now we always prefer
-  //    the place_id-explicit format whenever we have an id.
+  // 2. Documented URL form: query (name) + query_place_id (id).
   const id = place.placeId || place.id;
-  if (id) return `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(id)}`;
-  // 3. Already-constructed URL from upstream (only http(s)).
+  const name = place.name || place.displayName?.text || '';
+  if (id && name) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(id)}`;
+  }
+  // 3. Name-only — the place_id-as-query trick is unreliable; skip.
+  if (name) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+  }
+  // 4. Already-constructed URL from upstream (only http(s)).
   if (typeof place.url === 'string' && /^https?:\/\//.test(place.url)) return place.url;
-  // 4. Cid URL — last resort, may route to Apple Maps on iOS.
+  // 5. Cid URL — last resort, may route to Apple Maps on iOS.
   if (typeof place.googleMapsUri === 'string' && place.googleMapsUri.startsWith('http')) return place.googleMapsUri;
-  // 5. Directions URL.
+  // 6. Directions URL.
   if (typeof place.directionsUri === 'string') return place.directionsUri;
-  // 6. Coords-only fallback.
+  // 7. Coords-only fallback.
   if (Number.isFinite(place.lat) && Number.isFinite(place.lng)) {
     return `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`;
   }

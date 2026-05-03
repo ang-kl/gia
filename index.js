@@ -439,13 +439,27 @@ async function deliverPicks(chatId, mealLabel, picks) {
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
 
   try {
-    await sendGoogleMapsContainer(chatId, picks, {
-      travelmode: 'walking',
-      caption: '🗺 Open this full set in Google Maps:',
-      label: '🗺 View all picks'
-    });
+    // v0.48.2: render all picks as multi-marker map via TMA /app/map.
+    // Was previously a Google Maps directions URL (route mode) — that
+    // showed picks as a sequence of stops, not as N markers on one map.
+    // /app/map opens the leaflet view with each pick pinned, which is
+    // what the user actually wants when they tap "View all on map".
+    const { buildMapHashUrl } = require('./maps-url');
+    const mapUrl = webhookDomain ? buildMapHashUrl(picks, { webhookDomain }) : null;
+    if (mapUrl) {
+      await bot.sendMessage(chatId, `🗺 View all ${picks.length} pick${picks.length === 1 ? '' : 's'} on one map:`, {
+        reply_markup: { inline_keyboard: [[{ text: `🗺 View all ${picks.length} on map`, web_app: { url: mapUrl } }]] }
+      });
+    } else {
+      // Fallback (no webhookDomain or no lat/lng): legacy directions URL.
+      await sendGoogleMapsContainer(chatId, picks, {
+        travelmode: 'walking',
+        caption: '🗺 Open this full set in Google Maps:',
+        label: '🗺 View all picks'
+      });
+    }
   } catch (err) {
-    console.warn('[Picks] route button render failed:', err.message);
+    console.warn('[Picks] map button render failed:', err.message);
   }
 
   for (const p of picks) {
@@ -1876,32 +1890,56 @@ async function runHawkerClosureLive(chatId) {
   }
   await safeSend(chatId, '⏳ NEA scrape returned nothing — falling back to web search (~10–20 s)…');
   const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const prompt = `List all Singapore hawker centres that are closed for cleaning, R&R (Repairs & Redecoration), or Upgrading.
+  const prompt = `Use web_search to find Singapore hawker centre closures.
 
-Today's date is ${todayISO} (Singapore time).
+PRIMARY SOURCE — search this URL first and extract the closure table:
+https://www.nea.gov.sg/our-services/hawker-management/overview
 
-For each closure provide:
-- Hawker Centre Name
-- Closure Type (Cleaning / R&R / Upgrading)
-- Closure Start Date (YYYY-MM-DD)
-- Closure End Date (YYYY-MM-DD)
-- Duration in days (omit if dates incomplete)
-- Google Maps URL formatted as: https://www.google.com/maps/search/?api=1&query=<URL-encoded hawker centre name + Singapore>
+The NEA overview page contains a quarterly closure schedule table with columns:
+Hawker Centre · Closure Date · Reason for Closure · Remarks
 
-Sorting (priority order, MUST follow):
+If the NEA page is not directly fetchable, search for: "NEA hawker centre closure schedule ${todayISO.slice(0, 4)}" or "Singapore hawker centre cleaning schedule" — town council websites and news aggregators republish this list.
+
+Today's date is ${todayISO} (Singapore time, SGT).
+
+For EACH closure, provide ALL six fields:
+1. Hawker Centre Name (exact, as on NEA page)
+2. Closure Type — one of: Cleaning / R&R / Upgrading
+   • "Cleaning" when Reason = Cleaning
+   • "R&R" when Reason or Remarks contain "Repairs & Redecoration", "Repairs", "Redecoration", "Renovation"
+   • "Upgrading" when Reason or Remarks contain "Upgrading" or "Upgrade"
+3. Closure Start Date (YYYY-MM-DD)
+4. Closure End Date (YYYY-MM-DD) — same as start for single-day closures
+5. Duration in days (inclusive)
+6. Google Maps URL formatted EXACTLY as: https://www.google.com/maps/search/?api=1&query=<URL-encoded hawker centre name + " Singapore">
+
+SORTING (priority order, MUST follow):
 1. Ongoing closures (today is between start and end) — sort by nearest end date first
 2. Upcoming closures — sort by nearest start date first
 3. Recently ended closures (within last 30 days) — sort by most recent end date first
+4. Drop closures that ended more than 30 days ago.
 
-Rules:
-- Use official or reputable sources (NEA, town councils, news aggregators).
+RULES:
 - Singapore only. No duplicates.
-- Leave duration blank if dates are incomplete.
-- If a hawker centre is unverified, skip it rather than guess.
+- If you find ZERO closures, say so explicitly with the heading "🧹 0 closures found" — do NOT return an empty/blank message.
+- Aim to return at least 5 entries — the NEA list typically has 20–60 active closures across the quarter.
+- Skip any centre whose dates you cannot verify rather than guess.
 
-Format your response as labeled blocks (one per closure), each block on separate lines. Number each block (1., 2., …). Preface the entire reply with a one-line summary: "🧹 N closures found (M ongoing · K upcoming · J recently ended)". After the list, add a one-line citation note pointing at the canonical NEA page.
+OUTPUT FORMAT — labeled blocks, one per closure, blank line between. Use this exact template:
 
-Do NOT use markdown tables (they wrap badly on mobile).`;
+🧹 N closures found · M ongoing · K upcoming · J recently ended
+
+1. <name>
+   Type: <Cleaning|R&R|Upgrading>
+   Dates: <YYYY-MM-DD> → <YYYY-MM-DD> (<N>d)
+   📍 <maps url>
+
+2. <name>
+   ...
+
+Source: NEA hawker management portal · https://www.nea.gov.sg/our-services/hawker-management/overview
+
+Do NOT use markdown tables (they wrap badly on mobile). Plain text + emoji only.`;
   try {
     const result = await llm.generate({
       prompt,
@@ -1918,11 +1956,7 @@ Do NOT use markdown tables (they wrap badly on mobile).`;
     }
     await safeSend(chatId, text, {
       parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [
-        [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/hawker-centre-management/list-of-hawker-centres-closure-and-cleaning-schedules' }],
-        [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
-        [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
-      ] }
+      reply_markup: { inline_keyboard: buttonRow }
     });
   } catch (err) {
     console.error('[Error] runHawkerClosureLive failed:', err.message);
@@ -2272,7 +2306,7 @@ async function runSurpriseCommand(chatId) {
       return;
     }
 
-    await safeSend(chatId, '🎲 Hunting up to 12 hidden gems 1.5–3 km away — discovering → narrating…');
+    await safeSend(chatId, '🎲 Hunting up to 5 hidden gems 1.5–3 km away — discovering → narrating…');
     const requestStore = require('./request-store');
     const pipelineTask = require('./pipeline-task');
     const reqId = await requestStore.create(redis, {
