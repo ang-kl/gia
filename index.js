@@ -881,6 +881,43 @@ bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i
   }
 });
 
+// v0.47.0: /picks — consolidated copy-friendly list of today's picks
+// across /cuisine, /surprise, /eat, /drink, /groceries, NL chat. Reads
+// recent-picks.js Redis store (24h TTL, capped at 5). Renders ONE
+// message with each pick as a labeled block — long-press to copy on
+// mobile, or copy individual lines.
+//
+// Different from /share (v0.27.1): /share offers buddy-forwarding via
+// inline buttons; /picks gives plain copyable text for sending into
+// other chats / WhatsApp / notes apps.
+bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
+  try {
+    const { getRecent } = require('./recent-picks');
+    const { googleMapsUrl } = require('./maps-url');
+    const recent = await getRecent(redis, msg.chat.id);
+    if (!recent.length) {
+      await safeSend(msg.chat.id, "📋 No picks today yet. Run /cuisine, /surprise, /eat, /drink, or just type 'find me ramen' — they'll all populate /picks.");
+      return;
+    }
+    const lines = recent.map((p, i) => {
+      const rating = p.rating ? `⭐${p.rating.toFixed(1)}` : '';
+      const type = p.primaryType ? ` · ${p.primaryType.replace(/_/g, ' ')}` : '';
+      const vibe = p.vibe ? `\n   🌿 ${p.vibe}` : '';
+      const dish = p.signatureDish ? `\n   🍴 ${p.signatureDish}` : '';
+      const url = googleMapsUrl(p) || '';
+      const link = url ? `\n   📍 ${url}` : '';
+      const area = p.area ? `\n   ${p.area}` : '';
+      return `${i + 1}. ${p.name}${rating ? ` · ${rating}` : ''}${type}${area}${vibe}${dish}${link}`;
+    });
+    const ageHrs = Math.max(0, Math.round((Date.now() - (recent[0]?.addedAt || Date.now())) / 3600000));
+    const footer = `\n\n📋 ${recent.length} pick${recent.length === 1 ? '' : 's'} from the last ${Math.max(1, ageHrs)}h. Long-press any line to copy. Picks expire 24h after each search.`;
+    await safeSend(msg.chat.id, `📋 Your picks today\n\n${lines.join('\n\n')}${footer}`);
+  } catch (err) {
+    console.error('[Error] /picks failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, /picks hit an error.");
+  }
+});
+
 bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
   try {
     const { getRecent } = require('./recent-picks');
