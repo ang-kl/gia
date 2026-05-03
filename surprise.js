@@ -18,6 +18,7 @@
 const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACE_DETAILS_URL = 'https://places.googleapis.com/v1/places';
@@ -224,7 +225,7 @@ Return ONLY the JSON object.`;
       bookingRequired: parsed.booking_required === true
     };
   } catch (err) {
-    console.error('[Surprise] Gemini enrich failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'surprise enrich failed');
     return { dishes: [], whyOrdered: '', bookingRequired: false };
   }
 }
@@ -267,7 +268,7 @@ async function findSurprise({ lat, lng, redis = null }) {
     try {
       detail = await placeDetails(cand.id, mapsApiKey);
     } catch (err) {
-      console.error(`[Surprise] Place Details ${cand.id} failed:`, err.message);
+      logger.error({ placeId: cand.id, err: { message: err.message } }, 'surprise placeDetails failed');
       continue;
     }
     if (!passesOpeningGate(detail)) continue;
@@ -281,7 +282,7 @@ async function findSurprise({ lat, lng, redis = null }) {
   if (!softFallback) return null;
   const { detail, cand, isFallback } = softFallback;
   if (isFallback) {
-    console.log(`[Surprise] Using soft-fallback (no venue passed strict 4-day review gate): ${detail.displayName?.text} (${detail.id})`);
+    logger.info({ name: detail.displayName?.text, placeId: detail.id }, 'surprise soft-fallback (no venue passed 4-day review gate)');
   }
   // Below was a per-iteration block; refactored to single-shot.
   {
@@ -314,7 +315,7 @@ async function findSurprise({ lat, lng, redis = null }) {
           weatherFlag  = refined[0].weatherFlag || 'unknown';
         }
       } catch (err) {
-        console.error('[Surprise] pipeline refine failed:', err.message);
+        logger.error({ err: { message: err.message } }, 'surprise pipeline refine failed');
       }
     }
     return {

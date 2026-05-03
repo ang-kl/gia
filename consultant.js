@@ -8,6 +8,7 @@
 const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id}`;
@@ -51,7 +52,7 @@ async function nearbyAnyOperational(lat, lng) {
       .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
       .filter((p) => p.currentOpeningHours?.openNow !== false);
   } catch (err) {
-    console.error('[Consultant] searchNearby failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'consultant searchNearby failed');
     return [];
   }
 }
@@ -66,7 +67,7 @@ async function fetchReviews(placeId) {
     });
     return (data.reviews ?? []).slice(0, 3);
   } catch (err) {
-    console.error(`[Consultant] reviews ${placeId} failed:`, err.message);
+    logger.error({ placeId, err: { message: err.message } }, 'consultant reviews fetch failed');
     return [];
   }
 }
@@ -100,7 +101,7 @@ ${reviewText}`;
       return { is_sanctuary: parsed.is_sanctuary, reason: parsed.reason, approach: typeof parsed.approach === 'string' ? parsed.approach : null };
     }
   } catch (err) {
-    console.error('[Consultant] gemini analyze failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'consultant LLM analyse failed');
   }
   return null;
 }

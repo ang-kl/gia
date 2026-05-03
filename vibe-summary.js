@@ -1,6 +1,7 @@
 const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places/${placeId}`;
 const REVIEWS_FIELD_MASK = 'reviews';
@@ -35,7 +36,7 @@ async function fetchReviewText(placeId) {
       .slice(0, 8)
       .join('\n---\n');
   } catch (err) {
-    console.error(`[Vibe-Summary] Place Details for ${placeId} failed:`, err.message);
+    logger.error({ placeId, err: { message: err.message } }, 'vibe-summary placeDetails failed');
     return '';
   }
 }
@@ -59,7 +60,7 @@ ${reviews}`;
     );
     return result.response.text().trim();
   } catch (err) {
-    console.error(`[Vibe-Summary] LLM call failed (model=${MODEL_NAME}):`, err.message);
+    logger.error({ model: MODEL_NAME, err: { message: err.message } }, 'vibe-summary LLM call failed');
     return null;
   }
 }

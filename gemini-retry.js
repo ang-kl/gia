@@ -2,10 +2,12 @@
 //
 // v0.40.0: migrated to Anthropic. The filename stays for minimal repo
 // churn; the export contract (`withRetry`, `isRetryable`) is unchanged.
-// `makeFlashFallback` is retained as a no-op factory returning null so
-// existing call sites compile without edits — Anthropic doesn't have a
-// "Pro→Flash" overload-class to fall back from, and the SDK already does
-// transient retries internally when configured to.
+//
+// v0.43.0: removed `makeFlashFallback` no-op factory — no live caller
+// passes it any more. Anthropic has no Pro→Flash overload-class to
+// fall back from. The `fallbackFn` parameter on `withRetry` stays in
+// the signature so any future code that genuinely needs a per-call
+// fallback can pass one.
 //
 // Backoff schedule: 1s, 2s, 4s — three retries max. Total worst-case
 // wait added per call ≈ 7s, which fits inside Telegram's 30s server-side
@@ -58,11 +60,4 @@ async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'llm', fallba
   throw lastErr;
 }
 
-// Anthropic has no Pro→Flash equivalent; this exists only so legacy call
-// sites that pass `fallbackFn: makeFlashFallback(...)` keep compiling.
-// Returning null tells withRetry to skip the fallback path.
-function makeFlashFallback() {
-  return null;
-}
-
-module.exports = { withRetry, isRetryable, makeFlashFallback };
+module.exports = { withRetry, isRetryable };

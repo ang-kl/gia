@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { isRetryable, withRetry, makeFlashFallback } = require('../gemini-retry.js');
+const { isRetryable, withRetry } = require('../gemini-retry.js');
 
 describe('isRetryable', () => {
   it('returns true for transient HTTP statuses', () => {
@@ -85,9 +85,10 @@ describe('withRetry', () => {
   });
 });
 
-describe('makeFlashFallback', () => {
-  it('is a no-op factory returning null in v0.40.x+', () => {
-    expect(makeFlashFallback()).toBe(null);
-    expect(makeFlashFallback({}, 'prompt', {})).toBe(null);
+describe('export shape (v0.43.0 — makeFlashFallback removed)', () => {
+  it('only exports withRetry + isRetryable', async () => {
+    const mod = await import('../gemini-retry.js');
+    const exported = Object.keys(mod.default);
+    expect(exported.sort()).toEqual(['isRetryable', 'withRetry']);
   });
 });
