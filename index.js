@@ -2164,7 +2164,7 @@ async function runSurpriseCommand(chatId) {
     const row = await requestStore.get(redis, reqId);
     const venues = row?.venues || [];
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find 5 hidden gems matching the /surprise gates in your annulus right now (rating 4.0–4.3, <50 reviews, opened within 90 days). Try a denser area or /cuisine for unfiltered picks.");
+      await safeSend(chatId, "Gia couldn't find 5 hidden gems matching the /surprise gates in your annulus right now (rating ≥4.0, opened ≤100 days ago, open now). Try a denser area or /cuisine for unfiltered picks.");
       return;
     }
     await deliverPicks(chatId, '🎲 5 surprise hidden gems', venues);

@@ -7,62 +7,54 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { applySurpriseGates, applyTemporalGate } = require('../pipeline-task.js');
 
-describe('applySurpriseGates (v0.47.0 relaxed gates)', () => {
-  it('keeps venues with rating in [3.8, 4.6]', () => {
+describe('applySurpriseGates (v0.47.1 — rating ≥4.0, opened ≤100d)', () => {
+  it('keeps venues with rating ≥ 4.0 (no upper cap)', () => {
     const venues = [
-      { name: 'A', rating: 3.8, userRatingCount: 30 },
-      { name: 'B', rating: 4.0, userRatingCount: 30 },
-      { name: 'C', rating: 4.3, userRatingCount: 30 },
-      { name: 'D', rating: 4.5, userRatingCount: 30 },
-      { name: 'E', rating: 4.6, userRatingCount: 30 }
+      { name: 'A', rating: 4.0 },
+      { name: 'B', rating: 4.5 },
+      { name: 'C', rating: 4.8 },
+      { name: 'D', rating: 5.0 }
     ];
-    expect(applySurpriseGates(venues).length).toBe(5);
+    expect(applySurpriseGates(venues).length).toBe(4);
   });
 
-  it('drops venues outside [3.8, 4.6] rating window', () => {
+  it('drops venues with rating < 4.0', () => {
     const venues = [
-      { name: 'TooLow', rating: 3.7, userRatingCount: 30 },
-      { name: 'TooHigh', rating: 4.7, userRatingCount: 30 },
-      { name: 'Perfect', rating: 5.0, userRatingCount: 30 }
+      { name: 'TooLow1', rating: 3.5 },
+      { name: 'TooLow2', rating: 3.9 },
+      { name: 'OK',     rating: 4.0 }
     ];
-    expect(applySurpriseGates(venues).length).toBe(0);
+    expect(applySurpriseGates(venues).map((v) => v.name)).toEqual(['OK']);
   });
 
-  it('drops venues with >=50 reviews (hidden-gem signal preserved)', () => {
+  it('does NOT filter by review count (v0.47.1 — popular venues now allowed)', () => {
     const venues = [
       { name: 'Hidden', rating: 4.2, userRatingCount: 20 },
-      { name: 'Boundary', rating: 4.2, userRatingCount: 50 },
-      { name: 'Popular', rating: 4.2, userRatingCount: 200 }
+      { name: 'Popular', rating: 4.2, userRatingCount: 5000 }
     ];
-    expect(applySurpriseGates(venues).map((v) => v.name)).toEqual(['Hidden']);
+    expect(applySurpriseGates(venues).length).toBe(2);
   });
 
-  it('keeps venues without verifiedOpeningDate (soft gate, v0.32.0 behaviour preserved)', () => {
-    const venues = [{ name: 'NoDate', rating: 4.2, userRatingCount: 20 }];
+  it('keeps venues without verifiedOpeningDate (soft enforcement)', () => {
+    const venues = [{ name: 'NoDate', rating: 4.2 }];
     expect(applySurpriseGates(venues).length).toBe(1);
   });
 
-  it('v0.47.0: KEEPS venues opened >90 days ago when verifiedOpeningDate present', () => {
-    // The launch-window HARD gate was removed in v0.47.0. Old venues now
-    // pass through (assuming rating + review-count gates are met).
-    // Reason: Places API doesn't expose opening dates; LLM-asserted
-    // verifiedOpeningDate was unreliable. Was eliminating ~95% of
-    // candidates with no real signal.
-    const oldDate = new Date(Date.now() - 200 * 86400 * 1000).toISOString().slice(0, 10);
+  it('drops venues opened >100 days ago when verifiedOpeningDate present', () => {
+    const oldDate = new Date(Date.now() - 150 * 86400 * 1000).toISOString().slice(0, 10);
     const newDate = new Date(Date.now() - 30 * 86400 * 1000).toISOString().slice(0, 10);
     const venues = [
-      { name: 'Old', rating: 4.2, userRatingCount: 20, verifiedOpeningDate: oldDate },
-      { name: 'New', rating: 4.2, userRatingCount: 20, verifiedOpeningDate: newDate }
+      { name: 'Old', rating: 4.2, verifiedOpeningDate: oldDate },
+      { name: 'New', rating: 4.2, verifiedOpeningDate: newDate }
     ];
-    expect(applySurpriseGates(venues).map((v) => v.name)).toEqual(['Old', 'New']);
+    expect(applySurpriseGates(venues).map((v) => v.name)).toEqual(['New']);
   });
 
-  it('v0.47.0: launchWindowDays opts override is now a no-op (no hard gate)', () => {
-    const date300 = new Date(Date.now() - 300 * 86400 * 1000).toISOString().slice(0, 10);
-    const venues = [{ name: 'Ancient', rating: 4.2, userRatingCount: 20, verifiedOpeningDate: date300 }];
-    // Both calls should keep the venue — gate is gone.
-    expect(applySurpriseGates(venues).length).toBe(1);
-    expect(applySurpriseGates(venues, { launchWindowDays: 180 }).length).toBe(1);
+  it('respects launchWindowDays override (e.g. relaxed 200d)', () => {
+    const date150 = new Date(Date.now() - 150 * 86400 * 1000).toISOString().slice(0, 10);
+    const venues = [{ name: 'X', rating: 4.2, verifiedOpeningDate: date150 }];
+    expect(applySurpriseGates(venues).length).toBe(0);
+    expect(applySurpriseGates(venues, { launchWindowDays: 200 }).length).toBe(1);
   });
 });
 

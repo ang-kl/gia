@@ -8,8 +8,12 @@
 //
 // kind: 'cuisine' or 'surprise'.
 // - cuisine returns up to 15 candidates → 5 surfaced + Show next 10.
-// - surprise returns 5 candidates with tighter gates: rating 4.0-4.3,
-//   <50 reviews, launched in last 90 d, day-or-night temporal filter.
+// - surprise returns 5 candidates with these gates (v0.47.1):
+//     rating ≥ 4.0, opened ≤100 days ago, open now.
+//   The previous "hidden gem" framing (rating 4.0-4.3, <50 reviews)
+//   was retired because the SG distribution skews to 4.4+ and the
+//   review-count cap eliminated viable venues. Current spec is
+//   "fresh openings that are currently open with a decent rating."
 
 const requestStore = require('./request-store');
 const promptBuilder = require('./prompt-builder');
@@ -30,39 +34,34 @@ function inversionEnabled() {
 const NEAR_DAYS_DEFAULT = 90;
 const QUEUE_MAX_DEFAULT = 15;
 
-// Surprise-specific gates per v0.32.0 prompt syntax.
+// Surprise-specific gates per Human Lead spec.
 //
-// v0.47.0 relaxation: rating window widened 4.0-4.3 → 3.8-4.6 (the SG
-// distribution skews high; the v0.32.0 4.0-4.3 cap excluded most
-// venues). The launched-within-90-days HARD gate dropped — Places API
-// doesn't expose opening dates and the LLM-asserted verifiedOpeningDate
-// is unreliable. Now used only as a soft signal for ranking (not
-// implemented yet, future tweak). Hidden-gem signal preserved as the
-// <50 reviews gate (Places does expose userRatingCount reliably).
-const SURPRISE_RATING_MIN = 3.8;
-const SURPRISE_RATING_MAX = 4.6;
-const SURPRISE_MAX_REVIEWS = 50;
-// SURPRISE_LAUNCH_WINDOW_DAYS retained for backward compat with
-// pipeline-task / prompt-builder code that reads it; no longer used as
-// a hard filter in applySurpriseGates as of v0.47.0.
-const SURPRISE_LAUNCH_WINDOW_DAYS = 90;
-const SURPRISE_LAUNCH_RELAXED_DAYS = 180;
+// v0.47.1 (final-for-this-session): rating ≥ 4.0 (no upper cap),
+// opened within 100 days (hard gate), open now. Reverses the
+// v0.47.0 attempt to widen+drop the launch gate — Human Lead
+// preference is "I want fresh openings, currently open, decent
+// rating" rather than "hidden gem with low review count". The
+// <50 reviews gate is REMOVED accordingly (popular venues now OK).
+const SURPRISE_RATING_MIN = 4.0;
+const SURPRISE_LAUNCH_WINDOW_DAYS = 100;
+const SURPRISE_LAUNCH_RELAXED_DAYS = 200; // soft fallback if 0 venues meet 100d
 
 function applySurpriseGates(venues, opts = {}) {
+  const launchWindowDays = opts.launchWindowDays || SURPRISE_LAUNCH_WINDOW_DAYS;
+  const launchCutoff = new Date(Date.now() - launchWindowDays * 86400 * 1000);
   return venues.filter((v) => {
-    // Rating window 3.8-4.6 (v0.47.0; was 4.0-4.3).
-    if (typeof v.rating === 'number' && (v.rating < SURPRISE_RATING_MIN || v.rating > SURPRISE_RATING_MAX)) return false;
-    // <50 reviews — hidden-gem signal. `userRatingCount` from Places (New)
-    // or `reviewCount` shim. ALWAYS enforced (this is the actual signal).
-    const reviewCount = Number(v.userRatingCount ?? v.reviewCount ?? 0);
-    if (reviewCount && reviewCount >= SURPRISE_MAX_REVIEWS) return false;
-    // v0.47.0: launch-window HARD gate removed. Was previously:
-    //   if (v.verifiedOpeningDate && new Date(v.verifiedOpeningDate) < launchCutoff) return false;
-    // Reason: Places API does not expose opening dates; we relied on the
-    // LLM asserting verifiedOpeningDate which is rarely accurate. The
-    // gate eliminated ~95% of candidates with no real signal. Newly-
-    // opened venues still get surfaced — they tend to have <50 reviews
-    // by definition, which is what we actually wanted.
+    // 1. Rating ≥ 4.0 (no upper cap).
+    if (typeof v.rating === 'number' && v.rating < SURPRISE_RATING_MIN) return false;
+    // 2. Opened within 100 days — only enforced when verifiedOpeningDate
+    //    is present. Places API doesn't expose opening dates so this
+    //    relies on the LLM (rankAndNarrate) to assert verifiedOpeningDate.
+    //    When absent, venue passes — soft enforcement.
+    if (v.verifiedOpeningDate) {
+      const opened = new Date(v.verifiedOpeningDate);
+      if (!isNaN(opened) && opened < launchCutoff) return false;
+    }
+    // 3. openNow check is in applyTemporalGate (called separately
+    //    by runSurpriseTask after applySurpriseGates).
     return true;
   });
 }
