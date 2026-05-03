@@ -1,160 +1,191 @@
-// hawker-vault.js — v0.49.0 canonical 125-hawker-centre vault.
+// hawker-vault.js — v0.50.0 canonical hawker-centre vault from MD file.
 //
-// Source: NEA's master list PDF
-//   https://www.nea.gov.sg/docs/default-source/hawker-centres-documents/list-of-hcs_-25-july-2025.pdf
-// 125 centres as of 25 July 2025. Updated quarterly by NEA.
+// Source: data/list-of-hawker-centres.md (123 centres, snapshot 25 Jul 2025).
+// The MD file is committed to the repo, so no network fetch needed —
+// reads from disk at module load, parses once, cached in memory.
 //
-// Why a vault: the v0.48.x scrape + LLM web_search paths return centre
-// names that may be mistyped, abbreviated, or hallucinated (LLM fallback).
-// Cross-referencing against the canonical 125 lets us:
-//   • drop fakes / duplicates,
-//   • normalise names to the NEA spelling,
-//   • build precise Maps URLs anchored to the official address (not just
-//     `<name> + Singapore` which is what googleMapsSearchUrl currently does).
+// Why MD over PDF (v0.49.0 → v0.50.0): the MD file is human-editable,
+// reviewable in PR diffs, and doesn't need pdf-parse. Plus we get
+// region segmentation (north/south/east/west/central) for free since
+// each row carries an address + postal code.
 //
-// Runtime model:
-//   • First call fetches the PDF, parses with pdf-parse, caches to Redis
-//     (30-day TTL). Subsequent calls hit cache.
-//   • Sandbox can't reach NEA — so this module is no-op in dev (returns
-//     []). Production (Railway) hits NEA freely.
-//   • Failures are non-fatal — callers fall back to the v0.48.x behaviour.
+// Schema per centre:
+//   { sno, name, address, postal, region, mapsUrl, mgmt, isNew }
+//
+// Regions (URA-inspired 5-zone split):
+//   • Central:  Orchard, Newton, Novena, Toa Payoh, Bukit Timah, etc.
+//   • South:    CBD/Tanjong Pagar/Outram/Tiong Bahru/Telok Blangah
+//   • East:     Bedok, Tampines, Pasir Ris, Marine Parade, Geylang
+//   • North:    Yishun, Woodlands, Sembawang, Hougang, Sengkang,
+//               Punggol, AMK, Bishan, Serangoon (incl. Northeast)
+//   • West:     Jurong, Clementi, Bukit Batok, Bukit Panjang,
+//               Holland, Pasir Panjang, West Coast, Queenstown
 
-const axios = require('axios');
-const pdfParse = require('pdf-parse');
+const fs = require('fs');
+const path = require('path');
 
-const PDF_URL = 'https://www.nea.gov.sg/docs/default-source/hawker-centres-documents/list-of-hcs_-25-july-2025.pdf';
-const VAULT_CACHE_KEY = 'nea:hawker-vault:v1';
-const VAULT_CACHE_TTL_S = 30 * 24 * 60 * 60; // 30 days
-const FETCH_TIMEOUT_MS = 20000;
+const MD_PATH = path.join(__dirname, 'data', 'list-of-hawker-centres.md');
+const REGIONS = ['Central', 'South', 'East', 'North', 'West'];
 
-// Parse the raw PDF text into structured records.
-//
-// Heuristic — the NEA PDF lays out centres in a numbered list:
-//   1. Adam Road Food Centre
-//      2 Adam Road, Singapore 289876
-//   2. Albert Centre Market & Food Centre
-//      270 Queen Street, Singapore 180270
-//   ...
-//
-// Each record spans 2 lines. Postal pattern: "Singapore <6-digit>".
-// We scan for the postal code first (most reliable anchor), then walk
-// backwards to find the centre name + address.
-function parsePdfText(text) {
-  if (!text) return [];
-  const lines = text.split(/\r?\n/).map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
-  const centres = [];
-  // Pattern: line ending in "Singapore <postal>" is the address line.
-  const postalLineRe = /Singapore\s+(\d{6})\s*$/i;
-  // Numbered prefix pattern at start of name line.
-  const numberedRe = /^(\d{1,3})\.\s*(.+?)\s*$/;
+// Geography-keyword → region. Strong-signal place names that override
+// the postal-sector heuristic. Order matters — first match wins.
+const REGION_KEYWORDS = [
+  ['East', /\b(bedok|tampines|pasir ris|changi|loyang|marine parade|katong|joo chiat|amber|haig|dunman|east coast|geylang serai|geylang bahru|eunos|kembangan|paya lebar|aljunied|sims|jalan eunos|kallang|old airport|ubi)\b/],
+  ['North', /\b(yishun|woodlands|sembawang|marsiling|admiralty|canberra|mandai|kranji|sungei kadut|hougang|serangoon|sengkang|punggol|anchorvale|compassvale|buangkok|fernvale|kovan|chomp chomp|ang mo kio|amk|bishan|braddell|seletar|defu|sembawang hills|thomson)\b/],
+  ['West', /\b(jurong|clementi|bukit batok|boon lay|choa chu kang|pioneer|tuas|lakeside|bukit panjang|senja|tengah|teban|hillview|west coast|pasir panjang|holland|ghim moh|buona vista|dover|queenstown|commonwealth|tanglin halt|margaret drive|empress|alexandra|mei chin)\b/],
+  ['South', /\b(tanjong pagar|chinatown|outram|marina|anson|raffles|cecil|shenton|amoy|telok ayer|maxwell|club street|tiong bahru|bukit merah|telok blangah|harbourfront|redhill|henderson|cantonment|new market|smith street|hong lim|people'?s park|jalan kukoh|havelock|beo crescent|bukit purmei|kreta ayer)\b/],
+  ['Central', /\b(orchard|newton|novena|toa payoh|adam|cluny|stevens|farrer|whampoa|balestier|moulmein|macpherson|cambridge|jalan besar|tekka|little india|bras basah|bugis|beach road|north bridge|city hall|bendemeer|berseh|crawford|rochor|sungei road|tanglin(?! halt)|nassim|grange|bukit timah(?! market))\b/]
+];
+
+// Postal-sector fallback (first 2 digits of 6-digit code).
+function regionFromPostalSector(postal) {
+  const sector = parseInt(String(postal || '').slice(0, 2), 10);
+  if (!Number.isFinite(sector)) return null;
+  if (sector >= 1 && sector <= 8) return 'South';
+  if (sector >= 9 && sector <= 10) return 'South';
+  if (sector >= 11 && sector <= 13) return 'West';
+  if (sector >= 14 && sector <= 16) return 'South';
+  if (sector >= 17 && sector <= 23) return 'Central';
+  if (sector >= 24 && sector <= 30) return 'Central';
+  if (sector >= 31 && sector <= 37) return 'Central';
+  if (sector >= 38 && sector <= 52) return 'East';
+  if (sector >= 53 && sector <= 57) return 'North';
+  if (sector >= 58 && sector <= 71) return 'West';
+  if (sector >= 72 && sector <= 80) return 'North';
+  if (sector >= 81 && sector <= 82) return 'East';
+  return null;
+}
+
+function regionForCentre(centre) {
+  const text = `${centre.name || ''} ${centre.address || ''}`.toLowerCase();
+  for (const [region, re] of REGION_KEYWORDS) {
+    if (re.test(text)) return region;
+  }
+  return regionFromPostalSector(centre.postal) || 'Central';
+}
+
+// Parse the MD file's two markdown tables (Markets/Hawker Centres + New
+// Hawker Centres) into a flat list. Tolerates the "# tenancies" footnote
+// marker on names. Skips closed centres without addresses.
+function parseMd(md) {
+  if (!md) return [];
+  const out = [];
+  const lines = md.split(/\r?\n/);
+  let inTable = false;
+  let isNewSection = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const m = line.match(postalLineRe);
-    if (!m) continue;
-    const postal = m[1];
-    // Address may be the same line (with name appearing on prior line),
-    // or split across two lines. Look up to 2 lines back for the name.
-    let name = null;
-    let address = null;
-    let nameIdx = -1;
-    for (let j = 1; j <= 3 && i - j >= 0; j++) {
-      const candidate = lines[i - j];
-      const nm = candidate.match(numberedRe);
-      if (nm) {
-        name = nm[2].trim();
-        nameIdx = i - j;
-        // Address = lines between the numbered line and the postal line,
-        // joined with comma. If no intermediate line, the postal line itself
-        // contains the address.
-        if (i - nameIdx === 1) {
-          address = line.trim();
-        } else {
-          address = lines.slice(nameIdx + 1, i + 1).join(', ');
-        }
-        break;
-      }
+    // Section heading detect
+    if (/^##\s+New Hawker Centres/i.test(line)) {
+      isNewSection = true;
+      inTable = false;
+      continue;
     }
-    if (name && address) {
-      centres.push({
-        name: name.replace(/\s{2,}/g, ' ').trim(),
-        address: address.replace(/\s{2,}/g, ' ').trim(),
-        postal
-      });
+    if (/^##\s+Markets/i.test(line)) {
+      isNewSection = false;
+      inTable = false;
+      continue;
     }
-  }
-  // Dedupe by postal (PDF sometimes repeats records in section breaks).
-  const seen = new Set();
-  return centres.filter((c) => {
-    if (seen.has(c.postal)) return false;
-    seen.add(c.postal);
-    return true;
-  });
-}
-
-async function fetchAndParsePdf() {
-  const t0 = Date.now();
-  const { data } = await axios.get(PDF_URL, {
-    timeout: FETCH_TIMEOUT_MS,
-    responseType: 'arraybuffer',
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; soleat-bot/0.49; +https://gia4lunch-production.up.railway.app)',
-      'Accept': 'application/pdf,*/*'
-    },
-    maxContentLength: 10 * 1024 * 1024
-  });
-  const parsed = await pdfParse(Buffer.from(data));
-  const centres = parsePdfText(parsed.text);
-  return {
-    ok: centres.length > 0,
-    fetchedAt: Date.now(),
-    ms: Date.now() - t0,
-    sourceUrl: PDF_URL,
-    centres,
-    diagnostics: {
-      pdfBytes: data.byteLength || data.length,
-      textChars: parsed.text?.length || 0,
-      pageCount: parsed.numpages || 0,
-      centresParsed: centres.length
-    }
-  };
-}
-
-async function getAllCentres(redis) {
-  if (redis) {
-    try {
-      const raw = await redis.get(VAULT_CACHE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        return { ...parsed, cached: true };
-      }
-    } catch (err) {
-      console.warn('[HawkerVault] cache read failed:', err.message);
+    // Table row detection: starts with "|" and has at least 3 pipes.
+    if (line.startsWith('|') && (line.match(/\|/g) || []).length >= 4) {
+      const cells = line.split('|').map((s) => s.trim());
+      // Drop leading/trailing empty cells from "| ... |" form.
+      const trimmed = cells.slice(1, -1);
+      // Skip header row + separator row (---).
+      if (/^---+$|^-+:?$|^:?-+:?$/.test(trimmed[0] || '')) { inTable = true; continue; }
+      if (/^s\/?no$/i.test(trimmed[0] || '')) continue;
+      const sno = parseInt(trimmed[0], 10);
+      if (!Number.isFinite(sno)) continue;
+      const rawName = String(trimmed[1] || '').trim();
+      const address = String(trimmed[2] || '').trim();
+      const mgmt = String(trimmed[3] || '').trim();
+      // Skip closed centres (Bukit Timah Market — address says "Closed for redevelopment").
+      if (/closed for redevelopment/i.test(address)) continue;
+      // Strip the "#" footnote marker from the name.
+      const name = rawName.replace(/\s*#\s*$/, '').replace(/\s+/g, ' ').trim();
+      // Postal: pull "S(NNNNNN)" or "S(NNNNNN/NNNNNN)" — keep the first 6-digit code.
+      const m = address.match(/S\((\d{6})/);
+      const postal = m ? m[1] : null;
+      const centre = { sno, name, address, postal, mgmt, isNew: isNewSection };
+      centre.region = regionForCentre(centre);
+      centre.mapsUrl = mapsUrlForCentre(centre);
+      out.push(centre);
     }
   }
-  let result;
+  return out;
+}
+
+function mapsUrlForCentre(centre) {
+  if (!centre || !centre.name) return '';
+  // Use full name + address — Maps resolves to the centre much more
+  // reliably than "<name> Singapore" alone.
+  const query = centre.address
+    ? `${centre.name}, ${centre.address}`
+    : `${centre.name} Singapore`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+// Module-load cache. The MD file lives in the repo so a single read
+// at process start is fine — no Redis, no TTL, no async.
+let _allCentres = null;
+let _byRegion = null;
+function loadAll() {
+  if (_allCentres) return _allCentres;
   try {
-    result = await fetchAndParsePdf();
+    const md = fs.readFileSync(MD_PATH, 'utf8');
+    _allCentres = parseMd(md);
   } catch (err) {
-    return {
-      ok: false,
-      error: `fetch/parse failed: ${err.message?.slice(0, 200)}`,
-      fetchedAt: Date.now(),
-      centres: []
-    };
+    console.warn('[HawkerVault] MD load failed:', err.message);
+    _allCentres = [];
   }
-  if (result.ok && redis) {
-    try {
-      await redis.set(VAULT_CACHE_KEY, JSON.stringify({ ...result, cached: false }), { EX: VAULT_CACHE_TTL_S });
-    } catch (err) {
-      console.warn('[HawkerVault] cache write failed:', err.message);
-    }
-  }
-  return { ...result, cached: false };
+  return _allCentres;
 }
 
-// Normalise a name for fuzzy matching. Lowercases, strips
-// "Centre"/"Center"/"Market"/"Food" filler that NEA uses inconsistently
-// across its scrape page vs PDF, drops punctuation.
+function getAllCentres() {
+  return loadAll();
+}
+
+function getByRegion(region) {
+  if (!_byRegion) {
+    _byRegion = {};
+    for (const r of REGIONS) _byRegion[r] = [];
+    for (const c of loadAll()) {
+      if (_byRegion[c.region]) _byRegion[c.region].push(c);
+    }
+    for (const r of REGIONS) {
+      _byRegion[r].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+    }
+  }
+  if (!region) return _byRegion;
+  return _byRegion[region] || [];
+}
+
+// Format a single region's centres as a Telegram-friendly Markdown
+// list. Each line: "1. *Name* — [📍 Maps](url)\n   address". Capped
+// to fit Telegram's 4096-char message limit.
+function formatRegionList(region) {
+  const list = getByRegion(region);
+  if (!Array.isArray(list) || !list.length) return `_No hawker centres found in ${region}._`;
+  const lines = [`*${region} — ${list.length} hawker centres* (alphabetical)\n`];
+  list.forEach((c, i) => {
+    lines.push(`${i + 1}. *${c.name}*${c.isNew ? ' 🆕' : ''}`);
+    if (c.address) lines.push(`   ${c.address}`);
+    if (c.mapsUrl) lines.push(`   📍 ${c.mapsUrl}`);
+  });
+  let out = lines.join('\n');
+  if (out.length > 3800) out = out.slice(0, 3700) + '\n\n_…truncated; ' + (list.length) + ' total in this region._';
+  return out;
+}
+
+function formatRegionSummary() {
+  const by = getByRegion();
+  const total = loadAll().length;
+  const parts = REGIONS.map((r) => `*${r}*: ${by[r]?.length || 0}`);
+  return `🍜 *${total} hawker centres* (snapshot 25 Jul 2025)\n\n${parts.join(' · ')}`;
+}
+
+// ---------- v0.49.0 fuzzy-match helpers (kept for nea-scrape consumers) ----------
+
 function normaliseName(s) {
   return String(s || '')
     .toLowerCase()
@@ -165,7 +196,6 @@ function normaliseName(s) {
     .trim();
 }
 
-// Levenshtein distance — small (≤30 chars typical), so the O(n*m) is fine.
 function editDistance(a, b) {
   if (!a || !b) return Math.max(a?.length || 0, b?.length || 0);
   if (a === b) return 0;
@@ -183,10 +213,12 @@ function editDistance(a, b) {
   return dp[m][n];
 }
 
-// Find best match in `centres` for `query`. Returns
-// { centre, score (0-1), distance } or null when no acceptable match.
-// Acceptable: substring match OR edit distance ≤ 25% of max length.
-function findByName(centres, query) {
+function findByName(centresOrQuery, maybeQuery) {
+  // Backward-compat: callers can pass (centresArray, query) OR just (query)
+  // where centres are loaded from the vault automatically.
+  let centres, query;
+  if (Array.isArray(centresOrQuery)) { centres = centresOrQuery; query = maybeQuery; }
+  else { centres = loadAll(); query = centresOrQuery; }
   if (!Array.isArray(centres) || !centres.length || !query) return null;
   const qn = normaliseName(query);
   if (!qn) return null;
@@ -195,7 +227,6 @@ function findByName(centres, query) {
     const cn = normaliseName(c.name);
     if (!cn) continue;
     if (cn === qn) return { centre: c, score: 1, distance: 0 };
-    // Substring match (either direction) is high-confidence.
     if (cn.includes(qn) || qn.includes(cn)) {
       const score = Math.min(qn.length, cn.length) / Math.max(qn.length, cn.length);
       if (!best || score > best.score) best = { centre: c, score, distance: 0 };
@@ -212,31 +243,34 @@ function findByName(centres, query) {
   return best;
 }
 
-// Build a Maps URL anchored to the centre's address (much more
-// precise than `<name> + Singapore` which can hit other places).
-function mapsUrlForCentre(centre) {
-  if (!centre) return '';
-  const query = `${centre.name}, ${centre.address}`;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-
-// Convenience: enrich an arbitrary list of centre-name strings with
-// vault data. Returns array of { input, match: {centre, score} | null }.
-function annotateNames(centres, names) {
+function annotateNames(centresOrNames, maybeNames) {
+  let centres, names;
+  if (Array.isArray(maybeNames)) { centres = centresOrNames; names = maybeNames; }
+  else { centres = loadAll(); names = centresOrNames; }
   if (!Array.isArray(names)) return [];
   return names.map((n) => ({ input: n, match: findByName(centres, n) }));
 }
 
+// Reset module-level cache (for tests).
+function _resetCache() {
+  _allCentres = null;
+  _byRegion = null;
+}
+
 module.exports = {
-  PDF_URL,
-  VAULT_CACHE_KEY,
-  VAULT_CACHE_TTL_S,
-  fetchAndParsePdf,
+  MD_PATH,
+  REGIONS,
+  parseMd,
+  regionForCentre,
+  regionFromPostalSector,
   getAllCentres,
-  parsePdfText,
+  getByRegion,
+  formatRegionList,
+  formatRegionSummary,
+  mapsUrlForCentre,
   normaliseName,
   editDistance,
   findByName,
-  mapsUrlForCentre,
-  annotateNames
+  annotateNames,
+  _resetCache
 };

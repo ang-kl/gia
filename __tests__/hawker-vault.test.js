@@ -1,181 +1,256 @@
-// __tests__/hawker-vault.test.js — v0.49.0 canonical 125-centre vault.
-//
-// Skips the network fetch (would hit nea.gov.sg). Asserts the parser,
-// fuzzy matcher, and Maps URL builder behave as designed.
+// __tests__/hawker-vault.test.js — v0.50.0 MD-file-backed vault.
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const vault = require('../hawker-vault.js');
 
-describe('parsePdfText', () => {
-  it('parses a numbered name line + Singapore postal address line', () => {
-    const text = `LIST OF HAWKER CENTRES IN SINGAPORE
-1. Adam Road Food Centre
-2 Adam Road, Singapore 289876
-2. Albert Centre Market & Food Centre
-270 Queen Street, Singapore 180270
+beforeEach(() => vault._resetCache());
+
+describe('parseMd', () => {
+  it('parses Markets table rows with name, address, postal, mgmt', () => {
+    const md = `## Markets / Hawker Centres
+
+| S/No | Name of Hawker Centre | Address | Common Property Managed & Maintained by |
+|-----:|---|---|---|
+| 1 | Adam Food Centre | 2, Adam Road, S(289876) | NEA |
+| 2 | Amoy Street Food Centre | National Development Building, Telok Ayer Street, S(069111) | NEA |
 `;
-    const r = vault.parsePdfText(text);
+    const r = vault.parseMd(md);
     expect(r.length).toBe(2);
-    expect(r[0].name).toBe('Adam Road Food Centre');
+    expect(r[0].sno).toBe(1);
+    expect(r[0].name).toBe('Adam Food Centre');
     expect(r[0].postal).toBe('289876');
-    expect(r[0].address).toContain('2 Adam Road');
-    expect(r[1].name).toBe('Albert Centre Market & Food Centre');
-    expect(r[1].postal).toBe('180270');
+    expect(r[0].mgmt).toBe('NEA');
+    expect(r[0].isNew).toBe(false);
+    expect(r[1].name).toBe('Amoy Street Food Centre');
   });
 
-  it('dedupes by postal code', () => {
-    const text = `1. Same Place
-123 Foo St, Singapore 012345
-2. Same Place
-123 Foo St, Singapore 012345
+  it('parses New Hawker Centres section with isNew=true', () => {
+    const md = `## Markets / Hawker Centres
+
+| S/No | Name | Address | Mgmt |
+|-----:|---|---|---|
+| 1 | First Centre | 1 Foo Rd, S(010001) | NEA |
+
+## New Hawker Centres
+
+| S/No | Name | Address | Operator |
+|-----:|---|---|---|
+| 1 | Ci Yuan Hawker Centre | 51, Hougang Ave 9, S(538776) | Fei Siong |
 `;
-    const r = vault.parsePdfText(text);
-    expect(r.length).toBe(1);
-    expect(r[0].postal).toBe('012345');
+    const r = vault.parseMd(md);
+    expect(r.length).toBe(2);
+    expect(r[0].isNew).toBe(false);
+    expect(r[1].isNew).toBe(true);
+    expect(r[1].name).toBe('Ci Yuan Hawker Centre');
   });
 
-  it('returns empty array for empty/null input', () => {
-    expect(vault.parsePdfText('')).toEqual([]);
-    expect(vault.parsePdfText(null)).toEqual([]);
-    expect(vault.parsePdfText(undefined)).toEqual([]);
-  });
+  it('skips Bukit Timah closed-for-redevelopment row', () => {
+    const md = `## Markets / Hawker Centres
 
-  it('skips lines without postal codes (table-of-contents header)', () => {
-    const text = `LIST OF HAWKER CENTRES IN SINGAPORE
-As of 25 July 2025
-Page 1 of 5
-1. Test Centre
-1 Test Rd, Singapore 555555
+| S/No | Name | Address | Mgmt |
+|-----:|---|---|---|
+| 6 | Bukit Timah Market | Closed for redevelopment till 2029 (tentative) | NEA |
+| 7 | Other Centre | 1 Test Rd, S(123456) | NEA |
 `;
-    const r = vault.parsePdfText(text);
+    const r = vault.parseMd(md);
     expect(r.length).toBe(1);
-    expect(r[0].name).toBe('Test Centre');
+    expect(r[0].name).toBe('Other Centre');
+  });
+
+  it('strips trailing # footnote marker from name', () => {
+    const md = `## Markets / Hawker Centres
+
+| S/No | Name | Address | Mgmt |
+|-----:|---|---|---|
+| 53 | Chong Pang Market & Food Centre # | Blk 104, S(760104) | TC |
+`;
+    const r = vault.parseMd(md);
+    expect(r[0].name).toBe('Chong Pang Market & Food Centre');
+    expect(r[0].name).not.toContain('#');
+  });
+
+  it('extracts postal from S(NNNNNN) form, takes first when slash-pair', () => {
+    const md = `## Markets / Hawker Centres
+
+| S/No | Name | Address | Mgmt |
+|-----:|---|---|---|
+| 1 | Pair Centre | Blks 22A/B, Havelock Road, S(161022/162022) | TC |
+`;
+    const r = vault.parseMd(md);
+    expect(r[0].postal).toBe('161022');
+  });
+
+  it('attaches region + mapsUrl to every parsed row', () => {
+    const md = `## Markets / Hawker Centres
+
+| S/No | Name | Address | Mgmt |
+|-----:|---|---|---|
+| 1 | Test Centre | 1 Test Rd, S(289876) | NEA |
+`;
+    const r = vault.parseMd(md);
+    expect(r[0].region).toBeTruthy();
+    expect(r[0].mapsUrl).toMatch(/^https:\/\/www\.google\.com\/maps\/search\/\?api=1/);
   });
 });
 
-describe('normaliseName', () => {
-  it('strips Centre/Market/Food filler and lowercases', () => {
-    expect(vault.normaliseName('Adam Road Food Centre')).toBe('adam road');
-    expect(vault.normaliseName('MAXWELL FOOD CENTRE')).toBe('maxwell');
-    expect(vault.normaliseName('Albert Centre Market & Food Centre')).toBe('albert and');
+describe('regionForCentre — keyword overrides', () => {
+  it('classifies Bedok-area as East via name keyword', () => {
+    expect(vault.regionForCentre({ name: 'Bedok Food Centre', address: '1 Bedok Rd', postal: '469572' })).toBe('East');
   });
-
-  it('handles punctuation and spacing', () => {
-    expect(vault.normaliseName('Bukit Timah Hawker Centre.')).toBe('bukit timah');
-    expect(vault.normaliseName('  Tiong  Bahru  Market  ')).toBe('tiong bahru');
+  it('classifies Yishun as North via name keyword', () => {
+    expect(vault.regionForCentre({ name: 'Yishun Park Hawker Centre', address: '51 Yishun Ave 11', postal: '768867' })).toBe('North');
   });
-
-  it('returns empty for empty/null', () => {
-    expect(vault.normaliseName('')).toBe('');
-    expect(vault.normaliseName(null)).toBe('');
+  it('classifies Hougang as North (combining NE)', () => {
+    expect(vault.regionForCentre({ name: 'Blk 105 Hougang Ave 1', address: '...', postal: '530105' })).toBe('North');
   });
-});
-
-describe('editDistance', () => {
-  it('returns 0 for identical strings', () => {
-    expect(vault.editDistance('foo', 'foo')).toBe(0);
+  it('classifies Jurong as West', () => {
+    expect(vault.regionForCentre({ name: 'Taman Jurong Market', address: '3 Yung Sheng Rd', postal: '618499' })).toBe('West');
   });
-
-  it('returns length when one string is empty', () => {
-    expect(vault.editDistance('', 'abc')).toBe(3);
-    expect(vault.editDistance('abc', '')).toBe(3);
+  it('classifies Tanjong Pagar as South', () => {
+    expect(vault.regionForCentre({ name: 'Blk 6 Tanjong Pagar Plaza', address: 'Blk 6, Tanjong Pagar Plaza, S(081006)', postal: '081006' })).toBe('South');
   });
-
-  it('counts single-character substitutions', () => {
-    expect(vault.editDistance('foo', 'fop')).toBe(1);
-    expect(vault.editDistance('cat', 'bat')).toBe(1);
+  it('classifies Toa Payoh as Central', () => {
+    expect(vault.regionForCentre({ name: 'Blk 127 Toa Payoh Lorong 1', address: '...', postal: '310127' })).toBe('Central');
   });
-
-  it('counts insertions and deletions', () => {
-    expect(vault.editDistance('abc', 'abcd')).toBe(1);
-    expect(vault.editDistance('abcd', 'abc')).toBe(1);
+  it('classifies Pasir Panjang as West (not "East" via Pasir Ris)', () => {
+    expect(vault.regionForCentre({ name: 'Pasir Panjang Food Centre', address: '121 Pasir Panjang Rd', postal: '118543' })).toBe('West');
   });
 });
 
-describe('findByName', () => {
-  const centres = [
-    { name: 'Adam Road Food Centre', address: '2 Adam Road', postal: '289876' },
-    { name: 'Maxwell Food Centre', address: '1 Kadayanallur St', postal: '069184' },
-    { name: 'Tiong Bahru Market', address: '30 Seng Poh Rd', postal: '168898' },
-    { name: 'Chinatown Complex Market & Food Centre', address: '335 Smith St', postal: '050335' }
-  ];
+describe('regionFromPostalSector — fallback', () => {
+  it('CBD postal → South', () => {
+    expect(vault.regionFromPostalSector('048947')).toBe('South');
+  });
+  it('Toa Payoh postal → Central', () => {
+    expect(vault.regionFromPostalSector('310127')).toBe('Central');
+  });
+  it('Bedok postal → East', () => {
+    expect(vault.regionFromPostalSector('469572')).toBe('East');
+  });
+  it('Yishun postal → North', () => {
+    expect(vault.regionFromPostalSector('768867')).toBe('North');
+  });
+  it('Jurong postal → West', () => {
+    expect(vault.regionFromPostalSector('618499')).toBe('West');
+  });
+  it('returns null on garbage', () => {
+    expect(vault.regionFromPostalSector('xxx')).toBe(null);
+    expect(vault.regionFromPostalSector(null)).toBe(null);
+  });
+});
 
-  it('returns null for empty inputs', () => {
-    expect(vault.findByName([], 'foo')).toBe(null);
-    expect(vault.findByName(centres, '')).toBe(null);
-    expect(vault.findByName(null, 'foo')).toBe(null);
+describe('integration — load real MD file from data/', () => {
+  it('loads ≥120 centres (snapshot has 122 after excluding Bukit Timah)', () => {
+    const all = vault.getAllCentres();
+    expect(all.length).toBeGreaterThanOrEqual(120);
+    expect(all.length).toBeLessThanOrEqual(125);
   });
 
-  it('matches exact name (score 1)', () => {
-    const r = vault.findByName(centres, 'Adam Road Food Centre');
-    expect(r.centre.postal).toBe('289876');
-    expect(r.score).toBe(1);
+  it('every centre has name + region + mapsUrl', () => {
+    const all = vault.getAllCentres();
+    for (const c of all) {
+      expect(c.name).toBeTruthy();
+      expect(vault.REGIONS).toContain(c.region);
+      expect(c.mapsUrl).toMatch(/^https:\/\/www\.google\.com\/maps\/search\/\?api=1/);
+    }
   });
 
-  it('matches case-insensitive', () => {
-    const r = vault.findByName(centres, 'maxwell food centre');
-    expect(r.centre.postal).toBe('069184');
+  it('groups by region with non-zero count in each of the 5 regions', () => {
+    const by = vault.getByRegion();
+    for (const r of vault.REGIONS) {
+      expect(by[r].length).toBeGreaterThan(0);
+    }
   });
 
-  it('matches abbreviated name (substring)', () => {
-    const r = vault.findByName(centres, 'Maxwell');
-    expect(r.centre.postal).toBe('069184');
-    expect(r.score).toBeGreaterThan(0);
+  it('sorts each region alphabetically by name', () => {
+    const by = vault.getByRegion();
+    for (const r of vault.REGIONS) {
+      const names = by[r].map((c) => c.name.toLowerCase());
+      const sorted = [...names].sort();
+      expect(names).toEqual(sorted);
+    }
   });
 
-  it('matches with typo via edit distance', () => {
-    const r = vault.findByName(centres, 'Tiong Bahru Markert'); // typo
-    expect(r).not.toBe(null);
-    expect(r.centre.postal).toBe('168898');
+  it('formatRegionSummary returns total + per-region counts', () => {
+    const s = vault.formatRegionSummary();
+    expect(s).toContain('hawker centres');
+    for (const r of vault.REGIONS) expect(s).toContain(r);
   });
 
-  it('returns null for unrelated name', () => {
-    expect(vault.findByName(centres, 'Zoological Gardens')).toBe(null);
-  });
-
-  it('matches "Chinatown" → "Chinatown Complex ..." via substring', () => {
-    const r = vault.findByName(centres, 'Chinatown Complex');
-    expect(r.centre.postal).toBe('050335');
+  it('formatRegionList returns markdown blocks with maps URLs', () => {
+    const s = vault.formatRegionList('East');
+    expect(s).toContain('East');
+    expect(s).toContain('alphabetical');
+    expect(s).toContain('📍 https://www.google.com/maps/search/');
   });
 });
 
 describe('mapsUrlForCentre', () => {
-  it('builds api=1 query URL with name + address', () => {
+  it('builds api=1 URL with name + full address', () => {
     const url = vault.mapsUrlForCentre({
-      name: 'Adam Road Food Centre',
-      address: '2 Adam Road, Singapore 289876',
-      postal: '289876'
+      name: 'Maxwell Food Centre',
+      address: '1, Kadayanallur Street, S(069184)',
+      postal: '069184'
     });
     expect(url).toMatch(/^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
-    expect(url).toContain('Adam%20Road%20Food%20Centre');
-    expect(url).toContain('289876');
+    expect(url).toContain('Maxwell%20Food%20Centre');
+    expect(url).toContain('Kadayanallur');
   });
 
-  it('returns empty string for null centre', () => {
+  it('falls back to "<name> Singapore" when no address', () => {
+    const url = vault.mapsUrlForCentre({ name: 'Test', address: '' });
+    expect(url).toContain('Test%20Singapore');
+  });
+
+  it('returns empty string for null', () => {
     expect(vault.mapsUrlForCentre(null)).toBe('');
   });
 });
 
-describe('annotateNames', () => {
+describe('findByName fuzzy match (kept from v0.49.0 for nea-scrape)', () => {
   const centres = [
-    { name: 'Maxwell Food Centre', address: '1 Kadayanallur St', postal: '069184' },
-    { name: 'Tiong Bahru Market', address: '30 Seng Poh Rd', postal: '168898' }
+    { name: 'Maxwell Food Centre', address: '...', postal: '069184' },
+    { name: 'Tiong Bahru Market', address: '...', postal: '168898' }
   ];
 
-  it('annotates each input with match info', () => {
-    const r = vault.annotateNames(centres, ['Maxwell', 'Unknown', 'Tiong Bahru']);
-    expect(r.length).toBe(3);
-    expect(r[0].input).toBe('Maxwell');
-    expect(r[0].match).not.toBe(null);
-    expect(r[0].match.centre.postal).toBe('069184');
-    expect(r[1].match).toBe(null);
-    expect(r[2].match.centre.postal).toBe('168898');
+  it('matches exact name with score 1', () => {
+    const r = vault.findByName(centres, 'Maxwell Food Centre');
+    expect(r.score).toBe(1);
   });
 
-  it('returns empty array for non-array input', () => {
-    expect(vault.annotateNames(centres, null)).toEqual([]);
+  it('matches abbreviated name', () => {
+    const r = vault.findByName(centres, 'Maxwell');
+    expect(r.centre.postal).toBe('069184');
+  });
+
+  it('matches with typo via edit distance', () => {
+    const r = vault.findByName(centres, 'Tiong Bahru Markert');
+    expect(r).not.toBe(null);
+    expect(r.centre.postal).toBe('168898');
+  });
+
+  it('returns null for unrelated', () => {
+    expect(vault.findByName(centres, 'Zoo')).toBe(null);
+  });
+
+  it('1-arg form falls back to live vault', () => {
+    const r = vault.findByName('Maxwell');
+    expect(r).not.toBe(null);
+    expect(r.centre.name).toContain('Maxwell');
+  });
+});
+
+describe('normaliseName + editDistance (sanity)', () => {
+  it('normalises away Centre/Food/Market filler', () => {
+    expect(vault.normaliseName('Maxwell Food Centre')).toBe('maxwell');
+  });
+  it('editDistance returns 0 for identical', () => {
+    expect(vault.editDistance('foo', 'foo')).toBe(0);
+  });
+  it('editDistance counts substitution', () => {
+    expect(vault.editDistance('cat', 'bat')).toBe(1);
   });
 });

@@ -1076,6 +1076,13 @@ bot.on('callback_query', async (q) => {
     if (data === 'hawker:cleaning-live') { await runHawkerClosureLive(chatId); return; }
     if (data === 'hawker:cleaning-refresh') { await runHawkerClosureLiveRefresh(chatId); return; }
     if (data === 'hawker:crowd') { await runHawkerCrowd(chatId); return; }
+    // v0.50.0: browse the canonical 122-centre vault by region.
+    if (data === 'hawker:list:menu') { await runHawkerListMenu(chatId); return; }
+    if (data.startsWith('hawker:list:region:')) {
+      const region = data.slice('hawker:list:region:'.length);
+      await runHawkerListRegion(chatId, region);
+      return;
+    }
     // v0.31.0 Buddy Level 2 callback dispatch.
     if (data.startsWith('buddy:')) {
       await handleBuddyCallback(data, chatId, q);
@@ -1831,11 +1838,46 @@ async function runHawkerCleaning(chatId) {
     [{ text: '🧹 Open closures TMA', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
     // v0.48.0: live web-search-driven closure list (Claude + Anthropic web_search tool).
     [{ text: '🤖 Live closure list (web search)', callback_data: 'hawker:cleaning-live' }],
+    // v0.50.0: browse the canonical 122-centre vault by region.
+    [{ text: '📋 Browse all centres by region', callback_data: 'hawker:list:menu' }],
     [{ text: '📅 NEA hawker mgmt', url: hawker.NEA_SCHEDULE_URL }],
     [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
   ];
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
+    reply_markup: { inline_keyboard: buttons }
+  });
+}
+
+// v0.50.0: browse the canonical 122-centre vault by region (sourced
+// from data/list-of-hawker-centres.md, NEA snapshot 25 Jul 2025).
+// Two-step UX:
+//   1. runHawkerListMenu → 5 region buttons (Central/South/East/North/West)
+//   2. runHawkerListRegion(region) → alphabetical list with maps URLs
+async function runHawkerListMenu(chatId) {
+  const vault = require('./hawker-vault');
+  const text = vault.formatRegionSummary();
+  const by = vault.getByRegion();
+  const buttons = vault.REGIONS.map((r) => [{
+    text: `${r === 'Central' ? '🏙️' : r === 'South' ? '🛳️' : r === 'East' ? '🌅' : r === 'North' ? '🌳' : '🌇'} ${r} (${by[r]?.length || 0})`,
+    callback_data: `hawker:list:region:${r}`
+  }]);
+  buttons.push([{ text: '⬅️ Back', callback_data: 'hawker:cleaning' }]);
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    reply_markup: { inline_keyboard: buttons }
+  });
+}
+
+async function runHawkerListRegion(chatId, region) {
+  const vault = require('./hawker-vault');
+  const text = vault.formatRegionList(region);
+  const buttons = [
+    [{ text: '⬅️ Back to regions', callback_data: 'hawker:list:menu' }]
+  ];
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
     reply_markup: { inline_keyboard: buttons }
   });
 }
