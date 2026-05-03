@@ -4,7 +4,7 @@
 // {ok, ms, note} and never throws (returns ok:false on failure).
 
 const axios = require('axios');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const llm = require('./llm-client');
 const pkg = require('./package.json');
 const { execSync } = require('child_process');
 
@@ -68,14 +68,11 @@ async function checkRoutes() {
   });
 }
 
-async function checkGemini() {
-  return probe('Gemini', async () => {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (!apiKey) throw new Error('no key');
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+async function checkAnthropic() {
+  return probe('Anthropic', async () => {
+    if (!llm.isReady()) throw new Error('no key');
     const result = await Promise.race([
-      model.generateContent('Reply with just OK.'),
+      llm.generate({ prompt: 'Reply with just OK.', model: llm.HAIKU_MODEL, maxTokens: 16 }),
       new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), TIMEOUT_MS))
     ]);
     const text = (result?.response?.text?.() || '').trim().slice(0, 20);
@@ -189,10 +186,10 @@ function detectBuildRef() {
 }
 
 async function runHealthCheck(bot, redis) {
-  const [places, routes, gemini, telegram, lta, redisRes, dataGov] = await Promise.all([
+  const [places, routes, anthropic, telegram, lta, redisRes, dataGov] = await Promise.all([
     checkGooglePlaces(),
     checkRoutes(),
-    checkGemini(),
+    checkAnthropic(),
     checkTelegram(bot),
     checkLta(),
     checkRedis(redis),
@@ -206,7 +203,7 @@ async function runHealthCheck(bot, redis) {
     fmtRow('Redis',        redisRes),
     fmtRow('Google Places',places),
     fmtRow('Routes API',   routes),
-    fmtRow('Gemini',       gemini),
+    fmtRow('Anthropic',    anthropic),
     fmtRow('LTA DataMall', lta),
     fmtRow('data.gov.sg',  dataGov),
     '',

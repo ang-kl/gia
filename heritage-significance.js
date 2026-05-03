@@ -14,12 +14,10 @@
 // — if Gemini fails or the cache is empty, fall back to a generic
 // "multi-generational" tag string.
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const SIG_MODEL = process.env.GEMINI_HERITAGE_MODEL || 'gemini-2.5-flash';
+const SIG_MODEL = process.env.ANTHROPIC_HERITAGE_MODEL || llm.HAIKU_MODEL;
 
 const KEY_PREFIX = 'heritage:sig:';
 const CACHE_TTL_S = 30 * 86400; // 30 d
@@ -70,19 +68,17 @@ Constraints:
 }
 
 async function generateSignificance(venue) {
-  if (!genAI || !venue?.name) return null;
+  if (!llm.isReady() || !venue?.name) return null;
   const prompt = buildPrompt(venue);
-  const generationConfig = { responseMimeType: 'text/plain' };
   try {
-    const model = genAI.getGenerativeModel({ model: SIG_MODEL, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'HeritageSig',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: SIG_MODEL, maxTokens: 256 }),
+      { label: 'HeritageSig' }
+    );
     const text = (result.response.text() || '').trim();
     return text ? text.slice(0, 400) : null;
   } catch (err) {
-    console.warn('[Heritage] Gemini failed:', err.message?.slice(0, 120));
+    console.warn('[Heritage] LLM failed:', err.message?.slice(0, 120));
     return null;
   }
 }

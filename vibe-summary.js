@@ -1,15 +1,12 @@
 const axios = require('axios');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 
 const PLACES_DETAILS_URL = (placeId) => `https://places.googleapis.com/v1/places/${placeId}`;
 const REVIEWS_FIELD_MASK = 'reviews';
 const SUMMARY_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const REVIEW_RECENCY_DAYS = 30;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.HAIKU_MODEL;
 
 function isRecentReview(review, now = Date.now()) {
   const publishTime = review?.publishTime ?? review?.relativePublishTimeDescription;
@@ -44,7 +41,7 @@ async function fetchReviewText(placeId) {
 }
 
 async function summarizeVibe(reviews) {
-  if (!genAI || !reviews) return null;
+  if (!llm.isReady() || !reviews) return null;
   const prompt = `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
 
 Return EXACTLY four short bullets, no preamble, no closing line:
@@ -56,11 +53,13 @@ Return EXACTLY four short bullets, no preamble, no closing line:
 Reviews:
 ${reviews}`;
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Vibe-Summary' });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, maxTokens: 512 }),
+      { label: 'Vibe-Summary' }
+    );
     return result.response.text().trim();
   } catch (err) {
-    console.error(`[Vibe-Summary] Gemini call failed (model=${MODEL_NAME}):`, err.message);
+    console.error(`[Vibe-Summary] LLM call failed (model=${MODEL_NAME}):`, err.message);
     return null;
   }
 }

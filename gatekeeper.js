@@ -1,12 +1,9 @@
 const crypto = require('crypto');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL_NAME = llm.HAIKU_MODEL;
 const CACHE_TTL_SECONDS = 60;
-
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 const SYSTEM_PROMPT = `You are Gia — a wise, mid-50s Singapore concierge inside a Telegram bot called soleat.
 Your domain: solo-diner sanctuaries (food + drinks), grocery shopping, and Singapore transit (MRT, buses, traffic).
@@ -38,16 +35,18 @@ function hashMessage(text) {
 }
 
 async function classifyAndReply(text) {
-  if (!genAI) {
+  if (!llm.isReady()) {
     return { intent: 'off-topic', reply: fallbackReply };
   }
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
-    });
     const result = await withRetry(
-      () => model.generateContent(`${SYSTEM_PROMPT}\n\nUser message:\n${text}`),
+      () => llm.generate({
+        prompt: `User message:\n${text}`,
+        system: SYSTEM_PROMPT,
+        model: MODEL_NAME,
+        json: true,
+        maxTokens: 512
+      }),
       { label: 'Gatekeeper' }
     );
     const parsed = JSON.parse(result.response.text());

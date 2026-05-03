@@ -7,14 +7,12 @@
 //   - signature_dish per candidate (the "recipe" surface)
 //   - sort: open_now first, then walk minutes asc, then rating desc
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const holidays = require('./holidays');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.DEFAULT_MODEL;
 
 const PRESETS = {
   'transit-efficiency': {
@@ -117,15 +115,13 @@ Return ONLY the JSON array, no preamble.`;
 }
 
 async function geminiCandidates15(promptArgs) {
-  if (!genAI) return [];
+  if (!llm.isReady()) return [];
   try {
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
     const prompt = buildPrompt(promptArgs);
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Cuisine-Search',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: 'Cuisine-Search' }
+    );
     const parsed = JSON.parse(result.response.text());
     if (!Array.isArray(parsed)) return [];
     return parsed

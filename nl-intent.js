@@ -12,12 +12,10 @@
 // keep tap-spam costs near zero.
 
 const crypto = require('crypto');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.HAIKU_MODEL;
 
 const CACHE_TTL_S = 60;
 const KEY_PREFIX = 'nl-intent:';
@@ -37,7 +35,7 @@ const CUISINE_CATALOGUE = [
 ];
 
 async function classifyIntent({ text, langCode = 'en', redis = null }) {
-  if (!genAI) return null;
+  if (!llm.isReady()) return null;
   const cleanText = String(text || '').slice(0, MAX_TEXT_LEN).trim();
   if (!cleanText) return null;
 
@@ -102,12 +100,10 @@ Examples:
 Return ONLY the JSON object.`;
 
   try {
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'NL-Intent',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, maxTokens: 1024 }),
+      { label: 'NL-Intent' }
+    );
     const parsed = JSON.parse(result.response.text());
     const out = {
       intent: ['food', 'drinks', 'groceries', 'update-location', 'other'].includes(parsed.intent) ? parsed.intent : 'other',

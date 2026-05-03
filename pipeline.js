@@ -29,16 +29,14 @@
 //   D632  refine gemini fail
 //   D640  pipeline emit final (n_final)
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 const vaultIndex = require('./vault-index');
 const weather = require('./weather');
 const transport = require('./transport');
 const carpark = require('./carpark');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.DEFAULT_MODEL;
 
 const GRID_M = 500;
 
@@ -152,44 +150,22 @@ Return EXACTLY a JSON array of ${count} venues. Return ONLY the JSON array.`;
 }
 
 async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag() }) {
-  if (!genAI) {
-    diag('D612', 'Gemini unavailable (no API key)', false);
+  if (!llm.isReady()) {
+    diag('D612', 'LLM unavailable (no API key)', false);
     return [];
   }
   diag('D610', 'Reason call start', true, { count, vault_n: snapshot.vault.length });
   try {
-    // v0.30.3: Google Search grounding for the GEOSPATIAL_CULINARY_ANALYST
-    // persona's "newly opened" / "verified opening date" claims.
-    // v0.30.4: gated by GROUNDING_ENABLED env flag (default ON). Set
-    // GROUNDING_ENABLED=false in Railway to revert to no-tools behaviour
-    // if grounding is the regression cause for empty results.
-    const groundingEnabled = process.env.GROUNDING_ENABLED !== 'false';
-    // v0.31.2: Gemini API rejects `tools` + `responseMimeType: 'application/json'`
-    // in the same generateContent call with HTTP 400 "Tool use with a response
-    // mime type: 'application/json' is unsupported". When grounding is on we
-    // omit responseMimeType; the v0.30.4 lenient JSON parser already handles
-    // free-text JSON-shaped responses.
-    const generationConfig = groundingEnabled ? {} : { responseMimeType: 'application/json' };
-    const tools = groundingEnabled ? [{ googleSearch: {} }] : undefined;
-    const modelOpts = tools ? { model: MODEL_NAME, generationConfig, tools } : { model: MODEL_NAME, generationConfig };
-    const model = genAI.getGenerativeModel(modelOpts);
+    // v0.40.0: migrated to Anthropic. Web-search grounding (the Gemini
+    // googleSearch tool) is dropped — was already off by default since
+    // v0.31.2 (`GROUNDING_ENABLED=false`) due to the JSON-mime regression.
+    // The vault snapshot remains the primary grounding source.
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
-    console.log(`[Pipeline-Reason] grounding=${groundingEnabled ? 'ON' : 'OFF'} model=${MODEL_NAME} prompt_len=${prompt.length}`);
-    // Flash fallback uses the same tools setting for parity.
-    const fallbackFn = (() => {
-      if (!makeFlashFallback(genAI, prompt, generationConfig)) return null;
-      return async () => {
-        const flashOpts = tools
-          ? { model: 'gemini-2.5-flash', generationConfig, tools }
-          : { model: 'gemini-2.5-flash', generationConfig };
-        const flashModel = genAI.getGenerativeModel(flashOpts);
-        return flashModel.generateContent(prompt);
-      };
-    })();
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Pipeline-Reason',
-      fallbackFn
-    });
+    console.log(`[Pipeline-Reason] model=${MODEL_NAME} prompt_len=${prompt.length}`);
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 8192 }),
+      { label: 'Pipeline-Reason' }
+    );
     // v0.30.4: capture raw text for diagnostic on parse error.
     const rawText = result.response.text();
     console.log(`[Pipeline-Reason] response length=${rawText.length} chars`);
@@ -272,8 +248,8 @@ function normaliseCandidate(c, isSurprise = false) {
 }
 
 async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = noopDiag() }) {
-  if (!genAI) {
-    diag('D612', 'Gemini unavailable (no API key)', false);
+  if (!llm.isReady()) {
+    diag('D612', 'LLM unavailable (no API key)', false);
     return { candidates: [], rawText: '', meta: { ok: false, error: 'no_api_key' } };
   }
   if (!prompt || !prompt.user) {
@@ -281,19 +257,23 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
     return { candidates: [], rawText: '', meta: { ok: false, error: 'no_prompt' } };
   }
   diag('D610', 'Reason call start', true, { count, executor: true });
-  const composed = (prompt.system ? `[SYSTEM]\n${prompt.system}\n\n` : '')
-    + `[USER]\n${prompt.user}\n\n`
+  const composed = `[USER]\n${prompt.user}\n\n`
     + (prompt.schema ? `[SCHEMA]\n${prompt.schema}\n\n` : '')
     + 'Return ONLY a JSON array.';
-  const generationConfig = { responseMimeType: 'application/json' };
   const t0 = Date.now();
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
     console.log(`[Pipeline-Reason-Exec] model=${MODEL_NAME} prompt_len=${composed.length}`);
-    const result = await withRetry(() => model.generateContent(composed), {
-      label: 'Pipeline-Reason-Exec',
-      fallbackFn: makeFlashFallback(genAI, composed, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({
+        prompt: composed,
+        system: prompt.system || undefined,
+        model: MODEL_NAME,
+        json: true,
+        jsonShape: 'array',
+        maxTokens: 8192
+      }),
+      { label: 'Pipeline-Reason-Exec' }
+    );
     const rawText = result.response.text();
     const ms = Date.now() - t0;
     console.log(`[Pipeline-Reason-Exec] response length=${rawText.length} chars in ${ms}ms`);
@@ -322,6 +302,311 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
     console.error('[Pipeline-Reason-Exec] failed:', err.message);
     return { candidates: [], rawText: '', meta: { ok: false, error: err.message?.slice(0, 200), ms } };
   }
+}
+
+// ---------------------------------------------------------------------
+// DISCOVER + RANK&NARRATE (v0.41.0 inverted pipeline)
+// ---------------------------------------------------------------------
+//
+// The legacy Reason / reasonExecute path asks Claude to invent venue
+// names, then hits Google Places to validate each one. On sparse anchors
+// (Pasir Panjang, far-west HDB, sub-CBD) ~30-60% of names hallucinate
+// and validation drops them — empty result.
+//
+// The inversion: Google Places is the discovery index, Claude is the
+// ranker/narrator. discover() returns 20 real, currently-open, rated
+// venues from Places. rankAndNarrate() asks Claude to pick top N and
+// add per-venue narrative (vibe / dishes / cost). No invention.
+//
+// Diagnostic codes (additive — old D610/D611/D612 still fire when the
+// rollback flag PIPELINE_INVERSION_ENABLED=false is set):
+//   D710  discover Places start
+//   D711  discover Places ok (n_candidates)
+//   D712  discover Places failed
+//   D720  rankAndNarrate Claude start
+//   D721  rankAndNarrate Claude ok (n_picked)
+//   D722  rankAndNarrate Claude failed (falls back to top-N by rating)
+
+const axios = require('axios');
+
+const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
+const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
+
+const DISCOVER_FIELD_MASK = [
+  'places.id',
+  'places.displayName',
+  'places.formattedAddress',
+  'places.location',
+  'places.rating',
+  'places.userRatingCount',
+  'places.priceLevel',
+  'places.businessStatus',
+  'places.primaryType',
+  'places.googleMapsUri',
+  'places.googleMapsLinks',
+  'places.currentOpeningHours.openNow',
+  'places.generativeSummary'
+].join(',');
+
+function priceLevelToInt(p) {
+  if (typeof p === 'number') return p;
+  const map = {
+    PRICE_LEVEL_FREE: 0,
+    PRICE_LEVEL_INEXPENSIVE: 1,
+    PRICE_LEVEL_MODERATE: 2,
+    PRICE_LEVEL_EXPENSIVE: 3,
+    PRICE_LEVEL_VERY_EXPENSIVE: 4
+  };
+  return map[p] ?? null;
+}
+
+// discover() — Google Places-first venue retrieval. When cuisines are
+// specified, uses searchText with a cuisine keyword (better for cuisine
+// recall than searchNearby's includedTypes filter). Otherwise falls
+// back to searchNearby with a broad type set.
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, diag = noopDiag() }) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey) {
+    diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
+    return [];
+  }
+  diag('D710', 'Discover Places start', true, { lat, lng, cuisines, radius });
+  const t0 = Date.now();
+  try {
+    const hasCuisines = Array.isArray(cuisines) && cuisines.length > 0;
+    let data;
+    if (hasCuisines) {
+      const cuisineQuery = cuisines.join(' OR ');
+      const { data: textData } = await axios.post(
+        PLACES_TEXT_URL,
+        {
+          textQuery: `${cuisineQuery} restaurant`,
+          maxResultCount: Math.min(maxResults, 20),
+          locationBias: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius
+            }
+          },
+          openNow: false // Surface closed venues too — refine layer decides
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': mapsApiKey,
+            'X-Goog-FieldMask': DISCOVER_FIELD_MASK
+          },
+          timeout: 8000
+        }
+      );
+      data = textData;
+    } else {
+      const { data: nearbyData } = await axios.post(
+        PLACES_NEARBY_URL,
+        {
+          includedTypes: ['restaurant', 'cafe', 'bar', 'meal_takeaway', 'food_court', 'bakery'],
+          maxResultCount: Math.min(maxResults, 20),
+          locationRestriction: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius
+            }
+          },
+          rankPreference: 'POPULARITY'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': mapsApiKey,
+            'X-Goog-FieldMask': DISCOVER_FIELD_MASK
+          },
+          timeout: 8000
+        }
+      );
+      data = nearbyData;
+    }
+    const ms = Date.now() - t0;
+    const raw = (data?.places || [])
+      .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
+      .map((p) => {
+        const overview = p.generativeSummary?.overview?.text?.trim();
+        const summary = overview ? {
+          overview,
+          disclosure: (p.generativeSummary?.disclosureText?.text || p.generativeSummary?.disclaimerText?.text || 'Summarized with Gemini').trim(),
+          flagUri: p.generativeSummary?.overviewFlagContentUri || ''
+        } : null;
+        return {
+          placeId: p.id,
+          name: p.displayName?.text || '',
+          area: p.formattedAddress || '',
+          lat: p.location?.latitude ?? null,
+          lng: p.location?.longitude ?? null,
+          rating: p.rating ?? null,
+          userRatingCount: p.userRatingCount ?? null,
+          priceLevel: priceLevelToInt(p.priceLevel),
+          openNow: p.currentOpeningHours?.openNow ?? null,
+          primaryType: p.primaryType || 'restaurant',
+          url: p.googleMapsLinks?.placeUri ?? p.googleMapsUri ?? '',
+          directionsUri: p.googleMapsLinks?.directionsUri ?? '',
+          reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
+          photosUri: p.googleMapsLinks?.photosUri ?? '',
+          googleSummary: summary
+        };
+      })
+      .filter((v) => v.placeId && v.name);
+    diag('D711', 'Discover Places ok', true, { n: raw.length, ms });
+    return raw;
+  } catch (err) {
+    const ms = Date.now() - t0;
+    diag('D712', 'Discover Places failed', false, { err: err.message?.slice(0, 200), ms });
+    console.error('[Pipeline-Discover] failed:', err.message);
+    return [];
+  }
+}
+
+// rankAndNarrate() — Claude picks top-N from real Places candidates and
+// adds vibe/dishes/cost narration. The model NEVER invents venues —
+// every output references a placeId that came in via the input list.
+// Output drift (model picks fewer than asked, or returns invalid
+// placeIds) falls back to a deterministic top-N by rating + walking
+// distance, so a Claude failure never zeroes the result.
+async function rankAndNarrate({ candidates, query, snapshot, count = 5, diag = noopDiag() }) {
+  if (!candidates || !candidates.length) return [];
+  if (!llm.isReady()) {
+    diag('D722', 'LLM unavailable — falling back to rating-sorted top-N', false);
+    return deterministicFallback(candidates, count);
+  }
+  diag('D720', 'RankAndNarrate start', true, { n_in: candidates.length, target: count });
+  const t0 = Date.now();
+  try {
+    const candidateLines = candidates.map((c, i) => {
+      const ratingStr = c.rating != null ? `${c.rating}★ (${c.userRatingCount ?? '?'} reviews)` : 'unrated';
+      const priceStr = c.priceLevel != null ? `$`.repeat(Math.max(1, c.priceLevel)) : '?';
+      const openStr = c.openNow === true ? 'open now' : c.openNow === false ? 'closed' : 'hours unknown';
+      return `${i + 1}. [${c.placeId}] ${c.name} — ${c.area} — ${ratingStr} — ${priceStr} — ${openStr} — type:${c.primaryType}`;
+    }).join('\n');
+
+    const cuisineLine = (Array.isArray(query?.cuisines) && query.cuisines.length)
+      ? `Cuisines requested: ${query.cuisines.join(', ')}.`
+      : 'No cuisine restriction — pick a varied set.';
+    const periodLine = `Meal period: ${query?.label || 'now'}${query?.detail ? ` (${query.detail})` : ''}.`;
+    const specialLine = (query?.specialRequest && query.specialRequest.trim())
+      ? `Distinctive user qualifier (HONOUR THIS): ${query.specialRequest.trim()}.`
+      : '';
+    const vaultBlock = (snapshot?.vault?.length)
+      ? `Cached vault context for some of these venues (use only if placeId matches):\n${
+          snapshot.vault.slice(0, 10).map((v) => {
+            const summary = snapshot.summaries?.[v.placeId];
+            return summary ? `  ${v.placeId} (${v.name}): ${summary.slice(0, 180)}` : '';
+          }).filter(Boolean).join('\n')
+        }`
+      : '';
+
+    const prompt = `You are Gia, a Singapore food concierge. Below are ${candidates.length} REAL venues from Google Places near the user. Your job is to pick the BEST ${count} for a solo diner and add narrative.
+
+${periodLine}
+${cuisineLine}
+${specialLine}
+
+CANDIDATES (each line: index. [placeId] name — area — rating — price — open status — type):
+${candidateLines}
+
+${vaultBlock}
+
+Return EXACTLY a JSON array of ${count} entries. Each entry must reference a placeId from the list above — DO NOT invent venues.
+
+[
+  {
+    "placeId": "<exact placeId from input>",
+    "vibe": "<one short phrase about why this suits a solo diner>",
+    "signature_dish": "<one specific dish to order>",
+    "dishes": ["<1-3 specific dish strings>"],
+    "queue_min_estimate": <integer minutes>,
+    "booking_required": <boolean>,
+    "cost_estimate_sgd": { "low": <int>, "high": <int> }
+  },
+  ...
+]
+
+Selection criteria (in priority order):
+1. Currently open (or opening soon) takes priority over closed.
+2. Match cuisine intent if specified.
+3. Prefer rating ≥ 4.0 with ≥ 30 reviews (signal of real quality, not just hype).
+4. Avoid major fast-food chains (McDonald's, KFC, Subway, Burger King, Starbucks, Coffee Bean, Domino's).
+5. Spread the picks — don't return 5 ramen places when the user asked for "Japanese".
+
+Return ONLY the JSON array.`;
+
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: 'Pipeline-RankNarrate' }
+    );
+    const rawText = result.response.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(extractJsonArray(rawText));
+    } catch (parseErr) {
+      diag('D722', 'RankAndNarrate parse failed', false, { err: parseErr.message, head: rawText.slice(0, 200) });
+      return deterministicFallback(candidates, count);
+    }
+    if (!Array.isArray(parsed)) {
+      diag('D722', 'RankAndNarrate non-array', false, { type: typeof parsed });
+      return deterministicFallback(candidates, count);
+    }
+
+    const byPlaceId = new Map(candidates.map((c) => [c.placeId, c]));
+    const out = [];
+    for (const r of parsed) {
+      const base = byPlaceId.get(r.placeId);
+      if (!base) continue; // Defensive — drop hallucinated placeIds
+      out.push({
+        ...base,
+        vibe: typeof r.vibe === 'string' ? r.vibe : '',
+        signatureDish: r.signature_dish || (Array.isArray(r.dishes) ? r.dishes[0] : '') || '',
+        dishes: Array.isArray(r.dishes) ? r.dishes.slice(0, 3) : [],
+        queueMinEstimate: Number.isFinite(Number(r.queue_min_estimate)) ? Math.round(Number(r.queue_min_estimate)) : null,
+        bookingRequired: r.booking_required === true || r.booking_required === 'true',
+        costEstimateSgd: r.cost_estimate_sgd && typeof r.cost_estimate_sgd === 'object'
+          ? { low: Number(r.cost_estimate_sgd.low) || null, high: Number(r.cost_estimate_sgd.high) || null }
+          : null,
+        source: 'inverted-pipeline'
+      });
+      if (out.length >= count) break;
+    }
+    if (!out.length) {
+      diag('D722', 'RankAndNarrate returned no valid placeIds', false);
+      return deterministicFallback(candidates, count);
+    }
+    const ms = Date.now() - t0;
+    diag('D721', 'RankAndNarrate ok', true, { n: out.length, ms });
+    return out;
+  } catch (err) {
+    diag('D722', 'RankAndNarrate failed — falling back', false, err.message?.slice(0, 200));
+    console.error('[Pipeline-RankNarrate] failed:', err.message);
+    return deterministicFallback(candidates, count);
+  }
+}
+
+// Deterministic fallback when Claude fails or returns nothing usable.
+// Sort by openNow first, then rating desc — guarantees /cuisine never
+// returns an empty list when Places returned candidates.
+function deterministicFallback(candidates, count) {
+  const sorted = [...candidates].sort((a, b) => {
+    const ao = a.openNow === false ? 1 : 0;
+    const bo = b.openNow === false ? 1 : 0;
+    if (ao !== bo) return ao - bo;
+    return (b.rating ?? 0) - (a.rating ?? 0);
+  });
+  return sorted.slice(0, count).map((c) => ({
+    ...c,
+    vibe: '',
+    signatureDish: '',
+    dishes: [],
+    queueMinEstimate: null,
+    bookingRequired: false,
+    costEstimateSgd: null,
+    source: 'inverted-pipeline-fallback'
+  }));
 }
 
 // ---------------------------------------------------------------------
@@ -477,7 +762,7 @@ function summariseClusterCtx(ctx) {
 }
 
 async function refine({ draft, context, query, diag = noopDiag() }) {
-  if (!genAI || !draft.length) return draft;
+  if (!llm.isReady() || !draft.length) return draft;
   diag('D630', 'Refine call start');
   try {
     const lines = draft.map((v, i) => {
@@ -507,12 +792,10 @@ User period: ${query.label || 'now'}.
 
 Return ONLY the JSON array, in the same order as the input.`;
 
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Pipeline-Refine',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: 'Pipeline-Refine' }
+    );
     const refined = JSON.parse(result.response.text());
     if (!Array.isArray(refined)) {
       diag('D632', 'Refine non-array', false);
@@ -598,4 +881,4 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
   return { candidates: refined, refined: true, diag: diag.events };
 }
 
-module.exports = { reason, reasonExecute, fetchContext, refine, runPipeline, clusterByGrid };
+module.exports = { reason, reasonExecute, discover, rankAndNarrate, fetchContext, refine, runPipeline, clusterByGrid };

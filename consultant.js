@@ -6,15 +6,13 @@
 // a quiet "sanctuary" feel. If yes, returns it as a Hidden Sanctuary.
 
 const axios = require('axios');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id}`;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL_NAME = llm.HAIKU_MODEL;
 const RADIUS_M = 2000;
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 async function nearbyAnyOperational(lat, lng) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -74,7 +72,7 @@ async function fetchReviews(placeId) {
 }
 
 async function geminiSanctuaryRead(name, reviews) {
-  if (!genAI || !reviews.length) return null;
+  if (!llm.isReady() || !reviews.length) return null;
   const reviewText = reviews
     .map((r) => r.text?.text ?? r.originalText?.text ?? '')
     .filter(Boolean)
@@ -93,11 +91,10 @@ Return ONLY a JSON object:
 Reviews:
 ${reviewText}`;
   try {
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      generationConfig: { responseMimeType: 'application/json' }
-    });
-    const result = await withRetry(() => model.generateContent(prompt), { label: 'Consultant' });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, maxTokens: 512 }),
+      { label: 'Consultant' }
+    );
     const parsed = JSON.parse(result.response.text());
     if (typeof parsed.is_sanctuary === 'boolean' && typeof parsed.reason === 'string') {
       return { is_sanctuary: parsed.is_sanctuary, reason: parsed.reason, approach: typeof parsed.approach === 'string' ? parsed.approach : null };

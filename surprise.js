@@ -16,8 +16,8 @@
 // circle searches around the annulus mid-radius.
 
 const axios = require('axios');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { withRetry, makeFlashFallback } = require('./gemini-retry');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACE_DETAILS_URL = 'https://places.googleapis.com/v1/places';
@@ -39,9 +39,7 @@ const MIN_RECENT_RATING = 4;
 const OPEN_WITHIN_MS    = 2 * 60 * 60 * 1000; // 2 h
 const LAST_CALL_MS      = 30 * 60 * 1000;     // skip if closing in ≤ 30 min
 
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const MODEL_NAME = llm.DEFAULT_MODEL;
 
 
 function extractJsonObject(text) {
@@ -201,7 +199,7 @@ function passesRecentReviewGate(detail, now = Date.now()) {
 }
 
 async function geminiEnrich(detail) {
-  if (!genAI) return { dishes: [], whyOrdered: '', bookingRequired: false };
+  if (!llm.isReady()) return { dishes: [], whyOrdered: '', bookingRequired: false };
   try {
     const prompt = `You are Gia, a Singapore food concierge. The user is being shown ONE surprise venue tonight:
   "${detail.displayName?.text}" at ${detail.formattedAddress ?? ''} (rating ${detail.rating}, ${detail.userRatingCount} reviews, primary type ${detail.primaryType}).
@@ -214,12 +212,10 @@ Return JSON exactly:
 }
 
 Return ONLY the JSON object.`;
-    const generationConfig = { responseMimeType: 'application/json' };
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig });
-    const result = await withRetry(() => model.generateContent(prompt), {
-      label: 'Surprise',
-      fallbackFn: makeFlashFallback(genAI, prompt, generationConfig)
-    });
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, maxTokens: 512 }),
+      { label: 'Surprise' }
+    );
     const rawText = result.response.text();
     const parsed = JSON.parse(extractJsonObject(rawText));
     return {
