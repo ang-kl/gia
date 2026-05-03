@@ -1670,7 +1670,7 @@ async function runTransportDrive(chatId) {
 async function sendHawkerMenu(chatId) {
   const hawker = require('./hawker');
   const total = hawker.totalCount();
-  await safeSend(chatId, `🍜 Singapore hawker centres (${total} curated, dataset ${hawker.datasetVersion()})`, {
+  await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, dataset ${hawker.datasetVersion()})`, {
     reply_markup: {
       inline_keyboard: [
         [

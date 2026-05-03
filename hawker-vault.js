@@ -181,7 +181,7 @@ function formatRegionSummary() {
   const by = getByRegion();
   const total = loadAll().length;
   const parts = REGIONS.map((r) => `*${r}*: ${by[r]?.length || 0}`);
-  return `🍜 *${total} hawker centres* (snapshot 25 Jul 2025)\n\n${parts.join(' · ')}`;
+  return `🍚 *${total} hawker centres* (snapshot 25 Jul 2025)\n\n${parts.join(' · ')}`;
 }
 
 // ---------- v0.49.0 fuzzy-match helpers (kept for nea-scrape consumers) ----------
