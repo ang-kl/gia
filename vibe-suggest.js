@@ -1,6 +1,7 @@
 const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const MODEL_NAME = llm.DEFAULT_MODEL;
@@ -82,7 +83,7 @@ Return ONLY the JSON array, no preamble.`;
       .filter((c) => c && typeof c.name === 'string')
       .slice(0, 5);
   } catch (err) {
-    console.error(`[Vibe-Suggest] Gemini call failed (model=${MODEL_NAME}):`, err.message);
+    logger.error({ model: MODEL_NAME, err: { message: err.message } }, 'vibe-suggest LLM call failed');
     return [];
   }
 }
@@ -119,7 +120,7 @@ async function hasNegativeRecentReview(placeId) {
       return NEGATIVE_KEYWORDS.test(text);
     });
   } catch (err) {
-    console.error(`[Vibe-Suggest] review keyword screen ${placeId} failed:`, err.message);
+    logger.error({ placeId, err: { message: err.message } }, 'vibe-suggest review keyword screen failed');
     return false; // do not block on transient errors
   }
 }
@@ -185,7 +186,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
       source: 'gemini+places'
     };
   } catch (err) {
-    console.error(`[Vibe-Suggest] Places validation for "${candidate.name}" failed:`, err.message);
+    logger.error({ candidate: candidate.name, err: { message: err.message } }, 'vibe-suggest Places validation failed');
     return null;
   }
 }
@@ -232,7 +233,7 @@ async function rankByWalkingTime(userLat, userLng, venues) {
       return av - bv;
     });
   } catch (err) {
-    console.error('[Vibe-Suggest] rankByWalkingTime failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'vibe-suggest rankByWalkingTime failed');
     return venues;
   }
 }
@@ -314,7 +315,7 @@ async function geocodeQuery(text) {
       placeId: place.id ?? null
     };
   } catch (err) {
-    console.error(`[Vibe-Suggest] geocodeQuery for "${text}" failed:`, err.message);
+    logger.error({ text, err: { message: err.message } }, 'vibe-suggest geocodeQuery failed');
     return null;
   }
 }

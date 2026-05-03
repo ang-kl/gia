@@ -6,6 +6,22 @@ const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 const pkgJson = require('./package.json');
 require('dotenv').config();
+
+// v0.42.0: structured logging + error tracking. Both are no-ops if their
+// env vars are unset, so dev/CI environments stay quiet.
+const { logger } = require('./logger');
+const sentry = require('./sentry');
+sentry.init();
+
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err: { message: err.message, stack: err.stack } }, 'uncaughtException');
+  sentry.captureWithReqId(err, null, { kind: 'uncaughtException' });
+});
+process.on('unhandledRejection', (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  logger.error({ err: { message: err.message, stack: err.stack } }, 'unhandledRejection');
+  sentry.captureWithReqId(err, null, { kind: 'unhandledRejection' });
+});
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
@@ -47,6 +63,25 @@ const bot = new TelegramBot(
   useWebhook ? {} : { polling: true }
 );
 const redis = createClient({ url: process.env.REDIS_URL });
+
+// v0.42.1 (B3): bot polling/webhook error handlers. Without these, a
+// transient Telegram outage (502, polling drop, ECONNRESET) crashes
+// node-telegram-bot-api's internal loop silently and the bot goes dark
+// until the Node process is restarted. Logging + Sentry capture lets
+// us see the storm; the SDK auto-recovers polling on its own.
+bot.on('polling_error', (err) => {
+  logger.warn({ err: { code: err.code, message: err.message?.slice(0, 200) } }, 'telegram polling_error');
+  // beforeSend in sentry.js drops ETELEGRAM 429/502 noise; real errors get through.
+  sentry.captureWithReqId(err, null, { kind: 'telegram_polling' });
+});
+bot.on('webhook_error', (err) => {
+  logger.warn({ err: { code: err.code, message: err.message?.slice(0, 200) } }, 'telegram webhook_error');
+  sentry.captureWithReqId(err, null, { kind: 'telegram_webhook' });
+});
+bot.on('error', (err) => {
+  logger.error({ err: { code: err.code, message: err.message?.slice(0, 200) } }, 'telegram bot error');
+  sentry.captureWithReqId(err, null, { kind: 'telegram_bot' });
+});
 
 const lta = ltaEnabled ? axios.create({
   baseURL: 'https://datamall2.mytransport.sg/ltaodataservice',
@@ -2199,16 +2234,27 @@ bot.on('voice', async (msg) => {
   try {
     if (!msg.voice) return;
     const langCode = msg.from?.language_code || 'en';
-    console.log(`[Voice] D760 received chat=${msg.chat.id} duration=${msg.voice.duration}s mime=${msg.voice.mime_type}`);
+    const { classifyVoice, MIN_CONFIDENCE: VOICE_MIN_CONF, isAvailable: voiceAvailable } = require('./voice-input');
     const verbose = require('./verbose-log');
-    await verbose.say(redis, msg.chat.id, safeSend, `D760 voice received (${msg.voice.duration}s). Transcribing + classifying via Gemini Flash audio…`);
+
+    // v0.42.1 (B1): honest short-circuit when transcription provider isn't
+    // wired (Anthropic dropped Gemini audio in v0.40.0; no Whisper plumbed
+    // yet). Skip the misleading "🎙 transcribing…" tease.
+    if (!voiceAvailable()) {
+      console.log(`[Voice] D760-B1 received chat=${msg.chat.id} duration=${msg.voice.duration}s — voice transcription disabled (no audio provider wired)`);
+      await verbose.say(redis, msg.chat.id, safeSend, 'D760-B1 voice received but transcription is currently disabled (no audio provider since v0.40.0)');
+      await safeSend(msg.chat.id, "🎙 Voice transcription is temporarily unavailable — please type your question instead.");
+      return;
+    }
+
+    console.log(`[Voice] D760 received chat=${msg.chat.id} duration=${msg.voice.duration}s mime=${msg.voice.mime_type}`);
+    await verbose.say(redis, msg.chat.id, safeSend, `D760 voice received (${msg.voice.duration}s). Transcribing + classifying…`);
     await safeSend(msg.chat.id, '🎙 Heard you — transcribing…');
 
-    const { classifyVoice, MIN_CONFIDENCE: VOICE_MIN_CONF } = require('./voice-input');
     const cls = await classifyVoice({ bot, voice: msg.voice, redis });
-    if (!cls || cls.error) {
-      console.warn(`[Voice] D761 classify error=${cls?.error || 'null'}`);
-      await verbose.say(redis, msg.chat.id, safeSend, `D761 classify error=${cls?.error || 'gemini unavailable'}`);
+    if (!cls || cls.error || cls.disabled) {
+      console.warn(`[Voice] D761 classify error=${cls?.error || cls?.reason || 'null'}`);
+      await verbose.say(redis, msg.chat.id, safeSend, `D761 classify error=${cls?.error || cls?.reason || 'unavailable'}`);
       if (cls?.error === 'clip_too_long') {
         await safeSend(msg.chat.id, `⏱ Voice clip too long (${cls.duration}s, max 90s). Send a shorter one or type the question.`);
       } else {
@@ -3128,6 +3174,18 @@ async function cacheBotUsername() {
           return res.json({ ...result, ...(debugEcho ? { debugEcho } : {}) });
         }
 
+        // v0.42.1 (B4): request idempotency. A double-tap on Search would
+        // otherwise fire two pipeline-tasks for the same chatId+payload,
+        // burning Anthropic + Places quota. Redis SETNX a hash of the
+        // request for 30s; if a prior identical request is still in
+        // flight, return its reqId rather than creating a new one.
+        const idempotencyKey = `idem:cuisine:${tgUserId || 'anon'}:${crypto.createHash('sha256').update(JSON.stringify(params)).digest('hex').slice(0, 16)}`;
+        const existingReqId = await redis.get(idempotencyKey).catch(() => null);
+        if (existingReqId) {
+          console.log(`[Cuisine-Diag] D713 idempotent — returning existing reqId=${existingReqId}`);
+          return res.status(202).json({ reqId: existingReqId, pollUrl: `/api/cuisine-search/${existingReqId}`, idempotent: true, ...(debugEcho ? { debugEcho } : {}) });
+        }
+
         // v0.32.0 default: submit + 202 + reqId.
         const requestStore = require('./request-store');
         const pipelineTask = require('./pipeline-task');
@@ -3136,6 +3194,11 @@ async function cacheBotUsername() {
           chatId: tgUserId,
           userId: tgUserId,
           payload: params
+        });
+        // Bind the new reqId to the idempotency key for 30s. Future
+        // double-taps within that window get the same reqId.
+        redis.set(idempotencyKey, reqId, { EX: 30 }).catch((err) => {
+          console.warn(`[Cuisine-Diag] D714 idempotency-key write failed: ${err.message}`);
         });
         // Spawn background task — fire and forget. Errors are written
         // into the row's status/error fields by pipeline-task.

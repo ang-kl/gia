@@ -21,6 +21,7 @@
 
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const STAGE_A_MODEL = process.env.ANTHROPIC_STAGE_A_MODEL || llm.SONNET_MODEL;
 
@@ -134,7 +135,7 @@ Return ONLY the JSON object.`;
     };
     return { prompt: parsed, meta };
   } catch (err) {
-    console.error('[PromptBuilder] failed, using fallback:', err.message);
+    logger.error({ err: { message: err.message } }, 'promptBuilder failed — using fallback');
     return {
       prompt: buildFallbackPrompt(input),
       meta: { ms: Date.now() - t0, model: 'fallback-static', error: err.message?.slice(0, 200), ok: false }

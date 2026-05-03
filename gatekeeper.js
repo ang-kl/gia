@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const MODEL_NAME = llm.HAIKU_MODEL;
 const CACHE_TTL_SECONDS = 60;
@@ -54,7 +55,7 @@ async function classifyAndReply(text) {
       return { intent: parsed.intent, reply: parsed.reply };
     }
   } catch (err) {
-    console.error('[Gatekeeper] classify failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'gatekeeper classify failed');
   }
   return { intent: 'off-topic', reply: fallbackReply };
 }

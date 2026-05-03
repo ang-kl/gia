@@ -14,6 +14,7 @@
 const crypto = require('crypto');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const MODEL_NAME = llm.HAIKU_MODEL;
 
@@ -50,12 +51,12 @@ async function classifyIntent({ text, langCode = 'en', redis = null }) {
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          console.log(`[NL-Intent] cache HIT intent=${parsed.intent} confidence=${parsed.confidence}`);
+          logger.info({ intent: parsed.intent, confidence: parsed.confidence }, 'nl-intent cache HIT');
           return parsed;
         } catch { /* fall through */ }
       }
     } catch (err) {
-      console.warn('[NL-Intent] cache read failed:', err.message);
+      logger.warn({ err: { message: err.message } }, 'nl-intent cache read failed');
     }
   }
 
@@ -116,13 +117,13 @@ Return ONLY the JSON object.`;
       lang: typeof parsed.lang === 'string' ? parsed.lang.slice(0, 2).toLowerCase() : 'en',
       ack_text: typeof parsed.ack_text === 'string' ? parsed.ack_text.slice(0, 240) : '🌿 Sensing the vibe…'
     };
-    console.log(`[NL-Intent] classified intent=${out.intent} confidence=${out.confidence} cuisines=${out.cuisines.join('|')} special="${out.special_request}" location_override="${out.location_override}" lang=${out.lang}`);
+    logger.info({ intent: out.intent, confidence: out.confidence, cuisines: out.cuisines, specialRequest: out.special_request, locationOverride: out.location_override, lang: out.lang }, 'nl-intent classified');
     if (cacheKey && redis) {
       redis.set(cacheKey, JSON.stringify(out), { EX: CACHE_TTL_S }).catch(() => {});
     }
     return out;
   } catch (err) {
-    console.error('[NL-Intent] classify failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'nl-intent classify failed');
     return null;
   }
 }

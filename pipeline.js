@@ -35,6 +35,7 @@ const vaultIndex = require('./vault-index');
 const weather = require('./weather');
 const transport = require('./transport');
 const carpark = require('./carpark');
+const { logger } = require('./logger');
 
 const MODEL_NAME = llm.DEFAULT_MODEL;
 
@@ -161,14 +162,14 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
     // v0.31.2 (`GROUNDING_ENABLED=false`) due to the JSON-mime regression.
     // The vault snapshot remains the primary grounding source.
     const prompt = buildReasonPrompt({ lat, lng, query, snapshot, count });
-    console.log(`[Pipeline-Reason] model=${MODEL_NAME} prompt_len=${prompt.length}`);
+    logger.info({ model: MODEL_NAME, promptLen: prompt.length }, 'pipeline reason start');
     const result = await withRetry(
       () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 8192 }),
       { label: 'Pipeline-Reason' }
     );
     // v0.30.4: capture raw text for diagnostic on parse error.
     const rawText = result.response.text();
-    console.log(`[Pipeline-Reason] response length=${rawText.length} chars`);
+    logger.info({ rawChars: rawText.length }, 'pipeline reason response');
     let parsed;
     try {
       // v0.31.2: grounded responses arrive without responseMimeType, so
@@ -183,12 +184,12 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
         head: rawText.slice(0, 200),
         tail: rawText.slice(-100)
       });
-      console.error('[Pipeline-Reason] JSON parse failed:', parseErr.message, '\n  head:', rawText.slice(0, 200));
+      logger.error({ err: { message: parseErr.message }, head: rawText.slice(0, 200) }, 'pipeline reason JSON parse failed');
       return [];
     }
     if (!Array.isArray(parsed)) {
       diag('D612', 'Reason returned non-array', false, { type: typeof parsed, keys: typeof parsed === 'object' ? Object.keys(parsed || {}).slice(0, 5) : [] });
-      console.error('[Pipeline-Reason] non-array response:', typeof parsed, JSON.stringify(parsed).slice(0, 200));
+      logger.error({ type: typeof parsed, head: JSON.stringify(parsed).slice(0, 200) }, 'pipeline reason non-array response');
       return [];
     }
     const candidates = parsed.filter((c) => c && typeof c.name === 'string').slice(0, count).map((c) => ({
@@ -212,7 +213,7 @@ async function reason({ lat, lng, query, snapshot, count = 15, diag = noopDiag()
     return candidates;
   } catch (err) {
     diag('D612', 'Reason gemini failed', false, err.message);
-    console.error('[Pipeline-Reason] failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'pipeline reason failed');
     return [];
   }
 }
@@ -262,7 +263,7 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
     + 'Return ONLY a JSON array.';
   const t0 = Date.now();
   try {
-    console.log(`[Pipeline-Reason-Exec] model=${MODEL_NAME} prompt_len=${composed.length}`);
+    logger.info({ model: MODEL_NAME, promptLen: composed.length }, 'pipeline reason-exec start');
     const result = await withRetry(
       () => llm.generate({
         prompt: composed,
@@ -276,7 +277,7 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
     );
     const rawText = result.response.text();
     const ms = Date.now() - t0;
-    console.log(`[Pipeline-Reason-Exec] response length=${rawText.length} chars in ${ms}ms`);
+    logger.info({ rawChars: rawText.length, ms }, 'pipeline reason-exec response');
     let parsed;
     try {
       parsed = JSON.parse(extractJsonArray(rawText));
@@ -299,7 +300,7 @@ async function reasonExecute({ prompt, count = 15, isSurprise = false, diag = no
   } catch (err) {
     const ms = Date.now() - t0;
     diag('D612', 'Reason gemini failed', false, err.message);
-    console.error('[Pipeline-Reason-Exec] failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'pipeline reason-exec failed');
     return { candidates: [], rawText: '', meta: { ok: false, error: err.message?.slice(0, 200), ms } };
   }
 }
@@ -459,7 +460,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   } catch (err) {
     const ms = Date.now() - t0;
     diag('D712', 'Discover Places failed', false, { err: err.message?.slice(0, 200), ms });
-    console.error('[Pipeline-Discover] failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'pipeline discover failed');
     return [];
   }
 }
@@ -582,7 +583,7 @@ Return ONLY the JSON array.`;
     return out;
   } catch (err) {
     diag('D722', 'RankAndNarrate failed — falling back', false, err.message?.slice(0, 200));
-    console.error('[Pipeline-RankNarrate] failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'pipeline rankAndNarrate failed');
     return deterministicFallback(candidates, count);
   }
 }
@@ -824,7 +825,7 @@ Return ONLY the JSON array, in the same order as the input.`;
     return out;
   } catch (err) {
     diag('D632', 'Refine gemini failed', false, err.message);
-    console.error('[Pipeline-Refine] failed:', err.message);
+    logger.error({ err: { message: err.message } }, 'pipeline refine failed');
     return draft;
   }
 }
@@ -840,7 +841,7 @@ function makeDiag() {
   const fn = (code, label, ok = true, detail = null) => {
     events.push({ code, label, ok, detail, t: Date.now() });
     const tag = ok ? '✓' : '✗';
-    console.log(`[Cuisine-Diag] ${tag} ${code} ${label}` + (detail ? ` :: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}` : ''));
+    logger.info({ code, label, ok, detail }, `[Cuisine-Diag] ${tag} ${code} ${label}`);
   };
   fn.events = events;
   return fn;
@@ -862,7 +863,7 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
   // valuable to keep): drop recencyDays first, then drop specialRequest.
   if (!draft.length && (query.recencyDays || query.specialRequest)) {
     diag('D613', 'Reason 0 candidates — retrying with relaxed query (drop recencyDays + specialRequest)', false);
-    console.warn('[Pipeline] D613 retry without recencyDays/specialRequest');
+    logger.warn({ code: 'D613' }, 'pipeline retry without recencyDays/specialRequest');
     const relaxed = { ...query, recencyDays: null, specialRequest: '' };
     draft = await reason({ lat, lng, query: relaxed, snapshot, count, diag });
     if (draft.length) diag('D614', 'Relaxed retry yielded candidates', true, { n: draft.length });

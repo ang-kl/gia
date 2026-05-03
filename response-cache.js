@@ -45,6 +45,8 @@
 //     actually move the candidate set most: location bucket, cuisines,
 //     time of day, day of week.
 
+const { logger } = require('./logger');
+
 const KEY_PREFIX = 'cuisine-cache:';
 const TTL_S = 30 * 60;
 
@@ -73,7 +75,7 @@ async function get(redis, params) {
     const parsed = JSON.parse(raw);
     return { hit: true, key, venues: parsed.venues || [], cachedAt: parsed.cachedAt };
   } catch (err) {
-    console.warn(`[ResponseCache] read failed (${err.message?.slice(0, 80)})`);
+    logger.warn({ err: { message: err.message } }, 'response-cache read failed');
     return { hit: false, key };
   }
 }
@@ -86,7 +88,7 @@ async function set(redis, params, venues) {
     await redis.set(key, JSON.stringify(payload), { EX: TTL_S });
     return key;
   } catch (err) {
-    console.warn(`[ResponseCache] write failed (${err.message?.slice(0, 80)})`);
+    logger.warn({ err: { message: err.message } }, 'response-cache write failed');
     return null;
   }
 }

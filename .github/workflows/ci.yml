@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  syntax:
+    name: Syntax check (node --check on every .js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: node --check on every .js (excl node_modules + web/*/dist)
+        run: |
+          set -euo pipefail
+          fails=0
+          while IFS= read -r -d '' f; do
+            node --check "$f" || { echo "FAIL: $f"; fails=$((fails+1)); }
+          done < <(find . -name '*.js' \
+            -not -path './node_modules/*' \
+            -not -path './web/*/node_modules/*' \
+            -not -path './web/*/dist/*' \
+            -not -path './__tests__/*' \
+            -print0)
+          if [ "$fails" -ne 0 ]; then
+            echo "$fails file(s) failed syntax check"
+            exit 1
+          fi
+
+  test:
+    name: Vitest unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install root deps (skip postinstall TMA build)
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Run vitest
+        run: npm test
+
+  build:
+    name: TMA build (cuisine + menu + hawker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install root + build all 3 TMAs
+        run: npm install --no-audit --no-fund

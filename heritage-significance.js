@@ -16,6 +16,7 @@
 
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
 
 const SIG_MODEL = process.env.ANTHROPIC_HERITAGE_MODEL || llm.HAIKU_MODEL;
 
@@ -30,7 +31,7 @@ async function getCached(redis, placeId) {
     const v = await redis.get(cacheKey(placeId));
     return v || null;
   } catch (err) {
-    console.warn('[Heritage] cache read failed:', err.message);
+    logger.warn({ err: { message: err.message } }, 'heritage cache read failed');
     return null;
   }
 }
@@ -40,7 +41,7 @@ async function setCached(redis, placeId, text) {
   try {
     await redis.set(cacheKey(placeId), String(text).slice(0, 400), { EX: CACHE_TTL_S });
   } catch (err) {
-    console.warn('[Heritage] cache write failed:', err.message);
+    logger.warn({ err: { message: err.message } }, 'heritage cache write failed');
   }
 }
 
@@ -78,7 +79,7 @@ async function generateSignificance(venue) {
     const text = (result.response.text() || '').trim();
     return text ? text.slice(0, 400) : null;
   } catch (err) {
-    console.warn('[Heritage] LLM failed:', err.message?.slice(0, 120));
+    logger.warn({ err: { message: err.message?.slice(0, 200) } }, 'heritage LLM failed');
     return null;
   }
 }
