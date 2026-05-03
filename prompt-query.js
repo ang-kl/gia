@@ -43,16 +43,21 @@ Type:
   g  →  Google Gemini API
   s  →  Google Custom Search API
   m  →  Google Maps Places (text search)
-  d  →  data.gov.sg dataset search
+  d  →  data.gov.sg (dual-mode: path or search)
 
 Examples:
-  /p c What is the meaning of life?
+  /p c What's tomorrow in Singapore?
   /p g Latest news on Singapore F&B
   /p s michelin star restaurants singapore
   /p m halal ramen tanjong pagar
-  /p d hawker centre
+  /p d v2/real-time/api/2-hour-weather-forecast    (path mode → live data)
+  /p d hawker centre                                (search mode → datasets)
 
-Every call hits the upstream live — never cached.`;
+Notes:
+  • Every call hits the upstream live — never cached.
+  • /p c and /p g get current Singapore time prepended automatically.
+  • /p m URLs deep-link to Google Maps app on iOS (not Apple Maps).
+  • /p d path-mode hits api-open.data.gov.sg/<path>.`;
 
 // Visible no-cache marker appended to every (non-HELP, non-error) reply
 // so the operator can see at a glance that the result is fresh, not
@@ -70,6 +75,18 @@ function withFooter(body) {
   return trimmedBody + footer;
 }
 
+// v0.44.2: temporal grounding for LLM calls. Without this, models say
+// "I don't know what 'tomorrow' is" because they have no real-time
+// concept of now. Prepend the current SGT date/time as context so
+// "today", "tomorrow", "this Friday" etc. resolve correctly.
+function withSgtContext(prompt) {
+  const sgtNow = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const dateStr = sgtNow.toISOString().slice(0, 10);
+  const dow = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][sgtNow.getUTCDay()];
+  const timeStr = sgtNow.toISOString().slice(11, 16);
+  return `Current Singapore time: ${dateStr} (${dow}) ${timeStr} SGT.\n\n${prompt}`;
+}
+
 function trim(s) {
   if (typeof s !== 'string') return String(s ?? '');
   return s.length > MAX_OUTPUT_CHARS ? s.slice(0, MAX_OUTPUT_CHARS) : s;
@@ -81,7 +98,7 @@ async function viaClaude(prompt) {
   }
   try {
     const result = await llm.generate({
-      prompt,
+      prompt: withSgtContext(prompt),
       model: llm.DEFAULT_MODEL,
       maxTokens: 2048
     });
@@ -103,7 +120,7 @@ async function viaGemini(prompt) {
     const { data } = await axios.post(
       url,
       {
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts: [{ text: withSgtContext(prompt) }] }],
         generationConfig: { maxOutputTokens: 2048 }
       },
       { timeout: 30000, headers: { 'Content-Type': 'application/json' } }
@@ -164,11 +181,18 @@ async function viaMaps(prompt) {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
           'X-Goog-FieldMask': [
+            'places.id',
             'places.displayName',
             'places.formattedAddress',
             'places.rating',
             'places.userRatingCount',
+            // v0.44.2: request googleMapsLinks (the place_id-explicit
+            // deep-link) in addition to googleMapsUri (the cid-based URL).
+            // googleMapsLinks.placeUri reliably opens in Google Maps app
+            // via iOS Universal Links; the cid URL sometimes routes to
+            // Apple Maps depending on iOS settings.
             'places.googleMapsUri',
+            'places.googleMapsLinks',
             'places.primaryType',
             'places.businessStatus',
             'places.currentOpeningHours.openNow'
@@ -188,7 +212,9 @@ async function viaMaps(prompt) {
                 : '';
       const type = p.primaryType || 'place';
       const addr = p.formattedAddress || '';
-      const url = p.googleMapsUri || '';
+      // v0.44.2: prefer placeUri (place_id deep-link, opens Google Maps app)
+      // over googleMapsUri (cid URL, sometimes opens Apple Maps on iOS).
+      const url = p.googleMapsLinks?.placeUri || p.googleMapsUri || (p.id ? `https://www.google.com/maps/place/?q=place_id:${p.id}` : '');
       return `${i + 1}. ${name}${status}\n   ${rating} · ${type}${open}\n   ${addr}${url ? `\n   ${url}` : ''}`;
     });
     return withFooter(`📍 Google Maps Places — "${prompt}"\n\n${lines.join('\n\n')}`);
@@ -199,47 +225,95 @@ async function viaMaps(prompt) {
   }
 }
 
-// v0.44.1: data.gov.sg dataset metadata search via the CKAN-style
-// public API. No API key required for metadata reads. Returns up to 5
-// matching datasets with title, organization, dataset URL, and a short
-// description snippet.
+// v0.44.2: data.gov.sg dual-mode handler.
 //
-// Endpoint chosen: data.gov.sg/api/action/package_search — stable,
-// CKAN-standard, returns deterministic JSON shape. Newer v2 portal
-// APIs exist but lack a stable public search endpoint at the time of
-// writing (v0.44.1).
-async function viaDataGovSg(prompt) {
+// The CKAN-style endpoint used in v0.44.1 (data.gov.sg/api/action/
+// package_search) returns 404 in production — the platform migrated
+// off the CKAN API. v0.44.2 pivots to two modes:
+//
+//   PATH MODE (recommended for power users):
+//     /p d v2/real-time/api/2-hour-weather-forecast
+//     /p d v2/real-time/api/air-temperature
+//     /p d v2/real-time/api/rainfall
+//     /p d v1/transport/carpark-availability
+//     /p d /v2/real-time/api/...   (leading slash optional)
+//   → fetches JSON from api-open.data.gov.sg/<path>, returns
+//     pretty-printed (truncated to fit Telegram).
+//
+//   SEARCH MODE (free text, no API path):
+//     /p d hawker
+//     /p d weather forecast
+//   → tries the v2 catalog search at
+//     api-production.data.gov.sg/v2/public/api/datasets/search-datasets?query=<q>
+//     If 404 (catalog API may also be unstable), returns a hint pointing
+//     the user at the data.gov.sg website + suggesting path-mode usage.
+//
+// Heuristic: if the query starts with `v\d+/` or `/v\d+/`, treat as
+// path. Otherwise treat as search.
+
+const PATH_MODE_RE = /^\/?v\d+\//i;
+const DATA_GOV_OPEN_BASE = 'https://api-open.data.gov.sg';
+const DATA_GOV_CATALOG_SEARCH = 'https://api-production.data.gov.sg/v2/public/api/datasets/search-datasets';
+
+async function viaDataGovSgPath(rawPath) {
+  const path = rawPath.replace(/^\/+/, '');
+  const url = `${DATA_GOV_OPEN_BASE}/${path}`;
+  try {
+    const { data } = await axios.get(url, { timeout: 15000 });
+    const pretty = JSON.stringify(data, null, 2);
+    return withFooter(`🇸🇬 data.gov.sg [PATH] /${path}\n\n${pretty}`);
+  } catch (err) {
+    const status = err.response?.status;
+    const msg = err.response?.data?.message
+              || err.response?.data?.error?.message
+              || err.message
+              || 'unknown';
+    return `🔴 data.gov.sg path error: ${status ? `HTTP ${status} — ` : ''}${String(msg).slice(0, 500)}\n\nTried: ${url}\n\nKnown working paths:\n  v2/real-time/api/2-hour-weather-forecast\n  v2/real-time/api/air-temperature\n  v2/real-time/api/rainfall\n  v2/real-time/api/24-hour-weather-forecast\n  v2/real-time/api/4-day-weather-forecast`;
+  }
+}
+
+async function viaDataGovSgSearch(prompt) {
   try {
     const { data } = await axios.get(
-      'https://data.gov.sg/api/action/package_search',
+      DATA_GOV_CATALOG_SEARCH,
       {
-        params: { q: prompt, rows: 5 },
+        params: { query: prompt },
         timeout: 10000
       }
     );
-    if (!data?.success) {
-      return `🔴 data.gov.sg error: API returned success=false (${JSON.stringify(data?.error || {}).slice(0, 200)})`;
+    // The v2 catalog API is undocumented publicly; the response shape
+    // may differ. Defensive: try several likely keys.
+    const datasets = data?.data?.datasets
+                  || data?.datasets
+                  || data?.results
+                  || (Array.isArray(data) ? data : []);
+    if (!Array.isArray(datasets) || !datasets.length) {
+      return withFooter(`🇸🇬 data.gov.sg [SEARCH] — "${prompt}"\n\n(no datasets — or the v2 catalog API shape changed)\n\nTry path mode instead:\n  /p d v2/real-time/api/2-hour-weather-forecast\n  /p d v2/real-time/api/air-temperature\nOr browse https://data.gov.sg/datasets`);
     }
-    const results = data?.result?.results || [];
-    if (!results.length) {
-      return withFooter(`🇸🇬 data.gov.sg — "${prompt}"\n\n(no datasets matching "${prompt}")`);
-    }
-    const lines = results.slice(0, 5).map((r, i) => {
-      const title = (r.title || r.name || '(untitled)').trim();
-      const org = r.organization?.title || r.organization?.name || '(unknown org)';
-      const slug = r.name || '';
-      const url = slug ? `https://data.gov.sg/datasets/${slug}` : '';
-      const notes = (r.notes || '').replace(/\s+/g, ' ').trim().slice(0, 200);
-      const resourceCount = Array.isArray(r.resources) ? r.resources.length : 0;
-      return `${i + 1}. ${title}\n   org: ${org} · resources: ${resourceCount}${url ? `\n   ${url}` : ''}${notes ? `\n   ${notes}` : ''}`;
+    const lines = datasets.slice(0, 5).map((r, i) => {
+      const title = (r.name || r.title || r.datasetName || '(untitled)').toString().trim();
+      const id = r.datasetId || r.id || r.slug || '';
+      const url = id ? `https://data.gov.sg/datasets/${id}` : '';
+      const desc = (r.description || r.notes || '').toString().replace(/\s+/g, ' ').trim().slice(0, 200);
+      return `${i + 1}. ${title}${url ? `\n   ${url}` : ''}${desc ? `\n   ${desc}` : ''}`;
     });
-    const totalCount = data?.result?.count ?? results.length;
-    return withFooter(`🇸🇬 data.gov.sg — "${prompt}" (${totalCount} total, showing top ${results.length})\n\n${lines.join('\n\n')}`);
+    return withFooter(`🇸🇬 data.gov.sg [SEARCH] — "${prompt}"\n\n${lines.join('\n\n')}`);
   } catch (err) {
     const status = err.response?.status;
-    const msg = err.response?.data?.error?.message || err.message || 'unknown';
-    return `🔴 data.gov.sg error: ${status ? `HTTP ${status} — ` : ''}${String(msg).slice(0, 500)}`;
+    const msg = err.response?.data?.message
+              || err.response?.data?.error?.message
+              || err.message
+              || 'unknown';
+    // Search API is unstable; helpful fallback message.
+    return `🔴 data.gov.sg search error: ${status ? `HTTP ${status} — ` : ''}${String(msg).slice(0, 300)}\n\nThe v2 catalog search API is undocumented and unstable. Use PATH mode instead:\n  /p d v2/real-time/api/2-hour-weather-forecast\n  /p d v2/real-time/api/air-temperature\n  /p d v2/real-time/api/rainfall\n  /p d v1/transport/carpark-availability\n\nOr browse https://data.gov.sg/datasets to find dataset paths.`;
   }
+}
+
+async function viaDataGovSg(prompt) {
+  if (PATH_MODE_RE.test(prompt)) {
+    return viaDataGovSgPath(prompt);
+  }
+  return viaDataGovSgSearch(prompt);
 }
 
 const HANDLERS = { c: viaClaude, g: viaGemini, s: viaSearch, m: viaMaps, d: viaDataGovSg };
@@ -271,8 +345,12 @@ module.exports = {
   viaSearch,
   viaMaps,
   viaDataGovSg,
+  viaDataGovSgPath,
+  viaDataGovSgSearch,
   HELP,
   MAX_OUTPUT_CHARS,
   noCacheFooter,
-  withFooter
+  withFooter,
+  withSgtContext,
+  PATH_MODE_RE
 };
