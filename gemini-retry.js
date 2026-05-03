@@ -11,6 +11,8 @@
 // wait added per call ≈ 7s, which fits inside Telegram's 30s server-side
 // timeout budget for bot replies.
 
+const { logger } = require('./logger');
+
 const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504, 529]);
 const NON_RETRYABLE_STATUSES = new Set([400, 401, 403, 404, 422]);
 const DEFAULT_DELAYS_MS = [1000, 2000, 4000];
@@ -38,18 +40,18 @@ async function withRetry(fn, { delays = DEFAULT_DELAYS_MS, label = 'llm', fallba
       lastErr = err;
       if (attempt === delays.length || !isRetryable(err)) {
         if (fallbackFn && isRetryable(err)) {
-          console.warn(`[${label}] primary exhausted ${delays.length} retries on transient error; falling back: ${err.message?.slice(0, 120)}`);
+          logger.warn({ label, attempts: delays.length, err: { message: err.message?.slice(0, 200) } }, 'primary exhausted retries — falling back');
           try {
             return await fallbackFn();
           } catch (fallbackErr) {
-            console.error(`[${label}] fallback also failed: ${fallbackErr.message?.slice(0, 120)}`);
+            logger.error({ label, err: { message: fallbackErr.message?.slice(0, 200) } }, 'fallback also failed');
             throw fallbackErr;
           }
         }
         throw err;
       }
       const wait = delays[attempt];
-      console.warn(`[${label}] retryable error (attempt ${attempt + 1}/${delays.length + 1}) — waiting ${wait}ms: ${err.message?.slice(0, 120)}`);
+      logger.warn({ label, attempt: attempt + 1, total: delays.length + 1, waitMs: wait, err: { message: err.message?.slice(0, 200) } }, 'retryable error — waiting');
       await new Promise((r) => setTimeout(r, wait));
     }
   }

@@ -18,6 +18,8 @@ const responseCache = require('./response-cache');
 const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const vaultIndex = require('./vault-index');
 const holidays = require('./holidays');
+const { logger, forRequest } = require('./logger');
+const { captureWithReqId } = require('./sentry');
 
 // v0.41.0: rollback flag. When 'false' the legacy
 // Reason → Validate path runs (v0.40.1 behaviour). Default ON.
@@ -279,7 +281,8 @@ async function runCuisineTaskInverted(redis, reqId) {
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
   } catch (err) {
-    console.error(`[pipeline-task ${reqId}] cuisine task (inverted) failed:`, err.message);
+    forRequest(reqId, { kind: 'cuisine', path: 'inverted' }).error({ err: { message: err.message, stack: err.stack } }, 'cuisine task failed');
+    captureWithReqId(err, reqId, { kind: 'cuisine', path: 'inverted' });
     await requestStore.setError(redis, reqId, err);
   }
 }
@@ -309,7 +312,8 @@ async function runCuisineTaskLegacy(redis, reqId) {
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
   } catch (err) {
-    console.error(`[pipeline-task ${reqId}] cuisine task (legacy) failed:`, err.message);
+    forRequest(reqId, { kind: 'cuisine', path: 'legacy' }).error({ err: { message: err.message, stack: err.stack } }, 'cuisine task failed');
+    captureWithReqId(err, reqId, { kind: 'cuisine', path: 'legacy' });
     await requestStore.setError(redis, reqId, err);
   }
 }
@@ -353,7 +357,8 @@ async function runSurpriseTask(redis, reqId) {
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
   } catch (err) {
-    console.error(`[pipeline-task ${reqId}] surprise task failed:`, err.message);
+    forRequest(reqId, { kind: 'surprise' }).error({ err: { message: err.message, stack: err.stack } }, 'surprise task failed');
+    captureWithReqId(err, reqId, { kind: 'surprise' });
     await requestStore.setError(redis, reqId, err);
   }
 }

@@ -6,6 +6,22 @@ const { createClient } = require('redis');
 const TelegramBot = require('node-telegram-bot-api');
 const pkgJson = require('./package.json');
 require('dotenv').config();
+
+// v0.42.0: structured logging + error tracking. Both are no-ops if their
+// env vars are unset, so dev/CI environments stay quiet.
+const { logger } = require('./logger');
+const sentry = require('./sentry');
+sentry.init();
+
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err: { message: err.message, stack: err.stack } }, 'uncaughtException');
+  sentry.captureWithReqId(err, null, { kind: 'uncaughtException' });
+});
+process.on('unhandledRejection', (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  logger.error({ err: { message: err.message, stack: err.stack } }, 'unhandledRejection');
+  sentry.captureWithReqId(err, null, { kind: 'unhandledRejection' });
+});
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
