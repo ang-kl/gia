@@ -1428,8 +1428,48 @@ async function runTransportTrain(chatId) {
       lines.push('', '🚇 Share your location once and Gia will list the nearest MRT stations too.');
     }
 
+    // v0.51.0: per-line breakdown + Hitachi-style TMA + engineering closures.
+    try {
+      const mrtLines = require('./mrt-lines');
+      const mrtEng = require('./mrt-engineering');
+      const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      // Per-line table from the live alerts payload.
+      let alerts = null;
+      if (process.env.LTA_ACCOUNT_KEY && lta) {
+        try { const { data } = await lta.get('/TrainServiceAlerts'); alerts = data?.value || null; }
+        catch (err) { console.warn('[Transport] TrainServiceAlerts fetch failed:', err.message); }
+      }
+      const statusByLine = mrtLines.parseStatusByLine(alerts);
+      const affected = Object.entries(statusByLine).filter(([_, s]) => s.status !== 'normal');
+      if (affected.length) {
+        lines.push('', '⚠️ Affected lines:');
+        for (const [code, s] of affected) {
+          const meta = mrtLines.LINES_BY_CODE[code];
+          lines.push(`${meta?.emoji || '·'} ${code} ${meta?.name || ''} — ${s.status}${s.cause ? ` (${s.cause})` : ''}`);
+          if (s.direction) lines.push(`   ${s.direction}`);
+        }
+      }
+      const upcoming = mrtEng.upcoming(todayISO, 7);
+      if (upcoming.length) {
+        lines.push('', '🔧 Upcoming engineering (next 7 d):');
+        for (const c of upcoming.slice(0, 5)) {
+          lines.push(`· ${c.date} ${c.line} ${c.direction} — ${c.type} ${c.time}`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Transport] per-line + engineering enrichment failed:', err.message);
+    }
+
+    const tmaButton = webhookDomain
+      ? [[{ text: '🗺 Open MRT map (Hitachi-style)', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
+      : [];
+    const buttons = [
+      ...tmaButton,
+      [{ text: '🔄 Refresh', callback_data: 'transport:train' }],
+      [{ text: '⬅️ Back', callback_data: 'transport:menu' }]
+    ];
     await safeSend(chatId, lines.join('\n'), {
-      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
+      reply_markup: { inline_keyboard: buttons }
     });
   } catch (err) {
     console.error('[Error] transport train failed:', err.message);
@@ -3172,6 +3212,59 @@ async function cacheBotUsername() {
     app.get('/app/hawker', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'hawker', 'index.html'));
+    });
+
+    // v0.51.0: Transport TMA — Hitachi-style MRT system map + per-line cards.
+    app.use('/app/transport', express.static(path.join(__dirname, 'public', 'transport')));
+    app.get('/app/transport', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'transport', 'index.html'));
+    });
+    // Schematic SVG fetched by the TMA's SystemMap component.
+    app.get('/app/transport/mrt-system-map.svg', (_req, res) => {
+      res.type('image/svg+xml');
+      res.set('Cache-Control', 'public, max-age=3600');
+      res.sendFile(path.join(__dirname, 'data', 'mrt-system-map.svg'));
+    });
+    // Per-line status feed for the Transport TMA.
+    app.get('/api/transport/status', async (_req, res) => {
+      try {
+        const mrtLines = require('./mrt-lines');
+        const mrtEng = require('./mrt-engineering');
+        if (!redis.isOpen) await redis.connect();
+        const cachedStatus = await redis.get('lta:train_status').catch(() => null);
+        const rawStatus = cachedStatus ? JSON.parse(cachedStatus) : null;
+        // The TrainServiceAlerts feed itself isn't cached — re-fetch.
+        let alerts = null;
+        if (process.env.LTA_ACCOUNT_KEY) {
+          try {
+            const { data } = await lta.get('/TrainServiceAlerts');
+            alerts = data?.value || null;
+          } catch (err) { console.warn('[Transport-TMA] LTA alerts fetch failed:', err.message); }
+        }
+        const statusByLine = mrtLines.parseStatusByLine(alerts);
+        const affectedCodes = Object.entries(statusByLine)
+          .filter(([_c, s]) => s.status !== 'normal')
+          .map(([c]) => c);
+        const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const engineering = mrtEng.upcoming(todayISO, 7);
+        res.json({
+          timestampSGT: new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore' }),
+          summary: rawStatus?.status || null,
+          message: rawStatus?.message || null,
+          statusByLine,
+          affectedCodes,
+          engineering,
+          // address + nearestMrt are filled in by the chat-side caller
+          // when it embeds the user's coords; the TMA-only fetch leaves
+          // them null (TMA can offer a "share location" button later).
+          address: null,
+          nearestMrt: []
+        });
+      } catch (err) {
+        console.error('[Error] /api/transport/status failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
     });
 
     // v0.30.9: surface whether MAP_ID is registered or running on the

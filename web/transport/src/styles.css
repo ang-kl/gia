@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+
+/* Hitachi-style line-flash animation for affected line on the map. */
+@keyframes mrtFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.line-flash { animation: mrtFlash 1.2s ease-in-out infinite; }
+.line-muted { opacity: 0.22; }
+
+/* Marquee scroll for the bottom affected-line ticker. */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.marquee-track { animation: marquee 28s linear infinite; }
