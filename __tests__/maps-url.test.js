@@ -18,35 +18,53 @@ describe('googleMapsUrl', () => {
       googleMapsLinks: { placeUri: 'https://maps.app.goo.gl/abc123' },
       url: 'http://other-url',
       googleMapsUri: 'http://cid-url',
-      placeId: 'ChIJ_test'
+      placeId: 'ChIJ_test',
+      name: 'Test Place'
     });
     expect(r).toBe('https://maps.app.goo.gl/abc123');
   });
 
-  it('v0.45.1: synthesises place_id deep-link BEFORE falling to cid URL', () => {
-    // The bug fixed in v0.45.1: when placeUri was absent, the helper
-    // used to prefer googleMapsUri (cid URL) over the synthesised
-    // place_id URL. iOS routed cid URLs to Apple Maps. Now we always
-    // prefer the synthesised place_id format when we have an id.
+  it('v0.48.2: uses ?api=1&query=<name>&query_place_id=<id> (documented form)', () => {
+    // The bug fixed in v0.48.2: the prior `/maps/place/?q=place_id:X`
+    // form made Google Maps treat the literal string "place_id:X" as a
+    // search query — the user saw the raw id in the search field
+    // instead of a place pin. The documented Maps URL API uses the
+    // query_place_id parameter to pin the place AND query for the
+    // search-field display text.
     const r = googleMapsUrl({
-      id: 'ChIJ_synth_test',
+      placeId: 'ChIJ_synth_test',
+      name: 'Test Sanctuary',
       googleMapsUri: 'https://maps.google.com/?cid=12345'
     });
-    expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_synth_test');
+    expect(r).toContain('https://www.google.com/maps/search/?api=1');
+    expect(r).toContain('query=Test%20Sanctuary');
+    expect(r).toContain('query_place_id=ChIJ_synth_test');
     expect(r).not.toContain('cid=');
+    expect(r).not.toMatch(/place_id:ChIJ/); // no literal-text bug
   });
 
-  it('synthesises place_id deep-link from placeId field', () => {
-    const r = googleMapsUrl({ placeId: 'ChIJ_synth_test' });
-    expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_synth_test');
+  it('uses query+query_place_id when name + placeId both present', () => {
+    const r = googleMapsUrl({ placeId: 'ChIJ_a', name: 'KOK Sen' });
+    expect(r).toBe('https://www.google.com/maps/search/?api=1&query=KOK%20Sen&query_place_id=ChIJ_a');
   });
 
-  it('synthesises place_id deep-link from id field', () => {
-    const r = googleMapsUrl({ id: 'ChIJ_id_test' });
-    expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_id_test');
+  it('uses query+query_place_id with id field when placeId absent', () => {
+    const r = googleMapsUrl({ id: 'ChIJ_b', name: 'Maxwell' });
+    expect(r).toBe('https://www.google.com/maps/search/?api=1&query=Maxwell&query_place_id=ChIJ_b');
   });
 
-  it('falls back to place.url only when no placeUri AND no id', () => {
+  it('reads displayName.text when name is absent (Places New shape)', () => {
+    const r = googleMapsUrl({ id: 'ChIJ_c', displayName: { text: 'Song Fa' } });
+    expect(r).toContain('query=Song%20Fa');
+    expect(r).toContain('query_place_id=ChIJ_c');
+  });
+
+  it('falls back to name-only search when no placeId/id', () => {
+    const r = googleMapsUrl({ name: 'Hawker Centre' });
+    expect(r).toBe('https://www.google.com/maps/search/?api=1&query=Hawker%20Centre');
+  });
+
+  it('falls back to place.url when no placeId AND no name', () => {
     const r = googleMapsUrl({
       url: 'https://existing.example/map',
       googleMapsUri: 'http://other'
@@ -54,7 +72,7 @@ describe('googleMapsUrl', () => {
     expect(r).toBe('https://existing.example/map');
   });
 
-  it('falls back to googleMapsUri only when no placeUri, no id, no place.url', () => {
+  it('falls back to googleMapsUri when no placeId, no name, no place.url', () => {
     const r = googleMapsUrl({
       googleMapsUri: 'https://maps.google.com/?cid=12345'
     });
@@ -67,20 +85,19 @@ describe('googleMapsUrl', () => {
   });
 
   it('encodes place_id properly (special characters)', () => {
-    const r = googleMapsUrl({ placeId: 'ChIJ_test/with+special' });
-    expect(r).toContain('place_id:');
+    const r = googleMapsUrl({ placeId: 'ChIJ_test/with+special', name: 'X' });
+    expect(r).toContain('query_place_id=');
     expect(r).toContain('ChIJ_test');
-    // encoded:
     expect(r).toMatch(/%2F|%2B/);
   });
 
-  it('rejects non-http url field — synthesises place_id instead', () => {
-    const r = googleMapsUrl({ url: 'javascript:alert(1)', placeId: 'ChIJ_safe' });
-    expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_safe');
+  it('rejects non-http url field — uses name-based search instead', () => {
+    const r = googleMapsUrl({ url: 'javascript:alert(1)', name: 'Safe Place', placeId: 'ChIJ_safe' });
+    expect(r).toBe('https://www.google.com/maps/search/?api=1&query=Safe%20Place&query_place_id=ChIJ_safe');
   });
 
   it('place.url is also rejected if it has no http(s) scheme', () => {
-    // Without a place_id, falls through past place.url to googleMapsUri.
+    // Without a place_id or name, falls through past place.url to googleMapsUri.
     const r = googleMapsUrl({ url: 'data:text/html,foo', googleMapsUri: 'https://maps.google.com/?cid=1' });
     expect(r).toBe('https://maps.google.com/?cid=1');
   });
