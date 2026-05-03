@@ -481,13 +481,11 @@ async function deliverPicks(chatId, mealLabel, picks) {
 
     const buttons = [];
     if (pid) {
-      // v0.26.2 per Human Lead: single 📍 Google Maps link per card.
-      // Prefer the canonical Place URL (googleMapsLinks.placeUri /
-      // googleMapsUri); fall back to a place_id-encoded search URL,
-      // then to directionsUri as last resort.
-      const mapsUrl = p.url
-        || (pid ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(pid)}` : null)
-        || p.directionsUri;
+      // v0.45.0: single shared googleMapsUrl(place) helper. Prefers
+      // place_id-explicit deep-link → opens Google Maps app on iOS
+      // (not Apple Maps).
+      const { googleMapsUrl } = require('./maps-url');
+      const mapsUrl = googleMapsUrl(p);
       if (mapsUrl) {
         buttons.push({ text: '📍 Google Maps', url: mapsUrl });
       }

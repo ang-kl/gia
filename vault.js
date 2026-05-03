@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { googleMapsUrl } = require('./maps-url');
 
 const PLACES_BASE = 'https://places.googleapis.com/v1/places';
 const VAULT_GEO_KEY = 'gia:vault';
@@ -78,7 +79,7 @@ async function verifyOpenNow(placeId) {
     return {
       openNow: data?.currentOpeningHours?.openNow ?? null,
       businessStatus: data?.businessStatus ?? null,
-      url: data?.googleMapsLinks?.placeUri ?? data?.googleMapsUri ?? '',
+      url: googleMapsUrl(data) ?? '',
       directionsUri: data?.googleMapsLinks?.directionsUri ?? '',
       reviewsUri: data?.googleMapsLinks?.reviewsUri ?? '',
       photosUri: data?.googleMapsLinks?.photosUri ?? '',

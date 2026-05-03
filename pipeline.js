@@ -36,6 +36,7 @@ const weather = require('./weather');
 const transport = require('./transport');
 const carpark = require('./carpark');
 const { logger } = require('./logger');
+const { googleMapsUrl } = require('./maps-url');
 
 const MODEL_NAME = llm.DEFAULT_MODEL;
 
@@ -447,7 +448,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           priceLevel: priceLevelToInt(p.priceLevel),
           openNow: p.currentOpeningHours?.openNow ?? null,
           primaryType: p.primaryType || 'restaurant',
-          url: p.googleMapsLinks?.placeUri ?? p.googleMapsUri ?? '',
+          url: googleMapsUrl(p) ?? '',
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',
           reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
           photosUri: p.googleMapsLinks?.photosUri ?? '',

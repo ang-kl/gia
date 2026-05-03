@@ -9,6 +9,7 @@ const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 const { logger } = require('./logger');
+const { googleMapsUrl } = require('./maps-url');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id}`;
@@ -133,7 +134,7 @@ async function findHiddenSanctuary(lat, lng) {
         lng: place.location?.longitude ?? null,
         rating: place.rating ?? null,
         primaryType: place.primaryType ?? 'restaurant',
-        url: place.googleMapsLinks?.placeUri ?? place.googleMapsUri ?? '',
+        url: googleMapsUrl(place) ?? '',
         directionsUri: place.googleMapsLinks?.directionsUri ?? '',
         reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
         photosUri: place.googleMapsLinks?.photosUri ?? '',

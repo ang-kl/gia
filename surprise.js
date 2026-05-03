@@ -19,6 +19,7 @@ const axios = require('axios');
 const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 const { logger } = require('./logger');
+const { googleMapsUrl } = require('./maps-url');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACE_DETAILS_URL = 'https://places.googleapis.com/v1/places';
@@ -329,7 +330,7 @@ async function findSurprise({ lat, lng, redis = null }) {
       priceLevel: priceLevelToInt(detail.priceLevel),
       distanceM: Math.round(cand._distance),
       openNow: detail.currentOpeningHours?.openNow ?? null,
-      url: detail.googleMapsLinks?.placeUri ?? detail.googleMapsUri ?? '',
+      url: googleMapsUrl(detail) ?? '',
       directionsUri: detail.googleMapsLinks?.directionsUri ?? '',
       reviewsUri: detail.googleMapsLinks?.reviewsUri ?? '',
       photosUri: detail.googleMapsLinks?.photosUri ?? '',

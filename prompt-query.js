@@ -31,6 +31,7 @@
 
 const axios = require('axios');
 const llm = require('./llm-client');
+const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
 
 const MAX_OUTPUT_CHARS = 3800;
 
@@ -164,6 +165,19 @@ async function viaSearch(prompt) {
   }
 }
 
+// v0.45.1: Singapore-wide rectangle as default locationBias for /p m.
+// soleat is a Singapore-only bot; without this the API returned global
+// results for queries like "halal ramen" (got NYC / Houston / Texas).
+// `locationBias` is SOFT — if the user explicitly says "halal ramen
+// Tokyo" the API will still return Tokyo results, just with SG nudged
+// up the priority list when the query is location-ambiguous.
+const SG_BOUNDS = {
+  rectangle: {
+    low:  { latitude: 1.13, longitude: 103.59 },
+    high: { latitude: 1.47, longitude: 104.10 }
+  }
+};
+
 async function viaMaps(prompt) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -174,7 +188,8 @@ async function viaMaps(prompt) {
       'https://places.googleapis.com/v1/places:searchText',
       {
         textQuery: prompt,
-        maxResultCount: 5
+        maxResultCount: 5,
+        locationBias: SG_BOUNDS
       },
       {
         headers: {
@@ -203,21 +218,41 @@ async function viaMaps(prompt) {
     );
     const places = data?.places || [];
     if (!places.length) return withFooter(`📍 Google Maps Places\n\n(no places for "${prompt}")`);
-    const lines = places.map((p, i) => {
-      const name = p.displayName?.text || '(no name)';
-      const rating = p.rating != null ? `${p.rating}★ (${p.userRatingCount || 0})` : 'unrated';
-      const status = p.businessStatus && p.businessStatus !== 'OPERATIONAL' ? ` [${p.businessStatus}]` : '';
-      const open = p.currentOpeningHours?.openNow === true ? ' · open now'
-                : p.currentOpeningHours?.openNow === false ? ' · closed'
+    // v0.45.0: build venues with normalised shape so googleMapsUrl()
+    // and buildMapHashUrl() work without per-call adaptation.
+    const venues = places.map((p) => ({
+      placeId: p.id,
+      id: p.id,
+      name: p.displayName?.text || '(no name)',
+      area: p.formattedAddress || '',
+      lat: p.location?.latitude,
+      lng: p.location?.longitude,
+      rating: p.rating,
+      userRatingCount: p.userRatingCount,
+      primaryType: p.primaryType || 'place',
+      businessStatus: p.businessStatus,
+      openNow: p.currentOpeningHours?.openNow,
+      googleMapsLinks: p.googleMapsLinks,
+      googleMapsUri: p.googleMapsUri
+    }));
+    const lines = venues.map((v, i) => {
+      const rating = v.rating != null ? `${v.rating}★ (${v.userRatingCount || 0})` : 'unrated';
+      const status = v.businessStatus && v.businessStatus !== 'OPERATIONAL' ? ` [${v.businessStatus}]` : '';
+      const open = v.openNow === true ? ' · open now'
+                : v.openNow === false ? ' · closed'
                 : '';
-      const type = p.primaryType || 'place';
-      const addr = p.formattedAddress || '';
-      // v0.44.2: prefer placeUri (place_id deep-link, opens Google Maps app)
-      // over googleMapsUri (cid URL, sometimes opens Apple Maps on iOS).
-      const url = p.googleMapsLinks?.placeUri || p.googleMapsUri || (p.id ? `https://www.google.com/maps/place/?q=place_id:${p.id}` : '');
-      return `${i + 1}. ${name}${status}\n   ${rating} · ${type}${open}\n   ${addr}${url ? `\n   ${url}` : ''}`;
+      const url = googleMapsUrl(v) || '';
+      return `${i + 1}. ${v.name}${status}\n   ${rating} · ${v.primaryType}${open}\n   ${v.area}${url ? `\n   ${url}` : ''}`;
     });
-    return withFooter(`📍 Google Maps Places — "${prompt}"\n\n${lines.join('\n\n')}`);
+    // v0.45.0: append multi-marker map link via TMA /app/map hash.
+    // Bot domain is in WEBHOOK_DOMAIN or RAILWAY_PUBLIC_DOMAIN env.
+    const webhookDomain = process.env.WEBHOOK_DOMAIN
+                       || process.env.RAILWAY_PUBLIC_DOMAIN
+                       || process.env.RAILWAY_STATIC_URL
+                       || '';
+    const mapLink = buildMapHashUrl(venues, { webhookDomain }) || '';
+    const mapFooter = mapLink ? `\n\n🗺 View all ${venues.length} on map:\n${mapLink}` : '';
+    return withFooter(`📍 Google Maps Places — "${prompt}"\n\n${lines.join('\n\n')}${mapFooter}`);
   } catch (err) {
     const status = err.response?.status;
     const msg = err.response?.data?.error?.message || err.message || 'unknown';
