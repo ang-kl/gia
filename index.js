@@ -135,6 +135,47 @@ async function updateTransitStatus() {
 }
 
 // 3. Telegram Handlers
+// v0.52.0: shared reverse-geocode helper used by /transport (and any
+// future menu that wants to display a human-readable "current location"
+// header). Caches 24h in Redis on a coarse 4-decimal-place grid (~10 m).
+async function reverseGeocodeAddress(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return null;
+  const gLat = lat.toFixed(4);
+  const gLng = lng.toFixed(4);
+  const cacheKey = `revgeo:addr:${gLat}:${gLng}`;
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    }
+  } catch { /* cache miss is fine */ }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+    const { data } = await axios.get(url, { timeout: 5000 });
+    if (data.status !== 'OK' || !data.results?.length) return null;
+    const r = data.results[0];
+    const components = r.address_components || [];
+    const findComp = (t) => components.find((c) => c.types?.includes(t))?.long_name;
+    const name = findComp('neighborhood')
+      || findComp('sublocality_level_1')
+      || findComp('sublocality')
+      || findComp('locality')
+      || r.formatted_address?.split(',')[0]
+      || 'Singapore';
+    const formatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    const payload = { name, formatted };
+    try {
+      if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
+    } catch { /* cache-write fail is non-fatal */ }
+    return payload;
+  } catch (err) {
+    console.warn('[reverseGeocode] failed:', err.message);
+    return null;
+  }
+}
+
 async function safeSend(chatId, text, opts = {}) {
   try {
     await bot.sendMessage(chatId, text, opts);
@@ -777,11 +818,8 @@ bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
 // /recognised michelin-star, etc. Falls through to all-categories when no arg.
 bot.onText(/^\/recognised(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognisedCommand(msg.chat.id, match?.[1] || null));
 
-// v0.35.0: /heritage-food — nearest 5 venues from recog:venue:* within
-// 2 km that carry a heritage signal (UNESCO ICH award, multi-gen tag,
-// or "heritage"/"traditional" notes). Each venue gets a cached
-// 1-2-sentence Gemini-generated heritage-significance line.
-bot.onText(/^\/heritage[-_]?food(?:@\w+)?$/, (msg) => runHeritageFoodCommand(msg.chat.id));
+// v0.52.0: /heritage_food removed. The data source overlapped /recognised
+// (Michelin SG list) and the heritage signal was thin / inconsistent.
 
 // v0.44.0: /p — hidden power-user query relay. Not in setMyCommands so
 // it doesn't show in slash autocomplete. Syntax: /p <c|g|s|m> <prompt>.
@@ -1036,6 +1074,14 @@ bot.on('callback_query', async (q) => {
       await sendTransportMenu(chatId);
       return;
     }
+    if (data === 'transport:refresh-loc') {
+      // v0.52.0: clear the cached location so the next sendTransportMenu
+      // call falls into the share-location prompt.
+      const { hashChatId } = require('./location-cache');
+      await redis.del(`loc:${hashChatId(chatId)}`).catch(() => {});
+      await bot.sendMessage(chatId, "📍 Tap to share your current location.", LOCATION_REQUEST_KEYBOARD);
+      return;
+    }
     if (data === 'transport:train') {
       await runTransportTrain(chatId);
       return;
@@ -1057,26 +1103,13 @@ bot.on('callback_query', async (q) => {
       await runTransportDrive(chatId);
       return;
     }
-    // v0.33.0 hawker sub-menu dispatch:
-    //   hawker:menu         → top-level menu
-    //   hawker:nearest      → nearest 3 from saved location
-    //   hawker:zones        → render zone-picker keyboard
-    //   hawker:zone:<Zone>  → centres in that zone
-    //   hawker:cleaning     → NEA cleaning-schedule disclaimer + link
-    //   hawker:crowd        → honest "no live API; use carpark proxy"
+    // v0.52.0 hawker sub-menu dispatch (simplified):
+    //   hawker:menu               → top-level menu (Cleaning + Browse)
+    //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
+    //   hawker:list:menu          → 5-region picker (Browse)
+    //   hawker:list:region:<R>    → alphabetical list for that region
     if (data === 'hawker:menu') { await sendHawkerMenu(chatId); return; }
-    if (data === 'hawker:nearest') { await runHawkerNearest(chatId); return; }
-    if (data === 'hawker:zones') { await sendHawkerZonesMenu(chatId); return; }
-    if (data.startsWith('hawker:zone:')) {
-      const z = data.slice('hawker:zone:'.length);
-      await runHawkerZone(chatId, z);
-      return;
-    }
     if (data === 'hawker:cleaning') { await runHawkerCleaning(chatId); return; }
-    if (data === 'hawker:cleaning-live') { await runHawkerClosureLive(chatId); return; }
-    if (data === 'hawker:cleaning-refresh') { await runHawkerClosureLiveRefresh(chatId); return; }
-    if (data === 'hawker:crowd') { await runHawkerCrowd(chatId); return; }
-    // v0.50.0: browse the canonical 122-centre vault by region.
     if (data === 'hawker:list:menu') { await runHawkerListMenu(chatId); return; }
     if (data.startsWith('hawker:list:region:')) {
       const region = data.slice('hawker:list:region:'.length);
@@ -1306,8 +1339,6 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'transport': await sendTransportMenu(chatId); return true;
     case 'hawker':    await sendHawkerMenu(chatId); return true;
     case 'recognised': await runRecognisedCommand(chatId); return true;
-    case 'heritage-food':
-    case 'heritage_food': await runHeritageFoodCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'surprise':  await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
@@ -1350,7 +1381,32 @@ async function runWeatherCommand(chatId) {
 // wants the dense view, but the user-facing entry point is sendTransportMenu.
 
 async function sendTransportMenu(chatId) {
-  await safeSend(chatId, '🚉 Singapore transport — pick a mode', {
+  // v0.52.0: preload current location, refresh if stale (>5 min) or
+  // missing, and display the human-readable address in the header.
+  // Per Human Lead: "just refresh current location as preload and then
+  // state the current location in the menu of /transport".
+  const STALE_MS = 5 * 60 * 1000;
+  const cached = await getUserLocation(redis, chatId);
+  const stale = !cached || !cached.setAt || (Date.now() - cached.setAt > STALE_MS);
+  if (stale) {
+    await bot.sendMessage(
+      chatId,
+      "📍 Tap to share your location so /transport shows your current locale.",
+      LOCATION_REQUEST_KEYBOARD
+    );
+    return;
+  }
+  let header = '🚉 *Singapore transport*';
+  try {
+    const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
+    if (geo?.formatted) {
+      header += `\n📍 Current: ${geo.formatted}`;
+    }
+  } catch (err) {
+    console.warn('[Transport] reverse-geocode failed:', err.message);
+  }
+  await safeSend(chatId, header, {
+    parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
         [
@@ -1360,6 +1416,9 @@ async function sendTransportMenu(chatId) {
         [
           { text: '🚖 Taxi/PHD',  callback_data: 'transport:taxi' },
           { text: '🚗 Drive',     callback_data: 'transport:drive' }
+        ],
+        [
+          { text: '📍 Refresh location', callback_data: 'transport:refresh-loc' }
         ]
       ]
     }
@@ -1708,137 +1767,21 @@ async function runTransportDrive(chatId) {
 
 // v0.33.0: /hawker sub-menu + handlers.
 async function sendHawkerMenu(chatId) {
-  const hawker = require('./hawker');
-  const total = hawker.totalCount();
-  await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, dataset ${hawker.datasetVersion()})`, {
+  // v0.52.0: simplified top-level menu per Human Lead.
+  // Removed: Nearest 3, Crowd (each was a single-purpose flow that
+  // duplicated /eat or had no live data source). "By zone" is now
+  // "Browse" and reuses the v0.50.0 canonical 122-centre region picker
+  // (no separate zone vault needed).
+  const vault = require('./hawker-vault');
+  const total = vault.getAllCentres().length;
+  await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, snapshot 25 Jul 2025)`, {
     reply_markup: {
       inline_keyboard: [
-        [
-          { text: '🚏 Nearest 3',     callback_data: 'hawker:nearest' },
-          { text: '🗺 By zone',       callback_data: 'hawker:zones' }
-        ],
-        [
-          { text: '🧹 Cleaning info', callback_data: 'hawker:cleaning' },
-          { text: '👥 Crowd',         callback_data: 'hawker:crowd' }
-        ]
+        [{ text: '🧹 Cleaning info', callback_data: 'hawker:cleaning' }],
+        [{ text: '🗺 Browse',         callback_data: 'hawker:list:menu' }]
       ]
     }
   });
-}
-
-async function sendHawkerZonesMenu(chatId) {
-  const hawker = require('./hawker');
-  const zones = hawker.allZones();
-  const buttons = zones.map((z) => {
-    const n = hawker.centresInZone(z).length;
-    return { text: `${z} (${n})`, callback_data: `hawker:zone:${z}` };
-  });
-  // Two columns when possible.
-  const rows = [];
-  for (let i = 0; i < buttons.length; i += 2) rows.push(buttons.slice(i, i + 2));
-  rows.push([{ text: '⬅️ Back', callback_data: 'hawker:menu' }]);
-  await safeSend(chatId, '🗺 Pick a zone — Singapore hawker centres', { reply_markup: { inline_keyboard: rows } });
-}
-
-// v0.38.0: per-centre enrichment helper. Returns 5 carparks within
-// reach of the centre's lat/lng with available lots. Skips when LTA
-// key not set; never throws (returns empty array on failure).
-async function carparksNearCentre(centre, count = 5) {
-  if (!process.env.LTA_ACCOUNT_KEY) return [];
-  try {
-    const carpark = require('./carpark');
-    const list = await carpark.nearest(centre.lat, centre.lng, count);
-    return Array.isArray(list) ? list : [];
-  } catch (err) {
-    console.warn(`[Hawker] carparks near "${centre.name}" failed:`, err.message);
-    return [];
-  }
-}
-
-function formatCentreBlock(c, carparks) {
-  const lines = [];
-  lines.push(`*${c.name}* — ${c.distanceM} m (${c.zone})`);
-  lines.push(c.address);
-  if (carparks?.length) {
-    lines.push('🅿️ Nearest carparks (lots available):');
-    for (const cp of carparks) {
-      lines.push(`  · ${cp.development} — ${cp.availableLots} lots — ${cp.distanceM} m`);
-    }
-  }
-  return lines.join('\n');
-}
-
-async function runHawkerNearest(chatId) {
-  try {
-    const hawker = require('./hawker');
-    const cached = await getUserLocation(redis, chatId);
-    const back = [{ text: '⬅️ Back', callback_data: 'hawker:menu' }];
-    if (!cached) {
-      await safeSend(chatId,
-        '🚏 Share your location once via the menu (📍) and Gia will list the nearest hawker centres.',
-        { reply_markup: { inline_keyboard: [back] } });
-      return;
-    }
-    const nearest = hawker.nearestCentres(cached.lat, cached.lng, 3);
-    // v0.38.0: parallel-fetch 5 carparks per centre (3 × 5 = 15 LTA calls,
-    // fan-out via Promise.allSettled keeps total wall time ~3s).
-    const carparkLists = await Promise.all(nearest.map((c) => carparksNearCentre(c, 5)));
-    const blocks = nearest.map((c, i) => formatCentreBlock(c, carparkLists[i]));
-    const text = ['🚏 *Nearest 3 hawker centres*', '', blocks.join('\n\n'), '',
-      `_Cleaning schedules vary; tap below to view NEA closures or visit ${hawker.NEA_SCHEDULE_URL}._`].join('\n');
-    const mapButtons = nearest.map((c) => [{ text: `🗺 ${c.name.slice(0, 30)}${c.name.length > 30 ? '…' : ''}`, url: hawker.googleMapsUrl(c) }]);
-    const neaButton = [{ text: '🧹 NEA closures (TMA)', web_app: { url: `https://${webhookDomain}/app/hawker` } }];
-    await safeSend(chatId, text, {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [...mapButtons, neaButton, back] }
-    });
-  } catch (err) {
-    console.error('[Error] hawker nearest failed:', err.message);
-    await safeSend(chatId, "Sorry, the hawker lookup failed.");
-  }
-}
-
-async function runHawkerZone(chatId, zone) {
-  try {
-    const hawker = require('./hawker');
-    if (!hawker.allZones().some((z) => z.toLowerCase() === String(zone).toLowerCase())) {
-      await safeSend(chatId, `Unknown zone "${zone}". Try Central / South / East / West / North.`);
-      return;
-    }
-    const cached = await getUserLocation(redis, chatId);
-    const back = [{ text: '⬅️ Back to zones', callback_data: 'hawker:zones' }];
-    if (!cached) {
-      await safeSend(chatId,
-        `🗺 Share your location once via the menu (📍) and Gia will rank the nearest 3 ${zone} hawker centres for you.`,
-        { reply_markup: { inline_keyboard: [back] } }
-      );
-      return;
-    }
-    const zoneCentres = hawker.centresInZone(zone);
-    if (!zoneCentres.length) {
-      await safeSend(chatId, `No centres curated for ${zone} yet.`, {
-        reply_markup: { inline_keyboard: [back] }
-      });
-      return;
-    }
-    // v0.38.0: rank by haversine from user, take top 3, enrich.
-    const ranked = zoneCentres
-      .map((c) => ({ ...c, distanceM: hawker.haversineMeters(cached.lat, cached.lng, c.lat, c.lng) }))
-      .sort((a, b) => a.distanceM - b.distanceM)
-      .slice(0, 3);
-    const carparkLists = await Promise.all(ranked.map((c) => carparksNearCentre(c, 5)));
-    const blocks = ranked.map((c, i) => formatCentreBlock(c, carparkLists[i]));
-    const text = [`🗺 *${zone} — nearest 3 hawker centres*`, '', blocks.join('\n\n'), '',
-      `_${zoneCentres.length} centres total in ${zone}; verify cleaning at ${hawker.NEA_SCHEDULE_URL}._`].join('\n');
-    const mapButtons = ranked.map((c) => [{ text: `🗺 ${c.name.slice(0, 30)}${c.name.length > 30 ? '…' : ''}`, url: hawker.googleMapsUrl(c) }]);
-    await safeSend(chatId, text, {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [...mapButtons, back] }
-    });
-  } catch (err) {
-    console.error('[Error] hawker zone failed:', err.message);
-    await safeSend(chatId, "Sorry, the zone lookup failed.");
-  }
 }
 
 async function runHawkerCleaning(chatId) {
@@ -1874,13 +1817,12 @@ async function runHawkerCleaning(chatId) {
     '',
     `_Curated dataset: ${data.version}_`
   ].join('\n');
+  // v0.52.0: simplified per Human Lead — dropped meaningless "NEA hawker
+  // mgmt" external link + "Live closure list (web search)" (both removed
+  // since the deterministic NEA web_fetch path now populates the TMA).
+  // Renamed "Open closures TMA" → "Hawker Centre Status".
   const buttons = [
-    [{ text: '🧹 Open closures TMA', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
-    // v0.48.0: live web-search-driven closure list (Claude + Anthropic web_search tool).
-    [{ text: '🤖 Live closure list (web search)', callback_data: 'hawker:cleaning-live' }],
-    // v0.50.0: browse the canonical 122-centre vault by region.
-    [{ text: '📋 Browse all centres by region', callback_data: 'hawker:list:menu' }],
-    [{ text: '📅 NEA hawker mgmt', url: hawker.NEA_SCHEDULE_URL }],
+    [{ text: '🧹 Hawker Centre Status', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
     [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
   ];
   await safeSend(chatId, text, {
@@ -1926,181 +1868,12 @@ async function runHawkerListRegion(chatId, region) {
 // real dates from official source), fall back to Claude + web_search
 // when the scrape returns 0 / errors. The user reported v0.38.0's
 // /announcements URL was wrong; v0.48.1 fixed it to /overview.
-async function runHawkerClosureLive(chatId) {
-  const buttonRow = [
-    [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/overview' }],
-    [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
-    [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
-  ];
-
-  // 1. Try NEA scrape — fast, free, deterministic.
-  try {
-    const neaScrape = require('./nea-scrape');
-    const structured = await neaScrape.getStructuredClosures(redis);
-    if (structured.ok && structured.all.length) {
-      const blocks = neaScrape.formatClosureBlocks(structured.all.slice(0, 30));
-      const ageHours = Math.max(0, Math.round((Date.now() - structured.fetchedAt) / 3600000));
-      const stamp = structured.cached ? ` · cached ${ageHours}h ago` : ' · just fetched';
-      const text = `${structured.summary}${stamp}\n\n${blocks}\n\n_Source: NEA hawker management portal · scraped HTML._`;
-      await safeSend(chatId, text, {
-        parse_mode: 'Markdown',
-        reply_markup: { inline_keyboard: buttonRow }
-      });
-      return;
-    }
-    console.warn('[HawkerClosureLive] scrape returned empty or errored:', structured.error || 'no rows');
-  } catch (err) {
-    console.warn('[HawkerClosureLive] scrape threw — falling back to web_search:', err.message);
-  }
-
-  // 2. Fall back to Claude + web_search.
-  const llm = require('./llm-client');
-  const cacheKey = 'hawker:closures-live';
-  try {
-    if (redis.isOpen) {
-      const cached = await redis.get(cacheKey).catch(() => null);
-      if (cached) {
-        await safeSend(chatId, cached, {
-          parse_mode: 'Markdown',
-          reply_markup: { inline_keyboard: buttonRow }
-        });
-        return;
-      }
-    }
-  } catch (err) {
-    console.warn('[HawkerClosureLive] cache read failed:', err.message);
-  }
-  await safeSend(chatId, '⏳ NEA scrape returned nothing — falling back to web search (~10–20 s)…');
-  const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const prompt = `Use web_search to find Singapore hawker centre closures.
-
-PRIMARY SOURCE — search this URL first and extract the closure table:
-https://www.nea.gov.sg/our-services/hawker-management/overview
-
-The NEA overview page contains a quarterly closure schedule table with columns:
-Hawker Centre · Closure Date · Reason for Closure · Remarks
-
-If the NEA page is not directly fetchable, search for: "NEA hawker centre closure schedule ${todayISO.slice(0, 4)}" or "Singapore hawker centre cleaning schedule" — town council websites and news aggregators republish this list.
-
-Today's date is ${todayISO} (Singapore time, SGT).
-
-For EACH closure, provide ALL six fields:
-1. Hawker Centre Name (exact, as on NEA page)
-2. Closure Type — one of: Cleaning / R&R / Upgrading
-   • "Cleaning" when Reason = Cleaning
-   • "R&R" when Reason or Remarks contain "Repairs & Redecoration", "Repairs", "Redecoration", "Renovation"
-   • "Upgrading" when Reason or Remarks contain "Upgrading" or "Upgrade"
-3. Closure Start Date (YYYY-MM-DD)
-4. Closure End Date (YYYY-MM-DD) — same as start for single-day closures
-5. Duration in days (inclusive)
-6. Google Maps URL formatted EXACTLY as: https://www.google.com/maps/search/?api=1&query=<URL-encoded hawker centre name + " Singapore">
-
-SORTING (priority order, MUST follow):
-1. Ongoing closures (today is between start and end) — sort by nearest end date first
-2. Upcoming closures — sort by nearest start date first
-3. Recently ended closures (within last 30 days) — sort by most recent end date first
-4. Drop closures that ended more than 30 days ago.
-
-RULES:
-- Singapore only. No duplicates.
-- If you find ZERO closures, say so explicitly with the heading "🧹 0 closures found" — do NOT return an empty/blank message.
-- Aim to return at least 5 entries — the NEA list typically has 20–60 active closures across the quarter.
-- Skip any centre whose dates you cannot verify rather than guess.
-
-OUTPUT FORMAT — labeled blocks, one per closure, blank line between. Use this exact template:
-
-🧹 N closures found · M ongoing · K upcoming · J recently ended
-
-1. <name>
-   Type: <Cleaning|R&R|Upgrading>
-   Dates: <YYYY-MM-DD> → <YYYY-MM-DD> (<N>d)
-   📍 <maps url>
-
-2. <name>
-   ...
-
-Source: NEA hawker management portal · https://www.nea.gov.sg/our-services/hawker-management/overview
-
-Do NOT use markdown tables (they wrap badly on mobile). Plain text + emoji only.`;
-  try {
-    const result = await llm.generate({
-      prompt,
-      model: llm.SONNET_MODEL,
-      webSearch: true,
-      maxTokens: 4096
-    });
-    const body = result.response.text() || '(no closures returned)';
-    const text = `${body}\n\n_Live web search · cached 12 h · verify with NEA portal for binding dates._`;
-    try {
-      if (redis.isOpen) await redis.set(cacheKey, text, { EX: 12 * 60 * 60 }).catch(() => {});
-    } catch (err) {
-      console.warn('[HawkerClosureLive] cache write failed:', err.message);
-    }
-    await safeSend(chatId, text, {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: buttonRow }
-    });
-  } catch (err) {
-    console.error('[Error] runHawkerClosureLive failed:', err.message);
-    await safeSend(chatId, `Sorry, the live closure search hit an error: ${err.message?.slice(0, 200)}.`);
-  }
-}
-
-async function runHawkerClosureLiveRefresh(chatId) {
-  // v0.48.1: clear BOTH the web_search fallback cache AND the NEA
-  // scrape cache so a force-refresh hits live source.
-  try {
-    if (redis.isOpen) {
-      await redis.del('hawker:closures-live').catch(() => {});
-      const neaScrape = require('./nea-scrape');
-      await redis.del(neaScrape.SCRAPE_CACHE_KEY).catch(() => {});
-    }
-  } catch {}
-  return runHawkerClosureLive(chatId);
-}
-
-async function runHawkerCrowd(chatId) {
-  // Honest framing — no public live-crowd API for SG hawker centres.
-  // Offer the nearest carpark availability as a footfall proxy.
-  try {
-    const cached = await getUserLocation(redis, chatId);
-    const back = [{ text: '⬅️ Back', callback_data: 'hawker:menu' }];
-    const lines = ['👥 *Hawker crowd*', ''];
-    lines.push('NEA does not expose a live hawker-centre crowd API. Gia is honest about this.');
-    lines.push('');
-    lines.push('Closest available proxy: nearby carpark availability via LTA DataMall. When carparks are >90% full at lunch/dinner peak, the centre next door is usually slammed too.');
-    if (cached && process.env.LTA_ACCOUNT_KEY) {
-      try {
-        const carpark = require('./carpark');
-        const list = await carpark.nearest(cached.lat, cached.lng, 5);
-        if (list.length) {
-          lines.push('', '🅿️ Carparks within reach (avail = lots open):');
-          list.forEach((c) => {
-            lines.push(`· ${c.development} — ${c.availableLots} lots — ${c.distanceM} m`);
-          });
-        }
-      } catch (err) {
-        console.error('[Hawker] crowd proxy carpark failed:', err.message);
-      }
-    } else if (!cached) {
-      lines.push('', 'Share your location once and Gia will surface nearby carpark availability as a proxy.');
-    }
-    await safeSend(chatId, lines.join('\n'), {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [back] }
-    });
-  } catch (err) {
-    console.error('[Error] hawker crowd failed:', err.message);
-    await safeSend(chatId, "Sorry, the crowd view failed.");
-  }
-}
 
 // v0.35.0: /recognised + /heritage-food handlers. Both consume the
 // v0.34 recog:venue:* curated table (populated via the admin
 // /admin/seed-recognised + /admin/promote-recognised flow).
 
 const RECOGNISED_RADIUS_M = 5000;
-const HERITAGE_RADIUS_M = 2000;
 const RECOG_TOPN = 5;
 
 function summariseAwards(awards) {
@@ -2124,48 +1897,12 @@ function summariseAwards(awards) {
   return parts.join(' · ');
 }
 
-function isHeritageSignal(entry) {
-  const tags = Array.isArray(entry.tags) ? entry.tags : [];
-  if (tags.includes('multi-gen') || tags.includes('heritage') || tags.includes('traditional')) return true;
-  const awards = Array.isArray(entry.awards) ? entry.awards : [];
-  if (awards.some((a) => a.category === 'unesco-ich')) return true;
-  if (awards.some((a) => typeof a.notes === 'string' && /heritag|traditional|multi[- ]?gener|legacy|founded.*19[0-9]{2}/i.test(a.notes))) return true;
-  return false;
-}
-
-// v0.37.0: shorthand → canonical category map for /recognised <arg>.
-// Accepts michelin, bib, asia, world, chef, unesco — and the full
-// canonical names too.
-const RECOGNISED_FILTER_ALIASES = {
-  'michelin':              'michelin-star',
-  'star':                  'michelin-star',
-  'michelin-star':         'michelin-star',
-  'bib':                   'bib-gourmand',
-  'bib-gourmand':          'bib-gourmand',
-  'gourmand':              'bib-gourmand',
-  'asia':                  'asia-50-best',
-  'asia-50-best':          'asia-50-best',
-  '50best':                'asia-50-best',
-  'world':                 'world-culinary-awards',
-  'wca':                   'world-culinary-awards',
-  'world-culinary-awards': 'world-culinary-awards',
-  'chef':                  'best-chef-awards',
-  'best-chef':             'best-chef-awards',
-  'best-chef-awards':      'best-chef-awards',
-  'unesco':                'unesco-ich',
-  'ich':                   'unesco-ich',
-  'unesco-ich':            'unesco-ich',
-  'hawker':                'unesco-ich',
-  'selected':              'michelin-selected',
-  'michelin-selected':     'michelin-selected'
-};
-
-function venueMatchesCategory(entry, category) {
-  if (!category) return true;
-  return Array.isArray(entry.awards) && entry.awards.some((a) => a?.category === category);
-}
-
 async function runRecognisedCommand(chatId, filterArg = null) {
+  // v0.52.0: rewrite — drop the seed-based recognised-store, scrape
+  // Michelin Guide SG live (24h cache). Filter args still accepted:
+  //   michelin / star → 1★+ only
+  //   bib             → Bib Gourmand only
+  //   (no arg)        → both, all stars
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
@@ -2176,73 +1913,90 @@ async function runRecognisedCommand(chatId, filterArg = null) {
       await bot.sendMessage(chatId, "Where are you? Tap to share your location for /recognised.", LOCATION_REQUEST_KEYBOARD);
       return;
     }
-    // v0.37.0: resolve filter argument.
-    let categoryFilter = null;
+    let sourceFilter = null; // 'starred' | 'bib' | null (both)
     if (filterArg) {
-      const normalised = String(filterArg).toLowerCase().trim();
-      categoryFilter = RECOGNISED_FILTER_ALIASES[normalised] || null;
-      if (!categoryFilter) {
-        const allowed = [...new Set(Object.values(RECOGNISED_FILTER_ALIASES))].join(', ');
+      const arg = String(filterArg).toLowerCase().trim();
+      if (['michelin', 'star', 'starred', 'michelin-star'].includes(arg)) sourceFilter = 'starred';
+      else if (['bib', 'bib-gourmand', 'bib_gourmand'].includes(arg)) sourceFilter = 'bib';
+      else {
         await safeSend(chatId,
-          `Unknown filter \`${filterArg}\`. Valid: \`michelin\`, \`bib\`, \`asia\`, \`world\`, \`chef\`, \`unesco\` (or full names: ${allowed}).`,
+          `Unknown filter \`${filterArg}\`. Valid: \`michelin\` | \`bib\` (or no arg for both).`,
           { parse_mode: 'Markdown' }
         );
         return;
       }
     }
     await setProcessing(redis, chatId);
-    const recogStore = require('./recognised-store');
-    const counts = await recogStore.counts(redis);
-    if (!counts.live) {
+    await safeSend(chatId, '🏆 Pulling Michelin Guide SG…');
+    const michelin = require('./michelin-scraper');
+    const result = await michelin.getMichelinSG(redis);
+    if (!result.ok || !result.venues?.length) {
       await safeSend(chatId,
-        "🏆 *Recognised venues — none in the live table yet.*\n\n" +
-        "An admin needs to run `/admin/seed-recognised` then promote entries via `/admin/promote-recognised`. " +
-        "After that, this command will return the nearest 5 award-winning venues within 5 km.",
-        { parse_mode: 'Markdown' }
+        `🏆 Michelin SG scrape returned nothing (${result.error?.slice(0, 100) || 'empty'}). ` +
+        `Selectors may have drifted; an admin needs to refresh.`
       );
       return;
     }
-    // Fetch wider candidate pool when filtering so we don't dead-end on
-    // a 5-result query that all happen to be in the wrong category.
-    const fetchN = categoryFilter ? 25 : RECOG_TOPN;
-    const candidates = await recogStore.nearestLive(redis, cached.lat, cached.lng, fetchN, RECOGNISED_RADIUS_M);
-    const nearest = (categoryFilter
-      ? candidates.filter((v) => venueMatchesCategory(v, categoryFilter))
-      : candidates).slice(0, RECOG_TOPN);
-    if (!nearest.length) {
-      const filterLabel = categoryFilter ? ` filtered to *${categoryFilter}*` : '';
-      await safeSend(chatId,
-        `🏆 No award-winning venues${filterLabel} within ${RECOGNISED_RADIUS_M / 1000} km of your saved location. ` +
-        `(${counts.live} live entries island-wide.) Try /cuisine for unfiltered picks or move closer to a hub.`,
-        { parse_mode: 'Markdown' }
-      );
+    let venues = result.venues;
+    if (sourceFilter) venues = venues.filter((v) => v.source === sourceFilter);
+    // Resolve coords + walk time via Google Places (one searchText per venue,
+    // capped to top 25 by name-string proximity to user location).
+    // We use the existing pipeline.discover with cuisines=[name] as a single-shot
+    // search; if too expensive we'll switch to a single batch /api/places lookup.
+    const pipeline = require('./pipeline');
+    const enriched = [];
+    for (const v of venues.slice(0, 25)) {
+      try {
+        const cand = await pipeline.discover({
+          lat: cached.lat, lng: cached.lng, radius: 50000,
+          cuisines: [v.name], maxResults: 1
+        });
+        const top = Array.isArray(cand) ? cand[0] : null;
+        if (top && Number.isFinite(top.lat) && Number.isFinite(top.lng)) {
+          enriched.push({ ...v, ...top, awards: [michelin.venueAsAward(v)] });
+        }
+      } catch (err) {
+        console.warn('[Recognised] place lookup failed for', v.name, err.message);
+      }
+    }
+    if (!enriched.length) {
+      await safeSend(chatId, '🏆 Could not resolve any Michelin SG venues to map locations. Try again later.');
       return;
     }
-    // v0.37.0: travel-time enrichment via Routes Matrix (~$0.015/call).
-    // Adds walkMinutes/walkSeconds/walkMeters to each entry. Falls back
-    // to haversine-only display if Routes Matrix fails.
-    let enriched = nearest;
+    // Haversine sort (closest first), keep top 5.
+    function haversine(a, b) {
+      const R = 6371000, toRad = (d) => d * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+      const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+      return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+    }
+    enriched.sort((a, b) => haversine(cached, a) - haversine(cached, b));
+    const top5 = enriched.slice(0, RECOG_TOPN).map((v) => ({ ...v, distanceM: haversine(cached, v) }));
+    // Walking-time enrichment (Routes Matrix, ~$0.015/call).
+    let final = top5;
     try {
       const { rankByWalkingTime } = require('./vibe-suggest');
-      enriched = await rankByWalkingTime(cached.lat, cached.lng, nearest);
+      final = await rankByWalkingTime(cached.lat, cached.lng, top5);
     } catch (err) {
-      console.warn('[Recognised] rankByWalkingTime failed, using haversine only:', err.message);
+      console.warn('[Recognised] rankByWalkingTime failed:', err.message);
     }
-    const filterLabel = categoryFilter ? ` (${categoryFilter})` : '';
-    const lines = [`🏆 *Nearest ${enriched.length} recognised venue${enriched.length === 1 ? '' : 's'}${filterLabel}*`];
-    for (const v of enriched) {
-      const awardLine = summariseAwards(v.awards);
-      const walkLine = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
+    const filterLabel = sourceFilter ? ` (${sourceFilter === 'starred' ? 'Michelin Star' : 'Bib Gourmand'})` : '';
+    const stamp = result.cached ? '_(cached ≤24 h)_' : '_(just fetched)_';
+    const lines = [`🏆 *Nearest ${final.length} Michelin Guide SG venue${final.length === 1 ? '' : 's'}${filterLabel}*`, stamp];
+    for (const v of final) {
+      const award = summariseAwards(v.awards);
+      const walk = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
       lines.push(
         '',
-        `*${v.name}* — ${v.distanceM} m${walkLine}`,
-        v.address || '',
-        awardLine ? `🏆 ${awardLine}` : ''
+        `*${v.name}* — ${v.distanceM} m${walk}`,
+        v.area || v.location || '',
+        award ? `🏆 ${award}` : ''
       );
     }
-    const buttons = nearest.slice(0, 5).map((v) => [{
+    const { googleMapsUrl } = require('./maps-url');
+    const buttons = final.map((v) => [{
       text: `📍 ${v.name.slice(0, 30)}${v.name.length > 30 ? '…' : ''}`,
-      url: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
+      url: googleMapsUrl(v) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + ' Singapore')}`
     }]);
     await safeSend(chatId, lines.filter(Boolean).join('\n'), {
       parse_mode: 'Markdown',
@@ -2251,81 +2005,6 @@ async function runRecognisedCommand(chatId, filterArg = null) {
   } catch (err) {
     console.error('[Error] /recognised failed:', err.message);
     await safeSend(chatId, "Sorry, /recognised hit an error. Try again in a moment.");
-  } finally {
-    await clearProcessing(redis, chatId).catch(() => {});
-  }
-}
-
-async function runHeritageFoodCommand(chatId) {
-  try {
-    if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
-      return;
-    }
-    const cached = await getUserLocation(redis, chatId);
-    if (!cached) {
-      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /heritage-food.", LOCATION_REQUEST_KEYBOARD);
-      return;
-    }
-    await setProcessing(redis, chatId);
-    const recogStore = require('./recognised-store');
-    const counts = await recogStore.counts(redis);
-    if (!counts.live) {
-      await safeSend(chatId,
-        "🏛 *Heritage food — none in the live table yet.*\n\n" +
-        "An admin needs to run `/admin/seed-recognised` then promote heritage-tagged entries. " +
-        "After that, this command will surface multi-generational venues within 2 km.",
-        { parse_mode: 'Markdown' }
-      );
-      return;
-    }
-    await safeSend(chatId, '🏛 Hunting heritage venues within 2 km…');
-    const nearby = await recogStore.nearestLive(redis, cached.lat, cached.lng, 25, HERITAGE_RADIUS_M);
-    const heritage = nearby.filter(isHeritageSignal).slice(0, 5);
-    if (!heritage.length) {
-      await safeSend(chatId,
-        `🏛 No heritage-tagged venues within ${HERITAGE_RADIUS_M / 1000} km. ` +
-        `(${nearby.length} recognised entries in range, none flagged heritage.) Try /recognised for the full set, or /hawker for traditional hawker centres.`
-      );
-      return;
-    }
-    const heritageSig = require('./heritage-significance');
-    // v0.37.0: travel-time enrichment + heritage-significance sigs in
-    // parallel. ~$0.015 Routes Matrix + 5 × Gemini Flash calls; both
-    // hit caches on repeat queries.
-    let enriched = heritage;
-    try {
-      const { rankByWalkingTime } = require('./vibe-suggest');
-      enriched = await rankByWalkingTime(cached.lat, cached.lng, heritage);
-    } catch (err) {
-      console.warn('[Heritage] rankByWalkingTime failed, using haversine only:', err.message);
-    }
-    const lines = [`🏛 *Heritage food within ${HERITAGE_RADIUS_M / 1000} km*`];
-    const sigs = await Promise.allSettled(
-      enriched.map((v) => heritageSig.getOrGenerate(redis, v))
-    );
-    enriched.forEach((v, i) => {
-      const sig = sigs[i].status === 'fulfilled' ? sigs[i].value : null;
-      const walkLine = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
-      lines.push(
-        '',
-        `*${v.name}* — ${v.distanceM} m${walkLine}`,
-        v.address || '',
-        summariseAwards(v.awards) ? `🏆 ${summariseAwards(v.awards)}` : '',
-        sig ? `🏛 ${sig}` : ''
-      );
-    });
-    const buttons = heritage.slice(0, 5).map((v) => [{
-      text: `📍 ${v.name.slice(0, 30)}${v.name.length > 30 ? '…' : ''}`,
-      url: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(v.placeId)}`
-    }]);
-    await safeSend(chatId, lines.filter(Boolean).join('\n'), {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: buttons }
-    });
-  } catch (err) {
-    console.error('[Error] /heritage-food failed:', err.message);
-    await safeSend(chatId, "Sorry, /heritage-food hit an error. Try again in a moment.");
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
   }
@@ -2839,7 +2518,6 @@ async function registerCommandsMenu() {
       { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
       { command: 'hawker',    description: 'Hawker centres — nearest, by zone, cleaning info' },
       { command: 'recognised', description: 'Nearest 5 award-winning venues (Michelin / Bib / 50 Best)' },
-      { command: 'heritage_food', description: 'Heritage food within 2 km — multi-gen, traditional' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' }
     ]);
     if (useWebhook) {
@@ -3363,9 +3041,18 @@ async function cacheBotUsername() {
     // and the source URL for "view on NEA" deep-link.
     app.get('/api/hawker/closures', requireInitData, async (_req, res) => {
       try {
+        // v0.52.0: LLM-driven fetcher is the primary path (cheerio
+        // scrape returns 0 because NEA's tabbed/iframe structure isn't
+        // poolable). Falls back to the legacy scrape only if the LLM
+        // path errors entirely (Anthropic outage); the scrape result
+        // will still be empty but lets the TMA render its diagnostic
+        // banner instead of 500ing.
+        const neaFetch = require('./nea-fetch');
+        const llmResult = await neaFetch.getCachedOrFetch(redis);
+        if (llmResult.ok) return res.json(llmResult);
         const neaScrape = require('./nea-scrape');
-        const result = await neaScrape.getCachedOrFetch(redis);
-        res.json(result);
+        const scrapeResult = await neaScrape.getCachedOrFetch(redis);
+        return res.json({ ...scrapeResult, llmFallbackAttempted: true, llmError: llmResult.error });
       } catch (err) {
         console.error('[Error] /api/hawker/closures failed:', err.message);
         res.status(500).json({
