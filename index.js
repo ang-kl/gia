@@ -2945,7 +2945,20 @@ async function cacheBotUsername() {
     // Maps JS to render a default-styled map (no vector mapType) — not
     // a fatal error but worth flagging so users know to register one
     // for branded styling. See setup-cloud-map-id.md for steps.
-    app.get('/maps-key', requireInitData, (_req, res) => {
+    // v0.46.1: dropped `requireInitData` gate. The Google Maps API key
+    // returned here is already domain-restricted in Google Cloud
+    // Console (locked to gia4lunch-production.up.railway.app/*) — it's
+    // effectively public on every TMA page load. Auth-gating this
+    // endpoint added no real security but DID break the v0.32.0 "View
+    // all picks on map" hash-link flow when users opened it via
+    // `target="_blank"` (no Telegram WebApp context → empty initData →
+    // 401 → "Could not authenticate with Gia"). The hash-venues code
+    // path needs no server-side auth (all data is in the URL fragment),
+    // only the Google Maps key — which we now serve openly.
+    //
+    // /api/sanctuary (the personal "live picks" feed) and other
+    // user-data endpoints REMAIN auth-gated.
+    app.get('/maps-key', (_req, res) => {
       const customMapId = !!process.env.MAP_ID;
       res.json({
         key: process.env.GOOGLE_MAPS_API_KEY ?? '',
