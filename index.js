@@ -1059,6 +1059,8 @@ bot.on('callback_query', async (q) => {
       return;
     }
     if (data === 'hawker:cleaning') { await runHawkerCleaning(chatId); return; }
+    if (data === 'hawker:cleaning-live') { await runHawkerClosureLive(chatId); return; }
+    if (data === 'hawker:cleaning-refresh') { await runHawkerClosureLiveRefresh(chatId); return; }
     if (data === 'hawker:crowd') { await runHawkerCrowd(chatId); return; }
     // v0.31.0 Buddy Level 2 callback dispatch.
     if (data.startsWith('buddy:')) {
@@ -1813,6 +1815,8 @@ async function runHawkerCleaning(chatId) {
   ].join('\n');
   const buttons = [
     [{ text: '🧹 Open closures TMA', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
+    // v0.48.0: live web-search-driven closure list (Claude + Anthropic web_search tool).
+    [{ text: '🤖 Live closure list (web search)', callback_data: 'hawker:cleaning-live' }],
     [{ text: '📅 NEA hawker mgmt', url: hawker.NEA_SCHEDULE_URL }],
     [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
   ];
@@ -1820,6 +1824,94 @@ async function runHawkerCleaning(chatId) {
     parse_mode: 'Markdown',
     reply_markup: { inline_keyboard: buttons }
   });
+}
+
+// v0.48.0: live closure list via Claude + web_search tool. Renders the
+// user-supplied prompt template; results cached 12 h in Redis (closure
+// schedules don't change hourly). Honest disclaimer: dates depend on
+// public web data — verify via NEA portal before binding decisions.
+async function runHawkerClosureLive(chatId) {
+  const llm = require('./llm-client');
+  const cacheKey = 'hawker:closures-live';
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(cacheKey).catch(() => null);
+      if (cached) {
+        await safeSend(chatId, cached, {
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [
+            [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/hawker-centre-management/list-of-hawker-centres-closure-and-cleaning-schedules' }],
+            [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
+            [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
+          ] }
+        });
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('[HawkerClosureLive] cache read failed:', err.message);
+  }
+  await safeSend(chatId, '⏳ Fetching live closure list via web search (~10–20 s)…');
+  const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const prompt = `List all Singapore hawker centres that are closed for cleaning, R&R (Repairs & Redecoration), or Upgrading.
+
+Today's date is ${todayISO} (Singapore time).
+
+For each closure provide:
+- Hawker Centre Name
+- Closure Type (Cleaning / R&R / Upgrading)
+- Closure Start Date (YYYY-MM-DD)
+- Closure End Date (YYYY-MM-DD)
+- Duration in days (omit if dates incomplete)
+- Google Maps URL formatted as: https://www.google.com/maps/search/?api=1&query=<URL-encoded hawker centre name + Singapore>
+
+Sorting (priority order, MUST follow):
+1. Ongoing closures (today is between start and end) — sort by nearest end date first
+2. Upcoming closures — sort by nearest start date first
+3. Recently ended closures (within last 30 days) — sort by most recent end date first
+
+Rules:
+- Use official or reputable sources (NEA, town councils, news aggregators).
+- Singapore only. No duplicates.
+- Leave duration blank if dates are incomplete.
+- If a hawker centre is unverified, skip it rather than guess.
+
+Format your response as labeled blocks (one per closure), each block on separate lines. Number each block (1., 2., …). Preface the entire reply with a one-line summary: "🧹 N closures found (M ongoing · K upcoming · J recently ended)". After the list, add a one-line citation note pointing at the canonical NEA page.
+
+Do NOT use markdown tables (they wrap badly on mobile).`;
+  try {
+    const result = await llm.generate({
+      prompt,
+      model: llm.SONNET_MODEL,
+      webSearch: true,
+      maxTokens: 4096
+    });
+    const body = result.response.text() || '(no closures returned)';
+    const text = `${body}\n\n_Live web search · cached 12 h · verify with NEA portal for binding dates._`;
+    try {
+      if (redis.isOpen) await redis.set(cacheKey, text, { EX: 12 * 60 * 60 }).catch(() => {});
+    } catch (err) {
+      console.warn('[HawkerClosureLive] cache write failed:', err.message);
+    }
+    await safeSend(chatId, text, {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [
+        [{ text: '📅 NEA hawker mgmt', url: 'https://www.nea.gov.sg/our-services/hawker-management/hawker-centre-management/list-of-hawker-centres-closure-and-cleaning-schedules' }],
+        [{ text: '🔄 Force refresh', callback_data: 'hawker:cleaning-refresh' }],
+        [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
+      ] }
+    });
+  } catch (err) {
+    console.error('[Error] runHawkerClosureLive failed:', err.message);
+    await safeSend(chatId, `Sorry, the live closure search hit an error: ${err.message?.slice(0, 200)}.`);
+  }
+}
+
+async function runHawkerClosureLiveRefresh(chatId) {
+  try {
+    if (redis.isOpen) await redis.del('hawker:closures-live').catch(() => {});
+  } catch {}
+  return runHawkerClosureLive(chatId);
 }
 
 async function runHawkerCrowd(chatId) {
@@ -2151,7 +2243,7 @@ async function runSurpriseCommand(chatId) {
       return;
     }
 
-    await safeSend(chatId, '🎲 Hunting 5 hidden gems 1.5–3 km away — Stage A → Stage B…');
+    await safeSend(chatId, '🎲 Hunting up to 12 hidden gems 1.5–3 km away — discovering → narrating…');
     const requestStore = require('./request-store');
     const pipelineTask = require('./pipeline-task');
     const reqId = await requestStore.create(redis, {
@@ -2164,10 +2256,10 @@ async function runSurpriseCommand(chatId) {
     const row = await requestStore.get(redis, reqId);
     const venues = row?.venues || [];
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find 5 hidden gems matching the /surprise gates in your annulus right now (rating ≥4.0, opened ≤100 days ago, open now). Try a denser area or /cuisine for unfiltered picks.");
+      await safeSend(chatId, "Gia couldn't find hidden gems matching the /surprise filters in your annulus (rating ≥4.0, ≤150 reviews / opened ≤100d / recent reviews ≤45d, open now). Try a denser area or /cuisine for unfiltered picks.");
       return;
     }
-    await deliverPicks(chatId, '🎲 5 surprise hidden gems', venues);
+    await deliverPicks(chatId, `🎲 ${venues.length} surprise hidden gem${venues.length === 1 ? '' : 's'}`, venues);
   } catch (err) {
     console.error('[Error] /surprise failed:', err.message);
     await safeSend(chatId, "Sorry, /surprise hit an error. Try again in a moment.");

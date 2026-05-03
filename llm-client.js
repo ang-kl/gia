@@ -48,7 +48,7 @@ function getClient() {
   return client;
 }
 
-// generate({ prompt, model, system, json, jsonShape, maxTokens })
+// generate({ prompt, model, system, json, jsonShape, maxTokens, webSearch })
 //
 // Returns: { response: { text: () => string }, _raw: <SDK response> }
 //
@@ -56,13 +56,22 @@ function getClient() {
 // no longer changes behaviour — the prefill technique it gated was removed
 // in v0.40.1 because Sonnet 4.6 / Opus 4.6 reject assistant-turn prefills
 // with HTTP 400.
+//
+// `webSearch: true` (v0.48.0): enables Anthropic's web_search server-side
+// tool. Claude can issue search queries; results are fetched + summarised
+// inline. Use for queries that need fresh data outside the model's
+// training cutoff (e.g. "what's closed for cleaning this week"). Cost
+// adds ~$0.01-0.03 per call (search fee + extra tokens). The server-side
+// loop may pause and resume; we handle the `pause_turn` stop_reason
+// transparently.
 async function generate({
   prompt,
   model = DEFAULT_MODEL,
   system,
   json = false,
   jsonShape = 'object',          // accepted for API compat; ignored
-  maxTokens = 4096
+  maxTokens = 4096,
+  webSearch = false
 } = {}) {
   if (!client) {
     const err = new Error('ANTHROPIC_API_KEY missing');
@@ -82,8 +91,29 @@ async function generate({
   } else if (json) {
     params.system = 'Respond with valid JSON only. No prose, no markdown, no code fences. Begin your response with the opening bracket.';
   }
+  if (webSearch) {
+    params.tools = [{ type: 'web_search_20260209', name: 'web_search' }];
+  }
 
-  const resp = await client.messages.create(params);
+  let resp = await client.messages.create(params);
+
+  // v0.48.0: handle pause_turn for server-side tools (web_search may
+  // exceed the default 10-iteration server-side loop). Resume by
+  // re-sending with the assistant turn appended; the server picks up
+  // where it left off. Cap at 3 resumes to bound cost.
+  let resumes = 0;
+  while (resp.stop_reason === 'pause_turn' && resumes < 3) {
+    resumes++;
+    const followup = {
+      ...params,
+      messages: [
+        ...messages,
+        { role: 'assistant', content: resp.content }
+      ]
+    };
+    resp = await client.messages.create(followup);
+  }
+
   let txt = (resp.content || [])
     .filter((b) => b.type === 'text')
     .map((b) => b.text)

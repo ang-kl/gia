@@ -334,36 +334,143 @@ async function runCuisineTask(redis, reqId) {
     : runCuisineTaskLegacy(redis, reqId);
 }
 
+// v0.48.0: /surprise rewritten per Human Lead spec.
+// - Places-first inversion (matches /cuisine, /eat — eliminates the
+//   hallucinate-then-validate failure class that returned empty).
+// - 12 results (was 5).
+// - Annulus 1.5–3 km from centre — Places API takes a circle, we filter
+//   the inner radius client-side.
+// - Multi-signal recency (any of):
+//     · verifiedOpeningDate ≤ 100 days
+//     · userRatingCount ≤ 150
+//     · most recent review ≤ 45 days
+//     · primaryType includes "new" / "opening" tag
+// - Quality: rating ≥ 4.0
+// - Type diversity bias: prefer ≥1 each of hawker, café, restaurant,
+//   unconventional (pop-up / bakery / food_truck / dessert_shop /
+//   ice_cream_shop / etc.). Bias is in the rankAndNarrate prompt.
+// - Excludes major commercialised chains (already in pipeline.discover).
+const SURPRISE_INNER_M = 1500;
+const SURPRISE_OUTER_M = 3000;
+const SURPRISE_RECENCY_REVIEW_CAP = 150;
+const SURPRISE_RECENCY_REVIEW_AGE_DAYS = 45;
+const SURPRISE_TARGET_COUNT = 12;
+
+function haversineM(a, b) {
+  const R = 6371000;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+function passesRecencySignal(v) {
+  // Opening date — strict ≤100d if known.
+  if (v.verifiedOpeningDate) {
+    const opened = new Date(v.verifiedOpeningDate);
+    if (!isNaN(opened) && (Date.now() - opened.getTime()) <= 100 * 86400 * 1000) return true;
+  }
+  // Low review count proxy.
+  const reviewCount = Number(v.userRatingCount ?? v.reviewCount ?? 0);
+  if (reviewCount > 0 && reviewCount <= SURPRISE_RECENCY_REVIEW_CAP) return true;
+  // Recent review proxy — would need full review fetch; skip unless we
+  // already have it cached. Empirically rare; falls through.
+  if (Array.isArray(v.recentReviews) && v.recentReviews.length) {
+    const cutoff = Date.now() - SURPRISE_RECENCY_REVIEW_AGE_DAYS * 86400 * 1000;
+    if (v.recentReviews.some((r) => Date.parse(r.publishTime || r.relativeTime || '') >= cutoff)) return true;
+  }
+  // "New" / "opening" tag in primaryType (rare in Places API).
+  const type = String(v.primaryType || '').toLowerCase();
+  if (/\b(new|opening|grand_opening)\b/.test(type)) return true;
+  return false;
+}
+
 async function runSurpriseTask(redis, reqId) {
   const row = await requestStore.get(redis, reqId);
   if (!row) throw new Error(`pipeline-task: row not found ${reqId}`);
   const payload = row.payload;
+  const meal = mealPeriodSGT();
+  const diagPush = (code, label, ok, detail) => requestStore.pushDiag(redis, reqId, { code, label, ok, detail });
   try {
-    const prompt = await ensurePromptForKind(redis, reqId, payload, 'surprise');
-    let candidates = await runReasonWithRelaxation(redis, reqId, prompt, 8, true);
+    // Places-first discover at OUTER radius.
+    await requestStore.setStage(redis, reqId, 'discovering');
+    const candidates = await pipeline.discover({
+      lat: payload.lat,
+      lng: payload.lng,
+      cuisines: [], // open discovery — surprise is cuisine-agnostic
+      radius: SURPRISE_OUTER_M,
+      mealPeriod: meal.label,
+      maxResults: 20,
+      diag: diagPush
+    });
     if (!candidates.length) {
       await requestStore.setVenues(redis, reqId, []);
       await requestStore.setStatus(redis, reqId, 'empty');
       return;
     }
-    const ranked = await validateAndRank(redis, reqId, candidates, payload);
-    if (!ranked.length) {
+
+    // Annulus filter — exclude inner SURPRISE_INNER_M circle.
+    const centre = { lat: payload.lat, lng: payload.lng };
+    let inAnnulus = candidates.map((c) => ({
+      ...c,
+      distanceM: Math.round(haversineM(centre, { lat: c.lat, lng: c.lng }))
+    })).filter((c) => c.distanceM >= SURPRISE_INNER_M && c.distanceM <= SURPRISE_OUTER_M);
+    diagPush('D870', 'Annulus filter', true, { in: candidates.length, out: inAnnulus.length });
+    if (!inAnnulus.length) {
       await requestStore.setVenues(redis, reqId, []);
       await requestStore.setStatus(redis, reqId, 'empty');
       return;
     }
-    // Surprise gates: rating window, review count, launch window, temporal.
-    let gated = applySurpriseGates(ranked);
-    gated = applyTemporalGate(gated);
-    if (gated.length < 5) {
-      // Soft fallback: relax launch window 90d → 180d.
-      await requestStore.pushDiag(redis, reqId, { code: 'D860', label: 'Surprise relaxed launch window 90d→180d', ok: true });
-      gated = applySurpriseGates(ranked, { launchWindowDays: SURPRISE_LAUNCH_RELAXED_DAYS });
-      gated = applyTemporalGate(gated);
+
+    // Quality gate — rating ≥ 4.0.
+    let qualified = inAnnulus.filter((c) => typeof c.rating !== 'number' || c.rating >= 4.0);
+    diagPush('D871', 'Quality gate', true, { in: inAnnulus.length, out: qualified.length });
+
+    // Multi-signal recency — keep venues that pass any of the proxies.
+    let recent = qualified.filter(passesRecencySignal);
+    diagPush('D872', 'Recency multi-signal', true, { in: qualified.length, out: recent.length });
+
+    // If recency filter is too aggressive (zero results), fall back to
+    // just the quality-gated set so /surprise never empty-returns when
+    // candidates exist in the annulus.
+    if (!recent.length && qualified.length) {
+      diagPush('D873', 'Recency too strict — falling back to quality-gated set', false, { qualified: qualified.length });
+      recent = qualified;
     }
-    const top5 = gated.slice(0, 5);
-    const meal = mealPeriodSGT();
-    const refined = await refineIfPossible(redis, reqId, top5, payload, meal.label);
+
+    // Vault snapshot for narrative grounding.
+    const snapshot = await vaultIndex.snapshotForLocation(redis, centre, SURPRISE_OUTER_M);
+
+    // Claude ranks + narrates with type-diversity bias.
+    await requestStore.setStage(redis, reqId, 'narrating');
+    const narrated = await pipeline.rankAndNarrate({
+      candidates: recent.slice(0, 25), // headroom for ranker selection
+      query: {
+        cuisines: [],
+        label: meal.label,
+        detail: meal.hint,
+        specialRequest: 'HIDDEN_GEM_DISCOVERY · diversity-bias: prefer at least 1 hawker (food_court / market_food_stall), 1 café, 1 restaurant, 1 unconventional (pop-up / bakery / dessert_shop / ice_cream_shop / food_truck / cafe-with-a-twist) across the top 12. Provide a 1-line "why it\'s a hidden gem" reason for each.'
+      },
+      snapshot,
+      count: SURPRISE_TARGET_COUNT,
+      diag: diagPush
+    });
+    if (!narrated.length) {
+      await requestStore.setVenues(redis, reqId, []);
+      await requestStore.setStatus(redis, reqId, 'empty');
+      return;
+    }
+
+    // Walking-time enrichment.
+    await requestStore.setStage(redis, reqId, 'ranking');
+    const ranked = await rankByWalkingTime(payload.lat, payload.lng, narrated);
+    diagPush('D874', 'Surprise ranked', true, { n: ranked.length });
+
+    // Refine pass (weather/traffic/carpark).
+    const refined = await refineIfPossible(redis, reqId, ranked, payload, meal.label);
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
   } catch (err) {
