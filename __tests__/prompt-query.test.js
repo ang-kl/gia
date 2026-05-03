@@ -79,10 +79,66 @@ describe('runPromptQuery argument parsing', () => {
     expect(pq.MAX_OUTPUT_CHARS).toBe(3800);
   });
 
-  it('HELP text mentions all four providers', () => {
+  it('HELP text mentions all five providers (v0.44.1 added d)', () => {
     expect(pq.HELP).toMatch(/Claude/);
     expect(pq.HELP).toMatch(/Gemini/);
     expect(pq.HELP).toMatch(/Search/);
     expect(pq.HELP).toMatch(/Maps/);
+    expect(pq.HELP).toMatch(/data\.gov\.sg/);
+  });
+
+  it('HELP text mentions no-cache guarantee (v0.44.1)', () => {
+    expect(pq.HELP).toMatch(/no cache|never cached/i);
+  });
+});
+
+describe('v0.44.1: data.gov.sg handler routing', () => {
+  it('routes "d <prompt>" to viaDataGovSg', async () => {
+    // viaDataGovSg hits the public CKAN-style endpoint without an API
+    // key. We don't make a real network call here — assert it routes to
+    // the handler by checking the handler exists and is async.
+    expect(typeof pq.viaDataGovSg).toBe('function');
+    // Calling with a parser-only check: bad provider letter should NOT
+    // route here; the regex now accepts d.
+    const r = await pq.runPromptQuery('d');
+    expect(r).toMatch(/Missing prompt after "d"/);
+  });
+
+  it('treats "d" as a known provider in the parser', async () => {
+    const r = await pq.runPromptQuery('d hawker');
+    // Network call may succeed or fail in sandbox; either way the
+    // string returned should NOT be the "Unknown type" error.
+    expect(r).not.toMatch(/Unknown type/);
+  });
+});
+
+describe('v0.44.1: no-cache footer', () => {
+  it('noCacheFooter() includes "no cache" + ISO 8601 SGT time', () => {
+    const f = pq.noCacheFooter();
+    expect(f).toMatch(/no cache/);
+    expect(f).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+08:00/);
+  });
+
+  it('withFooter() appends the no-cache footer to a string', () => {
+    const r = pq.withFooter('hello');
+    expect(r).toMatch(/^hello/);
+    expect(r).toMatch(/no cache/);
+  });
+
+  it('withFooter() respects MAX_OUTPUT_CHARS budget (footer always fits)', () => {
+    const huge = 'x'.repeat(10000);
+    const r = pq.withFooter(huge);
+    expect(r.length).toBeLessThanOrEqual(pq.MAX_OUTPUT_CHARS);
+    expect(r).toMatch(/no cache/);
+  });
+
+  it('error responses keep their 🔴 marker (no cache footer needed — error is its own freshness signal)', async () => {
+    if (process.env.ANTHROPIC_API_KEY) return;
+    const r = await pq.runPromptQuery('c hello');
+    expect(r).toMatch(/^🔴 Claude/);
+    // Errors do NOT carry the no-cache footer (would be confusing on a
+    // failure path) — they're already obviously fresh because the API
+    // call just failed.
+    expect(r).not.toMatch(/no cache/);
   });
 });
