@@ -243,14 +243,24 @@ function googleMapsSearchUrl(name) {
 // v0.48.1: enrich raw scraped rows with structured fields the user's
 // prompt template asks for.
 //
+// v0.49.0: optionally cross-references against the canonical 125-centre
+// vault. When `vaultCentres` is supplied:
+//   • name is normalised to the vault's spelling on confident match
+//   • mapsUrl uses the vault's address-anchored URL (more precise)
+//   • a `vaultMatched` boolean flags which rows are validated
+//
 // Input: raw rows from `closures.data` (4-cell arrays).
 // Output: array of { name, closureType, startDate, endDate, durationDays,
-//                    status, mapsUrl, raw }
-function enrichClosureRows(rows, today = new Date()) {
+//                    status, mapsUrl, vaultMatched, raw }
+function enrichClosureRows(rows, today = new Date(), vaultCentres = null) {
   if (!Array.isArray(rows)) return [];
+  let findByName, mapsUrlForCentre;
+  if (Array.isArray(vaultCentres) && vaultCentres.length) {
+    ({ findByName, mapsUrlForCentre } = require('./hawker-vault'));
+  }
   return rows.map((row) => {
     const cells = Array.isArray(row) ? row : [];
-    const name = String(cells[0] || '').trim();
+    let name = String(cells[0] || '').trim();
     const dateText = String(cells[1] || '').trim();
     const reason = String(cells[2] || '').trim();
     const remarks = String(cells[3] || '').trim();
@@ -266,6 +276,16 @@ function enrichClosureRows(rows, today = new Date()) {
     const durationDays = (start && end)
       ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1)
       : null;
+    let mapsUrl = name ? googleMapsSearchUrl(name) : '';
+    let vaultMatched = false;
+    if (findByName && name) {
+      const match = findByName(vaultCentres, name);
+      if (match && match.score >= 0.85) {
+        name = match.centre.name; // normalise to vault spelling
+        mapsUrl = mapsUrlForCentre(match.centre);
+        vaultMatched = true;
+      }
+    }
     return {
       name,
       closureType,
@@ -273,7 +293,8 @@ function enrichClosureRows(rows, today = new Date()) {
       endDate: end ? end.toISOString().slice(0, 10) : null,
       durationDays,
       status,
-      mapsUrl: name ? googleMapsSearchUrl(name) : '',
+      mapsUrl,
+      vaultMatched,
       reason,
       remarks,
       raw
@@ -314,21 +335,35 @@ function formatClosureBlocks(enriched) {
 // Convenience: wraps getCachedOrFetch + enrichment + sort. Returns
 // { ok, ongoing, upcoming, recentlyEnded, all, summary } where each
 // list is enriched + sorted, plus a 1-line summary string.
+//
+// v0.49.0: opportunistically pulls the canonical 125-centre vault to
+// validate names + use precise Maps URLs. Vault failure is non-fatal.
 async function getStructuredClosures(redis) {
   const result = await getCachedOrFetch(redis);
   if (!result.ok) return { ok: false, error: result.error, fetchedAt: result.fetchedAt };
   const today = new Date(Date.now() + 8 * 60 * 60 * 1000); // SGT today (UTC+8)
   const today00 = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  const enriched = enrichClosureRows(result.closures?.data || [], today00);
+  let vaultCentres = null;
+  try {
+    const vault = require('./hawker-vault');
+    const v = await vault.getAllCentres(redis);
+    if (v.ok && Array.isArray(v.centres) && v.centres.length) vaultCentres = v.centres;
+  } catch (err) {
+    console.warn('[NEA-Scrape] vault unavailable, falling back to unanchored maps URLs:', err.message);
+  }
+  const enriched = enrichClosureRows(result.closures?.data || [], today00, vaultCentres);
   const sorted = sortClosuresByProximity(enriched);
   const ongoingN = sorted.filter((r) => r.status === 'ongoing').length;
   const upcomingN = sorted.filter((r) => r.status === 'upcoming').length;
   const recentN = sorted.filter((r) => r.status === 'recently-ended').length;
+  const matchedN = sorted.filter((r) => r.vaultMatched).length;
   return {
     ok: true,
     fetchedAt: result.fetchedAt,
     cached: !!result.cached,
     sourceUrl: result.sourceUrl,
+    vaultUsed: !!vaultCentres,
+    vaultMatchedCount: matchedN,
     all: sorted,
     summary: `🧹 ${sorted.length} closure${sorted.length === 1 ? '' : 's'} (${ongoingN} ongoing · ${upcomingN} upcoming · ${recentN} recently ended)`
   };
