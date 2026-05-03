@@ -241,13 +241,68 @@ async function rankByWalkingTime(userLat, userLng, venues) {
 
 const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
 
+// v0.46.0: Places-first inverted path for /eat /drink /groceries.
+// Mirrors the v0.41.0 inversion that fixed /cuisine — Google Places
+// returns 20 real candidates → Claude picks N best → rank by walking
+// time. Eliminates the hallucinate-then-validate failure class that
+// caused "Gia couldn't find a sanctuary within 200m" on non-CBD anchors.
+//
+// Maps category → discover() inputs:
+//   food      → empty cuisines → discover uses searchNearby with broad
+//               food types (restaurant, cafe, bar, meal_takeaway,
+//               food_court, bakery)
+//   drink     → cuisines: ['bar', 'coffee', 'tea', 'cocktail']
+//               → discover uses searchText with these keywords
+//   groceries → cuisines: ['supermarket', 'grocery store']
+//               → discover uses searchText
+//   cuisine   → cuisines: [opts.cuisineType]
+//
+// Radial expansion: 500m → 1000m → 2000m (was 200/500/1000/2000 in
+// legacy). 200m was unrealistic outside CBD; the legacy value caused
+// the empty-result reports. discover() with locationBias to a 500m
+// circle is still tight enough to be "near you" but wide enough that
+// most SG anchors return results.
+async function pickValidatedInverted(lat, lng, count, opts, meal) {
+  const pipeline = require('./pipeline');
+  const category = opts.category || 'food';
+
+  let cuisines = [];
+  if (category === 'drink') cuisines = ['bar', 'coffee', 'tea', 'cocktail'];
+  else if (category === 'groceries') cuisines = ['supermarket', 'grocery store'];
+  else if (category === 'cuisine' && opts.cuisineType) cuisines = [String(opts.cuisineType).trim()];
+  // food: leave empty → discover uses searchNearby with broad food types.
+
+  for (const r of [500, 1000, 2000]) {
+    const candidates = await pipeline.discover({
+      lat,
+      lng,
+      cuisines,
+      radius: r,
+      mealPeriod: meal.label,
+      maxResults: 20
+    });
+    if (!candidates.length) continue;
+
+    const narrated = await pipeline.rankAndNarrate({
+      candidates,
+      query: {
+        cuisines,
+        label: meal.label,
+        detail: meal.hint,
+        specialRequest: opts.specialRequest || ''
+      },
+      snapshot: { vault: [], summaries: {}, reviews: {} },
+      count
+    });
+    if (!narrated.length) continue;
+
+    const ranked = await rankByWalkingTime(lat, lng, narrated);
+    return { meal, venues: ranked, activeRadius: r };
+  }
+  return { meal, venues: [] };
+}
+
 async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
-  // Radial expansion policy (v0.19.0, supersedes v0.11.0 first-candidate-radial):
-  //   Try ALL Gemini candidates at 200 m. If any validate, use those
-  //   (no expansion needed). If 0 validate at 200 m, try all candidates
-  //   at 500 m, then 1000 m, then 2000 m. This maximizes 200 m hit rate
-  //   instead of locking the active radius to wherever candidates[0]
-  //   first succeeded.
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
   let meal;
@@ -263,6 +318,29 @@ async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {})
   } else {
     meal = mealPeriodSGT();
   }
+
+  // v0.46.0: Places-first inverted pipeline by default. Set
+  // EAT_INVERSION_ENABLED=false in Railway env to revert to v0.45.x
+  // legacy hallucinate-then-validate behaviour.
+  if (process.env.EAT_INVERSION_ENABLED !== 'false') {
+    const inverted = await pickValidatedInverted(lat, lng, count, opts, meal);
+    if (inverted.venues.length) return inverted;
+    // Defensive: if Places returns nothing at all radii (extremely
+    // rural anchor, or Places API outage), fall through to legacy
+    // path so the consultant / hidden-sanctuary fallbacks in runFlow
+    // still run with the legacy candidates as input.
+    logger.warn(
+      { category, lat: Math.round(lat * 1000) / 1000, lng: Math.round(lng * 1000) / 1000 },
+      'pickValidated inverted path returned empty; falling through to legacy'
+    );
+  }
+
+  // Legacy path (v0.45.x and earlier — radial expansion 200m → 500m →
+  // 1000m → 2000m, Claude invents → Places validates).
+  // Radial expansion policy (v0.19.0):
+  //   Try ALL Gemini candidates at 200 m. If any validate, use those
+  //   (no expansion needed). If 0 validate at 200 m, try all candidates
+  //   at 500 m, then 1000 m, then 2000 m.
   const candidates = await geminiCandidates(meal, lat, lng);
   if (!candidates.length) return { meal, venues: [] };
 
@@ -321,4 +399,4 @@ async function geocodeQuery(text) {
   }
 }
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, geocodeQuery, rankByWalkingTime };
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, rankByWalkingTime };
