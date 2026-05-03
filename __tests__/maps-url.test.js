@@ -23,19 +23,17 @@ describe('googleMapsUrl', () => {
     expect(r).toBe('https://maps.app.goo.gl/abc123');
   });
 
-  it('falls back to place.url when no placeUri', () => {
+  it('v0.45.1: synthesises place_id deep-link BEFORE falling to cid URL', () => {
+    // The bug fixed in v0.45.1: when placeUri was absent, the helper
+    // used to prefer googleMapsUri (cid URL) over the synthesised
+    // place_id URL. iOS routed cid URLs to Apple Maps. Now we always
+    // prefer the synthesised place_id format when we have an id.
     const r = googleMapsUrl({
-      url: 'https://existing.example/map',
-      googleMapsUri: 'http://other'
-    });
-    expect(r).toBe('https://existing.example/map');
-  });
-
-  it('falls back to googleMapsUri when no placeUri or url', () => {
-    const r = googleMapsUrl({
+      id: 'ChIJ_synth_test',
       googleMapsUri: 'https://maps.google.com/?cid=12345'
     });
-    expect(r).toBe('https://maps.google.com/?cid=12345');
+    expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_synth_test');
+    expect(r).not.toContain('cid=');
   });
 
   it('synthesises place_id deep-link from placeId field', () => {
@@ -46,6 +44,21 @@ describe('googleMapsUrl', () => {
   it('synthesises place_id deep-link from id field', () => {
     const r = googleMapsUrl({ id: 'ChIJ_id_test' });
     expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_id_test');
+  });
+
+  it('falls back to place.url only when no placeUri AND no id', () => {
+    const r = googleMapsUrl({
+      url: 'https://existing.example/map',
+      googleMapsUri: 'http://other'
+    });
+    expect(r).toBe('https://existing.example/map');
+  });
+
+  it('falls back to googleMapsUri only when no placeUri, no id, no place.url', () => {
+    const r = googleMapsUrl({
+      googleMapsUri: 'https://maps.google.com/?cid=12345'
+    });
+    expect(r).toBe('https://maps.google.com/?cid=12345');
   });
 
   it('falls back to lat/lng search URL', () => {
@@ -61,9 +74,15 @@ describe('googleMapsUrl', () => {
     expect(r).toMatch(/%2F|%2B/);
   });
 
-  it('rejects non-http url field', () => {
+  it('rejects non-http url field — synthesises place_id instead', () => {
     const r = googleMapsUrl({ url: 'javascript:alert(1)', placeId: 'ChIJ_safe' });
     expect(r).toBe('https://www.google.com/maps/place/?q=place_id:ChIJ_safe');
+  });
+
+  it('place.url is also rejected if it has no http(s) scheme', () => {
+    // Without a place_id, falls through past place.url to googleMapsUri.
+    const r = googleMapsUrl({ url: 'data:text/html,foo', googleMapsUri: 'https://maps.google.com/?cid=1' });
+    expect(r).toBe('https://maps.google.com/?cid=1');
   });
 });
 

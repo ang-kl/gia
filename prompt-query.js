@@ -165,6 +165,19 @@ async function viaSearch(prompt) {
   }
 }
 
+// v0.45.1: Singapore-wide rectangle as default locationBias for /p m.
+// soleat is a Singapore-only bot; without this the API returned global
+// results for queries like "halal ramen" (got NYC / Houston / Texas).
+// `locationBias` is SOFT — if the user explicitly says "halal ramen
+// Tokyo" the API will still return Tokyo results, just with SG nudged
+// up the priority list when the query is location-ambiguous.
+const SG_BOUNDS = {
+  rectangle: {
+    low:  { latitude: 1.13, longitude: 103.59 },
+    high: { latitude: 1.47, longitude: 104.10 }
+  }
+};
+
 async function viaMaps(prompt) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -175,7 +188,8 @@ async function viaMaps(prompt) {
       'https://places.googleapis.com/v1/places:searchText',
       {
         textQuery: prompt,
-        maxResultCount: 5
+        maxResultCount: 5,
+        locationBias: SG_BOUNDS
       },
       {
         headers: {

@@ -20,25 +20,59 @@
 
 const TG_HASH_MAX = 4096; // Telegram URL practical limit; very generous
 
-// Single-venue URL preference order:
-//   1. place.googleMapsLinks.placeUri  (explicit place_id deep-link)
-//   2. place.url                        (already-constructed URL from
-//                                        validateWithPlaces / discover)
-//   3. place.googleMapsUri              (cid-based; sometimes Apple Maps)
-//   4. synthesised place_id deep-link from place.placeId or place.id
-//   5. place.directionsUri              (last resort)
-//   6. null
+// Single-venue URL preference order (v0.45.1 — corrected from v0.45.0).
+//
+// Why this order matters: Google Places API returns TWO URL fields per
+// place:
+//   • googleMapsLinks.placeUri  — explicit place_id deep-link (e.g.
+//     https://maps.app.goo.gl/...). iOS Universal Links resolve this
+//     directly to the Google Maps app.
+//   • googleMapsUri             — cid-based URL (e.g.
+//     https://maps.google.com/?cid=12345). iOS sometimes routes this
+//     to Apple Maps depending on installed apps + iOS settings.
+//
+// Critically, googleMapsLinks IS NOT ALWAYS POPULATED by the API.
+// Some places (especially newly-added ones) only have googleMapsUri.
+// In that case, our previous fallback chain went straight to the cid
+// URL — defeating the entire iOS Apple-Maps fix.
+//
+// The fix in v0.45.1: when placeUri is absent, SYNTHESISE the place_id
+// deep-link from place.id BEFORE falling through to the cid URL. This
+// guarantees an iOS-friendly URL whenever we have a place_id at all.
+//
+// Order:
+//   1. place.googleMapsLinks.placeUri  (explicit deep-link, ideal)
+//   2. synthesised https://www.google.com/maps/place/?q=place_id:<id>
+//      — works as long as place.placeId or place.id exists. iOS-friendly.
+//   3. place.url                        (already-constructed URL from
+//                                        upstream code; trusted only if
+//                                        it's a real http URL)
+//   4. place.googleMapsUri              (cid URL — last resort, may go
+//                                        to Apple Maps on iOS)
+//   5. place.directionsUri              (directions-mode last resort)
+//   6. https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
+//      from coords (places without an id at all)
+//   7. null
 //
 // place can come from many shapes — accept any of these field names.
 function googleMapsUrl(place) {
   if (!place) return null;
+  // 1. Explicit deep-link from Places API (best when present).
   const placeUri = place.googleMapsLinks?.placeUri;
   if (placeUri) return placeUri;
-  if (typeof place.url === 'string' && place.url.startsWith('http')) return place.url;
-  if (typeof place.googleMapsUri === 'string' && place.googleMapsUri.startsWith('http')) return place.googleMapsUri;
+  // 2. Synthesise place_id deep-link — this is the v0.45.1 fix.
+  //    Was previously below googleMapsUri in the chain, which meant the
+  //    cid URL won every time placeUri was absent. Now we always prefer
+  //    the place_id-explicit format whenever we have an id.
   const id = place.placeId || place.id;
   if (id) return `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(id)}`;
+  // 3. Already-constructed URL from upstream (only http(s)).
+  if (typeof place.url === 'string' && /^https?:\/\//.test(place.url)) return place.url;
+  // 4. Cid URL — last resort, may route to Apple Maps on iOS.
+  if (typeof place.googleMapsUri === 'string' && place.googleMapsUri.startsWith('http')) return place.googleMapsUri;
+  // 5. Directions URL.
   if (typeof place.directionsUri === 'string') return place.directionsUri;
+  // 6. Coords-only fallback.
   if (Number.isFinite(place.lat) && Number.isFinite(place.lng)) {
     return `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`;
   }
