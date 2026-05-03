@@ -771,6 +771,26 @@ bot.onText(/^\/recognised(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognised
 // 1-2-sentence Gemini-generated heritage-significance line.
 bot.onText(/^\/heritage[-_]?food(?:@\w+)?$/, (msg) => runHeritageFoodCommand(msg.chat.id));
 
+// v0.44.0: /p — hidden power-user query relay. Not in setMyCommands so
+// it doesn't show in slash autocomplete. Syntax: /p <c|g|s|m> <prompt>.
+//   c → Claude, g → Gemini, s → Google Search, m → Google Maps Places.
+// Burns upstream quota; no rate limiting; not admin-gated. Defer those
+// to v0.44.1 if abuse is observed.
+bot.onText(/^\/p(?:@\w+)?(?:\s+([\s\S]+))?$/i, async (msg, match) => {
+  try {
+    const rawArgs = (match?.[1] || '').trim();
+    if (rawArgs && rawArgs !== 'help' && rawArgs !== '?') {
+      await safeSend(msg.chat.id, '⏳ Querying…');
+    }
+    const { runPromptQuery } = require('./prompt-query');
+    const reply = await runPromptQuery(rawArgs);
+    await safeSend(msg.chat.id, reply);
+  } catch (err) {
+    logger.error({ err: { message: err.message, stack: err.stack } }, '/p handler failed');
+    await safeSend(msg.chat.id, `Sorry, /p hit an error: ${(err.message || 'unknown').slice(0, 200)}`);
+  }
+});
+
 // v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
 // every step of the NL pipeline emits a "🔍 step …" message to the
 // chat for real-time debugging. Auto-clears after 24 h.
