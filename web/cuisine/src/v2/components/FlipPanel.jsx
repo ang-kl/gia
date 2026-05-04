@@ -17,7 +17,7 @@ const SEED_LABEL = {
 
 export default function FlipPanel({
   venues, loading, focusedPlaceId, onCardTap,
-  onNLSubmit, lastPrompt, flipped, setFlipped, warmStartSeed
+  onNLSubmit, onNLReplace, lastPrompt, flipped, setFlipped, warmStartSeed
 }) {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -95,6 +95,12 @@ export default function FlipPanel({
             <div className="text-[11px] text-tg-hint px-1 pb-1.5">
               From: <span className="italic">"{lastPrompt}"</span>{' '}
               <button onClick={() => setFlipped(true)} className="underline ml-1">Edit</button>
+              {onNLReplace && (
+                <>
+                  {' · '}
+                  <button onClick={onNLReplace} className="underline">Replace instead</button>
+                </>
+              )}
             </div>
           )}
           {warmStartSeed && SEED_LABEL[warmStartSeed] && !lastPrompt && (

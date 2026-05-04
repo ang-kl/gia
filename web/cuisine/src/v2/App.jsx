@@ -125,19 +125,68 @@ export default function App() {
     runSearch(state, { lat, lng });
   }
 
-  async function handleNLSubmit(text) {
+  // v0.58.5: Tell Gia composability.
+  //   mode 'merge'   (default) — union cuisines (de-duped, cap 5) and
+  //                              OR-on filters; user keeps anything
+  //                              they had toggled. Halal=ON + Thai
+  //                              and "spicy japanese" → Halal + Thai
+  //                              + Japanese + spicy.
+  //   mode 'replace'           — wipe state, then apply only the
+  //                              parsed result. Used by the
+  //                              "Replace instead" ghost link in
+  //                              FlipPanel after a merge submit.
+  async function handleNLSubmit(text, opts = {}) {
+    const mode = opts.mode === 'replace' ? 'replace' : 'merge';
     setLastPrompt(text); setLoading(true); setError(null);
     try {
       const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters });
       setVenues(r.venues || []);
-      const nextState = { ...state };
-      if (r.inferredCuisines?.length) nextState.cuisines = r.inferredCuisines.slice(0, 5);
-      if (r.inferredFilters) nextState.filters = { ...nextState.filters, ...r.inferredFilters };
+      let nextState;
+      if (mode === 'replace') {
+        nextState = { ...defaultState(), region: state.region, cuisines: [], filters: clearedFilters() };
+      } else {
+        nextState = { ...state };
+      }
+      if (r.inferredCuisines?.length) {
+        if (mode === 'replace') {
+          nextState.cuisines = r.inferredCuisines.slice(0, 5);
+        } else {
+          const merged = [...(nextState.cuisines || []), ...r.inferredCuisines];
+          nextState.cuisines = [...new Set(merged)].slice(0, 5);
+        }
+      }
+      if (r.inferredFilters) {
+        if (mode === 'replace') {
+          // Replace: take inferred verbatim, including explicit falsy keys.
+          nextState.filters = { ...nextState.filters, ...r.inferredFilters };
+        } else {
+          // Merge: only OR-on. inferredFilters[k] === false means "the
+          // LLM didn't infer this", not "turn it off" — preserve the
+          // user's existing value so a Halal=ON default doesn't get
+          // wiped by a query that doesn't mention halal.
+          const m = { ...nextState.filters };
+          for (const k of Object.keys(r.inferredFilters)) {
+            if (k === 'prices') {
+              const inferredPrices = Array.isArray(r.inferredFilters.prices) ? r.inferredFilters.prices : [];
+              m.prices = [...new Set([...(m.prices || []), ...inferredPrices])];
+            } else if (r.inferredFilters[k] === true) {
+              m[k] = true;
+            }
+          }
+          nextState.filters = m;
+        }
+      }
       setState(nextState);
       setLastRunSnap(stateSig(nextState));
+      setWarmStartSeed(null);
     } catch (err) {
       setError(err.message);
     } finally { setLoading(false); }
+  }
+
+  function handleNLReplace() {
+    if (!lastPrompt) return;
+    handleNLSubmit(lastPrompt, { mode: 'replace' });
   }
 
   function clearAll() {
@@ -257,6 +306,7 @@ export default function App() {
       <FlipPanel
         venues={venues} loading={loading} focusedPlaceId={focusedPlaceId}
         onCardTap={setFocusedPlaceId} onNLSubmit={handleNLSubmit}
+        onNLReplace={handleNLReplace}
         lastPrompt={lastPrompt} flipped={flipped} setFlipped={setFlipped}
         warmStartSeed={warmStartSeed}
       />
@@ -264,7 +314,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.4 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.5 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
