@@ -1568,7 +1568,7 @@ async function runTransportTrain(chatId) {
     }
 
     const tmaButton = webhookDomain
-      ? [[{ text: '🗺 Open MRT map (Hitachi-style)', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
+      ? [[{ text: '🗺 Open MRT map', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
       : [];
     const buttons = [
       ...tmaButton,
@@ -2871,6 +2871,15 @@ async function cacheBotUsername() {
               //    word ≥4 chars must appear in haystack
               const words = lower.split(/\s+/).filter((w) => w.length >= 4);
               if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+              // 4. v0.57.14: related-dish keywords. Italian restaurants
+              //    rarely mention "Italian" by name but their reviews
+              //    say "pizza" or "pasta"; Ethiopian places say
+              //    "injera" not "Ethiopian". The curated map covers
+              //    African / European / Americas cuisines.
+              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+              for (const kw of dishKeywords) {
+                if (haystack.includes(kw)) return true;
+              }
             }
             return false;
           });
@@ -3079,6 +3088,11 @@ async function cacheBotUsername() {
               if (v.primaryType === `${slugForType}_restaurant`) return true;
               const words = lower.split(/\s+/).filter((w) => w.length >= 4);
               if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+              // v0.57.14: related-dish keywords (mirrors /api/cuisine/search).
+              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+              for (const kw of dishKeywords) {
+                if (haystack.includes(kw)) return true;
+              }
             }
             return false;
           });
