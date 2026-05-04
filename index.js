@@ -839,6 +839,13 @@ bot.onText(/^\/privacy(?:@\w+)?$/, (msg) => runPrivacyCommand(msg.chat.id));
 // builder credit. Discoverable via /help text.
 bot.onText(/^\/legal(?:@\w+)?$/, (msg) => runLegalCommand(msg.chat.id));
 
+// v0.57.25: /forgetme — self-service Redis erasure. PDPA Section
+// 13(c) / GDPR Article 17 right-to-erasure. Wipes loc:, proc:,
+// buddy-optin, buddy-blocks, buddy-day:* and recent-picks rows for
+// the chatId. /privacy advertises both this command and the 90-day
+// inactivity auto-purge.
+bot.onText(/^\/forgetme(?:@\w+)?$/, (msg) => runForgetMeCommand(msg.chat.id));
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1302,7 +1309,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     "/carpark   — nearest 5 with available lots\n" +
     "/ver       — version + upstream API health\n" +
     "/privacy   — data, retention & sources\n" +
-    "/legal     — disclaimer & jurisdiction notes\n\n" +
+    "/legal     — disclaimer & jurisdiction notes\n" +
+    "/forgetme  — erase your stored data\n\n" +
     "Or tap the menu button (🍴 Cuisine Picker) to jump straight in."
   );
 });
@@ -1407,6 +1415,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'hidden':    await runSurpriseCommand(chatId); return true;
     case 'privacy':   await runPrivacyCommand(chatId); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
+    case 'forgetme':  await runForgetMeCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
@@ -2078,7 +2087,7 @@ async function runPrivacyCommand(chatId) {
       '• NEA — weather',
       '• data.gov.sg — hawker centres, holidays',
       '',
-      '*To erase your data:* message the operator with the chat handle visible to me; I\'ll wipe your Redis state on request.' + credit
+      '*Retention:* data auto-purges after 90 days of inactivity. Manual erasure is available — type /forgetme.' + credit
     ].join('\n');
     await safeSend(chatId, text, { parse_mode: 'Markdown' });
   } catch (err) {
@@ -2108,6 +2117,31 @@ async function runLegalCommand(chatId) {
   } catch (err) {
     console.error('[Error] /legal failed:', err.message);
     await safeSend(chatId, "Sorry, /legal hit an error. Try again in a moment.");
+  }
+}
+
+// v0.57.25: /forgetme — self-service Redis erasure.
+async function runForgetMeCommand(chatId) {
+  try {
+    const { forgetUserData } = require('./user-data');
+    const { deleted, keys } = await forgetUserData(redis, chatId);
+    if (!deleted) {
+      await safeSend(chatId, '✅ Nothing to erase — I had no stored data for you. (Caches and request rows expire automatically; the persistent slots all came up empty.)');
+      return;
+    }
+    const lines = [
+      `✅ Erased *${deleted}* Redis ${deleted === 1 ? 'entry' : 'entries'} for your chat.`,
+      '',
+      'Wiped:',
+      ...keys.slice(0, 8).map((k) => `• \`${k.replace(/^([^:]+:[a-f0-9]{4}).*$/, '$1…')}\``),
+      keys.length > 8 ? `…and ${keys.length - 8} more` : null,
+      '',
+      'Send any command to start fresh. /buddy preferences, recent picks, and your last shared location are gone.'
+    ].filter(Boolean);
+    await safeSend(chatId, lines.join('\n'), { parse_mode: 'Markdown' });
+  } catch (err) {
+    console.error('[Error] /forgetme failed:', err.message);
+    await safeSend(chatId, "Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.");
   }
 }
 
@@ -2227,6 +2261,15 @@ bot.on('voice', async (msg) => {
 
 bot.on('message', async (msg) => {
   try {
+    // v0.57.25: refresh the 90-day TTL on persistent buddy-blocks
+    // entry (the only per-chat key that doesn't otherwise expire).
+    // No-op for users without a block-list. /privacy advertises this
+    // 90-day inactivity auto-purge so the data-retention claim is real.
+    try {
+      const { touchActivity } = require('./user-data');
+      await touchActivity(redis, msg.chat.id);
+    } catch { /* best-effort */ }
+
     // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
     if (msg.web_app_data?.data) {
       // v0.26.3: log every web_app_data inbound so the Railway console
@@ -2443,7 +2486,8 @@ async function registerCommandsMenu() {
       { command: 'location',  description: 'Set your locale by typing a place name' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'share',     description: 'Forward recent pick' },
-      { command: 'privacy',   description: 'Data, retention & sources' }
+      { command: 'privacy',   description: 'Data, retention & sources' },
+      { command: 'forgetme',  description: 'Erase your Redis state' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
