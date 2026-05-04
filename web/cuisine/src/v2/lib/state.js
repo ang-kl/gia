@@ -1,7 +1,7 @@
 // v2/lib/state.js — URL-hash-synced filter state.
 // v0.57.8: added region toggle (SG default, JB = Johor Bahru only).
 
-const QUICK_FILTERS = ['newlyOpened', 'openNow', 'walking20', 'halal', 'vegetarian'];
+const QUICK_FILTERS = ['newlyOpened', 'openNow', 'walking20', 'halal', 'vegetarian', 'homeBased'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
 const REGIONS = ['SG', 'JB'];
 
@@ -14,6 +14,7 @@ export function defaultState() {
       walking20: false,
       halal: false,
       vegetarian: false,
+      homeBased: false,
       prices: []
     },
     region: 'SG',

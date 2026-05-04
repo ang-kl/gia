@@ -149,7 +149,7 @@ describe('module exports', () => {
   it('exposes guardrail constants', () => {
     expect(tg.MAX_INPUT_CHARS).toBe(500);
     expect(tg.CACHE_TTL_S).toBe(60);
-    expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian']);
+    expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian', 'homeBased']);
     expect(tg.VALID_PRICES.has('$')).toBe(true);
     expect(tg.VALID_PRICES.has('$$$$')).toBe(false);
   });

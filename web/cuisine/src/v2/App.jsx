@@ -33,6 +33,7 @@ export default function App() {
         walking20: !!s.filters?.walking20,
         halal: !!s.filters?.halal,
         vegetarian: !!s.filters?.vegetarian,
+        homeBased: !!s.filters?.homeBased,
         prices: [...(s.filters?.prices || [])].sort()
       },
       region: s.region || 'SG'
@@ -110,7 +111,8 @@ export default function App() {
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
   const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
     + (state.filters.walking20 ? 1 : 0) + (state.filters.halal ? 1 : 0)
-    + (state.filters.vegetarian ? 1 : 0) + (state.filters.prices?.length || 0);
+    + (state.filters.vegetarian ? 1 : 0) + (state.filters.homeBased ? 1 : 0)
+    + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
   return (
@@ -186,7 +188,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.57.15 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.57.16 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

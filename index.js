@@ -2926,6 +2926,23 @@ async function cacheBotUsername() {
         if (filters.walking20 || filters.walking10) {
           venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 20 : false);
         }
+        // v0.57.16: "Home-based" filter — heuristic for HDB / condo
+        // home-kitchens and takeaway-only operators that show up on
+        // Google Maps. Positive signals (any one passes):
+        //   - HDB-block address pattern (e.g. "Blk 234", "#03-12")
+        //   - primaryType is meal_takeaway / meal_delivery
+        // Caveat: catches Google-Maps-listed HBBs only; IG/WhatsApp-
+        // only operators (Empress Family Feast, etc.) are not on
+        // Google Maps and need a separate curated vault.
+        if (filters.homeBased) {
+          const HBB_PATTERNS = /\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
+          const HBB_TYPES = new Set(['meal_takeaway', 'meal_delivery']);
+          venues = venues.filter((v) => {
+            if (HBB_TYPES.has(v.primaryType)) return true;
+            if (HBB_PATTERNS.test(v.area || '')) return true;
+            return false;
+          });
+        }
         // v0.57.6: "newly opened" is a soft filter: prefer venues with
         // ≤150 reviews (proxy for "opened recently in Singapore"). The
         // searchText query already biases toward Google's own
@@ -3111,6 +3128,16 @@ async function cacheBotUsername() {
         if (merged.prices?.length) {
           const allowed = new Set(merged.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+        }
+        // v0.57.16: Home-based heuristic (mirrors /api/cuisine/search).
+        if (merged.homeBased) {
+          const HBB_PATTERNS_NL = /\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
+          const HBB_TYPES_NL = new Set(['meal_takeaway', 'meal_delivery']);
+          venues = venues.filter((v) => {
+            if (HBB_TYPES_NL.has(v.primaryType)) return true;
+            if (HBB_PATTERNS_NL.test(v.area || '')) return true;
+            return false;
+          });
         }
         res.json({
           venues: venues.slice(0, 12),

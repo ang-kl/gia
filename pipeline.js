@@ -387,12 +387,17 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
       // Bare names like "New Zealand" or "Australian" otherwise match
       // embassies / brand names / suburb references; "New Zealand
       // cuisine restaurant" steers Places toward food-themed venues.
+      // v0.57.16: dropped strictTypeFiltering so meal_takeaway,
+      // meal_delivery, cafe, bakery types are also returned. Lets
+      // home-based / takeaway-only operators surface (e.g. Rakae,
+      // Empress Family Feast). Non-food types (lodging, mall, etc.)
+      // are still removed by the post-fetch NON_FOOD_TYPES deny-list.
       const { data: textData } = await axios.post(
         PLACES_TEXT_URL,
         {
           textQuery: `${cuisineQuery} cuisine restaurant`,
           includedType: 'restaurant',
-          strictTypeFiltering: true,
+          strictTypeFiltering: false,
           // v0.57.8: regionCode is now a parameter ('SG' default, 'MY'
           // for Johor Bahru). Combined with locationBias for proximity
           // ranking inside the chosen country.
