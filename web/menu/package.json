@@ -1,7 +1,7 @@
 {
   "name": "soleat-menu-tma",
   "private": true,
-  "version": "0.57.8",
+  "version": "0.57.9",
   "type": "module",
   "scripts": {
     "build": "vite build",

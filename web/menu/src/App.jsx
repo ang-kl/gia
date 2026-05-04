@@ -29,7 +29,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <div className="px-3 pt-3 pb-2 flex items-center gap-2">
         {/* v0.37.0: soleat brand mark inline. Copied from web/cuisine/public/. */}
-        <img src="/app/menu/soleat-logo.svg" alt="soleat" width="28" height="28" className="flex-shrink-0" />
+        <img src="/app/menu/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0">
           <h1 className="text-base font-semibold">soleat Menu</h1>
           <p className="text-[11px] text-tg-hint">solo-diner sanctuary in the CBD</p>

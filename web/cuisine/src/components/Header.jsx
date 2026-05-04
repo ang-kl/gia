@@ -61,7 +61,7 @@ export default function Header({ loc, locDenied, onLoc, debugOn, onToggleDebug }
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex items-center gap-2">
           {/* v0.34.2: soleat brand mark inline. SVG asset bundled in /app/cuisine/. */}
-          <img src="/app/cuisine/soleat-logo.svg" alt="soleat" width="28" height="28" className="flex-shrink-0" />
+          <img src="/app/cuisine/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
           <div className="min-w-0">
             <h1 className="text-lg font-semibold tracking-tight leading-tight truncate">soleat — Cuisine and Drinks</h1>
             <p className="text-[10px] text-tg-hint font-mono leading-tight">v{BUILD_VERSION}</p>
