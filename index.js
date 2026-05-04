@@ -2363,12 +2363,12 @@ async function registerCommandsMenu() {
       { command: 'hidden',    description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
-      { command: 'hawker',    description: 'Singapore hawker Centre' },
-      { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
+      { command: 'hawker',    description: '>100 Hawker Centres' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand (< $45 meal), Asia 50/100 & Local Produce to Table' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
       { command: 'location',  description: 'Set your locale by typing a place name' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'share',     description: 'Forward a recent pick to a buddy' }
+      { command: 'share',     description: 'Forward recent pick' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
