@@ -383,6 +383,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         PLACES_TEXT_URL,
         {
           textQuery: `${cuisineQuery} restaurant`,
+          // v0.57.5: includedType + strictTypeFiltering so Google
+          // doesn't return hotels/complexes (e.g. Amara Singapore,
+          // SAFRA Mount Faber) just because they contain restaurants
+          // matching the cuisine.
+          includedType: 'restaurant',
+          strictTypeFiltering: true,
           maxResultCount: Math.min(maxResults, 20),
           locationBias: {
             circle: {

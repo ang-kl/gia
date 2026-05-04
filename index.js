@@ -2812,6 +2812,19 @@ async function cacheBotUsername() {
           lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        // v0.57.5: defensive deny-list — drop venues whose primaryType
+        // says "this is lodging / a complex / a mall / etc." even when
+        // Google's strictTypeFiltering on the search call missed them.
+        // The screenshot bug had Amara Singapore (lodging) + Dempsey
+        // Hill (point_of_interest) sneaking through.
+        const NON_FOOD_TYPES = new Set([
+          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
+          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
+          'tourist_attraction', 'point_of_interest', 'establishment',
+          'plaza', 'complex', 'building', 'park', 'school',
+          'university', 'hospital', 'gym', 'fitness_center'
+        ]);
+        venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
         // Compute walking distance/time on every venue (haversine).
         function haversine(a, b) {
           const R = 6371000, toRad = (d) => d * Math.PI / 180;
@@ -2910,6 +2923,15 @@ async function cacheBotUsername() {
           lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        // v0.57.5: same primaryType deny-list as /api/cuisine/search.
+        const NON_FOOD_TYPES_NL = new Set([
+          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
+          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
+          'tourist_attraction', 'point_of_interest', 'establishment',
+          'plaza', 'complex', 'building', 'park', 'school',
+          'university', 'hospital', 'gym', 'fitness_center'
+        ]);
+        venues = venues.filter((v) => !NON_FOOD_TYPES_NL.has(v.primaryType));
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (merged.prices?.length) {
           const allowed = new Set(merged.prices.map((p) => p.length));
