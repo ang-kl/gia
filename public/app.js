@@ -69,31 +69,19 @@
   }
 
   function openMapsForVenue(v) {
+    // v0.57.10: dropped the comgooglemaps:// probe + "not installed"
+    // dialog. Telegram WebView blocks custom URL schemes, so the probe
+    // ALWAYS fired the false-positive dialog even when Google Maps was
+    // installed. The https://www.google.com/maps/...?api=1&... form
+    // is a Universal Link — iOS auto-routes to the Google Maps app
+    // when installed, falls back to the web map otherwise. Android
+    // App Links behave the same.
     const name = v.name || '';
     const placeId = v.placeId || '';
-    const lat = v.lat;
-    const lng = v.lng;
     const httpsUrl = placeId
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(placeId)}`
       : (v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`);
-    const appUrl = `comgooglemaps://?q=${encodeURIComponent(name)}&center=${lat},${lng}&zoom=17`;
-
-    if (!isIOS()) { externalOpen(httpsUrl); return; }
-
-    let appOpened = false;
-    const onHide = () => { if (document.hidden) appOpened = true; };
-    document.addEventListener('visibilitychange', onHide);
-    const start = Date.now();
-    window.location.href = appUrl;
-    setTimeout(() => {
-      document.removeEventListener('visibilitychange', onHide);
-      if (appOpened || document.hidden) return;
-      if (Date.now() - start > APP_PROBE_TIMEOUT_MS + 800) return;
-      ask(
-        'Google Maps app is not installed. Install it from the App Store for the best experience? (Cancel opens the web map.)',
-        (wantsInstall) => externalOpen(wantsInstall ? GMAPS_INSTALL_URL : httpsUrl)
-      );
-    }, APP_PROBE_TIMEOUT_MS);
+    externalOpen(httpsUrl);
   }
 
   function makePinContent(num, name, isUser) {

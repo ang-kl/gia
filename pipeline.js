@@ -347,7 +347,11 @@ const DISCOVER_FIELD_MASK = [
   'places.googleMapsUri',
   'places.googleMapsLinks',
   'places.currentOpeningHours.openNow',
-  'places.generativeSummary'
+  'places.generativeSummary',
+  // v0.57.10: include reviews so /api/cuisine/search can extract
+  // 1-3 reviewer-recommended dishes per venue without a separate
+  // Places fetch. Field-mask Atmosphere SKU; cost ~2x basic search.
+  'places.reviews'
 ].join(',');
 
 function priceLevelToInt(p) {
@@ -458,7 +462,14 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',
           reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
           photosUri: p.googleMapsLinks?.photosUri ?? '',
-          googleSummary: summary
+          googleSummary: summary,
+          // v0.57.10: pass through Places reviews so downstream code
+          // (dish extraction, summary cache) can use them inline.
+          reviews: Array.isArray(p.reviews) ? p.reviews.map((r) => ({
+            text: r?.text?.text || r?.originalText?.text || '',
+            rating: r?.rating ?? null,
+            publishTime: r?.publishTime || r?.relativePublishTimeDescription || null
+          })).filter((r) => r.text) : []
         };
       })
       .filter((v) => v.placeId && v.name);
