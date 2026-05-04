@@ -50,6 +50,13 @@ export async function copyAllToChat(venues) {
   return postJson('/api/cuisine/copy-all', { venues });
 }
 
+// v0.58.10: copy-syntax — POST current TMA state, server returns a
+// re-runnable /cuisine command in the user's chat. Recipient pastes
+// it into any chat with @soleat_bot to relaunch this exact search.
+export async function copyCommandToChat({ cuisines, filters, prices, radius, region, location }) {
+  return postJson('/api/cuisine/copy-syntax', { cuisines, filters, prices, radius, region, location });
+}
+
 // v0.58.4: warm-start. Lightweight initial fetch on TMA mount; returns
 // 5 random venues from a pool weighted by one of 5 rotating "criterion
 // seeds" so the picker never opens to an empty list.

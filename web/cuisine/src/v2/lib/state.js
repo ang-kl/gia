@@ -1,6 +1,10 @@
 // v2/lib/state.js — URL-hash-synced filter state.
 // v0.57.8: added region toggle (SG default, JB = Johor Bahru only).
 // v0.58.1: dropped `walking20` filter; default `halal` ON.
+// v0.58.10: hash now also accepts `radius=<m>`, `lat=<n>`, `lng=<n>`,
+// `place=<text>` so the bot's /cuisine tokeniser can deep-link the TMA
+// into a fully-pre-applied search (cuisines + filters + prices +
+// location anchor + radius).
 
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
@@ -78,6 +82,28 @@ export function writeToHash(s) {
   if (s.filters.prices.length) params.set('prices', s.filters.prices.join(','));
   if (s.region && s.region !== 'SG') params.set('region', s.region);
   history.replaceState(null, '', '#' + params.toString());
+}
+
+// v0.58.10: read the optional bot-supplied location/radius overrides
+// produced by the /cuisine tokeniser. Returns null when no overrides
+// are present so the TMA falls back to GPS + default radius.
+export function readOverridesFromHash() {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash.replace(/^#/, '');
+  if (!hash) return null;
+  const params = new URLSearchParams(hash);
+  const lat = Number(params.get('lat'));
+  const lng = Number(params.get('lng'));
+  const place = params.get('place');
+  const radiusM = Number(params.get('radius'));
+  const out = {};
+  if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+    out.location = { lat, lng, name: typeof place === 'string' ? place.slice(0, 80) : '' };
+  }
+  if (Number.isFinite(radiusM) && radiusM >= 1000 && radiusM <= 100000) {
+    out.radius = Math.round(radiusM);
+  }
+  return Object.keys(out).length ? out : null;
 }
 
 export const FILTER_KEYS = QUICK_FILTERS;

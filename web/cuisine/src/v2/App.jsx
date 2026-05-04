@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart } from './lib/api.js';
-import { defaultState, clearedFilters, readFromHash, writeToHash } from './lib/state.js';
+import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
@@ -40,7 +40,15 @@ export default function App() {
   // — the slider's top stop, covers SG island-wide. User-selectable
   // via the vertical slider on the map's right edge. Threads into
   // /api/cuisine/search → pipeline.discover({ radius }).
-  const [radius, setRadius] = useState(RADIUS_DEFAULT_M);
+  // v0.58.10: respect bot-supplied overrides from the URL hash so a
+  // pasted /cuisine command opens the TMA pre-anchored.
+  const initialOverrides = (typeof window !== 'undefined') ? readOverridesFromHash() : null;
+  const [radius, setRadius] = useState(initialOverrides?.radius || RADIUS_DEFAULT_M);
+  // v0.58.10: location anchor (LocationField pick OR bot-supplied
+  // override). Threaded into the copy-syntax payload so the emitted
+  // /cuisine command can deep-link the recipient back to the same
+  // anchor.
+  const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
   const initialSearchDone = useRef(false);
 
   function stateSig(s) {
@@ -91,6 +99,14 @@ export default function App() {
   useEffect(() => {
     if (!userLoc || initialSearchDone.current) return;
     initialSearchDone.current = true;
+    // v0.58.10: when the bot's /cuisine tokeniser pre-anchored via the
+    // hash (lat/lng/place), skip warm-start and run a real search at
+    // that anchor so the user lands on the exact deep-linked state.
+    if (locationAnchor?.lat != null && locationAnchor?.lng != null) {
+      setSearchCenter({ lat: locationAnchor.lat, lng: locationAnchor.lng });
+      runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng });
+      return;
+    }
     setLoading(true); setError(null);
     warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region })
       .then((r) => {
@@ -282,7 +298,16 @@ export default function App() {
           and result list both re-anchor in one tap. */}
       {userLoc && (
         <LocationField userLoc={userLoc} region={state.region}
-          onSelect={(p) => { if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) runSearchAt(p.lat, p.lng); }} />
+          onSelect={(p) => {
+            if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+              // v0.58.10: stash the picked label so copy-syntax can
+              // include `@<place>` in the emitted /cuisine command.
+              setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+              runSearchAt(p.lat, p.lng);
+            } else {
+              setLocationAnchor(null);
+            }
+          }} />
       )}
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
@@ -340,12 +365,19 @@ export default function App() {
         onNLReplace={handleNLReplace}
         lastPrompt={lastPrompt} flipped={flipped} setFlipped={setFlipped}
         warmStartSeed={warmStartSeed}
+        copyState={{
+          cuisines: state.cuisines,
+          filters: state.filters,
+          radius,
+          region: state.region,
+          location: locationAnchor
+        }}
       />
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.9 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.10 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
