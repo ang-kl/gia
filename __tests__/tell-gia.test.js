@@ -1,4 +1,4 @@
-// __tests__/tell-gia.test.js — v0.55.0 Gemini-backed NL inference + guardrails.
+// __tests__/tell-gia.test.js — v0.57.30 Claude-Haiku NL inference + guardrails.
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
@@ -148,9 +148,104 @@ describe('buildSystemPrompt', () => {
 describe('module exports', () => {
   it('exposes guardrail constants', () => {
     expect(tg.MAX_INPUT_CHARS).toBe(500);
+    expect(tg.MAX_LOCATION_CHARS).toBe(80);
     expect(tg.CACHE_TTL_S).toBe(60);
     expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian', 'homeBased']);
     expect(tg.VALID_PRICES.has('$')).toBe(true);
     expect(tg.VALID_PRICES.has('$$$$')).toBe(false);
+  });
+});
+
+describe('location_override (v0.57.30)', () => {
+  const slugs = new Set(['japanese', 'thai', 'italian']);
+
+  it('keeps a short SG place reference', () => {
+    const r = tg.validateInferredOutput({
+      cuisines: ['italian'],
+      filters: {},
+      location_override: 'Kallang'
+    }, slugs);
+    expect(r.location_override).toBe('Kallang');
+  });
+
+  it('keeps multi-word place references', () => {
+    const r = tg.validateInferredOutput({
+      cuisines: [],
+      filters: {},
+      location_override: 'Tanjong Pagar MRT'
+    }, slugs);
+    expect(r.location_override).toBe('Tanjong Pagar MRT');
+  });
+
+  it('drops location_override longer than 80 chars (anti-injection)', () => {
+    const long = 'A'.repeat(81);
+    const r = tg.validateInferredOutput({
+      cuisines: [],
+      filters: {},
+      location_override: long
+    }, slugs);
+    expect(r.location_override).toBe('');
+  });
+
+  it('returns empty location_override when missing', () => {
+    const r = tg.validateInferredOutput({
+      cuisines: ['italian'],
+      filters: {}
+    }, slugs);
+    expect(r.location_override).toBe('');
+  });
+
+  it('returns empty location_override when non-string', () => {
+    const r = tg.validateInferredOutput({
+      cuisines: [],
+      filters: {},
+      location_override: { sneaky: 'object' }
+    }, slugs);
+    expect(r.location_override).toBe('');
+  });
+
+  it('trims whitespace from location_override', () => {
+    const r = tg.validateInferredOutput({
+      cuisines: [],
+      filters: {},
+      location_override: '   Bukit Timah   '
+    }, slugs);
+    expect(r.location_override).toBe('Bukit Timah');
+  });
+});
+
+describe('keywordFallback — location_override (v0.57.30)', () => {
+  const mockVault = {
+    getAllCuisines: () => [
+      { slug: 'japanese', name: 'Japanese', keywords: ['japanese', 'sushi', 'ramen'] }
+    ]
+  };
+
+  it('returns empty location_override (Claude path covers location extraction)', () => {
+    const r = tg.keywordFallback('japanese in Kallang', mockVault);
+    expect(r.location_override).toBe('');
+  });
+
+  it('keywordFallback now detects homeBased filter', () => {
+    const r = tg.keywordFallback('private dining tonight', mockVault);
+    expect(r.filters.homeBased).toBe(true);
+  });
+});
+
+describe('buildSystemPrompt — location_override field (v0.57.30)', () => {
+  it('mentions location_override in the schema', () => {
+    const p = tg.buildSystemPrompt(['italian']);
+    expect(p).toContain('location_override');
+  });
+
+  it('warns LLM not to set location_override to a cuisine word', () => {
+    const p = tg.buildSystemPrompt(['italian']);
+    expect(p.toLowerCase()).toContain('never a cuisine');
+  });
+
+  it('lists SG place examples', () => {
+    const p = tg.buildSystemPrompt(['italian']);
+    expect(p).toContain('Kallang');
+    expect(p).toContain('MRT');
   });
 });
