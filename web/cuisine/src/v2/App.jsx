@@ -266,8 +266,14 @@ export default function App() {
     + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
+  // v0.58.17 (Tier 1 responsive): widened max-w from 640 → 1024 and
+  // added breakpoint padding so the TMA stops looking like a narrow
+  // column on iPad / Samsung tablet / desktop Telegram. Phone layout
+  // (≤640 px) is unchanged; >640 px viewports get progressively more
+  // breathing room. Subsequent tiers can lean further into md:/lg:
+  // variants for grid columns, side-by-side map+results, etc.
   return (
-    <div className="min-h-screen bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-2 max-w-[640px] mx-auto">
+    <div className="min-h-screen bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1024px] mx-auto px-3 md:px-6 lg:px-8">
       <header className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -405,7 +411,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.16 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.17 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

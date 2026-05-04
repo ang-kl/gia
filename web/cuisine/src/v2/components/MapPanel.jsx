@@ -141,7 +141,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
 
   return (
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
-      <div ref={containerRef} style={{ width: '100%', height: 240 }} />
+      {/* v0.58.17: map height now scales with viewport. Phone keeps
+          ~240 px (50vh on a 480 px viewport ≈ 240); tablet/desktop
+          get up to 420 px so the map isn't a tiny strip on a tall
+          screen. min-height clamps to 240 so it never shrinks below
+          the original. */}
+      <div ref={containerRef} style={{ width: '100%', height: 'min(420px, 50vh)', minHeight: 240 }} />
       {showSearchHere && (
         <button
           type="button"
