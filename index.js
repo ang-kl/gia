@@ -775,7 +775,7 @@ bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
       );
       return;
     }
-    await bot.sendMessage(msg.chat.id, "🍴 Tap to open the Cuisine Picker:", {
+    await bot.sendMessage(msg.chat.id, "🍴 Cuisine Picker - Singapore to Johor Bahru", {
       reply_markup: {
         inline_keyboard: [[{
           text: '🍴 Open Cuisine Picker',
@@ -1348,7 +1348,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       const url = type
         ? `https://${webhookDomain}/app/cuisine?cuisine=${encodeURIComponent(type)}`
         : `https://${webhookDomain}/app/cuisine`;
-      await bot.sendMessage(chatId, "🍴 Tap to open the Cuisine Picker:", {
+      await bot.sendMessage(chatId, "🍴 Cuisine Picker - Singapore to Johor Bahru", {
         reply_markup: { inline_keyboard: [[{ text: '🍴 Open Cuisine Picker', web_app: { url } }]] }
       });
       return true;
