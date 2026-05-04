@@ -3,9 +3,21 @@ import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi } from '../lib/api.js';
 
+// v0.58.4: human-readable label for each warm-start seed id. Surfaces
+// as a muted caption above the result list so users know the initial
+// 5 venues come from a curated rotation, not from their (currently
+// empty) selection.
+const SEED_LABEL = {
+  'open-now-cheap':      '✨ Open now & cheap eats',
+  'newly-opened-halal':  '✨ Newly opened · halal',
+  'highly-rated-nearby': '✨ Highly rated nearby',
+  'open-now-popular':    '✨ Popular & open now',
+  'newly-opened-radius': '✨ Newly opened in your radius'
+};
+
 export default function FlipPanel({
   venues, loading, focusedPlaceId, onCardTap,
-  onNLSubmit, lastPrompt, flipped, setFlipped
+  onNLSubmit, lastPrompt, flipped, setFlipped, warmStartSeed
 }) {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -83,6 +95,11 @@ export default function FlipPanel({
             <div className="text-[11px] text-tg-hint px-1 pb-1.5">
               From: <span className="italic">"{lastPrompt}"</span>{' '}
               <button onClick={() => setFlipped(true)} className="underline ml-1">Edit</button>
+            </div>
+          )}
+          {warmStartSeed && SEED_LABEL[warmStartSeed] && !lastPrompt && (
+            <div className="text-[11px] text-tg-hint px-1 pb-1.5">
+              {SEED_LABEL[warmStartSeed]} · <span className="italic">tap 🔍 Search to refine</span>
             </div>
           )}
           {loading ? (

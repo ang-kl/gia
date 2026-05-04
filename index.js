@@ -2933,6 +2933,103 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.58.4: warm-start. On TMA mount the picker calls this endpoint
+    // to populate 5 random venues drawn from a pool weighted by one
+    // of 5 rotating "criterion seeds". Each seed is a (queries, soft-
+    // filter) tuple — the seed advances every 60 s so a fresh open
+    // feels different without changing on every tap-spam.
+    //
+    // This is deliberately lighter than /api/cuisine/search: no Claude
+    // rerank, no crowd signals, no dish extraction. The result list
+    // is "here's something to look at while you decide" — clicking the
+    // main 🔍 Search button runs the full enrichment pipeline.
+    app.post('/api/cuisine/warm-start', async (req, res) => {
+      try {
+        const { lat, lng, region = 'SG' } = req.body || {};
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return res.status(400).json({ error: 'missing lat/lng' });
+        }
+        const isJB = region === 'JB';
+        const JB_CBD = { lat: 1.4927, lng: 103.7414 };
+        const searchCenter = isJB ? JB_CBD : { lat, lng };
+        const searchRadius = isJB ? 18000 : 50000;
+        const searchRegionCode = isJB ? 'MY' : 'SG';
+        // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
+        // signal axes per Human Lead's brief; cheap-eats and popular
+        // round out the variety. Queries are passed straight into
+        // pipeline.discover's textQuery so we reuse the exact retrieval
+        // path /api/cuisine/search uses for filter modifiers.
+        const SEEDS = [
+          { id: 'open-now-cheap',      queries: ['open now cheap eats restaurant'],   filters: { openNow: true, prices: ['$'] } },
+          { id: 'newly-opened-halal',  queries: ['newly opened halal restaurant'],    filters: { halal: true, newlyOpened: true } },
+          { id: 'highly-rated-nearby', queries: ['highly rated restaurants near me'], filters: {} },
+          { id: 'open-now-popular',    queries: ['popular restaurants open now'],     filters: { openNow: true } },
+          { id: 'newly-opened-radius', queries: ['newly opened restaurants'],         filters: { newlyOpened: true } }
+        ];
+        const seedIdx = Math.floor(Date.now() / 60000) % SEEDS.length;
+        const seed = SEEDS[seedIdx];
+        const cacheKey = `cuisine:warmstart:v1:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:${seed.id}`;
+        try {
+          if (redis.isOpen) {
+            const cached = await redis.get(cacheKey);
+            if (cached) return res.json({ ...JSON.parse(cached), cached: true });
+          }
+        } catch (err) { console.warn('[WarmStart] cache read failed:', err.message); }
+
+        const pipeline = require('./pipeline');
+        const candidates = await pipeline.discover({
+          lat: searchCenter.lat, lng: searchCenter.lng,
+          radius: searchRadius,
+          cuisines: seed.queries,
+          maxResults: 30,
+          regionCode: searchRegionCode
+        });
+        let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+
+        // Mirror the NON_FOOD_TYPES guard from /api/cuisine/search so
+        // hotels / malls / point_of_interest don't sneak through.
+        const NON_FOOD_TYPES = new Set([
+          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
+          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
+          'tourist_attraction', 'point_of_interest', 'establishment',
+          'plaza', 'complex', 'building', 'park', 'school',
+          'university', 'hospital', 'gym', 'fitness_center'
+        ]);
+        venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+
+        if (seed.filters.openNow) venues = venues.filter((v) => v.openNow !== false);
+        if (seed.filters.newlyOpened) {
+          venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
+        }
+        if (seed.filters.prices?.length) {
+          const allowed = new Set(seed.filters.prices.map((p) => p.length));
+          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+        }
+
+        // Rating-rank, then pick 5 random from the top 15 via a
+        // truncated Fisher–Yates shuffle. Top-15 keeps quality high;
+        // the random sample inside that pool is what makes successive
+        // opens feel fresh.
+        venues.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        const pool = venues.slice(0, 15);
+        const shuffled = [...pool];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        const top = shuffled.slice(0, 5);
+
+        const payload = { venues: top, seed: seed.id };
+        try {
+          if (redis.isOpen) await redis.setEx(cacheKey, 60, JSON.stringify(payload));
+        } catch (err) { console.warn('[WarmStart] cache write failed:', err.message); }
+        res.json({ ...payload, cached: false });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/warm-start failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     app.post('/api/cuisine/search', async (req, res) => {
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
