@@ -106,11 +106,10 @@ describe('keywordFallback', () => {
     expect(tg.keywordFallback('$$ budget', mockVault).filters.prices).toEqual(['$', '$$']);
     expect(tg.keywordFallback('$$$', mockVault).filters.prices).toEqual(['$', '$$', '$$$']);
   });
-  it('detects open-now / halal / vegetarian / walking', () => {
-    const r = tg.keywordFallback('halal vegan walking distance open now', mockVault);
+  it('detects open-now / halal / vegetarian', () => {
+    const r = tg.keywordFallback('halal vegan open now', mockVault);
     expect(r.filters.halal).toBe(true);
     expect(r.filters.vegetarian).toBe(true);
-    expect(r.filters.walking20).toBe(true);
     expect(r.filters.openNow).toBe(true);
   });
   it('caps cuisines at 5', () => {
@@ -150,7 +149,7 @@ describe('module exports', () => {
     expect(tg.MAX_INPUT_CHARS).toBe(500);
     expect(tg.MAX_LOCATION_CHARS).toBe(80);
     expect(tg.CACHE_TTL_S).toBe(60);
-    expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian', 'homeBased']);
+    expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased']);
     expect(tg.VALID_PRICES.has('$')).toBe(true);
     expect(tg.VALID_PRICES.has('$$$$')).toBe(false);
   });
