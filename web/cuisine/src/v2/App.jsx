@@ -2,15 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
+import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import FlipPanel from './components/FlipPanel.jsx';
 import { tg } from '../api/tg.js';
 
 // v0.57.3: Singapore-wide search (no radius constraint). Header shows
-// country alongside the title. Layout order:
-//   Header → Map → Cuisine drawer → [Quick filters | Search button]
-//   → Flip panel (Results / Tell Gia)
+// country alongside the title.
+// v0.58.1: layout — filter strip moved below the map (Google-Maps-style),
+// active-filter chips below Search/Clear, walking filter dropped, Halal
+// default ON.
+//   Header → Map → Filter strip → Cuisine drawer → Search/Clear
+//   → Active-filter chips → FlipPanel (Results / Tell Gia)
 export default function App() {
   const [catalogue, setCatalogue] = useState(null);
   const [state, setState] = useState(() => readFromHash());
@@ -30,7 +34,6 @@ export default function App() {
       filters: {
         newlyOpened: !!s.filters?.newlyOpened,
         openNow: !!s.filters?.openNow,
-        walking20: !!s.filters?.walking20,
         halal: !!s.filters?.halal,
         vegetarian: !!s.filters?.vegetarian,
         homeBased: !!s.filters?.homeBased,
@@ -104,16 +107,30 @@ export default function App() {
 
   function clearAll() {
     // v0.57.24: clearedFilters() turns ALL toggles off (defaultState
-    // keeps newlyOpened: true as a first-load bias, which made Clear
-    // appear to do nothing).
+    // keeps newlyOpened: true and (since v0.58.1) halal: true as
+    // first-load biases, which made Clear appear to do nothing).
     const fresh = { ...defaultState(), cuisines: [], filters: clearedFilters() };
     setState(fresh);
     runSearch(fresh);
   }
 
+  function removeCuisine(slug) {
+    setState((s) => ({ ...s, cuisines: (s.cuisines || []).filter((c) => c !== slug) }));
+  }
+
+  function removeFilter(key) {
+    setState((s) => {
+      if (key.startsWith('price:')) {
+        const p = key.slice('price:'.length);
+        return { ...s, filters: { ...s.filters, prices: (s.filters.prices || []).filter((x) => x !== p) } };
+      }
+      return { ...s, filters: { ...s.filters, [key]: false } };
+    });
+  }
+
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
   const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
-    + (state.filters.walking20 ? 1 : 0) + (state.filters.halal ? 1 : 0)
+    + (state.filters.halal ? 1 : 0)
     + (state.filters.vegetarian ? 1 : 0) + (state.filters.homeBased ? 1 : 0)
     + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
@@ -157,16 +174,16 @@ export default function App() {
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId} />
 
-      {/* Cuisine drawer FIRST — primary intent */}
+      {/* v0.58.1: filter strip sits directly below the map, primary
+          row shows Open-now / Halal / [⚙], the rest live in the
+          overflow popover so the cuisine drawer + search controls
+          stay close to the action. */}
+      <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+
       <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
         onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
 
-      {/* v0.57.24: QuickFilters on top row(s), Search/Clear on a
-          dedicated bottom row. Previously Search was inline with
-          QuickFilters via flex-1 min-w-0 — when chips wrapped, the
-          button floated mid-block and the layout looked awful. */}
-      <div className="flex flex-col gap-1.5 sticky top-0 z-10 bg-tg-bg pt-1 pb-1">
-        <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+      <div className="flex flex-col gap-1.5">
         <div className="flex gap-1.5 items-center">
           <button
             type="button"
@@ -189,6 +206,16 @@ export default function App() {
             >Clear</button>
           )}
         </div>
+
+        {/* v0.58.1: read-only summary of every active selection with
+            ✕ to remove individual chips + Reset all link. */}
+        <ActiveFilters
+          cuisines={state.cuisines}
+          filters={state.filters}
+          onRemoveCuisine={removeCuisine}
+          onRemoveFilter={removeFilter}
+          onResetAll={clearAll}
+        />
       </div>
 
       <FlipPanel
@@ -200,7 +227,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.57.36 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.1 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

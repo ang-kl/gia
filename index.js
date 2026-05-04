@@ -3010,7 +3010,7 @@ async function cacheBotUsername() {
         // v0.57.8: region in the key so SG and JB results don't collide.
         const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
           `${cuisineQueries.join('|')}:` +
-          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.walking20 ? 'w' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
+          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}`;
         try {
           if (redis.isOpen) {
@@ -3124,9 +3124,6 @@ async function cacheBotUsername() {
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
-        }
-        if (filters.walking20 || filters.walking10) {
-          venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 20 : false);
         }
         // v0.57.16: "Home-based" filter — heuristic for HDB / condo
         // home-kitchens and takeaway-only operators that show up on
