@@ -495,7 +495,7 @@ async function handleBuddyCallback(data, chatId, q) {
   }
 }
 
-async function deliverPicks(chatId, mealLabel, picks) {
+async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
     return;
@@ -505,14 +505,24 @@ async function deliverPicks(chatId, mealLabel, picks) {
     const { addRecent } = require('./recent-picks');
     for (const p of picks) addRecent(redis, chatId, { ...p, kind: 'pick' }).catch(() => {});
   } catch { /* recent-picks optional */ }
+  // v0.57.7: opts.showWalk (default true) — /surprise opts out and
+  // surfaces 1-3 reviewer-recommended dishes instead. opts.showDishes
+  // (default false) renders the dishes line below the venue header.
+  const showWalk = opts.showWalk !== false;
+  const showDishes = !!opts.showDishes;
   const header = picks
     .map((p, i) => {
       const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
       const open = p.openNow === true ? ' · Open now'
         : p.openNow === false ? ' · Closed'
         : '';
-      const walk = Number.isFinite(p.walkMinutes) ? ` · ${p.walkMinutes} min walk` : '';
-      return `${i + 1}. ${p.name}${rating}${open}${walk}`;
+      const walk = (showWalk && Number.isFinite(p.walkMinutes)) ? ` · ${p.walkMinutes} min walk` : '';
+      let line = `${i + 1}. ${p.name}${rating}${open}${walk}`;
+      if (showDishes) {
+        const dishes = Array.isArray(p.dishes) ? p.dishes.slice(0, 3) : [];
+        if (dishes.length) line += `\n   🍴 ${dishes.join(' · ')}`;
+      }
+      return line;
     })
     .join('\n');
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
@@ -1915,7 +1925,12 @@ async function runSurpriseCommand(chatId) {
       await safeSend(chatId, "Gia couldn't find hidden gems matching the /surprise filters in your annulus (rating ≥4.0, ≤150 reviews / opened ≤100d / recent reviews ≤45d, open now). Try a denser area or /cuisine for unfiltered picks.");
       return;
     }
-    await deliverPicks(chatId, `🎲 ${venues.length} surprise hidden gem${venues.length === 1 ? '' : 's'}`, venues);
+    // v0.57.7: per Human Lead — drop walk-time, surface 1-3 reviewer-
+    // recommended dishes instead. pipeline-task already populates
+    // venues[i].dishes from review extraction.
+    await deliverPicks(chatId, `🎲 ${venues.length} surprise hidden gem${venues.length === 1 ? '' : 's'}`, venues, {
+      showWalk: false, showDishes: true
+    });
   } catch (err) {
     console.error('[Error] /surprise failed:', err.message);
     await safeSend(chatId, "Sorry, /surprise hit an error. Try again in a moment.");
