@@ -3161,7 +3161,7 @@ async function cacheBotUsername() {
         // city only, not the whole state of Johor or Malaysia). For JB
         // the search centres on JB CBD with regionCode 'MY' + a hard
         // formattedAddress filter for "Johor Bahru".
-        const { lat, lng, cuisines = [], filters = {}, region = 'SG' } = req.body || {};
+        const { lat, lng, cuisines = [], filters = {}, region = 'SG', radius: clientRadius } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
@@ -3170,7 +3170,14 @@ async function cacheBotUsername() {
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         const isJB = region === 'JB';
         const searchCenter = isJB ? JB_CBD : { lat, lng };
-        const searchRadius = isJB ? 18000 : 50000; // JB ~18km radius covers the city; SG 50km covers island
+        // v0.58.8: client supplies a `radius` in metres from the
+        // vertical slider on the map. Bounded 1000–100000. When
+        // missing or out of range, fall back to the legacy region
+        // defaults (50 km SG / 18 km JB).
+        const DEFAULT_RADIUS = isJB ? 18000 : 50000;
+        const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
+          ? Math.round(clientRadius)
+          : DEFAULT_RADIUS;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         const cv = require('./cuisines-vault');
         const cuisineMetas = (cuisines || [])
@@ -3235,7 +3242,9 @@ async function cacheBotUsername() {
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
         // v0.57.8: region in the key so SG and JB results don't collide.
-        const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
+        // v0.58.8: include searchRadius in the cache key so 80 km and
+        // 5 km searches at the same lat/lng don't collide.
+        const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:r${searchRadius}:` +
           `${cuisineQueries.join('|')}:` +
           `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}`;
