@@ -827,7 +827,7 @@ bot.onText(/^\/transport(?:@\w+)?$/, (msg) => sendTransportMenu(msg.chat.id));
 
 bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
-bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
+bot.onText(/^\/hidden(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
@@ -998,7 +998,7 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
     const { googleMapsUrl } = require('./maps-url');
     const recent = await getRecent(redis, msg.chat.id);
     if (!recent.length) {
-      await safeSend(msg.chat.id, "📋 No picks today yet. Run /cuisine, /surprise, /eat, /drink, or just type 'find me ramen' — they'll all populate /picks.");
+      await safeSend(msg.chat.id, "📋 No picks today yet. Run /cuisine, /hidden, /eat, /drink, or just type 'find me ramen' — they'll all populate /picks.");
       return;
     }
     const lines = recent.map((p, i) => {
@@ -1025,7 +1025,7 @@ bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
     const { getRecent } = require('./recent-picks');
     const recent = await getRecent(redis, msg.chat.id);
     if (!recent.length) {
-      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine, /eat, or /surprise first, then /share to forward to a buddy.");
+      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine, /eat, or /hidden first, then /share to forward to a buddy.");
       return;
     }
     const { saveShare } = require('./share');
@@ -1211,7 +1211,7 @@ bot.on('location', async (msg) => {
       throw new Error('coordinates missing or malformed');
     }
     // Auto-resume targets for ensureLocation callers.
-    if (pending === '/surprise')   { await runSurpriseCommand(msg.chat.id); return; }
+    if (pending === '/hidden')     { await runSurpriseCommand(msg.chat.id); return; }
     if (pending === '/transport')  { await sendTransportMenu(msg.chat.id);  return; }
     if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id);  return; }
     // Legacy sanctuary / cuisine / nl flow.
@@ -1284,7 +1284,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     msg.chat.id,
     "I'm Gia, the concierge inside soleat — your CBD sanctuary guide.\n\n" +
     "/cuisine   — full Cuisine Picker (sliders, 70 cuisines, queue)\n" +
-    "/surprise  — one hidden gem 1.5–3 km away\n" +
+    "/hidden    — up to 5 hidden gems 1.5–3 km away\n" +
     "/drink     — bars, coffee, tea spots\n" +
     "/grocery   — supermarkets & fresh markets\n" +
     "/weather   — now + 2-hour NEA forecast\n" +
@@ -1392,7 +1392,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'hawker':    await sendHawkerMenu(chatId); return true;
     case 'recognised': await runRecognisedCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
-    case 'surprise':  await runSurpriseCommand(chatId); return true;
+    case 'hidden':    await runSurpriseCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
@@ -1893,7 +1893,7 @@ async function runSurpriseCommand(chatId) {
       return;
     }
     // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
-    const cached = await ensureFreshLocationOrPrompt(chatId, '/surprise');
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden');
     if (!cached) return;
     await setProcessing(redis, chatId);
 
@@ -1922,18 +1922,18 @@ async function runSurpriseCommand(chatId) {
     const row = await requestStore.get(redis, reqId);
     const venues = row?.venues || [];
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find hidden gems matching the /surprise filters in your annulus (rating ≥4.0, ≤150 reviews / opened ≤100d / recent reviews ≤45d, open now). Try a denser area or /cuisine for unfiltered picks.");
+      await safeSend(chatId, "Gia couldn't find hidden gems matching the /hidden filters in your annulus (rating ≥4.0, rarity-ranked, open now). Try a denser area or /cuisine for unfiltered picks.");
       return;
     }
     // v0.57.7: per Human Lead — drop walk-time, surface 1-3 reviewer-
     // recommended dishes instead. pipeline-task already populates
     // venues[i].dishes from review extraction.
-    await deliverPicks(chatId, `🎲 ${venues.length} surprise hidden gem${venues.length === 1 ? '' : 's'}`, venues, {
+    await deliverPicks(chatId, `🎲 ${venues.length} hidden gem${venues.length === 1 ? '' : 's'}`, venues, {
       showWalk: false, showDishes: true
     });
   } catch (err) {
-    console.error('[Error] /surprise failed:', err.message);
-    await safeSend(chatId, "Sorry, /surprise hit an error. Try again in a moment.");
+    console.error('[Error] /hidden failed:', err.message);
+    await safeSend(chatId, "Sorry, /hidden hit an error. Try again in a moment.");
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
   }
@@ -2331,7 +2331,7 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
         ? '⚠ No venues to deliver. Likely cause: Reason returned no candidates OR Places-validate filtered all (check GOOGLE_MAPS_API_KEY 403). Inspect Railway logs for [Cuisine-Diag] D610/D611/D502.'
         : 'Delivering now…'));
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /surprise for a hidden gem.");
+      await safeSend(chatId, "Gia couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /hidden for a hidden gem.");
       return;
     }
     const label = result?.meal?.label || intent;
@@ -2360,7 +2360,7 @@ async function registerCommandsMenu() {
     // works for power users). /buddy + /share moved to bottom.
     await bot.setMyCommands([
       { command: 'cuisine',   description: 'Cuisine Picker >70 choices' },
-      { command: 'surprise',  description: 'Up to 5 hidden gems 1.5–3 km away' },
+      { command: 'hidden',    description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
       { command: 'hawker',    description: 'Singapore hawker Centre' },
