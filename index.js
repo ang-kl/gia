@@ -2774,16 +2774,35 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine/search', async (req, res) => {
       try {
-        const { lat, lng, cuisines = [], filters = {}, radius = 800 } = req.body || {};
+        // v0.57.2: default radius 800 → 1500 m. Halal + vegetarian
+        // moved from post-fetch regex (which dropped to 0 because
+        // Google Places rarely has "halal" in the name field) into the
+        // Places searchText query itself, so Google surfaces venues IT
+        // labels halal/vegetarian via its own metadata.
+        const { lat, lng, cuisines = [], filters = {}, radius = 1500 } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
         const cv = require('./cuisines-vault');
-        const cuisineQueries = (cuisines || [])
+        const cuisineNames = (cuisines || [])
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean)
           .map((c) => c.name);
+        const modifiers = [];
+        if (filters.halal) modifiers.push('halal');
+        if (filters.vegetarian) modifiers.push('vegetarian');
+        // Build cuisineQueries that pipeline.discover will OR-join into
+        // its searchText. Modifiers prefix each cuisine name to keep
+        // the constraint conjunctive ("halal Japanese OR halal Thai").
+        let cuisineQueries;
+        if (modifiers.length && cuisineNames.length) {
+          cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
+        } else if (modifiers.length) {
+          cuisineQueries = [modifiers.join(' ')];
+        } else {
+          cuisineQueries = cuisineNames;
+        }
         const pipeline = require('./pipeline');
         const candidates = await pipeline.discover({
           lat, lng, radius, cuisines: cuisineQueries, maxResults: 30
@@ -2794,10 +2813,8 @@ async function cacheBotUsername() {
           const allowed = new Set(filters.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
         }
-        if (filters.halal) venues = venues.filter((v) => /halal/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
-        if (filters.vegetarian) venues = venues.filter((v) => /vegetarian|vegan|veggie/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
         if (filters.walking10) venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 10 : true);
-        res.json({ venues: venues.slice(0, 12) });
+        res.json({ venues: venues.slice(0, 12), debug: { radius, cuisineQueries, modifiers } });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
         res.status(500).json({ error: err.message });
@@ -2819,7 +2836,7 @@ async function cacheBotUsername() {
         const inferredCuisines = inferred.cuisines || [];
         const inferredFilters = inferred.filters || {};
         const pipeline = require('./pipeline');
-        const cuisineQueries = inferredCuisines
+        const cuisineNames = inferredCuisines
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean)
           .map((c) => c.name);
@@ -2827,8 +2844,20 @@ async function cacheBotUsername() {
         if (Array.isArray(inferredFilters.prices) && inferredFilters.prices.length) {
           merged.prices = inferredFilters.prices;
         }
+        // v0.57.2: same modifier-prefix pattern as /api/cuisine/search.
+        const modifiers = [];
+        if (merged.halal) modifiers.push('halal');
+        if (merged.vegetarian) modifiers.push('vegetarian');
+        let cuisineQueries;
+        if (modifiers.length && cuisineNames.length) {
+          cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
+        } else if (modifiers.length) {
+          cuisineQueries = [modifiers.join(' ')];
+        } else {
+          cuisineQueries = cuisineNames;
+        }
         const candidates = await pipeline.discover({
-          lat, lng, radius: 1000, cuisines: cuisineQueries, maxResults: 30
+          lat, lng, radius: 1500, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
@@ -2836,8 +2865,6 @@ async function cacheBotUsername() {
           const allowed = new Set(merged.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
         }
-        if (merged.halal) venues = venues.filter((v) => /halal/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
-        if (merged.vegetarian) venues = venues.filter((v) => /vegetarian|vegan|veggie/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
         res.json({
           venues: venues.slice(0, 12),
           inferredCuisines, inferredFilters,

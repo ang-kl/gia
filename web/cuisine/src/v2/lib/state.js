@@ -7,7 +7,7 @@ export function defaultState() {
   return {
     cuisines: [],
     filters: { openNow: false, walking10: false, halal: false, vegetarian: false, prices: [] },
-    radius: 800,
+    radius: 1500,
     promptText: ''
   };
 }
@@ -34,7 +34,7 @@ export function writeToHash(s) {
   if (s.cuisines.length) params.set('cuisines', s.cuisines.join(','));
   for (const k of QUICK_FILTERS) if (s.filters[k]) params.set(k, '1');
   if (s.filters.prices.length) params.set('prices', s.filters.prices.join(','));
-  if (s.radius !== 800) params.set('r', String(s.radius));
+  if (s.radius !== 1500) params.set('r', String(s.radius));
   history.replaceState(null, '', '#' + params.toString());
 }
 
