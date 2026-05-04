@@ -1437,7 +1437,7 @@ async function sendTransportMenu(chatId) {
   // returns immediately; only prompts when zero cached location.
   const cached = await ensureLocation(chatId, '/transport');
   if (!cached) return;
-  await safeSend(chatId, '🚉 *Singapore transport*', {
+  await safeSend(chatId, '🇸🇬 *Transport*', {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
