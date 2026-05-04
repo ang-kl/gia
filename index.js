@@ -2810,31 +2810,25 @@ async function cacheBotUsername() {
       try {
         const { text, lat, lng, filters = {} } = req.body || {};
         if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
+        // v0.55.0: Gemini-backed NL inference with hardened guardrails
+        // (input cap, domain-restricted system prompt, output validation,
+        // cache, anti-injection). Falls back to v0.53.0 keyword inference
+        // when GEMINI_API_KEY is unset or Gemini errors.
         const cv = require('./cuisines-vault');
-        const inferredCuisines = [];
-        const lower = text.toLowerCase();
-        for (const c of cv.getAllCuisines()) {
-          if (inferredCuisines.length >= 5) break;
-          if (lower.includes(c.name.toLowerCase()) || c.keywords.some((k) => k && lower.includes(k))) {
-            if (!inferredCuisines.includes(c.slug)) inferredCuisines.push(c.slug);
-          }
-        }
-        const inferredFilters = {};
-        if (/\b(open now|now)\b/i.test(text)) inferredFilters.openNow = true;
-        if (/\b(halal)\b/i.test(text)) inferredFilters.halal = true;
-        if (/\b(vegetarian|vegan|veggie)\b/i.test(text)) inferredFilters.vegetarian = true;
-        if (/\b(walk|walking)\b/i.test(text)) inferredFilters.walking10 = true;
-        const priceMatch = text.match(/\$+/);
-        if (priceMatch) {
-          const n = priceMatch[0].length;
-          inferredFilters.prices = ['$', '$$', '$$$'].slice(0, n);
-        }
+        const tellGia = require('./tell-gia');
+        const chatId = req.body.chatId || 'anon';
+        const inferred = await tellGia.inferTellGia({ text, chatId, redis, vault: cv });
+        const inferredCuisines = inferred.cuisines || [];
+        const inferredFilters = inferred.filters || {};
         const pipeline = require('./pipeline');
         const cuisineQueries = inferredCuisines
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean)
           .map((c) => c.name);
         const merged = { ...filters, ...inferredFilters };
+        if (Array.isArray(inferredFilters.prices) && inferredFilters.prices.length) {
+          merged.prices = inferredFilters.prices;
+        }
         const candidates = await pipeline.discover({
           lat, lng, radius: 1000, cuisines: cuisineQueries, maxResults: 30
         });
@@ -2846,7 +2840,11 @@ async function cacheBotUsername() {
         }
         if (merged.halal) venues = venues.filter((v) => /halal/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
         if (merged.vegetarian) venues = venues.filter((v) => /vegetarian|vegan|veggie/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
-        res.json({ venues: venues.slice(0, 12), inferredCuisines, inferredFilters });
+        res.json({
+          venues: venues.slice(0, 12),
+          inferredCuisines, inferredFilters,
+          source: inferred.source || 'unknown'
+        });
       } catch (err) {
         console.error('[Error] /api/cuisine/nl-query failed:', err.message);
         res.status(500).json({ error: err.message });
