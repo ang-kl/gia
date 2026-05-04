@@ -3193,7 +3193,31 @@ async function cacheBotUsername() {
         const inferred = await tellGia.inferTellGia({ text, chatId, redis, vault: cv });
         const inferredCuisines = inferred.cuisines || [];
         const inferredFilters = inferred.filters || {};
+        const inferredLocation = (inferred.location_override || '').trim();
         const pipeline = require('./pipeline');
+        // v0.57.30: location_override — when the LLM extracts a SG
+        // location anchor (neighbourhood, road, MRT, mall, expressway),
+        // geocode it via Google Places and use those coords for the
+        // search instead of the user's GPS. Mirrors the voice-handler
+        // pattern at line ~2220 (geocodeQuery + searchLat/searchLng).
+        let searchLat = lat;
+        let searchLng = lng;
+        let locationLabel = '';
+        if (inferredLocation) {
+          try {
+            const place = await geocodeQuery(inferredLocation);
+            if (place?.lat && place?.lng) {
+              searchLat = place.lat;
+              searchLng = place.lng;
+              locationLabel = place.name || inferredLocation;
+              console.log(`[NL-Query] D770 location_override="${inferredLocation}" → ${locationLabel} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`);
+            } else {
+              console.log(`[NL-Query] D771 location_override="${inferredLocation}" failed to geocode; falling back to user GPS`);
+            }
+          } catch (err) {
+            console.warn(`[NL-Query] D771 geocode threw: ${err.message}`);
+          }
+        }
         const cuisineMetas = inferredCuisines
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
@@ -3223,7 +3247,7 @@ async function cacheBotUsername() {
           cuisineQueries = cuisineNames;
         }
         const candidates = await pipeline.discover({
-          lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
+          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         // v0.57.5: same primaryType deny-list as /api/cuisine/search.
@@ -3309,6 +3333,8 @@ async function cacheBotUsername() {
         res.json({
           venues: topNL,
           inferredCuisines, inferredFilters,
+          locationOverride: inferredLocation || '',
+          locationLabel,
           source: inferred.source || 'unknown'
         });
       } catch (err) {
