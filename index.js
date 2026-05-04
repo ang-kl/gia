@@ -743,33 +743,8 @@ async function startSanctuaryFlow(chatId, category, prompt) {
   );
 }
 
-bot.onText(/^\/eat(?:@\w+)?$/, async (msg) => {
-  try {
-    const meal = mealPeriodSGT();
-    await startSanctuaryFlow(msg.chat.id, 'food', meal.label);
-  } catch (err) {
-    console.error('[Error] /eat handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't think of where to eat right now.");
-  }
-});
-
-bot.onText(/^\/drink(?:@\w+)?$/, async (msg) => {
-  try {
-    await startSanctuaryFlow(msg.chat.id, 'drink', 'drinks');
-  } catch (err) {
-    console.error('[Error] /drink handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't think of where to drink right now.");
-  }
-});
-
-bot.onText(/^\/(?:groceries|grocery)(?:@\w+)?$/, async (msg) => {
-  try {
-    await startSanctuaryFlow(msg.chat.id, 'groceries', 'groceries');
-  } catch (err) {
-    console.error('[Error] /groceries handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't reach my grocery list right now.");
-  }
-});
+// v0.57.1: /eat /drink /groceries removed per Human Lead. /cuisine
+// (map-first, multi-cuisine, "Tell Gia") replaces them.
 
 const PENDING_CUISINE_PREFIX = 'cuisine:';
 
@@ -1165,6 +1140,10 @@ bot.on('callback_query', async (q) => {
       await runTransportTaxi(chatId);
       return;
     }
+    if (data === 'transport:taxi:incidents') {
+      await runTransportTrafficIncidents(chatId);
+      return;
+    }
     if (data === 'transport:drive') {
       await runTransportDrive(chatId);
       return;
@@ -1317,10 +1296,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
 async function routeMenuCommand(chatId, raw, payload = null) {
   const cmd = String(raw || '').trim().toLowerCase();
   switch (cmd) {
-    case 'eat':       await startSanctuaryFlow(chatId, 'food', mealPeriodSGT().label); return true;
-    case 'drink':     await startSanctuaryFlow(chatId, 'drink', 'drinks'); return true;
-    case 'grocery':
-    case 'groceries': await startSanctuaryFlow(chatId, 'groceries', 'groceries'); return true;
+    // v0.57.1: eat / drink / groceries menu-router cases removed.
     case 'cuisine': {
       // v0.22.0: cuisine command opens the TMA picker (multi-select chips,
       // dual radius, transport mode, time, presets). Direct legacy callers
@@ -1732,55 +1708,80 @@ async function runTransportBus(chatId, sub) {
 }
 
 async function runTransportTaxi(chatId) {
+  // v0.57.1: clean buttons-only main screen. Traffic incidents moved
+  // to a separate "Show traffic" button (transport:taxi:incidents).
+  // Ride-hail links use OneLink-style universal URLs that resolve to
+  // the installed app on iOS/Android, falling back to the App Store /
+  // Play Store automatically. Telegram inline-keyboard "url:" buttons
+  // can only carry https://, so platform detection is delegated to
+  // these smart-redirect URLs.
   try {
-    if (!redis.isOpen) await redis.connect();
-    const cachedLoc = await getUserLocation(redis, chatId);
-    const lines = ['🚖 Taxi / Private-Hire'];
-    if (process.env.LTA_ACCOUNT_KEY) {
-      try {
-        const all = await transport.fetchTrafficIncidents();
-        const near = transport.nearestIncidents(
-          all,
-          cachedLoc?.lat ?? 1.2839,
-          cachedLoc?.lng ?? 103.8517,
-          5000,
-          3
-        );
-        if (near.length) {
-          lines.push('', `🚦 Traffic near you (top ${near.length} of ${all.length}):`);
-          for (const inc of near) {
-            const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
-            lines.push(`· ${inc.type}${dist}`);
-            lines.push(`  ${inc.message}`);
-          }
-        } else if (all.length) {
-          lines.push('', `🚦 Traffic: ${all.length} incidents island-wide; none within 5 km.`);
-        } else {
-          lines.push('', '🚦 Traffic: no live incidents reported.');
-        }
-      } catch (err) {
-        console.error('[Transport] traffic incidents failed:', err.message);
-      }
-    }
-    lines.push('', 'Hail a ride:');
-    await safeSend(chatId, lines.join('\n'), {
+    await safeSend(chatId, '🚖 *Taxi / Private-Hire* — tap an app to hail; the right store / app opens for your device.', {
+      parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
           [
-            { text: 'Grab',     url: 'https://grab.onelink.me/2695613898' },
-            { text: 'Gojek',    url: 'https://www.gojek.com/sg/' }
+            { text: '🚕 Grab',    url: 'https://grab.onelink.me/2695613898' },
+            { text: '🛵 Gojek',   url: 'https://gojek.onelink.me/4dcf' }
           ],
           [
-            { text: 'CDG Zig',  url: 'https://www.cdgzig.com/' },
-            { text: 'TADA',     url: 'https://www.tada.global/' }
+            { text: '🚖 CDG Zig', url: 'https://www.cdgzig.com/getapp' },
+            { text: '🚙 TADA',    url: 'https://tada.global/download' }
           ],
-          [{ text: '⬅️ Back',   callback_data: 'transport:menu' }]
+          [{ text: '🚦 Show traffic incidents', callback_data: 'transport:taxi:incidents' }],
+          [{ text: '⬅️ Back', callback_data: 'transport:menu' }]
         ]
       }
     });
   } catch (err) {
     console.error('[Error] transport taxi failed:', err.message);
     await safeSend(chatId, "Sorry, the taxi view failed.");
+  }
+}
+
+// v0.57.1: dedicated traffic-incidents screen reachable from /transport
+// → Taxi/PHD or Drive. Uses cached user location to rank by distance;
+// falls back to island-wide top 5 when location absent.
+async function runTransportTrafficIncidents(chatId) {
+  try {
+    if (!process.env.LTA_ACCOUNT_KEY) {
+      await safeSend(chatId, '🚦 Traffic feed offline (LTA key not configured).', {
+        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:taxi' }]] }
+      });
+      return;
+    }
+    if (!redis.isOpen) await redis.connect();
+    const cachedLoc = await getUserLocation(redis, chatId);
+    const all = await transport.fetchTrafficIncidents();
+    const lines = ['🚦 *Live traffic incidents*'];
+    if (!all.length) {
+      lines.push('', 'No live incidents reported.');
+    } else if (cachedLoc) {
+      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, 10000, 8);
+      if (near.length) {
+        lines.push('', `Top ${near.length} within 10 km (of ${all.length} island-wide):`);
+        for (const inc of near) {
+          const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+          lines.push('', `· ${inc.type}${dist}`);
+          lines.push(`  ${inc.message}`);
+        }
+      } else {
+        lines.push('', `${all.length} incidents island-wide; none within 10 km of your location.`);
+      }
+    } else {
+      lines.push('', `${all.length} incidents island-wide. Share your location for nearest-first sorting.`);
+      for (const inc of all.slice(0, 5)) {
+        lines.push('', `· ${inc.type}`);
+        lines.push(`  ${inc.message}`);
+      }
+    }
+    await safeSend(chatId, lines.join('\n'), {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:taxi' }]] }
+    });
+  } catch (err) {
+    console.error('[Error] transport traffic incidents failed:', err.message);
+    await safeSend(chatId, "Sorry, the traffic feed failed.");
   }
 }
 
