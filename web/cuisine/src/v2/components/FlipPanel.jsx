@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
-import { copyAllToChat as copyAllApi } from '../lib/api.js';
+import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
 
 // v0.58.4: human-readable label for each warm-start seed id. Surfaces
 // as a muted caption above the result list so users know the initial
@@ -17,7 +17,8 @@ const SEED_LABEL = {
 
 export default function FlipPanel({
   venues, loading, focusedPlaceId, onCardTap,
-  onNLSubmit, onNLReplace, lastPrompt, flipped, setFlipped, warmStartSeed
+  onNLSubmit, onNLReplace, lastPrompt, flipped, setFlipped, warmStartSeed,
+  copyState
 }) {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -72,6 +73,44 @@ export default function FlipPanel({
     }
   }
 
+  // v0.58.10: copy a re-runnable /cuisine command (cuisines + filters
+  // + price + location anchor + radius + region) into the user's chat.
+  // Recipient pastes it into any @soleat_bot chat to relaunch this
+  // exact search.
+  const [copyingCmd, setCopyingCmd] = useState(false);
+  const [copiedCmd, setCopiedCmd] = useState(false);
+  async function handleCopyCommand() {
+    if (!copyState || copyingCmd) return;
+    setCopyingCmd(true);
+    setCopiedCmd(false);
+    try {
+      await copyCommandToChat({
+        cuisines: copyState.cuisines || [],
+        filters: copyState.filters || {},
+        prices: copyState.filters?.prices || [],
+        radius: copyState.radius,
+        region: copyState.region || 'SG',
+        location: copyState.location || null
+      });
+      setCopiedCmd(true);
+      setTimeout(() => setCopiedCmd(false), 3000);
+    } catch (err) {
+      console.warn('[Copy-Syntax] failed:', err.message);
+      const w = tg();
+      if (w && typeof w.showAlert === 'function') {
+        w.showAlert("Couldn't send the command — pick a cuisine or filter first.");
+      }
+    } finally {
+      setCopyingCmd(false);
+    }
+  }
+  const canCopyCmd = !!(copyState && (
+    (copyState.cuisines || []).length ||
+    (copyState.filters && Object.values(copyState.filters).some((v) => v === true)) ||
+    (copyState.filters?.prices || []).length ||
+    copyState.location
+  ));
+
   return (
     <div className="relative" style={{ perspective: 1000 }}>
       <div className="relative transition-transform duration-300"
@@ -85,6 +124,12 @@ export default function FlipPanel({
                 <button type="button" onClick={handleCopyAll} disabled={copying}
                   className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
                   {copying ? '📋 Sending…' : copied ? '✓ Sent' : '📋 Copy all to chat'}
+                </button>
+              )}
+              {canCopyCmd && (
+                <button type="button" onClick={handleCopyCommand} disabled={copyingCmd}
+                  className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
+                  {copyingCmd ? '🔗 Sending…' : copiedCmd ? '✓ Sent' : '🔗 Copy syntax'}
                 </button>
               )}
               <button type="button" onClick={() => setFlipped(true)}

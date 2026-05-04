@@ -772,7 +772,13 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // 9-cuisine inline keyboard (v0.18.0–v0.21.2) was retired because the
 // TMA supports multi-select chips, dual radius, transport mode, time
 // dropdown, and 4 preset combos — strictly richer.
-bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
+// v0.58.10: /cuisine accepts an optional argument string in the
+// "copy-syntax" format — `/cuisine thai halal $$ @Raffles_Place
+// radius:5 region:JB`. Tokens are parsed into URL-hash params so the
+// TMA opens with the same cuisines / filters / prices / location /
+// radius / region pre-applied. Bare `/cuisine` still opens the picker
+// at its defaults.
+bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   try {
     if (!useWebhook) {
       await safeSend(
@@ -781,11 +787,17 @@ bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
       );
       return;
     }
+    const argsRaw = (match?.[1] || '').trim();
+    let url = `https://${webhookDomain}/app/cuisine`;
+    if (argsRaw) {
+      const hash = await tokenizeCuisineArgs(argsRaw);
+      if (hash) url += `#${hash}`;
+    }
     await bot.sendMessage(msg.chat.id, "🍴 Cuisine Picker - Singapore to Johor Bahru", {
       reply_markup: {
         inline_keyboard: [[{
           text: '🍴 Open Cuisine Picker',
-          web_app: { url: `https://${webhookDomain}/app/cuisine` }
+          web_app: { url }
         }]]
       }
     });
@@ -794,6 +806,67 @@ bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
     await safeSend(msg.chat.id, "Sorry, I can't open the Cuisine Picker right now.");
   }
 });
+
+// v0.58.10: parse the copy-syntax argument string into a URL-hash
+// fragment that the TMA's readFromHash can seed initial state from.
+// Recognised tokens (order doesn't matter):
+//   <slug>                    → cuisine (validated against cuisines-vault)
+//   newlyOpened|openNow|       → filter flag
+//     halal|vegetarian|
+//     homeBased
+//   $ | $$ | $$$              → price tier (server post-filter
+//                                treats $$ as "≤$$" — so all
+//                                lower tiers are auto-included)
+//   @<location>               → SG/JB location anchor; geocoded
+//                                via vibe-suggest.geocodeQuery so
+//                                the TMA opens centred there
+//   radius:<km>               → 1–100 km, converted to metres
+//   region:SG | region:JB     → region toggle (defaults SG)
+async function tokenizeCuisineArgs(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  const cv = require('./cuisines-vault');
+  const validSlugs = new Set(cv.getAllCuisines().map((c) => c.slug));
+  const FLAGS = new Set(['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased']);
+  const tokens = raw.split(/\s+/).filter(Boolean).slice(0, 25);
+  const params = new URLSearchParams();
+  const cuisines = [];
+  for (const t of tokens) {
+    if (validSlugs.has(t)) {
+      if (cuisines.length < 5) cuisines.push(t);
+    } else if (FLAGS.has(t)) {
+      params.set(t, '1');
+    } else if (/^\$+$/.test(t) && t.length <= 3) {
+      // $$ → emit "$,$$" so the server's price-tier filter (which
+      // matches priceLevel against the SET) accepts both. Mirrors
+      // the TMA's existing multi-select chip behaviour.
+      const expanded = [];
+      for (let i = 1; i <= t.length; i++) expanded.push('$'.repeat(i));
+      params.set('prices', expanded.join(','));
+    } else if (/^@/.test(t)) {
+      const placeName = t.slice(1).replace(/_/g, ' ').slice(0, 60);
+      if (placeName) {
+        try {
+          const { geocodeQuery } = require('./vibe-suggest');
+          const geo = await geocodeQuery(placeName);
+          if (geo?.lat != null && geo?.lng != null) {
+            params.set('lat', String(geo.lat));
+            params.set('lng', String(geo.lng));
+            params.set('place', String(geo.name || placeName));
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Tokenize] geocode failed for', placeName, ':', err.message);
+        }
+      }
+    } else if (/^radius:(\d{1,3})$/.test(t)) {
+      const km = Number(t.match(/^radius:(\d{1,3})$/)[1]);
+      if (km >= 1 && km <= 100) params.set('radius', String(km * 1000));
+    } else if (/^region:(SG|JB)$/i.test(t)) {
+      params.set('region', t.split(':')[1].toUpperCase());
+    }
+  }
+  if (cuisines.length) params.set('cuisines', cuisines.join(','));
+  return params.toString();
+}
 
 async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   if (await isProcessing(redis, chatId)) {
@@ -3157,6 +3230,80 @@ async function cacheBotUsername() {
         res.json({ ...payload, cached: false });
       } catch (err) {
         console.error('[Error] /api/cuisine/place-resolve failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.58.10: copy-syntax — emit a re-runnable /cuisine command
+    // built from the current TMA state. Mirrors /api/cuisine/copy-all
+    // (auth via initData → sends to the user's chat). The recipient
+    // can paste the command into any chat with @soleat_bot to relaunch
+    // the picker with the same cuisines / filters / prices / location
+    // / radius pre-applied.
+    //
+    // Format example:
+    //   /cuisine thai japanese halal openNow $$ @Raffles_Place radius:5
+    app.post('/api/cuisine/copy-syntax', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const chatId = verified.user?.id;
+        if (!chatId) return res.status(400).json({ error: 'no chat id' });
+        const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location } = req.body || {};
+
+        const cv = require('./cuisines-vault');
+        const validSlugs = new Set(cv.getAllCuisines().map((c) => c.slug));
+        const tokens = [];
+        for (const c of (Array.isArray(cuisines) ? cuisines : []).slice(0, 5)) {
+          const slug = String(c).toLowerCase().replace(/[^a-z0-9-]/g, '');
+          if (slug && validSlugs.has(slug)) tokens.push(slug);
+        }
+        // Filter flags — only emit ones that are ON (the LLM reader
+        // and the bot tokeniser both treat absence as "off").
+        for (const f of ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased']) {
+          if (filters?.[f]) tokens.push(f);
+        }
+        // Prices — collapse to the highest tier the user picked. The
+        // server post-filter treats `$$` as "≤$$", so emitting the
+        // max preserves the same semantics with one token.
+        const priceList = Array.isArray(prices) ? prices : (Array.isArray(filters?.prices) ? filters.prices : []);
+        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 3);
+        if (cleanPrices.length) {
+          cleanPrices.sort((a, b) => b.length - a.length);
+          tokens.push(cleanPrices[0]);
+        }
+        // Location override (the LocationField pick or a Search-this-
+        // area centre paired with a friendly label).
+        if (location && typeof location.name === 'string' && location.name.trim()) {
+          const safe = location.name.replace(/[^A-Za-z0-9 \-]/g, '').replace(/\s+/g, '_').slice(0, 40);
+          if (safe) tokens.push(`@${safe}`);
+        }
+        // Radius: convert metres → km. Skip when missing or at
+        // default so the command stays short.
+        if (Number.isFinite(radius)) {
+          const km = Math.round(radius / 1000);
+          if (km >= 1 && km <= 100) tokens.push(`radius:${km}`);
+        }
+        if (region === 'JB') tokens.push('region:JB');
+
+        if (!tokens.length) {
+          return res.status(400).json({ error: 'nothing to copy — pick a cuisine or filter first' });
+        }
+
+        const cmd = `/cuisine ${tokens.join(' ')}`.trim();
+        // HTML mode → wrap the command in <code> so Telegram styles it
+        // as a tap-to-copy block. Escape only the angle-brackets / amp
+        // / quote so accidental HTML in the friendly intro is safe.
+        const intro = '🔗 Re-runnable cuisine command — tap to copy, paste in any chat with @soleat_bot to relaunch this exact search:';
+        const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        await bot.sendMessage(
+          chatId,
+          `${escape(intro)}\n\n<code>${escape(cmd)}</code>`,
+          { parse_mode: 'HTML', disable_web_page_preview: true }
+        );
+        res.json({ ok: true, cmd });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/copy-syntax failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });
