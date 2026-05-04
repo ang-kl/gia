@@ -21,9 +21,9 @@ export async function fetchCatalogue() {
   return getJson('/api/cuisine/catalogue');
 }
 
-export async function searchCuisine({ lat, lng, cuisines, filters }) {
-  // v0.57.3: radius dropped — server searches Singapore-wide.
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters });
+export async function searchCuisine({ lat, lng, cuisines, filters, region }) {
+  // v0.57.8: region: 'SG' | 'JB' (Johor Bahru city only).
+  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region });
 }
 
 export async function nlQuery({ text, lat, lng, filters }) {
