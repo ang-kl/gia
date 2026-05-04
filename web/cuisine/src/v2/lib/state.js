@@ -22,6 +22,23 @@ export function defaultState() {
   };
 }
 
+// v0.57.24: clearedFilters returns ALL filters off — used by the
+// Clear button. defaultState keeps newlyOpened: true as the
+// first-load bias, but Clear should mean "no filters at all".
+// Without this, pressing Clear visibly does nothing because
+// newlyOpened is reinstated and canClear stays true.
+export function clearedFilters() {
+  return {
+    newlyOpened: false,
+    openNow: false,
+    walking20: false,
+    halal: false,
+    vegetarian: false,
+    homeBased: false,
+    prices: []
+  };
+}
+
 export function readFromHash() {
   if (typeof window === 'undefined') return defaultState();
   const hash = window.location.hash.replace(/^#/, '');

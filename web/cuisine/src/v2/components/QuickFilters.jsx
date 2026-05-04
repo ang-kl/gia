@@ -25,17 +25,23 @@ export default function QuickFilters({ filters, onChange }) {
     const has = filters.prices.includes(p);
     onChange({ ...filters, prices: has ? filters.prices.filter((x) => x !== p) : [...filters.prices, p] });
   }
+  // v0.57.24: split toggles + prices into two visual rows so the
+  // chip block has predictable height (one row of toggles wrapping
+  // as needed, one row of prices below).
   return (
-    <div className="flex flex-wrap gap-1.5 pb-1 px-0.5">
-      {TOGGLES.map((t) => (
-        <Chip key={t.key} active={!!filters[t.key]} onClick={() => toggle(t.key)}>
-          <span className="mr-1">{t.icon}</span>{t.label}
-        </Chip>
-      ))}
-      <span className="border-l border-tg-border mx-1 self-stretch" aria-hidden />
-      {PRICES.map((p) => (
-        <Chip key={p} active={filters.prices.includes(p)} onClick={() => togglePrice(p)}>{p}</Chip>
-      ))}
+    <div className="flex flex-col gap-1.5 px-0.5">
+      <div className="flex flex-wrap gap-1.5">
+        {TOGGLES.map((t) => (
+          <Chip key={t.key} active={!!filters[t.key]} onClick={() => toggle(t.key)}>
+            <span className="mr-1">{t.icon}</span>{t.label}
+          </Chip>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {PRICES.map((p) => (
+          <Chip key={p} active={filters.prices.includes(p)} onClick={() => togglePrice(p)}>{p}</Chip>
+        ))}
+      </div>
     </div>
   );
 }
