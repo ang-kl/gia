@@ -2359,11 +2359,11 @@ async function registerCommandsMenu() {
     // v0.56.0: hidden — /ver (dropped from autocomplete; handler still
     // works for power users). /buddy + /share moved to bottom.
     await bot.setMyCommands([
-      { command: 'cuisine',   description: 'Cuisine Picker — map-first, 73 cuisines, multi-select' },
+      { command: 'cuisine',   description: 'Cuisine Picker >70 choices' },
       { command: 'surprise',  description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
-      { command: 'hawker',    description: 'Singapore hawker centres — browse by region' },
+      { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
+      { command: 'hawker',    description: 'Singapore hawker Centre' },
       { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
       { command: 'location',  description: 'Set your locale by typing a place name' },
