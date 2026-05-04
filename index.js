@@ -1231,6 +1231,13 @@ bot.on('location', async (msg) => {
     if (pending === '/hidden')     { await runSurpriseCommand(msg.chat.id); return; }
     if (pending === '/transport')  { await sendTransportMenu(msg.chat.id);  return; }
     if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id);  return; }
+    // v0.57.27: free-text search resume — user typed text first,
+    // then shared location. Pending row is `freetext:<verbatim text>`.
+    if (typeof pending === 'string' && pending.startsWith('freetext:')) {
+      const text = pending.slice('freetext:'.length);
+      await runFreeTextSearch(msg.chat.id, text);
+      return;
+    }
     // Legacy sanctuary / cuisine / nl flow.
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
@@ -2324,96 +2331,67 @@ bot.on('message', async (msg) => {
       return;
     }
 
-    // v0.30.0: Natural-language chat search (any language). Before
-    // falling through to the topic gatekeeper, ask Gemini Flash to
-    // classify intent. If food/drinks/groceries with confidence ≥ 0.6,
-    // dispatch the cuisine pipeline with extracted hints. Otherwise
-    // fall through to the existing gatekeeper (off-topic steering).
-    try {
-      const { classifyIntent, MIN_CONFIDENCE } = require('./nl-intent');
-      const verbose = require('./verbose-log');
-      const langCode = msg.from?.language_code || 'en';
-      console.log(`[NL-Intent] D750 received chat=${msg.chat.id} lang=${langCode} bytes=${text.length}`);
-      await verbose.say(redis, msg.chat.id, safeSend, `D750 received text (lang=${langCode}, ${text.length} chars). Classifying intent…`);
-      const cls = await classifyIntent({ text, langCode, redis });
-      await verbose.say(redis, msg.chat.id, safeSend, cls
-        ? `D751 intent=${cls.intent} confidence=${cls.confidence.toFixed(2)} cuisines=[${cls.cuisines.join(', ')}] qualifier="${cls.special_request}" lang=${cls.lang}`
-        : 'D751 classifyIntent returned null (Gemini unavailable or call failed)');
-      // v0.30.2: handle "update-location" intent. NL classifier flagged
-      // a location-change request (any language) — drop pending state +
-      // surface the share-location keyboard with the localised ack.
-      if (cls && cls.intent === 'update-location' && cls.confidence >= MIN_CONFIDENCE) {
-        console.log(`[NL-Intent] D754 update-location intent confidence=${cls.confidence}`);
-        await consumePendingMeal(redis, msg.chat.id).catch(() => {});
-        await bot.sendMessage(
-          msg.chat.id,
-          cls.ack_text || "📍 Tap to share your new location, or type a place name.",
-          LOCATION_REQUEST_KEYBOARD
-        );
-        return;
-      }
-      if (cls && (cls.intent === 'food' || cls.intent === 'drinks' || cls.intent === 'groceries') && cls.confidence >= MIN_CONFIDENCE) {
-        console.log(`[NL-Intent] D751 dispatching intent=${cls.intent} confidence=${cls.confidence} location_override="${cls.location_override}"`);
-        if (cls.ack_text) await safeSend(msg.chat.id, cls.ack_text);
-
-        // v0.30.5: location_override takes precedence over cached GPS.
-        // If the user said "near Tanjong Pagar MRT", geocode that and
-        // anchor the search there — not on their actual GPS coords.
-        let searchLat = null;
-        let searchLng = null;
-        let searchSource = '';
-        if (cls.location_override) {
-          await verbose.say(redis, msg.chat.id, safeSend, `D708 geocoding location_override="${cls.location_override}"…`);
-          try {
-            const place = await geocodeQuery(cls.location_override + ' Singapore');
-            if (place?.lat && place?.lng) {
-              searchLat = place.lat;
-              searchLng = place.lng;
-              searchSource = `override "${cls.location_override}" → ${place.name} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
-              console.log(`[NL-Intent] D709 location_override geocoded: ${searchSource}`);
-            } else {
-              console.warn(`[NL-Intent] D710 location_override failed to geocode, falling back to user GPS`);
-              await verbose.say(redis, msg.chat.id, safeSend, `D710 geocode of "${cls.location_override}" failed; falling back to your stored GPS`);
-            }
-          } catch (err) {
-            console.error('[NL-Intent] D710 geocode threw:', err.message);
-          }
-        }
-
-        if (searchLat == null) {
-          const cached = await getUserLocation(redis, msg.chat.id);
-          if (!cached) {
-            await setPendingMeal(redis, msg.chat.id, `nl:${JSON.stringify({
-              cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent, lang: cls.lang, locationOverride: cls.location_override
-            })}`);
-            await bot.sendMessage(
-              msg.chat.id,
-              "Where are you? Tap to share your location, or type a place name.",
-              LOCATION_REQUEST_KEYBOARD
-            );
-            return;
-          }
-          searchLat = cached.lat;
-          searchLng = cached.lng;
-          searchSource = `cached GPS (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`;
-        }
-        await verbose.say(redis, msg.chat.id, safeSend, `Search anchored at ${searchSource}`);
-        await runNLFlow(msg.chat.id, searchLat, searchLng, {
-          cuisines: cls.cuisines, specialRequest: cls.special_request, intent: cls.intent
-        });
-        return;
-      }
-      console.log(`[NL-Intent] D753 falls through intent=${cls?.intent || '?'} confidence=${cls?.confidence ?? '?'}`);
-    } catch (err) {
-      console.error('[NL-Intent] classify branch failed:', err.message);
-    }
-
-    const result = await gatekeep(redis, text);
-    if (result?.reply) await safeSend(msg.chat.id, result.reply);
+    // v0.57.27: free-text search is now LLM-free. Per Human Lead, all
+    // chat-text queries route directly to Google Places searchText
+    // (via pipeline.discover) with no NL classification, no off-topic
+    // gatekeeper, no Claude ranking/narration. The user's verbatim
+    // text becomes the searchText query. Saves ~3 LLM calls per
+    // free-text message; deterministic results.
+    await runFreeTextSearch(msg.chat.id, text);
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
 });
+
+// v0.57.27 — direct Google Places searchText for free chat text.
+// No LLM. No classifier. No gatekeeper. The user's verbatim text is
+// the searchText query. Returns up to 12 venues filtered to SG with
+// haversine distance attached.
+async function runFreeTextSearch(chatId, text) {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    const cached = await getUserLocation(redis, chatId);
+    if (!cached) {
+      // No location yet — store the verbatim text as a pending free-text
+      // search, then prompt for location. When location lands the
+      // location-handler resumes via the pending-meal path.
+      await setPendingMeal(redis, chatId, `freetext:${text.slice(0, 200)}`);
+      await bot.sendMessage(
+        chatId,
+        "📍 Tap to share your location, or type a place name. I'll search after.",
+        LOCATION_REQUEST_KEYBOARD
+      );
+      return;
+    }
+    await setProcessing(redis, chatId);
+    try {
+      const pipeline = require('./pipeline');
+      const { filterFreeTextResults } = require('./free-text-search');
+      const candidates = await pipeline.discover({
+        lat: cached.lat,
+        lng: cached.lng,
+        cuisines: [text],
+        radius: 50000,
+        maxResults: 12,
+        regionCode: 'SG'
+      });
+      const venues = filterFreeTextResults(candidates, cached);
+      if (!venues.length) {
+        await safeSend(chatId, `No Google Places results for "${text}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.`);
+        return;
+      }
+      await deliverPicks(chatId, `🔎 Results for "${text}"`, venues);
+    } finally {
+      await clearProcessing(redis, chatId).catch(() => {});
+    }
+  } catch (err) {
+    console.error('[Error] free-text search failed:', err.message);
+    await safeSend(chatId, `Sorry, free-text search hit an error. Try /cuisine or /hidden.`);
+  }
+}
 
 // v0.30.0 — runs after NL classifier confirms food/drinks/groceries
 // intent and a location is present. Dispatches into the same
