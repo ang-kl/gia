@@ -29,19 +29,26 @@ export default function FlipPanel({
   // because the cuisine TMA is launched from an inline-keyboard
   // button (sendData only works for keyboard-button / menu-button
   // TMAs).
+  // v0.57.33: don't close the TMA after sending — Human Lead wants
+  // to stay in the picker to refine. Show a one-line confirmation
+  // tick on the button instead.
+  const [copied, setCopied] = useState(false);
   async function handleCopyAll() {
     if (!venues?.length || copying) return;
     setCopying(true);
+    setCopied(false);
     try {
-      const slim = venues.slice(0, 10).map((v) => ({
+      const slim = venues.slice(0, 12).map((v) => ({
         name: v.name || '',
         placeId: v.placeId || '',
         lat: v.lat,
         lng: v.lng
       }));
       await copyAllApi(slim);
-      const w = tg();
-      if (w && typeof w.close === 'function') w.close();
+      setCopied(true);
+      // Auto-clear the tick after 3 s so the button returns to its
+      // normal state for a re-copy.
+      setTimeout(() => setCopied(false), 3000);
     } catch (err) {
       console.warn('[Copy-All] failed:', err.message);
       const w = tg();
@@ -65,7 +72,7 @@ export default function FlipPanel({
               {venues?.length > 0 && (
                 <button type="button" onClick={handleCopyAll} disabled={copying}
                   className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
-                  {copying ? '📋 Sending…' : '📋 Copy all to chat'}
+                  {copying ? '📋 Sending…' : copied ? '✓ Sent' : '📋 Copy all to chat'}
                 </button>
               )}
               <button type="button" onClick={() => setFlipped(true)}

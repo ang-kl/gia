@@ -2865,11 +2865,20 @@ async function cacheBotUsername() {
 
     // v0.57.32: "Copy all to chat" — TMA POSTs the current result list,
     // server authenticates via initData (HMAC-signed by the bot token),
-    // builds a single Google Maps URL with all pins, and sends it to
-    // the user's chat via bot.sendMessage. Replaces the v0.57.31
-    // tg.sendData approach which was silently dropped because the
-    // cuisine TMA is launched from an inline keyboard (sendData only
-    // works for keyboard-button TMAs).
+    // builds a single map URL for all pins, and sends it to the user's
+    // chat via bot.sendMessage. Replaces the v0.57.31 tg.sendData
+    // approach which was silently dropped because the cuisine TMA is
+    // launched from an inline keyboard (sendData only works for
+    // keyboard-button TMAs).
+    //
+    // v0.57.33: switched the multi-pin URL from a Google Maps
+    // directions URL to soleat's own /app/map (buildMapHashUrl).
+    // Google Maps consumer URLs cannot display arbitrary pins without
+    // computing a route between them — for 7 walking waypoints that's
+    // a multi-second compute that hangs Maps on tap. Our /app/map is a
+    // multi-marker TMA that renders all pins instantly, no routing.
+    // For the 1-venue case we still use a direct Google Maps place
+    // link (instant, native experience).
     app.post('/api/cuisine/copy-all', async (req, res) => {
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -2880,23 +2889,29 @@ async function cacheBotUsername() {
         const incoming = Array.isArray(req.body?.venues) ? req.body.venues : [];
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
-          .slice(0, 10);
+          .slice(0, 12); // /app/map has no hard cap; 12 matches /cuisine result count
         if (!slim.length) {
           return res.status(400).json({ error: 'no venues' });
         }
-        const { googleMapsContainerUrl, googleMapsUrl } = require('./maps-url');
-        let url;
-        if (slim.length === 1) {
-          url = googleMapsUrl(slim[0]);
-        } else {
-          url = googleMapsContainerUrl(slim, { maxWaypoints: 9, travelmode: 'walking' });
-        }
-        if (!url) {
-          return res.status(500).json({ error: 'could not build maps URL' });
-        }
+        const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
         const names = slim.map((v, i) => `${i + 1}. ${v.name || '(unnamed)'}`).join('\n');
         const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
-        await bot.sendMessage(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
+        if (slim.length === 1) {
+          const url = googleMapsUrl(slim[0]);
+          if (!url) return res.status(500).json({ error: 'could not build maps URL' });
+          await bot.sendMessage(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
+        } else {
+          // Multi-pin: send the soleat /app/map link as an inline-keyboard
+          // web_app button so tapping opens the TMA natively. Pins
+          // render instantly, no route line, no compute hang.
+          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          if (!mapUrl) return res.status(500).json({ error: 'could not build map URL' });
+          await bot.sendMessage(chatId, `${header}\n${names}`, {
+            reply_markup: {
+              inline_keyboard: [[{ text: '🗺️ View all on map', web_app: { url: mapUrl } }]]
+            }
+          });
+        }
         res.json({ ok: true, count: slim.length });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-all failed:', err.message);
