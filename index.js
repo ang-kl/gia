@@ -903,25 +903,9 @@ bot.onText(/^\/recognised(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognised
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
 // (Michelin SG list) and the heritage signal was thin / inconsistent.
 
-// v0.44.0: /p — hidden power-user query relay. Not in setMyCommands so
-// it doesn't show in slash autocomplete. Syntax: /p <c|g|s|m> <prompt>.
-//   c → Claude, g → Gemini, s → Google Search, m → Google Maps Places.
-// Burns upstream quota; no rate limiting; not admin-gated. Defer those
-// to v0.44.1 if abuse is observed.
-bot.onText(/^\/p(?:@\w+)?(?:\s+([\s\S]+))?$/i, async (msg, match) => {
-  try {
-    const rawArgs = (match?.[1] || '').trim();
-    if (rawArgs && rawArgs !== 'help' && rawArgs !== '?') {
-      await safeSend(msg.chat.id, '⏳ Querying…');
-    }
-    const { runPromptQuery } = require('./prompt-query');
-    const reply = await runPromptQuery(rawArgs);
-    await safeSend(msg.chat.id, reply);
-  } catch (err) {
-    logger.error({ err: { message: err.message, stack: err.stack } }, '/p handler failed');
-    await safeSend(msg.chat.id, `Sorry, /p hit an error: ${(err.message || 'unknown').slice(0, 200)}`);
-  }
-});
+// v0.57.0: /p (hidden power-user query relay) removed entirely.
+// Per Human Lead — drops the four upstream LLM/Search/Maps probes
+// + their associations.
 
 // v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
 // every step of the NL pipeline emits a "🔍 step …" message to the
@@ -3041,37 +3025,10 @@ async function cacheBotUsername() {
       }
     });
 
-    // v0.38.0: NEA hawker closures + R&R works scrape. On-demand fetch
-    // with 6 h Redis cache. Auth via initData (TMA-callable). Returns
-    // structured tables that the Hawker TMA renders, plus diagnostics
-    // and the source URL for "view on NEA" deep-link.
-    // v0.56.4: hard-disabled. The Hawker TMA was rewritten in v0.56.0
-    // to only show the regional vault (no closures / R&R) — but the
-    // /api/hawker/closures endpoint was still wired, calling Anthropic
-    // web_search (~$0.02 per cold-cache hit) whenever anything probed
-    // it. Per Human Lead's $55-burn audit, return a static 410 here.
-    // If we ever re-enable closures view in the TMA, we'll re-wire then.
-    app.get('/api/hawker/closures', (_req, res) => {
-      res.status(410).json({
-        ok: false,
-        error: 'Endpoint disabled in v0.56.4 — Hawker TMA no longer renders closures.',
-        deprecated: true
-      });
-    });
-    // Legacy handler preserved for reference, but unreachable.
-    /* app.get('/api/hawker/closures', requireInitData, async (_req, res) => {
-      try {
-        const neaFetch = require('./nea-fetch');
-        const llmResult = await neaFetch.getCachedOrFetch(redis);
-        if (llmResult.ok) return res.json(llmResult);
-        const neaScrape = require('./nea-scrape');
-        const scrapeResult = await neaScrape.getCachedOrFetch(redis);
-        return res.json({ ...scrapeResult, llmFallbackAttempted: true, llmError: llmResult.error });
-      } catch (err) {
-        console.error('[Error] /api/hawker/closures failed:', err.message);
-        res.status(500).json({ ok: false, error: err.message?.slice(0, 200) || 'scrape failed' });
-      }
-    }); */
+    // v0.57.0: /api/hawker/closures + nea-fetch.js + nea-scrape.js
+    // removed entirely. Hawker TMA serves the deterministic
+    // /api/hawker/centres-by-region endpoint only (122-centre vault
+    // from data/list-of-hawker-centres.md).
 
     // v0.34.0: recognised-venues admin endpoints. ADMIN_SYNC_SECRET
     // gates all three; same timing-safe compare as /admin/sync-vault.
