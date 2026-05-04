@@ -49,9 +49,14 @@ export default function CuisineDrawer({ catalogue, selected, onChange }) {
       <div key={cat.id} className="rounded-md border border-tg-border bg-tg-card overflow-hidden">
         <button type="button" onClick={() => toggleCat(cat.id)} aria-expanded={isOpen}
           title={cat.label}
-          className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs">
-          <span aria-hidden>{cat.emoji}</span>
-          <span className="font-semibold truncate">{cat.label}</span>
+          className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-left">
+          <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
+          {/* v0.58.13: long category names ("South Asian Specialists",
+              "Middle Eastern & Central Asian") were truncating with
+              an ellipsis in the narrow half-width column. Allow up
+              to 2 lines via line-clamp-2; leading-tight keeps the
+              two lines snug. */}
+          <span className="font-semibold whitespace-normal break-words leading-tight line-clamp-2">{cat.label}</span>
           {selectedInCat > 0 && (
             <span className="text-tg-accent font-semibold flex-shrink-0">[{selectedInCat}]</span>
           )}
