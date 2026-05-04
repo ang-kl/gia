@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
+import { tg } from '../../api/tg.js';
 
 export default function FlipPanel({
   venues, loading, focusedPlaceId, onCardTap,
@@ -20,16 +21,46 @@ export default function FlipPanel({
     } finally { setSubmitting(false); }
   }
 
+  // v0.57.31: send the current result list back to the chat as a
+  // single Google Maps directions URL containing all pins. Up to 10
+  // venues fit in one URL (Google consumer Maps cap).
+  function copyAllToChat() {
+    if (!venues?.length) return;
+    const slim = venues.slice(0, 10).map((v) => ({
+      name: v.name || '',
+      placeId: v.placeId || '',
+      lat: v.lat,
+      lng: v.lng
+    }));
+    const w = tg();
+    if (w && typeof w.sendData === 'function') {
+      try {
+        w.sendData(JSON.stringify({ cmd: 'cuisine-copy-all', venues: slim }));
+        if (typeof w.close === 'function') w.close();
+      } catch (err) {
+        console.warn('[Copy-All] sendData failed:', err.message);
+      }
+    } else {
+      console.warn('[Copy-All] Telegram.WebApp.sendData unavailable');
+    }
+  }
+
   return (
     <div className="relative" style={{ perspective: 1000 }}>
       <div className="relative transition-transform duration-300"
         style={{ transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
         {/* FRONT — Results */}
         <div className="rounded-lg border border-tg-border bg-tg-bg p-2" style={{ backfaceVisibility: 'hidden' }}>
-          <div className="flex items-center justify-between px-1 pb-1.5">
-            <div className="text-xs font-semibold">Results {venues ? `(${venues.length})` : ''}</div>
-            <button type="button" onClick={() => setFlipped(true)}
-              className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card">✨ Ask Gia</button>
+          <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
+            <div className="text-xs font-semibold flex-shrink-0">Results {venues ? `(${venues.length})` : ''}</div>
+            <div className="flex gap-1.5 flex-wrap justify-end">
+              {venues?.length > 0 && (
+                <button type="button" onClick={copyAllToChat}
+                  className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap">📋 Copy all to chat</button>
+              )}
+              <button type="button" onClick={() => setFlipped(true)}
+                className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap">✨ Ask Gia</button>
+            </div>
           </div>
           {lastPrompt && (
             <div className="text-[11px] text-tg-hint px-1 pb-1.5">
