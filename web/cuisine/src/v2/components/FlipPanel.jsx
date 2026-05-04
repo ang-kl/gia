@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
+import { copyAllToChat as copyAllApi } from '../lib/api.js';
 
 export default function FlipPanel({
   venues, loading, focusedPlaceId, onCardTap,
@@ -8,6 +9,7 @@ export default function FlipPanel({
 }) {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [copying, setCopying] = useState(false);
   const textRef = useRef(null);
 
   async function submit() {
@@ -21,27 +23,33 @@ export default function FlipPanel({
     } finally { setSubmitting(false); }
   }
 
-  // v0.57.31: send the current result list back to the chat as a
-  // single Google Maps directions URL containing all pins. Up to 10
-  // venues fit in one URL (Google consumer Maps cap).
-  function copyAllToChat() {
-    if (!venues?.length) return;
-    const slim = venues.slice(0, 10).map((v) => ({
-      name: v.name || '',
-      placeId: v.placeId || '',
-      lat: v.lat,
-      lng: v.lng
-    }));
-    const w = tg();
-    if (w && typeof w.sendData === 'function') {
-      try {
-        w.sendData(JSON.stringify({ cmd: 'cuisine-copy-all', venues: slim }));
-        if (typeof w.close === 'function') w.close();
-      } catch (err) {
-        console.warn('[Copy-All] sendData failed:', err.message);
+  // v0.57.32: POST to /api/cuisine/copy-all — server authenticates
+  // via initData and sends the Maps URL into the user's chat. Fixes
+  // v0.57.31's tg.sendData approach, which was silently dropped
+  // because the cuisine TMA is launched from an inline-keyboard
+  // button (sendData only works for keyboard-button / menu-button
+  // TMAs).
+  async function handleCopyAll() {
+    if (!venues?.length || copying) return;
+    setCopying(true);
+    try {
+      const slim = venues.slice(0, 10).map((v) => ({
+        name: v.name || '',
+        placeId: v.placeId || '',
+        lat: v.lat,
+        lng: v.lng
+      }));
+      await copyAllApi(slim);
+      const w = tg();
+      if (w && typeof w.close === 'function') w.close();
+    } catch (err) {
+      console.warn('[Copy-All] failed:', err.message);
+      const w = tg();
+      if (w && typeof w.showAlert === 'function') {
+        w.showAlert("Couldn't send to chat — try again.");
       }
-    } else {
-      console.warn('[Copy-All] Telegram.WebApp.sendData unavailable');
+    } finally {
+      setCopying(false);
     }
   }
 
@@ -55,8 +63,10 @@ export default function FlipPanel({
             <div className="text-xs font-semibold flex-shrink-0">Results {venues ? `(${venues.length})` : ''}</div>
             <div className="flex gap-1.5 flex-wrap justify-end">
               {venues?.length > 0 && (
-                <button type="button" onClick={copyAllToChat}
-                  className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap">📋 Copy all to chat</button>
+                <button type="button" onClick={handleCopyAll} disabled={copying}
+                  className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
+                  {copying ? '📋 Sending…' : '📋 Copy all to chat'}
+                </button>
               )}
               <button type="button" onClick={() => setFlipped(true)}
                 className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap">✨ Ask Gia</button>

@@ -29,3 +29,12 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region }) {
 export async function nlQuery({ text, lat, lng, filters }) {
   return postJson('/api/cuisine/nl-query', { text, lat, lng, filters });
 }
+
+// v0.57.32: server-driven "Copy all" — POST result venues, server
+// authenticates via initData and replies in the user's chat with a
+// single Google Maps URL containing all pins. Replaces the v0.57.31
+// tg.sendData approach (which is silently dropped for inline-keyboard
+// TMAs like the cuisine picker).
+export async function copyAllToChat(venues) {
+  return postJson('/api/cuisine/copy-all', { venues });
+}
