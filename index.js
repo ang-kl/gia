@@ -176,40 +176,43 @@ async function reverseGeocodeAddress(lat, lng) {
   }
 }
 
-// v0.53.0: shared location-preload pattern used by /transport,
-// /surprise, /carpark. Returns the cached location if fresh
-// (≤5 min old), else fires LOCATION_REQUEST_KEYBOARD and returns null
-// so the caller can early-return. When fresh, also sends a small
-// "📍 Current: <address>" header line so the user knows what locale
-// the bot is operating on.
-//
-// v0.54.1: also sets a pending-meal label so bot.on('location')
-// auto-re-fires the command after the user shares — was a dead-end
-// loop where /surprise/transport/carpark prompted forever because the
-// location handler dropped non-sanctuary location shares.
-const FRESH_LOC_MS = 5 * 60 * 1000;
-async function ensureFreshLocationOrPrompt(chatId, label) {
+// v0.56.1: location-preload pattern, background-refresh mode.
+// Per Human Lead: "why ask user to refresh location, can you refresh
+// location in the background". Behaviour:
+//   • Cached location of ANY age → return immediately (use cached).
+//     The header line annotates age ("3 min ago", "1 h ago") so the
+//     user can decide if they want to refresh manually.
+//   • No cached location at all → prompt for share (only first time).
+//     Sets pending-meal so bot.on('location') auto-resumes.
+async function ensureLocation(chatId, label) {
   const cached = await getUserLocation(redis, chatId);
-  const stale = !cached || !cached.setAt || (Date.now() - cached.setAt > FRESH_LOC_MS);
-  if (stale) {
+  if (!cached || !Number.isFinite(cached.lat) || !Number.isFinite(cached.lng)) {
     try { await setPendingMeal(redis, chatId, label); } catch { /* best effort */ }
     await bot.sendMessage(
       chatId,
-      `📍 Tap to share your location so ${label} uses your current locale.`,
+      `📍 Share your location once so ${label} uses your locale (or type \`/location <place name>\` to set it manually).`,
       LOCATION_REQUEST_KEYBOARD
     );
     return null;
   }
   try {
     const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
+    const ageMin = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
+    const ageNote = ageMin == null ? ''
+      : ageMin < 1 ? ' (just shared)'
+      : ageMin < 60 ? ` (${ageMin} min ago)`
+      : ` (${Math.floor(ageMin / 60)} h ${ageMin % 60} min ago)`;
     if (geo?.formatted) {
-      await safeSend(chatId, `📍 Current: ${geo.formatted}`);
+      await safeSend(chatId, `📍 Current: ${geo.formatted}${ageNote}`);
     }
   } catch (err) {
     console.warn(`[${label}] reverse-geocode failed:`, err.message);
   }
   return cached;
 }
+// Back-compat alias — old callers (sendTransportMenu) still reference
+// the v0.53.0 name.
+const ensureFreshLocationOrPrompt = ensureLocation;
 
 async function safeSend(chatId, text, opts = {}) {
   try {
@@ -841,6 +844,50 @@ bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 bot.onText(/^\/surprise(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
+// v0.56.1: /location <free text> — manual override when sharing GPS
+// is awkward (e.g. on desktop). Geocodes the text via Google
+// Geocoding and stores as the user's cached location.
+bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  const text = (match?.[1] || '').trim();
+  const chatId = msg.chat.id;
+  if (!text) {
+    await safeSend(chatId,
+      'Usage: `/location <place>`\n' +
+      'Example: `/location current Telok Blangah`\n' +
+      'Or: `/location Marina Bay Sands`\n\n' +
+      'Geocodes the text and saves it as your locale for /eat /surprise /carpark /transport.',
+      { parse_mode: 'Markdown' }
+    );
+    return;
+  }
+  if (!process.env.GOOGLE_MAPS_API_KEY) {
+    await safeSend(chatId, "Manual location lookup is offline (GOOGLE_MAPS_API_KEY missing).");
+    return;
+  }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text + ', Singapore')}&components=country:SG&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    const { data } = await axios.get(url, { timeout: 5000 });
+    if (data.status !== 'OK' || !data.results?.length) {
+      await safeSend(chatId, `Could not resolve "${text}" to a Singapore location. Try a more specific name (street, MRT, mall, postal).`);
+      return;
+    }
+    const r = data.results[0];
+    const lat = r.geometry?.location?.lat;
+    const lng = r.geometry?.location?.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      await safeSend(chatId, "Geocoding result missing coordinates.");
+      return;
+    }
+    await setUserLocation(redis, chatId, lat, lng);
+    await safeSend(chatId, `📍 Location saved: ${r.formatted_address}`, {
+      reply_markup: { remove_keyboard: true }
+    });
+  } catch (err) {
+    console.error('[Error] /location command failed:', err.message);
+    await safeSend(chatId, "Sorry, geocoding hit an error. Try sharing GPS instead.");
+  }
+});
+
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
 bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
 
@@ -1174,10 +1221,6 @@ bot.on('callback_query', async (q) => {
 });
 
 bot.on('location', async (msg) => {
-  // v0.54.1: always save the location FIRST (was inside the pending
-  // gate — meant /surprise / /transport / /carpark prompts dead-ended
-  // because they don't set a sanctuary-style pending). Then handle
-  // pending re-fire if any.
   let pending;
   try {
     const lat = msg.location?.latitude;
@@ -1186,16 +1229,24 @@ bot.on('location', async (msg) => {
       try { await setUserLocation(redis, msg.chat.id, lat, lng); }
       catch (err) { console.warn('[location] setUserLocation failed:', err.message); }
     }
+    // v0.56.1: dismiss the persistent "Share my location / Use Raffles
+    // Place default" reply keyboard once we've received a location.
+    // Per Human Lead — the buttons "keep on at iOS" until removed.
+    try {
+      await bot.sendMessage(msg.chat.id, '📍 Got your location.', {
+        reply_markup: { remove_keyboard: true }
+      });
+    } catch (err) { /* non-fatal */ }
     pending = await consumePendingMeal(redis, msg.chat.id);
     if (!pending) return; // location stored; nothing to auto-resume
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       throw new Error('coordinates missing or malformed');
     }
-    // v0.54.1: auto-resume targets for ensureFreshLocationOrPrompt callers.
+    // Auto-resume targets for ensureLocation callers.
     if (pending === '/surprise')   { await runSurpriseCommand(msg.chat.id); return; }
     if (pending === '/transport')  { await sendTransportMenu(msg.chat.id);  return; }
     if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id);  return; }
-    // §2 Location Validation Gate: legacy sanctuary / cuisine / nl flow.
+    // Legacy sanctuary / cuisine / nl flow.
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
     if (resolved.kind === 'cuisine') {
@@ -1417,31 +1468,11 @@ async function runWeatherCommand(chatId) {
 // wants the dense view, but the user-facing entry point is sendTransportMenu.
 
 async function sendTransportMenu(chatId) {
-  // v0.52.0: preload current location, refresh if stale (>5 min) or
-  // missing, and display the human-readable address in the header.
-  // Per Human Lead: "just refresh current location as preload and then
-  // state the current location in the menu of /transport".
-  const STALE_MS = 5 * 60 * 1000;
-  const cached = await getUserLocation(redis, chatId);
-  const stale = !cached || !cached.setAt || (Date.now() - cached.setAt > STALE_MS);
-  if (stale) {
-    await bot.sendMessage(
-      chatId,
-      "📍 Tap to share your location so /transport shows your current locale.",
-      LOCATION_REQUEST_KEYBOARD
-    );
-    return;
-  }
-  let header = '🚉 *Singapore transport*';
-  try {
-    const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
-    if (geo?.formatted) {
-      header += `\n📍 Current: ${geo.formatted}`;
-    }
-  } catch (err) {
-    console.warn('[Transport] reverse-geocode failed:', err.message);
-  }
-  await safeSend(chatId, header, {
+  // v0.56.1: use shared ensureLocation helper. Cached-of-any-age
+  // returns immediately; only prompts when zero cached location.
+  const cached = await ensureLocation(chatId, '/transport');
+  if (!cached) return;
+  await safeSend(chatId, '🚉 *Singapore transport*', {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
@@ -1496,30 +1527,47 @@ async function runTransportTrain(chatId) {
       lines.push('', 'Status: 🟡 warming up; try again in 30 s.');
     }
 
+    // v0.56.1: nearest 3 stations FIRST, each with crowd + wait estimate.
+    // Network summary follows in plain English.
+    const CROWD_LABEL = { l: '🟢 low', m: '🟡 medium', h: '🔴 high' };
+    let crowdMap = null;
     if (process.env.LTA_ACCOUNT_KEY) {
-      try {
-        const crowdMap = await transport.fetchPlatformCrowdAll();
-        const summary = transport.networkCrowdSummary(crowdMap);
-        if (summary) {
-          lines.push('', `Network crowd: ${summary.overall} (${summary.low}L / ${summary.medium}M / ${summary.high}H of ${summary.total})`);
-        }
-      } catch (err) {
-        console.error('[Transport] platform crowd failed:', err.message);
-      }
+      try { crowdMap = await transport.fetchPlatformCrowdAll(); }
+      catch (err) { console.error('[Transport] platform crowd failed:', err.message); }
     }
-
     if (cachedLoc && process.env.GOOGLE_MAPS_API_KEY) {
       try {
         const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
         if (mrt.length) {
-          lines.push('', '🚇 Nearest MRT stations:');
-          for (const s of mrt) lines.push(`· ${s.name}`);
+          const wait = transport.estimateWaitMinutes();
+          lines.push('', `🚇 Nearest 3 stations · est. wait ${wait.min}–${wait.max} min (${wait.label})`);
+          for (const s of mrt) {
+            const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
+            const crowdNote = crowd ? ` · ${CROWD_LABEL[crowd] || crowd}` : '';
+            lines.push(`· ${s.name}${crowdNote}`);
+          }
         }
       } catch (err) {
         console.error('[Transport] nearestMrtStations failed:', err.message);
       }
     } else if (!cachedLoc) {
       lines.push('', '🚇 Share your location once and Gia will list the nearest MRT stations too.');
+    }
+    if (crowdMap) {
+      const summary = transport.networkCrowdSummary(crowdMap);
+      if (summary) {
+        // Plain-English: e.g. "🟢 Network is uncrowded — all 162 platforms low density"
+        const pct = summary.total > 0 ? Math.round((summary.low / summary.total) * 100) : 0;
+        let networkLine;
+        if (summary.overall === 'low') {
+          networkLine = `🟢 Network is uncrowded — ${pct}% of ${summary.total} platforms at low density.`;
+        } else if (summary.overall === 'medium') {
+          networkLine = `🟡 Network is moderate — ${summary.medium} of ${summary.total} platforms at medium density, ${summary.high} high.`;
+        } else {
+          networkLine = `🔴 Network is busy — ${summary.high} of ${summary.total} platforms at high density.`;
+        }
+        lines.push('', networkLine);
+      }
     }
 
     // v0.51.0: per-line breakdown + Hitachi-style TMA + engineering closures.
@@ -2393,6 +2441,7 @@ async function registerCommandsMenu() {
       { command: 'hawker',    description: 'Singapore hawker centres — browse by region' },
       { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
+      { command: 'location',  description: 'Set your locale by typing a place name' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'share',     description: 'Forward a recent pick to a buddy' }
     ]);
