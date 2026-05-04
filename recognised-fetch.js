@@ -144,25 +144,51 @@ function groupByAward(awards) {
   return ordered;
 }
 
-async function fetchAndParse(year = targetYear()) {
-  const t0 = Date.now();
+async function callOnce(year, maxTokens = 8000) {
   const result = await llm.generate({
     prompt: buildPrompt(year),
     model: llm.SONNET_MODEL || llm.DEFAULT_MODEL,
     webSearch: true,
-    maxTokens: 8000
+    maxTokens
   });
-  const text = result?.response?.text?.() || '';
-  const parsed = tryParseJson(text);
+  return result?.response?.text?.() || '';
+}
+
+// v0.56.0: harden against the "/recognised doesn't work" bug.
+// 1. Retry once on empty / unparseable response.
+// 2. Surface diagnostics in the error message so the chat-side handler
+//    can render a clearer failure note for the user.
+// 3. ok=true even when only a subset of categories returned — better
+//    to show 3 Michelin Star entries than nothing.
+async function fetchAndParse(year = targetYear()) {
+  const t0 = Date.now();
+  let text = '';
+  let attempt = 0;
+  let parsed = null;
+  while (attempt < 2 && !parsed) {
+    try {
+      text = await callOnce(year);
+      parsed = tryParseJson(text);
+    } catch (err) {
+      console.warn(`[Recognised-Fetch] attempt ${attempt + 1} threw:`, err.message);
+    }
+    attempt++;
+    if (!parsed && attempt < 2) {
+      // brief jitter before retry
+      await new Promise((r) => setTimeout(r, 800));
+    }
+  }
   if (!parsed || !Array.isArray(parsed.awards)) {
     return {
       ok: false,
-      error: `LLM did not return parseable JSON (${text.slice(0, 100)}…)`,
+      error: `LLM web_search did not return a parseable awards array after ${attempt} attempts. ` +
+        `Last response (first 200 chars): ${text.slice(0, 200) || '(empty)'}`,
       fetchedAt: Date.now(),
       ms: Date.now() - t0,
       year,
       awards: [],
-      groups: []
+      groups: [],
+      diagnostics: { attempt, llmTextChars: text.length }
     };
   }
   const awards = normaliseAwards(parsed.awards);
@@ -175,6 +201,7 @@ async function fetchAndParse(year = targetYear()) {
     awards,
     groups,
     diagnostics: {
+      attempt,
       totalAwards: awards.length,
       groupCount: groups.length,
       llmTextChars: text.length

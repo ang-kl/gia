@@ -1462,15 +1462,14 @@ async function sendTransportMenu(chatId) {
 }
 
 async function sendBusMenu(chatId) {
+  // v0.56.0: removed "Arrivals" + "Crowd / load" per Human Lead.
+  // Both depend on per-stop user-side selection that the chat-side
+  // flow couldn't make ergonomic.
   await safeSend(chatId, '🚌 Bus — pick what you need', {
     reply_markup: {
       inline_keyboard: [
         [
           { text: '🚏 Nearest stops',   callback_data: 'transport:bus:nearest' },
-          { text: '⏱ Arrivals',         callback_data: 'transport:bus:arrivals' }
-        ],
-        [
-          { text: '👥 Crowd / load',    callback_data: 'transport:bus:crowd' },
           { text: '🗺 Plan a route',    callback_data: 'transport:bus:route' }
         ],
         [
@@ -1803,17 +1802,15 @@ async function runTransportDrive(chatId) {
 
 // v0.33.0: /hawker sub-menu + handlers.
 async function sendHawkerMenu(chatId) {
-  // v0.54.0: Both buttons go DIRECTLY to the TMA (no intermediate
-  // chat screens). Cleaning info → Hawker Centre Status (was a 1-tap
-  // detour to the same TMA). Browse → opens the TMA on the regions
-  // tab (no chat-side region picker → no truncation issue).
+  // v0.56.0: collapse to a SINGLE button — /hawker goes straight to
+  // the TMA per Human Lead. TMA also simplified: only the regional
+  // browser remains (Closures/R&R/About tabs removed).
   const vault = require('./hawker-vault');
   const total = vault.getAllCentres().length;
   await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, snapshot 25 Jul 2025)`, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🧹 Hawker Centre Status', web_app: { url: `https://${webhookDomain}/app/hawker?tab=closures` } }],
-        [{ text: '🗺 Browse by region',     web_app: { url: `https://${webhookDomain}/app/hawker?tab=regions` } }]
+        [{ text: '🍚 Open Hawker Centre', web_app: { url: `https://${webhookDomain}/app/hawker` } }]
       ]
     }
   });
@@ -2386,16 +2383,18 @@ async function registerCommandsMenu() {
     // (still wired internally — power users keep muscle memory). /transport now
     // surfaces an inline sub-menu (Train/Bus/Taxi-PHD/Drive) with bus offering
     // a sub-sub-menu for nearest-stops/arrivals/crowd/route.
+    // v0.56.0: hidden — /ver (dropped from autocomplete; handler still
+    // works for power users). /buddy + /share moved to bottom.
     await bot.setMyCommands([
-      { command: 'cuisine',   description: 'Cuisine Picker — sliders, 70 cuisines, queue tolerance' },
-      { command: 'surprise',  description: 'One hidden gem 1.5–3 km away' },
-      { command: 'share',     description: 'Forward a recent pick to a buddy' },
-      { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
+      { command: 'cuisine',   description: 'Cuisine Picker — map-first, 73 cuisines, multi-select' },
+      { command: 'surprise',  description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
-      { command: 'hawker',    description: 'Hawker centres — nearest, by zone, cleaning info' },
-      { command: 'recognised', description: 'Nearest 5 award-winning venues (Michelin / Bib / 50 Best)' },
-      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' }
+      { command: 'hawker',    description: 'Singapore hawker centres — browse by region' },
+      { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
+      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
+      { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
+      { command: 'share',     description: 'Forward a recent pick to a buddy' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
