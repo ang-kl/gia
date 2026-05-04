@@ -3045,14 +3045,22 @@ async function cacheBotUsername() {
     // with 6 h Redis cache. Auth via initData (TMA-callable). Returns
     // structured tables that the Hawker TMA renders, plus diagnostics
     // and the source URL for "view on NEA" deep-link.
-    app.get('/api/hawker/closures', requireInitData, async (_req, res) => {
+    // v0.56.4: hard-disabled. The Hawker TMA was rewritten in v0.56.0
+    // to only show the regional vault (no closures / R&R) — but the
+    // /api/hawker/closures endpoint was still wired, calling Anthropic
+    // web_search (~$0.02 per cold-cache hit) whenever anything probed
+    // it. Per Human Lead's $55-burn audit, return a static 410 here.
+    // If we ever re-enable closures view in the TMA, we'll re-wire then.
+    app.get('/api/hawker/closures', (_req, res) => {
+      res.status(410).json({
+        ok: false,
+        error: 'Endpoint disabled in v0.56.4 — Hawker TMA no longer renders closures.',
+        deprecated: true
+      });
+    });
+    // Legacy handler preserved for reference, but unreachable.
+    /* app.get('/api/hawker/closures', requireInitData, async (_req, res) => {
       try {
-        // v0.52.0: LLM-driven fetcher is the primary path (cheerio
-        // scrape returns 0 because NEA's tabbed/iframe structure isn't
-        // poolable). Falls back to the legacy scrape only if the LLM
-        // path errors entirely (Anthropic outage); the scrape result
-        // will still be empty but lets the TMA render its diagnostic
-        // banner instead of 500ing.
         const neaFetch = require('./nea-fetch');
         const llmResult = await neaFetch.getCachedOrFetch(redis);
         if (llmResult.ok) return res.json(llmResult);
@@ -3061,13 +3069,9 @@ async function cacheBotUsername() {
         return res.json({ ...scrapeResult, llmFallbackAttempted: true, llmError: llmResult.error });
       } catch (err) {
         console.error('[Error] /api/hawker/closures failed:', err.message);
-        res.status(500).json({
-          ok: false,
-          error: err.message?.slice(0, 200) || 'scrape failed',
-          sourceUrl: 'https://www.nea.gov.sg/our-services/hawker-management/announcements'
-        });
+        res.status(500).json({ ok: false, error: err.message?.slice(0, 200) || 'scrape failed' });
       }
-    });
+    }); */
 
     // v0.34.0: recognised-venues admin endpoints. ADMIN_SYNC_SECRET
     // gates all three; same timing-safe compare as /admin/sync-vault.
