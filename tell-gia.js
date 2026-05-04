@@ -30,7 +30,7 @@ const CACHE_TTL_S = 60;
 const CACHE_PREFIX = 'tell-gia:v1:';
 const FETCH_TIMEOUT_MS = 12000;
 
-const FILTER_KEYS = ['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian'];
+const FILTER_KEYS = ['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian', 'homeBased'];
 const VALID_PRICES = new Set(['$', '$$', '$$$']);
 
 function buildSystemPrompt(cuisineSlugList) {

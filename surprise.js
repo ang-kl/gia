@@ -20,6 +20,7 @@ const llm = require('./llm-client');
 const { withRetry } = require('./gemini-retry');
 const { logger } = require('./logger');
 const { googleMapsUrl } = require('./maps-url');
+const rarityScore = require('./rarity-score');
 
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const PLACE_DETAILS_URL = 'https://places.googleapis.com/v1/places';
@@ -239,11 +240,16 @@ async function findSurprise({ lat, lng, redis = null }) {
   const near = { lat, lng };
   const raw = await nearbyCandidates(near, mapsApiKey);
 
-  // Cheap filters first (no extra API cost).
-  const prefiltered = raw
+  // Cheap filters first (no extra API cost). v0.57.17: dropped the
+  // hard userRatingCount < MAX_REVIEW_COUNT gate — rarity-score
+  // handles low-volume preference relative to the candidate pool.
+  // Annulus + rating + price stay as hard pre-filters; ranking is
+  // by rarityScore (rating percentile × low-volume percentile ×
+  // recency). Mirrors the live path in pipeline-task.js.
+  const annulusPool = raw
     .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
     .filter((p) => Number.isFinite(p.rating) && p.rating >= MIN_RATING)
-    .filter((p) => Number.isFinite(p.userRatingCount) && p.userRatingCount > 0 && p.userRatingCount < MAX_REVIEW_COUNT)
+    .filter((p) => Number.isFinite(p.userRatingCount) && p.userRatingCount > 0)
     .filter((p) => {
       const lvl = priceLevelToInt(p.priceLevel);
       return lvl == null || lvl <= MAX_PRICE_LEVEL;
@@ -252,8 +258,8 @@ async function findSurprise({ lat, lng, redis = null }) {
       ...p,
       _distance: haversine(near, { lat: p.location.latitude, lng: p.location.longitude })
     }))
-    .filter((p) => p._distance >= ANNULUS_INNER_M && p._distance <= ANNULUS_OUTER_M)
-    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    .filter((p) => p._distance >= ANNULUS_INNER_M && p._distance <= ANNULUS_OUTER_M);
+  const prefiltered = rarityScore.applyRarityRanking(annulusPool, 6);
 
   if (!prefiltered.length) return null;
 

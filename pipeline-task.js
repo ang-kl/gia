@@ -21,6 +21,7 @@ const pipeline = require('./pipeline');
 const responseCache = require('./response-cache');
 const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const vaultIndex = require('./vault-index');
+const rarityScore = require('./rarity-score');
 const holidays = require('./holidays');
 const { logger, forRequest } = require('./logger');
 const { captureWithReqId } = require('./sentry');
@@ -414,31 +415,89 @@ async function runSurpriseTask(redis, reqId) {
 
     // Annulus filter — exclude inner SURPRISE_INNER_M circle.
     const centre = { lat: payload.lat, lng: payload.lng };
-    let inAnnulus = candidates.map((c) => ({
-      ...c,
-      distanceM: Math.round(haversineM(centre, { lat: c.lat, lng: c.lng }))
-    })).filter((c) => c.distanceM >= SURPRISE_INNER_M && c.distanceM <= SURPRISE_OUTER_M);
-    diagPush('D870', 'Annulus filter', true, { in: candidates.length, out: inAnnulus.length });
+    let workingCandidates = candidates;
+    let innerM = SURPRISE_INNER_M;
+    let outerM = SURPRISE_OUTER_M;
+    let minRating = 4.0;
+    let iter = 0;
+
+    function applyAnnulus(pool) {
+      return pool.map((c) => ({
+        ...c,
+        distanceM: Math.round(haversineM(centre, { lat: c.lat, lng: c.lng }))
+      })).filter((c) => c.distanceM >= innerM && c.distanceM <= outerM);
+    }
+    function applyQuality(pool) {
+      return pool.filter((c) => typeof c.rating !== 'number' || c.rating >= minRating);
+    }
+
+    let inAnnulus = applyAnnulus(workingCandidates);
+    diagPush('D870', 'Annulus filter', true, { in: candidates.length, out: inAnnulus.length, innerM, outerM });
     if (!inAnnulus.length) {
       await requestStore.setVenues(redis, reqId, []);
       await requestStore.setStatus(redis, reqId, 'empty');
       return;
     }
 
-    // Quality gate — rating ≥ 4.0.
-    let qualified = inAnnulus.filter((c) => typeof c.rating !== 'number' || c.rating >= 4.0);
-    diagPush('D871', 'Quality gate', true, { in: inAnnulus.length, out: qualified.length });
+    // Quality gate — rating ≥ minRating.
+    let qualified = applyQuality(inAnnulus);
+    diagPush('D871', 'Quality gate', true, { in: inAnnulus.length, out: qualified.length, minRating });
 
-    // Multi-signal recency — keep venues that pass any of the proxies.
-    let recent = qualified.filter(passesRecencySignal);
-    diagPush('D872', 'Recency multi-signal', true, { in: qualified.length, out: recent.length });
+    // v0.57.17: adaptive threshold relaxation. When the post-quality
+    // pool has fewer than the target count, relax up to two steps:
+    //   step 1 — drop minRating from 4.0 → 3.8 (re-filter in memory).
+    //   step 2 — expand annulus to 1.0–4.0 km (re-discover at wider radius).
+    // Cap at 2 relaxations. Better honest 3 picks than padded 5.
+    if (qualified.length < SURPRISE_TARGET_COUNT) {
+      iter = 1;
+      minRating = 3.8;
+      qualified = applyQuality(inAnnulus);
+      diagPush('D875', 'Rarity threshold relaxed (rating)', true, { iter, minRating, qualified: qualified.length });
+    }
+    if (qualified.length < SURPRISE_TARGET_COUNT) {
+      iter = 2;
+      innerM = 1000;
+      outerM = 4000;
+      try {
+        const expanded = await pipeline.discover({
+          lat: payload.lat,
+          lng: payload.lng,
+          cuisines: [],
+          radius: outerM,
+          mealPeriod: meal.label,
+          maxResults: 30,
+          diag: diagPush
+        });
+        if (expanded.length) {
+          workingCandidates = expanded;
+          inAnnulus = applyAnnulus(workingCandidates);
+          qualified = applyQuality(inAnnulus);
+          diagPush('D875', 'Rarity threshold relaxed (annulus)', true, { iter, innerM, outerM, qualified: qualified.length });
+        }
+      } catch (err) {
+        diagPush('D875', 'Annulus expansion failed', false, { err: err.message?.slice(0, 200) });
+      }
+    }
 
-    // If recency filter is too aggressive (zero results), fall back to
-    // just the quality-gated set so /surprise never empty-returns when
-    // candidates exist in the annulus.
-    if (!recent.length && qualified.length) {
-      diagPush('D873', 'Recency too strict — falling back to quality-gated set', false, { qualified: qualified.length });
-      recent = qualified;
+    // v0.57.17: rarity-score ranking — neighbourhood-relative percentile
+    // on rating × low-volume × recency. Uses passesRecencySignal as
+    // hasRecentReviews input so legacy multi-signal (opened ≤100d /
+    // recent review ≤45d / "new" type) still feeds the recency axis.
+    const enriched = qualified.map((c) => ({
+      ...c,
+      hasRecentReviews: passesRecencySignal(c)
+    }));
+    let recent = rarityScore.applyRarityRanking(enriched, 12);
+    diagPush('D876', 'Rarity ranked', true, {
+      in: qualified.length,
+      out: recent.length,
+      iter,
+      topScore: recent[0]?.rarityScore?.toFixed?.(3) ?? null
+    });
+    if (!recent.length) {
+      await requestStore.setVenues(redis, reqId, []);
+      await requestStore.setStatus(redis, reqId, 'empty');
+      return;
     }
 
     // Vault snapshot for narrative grounding.

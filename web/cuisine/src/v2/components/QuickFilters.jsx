@@ -5,7 +5,8 @@ const TOGGLES = [
   { key: 'openNow',    label: 'Open now',     icon: '🟢' },
   { key: 'walking20',  label: '≤20 min walk', icon: '🚶' },
   { key: 'halal',      label: 'Halal',        icon: '🕌' },
-  { key: 'vegetarian', label: 'Vegetarian',   icon: '🥗' }
+  { key: 'vegetarian', label: 'Vegetarian',   icon: '🥗' },
+  { key: 'homeBased',  label: 'Home-based',   icon: '🏠' }
 ];
 const PRICES = ['$', '$$', '$$$'];
 
