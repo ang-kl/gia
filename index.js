@@ -3032,12 +3032,8 @@ async function cacheBotUsername() {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'transport', 'index.html'));
     });
-    // Schematic SVG fetched by the TMA's SystemMap component.
-    app.get('/app/transport/mrt-system-map.svg', (_req, res) => {
-      res.type('image/svg+xml');
-      res.set('Cache-Control', 'public, max-age=3600');
-      res.sendFile(path.join(__dirname, 'data', 'mrt-system-map.svg'));
-    });
+    // v0.57.11: SVG endpoint dropped; mrt-system-map.png is served as
+    // a Vite-emitted static asset from web/transport/public/.
     // Per-line status feed for the Transport TMA.
     app.get('/api/transport/status', async (_req, res) => {
       try {
