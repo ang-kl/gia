@@ -1,4 +1,5 @@
 import React from 'react';
+import { tg } from '../../api/tg.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -10,6 +11,26 @@ export default function ResultCard({ venue, focused, onTap }) {
   const walk = Number.isFinite(venue.walkMinutes) ? `${venue.walkMinutes} min walk` : '';
   const open = venue.openNow === true ? 'Open' : venue.openNow === false ? 'Closed' : '';
   const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
+
+  // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
+  // the TMA WebView, plain <a target="_blank"> often does nothing —
+  // tg.openLink delegates to the system browser, which auto-routes
+  // to the Google Maps app via the Universal Link.
+  function openMaps(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const name = venue.name || '';
+    const placeId = venue.placeId || '';
+    const url = placeId
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(placeId)}`
+      : (venue.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`);
+    const w = tg();
+    if (w && typeof w.openLink === 'function') {
+      w.openLink(url, { try_instant_view: false });
+    } else {
+      window.open(url, '_blank', 'noopener');
+    }
+  }
 
   function copy(e) {
     e.stopPropagation();
@@ -40,10 +61,8 @@ export default function ResultCard({ venue, focused, onTap }) {
         </div>
       </div>
       <div className="flex gap-1.5 mt-1">
-        {venue.url && (
-          <a href={venue.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
-            className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</a>
-        )}
+        <button type="button" onClick={openMaps}
+          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
         <button type="button" onClick={copy}
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📋 Copy</button>
       </div>
