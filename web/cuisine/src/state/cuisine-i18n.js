@@ -55,7 +55,6 @@ export const CUISINE_LABELS = {
   'Australian':   { zh: '澳式',         ms: 'Australia',          ta: 'ஆஸ்திரேலிய' },
   'New Zealand':  { zh: '新西兰',       ms: 'New Zealand',        ta: 'நியூசிலாந்து' },
   'Burmese':      { zh: '缅甸',         ms: 'Myanmar',            ta: 'பர்மிய' },
-  'Cambodian':    { zh: '柬埔寨',       ms: 'Kemboja',            ta: 'கம்போடிய' },
 
   // Southeast Asian
   'Laotian':      { zh: '老挝',         ms: 'Laos',               ta: 'லாவோ' },

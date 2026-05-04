@@ -35,7 +35,9 @@ export function applyTelegramTheme() {
   const set = (k, v) => v && root.style.setProperty(k, v);
   set('--tg-bg',          tp.bg_color);
   set('--tg-text',        tp.text_color);
-  set('--tg-hint',        tp.hint_color);
+  // v0.57.14: don't sync hint from Telegram — its hint_color is a
+  // low-contrast gray that fails partial-color-blindness readability.
+  // styles.css derives --tg-hint from text/bg with stronger contrast.
   set('--tg-accent',      tp.button_color);
   set('--tg-accent-text', tp.button_text_color);
   set('--tg-card',        tp.secondary_bg_color);

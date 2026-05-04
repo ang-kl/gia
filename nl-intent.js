@@ -26,7 +26,7 @@ const MAX_TEXT_LEN = 500;
 const CUISINE_CATALOGUE = [
   'Singaporean','Peranakan','South Indian','North Indian','Malaysian','Eurasian','Indonesian',
   'Thai','Filipino','Vietnamese','Japanese','Chinese','Korean','Taiwanese','American','Mexican',
-  'Brazilian','Australian','New Zealand','Burmese','Cambodian','Laotian','Timorese',
+  'Brazilian','Australian','New Zealand','Burmese','Laotian','Timorese',
   'Sichuan','Shanghainese','Cantonese','Hunan','Hokkien','Teochew','Hainanese','Hakka','Northeastern','Northwestern',
   'Bengali','Gujarati','Goan','Nepalese','Tibetan',
   'Mediterranean','Italian','Spanish','Greek','French','British','German','Austrian','Swiss','Portuguese',

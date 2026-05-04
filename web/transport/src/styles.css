@@ -5,6 +5,11 @@
 html, body, #root { height: 100%; }
 body { -webkit-font-smoothing: antialiased; }
 
+/* v0.57.14: stronger contrast for hint/secondary text. */
+:root {
+  --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
+}
+
 /* Hitachi-style line-flash animation for affected line on the map. */
 @keyframes mrtFlash {
   0%, 100% { opacity: 1; }

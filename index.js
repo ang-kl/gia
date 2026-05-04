@@ -1568,7 +1568,7 @@ async function runTransportTrain(chatId) {
     }
 
     const tmaButton = webhookDomain
-      ? [[{ text: '🗺 Open MRT map (Hitachi-style)', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
+      ? [[{ text: '🗺 Open MRT map', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
       : [];
     const buttons = [
       ...tmaButton,
@@ -2359,11 +2359,11 @@ async function registerCommandsMenu() {
     // v0.56.0: hidden — /ver (dropped from autocomplete; handler still
     // works for power users). /buddy + /share moved to bottom.
     await bot.setMyCommands([
-      { command: 'cuisine',   description: 'Cuisine Picker — map-first, 73 cuisines, multi-select' },
+      { command: 'cuisine',   description: 'Cuisine Picker >70 choices' },
       { command: 'surprise',  description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'Train, Bus, Taxi/PHD, Drive — sub-menu' },
-      { command: 'hawker',    description: 'Singapore hawker centres — browse by region' },
+      { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
+      { command: 'hawker',    description: 'Singapore hawker Centre' },
       { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
       { command: 'location',  description: 'Set your locale by typing a place name' },
@@ -2765,11 +2765,24 @@ async function cacheBotUsername() {
         const searchRadius = isJB ? 18000 : 50000; // JB ~18km radius covers the city; SG 50km covers island
         const searchRegionCode = isJB ? 'MY' : 'SG';
         const cv = require('./cuisines-vault');
-        const cuisineNames = (cuisines || [])
+        const cuisineMetas = (cuisines || [])
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
-          .filter(Boolean)
+          .filter(Boolean);
+        const cuisineNames = cuisineMetas.map((c) => c.name);
+        // v0.57.13: only gate non-local categories. Singapore common
+        // food (SEA, China-regional, South Asian, Middle Eastern,
+        // common-here) often has idiosyncratic restaurant names that
+        // don't include the cuisine word — gating those would be too
+        // aggressive. African / European / Americas cuisines are where
+        // Google Places searchText falls back to arbitrary SG results
+        // when the signal is weak.
+        const GATED_CATEGORIES = new Set(['african', 'european', 'americas']);
+        const gatedNames = cuisineMetas
+          .filter((c) => GATED_CATEGORIES.has(c.categoryId))
           .map((c) => c.name);
+        const allSelectedAreGated = cuisineMetas.length > 0
+          && cuisineMetas.every((c) => GATED_CATEGORIES.has(c.categoryId));
         const modifiers = [];
         if (filters.newlyOpened) modifiers.push('newly opened');
         if (filters.halal) modifiers.push('halal');
@@ -2824,22 +2837,49 @@ async function cacheBotUsername() {
         // (Peranakan, Italian, Kampung Chicken, etc. — none Ethiopian).
         // Defense: post-fetch require the venue to match the selected
         // cuisine via primaryType OR name/address text.
-        if (cuisineNames.length) {
+        // v0.57.13: only fire the gate when EVERY selected cuisine is
+        // in the African/European/Americas categories. SG common food
+        // (SEA, China-regional, South Asian) has too many idiosyncratic
+        // restaurant names for this gate to be reliable. If the user
+        // mixes a gated + non-gated cuisine, we trust the upstream
+        // results (any non-gated selection bypasses the gate).
+        if (allSelectedAreGated && gatedNames.length) {
           venues = venues.filter((v) => {
-            const haystack = `${v.name || ''} ${v.area || ''} ${v.primaryType || ''}`.toLowerCase();
-            for (const name of cuisineNames) {
+            // v0.57.13: widen haystack — restaurant names rarely
+            // include the cuisine word (e.g. "Kafe Utu" is Ethiopian-
+            // leaning, "Wild Honey" is American). Match against
+            // Google's editorial summary + recent review text where
+            // the cuisine is much more likely to appear.
+            const reviewText = Array.isArray(v.reviews)
+              ? v.reviews.map((r) => r?.text || '').join(' ')
+              : '';
+            const haystack = [
+              v.name || '', v.area || '', v.primaryType || '',
+              v.googleSummary?.overview || '',
+              reviewText
+            ].join(' ').toLowerCase();
+            for (const name of gatedNames) {
               const lower = name.toLowerCase();
-              // 1. Direct text match on name / address / primaryType
-              //    e.g. "Ethiopian" appears in "Ethiopian Cafe SG"
+              // 1. Direct text match anywhere in haystack
+              //    (name / address / primaryType / summary / reviews)
               if (haystack.includes(lower)) return true;
               // 2. Canonical Places primaryType pattern
               //    e.g. "Ethiopian" → "ethiopian_restaurant"
               const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
               if (v.primaryType === `${slugForType}_restaurant`) return true;
               // 3. Multi-word cuisines (e.g. "South Indian") — every
-              //    word must appear in haystack
+              //    word ≥4 chars must appear in haystack
               const words = lower.split(/\s+/).filter((w) => w.length >= 4);
               if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+              // 4. v0.57.14: related-dish keywords. Italian restaurants
+              //    rarely mention "Italian" by name but their reviews
+              //    say "pizza" or "pasta"; Ethiopian places say
+              //    "injera" not "Ethiopian". The curated map covers
+              //    African / European / Americas cuisines.
+              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+              for (const kw of dishKeywords) {
+                if (haystack.includes(kw)) return true;
+              }
             }
             return false;
           });
@@ -2986,10 +3026,17 @@ async function cacheBotUsername() {
         const inferredCuisines = inferred.cuisines || [];
         const inferredFilters = inferred.filters || {};
         const pipeline = require('./pipeline');
-        const cuisineNames = inferredCuisines
+        const cuisineMetas = inferredCuisines
           .map((slug) => cv.findBySlug(slug))
-          .filter(Boolean)
+          .filter(Boolean);
+        const cuisineNames = cuisineMetas.map((c) => c.name);
+        // v0.57.13: only gate non-local categories (mirrors /api/cuisine/search).
+        const GATED_CATEGORIES_NL = new Set(['african', 'european', 'americas']);
+        const gatedNamesNL = cuisineMetas
+          .filter((c) => GATED_CATEGORIES_NL.has(c.categoryId))
           .map((c) => c.name);
+        const allSelectedAreGatedNL = cuisineMetas.length > 0
+          && cuisineMetas.every((c) => GATED_CATEGORIES_NL.has(c.categoryId));
         const merged = { ...filters, ...inferredFilters };
         if (Array.isArray(inferredFilters.prices) && inferredFilters.prices.length) {
           merged.prices = inferredFilters.prices;
@@ -3021,16 +3068,31 @@ async function cacheBotUsername() {
         ]);
         venues = venues.filter((v) => !NON_FOOD_TYPES_NL.has(v.primaryType));
         // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
-        if (cuisineNames.length) {
+        // v0.57.13: only fire when every selected cuisine is in
+        // African/European/Americas categories.
+        if (allSelectedAreGatedNL && gatedNamesNL.length) {
           venues = venues.filter((v) => {
-            const haystack = `${v.name || ''} ${v.area || ''} ${v.primaryType || ''}`.toLowerCase();
-            for (const name of cuisineNames) {
+            // v0.57.13: widen haystack to include summary + reviews.
+            const reviewText = Array.isArray(v.reviews)
+              ? v.reviews.map((r) => r?.text || '').join(' ')
+              : '';
+            const haystack = [
+              v.name || '', v.area || '', v.primaryType || '',
+              v.googleSummary?.overview || '',
+              reviewText
+            ].join(' ').toLowerCase();
+            for (const name of gatedNamesNL) {
               const lower = name.toLowerCase();
               if (haystack.includes(lower)) return true;
               const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
               if (v.primaryType === `${slugForType}_restaurant`) return true;
               const words = lower.split(/\s+/).filter((w) => w.length >= 4);
               if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+              // v0.57.14: related-dish keywords (mirrors /api/cuisine/search).
+              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+              for (const kw of dishKeywords) {
+                if (haystack.includes(kw)) return true;
+              }
             }
             return false;
           });
