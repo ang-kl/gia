@@ -1138,13 +1138,9 @@ bot.on('callback_query', async (q) => {
     //   hawker:list:menu          → 5-region picker (Browse)
     //   hawker:list:region:<R>    → alphabetical list for that region
     if (data === 'hawker:menu') { await sendHawkerMenu(chatId); return; }
-    if (data === 'hawker:cleaning') { await runHawkerCleaning(chatId); return; }
-    if (data === 'hawker:list:menu') { await runHawkerListMenu(chatId); return; }
-    if (data.startsWith('hawker:list:region:')) {
-      const region = data.slice('hawker:list:region:'.length);
-      await runHawkerListRegion(chatId, region);
-      return;
-    }
+    // v0.54.0: chat-side cleaning/list/region screens removed —
+    // both /hawker buttons now open the TMA directly with ?tab= query
+    // param. No intermediate dispatch needed.
     // v0.31.0 Buddy Level 2 callback dispatch.
     if (data.startsWith('buddy:')) {
       await handleBuddyCallback(data, chatId, q);
@@ -1796,107 +1792,22 @@ async function runTransportDrive(chatId) {
 
 // v0.33.0: /hawker sub-menu + handlers.
 async function sendHawkerMenu(chatId) {
-  // v0.52.0: simplified top-level menu per Human Lead.
-  // Removed: Nearest 3, Crowd (each was a single-purpose flow that
-  // duplicated /eat or had no live data source). "By zone" is now
-  // "Browse" and reuses the v0.50.0 canonical 122-centre region picker
-  // (no separate zone vault needed).
+  // v0.54.0: Both buttons go DIRECTLY to the TMA (no intermediate
+  // chat screens). Cleaning info → Hawker Centre Status (was a 1-tap
+  // detour to the same TMA). Browse → opens the TMA on the regions
+  // tab (no chat-side region picker → no truncation issue).
   const vault = require('./hawker-vault');
   const total = vault.getAllCentres().length;
   await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, snapshot 25 Jul 2025)`, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🧹 Cleaning info', callback_data: 'hawker:cleaning' }],
-        [{ text: '🗺 Browse',         callback_data: 'hawker:list:menu' }]
+        [{ text: '🧹 Hawker Centre Status', web_app: { url: `https://${webhookDomain}/app/hawker?tab=closures` } }],
+        [{ text: '🗺 Browse by region',     web_app: { url: `https://${webhookDomain}/app/hawker?tab=regions` } }]
       ]
     }
   });
 }
 
-async function runHawkerCleaning(chatId) {
-  // v0.38.0: pulls a quick summary from the NEA scrape (cached 6 h)
-  // and offers two buttons: Open the Hawker NEA TMA (full tables) and
-  // Open NEA's authoritative page directly.
-  const hawker = require('./hawker');
-  const data = hawker.loadData();
-  let summaryLine = '';
-  let stamp = '';
-  try {
-    const neaScrape = require('./nea-scrape');
-    const result = await neaScrape.getCachedOrFetch(redis);
-    const closuresN = result?.closures?.data?.length || 0;
-    const rnrN = result?.rnrWorks?.data?.length || 0;
-    if (result?.ok) {
-      summaryLine = `📊 Currently scraped: *${closuresN}* closure row${closuresN === 1 ? '' : 's'} · *${rnrN}* R&R row${rnrN === 1 ? '' : 's'}.`;
-      stamp = result.cached ? ' (cached)' : ' (just fetched)';
-    } else {
-      summaryLine = `⚠ NEA scrape failed (${result?.error?.slice(0, 80) || 'unknown'}). Use the NEA link below.`;
-    }
-  } catch (err) {
-    summaryLine = `⚠ NEA scrape unavailable: ${err.message?.slice(0, 80)}.`;
-  }
-  const text = [
-    '🧹 *Hawker cleaning + R&R*',
-    '',
-    'NEA closes hawker centres quarterly for spring cleaning, plus longer R&R (Repairs & Redecoration / Renovation) closures throughout the year.',
-    '',
-    summaryLine + stamp,
-    '',
-    `📅 Source: ${hawker.NEA_SCHEDULE_URL}`,
-    '',
-    `_Curated dataset: ${data.version}_`
-  ].join('\n');
-  // v0.52.0: simplified per Human Lead — dropped meaningless "NEA hawker
-  // mgmt" external link + "Live closure list (web search)" (both removed
-  // since the deterministic NEA web_fetch path now populates the TMA).
-  // Renamed "Open closures TMA" → "Hawker Centre Status".
-  const buttons = [
-    [{ text: '🧹 Hawker Centre Status', web_app: { url: `https://${webhookDomain}/app/hawker` } }],
-    [{ text: '⬅️ Back', callback_data: 'hawker:menu' }]
-  ];
-  await safeSend(chatId, text, {
-    parse_mode: 'Markdown',
-    reply_markup: { inline_keyboard: buttons }
-  });
-}
-
-// v0.50.0: browse the canonical 122-centre vault by region (sourced
-// from data/list-of-hawker-centres.md, NEA snapshot 25 Jul 2025).
-// Two-step UX:
-//   1. runHawkerListMenu → 5 region buttons (Central/South/East/North/West)
-//   2. runHawkerListRegion(region) → alphabetical list with maps URLs
-async function runHawkerListMenu(chatId) {
-  const vault = require('./hawker-vault');
-  const text = vault.formatRegionSummary();
-  const by = vault.getByRegion();
-  const buttons = vault.REGIONS.map((r) => [{
-    text: `${r === 'Central' ? '🏙️' : r === 'South' ? '🛳️' : r === 'East' ? '🌅' : r === 'North' ? '🌳' : '🌇'} ${r} (${by[r]?.length || 0})`,
-    callback_data: `hawker:list:region:${r}`
-  }]);
-  buttons.push([{ text: '⬅️ Back', callback_data: 'hawker:cleaning' }]);
-  await safeSend(chatId, text, {
-    parse_mode: 'Markdown',
-    reply_markup: { inline_keyboard: buttons }
-  });
-}
-
-async function runHawkerListRegion(chatId, region) {
-  const vault = require('./hawker-vault');
-  const text = vault.formatRegionList(region);
-  const buttons = [
-    [{ text: '⬅️ Back to regions', callback_data: 'hawker:list:menu' }]
-  ];
-  await safeSend(chatId, text, {
-    parse_mode: 'Markdown',
-    disable_web_page_preview: true,
-    reply_markup: { inline_keyboard: buttons }
-  });
-}
-
-// v0.48.1: live closure list — prefer the NEA scrape (deterministic,
-// real dates from official source), fall back to Claude + web_search
-// when the scrape returns 0 / errors. The user reported v0.38.0's
-// /announcements URL was wrong; v0.48.1 fixed it to /overview.
 
 // v0.35.0: /recognised + /heritage-food handlers. Both consume the
 async function runRecognisedCommand(chatId) {
@@ -3078,6 +2989,33 @@ async function cacheBotUsername() {
       } catch (err) {
         console.error('[Error] /api/reverse-geocode failed:', err.message);
         res.status(500).json({ error: 'reverse-geocode failed', detail: err.message?.slice(0, 200) });
+      }
+    });
+
+    // v0.54.0: hawker centres grouped by region for the TMA's
+    // "By region" tab. No auth gate — same pattern as /maps-key
+    // (catalogue-only payload, no per-user data).
+    app.get('/api/hawker/centres-by-region', (_req, res) => {
+      try {
+        const vault = require('./hawker-vault');
+        const by = vault.getByRegion();
+        // Reshape into TMA-friendly schema: just the fields the
+        // browser needs for list rendering + maps URL.
+        const regions = Object.entries(by).map(([region, centres]) => ({
+          region,
+          count: centres.length,
+          centres: centres.map((c) => ({
+            name: c.name,
+            address: c.address,
+            postal: c.postal,
+            mapsUrl: c.mapsUrl,
+            isNew: !!c.isNew
+          }))
+        }));
+        res.json({ regions, totalCount: vault.getAllCentres().length });
+      } catch (err) {
+        console.error('[Error] /api/hawker/centres-by-region failed:', err.message);
+        res.status(500).json({ error: err.message });
       }
     });
 
