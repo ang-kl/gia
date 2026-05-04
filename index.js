@@ -182,11 +182,17 @@ async function reverseGeocodeAddress(lat, lng) {
 // so the caller can early-return. When fresh, also sends a small
 // "📍 Current: <address>" header line so the user knows what locale
 // the bot is operating on.
+//
+// v0.54.1: also sets a pending-meal label so bot.on('location')
+// auto-re-fires the command after the user shares — was a dead-end
+// loop where /surprise/transport/carpark prompted forever because the
+// location handler dropped non-sanctuary location shares.
 const FRESH_LOC_MS = 5 * 60 * 1000;
 async function ensureFreshLocationOrPrompt(chatId, label) {
   const cached = await getUserLocation(redis, chatId);
   const stale = !cached || !cached.setAt || (Date.now() - cached.setAt > FRESH_LOC_MS);
   if (stale) {
+    try { await setPendingMeal(redis, chatId, label); } catch { /* best effort */ }
     await bot.sendMessage(
       chatId,
       `📍 Tap to share your location so ${label} uses your current locale.`,
@@ -1168,22 +1174,29 @@ bot.on('callback_query', async (q) => {
 });
 
 bot.on('location', async (msg) => {
-  // §2 Location Validation Gate: any failure restores pending state
-  // and asks the user to type a place name instead of erroring out.
+  // v0.54.1: always save the location FIRST (was inside the pending
+  // gate — meant /surprise / /transport / /carpark prompts dead-ended
+  // because they don't set a sanctuary-style pending). Then handle
+  // pending re-fire if any.
   let pending;
   try {
-    pending = await consumePendingMeal(redis, msg.chat.id);
-    if (!pending) return; // not part of a sanctuary flow
-
-    // Universal immediate ack — keeps socket warm across all platforms.
-    await safeSend(msg.chat.id, ACK_SENSING_VIBE);
-
     const lat = msg.location?.latitude;
     const lng = msg.location?.longitude;
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      try { await setUserLocation(redis, msg.chat.id, lat, lng); }
+      catch (err) { console.warn('[location] setUserLocation failed:', err.message); }
+    }
+    pending = await consumePendingMeal(redis, msg.chat.id);
+    if (!pending) return; // location stored; nothing to auto-resume
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       throw new Error('coordinates missing or malformed');
     }
-    await setUserLocation(redis, msg.chat.id, lat, lng);
+    // v0.54.1: auto-resume targets for ensureFreshLocationOrPrompt callers.
+    if (pending === '/surprise')   { await runSurpriseCommand(msg.chat.id); return; }
+    if (pending === '/transport')  { await sendTransportMenu(msg.chat.id);  return; }
+    if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id);  return; }
+    // §2 Location Validation Gate: legacy sanctuary / cuisine / nl flow.
+    await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
     if (resolved.kind === 'cuisine') {
       await runCuisineFlow(msg.chat.id, lat, lng, resolved.cuisineType);
@@ -1194,8 +1207,6 @@ bot.on('location', async (msg) => {
     }
   } catch (err) {
     console.error('[Error] location handler failed:', err.message);
-    // Validation gate: restore pending so the next typed message is
-    // treated as a manual location query, then prompt for it.
     if (pending) {
       try { await setPendingMeal(redis, msg.chat.id, pending); } catch { /* best-effort */ }
     }
