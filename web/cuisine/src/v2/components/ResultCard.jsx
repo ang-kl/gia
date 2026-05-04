@@ -26,6 +26,11 @@ export default function ResultCard({ venue, focused, onTap }) {
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
+          {venue.recentReview && (
+            <div className="text-[11px] text-tg-hint mt-1 leading-snug italic">
+              💬 "{venue.recentReview}"
+            </div>
+          )}
         </div>
       </div>
       <div className="flex gap-1.5 mt-1">

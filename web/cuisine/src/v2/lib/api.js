@@ -21,8 +21,9 @@ export async function fetchCatalogue() {
   return getJson('/api/cuisine/catalogue');
 }
 
-export async function searchCuisine({ lat, lng, cuisines, filters, radius = 800 }) {
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, radius });
+export async function searchCuisine({ lat, lng, cuisines, filters }) {
+  // v0.57.3: radius dropped — server searches Singapore-wide.
+  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters });
 }
 
 export async function nlQuery({ text, lat, lng, filters }) {
