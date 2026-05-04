@@ -50,6 +50,10 @@ export default function App() {
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
   const initialSearchDone = useRef(false);
+  // v0.58.14: ref the FlipPanel wrapper so we can scroll the result
+  // list into view after a successful 🔍 Search press. Users were
+  // missing the result list because it sits below the cuisine drawer.
+  const flipPanelRef = useRef(null);
 
   function stateSig(s) {
     return JSON.stringify({
@@ -139,6 +143,14 @@ export default function App() {
       setLastRunSnap(stateSig(snap));
       // v0.58.4: any explicit search supersedes the warm-start label.
       setWarmStartSeed(null);
+      // v0.58.14: scroll the result list into view so users don't
+      // miss it. Wrapped in a microtask so the new venues render
+      // first; smooth scroll keeps the motion gentle.
+      if (typeof window !== 'undefined') {
+        requestAnimationFrame(() => {
+          flipPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
     } catch (err) {
       setError(err.message); setVenues([]);
     } finally { setLoading(false); }
@@ -311,14 +323,20 @@ export default function App() {
       )}
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
-        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt}>
-        <RadiusSlider value={radius} onChange={handleRadiusChange} />
-      </MapPanel>
+        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
+
+      {/* v0.58.14: radius slider moved out of the map (was an absolute-
+          positioned pill column overlay). Tapping the pills inside the
+          map fought Google Maps' greedy gestureHandling — taps zoomed
+          the map and the slider felt "locked". Now a real <input
+          type="range"> sitting below the map, no gesture conflict. */}
+      <RadiusSlider value={radius} onChange={handleRadiusChange} />
 
       {/* v0.58.1: filter strip sits directly below the map, primary
-          row shows Open-now / Halal / [⚙], the rest live in the
+          row shows New / Halal / Price ▾ / [⚙], the rest live in the
           overflow popover so the cuisine drawer + search controls
-          stay close to the action. */}
+          stay close to the action. (v0.58.14 swapped New ↔ Open now
+          per Human Lead.) */}
       <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
 
       <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
@@ -357,8 +375,17 @@ export default function App() {
           onRemoveFilter={removeFilter}
           onResetAll={clearAll}
         />
+
+        {/* v0.58.14: scroll-down hint. Users were missing the result
+            list because it sits below the search controls + cuisine
+            drawer. After 🔍 Search the page auto-scrolls; before
+            that, this caption tells them where the results live. */}
+        <div className="text-[11px] text-tg-hint text-center px-1 pt-0.5 italic">
+          ↓ Results &amp; Ask Gia below
+        </div>
       </div>
 
+      <div ref={flipPanelRef}>
       <FlipPanel
         venues={venues} loading={loading} focusedPlaceId={focusedPlaceId}
         onCardTap={setFocusedPlaceId} onNLSubmit={handleNLSubmit}
@@ -373,11 +400,12 @@ export default function App() {
           location: locationAnchor
         }}
       />
+      </div>
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.13 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.14 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

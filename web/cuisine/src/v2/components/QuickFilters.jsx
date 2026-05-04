@@ -7,14 +7,17 @@ import React, { useState } from 'react';
 // into a Price-▾ dropdown on the primary row. The Price popover and
 // the More popover are mutually exclusive so opening one closes the
 // other.
+// v0.58.14: per Human Lead — swapped 🆕 New ↔ 🟢 Open now between
+// PRIMARY and OVERFLOW. New is now on the primary row beside Halal;
+// Open now moved into the [⚙ More] panel.
 const PRIMARY = [
-  { key: 'openNow', label: 'Open now', icon: '🟢' },
-  { key: 'halal',   label: 'Halal',     icon: '🕌' },
+  { key: 'newlyOpened', label: 'New',   icon: '🆕' },
+  { key: 'halal',       label: 'Halal', icon: '🕌' },
 ];
 const OVERFLOW = [
-  { key: 'newlyOpened', label: 'New',         icon: '🆕' },
-  { key: 'vegetarian',  label: 'Vegetarian',  icon: '🥗' },
-  { key: 'homeBased',   label: 'Home-based',  icon: '🏠' }
+  { key: 'openNow',    label: 'Open now',   icon: '🟢' },
+  { key: 'vegetarian', label: 'Vegetarian', icon: '🥗' },
+  { key: 'homeBased',  label: 'Home-based', icon: '🏠' }
 ];
 const PRICES = ['$', '$$', '$$$'];
 
