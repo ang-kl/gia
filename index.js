@@ -3030,6 +3030,131 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.58.7: place autocomplete proxy. The TMA's location field
+    // calls this on every keystroke (debounced 250 ms). We forward
+    // to Google Places API (New) Autocomplete and return a slim
+    // suggestion list. The API key never leaves the server.
+    //   • locationBias: 50 km circle around the user's lat/lng so
+    //     "kall" surfaces "Kallang MRT" before "Kallang River".
+    //   • includedRegionCodes: SG-only (or MY when region=JB).
+    //   • Redis-cache 5 min per (input prefix, region, gridded
+    //     lat/lng) to keep the per-keystroke calls cheap.
+    app.post('/api/cuisine/place-autocomplete', async (req, res) => {
+      try {
+        const { input, lat, lng, region = 'SG' } = req.body || {};
+        if (!input || typeof input !== 'string' || input.trim().length < 2) {
+          return res.json({ suggestions: [] });
+        }
+        const cleanInput = input.trim().slice(0, 80).toLowerCase();
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        const gLat = Number.isFinite(lat) ? lat.toFixed(2) : 'x';
+        const gLng = Number.isFinite(lng) ? lng.toFixed(2) : 'x';
+        const cacheKey = `placeauto:v1:${region}:${gLat}:${gLng}:${cleanInput}`;
+        try {
+          if (redis.isOpen) {
+            const cached = await redis.get(cacheKey);
+            if (cached) return res.json({ ...JSON.parse(cached), cached: true });
+          }
+        } catch (err) { console.warn('[PlaceAuto] cache read failed:', err.message); }
+
+        const body = {
+          input: cleanInput,
+          languageCode: 'en',
+          regionCode: region === 'JB' ? 'MY' : 'SG',
+          includedRegionCodes: region === 'JB' ? ['MY'] : ['SG']
+        };
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          body.locationBias = {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius: 50000
+            }
+          };
+        }
+        const axios = require('axios');
+        const { data } = await axios.post(
+          'https://places.googleapis.com/v1/places:autocomplete',
+          body,
+          {
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey },
+            timeout: 5000
+          }
+        );
+        const suggestions = (data?.suggestions || [])
+          .map((s) => {
+            const p = s.placePrediction;
+            if (!p?.placeId) return null;
+            return {
+              placeId: p.placeId,
+              primaryText: p.structuredFormat?.mainText?.text || p.text?.text || '',
+              secondaryText: p.structuredFormat?.secondaryText?.text || ''
+            };
+          })
+          .filter(Boolean)
+          .slice(0, 5);
+        const payload = { suggestions };
+        try {
+          if (redis.isOpen) await redis.setEx(cacheKey, 5 * 60, JSON.stringify(payload));
+        } catch (err) { console.warn('[PlaceAuto] cache write failed:', err.message); }
+        res.json({ ...payload, cached: false });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/place-autocomplete failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.58.7: resolve a picked autocomplete suggestion to lat/lng.
+    // Calls Google Place Details (New) for the placeId and returns
+    // the coords + display name + formatted address. Cached 24 h
+    // because place coordinates don't move.
+    app.post('/api/cuisine/place-resolve', async (req, res) => {
+      try {
+        const { placeId } = req.body || {};
+        if (!placeId || typeof placeId !== 'string' || placeId.length > 200) {
+          return res.status(400).json({ error: 'placeId required' });
+        }
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        const cacheKey = `placeresolve:v1:${placeId}`;
+        try {
+          if (redis.isOpen) {
+            const cached = await redis.get(cacheKey);
+            if (cached) return res.json({ ...JSON.parse(cached), cached: true });
+          }
+        } catch (err) { console.warn('[PlaceResolve] cache read failed:', err.message); }
+
+        const axios = require('axios');
+        const { data } = await axios.get(
+          `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`,
+          {
+            headers: {
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': 'id,displayName,location,formattedAddress'
+            },
+            timeout: 5000
+          }
+        );
+        if (!data?.location) {
+          return res.status(404).json({ error: 'no coords for placeId' });
+        }
+        const payload = {
+          placeId: data.id,
+          lat: data.location.latitude,
+          lng: data.location.longitude,
+          name: data.displayName?.text || '',
+          formatted: data.formattedAddress || ''
+        };
+        try {
+          if (redis.isOpen) await redis.setEx(cacheKey, 24 * 60 * 60, JSON.stringify(payload));
+        } catch (err) { console.warn('[PlaceResolve] cache write failed:', err.message); }
+        res.json({ ...payload, cached: false });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/place-resolve failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     app.post('/api/cuisine/search', async (req, res) => {
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru

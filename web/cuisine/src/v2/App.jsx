@@ -4,6 +4,7 @@ import { defaultState, clearedFilters, readFromHash, writeToHash } from './lib/s
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
+import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import FlipPanel from './components/FlipPanel.jsx';
 import { tg } from '../api/tg.js';
@@ -256,6 +257,16 @@ export default function App() {
         </div>
       </header>
 
+      {/* v0.58.7: location anchor field. Reverse-geocodes the user's
+          GPS for the placeholder ("📍 Telok Blangah") and lets them
+          search a different anchor via Google Places Autocomplete.
+          Picking a suggestion fires runSearchAt(lat, lng) so the map
+          and result list both re-anchor in one tap. */}
+      {userLoc && (
+        <LocationField userLoc={userLoc} region={state.region}
+          onSelect={(p) => { if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) runSearchAt(p.lat, p.lng); }} />
+      )}
+
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
 
@@ -314,7 +325,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.6 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.7 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
