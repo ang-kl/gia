@@ -1,7 +1,7 @@
 {
   "name": "soleat-transport-tma",
   "private": true,
-  "version": "0.57.20",
+  "version": "0.57.21",
   "type": "module",
   "scripts": {
     "build": "vite build",

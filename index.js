@@ -829,6 +829,11 @@ bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
 
 bot.onText(/^\/hidden(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
+// v0.57.21: /privacy — what data the bot collects, how long it's
+// retained, and which third parties it queries. OPERATOR_LINKEDIN
+// env var (optional) appends an authorship credit line.
+bot.onText(/^\/privacy(?:@\w+)?$/, (msg) => runPrivacyCommand(msg.chat.id));
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1290,7 +1295,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     "/weather   — now + 2-hour NEA forecast\n" +
     "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
     "/carpark   — nearest 5 with available lots\n" +
-    "/ver       — version + upstream API health\n\n" +
+    "/ver       — version + upstream API health\n" +
+    "/privacy   — data, retention & sources\n\n" +
     "Or tap the menu button (🍴 Cuisine Picker) to jump straight in."
   );
 });
@@ -1393,6 +1399,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'recognised': await runRecognisedCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'hidden':    await runSurpriseCommand(chatId); return true;
+    case 'privacy':   await runPrivacyCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
@@ -2037,6 +2044,42 @@ async function runVerCommand(chatId) {
   }
 }
 
+// v0.57.21: /privacy — what the bot collects, how long it's kept,
+// and which third parties it queries. OPERATOR_LINKEDIN env var
+// (optional) appends an authorship credit line.
+async function runPrivacyCommand(chatId) {
+  try {
+    const credit = process.env.OPERATOR_LINKEDIN
+      ? `\n\nOperator: ${process.env.OPERATOR_LINKEDIN}`
+      : '';
+    const text = [
+      '🔒 *Privacy & data handling*',
+      '',
+      '*What I collect* (only when relevant):',
+      '• Location — when you send a location pin or use /cuisine, /hidden, /carpark, /transport. Cached 5 min, then forgotten.',
+      '• Chat ID — to reply to you and remember /buddy preferences.',
+      '• Recent picks — last few venues you saw, for /share + /picks. 24-hour TTL.',
+      '',
+      '*What I don\'t do:*',
+      '• No third-party trackers.',
+      '• No sharing with marketers.',
+      '• No cross-bot profiling.',
+      '',
+      '*Live data sources I query* (no PII sent):',
+      '• Google Places — venue search',
+      '• LTA DataMall — transport, traffic, carparks',
+      '• NEA — weather',
+      '• data.gov.sg — hawker centres, holidays',
+      '',
+      '*To erase your data:* message the operator with the chat handle visible to me; I\'ll wipe your Redis state on request.' + credit
+    ].join('\n');
+    await safeSend(chatId, text, { parse_mode: 'Markdown' });
+  } catch (err) {
+    console.error('[Error] /privacy failed:', err.message);
+    await safeSend(chatId, "Sorry, /privacy hit an error. Try again in a moment.");
+  }
+}
+
 // Free-text + web_app_data handler.
 //
 // Order:
@@ -2368,7 +2411,8 @@ async function registerCommandsMenu() {
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
       { command: 'location',  description: 'Set your locale by typing a place name' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'share',     description: 'Forward recent pick' }
+      { command: 'share',     description: 'Forward recent pick' },
+      { command: 'privacy',   description: 'Data, retention & sources' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
