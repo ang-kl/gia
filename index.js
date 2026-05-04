@@ -2869,54 +2869,69 @@ async function cacheBotUsername() {
         // Sort by walking distance ASC (closer first) so top 12 are most reachable.
         venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         const top = venues.slice(0, 12);
-        // Best-effort: attach last cached review snippet (≤120 d) per
-        // venue from place-reviews cache. Surfaces "common food
-        // mentioned by reviewers" as a one-line hint.
+        // v0.57.10: extract reviewer-recommended dishes from each
+        // venue's reviews (now included inline by Places via
+        // DISCOVER_FIELD_MASK). Up to 3 dishes per card. Uses regex
+        // — free, no LLM call. Falls back to the place-reviews:*
+        // Redis cache when Places didn't return reviews for that
+        // venue (e.g. Atmosphere SKU disabled).
         const FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
         const now = Date.now();
+        function extractDishes(reviews) {
+          const recent = (reviews || [])
+            .filter((r) => r?.text)
+            .filter((r) => {
+              if (!r.publishTime) return true; // keep undated
+              const t = new Date(r.publishTime).getTime();
+              return Number.isFinite(t) ? (now - t) <= FOUR_MONTHS_MS : true;
+            })
+            .slice(0, 3);
+          if (!recent.length) return { dishes: [], snippet: null };
+          const allText = recent.map((r) => r.text || '').join(' . ');
+          const patterns = [
+            /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
+            /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
+          ];
+          const dishes = new Set();
+          for (const re of patterns) {
+            let m;
+            while ((m = re.exec(allText)) !== null && dishes.size < 5) {
+              const candidate = (m[1] || '').trim();
+              if (candidate.length < 3 || candidate.length > 40) continue;
+              if (/^(restaurant|place|food|service|staff|ambien|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast)/i.test(candidate)) continue;
+              dishes.add(candidate);
+            }
+          }
+          return { dishes: [...dishes].slice(0, 3), snippet: String(recent[0].text).slice(0, 200).trim() };
+        }
+        for (const v of top) {
+          if (Array.isArray(v.reviews) && v.reviews.length) {
+            const { dishes, snippet } = extractDishes(v.reviews);
+            if (dishes.length) v.dishes = dishes;
+            if (snippet) v.recentReview = snippet;
+          }
+        }
+        // Fall back to the Redis place-reviews cache for any venue
+        // that didn't get reviews inline.
         try {
           if (redis.isOpen) {
             await Promise.all(top.map(async (v) => {
-              if (!v.placeId) return;
+              if (!v.placeId || (Array.isArray(v.dishes) && v.dishes.length)) return;
               try {
                 const raw = await redis.get(`place-reviews:${v.placeId}`);
                 if (!raw) return;
                 const reviews = JSON.parse(raw);
-                const recent = (reviews || [])
-                  .filter((r) => r?.text && r?.publishTime && (now - new Date(r.publishTime).getTime()) <= FOUR_MONTHS_MS)
-                  .sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime));
-                if (recent.length) {
-                  v.recentReview = String(recent[0].text).slice(0, 200).trim();
-                  // v0.57.8: cheap dish extraction from review text via
-                  // regex patterns ("ordered the X", "tried the X", etc.)
-                  // Free — no LLM call. Quality is approximate; replace
-                  // with rankAndNarrate when burn budget allows.
-                  const allText = recent.slice(0, 3).map((r) => r.text || '').join(' . ');
-                  const patterns = [
-                    /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
-                    /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
-                  ];
-                  const dishes = new Set();
-                  for (const re of patterns) {
-                    let m;
-                    while ((m = re.exec(allText)) !== null && dishes.size < 4) {
-                      const candidate = (m[1] || '').trim();
-                      // Skip obvious non-dish phrases.
-                      if (candidate.length < 3 || candidate.length > 40) continue;
-                      if (/^(restaurant|place|food|service|staff|ambien|atmosphere|experience|time|price|portion|menu|location|owner|chef)/i.test(candidate)) continue;
-                      dishes.add(candidate);
-                    }
-                  }
-                  if (dishes.size && (!Array.isArray(v.dishes) || !v.dishes.length)) {
-                    v.dishes = [...dishes].slice(0, 3);
-                  }
-                }
+                const { dishes, snippet } = extractDishes(reviews);
+                if (dishes.length) v.dishes = dishes;
+                if (snippet && !v.recentReview) v.recentReview = snippet;
               } catch { /* per-venue best-effort */ }
             }));
           }
         } catch (err) {
-          console.warn('[Cuisine-Search] review-attach failed:', err.message);
+          console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
         }
+        // Strip raw reviews array from the response — keep payload small.
+        for (const v of top) delete v.reviews;
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         // v0.57.6: write to cache for 30 minutes.
         try {
