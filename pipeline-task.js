@@ -528,6 +528,19 @@ async function runSurpriseTask(redis, reqId) {
     const ranked = await rankByWalkingTime(payload.lat, payload.lng, narrated);
     diagPush('D874', 'Surprise ranked', true, { n: ranked.length });
 
+    // v0.57.31: attach LTA-carpark crowd signal so the /hidden card
+    // can show 🟢/🟡/🔴 alongside the rarity score. Best-effort —
+    // failure doesn't block delivery.
+    try {
+      const { attachCrowdSignals } = require('./crowd-signal');
+      await attachCrowdSignals(ranked);
+      diagPush('D877', 'Crowd signals attached', true, {
+        levels: ranked.map((v) => v.crowdLevel || 'unknown')
+      });
+    } catch (err) {
+      diagPush('D877', 'Crowd-signal attach failed', false, { err: err.message?.slice(0, 200) });
+    }
+
     // Refine pass (weather/traffic/carpark).
     const refined = await refineIfPossible(redis, reqId, ranked, payload, meal.label);
     await requestStore.setVenues(redis, reqId, refined);

@@ -516,8 +516,12 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       const open = p.openNow === true ? ' · Open now'
         : p.openNow === false ? ` · ${p.closedTodayLabel || 'Closed'}`
         : '';
+      const crowd = p.crowdLevel === 'high' ? ' · 🔴 busy'
+        : p.crowdLevel === 'medium' ? ' · 🟡 moderate'
+        : p.crowdLevel === 'low' ? ' · 🟢 quiet'
+        : '';
       const walk = (showWalk && Number.isFinite(p.walkMinutes)) ? ` · ${p.walkMinutes} min walk` : '';
-      let line = `${i + 1}. ${p.name}${rating}${open}${walk}`;
+      let line = `${i + 1}. ${p.name}${rating}${open}${crowd}${walk}`;
       if (showDishes) {
         const dishes = Array.isArray(p.dishes) ? p.dishes.slice(0, 3) : [];
         if (dishes.length) line += `\n   🍴 ${dishes.join(' · ')}`;
@@ -1391,6 +1395,34 @@ async function routeMenuCommand(chatId, raw, payload = null) {
         console.error('[Cuisine-Diag] D723 fallback failed:', err.message);
         await safeSend(chatId, "Sorry, the chat-delivery fallback hit an error.");
       }
+      return true;
+    }
+    case 'cuisine-copy-all': {
+      // v0.57.31: TMA "📋 Copy all to chat" — build a single Google
+      // Maps directions URL containing all current result pins (up
+      // to 10, the consumer-Maps URL cap), reply with that link.
+      const incoming = Array.isArray(payload?.venues) ? payload.venues : [];
+      const slim = incoming
+        .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
+        .slice(0, 10);
+      if (!slim.length) {
+        await safeSend(chatId, '📋 No results to copy yet — run a search first.');
+        return true;
+      }
+      const { googleMapsContainerUrl, googleMapsUrl } = require('./maps-url');
+      let url;
+      if (slim.length === 1) {
+        url = googleMapsUrl(slim[0]);
+      } else {
+        url = googleMapsContainerUrl(slim, { maxWaypoints: 9, travelmode: 'walking' });
+      }
+      if (!url) {
+        await safeSend(chatId, '📋 Could not build a Maps link for those results.');
+        return true;
+      }
+      const names = slim.map((v, i) => `${i + 1}. ${v.name || '(unnamed)'}`).join('\n');
+      const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
+      await safeSend(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
       return true;
     }
     case 'cuisine-pick':
@@ -3094,6 +3126,16 @@ async function cacheBotUsername() {
         // Sort by walking distance ASC (closer first) so top 12 are most reachable.
         venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         const top = venues.slice(0, 12);
+        // v0.57.31: attach LTA-carpark crowd signal to the top 12 (one
+        // carpark fetch per 500 m grid cell, not per venue). Surfaces
+        // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
+        // where lunch crowds are walk-in; useful at suburban / HDB.
+        try {
+          const { attachCrowdSignals } = require('./crowd-signal');
+          await attachCrowdSignals(top);
+        } catch (err) {
+          console.warn('[Cuisine-Search] crowd-signal attach failed:', err.message);
+        }
         // v0.57.10: extract reviewer-recommended dishes from each
         // venue's reviews (now included inline by Places via
         // DISCOVER_FIELD_MASK). Up to 3 dishes per card. Uses regex
@@ -3329,6 +3371,13 @@ async function cacheBotUsername() {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
           }
           delete v.regularPeriods;
+        }
+        // v0.57.31: crowd signal (mirrors /api/cuisine/search).
+        try {
+          const { attachCrowdSignals: attachNL } = require('./crowd-signal');
+          await attachNL(topNL);
+        } catch (err) {
+          console.warn('[NL-Query] crowd-signal attach failed:', err.message);
         }
         res.json({
           venues: topNL,

@@ -89,15 +89,21 @@ function googleMapsUrl(place) {
   return null;
 }
 
-// Multi-stop directions URL — up to 5 stops (destination + 4 waypoints).
-// Walking by default. Returns null if fewer than 1 venue with location.
+// Multi-stop directions URL. Walking by default. Returns null if
+// fewer than 1 venue with location. Opens in Google Maps and shows
+// every stop as a pin (the route line is incidental — useful when
+// the goal is "show all selected places on one map").
 //
 // Opts:
-//   travelmode  'walking' (default) | 'driving' | 'transit' | 'bicycling'
-//   origin      'lat,lng' string for trip start (optional — if absent,
-//               Google Maps uses the user's current location)
+//   travelmode    'walking' (default) | 'driving' | 'transit' | 'bicycling'
+//   origin        'lat,lng' string for trip start (optional — if absent,
+//                 Google Maps uses the user's current location)
+//   maxWaypoints  cap on intermediate stops (default 4, max 9 — Google
+//                 consumer Maps supports up to 9 waypoints + 1 dest =
+//                 10 places in one URL).
 function googleMapsContainerUrl(venues, opts = {}) {
   if (!Array.isArray(venues) || !venues.length) return null;
+  const maxWaypoints = Math.min(9, Math.max(0, Number.isFinite(opts.maxWaypoints) ? opts.maxWaypoints : 4));
   const normalized = venues
     .map((v) => {
       const id = v.placeId || v.id;
@@ -110,7 +116,7 @@ function googleMapsContainerUrl(venues, opts = {}) {
     .filter(Boolean);
   if (normalized.length < 1) return null;
   const [destination, ...rest] = normalized;
-  const waypoints = rest.slice(0, 4);
+  const waypoints = rest.slice(0, maxWaypoints);
   const params = ['https://www.google.com/maps/dir/?api=1', `travelmode=${encodeURIComponent(opts.travelmode || 'walking')}`];
   if (opts.origin) params.push(`origin=${encodeURIComponent(opts.origin)}`);
   if (destination.type === 'place') params.push(`destination_place_id=${encodeURIComponent(destination.value)}`);

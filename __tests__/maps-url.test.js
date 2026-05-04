@@ -140,6 +140,31 @@ describe('googleMapsContainerUrl (multi-stop directions)', () => {
     const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a' }], { origin: '1.28,103.85' });
     expect(r).toContain('origin=1.28%2C103.85');
   });
+
+  // v0.57.31: maxWaypoints opt — bumps the cap from default 4 up to
+  // Google's hard limit of 9 waypoints (10 total stops).
+  it('honours maxWaypoints opt', () => {
+    const venues = Array.from({ length: 12 }, (_, i) => ({ placeId: `ChIJ_${i}` }));
+    const r = googleMapsContainerUrl(venues, { maxWaypoints: 9 });
+    expect(r).toContain('ChIJ_9');
+    expect(r).not.toContain('ChIJ_10');
+  });
+
+  it('clamps maxWaypoints at 9 (Google consumer Maps limit)', () => {
+    const venues = Array.from({ length: 15 }, (_, i) => ({ placeId: `ChIJ_${i}` }));
+    const r = googleMapsContainerUrl(venues, { maxWaypoints: 99 });
+    // destination = ChIJ_0, waypoints = ChIJ_1..ChIJ_9
+    expect(r).toContain('ChIJ_9');
+    expect(r).not.toContain('ChIJ_10');
+  });
+
+  it('clamps maxWaypoints at 0 (negative input)', () => {
+    const venues = [{ placeId: 'A' }, { placeId: 'B' }, { placeId: 'C' }];
+    const r = googleMapsContainerUrl(venues, { maxWaypoints: -5 });
+    // destination only — no waypoints
+    expect(r).not.toContain('waypoint_place_ids');
+    expect(r).toContain('destination_place_id=A');
+  });
 });
 
 describe('buildMapHashUrl (TMA multi-marker view)', () => {

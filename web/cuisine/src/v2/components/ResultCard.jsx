@@ -14,7 +14,13 @@ export default function ResultCard({ venue, focused, onTap }) {
     : venue.openNow === false
       ? (venue.closedTodayLabel || 'Closed')
       : '';
-  const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
+  // v0.57.31: crowd chip from LTA-carpark availability around the venue.
+  // Honest caveat — weak in CBD where lunch crowds are walk-in.
+  const crowd = venue.crowdLevel === 'high' ? '🔴 busy'
+    : venue.crowdLevel === 'medium' ? '🟡 moderate'
+    : venue.crowdLevel === 'low' ? '🟢 quiet'
+    : '';
+  const meta = [rating, price, open, crowd, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —

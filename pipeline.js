@@ -911,4 +911,4 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
   return { candidates: refined, refined: true, diag: diag.events };
 }
 
-module.exports = { reason, reasonExecute, discover, rankAndNarrate, fetchContext, refine, runPipeline, clusterByGrid };
+module.exports = { reason, reasonExecute, discover, rankAndNarrate, fetchContext, refine, runPipeline, clusterByGrid, computeCrowdSignal };
