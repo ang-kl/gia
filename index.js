@@ -1867,61 +1867,26 @@ async function sendHawkerMenu(chatId) {
 
 // v0.35.0: /recognised + /heritage-food handlers. Both consume the
 async function runRecognisedCommand(chatId) {
-  // v0.53.0: full rewrite — drops Ferracin Michelin scraper (selectors
-  // dead) AND the per-venue location ranking (per Human Lead, surface
-  // island-wide award groupings, not nearest-N). New flow uses
-  // recognised-fetch.js (Anthropic web_search) with strict prompt
-  // covering Michelin Star + Bib Gourmand + Asia 50/100 Best + WCA.
-  // Output: grouped by award, sorted by date desc + name + dishes.
-  try {
-    if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
-      return;
+  // v0.56.3: per Human Lead — stop the LLM web_search query (was off);
+  // surface 4 curated Singapore award/listing pages as direct links
+  // in the requested order. Static, deterministic, zero LLM cost.
+  const text = [
+    '🏆 *Singapore — recognised dining*',
+    '',
+    'Tap a list to open the source page:'
+  ].join('\n');
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '🍜 MICHELIN Bib Gourmand',          url: 'https://guide.michelin.com/sg/en/selection/singapore/restaurants/bib-gourmand' }],
+        [{ text: '⭐ MICHELIN Star',                   url: 'https://guide.michelin.com/sg/en/singapore-region/singapore/restaurants' }],
+        [{ text: "🌏 Asia's 50 Best Restaurants",     url: 'https://www.theworlds50best.com/asia/en/list/1-50' }],
+        [{ text: '🌱 Restaurants using Local Produce', url: 'https://www.sfa.gov.sg/fromSGtoSG/where-to-dine' }]
+      ]
     }
-    await setProcessing(redis, chatId);
-    await safeSend(chatId, '🏆 Pulling Singapore culinary awards…');
-    const recogFetch = require('./recognised-fetch');
-    const result = await recogFetch.getRecognisedSG(redis);
-    if (!result.ok || !result.groups?.length) {
-      await safeSend(chatId, `🏆 Could not pull awards (${result.error?.slice(0, 120) || 'empty'}). Try again in a few minutes.`);
-      return;
-    }
-    const stamp = result.cached ? `_(cached ≤24 h)_` : `_(just fetched)_`;
-    const header = `🏆 *Singapore culinary awards — ${result.year}* ${stamp}\n`;
-    // One Telegram message per award group so each can carry its own
-    // inline-keyboard buttons (one per top entry, capped to 8).
-    await safeSend(chatId, header, { parse_mode: 'Markdown' });
-    for (const g of result.groups) {
-      if (!g.entries.length) continue;
-      const lines = [`*${g.award}* — ${g.entries.length} entr${g.entries.length === 1 ? 'y' : 'ies'}`];
-      for (const e of g.entries) {
-        const date = e.date || '';
-        lines.push(
-          '',
-          `${date ? `\`${date}\`  ` : ''}*${e.name}*`,
-          e.dishes ? `_${e.dishes}_` : ''
-        );
-      }
-      // Inline keyboard: one row per top-8 entries, mapsUrl link.
-      const buttonsTop = g.entries.slice(0, 8);
-      const buttons = buttonsTop
-        .filter((e) => e.mapsUrl && /^https?:\/\//.test(e.mapsUrl))
-        .map((e) => [{
-          text: `📍 ${e.name.slice(0, 30)}${e.name.length > 30 ? '…' : ''}`,
-          url: e.mapsUrl
-        }]);
-      await safeSend(chatId, lines.filter(Boolean).join('\n'), {
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true,
-        reply_markup: buttons.length ? { inline_keyboard: buttons } : undefined
-      });
-    }
-  } catch (err) {
-    console.error('[Error] /recognised failed:', err.message);
-    await safeSend(chatId, "Sorry, /recognised hit an error. Try again in a moment.");
-  } finally {
-    await clearProcessing(redis, chatId).catch(() => {});
-  }
+  });
 }
 
 async function runCarparkCommand(chatId) {
