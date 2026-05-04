@@ -30,7 +30,7 @@ const CACHE_TTL_S = 60;
 const CACHE_PREFIX = 'tell-gia:v1:';
 const FETCH_TIMEOUT_MS = 12000;
 
-const FILTER_KEYS = ['openNow', 'walking10', 'halal', 'vegetarian'];
+const FILTER_KEYS = ['newlyOpened', 'openNow', 'walking20', 'walking10', 'halal', 'vegetarian'];
 const VALID_PRICES = new Set(['$', '$$', '$$$']);
 
 function buildSystemPrompt(cuisineSlugList) {
@@ -40,8 +40,9 @@ YOUR JOB: extract structured search parameters from the user's text. Return STRI
 {
   "cuisines": [<slug>, <slug>, ...],   // up to 5 entries, MUST be EXACTLY from the CUISINE_SLUGS list below
   "filters": {
+    "newlyOpened": <boolean>,          // true if user mentions "new", "newly opened", "recently opened", "just opened"
     "openNow":    <boolean>,           // true if user mentions "open now", "right now", "tonight" with urgency
-    "walking10":  <boolean>,           // true if user mentions "walk", "walking distance", "nearby"
+    "walking20":  <boolean>,           // true if user mentions "walk", "walking distance", "nearby"
     "halal":      <boolean>,           // true if user mentions halal, muslim-friendly
     "vegetarian": <boolean>,           // true if user mentions vegetarian, vegan, veggie
     "prices":     [<"$" | "$$" | "$$$">, ...]  // price tier subset; "$$ or under" → ["$","$$"]
@@ -78,7 +79,7 @@ function tryParseJson(text) {
 function validateInferredOutput(raw, validSlugs) {
   const out = {
     cuisines: [],
-    filters: { openNow: false, walking10: false, halal: false, vegetarian: false, prices: [] }
+    filters: { newlyOpened: false, openNow: false, walking20: false, halal: false, vegetarian: false, prices: [] }
   };
   if (!raw || typeof raw !== 'object') return out;
   if (Array.isArray(raw.cuisines)) {
@@ -119,11 +120,12 @@ function keywordFallback(text, vault) {
       if (!inferredCuisines.includes(c.slug)) inferredCuisines.push(c.slug);
     }
   }
-  const filters = { openNow: false, walking10: false, halal: false, vegetarian: false, prices: [] };
+  const filters = { newlyOpened: false, openNow: false, walking20: false, halal: false, vegetarian: false, prices: [] };
+  if (/\b(new|newly opened|recently opened|just opened)\b/i.test(text)) filters.newlyOpened = true;
   if (/\b(open now|right now|now|tonight)\b/i.test(text)) filters.openNow = true;
   if (/\b(halal)\b/i.test(text)) filters.halal = true;
   if (/\b(vegetarian|vegan|veggie)\b/i.test(text)) filters.vegetarian = true;
-  if (/\b(walk|walking|nearby)\b/i.test(text)) filters.walking10 = true;
+  if (/\b(walk|walking|nearby)\b/i.test(text)) filters.walking20 = true;
   const priceMatch = text.match(/\$+/);
   if (priceMatch) {
     const n = priceMatch[0].length;

@@ -1108,7 +1108,7 @@ bot.on('callback_query', async (q) => {
     //   transport:bus:arrivals      → arrivals at nearest stops (current /transport bus block)
     //   transport:bus:crowd         → bus load summary across nearest arrivals
     //   transport:bus:route         → Google Maps transit deep link from current location
-    //   transport:taxi              → traffic + Grab/Gojek/CDG deep links
+    //   (removed in v0.57.6)
     //   transport:drive             → traffic incidents + driving directions deep link
     if (data === 'transport:menu') {
       await sendTransportMenu(chatId);
@@ -1135,11 +1135,7 @@ bot.on('callback_query', async (q) => {
       await runTransportBus(chatId, sub);
       return;
     }
-    if (data === 'transport:taxi') {
-      await runTransportTaxi(chatId);
-      return;
-    }
-    if (data === 'transport:taxi:incidents') {
+    if (data === 'transport:incidents') {
       await runTransportTrafficIncidents(chatId);
       return;
     }
@@ -1440,7 +1436,7 @@ async function sendTransportMenu(chatId) {
           { text: '🚌 Bus',       callback_data: 'transport:bus' }
         ],
         [
-          { text: '🚖 Taxi/PHD',  callback_data: 'transport:taxi' },
+          { text: '🚦 Incidents', callback_data: 'transport:incidents' },
           { text: '🚗 Drive',     callback_data: 'transport:drive' }
         ],
         [
@@ -1706,52 +1702,11 @@ async function runTransportBus(chatId, sub) {
   }
 }
 
-async function runTransportTaxi(chatId) {
-  // v0.57.1: clean buttons-only main screen. Traffic incidents moved
-  // to a separate "Show traffic" button (transport:taxi:incidents).
-  // Ride-hail links use OneLink-style universal URLs that resolve to
-  // the installed app on iOS/Android, falling back to the App Store /
-  // Play Store automatically. Telegram inline-keyboard "url:" buttons
-  // can only carry https://, so platform detection is delegated to
-  // these smart-redirect URLs.
-  try {
-    // v0.57.4: ride-hail buttons now use /r/<app> redirect endpoint
-    // which sniffs User-Agent and sends iOS users to the App Store
-    // (Universal Link → opens app if installed), Android users to
-    // Play Store, else to the publisher website. Renamed CDG Zig →
-    // ComfortDelGro Zig per Human Lead.
-    const baseUrl = `https://${webhookDomain}`;
-    await safeSend(chatId, '🚖 *Taxi / Private-Hire* — tap an app to hail; the right store / app opens for your device.', {
-      parse_mode: 'Markdown',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🚕 Grab',  url: `${baseUrl}/r/grab` },
-            { text: '🛵 Gojek', url: `${baseUrl}/r/gojek` }
-          ],
-          [
-            { text: '🚙 TADA', url: `${baseUrl}/r/tada` },
-            { text: '🚖 ComfortDelGro Zig', url: `${baseUrl}/r/cdgzig` }
-          ],
-          [{ text: '🚦 Show traffic incidents', callback_data: 'transport:taxi:incidents' }],
-          [{ text: '⬅️ Back', callback_data: 'transport:menu' }]
-        ]
-      }
-    });
-  } catch (err) {
-    console.error('[Error] transport taxi failed:', err.message);
-    await safeSend(chatId, "Sorry, the taxi view failed.");
-  }
-}
-
-// v0.57.1: dedicated traffic-incidents screen reachable from /transport
-// → Taxi/PHD or Drive. Uses cached user location to rank by distance;
-// falls back to island-wide top 5 when location absent.
 async function runTransportTrafficIncidents(chatId) {
   try {
     if (!process.env.LTA_ACCOUNT_KEY) {
       await safeSend(chatId, '🚦 Traffic feed offline (LTA key not configured).', {
-        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:taxi' }]] }
+        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
       });
       return;
     }
@@ -1782,7 +1737,7 @@ async function runTransportTrafficIncidents(chatId) {
     }
     await safeSend(chatId, lines.join('\n'), {
       parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:taxi' }]] }
+      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
     });
   } catch (err) {
     console.error('[Error] transport traffic incidents failed:', err.message);
@@ -2795,6 +2750,7 @@ async function cacheBotUsername() {
           .filter(Boolean)
           .map((c) => c.name);
         const modifiers = [];
+        if (filters.newlyOpened) modifiers.push('newly opened');
         if (filters.halal) modifiers.push('halal');
         if (filters.vegetarian) modifiers.push('vegetarian');
         let cuisineQueries;
@@ -2805,9 +2761,22 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.57.6: response cache keyed by selection state (rounded
+        // location to ~110m so neighbours share the cache). 30-min TTL.
+        const cacheKey = `cuisine:search:v1:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
+          `${cuisineQueries.join('|')}:` +
+          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.walking20 ? 'w' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : ''].join('')}:` +
+          `${(filters.prices || []).join(',')}`;
+        try {
+          if (redis.isOpen) {
+            const cached = await redis.get(cacheKey);
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              return res.json({ ...parsed, cached: true });
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-Search] cache read failed:', err.message); }
         const pipeline = require('./pipeline');
-        // Singapore-wide: 50 km radius covers the whole island. Bias
-        // (not strict restriction) so user's location ranks results.
         const candidates = await pipeline.discover({
           lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
@@ -2844,10 +2813,15 @@ async function cacheBotUsername() {
           const allowed = new Set(filters.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
         }
-        // v0.57.3: walking20 supersedes walking10. Now actually enforced
-        // via computed walkMinutes (was a no-op when walkMinutes was null).
         if (filters.walking20 || filters.walking10) {
           venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 20 : false);
+        }
+        // v0.57.6: "newly opened" is a soft filter: prefer venues with
+        // ≤150 reviews (proxy for "opened recently in Singapore"). The
+        // searchText query already biases toward Google's own
+        // recency signal via the "newly opened" modifier.
+        if (filters.newlyOpened) {
+          venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
         }
         // Sort by walking distance ASC (closer first) so top 12 are most reachable.
         venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
@@ -2877,7 +2851,12 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] review-attach failed:', err.message);
         }
-        res.json({ venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } });
+        const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        // v0.57.6: write to cache for 30 minutes.
+        try {
+          if (redis.isOpen) await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
+        } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
+        res.json({ ...payload, cached: false });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
         res.status(500).json({ error: err.message });
@@ -2909,6 +2888,7 @@ async function cacheBotUsername() {
         }
         // v0.57.2: same modifier-prefix pattern as /api/cuisine/search.
         const modifiers = [];
+        if (merged.newlyOpened) modifiers.push('newly opened');
         if (merged.halal) modifiers.push('halal');
         if (merged.vegetarian) modifiers.push('vegetarian');
         let cuisineQueries;
@@ -3026,43 +3006,8 @@ async function cacheBotUsername() {
     //
     // /api/sanctuary (the personal "live picks" feed) and other
     // user-data endpoints REMAIN auth-gated.
-    // v0.57.4: User-Agent-aware redirect for ride-hail deep links.
-    // Telegram inline-keyboard "url:" buttons can only carry https://,
-    // and Universal Links resolve only on the matching platform. So we
-    // redirect through this endpoint: iOS → App Store deep link,
-    // Android → Play Store, else → publisher website.
-    const RIDE_HAIL_LINKS = {
-      grab: {
-        ios:     'https://apps.apple.com/sg/app/grab-superapp/id647268330',
-        android: 'https://play.google.com/store/apps/details?id=com.grabtaxi.passenger',
-        web:     'https://grab.onelink.me/2695613898'
-      },
-      gojek: {
-        ios:     'https://apps.apple.com/sg/app/gojek/id944875099',
-        android: 'https://play.google.com/store/apps/details?id=com.gojek.app',
-        web:     'https://www.gojek.com/sg/'
-      },
-      tada: {
-        ios:     'https://apps.apple.com/sg/app/tada-rider/id1395921884',
-        android: 'https://play.google.com/store/apps/details?id=com.mvlchain.tada.passenger',
-        web:     'https://tada.global/'
-      },
-      cdgzig: {
-        ios:     'https://apps.apple.com/sg/app/zig-by-comfortdelgro/id1485108879',
-        android: 'https://play.google.com/store/apps/details?id=com.cdg.zig',
-        web:     'https://www.cdgzig.com/'
-      }
-    };
-    app.get('/r/:app', (req, res) => {
-      const key = String(req.params.app || '').toLowerCase();
-      const links = RIDE_HAIL_LINKS[key];
-      if (!links) return res.status(404).send('Unknown ride-hail app');
-      const ua = String(req.headers['user-agent'] || '').toLowerCase();
-      let target = links.web;
-      if (/iphone|ipad|ipod/.test(ua)) target = links.ios;
-      else if (/android/.test(ua))     target = links.android;
-      res.redirect(302, target);
-    });
+    // v0.57.6: ride-hail /r/<app> redirect endpoint removed (Taxi/PHD
+    // dropped from /transport top-level menu in favour of Incidents).
 
     app.get('/maps-key', (_req, res) => {
       const customMapId = !!process.env.MAP_ID;
