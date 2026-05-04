@@ -36,7 +36,7 @@ export default function App() {
       <div className="px-3 pt-3 pb-2 border-b border-tg-border flex items-center gap-2">
         <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-base font-semibold leading-tight">🍚 Hawker Centre</h1>
+          <h1 className="text-base font-semibold leading-tight">🍚 Hawker Centre (2025)</h1>
           <p className="text-[10px] text-tg-hint font-mono leading-tight">
             v{BUILD_VERSION}{data?.totalCount ? ` · ${data.totalCount} centres` : ''}
           </p>

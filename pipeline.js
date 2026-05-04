@@ -347,10 +347,11 @@ const DISCOVER_FIELD_MASK = [
   'places.googleMapsUri',
   'places.googleMapsLinks',
   'places.currentOpeningHours.openNow',
+  // v0.57.20: regularOpeningHours.periods carries weekly schedule
+  // (open.day/open.hour/open.minute + close.*). Used to derive
+  // "Closed today · Opens tomorrow 11:00 AM" when openNow=false.
+  'places.regularOpeningHours.periods',
   'places.generativeSummary',
-  // v0.57.10: include reviews so /api/cuisine/search can extract
-  // 1-3 reviewer-recommended dishes per venue without a separate
-  // Places fetch. Field-mask Atmosphere SKU; cost ~2x basic search.
   'places.reviews'
 ].join(',');
 
@@ -466,6 +467,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           userRatingCount: p.userRatingCount ?? null,
           priceLevel: priceLevelToInt(p.priceLevel),
           openNow: p.currentOpeningHours?.openNow ?? null,
+          regularPeriods: Array.isArray(p.regularOpeningHours?.periods) ? p.regularOpeningHours.periods : null,
           primaryType: p.primaryType || 'restaurant',
           url: googleMapsUrl(p) ?? '',
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',

@@ -514,7 +514,7 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     .map((p, i) => {
       const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
       const open = p.openNow === true ? ' · Open now'
-        : p.openNow === false ? ' · Closed'
+        : p.openNow === false ? ` · ${p.closedTodayLabel || 'Closed'}`
         : '';
       const walk = (showWalk && Number.isFinite(p.walkMinutes)) ? ` · ${p.walkMinutes} min walk` : '';
       let line = `${i + 1}. ${p.name}${rating}${open}${walk}`;
@@ -1437,7 +1437,7 @@ async function sendTransportMenu(chatId) {
   // returns immediately; only prompts when zero cached location.
   const cached = await ensureLocation(chatId, '/transport');
   if (!cached) return;
-  await safeSend(chatId, '🚉 *Singapore transport*', {
+  await safeSend(chatId, '🇸🇬 *Transport*', {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
@@ -2363,12 +2363,12 @@ async function registerCommandsMenu() {
       { command: 'hidden',    description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
       { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
-      { command: 'hawker',    description: 'Singapore hawker Centre' },
-      { command: 'recognised', description: 'SG culinary awards — Michelin / Bib / Asia 50/100 / WCA' },
+      { command: 'hawker',    description: '>100 Hawker Centres' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand (< $45 meal), Asia 50/100 & Local Produce to Table' },
       { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
       { command: 'location',  description: 'Set your locale by typing a place name' },
       { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'share',     description: 'Forward a recent pick to a buddy' }
+      { command: 'share',     description: 'Forward recent pick' }
     ]);
     if (useWebhook) {
       await bot.setChatMenuButton({
@@ -2843,13 +2843,16 @@ async function cacheBotUsername() {
         // restaurant names for this gate to be reliable. If the user
         // mixes a gated + non-gated cuisine, we trust the upstream
         // results (any non-gated selection bypasses the gate).
-        if (allSelectedAreGated && gatedNames.length) {
+        // v0.57.20: small-pool bypass. The gate exists to filter noise
+        // when Places returns 30 unrelated SG results for a weak match
+        // (e.g. "Italian" → arbitrary cafés). When Places only returns
+        // ≤5 candidates, those ARE the cuisine match — gating them
+        // produces empty results for rare cuisines (e.g. "Kenyan" →
+        // Kafe Utu is the only venue, and its inline reviews may not
+        // contain the cuisine word OR the curated dish keywords).
+        const SMALL_POOL = 5;
+        if (allSelectedAreGated && gatedNames.length && venues.length > SMALL_POOL) {
           venues = venues.filter((v) => {
-            // v0.57.13: widen haystack — restaurant names rarely
-            // include the cuisine word (e.g. "Kafe Utu" is Ethiopian-
-            // leaning, "Wild Honey" is American). Match against
-            // Google's editorial summary + recent review text where
-            // the cuisine is much more likely to appear.
             const reviewText = Array.isArray(v.reviews)
               ? v.reviews.map((r) => r?.text || '').join(' ')
               : '';
@@ -2860,22 +2863,11 @@ async function cacheBotUsername() {
             ].join(' ').toLowerCase();
             for (const name of gatedNames) {
               const lower = name.toLowerCase();
-              // 1. Direct text match anywhere in haystack
-              //    (name / address / primaryType / summary / reviews)
               if (haystack.includes(lower)) return true;
-              // 2. Canonical Places primaryType pattern
-              //    e.g. "Ethiopian" → "ethiopian_restaurant"
               const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
               if (v.primaryType === `${slugForType}_restaurant`) return true;
-              // 3. Multi-word cuisines (e.g. "South Indian") — every
-              //    word ≥4 chars must appear in haystack
               const words = lower.split(/\s+/).filter((w) => w.length >= 4);
               if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
-              // 4. v0.57.14: related-dish keywords. Italian restaurants
-              //    rarely mention "Italian" by name but their reviews
-              //    say "pizza" or "pasta"; Ethiopian places say
-              //    "injera" not "Ethiopian". The curated map covers
-              //    African / European / Americas cuisines.
               const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
               for (const kw of dishKeywords) {
                 if (haystack.includes(kw)) return true;
@@ -3014,8 +3006,18 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
         }
-        // Strip raw reviews array from the response — keep payload small.
-        for (const v of top) delete v.reviews;
+        // v0.57.20: attach "Closed today · Opens tomorrow 11:00 AM" label
+        // for venues that are currently closed. Uses regularPeriods from
+        // the Places field mask. nextOpenString returns null when periods
+        // are missing, in which case the card falls back to plain "Closed".
+        const { closedTodayString } = require('./open-hours');
+        for (const v of top) {
+          if (v.openNow === false) {
+            v.closedTodayLabel = closedTodayString(v.regularPeriods);
+          }
+          delete v.regularPeriods;
+          delete v.reviews;
+        }
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         // v0.57.6: write to cache for 30 minutes.
         try {
@@ -3087,7 +3089,9 @@ async function cacheBotUsername() {
         // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
         // v0.57.13: only fire when every selected cuisine is in
         // African/European/Americas categories.
-        if (allSelectedAreGatedNL && gatedNamesNL.length) {
+        // v0.57.20: small-pool bypass (mirrors /api/cuisine/search).
+        const SMALL_POOL_NL = 5;
+        if (allSelectedAreGatedNL && gatedNamesNL.length && venues.length > SMALL_POOL_NL) {
           venues = venues.filter((v) => {
             // v0.57.13: widen haystack to include summary + reviews.
             const reviewText = Array.isArray(v.reviews)
@@ -3139,8 +3143,17 @@ async function cacheBotUsername() {
             return false;
           });
         }
+        // v0.57.20: closed-today label (mirrors /api/cuisine/search).
+        const { closedTodayString: closedTodayStringNL } = require('./open-hours');
+        const topNL = venues.slice(0, 12);
+        for (const v of topNL) {
+          if (v.openNow === false) {
+            v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
+          }
+          delete v.regularPeriods;
+        }
         res.json({
-          venues: venues.slice(0, 12),
+          venues: topNL,
           inferredCuisines, inferredFilters,
           source: inferred.source || 'unknown'
         });
