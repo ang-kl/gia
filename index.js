@@ -1715,17 +1715,23 @@ async function runTransportTaxi(chatId) {
   // can only carry https://, so platform detection is delegated to
   // these smart-redirect URLs.
   try {
+    // v0.57.4: ride-hail buttons now use /r/<app> redirect endpoint
+    // which sniffs User-Agent and sends iOS users to the App Store
+    // (Universal Link → opens app if installed), Android users to
+    // Play Store, else to the publisher website. Renamed CDG Zig →
+    // ComfortDelGro Zig per Human Lead.
+    const baseUrl = `https://${webhookDomain}`;
     await safeSend(chatId, '🚖 *Taxi / Private-Hire* — tap an app to hail; the right store / app opens for your device.', {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
           [
-            { text: '🚕 Grab',    url: 'https://grab.onelink.me/2695613898' },
-            { text: '🛵 Gojek',   url: 'https://gojek.onelink.me/4dcf' }
+            { text: '🚕 Grab',  url: `${baseUrl}/r/grab` },
+            { text: '🛵 Gojek', url: `${baseUrl}/r/gojek` }
           ],
           [
-            { text: '🚖 CDG Zig', url: 'https://www.cdgzig.com/getapp' },
-            { text: '🚙 TADA',    url: 'https://tada.global/download' }
+            { text: '🚙 TADA', url: `${baseUrl}/r/tada` },
+            { text: '🚖 ComfortDelGro Zig', url: `${baseUrl}/r/cdgzig` }
           ],
           [{ text: '🚦 Show traffic incidents', callback_data: 'transport:taxi:incidents' }],
           [{ text: '⬅️ Back', callback_data: 'transport:menu' }]
@@ -2998,6 +3004,44 @@ async function cacheBotUsername() {
     //
     // /api/sanctuary (the personal "live picks" feed) and other
     // user-data endpoints REMAIN auth-gated.
+    // v0.57.4: User-Agent-aware redirect for ride-hail deep links.
+    // Telegram inline-keyboard "url:" buttons can only carry https://,
+    // and Universal Links resolve only on the matching platform. So we
+    // redirect through this endpoint: iOS → App Store deep link,
+    // Android → Play Store, else → publisher website.
+    const RIDE_HAIL_LINKS = {
+      grab: {
+        ios:     'https://apps.apple.com/sg/app/grab-superapp/id647268330',
+        android: 'https://play.google.com/store/apps/details?id=com.grabtaxi.passenger',
+        web:     'https://grab.onelink.me/2695613898'
+      },
+      gojek: {
+        ios:     'https://apps.apple.com/sg/app/gojek/id944875099',
+        android: 'https://play.google.com/store/apps/details?id=com.gojek.app',
+        web:     'https://www.gojek.com/sg/'
+      },
+      tada: {
+        ios:     'https://apps.apple.com/sg/app/tada-rider/id1395921884',
+        android: 'https://play.google.com/store/apps/details?id=com.mvlchain.tada.passenger',
+        web:     'https://tada.global/'
+      },
+      cdgzig: {
+        ios:     'https://apps.apple.com/sg/app/zig-by-comfortdelgro/id1485108879',
+        android: 'https://play.google.com/store/apps/details?id=com.cdg.zig',
+        web:     'https://www.cdgzig.com/'
+      }
+    };
+    app.get('/r/:app', (req, res) => {
+      const key = String(req.params.app || '').toLowerCase();
+      const links = RIDE_HAIL_LINKS[key];
+      if (!links) return res.status(404).send('Unknown ride-hail app');
+      const ua = String(req.headers['user-agent'] || '').toLowerCase();
+      let target = links.web;
+      if (/iphone|ipad|ipod/.test(ua)) target = links.ios;
+      else if (/android/.test(ua))     target = links.android;
+      res.redirect(302, target);
+    });
+
     app.get('/maps-key', (_req, res) => {
       const customMapId = !!process.env.MAP_ID;
       res.json({
