@@ -2488,6 +2488,19 @@ async function registerCommandsMenu() {
 async function configureUpdates() {
   if (useWebhook) {
     const url = `https://${webhookDomain}/webhook`;
+    // v0.57.28: defensive deleteWebHook before setWebHook. Wipes
+    // Telegram's prior webhook state (URL + secret_token) so a fresh
+    // setWebHook lands clean. Protects against the secret-drift case
+    // we hit on the v0.57.27 deploy: Telegram retained a stale
+    // secret_token from a previous deploy, the bot's runtime secret
+    // had rotated (random per-restart when TELEGRAM_WEBHOOK_SECRET
+    // env var was unset), and every delivery 401'd. delete is a
+    // no-op when no webhook exists; safe to call unconditionally.
+    try {
+      await bot.deleteWebHook({ drop_pending_updates: true });
+    } catch (err) {
+      console.warn('[Updates] deleteWebHook failed (non-fatal):', err.message);
+    }
     try {
       await bot.setWebHook(url, {
         secret_token: webhookSecret,
