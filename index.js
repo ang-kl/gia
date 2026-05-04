@@ -35,7 +35,7 @@ const {
   setProcessing,
   clearProcessing
 } = require('./location-cache');
-const { requireInitData } = require('./twa-auth');
+const { requireInitData, verifyInitData } = require('./twa-auth');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
@@ -1395,34 +1395,6 @@ async function routeMenuCommand(chatId, raw, payload = null) {
         console.error('[Cuisine-Diag] D723 fallback failed:', err.message);
         await safeSend(chatId, "Sorry, the chat-delivery fallback hit an error.");
       }
-      return true;
-    }
-    case 'cuisine-copy-all': {
-      // v0.57.31: TMA "📋 Copy all to chat" — build a single Google
-      // Maps directions URL containing all current result pins (up
-      // to 10, the consumer-Maps URL cap), reply with that link.
-      const incoming = Array.isArray(payload?.venues) ? payload.venues : [];
-      const slim = incoming
-        .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
-        .slice(0, 10);
-      if (!slim.length) {
-        await safeSend(chatId, '📋 No results to copy yet — run a search first.');
-        return true;
-      }
-      const { googleMapsContainerUrl, googleMapsUrl } = require('./maps-url');
-      let url;
-      if (slim.length === 1) {
-        url = googleMapsUrl(slim[0]);
-      } else {
-        url = googleMapsContainerUrl(slim, { maxWaypoints: 9, travelmode: 'walking' });
-      }
-      if (!url) {
-        await safeSend(chatId, '📋 Could not build a Maps link for those results.');
-        return true;
-      }
-      const names = slim.map((v, i) => `${i + 1}. ${v.name || '(unnamed)'}`).join('\n');
-      const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
-      await safeSend(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
       return true;
     }
     case 'cuisine-pick':
@@ -2887,6 +2859,47 @@ async function cacheBotUsername() {
         res.json({ categories: cv.getByCategory() });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.57.32: "Copy all to chat" — TMA POSTs the current result list,
+    // server authenticates via initData (HMAC-signed by the bot token),
+    // builds a single Google Maps URL with all pins, and sends it to
+    // the user's chat via bot.sendMessage. Replaces the v0.57.31
+    // tg.sendData approach which was silently dropped because the
+    // cuisine TMA is launched from an inline keyboard (sendData only
+    // works for keyboard-button TMAs).
+    app.post('/api/cuisine/copy-all', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) {
+          return res.status(401).json({ error: 'invalid initData' });
+        }
+        const chatId = verified.user.id;
+        const incoming = Array.isArray(req.body?.venues) ? req.body.venues : [];
+        const slim = incoming
+          .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
+          .slice(0, 10);
+        if (!slim.length) {
+          return res.status(400).json({ error: 'no venues' });
+        }
+        const { googleMapsContainerUrl, googleMapsUrl } = require('./maps-url');
+        let url;
+        if (slim.length === 1) {
+          url = googleMapsUrl(slim[0]);
+        } else {
+          url = googleMapsContainerUrl(slim, { maxWaypoints: 9, travelmode: 'walking' });
+        }
+        if (!url) {
+          return res.status(500).json({ error: 'could not build maps URL' });
+        }
+        const names = slim.map((v, i) => `${i + 1}. ${v.name || '(unnamed)'}`).join('\n');
+        const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
+        await bot.sendMessage(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
+        res.json({ ok: true, count: slim.length });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/copy-all failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });
