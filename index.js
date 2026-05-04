@@ -1842,7 +1842,7 @@ async function sendHawkerMenu(chatId) {
   // browser remains (Closures/R&R/About tabs removed).
   const vault = require('./hawker-vault');
   const total = vault.getAllCentres().length;
-  await safeSend(chatId, `🍚 Singapore hawker centres (${total} curated, snapshot 25 Jul 2025)`, {
+  await safeSend(chatId, '🍚 Singapore Hawker Centres & Food Centres (2025). By NEA', {
     reply_markup: {
       inline_keyboard: [
         [{ text: '🍚 Open Hawker Centre', web_app: { url: `https://${webhookDomain}/app/hawker` } }]
