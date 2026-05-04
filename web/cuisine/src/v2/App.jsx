@@ -26,6 +26,10 @@ export default function App() {
   const [flipped, setFlipped] = useState(false);
   const [lastPrompt, setLastPrompt] = useState(null);
   const [lastRunSnap, setLastRunSnap] = useState(null);
+  // v0.58.2: lat/lng anchor of the last successful search. The map
+  // panel compares this against its current viewport centre to
+  // decide when to surface "Search this area".
+  const [searchCenter, setSearchCenter] = useState(null);
   const initialSearchDone = useRef(false);
 
   function stateSig(s) {
@@ -74,20 +78,28 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
-  async function runSearch(snap = state) {
+  async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
+    const center = anchor || searchCenter || userLoc;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
-        lat: userLoc.lat, lng: userLoc.lng,
+        lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG'
       });
       setVenues(r.venues || []);
+      setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
     } catch (err) {
       setError(err.message); setVenues([]);
     } finally { setLoading(false); }
+  }
+
+  // v0.58.2: re-anchor the search at an explicit lat/lng (the map's
+  // viewport centre when the user taps "Search this area").
+  function runSearchAt(lat, lng) {
+    runSearch(state, { lat, lng });
   }
 
   async function handleNLSubmit(text) {
@@ -172,7 +184,8 @@ export default function App() {
         </div>
       </header>
 
-      <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId} />
+      <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
+        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
 
       {/* v0.58.1: filter strip sits directly below the map, primary
           row shows Open-now / Halal / [⚙], the rest live in the
@@ -227,7 +240,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.1 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.2 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
