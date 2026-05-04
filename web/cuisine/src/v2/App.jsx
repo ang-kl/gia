@@ -130,19 +130,25 @@ export default function App() {
             {state.cuisines.length}c · {filterCount}f
           </div>
         </div>
-        {/* v0.57.9: region toggle on its own row so it's always visible */}
+        {/* v0.57.9: region toggle on its own row so it's always visible.
+            v0.57.34: JB now uses the Johor state flag icon (johor-flag.png)
+            instead of the 🇲🇾 Malaysia emoji — Johor Bahru is the city, not
+            the country. */}
         <div className="flex gap-1.5">
           {[
-            { id: 'SG', label: '🇸🇬 Singapore' },
-            { id: 'JB', label: '🇲🇾 Johor Bahru' }
+            { id: 'SG', flag: '🇸🇬', label: 'Singapore' },
+            { id: 'JB', flag: 'johor-flag.png', label: 'Johor Bahru' }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
                 onClick={() => setState((s) => ({ ...s, region: r.id }))}
                 aria-pressed={sel}
-                className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
-                {r.label}
+                className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
+                {r.flag.endsWith('.png')
+                  ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
+                  : <span aria-hidden>{r.flag}</span>}
+                <span>{r.label}</span>
               </button>
             );
           })}
@@ -194,7 +200,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.57.33 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.57.34 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
