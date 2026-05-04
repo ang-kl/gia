@@ -34,7 +34,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="px-3 pt-3 pb-2 border-b border-tg-border flex items-center gap-2">
-        <img src="/app/hawker/soleat-logo.svg" alt="soleat" width="28" height="28" className="flex-shrink-0" />
+        <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">🍚 Hawker Centre</h1>
           <p className="text-[10px] text-tg-hint font-mono leading-tight">

@@ -115,10 +115,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-2 max-w-[640px] mx-auto">
-      <header className="flex items-center justify-between gap-2 flex-wrap">
-        <h1 className="text-lg font-bold leading-tight whitespace-nowrap">🍽️ Cuisine</h1>
-        {/* v0.57.8: region toggle — SG default, JB = Johor Bahru CITY only */}
-        <div className="flex gap-1 shrink-0">
+      <header className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
+            <h1 className="text-lg font-bold leading-tight truncate">Cuisine</h1>
+          </div>
+          <div className="text-[11px] text-tg-hint shrink-0">
+            {state.cuisines.length}c · {filterCount}f
+          </div>
+        </div>
+        {/* v0.57.9: region toggle on its own row so it's always visible */}
+        <div className="flex gap-1.5">
           {[
             { id: 'SG', label: '🇸🇬 Singapore' },
             { id: 'JB', label: '🇲🇾 Johor Bahru' }
@@ -128,14 +136,11 @@ export default function App() {
               <button key={r.id} type="button"
                 onClick={() => setState((s) => ({ ...s, region: r.id }))}
                 aria-pressed={sel}
-                className={`px-2.5 py-1 rounded-full border text-xs whitespace-nowrap ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
+                className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
                 {r.label}
               </button>
             );
           })}
-        </div>
-        <div className="text-[11px] text-tg-hint w-full text-right">
-          {state.cuisines.length}c · {filterCount}f
         </div>
       </header>
 
@@ -181,7 +186,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.57.8 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.57.9 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
