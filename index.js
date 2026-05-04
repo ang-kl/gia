@@ -2823,6 +2823,12 @@ async function cacheBotUsername() {
           }
           return v;
         });
+        // v0.57.8: hard distance gate — drop anything > 60 km from
+        // user (covers all of SG with margin). Defense against the
+        // KL-leak bug where regionCode wasn't enforced; even with
+        // regionCode now set on the Places call, this filter ensures
+        // out-of-SG hits never reach the user.
+        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 60000);
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
@@ -2927,6 +2933,16 @@ async function cacheBotUsername() {
           'university', 'hospital', 'gym', 'fitness_center'
         ]);
         venues = venues.filter((v) => !NON_FOOD_TYPES_NL.has(v.primaryType));
+        // v0.57.8: hard 60 km gate (SG is ~50 × 25 km).
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          venues = venues.filter((v) => {
+            if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return true;
+            const R = 6371000, toRad = (d) => d * Math.PI / 180;
+            const dLat = toRad(v.lat - lat), dLng = toRad(v.lng - lng);
+            const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat)) * Math.cos(toRad(v.lat)) * Math.sin(dLng / 2) ** 2;
+            return Math.round(2 * R * Math.asin(Math.sqrt(x))) <= 60000;
+          });
+        }
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (merged.prices?.length) {
           const allowed = new Set(merged.prices.map((p) => p.length));
