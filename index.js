@@ -176,6 +176,35 @@ async function reverseGeocodeAddress(lat, lng) {
   }
 }
 
+// v0.53.0: shared location-preload pattern used by /transport,
+// /surprise, /carpark. Returns the cached location if fresh
+// (≤5 min old), else fires LOCATION_REQUEST_KEYBOARD and returns null
+// so the caller can early-return. When fresh, also sends a small
+// "📍 Current: <address>" header line so the user knows what locale
+// the bot is operating on.
+const FRESH_LOC_MS = 5 * 60 * 1000;
+async function ensureFreshLocationOrPrompt(chatId, label) {
+  const cached = await getUserLocation(redis, chatId);
+  const stale = !cached || !cached.setAt || (Date.now() - cached.setAt > FRESH_LOC_MS);
+  if (stale) {
+    await bot.sendMessage(
+      chatId,
+      `📍 Tap to share your location so ${label} uses your current locale.`,
+      LOCATION_REQUEST_KEYBOARD
+    );
+    return null;
+  }
+  try {
+    const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
+    if (geo?.formatted) {
+      await safeSend(chatId, `📍 Current: ${geo.formatted}`);
+    }
+  } catch (err) {
+    console.warn(`[${label}] reverse-geocode failed:`, err.message);
+  }
+  return cached;
+}
+
 async function safeSend(chatId, text, opts = {}) {
   try {
     await bot.sendMessage(chatId, text, opts);
@@ -1870,138 +1899,56 @@ async function runHawkerListRegion(chatId, region) {
 // /announcements URL was wrong; v0.48.1 fixed it to /overview.
 
 // v0.35.0: /recognised + /heritage-food handlers. Both consume the
-// v0.34 recog:venue:* curated table (populated via the admin
-// /admin/seed-recognised + /admin/promote-recognised flow).
-
-const RECOGNISED_RADIUS_M = 5000;
-const RECOG_TOPN = 5;
-
-function summariseAwards(awards) {
-  if (!Array.isArray(awards) || !awards.length) return '';
-  const parts = awards.slice(0, 3).map((a) => {
-    const yr = a.year ? ` ${a.year}` : '';
-    const lvl = a.level ? ` ${a.level}★` : '';
-    const sub = a.subcategory ? ` (${a.subcategory})` : '';
-    const rk = a.rank ? ` #${a.rank}` : '';
-    switch (a.category) {
-      case 'michelin-star':       return `MICHELIN${lvl}${yr}`;
-      case 'bib-gourmand':        return `Bib Gourmand${yr}`;
-      case 'michelin-selected':   return `MICHELIN Selected${yr}`;
-      case 'asia-50-best':        return `Asia 50 Best${rk}${yr}`;
-      case 'world-culinary-awards': return `World Culinary${sub}${yr}`;
-      case 'best-chef-awards':    return `Best Chef${rk}${yr}`;
-      case 'unesco-ich':          return `UNESCO ICH (Hawker Culture, 2020)`;
-      default:                    return `${a.category}${yr}`;
-    }
-  });
-  return parts.join(' · ');
-}
-
-async function runRecognisedCommand(chatId, filterArg = null) {
-  // v0.52.0: rewrite — drop the seed-based recognised-store, scrape
-  // Michelin Guide SG live (24h cache). Filter args still accepted:
-  //   michelin / star → 1★+ only
-  //   bib             → Bib Gourmand only
-  //   (no arg)        → both, all stars
+async function runRecognisedCommand(chatId) {
+  // v0.53.0: full rewrite — drops Ferracin Michelin scraper (selectors
+  // dead) AND the per-venue location ranking (per Human Lead, surface
+  // island-wide award groupings, not nearest-N). New flow uses
+  // recognised-fetch.js (Anthropic web_search) with strict prompt
+  // covering Michelin Star + Bib Gourmand + Asia 50/100 Best + WCA.
+  // Output: grouped by award, sorted by date desc + name + dishes.
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
       return;
     }
-    const cached = await getUserLocation(redis, chatId);
-    if (!cached) {
-      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /recognised.", LOCATION_REQUEST_KEYBOARD);
-      return;
-    }
-    let sourceFilter = null; // 'starred' | 'bib' | null (both)
-    if (filterArg) {
-      const arg = String(filterArg).toLowerCase().trim();
-      if (['michelin', 'star', 'starred', 'michelin-star'].includes(arg)) sourceFilter = 'starred';
-      else if (['bib', 'bib-gourmand', 'bib_gourmand'].includes(arg)) sourceFilter = 'bib';
-      else {
-        await safeSend(chatId,
-          `Unknown filter \`${filterArg}\`. Valid: \`michelin\` | \`bib\` (or no arg for both).`,
-          { parse_mode: 'Markdown' }
-        );
-        return;
-      }
-    }
     await setProcessing(redis, chatId);
-    await safeSend(chatId, '🏆 Pulling Michelin Guide SG…');
-    const michelin = require('./michelin-scraper');
-    const result = await michelin.getMichelinSG(redis);
-    if (!result.ok || !result.venues?.length) {
-      await safeSend(chatId,
-        `🏆 Michelin SG scrape returned nothing (${result.error?.slice(0, 100) || 'empty'}). ` +
-        `Selectors may have drifted; an admin needs to refresh.`
-      );
+    await safeSend(chatId, '🏆 Pulling Singapore culinary awards…');
+    const recogFetch = require('./recognised-fetch');
+    const result = await recogFetch.getRecognisedSG(redis);
+    if (!result.ok || !result.groups?.length) {
+      await safeSend(chatId, `🏆 Could not pull awards (${result.error?.slice(0, 120) || 'empty'}). Try again in a few minutes.`);
       return;
     }
-    let venues = result.venues;
-    if (sourceFilter) venues = venues.filter((v) => v.source === sourceFilter);
-    // Resolve coords + walk time via Google Places (one searchText per venue,
-    // capped to top 25 by name-string proximity to user location).
-    // We use the existing pipeline.discover with cuisines=[name] as a single-shot
-    // search; if too expensive we'll switch to a single batch /api/places lookup.
-    const pipeline = require('./pipeline');
-    const enriched = [];
-    for (const v of venues.slice(0, 25)) {
-      try {
-        const cand = await pipeline.discover({
-          lat: cached.lat, lng: cached.lng, radius: 50000,
-          cuisines: [v.name], maxResults: 1
-        });
-        const top = Array.isArray(cand) ? cand[0] : null;
-        if (top && Number.isFinite(top.lat) && Number.isFinite(top.lng)) {
-          enriched.push({ ...v, ...top, awards: [michelin.venueAsAward(v)] });
-        }
-      } catch (err) {
-        console.warn('[Recognised] place lookup failed for', v.name, err.message);
+    const stamp = result.cached ? `_(cached ≤24 h)_` : `_(just fetched)_`;
+    const header = `🏆 *Singapore culinary awards — ${result.year}* ${stamp}\n`;
+    // One Telegram message per award group so each can carry its own
+    // inline-keyboard buttons (one per top entry, capped to 8).
+    await safeSend(chatId, header, { parse_mode: 'Markdown' });
+    for (const g of result.groups) {
+      if (!g.entries.length) continue;
+      const lines = [`*${g.award}* — ${g.entries.length} entr${g.entries.length === 1 ? 'y' : 'ies'}`];
+      for (const e of g.entries) {
+        const date = e.date || '';
+        lines.push(
+          '',
+          `${date ? `\`${date}\`  ` : ''}*${e.name}*`,
+          e.dishes ? `_${e.dishes}_` : ''
+        );
       }
+      // Inline keyboard: one row per top-8 entries, mapsUrl link.
+      const buttonsTop = g.entries.slice(0, 8);
+      const buttons = buttonsTop
+        .filter((e) => e.mapsUrl && /^https?:\/\//.test(e.mapsUrl))
+        .map((e) => [{
+          text: `📍 ${e.name.slice(0, 30)}${e.name.length > 30 ? '…' : ''}`,
+          url: e.mapsUrl
+        }]);
+      await safeSend(chatId, lines.filter(Boolean).join('\n'), {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+        reply_markup: buttons.length ? { inline_keyboard: buttons } : undefined
+      });
     }
-    if (!enriched.length) {
-      await safeSend(chatId, '🏆 Could not resolve any Michelin SG venues to map locations. Try again later.');
-      return;
-    }
-    // Haversine sort (closest first), keep top 5.
-    function haversine(a, b) {
-      const R = 6371000, toRad = (d) => d * Math.PI / 180;
-      const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
-      const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-      return Math.round(2 * R * Math.asin(Math.sqrt(x)));
-    }
-    enriched.sort((a, b) => haversine(cached, a) - haversine(cached, b));
-    const top5 = enriched.slice(0, RECOG_TOPN).map((v) => ({ ...v, distanceM: haversine(cached, v) }));
-    // Walking-time enrichment (Routes Matrix, ~$0.015/call).
-    let final = top5;
-    try {
-      const { rankByWalkingTime } = require('./vibe-suggest');
-      final = await rankByWalkingTime(cached.lat, cached.lng, top5);
-    } catch (err) {
-      console.warn('[Recognised] rankByWalkingTime failed:', err.message);
-    }
-    const filterLabel = sourceFilter ? ` (${sourceFilter === 'starred' ? 'Michelin Star' : 'Bib Gourmand'})` : '';
-    const stamp = result.cached ? '_(cached ≤24 h)_' : '_(just fetched)_';
-    const lines = [`🏆 *Nearest ${final.length} Michelin Guide SG venue${final.length === 1 ? '' : 's'}${filterLabel}*`, stamp];
-    for (const v of final) {
-      const award = summariseAwards(v.awards);
-      const walk = Number.isFinite(v.walkMinutes) ? ` · 🚶 ${v.walkMinutes} min walk` : '';
-      lines.push(
-        '',
-        `*${v.name}* — ${v.distanceM} m${walk}`,
-        v.area || v.location || '',
-        award ? `🏆 ${award}` : ''
-      );
-    }
-    const { googleMapsUrl } = require('./maps-url');
-    const buttons = final.map((v) => [{
-      text: `📍 ${v.name.slice(0, 30)}${v.name.length > 30 ? '…' : ''}`,
-      url: googleMapsUrl(v) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + ' Singapore')}`
-    }]);
-    await safeSend(chatId, lines.filter(Boolean).join('\n'), {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: buttons }
-    });
   } catch (err) {
     console.error('[Error] /recognised failed:', err.message);
     await safeSend(chatId, "Sorry, /recognised hit an error. Try again in a moment.");
@@ -2013,24 +1960,34 @@ async function runRecognisedCommand(chatId, filterArg = null) {
 async function runCarparkCommand(chatId) {
   try {
     if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, "Carpark lookup is offline (LTA key not configured)."); return; }
-    const cached = await getUserLocation(redis, chatId);
-    const lat = cached?.lat ?? 1.2839;
-    const lng = cached?.lng ?? 103.8517;
-    if (!cached) await safeSend(chatId, "I don't have your location — using Raffles Place as default. Share your location once and Gia will remember.");
+    // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/carpark');
+    if (!cached) return;
     await safeSend(chatId, "🅿️ Looking up nearest carparks…");
-    const list = await carpark.nearest(lat, lng, 5);
+    const list = await carpark.nearest(cached.lat, cached.lng, 5);
     if (!list.length) { await safeSend(chatId, "No carparks with available lots near here."); return; }
     const lines = ['🅿️ Nearest carparks with available lots'];
     list.forEach((c, i) => lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`));
     await safeSend(chatId, lines.join('\n'));
-    await sendGoogleMapsContainer(chatId, list, {
-      travelmode: 'driving',
-      caption: '🗺 Open all 5 carparks in one Google Maps container:',
-      label: '🗺 View all carparks'
-    });
-    const ageMin = await getLocationAgeMinutes(redis, chatId);
-    if (Number.isFinite(ageMin) && ageMin >= 10) {
-      await safeSend(chatId, `📍 Your last location is ${ageMin} min old. If these look far away, share a new pin or type "my location changed" to refresh before the next command.`);
+    // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
+    // Falls back to legacy directions URL when webhookDomain unavailable.
+    try {
+      const { buildMapHashUrl } = require('./maps-url');
+      const carparksWithName = list.map((c) => ({ ...c, name: c.development, placeId: '' }));
+      const mapUrl = webhookDomain ? buildMapHashUrl(carparksWithName, { webhookDomain }) : null;
+      if (mapUrl) {
+        await bot.sendMessage(chatId, `🗺 View all ${list.length} carparks on one map:`, {
+          reply_markup: { inline_keyboard: [[{ text: `🗺 View all ${list.length} on map`, web_app: { url: mapUrl } }]] }
+        });
+      } else {
+        await sendGoogleMapsContainer(chatId, list, {
+          travelmode: 'driving',
+          caption: '🗺 Open all 5 carparks in one Google Maps container:',
+          label: '🗺 View all carparks'
+        });
+      }
+    } catch (err) {
+      console.warn('[Carpark] map button render failed:', err.message);
     }
   } catch (err) {
     console.error('[Error] carpark command failed:', err.message);
@@ -2048,11 +2005,9 @@ async function runSurpriseCommand(chatId) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
       return;
     }
-    const cached = await getUserLocation(redis, chatId);
-    if (!cached) {
-      await bot.sendMessage(chatId, "Where are you? Tap to share your location for /surprise.", LOCATION_REQUEST_KEYBOARD);
-      return;
-    }
+    // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/surprise');
+    if (!cached) return;
     await setProcessing(redis, chatId);
 
     if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
@@ -2883,6 +2838,97 @@ async function cacheBotUsername() {
     app.get('/app/cuisine', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
+    });
+
+    // v0.53.0: cuisine catalogue + map-first search endpoints for the
+    // new v2 TMA. Catalogue is read-once from the in-repo MD file.
+    app.get('/api/cuisine/catalogue', (_req, res) => {
+      try {
+        const cv = require('./cuisines-vault');
+        res.json({ categories: cv.getByCategory() });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/catalogue failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/cuisine/search', async (req, res) => {
+      try {
+        const { lat, lng, cuisines = [], filters = {}, radius = 800 } = req.body || {};
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return res.status(400).json({ error: 'missing lat/lng' });
+        }
+        const cv = require('./cuisines-vault');
+        const cuisineQueries = (cuisines || [])
+          .slice(0, 5)
+          .map((slug) => cv.findBySlug(slug))
+          .filter(Boolean)
+          .map((c) => c.name);
+        const pipeline = require('./pipeline');
+        const candidates = await pipeline.discover({
+          lat, lng, radius, cuisines: cuisineQueries, maxResults: 30
+        });
+        let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
+        if (filters.prices?.length) {
+          const allowed = new Set(filters.prices.map((p) => p.length));
+          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+        }
+        if (filters.halal) venues = venues.filter((v) => /halal/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
+        if (filters.vegetarian) venues = venues.filter((v) => /vegetarian|vegan|veggie/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
+        if (filters.walking10) venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 10 : true);
+        res.json({ venues: venues.slice(0, 12) });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/search failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/cuisine/nl-query', async (req, res) => {
+      try {
+        const { text, lat, lng, filters = {} } = req.body || {};
+        if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
+        const cv = require('./cuisines-vault');
+        const inferredCuisines = [];
+        const lower = text.toLowerCase();
+        for (const c of cv.getAllCuisines()) {
+          if (inferredCuisines.length >= 5) break;
+          if (lower.includes(c.name.toLowerCase()) || c.keywords.some((k) => k && lower.includes(k))) {
+            if (!inferredCuisines.includes(c.slug)) inferredCuisines.push(c.slug);
+          }
+        }
+        const inferredFilters = {};
+        if (/\b(open now|now)\b/i.test(text)) inferredFilters.openNow = true;
+        if (/\b(halal)\b/i.test(text)) inferredFilters.halal = true;
+        if (/\b(vegetarian|vegan|veggie)\b/i.test(text)) inferredFilters.vegetarian = true;
+        if (/\b(walk|walking)\b/i.test(text)) inferredFilters.walking10 = true;
+        const priceMatch = text.match(/\$+/);
+        if (priceMatch) {
+          const n = priceMatch[0].length;
+          inferredFilters.prices = ['$', '$$', '$$$'].slice(0, n);
+        }
+        const pipeline = require('./pipeline');
+        const cuisineQueries = inferredCuisines
+          .map((slug) => cv.findBySlug(slug))
+          .filter(Boolean)
+          .map((c) => c.name);
+        const merged = { ...filters, ...inferredFilters };
+        const candidates = await pipeline.discover({
+          lat, lng, radius: 1000, cuisines: cuisineQueries, maxResults: 30
+        });
+        let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
+        if (merged.prices?.length) {
+          const allowed = new Set(merged.prices.map((p) => p.length));
+          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+        }
+        if (merged.halal) venues = venues.filter((v) => /halal/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
+        if (merged.vegetarian) venues = venues.filter((v) => /vegetarian|vegan|veggie/i.test(`${v.name} ${v.area || ''} ${v.primaryType || ''}`));
+        res.json({ venues: venues.slice(0, 12), inferredCuisines, inferredFilters });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/nl-query failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
     });
 
     // v0.38.0: Hawker NEA TMA — scraped Closures + R&R works.
