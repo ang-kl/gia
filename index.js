@@ -2749,15 +2749,21 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine/search', async (req, res) => {
       try {
-        // v0.57.3: drop hard radius constraint — search Singapore-wide
-        // (50 km bias). Compute walkMinutes server-side from haversine
-        // (80 m/min). "≤10 min walk" is now "≤20 min walk". Surface a
-        // recent-review snippet from the place-reviews:* cache when
-        // available so cards can show "common food in last 4 months".
-        const { lat, lng, cuisines = [], filters = {} } = req.body || {};
+        // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
+        // city only, not the whole state of Johor or Malaysia). For JB
+        // the search centres on JB CBD with regionCode 'MY' + a hard
+        // formattedAddress filter for "Johor Bahru".
+        const { lat, lng, cuisines = [], filters = {}, region = 'SG' } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // JB CBD centroid for the JB search; user's lat/lng still used
+        // for distance ranking on the result side.
+        const JB_CBD = { lat: 1.4927, lng: 103.7414 };
+        const isJB = region === 'JB';
+        const searchCenter = isJB ? JB_CBD : { lat, lng };
+        const searchRadius = isJB ? 18000 : 50000; // JB ~18km radius covers the city; SG 50km covers island
+        const searchRegionCode = isJB ? 'MY' : 'SG';
         const cv = require('./cuisines-vault');
         const cuisineNames = (cuisines || [])
           .slice(0, 5)
@@ -2778,7 +2784,8 @@ async function cacheBotUsername() {
         }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
-        const cacheKey = `cuisine:search:v1:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
+        // v0.57.8: region in the key so SG and JB results don't collide.
+        const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
           `${cuisineQueries.join('|')}:` +
           `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.walking20 ? 'w' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}`;
@@ -2793,7 +2800,8 @@ async function cacheBotUsername() {
         } catch (err) { console.warn('[Cuisine-Search] cache read failed:', err.message); }
         const pipeline = require('./pipeline');
         const candidates = await pipeline.discover({
-          lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
+          lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
+          cuisines: cuisineQueries, maxResults: 30, regionCode: searchRegionCode
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         // v0.57.5: defensive deny-list — drop venues whose primaryType
@@ -2823,12 +2831,26 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.57.8: hard distance gate — drop anything > 60 km from
-        // user (covers all of SG with margin). Defense against the
-        // KL-leak bug where regionCode wasn't enforced; even with
-        // regionCode now set on the Places call, this filter ensures
-        // out-of-SG hits never reach the user.
-        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 60000);
+        // v0.57.8: 80 km hard gate from user location (covers SG +
+        // adjacent JB even if user is in south SG). Plus, when JB is
+        // selected, require formattedAddress to mention "Johor Bahru"
+        // so we don't bleed into Iskandar / Kulai / KL hits that
+        // regionCode 'MY' might rank.
+        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 80000);
+        if (isJB) {
+          venues = venues.filter((v) => /johor bahru/i.test(`${v.area || ''} ${v.name || ''}`));
+        } else {
+          // SG only: post-filter by Singapore mention OR proximity
+          // (some hawker centres' formattedAddress lacks "Singapore").
+          venues = venues.filter((v) => {
+            if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
+            // Within 30km of SG centroid still counts as SG even if
+            // the address text is missing the country word.
+            const SG = { lat: 1.3521, lng: 103.8198 };
+            const distFromSG = haversine(SG, v);
+            return distFromSG <= 30000;
+          });
+        }
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
@@ -2865,6 +2887,29 @@ async function cacheBotUsername() {
                   .sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime));
                 if (recent.length) {
                   v.recentReview = String(recent[0].text).slice(0, 200).trim();
+                  // v0.57.8: cheap dish extraction from review text via
+                  // regex patterns ("ordered the X", "tried the X", etc.)
+                  // Free — no LLM call. Quality is approximate; replace
+                  // with rankAndNarrate when burn budget allows.
+                  const allText = recent.slice(0, 3).map((r) => r.text || '').join(' . ');
+                  const patterns = [
+                    /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
+                    /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
+                  ];
+                  const dishes = new Set();
+                  for (const re of patterns) {
+                    let m;
+                    while ((m = re.exec(allText)) !== null && dishes.size < 4) {
+                      const candidate = (m[1] || '').trim();
+                      // Skip obvious non-dish phrases.
+                      if (candidate.length < 3 || candidate.length > 40) continue;
+                      if (/^(restaurant|place|food|service|staff|ambien|atmosphere|experience|time|price|portion|menu|location|owner|chef)/i.test(candidate)) continue;
+                      dishes.add(candidate);
+                    }
+                  }
+                  if (dishes.size && (!Array.isArray(v.dishes) || !v.dishes.length)) {
+                    v.dishes = [...dishes].slice(0, 3);
+                  }
                 }
               } catch { /* per-venue best-effort */ }
             }));

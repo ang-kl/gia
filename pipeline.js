@@ -366,7 +366,7 @@ function priceLevelToInt(p) {
 // specified, uses searchText with a cuisine keyword (better for cuisine
 // recall than searchNearby's includedTypes filter). Otherwise falls
 // back to searchNearby with a broad type set.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, diag = noopDiag() }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', diag = noopDiag() }) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
     diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
@@ -385,14 +385,10 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           textQuery: `${cuisineQuery} restaurant`,
           includedType: 'restaurant',
           strictTypeFiltering: true,
-          // v0.57.8: restrict to Singapore. v0.57.3 dropped the
-          // hard radius gate to allow island-wide search, but
-          // locationBias is just a soft ranking signal — Google
-          // happily returned hits in Kuala Lumpur (e.g. Restaurant
-          // AL Sattar 315 km away). regionCode: 'SG' is a country-
-          // level restriction; combined with locationBias for
-          // proximity ranking within SG.
-          regionCode: 'SG',
+          // v0.57.8: regionCode is now a parameter ('SG' default, 'MY'
+          // for Johor Bahru). Combined with locationBias for proximity
+          // ranking inside the chosen country.
+          regionCode,
           maxResultCount: Math.min(maxResults, 20),
           locationBias: {
             circle: {

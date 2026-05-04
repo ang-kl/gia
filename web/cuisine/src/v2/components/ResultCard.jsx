@@ -25,6 +25,12 @@ export default function ResultCard({ venue, focused, onTap }) {
           <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
+          {/* v0.57.8: surface 2 reviewer-recommended dishes per Human Lead */}
+          {Array.isArray(venue.dishes) && venue.dishes.length > 0 && (
+            <div className="text-[12px] text-tg-text mt-1 leading-snug">
+              🍴 {venue.dishes.slice(0, 2).join(' · ')}
+            </div>
+          )}
           {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
           {venue.recentReview && (
             <div className="text-[11px] text-tg-hint mt-1 leading-snug italic">
