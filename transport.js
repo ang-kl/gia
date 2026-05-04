@@ -225,22 +225,110 @@ async function fetchPlatformCrowdAll() {
   return byCode;
 }
 
-// Lightweight name → crowd lookup. Tries to match the Places station
-// "displayName" against LTA station codes by stripping common suffixes
-// and uppercasing. Match success is best-effort; null if no match.
-function lookupCrowdForPlace(crowdByCode, placeName) {
-  if (!placeName) return null;
-  // Strip common suffixes: "MRT Station", "Station"
-  const norm = String(placeName)
+// v0.56.1: SG MRT station NAME → CODES lookup table for the top ~50
+// stations Singaporeans actually use. Each entry maps the canonical
+// name (lowercase, suffix-stripped) to one or more LTA station codes.
+// For interchange stations we list all codes; the crowd lookup picks
+// the worst level across them.
+const STATION_NAME_TO_CODES = {
+  // EWL spine
+  'pasir ris': ['EW1'], 'tampines': ['EW2', 'DT32'], 'simei': ['EW3'], 'tanah merah': ['EW4'],
+  'bedok': ['EW5'], 'kembangan': ['EW6'], 'eunos': ['EW7'], 'paya lebar': ['EW8', 'CC9'],
+  'aljunied': ['EW9'], 'kallang': ['EW10'], 'lavender': ['EW11'], 'bugis': ['EW12', 'DT14'],
+  'city hall': ['EW13', 'NS25'], 'raffles place': ['EW14', 'NS26'], 'tanjong pagar': ['EW15'],
+  'outram park': ['EW16', 'NE3', 'TE17'], 'tiong bahru': ['EW17'], 'redhill': ['EW18'],
+  'queenstown': ['EW19'], 'commonwealth': ['EW20'], 'buona vista': ['EW21', 'CC22'],
+  'dover': ['EW22'], 'clementi': ['EW23'], 'jurong east': ['EW24', 'NS1'],
+  'chinese garden': ['EW25'], 'lakeside': ['EW26'], 'boon lay': ['EW27'], 'pioneer': ['EW28'],
+  'joo koon': ['EW29'], 'gul circle': ['EW30'], 'tuas crescent': ['EW31'],
+  'tuas west road': ['EW32'], 'tuas link': ['EW33'],
+  // CGL (Changi)
+  'expo': ['CG1', 'DT35'], 'changi airport': ['CG2'],
+  // NSL spine (north of Jurong East)
+  'bukit batok': ['NS2'], 'bukit gombak': ['NS3'], 'choa chu kang': ['NS4', 'BP1'],
+  'yew tee': ['NS5'], 'kranji': ['NS7'], 'marsiling': ['NS8'], 'woodlands': ['NS9', 'TE2'],
+  'admiralty': ['NS10'], 'sembawang': ['NS11'], 'canberra': ['NS12'], 'yishun': ['NS13'],
+  'khatib': ['NS14'], 'yio chu kang': ['NS15'], 'ang mo kio': ['NS16'], 'bishan': ['NS17', 'CC15'],
+  'braddell': ['NS18'], 'toa payoh': ['NS19'], 'novena': ['NS20'], 'newton': ['NS21', 'DT11'],
+  'orchard': ['NS22', 'TE14'], 'somerset': ['NS23'], 'dhoby ghaut': ['NS24', 'NE6', 'CC1'],
+  'marina bay': ['NS27', 'CE2', 'TE20'], 'marina south pier': ['NS28'],
+  // NEL
+  'harbourfront': ['NE1', 'CC29'], 'outram': ['NE3', 'EW16', 'TE17'],
+  'chinatown': ['NE4', 'DT19'], 'clarke quay': ['NE5'], 'little india': ['NE7', 'DT12'],
+  'farrer park': ['NE8'], 'boon keng': ['NE9'], 'potong pasir': ['NE10'], 'woodleigh': ['NE11'],
+  'serangoon': ['NE12', 'CC13'], 'kovan': ['NE13'], 'hougang': ['NE14'],
+  'buangkok': ['NE15'], 'sengkang': ['NE16', 'STC'], 'punggol': ['NE17', 'PTC'],
+  // CCL
+  'bras basah': ['CC2'], 'esplanade': ['CC3'], 'promenade': ['CC4', 'DT15'],
+  'nicoll highway': ['CC5'], 'stadium': ['CC6'], 'mountbatten': ['CC7'],
+  'dakota': ['CC8'], 'macpherson': ['CC10', 'DT26'], 'tai seng': ['CC11'], 'bartley': ['CC12'],
+  'lorong chuan': ['CC14'], 'marymount': ['CC16'], 'caldecott': ['CC17', 'TE9'],
+  'botanic gardens': ['CC19', 'DT9'], 'farrer road': ['CC20'], 'holland village': ['CC21'],
+  'one-north': ['CC23'], 'kent ridge': ['CC24'], 'haw par villa': ['CC25'],
+  'pasir panjang': ['CC26'], 'labrador park': ['CC27'], 'telok blangah': ['CC28'],
+  // DTL
+  'bukit panjang': ['DT1', 'BP6'], 'cashew': ['DT2'], 'hillview': ['DT3'],
+  'beauty world': ['DT5'], 'king albert park': ['DT6'], 'sixth avenue': ['DT7'],
+  'tan kah kee': ['DT8'], 'stevens': ['DT10', 'TE11'], 'rochor': ['DT13'],
+  'downtown': ['DT17'], 'telok ayer': ['DT18'], 'fort canning': ['DT20'],
+  'bencoolen': ['DT21'], 'jalan besar': ['DT22'], 'bendemeer': ['DT23'],
+  'geylang bahru': ['DT24'], 'mattar': ['DT25'], 'ubi': ['DT27'], 'kaki bukit': ['DT28'],
+  'bedok north': ['DT29'], 'bedok reservoir': ['DT30'], 'tampines west': ['DT31'],
+  'tampines east': ['DT33'], 'upper changi': ['DT34'],
+  // TEL
+  'woodlands north': ['TE1'], 'woodlands south': ['TE3'], 'springleaf': ['TE4'],
+  'lentor': ['TE5'], 'mayflower': ['TE6'], 'bright hill': ['TE7'], 'upper thomson': ['TE8'],
+  'mount pleasant': ['TE10'], 'napier': ['TE12'], 'orchard boulevard': ['TE13'],
+  'great world': ['TE15'], 'havelock': ['TE16'], 'maxwell': ['TE18'], 'shenton way': ['TE19'],
+  'gardens by the bay': ['TE22'], 'tanjong rhu': ['TE23'], 'katong park': ['TE24'],
+  'tanjong katong': ['TE25'], 'marine parade': ['TE26'], 'marine terrace': ['TE27'],
+  'siglap': ['TE28'], 'bayshore': ['TE29']
+};
+
+function normaliseStationName(name) {
+  return String(name || '')
     .replace(/\s+(MRT|LRT)\s+Station\s*$/i, '')
     .replace(/\s+Station\s*$/i, '')
-    .trim();
-  // LTA PCDRealTime uses station CODES (NS27, etc.), not names.
-  // Without an authoritative name→code table we can only show the
-  // worst-case crowd across the whole network. Until a mapping table
-  // is added, return null and let callers omit the crowd line.
-  // (Future patch: hardcode top ~30 station name → code.)
-  return null; // intentional — see comment above
+    .replace(/\s+\(.*?\)\s*$/, '')
+    .trim()
+    .toLowerCase();
+}
+
+// v0.56.1: returns the WORST crowd level across all matching codes
+// (e.g. interchange Bishan = NS17 + CC15 → if either is high, return h).
+// Returns one of 'l' / 'm' / 'h' / null.
+function lookupCrowdForPlace(crowdByCode, placeName) {
+  if (!placeName || !crowdByCode) return null;
+  const norm = normaliseStationName(placeName);
+  const codes = STATION_NAME_TO_CODES[norm];
+  if (!codes?.length) return null;
+  let worst = null;
+  const order = { l: 1, m: 2, h: 3 };
+  for (const code of codes) {
+    const lvl = crowdByCode.get(code);
+    if (!lvl) continue;
+    if (!worst || order[lvl] > order[worst]) worst = lvl;
+  }
+  return worst;
+}
+
+// v0.56.1: rough wait-time approximation in MINUTES based on
+// SGT clock. Singapore MRT actual headways:
+//   Peak (Mon-Fri 07-09 AM, 17-19 PM): 2-3 min
+//   Off-peak day: 4-6 min
+//   Late evening (after 22:00): 5-8 min
+function estimateWaitMinutes(now = new Date()) {
+  const sgt = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const day = sgt.getUTCDay(); // 0=Sun..6=Sat
+  const hour = sgt.getUTCHours();
+  const isWeekday = day >= 1 && day <= 5;
+  if (isWeekday && ((hour >= 7 && hour < 9) || (hour >= 17 && hour < 19))) {
+    return { min: 2, max: 3, label: 'peak' };
+  }
+  if (hour >= 22 || hour < 6) {
+    return { min: 5, max: 8, label: 'late' };
+  }
+  return { min: 4, max: 6, label: 'off-peak' };
 }
 
 // Compute a coarse city-wide crowd: highest level seen across all lines.
@@ -319,6 +407,9 @@ module.exports = {
   isCacheFresh,
   nearestMrtStations,
   fetchPlatformCrowdAll,
+  lookupCrowdForPlace,
+  estimateWaitMinutes,
+  STATION_NAME_TO_CODES,
   lookupCrowdForPlace,
   networkCrowdSummary,
   fetchTrafficIncidents,
