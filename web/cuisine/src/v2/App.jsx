@@ -28,6 +28,7 @@ export default function App() {
     return JSON.stringify({
       cuisines: [...(s.cuisines || [])].sort(),
       filters: {
+        newlyOpened: !!s.filters?.newlyOpened,
         openNow: !!s.filters?.openNow,
         walking20: !!s.filters?.walking20,
         halal: !!s.filters?.halal,
@@ -105,9 +106,9 @@ export default function App() {
   }
 
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
-  const filterCount = (state.filters.openNow ? 1 : 0) + (state.filters.walking20 ? 1 : 0)
-    + (state.filters.halal ? 1 : 0) + (state.filters.vegetarian ? 1 : 0)
-    + (state.filters.prices?.length || 0);
+  const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
+    + (state.filters.walking20 ? 1 : 0) + (state.filters.halal ? 1 : 0)
+    + (state.filters.vegetarian ? 1 : 0) + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
   return (
