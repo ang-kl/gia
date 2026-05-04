@@ -323,7 +323,7 @@ export default function App() {
       )}
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
-        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
+        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} radius={radius} />
 
       {/* v0.58.14: radius slider moved out of the map (was an absolute-
           positioned pill column overlay). Tapping the pills inside the
@@ -405,7 +405,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.14 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.15 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
