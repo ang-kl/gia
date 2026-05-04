@@ -510,6 +510,12 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // (default false) renders the dishes line below the venue header.
   const showWalk = opts.showWalk !== false;
   const showDishes = !!opts.showDishes;
+  // v0.58.9: when showDishes is on (currently /hidden), each pick spans
+  // two lines (name+meta then 🍴 dishes). Joining with \n produced a
+  // dense wall of text per Human Lead's screenshot — switch to \n\n so
+  // a blank line separates each numbered pick. Single-line picks
+  // (showDishes=false, the /cuisine and /share paths) keep \n.
+  const itemSep = showDishes ? '\n\n' : '\n';
   const header = picks
     .map((p, i) => {
       const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
@@ -528,7 +534,7 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       }
       return line;
     })
-    .join('\n');
+    .join(itemSep);
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
 
   try {
