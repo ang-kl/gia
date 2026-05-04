@@ -86,8 +86,11 @@ export default function LocationField({ userLoc, region, onSelect }) {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-border bg-tg-card">
-        <span aria-hidden>📍</span>
+      {/* v0.58.14: clearer affordance — accent-coloured pin, "Tap to
+          change" hint when resting, ✏️ pencil icon on the right so
+          users see this is editable, not a label. */}
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+        <span aria-hidden className="text-tg-accent">📍</span>
         {open ? (
           <input
             ref={inputRef}
@@ -103,8 +106,11 @@ export default function LocationField({ userLoc, region, onSelect }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex-1 text-left text-sm truncate text-tg-text"
-          >{resting}</button>
+            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
+          >
+            <span className="truncate">{resting}</span>
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">tap to change</span>
+          </button>
         )}
         {loading && <span className="text-tg-hint text-xs">…</span>}
         {pickedLabel && !open && (
@@ -114,6 +120,9 @@ export default function LocationField({ userLoc, region, onSelect }) {
             aria-label="Clear location"
             className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
           >×</button>
+        )}
+        {!open && (
+          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
         )}
       </div>
       {open && suggestions.length > 0 && (
