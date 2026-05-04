@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -30,6 +30,10 @@ export default function App() {
   // panel compares this against its current viewport centre to
   // decide when to surface "Search this area".
   const [searchCenter, setSearchCenter] = useState(null);
+  // v0.58.4: id of the rotating warm-start seed that produced the
+  // initial venue list (e.g. 'open-now-cheap'). Cleared once the user
+  // runs a real search via the 🔍 Search button.
+  const [warmStartSeed, setWarmStartSeed] = useState(null);
   const initialSearchDone = useRef(false);
 
   function stateSig(s) {
@@ -71,10 +75,27 @@ export default function App() {
 
   useEffect(() => { writeToHash(state); }, [state]);
 
+  // v0.58.4: warm-start the result list on first paint with 5 random
+  // venues drawn from a rotating server-side seed. Falls back to the
+  // regular search pipeline if warm-start errors so the picker never
+  // opens to an empty list. lastRunSnap stays null on warm-start so
+  // the user's first manual 🔍 Search press still runs and populates
+  // the dirty-indicator baseline.
   useEffect(() => {
     if (!userLoc || initialSearchDone.current) return;
     initialSearchDone.current = true;
-    runSearch(state);
+    setLoading(true); setError(null);
+    warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region })
+      .then((r) => {
+        setVenues(r.venues || []);
+        setWarmStartSeed(r.seed || null);
+        setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+      })
+      .catch((err) => {
+        console.warn('[Cuisine-TMA-v2] warm-start failed, falling back:', err.message);
+        runSearch(state);
+      })
+      .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
@@ -91,6 +112,8 @@ export default function App() {
       setVenues(r.venues || []);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
+      // v0.58.4: any explicit search supersedes the warm-start label.
+      setWarmStartSeed(null);
     } catch (err) {
       setError(err.message); setVenues([]);
     } finally { setLoading(false); }
@@ -235,12 +258,13 @@ export default function App() {
         venues={venues} loading={loading} focusedPlaceId={focusedPlaceId}
         onCardTap={setFocusedPlaceId} onNLSubmit={handleNLSubmit}
         lastPrompt={lastPrompt} flipped={flipped} setFlipped={setFlipped}
+        warmStartSeed={warmStartSeed}
       />
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.3 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.4 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

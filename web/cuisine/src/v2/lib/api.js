@@ -26,6 +26,13 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region }) {
   return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region });
 }
 
+// v0.58.4: warm-start. Lightweight initial fetch on TMA mount; returns
+// 5 random venues from a pool weighted by one of 5 rotating "criterion
+// seeds" so the picker never opens to an empty list.
+export async function warmStart({ lat, lng, region }) {
+  return postJson('/api/cuisine/warm-start', { lat, lng, region });
+}
+
 export async function nlQuery({ text, lat, lng, filters }) {
   return postJson('/api/cuisine/nl-query', { text, lat, lng, filters });
 }
