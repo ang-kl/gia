@@ -3089,16 +3089,48 @@ async function cacheBotUsername() {
         // truncated Fisher–Yates shuffle. Top-15 keeps quality high;
         // the random sample inside that pool is what makes successive
         // opens feel fresh.
-        venues.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        const pool = venues.slice(0, 15);
-        const shuffled = [...pool];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        function pickTopFive(list) {
+          const sorted = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          const pool = sorted.slice(0, 15);
+          const shuf = [...pool];
+          for (let i = shuf.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuf[i], shuf[j]] = [shuf[j], shuf[i]];
+          }
+          return shuf.slice(0, 5);
         }
-        const top = shuffled.slice(0, 5);
+        let top = pickTopFive(venues);
+        let resolvedSeed = seed.id;
 
-        const payload = { venues: top, seed: seed.id };
+        // v0.58.16: fallback. When a narrow seed (e.g. newly-opened-
+        // halal) leaves us with < 3 venues post-filter, fetch a
+        // generic "highly rated restaurants" pool so the picker
+        // never opens with an empty / one-item list.
+        if (top.length < 3 && seed.id !== 'highly-rated-nearby') {
+          try {
+            const fallback = await pipeline.discover({
+              lat: searchCenter.lat, lng: searchCenter.lng,
+              radius: searchRadius,
+              cuisines: ['highly rated restaurants near me'],
+              maxResults: 30,
+              regionCode: searchRegionCode
+            });
+            const fbVenues = (Array.isArray(fallback) ? fallback : (fallback?.venues || []))
+              .filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+            const fbTop = pickTopFive(fbVenues);
+            if (fbTop.length > top.length) {
+              top = fbTop;
+              // Use the canonical highly-rated-nearby seed id so
+              // FlipPanel's SEED_LABEL caption accurately reflects
+              // what the user is seeing.
+              resolvedSeed = 'highly-rated-nearby';
+            }
+          } catch (err) {
+            console.warn('[WarmStart] fallback discover failed:', err.message);
+          }
+        }
+
+        const payload = { venues: top, seed: resolvedSeed };
         try {
           if (redis.isOpen) await redis.setEx(cacheKey, 60, JSON.stringify(payload));
         } catch (err) { console.warn('[WarmStart] cache write failed:', err.message); }

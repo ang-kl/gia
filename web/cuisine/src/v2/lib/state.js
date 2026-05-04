@@ -5,6 +5,10 @@
 // `place=<text>` so the bot's /cuisine tokeniser can deep-link the TMA
 // into a fully-pre-applied search (cuisines + filters + prices +
 // location anchor + radius).
+// v0.58.16: dropped default-ON for `newlyOpened` and `halal` per
+// Human Lead. ALL filters now default OFF, which collapses the
+// inverted URL contract — every filter uses the standard `?key=1`
+// to enable.
 
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
@@ -14,9 +18,9 @@ export function defaultState() {
   return {
     cuisines: [],
     filters: {
-      newlyOpened: true,
+      newlyOpened: false,
       openNow: false,
-      halal: true,
+      halal: false,
       vegetarian: false,
       homeBased: false,
       prices: []
@@ -26,11 +30,10 @@ export function defaultState() {
   };
 }
 
-// v0.57.24: clearedFilters returns ALL filters off — used by the
-// Clear button. defaultState keeps newlyOpened: true as the
-// first-load bias, but Clear should mean "no filters at all".
-// Without this, pressing Clear visibly does nothing because
-// newlyOpened is reinstated and canClear stays true.
+// clearedFilters mirrors defaultState's filters block — kept as a
+// separate export for symmetry with the v0.57.24 contract used by
+// the Clear button (defaultState may diverge from clearedFilters in
+// the future if we re-introduce a default-ON bias).
 export function clearedFilters() {
   return {
     newlyOpened: false,
@@ -50,15 +53,8 @@ export function readFromHash() {
   const s = defaultState();
   const cuisines = params.get('cuisines');
   if (cuisines) s.cuisines = cuisines.split(',').filter(Boolean).slice(0, 5);
-  // v0.58.1: `halal` joins `newlyOpened` as a default-ON filter, so
-  // both use the inverted URL contract (`?key=0` to disable).
-  const ON_BY_DEFAULT = new Set(['newlyOpened', 'halal']);
   for (const k of QUICK_FILTERS) {
-    if (ON_BY_DEFAULT.has(k)) {
-      if (params.get(k) === '0') s.filters[k] = false;
-    } else {
-      if (params.get(k) === '1') s.filters[k] = true;
-    }
+    if (params.get(k) === '1') s.filters[k] = true;
   }
   const prices = params.get('prices');
   if (prices) s.filters.prices = prices.split(',').filter((p) => PRICE_LEVELS.includes(p));
@@ -71,13 +67,8 @@ export function writeToHash(s) {
   if (typeof window === 'undefined') return;
   const params = new URLSearchParams();
   if (s.cuisines.length) params.set('cuisines', s.cuisines.join(','));
-  const ON_BY_DEFAULT = new Set(['newlyOpened', 'halal']);
   for (const k of QUICK_FILTERS) {
-    if (ON_BY_DEFAULT.has(k)) {
-      if (!s.filters[k]) params.set(k, '0');
-    } else {
-      if (s.filters[k]) params.set(k, '1');
-    }
+    if (s.filters[k]) params.set(k, '1');
   }
   if (s.filters.prices.length) params.set('prices', s.filters.prices.join(','));
   if (s.region && s.region !== 'SG') params.set('region', s.region);
