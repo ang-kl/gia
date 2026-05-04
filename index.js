@@ -2870,12 +2870,41 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.57.24: when Home-based is on, change the actual SEARCH
+        // query, not just the post-filter. Google ranks home-kitchens
+        // poorly under generic cuisine names — they self-identify as
+        // "private dining" / "home-cooked" / "home-based meals" in
+        // their listing names. Per Human Lead's screenshots: searches
+        // for "Home based meals dine in" surface Lynnette's Kitchen
+        // (Private Dining), Dine Inn, Kampong Bowl, Hock Shun
+        // Home-Made — none of which would surface under "Italian"
+        // or any cuisine search.
+        //
+        // Strategy:
+        //   no cuisine selected → search ["private dining",
+        //                                  "home-cooked meals",
+        //                                  "home-based meals"]
+        //   cuisine selected     → prefix each query with
+        //                          "private dining home-cooked"
+        if (filters.homeBased) {
+          if (cuisineNames.length) {
+            cuisineQueries = cuisineNames.map((n) =>
+              `private dining home-cooked ${modifiers.join(' ')} ${n}`.replace(/\s+/g, ' ').trim()
+            );
+          } else {
+            cuisineQueries = [
+              'private dining',
+              'home-cooked meals',
+              'home-based meals'
+            ];
+          }
+        }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
         // v0.57.8: region in the key so SG and JB results don't collide.
         const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:` +
           `${cuisineQueries.join('|')}:` +
-          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.walking20 ? 'w' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : ''].join('')}:` +
+          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.walking20 ? 'w' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}`;
         try {
           if (redis.isOpen) {
@@ -3002,11 +3031,19 @@ async function cacheBotUsername() {
         // only operators (Empress Family Feast, etc.) are not on
         // Google Maps and need a separate curated vault.
         if (filters.homeBased) {
-          const HBB_PATTERNS = /\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
+          // v0.57.24: broaden the heuristic. SG home-kitchens
+          // self-identify as "private dining" / "home cooked" /
+          // "home-based" / "home meal" — match any of these in the
+          // venue name OR address, in addition to HDB block patterns
+          // and meal_takeaway / meal_delivery primary types. Order
+          // matters for human readability but `.test` is OR so
+          // ordering doesn't affect match outcome.
+          const HBB_PATTERNS = /\bprivate dining\b|\bhome[-\s]?cook(ed|ing)?\b|\bhome[-\s]?based\b|\bhome[-\s]?meal(s)?\b|\bhouse[-\s]?based\b|\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
           const HBB_TYPES = new Set(['meal_takeaway', 'meal_delivery']);
           venues = venues.filter((v) => {
             if (HBB_TYPES.has(v.primaryType)) return true;
-            if (HBB_PATTERNS.test(v.area || '')) return true;
+            const haystack = `${v.name || ''} ${v.area || ''}`;
+            if (HBB_PATTERNS.test(haystack)) return true;
             return false;
           });
         }
@@ -3210,11 +3247,16 @@ async function cacheBotUsername() {
         }
         // v0.57.16: Home-based heuristic (mirrors /api/cuisine/search).
         if (merged.homeBased) {
-          const HBB_PATTERNS_NL = /\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
+          // v0.57.24: mirrors /api/cuisine/search — match private
+          // dining / home cooked / home-based / home meal / house
+          // based phrases in name OR address, plus HDB block patterns
+          // and meal_takeaway / meal_delivery types.
+          const HBB_PATTERNS_NL = /\bprivate dining\b|\bhome[-\s]?cook(ed|ing)?\b|\bhome[-\s]?based\b|\bhome[-\s]?meal(s)?\b|\bhouse[-\s]?based\b|\bblk\s*\d|#\d{2,3}-\d{2,3}|\bhdb\b/i;
           const HBB_TYPES_NL = new Set(['meal_takeaway', 'meal_delivery']);
           venues = venues.filter((v) => {
             if (HBB_TYPES_NL.has(v.primaryType)) return true;
-            if (HBB_PATTERNS_NL.test(v.area || '')) return true;
+            const haystack = `${v.name || ''} ${v.area || ''}`;
+            if (HBB_PATTERNS_NL.test(haystack)) return true;
             return false;
           });
         }

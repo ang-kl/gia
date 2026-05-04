@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery } from './lib/api.js';
-import { defaultState, readFromHash, writeToHash } from './lib/state.js';
+import { defaultState, clearedFilters, readFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import MapPanel from './components/MapPanel.jsx';
@@ -103,7 +103,10 @@ export default function App() {
   }
 
   function clearAll() {
-    const fresh = defaultState();
+    // v0.57.24: clearedFilters() turns ALL toggles off (defaultState
+    // keeps newlyOpened: true as a first-load bias, which made Clear
+    // appear to do nothing).
+    const fresh = { ...defaultState(), cuisines: [], filters: clearedFilters() };
     setState(fresh);
     runSearch(fresh);
   }
@@ -152,31 +155,34 @@ export default function App() {
       <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
         onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
 
-      {/* Quick filters + Search button INLINE on one row */}
-      <div className="flex gap-1.5 items-center sticky top-0 z-10 bg-tg-bg pt-1 pb-1">
-        <div className="flex-1 min-w-0">
-          <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
-        </div>
-        <button
-          type="button"
-          onClick={() => runSearch(state)}
-          disabled={loading}
-          className={`shrink-0 text-xs font-semibold px-3 py-2 rounded-md transition-colors whitespace-nowrap ${
-            loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-            : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
-            : 'bg-tg-accent text-tg-accent-text'
-          }`}
-        >
-          {loading ? '…' : '🔍 Search'}
-        </button>
-        {canClear && (
+      {/* v0.57.24: QuickFilters on top row(s), Search/Clear on a
+          dedicated bottom row. Previously Search was inline with
+          QuickFilters via flex-1 min-w-0 — when chips wrapped, the
+          button floated mid-block and the layout looked awful. */}
+      <div className="flex flex-col gap-1.5 sticky top-0 z-10 bg-tg-bg pt-1 pb-1">
+        <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+        <div className="flex gap-1.5 items-center">
           <button
             type="button"
-            onClick={clearAll}
+            onClick={() => runSearch(state)}
             disabled={loading}
-            className="shrink-0 text-xs px-2 py-2 rounded-md border border-tg-border bg-tg-card text-tg-text"
-          >Clear</button>
-        )}
+            className={`flex-1 text-xs font-semibold px-3 py-2 rounded-md transition-colors whitespace-nowrap ${
+              loading ? 'bg-tg-card text-tg-hint border border-tg-border'
+              : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
+              : 'bg-tg-accent text-tg-accent-text'
+            }`}
+          >
+            {loading ? '…' : '🔍 Search'}
+          </button>
+          {canClear && (
+            <button
+              type="button"
+              onClick={clearAll}
+              disabled={loading}
+              className="shrink-0 text-xs px-3 py-2 rounded-md border border-tg-border bg-tg-card text-tg-text"
+            >Clear</button>
+          )}
+        </div>
       </div>
 
       <FlipPanel
@@ -188,7 +194,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.57.23 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.57.24 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
