@@ -6,6 +6,7 @@ import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
+import RadiusSlider, { RADIUS_DEFAULT_M } from './components/RadiusSlider.jsx';
 import FlipPanel from './components/FlipPanel.jsx';
 import { tg } from '../api/tg.js';
 
@@ -35,6 +36,11 @@ export default function App() {
   // initial venue list (e.g. 'open-now-cheap'). Cleared once the user
   // runs a real search via the 🔍 Search button.
   const [warmStartSeed, setWarmStartSeed] = useState(null);
+  // v0.58.8: search radius in metres. Defaults to 80 km (RADIUS_DEFAULT_M)
+  // — the slider's top stop, covers SG island-wide. User-selectable
+  // via the vertical slider on the map's right edge. Threads into
+  // /api/cuisine/search → pipeline.discover({ radius }).
+  const [radius, setRadius] = useState(RADIUS_DEFAULT_M);
   const initialSearchDone = useRef(false);
 
   function stateSig(s) {
@@ -100,15 +106,17 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
-  async function runSearch(snap = state, anchor = null) {
+  async function runSearch(snap = state, anchor = null, radiusOverride = null) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
+    const r_m = Number.isFinite(radiusOverride) ? radiusOverride : radius;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
-        region: snap.region || 'SG'
+        region: snap.region || 'SG',
+        radius: r_m
       });
       setVenues(r.venues || []);
       setSearchCenter({ lat: center.lat, lng: center.lng });
@@ -118,6 +126,16 @@ export default function App() {
     } catch (err) {
       setError(err.message); setVenues([]);
     } finally { setLoading(false); }
+  }
+
+  // v0.58.8: tapping a slider stop updates the radius state and
+  // immediately re-runs the search at the new radius. Pass meters
+  // directly to runSearch to avoid the React-state-stale-closure
+  // problem (setRadius commits asynchronously).
+  function handleRadiusChange(meters) {
+    if (!Number.isFinite(meters) || meters === radius) return;
+    setRadius(meters);
+    if (initialSearchDone.current) runSearch(state, null, meters);
   }
 
   // v0.58.2: re-anchor the search at an explicit lat/lng (the map's
@@ -268,7 +286,9 @@ export default function App() {
       )}
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
-        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
+        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt}>
+        <RadiusSlider value={radius} onChange={handleRadiusChange} />
+      </MapPanel>
 
       {/* v0.58.1: filter strip sits directly below the map, primary
           row shows Open-now / Halal / [⚙], the rest live in the
@@ -325,7 +345,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.7 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.8 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

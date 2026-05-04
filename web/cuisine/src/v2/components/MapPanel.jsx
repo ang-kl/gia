@@ -14,7 +14,7 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, children }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -143,6 +143,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           aria-label="Search this area"
         >🔍 Search this area</button>
       )}
+      {children}
     </div>
   );
 }
