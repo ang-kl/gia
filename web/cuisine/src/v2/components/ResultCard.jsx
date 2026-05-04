@@ -9,7 +9,11 @@ export default function ResultCard({ venue, focused, onTap }) {
   const price = PRICE_LABEL[venue.priceLevel] || '';
   const dist = Number.isFinite(venue.distanceM) ? `${venue.distanceM} m` : '';
   const walk = Number.isFinite(venue.walkMinutes) ? `${venue.walkMinutes} min walk` : '';
-  const open = venue.openNow === true ? 'Open' : venue.openNow === false ? 'Closed' : '';
+  const open = venue.openNow === true
+    ? 'Open'
+    : venue.openNow === false
+      ? (venue.closedTodayLabel || 'Closed')
+      : '';
   const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
