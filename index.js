@@ -2906,9 +2906,18 @@ async function cacheBotUsername() {
           // render instantly, no route line, no compute hang.
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (!mapUrl) return res.status(500).json({ error: 'could not build map URL' });
+          // v0.57.35: two stacked inline-keyboard buttons.
+          //   Row 1: web_app — opens the multi-marker TMA inside Telegram.
+          //   Row 2: url — opens the same /app/map URL in browser. Long-
+          //          press on this button surfaces Telegram's native
+          //          "Copy link" / "Share link" options, so users can
+          //          paste the URL into WhatsApp etc.
           await bot.sendMessage(chatId, `${header}\n${names}`, {
             reply_markup: {
-              inline_keyboard: [[{ text: '🗺️ View all on map', web_app: { url: mapUrl } }]]
+              inline_keyboard: [
+                [{ text: '🗺️ View all on map', web_app: { url: mapUrl } }],
+                [{ text: '🔗 Copy / share link', url: mapUrl }]
+              ]
             }
           });
         }
