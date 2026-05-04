@@ -11,7 +11,7 @@ export const CUISINE_CATEGORIES = [
       'Singaporean', 'Peranakan', 'South Indian', 'North Indian', 'Malaysian',
       'Eurasian', 'Indonesian', 'Thai', 'Filipino', 'Vietnamese', 'Japanese',
       'Chinese', 'Korean', 'Taiwanese', 'American', 'Mexican', 'Brazilian',
-      'Australian', 'New Zealand', 'Burmese', 'Cambodian'
+      'Australian', 'New Zealand', 'Burmese'
     ]
   },
   {

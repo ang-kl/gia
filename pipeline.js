@@ -383,10 +383,14 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     let data;
     if (hasCuisines) {
       const cuisineQuery = cuisines.join(' OR ');
+      // v0.57.15: append "cuisine" to disambiguate place-name overlap.
+      // Bare names like "New Zealand" or "Australian" otherwise match
+      // embassies / brand names / suburb references; "New Zealand
+      // cuisine restaurant" steers Places toward food-themed venues.
       const { data: textData } = await axios.post(
         PLACES_TEXT_URL,
         {
-          textQuery: `${cuisineQuery} restaurant`,
+          textQuery: `${cuisineQuery} cuisine restaurant`,
           includedType: 'restaurant',
           strictTypeFiltering: true,
           // v0.57.8: regionCode is now a parameter ('SG' default, 'MY'

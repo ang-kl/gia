@@ -55,14 +55,14 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 73 cuisines', () => {
-    expect(vault.getAllCuisines().length).toBe(73);
+  it('loads exactly 72 cuisines', () => {
+    expect(vault.getAllCuisines().length).toBe(72);
   });
 
   it('groups by category with expected counts', () => {
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
-    expect(counts['common-here']).toBe(21);
+    expect(counts['common-here']).toBe(20);
     expect(counts['southeast-asian']).toBe(2);
     expect(counts['china-regional']).toBe(10);
     expect(counts['south-asian']).toBe(5);
