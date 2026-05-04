@@ -14,7 +14,7 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, radius, children }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -78,7 +78,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     setShowSearchHere(false);
   }, [searchCenter?.lat, searchCenter?.lng]);
 
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, focusedPlaceId]); // eslint-disable-line
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, focusedPlaceId, radius]); // eslint-disable-line
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
@@ -111,6 +111,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       marker.addListener('click', () => onPinTap?.(v.placeId));
       markersRef.current.push(marker);
       bounds.extend({ lat: v.lat, lng: v.lng });
+    }
+    // v0.58.15: also extend bounds with the search-radius circle
+    // around the search anchor so the map view matches the slider's
+    // km value. Without this, fitBounds tightens to the venue cluster
+    // — at radius 80 km the user would see a tight neighbourhood
+    // view because the warm-start venues are within a few km of the
+    // user's GPS, while the slider says "show me 80 km". Approximating
+    // the circle with 4 cardinal points is enough for fitBounds to
+    // pick the correct zoom level.
+    const rCenter = searchCenter || userLoc;
+    if (rCenter && Number.isFinite(radius) && radius > 0) {
+      const dLat = radius / 111320;
+      const cosLat = Math.cos((rCenter.lat * Math.PI) / 180) || 1;
+      const dLng = radius / (111320 * cosLat);
+      bounds.extend({ lat: rCenter.lat + dLat, lng: rCenter.lng });
+      bounds.extend({ lat: rCenter.lat - dLat, lng: rCenter.lng });
+      bounds.extend({ lat: rCenter.lat, lng: rCenter.lng + dLng });
+      bounds.extend({ lat: rCenter.lat, lng: rCenter.lng - dLng });
     }
     if (!bounds.isEmpty() && (venues?.length || userLoc)) {
       programmaticUpdateRef.current = true;
