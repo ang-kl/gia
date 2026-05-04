@@ -2,7 +2,7 @@ import React from 'react';
 
 const TOGGLES = [
   { key: 'openNow',    label: 'Open now',     icon: '🟢' },
-  { key: 'walking10',  label: '≤10 min walk', icon: '🚶' },
+  { key: 'walking20',  label: '≤20 min walk', icon: '🚶' },
   { key: 'halal',      label: 'Halal',        icon: '🕌' },
   { key: 'vegetarian', label: 'Vegetarian',   icon: '🥗' }
 ];

@@ -829,8 +829,7 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     await safeSend(chatId,
       'Usage: `/location <place>`\n' +
       'Example: `/location current Telok Blangah`\n' +
-      'Or: `/location Marina Bay Sands`\n\n' +
-      'Geocodes the text and saves it as your locale for /eat /surprise /carpark /transport.',
+      'Or: `/location Marina Bay Sands`',
       { parse_mode: 'Markdown' }
     );
     return;
@@ -2774,12 +2773,12 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine/search', async (req, res) => {
       try {
-        // v0.57.2: default radius 800 → 1500 m. Halal + vegetarian
-        // moved from post-fetch regex (which dropped to 0 because
-        // Google Places rarely has "halal" in the name field) into the
-        // Places searchText query itself, so Google surfaces venues IT
-        // labels halal/vegetarian via its own metadata.
-        const { lat, lng, cuisines = [], filters = {}, radius = 1500 } = req.body || {};
+        // v0.57.3: drop hard radius constraint — search Singapore-wide
+        // (50 km bias). Compute walkMinutes server-side from haversine
+        // (80 m/min). "≤10 min walk" is now "≤20 min walk". Surface a
+        // recent-review snippet from the place-reviews:* cache when
+        // available so cards can show "common food in last 4 months".
+        const { lat, lng, cuisines = [], filters = {} } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
@@ -2792,9 +2791,6 @@ async function cacheBotUsername() {
         const modifiers = [];
         if (filters.halal) modifiers.push('halal');
         if (filters.vegetarian) modifiers.push('vegetarian');
-        // Build cuisineQueries that pipeline.discover will OR-join into
-        // its searchText. Modifiers prefix each cuisine name to keep
-        // the constraint conjunctive ("halal Japanese OR halal Thai").
         let cuisineQueries;
         if (modifiers.length && cuisineNames.length) {
           cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
@@ -2804,17 +2800,65 @@ async function cacheBotUsername() {
           cuisineQueries = cuisineNames;
         }
         const pipeline = require('./pipeline');
+        // Singapore-wide: 50 km radius covers the whole island. Bias
+        // (not strict restriction) so user's location ranks results.
         const candidates = await pipeline.discover({
-          lat, lng, radius, cuisines: cuisineQueries, maxResults: 30
+          lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        // Compute walking distance/time on every venue (haversine).
+        function haversine(a, b) {
+          const R = 6371000, toRad = (d) => d * Math.PI / 180;
+          const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+          const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+          return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+        }
+        venues = venues.map((v) => {
+          if (Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
+            const dist = haversine({ lat, lng }, v);
+            return { ...v, distanceM: dist, walkMinutes: Math.round(dist / 80) };
+          }
+          return v;
+        });
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
         }
-        if (filters.walking10) venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 10 : true);
-        res.json({ venues: venues.slice(0, 12), debug: { radius, cuisineQueries, modifiers } });
+        // v0.57.3: walking20 supersedes walking10. Now actually enforced
+        // via computed walkMinutes (was a no-op when walkMinutes was null).
+        if (filters.walking20 || filters.walking10) {
+          venues = venues.filter((v) => Number.isFinite(v.walkMinutes) ? v.walkMinutes <= 20 : false);
+        }
+        // Sort by walking distance ASC (closer first) so top 12 are most reachable.
+        venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+        const top = venues.slice(0, 12);
+        // Best-effort: attach last cached review snippet (≤120 d) per
+        // venue from place-reviews cache. Surfaces "common food
+        // mentioned by reviewers" as a one-line hint.
+        const FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        try {
+          if (redis.isOpen) {
+            await Promise.all(top.map(async (v) => {
+              if (!v.placeId) return;
+              try {
+                const raw = await redis.get(`place-reviews:${v.placeId}`);
+                if (!raw) return;
+                const reviews = JSON.parse(raw);
+                const recent = (reviews || [])
+                  .filter((r) => r?.text && r?.publishTime && (now - new Date(r.publishTime).getTime()) <= FOUR_MONTHS_MS)
+                  .sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime));
+                if (recent.length) {
+                  v.recentReview = String(recent[0].text).slice(0, 200).trim();
+                }
+              } catch { /* per-venue best-effort */ }
+            }));
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] review-attach failed:', err.message);
+        }
+        res.json({ venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
         res.status(500).json({ error: err.message });
@@ -2857,7 +2901,7 @@ async function cacheBotUsername() {
           cuisineQueries = cuisineNames;
         }
         const candidates = await pipeline.discover({
-          lat, lng, radius: 1500, cuisines: cuisineQueries, maxResults: 30
+          lat, lng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);

@@ -52,7 +52,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange }) {
                   const dim = !sel && selected.length >= MAX_SELECTED;
                   return (
                     <button key={cu.slug} type="button" onClick={() => toggle(cu.slug)} aria-pressed={sel}
-                      className={`px-2 py-0.5 rounded-full border text-[11px] whitespace-nowrap transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-bg text-tg-text border-tg-border ${dim ? 'opacity-40' : ''}`}`}>
+                      className={`px-1.5 py-0.5 rounded-full border text-[10px] leading-tight whitespace-nowrap transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-bg text-tg-text border-tg-border ${dim ? 'opacity-40' : ''}`}`}>
                       {sel ? '✓ ' : ''}{cu.name}
                     </button>
                   );

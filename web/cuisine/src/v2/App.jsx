@@ -7,17 +7,10 @@ import MapPanel from './components/MapPanel.jsx';
 import FlipPanel from './components/FlipPanel.jsx';
 import { tg } from '../api/tg.js';
 
-// v0.56.2 — explicit Search button (no auto-debounce). Per Human Lead:
-// "no refresh when I select something or clear selection. perhaps a
-// button that state after selection click Ask". Auto-debounced search
-// was racing with the NL submit and breaking on rapid changes.
-//
-// Flow now:
-//   • Initial load: one search runs once we have userLoc
-//   • Subsequent state changes (filters / cuisines): UI updates only
-//   • User taps "Search" → fires runSearch with current state
-//   • User taps "Clear all" → resets state + immediately searches default
-//   • Tell Gia (NL) → fires nlQuery, syncs UI, NO duplicate runSearch
+// v0.57.3: Singapore-wide search (no radius constraint). Header shows
+// country alongside the title. Layout order:
+//   Header → Map → Cuisine drawer → [Quick filters | Search button]
+//   → Flip panel (Results / Tell Gia)
 export default function App() {
   const [catalogue, setCatalogue] = useState(null);
   const [state, setState] = useState(() => readFromHash());
@@ -28,23 +21,19 @@ export default function App() {
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   const [flipped, setFlipped] = useState(false);
   const [lastPrompt, setLastPrompt] = useState(null);
-  // Snapshot of state at time of last search — used to gate the
-  // Search button (highlights when state has changed since last run).
   const [lastRunSnap, setLastRunSnap] = useState(null);
   const initialSearchDone = useRef(false);
 
-  // Stable signature for state to detect changes since last run.
   function stateSig(s) {
     return JSON.stringify({
       cuisines: [...(s.cuisines || [])].sort(),
       filters: {
         openNow: !!s.filters?.openNow,
-        walking10: !!s.filters?.walking10,
+        walking20: !!s.filters?.walking20,
         halal: !!s.filters?.halal,
         vegetarian: !!s.filters?.vegetarian,
         prices: [...(s.filters?.prices || [])].sort()
-      },
-      radius: s.radius || 800
+      }
     });
   }
 
@@ -72,8 +61,6 @@ export default function App() {
 
   useEffect(() => { writeToHash(state); }, [state]);
 
-  // Initial-load search ONCE userLoc is known. Subsequent searches
-  // require explicit user action (Search button or NL submit).
   useEffect(() => {
     if (!userLoc || initialSearchDone.current) return;
     initialSearchDone.current = true;
@@ -87,7 +74,7 @@ export default function App() {
     try {
       const r = await searchCuisine({
         lat: userLoc.lat, lng: userLoc.lng,
-        cuisines: snap.cuisines, filters: snap.filters, radius: snap.radius
+        cuisines: snap.cuisines, filters: snap.filters
       });
       setVenues(r.venues || []);
       setLastRunSnap(stateSig(snap));
@@ -101,8 +88,6 @@ export default function App() {
     try {
       const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters });
       setVenues(r.venues || []);
-      // Sync inferred state into UI (no duplicate search — nlQuery
-      // already returned the venues).
       const nextState = { ...state };
       if (r.inferredCuisines?.length) nextState.cuisines = r.inferredCuisines.slice(0, 5);
       if (r.inferredFilters) nextState.filters = { ...nextState.filters, ...r.inferredFilters };
@@ -120,51 +105,49 @@ export default function App() {
   }
 
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
-  const filterCount = (state.filters.openNow ? 1 : 0) + (state.filters.walking10 ? 1 : 0)
+  const filterCount = (state.filters.openNow ? 1 : 0) + (state.filters.walking20 ? 1 : 0)
     + (state.filters.halal ? 1 : 0) + (state.filters.vegetarian ? 1 : 0)
     + (state.filters.prices?.length || 0);
-  const searchLabel = (state.cuisines.length === 0 && filterCount === 0)
-    ? '🔍 Search nearby'
-    : `🔍 Search (${state.cuisines.length} cuisine${state.cuisines.length === 1 ? '' : 's'}${filterCount ? ', ' + filterCount + ' filter' + (filterCount === 1 ? '' : 's') : ''})`;
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
   return (
-    <div className="min-h-screen bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-2.5 max-w-[640px] mx-auto">
+    <div className="min-h-screen bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-2 max-w-[640px] mx-auto">
       <header className="flex items-baseline justify-between">
-        <h1 className="text-lg font-bold leading-tight">🍽️ Cuisine</h1>
+        <h1 className="text-lg font-bold leading-tight">🍽️ Cuisine — Singapore</h1>
         <div className="text-[11px] text-tg-hint">
-          {state.cuisines.length} cuisine{state.cuisines.length === 1 ? '' : 's'} · {filterCount} filter{filterCount === 1 ? '' : 's'}
+          {state.cuisines.length}c · {filterCount}f
         </div>
       </header>
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId} />
 
-      <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
-
+      {/* Cuisine drawer FIRST — primary intent */}
       <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
         onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
 
-      {/* Sticky search/clear bar. Highlights when state is dirty since last run. */}
-      <div className="flex gap-1.5 sticky bottom-0 bg-tg-bg pb-1 pt-1.5 z-10">
+      {/* Quick filters + Search button INLINE on one row */}
+      <div className="flex gap-1.5 items-center sticky top-0 z-10 bg-tg-bg pt-1 pb-1">
+        <div className="flex-1 min-w-0">
+          <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+        </div>
         <button
           type="button"
           onClick={() => runSearch(state)}
           disabled={loading}
-          className={`flex-1 text-sm font-semibold px-3 py-2 rounded-md transition-colors ${
+          className={`shrink-0 text-xs font-semibold px-3 py-2 rounded-md transition-colors whitespace-nowrap ${
             loading ? 'bg-tg-card text-tg-hint border border-tg-border'
             : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
             : 'bg-tg-accent text-tg-accent-text'
           }`}
         >
-          {loading ? 'Searching…' : searchLabel}
-          {dirty && !loading && <span className="ml-1.5 text-[10px] opacity-80">(updated)</span>}
+          {loading ? '…' : '🔍 Search'}
         </button>
         {canClear && (
           <button
             type="button"
             onClick={clearAll}
             disabled={loading}
-            className="text-xs px-3 py-2 rounded-md border border-tg-border bg-tg-card text-tg-text"
+            className="shrink-0 text-xs px-2 py-2 rounded-md border border-tg-border bg-tg-card text-tg-text"
           >Clear</button>
         )}
       </div>
@@ -178,7 +161,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.56.2 · Places-first · tap Search after changing filters
+        v0.57.3 · Singapore-wide · tap Search after changing filters
       </footer>
     </div>
   );
