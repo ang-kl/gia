@@ -2817,6 +2817,33 @@ async function cacheBotUsername() {
           'university', 'hospital', 'gym', 'fitness_center'
         ]);
         venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+        // v0.57.12: cuisine-name validation. Bug per Human Lead — when
+        // a cuisine like "Ethiopian" was selected, Google Places
+        // searchText with regionCode 'SG' returned arbitrary SG
+        // restaurants ranked by some weak text-relevance signal
+        // (Peranakan, Italian, Kampung Chicken, etc. — none Ethiopian).
+        // Defense: post-fetch require the venue to match the selected
+        // cuisine via primaryType OR name/address text.
+        if (cuisineNames.length) {
+          venues = venues.filter((v) => {
+            const haystack = `${v.name || ''} ${v.area || ''} ${v.primaryType || ''}`.toLowerCase();
+            for (const name of cuisineNames) {
+              const lower = name.toLowerCase();
+              // 1. Direct text match on name / address / primaryType
+              //    e.g. "Ethiopian" appears in "Ethiopian Cafe SG"
+              if (haystack.includes(lower)) return true;
+              // 2. Canonical Places primaryType pattern
+              //    e.g. "Ethiopian" → "ethiopian_restaurant"
+              const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+              if (v.primaryType === `${slugForType}_restaurant`) return true;
+              // 3. Multi-word cuisines (e.g. "South Indian") — every
+              //    word must appear in haystack
+              const words = lower.split(/\s+/).filter((w) => w.length >= 4);
+              if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+            }
+            return false;
+          });
+        }
         // Compute walking distance/time on every venue (haversine).
         function haversine(a, b) {
           const R = 6371000, toRad = (d) => d * Math.PI / 180;
@@ -2993,6 +3020,21 @@ async function cacheBotUsername() {
           'university', 'hospital', 'gym', 'fitness_center'
         ]);
         venues = venues.filter((v) => !NON_FOOD_TYPES_NL.has(v.primaryType));
+        // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
+        if (cuisineNames.length) {
+          venues = venues.filter((v) => {
+            const haystack = `${v.name || ''} ${v.area || ''} ${v.primaryType || ''}`.toLowerCase();
+            for (const name of cuisineNames) {
+              const lower = name.toLowerCase();
+              if (haystack.includes(lower)) return true;
+              const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+              if (v.primaryType === `${slugForType}_restaurant`) return true;
+              const words = lower.split(/\s+/).filter((w) => w.length >= 4);
+              if (words.length >= 2 && words.every((w) => haystack.includes(w))) return true;
+            }
+            return false;
+          });
+        }
         // v0.57.8: hard 60 km gate (SG is ~50 × 25 km).
         if (Number.isFinite(lat) && Number.isFinite(lng)) {
           venues = venues.filter((v) => {
