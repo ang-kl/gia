@@ -2912,11 +2912,16 @@ async function cacheBotUsername() {
           //          press on this button surfaces Telegram's native
           //          "Copy link" / "Share link" options, so users can
           //          paste the URL into WhatsApp etc.
-          await bot.sendMessage(chatId, `${header}\n${names}`, {
+          // v0.58.3: button renamed '🔗 Copy / share link' → '🔗 Open in
+          //          browser' so the tap behaviour matches the label
+          //          (a Telegram url: button opens the URL on tap; the
+          //          copy/share gesture is long-press). Hint line in
+          //          the message body tells users about the long-press.
+          await bot.sendMessage(chatId, `${header}\n${names}\n\n💡 Long-press 🔗 to copy or share the link.`, {
             reply_markup: {
               inline_keyboard: [
                 [{ text: '🗺️ View all on map', web_app: { url: mapUrl } }],
-                [{ text: '🔗 Copy / share link', url: mapUrl }]
+                [{ text: '🔗 Open in browser', url: mapUrl }]
               ]
             }
           });
