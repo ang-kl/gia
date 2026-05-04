@@ -834,6 +834,11 @@ bot.onText(/^\/hidden(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 // env var (optional) appends an authorship credit line.
 bot.onText(/^\/privacy(?:@\w+)?$/, (msg) => runPrivacyCommand(msg.chat.id));
 
+// v0.57.23: /legal — hidden command (not in setMyCommands, same as
+// /ver). Surfaces disclaimer + IMDA Model AI Governance alignment +
+// builder credit. Discoverable via /help text.
+bot.onText(/^\/legal(?:@\w+)?$/, (msg) => runLegalCommand(msg.chat.id));
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1296,7 +1301,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
     "/carpark   — nearest 5 with available lots\n" +
     "/ver       — version + upstream API health\n" +
-    "/privacy   — data, retention & sources\n\n" +
+    "/privacy   — data, retention & sources\n" +
+    "/legal     — disclaimer & jurisdiction notes\n\n" +
     "Or tap the menu button (🍴 Cuisine Picker) to jump straight in."
   );
 });
@@ -1400,6 +1406,7 @@ async function routeMenuCommand(chatId, raw, payload = null) {
     case 'carpark':   await runCarparkCommand(chatId); return true;
     case 'hidden':    await runSurpriseCommand(chatId); return true;
     case 'privacy':   await runPrivacyCommand(chatId); return true;
+    case 'legal':     await runLegalCommand(chatId); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
@@ -2077,6 +2084,30 @@ async function runPrivacyCommand(chatId) {
   } catch (err) {
     console.error('[Error] /privacy failed:', err.message);
     await safeSend(chatId, "Sorry, /privacy hit an error. Try again in a moment.");
+  }
+}
+
+// v0.57.23: /legal — disclaimer, jurisdiction notes, builder credit.
+// Hidden command: bot.onText handler exists but NOT in setMyCommands
+// (same pattern as /ver). Discoverable via /help text.
+async function runLegalCommand(chatId) {
+  try {
+    const text = [
+      '🔖 *Legal & disclaimer*',
+      '',
+      'Results are sourced from public APIs, authorised APIs and may be inaccurate or outdated. They do not constitute professional advice. The builder accepts no liability for decisions made based on these outputs.',
+      '',
+      'Singapore — governed by Singapore law. Aligns with IMDA Model AI Governance Framework. See /privacy for data handling.',
+      '',
+      'No automated decisions made about individuals.',
+      '',
+      'Built by Adrian K. L. Ang · [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      'May 2026'
+    ].join('\n');
+    await safeSend(chatId, text, { parse_mode: 'Markdown', disable_web_page_preview: true });
+  } catch (err) {
+    console.error('[Error] /legal failed:', err.message);
+    await safeSend(chatId, "Sorry, /legal hit an error. Try again in a moment.");
   }
 }
 
