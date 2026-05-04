@@ -767,7 +767,7 @@ bot.onText(/^\/cuisine(?:@\w+)?(?:\s+.*)?$/, async (msg) => {
     if (!useWebhook) {
       await safeSend(
         msg.chat.id,
-        "The Cuisine Picker needs the webhook-mode TMA. Use /eat or /drink for chat-based picks."
+        "The Cuisine Picker needs the webhook-mode TMA. Try /hidden for chat-based picks instead, or just type 'find me ramen' / similar and I'll search."
       );
       return;
     }
@@ -1015,7 +1015,7 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
     const { googleMapsUrl } = require('./maps-url');
     const recent = await getRecent(redis, msg.chat.id);
     if (!recent.length) {
-      await safeSend(msg.chat.id, "📋 No picks today yet. Run /cuisine, /hidden, /eat, /drink, or just type 'find me ramen' — they'll all populate /picks.");
+      await safeSend(msg.chat.id, "📋 No picks today yet. Run /cuisine, /hidden, /hawker, or just type 'find me ramen' — they'll all populate /picks.");
       return;
     }
     const lines = recent.map((p, i) => {
@@ -1042,7 +1042,7 @@ bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
     const { getRecent } = require('./recent-picks');
     const recent = await getRecent(redis, msg.chat.id);
     if (!recent.length) {
-      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine, /eat, or /hidden first, then /share to forward to a buddy.");
+      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a buddy.");
       return;
     }
     const { saveShare } = require('./share');
@@ -1299,14 +1299,16 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   }
   await safeSend(
     msg.chat.id,
-    "I'm Gia, the concierge inside soleat — your CBD sanctuary guide.\n\n" +
-    "/cuisine   — full Cuisine Picker (sliders, 70 cuisines, queue)\n" +
-    "/hidden    — up to 5 hidden gems 1.5–3 km away\n" +
-    "/drink     — bars, coffee, tea spots\n" +
-    "/grocery   — supermarkets & fresh markets\n" +
+    "I'm Gia, the concierge inside soleat — your Singapore dining + transport guide.\n\n" +
+    "/cuisine   — full Cuisine Picker (70+ cuisines, SG + Johor Bahru, 6 quick filters)\n" +
+    "/hidden    — up to 5 hidden gems 1.5–3 km away (rarity-ranked)\n" +
+    "/hawker    — >100 hawker centres (2025)\n" +
+    "/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n" +
     "/weather   — now + 2-hour NEA forecast\n" +
-    "/transport — MRT pulse + crowd + traffic + nearest bus stops\n" +
+    "/transport — bus, MRT, walk, drive\n" +
     "/carpark   — nearest 5 with available lots\n" +
+    "/buddy     — live solo-dining match\n" +
+    "/share     — forward a recent pick\n" +
     "/ver       — version + upstream API health\n" +
     "/privacy   — data, retention & sources\n" +
     "/legal     — disclaimer & jurisdiction notes\n" +
@@ -2252,7 +2254,7 @@ bot.on('voice', async (msg) => {
 
     // Off-topic voice — politely decline.
     await safeSend(msg.chat.id,
-      "I heard you, but that doesn't sound like a food/drinks/groceries question I can help with. Try asking about a cuisine, a venue, or a meal.");
+      "I heard you, but that doesn't sound like a Singapore dining, transport, parking, or weather question I can help with. Try asking about a cuisine, a venue, a hawker centre, or a meal.");
   } catch (err) {
     console.error('[Voice] handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, voice handling hit an error.");
