@@ -413,6 +413,11 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📍 Google Map URL');
   });
 
+  it('v0.58.47: EXCLUDE block forbids permanently closed venues', () => {
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/Permanently closed|permanently closed/);
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('OPERATIONAL');
+  });
+
   it('matches the user\'s working EXCLUDE block (v0.58.32 revert)', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Shopping mall food court chains.');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('Lau Pa Sat');

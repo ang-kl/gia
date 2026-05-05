@@ -64,6 +64,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '  Crystal Jade, Texas Chicken, Boost.',
   '- Hotel restaurants.',
   '- Shopping mall food court chains.',
+  '- Permanently closed venues. Before including a place, verify via Google Search / Google Maps that it is currently OPERATIONAL. If the venue page or any recent post (Instagram, blog, news) says "Permanently closed", "Closed permanently", "Now closed", "Has shut", "Has shuttered", "Final day", or similar, EXCLUDE it. Temporarily closed venues are also out unless reopening is confirmed in the last 30 days.',
   '- Places with fewer than 8 Google reviews unless C2 fires with at least 2 independent recent mentions.',
   '- Places with more than 300 Google reviews UNLESS C1 fires (newly opened in the last 4 months). 300+ reviews means the venue is already widely known — not hidden — regardless of buzz or unique offering.',
   '- Anything rated below 4.0.',
