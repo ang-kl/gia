@@ -37,7 +37,7 @@ export default function TellMePanel({ onSubmit, onReplace, lastPrompt, loading }
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}
           disabled={submitting || loading}
-          placeholder="Tell me what you're craving — e.g. spicy thai near Bugis"
+          placeholder="What are you craving? e.g. spicy thai"
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
           aria-label="Tell me what you're craving"
         />
