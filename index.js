@@ -505,45 +505,32 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     const { addRecent } = require('./recent-picks');
     for (const p of picks) addRecent(redis, chatId, { ...p, kind: 'pick' }).catch(() => {});
   } catch { /* recent-picks optional */ }
-  // v0.57.7: opts.showWalk (default true) — /surprise opts out and
-  // surfaces 1-3 reviewer-recommended dishes instead. opts.showDishes
-  // (default false) renders the dishes line below the venue header.
-  const showWalk = opts.showWalk !== false;
-  const showDishes = !!opts.showDishes;
-  // v0.58.9: when showDishes is on (currently /hidden), each pick spans
-  // two lines (name+meta then 🍴 dishes). Joining with \n produced a
-  // dense wall of text per Human Lead's screenshot — switch to \n\n so
-  // a blank line separates each numbered pick. Single-line picks
-  // (showDishes=false, the /cuisine and /share paths) keep \n.
-  const itemSep = showDishes ? '\n\n' : '\n';
-  const header = picks
-    .map((p, i) => {
-      const rating = p.rating ? ` ⭐${p.rating.toFixed(1)}` : '';
-      const open = p.openNow === true ? ' · Open now'
-        : p.openNow === false ? ` · ${p.closedTodayLabel || 'Closed'}`
-        : '';
-      const crowd = p.crowdLevel === 'high' ? ' · 🔴 busy'
-        : p.crowdLevel === 'medium' ? ' · 🟡 moderate'
-        : p.crowdLevel === 'low' ? ' · 🟢 quiet'
-        : '';
-      const walk = (showWalk && Number.isFinite(p.walkMinutes)) ? ` · ${p.walkMinutes} min walk` : '';
-      let line = `${i + 1}. ${p.name}${rating}${open}${crowd}${walk}`;
-      if (showDishes) {
-        const dishes = Array.isArray(p.dishes) ? p.dishes.slice(0, 3) : [];
-        if (dishes.length) line += `\n   🍴 ${dishes.join(' · ')}`;
-      }
-      // v0.58.22: hidden-gems v2 picks carry criteria_met + why_a_gem +
-      // signature_pick from rankAsHiddenGems. Surface them only when
-      // present so other flows that use deliverPicks (cuisine search,
-      // share, free-text fallback) are unaffected.
-      if (Array.isArray(p.criteriaMet) && p.criteriaMet.length) {
-        const why = (p.whyAGem && typeof p.whyAGem === 'string') ? ` — ${p.whyAGem}` : '';
-        line += `\n   🎯 [${p.criteriaMet.join(', ')}]${why}`;
-      }
-      return line;
-    })
-    .join(itemSep);
-  await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
+  // v0.58.50: T3 numbered list — multi-line compact blocks per pick
+  // (name bold / address / hours / stats with distance / Maps URL).
+  // Replaces the v0.57.7 single-line numbered header per Human Lead's
+  // standardised template request.
+  const { formatVenueBlock } = require('./venue-templates');
+  const { googleMapsUrl } = require('./maps-url');
+  const t3Blocks = picks.map((p, i) => formatVenueBlock(p, {
+    variant: 'compact',
+    number: i + 1,
+    googleMapsUrl
+  })).filter(Boolean);
+  // Preserve hidden-gems criteria-met annotation (v0.58.22) when present —
+  // it's specific to /hidden's deterministic path and shouldn't appear
+  // on other flows.
+  const t3Body = t3Blocks.map((block, i) => {
+    const p = picks[i];
+    if (Array.isArray(p.criteriaMet) && p.criteriaMet.length) {
+      const why = (p.whyAGem && typeof p.whyAGem === 'string') ? ` — ${p.whyAGem}` : '';
+      return `${block}\n🎯 [${p.criteriaMet.join(', ')}]${why}`;
+    }
+    return block;
+  }).join('\n\n');
+  await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${t3Body}`, {
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  });
 
   // v0.48.2 / v0.58.49: multi-marker map button. Only renders when
   // there's more than one pick — a single venue's location is already
@@ -588,42 +575,37 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       try { summary = await getOrCacheSummary(redis, pid); }
       catch (err) { console.error('[Error] vibe summary fetch failed:', err.message); }
     }
+    // v0.58.50: T1 detail-with-sanctuary template. Replaces the v0.27
+    // "🌿 Sanctuary read for {name}\n{summary}" body with the standardised
+    // venue block (name bold / address / hours / website / phone /
+    // sanctuary read / stats / order / Maps URL).
+    const sanctuaryText = summary || p.vibe || '';
+    const t1Body = formatVenueBlock(p, {
+      variant: 'detail-with-sanctuary',
+      sanctuaryRead: sanctuaryText,
+      googleMapsUrl
+    });
     // Google generative summary (region-restricted; null for SG today).
-    // Attribution required per Places API policy when displayed.
     const googleLine = p.googleSummary?.overview
-      ? `\n💡 ${p.googleSummary.overview} _(${p.googleSummary.disclosure || 'Summarized with Gemini'})_`
+      ? `\n💡 ${p.googleSummary.overview} <i>(${p.googleSummary.disclosure || 'Summarized with Gemini'})</i>`
       : '';
-    // v0.30.3 GEOSPATIAL_CULINARY_ANALYST: surface model-asserted opening
-    // date (Places doesn't expose this) when grounded by Google Search.
-    const openingLine = p.verifiedOpeningDate
-      ? `\n🆕 Opened ${p.verifiedOpeningDate} _(model-asserted, web-grounded)_`
+    // v0.30.3: model-asserted opening date.
+    const openingDateLine = p.verifiedOpeningDate
+      ? `\n🆕 Opened ${p.verifiedOpeningDate} <i>(model-asserted, web-grounded)</i>`
       : '';
-    const body = summary
-      ? `🌿 Sanctuary read for ${p.name}${openingLine}\n${summary}${googleLine}`
-      : (p.vibe ? `🌿 ${p.name}${openingLine}\n${p.vibe}${googleLine}` : (openingLine || googleLine ? `🌿 ${p.name}${openingLine}${googleLine}` : null));
+    const body = t1Body ? (t1Body + openingDateLine + googleLine) : null;
 
     const buttons = [];
     if (pid) {
-      // v0.45.0: single shared googleMapsUrl(place) helper. Prefers
-      // place_id-explicit deep-link → opens Google Maps app on iOS
-      // (not Apple Maps).
-      const { googleMapsUrl } = require('./maps-url');
-      const mapsUrl = googleMapsUrl(p);
-      if (mapsUrl) {
-        buttons.push({ text: '📍 Google Maps', url: mapsUrl });
-      }
-      // v0.31.0 Buddy Level 2: if user opted in AND another opted-in
-      // user has registered intent at this place in the last 60 min,
-      // surface a "👥 Connect" button. Both confirmations are required
-      // before any name/handle is revealed.
+      // v0.31.0 Buddy Level 2 only — Maps URL already in the T1 body,
+      // so we drop the redundant "📍 Google Maps" inline button.
       try {
         const buddy = require('./buddy-match');
         if (await buddy.isOptedIn(redis, chatId)) {
-          // Register this user's intent at this venue (60-min window).
           await buddy.registerIntent(redis, chatId, pid);
           const others = await buddy.findCounterparts(redis, chatId, pid);
           if (others.length) {
-            const counterpartId = others[0]; // first available
+            const counterpartId = others[0];
             buttons.push({
               text: `👥 Connect (${others.length} other diner${others.length > 1 ? 's' : ''})`,
               callback_data: `buddy:init:${pid}:${counterpartId}`
@@ -637,11 +619,24 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
 
     if (body) {
-      try { await bot.sendMessage(chatId, body, replyMarkup); }
-      catch (err) { console.error('[Error] sendMessage with markup failed:', err.message); }
+      try {
+        await bot.sendMessage(chatId, body, {
+          ...replyMarkup,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        });
+      } catch (err) {
+        console.error('[Error] sendMessage with markup failed:', err.message);
+      }
     } else if (buttons.length) {
-      try { await bot.sendMessage(chatId, `🌿 ${p.name}`, replyMarkup); }
-      catch (err) { console.error('[Error] sendMessage with markup failed:', err.message); }
+      try {
+        await bot.sendMessage(chatId, `<b>${require('./venue-templates').escapeHtml(p.name)}</b>`, {
+          ...replyMarkup,
+          parse_mode: 'HTML'
+        });
+      } catch (err) {
+        console.error('[Error] sendMessage with markup failed:', err.message);
+      }
     }
   }
   // v0.30.2: 15-minute staleness reminder. After picks are delivered,
@@ -3516,37 +3511,29 @@ async function cacheBotUsername() {
           return res.status(400).json({ error: 'no venues' });
         }
         const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
+        const { formatVenueBlock } = require('./venue-templates');
         const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
-        // v0.58.48: per-venue URL inline in the message body. Per Human
-        // Lead — pasted clip should include each pick's Google Maps URL
-        // so the recipient can tap any one directly. Previously only
-        // single-pick included a URL inline; multi-pick relied on the
-        // inline-keyboard button which doesn't render when the message
-        // is forwarded as plain text.
-        const lines = slim.map((v, i) => {
-          const u = googleMapsUrl(v) || '';
-          return `${i + 1}. ${v.name || '(unnamed)'}\n📍 ${u}`;
-        });
-        const body = `${header}\n\n${lines.join('\n\n')}`;
+        // v0.58.50: T2 detail template per venue — name bold / address /
+        // hours / website / phone / stats with distance / order / Maps URL.
+        // Single bot message, all venues in one scrollable block per
+        // Human Lead's preference.
+        const blocks = slim.map((v) => formatVenueBlock(v, {
+          variant: 'detail',
+          googleMapsUrl
+        })).filter(Boolean);
+        const body = `${header}\n\n${blocks.join('\n\n')}`;
         if (slim.length === 1) {
-          await bot.sendMessage(chatId, body, { disable_web_page_preview: true });
+          await bot.sendMessage(chatId, body, {
+            parse_mode: 'HTML',
+            disable_web_page_preview: true
+          });
         } else {
-          // Multi-pin: send the soleat /app/map link as an inline-keyboard
-          // web_app button so tapping opens the TMA natively. Pins
-          // render instantly, no route line, no compute hang.
+          // Multi-pin: keep the inline-keyboard map buttons for the
+          // multi-marker TMA view (separate from the inline URLs in body).
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (!mapUrl) return res.status(500).json({ error: 'could not build map URL' });
-          // v0.57.35: two stacked inline-keyboard buttons.
-          //   Row 1: web_app — opens the multi-marker TMA inside Telegram.
-          //   Row 2: url — opens the same /app/map URL in browser. Long-
-          //          press on this button surfaces Telegram's native
-          //          "Copy link" / "Share link" options.
-          // v0.58.3: button renamed '🔗 Copy / share link' → '🔗 Open in browser'.
-          // v0.58.48: dropped the "💡 Long-press 🔗" hint from body — every
-          //   URL is now inline so users can long-press any of them
-          //   directly to get the same Copy/Share menu, no special button
-          //   knowledge required.
           await bot.sendMessage(chatId, body, {
+            parse_mode: 'HTML',
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -3559,6 +3546,46 @@ async function cacheBotUsername() {
         res.json({ ok: true, count: slim.length });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-all failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.58.50: per-card "📋 Copy" button — TMA POSTs ONE venue, the
+    // server builds a T1 detail-with-sanctuary block (full address +
+    // hours + website + phone + sanctuary read + stats + order + URL)
+    // and bot.sendMessage to the user's chat. Mirrors the rich free-
+    // text reply format so the recipient gets the same depth of
+    // detail as a chat-text search result.
+    app.post('/api/cuisine/copy-one', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const chatId = verified.user.id;
+        const venue = req.body?.venue;
+        if (!venue || (!venue.placeId && !venue.name)) {
+          return res.status(400).json({ error: 'missing venue' });
+        }
+        const { formatVenueBlock } = require('./venue-templates');
+        const { googleMapsUrl } = require('./maps-url');
+        // Best-effort sanctuary read fetch (cached in Redis 24h).
+        let sanctuaryRead = '';
+        if (venue.placeId) {
+          try { sanctuaryRead = await getOrCacheSummary(redis, venue.placeId) || ''; }
+          catch { /* fall through; T1 will render without sanctuary section */ }
+        }
+        const body = formatVenueBlock(venue, {
+          variant: 'detail-with-sanctuary',
+          sanctuaryRead,
+          googleMapsUrl
+        });
+        if (!body) return res.status(500).json({ error: 'could not format venue block' });
+        await bot.sendMessage(chatId, body, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        });
+        res.json({ ok: true });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/copy-one failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });

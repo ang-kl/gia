@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { tg } from '../../api/tg.js';
+import { copyOneToChat } from '../lib/api.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -42,10 +43,48 @@ export default function ResultCard({ venue, focused, onTap }) {
     }
   }
 
-  function copy(e) {
+  // v0.58.50: per-card Copy now POSTs to /api/cuisine/copy-one which
+  // bot.sendMessages a T1 detail-with-sanctuary block to the user's
+  // chat. The previous clipboard-only flow lost the address/hours/
+  // sanctuary-read context — bot delivery gives the recipient (or
+  // user pasting forward) the full standardised template.
+  const [copying, setCopying] = useState(false);
+  const [copied, setCopied] = useState(false);
+  async function copy(e) {
     e.stopPropagation();
-    const lines = [venue.name, venue.area || '', venue.url || ''].filter(Boolean);
-    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(lines.join('\n'));
+    if (copying) return;
+    setCopying(true);
+    setCopied(false);
+    try {
+      await copyOneToChat({
+        placeId: venue.placeId,
+        name: venue.name,
+        area: venue.area,
+        lat: venue.lat,
+        lng: venue.lng,
+        rating: venue.rating,
+        userRatingCount: venue.userRatingCount,
+        priceLevel: venue.priceLevel,
+        openNow: venue.openNow,
+        closedTodayLabel: venue.closedTodayLabel,
+        crowdLevel: venue.crowdLevel,
+        weekdayDescriptions: venue.weekdayDescriptions,
+        websiteUri: venue.websiteUri,
+        phone: venue.phone,
+        dishes: venue.dishes,
+        distanceM: venue.distanceM,
+        url: venue.url,
+        primaryType: venue.primaryType
+      });
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (err) {
+      console.warn('[Copy-One] failed:', err.message);
+      const w = tg();
+      if (w && typeof w.showAlert === 'function') {
+        w.showAlert("Couldn't send to chat — try again.");
+      }
+    } finally { setCopying(false); }
   }
 
   return (
@@ -73,8 +112,10 @@ export default function ResultCard({ venue, focused, onTap }) {
       <div className="flex gap-1.5 mt-1">
         <button type="button" onClick={openMaps}
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
-        <button type="button" onClick={copy}
-          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📋 Copy</button>
+        <button type="button" onClick={copy} disabled={copying}
+          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
+          {copying ? '…' : copied ? '✓ Sent' : '📋 Copy'}
+        </button>
       </div>
     </button>
   );
