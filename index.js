@@ -3405,16 +3405,12 @@ async function cacheBotUsername() {
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
 
-        // Mirror the NON_FOOD_TYPES guard from /api/cuisine/search so
-        // hotels / malls / point_of_interest don't sneak through.
-        const NON_FOOD_TYPES = new Set([
-          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
-          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
-          'tourist_attraction', 'point_of_interest', 'establishment',
-          'plaza', 'complex', 'building', 'park', 'school',
-          'university', 'hospital', 'gym', 'fitness_center'
-        ]);
-        venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+        // v0.58.31: shared filter — drops non-food types AND
+        // multi-tenant building names (Lau Pa Sat, Maxwell Food Centre,
+        // SAFRA, etc.) so warm-start matches /api/cuisine/search and
+        // /api/cuisine/warm-start cannot drift apart.
+        const venueFilters = require('./venue-filters');
+        venues = venues.filter(venueFilters.passesVenueFilter);
 
         if (seed.filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (seed.filters.newlyOpened) {
@@ -3456,7 +3452,7 @@ async function cacheBotUsername() {
               regionCode: searchRegionCode
             });
             const fbVenues = (Array.isArray(fallback) ? fallback : (fallback?.venues || []))
-              .filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+              .filter(venueFilters.passesVenueFilter);
             const fbTop = pickTopFive(fbVenues);
             if (fbTop.length > top.length) {
               top = fbTop;
@@ -3845,17 +3841,16 @@ async function cacheBotUsername() {
         // Google's strictTypeFiltering on the search call missed them.
         // The screenshot bug had Amara Singapore (lodging) + Dempsey
         // Hill (point_of_interest) sneaking through.
-        const NON_FOOD_TYPES = new Set([
-          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
-          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
-          'tourist_attraction', 'point_of_interest', 'establishment',
-          'plaza', 'complex', 'building', 'park', 'school',
-          'university', 'hospital', 'gym', 'fitness_center'
-        ]);
+        // v0.58.31: shared `passesVenueFilter` — also rejects multi-
+        // tenant building names (Lau Pa Sat, Maxwell Food Centre, SAFRA,
+        // etc.) so the user no longer sees the building when they want
+        // a specific eatery. Stalls INSIDE these buildings still pass
+        // because the regex is start-anchored.
+        const venueFilters = require('./venue-filters');
         const beforeNonFood = venues.length;
-        venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+        venues = venues.filter(venueFilters.passesVenueFilter);
         if (venues.length !== beforeNonFood) {
-          console.log(`[Cuisine-Search] D703 NON_FOOD_TYPES filter ${beforeNonFood} → ${venues.length}`);
+          console.log(`[Cuisine-Search] D703 venue-filter (type+name) ${beforeNonFood} → ${venues.length}`);
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places
@@ -4197,15 +4192,10 @@ async function cacheBotUsername() {
           lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
-        // v0.57.5: same primaryType deny-list as /api/cuisine/search.
-        const NON_FOOD_TYPES_NL = new Set([
-          'lodging', 'hotel', 'motel', 'hostel', 'guest_house', 'resort',
-          'shopping_mall', 'department_store', 'store', 'supermarket_chain',
-          'tourist_attraction', 'point_of_interest', 'establishment',
-          'plaza', 'complex', 'building', 'park', 'school',
-          'university', 'hospital', 'gym', 'fitness_center'
-        ]);
-        venues = venues.filter((v) => !NON_FOOD_TYPES_NL.has(v.primaryType));
+        // v0.57.5 / v0.58.31: shared deny-list module — type gate +
+        // building-name regex (Lau Pa Sat, Maxwell, SAFRA, etc.).
+        const venueFiltersNL = require('./venue-filters');
+        venues = venues.filter(venueFiltersNL.passesVenueFilter);
         // v0.57.12: cuisine-name validation gate (mirrors /api/cuisine/search).
         // v0.57.13: only fire when every selected cuisine is in
         // African/European/Americas categories.

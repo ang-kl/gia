@@ -31,11 +31,20 @@ function haversineM(a, b) {
 // filterFreeTextResults — distance enrichment + SG-only gate +
 // distance-sort + cap. Mirrors the post-discover filter in
 // /api/cuisine/search so chat results match TMA results in scope.
+//
+// v0.58.31: also applies passesVenueFilter (shared with the cuisine
+// flows) so chat-text search no longer surfaces Lau Pa Sat / SAFRA /
+// hotels / malls. The gate is opt-in via a function parameter so
+// existing tests don't need to mock the venue-filters module.
 function filterFreeTextResults(candidates, userLoc, opts = {}) {
   const limit = Number.isFinite(opts.limit) ? opts.limit : DEFAULT_LIMIT;
   if (!Array.isArray(candidates) || !candidates.length) return [];
   if (!Number.isFinite(userLoc?.lat) || !Number.isFinite(userLoc?.lng)) return [];
+  const venueFilters = (() => {
+    try { return require('./venue-filters'); } catch { return null; }
+  })();
   return candidates
+    .filter((v) => venueFilters ? venueFilters.passesVenueFilter(v) : true)
     .map((v) => {
       const d = haversineM(userLoc, v);
       if (d == null) return v;
