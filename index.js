@@ -2136,7 +2136,30 @@ async function runSurpriseCommand(chatId) {
       return;
     }
 
-    await safeSend(chatId, '🎲 Hunting up to 5 hidden gems 1.5–3 km away — discovering → narrating…');
+    // v0.58.24: richer initial progress message — reverse-geocode the
+    // cached location so the user knows WHERE we're searching, plus
+    // honest timing ("5–15 s") and what's actually happening
+    // (web-search for recent food blogs in the v0.58.22 pipeline).
+    let areaName = '';
+    try {
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (apiKey) {
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&result_type=neighborhood|sublocality|locality&key=${apiKey}`;
+        const { data } = await axios.get(url, { timeout: 3000 });
+        const r = data?.results?.[0];
+        const comp = (r?.address_components || []).find((c) => c.types?.includes('neighborhood') || c.types?.includes('sublocality_level_1') || c.types?.includes('sublocality') || c.types?.includes('locality'));
+        if (comp?.long_name) areaName = comp.long_name;
+      }
+    } catch (err) {
+      console.warn('[/hidden] reverse-geocode for area name failed:', err.message);
+    }
+    const areaSuffix = areaName ? ` near ${areaName}` : '';
+    await safeSend(chatId,
+      `🔍 Looking for hidden gems${areaSuffix}…\n` +
+      '_Filtering chains, scoring rarity, checking recent food-blog buzz. This takes 5–15 seconds — thanks for waiting._',
+      { parse_mode: 'Markdown' }
+    );
+
     const requestStore = require('./request-store');
     const pipelineTask = require('./pipeline-task');
     const reqId = await requestStore.create(redis, {
@@ -2145,11 +2168,36 @@ async function runSurpriseCommand(chatId) {
       userId: chatId,
       payload: { lat: cached.lat, lng: cached.lng, radius: 3000, mode: 'walk', lang: 'en' }
     });
+    console.log(`[/hidden] starting task reqId=${reqId} lat=${cached.lat} lng=${cached.lng}`);
     await pipelineTask.runTask(redis, reqId);
     const row = await requestStore.get(redis, reqId);
     const venues = row?.venues || [];
+    const status = row?.status;
+    const errorMsg = row?.error;
+    console.log(`[/hidden] task done reqId=${reqId} status=${status} venues=${venues.length} error=${errorMsg ? String(errorMsg).slice(0, 200) : 'none'}`);
+
+    // v0.58.24: differentiate failure modes. Previously every empty
+    // result surfaced the same "couldn't find hidden gems matching
+    // the /hidden filters" message — misleading when the actual cause
+    // was a Claude API failure (v0.58.22 with webSearch) or a Places
+    // outage. Now:
+    //   - status === 'errored' → tell user it's a backend snag.
+    //   - status === 'empty'   → the area genuinely has no qualifying
+    //                            hidden gems. Suggest fixes.
+    if (status === 'errored' || errorMsg) {
+      console.error(`[/hidden] task errored reqId=${reqId}: ${errorMsg}`);
+      await safeSend(chatId,
+        "Sorry, the hidden-gems search hit a snag on our end (likely the LLM with web search). " +
+        "Please retry in a moment — your location's still cached so it'll be quick."
+      );
+      return;
+    }
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find hidden gems matching the /hidden filters in your annulus (rating ≥4.0, rarity-ranked, open now). Try a denser area or /cuisine for unfiltered picks.");
+      await safeSend(chatId,
+        `No hidden gems passed the v0.58.22 filters${areaSuffix} ` +
+        '(rating ≥ 4.0, ≥ 8 reviews, no chains, ≥ 2 of {newly opened, social buzz, underreviewed, off-MRT, unique offering}). ' +
+        'Try /cuisine for unfiltered picks, or share a fresh location pin via /location.'
+      );
       return;
     }
     // v0.57.7: per Human Lead — drop walk-time, surface 1-3 reviewer-
@@ -2159,8 +2207,10 @@ async function runSurpriseCommand(chatId) {
       showWalk: false, showDishes: true
     });
   } catch (err) {
-    console.error('[Error] /hidden failed:', err.message);
-    await safeSend(chatId, "Sorry, /hidden hit an error. Try again in a moment.");
+    console.error('[/hidden] outer catch:', err.message, err.stack);
+    await safeSend(chatId,
+      "Sorry, /hidden hit an unexpected error. The team's been notified — please retry shortly."
+    );
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
   }

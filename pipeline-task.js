@@ -395,6 +395,10 @@ async function runSurpriseTask(redis, reqId) {
   const payload = row.payload;
   const meal = mealPeriodSGT();
   const diagPush = (code, label, ok, detail) => requestStore.pushDiag(redis, reqId, { code, label, ok, detail });
+  // v0.58.24: console mirrors of the pivotal stages so Railway logs
+  // surface the funnel without needing to fetch diag rows from redis.
+  const taskT0 = Date.now();
+  console.log(`[runSurpriseTask] start reqId=${reqId} lat=${payload.lat} lng=${payload.lng} meal=${meal.label}`);
   try {
     // Places-first discover at OUTER radius.
     await requestStore.setStage(redis, reqId, 'discovering');
@@ -579,7 +583,9 @@ async function runSurpriseTask(redis, reqId) {
     const refined = await refineIfPossible(redis, reqId, ranked, payload, meal.label);
     await requestStore.setVenues(redis, reqId, refined);
     await requestStore.setStatus(redis, reqId, refined.length ? 'done' : 'empty');
+    console.log(`[runSurpriseTask] done reqId=${reqId} venues=${refined.length} ms=${Date.now() - taskT0}`);
   } catch (err) {
+    console.error(`[runSurpriseTask] errored reqId=${reqId} ms=${Date.now() - taskT0}: ${err.message}`);
     forRequest(reqId, { kind: 'surprise' }).error({ err: { message: err.message, stack: err.stack } }, 'surprise task failed');
     captureWithReqId(err, reqId, { kind: 'surprise' });
     await requestStore.setError(redis, reqId, err);

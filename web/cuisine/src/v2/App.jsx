@@ -127,31 +127,44 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+    // v0.58.24: louder debug logs so we can trace "not loading 5 places"
+    // failures from the user's prod console (Telegram desktop devtools
+    // OR mobile browser inspector). Each branch logs entry + outcome.
+    console.log('[Cuisine-TMA-v2] mount: starting userLoc resolution');
 
     async function tryServerCache() {
+      console.log('[Cuisine-TMA-v2] tryServerCache: requesting /api/cuisine/user-location');
       try {
         const r = await fetchUserLocation();
         if (!cancelled && r?.lat != null && r?.lng != null) {
           setUserLoc({ lat: r.lat, lng: r.lng });
-          console.log('[Cuisine-TMA-v2] userLoc from server cache', r);
+          console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }
-      } catch { /* 404/401/network — fall through */ }
+        console.log('[Cuisine-TMA-v2] tryServerCache: MISS (no/stale cache)');
+      } catch (err) { console.log('[Cuisine-TMA-v2] tryServerCache: ERROR', err.message); }
       return false;
     }
 
     function tryGps() {
       return new Promise((resolve) => {
-        if (!navigator.geolocation) { resolve(false); return; }
+        if (!navigator.geolocation) {
+          console.log('[Cuisine-TMA-v2] tryGps: navigator.geolocation unavailable');
+          resolve(false); return;
+        }
+        console.log('[Cuisine-TMA-v2] tryGps: requesting (timeout 5s)');
         navigator.geolocation.getCurrentPosition(
           (p) => {
             if (!cancelled) {
               setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
-              console.log('[Cuisine-TMA-v2] userLoc from GPS');
+              console.log('[Cuisine-TMA-v2] tryGps: SUCCESS', { lat: p.coords.latitude, lng: p.coords.longitude });
             }
             resolve(true);
           },
-          () => resolve(false),
+          (err) => {
+            console.log('[Cuisine-TMA-v2] tryGps: FAIL', err?.code, err?.message);
+            resolve(false);
+          },
           { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
         );
       });
@@ -204,8 +217,10 @@ export default function App() {
     // runSearch when venues is empty too.
     (async () => {
       setLoading(true); setError(null);
+      console.log('[Cuisine-TMA-v2] warm-start: requesting', { lat: userLoc.lat, lng: userLoc.lng, region: state.region });
       try {
         const r = await warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region });
+        console.log('[Cuisine-TMA-v2] warm-start: response', { venues: r?.venues?.length || 0, seed: r?.seed, cached: r?.cached });
         if (r?.venues?.length) {
           setVenues(r.venues);
           setWarmStartSeed(r.seed || null);
@@ -538,7 +553,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.23 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.24 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
