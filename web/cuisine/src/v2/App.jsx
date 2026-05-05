@@ -6,16 +6,23 @@ import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
-import FlipPanel from './components/FlipPanel.jsx';
+import TellMePanel from './components/TellMePanel.jsx';
+import ResultPanel from './components/ResultPanel.jsx';
 import { tg } from '../api/tg.js';
 
-// v0.57.3: Singapore-wide search (no radius constraint). Header shows
-// country alongside the title.
-// v0.58.1: layout — filter strip moved below the map (Google-Maps-style),
-// active-filter chips below Search/Clear, walking filter dropped, Halal
-// default ON.
-//   Header → Map → Filter strip → Cuisine drawer → Search/Clear
-//   → Active-filter chips → FlipPanel (Results / Tell Gia)
+// v0.57.3: Singapore-wide search (no radius constraint).
+// v0.58.1: layout — filter strip below map, active-filter chips below
+//   Search/Clear, walking filter dropped, Halal default ON (later
+//   reverted in v0.58.16).
+// v0.59.0: redesign — map + active-filter chips + TellMePanel always
+//   visible at top; Search criteria (filter chips + location field +
+//   cuisine drawer + Search button) collapsible below; ResultPanel at
+//   bottom. FlipPanel + Ask-Gia flip-card retired in favour of a
+//   standalone TellMePanel. Cuisine drawer rebuilt as 8 category cards
+//   with drill-down overlay (CuisineCategoryDrawer) replacing inline
+//   expansion.
+//   Order: Header → Region → Map → ActiveFilters → TellMe →
+//          [▾ Search criteria] → Result → Footer
 export default function App() {
   const [catalogue, setCatalogue] = useState(null);
   const [state, setState] = useState(() => readFromHash());
@@ -24,7 +31,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
-  const [flipped, setFlipped] = useState(false);
+  // v0.59.0: collapsible "Search criteria" section. Default collapsed
+  // when a search has already produced results so the user can scan
+  // results without scrolling past the builder.
+  const [criteriaOpen, setCriteriaOpen] = useState(true);
   const [lastPrompt, setLastPrompt] = useState(null);
   const [lastRunSnap, setLastRunSnap] = useState(null);
   // v0.58.2: lat/lng anchor of the last successful search. The map
@@ -50,7 +60,7 @@ export default function App() {
   // v0.58.14: ref the FlipPanel wrapper so we can scroll the result
   // list into view after a successful 🔍 Search press. Users were
   // missing the result list because it sits below the cuisine drawer.
-  const flipPanelRef = useRef(null);
+  const resultPanelRef = useRef(null);
 
   function stateSig(s) {
     return JSON.stringify({
@@ -176,7 +186,7 @@ export default function App() {
       // first; smooth scroll keeps the motion gentle.
       if (typeof window !== 'undefined') {
         requestAnimationFrame(() => {
-          flipPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       }
     } catch (err) {
@@ -327,108 +337,110 @@ export default function App() {
         </div>
       </header>
 
-      {/* v0.58.7: location anchor field. Reverse-geocodes the user's
-          GPS for the placeholder ("📍 Telok Blangah") and lets them
-          search a different anchor via Google Places Autocomplete.
-          Picking a suggestion fires runSearchAt(lat, lng) so the map
-          and result list both re-anchor in one tap. */}
-      {userLoc && (
-        <LocationField userLoc={userLoc} region={state.region}
-          onSelect={(p) => {
-            if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-              // v0.58.10: stash the picked label so copy-syntax can
-              // include `@<place>` in the emitted /cuisine command.
-              setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
-              runSearchAt(p.lat, p.lng);
-            } else {
-              setLocationAnchor(null);
-            }
-          }} />
-      )}
-
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
 
-      {/* v0.58.18: radius slider removed entirely per Human Lead.
-          The slider locked the map zoom on every change and didn't
-          meaningfully constrain results (server uses locationBias,
-          not locationRestriction, for cuisine-keyed searches). Server
-          falls back to its region-default radius (50 km SG / 18 km
-          JB) when no `radius` is sent in the search body. */}
+      {/* v0.59.0: ActiveFilters chip bar moved BELOW the map per
+          Human Lead. Always visible regardless of whether the
+          collapsible Search-criteria section is open. */}
+      <ActiveFilters
+        cuisines={state.cuisines}
+        filters={state.filters}
+        onRemoveCuisine={removeCuisine}
+        onRemoveFilter={removeFilter}
+        onResetAll={clearAll}
+      />
 
-      {/* v0.58.1: filter strip sits directly below the map, primary
-          row shows New / Halal / Price ▾ / [⚙], the rest live in the
-          overflow popover so the cuisine drawer + search controls
-          stay close to the action. (v0.58.14 swapped New ↔ Open now
-          per Human Lead.) */}
-      <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+      {/* v0.59.0: Tell-me input box also moved BELOW the map. Always
+          visible — single-line composer, expands the conversation
+          inline. Replaces the v0.57.30 FlipPanel back-face. */}
+      <TellMePanel
+        onSubmit={handleNLSubmit}
+        onReplace={handleNLReplace}
+        lastPrompt={lastPrompt}
+        loading={loading}
+      />
 
-      <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
-        onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
-
-      <div className="flex flex-col gap-1.5">
-        <div className="flex gap-1.5 items-center">
-          <button
-            type="button"
-            onClick={() => runSearch(state)}
-            disabled={loading}
-            className={`flex-1 text-xs font-semibold px-3 py-2 rounded-md transition-colors whitespace-nowrap ${
-              loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-              : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
-              : 'bg-tg-accent text-tg-accent-text'
-            }`}
-          >
-            {loading ? '…' : '🔍 Search'}
-          </button>
-          {canClear && (
-            <button
-              type="button"
-              onClick={clearAll}
-              disabled={loading}
-              className="shrink-0 text-xs px-3 py-2 rounded-md border border-tg-border bg-tg-card text-tg-text"
-            >Clear</button>
-          )}
-        </div>
-
-        {/* v0.58.1: read-only summary of every active selection with
-            ✕ to remove individual chips + Reset all link. */}
-        <ActiveFilters
-          cuisines={state.cuisines}
-          filters={state.filters}
-          onRemoveCuisine={removeCuisine}
-          onRemoveFilter={removeFilter}
-          onResetAll={clearAll}
-        />
-
-        {/* v0.58.14: scroll-down hint. Users were missing the result
-            list because it sits below the search controls + cuisine
-            drawer. After 🔍 Search the page auto-scrolls; before
-            that, this caption tells them where the results live. */}
-        <div className="text-[11px] text-tg-hint text-center px-1 pt-0.5 italic">
-          ↓ Results &amp; Ask Gia below
-        </div>
+      {/* v0.59.0: Search criteria — collapsible. Filter chips
+          (Open-now / New / Halal / Price / Filters), location field,
+          cuisine drawer, Search button all live inside. Tapping the
+          header toggles open/closed; chevron flips ▾↔▸. Active
+          filters above stay visible regardless. */}
+      <div className="rounded-2xl border border-tg-border bg-tg-card overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setCriteriaOpen((o) => !o)}
+          aria-expanded={criteriaOpen}
+          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-tg-text hover:bg-tg-bg/40 transition-colors"
+        >
+          <span aria-hidden className="text-tg-accent">{criteriaOpen ? '▾' : '▸'}</span>
+          <span className="flex-1 text-left">Search criteria</span>
+          <span className="text-[11px] text-tg-hint font-normal">
+            {state.cuisines.length}c · {filterCount}f
+          </span>
+        </button>
+        {criteriaOpen && (
+          <div className="flex flex-col gap-2 px-3 pb-3">
+            <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+            {userLoc && (
+              <LocationField userLoc={userLoc} region={state.region}
+                onSelect={(p) => {
+                  if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+                    setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+                    runSearchAt(p.lat, p.lng);
+                  } else {
+                    setLocationAnchor(null);
+                  }
+                }} />
+            )}
+            <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
+              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
+            <div className="flex gap-1.5 items-center">
+              <button
+                type="button"
+                onClick={() => runSearch(state)}
+                disabled={loading}
+                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-2xl transition-colors whitespace-nowrap ${
+                  loading ? 'bg-tg-card text-tg-hint border border-tg-border'
+                  : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
+                  : 'bg-tg-accent text-tg-accent-text'
+                }`}
+              >
+                {loading ? '…' : '🔍 Search · Show me places to eat'}
+              </button>
+              {canClear && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  disabled={loading}
+                  className="shrink-0 text-xs px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-tg-text"
+                >Clear</button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div ref={flipPanelRef}>
-      <FlipPanel
-        venues={venues} loading={loading} focusedPlaceId={focusedPlaceId}
-        onCardTap={setFocusedPlaceId} onNLSubmit={handleNLSubmit}
-        onNLReplace={handleNLReplace}
-        lastPrompt={lastPrompt} flipped={flipped} setFlipped={setFlipped}
-        warmStartSeed={warmStartSeed}
-        copyState={{
-          cuisines: state.cuisines,
-          filters: state.filters,
-          region: state.region,
-          location: locationAnchor
-        }}
-      />
+      <div ref={resultPanelRef}>
+        <ResultPanel
+          venues={venues}
+          loading={loading}
+          focusedPlaceId={focusedPlaceId}
+          onCardTap={setFocusedPlaceId}
+          warmStartSeed={warmStartSeed}
+          copyState={{
+            cuisines: state.cuisines,
+            filters: state.filters,
+            region: state.region,
+            location: locationAnchor
+          }}
+        />
       </div>
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.21 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.59.0 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
     </div>
   );
