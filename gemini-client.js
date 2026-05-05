@@ -28,7 +28,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   'Today = {{TODAY_SGT}}.',
   'Only consider places where the latest rating/review signal is at least 5 days old, so that very fresh unstable ratings are not over-weighted.',
   '',
-  'A place qualifies if it meets AT LEAST TWO of the following:',
+  'A place qualifies if it meets AT LEAST TWO of the following AND at least one of the matched criteria is C1 (NEW_HIGHRATED) or C3 (UNDERREVIEWED). A place that only matches C2 + C4 is "popular and unique" — that is not hidden. Hidden means newly opened or low review count.',
   '',
   'C1 NEW_HIGHRATED',
   '- Opened in the last 4 months.',
@@ -65,6 +65,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Hotel restaurants.',
   '- Shopping mall food court chains.',
   '- Places with fewer than 8 Google reviews unless C2 fires with at least 2 independent recent mentions.',
+  '- Places with more than 300 Google reviews UNLESS C1 fires (newly opened in the last 4 months). 300+ reviews means the venue is already widely known — not hidden — regardless of buzz or unique offering.',
   '- Anything rated below 4.0.',
   '- Places below 1km walking distance from the anchor.',
   '- Places above 3km walking distance from the anchor.',
@@ -91,22 +92,22 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   'Opening hours - if verifiable, otherwise write "unverified".',
   'Google rating - rating and review count if verifiable; otherwise write "unverified".',
   'Latest rating/review signal - date if verifiable; otherwise write "unverified".',
-  'Criteria met: [Cx, Cy, Cz]',
-  'Confidence: HIGH | MEDIUM | LOW',
   'Why a gem: one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
   'Order this: one signature item only.',
   'Google Map URL: raw full URL.',
-  'Sources:',
-  '- Raw full URL 1',
-  '- Raw full URL 2',
-  '- Raw full URL 3',
   '',
+  // v0.58.37: removed Criteria-met / Confidence / Sources lines per
+  // Human Lead. The criteria gate is still enforced internally — you
+  // must judge each candidate against C1-C4 silently and only output
+  // places that pass — but the user-facing block stays compact.
+  // Sources are evaluated for the C2 / verification rules below but
+  // not printed.
   'IMPORTANT OUTPUT RULES:',
-  '- Show raw full URLs, not hidden markdown links.',
-  '- At least one source must be a non-aggregator blog, Instagram post, TikTok post, or news article.',
+  '- Use raw full URLs in the Google Map URL line. No hidden markdown links.',
+  '- Even though sources are not printed, you MUST verify each candidate against at least one non-aggregator source (Eatbook, HungryGoWhere, SethLui, DanielFoodDiary, Time Out Singapore, 8days, CNA Lifestyle, The Ranting Panda, Honeycombers, Rubbish Eat Rubbish Grow, or the establishment\'s own Instagram). If you cannot verify, do not include the place.',
   '- Do not fabricate ratings, addresses, opening dates, review counts, opening hours, Google Map links, or source links.',
   '- If a number is unverifiable, write "unverified".',
-  '- If the place only meets one criterion, exclude it.',
+  '- If the place only meets one criterion, or its only matched criteria are C2 + C4 (no C1 and no C3), exclude it — that is not hidden.',
   '- If fewer than 3 places qualify, say so plainly and list what was filtered out and why.',
   '- Never use vague phrases like "great vibes", "must try", "popular spot", or "worth checking out".',
   '- Use Singapore English.',
