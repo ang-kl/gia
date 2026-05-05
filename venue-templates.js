@@ -92,6 +92,18 @@ function formatMapsLine(p, googleMapsUrlFn) {
   return url ? `📍 ${url}` : '';
 }
 
+// v0.58.52: travel-time line. Shows BOTH transit and drive when
+// available (per Human Lead's preference). Either field may be
+// missing if Routes API returned no route for that mode (rare for
+// SG); in that case the present mode renders solo. Empty string
+// when neither is available.
+function formatTravelLine(p) {
+  const parts = [];
+  if (Number.isFinite(p.transitMinutes)) parts.push(`🚊 ${p.transitMinutes} min`);
+  if (Number.isFinite(p.driveMinutes))   parts.push(`🚘 ${p.driveMinutes} min`);
+  return parts.length ? parts.join(' · ') : '';
+}
+
 // Build a single venue block per the requested variant.
 //
 // opts:
@@ -138,6 +150,12 @@ function formatVenueBlock(p, opts = {}) {
     const orderLine = formatOrderLine(p);
     if (orderLine) lines.push(orderLine);
   }
+  // v0.58.52: travel-time row immediately above Maps URL — applies to
+  // ALL three variants (T1/T2/T3) per Human Lead. Skipped silently
+  // when Routes API didn't populate either transitMinutes or
+  // driveMinutes for this venue.
+  const travelLine = formatTravelLine(p);
+  if (travelLine) lines.push(travelLine);
   const mapsLine = formatMapsLine(p, mapsFn);
   if (mapsLine) lines.push(mapsLine);
   return lines.join('\n');
@@ -149,6 +167,7 @@ module.exports = {
   formatStatsLine,
   formatOrderLine,
   formatMapsLine,
+  formatTravelLine,
   escapeHtml,
   PRICE_LABEL,
   CROWD_LABEL

@@ -3008,6 +3008,15 @@ async function runFreeTextSearch(chatId, text) {
         await safeSend(chatId, `No Google Places results for "${text}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.`);
         return;
       }
+      // v0.58.52: enrich each venue with TRANSIT + DRIVE minutes so
+      // deliverPicks's T1/T3 templates can render the 🚊/🚘 row.
+      // Best-effort: failures don't block delivery.
+      try {
+        const { enrichTravelTimes } = require('./travel-times');
+        await enrichTravelTimes(cached.lat, cached.lng, venues);
+      } catch (err) {
+        console.warn('[free-text] travel-times enrichment failed:', err.message);
+      }
       await deliverPicks(chatId, `🔎 Results for "${text}"`, venues);
     } finally {
       await clearProcessing(redis, chatId).catch(() => {});
@@ -3711,6 +3720,13 @@ async function cacheBotUsername() {
           }
         }
 
+        // v0.58.52: enrich each venue with TRANSIT + DRIVE minutes so
+        // the cuisine TMA's MapPanel InfoWindow + result list can show
+        // the 🚊/🚘 row. Best-effort.
+        try {
+          const { enrichTravelTimes } = require('./travel-times');
+          await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
+        } catch (err) { console.warn('[WarmStart] travel-times failed:', err.message); }
         const payload = { venues: top, seed: resolvedSeed };
         try {
           if (redis.isOpen) await redis.setEx(cacheKey, 60, JSON.stringify(payload));
@@ -4301,6 +4317,12 @@ async function cacheBotUsername() {
           delete v.regularPeriods;
           delete v.reviews;
         }
+        // v0.58.52: enrich top with TRANSIT + DRIVE minutes for the
+        // cuisine TMA's InfoWindow + venue templates. Best-effort.
+        try {
+          const { enrichTravelTimes } = require('./travel-times');
+          await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
+        } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
         // v0.57.6: write to cache for 30 minutes.
@@ -4539,6 +4561,12 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[NL-Query] crowd-signal attach failed:', err.message);
         }
+        // v0.58.52: travel-time enrichment (TRANSIT + DRIVE) for the
+        // cuisine TMA's MapPanel + venue templates. Best-effort.
+        try {
+          const { enrichTravelTimes } = require('./travel-times');
+          await enrichTravelTimes(searchLat, searchLng, topNL);
+        } catch (err) { console.warn('[NL-Query] travel-times failed:', err.message); }
         res.json({
           venues: topNL,
           inferredCuisines, inferredFilters,

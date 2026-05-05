@@ -48,7 +48,7 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, children }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -128,11 +128,29 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       if (!userMarkerRef.current) {
         const pin = new PinElement({ background: '#1e88e5', borderColor: '#0d47a1', glyph: '●', glyphColor: '#fff', scale: 1 });
         userMarkerRef.current = new AdvancedMarkerElement({
-          map: mapRef.current, position: userLoc, title: 'You are here', content: pin.element
+          map: mapRef.current, position: userLoc, title: 'You are here', content: pin.element, gmpClickable: true
         });
       } else {
         userMarkerRef.current.position = userLoc;
         userMarkerRef.current.map = mapRef.current;
+      }
+      // v0.58.52: hover info on the user-anchor pin too. Shows the
+      // reverse-geocoded area name when known (e.g. "Downtown Core"),
+      // else falls back to the literal "You are here" label.
+      const anchorHtml =
+        `<div style="min-width:120px;max-width:220px;padding:2px 4px;">
+           <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || 'You are here')}</div>
+           <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">your search anchor</div>
+         </div>`;
+      if (userMarkerRef.current.element && infoWindowRef.current) {
+        // Replace prior listeners by re-attaching idempotently — the
+        // marker DOM persists across syncMarkers re-runs.
+        const elem = userMarkerRef.current.element;
+        elem.onmouseover = () => {
+          infoWindowRef.current.setContent(anchorHtml);
+          infoWindowRef.current.open(mapRef.current, userMarkerRef.current);
+        };
+        elem.onmouseout = () => infoWindowRef.current.close();
       }
       bounds.extend(userLoc);
     }
@@ -157,15 +175,27 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         content: pin.element,
         gmpClickable: true                                // enable click + DOM events on the pin
       });
-      // v0.58.51: hover preview via InfoWindow. Desktop only — mobile
-      // has no mouseover. Shows venue name, rating, and a "Click to
-      // open in Maps" hint. On mouseout the window closes.
+      // v0.58.51 / v0.58.52: hover preview via InfoWindow. Desktop only.
+      // Now shows venue name (bold) + 📇 address + 🚊/🚘 travel times
+      // per Human Lead. Travel-time fields populated server-side via
+      // travel-times.enrichTravelTimes (TRANSIT + DRIVE Routes calls).
+      const addressHtml = v.area
+        ? `<div style="font-size:11px;color:#666;margin-top:2px;">📇 ${escapeHtml(v.area)}</div>`
+        : '';
+      const travelParts = [];
+      if (Number.isFinite(v.transitMinutes)) travelParts.push(`🚊 ${v.transitMinutes} min`);
+      if (Number.isFinite(v.driveMinutes))   travelParts.push(`🚘 ${v.driveMinutes} min`);
+      const travelHtml = travelParts.length
+        ? `<div style="font-size:11px;color:#444;margin-top:3px;">${travelParts.join(' · ')}</div>`
+        : '';
       const ratingHtml = Number.isFinite(v.rating)
         ? `<div style="font-size:11px;color:#666;margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
         : '';
       const infoHtml =
-        `<div style="min-width:140px;max-width:240px;padding:2px 4px;">
+        `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
+           ${addressHtml}
+           ${travelHtml}
            ${ratingHtml}
            <div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">Tap pin → Google Maps</div>
          </div>`;

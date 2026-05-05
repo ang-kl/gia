@@ -1,7 +1,7 @@
 // __tests__/venue-templates.test.js — v0.58.50
 
 import { describe, it, expect } from 'vitest';
-import { formatVenueBlock, formatStatsLine, formatHoursLine } from '../venue-templates.js';
+import { formatVenueBlock, formatStatsLine, formatHoursLine, formatTravelLine } from '../venue-templates.js';
 
 const SAMPLE_VENUE = {
   name: 'Lazy Lizard',
@@ -148,5 +148,35 @@ describe('formatStatsLine variants', () => {
 
   it('returns empty string when no rating', () => {
     expect(formatStatsLine({})).toBe('');
+  });
+});
+
+describe('formatTravelLine — v0.58.52', () => {
+  it('shows BOTH transit and drive when available', () => {
+    expect(formatTravelLine({ transitMinutes: 18, driveMinutes: 7 }))
+      .toBe('🚊 18 min · 🚘 7 min');
+  });
+
+  it('renders transit alone when drive is missing', () => {
+    expect(formatTravelLine({ transitMinutes: 18 })).toBe('🚊 18 min');
+  });
+
+  it('renders drive alone when transit is missing', () => {
+    expect(formatTravelLine({ driveMinutes: 7 })).toBe('🚘 7 min');
+  });
+
+  it('returns empty string when both are missing', () => {
+    expect(formatTravelLine({})).toBe('');
+    expect(formatTravelLine({ transitMinutes: null, driveMinutes: undefined })).toBe('');
+  });
+
+  it('inserts the travel line before 📍 in venue blocks', () => {
+    const v = { ...SAMPLE_VENUE, transitMinutes: 18, driveMinutes: 7 };
+    const out = formatVenueBlock(v, { variant: 'detail' });
+    const lines = out.split('\n');
+    const travelIdx = lines.findIndex((l) => l.startsWith('🚊'));
+    const mapsIdx   = lines.findIndex((l) => l.startsWith('📍'));
+    expect(travelIdx).toBeGreaterThan(-1);
+    expect(mapsIdx).toBeGreaterThan(travelIdx);
   });
 });
