@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Cuisine and Drinks · soleat</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      /* v0.58.29: bump base typography +1pt per Human Lead. Tailwind's
+         text-xs / text-sm / text-base are all rem-based, so scaling
+         the html root font-size from the browser default (16 px) to
+         17 px nudges every label upward without one-by-one edits. */
+      html { font-size: 17px; }
+    </style>
   </head>
   <body class="bg-tg-bg text-tg-text">
     <div id="root"></div>

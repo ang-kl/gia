@@ -318,6 +318,15 @@ export default function App() {
       setLastRunSnap(stateSig(snap));
       // v0.58.4: any explicit search supersedes the warm-start label.
       setWarmStartSeed(null);
+      // v0.58.29: collapse the Search-criteria card on a successful
+      // search so the result list takes focus. Per Human Lead — users
+      // weren't sure their search produced anything because the
+      // builder dominated the viewport. Skip the collapse if the
+      // search returned zero venues so the user can adjust filters
+      // without re-expanding.
+      if (Array.isArray(r.venues) && r.venues.length > 0) {
+        setCriteriaOpen(false);
+      }
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -535,18 +544,33 @@ export default function App() {
           (Open-now / New / Halal / Price / Filters), location field,
           cuisine drawer, Search button all live inside. Tapping the
           header toggles open/closed; chevron flips ▾↔▸. Active
-          filters above stay visible regardless. */}
-      <div className="rounded-2xl border border-tg-border bg-tg-card overflow-hidden">
+          filters above stay visible regardless.
+          v0.58.29: subtle accent tint on the card background so it
+          reads distinct from the surrounding tg-card panels (per
+          Human Lead — "Search card could have a lighter shade than
+          the background to distinguish it"). Header gains an
+          explicit "Collapse"/"Edit search" pill on the right so the
+          collapse affordance isn't just a small chevron. */}
+      <div
+        className="rounded-2xl border border-tg-accent/40 overflow-hidden"
+        style={{ backgroundColor: 'color-mix(in srgb, var(--tg-card) 88%, var(--tg-accent) 12%)' }}
+      >
         <button
           type="button"
           onClick={() => setCriteriaOpen((o) => !o)}
           aria-expanded={criteriaOpen}
-          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-tg-text hover:bg-tg-bg/40 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-tg-text hover:bg-tg-bg/30 transition-colors"
         >
-          <span aria-hidden className="text-tg-accent">{criteriaOpen ? '▾' : '▸'}</span>
+          <span aria-hidden className="text-tg-accent text-base leading-none">{criteriaOpen ? '▾' : '▸'}</span>
           <span className="flex-1 text-left">Search criteria</span>
           <span className="text-[11px] text-tg-hint font-normal">
             {state.cuisines.length}c · {filterCount}f
+          </span>
+          <span
+            aria-hidden
+            className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text"
+          >
+            {criteriaOpen ? 'Collapse ▴' : 'Edit search ▾'}
           </span>
         </button>
         {criteriaOpen && (
@@ -610,7 +634,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.27 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.31 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
