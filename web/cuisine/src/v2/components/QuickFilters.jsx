@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 
 // v0.58.1: below-map filter strip. Primary row keeps the highest-
 // signal toggles surfaced (Open-now / Halal); the rest of the quick
-// filters live behind the [⚙ More] overflow.
-// v0.58.6: price chips ($/$$/$$$) promoted from the [⚙ More] panel
+// filters live behind the [⚙ Filters] overflow.
+// v0.58.6: price chips ($/$$/$$$) promoted from the [⚙ Filters] panel
 // into a Price-▾ dropdown on the primary row. The Price popover and
-// the More popover are mutually exclusive so opening one closes the
+// the Filters popover are mutually exclusive so opening one closes the
 // other.
 // v0.58.14: per Human Lead — swapped 🆕 New ↔ 🟢 Open now between
 // PRIMARY and OVERFLOW. New is now on the primary row beside Halal;
-// Open now moved into the [⚙ More] panel.
+// Open now moved into the [⚙ Filters] panel.
 const PRIMARY = [
   { key: 'newlyOpened', label: 'New',   icon: '🆕' },
   { key: 'halal',       label: 'Halal', icon: '🕌' },
@@ -32,7 +32,7 @@ function Chip({ active, onClick, children, ariaLabel }) {
 
 export default function QuickFilters({ filters, onChange }) {
   const [priceOpen, setPriceOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [moreOpen, setFiltersOpen] = useState(false);
 
   function toggle(key) { onChange({ ...filters, [key]: !filters[key] }); }
   function togglePrice(p) {
@@ -41,8 +41,8 @@ export default function QuickFilters({ filters, onChange }) {
   }
 
   // Mutual-exclusion: opening one popover closes the other.
-  function openPrice() { setPriceOpen((o) => !o); setMoreOpen(false); }
-  function openMore()  { setMoreOpen((o) => !o);  setPriceOpen(false); }
+  function openPrice() { setPriceOpen((o) => !o); setFiltersOpen(false); }
+  function openFilters()  { setFiltersOpen((o) => !o);  setPriceOpen(false); }
 
   const overflowActiveCount = OVERFLOW.filter((t) => !!filters[t.key]).length;
   const selectedPrices = filters.prices || [];
@@ -65,9 +65,9 @@ export default function QuickFilters({ filters, onChange }) {
           <span className="mr-1" aria-hidden>💲</span>{priceLabel}
           <span className="ml-1" aria-hidden>{priceOpen ? '▴' : '▾'}</span>
         </Chip>
-        <Chip active={moreOpen} onClick={openMore}
-          ariaLabel={moreOpen ? 'Close more filters' : 'More filters'}>
-          <span className="mr-1" aria-hidden>⚙</span>More
+        <Chip active={moreOpen} onClick={openFilters}
+          ariaLabel={moreOpen ? 'Close more filters' : 'Filters filters'}>
+          <span className="mr-1" aria-hidden>⚙</span>Filters
           {overflowActiveCount > 0 && (
             <span className="ml-1" aria-label={`${overflowActiveCount} more active`}>·{overflowActiveCount}</span>
           )}

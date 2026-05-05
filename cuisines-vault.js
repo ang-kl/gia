@@ -29,6 +29,52 @@ const CATEGORY_META = [
   { id: 'african',         emoji: '🌍' }
 ];
 
+// v0.59.0: per-cuisine flag emoji. Drives the flag prefix on each
+// pill in the new 2-column drill-down drawer. Sub-regional Chinese
+// cuisines (Sichuan/Cantonese/etc.) all use 🇨🇳. Eurasian → EU,
+// Mediterranean → 🌊, Tibetan → 🏔️ (avoids the political flag
+// question), Scandinavian → 🇸🇪 (Sweden as the most-used proxy).
+const FLAG_BY_SLUG = {
+  // Common Here
+  'singaporean': '🇸🇬', 'peranakan': '🇸🇬',
+  'south-indian': '🇮🇳', 'north-indian': '🇮🇳',
+  'malaysian': '🇲🇾', 'eurasian': '🇪🇺',
+  'indonesian': '🇮🇩', 'thai': '🇹🇭',
+  'filipino': '🇵🇭', 'vietnamese': '🇻🇳',
+  'japanese': '🇯🇵', 'chinese': '🇨🇳',
+  'korean': '🇰🇷', 'taiwanese': '🇹🇼',
+  'american': '🇺🇸', 'mexican': '🇲🇽',
+  'brazilian': '🇧🇷', 'australian': '🇦🇺',
+  'new-zealand': '🇳🇿', 'burmese': '🇲🇲',
+  // Southeast Asian
+  'laotian': '🇱🇦', 'timorese': '🇹🇱',
+  // China regional — all 🇨🇳
+  'sichuan': '🇨🇳', 'shanghainese': '🇨🇳', 'cantonese': '🇨🇳',
+  'hunan': '🇨🇳', 'hokkien': '🇨🇳', 'teochew': '🇨🇳',
+  'hainanese': '🇨🇳', 'hakka': '🇨🇳',
+  'northeastern': '🇨🇳', 'northwestern': '🇨🇳',
+  // South Asian
+  'bengali': '🇧🇩', 'gujarati': '🇮🇳', 'goan': '🇮🇳',
+  'nepalese': '🇳🇵', 'tibetan': '🏔️',
+  // European
+  'mediterranean': '🌊', 'italian': '🇮🇹', 'spanish': '🇪🇸',
+  'greek': '🇬🇷', 'french': '🇫🇷', 'british': '🇬🇧',
+  'german': '🇩🇪', 'austrian': '🇦🇹', 'swiss': '🇨🇭',
+  'portuguese': '🇵🇹', 'russian': '🇷🇺', 'ukrainian': '🇺🇦',
+  'polish': '🇵🇱', 'scandinavian': '🇸🇪', 'belgian': '🇧🇪',
+  'dutch': '🇳🇱', 'irish': '🇮🇪',
+  // Middle Eastern & Central Asian
+  'lebanese': '🇱🇧', 'turkish': '🇹🇷', 'persian': '🇮🇷',
+  'moroccan': '🇲🇦', 'egyptian': '🇪🇬', 'jordanian': '🇯🇴',
+  'israeli': '🇮🇱', 'afghan': '🇦🇫', 'uzbek': '🇺🇿', 'georgian': '🇬🇪',
+  // Americas
+  'peruvian': '🇵🇪', 'argentinian': '🇦🇷',
+  'cuban': '🇨🇺', 'jamaican': '🇯🇲',
+  // African
+  'ethiopian': '🇪🇹', 'kenyan': '🇰🇪',
+  'nigerian': '🇳🇬', 'south-african': '🇿🇦'
+};
+
 function slugify(name) {
   return String(name).toLowerCase()
     .replace(/&/g, ' and ')
@@ -57,13 +103,15 @@ function parseSource(text) {
       .filter(Boolean);
     const meta = CATEGORY_META.find((c) => c.id === id) || { id, emoji: '·' };
     for (const name of items) {
+      const slug = slugify(name);
       out.push({
         categoryId: id,
         categoryLabel: label,
         categoryEmoji: meta.emoji,
         defaultOpen,
         name,
-        slug: slugify(name),
+        slug,
+        flag: FLAG_BY_SLUG[slug] || '',
         searchQuery: `${name} restaurant Singapore`,
         keywords: [name.toLowerCase()],
         description: ''
