@@ -171,7 +171,7 @@ describe('generateGroundedHiddenGems', () => {
     })).rejects.toThrow(/empty/);
   });
 
-  it('falls back to gemini-2.5-flash when user model fails', async () => {
+  it('falls back to gemini-flash-latest when user model fails (v0.58.42)', async () => {
     const seenModels = [];
     const fakeFactory = () => ({
       getGenerativeModel(opts) {
@@ -193,12 +193,13 @@ describe('generateGroundedHiddenGems', () => {
     expect(r.text).toBe('recovered via fallback');
     expect(r.degraded).toBe(true);
     expect(r.requestedModel).toBe('gemini-3-flash');
-    expect(r.model).toBe('gemini-2.5-flash');
+    // v0.58.42: first fallback is now gemini-flash-latest (was 2.5-flash).
+    expect(r.model).toBe('gemini-flash-latest');
     expect(seenModels.slice(0, 2)).toEqual(['gemini-3-flash', 'gemini-3-flash']);
-    expect(seenModels[2]).toBe('gemini-2.5-flash');
+    expect(seenModels[2]).toBe('gemini-flash-latest');
   });
 
-  it('cascades through 2.5 → 2.0 → flash-latest before giving up', async () => {
+  it('cascades through flash-latest → 2.5-flash → 2.5-pro before giving up (v0.58.42)', async () => {
     const seenModels = [];
     const fakeFactory = () => ({
       getGenerativeModel(opts) {
@@ -225,10 +226,40 @@ describe('generateGroundedHiddenGems', () => {
     expect(seenModels).toEqual([
       'gemini-3-flash',
       'gemini-3-flash',
+      'gemini-flash-latest',
       'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-flash-latest'
+      'gemini-2.5-pro'
     ]);
+  });
+
+  it('v0.58.42: retries the same model+tool once on 503 transient before falling through', async () => {
+    const seenModels = [];
+    let calls = 0;
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        seenModels.push(opts.model);
+        return {
+          async generateContent() {
+            calls++;
+            if (calls === 1) {
+              // First call hits 503 — the helper should sleep 2s and retry.
+              throw new Error('[GoogleGenerativeAI Error]: 503 Service Unavailable. high demand');
+            }
+            return { response: { text: () => 'recovered after 503 retry' } };
+          }
+        };
+      }
+    });
+    const r = await generateGroundedHiddenGems({
+      anchor: { name: 'A', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-flash-latest',
+      _genAIFactory: fakeFactory
+    });
+    expect(r.text).toBe('recovered after 503 retry');
+    // Same model used twice — once 503'd, once succeeded — before any fallback.
+    expect(seenModels).toEqual(['gemini-flash-latest', 'gemini-flash-latest']);
+    expect(calls).toBe(2);
   });
 
   it('does not flag degraded when user model is gemini-2.5-flash and it succeeds', async () => {
@@ -273,6 +304,12 @@ describe('searchToolForModel — Gemini version → tool name', () => {
     expect(searchToolForModel('gemini-3-flash')).toEqual({ googleSearch: {} });
     expect(searchToolForModel('gemini-3-pro')).toEqual({ googleSearch: {} });
     expect(searchToolForModel('gemini-3.0-pro')).toEqual({ googleSearch: {} });
+  });
+
+  it('v0.58.42: returns googleSearch for *-latest aliases (current-gen)', () => {
+    expect(searchToolForModel('gemini-flash-latest')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-pro-latest')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('Gemini-Flash-Latest')).toEqual({ googleSearch: {} });
   });
 
   it('falls back to googleSearchRetrieval for unrecognised / empty input', () => {

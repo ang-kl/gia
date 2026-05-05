@@ -2299,14 +2299,32 @@ async function runSurpriseCommand(chatId) {
       ]);
     } catch (err) {
       clearInterval(pulseTimer);
-      // v0.58.34: surface the actual underlying error(s) instead of a
-      // generic classifier. Each fallback-chain attempt is in
-      // err.attemptErrors so the user can see exactly why their model
-      // failed. The bot still suggests next steps, but doesn't
-      // replace the truth.
       console.error(`[/hidden] Gemini call failed: ${err.message}`);
       const errs = Array.isArray(err.attemptErrors) ? err.attemptErrors : [];
-      const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+      const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-flash-latest';
+      // v0.58.42: detect "every attempt was 503 high-demand" and show
+      // a short friendly retry hint instead of the 4-line debug dump.
+      // Server-side overload is upstream weather; the user can't fix
+      // it via env vars and shouldn't be told to.
+      const all503 = errs.length >= 2 && errs.every((e) => /\b503\b|high demand|service unavailable/i.test(e));
+      // v0.58.41: also detect our own 90/180s timeout — surface a
+      // distinct hint rather than a list of attempts that never
+      // completed.
+      const isTimeout = /exceeded \d+s timeout/i.test(err.message || '');
+      if (isTimeout) {
+        await safeSend(chatId,
+          `⏱ /hidden timed out after 3 minutes — Gemini was unresponsive on every fallback model.\n\n` +
+          `This usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.`
+        );
+        return;
+      }
+      if (all503) {
+        await safeSend(chatId,
+          `⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\n` +
+          `Try /hidden again in a minute or two — your location is still cached so retry will be fast.`
+        );
+        return;
+      }
       const detail = errs.length
         ? errs.map((e, i) => `  ${i + 1}. ${e}`).join('\n')
         : `  ${err.message}`;
@@ -2316,7 +2334,7 @@ async function runSurpriseCommand(chatId) {
         `Attempts:\n${detail}\n\n` +
         `Common fixes:\n` +
         `• Check GEMINI_API_KEY is set in Railway env vars.\n` +
-        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-2.0-flash, or unset GEMINI_MODEL.\n` +
+        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-flash-latest, or unset GEMINI_MODEL.\n` +
         `• If "quota" / "429": Google AI Studio quota is tripped — retry in a few minutes.`
       );
       return;
