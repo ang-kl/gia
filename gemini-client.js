@@ -50,15 +50,20 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- This must be specific, not generic.',
   '- Examples: stone-milled matcha, Filipino ensaymada bakery-cafe, Japanese salted-kelp pasta, Sarawak-style kolo mee cafe, coconut-specialty dessert cafe.',
   '',
+  // v0.58.32: reverted to the user's working spec verbatim. The
+  // expanded hawker / clubhouse / mall list (v0.58.31) was reported
+  // as "too tight" — restoring the original "Shopping mall food court
+  // chains" line. Specific complex names + stall carve-outs are now
+  // handled deterministically (server-side) where the cuisine flows
+  // share a venue-filters.js module; /hidden relies on Gemini's
+  // judgment plus the broader chain blacklist.
   'EXCLUDE:',
   '- National chains:',
   '  Toast Box, Ya Kun, Killiney, Starbucks, Coffee Bean, KOI, LiHO, Mr Bean,',
   '  Old Chang Kee, Each-a-Cup, Subway, McDonald\'s, KFC, Burger King,',
   '  Crystal Jade, Texas Chicken, Boost.',
   '- Hotel restaurants.',
-  '- The hawker centre / food centre / market / food court itself as the picked venue (e.g. "Lau Pa Sat", "Maxwell Food Centre", "Newton Food Centre", "Tiong Bahru Market", "Chinatown Complex", "Hong Lim Market & Food Centre", "Golden Mile Food Centre", "Old Airport Road Food Centre", "Amoy Street Food Centre", "Tekka Market"). A specific stall INSIDE such a complex is fine — name the stall, not the complex.',
-  '- Multi-tenant clubhouses as the venue itself (SAFRA Mount Faber, country clubs, community clubs, civic clubs). A specific F&B outlet inside is fine if you name the outlet.',
-  '- Shopping malls / lifestyle hubs as the venue itself (Plaza Singapura, VivoCity, ION Orchard, Takashimaya, Jewel Changi, Funan, Raffles City, Paragon, Wisma Atria, Ngee Ann City, Nex Mall, The Shoppes at Marina Bay Sands). Specific eateries inside ("Sushi Tei VivoCity") are fine if named.',
+  '- Shopping mall food court chains.',
   '- Places with fewer than 8 Google reviews unless C2 fires with at least 2 independent recent mentions.',
   '- Anything rated below 4.0.',
   '- Places below 1km walking distance from the anchor.',
@@ -130,9 +135,14 @@ function todaySGT() {
   return sgtNow.toISOString().slice(0, 10);
 }
 
-// Default model. Picked gemini-2.0-flash-exp for the googleSearchRetrieval
-// support + lower latency than 1.5-pro. Falls back via env override.
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+// Default model. v0.58.32: switched 'gemini-2.0-flash-exp' → 'gemini-1.5-pro'.
+// Gemini 2.0 renamed the search-grounding tool from `googleSearchRetrieval`
+// (1.5) to `googleSearch` — using the 1.5 tool name on a 2.0 model causes
+// an immediate 400 INVALID_ARGUMENT, which the user surfaced as "/hidden
+// hit a backend snag" returning in <1 s. gemini-1.5-pro is the documented
+// stable pairing for `googleSearchRetrieval` and matches the spec template
+// the user supplied. GEMINI_MODEL env var still overrides.
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
 
 async function generateGroundedHiddenGems({
   anchor,
@@ -173,7 +183,15 @@ async function generateGroundedHiddenGems({
       return { text, prompt, model };
     } catch (err) {
       lastErr = err;
-      console.warn(`[gemini-client] attempt ${attempt + 1} failed: ${err.message}`);
+      // v0.58.32: surface enough detail in Railway logs to diagnose the
+      // common failure modes — bad model name (404), unsupported tool
+      // for the model (400 INVALID_ARGUMENT), API key 401, quota 429.
+      const status = err?.status || err?.errorDetails?.[0]?.['@type'] || '';
+      const detail = err?.errorDetails ? JSON.stringify(err.errorDetails).slice(0, 400) : '';
+      console.warn(
+        `[gemini-client] attempt ${attempt + 1}/${maxRetries + 1} failed model=${model} ` +
+        `status=${status} msg=${err.message}${detail ? ` detail=${detail}` : ''}`
+      );
     }
   }
   throw lastErr || new Error('gemini-client: exhausted retries');

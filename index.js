@@ -2252,11 +2252,10 @@ async function runSurpriseCommand(chatId) {
       googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(anchorName + ' Singapore')}`
     };
 
-    await safeSend(chatId,
-      `🔍 Searching hidden gems near ${anchorName}…\n` +
-      '_Calling Gemini with Google Search grounding (food blogs, IG, news). This takes 10–25 seconds._',
-      { parse_mode: 'Markdown' }
-    );
+    // v0.58.32: simpler waiting text per Human Lead. The 12-s
+    // progress pulses below carry the "what's happening" detail so
+    // the initial line stays short.
+    await safeSend(chatId, `🔍 Searching hidden gems near ${anchorName}… please wait.`);
 
     // v0.58.30: progress pulses so the user sees life past 20 s. Per
     // Human Lead — "still does not prompt user to wait after 20s".
@@ -4187,6 +4186,25 @@ async function cacheBotUsername() {
           cuisineQueries = [modifiers.join(' ')];
         } else {
           cuisineQueries = cuisineNames;
+        }
+        // v0.58.32: brand-name passthrough. Per Human Lead — typing
+        // "sushi tei" returned generic Japanese restaurants because
+        // tellGia mapped "sushi" → "japanese" and dropped the literal
+        // brand. We now PREPEND the verbatim text as the first query
+        // when it looks like a specific brand (3–40 chars, ≤4 words,
+        // contains letters), then let inferred cuisines follow as
+        // backup. Google's searchText returns the brand's locations
+        // first so chain searches work; Japanese-cuisine fallback
+        // still surfaces neighbours when needed.
+        if (typeof text === 'string') {
+          const trimmed = text.trim();
+          const looksBrand = trimmed.length >= 3 && trimmed.length <= 40
+            && /[a-z]/i.test(trimmed)
+            && trimmed.split(/\s+/).length <= 4;
+          if (looksBrand && !cuisineQueries.some((q) => q && q.toLowerCase().includes(trimmed.toLowerCase()))) {
+            cuisineQueries = [trimmed, ...cuisineQueries];
+            console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
+          }
         }
         const candidates = await pipeline.discover({
           lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30

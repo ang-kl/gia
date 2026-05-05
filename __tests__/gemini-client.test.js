@@ -96,7 +96,9 @@ describe('generateGroundedHiddenGems', () => {
     expect(capturedPrompt).toContain('Tiong Bahru');
     expect(capturedPrompt).toContain('Today = 2026-05-05.');
     expect(capturedModelOpts.tools).toEqual([{ googleSearchRetrieval: {} }]);
-    expect(capturedModelOpts.model).toMatch(/gemini/);
+    // v0.58.32: default is now gemini-1.5-pro (the model that actually
+    // accepts googleSearchRetrieval). 2.0 uses the renamed `googleSearch`.
+    expect(capturedModelOpts.model).toMatch(/gemini-1\.5/);
   });
 
   it('retries once on transient failure then succeeds', async () => {
@@ -165,5 +167,14 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('AT LEAST TWO of the following');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No emojis');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No exclamation marks');
+  });
+
+  it('matches the user\'s working EXCLUDE block (v0.58.32 revert)', () => {
+    // The expanded v0.58.31 hawker/clubhouse/mall list was reported as
+    // "too tight". The prompt now uses just the original short rule.
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Shopping mall food court chains.');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('Lau Pa Sat');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('SAFRA Mount Faber');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('VivoCity');
   });
 });
