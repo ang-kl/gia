@@ -941,8 +941,19 @@ bot.onText(/^\/forgetme(?:@\w+)?$/, (msg) => runForgetMeCommand(msg.chat.id));
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
 bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
-  const text = (match?.[1] || '').trim();
+  const rawText = (match?.[1] || '').trim();
   const chatId = msg.chat.id;
+  // v0.58.25: special-case `/location current` (and synonyms `now`,
+  // `here`, `me`, `my`, `gps`, `device`). Previously these keywords
+  // were passed verbatim to Google Geocoding which interpreted them
+  // as place names and returned junk. Route them to the no-args
+  // path so the user gets cached location + a Share-pin keyboard
+  // (Telegram bots cannot read device GPS unsolicited — see PR
+  // body for the API trade-off table).
+  const CURRENT_KEYWORDS = new Set([
+    'current', 'now', 'here', 'me', 'my', 'gps', 'device'
+  ]);
+  const text = CURRENT_KEYWORDS.has(rawText.toLowerCase()) ? '' : rawText;
   if (!text) {
     // v0.58.20: no-args path now reports the cached location
     // (instead of just printing usage). When nothing is cached, we
