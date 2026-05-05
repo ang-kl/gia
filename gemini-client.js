@@ -135,14 +135,12 @@ function todaySGT() {
   return sgtNow.toISOString().slice(0, 10);
 }
 
-// Default model. v0.58.32: switched 'gemini-2.0-flash-exp' → 'gemini-1.5-pro'.
-// Gemini 2.0 renamed the search-grounding tool from `googleSearchRetrieval`
-// (1.5) to `googleSearch` — using the 1.5 tool name on a 2.0 model causes
-// an immediate 400 INVALID_ARGUMENT, which the user surfaced as "/hidden
-// hit a backend snag" returning in <1 s. gemini-1.5-pro is the documented
-// stable pairing for `googleSearchRetrieval` and matches the spec template
-// the user supplied. GEMINI_MODEL env var still overrides.
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+// Default model. v0.58.35: switched 'gemini-1.5-pro' → 'gemini-2.5-flash'.
+// Google retired Gemini 1.x from the public v1beta API in 2025 — calling
+// gemini-1.5-pro now returns 404 NOT_FOUND. gemini-2.5-flash is the
+// current-generation low-latency model that the legacy SDK 0.24.1 can
+// still reach. GEMINI_MODEL env var still overrides.
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 // v0.58.33: Gemini renamed the search-grounding tool between major
 // versions. 1.x uses `googleSearchRetrieval`; 2.x and later (2.0,
@@ -157,12 +155,15 @@ function searchToolForModel(model) {
   return { googleSearchRetrieval: {} };
 }
 
-// Known-good fallback. The legacy @google/generative-ai 0.24.1 SDK is
-// confirmed to work with this combo. If the user-supplied model
-// fails (404 not-found, 400 invalid-argument, etc.), we try this
-// last so /hidden still returns results rather than a hard error.
-const FALLBACK_MODEL = 'gemini-1.5-pro';
-const FALLBACK_TOOL = { googleSearchRetrieval: {} };
+// v0.58.35: known-good fallback chain. If the user-supplied model
+// fails (404 not-found, 400 invalid-argument, etc.), we walk this
+// list so /hidden still returns results. Order: most-current first.
+// gemini-1.5-pro removed — Google retired it from v1beta in 2025.
+const FALLBACK_CHAIN = [
+  { model: 'gemini-2.5-flash',     tool: { googleSearch: {} } },
+  { model: 'gemini-2.0-flash',     tool: { googleSearch: {} } },
+  { model: 'gemini-flash-latest',  tool: { googleSearch: {} } }
+];
 
 async function generateGroundedHiddenGems({
   anchor,
@@ -190,14 +191,15 @@ async function generateGroundedHiddenGems({
   });
   const genAI = factory();
 
-  // v0.58.34: 3-step fallback chain so /hidden keeps working even
-  // when the user picks a model the SDK doesn't recognise (e.g.
-  // gemini-3-flash on @google/generative-ai 0.24.1, which was
-  // deprecated in Sep 2024 and may not know newer model names).
+  // v0.58.34/v0.58.35: multi-step fallback chain so /hidden keeps
+  // working even when the user picks a model Google retired or that
+  // the legacy SDK 0.24.1 doesn't recognise.
   //
-  //   1. user's model   + tool detected by version regex
-  //   2. user's model   + opposite tool (per-model quirks)
-  //   3. gemini-1.5-pro + googleSearchRetrieval (known-good in 0.24.1)
+  //   1. user's model       + tool detected by version regex
+  //   2. user's model       + opposite tool (per-model quirks)
+  //   3. gemini-2.5-flash   + googleSearch          (current-gen, low-latency)
+  //   4. gemini-2.0-flash   + googleSearch          (older 2.x baseline)
+  //   5. gemini-flash-latest + googleSearch         (alias — auto-routes)
   //
   // attempts[].degraded === true means we fell back from the user's
   // requested model — caller can surface a "fallback model used"
@@ -207,10 +209,10 @@ async function generateGroundedHiddenGems({
   const attempts = [
     { model, tool: primaryTool, degraded: false },
     { model, tool: oppositeTool, degraded: false },
-    { model: FALLBACK_MODEL, tool: FALLBACK_TOOL, degraded: true }
+    ...FALLBACK_CHAIN.map((f) => ({ model: f.model, tool: f.tool, degraded: true }))
   ];
-  // De-duplicate: if user's model IS the fallback model and primaryTool
-  // is the fallback tool, skip the redundant 3rd attempt.
+  // De-duplicate: if user's model is already in the fallback chain
+  // and uses the matching tool, skip the redundant later attempt.
   const dedupedAttempts = [];
   const seen = new Set();
   for (const a of attempts) {

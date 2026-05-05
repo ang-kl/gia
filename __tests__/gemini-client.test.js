@@ -68,7 +68,7 @@ describe('todaySGT', () => {
 });
 
 describe('generateGroundedHiddenGems', () => {
-  it('calls the SDK with googleSearchRetrieval tool and returns text', async () => {
+  it('calls the SDK with the correct grounding tool for the default model', async () => {
     let capturedPrompt = null;
     let capturedModelOpts = null;
     const fakeFactory = () => ({
@@ -96,10 +96,10 @@ describe('generateGroundedHiddenGems', () => {
     expect(r.text).toContain('1. Some Gem');
     expect(capturedPrompt).toContain('Tiong Bahru');
     expect(capturedPrompt).toContain('Today = 2026-05-05.');
-    expect(capturedModelOpts.tools).toEqual([{ googleSearchRetrieval: {} }]);
-    // v0.58.32: default is now gemini-1.5-pro (the model that actually
-    // accepts googleSearchRetrieval). 2.0 uses the renamed `googleSearch`.
-    expect(capturedModelOpts.model).toMatch(/gemini-1\.5/);
+    // v0.58.35: default is now gemini-2.5-flash, which uses
+    // googleSearch (not googleSearchRetrieval — that's the 1.x name).
+    expect(capturedModelOpts.tools).toEqual([{ googleSearch: {} }]);
+    expect(capturedModelOpts.model).toMatch(/gemini-2\.5/);
   });
 
   it('retries once on transient failure then succeeds', async () => {
@@ -171,7 +171,7 @@ describe('generateGroundedHiddenGems', () => {
     })).rejects.toThrow(/empty/);
   });
 
-  it('falls back to gemini-1.5-pro when user model fails', async () => {
+  it('falls back to gemini-2.5-flash when user model fails', async () => {
     const seenModels = [];
     const fakeFactory = () => ({
       getGenerativeModel(opts) {
@@ -193,13 +193,45 @@ describe('generateGroundedHiddenGems', () => {
     expect(r.text).toBe('recovered via fallback');
     expect(r.degraded).toBe(true);
     expect(r.requestedModel).toBe('gemini-3-flash');
-    expect(r.model).toBe('gemini-1.5-pro');
-    // First two attempts use the user's requested model; third falls back.
+    expect(r.model).toBe('gemini-2.5-flash');
     expect(seenModels.slice(0, 2)).toEqual(['gemini-3-flash', 'gemini-3-flash']);
-    expect(seenModels[2]).toBe('gemini-1.5-pro');
+    expect(seenModels[2]).toBe('gemini-2.5-flash');
   });
 
-  it('does not flag degraded when user model is already gemini-1.5-pro', async () => {
+  it('cascades through 2.5 → 2.0 → flash-latest before giving up', async () => {
+    const seenModels = [];
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        seenModels.push(opts.model);
+        return {
+          async generateContent() {
+            // Fail every attempt to force the full cascade.
+            throw new Error('404 not found');
+          }
+        };
+      }
+    });
+    let captured = null;
+    try {
+      await generateGroundedHiddenGems({
+        anchor: { name: 'A', googleMapsUrl: 'https://x' },
+        todayIsoSGT: '2026-05-05',
+        model: 'gemini-3-flash',
+        _genAIFactory: fakeFactory
+      });
+    } catch (err) { captured = err; }
+    expect(captured).not.toBeNull();
+    // user's model x 2 (different tool) + 3 fallbacks = 5 attempts
+    expect(seenModels).toEqual([
+      'gemini-3-flash',
+      'gemini-3-flash',
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-flash-latest'
+    ]);
+  });
+
+  it('does not flag degraded when user model is gemini-2.5-flash and it succeeds', async () => {
     const fakeFactory = () => ({
       getGenerativeModel: () => ({
         async generateContent() { return { response: { text: () => 'ok' } }; }
@@ -208,11 +240,11 @@ describe('generateGroundedHiddenGems', () => {
     const r = await generateGroundedHiddenGems({
       anchor: { name: 'A', googleMapsUrl: 'https://x' },
       todayIsoSGT: '2026-05-05',
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.5-flash',
       _genAIFactory: fakeFactory
     });
     expect(r.degraded).toBe(false);
-    expect(r.model).toBe('gemini-1.5-pro');
+    expect(r.model).toBe('gemini-2.5-flash');
   });
 
   it('throws on missing anchor', async () => {
