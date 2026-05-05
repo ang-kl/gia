@@ -10,6 +10,7 @@ import {
   buildHiddenGemsPrompt,
   todaySGT,
   generateGroundedHiddenGems,
+  searchToolForModel,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
 
@@ -157,6 +158,99 @@ describe('generateGroundedHiddenGems', () => {
       todayIsoSGT: '2026-05-05',
       _genAIFactory: () => ({})
     })).rejects.toThrow(/anchor/);
+  });
+});
+
+describe('searchToolForModel — Gemini version → tool name', () => {
+  it('returns googleSearchRetrieval for Gemini 1.x', () => {
+    expect(searchToolForModel('gemini-1.5-pro')).toEqual({ googleSearchRetrieval: {} });
+    expect(searchToolForModel('gemini-1.5-flash')).toEqual({ googleSearchRetrieval: {} });
+    expect(searchToolForModel('gemini-1.0-pro')).toEqual({ googleSearchRetrieval: {} });
+  });
+
+  it('returns googleSearch for Gemini 2.x and later', () => {
+    expect(searchToolForModel('gemini-2.0-flash')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-2.0-flash-exp')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-2.5-flash')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-2.5-pro')).toEqual({ googleSearch: {} });
+    // v0.58.33: explicit cases for the model names users are setting
+    // in Railway env (no decimal, just major version).
+    expect(searchToolForModel('gemini-3-flash')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-3-pro')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-3.0-pro')).toEqual({ googleSearch: {} });
+  });
+
+  it('falls back to googleSearchRetrieval for unrecognised / empty input', () => {
+    expect(searchToolForModel('')).toEqual({ googleSearchRetrieval: {} });
+    expect(searchToolForModel(null)).toEqual({ googleSearchRetrieval: {} });
+    expect(searchToolForModel('palm-2')).toEqual({ googleSearchRetrieval: {} });
+  });
+});
+
+describe('generateGroundedHiddenGems — picks correct tool by model', () => {
+  it('uses googleSearchRetrieval when model is 1.5-pro', async () => {
+    let capturedTool = null;
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        capturedTool = opts.tools?.[0];
+        return {
+          async generateContent() { return { response: { text: () => 'ok' } }; }
+        };
+      }
+    });
+    await generateGroundedHiddenGems({
+      anchor: { name: 'X', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-1.5-pro',
+      _genAIFactory: fakeFactory
+    });
+    expect(capturedTool).toEqual({ googleSearchRetrieval: {} });
+  });
+
+  it('uses googleSearch when model is 2.5-flash', async () => {
+    let capturedTool = null;
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        capturedTool = opts.tools?.[0];
+        return {
+          async generateContent() { return { response: { text: () => 'ok' } }; }
+        };
+      }
+    });
+    await generateGroundedHiddenGems({
+      anchor: { name: 'X', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-2.5-flash',
+      _genAIFactory: fakeFactory
+    });
+    expect(capturedTool).toEqual({ googleSearch: {} });
+  });
+
+  it('falls back to the opposite tool on first failure', async () => {
+    const seenTools = [];
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        seenTools.push(Object.keys(opts.tools[0])[0]);
+        return {
+          async generateContent() {
+            if (seenTools.length === 1) {
+              const e = new Error('400 INVALID_ARGUMENT');
+              throw e;
+            }
+            return { response: { text: () => 'recovered' } };
+          }
+        };
+      }
+    });
+    const r = await generateGroundedHiddenGems({
+      anchor: { name: 'X', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-2.5-flash',
+      maxRetries: 1,
+      _genAIFactory: fakeFactory
+    });
+    expect(r.text).toBe('recovered');
+    expect(seenTools).toEqual(['googleSearch', 'googleSearchRetrieval']);
   });
 });
 
