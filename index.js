@@ -948,8 +948,15 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
           : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
           : ` · ${Math.floor(ageM / 1440)} d ago`);
         const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
+        // v0.58.21: stale gate — anything older than 30 min is no
+        // longer safe to anchor cuisine searches. Surface a warning
+        // and tell the user how to refresh.
+        const isStale = ageM != null && ageM > 30;
+        const staleNote = isStale
+          ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Re-share a location pin or run `/location <place>` to anchor searches accurately.'
+          : '';
         await safeSend(chatId,
-          `📍 Current cached location: ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}${ageStr}\n${mapsUrl}\n\n` +
+          `📍 Current cached location: ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
           'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or share a location pin.',
           { parse_mode: 'Markdown', disable_web_page_preview: true }
         );
@@ -3294,6 +3301,12 @@ async function cacheBotUsername() {
     // times out or the user dismissed the permission prompt, so the
     // picker doesn't sit on an empty list waiting for a coordinate
     // that's never coming.
+    // v0.58.21: only return cached locations that are ≤ 30 minutes
+    // old. The Redis store keeps a 24-hour TTL for other flows, but
+    // anchoring cuisine searches to a 14-hour-old pin produces
+    // results from the wrong neighbourhood. Stale = 404 → TMA falls
+    // through to SG centroid (or fresh re-prompt).
+    const CUISINE_LOC_FRESH_MS = 30 * 60 * 1000;
     app.post('/api/cuisine/user-location', async (req, res) => {
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -3303,6 +3316,14 @@ async function cacheBotUsername() {
         const cached = await getUserLocation(redis, String(userId));
         if (!cached?.lat || !cached?.lng) {
           return res.status(404).json({ error: 'no cached location' });
+        }
+        const ageMs = cached.setAt ? Date.now() - cached.setAt : Infinity;
+        if (ageMs > CUISINE_LOC_FRESH_MS) {
+          return res.status(404).json({
+            error: 'cached location stale',
+            ageMinutes: Math.floor(ageMs / 60000),
+            maxAgeMinutes: Math.floor(CUISINE_LOC_FRESH_MS / 60000)
+          });
         }
         res.json({ lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null });
       } catch (err) {
