@@ -545,25 +545,27 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     .join(itemSep);
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${header}`);
 
+  // v0.48.2 / v0.58.49: multi-marker map button. Only renders when
+  // there's more than one pick — a single venue's location is already
+  // shown via safeVenue below (Telegram's native location card with
+  // pin), so a 1-pick "view all on map" button would just duplicate
+  // that. Caption + button copy adjusted per Human Lead's request.
   try {
-    // v0.48.2: render all picks as multi-marker map via TMA /app/map.
-    // Was previously a Google Maps directions URL (route mode) — that
-    // showed picks as a sequence of stops, not as N markers on one map.
-    // /app/map opens the leaflet view with each pick pinned, which is
-    // what the user actually wants when they tap "View all on map".
-    const { buildMapHashUrl } = require('./maps-url');
-    const mapUrl = webhookDomain ? buildMapHashUrl(picks, { webhookDomain }) : null;
-    if (mapUrl) {
-      await bot.sendMessage(chatId, `🗺 View all ${picks.length} pick${picks.length === 1 ? '' : 's'} on one map:`, {
-        reply_markup: { inline_keyboard: [[{ text: `🗺 View all ${picks.length} on map`, web_app: { url: mapUrl } }]] }
-      });
-    } else {
-      // Fallback (no webhookDomain or no lat/lng): legacy directions URL.
-      await sendGoogleMapsContainer(chatId, picks, {
-        travelmode: 'walking',
-        caption: '🗺 Open this full set in Google Maps:',
-        label: '🗺 View all picks'
-      });
+    if (picks.length > 1) {
+      const { buildMapHashUrl } = require('./maps-url');
+      const mapUrl = webhookDomain ? buildMapHashUrl(picks, { webhookDomain }) : null;
+      if (mapUrl) {
+        await bot.sendMessage(chatId, `🗺 Click below to view ${picks.length} picks in one map:`, {
+          reply_markup: { inline_keyboard: [[{ text: `🗺 Open ${picks.length} on map`, web_app: { url: mapUrl } }]] }
+        });
+      } else {
+        // Fallback (no webhookDomain or no lat/lng): legacy directions URL.
+        await sendGoogleMapsContainer(chatId, picks, {
+          travelmode: 'walking',
+          caption: '🗺 Open this full set in Google Maps:',
+          label: '🗺 View all picks'
+        });
+      }
     }
   } catch (err) {
     console.warn('[Picks] map button render failed:', err.message);
