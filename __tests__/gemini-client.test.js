@@ -100,6 +100,13 @@ describe('generateGroundedHiddenGems', () => {
     // googleSearch (not googleSearchRetrieval — that's the 1.x name).
     expect(capturedModelOpts.tools).toEqual([{ googleSearch: {} }]);
     expect(capturedModelOpts.model).toMatch(/gemini-2\.5/);
+    // v0.58.44: latency hardening — thinkingBudget=0 + tightened
+    // generationConfig must be passed through on every call.
+    expect(capturedModelOpts.generationConfig).toBeDefined();
+    expect(capturedModelOpts.generationConfig.thinkingConfig).toEqual({ thinkingBudget: 0 });
+    expect(capturedModelOpts.generationConfig.maxOutputTokens).toBe(3072);
+    expect(capturedModelOpts.generationConfig.temperature).toBe(0.3);
+    expect(capturedModelOpts.generationConfig.topP).toBe(0.8);
   });
 
   it('retries once on transient failure then succeeds', async () => {
@@ -199,7 +206,7 @@ describe('generateGroundedHiddenGems', () => {
     expect(seenModels[2]).toBe('gemini-flash-latest');
   });
 
-  it('cascades through flash-latest → 2.5-flash → 2.5-pro before giving up (v0.58.42)', async () => {
+  it('cascades through flash-latest → 2.5-flash → 2.5-flash-lite (v0.58.44)', async () => {
     const seenModels = [];
     const fakeFactory = () => ({
       getGenerativeModel(opts) {
@@ -222,13 +229,14 @@ describe('generateGroundedHiddenGems', () => {
       });
     } catch (err) { captured = err; }
     expect(captured).not.toBeNull();
-    // user's model x 2 (different tool) + 3 fallbacks = 5 attempts
+    // user's model x 2 (different tool) + 3 fallbacks = 5 attempts.
+    // v0.58.44: dropped slow gemini-2.5-pro for fast gemini-2.5-flash-lite.
     expect(seenModels).toEqual([
       'gemini-3-flash',
       'gemini-3-flash',
       'gemini-flash-latest',
       'gemini-2.5-flash',
-      'gemini-2.5-pro'
+      'gemini-2.5-flash-lite'
     ]);
   });
 

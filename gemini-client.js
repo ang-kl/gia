@@ -162,16 +162,15 @@ function searchToolForModel(model) {
   return { googleSearchRetrieval: {} };
 }
 
-// v0.58.35 / v0.58.42: known-good fallback chain. Walked when the
-// user-supplied model fails. Order: alias first (auto-routes), then
-// pinned current models. v0.58.42 dropped `gemini-2.0-flash` because
-// Google now returns 404 "no longer available to new users" for it.
-// `gemini-2.5-pro` is added as a slower-but-different model so a
-// transient 503 on the flash family doesn't kill the whole chain.
+// v0.58.35 / v0.58.42 / v0.58.44: known-good fallback chain. Walked
+// when the user-supplied model fails. v0.58.44 swapped gemini-2.5-pro
+// (TTFT 60-120s for grounded queries — too slow under load) for
+// gemini-2.5-flash-lite (TTFT ~0.46s, GA, supports grounding). Now
+// every fallback model is in the flash family; no slow stragglers.
 const FALLBACK_CHAIN = [
-  { model: 'gemini-flash-latest',  tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-flash',     tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-pro',       tool: { googleSearch: {} } }
+  { model: 'gemini-flash-latest',     tool: { googleSearch: {} } },
+  { model: 'gemini-2.5-flash',        tool: { googleSearch: {} } },
+  { model: 'gemini-2.5-flash-lite',   tool: { googleSearch: {} } }
 ];
 
 async function generateGroundedHiddenGems({
@@ -238,8 +237,30 @@ async function generateGroundedHiddenGems({
   // to the next fallback. The wrapped function is still called
   // twice when the first invocation is a transient 503.
   const PER_ATTEMPT_MS = 60_000;
+  // v0.58.44: latency hardening per researched best practice.
+  //   • thinkingConfig.thinkingBudget=0 disables Gemini 2.5's thinking
+  //     phase (default is dynamic, which adds many seconds before any
+  //     output token). Per Google's 2.5 Flash dev guide: setting it to
+  //     0 keeps the lowest cost & latency while still beating 2.0
+  //     Flash quality. This was the dominant cause of the user's
+  //     "AI Studio is 10s but our API is 30-90s" gap.
+  //   • temperature 0.3 + topP 0.8 → tighter convergence than the
+  //     defaults (1.0 / 0.95). Saves a few seconds on output gen.
+  //   • maxOutputTokens 3072 → enough headroom for 5 picks × ~500
+  //     tokens each. Default 8192 lets the model overgenerate.
+  //   The legacy SDK accepts both at getGenerativeModel({ … }) time.
+  const GENERATION_CONFIG = {
+    temperature: 0.3,
+    topP: 0.8,
+    maxOutputTokens: 3072,
+    thinkingConfig: { thinkingBudget: 0 }
+  };
   async function tryOnce(attempt) {
-    const m = genAI.getGenerativeModel({ model: attempt.model, tools: [attempt.tool] });
+    const m = genAI.getGenerativeModel({
+      model: attempt.model,
+      tools: [attempt.tool],
+      generationConfig: GENERATION_CONFIG
+    });
     const text = await Promise.race([
       (async () => {
         const r = await m.generateContent(prompt);
