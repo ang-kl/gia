@@ -157,11 +157,17 @@ function searchToolForModel(model) {
   return { googleSearchRetrieval: {} };
 }
 
+// Known-good fallback. The legacy @google/generative-ai 0.24.1 SDK is
+// confirmed to work with this combo. If the user-supplied model
+// fails (404 not-found, 400 invalid-argument, etc.), we try this
+// last so /hidden still returns results rather than a hard error.
+const FALLBACK_MODEL = 'gemini-1.5-pro';
+const FALLBACK_TOOL = { googleSearchRetrieval: {} };
+
 async function generateGroundedHiddenGems({
   anchor,
   todayIsoSGT,
   model = DEFAULT_MODEL,
-  maxRetries = 1,
   // Test seam — pass a mock factory to avoid real SDK calls.
   _genAIFactory
 }) {
@@ -183,37 +189,82 @@ async function generateGroundedHiddenGems({
     return new GoogleGenerativeAI(apiKey);
   });
   const genAI = factory();
-  // v0.58.33: tool-name selection by model version. Also: if the
-  // first attempt fails with INVALID_ARGUMENT, retry once with the
-  // OPPOSITE tool name as a defence against undocumented per-model
-  // quirks (the API has been moving fast).
+
+  // v0.58.34: 3-step fallback chain so /hidden keeps working even
+  // when the user picks a model the SDK doesn't recognise (e.g.
+  // gemini-3-flash on @google/generative-ai 0.24.1, which was
+  // deprecated in Sep 2024 and may not know newer model names).
+  //
+  //   1. user's model   + tool detected by version regex
+  //   2. user's model   + opposite tool (per-model quirks)
+  //   3. gemini-1.5-pro + googleSearchRetrieval (known-good in 0.24.1)
+  //
+  // attempts[].degraded === true means we fell back from the user's
+  // requested model — caller can surface a "fallback model used"
+  // hint to the user.
   const primaryTool = searchToolForModel(model);
-  const fallbackTool = primaryTool.googleSearch ? { googleSearchRetrieval: {} } : { googleSearch: {} };
-  let lastErr;
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const tool = (attempt === 0) ? primaryTool : fallbackTool;
-    const toolName = Object.keys(tool)[0];
+  const oppositeTool = primaryTool.googleSearch ? { googleSearchRetrieval: {} } : { googleSearch: {} };
+  const attempts = [
+    { model, tool: primaryTool, degraded: false },
+    { model, tool: oppositeTool, degraded: false },
+    { model: FALLBACK_MODEL, tool: FALLBACK_TOOL, degraded: true }
+  ];
+  // De-duplicate: if user's model IS the fallback model and primaryTool
+  // is the fallback tool, skip the redundant 3rd attempt.
+  const dedupedAttempts = [];
+  const seen = new Set();
+  for (const a of attempts) {
+    const key = `${a.model}|${Object.keys(a.tool)[0]}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dedupedAttempts.push(a);
+  }
+
+  const errors = [];
+  for (const [i, attempt] of dedupedAttempts.entries()) {
+    const toolName = Object.keys(attempt.tool)[0];
     try {
-      const m = genAI.getGenerativeModel({ model, tools: [tool] });
+      const m = genAI.getGenerativeModel({ model: attempt.model, tools: [attempt.tool] });
       const r = await m.generateContent(prompt);
       const text = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
       if (!text || !text.trim()) throw new Error('empty response from Gemini');
-      return { text, prompt, model, tool: toolName };
+      if (attempt.degraded) {
+        console.warn(
+          `[gemini-client] degraded — fell back to ${attempt.model} after user model "${model}" failed`
+        );
+      }
+      return {
+        text,
+        prompt,
+        model: attempt.model,
+        tool: toolName,
+        degraded: attempt.degraded,
+        requestedModel: model,
+        attemptErrors: errors
+      };
     } catch (err) {
-      lastErr = err;
-      // Surface enough detail in Railway logs to diagnose the common
-      // failure modes — bad model name (404), unsupported tool for
-      // the model (400 INVALID_ARGUMENT), API key 401, quota 429.
+      // Surface the real error in Railway logs — bad model name (404),
+      // unsupported tool (400 INVALID_ARGUMENT), API key (401), quota (429).
       const status = err?.status || err?.errorDetails?.[0]?.['@type'] || '';
       const detail = err?.errorDetails ? JSON.stringify(err.errorDetails).slice(0, 400) : '';
+      const summary = `model=${attempt.model} tool=${toolName} status=${status} msg=${err.message}`;
+      errors.push(summary);
       console.warn(
-        `[gemini-client] attempt ${attempt + 1}/${maxRetries + 1} failed ` +
-        `model=${model} tool=${toolName} status=${status} msg=${err.message}` +
+        `[gemini-client] attempt ${i + 1}/${dedupedAttempts.length} failed ${summary}` +
         `${detail ? ` detail=${detail}` : ''}`
       );
     }
   }
-  throw lastErr || new Error('gemini-client: exhausted retries');
+  // All attempts failed. Build a rich error so the bot can surface
+  // the actual cause to the user (instead of swallowing it behind
+  // a generic classifier).
+  const aggregate = new Error(
+    `gemini-client: all ${dedupedAttempts.length} attempts failed. ` +
+    errors.join(' | ')
+  );
+  aggregate.attemptErrors = errors;
+  aggregate.requestedModel = model;
+  throw aggregate;
 }
 
 module.exports = {

@@ -117,14 +117,13 @@ describe('generateGroundedHiddenGems', () => {
     const r = await generateGroundedHiddenGems({
       anchor: { name: 'A', googleMapsUrl: 'https://x' },
       todayIsoSGT: '2026-05-05',
-      maxRetries: 1,
       _genAIFactory: fakeFactory
     });
     expect(r.text).toBe('recovered output');
     expect(calls).toBe(2);
   });
 
-  it('throws after exhausting retries', async () => {
+  it('throws after exhausting retries with aggregate detail', async () => {
     const fakeFactory = () => ({
       getGenerativeModel: () => ({
         async generateContent() { throw new Error('always fails'); }
@@ -133,9 +132,30 @@ describe('generateGroundedHiddenGems', () => {
     await expect(generateGroundedHiddenGems({
       anchor: { name: 'A', googleMapsUrl: 'https://x' },
       todayIsoSGT: '2026-05-05',
-      maxRetries: 1,
       _genAIFactory: fakeFactory
     })).rejects.toThrow(/always fails/);
+  });
+
+  it('attaches attemptErrors[] and requestedModel to the aggregate error', async () => {
+    const fakeFactory = () => ({
+      getGenerativeModel: () => ({
+        async generateContent() { throw new Error('boom'); }
+      })
+    });
+    let captured = null;
+    try {
+      await generateGroundedHiddenGems({
+        anchor: { name: 'A', googleMapsUrl: 'https://x' },
+        todayIsoSGT: '2026-05-05',
+        model: 'gemini-3-flash',
+        _genAIFactory: fakeFactory
+      });
+    } catch (err) { captured = err; }
+    expect(captured).not.toBeNull();
+    expect(captured.requestedModel).toBe('gemini-3-flash');
+    expect(Array.isArray(captured.attemptErrors)).toBe(true);
+    expect(captured.attemptErrors.length).toBeGreaterThanOrEqual(1);
+    expect(captured.attemptErrors.join(' ')).toMatch(/boom/);
   });
 
   it('rejects empty Gemini responses', async () => {
@@ -147,9 +167,52 @@ describe('generateGroundedHiddenGems', () => {
     await expect(generateGroundedHiddenGems({
       anchor: { name: 'A', googleMapsUrl: 'https://x' },
       todayIsoSGT: '2026-05-05',
-      maxRetries: 0,
       _genAIFactory: fakeFactory
     })).rejects.toThrow(/empty/);
+  });
+
+  it('falls back to gemini-1.5-pro when user model fails', async () => {
+    const seenModels = [];
+    const fakeFactory = () => ({
+      getGenerativeModel(opts) {
+        seenModels.push(opts.model);
+        return {
+          async generateContent() {
+            if (seenModels.length < 3) throw new Error('404 model not found');
+            return { response: { text: () => 'recovered via fallback' } };
+          }
+        };
+      }
+    });
+    const r = await generateGroundedHiddenGems({
+      anchor: { name: 'A', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-3-flash',
+      _genAIFactory: fakeFactory
+    });
+    expect(r.text).toBe('recovered via fallback');
+    expect(r.degraded).toBe(true);
+    expect(r.requestedModel).toBe('gemini-3-flash');
+    expect(r.model).toBe('gemini-1.5-pro');
+    // First two attempts use the user's requested model; third falls back.
+    expect(seenModels.slice(0, 2)).toEqual(['gemini-3-flash', 'gemini-3-flash']);
+    expect(seenModels[2]).toBe('gemini-1.5-pro');
+  });
+
+  it('does not flag degraded when user model is already gemini-1.5-pro', async () => {
+    const fakeFactory = () => ({
+      getGenerativeModel: () => ({
+        async generateContent() { return { response: { text: () => 'ok' } }; }
+      })
+    });
+    const r = await generateGroundedHiddenGems({
+      anchor: { name: 'A', googleMapsUrl: 'https://x' },
+      todayIsoSGT: '2026-05-05',
+      model: 'gemini-1.5-pro',
+      _genAIFactory: fakeFactory
+    });
+    expect(r.degraded).toBe(false);
+    expect(r.model).toBe('gemini-1.5-pro');
   });
 
   it('throws on missing anchor', async () => {
@@ -246,11 +309,12 @@ describe('generateGroundedHiddenGems — picks correct tool by model', () => {
       anchor: { name: 'X', googleMapsUrl: 'https://x' },
       todayIsoSGT: '2026-05-05',
       model: 'gemini-2.5-flash',
-      maxRetries: 1,
       _genAIFactory: fakeFactory
     });
     expect(r.text).toBe('recovered');
-    expect(seenTools).toEqual(['googleSearch', 'googleSearchRetrieval']);
+    // First two attempts use the user's model with both tool names;
+    // the fallback chain wouldn't reach the gemini-1.5-pro step here.
+    expect(seenTools.slice(0, 2)).toEqual(['googleSearch', 'googleSearchRetrieval']);
   });
 });
 
