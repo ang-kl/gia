@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -64,6 +64,24 @@ export default function App() {
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  // v0.58.23: explicit location-resolution status. Banner above the
+  // map tells users "we're locating you" while userLoc resolves, then
+  // "Telok Blangah · 5 places nearby" once everything's loaded.
+  // Resolved name is reverse-geocoded from userLoc once on every
+  // change (server caches 24h per grid cell so repeat calls are
+  // free).
+  const [locationName, setLocationName] = useState('');
+  useEffect(() => {
+    if (!userLoc?.lat || !userLoc?.lng) {
+      setLocationName('');
+      return;
+    }
+    let cancelled = false;
+    reverseGeocode({ lat: userLoc.lat, lng: userLoc.lng })
+      .then((r) => { if (!cancelled) setLocationName(r?.name || ''); })
+      .catch(() => { /* leave empty; banner shows generic line */ });
+    return () => { cancelled = true; };
+  }, [userLoc?.lat, userLoc?.lng]);
   useEffect(() => {
     function onScroll() {
       setScrolledPastHero((window.scrollY || 0) > 320);
@@ -384,6 +402,39 @@ export default function App() {
         </div>
       </header>
 
+      {/* v0.58.23: explicit location-resolution status banner. Tells
+          users what's happening while userLoc resolves (geolocation
+          5 s timeout → server cache → SG centroid) and confirms the
+          anchor area once known. Disappears after results load. */}
+      {(() => {
+        if (!userLoc) {
+          return (
+            <div className="text-[11px] text-tg-hint italic px-1 py-1">
+              📍 Locating you…
+            </div>
+          );
+        }
+        if (loading) {
+          return (
+            <div className="text-[11px] text-tg-hint px-1 py-1">
+              📍 {locationName || 'Searching nearby'} · finding places…
+            </div>
+          );
+        }
+        if (!venues.length) {
+          return (
+            <div className="text-[11px] text-tg-hint px-1 py-1">
+              📍 {locationName || 'Anchor set'} · no places match — try Tell me, or share a fresh pin via /location.
+            </div>
+          );
+        }
+        return (
+          <div className="text-[11px] text-tg-hint px-1 py-1">
+            📍 {locationName || 'Showing places'} · {venues.length} place{venues.length === 1 ? '' : 's'} nearby
+          </div>
+        );
+      })()}
+
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
 
@@ -487,7 +538,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.22 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.23 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
