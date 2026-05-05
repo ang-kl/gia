@@ -144,6 +144,19 @@ function todaySGT() {
 // the user supplied. GEMINI_MODEL env var still overrides.
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
 
+// v0.58.33: Gemini renamed the search-grounding tool between major
+// versions. 1.x uses `googleSearchRetrieval`; 2.x and later (2.0,
+// 2.5, future 3.x) use `googleSearch`. Picking the wrong name for
+// the model produces an immediate 400 INVALID_ARGUMENT — that's
+// what the user hit when they set GEMINI_MODEL=gemini-2.5-flash.
+function searchToolForModel(model) {
+  // Match "gemini-N…" where N >= 2.
+  if (/^gemini-([2-9]|\d{2,})/i.test(String(model || ''))) {
+    return { googleSearch: {} };
+  }
+  return { googleSearchRetrieval: {} };
+}
+
 async function generateGroundedHiddenGems({
   anchor,
   todayIsoSGT,
@@ -170,27 +183,33 @@ async function generateGroundedHiddenGems({
     return new GoogleGenerativeAI(apiKey);
   });
   const genAI = factory();
-  const m = genAI.getGenerativeModel({
-    model,
-    tools: [{ googleSearchRetrieval: {} }]
-  });
+  // v0.58.33: tool-name selection by model version. Also: if the
+  // first attempt fails with INVALID_ARGUMENT, retry once with the
+  // OPPOSITE tool name as a defence against undocumented per-model
+  // quirks (the API has been moving fast).
+  const primaryTool = searchToolForModel(model);
+  const fallbackTool = primaryTool.googleSearch ? { googleSearchRetrieval: {} } : { googleSearch: {} };
   let lastErr;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const tool = (attempt === 0) ? primaryTool : fallbackTool;
+    const toolName = Object.keys(tool)[0];
     try {
+      const m = genAI.getGenerativeModel({ model, tools: [tool] });
       const r = await m.generateContent(prompt);
       const text = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
       if (!text || !text.trim()) throw new Error('empty response from Gemini');
-      return { text, prompt, model };
+      return { text, prompt, model, tool: toolName };
     } catch (err) {
       lastErr = err;
-      // v0.58.32: surface enough detail in Railway logs to diagnose the
-      // common failure modes — bad model name (404), unsupported tool
-      // for the model (400 INVALID_ARGUMENT), API key 401, quota 429.
+      // Surface enough detail in Railway logs to diagnose the common
+      // failure modes — bad model name (404), unsupported tool for
+      // the model (400 INVALID_ARGUMENT), API key 401, quota 429.
       const status = err?.status || err?.errorDetails?.[0]?.['@type'] || '';
       const detail = err?.errorDetails ? JSON.stringify(err.errorDetails).slice(0, 400) : '';
       console.warn(
-        `[gemini-client] attempt ${attempt + 1}/${maxRetries + 1} failed model=${model} ` +
-        `status=${status} msg=${err.message}${detail ? ` detail=${detail}` : ''}`
+        `[gemini-client] attempt ${attempt + 1}/${maxRetries + 1} failed ` +
+        `model=${model} tool=${toolName} status=${status} msg=${err.message}` +
+        `${detail ? ` detail=${detail}` : ''}`
       );
     }
   }
@@ -201,6 +220,7 @@ module.exports = {
   generateGroundedHiddenGems,
   buildHiddenGemsPrompt,
   todaySGT,
+  searchToolForModel,
   HIDDEN_GEMS_PROMPT_TEMPLATE,
   DEFAULT_MODEL
 };

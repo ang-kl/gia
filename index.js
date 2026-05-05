@@ -2285,10 +2285,27 @@ async function runSurpriseCommand(chatId) {
       });
     } catch (err) {
       clearInterval(pulseTimer);
-      console.error('[/hidden] Gemini call failed:', err.message);
+      // v0.58.33: surface a more diagnostic error to the user. Common
+      // root causes: GEMINI_API_KEY missing/expired, GEMINI_MODEL set
+      // to a name Gemini doesn't recognise, the model + grounding-tool
+      // combo isn't supported, or quota. Each maps to a hint so the
+      // user knows what to check.
+      const msg = String(err?.message || '');
+      let hint;
+      if (/api[_\s-]?key|401|unauthorized|api_key/i.test(msg)) {
+        hint = 'Looks like the GEMINI_API_KEY is missing or invalid in Railway env vars.';
+      } else if (/quota|429|rate[_\s-]?limit/i.test(msg)) {
+        hint = "Gemini API quota tripped. Try again in a few minutes, or check the project's quota in Google AI Studio.";
+      } else if (/model|not[_\s-]?found|404|invalid[_\s-]?argument|400|google_?search/i.test(msg)) {
+        hint = 'Likely a model / grounding-tool mismatch. Try unsetting GEMINI_MODEL (defaults to gemini-1.5-pro) or switch to gemini-2.5-flash.';
+      } else {
+        hint = 'Transient network or upstream issue. Retry in a moment.';
+      }
+      console.error(`[/hidden] Gemini call failed: ${msg}`);
       await safeSend(chatId,
-        "Sorry, /hidden hit a backend snag (Gemini with Google Search). Please retry in a moment — " +
-        "your location's still cached so it'll be quick."
+        `🛠 /hidden couldn't reach Gemini with Google-Search grounding.\n\n` +
+        `${hint}\n\n` +
+        `Your location is still cached — retry will be quick.`
       );
       return;
     }
