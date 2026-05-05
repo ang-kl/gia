@@ -2285,29 +2285,36 @@ async function runSurpriseCommand(chatId) {
       });
     } catch (err) {
       clearInterval(pulseTimer);
-      // v0.58.33: surface a more diagnostic error to the user. Common
-      // root causes: GEMINI_API_KEY missing/expired, GEMINI_MODEL set
-      // to a name Gemini doesn't recognise, the model + grounding-tool
-      // combo isn't supported, or quota. Each maps to a hint so the
-      // user knows what to check.
-      const msg = String(err?.message || '');
-      let hint;
-      if (/api[_\s-]?key|401|unauthorized|api_key/i.test(msg)) {
-        hint = 'Looks like the GEMINI_API_KEY is missing or invalid in Railway env vars.';
-      } else if (/quota|429|rate[_\s-]?limit/i.test(msg)) {
-        hint = "Gemini API quota tripped. Try again in a few minutes, or check the project's quota in Google AI Studio.";
-      } else if (/model|not[_\s-]?found|404|invalid[_\s-]?argument|400|google_?search/i.test(msg)) {
-        hint = 'Likely a model / grounding-tool mismatch. Try unsetting GEMINI_MODEL (defaults to gemini-1.5-pro) or switch to gemini-2.5-flash.';
-      } else {
-        hint = 'Transient network or upstream issue. Retry in a moment.';
-      }
-      console.error(`[/hidden] Gemini call failed: ${msg}`);
+      // v0.58.34: surface the actual underlying error(s) instead of a
+      // generic classifier. Each fallback-chain attempt is in
+      // err.attemptErrors so the user can see exactly why their model
+      // failed. The bot still suggests next steps, but doesn't
+      // replace the truth.
+      console.error(`[/hidden] Gemini call failed: ${err.message}`);
+      const errs = Array.isArray(err.attemptErrors) ? err.attemptErrors : [];
+      const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+      const detail = errs.length
+        ? errs.map((e, i) => `  ${i + 1}. ${e}`).join('\n')
+        : `  ${err.message}`;
       await safeSend(chatId,
-        `🛠 /hidden couldn't reach Gemini with Google-Search grounding.\n\n` +
-        `${hint}\n\n` +
-        `Your location is still cached — retry will be quick.`
+        `🛠 /hidden couldn't reach Gemini.\n\n` +
+        `Requested model: ${requested}\n` +
+        `Attempts:\n${detail}\n\n` +
+        `Common fixes:\n` +
+        `• Check GEMINI_API_KEY is set in Railway env vars.\n` +
+        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-2.0-flash, or unset GEMINI_MODEL.\n` +
+        `• If "quota" / "429": Google AI Studio quota is tripped — retry in a few minutes.`
       );
       return;
+    }
+    // v0.58.34: warn the user when we fell back from their requested
+    // model so they can fix the env var (or know why the spec wasn't
+    // executed on their preferred model).
+    if (result.degraded) {
+      await safeSend(chatId,
+        `ℹ️ GEMINI_MODEL "${result.requestedModel}" failed; fell back to ${result.model}. ` +
+        `Check Railway logs for the exact error from the API.`
+      );
     }
     clearInterval(pulseTimer);
 
