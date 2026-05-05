@@ -508,6 +508,17 @@ async function rankAndNarrate({ candidates, query, snapshot, count = 5, diag = n
   }
   diag('D720', 'RankAndNarrate start', true, { n_in: candidates.length, target: count });
   const t0 = Date.now();
+
+  // v0.58.22: HIDDEN_GEMS_V2 mode. When pipeline-task.js runs the
+  // /hidden flow, it passes `specialRequest: 'HIDDEN_GEMS_V2'` and
+  // candidates already annotated with deterministic c1/c3/c4 flags +
+  // nearest_mrt_walk_m. We use a different system prompt + Claude web
+  // search to judge C2 (recent SG food blog / IG / news mentions) and
+  // C5 (signature dish uniqueness) and re-rank.
+  if (query?.specialRequest === 'HIDDEN_GEMS_V2') {
+    return rankAsHiddenGems({ candidates, query, count, diag, t0 });
+  }
+
   try {
     const candidateLines = candidates.map((c, i) => {
       const ratingStr = c.rating != null ? `${c.rating}★ (${c.userRatingCount ?? '?'} reviews)` : 'unrated';
@@ -613,6 +624,135 @@ Return ONLY the JSON array.`;
   } catch (err) {
     diag('D722', 'RankAndNarrate failed — falling back', false, err.message?.slice(0, 200));
     logger.error({ err: { message: err.message } }, 'pipeline rankAndNarrate failed');
+    return deterministicFallback(candidates, count);
+  }
+}
+
+// v0.58.22: HIDDEN_GEMS_V2 ranker. Server has already evaluated C1/C3/
+// C4 deterministically and dropped chains via hidden-gems.passesHardFilter.
+// Claude judges C2 SOCIAL_BUZZ (uses web search) + C5 UNIQUE_OFFERING
+// (domain knowledge) and emits the top 5 with `criteria_met`,
+// `why_a_gem`, `signature_pick`, `social_mentions[]`. The server-side
+// criteria flags are surfaced to Claude as priors so it doesn't second-
+// guess hard numbers.
+async function rankAsHiddenGems({ candidates, query, count, diag, t0 }) {
+  diag('D724', 'HIDDEN_GEMS_V2 ranking start', true, { n_in: candidates.length, target: count });
+  const HIDDEN_GEMS_V2_SYSTEM = `You are a Singapore F&B discovery analyst for a Telegram bot. You receive a JSON payload of pre-filtered candidates each annotated with deterministic criteria flags { c1_new_highrated, c3_underreviewed, c4_off_transport } and a nearest_mrt_walk_m value.
+
+Your job: for each candidate, judge the two remaining criteria using the candidate's name + reviews + your domain knowledge AND web search:
+  C2 SOCIAL_BUZZ     - is the place covered in a Singapore food blog (sethlui, danielfooddiary, ladyironchef, misstamchiak, hungrygowhere), an IG / TikTok food account, or a Singapore news article in the LAST 100 DAYS? Cite the URL + snippet you find.
+  C5 UNIQUE_OFFERING - signature dish or drink uncommon across Singapore's broader F&B scene (judge from the candidate's reviews + dishes you can find via search).
+
+A place qualifies if it meets >= 2 of {C1, C2, C3, C4, C5}.
+
+EXCLUDE: chains have already been filtered server-side. Do not re-add them.
+
+OUTPUT: strict JSON, top ${count} ranked. No prose, no markdown fences.
+
+{
+  "anchor_time": "<ISO timestamp now>",
+  "results": [
+    {
+      "placeId": "<exact placeId from input>",
+      "criteria_met": ["C1","C3"],
+      "confidence": "HIGH|MEDIUM|LOW",
+      "why_a_gem": "<= 240 chars, one concrete signal cited from a review or your search",
+      "signature_pick": "<single item to order>",
+      "vibe": "<one-line solo-diner vibe>",
+      "dishes": ["item 1", "item 2", "item 3"],
+      "social_mentions": [
+        { "url": "https://...", "date_iso": "2026-...", "snippet": "..." }
+      ]
+    }
+  ],
+  "fallback_note": "<string ONLY if fewer than 3 results qualify>"
+}
+
+STYLE: Singapore English, neutral, no exclamation marks, no emojis, no superlatives. why_a_gem MUST cite a concrete signal (review excerpt, blog URL, low review count, distance from MRT). Return JSON only.`;
+
+  const userPayload = {
+    user: { now_iso: new Date().toISOString() },
+    candidates: candidates.map((c) => ({
+      placeId: c.placeId,
+      name: c.name,
+      area: c.area || '',
+      primaryType: c.primaryType,
+      rating: c.rating ?? null,
+      userRatingCount: c.userRatingCount ?? null,
+      priceLevel: c.priceLevel ?? null,
+      openNow: c.openNow ?? null,
+      googleMapsUri: c.googleMapsUri || c.googleMapsLinks?.placeUri || null,
+      c1_new_highrated: !!c.c1_new_highrated,
+      c3_underreviewed: !!c.c3_underreviewed,
+      c4_off_transport: !!c.c4_off_transport,
+      nearest_mrt_walk_m: c.nearest_mrt_walk_m ?? null,
+      review_excerpts: Array.isArray(c.reviews)
+        ? c.reviews.slice(0, 3).map((r) => ({
+            text: (r.text?.text || r.text || '').slice(0, 280),
+            publishTime: r.publishTime || null
+          })).filter((x) => x.text)
+        : []
+    }))
+  };
+
+  try {
+    const result = await withRetry(
+      () => llm.generate({
+        system: HIDDEN_GEMS_V2_SYSTEM,
+        prompt: JSON.stringify(userPayload),
+        model: llm.SONNET_MODEL,
+        json: true,
+        jsonShape: 'object',
+        maxTokens: 4000,
+        webSearch: true
+      }),
+      { label: 'Pipeline-HiddenGemsV2' }
+    );
+    const rawText = result.response.text();
+    let parsed;
+    try {
+      // Try array extractor first then object — the prompt says object,
+      // but fence stripping behaviour is shared.
+      const objMatch = rawText.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(objMatch ? objMatch[0] : rawText);
+    } catch (parseErr) {
+      diag('D726', 'HIDDEN_GEMS_V2 parse failed', false, { err: parseErr.message, head: rawText.slice(0, 200) });
+      return deterministicFallback(candidates, count);
+    }
+    const results = Array.isArray(parsed?.results) ? parsed.results : [];
+    if (!results.length) {
+      diag('D726', 'HIDDEN_GEMS_V2 returned no results', false, { fallback_note: parsed?.fallback_note });
+      return deterministicFallback(candidates, count);
+    }
+    const byPlaceId = new Map(candidates.map((c) => [c.placeId, c]));
+    const out = [];
+    for (const r of results) {
+      const base = byPlaceId.get(r.placeId);
+      if (!base) continue;
+      out.push({
+        ...base,
+        vibe: typeof r.vibe === 'string' ? r.vibe : '',
+        signaturePick: typeof r.signature_pick === 'string' ? r.signature_pick : '',
+        signatureDish: typeof r.signature_pick === 'string' ? r.signature_pick : (Array.isArray(r.dishes) ? r.dishes[0] : '') || '',
+        dishes: Array.isArray(r.dishes) ? r.dishes.slice(0, 3) : [],
+        criteriaMet: Array.isArray(r.criteria_met) ? r.criteria_met.filter((s) => /^C[1-5]$/.test(s)) : [],
+        whyAGem: typeof r.why_a_gem === 'string' ? r.why_a_gem.slice(0, 240) : '',
+        confidence: ['HIGH', 'MEDIUM', 'LOW'].includes(r.confidence) ? r.confidence : 'MEDIUM',
+        socialMentions: Array.isArray(r.social_mentions) ? r.social_mentions.slice(0, 3) : [],
+        source: 'hidden-gems-v2'
+      });
+      if (out.length >= count) break;
+    }
+    if (!out.length) {
+      diag('D726', 'HIDDEN_GEMS_V2 no valid placeIds', false);
+      return deterministicFallback(candidates, count);
+    }
+    const ms = Date.now() - t0;
+    diag('D725', 'HIDDEN_GEMS_V2 ok', true, { n: out.length, ms, fallback_note: parsed?.fallback_note });
+    return out;
+  } catch (err) {
+    diag('D726', 'HIDDEN_GEMS_V2 failed — falling back', false, err.message?.slice(0, 200));
+    logger.error({ err: { message: err.message } }, 'pipeline rankAsHiddenGems failed');
     return deterministicFallback(candidates, count);
   }
 }
