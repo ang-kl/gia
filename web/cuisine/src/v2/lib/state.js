@@ -75,9 +75,12 @@ export function writeToHash(s) {
   history.replaceState(null, '', '#' + params.toString());
 }
 
-// v0.58.10: read the optional bot-supplied location/radius overrides
-// produced by the /cuisine tokeniser. Returns null when no overrides
-// are present so the TMA falls back to GPS + default radius.
+// v0.58.10: read the optional bot-supplied location override
+// produced by the /cuisine tokeniser. Returns null when no override
+// is present so the TMA falls back to GPS.
+// v0.58.18: dropped `radius` parsing alongside the slider removal.
+// The bot-side tokeniser may still emit `radius:N` for backward
+// compatibility, but the TMA ignores it.
 export function readOverridesFromHash() {
   if (typeof window === 'undefined') return null;
   const hash = window.location.hash.replace(/^#/, '');
@@ -86,13 +89,9 @@ export function readOverridesFromHash() {
   const lat = Number(params.get('lat'));
   const lng = Number(params.get('lng'));
   const place = params.get('place');
-  const radiusM = Number(params.get('radius'));
   const out = {};
   if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
     out.location = { lat, lng, name: typeof place === 'string' ? place.slice(0, 80) : '' };
-  }
-  if (Number.isFinite(radiusM) && radiusM >= 1000 && radiusM <= 100000) {
-    out.radius = Math.round(radiusM);
   }
   return Object.keys(out).length ? out : null;
 }

@@ -6,7 +6,6 @@ import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
-import RadiusSlider, { RADIUS_DEFAULT_M } from './components/RadiusSlider.jsx';
 import FlipPanel from './components/FlipPanel.jsx';
 import { tg } from '../api/tg.js';
 
@@ -36,14 +35,12 @@ export default function App() {
   // initial venue list (e.g. 'open-now-cheap'). Cleared once the user
   // runs a real search via the 🔍 Search button.
   const [warmStartSeed, setWarmStartSeed] = useState(null);
-  // v0.58.8: search radius in metres. Defaults to 80 km (RADIUS_DEFAULT_M)
-  // — the slider's top stop, covers SG island-wide. User-selectable
-  // via the vertical slider on the map's right edge. Threads into
-  // /api/cuisine/search → pipeline.discover({ radius }).
   // v0.58.10: respect bot-supplied overrides from the URL hash so a
   // pasted /cuisine command opens the TMA pre-anchored.
+  // v0.58.18: dropped client-side radius state — the slider was
+  // removed per Human Lead. Server falls back to its region defaults
+  // (50 km SG / 18 km JB) when the search body has no `radius`.
   const initialOverrides = (typeof window !== 'undefined') ? readOverridesFromHash() : null;
-  const [radius, setRadius] = useState(initialOverrides?.radius || RADIUS_DEFAULT_M);
   // v0.58.10: location anchor (LocationField pick OR bot-supplied
   // override). Threaded into the copy-syntax payload so the emitted
   // /cuisine command can deep-link the recipient back to the same
@@ -126,17 +123,15 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
-  async function runSearch(snap = state, anchor = null, radiusOverride = null) {
+  async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
-    const r_m = Number.isFinite(radiusOverride) ? radiusOverride : radius;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
-        region: snap.region || 'SG',
-        radius: r_m
+        region: snap.region || 'SG'
       });
       setVenues(r.venues || []);
       setSearchCenter({ lat: center.lat, lng: center.lng });
@@ -154,16 +149,6 @@ export default function App() {
     } catch (err) {
       setError(err.message); setVenues([]);
     } finally { setLoading(false); }
-  }
-
-  // v0.58.8: tapping a slider stop updates the radius state and
-  // immediately re-runs the search at the new radius. Pass meters
-  // directly to runSearch to avoid the React-state-stale-closure
-  // problem (setRadius commits asynchronously).
-  function handleRadiusChange(meters) {
-    if (!Number.isFinite(meters) || meters === radius) return;
-    setRadius(meters);
-    if (initialSearchDone.current) runSearch(state, null, meters);
   }
 
   // v0.58.2: re-anchor the search at an explicit lat/lng (the map's
@@ -329,14 +314,14 @@ export default function App() {
       )}
 
       <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
-        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} radius={radius} />
+        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt} />
 
-      {/* v0.58.14: radius slider moved out of the map (was an absolute-
-          positioned pill column overlay). Tapping the pills inside the
-          map fought Google Maps' greedy gestureHandling — taps zoomed
-          the map and the slider felt "locked". Now a real <input
-          type="range"> sitting below the map, no gesture conflict. */}
-      <RadiusSlider value={radius} onChange={handleRadiusChange} />
+      {/* v0.58.18: radius slider removed entirely per Human Lead.
+          The slider locked the map zoom on every change and didn't
+          meaningfully constrain results (server uses locationBias,
+          not locationRestriction, for cuisine-keyed searches). Server
+          falls back to its region-default radius (50 km SG / 18 km
+          JB) when no `radius` is sent in the search body. */}
 
       {/* v0.58.1: filter strip sits directly below the map, primary
           row shows New / Halal / Price ▾ / [⚙], the rest live in the
@@ -401,7 +386,6 @@ export default function App() {
         copyState={{
           cuisines: state.cuisines,
           filters: state.filters,
-          radius,
           region: state.region,
           location: locationAnchor
         }}
@@ -411,7 +395,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.17 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.18 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );

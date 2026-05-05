@@ -30,11 +30,11 @@ export async function fetchCatalogue() {
   return getJson('/api/cuisine/catalogue');
 }
 
-export async function searchCuisine({ lat, lng, cuisines, filters, region, radius }) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region }) {
   // v0.57.8: region: 'SG' | 'JB' (Johor Bahru city only).
-  // v0.58.8: optional `radius` in metres (1000–100000) overrides
-  // the server's region-default search radius.
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region, radius });
+  // v0.58.18: client no longer sends `radius`; server falls back to
+  // its region-default (50 km SG / 18 km JB).
+  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region });
 }
 
 export async function nlQuery({ text, lat, lng, filters }) {
