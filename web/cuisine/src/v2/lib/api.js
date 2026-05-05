@@ -87,3 +87,17 @@ export async function placeResolve({ placeId }) {
 export async function reverseGeocode({ lat, lng }) {
   return getJson(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
 }
+
+// v0.58.20: fetch the bot's Redis-cached location for the current
+// user. Used as a fallback when navigator.geolocation times out or
+// the user dismissed the permission prompt. Returns { lat, lng,
+// setAt } when a cached location exists, or null when nothing is
+// cached. Returns null on 401/404 too — caller treats any falsy
+// return as "no cached location".
+export async function fetchUserLocation() {
+  try {
+    return await postJson('/api/cuisine/user-location', {});
+  } catch {
+    return null;
+  }
+}

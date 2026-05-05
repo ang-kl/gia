@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -73,20 +73,53 @@ export default function App() {
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
   }, []);
 
+  // v0.58.20: bounded geolocation resolution. Previously
+  // `navigator.geolocation.getCurrentPosition` was called with no
+  // options → default `timeout: Infinity`. If the user dismissed the
+  // permission prompt or Telegram's webview restricted geolocation
+  // silently, neither callback fired → `userLoc` stayed `null` →
+  // warm-start never triggered → empty venue list. Now we cap at
+  // 5 s and fall back through the server-cached location (set via
+  // /location <place> or a shared location pin) before defaulting
+  // to the SG centroid.
   useEffect(() => {
+    let cancelled = false;
+    const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+
+    async function fallbackToServerCache() {
+      try {
+        const r = await fetchUserLocation();
+        if (!cancelled && r?.lat != null && r?.lng != null) {
+          setUserLoc({ lat: r.lat, lng: r.lng });
+          return true;
+        }
+      } catch { /* server cache miss / 401 — fall through */ }
+      return false;
+    }
+
     const w = tg();
     const init = w?.initDataUnsafe || {};
     const tgLoc = init.user_location || init.user?.location;
     if (tgLoc?.latitude && tgLoc?.longitude) {
       setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude }),
-        () => setUserLoc({ lat: 1.3521, lng: 103.8198 })
-      );
-    } else {
-      setUserLoc({ lat: 1.3521, lng: 103.8198 });
+      return;
     }
+    if (!navigator.geolocation) {
+      // No browser geo API at all — try server cache, then SG centroid.
+      fallbackToServerCache().then((ok) => {
+        if (!ok && !cancelled) setUserLoc(SG_CENTROID);
+      });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (p) => { if (!cancelled) setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude }); },
+      async () => {
+        const ok = await fallbackToServerCache();
+        if (!ok && !cancelled) setUserLoc(SG_CENTROID);
+      },
+      { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
+    );
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => { writeToHash(state); }, [state]);
@@ -395,7 +428,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.19 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
+        v0.58.20 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · tap Search after changing filters
       </footer>
     </div>
   );
