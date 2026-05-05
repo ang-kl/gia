@@ -3680,13 +3680,46 @@ async function cacheBotUsername() {
       try {
         const { text, lat, lng, filters = {} } = req.body || {};
         if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
-        // v0.55.0: Gemini-backed NL inference with hardened guardrails
-        // (input cap, domain-restricted system prompt, output validation,
-        // cache, anti-injection). Falls back to v0.53.0 keyword inference
-        // when GEMINI_API_KEY is unset or Gemini errors.
+
+        // v0.58.19: harden the LLM endpoint —
+        //   1. verifyInitData gate (mirrors /api/cuisine/copy-all). Was
+        //      open to the public internet, costing real $ if scraped.
+        //   2. Use the verified user.id as chatId so the per-user cache
+        //      and the rate-limit counter are scoped per Telegram user.
+        //   3. Per-user rate limit: 60 LLM calls / hour, hard 429 wall.
+        //      Redis INCR + EXPIRE keyed to the current epoch hour.
+        //   4. Anchor distance cap: if location_override geocodes to a
+        //      point >120 km from the user's GPS or outside the SG/JB
+        //      bounding box, discard and fall back to user GPS.
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const chatId = String(userId);
+
+        // Rate limit — 60 calls per epoch hour. Counter expires after
+        // the hour rolls over so users get a fresh budget.
+        try {
+          if (redis.isOpen) {
+            const hour = Math.floor(Date.now() / 3_600_000);
+            const rlKey = `tell-gia:rl:${chatId}:${hour}`;
+            const count = await redis.incr(rlKey);
+            if (count === 1) await redis.expire(rlKey, 3600);
+            if (count > 60) {
+              return res.status(429).json({
+                error: 'rate limited',
+                detail: 'Too many Tell Gia calls this hour. Try again next hour.'
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('[NL-Query] rate-limit check failed:', err.message);
+          // On Redis trouble, let the call through rather than 500 — the
+          // 60s in-memory cache + 800-token output cap still bound spend.
+        }
+
         const cv = require('./cuisines-vault');
         const tellGia = require('./tell-gia');
-        const chatId = req.body.chatId || 'anon';
         const inferred = await tellGia.inferTellGia({ text, chatId, redis, vault: cv });
         const inferredCuisines = inferred.cuisines || [];
         const inferredFilters = inferred.filters || {};
@@ -3704,10 +3737,30 @@ async function cacheBotUsername() {
           try {
             const place = await geocodeQuery(inferredLocation);
             if (place?.lat && place?.lng) {
-              searchLat = place.lat;
-              searchLng = place.lng;
-              locationLabel = place.name || inferredLocation;
-              console.log(`[NL-Query] D770 location_override="${inferredLocation}" → ${locationLabel} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`);
+              // v0.58.19: anchor distance cap. Reject geocoded anchors
+              // that fall outside SG/JB or sit >120 km from the user's
+              // GPS. SG bbox: lat 1.16–1.48, lng 103.6–104.05. JB bbox:
+              // lat 1.42–1.55, lng 103.6–103.85. Combined: lat
+              // 1.16–1.55, lng 103.6–104.05.
+              const inSGJB = place.lat >= 1.16 && place.lat <= 1.55
+                && place.lng >= 103.6 && place.lng <= 104.05;
+              const userR = 6371;
+              const toRad = (d) => d * Math.PI / 180;
+              let distKm = Infinity;
+              if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                const dLat = toRad(place.lat - lat);
+                const dLng = toRad(place.lng - lng);
+                const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat)) * Math.cos(toRad(place.lat)) * Math.sin(dLng / 2) ** 2;
+                distKm = 2 * userR * Math.asin(Math.sqrt(x));
+              }
+              if (!inSGJB || distKm > 120) {
+                console.log(`[NL-Query] D772 location_override="${inferredLocation}" rejected (inSGJB=${inSGJB}, distKm=${distKm.toFixed(1)}); falling back to user GPS`);
+              } else {
+                searchLat = place.lat;
+                searchLng = place.lng;
+                locationLabel = place.name || inferredLocation;
+                console.log(`[NL-Query] D770 location_override="${inferredLocation}" → ${locationLabel} (${searchLat.toFixed(4)}, ${searchLng.toFixed(4)})`);
+              }
             } else {
               console.log(`[NL-Query] D771 location_override="${inferredLocation}" failed to geocode; falling back to user GPS`);
             }
