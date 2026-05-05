@@ -158,21 +158,14 @@ async function reverseGeocodeAddress(lat, lng) {
     const r = data.results[0];
     const components = r.address_components || [];
     const findComp = (t) => components.find((c) => c.types?.includes(t))?.long_name;
-    const rawName = findComp('neighborhood')
+    const name = findComp('neighborhood')
       || findComp('sublocality_level_1')
       || findComp('sublocality')
       || findComp('locality')
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
-    const rawFormatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    // v0.58.38: privacy hardening — strip Singapore floor-unit numbers
-    // ("#XX-XXX", "XX-XX") from any displayed/cached address. User
-    // reported "31-02 Marina Blvd" leaking apartment-level granularity.
-    const { stripAddressUnitNumber } = require('./address-sanitiser');
-    const payload = {
-      name:      stripAddressUnitNumber(rawName),
-      formatted: stripAddressUnitNumber(rawFormatted)
-    };
+    const formatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    const payload = { name, formatted };
     try {
       if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
     } catch { /* cache-write fail is non-fatal */ }
@@ -1071,19 +1064,14 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
                 || findComp('route')
                 || findComp('locality');
               const isPlus = PLUS_CODE_RE.test(r.formatted_address);
-              // v0.58.38: privacy hardening — strip floor-unit numbers
-              // (e.g. "31-02 Marina Blvd") before showing in chat.
-              const { stripAddressUnitNumber: stripLoc1 } = require('./address-sanitiser');
-              const safeFmt = stripLoc1(r.formatted_address);
-              const safeFriendly = stripLoc1(friendly);
               if (isPlus) {
                 // Don't pollute the display with the Plus Code — show
                 // the friendly component alone if we have one.
-                placeLine = safeFriendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
-              } else if (safeFriendly && !safeFmt.startsWith(safeFriendly)) {
-                placeLine = `${safeFriendly} — ${safeFmt}`;
+                placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+              } else if (friendly && !r.formatted_address.startsWith(friendly)) {
+                placeLine = `${friendly} — ${r.formatted_address}`;
               } else {
-                placeLine = safeFmt;
+                placeLine = r.formatted_address;
               }
             }
           }
@@ -1156,10 +1144,7 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
       return;
     }
     await setUserLocation(redis, chatId, lat, lng);
-    // v0.58.38: privacy hardening — strip floor-unit numbers from the
-    // confirmation echo so it doesn't reveal the user's apartment.
-    const { stripAddressUnitNumber: stripLocSave } = require('./address-sanitiser');
-    await safeSend(chatId, `📍 Location saved: ${stripLocSave(r.formatted_address)}`, {
+    await safeSend(chatId, `📍 Location saved: ${r.formatted_address}`, {
       reply_markup: { remove_keyboard: true }
     });
   } catch (err) {
@@ -4547,13 +4532,7 @@ async function cacheBotUsername() {
             natural: NATURAL_NAME_RX.test(head)
           };
         }
-        // v0.58.38: privacy hardening — strip Singapore floor-unit
-        // numbers ("#XX-XXX", "XX-XX") from displayed/cached labels.
-        const { stripAddressUnitNumber: stripUnitFromApi } = require('./address-sanitiser');
-        const payload = {
-          name:      stripUnitFromApi(chosen.name),
-          formatted: stripUnitFromApi(chosen.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}`)
-        };
+        const payload = { name: chosen.name, formatted: chosen.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
         try {
           // Skip the cache write when we fell back to "Singapore" or
           // a natural-feature name — better to retry next time than
