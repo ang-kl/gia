@@ -89,12 +89,12 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '',
   '1. NAME - primary type',
   'Address - approx walking distance and direction from anchor.',
-  'Opening hours - if verifiable, otherwise write "unverified".',
+  '🕒 Opening hours - if verifiable, otherwise write "unverified".',
   'Google rating - rating and review count if verifiable; otherwise write "unverified".',
   'Latest rating/review signal - date if verifiable; otherwise write "unverified".',
-  'Why a gem: one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
-  'Order this: one signature item only.',
-  'Google Map URL: raw full URL.',
+  '💎 Why a gem: one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
+  '🍴 Order this: one signature item only.',
+  '📍 Google Map URL: raw full URL.',
   // v0.58.37: removed Criteria-met / Confidence / Sources lines per
   // Human Lead. The criteria gate is still enforced internally — you
   // must judge each candidate against C1-C4 silently and only output
@@ -114,7 +114,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Use Singapore English.',
   '- Keep the tone neutral.',
   '- No exclamation marks.',
-  '- No emojis.',
+  '- No decorative emojis. Use exactly the four functional icons in the OUTPUT FORMAT (🕒 💎 🍴 📍) and no others — no flag, no food emoji, no thumbs-up, etc.',
   '- No marketing language.',
   '- Plain text only. Do not use Markdown formatting — no double-asterisk bold (**...**), no underscores for italics, no headings (#), no backticks. The Telegram client renders these as literal characters.'
 ].join('\n');

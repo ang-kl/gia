@@ -400,8 +400,17 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('You are a Singapore F&B discovery analyst');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('1km to 3km walking band');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('AT LEAST TWO of the following');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No emojis');
+    // v0.58.46: relaxed "No emojis" → "No decorative emojis" so the
+    // four functional icons in OUTPUT FORMAT (🕒 💎 🍴 📍) are allowed.
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No decorative emojis');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No exclamation marks');
+  });
+
+  it('v0.58.46: OUTPUT FORMAT lines have functional icons', () => {
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🕒 Opening hours');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('💎 Why a gem');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍴 Order this');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📍 Google Map URL');
   });
 
   it('matches the user\'s working EXCLUDE block (v0.58.32 revert)', () => {
