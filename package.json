@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.58.27",
+  "version": "0.58.28",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.40.0",
+    "@google/generative-ai": "^0.24.1",
     "@sentry/node": "^8.0.0",
     "adm-zip": "^0.5.17",
     "axios": "^1.6.0",

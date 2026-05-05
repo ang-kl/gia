@@ -1356,6 +1356,10 @@ function resolvePending(pending) {
   if (['food', 'drink', 'groceries'].includes(pending)) {
     return { kind: 'sanctuary', category: pending };
   }
+  // v0.58.28: /hidden re-prompts on a generic anchor (catchment /
+  // "Singapore" fallback). The typed text resolves here and routes
+  // back through runSurpriseCommand after setUserLocation.
+  if (pending === 'hidden') return { kind: 'hidden' };
   return { kind: 'sanctuary', category: 'food' };
 }
 
@@ -2178,17 +2182,33 @@ async function runCarparkCommand(chatId) {
   }
 }
 
+// v0.58.28: /hidden refactored to a single Gemini call with Google
+// Search grounding per Human Lead's spec. The deterministic v0.58.22
+// hidden-gems pipeline (Places discover → annulus → C1/C3/C4 evaluator
+// → Claude C2/C5) is replaced by a single grounded prompt that does
+// all of {C1 NEW_HIGHRATED, C2 SOCIAL_BUZZ, C3 UNDERREVIEWED, C4
+// UNIQUE_OFFERING}, chain blacklist, and 1–3 km walking gate inside
+// Gemini. The rationale: Google Search grounding gives Gemini direct
+// access to recent SG food blogs / IG / news, so we no longer need
+// our own retrieval + ranking. Output is rendered verbatim per the
+// spec format (Address / Opening hours / rating / criteria / sources
+// with raw URLs).
+//
+// Anchor verification: cached lat/lng is reverse-geocoded; if the
+// result is "Singapore" / a natural feature (catchment, reservoir,
+// park), we re-prompt the user to type a place name. This blocks
+// Gemini from hallucinating around a useless anchor.
+//
+// Rollback: PIPELINE_TASKS_ENABLED=false still drops back to the
+// single-venue v0.31 surprise flow.
+const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
+
 async function runSurpriseCommand(chatId) {
-  // v0.32.0: /surprise becomes a 5-venue list driven by the same
-  // pipeline-task model as /cuisine. Rating window 4.0-4.3, <50 reviews,
-  // launched within 90 days, day-or-night temporal switch. Old
-  // single-venue flow is reachable via PIPELINE_TASKS_ENABLED=false rollback.
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
       return;
     }
-    // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
     const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden');
     if (!cached) return;
     await setProcessing(redis, chatId);
@@ -2205,76 +2225,63 @@ async function runSurpriseCommand(chatId) {
       return;
     }
 
-    // v0.58.24: richer initial progress message — reverse-geocode the
-    // cached location so the user knows WHERE we're searching, plus
-    // honest timing ("5–15 s") and what's actually happening
-    // (web-search for recent food blogs in the v0.58.22 pipeline).
-    let areaName = '';
+    // Anchor verification. Reverse-geocode the cached coords, reject
+    // catchment / "Singapore" fallbacks. On reject, re-prompt the
+    // user to type a place name; the resolved-pending path geocodes
+    // the typed text and re-invokes runSurpriseCommand.
+    let anchorName = '';
     try {
-      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-      if (apiKey) {
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&result_type=neighborhood|sublocality|locality&key=${apiKey}`;
-        const { data } = await axios.get(url, { timeout: 3000 });
-        const r = data?.results?.[0];
-        const comp = (r?.address_components || []).find((c) => c.types?.includes('neighborhood') || c.types?.includes('sublocality_level_1') || c.types?.includes('sublocality') || c.types?.includes('locality'));
-        if (comp?.long_name) areaName = comp.long_name;
-      }
+      const r = await reverseGeocodeAddress(cached.lat, cached.lng);
+      anchorName = r?.name || '';
     } catch (err) {
-      console.warn('[/hidden] reverse-geocode for area name failed:', err.message);
+      console.warn('[/hidden] reverse-geocode failed:', err.message);
     }
-    const areaSuffix = areaName ? ` near ${areaName}` : '';
+    const looksGeneric = !anchorName
+      || /^singapore$/i.test(anchorName)
+      || HIDDEN_NATURAL_NAME_RX.test(anchorName);
+    if (looksGeneric) {
+      await safeSend(chatId,
+        `I couldn't pinpoint your area${anchorName ? ` (got "${anchorName}")` : ''}. ` +
+        "Type the building or area you're at — for example 'Raffles Place MRT Exit A' or 'Holland Village' — and I'll re-anchor /hidden."
+      );
+      try { await setPendingMeal(redis, chatId, 'hidden'); } catch { /* best-effort */ }
+      return;
+    }
+    const anchor = {
+      name: anchorName,
+      googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(anchorName + ' Singapore')}`
+    };
+
     await safeSend(chatId,
-      `🔍 Looking for hidden gems${areaSuffix}…\n` +
-      '_Filtering chains, scoring rarity, checking recent food-blog buzz. This takes 5–15 seconds — thanks for waiting._',
+      `🔍 Searching hidden gems near ${anchorName}…\n` +
+      '_Calling Gemini with Google Search grounding (food blogs, IG, news). This takes 10–25 seconds._',
       { parse_mode: 'Markdown' }
     );
 
-    const requestStore = require('./request-store');
-    const pipelineTask = require('./pipeline-task');
-    const reqId = await requestStore.create(redis, {
-      kind: 'surprise',
-      chatId,
-      userId: chatId,
-      payload: { lat: cached.lat, lng: cached.lng, radius: 3000, mode: 'walk', lang: 'en' }
-    });
-    console.log(`[/hidden] starting task reqId=${reqId} lat=${cached.lat} lng=${cached.lng}`);
-    await pipelineTask.runTask(redis, reqId);
-    const row = await requestStore.get(redis, reqId);
-    const venues = row?.venues || [];
-    const status = row?.status;
-    const errorMsg = row?.error;
-    console.log(`[/hidden] task done reqId=${reqId} status=${status} venues=${venues.length} error=${errorMsg ? String(errorMsg).slice(0, 200) : 'none'}`);
+    const gc = require('./gemini-client');
+    let result;
+    try {
+      result = await gc.generateGroundedHiddenGems({
+        anchor,
+        todayIsoSGT: gc.todaySGT()
+      });
+    } catch (err) {
+      console.error('[/hidden] Gemini call failed:', err.message);
+      await safeSend(chatId,
+        "Sorry, /hidden hit a backend snag (Gemini with Google Search). Please retry in a moment — " +
+        "your location's still cached so it'll be quick."
+      );
+      return;
+    }
 
-    // v0.58.24: differentiate failure modes. Previously every empty
-    // result surfaced the same "couldn't find hidden gems matching
-    // the /hidden filters" message — misleading when the actual cause
-    // was a Claude API failure (v0.58.22 with webSearch) or a Places
-    // outage. Now:
-    //   - status === 'errored' → tell user it's a backend snag.
-    //   - status === 'empty'   → the area genuinely has no qualifying
-    //                            hidden gems. Suggest fixes.
-    if (status === 'errored' || errorMsg) {
-      console.error(`[/hidden] task errored reqId=${reqId}: ${errorMsg}`);
-      await safeSend(chatId,
-        "Sorry, the hidden-gems search hit a snag on our end (likely the LLM with web search). " +
-        "Please retry in a moment — your location's still cached so it'll be quick."
-      );
-      return;
+    console.log(`[/hidden] Gemini ok model=${result.model} chars=${result.text.length}`);
+    // Telegram message limit is 4096 chars. Chunk on per-result
+    // boundaries (lines starting "/^\d+\. /") so a single venue
+    // never spans messages.
+    const chunks = chunkHiddenGemsOutput(result.text, 3800);
+    for (const c of chunks) {
+      await safeSend(chatId, c);
     }
-    if (!venues.length) {
-      await safeSend(chatId,
-        `No hidden gems passed the v0.58.22 filters${areaSuffix} ` +
-        '(rating ≥ 4.0, ≥ 8 reviews, no chains, ≥ 2 of {newly opened, social buzz, underreviewed, off-MRT, unique offering}). ' +
-        'Try /cuisine for unfiltered picks, or share a fresh location pin via /location.'
-      );
-      return;
-    }
-    // v0.57.7: per Human Lead — drop walk-time, surface 1-3 reviewer-
-    // recommended dishes instead. pipeline-task already populates
-    // venues[i].dishes from review extraction.
-    await deliverPicks(chatId, `🎲 ${venues.length} hidden gem${venues.length === 1 ? '' : 's'}`, venues, {
-      showWalk: false, showDishes: true
-    });
   } catch (err) {
     console.error('[/hidden] outer catch:', err.message, err.stack);
     await safeSend(chatId,
@@ -2283,6 +2290,34 @@ async function runSurpriseCommand(chatId) {
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
   }
+}
+
+// Split Gemini's hidden-gems response into Telegram-sized chunks
+// without breaking a single venue across two messages. Splits at
+// blank-line-then-numbered-heading boundaries (e.g. "\n\n2. NAME").
+// Falls back to length-based split if a single venue exceeds the
+// limit. Exported for tests.
+function chunkHiddenGemsOutput(text, maxChars = 3800) {
+  if (!text || text.length <= maxChars) return [text || ''];
+  const out = [];
+  let buf = '';
+  // Split on the boundary BEFORE a numbered heading line.
+  const parts = text.split(/(?=\n\d+\.\s+[A-Z])/);
+  for (const p of parts) {
+    if ((buf + p).length > maxChars) {
+      if (buf) { out.push(buf); buf = ''; }
+      // If a single part still exceeds the limit, hard-split.
+      if (p.length > maxChars) {
+        for (let i = 0; i < p.length; i += maxChars) out.push(p.slice(i, i + maxChars));
+      } else {
+        buf = p;
+      }
+    } else {
+      buf += p;
+    }
+  }
+  if (buf) out.push(buf);
+  return out;
 }
 
 async function deliverSurprise(chatId, v) {
@@ -2639,6 +2674,11 @@ bot.on('message', async (msg) => {
         await runCuisineFlow(msg.chat.id, place.lat, place.lng, resolved.cuisineType);
       } else if (resolved?.kind === 'nl') {
         await runNLFlow(msg.chat.id, place.lat, place.lng, resolved);
+      } else if (resolved?.kind === 'hidden') {
+        // v0.58.28: re-anchor and re-invoke /hidden. setUserLocation
+        // above already cached place.lat/place.lng so the next
+        // ensureFreshLocationOrPrompt call will hit it.
+        await runSurpriseCommand(msg.chat.id);
       } else {
         await runFlow(msg.chat.id, place.lat, place.lng, resolved?.category || 'food');
       }
