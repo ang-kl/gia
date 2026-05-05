@@ -950,25 +950,52 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
         // v0.59.2: reverse-geocode the cached coords into a readable
         // street/neighbourhood name so users see "Telok Blangah" not
-        // a raw lat/lng. Falls back to coords if the geocode fails or
-        // the API key is missing.
+        // a raw lat/lng.
+        // v0.59.3: skip Google Plus-Code results (e.g. "9R29+RW
+        // Singapore") — these surface when the coords land on
+        // something with no street name. Use result_type to bias the
+        // first call toward named features; if the picked result's
+        // formatted_address is still a Plus Code, walk the unfiltered
+        // results for a non-Plus-Code one. Falls back to coords if
+        // nothing usable comes back.
+        const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
         let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
         try {
           const apiKey = process.env.GOOGLE_MAPS_API_KEY;
           if (apiKey) {
-            const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&key=${apiKey}`;
-            const { data } = await axios.get(url, { timeout: 5000 });
-            const r = data?.results?.[0];
+            const filteredUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&result_type=premise|point_of_interest|street_address|intersection|neighborhood|sublocality|locality&key=${apiKey}`;
+            let { data } = await axios.get(filteredUrl, { timeout: 5000 });
+            let r = (data?.results || [])
+              .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address));
+            if (!r) {
+              // Filter returned nothing usable; widen the net then
+              // skip Plus-Code rows.
+              const wideUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&key=${apiKey}`;
+              const wide = await axios.get(wideUrl, { timeout: 5000 });
+              r = (wide.data?.results || [])
+                .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address))
+                || wide.data?.results?.[0];
+            }
             if (r?.formatted_address) {
               const components = r.address_components || [];
               const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
-              const friendly = findComp('neighborhood')
+              const friendly = findComp('premise')
+                || findComp('point_of_interest')
+                || findComp('neighborhood')
                 || findComp('sublocality_level_1')
                 || findComp('sublocality')
+                || findComp('route')
                 || findComp('locality');
-              placeLine = friendly
-                ? `${friendly} — ${r.formatted_address}`
-                : r.formatted_address;
+              const isPlus = PLUS_CODE_RE.test(r.formatted_address);
+              if (isPlus) {
+                // Don't pollute the display with the Plus Code — show
+                // the friendly component alone if we have one.
+                placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+              } else if (friendly && !r.formatted_address.startsWith(friendly)) {
+                placeLine = `${friendly} — ${r.formatted_address}`;
+              } else {
+                placeLine = r.formatted_address;
+              }
             }
           }
         } catch (err) {
@@ -3543,11 +3570,18 @@ async function cacheBotUsername() {
           }
         } catch (err) { console.warn('[Cuisine-Search] cache read failed:', err.message); }
         const pipeline = require('./pipeline');
+        // v0.59.3: instrument the search path so post-deploy "0
+        // results" reports are diagnosable from the prod console.
+        // Logs: incoming slug list, derived cuisineQueries, regionCode,
+        // post-discover candidate count, post-NON_FOOD_TYPES count.
+        console.log(`[Cuisine-Search] D700 incoming cuisines=${JSON.stringify(cuisines || [])} filters=${JSON.stringify(filters)} region=${region} center=${searchCenter.lat.toFixed(4)},${searchCenter.lng.toFixed(4)} radius=${searchRadius}`);
+        console.log(`[Cuisine-Search] D701 cuisineQueries=${JSON.stringify(cuisineQueries)} cuisineMetas.length=${cuisineMetas.length} allSelectedAreGated=${allSelectedAreGated}`);
         const candidates = await pipeline.discover({
           lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
           cuisines: cuisineQueries, maxResults: 30, regionCode: searchRegionCode
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+        console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
         // v0.57.5: defensive deny-list — drop venues whose primaryType
         // says "this is lodging / a complex / a mall / etc." even when
         // Google's strictTypeFiltering on the search call missed them.
@@ -3560,7 +3594,11 @@ async function cacheBotUsername() {
           'plaza', 'complex', 'building', 'park', 'school',
           'university', 'hospital', 'gym', 'fitness_center'
         ]);
+        const beforeNonFood = venues.length;
         venues = venues.filter((v) => !NON_FOOD_TYPES.has(v.primaryType));
+        if (venues.length !== beforeNonFood) {
+          console.log(`[Cuisine-Search] D703 NON_FOOD_TYPES filter ${beforeNonFood} → ${venues.length}`);
+        }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places
         // searchText with regionCode 'SG' returned arbitrary SG
@@ -3765,6 +3803,7 @@ async function cacheBotUsername() {
           delete v.reviews;
         }
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
         // v0.57.6: write to cache for 30 minutes.
         try {
           if (redis.isOpen) await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
