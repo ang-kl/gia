@@ -3514,12 +3514,20 @@ async function cacheBotUsername() {
           return res.status(400).json({ error: 'no venues' });
         }
         const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
-        const names = slim.map((v, i) => `${i + 1}. ${v.name || '(unnamed)'}`).join('\n');
         const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
+        // v0.58.48: per-venue URL inline in the message body. Per Human
+        // Lead — pasted clip should include each pick's Google Maps URL
+        // so the recipient can tap any one directly. Previously only
+        // single-pick included a URL inline; multi-pick relied on the
+        // inline-keyboard button which doesn't render when the message
+        // is forwarded as plain text.
+        const lines = slim.map((v, i) => {
+          const u = googleMapsUrl(v) || '';
+          return `${i + 1}. ${v.name || '(unnamed)'}\n📍 ${u}`;
+        });
+        const body = `${header}\n\n${lines.join('\n\n')}`;
         if (slim.length === 1) {
-          const url = googleMapsUrl(slim[0]);
-          if (!url) return res.status(500).json({ error: 'could not build maps URL' });
-          await bot.sendMessage(chatId, `${header}\n${names}\n\n📍 ${url}`, { disable_web_page_preview: true });
+          await bot.sendMessage(chatId, body, { disable_web_page_preview: true });
         } else {
           // Multi-pin: send the soleat /app/map link as an inline-keyboard
           // web_app button so tapping opens the TMA natively. Pins
@@ -3530,14 +3538,14 @@ async function cacheBotUsername() {
           //   Row 1: web_app — opens the multi-marker TMA inside Telegram.
           //   Row 2: url — opens the same /app/map URL in browser. Long-
           //          press on this button surfaces Telegram's native
-          //          "Copy link" / "Share link" options, so users can
-          //          paste the URL into WhatsApp etc.
-          // v0.58.3: button renamed '🔗 Copy / share link' → '🔗 Open in
-          //          browser' so the tap behaviour matches the label
-          //          (a Telegram url: button opens the URL on tap; the
-          //          copy/share gesture is long-press). Hint line in
-          //          the message body tells users about the long-press.
-          await bot.sendMessage(chatId, `${header}\n${names}\n\n💡 Long-press 🔗 to copy or share the link.`, {
+          //          "Copy link" / "Share link" options.
+          // v0.58.3: button renamed '🔗 Copy / share link' → '🔗 Open in browser'.
+          // v0.58.48: dropped the "💡 Long-press 🔗" hint from body — every
+          //   URL is now inline so users can long-press any of them
+          //   directly to get the same Copy/Share menu, no special button
+          //   knowledge required.
+          await bot.sendMessage(chatId, body, {
+            disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
                 [{ text: '🗺️ View all on map', web_app: { url: mapUrl } }],
