@@ -351,6 +351,16 @@ const DISCOVER_FIELD_MASK = [
   // (open.day/open.hour/open.minute + close.*). Used to derive
   // "Closed today · Opens tomorrow 11:00 AM" when openNow=false.
   'places.regularOpeningHours.periods',
+  // v0.58.50: human-readable weekday descriptions ("Monday: 11:00 AM
+  // – 9:00 PM") so the new T1/T2/T3 venue templates can show full
+  // schedules. v0.57.20's periods are already requested for the
+  // closed-today helper; weekdayDescriptions is a separate field
+  // that arrives pre-formatted.
+  'places.regularOpeningHours.weekdayDescriptions',
+  // v0.58.50: contact + web fields for T1/T2 venue templates
+  // (🌐 website, 📞 phone). Atmosphere SKU.
+  'places.websiteUri',
+  'places.nationalPhoneNumber',
   'places.generativeSummary',
   'places.reviews'
 ].join(',');
@@ -468,6 +478,14 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           priceLevel: priceLevelToInt(p.priceLevel),
           openNow: p.currentOpeningHours?.openNow ?? null,
           regularPeriods: Array.isArray(p.regularOpeningHours?.periods) ? p.regularOpeningHours.periods : null,
+          // v0.58.50: full weekday schedule for the new venue templates.
+          // Pre-formatted by Google ("Monday: 11:00 AM – 9:00 PM").
+          weekdayDescriptions: Array.isArray(p.regularOpeningHours?.weekdayDescriptions)
+            ? p.regularOpeningHours.weekdayDescriptions
+            : null,
+          // v0.58.50: contact + web for the 🌐 / 📞 lines.
+          websiteUri: p.websiteUri || '',
+          phone: p.nationalPhoneNumber || '',
           primaryType: p.primaryType || 'restaurant',
           url: googleMapsUrl(p) ?? '',
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',

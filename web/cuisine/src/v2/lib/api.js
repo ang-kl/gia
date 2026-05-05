@@ -50,6 +50,15 @@ export async function copyAllToChat(venues) {
   return postJson('/api/cuisine/copy-all', { venues });
 }
 
+// v0.58.50: per-card 📋 Copy. POST one venue, server builds a T1
+// detail-with-sanctuary block (full address + hours + website + phone +
+// sanctuary read + stats + order + Maps URL) and bot.sendMessage to
+// the user's chat. Replaces the v0.58.7 client-side clipboard-only
+// behaviour with a richer chat-delivered card.
+export async function copyOneToChat(venue) {
+  return postJson('/api/cuisine/copy-one', { venue });
+}
+
 // v0.58.10: copy-syntax — POST current TMA state, server returns a
 // re-runnable /cuisine command in the user's chat. Recipient pastes
 // it into any chat with @soleat_bot to relaunch this exact search.
