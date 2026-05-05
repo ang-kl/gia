@@ -173,6 +173,10 @@ describe('searchToolForModel — Gemini version → tool name', () => {
     expect(searchToolForModel('gemini-2.0-flash-exp')).toEqual({ googleSearch: {} });
     expect(searchToolForModel('gemini-2.5-flash')).toEqual({ googleSearch: {} });
     expect(searchToolForModel('gemini-2.5-pro')).toEqual({ googleSearch: {} });
+    // v0.58.33: explicit cases for the model names users are setting
+    // in Railway env (no decimal, just major version).
+    expect(searchToolForModel('gemini-3-flash')).toEqual({ googleSearch: {} });
+    expect(searchToolForModel('gemini-3-pro')).toEqual({ googleSearch: {} });
     expect(searchToolForModel('gemini-3.0-pro')).toEqual({ googleSearch: {} });
   });
 
