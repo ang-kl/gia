@@ -18,14 +18,17 @@ const SOURCE_PATH = path.join(__dirname, 'doc', 'Feature', 'cuisines_js.MD');
 
 // CATEGORY_META carries display metadata not captured in the source
 // (emoji + defaultOpen). Order matches the source file.
+// v0.59.2: regrouped — added east-asian and australasia entries.
 const CATEGORY_META = [
   { id: 'common-here',     emoji: '🌟' },
   { id: 'southeast-asian', emoji: '🌴' },
+  { id: 'east-asian',      emoji: '🍜' },
   { id: 'china-regional',  emoji: '🐉' },
   { id: 'south-asian',     emoji: '🌶' },
-  { id: 'european',        emoji: '🇪🇺' },
   { id: 'middle-eastern',  emoji: '🕌' },
+  { id: 'european',        emoji: '🇪🇺' },
   { id: 'americas',        emoji: '🌎' },
+  { id: 'australasia',     emoji: '🦘' },
   { id: 'african',         emoji: '🌍' }
 ];
 
@@ -75,6 +78,62 @@ const FLAG_BY_SLUG = {
   'nigerian': '🇳🇬', 'south-african': '🇿🇦'
 };
 
+// v0.59.2: regroup overlay. Source markdown (doc/Feature/cuisines_js.MD)
+// is left untouched per the doc/CLAUDE.md AU-1 accumulate-only rule;
+// the regrouping happens here as a post-parse remap. The original
+// 8-category structure (Common Here / Southeast Asian / China-regional
+// / South Asian Specialists / European / Middle Eastern & Central
+// Asian / Americas / African) becomes a 10-category world-region view:
+//
+//   - common-here  shrinks to SG-rooted only (Singaporean, Peranakan,
+//                  Eurasian).
+//   - southeast-asian absorbs Malaysian, Indonesian, Thai, Filipino,
+//                  Vietnamese, Burmese (alongside Laotian, Timorese).
+//   - east-asian   (new) holds Japanese, Chinese, Korean, Taiwanese.
+//   - south-asian  absorbs South Indian + North Indian (alongside
+//                  Bengali, Gujarati, Goan, Nepalese, Tibetan).
+//   - americas     absorbs American, Mexican, Brazilian (alongside
+//                  Peruvian, Argentinian, Cuban, Jamaican).
+//   - australasia  (new) holds Australian + New Zealand.
+//
+// Slugs are stable — Tell Gia validation, copy-syntax, search-cache
+// keys all keep working. Only display grouping changes.
+const SLUG_TO_CATEGORY = {
+  // Common in Singapore
+  'singaporean': 'common-here',
+  'peranakan':   'common-here',
+  'eurasian':    'common-here',
+  // Southeast Asian
+  'malaysian':   'southeast-asian',
+  'indonesian':  'southeast-asian',
+  'thai':        'southeast-asian',
+  'filipino':    'southeast-asian',
+  'vietnamese':  'southeast-asian',
+  'burmese':     'southeast-asian',
+  // East Asian
+  'japanese':    'east-asian',
+  'chinese':     'east-asian',
+  'korean':      'east-asian',
+  'taiwanese':   'east-asian',
+  // South Asian — absorbs S/N Indian
+  'south-indian': 'south-asian',
+  'north-indian': 'south-asian',
+  // Americas — absorbs Anglo-American + Latin classics
+  'american':    'americas',
+  'mexican':     'americas',
+  'brazilian':   'americas',
+  // Australasia
+  'australian':  'australasia',
+  'new-zealand': 'australasia'
+};
+
+const CATEGORY_LABEL_OVERRIDE = {
+  'common-here':     'Common in Singapore',
+  'east-asian':      'East Asian',
+  'south-asian':     'South Asian',
+  'australasia':     'Australasia'
+};
+
 function slugify(name) {
   return String(name).toLowerCase()
     .replace(/&/g, ' and ')
@@ -104,11 +163,24 @@ function parseSource(text) {
     const meta = CATEGORY_META.find((c) => c.id === id) || { id, emoji: '·' };
     for (const name of items) {
       const slug = slugify(name);
+      // v0.59.2: apply regroup overlay. Each cuisine's
+      // categoryId may be remapped to its new world-region
+      // bucket; categoryLabel + categoryEmoji follow.
+      const remappedId = SLUG_TO_CATEGORY[slug] || id;
+      const remappedMeta = remappedId === id
+        ? meta
+        : (CATEGORY_META.find((c) => c.id === remappedId) || meta);
+      const remappedLabel = CATEGORY_LABEL_OVERRIDE[remappedId] || label;
       out.push({
-        categoryId: id,
-        categoryLabel: label,
-        categoryEmoji: meta.emoji,
-        defaultOpen,
+        categoryId: remappedId,
+        categoryLabel: remappedLabel,
+        categoryEmoji: remappedMeta.emoji,
+        // v0.59.2: defaultOpen is only true for the new common-here.
+        // Without this gate, cuisines that came FROM the source
+        // common-here (e.g. South Indian → remapped to south-asian)
+        // would carry their source defaultOpen=true into the new
+        // category, marking 6 of the 10 categories as defaultOpen.
+        defaultOpen: remappedId === 'common-here',
         name,
         slug,
         flag: FLAG_BY_SLUG[slug] || '',
@@ -139,18 +211,22 @@ function getAllCuisines() { return loadAll(); }
 function getByCategory() {
   if (_byCategory) return _byCategory;
   const all = loadAll();
-  // Build category list preserving source order (defaultOpen, label).
-  const seen = new Set();
+  // v0.59.2: order categories per CATEGORY_META (the regrouped world-
+  // region view), not per source-file order. This puts the 10 buckets
+  // in the canonical scan order: Common in Singapore → Southeast Asian
+  // → East Asian → China (Regional) → South Asian → Middle Eastern →
+  // European → Americas → Australasia → African.
   const ordered = [];
-  for (const cu of all) {
-    if (seen.has(cu.categoryId)) continue;
-    seen.add(cu.categoryId);
+  for (const meta of CATEGORY_META) {
+    const cuisines = all.filter((x) => x.categoryId === meta.id);
+    if (!cuisines.length) continue;
+    const first = cuisines[0];
     ordered.push({
-      id: cu.categoryId,
-      label: cu.categoryLabel,
-      emoji: cu.categoryEmoji,
-      defaultOpen: cu.defaultOpen,
-      cuisines: all.filter((x) => x.categoryId === cu.categoryId)
+      id: meta.id,
+      label: first.categoryLabel,
+      emoji: meta.emoji,
+      defaultOpen: !!first.defaultOpen,
+      cuisines
     });
   }
   _byCategory = ordered;
