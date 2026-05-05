@@ -936,10 +936,32 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const text = (match?.[1] || '').trim();
   const chatId = msg.chat.id;
   if (!text) {
+    // v0.58.20: no-args path now reports the cached location
+    // (instead of just printing usage). When nothing is cached, we
+    // still surface the usage hint so the user knows how to set one.
+    try {
+      const cached = await getUserLocation(redis, chatId);
+      if (cached?.lat && cached?.lng) {
+        const ageM = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
+        const ageStr = ageM == null ? '' : (ageM < 1 ? ' · just now'
+          : ageM < 60 ? ` · ${ageM} min ago`
+          : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
+          : ` · ${Math.floor(ageM / 1440)} d ago`);
+        const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
+        await safeSend(chatId,
+          `📍 Current cached location: ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}${ageStr}\n${mapsUrl}\n\n` +
+          'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or share a location pin.',
+          { parse_mode: 'Markdown', disable_web_page_preview: true }
+        );
+        return;
+      }
+    } catch (err) {
+      console.warn('[/location] cache lookup failed:', err.message);
+    }
     await safeSend(chatId,
-      'Usage: `/location <place>`\n' +
-      'Example: `/location current Telok Blangah`\n' +
-      'Or: `/location Marina Bay Sands`',
+      'No location cached yet. Set one with:\n' +
+      '`/location <place>` (e.g. `/location Tanjong Pagar MRT`)\n' +
+      'Or share a location pin via the 📎 attachment menu.',
       { parse_mode: 'Markdown' }
     );
     return;
@@ -3262,6 +3284,29 @@ async function cacheBotUsername() {
         res.json({ ...payload, cached: false });
       } catch (err) {
         console.error('[Error] /api/cuisine/place-resolve failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.58.20: fetch the bot's Redis-cached location for the current
+    // user (set via /location <place> or a shared location pin). The
+    // cuisine TMA falls back to this when navigator.geolocation
+    // times out or the user dismissed the permission prompt, so the
+    // picker doesn't sit on an empty list waiting for a coordinate
+    // that's never coming.
+    app.post('/api/cuisine/user-location', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const cached = await getUserLocation(redis, String(userId));
+        if (!cached?.lat || !cached?.lng) {
+          return res.status(404).json({ error: 'no cached location' });
+        }
+        res.json({ lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/user-location failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });

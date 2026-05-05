@@ -120,6 +120,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // radius they could theoretically search. Map fits venues + user
     // marker only; the slider value still feeds the search query.
     if (!bounds.isEmpty() && (venues?.length || userLoc)) {
+      // v0.58.20: cap the auto-zoom so a tight cluster of 5 venues
+      // within a few hundred metres doesn't drop the user into a
+      // single-block view. setOptions before fitBounds is the
+      // documented way to bound the result.
+      mapRef.current.setOptions({ maxZoom: 16 });
       programmaticUpdateRef.current = true;
       mapRef.current.fitBounds(bounds, 60);
     }
