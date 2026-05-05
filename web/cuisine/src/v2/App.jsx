@@ -272,6 +272,28 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
+  // v0.58.27: auto re-search when the user toggles a filter chip
+  // (newlyOpened, halal, openNow, vegetarian, homeBased, prices) or
+  // adds/removes a cuisine. Prior to v0.58.27 the user had to press
+  // 🔍 Search after every chip tap — the "New" chip looked broken
+  // because nothing happened on toggle. Debounced 350 ms so triple-
+  // tapping doesn't fire 3 requests.
+  //
+  // Skip on:
+  //   • initial mount (initialSearchDone.current still false →
+  //     warm-start path is responsible for the first paint)
+  //   • when userLoc isn't resolved yet
+  //   • when the dirty-signature matches the last submitted snap
+  //     (prevents a redundant re-search right after manual 🔍)
+  useEffect(() => {
+    if (!userLoc || !initialSearchDone.current) return;
+    const sig = stateSig(state);
+    if (sig === lastRunSnap) return;
+    const timer = setTimeout(() => { runSearch(state); }, 350);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.cuisines, state.filters, state.region]);
+
   async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
@@ -588,7 +610,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.26 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.27 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

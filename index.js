@@ -2645,6 +2645,21 @@ bot.on('message', async (msg) => {
       return;
     }
 
+    // v0.58.27: noise guard for free-text router. Per Human Lead:
+    // "Every time I type something, the bot shows 5 restaurants and
+    // ends with buddy help. This is no good — it doesn't validate
+    // what the user typed." The v0.57.27 design ("LLM-free, no
+    // gatekeeper") accepted any non-command text as a place query.
+    // We add a deterministic, latency-free guard:
+    //   • min 3 chars after trim
+    //   • reject pure emoji / pure punctuation / pure digits
+    //   • reject common chat-noise words ("hi", "ok", "thanks", etc.)
+    // Borderline real food terms ("kfc", "thai", "pho") still pass
+    // — they're 3+ alpha chars and not on the denylist.
+    if (!looksLikePlaceQuery(text)) {
+      console.log(`[free-text] noise-guard skipped: "${text.slice(0, 40)}"`);
+      return;
+    }
     // v0.57.27: free-text search is now LLM-free. Per Human Lead, all
     // chat-text queries route directly to Google Places searchText
     // (via pipeline.discover) with no NL classification, no off-topic
@@ -2656,6 +2671,39 @@ bot.on('message', async (msg) => {
     console.error('[Error] free-text handler failed:', err.message);
   }
 });
+
+// v0.58.27: heuristic gate for free-text → place search. Returns
+// false on chat noise (greetings, single emojis, pure punctuation,
+// obvious typos under 3 chars). Returns true on plausible food/place
+// queries. Cheap and synchronous — runs before the Google Places
+// call and avoids a costly search + buddy-footer reply for "hi".
+const FREE_TEXT_NOISE = new Set([
+  'hi', 'hey', 'yo', 'hello', 'hola', 'sup', 'oi',
+  'ok', 'okay', 'k', 'kk', 'cool', 'nice', 'good',
+  'thanks', 'thx', 'ty', 'cheers', 'lol', 'lmao', 'haha', 'hahaha',
+  'yes', 'yeah', 'yep', 'ya', 'no', 'nope', 'nah',
+  'wow', 'omg', 'wtf',
+  'test', 'testing', 'ping',
+  'help', 'menu', 'start',
+  'bye', 'goodbye', 'night', 'morning',
+  'sorry', 'pls', 'please'
+]);
+function looksLikePlaceQuery(text) {
+  if (typeof text !== 'string') return false;
+  const trimmed = text.trim();
+  if (trimmed.length < 3) return false;
+  // Pure emoji/symbol — no letters or digits.
+  if (!/[\p{L}\p{N}]/u.test(trimmed)) return false;
+  // Pure digits or pure punctuation.
+  if (/^[\d\s\W]+$/.test(trimmed)) return false;
+  // Single-word chat noise (case-insensitive).
+  const lower = trimmed.toLowerCase();
+  if (FREE_TEXT_NOISE.has(lower)) return false;
+  // "hi!", "ok.", "thanks!!" — strip trailing punctuation and re-check.
+  const stripped = lower.replace(/[\s\W]+$/u, '');
+  if (FREE_TEXT_NOISE.has(stripped)) return false;
+  return true;
+}
 
 // v0.57.27 — direct Google Places searchText for free chat text.
 // No LLM. No classifier. No gatekeeper. The user's verbatim text is
@@ -4279,8 +4327,16 @@ async function cacheBotUsername() {
     // v0.34.2: reverse-geocode endpoint. Turns raw lat/lng into a
     // human-readable neighbourhood/place name for the TMA Header so the
     // user sees "📍 Telok Blangah" instead of "📍 1.2722, 103.8112".
-    // Cached in Redis 24 h per ~50 m grid cell so repeated TMA opens
-    // at the same spot don't re-bill Google Geocoding (~$0.005/call).
+    // v0.58.27: hardened against the "always Water Catchment" bug.
+    //   • Skip natural_feature / park / point_of_interest results when
+    //     a more specific neighborhood / sublocality exists.
+    //   • Hard short-circuit for SG_CENTROID (1.3521, 103.8198) which
+    //     happens to land in the Central Catchment when the TMA's
+    //     userLoc resolution falls through.
+    //   • Cache TTL dropped 24h → 1h so a wrong cache cell self-heals.
+    //   • Cache is *also* invalidated when the picked name still looks
+    //     like a natural feature ("Catchment", "Reservoir", etc.) by
+    //     skipping the cache write.
     app.get('/api/reverse-geocode', requireInitData, async (req, res) => {
       try {
         const lat = Number(req.query.lat);
@@ -4288,8 +4344,13 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'lat and lng required' });
         }
+        // SG centroid short-circuit — the TMA's last-resort fallback.
+        // Lives inside Central Catchment so Google legitimately
+        // returns "Central Catchment" / "Water Catchment" for it.
+        if (Math.abs(lat - 1.3521) < 0.0005 && Math.abs(lng - 103.8198) < 0.0005) {
+          return res.json({ name: 'Singapore', formatted: 'Singapore (centroid fallback)' });
+        }
         // Grid lat/lng to ~50 m so nearby pings hit the same cache key.
-        // 1 deg lat ≈ 111 km; 50 m → 4 decimal places.
         const gLat = lat.toFixed(4);
         const gLng = lng.toFixed(4);
         const cacheKey = `revgeo:${gLat}:${gLng}`;
@@ -4315,20 +4376,51 @@ async function cacheBotUsername() {
           }
           data.results = fallback.data.results;
         }
-        // Pick the most-specific result with a useful component.
-        const result = data.results[0];
-        const components = result.address_components || [];
-        const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
-        const name = findComp('neighborhood')
-          || findComp('sublocality_level_1')
-          || findComp('sublocality')
-          || findComp('locality')
-          || result.formatted_address?.split(',')[0]
-          || 'Singapore';
-        const formatted = result.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-        const payload = { name, formatted };
+        // Pick the most-specific result, preferring inhabited-place
+        // types over natural features. Walk every result (not just
+        // results[0]) so we find a populated locality even when the
+        // top match is a reservoir / park / catchment polygon.
+        const NATURAL_TYPES = new Set([
+          'natural_feature', 'park', 'establishment', 'point_of_interest',
+          'tourist_attraction', 'premise'
+        ]);
+        const NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
+        function pickName(result) {
+          const components = result.address_components || [];
+          const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
+          return findComp('neighborhood')
+            || findComp('sublocality_level_1')
+            || findComp('sublocality')
+            || findComp('locality')
+            || null;
+        }
+        let chosen = null;
+        for (const r of data.results) {
+          const isNatural = (r.types || []).some((t) => NATURAL_TYPES.has(t));
+          const candidateName = pickName(r);
+          if (candidateName && !NATURAL_NAME_RX.test(candidateName)) {
+            chosen = { name: candidateName, formatted: r.formatted_address || '', natural: isNatural };
+            if (!isNatural) break; // ideal: inhabited-place type with a clean neighborhood name
+          }
+        }
+        if (!chosen) {
+          // Last resort: split the top result's formatted_address.
+          const top = data.results[0];
+          const head = top.formatted_address?.split(',')[0] || 'Singapore';
+          chosen = {
+            name: NATURAL_NAME_RX.test(head) ? 'Singapore' : head,
+            formatted: top.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+            natural: NATURAL_NAME_RX.test(head)
+          };
+        }
+        const payload = { name: chosen.name, formatted: chosen.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
         try {
-          await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
+          // Skip the cache write when we fell back to "Singapore" or
+          // a natural-feature name — better to retry next time than
+          // poison the grid cell for an hour.
+          if (!chosen.natural && payload.name !== 'Singapore') {
+            await redis.set(cacheKey, JSON.stringify(payload), { EX: 60 * 60 });
+          }
         } catch { /* cache write failure is non-fatal */ }
         res.json(payload);
       } catch (err) {

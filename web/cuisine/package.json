@@ -1,7 +1,7 @@
 {
   "name": "soleat-cuisine-tma",
   "private": true,
-  "version": "0.58.26",
+  "version": "0.58.27",
   "type": "module",
   "scripts": {
     "build": "vite build",
