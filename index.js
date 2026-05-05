@@ -526,7 +526,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       return `${block}\n🎯 [${p.criteriaMet.join(', ')}]${why}`;
     }
     return block;
-  }).join('\n\n');
+  // v0.58.51: two blank lines between picks (single newline between
+  // rows within a pick stays \n). Header still uses one blank line.
+  // Skipped entirely when picks.length === 1 — the single block is
+  // already its own message.
+  }).join(picks.length > 1 ? '\n\n\n' : '\n\n');
   await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true
@@ -3521,7 +3525,10 @@ async function cacheBotUsername() {
           variant: 'detail',
           googleMapsUrl
         })).filter(Boolean);
-        const body = `${header}\n\n${blocks.join('\n\n')}`;
+        // v0.58.51: two blank lines between picks for breathing room;
+        // collapse to one when only a single venue is in the clip.
+        const blockSep = blocks.length > 1 ? '\n\n\n' : '\n\n';
+        const body = `${header}\n\n${blocks.join(blockSep)}`;
         if (slim.length === 1) {
           await bot.sendMessage(chatId, body, {
             parse_mode: 'HTML',

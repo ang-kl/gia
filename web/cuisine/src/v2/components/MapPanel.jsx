@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { tg } from '../../api/tg.js';
 
 // v0.58.2: "Search this area" floating button. When the user pans
 // the map far enough from the last-searched anchor, surface a
@@ -7,6 +8,39 @@ import React, { useEffect, useRef, useState } from 'react';
 // is moved programmatically (fitBounds after a fresh result list,
 // panTo on a focused pin) — only user-initiated drift triggers it.
 const PAN_THRESHOLD_METERS = 300;
+
+// v0.58.51: build the canonical Google Maps URL for a venue. Mirrors
+// the server's maps-url.js choice: prefer place_id-explicit deep-link
+// so iOS Universal Links resolve to the Google Maps app (not Apple
+// Maps). Falls back to a name-search URL when placeId is missing.
+function venueMapsUrl(v) {
+  if (!v) return '';
+  const name = v.name || '';
+  if (v.placeId) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(v.placeId)}`;
+  }
+  return v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' Singapore')}`;
+}
+
+// v0.58.51: open the Google Maps URL inside Telegram's WebApp shell.
+// tg.openLink delegates to the system browser, which auto-routes via
+// Universal Link to the Google Maps app on iOS. Plain window.open
+// often does nothing inside the TMA WebView.
+function openInGoogleMaps(v) {
+  const url = venueMapsUrl(v);
+  if (!url) return;
+  const w = tg();
+  if (w && typeof w.openLink === 'function') {
+    w.openLink(url, { try_instant_view: false });
+  } else {
+    window.open(url, '_blank', 'noopener');
+  }
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 function metersBetween(a, b) {
   const dLat = (a.lat - b.lat) * 110600;
@@ -19,6 +53,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
+  // v0.58.51: shared InfoWindow for hover preview. Single instance
+  // re-used across all markers (Google Maps best practice — keeps DOM
+  // light and lets us close-on-mouseout without leaks).
+  const infoWindowRef = useRef(null);
   // Track the last anchored search lat/lng so we can compare against
   // the live map centre on every idle event.
   const searchCenterRef = useRef(null);
@@ -98,6 +136,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       }
       bounds.extend(userLoc);
     }
+    // v0.58.51: lazy InfoWindow init (depends on google.maps loaded).
+    if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
+      infoWindowRef.current = new window.google.maps.InfoWindow({
+        disableAutoPan: true,
+        pixelOffset: new window.google.maps.Size(0, -10)
+      });
+    }
     for (const v of venues || []) {
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
       const focused = v.placeId === focusedPlaceId;
@@ -106,9 +151,44 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         borderColor: '#1c1c1f', glyphColor: '#fff', scale: focused ? 1.3 : 1
       });
       const marker = new AdvancedMarkerElement({
-        map: mapRef.current, position: { lat: v.lat, lng: v.lng }, title: v.name, content: pin.element
+        map: mapRef.current,
+        position: { lat: v.lat, lng: v.lng },
+        title: v.name,                                    // native browser tooltip (desktop hover)
+        content: pin.element,
+        gmpClickable: true                                // enable click + DOM events on the pin
       });
-      marker.addListener('click', () => onPinTap?.(v.placeId));
+      // v0.58.51: hover preview via InfoWindow. Desktop only — mobile
+      // has no mouseover. Shows venue name, rating, and a "Click to
+      // open in Maps" hint. On mouseout the window closes.
+      const ratingHtml = Number.isFinite(v.rating)
+        ? `<div style="font-size:11px;color:#666;margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
+        : '';
+      const infoHtml =
+        `<div style="min-width:140px;max-width:240px;padding:2px 4px;">
+           <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
+           ${ratingHtml}
+           <div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">Tap pin → Google Maps</div>
+         </div>`;
+      const onMouseOver = () => {
+        if (!infoWindowRef.current) return;
+        infoWindowRef.current.setContent(infoHtml);
+        infoWindowRef.current.open(mapRef.current, marker);
+      };
+      const onMouseOut = () => {
+        if (infoWindowRef.current) infoWindowRef.current.close();
+      };
+      if (marker.element) {
+        marker.element.addEventListener('mouseover', onMouseOver);
+        marker.element.addEventListener('mouseout', onMouseOut);
+      }
+      // v0.58.51: click → open Google Maps via tg.openLink. On mobile
+      // (no hover), this is the primary interaction. Also keeps the
+      // existing focus-card behaviour so the result list still
+      // highlights the corresponding card on tap.
+      marker.addListener('click', () => {
+        onPinTap?.(v.placeId);
+        openInGoogleMaps(v);
+      });
       markersRef.current.push(marker);
       bounds.extend({ lat: v.lat, lng: v.lng });
     }
