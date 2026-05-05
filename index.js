@@ -532,6 +532,14 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
         const dishes = Array.isArray(p.dishes) ? p.dishes.slice(0, 3) : [];
         if (dishes.length) line += `\n   🍴 ${dishes.join(' · ')}`;
       }
+      // v0.58.22: hidden-gems v2 picks carry criteria_met + why_a_gem +
+      // signature_pick from rankAsHiddenGems. Surface them only when
+      // present so other flows that use deliverPicks (cuisine search,
+      // share, free-text fallback) are unaffected.
+      if (Array.isArray(p.criteriaMet) && p.criteriaMet.length) {
+        const why = (p.whyAGem && typeof p.whyAGem === 'string') ? ` — ${p.whyAGem}` : '';
+        line += `\n   🎯 [${p.criteriaMet.join(', ')}]${why}`;
+      }
       return line;
     })
     .join(itemSep);

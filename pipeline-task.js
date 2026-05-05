@@ -479,21 +479,53 @@ async function runSurpriseTask(redis, reqId) {
       }
     }
 
-    // v0.57.17: rarity-score ranking — neighbourhood-relative percentile
-    // on rating × low-volume × recency. Uses passesRecencySignal as
-    // hasRecentReviews input so legacy multi-signal (opened ≤100d /
-    // recent review ≤45d / "new" type) still feeds the recency axis.
-    const enriched = qualified.map((c) => ({
-      ...c,
-      hasRecentReviews: passesRecencySignal(c)
-    }));
-    let recent = rarityScore.applyRarityRanking(enriched, 12);
-    diagPush('D876', 'Rarity ranked', true, {
-      in: qualified.length,
-      out: recent.length,
-      iter,
-      topScore: recent[0]?.rarityScore?.toFixed?.(3) ?? null
+    // v0.58.22: hidden-gems hard filter + C1/C3/C4 evaluation. Replaces
+    // the v0.57.17 rarity-score-only path that surfaced popular places
+    // because rarity was percentile-relative inside the result pool.
+    // Now we apply explicit thresholds: drop chains, rating < 4.0,
+    // ratingCount < 8, non-OPERATIONAL; then annotate each survivor with
+    // c1_new_highrated / c3_underreviewed / c4_off_transport. Claude
+    // judges C2 (web search) + C5 downstream.
+    const hg = require('./hidden-gems');
+    const beforeHard = qualified.length;
+    const hardFiltered = qualified.filter(hg.passesHardFilter);
+    diagPush('D878', 'Hidden-gems hard filter', true, {
+      in: beforeHard, out: hardFiltered.length,
+      dropped: beforeHard - hardFiltered.length
     });
+    if (!hardFiltered.length) {
+      await requestStore.setVenues(redis, reqId, []);
+      await requestStore.setStatus(redis, reqId, 'empty');
+      return;
+    }
+    const evaluated = await hg.evaluateHiddenGemCriteria(hardFiltered, { lat: payload.lat, lng: payload.lng });
+    const c1Count = evaluated.filter((c) => c.c1_new_highrated).length;
+    const c3Count = evaluated.filter((c) => c.c3_underreviewed).length;
+    const c4Count = evaluated.filter((c) => c.c4_off_transport).length;
+    diagPush('D879', 'Hidden-gems C1/C3/C4 evaluated', true, {
+      n: evaluated.length, c1: c1Count, c3: c3Count, c4: c4Count
+    });
+
+    // Prefer venues with ≥ 1 deterministic criterion. The ≥ 2 final
+    // gate (per the proposal) is enforced by Claude after C2/C5.
+    let qualifying = evaluated.filter((c) => c.c1_new_highrated || c.c3_underreviewed || c.c4_off_transport);
+    let usedFallbackPool = false;
+    if (qualifying.length < SURPRISE_TARGET_COUNT) {
+      // Not enough candidates met any criterion. Pass the full
+      // hard-filtered pool to Claude with a fallback note so it can
+      // still try; Claude gates on ≥ 2 criteria including C2/C5.
+      qualifying = evaluated;
+      usedFallbackPool = true;
+      diagPush('D880', 'Hidden-gems fallback pool (relaxed)', true, {
+        relaxed_to: qualifying.length, target: SURPRISE_TARGET_COUNT
+      });
+    }
+    // Tie-break: deterministicScore desc, then rating desc.
+    qualifying.sort((a, b) =>
+      (b.deterministicScore - a.deterministicScore)
+      || ((b.rating || 0) - (a.rating || 0))
+    );
+    let recent = qualifying.slice(0, 25);
     if (!recent.length) {
       await requestStore.setVenues(redis, reqId, []);
       await requestStore.setStatus(redis, reqId, 'empty');
@@ -503,15 +535,17 @@ async function runSurpriseTask(redis, reqId) {
     // Vault snapshot for narrative grounding.
     const snapshot = await vaultIndex.snapshotForLocation(redis, centre, SURPRISE_OUTER_M);
 
-    // Claude ranks + narrates with type-diversity bias.
+    // v0.58.22: Claude ranks via HIDDEN_GEMS_V2 prompt with web search
+    // for C2 + C5 judgment. Returns picks annotated with criteria_met,
+    // why_a_gem, signature_pick, social_mentions[].
     await requestStore.setStage(redis, reqId, 'narrating');
     const narrated = await pipeline.rankAndNarrate({
-      candidates: recent.slice(0, 25), // headroom for ranker selection
+      candidates: recent,
       query: {
         cuisines: [],
         label: meal.label,
         detail: meal.hint,
-        specialRequest: 'HIDDEN_GEM_DISCOVERY · diversity-bias: prefer at least 1 hawker (food_court / market_food_stall), 1 café, 1 restaurant, 1 unconventional (pop-up / bakery / dessert_shop / ice_cream_shop / food_truck / cafe-with-a-twist) across the top 12. Provide a 1-line "why it\'s a hidden gem" reason for each.'
+        specialRequest: 'HIDDEN_GEMS_V2'
       },
       snapshot,
       count: SURPRISE_TARGET_COUNT,
