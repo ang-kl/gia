@@ -2381,8 +2381,15 @@ async function runSurpriseCommand(chatId) {
     // boundaries (lines starting "/^\d+\. /") so a single venue
     // never spans messages.
     const chunks = chunkHiddenGemsOutput(result.text, 3800);
+    // v0.58.46: parse_mode='HTML' so the bold venue-name tags
+    // (<b>…</b>) actually render as bold, not literal angle brackets.
+    // disable_web_page_preview keeps each pick compact (Google Maps
+    // URLs would otherwise expand into a giant card).
     for (const c of chunks) {
-      await safeSend(chatId, c);
+      await safeSend(chatId, c, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      });
     }
   } catch (err) {
     console.error('[/hidden] outer catch:', err.message, err.stack);
@@ -2430,19 +2437,49 @@ function stripMarkdown(text) {
 //   "Meeting C3 and C4, this …"  (capitalised, leading)
 function stripCriteriaLeak(text) {
   if (!text) return text;
-  // Match the leak pattern + adjacent whitespace, replace with a single
-  // space. Collapse + tidy afterwards so "cafe meets C3 and C4, featuring"
-  // becomes "cafe featuring", not "cafefeaturing".
-  const LEAK_RX = /\s*\b(?:[Mm]eets|[Mm]eeting)(?:\s+criteria)?\s+C[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?(?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?\s*,?\s*/g;
+  // v0.58.46: broadened. User cited leaks like "(C2+C4)", "without
+  // being C1 or C3", "C3 (under 120 reviews) and C4", "a high rating
+  // with C2+C4". The v0.58.45 regex only caught "meets/Meeting Cx".
+  // NOTE: dropped the v0.58.45 (\.)\s*([a-z]) autocapitalize and the
+  // per-line ^\s+|\s+$ trim — both caused damage. The first mangled
+  // URLs (www.google.com → www. Google. Com), the second collapsed
+  // blank lines between picks ("…Singapore2. THE COFFEE ROASTER").
   return String(text)
-    .replace(LEAK_RX, ' ')
-    // Tidy: collapse doubled spaces, fix orphaned punctuation, lowercase
-    // a stranded sentence start ("This … . , featuring" → "This … . Featuring").
+    // 1. Verb phrase: "meets/Meeting [criteria] Cx[, Cy and Cz][,]"
+    .replace(/\s*\b(?:[Mm]eets|[Mm]eeting)(?:\s+criteria)?\s+C[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?(?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?\s*,?\s*/g, ' ')
+    // 2. Parenthetical: " (C2+C4)" / " (C3, C4)" / " (C3 and C4)"
+    .replace(/\s*\(\s*C[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?(?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?\s*\)/g, '')
+    // 3. Loose mentions after a connector: " with/being/under/...
+    //    Cx and Cy" → single space (preserve word boundaries).
+    .replace(/\s+\b(?:with|being|under|satisfies|qualifies|fires|is)\s+C[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?(?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?\s*,?\s*/g, ' ')
+    // 4. Last-resort sweep: any " Cx and/or/+ Cy" pair mid-sentence
+    //    → single space.
+    .replace(/\s+\bC[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)C[1-5]\b\s*,?\s*/g, ' ')
+    // 5. Tidy: collapse doubled spaces, orphaned commas/periods.
     .replace(/ {2,}/g, ' ')
     .replace(/\s+,/g, ',')
     .replace(/\s+\./g, '.')
-    .replace(/^\s+|\s+$/gm, '')
-    .replace(/(\.)\s*([a-z])/g, (_, dot, c) => `${dot} ${c.toUpperCase()}`);
+    .trim();
+}
+
+// v0.58.46: HTML-escape user-facing content so Telegram parse_mode='HTML'
+// doesn't choke on stray < > & in venue names or URL query strings.
+function escapeHtmlForTelegram(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// v0.58.46: bold the venue-name slug on every numbered heading line.
+// Heading shape from the prompt is "1. NAME - primary type" — we
+// wrap NAME in <b>…</b>. Telegram renders <b> when parse_mode='HTML'.
+function boldVenueHeadings(text) {
+  if (!text) return text;
+  return String(text).replace(
+    /^(\d+\.\s+)([^-\n]+?)(\s+-\s+[^\n]*)$/gm,
+    (_, num, name, rest) => `${num}<b>${name.trim()}</b>${rest}`
+  );
 }
 
 // v0.58.45: Gemini sometimes returns fabricated Place URLs of the form
@@ -2469,12 +2506,18 @@ function rewriteFabricatedPlaceUrls(text) {
 }
 
 function chunkHiddenGemsOutput(text, maxChars = 3800) {
-  // v0.58.36 / v0.58.45: strip Markdown, scrub criteria leaks, and
-  // rewrite fabricated Place URLs BEFORE chunking so the user-facing
-  // text is final.
-  const cleaned = rewriteFabricatedPlaceUrls(
-    stripCriteriaLeak(stripMarkdown(text))
-  );
+  // v0.58.36 / v0.58.45 / v0.58.46: order matters.
+  //   1. stripMarkdown — drop **bold** / __italic__ / ATX headings
+  //   2. stripCriteriaLeak — scrub "meets Cx and Cy" / "(C2+C4)"
+  //   3. rewriteFabricatedPlaceUrls — fake /maps/place/ → /maps/search/
+  //   4. escapeHtmlForTelegram — neutralise < > & for parse_mode='HTML'
+  //   5. boldVenueHeadings — wrap "1. NAME" in <b>…</b> AFTER escape
+  //      (we ADD the <b>; the escape only neutralises stray angle
+  //      brackets in the model output).
+  // Final text is HTML-safe and ships with parse_mode='HTML'.
+  const cleaned = boldVenueHeadings(escapeHtmlForTelegram(
+    rewriteFabricatedPlaceUrls(stripCriteriaLeak(stripMarkdown(text)))
+  ));
   if (!cleaned || cleaned.length <= maxChars) return [cleaned || ''];
   const out = [];
   let buf = '';
