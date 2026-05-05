@@ -1011,7 +1011,33 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const CURRENT_KEYWORDS = new Set([
     'current', 'now', 'here', 'me', 'my', 'gps', 'device'
   ]);
-  const text = CURRENT_KEYWORDS.has(rawText.toLowerCase()) ? '' : rawText;
+  // v0.58.42: distinguish "explicit current request" from "no args".
+  //   `/location`         → show cached + keyboard (so users can quickly
+  //                         see what's anchoring their searches)
+  //   `/location current` → SKIP cached, prompt for a fresh pin only.
+  //                         User typed "current" — they want fresh GPS,
+  //                         not yesterday's stored value.
+  const wantsCurrent = CURRENT_KEYWORDS.has(rawText.toLowerCase());
+  const text = wantsCurrent ? '' : rawText;
+  if (wantsCurrent) {
+    // Bots can't read device GPS unsolicited; the only way to "catch
+    // current location" is the user tapping the Share-pin keyboard.
+    // Make that path the entire response — no stale-cache distraction.
+    await safeSend(chatId,
+      "📍 *To set your current location, tap the button below.*\n\n" +
+      "Bots can't auto-detect device GPS — Telegram requires you to share it explicitly. " +
+      "Once tapped, your location is cached for 30 min and used by /cuisine, /hidden, /carpark, /transport.",
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+          resize_keyboard: true,
+          one_time_keyboard: true
+        }
+      }
+    );
+    return;
+  }
   if (!text) {
     // v0.58.20: no-args path now reports the cached location
     // (instead of just printing usage). When nothing is cached, we
@@ -2257,42 +2283,74 @@ async function runSurpriseCommand(chatId) {
     // the initial line stays short.
     await safeSend(chatId, `🔍 Searching hidden gems near ${anchorName}… please wait.`);
 
-    // v0.58.30: progress pulses so the user sees life past 20 s. Per
-    // Human Lead — "still does not prompt user to wait after 20s".
-    // Gemini-with-Google-Search regularly needs 30–60 s when source
-    // verification fans out. We send a varied message every 12 s
-    // until the response lands. clearInterval in the finally block
-    // ensures no orphaned pulses fire after success/error.
+    // v0.58.30: progress pulses so the user sees life past 20 s.
+    // v0.58.41: cap pulses at MAX_PULSES so a hung Gemini call doesn't
+    // spam the chat indefinitely (user reported a "loop" on v0.58.36
+    // when the fallback chain took 2+ min). Also drop the brand-name
+    // list per Human Lead. Hard 90 s timeout below catches the actual
+    // hang.
     const PROGRESS_LINES = [
       '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
-      '⏳ Verifying source quality (Eatbook, SethLui, 8days, Honeycombers, etc.)…',
+      '⏳ Verifying source quality…',
       '⏳ Checking opening dates and review counts against Google…',
       '⏳ Almost there — drafting the picks and citing sources.',
       '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
     ];
+    // v0.58.41: 10 pulses × 12 s = 120 s of "still working" coverage.
+    // Pairs with the 180 s timeout so the user sees activity for two
+    // thirds of the worst-case wait before silence.
+    const MAX_PULSES = 10;
     let pulseIdx = 0;
     const pulseTimer = setInterval(() => {
+      if (pulseIdx >= MAX_PULSES) { clearInterval(pulseTimer); return; }
       safeSend(chatId, PROGRESS_LINES[pulseIdx % PROGRESS_LINES.length]).catch(() => {});
       pulseIdx++;
     }, 12_000);
 
+    // v0.58.41: hard timeout. Gemini-with-Google-Search occasionally
+    // hangs (slow upstream search index, model retry loop). Without a
+    // ceiling the user sees pulse-after-pulse forever.
+    // 180 s leaves headroom for the 5-step fallback chain (each
+    // attempt can take 30-40 s under load); anything longer is broken.
+    const HIDDEN_TIMEOUT_MS = 180_000;
     const gc = require('./gemini-client');
     let result;
     try {
-      result = await gc.generateGroundedHiddenGems({
-        anchor,
-        todayIsoSGT: gc.todaySGT()
-      });
+      result = await Promise.race([
+        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT() }),
+        new Promise((_, reject) => setTimeout(
+          () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
+          HIDDEN_TIMEOUT_MS
+        ))
+      ]);
     } catch (err) {
       clearInterval(pulseTimer);
-      // v0.58.34: surface the actual underlying error(s) instead of a
-      // generic classifier. Each fallback-chain attempt is in
-      // err.attemptErrors so the user can see exactly why their model
-      // failed. The bot still suggests next steps, but doesn't
-      // replace the truth.
       console.error(`[/hidden] Gemini call failed: ${err.message}`);
       const errs = Array.isArray(err.attemptErrors) ? err.attemptErrors : [];
-      const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+      const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-flash-latest';
+      // v0.58.42: detect "every attempt was 503 high-demand" and show
+      // a short friendly retry hint instead of the 4-line debug dump.
+      // Server-side overload is upstream weather; the user can't fix
+      // it via env vars and shouldn't be told to.
+      const all503 = errs.length >= 2 && errs.every((e) => /\b503\b|high demand|service unavailable/i.test(e));
+      // v0.58.41: also detect our own 90/180s timeout — surface a
+      // distinct hint rather than a list of attempts that never
+      // completed.
+      const isTimeout = /exceeded \d+s timeout/i.test(err.message || '');
+      if (isTimeout) {
+        await safeSend(chatId,
+          `⏱ /hidden timed out after 3 minutes — Gemini was unresponsive on every fallback model.\n\n` +
+          `This usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.`
+        );
+        return;
+      }
+      if (all503) {
+        await safeSend(chatId,
+          `⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\n` +
+          `Try /hidden again in a minute or two — your location is still cached so retry will be fast.`
+        );
+        return;
+      }
       const detail = errs.length
         ? errs.map((e, i) => `  ${i + 1}. ${e}`).join('\n')
         : `  ${err.message}`;
@@ -2302,7 +2360,7 @@ async function runSurpriseCommand(chatId) {
         `Attempts:\n${detail}\n\n` +
         `Common fixes:\n` +
         `• Check GEMINI_API_KEY is set in Railway env vars.\n` +
-        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-2.0-flash, or unset GEMINI_MODEL.\n` +
+        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-flash-latest, or unset GEMINI_MODEL.\n` +
         `• If "quota" / "429": Google AI Studio quota is tripped — retry in a few minutes.`
       );
       return;
@@ -3740,11 +3798,12 @@ async function cacheBotUsername() {
         }
         if (region === 'JB') tokens.push('region:JB');
 
-        if (!tokens.length) {
-          return res.status(400).json({ error: 'nothing to copy — pick a cuisine or filter first' });
-        }
-
-        const cmd = `/cuisine ${tokens.join(' ')}`.trim();
+        // v0.58.41: allow bare `/cuisine` when no tokens. User reported
+        // they couldn't copy a warm-start search (no cuisines/filters
+        // set) — but the result list IS shareable; the recipient just
+        // re-runs /cuisine and gets a fresh warm-start at their own
+        // location. Previously we 400'd this case.
+        const cmd = tokens.length ? `/cuisine ${tokens.join(' ')}`.trim() : '/cuisine';
         // HTML mode → wrap the command in <code> so Telegram styles it
         // as a tap-to-copy block. Escape only the angle-brackets / amp
         // / quote so accidental HTML in the friendly intro is safe.

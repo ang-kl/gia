@@ -144,27 +144,34 @@ function todaySGT() {
 // still reach. GEMINI_MODEL env var still overrides.
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-// v0.58.33: Gemini renamed the search-grounding tool between major
-// versions. 1.x uses `googleSearchRetrieval`; 2.x and later (2.0,
-// 2.5, future 3.x) use `googleSearch`. Picking the wrong name for
-// the model produces an immediate 400 INVALID_ARGUMENT — that's
-// what the user hit when they set GEMINI_MODEL=gemini-2.5-flash.
+// v0.58.33 / v0.58.42: Gemini renamed the search-grounding tool
+// between major versions. 1.x uses `googleSearchRetrieval`; 2.x+
+// (including the `*-latest` aliases that route to current-gen)
+// uses `googleSearch`. Picking the wrong name for the model
+// produces an immediate 400.
 function searchToolForModel(model) {
+  const m = String(model || '');
+  // v0.58.42: `gemini-flash-latest` / `gemini-pro-latest` are aliases
+  // for the current-gen flagship — always 2.x+ in practice. The old
+  // regex missed them because there's no major-version digit.
+  if (/-latest\b/i.test(m)) return { googleSearch: {} };
   // Match "gemini-N…" where N >= 2.
-  if (/^gemini-([2-9]|\d{2,})/i.test(String(model || ''))) {
+  if (/^gemini-([2-9]|\d{2,})/i.test(m)) {
     return { googleSearch: {} };
   }
   return { googleSearchRetrieval: {} };
 }
 
-// v0.58.35: known-good fallback chain. If the user-supplied model
-// fails (404 not-found, 400 invalid-argument, etc.), we walk this
-// list so /hidden still returns results. Order: most-current first.
-// gemini-1.5-pro removed — Google retired it from v1beta in 2025.
+// v0.58.35 / v0.58.42: known-good fallback chain. Walked when the
+// user-supplied model fails. Order: alias first (auto-routes), then
+// pinned current models. v0.58.42 dropped `gemini-2.0-flash` because
+// Google now returns 404 "no longer available to new users" for it.
+// `gemini-2.5-pro` is added as a slower-but-different model so a
+// transient 503 on the flash family doesn't kill the whole chain.
 const FALLBACK_CHAIN = [
+  { model: 'gemini-flash-latest',  tool: { googleSearch: {} } },
   { model: 'gemini-2.5-flash',     tool: { googleSearch: {} } },
-  { model: 'gemini-2.0-flash',     tool: { googleSearch: {} } },
-  { model: 'gemini-flash-latest',  tool: { googleSearch: {} } }
+  { model: 'gemini-2.5-pro',       tool: { googleSearch: {} } }
 ];
 
 async function generateGroundedHiddenGems({
@@ -224,14 +231,39 @@ async function generateGroundedHiddenGems({
     dedupedAttempts.push(a);
   }
 
+  // v0.58.42: helper — invoke generateContent once and return the
+  // success or throw. Wrapped so the per-attempt loop can call it
+  // twice when the first attempt is a transient 503 ("high demand").
+  async function tryOnce(attempt) {
+    const m = genAI.getGenerativeModel({ model: attempt.model, tools: [attempt.tool] });
+    const r = await m.generateContent(prompt);
+    const text = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
+    if (!text || !text.trim()) throw new Error('empty response from Gemini');
+    return text;
+  }
+
   const errors = [];
   for (const [i, attempt] of dedupedAttempts.entries()) {
     const toolName = Object.keys(attempt.tool)[0];
     try {
-      const m = genAI.getGenerativeModel({ model: attempt.model, tools: [attempt.tool] });
-      const r = await m.generateContent(prompt);
-      const text = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
-      if (!text || !text.trim()) throw new Error('empty response from Gemini');
+      let text;
+      try {
+        text = await tryOnce(attempt);
+      } catch (err) {
+        // v0.58.42: 503 "high demand" is transient upstream weather.
+        // Wait 2s and retry the SAME model+tool once before marching
+        // to the next fallback. Without this, a single Google overload
+        // burns through the whole chain in seconds.
+        const msg = String(err?.message || '');
+        const transient = /\b503\b|high demand|service unavailable/i.test(msg);
+        if (transient) {
+          console.warn(`[gemini-client] 503 transient on ${attempt.model}; retrying after 2s`);
+          await new Promise((r) => setTimeout(r, 2_000));
+          text = await tryOnce(attempt);
+        } else {
+          throw err;
+        }
+      }
       if (attempt.degraded) {
         console.warn(
           `[gemini-client] degraded — fell back to ${attempt.model} after user model "${model}" failed`

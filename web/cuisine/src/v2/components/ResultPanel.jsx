@@ -68,16 +68,18 @@ export default function ResultPanel({
       console.warn('[Copy-Syntax] failed:', err.message);
       const w = tg();
       if (w && typeof w.showAlert === 'function') {
-        w.showAlert("Couldn't send the command — pick a cuisine or filter first.");
+        // v0.58.41: server now accepts bare /cuisine; this branch only
+        // fires on an actual network/auth error.
+        w.showAlert("Couldn't send the command. Try again in a moment.");
       }
     } finally { setCopyingCmd(false); }
   }
-  const canCopyCmd = !!(copyState && (
-    (copyState.cuisines || []).length ||
-    (copyState.filters && Object.values(copyState.filters).some((v) => v === true)) ||
-    (copyState.filters?.prices || []).length ||
-    copyState.location
-  ));
+  // v0.58.41: enable copy-syntax even without cuisines/filters/location
+  // — server now emits bare `/cuisine` so a warm-start search is
+  // shareable. Previously the button was disabled until the user picked
+  // at least one filter, which made it impossible to copy the initial
+  // result list.
+  const canCopyCmd = !!(copyState && Array.isArray(venues) && venues.length);
 
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
