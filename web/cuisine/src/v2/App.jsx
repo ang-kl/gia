@@ -127,6 +127,15 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+    // v0.58.26: reject {lat:0, lng:0} (Atlantic-Ocean origin) and
+    // out-of-range values. This was the prod bug — the TMA was firing
+    // /api/cuisine/search with center=0.0000,0.0000 because some path
+    // (initData / GPS / server cache) had been setting userLoc to a
+    // garbage coord that passed `r?.lat != null` truthy checks.
+    const isValidCoord = (lat, lng) =>
+      Number.isFinite(lat) && Number.isFinite(lng)
+      && Math.abs(lat) > 0.001 && Math.abs(lng) > 0.001
+      && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
     // v0.58.24: louder debug logs so we can trace "not loading 5 places"
     // failures from the user's prod console (Telegram desktop devtools
     // OR mobile browser inspector). Each branch logs entry + outcome.
@@ -136,12 +145,12 @@ export default function App() {
       console.log('[Cuisine-TMA-v2] tryServerCache: requesting /api/cuisine/user-location');
       try {
         const r = await fetchUserLocation();
-        if (!cancelled && r?.lat != null && r?.lng != null) {
+        if (!cancelled && isValidCoord(r?.lat, r?.lng)) {
           setUserLoc({ lat: r.lat, lng: r.lng });
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }
-        console.log('[Cuisine-TMA-v2] tryServerCache: MISS (no/stale cache)');
+        console.log('[Cuisine-TMA-v2] tryServerCache: MISS (no/stale/zero cache)');
       } catch (err) { console.log('[Cuisine-TMA-v2] tryServerCache: ERROR', err.message); }
       return false;
     }
@@ -155,9 +164,14 @@ export default function App() {
         console.log('[Cuisine-TMA-v2] tryGps: requesting (timeout 5s)');
         navigator.geolocation.getCurrentPosition(
           (p) => {
+            const { latitude, longitude } = p.coords || {};
+            if (!isValidCoord(latitude, longitude)) {
+              console.log('[Cuisine-TMA-v2] tryGps: REJECT (zero/invalid)', { latitude, longitude });
+              resolve(false); return;
+            }
             if (!cancelled) {
-              setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
-              console.log('[Cuisine-TMA-v2] tryGps: SUCCESS', { lat: p.coords.latitude, lng: p.coords.longitude });
+              setUserLoc({ lat: latitude, lng: longitude });
+              console.log('[Cuisine-TMA-v2] tryGps: SUCCESS', { lat: latitude, lng: longitude });
             }
             resolve(true);
           },
@@ -171,10 +185,22 @@ export default function App() {
     }
 
     (async () => {
+      // v0.58.26: TMA URL hash anchor wins ahead of all client paths —
+      // the bot's /cuisine handler now pre-resolves the cached
+      // location and deep-links it via #lat&lng. Without this, the
+      // hash anchor would only be honoured by the warm-start guard
+      // (line ~208), but userLoc itself would still go through GPS.
+      if (initialOverrides?.location && isValidCoord(initialOverrides.location.lat, initialOverrides.location.lng)) {
+        if (!cancelled) {
+          setUserLoc({ lat: initialOverrides.location.lat, lng: initialOverrides.location.lng });
+          console.log('[Cuisine-TMA-v2] userLoc from URL hash (bot deep-link)');
+        }
+        return;
+      }
       const w = tg();
       const init = w?.initDataUnsafe || {};
       const tgLoc = init.user_location || init.user?.location;
-      if (tgLoc?.latitude && tgLoc?.longitude) {
+      if (isValidCoord(tgLoc?.latitude, tgLoc?.longitude)) {
         if (!cancelled) {
           setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
           console.log('[Cuisine-TMA-v2] userLoc from Telegram initData');
@@ -249,6 +275,15 @@ export default function App() {
   async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
+    // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}. Server
+    // now 400s on zero-coord but the user would see a confusing error;
+    // surfacing a clearer message client-side is friendlier.
+    if (!Number.isFinite(center?.lat) || !Number.isFinite(center?.lng)
+        || (Math.abs(center.lat) < 0.001 && Math.abs(center.lng) < 0.001)) {
+      console.warn('[Cuisine-TMA-v2] runSearch: refusing zero/invalid center', center);
+      setError('Location not yet resolved — share a pin via /location and reopen.');
+      return;
+    }
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
@@ -553,7 +588,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.25 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.26 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

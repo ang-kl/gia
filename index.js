@@ -786,6 +786,13 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // TMA opens with the same cuisines / filters / prices / location /
 // radius / region pre-applied. Bare `/cuisine` still opens the picker
 // at its defaults.
+// v0.58.26: pre-resolve the user's location server-side and deep-link
+// it into the TMA via #lat&lng&place. Fixes the prod bug where the
+// TMA fired /api/cuisine/search with center=0.0000,0.0000 because
+// userLoc never resolved before the warm-start fallback ran. When no
+// fresh cached location exists (≤30 min), also offer a Share-pin
+// reply-keyboard so the user can fix the anchor in one tap.
+const CUISINE_FRESH_LOC_MS = 30 * 60 * 1000;
 bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   try {
     if (!useWebhook) {
@@ -796,19 +803,70 @@ bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
       return;
     }
     const argsRaw = (match?.[1] || '').trim();
-    let url = `https://${webhookDomain}/app/cuisine`;
-    if (argsRaw) {
-      const hash = await tokenizeCuisineArgs(argsRaw);
-      if (hash) url += `#${hash}`;
-    }
-    await bot.sendMessage(msg.chat.id, "🍴 Cuisine Picker - Singapore to Johor Bahru", {
-      reply_markup: {
-        inline_keyboard: [[{
-          text: '🍴 Open Cuisine Picker',
-          web_app: { url }
-        }]]
+    const argsHash = argsRaw ? (await tokenizeCuisineArgs(argsRaw)) : '';
+    const params = new URLSearchParams(argsHash || '');
+
+    // Pre-resolve cached location. Fresh ≤30 min wins; stale is treated
+    // as "no anchor" so we don't anchor on a 14-hour-old pin.
+    let preResolvedAnchor = null;
+    try {
+      const cached = await getUserLocation(redis, msg.chat.id);
+      const ageMs = cached?.setAt ? Date.now() - cached.setAt : Infinity;
+      const validCoord = cached?.lat && cached?.lng
+        && Math.abs(cached.lat) > 0.001 && Math.abs(cached.lng) > 0.001;
+      if (validCoord && ageMs <= CUISINE_FRESH_LOC_MS) {
+        preResolvedAnchor = { lat: cached.lat, lng: cached.lng };
       }
-    });
+    } catch (err) {
+      console.warn('[/cuisine] getUserLocation failed:', err.message);
+    }
+
+    // Don't overwrite a tokeniser-supplied @location with the cached
+    // anchor — explicit args win.
+    if (preResolvedAnchor && !params.has('lat')) {
+      params.set('lat', String(preResolvedAnchor.lat));
+      params.set('lng', String(preResolvedAnchor.lng));
+    }
+
+    let url = `https://${webhookDomain}/app/cuisine`;
+    const finalHash = params.toString();
+    if (finalHash) url += `#${finalHash}`;
+
+    if (preResolvedAnchor) {
+      await bot.sendMessage(msg.chat.id,
+        "🍴 Cuisine Picker — Singapore to Johor Bahru\n📍 Anchored to your last shared location.",
+        {
+          reply_markup: {
+            inline_keyboard: [[{
+              text: '🍴 Open Cuisine Picker',
+              web_app: { url }
+            }]]
+          }
+        }
+      );
+    } else {
+      // No fresh anchor — prompt for a pin AND offer the picker. Two
+      // messages because Telegram disallows mixing reply-keyboard with
+      // inline-keyboard on a single message.
+      await bot.sendMessage(msg.chat.id,
+        "🍴 Cuisine Picker — Singapore to Johor Bahru\n\nFor accurate picks, share your location first — or open the picker to use device GPS.",
+        {
+          reply_markup: {
+            keyboard: [[{ text: '📍 Share location with bot', request_location: true }]],
+            resize_keyboard: true,
+            one_time_keyboard: true
+          }
+        }
+      );
+      await bot.sendMessage(msg.chat.id, "Or open the picker now (it'll try device GPS):", {
+        reply_markup: {
+          inline_keyboard: [[{
+            text: '🍴 Open Cuisine Picker',
+            web_app: { url }
+          }]]
+        }
+      });
+    }
   } catch (err) {
     console.error('[Error] /cuisine handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I can't open the Cuisine Picker right now.");
@@ -3559,6 +3617,14 @@ async function cacheBotUsername() {
         const { lat, lng, cuisines = [], filters = {}, region = 'SG', radius: clientRadius } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
+        }
+        // v0.58.26: reject {lat:0, lng:0} — the TMA had been firing
+        // searches with uninitialised coords (Railway log evidence:
+        // "center=0.0000,0.0000 radius=50000 → 0 candidates"). Zero
+        // coordinates are in the Atlantic Ocean off West Africa, not
+        // SG/JB. Treat as missing so the TMA can re-resolve.
+        if (Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001) {
+          return res.status(400).json({ error: 'invalid lat/lng (zero)' });
         }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.

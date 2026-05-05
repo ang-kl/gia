@@ -90,7 +90,12 @@ export function readOverridesFromHash() {
   const lng = Number(params.get('lng'));
   const place = params.get('place');
   const out = {};
-  if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+  // v0.58.26: reject {lat:0, lng:0} hashes — Atlantic origin, useless
+  // for SG/JB. The bot tokeniser never emits these but a malformed
+  // URL might.
+  const validLat = Number.isFinite(lat) && lat >= -90 && lat <= 90 && Math.abs(lat) > 0.001;
+  const validLng = Number.isFinite(lng) && lng >= -180 && lng <= 180 && Math.abs(lng) > 0.001;
+  if (validLat && validLng) {
     out.location = { lat, lng, name: typeof place === 'string' ? place.slice(0, 80) : '' };
   }
   return Object.keys(out).length ? out : null;
