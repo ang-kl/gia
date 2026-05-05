@@ -95,7 +95,6 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   'Why a gem: one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
   'Order this: one signature item only.',
   'Google Map URL: raw full URL.',
-  '',
   // v0.58.37: removed Criteria-met / Confidence / Sources lines per
   // Human Lead. The criteria gate is still enforced internally — you
   // must judge each candidate against C1-C4 silently and only output
@@ -104,6 +103,8 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   // not printed.
   'IMPORTANT OUTPUT RULES:',
   '- Use raw full URLs in the Google Map URL line. No hidden markdown links.',
+  '- For the Google Map URL, use ONLY the search format with the venue name as the query: https://www.google.com/maps/search/?api=1&query=<URL-encoded venue name>+Singapore. Never construct place-detail URLs (https://www.google.com/maps/place/.../data=...) — you cannot verify the underlying Place ID or lat/lng, and fabricated Place IDs / coordinates direct users to wrong locations.',
+  '- In "Why a gem" do NOT mention which criteria (C1/C2/C3/C4) the place meets. State the actual evidence in plain prose only — e.g. "rated 4.6 over 87 reviews, opened in March 2026, Eatbook coverage in February" — without the letters Cx. The criteria gate is internal.',
   '- Even though sources are not printed, you MUST verify each candidate against at least one non-aggregator source (Eatbook, HungryGoWhere, SethLui, DanielFoodDiary, Time Out Singapore, 8days, CNA Lifestyle, The Ranting Panda, Honeycombers, Rubbish Eat Rubbish Grow, or the establishment\'s own Instagram). If you cannot verify, do not include the place.',
   '- Do not fabricate ratings, addresses, opening dates, review counts, opening hours, Google Map links, or source links.',
   '- If a number is unverifiable, write "unverified".',

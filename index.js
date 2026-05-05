@@ -2420,10 +2420,61 @@ function stripMarkdown(text) {
     .replace(/`([^`\n]+)`/g, '$1');
 }
 
+// v0.58.45: Gemini still leaks the criteria letters ("meets C3 and C4",
+// "Meeting C2 and C3") into the "Why a gem" prose despite explicit
+// prompt rules. Strip the leak so the user-facing copy stays clean.
+// Patterns covered:
+//   "meets C3 and C4"
+//   "meeting C2 + C3"
+//   "this place meets C1, C2 and C4"
+//   "Meeting C3 and C4, this …"  (capitalised, leading)
+function stripCriteriaLeak(text) {
+  if (!text) return text;
+  // Match the leak pattern + adjacent whitespace, replace with a single
+  // space. Collapse + tidy afterwards so "cafe meets C3 and C4, featuring"
+  // becomes "cafe featuring", not "cafefeaturing".
+  const LEAK_RX = /\s*\b(?:[Mm]eets|[Mm]eeting)(?:\s+criteria)?\s+C[1-5](?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?(?:\s*[,&+]\s*|\s+(?:and|or)\s+)?(?:C[1-5])?\s*,?\s*/g;
+  return String(text)
+    .replace(LEAK_RX, ' ')
+    // Tidy: collapse doubled spaces, fix orphaned punctuation, lowercase
+    // a stranded sentence start ("This … . , featuring" → "This … . Featuring").
+    .replace(/ {2,}/g, ' ')
+    .replace(/\s+,/g, ',')
+    .replace(/\s+\./g, '.')
+    .replace(/^\s+|\s+$/gm, '')
+    .replace(/(\.)\s*([a-z])/g, (_, dot, c) => `${dot} ${c.toUpperCase()}`);
+}
+
+// v0.58.45: Gemini sometimes returns fabricated Place URLs of the form
+// https://www.google.com/maps/place/<name>/@lat,lng,zoom/data=!3m1!4b1!4m6!3m5!1s0x<hex>:0x<hex>
+// where the hex Place IDs and coordinates are made up. The `place/` URL
+// schema requires a verified Place ID; the `search/` schema accepts any
+// query string and lands the user on the right venue via Google's own
+// search. Rewrite any place/ URL we see using the venue name from the
+// preceding numbered heading line.
+function rewriteFabricatedPlaceUrls(text) {
+  if (!text) return text;
+  const lines = String(text).split('\n');
+  const headingRx = /^\s*\d+\.\s+(.+?)(?:\s+-\s+.*)?$/;
+  let lastVenueName = '';
+  return lines.map((line) => {
+    const head = line.match(headingRx);
+    if (head) lastVenueName = head[1].trim();
+    if (/^Google Map URL:\s*https:\/\/www\.google\.com\/maps\/place\//i.test(line)) {
+      const safeName = encodeURIComponent(`${lastVenueName || 'Singapore F&B'} Singapore`);
+      return `Google Map URL: https://www.google.com/maps/search/?api=1&query=${safeName}`;
+    }
+    return line;
+  }).join('\n');
+}
+
 function chunkHiddenGemsOutput(text, maxChars = 3800) {
-  // v0.58.36: strip Markdown FIRST so the chunker's regex (which
-  // expects "1. NAME" not "1. **NAME**") aligns with the cleaned text.
-  const cleaned = stripMarkdown(text);
+  // v0.58.36 / v0.58.45: strip Markdown, scrub criteria leaks, and
+  // rewrite fabricated Place URLs BEFORE chunking so the user-facing
+  // text is final.
+  const cleaned = rewriteFabricatedPlaceUrls(
+    stripCriteriaLeak(stripMarkdown(text))
+  );
   if (!cleaned || cleaned.length <= maxChars) return [cleaned || ''];
   const out = [];
   let buf = '';
