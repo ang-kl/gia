@@ -2257,32 +2257,42 @@ async function runSurpriseCommand(chatId) {
     // the initial line stays short.
     await safeSend(chatId, `🔍 Searching hidden gems near ${anchorName}… please wait.`);
 
-    // v0.58.30: progress pulses so the user sees life past 20 s. Per
-    // Human Lead — "still does not prompt user to wait after 20s".
-    // Gemini-with-Google-Search regularly needs 30–60 s when source
-    // verification fans out. We send a varied message every 12 s
-    // until the response lands. clearInterval in the finally block
-    // ensures no orphaned pulses fire after success/error.
+    // v0.58.30: progress pulses so the user sees life past 20 s.
+    // v0.58.41: cap pulses at MAX_PULSES so a hung Gemini call doesn't
+    // spam the chat indefinitely (user reported a "loop" on v0.58.36
+    // when the fallback chain took 2+ min). Also drop the brand-name
+    // list per Human Lead. Hard 90 s timeout below catches the actual
+    // hang.
     const PROGRESS_LINES = [
       '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
-      '⏳ Verifying source quality (Eatbook, SethLui, 8days, Honeycombers, etc.)…',
+      '⏳ Verifying source quality…',
       '⏳ Checking opening dates and review counts against Google…',
       '⏳ Almost there — drafting the picks and citing sources.',
       '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
     ];
+    const MAX_PULSES = 5;
     let pulseIdx = 0;
     const pulseTimer = setInterval(() => {
+      if (pulseIdx >= MAX_PULSES) { clearInterval(pulseTimer); return; }
       safeSend(chatId, PROGRESS_LINES[pulseIdx % PROGRESS_LINES.length]).catch(() => {});
       pulseIdx++;
     }, 12_000);
 
+    // v0.58.41: hard 90 s timeout. Gemini-with-Google-Search occasionally
+    // hangs (slow upstream search index, model retry loop). Without a
+    // ceiling the user sees pulse-after-pulse forever. 90 s comfortably
+    // covers the typical 30-60 s call; anything longer is broken.
+    const HIDDEN_TIMEOUT_MS = 90_000;
     const gc = require('./gemini-client');
     let result;
     try {
-      result = await gc.generateGroundedHiddenGems({
-        anchor,
-        todayIsoSGT: gc.todaySGT()
-      });
+      result = await Promise.race([
+        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT() }),
+        new Promise((_, reject) => setTimeout(
+          () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
+          HIDDEN_TIMEOUT_MS
+        ))
+      ]);
     } catch (err) {
       clearInterval(pulseTimer);
       // v0.58.34: surface the actual underlying error(s) instead of a
@@ -3740,11 +3750,12 @@ async function cacheBotUsername() {
         }
         if (region === 'JB') tokens.push('region:JB');
 
-        if (!tokens.length) {
-          return res.status(400).json({ error: 'nothing to copy — pick a cuisine or filter first' });
-        }
-
-        const cmd = `/cuisine ${tokens.join(' ')}`.trim();
+        // v0.58.41: allow bare `/cuisine` when no tokens. User reported
+        // they couldn't copy a warm-start search (no cuisines/filters
+        // set) — but the result list IS shareable; the recipient just
+        // re-runs /cuisine and gets a fresh warm-start at their own
+        // location. Previously we 400'd this case.
+        const cmd = tokens.length ? `/cuisine ${tokens.join(' ')}`.trim() : '/cuisine';
         // HTML mode → wrap the command in <code> so Telegram styles it
         // as a tap-to-copy block. Escape only the angle-brackets / amp
         // / quote so accidental HTML in the friendly intro is safe.
