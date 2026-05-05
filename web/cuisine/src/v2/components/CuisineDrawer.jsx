@@ -5,10 +5,13 @@ const MAX_SELECTED = 5;
 
 // v0.59.0: cuisine drawer rebuilt as a 2-column grid of category
 // cards with preview chips. Tapping a card opens a full-overlay
-// drill-down (CuisineCategoryDrawer) where the user picks individual
-// cuisines from a 2-column flag-prefixed pill grid. Inline expansion
-// has been retired — solves both the "twin drawer" co-expand bug
-// (v0.58.12) and the ragged chip-wrap inside narrow cells (v0.58.13).
+// drill-down (CuisineCategoryDrawer).
+// v0.59.1: cards switched to single-line compact layout (was a
+// multi-line block with preview chips, ate too much vertical real
+// estate per Human Lead). Top card is the merged "Common here,
+// Southeast Asia, Oceanic" — full-width, spans both columns,
+// combines common-here + southeast-asian source categories. Other
+// 6 categories continue in the 2-col grid below.
 export default function CuisineDrawer({ catalogue, selected, onChange }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
 
@@ -19,62 +22,54 @@ export default function CuisineDrawer({ catalogue, selected, onChange }) {
     else if (selected.length < MAX_SELECTED) onChange([...selected, slug]);
   }
 
-  // Up to 3 preview slugs per category card. Prefer slugs the user
-  // has already selected so the card "shows what's active" at a
-  // glance. Otherwise pick the first 3 in source order.
-  function previewCuisines(cat) {
-    const sel = cat.cuisines.filter((c) => selected.includes(c.slug));
-    const others = cat.cuisines.filter((c) => !selected.includes(c.slug));
-    return [...sel, ...others].slice(0, 3);
-  }
+  // v0.59.1: merge common-here + southeast-asian into one full-width
+  // card per Human Lead. Combined category surface name is "Common
+  // here, Southeast Asia, Oceanic". Source slugs preserved untouched
+  // (Tell Gia, copy-syntax, search pipeline still see the original
+  // per-cuisine flag/category metadata).
+  const mergedCategories = (() => {
+    const common = catalogue.find((c) => c.id === 'common-here');
+    const sea = catalogue.find((c) => c.id === 'southeast-asian');
+    const others = catalogue.filter((c) => c.id !== 'common-here' && c.id !== 'southeast-asian');
+    if (!common && !sea) return others;
+    const mergedFirst = {
+      id: 'common-here-merged',
+      label: 'Common here, Southeast Asia, Oceanic',
+      emoji: '🌟',
+      cuisines: [...(common?.cuisines || []), ...(sea?.cuisines || [])]
+    };
+    return [mergedFirst, ...others];
+  })();
 
   const openCategory = openCategoryId
-    ? catalogue.find((c) => c.id === openCategoryId)
+    ? mergedCategories.find((c) => c.id === openCategoryId)
     : null;
 
+  function CategoryCard({ cat, fullWidth }) {
+    const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
+    return (
+      <button
+        type="button"
+        onClick={() => setOpenCategoryId(cat.id)}
+        title={cat.label}
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-left hover:border-tg-accent transition-colors ${fullWidth ? 'col-span-2' : ''}`}
+      >
+        <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
+        <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{cat.label}</span>
+        {selectedInCat > 0 && (
+          <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>
+        )}
+        <span aria-hidden className="text-tg-hint flex-shrink-0">▸</span>
+      </button>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-2 gap-2">
-        {catalogue.map((cat) => {
-          const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
-          const previews = previewCuisines(cat);
-          return (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setOpenCategoryId(cat.id)}
-              title={cat.label}
-              className="flex flex-col gap-1.5 px-2.5 py-2 rounded-2xl border border-tg-border bg-tg-card text-left hover:border-tg-accent transition-colors"
-            >
-              <div className="flex items-center gap-1.5">
-                <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
-                <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{cat.label}</span>
-                {selectedInCat > 0 && (
-                  <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>
-                )}
-                <span aria-hidden className="text-tg-hint flex-shrink-0">▸</span>
-              </div>
-              <div className="flex flex-wrap gap-1 px-0.5">
-                {previews.map((cu) => {
-                  const sel = selected.includes(cu.slug);
-                  return (
-                    <span
-                      key={cu.slug}
-                      className={`text-[10px] leading-tight px-1.5 py-0.5 rounded-full border ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-bg text-tg-hint border-tg-border'}`}
-                    >
-                      {cu.flag ? `${cu.flag} ` : ''}{cu.name}
-                    </span>
-                  );
-                })}
-                {cat.cuisines.length > previews.length && (
-                  <span className="text-[10px] leading-tight px-1.5 py-0.5 text-tg-hint">
-                    +{cat.cuisines.length - previews.length}
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
+    <div className="flex flex-col gap-1.5">
+      <div className="grid grid-cols-2 gap-1.5">
+        {mergedCategories.map((cat, i) => (
+          <CategoryCard key={cat.id} cat={cat} fullWidth={i === 0} />
+        ))}
       </div>
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">

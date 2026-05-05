@@ -61,6 +61,17 @@ export default function App() {
   // list into view after a successful 🔍 Search press. Users were
   // missing the result list because it sits below the cuisine drawer.
   const resultPanelRef = useRef(null);
+  // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
+  // once the user has scrolled past the hero (map + active chips).
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  useEffect(() => {
+    function onScroll() {
+      setScrolledPastHero((window.scrollY || 0) > 320);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   function stateSig(s) {
     return JSON.stringify({
@@ -151,18 +162,37 @@ export default function App() {
       runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng });
       return;
     }
-    setLoading(true); setError(null);
-    warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region })
-      .then((r) => {
-        setVenues(r.venues || []);
-        setWarmStartSeed(r.seed || null);
-        setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
-      })
-      .catch((err) => {
-        console.warn('[Cuisine-TMA-v2] warm-start failed, falling back:', err.message);
-        runSearch(state);
-      })
-      .finally(() => setLoading(false));
+    // v0.59.1: previously the picker showed an empty list whenever
+    // warm-start returned HTTP 200 with `venues: []` (all rotating
+    // seeds yielded zero Places-API candidates). The .catch only
+    // handled network/HTTP failures. Now we explicitly fall back to
+    // runSearch when venues is empty too.
+    (async () => {
+      setLoading(true); setError(null);
+      try {
+        const r = await warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region });
+        if (r?.venues?.length) {
+          setVenues(r.venues);
+          setWarmStartSeed(r.seed || null);
+          setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+          console.log(`[Cuisine-TMA-v2] warm-start ok seed=${r.seed} count=${r.venues.length}`);
+          return;
+        }
+        console.warn('[Cuisine-TMA-v2] warm-start returned empty venues; falling back to runSearch');
+      } catch (err) {
+        console.warn('[Cuisine-TMA-v2] warm-start failed:', err.message);
+      }
+      // Fallback: a generic /api/cuisine/search at the user's GPS with
+      // no cuisine constraint. The full pipeline always returns ≥ a
+      // few candidates anywhere in SG/JB.
+      try {
+        await runSearch(state);
+      } catch (err) {
+        console.warn('[Cuisine-TMA-v2] runSearch fallback failed:', err.message);
+      } finally {
+        setLoading(false);
+      }
+    })().finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
@@ -440,8 +470,36 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.0 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.59.1 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
+
+      {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
+          (so the user can re-run a search without scrolling back to
+          the criteria builder), plus a contextual ↑ Top that only
+          appears when the user has scrolled past the hero (map +
+          active filters). Stacked bottom-right, fixed positioning,
+          z-30 to sit above the result panel. */}
+      <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30 pointer-events-none">
+        {scrolledPastHero && (
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Back to top"
+            className="pointer-events-auto w-11 h-11 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-base font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
+          >↑</button>
+        )}
+        <button
+          type="button"
+          onClick={() => runSearch(state)}
+          disabled={loading}
+          aria-label="Search · Show me places to eat"
+          className={`pointer-events-auto w-11 h-11 rounded-full shadow-md text-base font-semibold flex items-center justify-center active:scale-95 transition-all ${
+            loading ? 'bg-tg-card text-tg-hint border border-tg-border'
+            : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
+            : 'bg-tg-accent text-tg-accent-text'
+          }`}
+        >🔍</button>
+      </div>
     </div>
   );
 }
