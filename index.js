@@ -948,17 +948,51 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
           : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
           : ` · ${Math.floor(ageM / 1440)} d ago`);
         const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
-        // v0.58.21: stale gate — anything older than 30 min is no
-        // longer safe to anchor cuisine searches. Surface a warning
-        // and tell the user how to refresh.
+        // v0.59.2: reverse-geocode the cached coords into a readable
+        // street/neighbourhood name so users see "Telok Blangah" not
+        // a raw lat/lng. Falls back to coords if the geocode fails or
+        // the API key is missing.
+        let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+        try {
+          const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+          if (apiKey) {
+            const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&key=${apiKey}`;
+            const { data } = await axios.get(url, { timeout: 5000 });
+            const r = data?.results?.[0];
+            if (r?.formatted_address) {
+              const components = r.address_components || [];
+              const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
+              const friendly = findComp('neighborhood')
+                || findComp('sublocality_level_1')
+                || findComp('sublocality')
+                || findComp('locality');
+              placeLine = friendly
+                ? `${friendly} — ${r.formatted_address}`
+                : r.formatted_address;
+            }
+          }
+        } catch (err) {
+          console.warn('[/location] reverse-geocode failed:', err.message);
+        }
+        // v0.58.21: stale gate. v0.59.2: when stale, also surface a
+        // request_location keyboard so users can re-share their pin
+        // in one tap (rather than typing /location <place>).
         const isStale = ageM != null && ageM > 30;
         const staleNote = isStale
-          ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Re-share a location pin or run `/location <place>` to anchor searches accurately.'
+          ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
           : '';
+        const opts = { parse_mode: 'Markdown', disable_web_page_preview: true };
+        if (isStale) {
+          opts.reply_markup = {
+            keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+            one_time_keyboard: true,
+            resize_keyboard: true
+          };
+        }
         await safeSend(chatId,
-          `📍 Current cached location: ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
+          `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
           'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or share a location pin.',
-          { parse_mode: 'Markdown', disable_web_page_preview: true }
+          opts
         );
         return;
       }

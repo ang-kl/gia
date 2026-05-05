@@ -94,52 +94,69 @@ export default function App() {
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
   }, []);
 
-  // v0.58.20: bounded geolocation resolution. Previously
-  // `navigator.geolocation.getCurrentPosition` was called with no
-  // options → default `timeout: Infinity`. If the user dismissed the
-  // permission prompt or Telegram's webview restricted geolocation
-  // silently, neither callback fired → `userLoc` stayed `null` →
-  // warm-start never triggered → empty venue list. Now we cap at
-  // 5 s and fall back through the server-cached location (set via
-  // /location <place> or a shared location pin) before defaulting
-  // to the SG centroid.
+  // v0.58.20: bounded geolocation resolution.
+  // v0.59.2: cache-first per Human Lead. Previously the order was
+  // GPS → server cache → SG centroid, which meant a fresh
+  // `/location <place>` set seconds before opening the TMA could be
+  // ignored if the device had a stale GPS fix lying around. The user
+  // typed /location *deliberately* — that should anchor the search.
+  // New order:
+  //   1. Telegram WebApp.user_location  (rarely populated)
+  //   2. Server cache via /api/cuisine/user-location  (fresh ≤30 min,
+  //      gated server-side)
+  //   3. navigator.geolocation  (5 s timeout)
+  //   4. SG centroid
   useEffect(() => {
     let cancelled = false;
     const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
-    async function fallbackToServerCache() {
+    async function tryServerCache() {
       try {
         const r = await fetchUserLocation();
         if (!cancelled && r?.lat != null && r?.lng != null) {
           setUserLoc({ lat: r.lat, lng: r.lng });
+          console.log('[Cuisine-TMA-v2] userLoc from server cache', r);
           return true;
         }
-      } catch { /* server cache miss / 401 — fall through */ }
+      } catch { /* 404/401/network — fall through */ }
       return false;
     }
 
-    const w = tg();
-    const init = w?.initDataUnsafe || {};
-    const tgLoc = init.user_location || init.user?.location;
-    if (tgLoc?.latitude && tgLoc?.longitude) {
-      setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
-      return;
-    }
-    if (!navigator.geolocation) {
-      // No browser geo API at all — try server cache, then SG centroid.
-      fallbackToServerCache().then((ok) => {
-        if (!ok && !cancelled) setUserLoc(SG_CENTROID);
+    function tryGps() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) { resolve(false); return; }
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            if (!cancelled) {
+              setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
+              console.log('[Cuisine-TMA-v2] userLoc from GPS');
+            }
+            resolve(true);
+          },
+          () => resolve(false),
+          { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
+        );
       });
-      return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (p) => { if (!cancelled) setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude }); },
-      async () => {
-        const ok = await fallbackToServerCache();
-        if (!ok && !cancelled) setUserLoc(SG_CENTROID);
-      },
-      { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
-    );
+
+    (async () => {
+      const w = tg();
+      const init = w?.initDataUnsafe || {};
+      const tgLoc = init.user_location || init.user?.location;
+      if (tgLoc?.latitude && tgLoc?.longitude) {
+        if (!cancelled) {
+          setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
+          console.log('[Cuisine-TMA-v2] userLoc from Telegram initData');
+        }
+        return;
+      }
+      if (await tryServerCache()) return;
+      if (await tryGps()) return;
+      if (!cancelled) {
+        setUserLoc(SG_CENTROID);
+        console.log('[Cuisine-TMA-v2] userLoc fallback to SG centroid');
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
 
@@ -470,7 +487,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.1 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.59.2 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

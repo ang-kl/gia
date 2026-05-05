@@ -60,16 +60,24 @@ describe('integration — load real cuisines_js.MD file', () => {
   });
 
   it('groups by category with expected counts', () => {
+    // v0.59.2: regrouped per Human Lead. Source markdown still has
+    // 8 categories in the original layout; cuisines-vault remaps at
+    // load time into a 10-bucket world-region view. Total cuisine
+    // count remains 72; each cuisine's slug is unchanged.
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
-    expect(counts['common-here']).toBe(20);
-    expect(counts['southeast-asian']).toBe(2);
+    expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
+    expect(counts['southeast-asian']).toBe(8);      // + Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese
+    expect(counts['east-asian']).toBe(4);           // (new) Japanese, Chinese, Korean, Taiwanese
     expect(counts['china-regional']).toBe(10);
-    expect(counts['south-asian']).toBe(5);
-    expect(counts['european']).toBe(17);
+    expect(counts['south-asian']).toBe(7);          // + South Indian, North Indian
     expect(counts['middle-eastern']).toBe(10);
-    expect(counts['americas']).toBe(4);
+    expect(counts['european']).toBe(17);
+    expect(counts['americas']).toBe(7);             // + American, Mexican, Brazilian
+    expect(counts['australasia']).toBe(2);          // (new) Australian, New Zealand
     expect(counts['african']).toBe(4);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    expect(total).toBe(72);
   });
 
   it('Common Here is the only defaultOpen', () => {
