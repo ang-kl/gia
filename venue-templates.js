@@ -129,10 +129,11 @@ function formatVenueBlock(p, opts = {}) {
     lines.push(escapeHtml(sanctuaryRead.trim()));
   }
   const stats = formatStatsLine(p, { includeDistance });
-  if (stats) {
-    if (lines[lines.length - 1] !== '') lines.push('');  // separator before stats
-    lines.push(stats);
-  }
+  // v0.58.51: per Human Lead — drop the blank line before the stats
+  // row. The ✨ row should sit flush against the preceding row (or
+  // the sanctuary read block) for compactness within a single pick.
+  // The separator BETWEEN picks lives at the join site, not here.
+  if (stats) lines.push(stats);
   if (includeOrder) {
     const orderLine = formatOrderLine(p);
     if (orderLine) lines.push(orderLine);
