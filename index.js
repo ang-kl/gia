@@ -2278,11 +2278,12 @@ async function runSurpriseCommand(chatId) {
       pulseIdx++;
     }, 12_000);
 
-    // v0.58.41: hard 90 s timeout. Gemini-with-Google-Search occasionally
+    // v0.58.41: hard timeout. Gemini-with-Google-Search occasionally
     // hangs (slow upstream search index, model retry loop). Without a
-    // ceiling the user sees pulse-after-pulse forever. 90 s comfortably
-    // covers the typical 30-60 s call; anything longer is broken.
-    const HIDDEN_TIMEOUT_MS = 90_000;
+    // ceiling the user sees pulse-after-pulse forever.
+    // 180 s leaves headroom for the 5-step fallback chain (each
+    // attempt can take 30-40 s under load); anything longer is broken.
+    const HIDDEN_TIMEOUT_MS = 180_000;
     const gc = require('./gemini-client');
     let result;
     try {
