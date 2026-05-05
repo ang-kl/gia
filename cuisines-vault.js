@@ -127,11 +127,25 @@ const SLUG_TO_CATEGORY = {
   'new-zealand': 'australasia'
 };
 
+// v0.59.2: source-category label remap.
+// v0.59.3: every destination bucket gets a canonical label here. The
+// previous version only listed renamed buckets — categories that
+// kept their source-id (southeast-asian, americas, china-regional,
+// etc.) inherited whatever label the FIRST cuisine remapped into
+// them carried, which produced "Common Here" everywhere because the
+// many cuisines moved out of the old common-here block dragged that
+// label with them.
 const CATEGORY_LABEL_OVERRIDE = {
-  'common-here':     'Common in Singapore',
-  'east-asian':      'East Asian',
-  'south-asian':     'South Asian',
-  'australasia':     'Australasia'
+  'common-here':       'Common in Singapore',
+  'southeast-asian':   'Southeast Asian',
+  'east-asian':        'East Asian',
+  'china-regional':    'China (Regional)',
+  'south-asian':       'South Asian',
+  'middle-eastern':    'Middle Eastern & Central Asian',
+  'european':          'European',
+  'americas':          'Americas',
+  'australasia':       'Australasia',
+  'african':           'African'
 };
 
 function slugify(name) {
