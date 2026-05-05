@@ -2280,7 +2280,7 @@ async function runSurpriseCommand(chatId) {
     // ensures no orphaned pulses fire after success/error.
     const PROGRESS_LINES = [
       '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
-      '⏳ Verifying source quality (Eatbook, SethLui, 8days, Honeycombers, etc.)…',
+      '⏳ Verifying source quality…',
       '⏳ Checking opening dates and review counts against Google…',
       '⏳ Almost there — drafting the picks and citing sources.',
       '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
