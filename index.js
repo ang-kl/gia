@@ -2270,7 +2270,10 @@ async function runSurpriseCommand(chatId) {
       '⏳ Almost there — drafting the picks and citing sources.',
       '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
     ];
-    const MAX_PULSES = 5;
+    // v0.58.41: 10 pulses × 12 s = 120 s of "still working" coverage.
+    // Pairs with the 180 s timeout so the user sees activity for two
+    // thirds of the worst-case wait before silence.
+    const MAX_PULSES = 10;
     let pulseIdx = 0;
     const pulseTimer = setInterval(() => {
       if (pulseIdx >= MAX_PULSES) { clearInterval(pulseTimer); return; }
