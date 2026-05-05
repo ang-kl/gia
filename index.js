@@ -2258,6 +2258,25 @@ async function runSurpriseCommand(chatId) {
       { parse_mode: 'Markdown' }
     );
 
+    // v0.58.30: progress pulses so the user sees life past 20 s. Per
+    // Human Lead — "still does not prompt user to wait after 20s".
+    // Gemini-with-Google-Search regularly needs 30–60 s when source
+    // verification fans out. We send a varied message every 12 s
+    // until the response lands. clearInterval in the finally block
+    // ensures no orphaned pulses fire after success/error.
+    const PROGRESS_LINES = [
+      '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
+      '⏳ Verifying source quality (Eatbook, SethLui, 8days, Honeycombers, etc.)…',
+      '⏳ Checking opening dates and review counts against Google…',
+      '⏳ Almost there — drafting the picks and citing sources.',
+      '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
+    ];
+    let pulseIdx = 0;
+    const pulseTimer = setInterval(() => {
+      safeSend(chatId, PROGRESS_LINES[pulseIdx % PROGRESS_LINES.length]).catch(() => {});
+      pulseIdx++;
+    }, 12_000);
+
     const gc = require('./gemini-client');
     let result;
     try {
@@ -2266,6 +2285,7 @@ async function runSurpriseCommand(chatId) {
         todayIsoSGT: gc.todaySGT()
       });
     } catch (err) {
+      clearInterval(pulseTimer);
       console.error('[/hidden] Gemini call failed:', err.message);
       await safeSend(chatId,
         "Sorry, /hidden hit a backend snag (Gemini with Google Search). Please retry in a moment — " +
@@ -2273,6 +2293,7 @@ async function runSurpriseCommand(chatId) {
       );
       return;
     }
+    clearInterval(pulseTimer);
 
     console.log(`[/hidden] Gemini ok model=${result.model} chars=${result.text.length}`);
     // Telegram message limit is 4096 chars. Chunk on per-result
