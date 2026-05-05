@@ -1009,24 +1009,29 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         } catch (err) {
           console.warn('[/location] reverse-geocode failed:', err.message);
         }
-        // v0.58.21: stale gate. v0.59.2: when stale, also surface a
-        // request_location keyboard so users can re-share their pin
-        // in one tap (rather than typing /location <place>).
+        // v0.58.21: stale gate. v0.59.2: when stale, surface a
+        // request_location keyboard.
+        // v0.58.23: keyboard now ALWAYS shows on /location no-args
+        // (not just stale). Bots can't auto-detect device GPS — the
+        // user must explicitly share. Surfacing the button at all
+        // times makes the share path one tap regardless of cache
+        // freshness.
         const isStale = ageM != null && ageM > 30;
         const staleNote = isStale
           ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
-          : '';
-        const opts = { parse_mode: 'Markdown', disable_web_page_preview: true };
-        if (isStale) {
-          opts.reply_markup = {
+          : '\n\n_Bots can\'t read your device GPS automatically. Tap the button below to share a fresh pin, or run `/location <place>` to anchor manually._';
+        const opts = {
+          parse_mode: 'Markdown',
+          disable_web_page_preview: true,
+          reply_markup: {
             keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
             one_time_keyboard: true,
             resize_keyboard: true
-          };
-        }
+          }
+        };
         await safeSend(chatId,
           `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
-          'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or share a location pin.',
+          'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
           opts
         );
         return;
@@ -1034,11 +1039,20 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     } catch (err) {
       console.warn('[/location] cache lookup failed:', err.message);
     }
+    // v0.58.23: no-cache fallthrough also offers the share-location
+    // keyboard. Bots can't pull device GPS automatically; the user
+    // must initiate the share.
     await safeSend(chatId,
-      'No location cached yet. Set one with:\n' +
-      '`/location <place>` (e.g. `/location Tanjong Pagar MRT`)\n' +
-      'Or share a location pin via the 📎 attachment menu.',
-      { parse_mode: 'Markdown' }
+      "No location cached yet.\n\n" +
+      "_Bots can't read your device GPS automatically._ Tap the button below to share your current location pin, or set one manually with `/location <place>` (e.g. `/location Tanjong Pagar MRT`).",
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      }
     );
     return;
   }
