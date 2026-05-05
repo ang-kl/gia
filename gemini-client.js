@@ -113,7 +113,8 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Keep the tone neutral.',
   '- No exclamation marks.',
   '- No emojis.',
-  '- No marketing language.'
+  '- No marketing language.',
+  '- Plain text only. Do not use Markdown formatting — no double-asterisk bold (**...**), no underscores for italics, no headings (#), no backticks. The Telegram client renders these as literal characters.'
 ].join('\n');
 
 function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT }) {

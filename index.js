@@ -2341,12 +2341,38 @@ async function runSurpriseCommand(chatId) {
 // blank-line-then-numbered-heading boundaries (e.g. "\n\n2. NAME").
 // Falls back to length-based split if a single venue exceeds the
 // limit. Exported for tests.
+//
+// v0.58.36: also strips Markdown bold (`**X**`) which Gemini emits
+// despite our prompt instruction. The Telegram client doesn't render
+// `**` as bold (its Markdown mode uses single `*`), and escaping
+// every URL in the Sources block to use Telegram's parse_mode is
+// fragile. Plain text wins. Same for `__italic__` and bare `#headings`.
+function stripMarkdown(text) {
+  if (!text) return text;
+  return String(text)
+    // Bold: **text** → text   (greedy non-newline, paired)
+    .replace(/\*\*([^*\n][^*]*?)\*\*/g, '$1')
+    // Underscored emphasis used by some Gemini outputs (__text__)
+    .replace(/__([^_\n][^_]*?)__/g, '$1')
+    // Single-asterisk emphasis: *text* → text  (avoid bullet lines starting with "* ")
+    .replace(/(^|[^\*])\*([^\s*][^*\n]*?)\*([^\*]|$)/g, '$1$2$3')
+    // Leading "# " / "## " ATX headings
+    .replace(/^#{1,6}\s+/gm, '')
+    // Inline backticks `code` → code
+    .replace(/`([^`\n]+)`/g, '$1');
+}
+
 function chunkHiddenGemsOutput(text, maxChars = 3800) {
-  if (!text || text.length <= maxChars) return [text || ''];
+  // v0.58.36: strip Markdown FIRST so the chunker's regex (which
+  // expects "1. NAME" not "1. **NAME**") aligns with the cleaned text.
+  const cleaned = stripMarkdown(text);
+  if (!cleaned || cleaned.length <= maxChars) return [cleaned || ''];
   const out = [];
   let buf = '';
-  // Split on the boundary BEFORE a numbered heading line.
-  const parts = text.split(/(?=\n\d+\.\s+[A-Z])/);
+  // v0.58.36: relaxed split — match a numbered heading even if the
+  // first character after the number is non-letter (** stripped above
+  // but still defensive: digits, quotes, special chars).
+  const parts = cleaned.split(/(?=\n\d+\.\s+\S)/);
   for (const p of parts) {
     if ((buf + p).length > maxChars) {
       if (buf) { out.push(buf); buf = ''; }
