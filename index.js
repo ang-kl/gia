@@ -1011,7 +1011,33 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const CURRENT_KEYWORDS = new Set([
     'current', 'now', 'here', 'me', 'my', 'gps', 'device'
   ]);
-  const text = CURRENT_KEYWORDS.has(rawText.toLowerCase()) ? '' : rawText;
+  // v0.58.42: distinguish "explicit current request" from "no args".
+  //   `/location`         → show cached + keyboard (so users can quickly
+  //                         see what's anchoring their searches)
+  //   `/location current` → SKIP cached, prompt for a fresh pin only.
+  //                         User typed "current" — they want fresh GPS,
+  //                         not yesterday's stored value.
+  const wantsCurrent = CURRENT_KEYWORDS.has(rawText.toLowerCase());
+  const text = wantsCurrent ? '' : rawText;
+  if (wantsCurrent) {
+    // Bots can't read device GPS unsolicited; the only way to "catch
+    // current location" is the user tapping the Share-pin keyboard.
+    // Make that path the entire response — no stale-cache distraction.
+    await safeSend(chatId,
+      "📍 *To set your current location, tap the button below.*\n\n" +
+      "Bots can't auto-detect device GPS — Telegram requires you to share it explicitly. " +
+      "Once tapped, your location is cached for 30 min and used by /cuisine, /hidden, /carpark, /transport.",
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+          resize_keyboard: true,
+          one_time_keyboard: true
+        }
+      }
+    );
+    return;
+  }
   if (!text) {
     // v0.58.20: no-args path now reports the cached location
     // (instead of just printing usage). When nothing is cached, we
