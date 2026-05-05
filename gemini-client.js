@@ -231,14 +231,27 @@ async function generateGroundedHiddenGems({
     dedupedAttempts.push(a);
   }
 
-  // v0.58.42: helper — invoke generateContent once and return the
-  // success or throw. Wrapped so the per-attempt loop can call it
-  // twice when the first attempt is a transient 503 ("high demand").
+  // v0.58.42 / v0.58.43: invoke generateContent once with a hard
+  // per-attempt deadline. Wraps generateContent in Promise.race so
+  // a hung model (e.g. gemini-2.5-pro under load) doesn't burn the
+  // entire overall timeout — we cut after PER_ATTEMPT_MS and move
+  // to the next fallback. The wrapped function is still called
+  // twice when the first invocation is a transient 503.
+  const PER_ATTEMPT_MS = 60_000;
   async function tryOnce(attempt) {
     const m = genAI.getGenerativeModel({ model: attempt.model, tools: [attempt.tool] });
-    const r = await m.generateContent(prompt);
-    const text = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
-    if (!text || !text.trim()) throw new Error('empty response from Gemini');
+    const text = await Promise.race([
+      (async () => {
+        const r = await m.generateContent(prompt);
+        const t = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
+        if (!t || !t.trim()) throw new Error('empty response from Gemini');
+        return t;
+      })(),
+      new Promise((_, reject) => setTimeout(
+        () => reject(new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`)),
+        PER_ATTEMPT_MS
+      ))
+    ]);
     return text;
   }
 

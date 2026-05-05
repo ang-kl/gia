@@ -2293,7 +2293,7 @@ async function runSurpriseCommand(chatId) {
       '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
       '⏳ Verifying source quality…',
       '⏳ Checking opening dates and review counts against Google…',
-      '⏳ Almost there — drafting the picks and citing sources.',
+      '⏳ Almost there — drafting the picks.',
       '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
     ];
     // v0.58.41: 10 pulses × 12 s = 120 s of "still working" coverage.
@@ -2307,12 +2307,12 @@ async function runSurpriseCommand(chatId) {
       pulseIdx++;
     }, 12_000);
 
-    // v0.58.41: hard timeout. Gemini-with-Google-Search occasionally
-    // hangs (slow upstream search index, model retry loop). Without a
-    // ceiling the user sees pulse-after-pulse forever.
-    // 180 s leaves headroom for the 5-step fallback chain (each
-    // attempt can take 30-40 s under load); anything longer is broken.
-    const HIDDEN_TIMEOUT_MS = 180_000;
+    // v0.58.43: bumped 180 s → 240 s. Per-attempt 60 s deadline now
+    // lives inside gemini-client (see PER_ATTEMPT_MS), so a hung
+    // model gets cut before it can eat the whole budget. 4 attempts
+    // × 60 s each = 240 s ceiling. Leaves headroom for a slow but
+    // working gemini-2.5-pro fallback (60-90 s grounded calls).
+    const HIDDEN_TIMEOUT_MS = 240_000;
     const gc = require('./gemini-client');
     let result;
     try {
@@ -2339,7 +2339,7 @@ async function runSurpriseCommand(chatId) {
       const isTimeout = /exceeded \d+s timeout/i.test(err.message || '');
       if (isTimeout) {
         await safeSend(chatId,
-          `⏱ /hidden timed out after 3 minutes — Gemini was unresponsive on every fallback model.\n\n` +
+          `⏱ /hidden timed out after 4 minutes — Gemini was unresponsive on every fallback model.\n\n` +
           `This usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.`
         );
         return;
