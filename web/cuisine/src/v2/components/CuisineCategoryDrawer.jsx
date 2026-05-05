@@ -19,11 +19,20 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
   const selectedInCat = category.cuisines.filter((c) => selected.includes(c.slug)).length;
 
   return (
+    // v0.58.29: was a full-screen `fixed inset-0` overlay which made
+    // the bottom "Done" button hard to reach on tall phones. Reworked
+    // as a backdrop-scrim + centered modal capped at min(560 px,
+    // 90vh / 90vw) so the user perceives it as a popup and the Done
+    // button is always visible without scrolling the body.
     <div
-      className="fixed inset-0 z-30 flex flex-col bg-tg-bg"
+      className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-label={`${category.label} cuisines`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
+      <div
+        className="flex flex-col w-full max-w-[480px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden"
+      >
       <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
         <button
           type="button"
@@ -70,6 +79,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           onClick={onClose}
           className="w-full text-xs font-semibold px-3 py-2 rounded-2xl bg-tg-accent text-tg-accent-text"
         >Done</button>
+      </div>
       </div>
     </div>
   );

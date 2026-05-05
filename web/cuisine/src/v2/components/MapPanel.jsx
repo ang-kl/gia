@@ -144,6 +144,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     onSearchHere(c.lat(), c.lng());
   }
 
+  // v0.58.29: "Show your location" recenter affordance. Mirrors the
+  // Google Maps native button — pans the viewport to userLoc and
+  // sets a sensible neighbourhood-level zoom. No-op when userLoc
+  // hasn't resolved.
+  function handleRecenterClick() {
+    if (!mapRef.current || !userLoc) return;
+    programmaticUpdateRef.current = true;
+    mapRef.current.panTo({ lat: userLoc.lat, lng: userLoc.lng });
+    if (mapRef.current.getZoom() < 14) mapRef.current.setZoom(15);
+  }
+
   return (
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       {/* v0.58.17: map height now scales with viewport. Phone keeps
@@ -160,6 +171,20 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           aria-label="Search this area"
         >🔍 Search this area</button>
       )}
+      {/* v0.58.29: "Show your location" recenter button. Bottom-right
+          floating like the Google Maps native app. Disabled state
+          when userLoc hasn't resolved yet keeps the affordance
+          visible so the user knows it exists. */}
+      <button
+        type="button"
+        onClick={handleRecenterClick}
+        disabled={!userLoc}
+        className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base z-10 ${userLoc ? 'hover:bg-gray-50 active:bg-gray-100 text-gray-900' : 'text-gray-400 cursor-not-allowed'}`}
+        aria-label="Show your location"
+        title="Show your location"
+      >
+        <span aria-hidden>📍</span>
+      </button>
       {children}
     </div>
   );
