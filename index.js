@@ -3425,6 +3425,20 @@ async function registerCommandsMenu() {
     } catch (err) {
       console.warn('[setMyDescription] failed (non-fatal):', err.message);
     }
+
+    // v0.59.8: setMyShortDescription — the "About" blurb shown on the
+    // bot's profile page and in share / forward previews. 120-char limit
+    // per Telegram. EN default + FR via language_code='fr'.
+    const enShortDescription =
+      "Singapore breakfast/lunch/dining concierge — cuisines, hawkers, transport, weather. Free to use.";
+    const frShortDescription =
+      "Conciergerie petit-déj/déjeuner/dîner à Singapour — cuisines, hawkers, transports, météo. Gratuit.";
+    try {
+      await bot.setMyShortDescription(enShortDescription);
+      await bot.setMyShortDescription(frShortDescription, { language_code: 'fr' });
+    } catch (err) {
+      console.warn('[setMyShortDescription] failed (non-fatal):', err.message);
+    }
     if (useWebhook) {
       await bot.setChatMenuButton({
         menu_button: {
