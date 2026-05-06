@@ -74,6 +74,21 @@ export default function LocationField({ userLoc, region, onSelect }) {
     } finally { setLoading(false); }
   }
 
+  // v0.59.12: Enter-to-anchor. The autocomplete dropdown previously
+  // required a tap, which the Human Lead reported was easily missed —
+  // they would type an address, expect Enter to anchor, and end up
+  // with the search running on the stale GPS location. Now Enter
+  // auto-picks the top suggestion (same code path as a tap). When
+  // there is no suggestion (still loading / empty match), Enter is a
+  // no-op so the field doesn't anchor on garbage.
+  function handleKeyDown(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (suggestions.length > 0) {
+      handlePick(suggestions[0]);
+    }
+  }
+
   function handleClear() {
     setPickedLabel('');
     setQuery('');
@@ -101,6 +116,8 @@ export default function LocationField({ userLoc, region, onSelect }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onBlur={() => setTimeout(() => setOpen(false), 200)}
+            onKeyDown={handleKeyDown}
+            enterKeyHint="search"
             placeholder={resting}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
           />
@@ -129,13 +146,14 @@ export default function LocationField({ userLoc, region, onSelect }) {
       </div>
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
-          {suggestions.map((s) => (
+          {suggestions.map((s, i) => (
             <button
               key={s.placeId}
               type="button"
+              aria-selected={i === 0}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => handlePick(s)}
-              className="block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0"
+              className={`block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0 ${i === 0 ? 'bg-tg-bg/50' : ''}`}
             >
               <div className="text-sm">{s.primaryText}</div>
               {s.secondaryText && (
@@ -143,6 +161,20 @@ export default function LocationField({ userLoc, region, onSelect }) {
               )}
             </button>
           ))}
+          {/* v0.59.12: Enter-to-anchor affordance — makes the new keyboard
+              shortcut discoverable without forcing the user to read docs. */}
+          <div className="px-3 py-1.5 text-[10px] text-tg-hint italic border-t border-tg-border bg-tg-bg/40">
+            {tr('loc.enterHint', lang)}
+          </div>
+        </div>
+      )}
+      {/* v0.59.12: visible "no match" feedback when the user typed
+          ≥ 2 chars but Autocomplete returned no result. Keeps the
+          Enter-key contract honest — Enter no-ops, and now the user
+          knows why. */}
+      {open && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg px-3 py-2 text-xs text-tg-hint">
+          {tr('loc.noMatch', lang)}
         </div>
       )}
     </div>
