@@ -4559,8 +4559,13 @@ async function cacheBotUsername() {
           `${cuisineQueries.join('|')}:` +
           `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}:l${csLang}`;
+        // Codex review #224: when Singaporean is in the cuisines list,
+        // skip the 30-min Redis cache so each call re-runs discover()
+        // and rotates 2 fresh dish picks. Other cuisines keep their
+        // cached results — only Singaporean bypasses.
+        const skipCacheForSingaporean = require('./pipeline').containsSingaporeanCuisine(cuisineQueries);
         try {
-          if (redis.isOpen) {
+          if (redis.isOpen && !skipCacheForSingaporean) {
             const cached = await redis.get(cacheKey);
             if (cached) {
               const parsed = JSON.parse(cached);
@@ -4815,8 +4820,13 @@ async function cacheBotUsername() {
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
         // v0.57.6: write to cache for 30 minutes.
+        // Codex review #224: skip the write when Singaporean is in
+        // the cuisines list — caching the rotated dish-pair would pin
+        // it across the TTL and defeat the per-call rotation goal.
         try {
-          if (redis.isOpen) await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
+          if (redis.isOpen && !skipCacheForSingaporean) {
+            await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
+          }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
         res.json({ ...payload, cached: false });
       } catch (err) {
