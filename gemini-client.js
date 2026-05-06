@@ -120,14 +120,39 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Plain text only. Do not use Markdown formatting — no double-asterisk bold (**...**), no underscores for italics, no headings (#), no backticks. The Telegram client renders these as literal characters.'
 ].join('\n');
 
-function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT }) {
+// v0.59.4: parallel French localisation block. Appended to the EN
+// template when lang='fr'. Approach mirrors v0.59.0's pipeline.rankAndNarrate
+// — keep the EN spec verbatim (so parsers + criteria gate behave
+// identically) and instruct Gemini to translate the human-readable prose
+// to French while preserving:
+//   - URLs verbatim (Google Map URL line)
+//   - Iconic SG dish names (laksa, char kway teow, kopi-o, etc.) which
+//     French-speaking SG residents refer to in their original form
+//   - Numerals (ratings, review counts, dates)
+// Fixed labels DO get translated (Address → Adresse, 🕒 Opening hours →
+// 🕒 Horaires, etc.).
+const HIDDEN_GEMS_LOCALISATION_FR = [
+  '',
+  'LOCALISATION:',
+  'Render the entire user-facing output in French, with these rules:',
+  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "Google rating" → "Note Google", "Latest rating/review signal" → "Dernier signal d’avis", "💎 Why a gem:" → "💎 Pourquoi un trésor :", "🍴 Order this:" → "🍴 À commander :", "📍 Google Map URL:" → "📍 Lien Google Maps :".',
+  '- Keep iconic Singapore dish names in their original form (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate the surrounding prose (e.g. "stall réputée pour son laksa onctueux").',
+  '- Keep proper nouns (venue names, neighbourhoods, MRT stations) untranslated.',
+  '- Keep URLs verbatim — do not translate or modify the Google Maps URL.',
+  '- Use a comma as decimal separator in numbers ("4,6" not "4.6") and "km" with a space ("1,2 km") per French conventions.',
+  '- Use French connectors and structure (au sud-ouest de, à proximité de, ouvert en mars 2026).',
+  '- The "place qualifies if…" criteria gate, EXCLUDE list, RANKING, and OUTPUT FORMAT instructions stay in English internally — they are for your reasoning, not for the user. Only the final output text (one block per result) is in French.'
+].join('\n');
+
+function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 'en' }) {
   if (!anchorName || !googleMapsUrl || !todayIsoSGT) {
     throw new Error('buildHiddenGemsPrompt: anchorName, googleMapsUrl, todayIsoSGT all required');
   }
-  return HIDDEN_GEMS_PROMPT_TEMPLATE
+  const base = HIDDEN_GEMS_PROMPT_TEMPLATE
     .replace('{{ANCHOR_NAME}}', anchorName)
     .replace('{{GOOGLE_MAPS_URL}}', googleMapsUrl)
     .replace('{{TODAY_SGT}}', todayIsoSGT);
+  return lang === 'fr' ? `${base}\n${HIDDEN_GEMS_LOCALISATION_FR}` : base;
 }
 
 // Today's date in SGT (UTC+8) as ISO YYYY-MM-DD. Used in the
@@ -179,6 +204,7 @@ async function generateGroundedHiddenGems({
   anchor,
   todayIsoSGT,
   model = DEFAULT_MODEL,
+  lang = 'en',
   // Test seam — pass a mock factory to avoid real SDK calls.
   _genAIFactory
 }) {
@@ -193,7 +219,8 @@ async function generateGroundedHiddenGems({
   const prompt = buildHiddenGemsPrompt({
     anchorName: anchor.name,
     googleMapsUrl: anchor.googleMapsUrl,
-    todayIsoSGT
+    todayIsoSGT,
+    lang
   });
   const factory = _genAIFactory || (() => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
