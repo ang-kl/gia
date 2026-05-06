@@ -102,9 +102,10 @@ describe('v0.59.1 chrome — interpolation sanity', () => {
     expect(tn('weather.temp', 'en', { c: '28.5', at: 'Marina' })).toBe('Temp: 28.5°C @ Marina');
     expect(tn('weather.temp', 'fr', { c: '28.5', at: 'Marina' })).toBe('Temp. : 28.5 °C @ Marina');
   });
-  it('carpark.row interpolates {i} {name} {lots} {dist}', () => {
-    expect(tn('carpark.row', 'fr', { i: 1, name: 'OUE', lots: 25, dist: 320 }))
-      .toBe('1. OUE  ·  25 places  ·  320 m');
+  it('carpark.row interpolates {i} {name} {lots} {dist} (dist already formatted)', () => {
+    // v0.59.3: {dist} now includes the unit (caller formats via formatDistance).
+    expect(tn('carpark.row', 'fr', { i: 1, name: 'OUE', lots: 25, dist: '320m' }))
+      .toBe('1. OUE  ·  25 places  ·  320m');
   });
   it('transport.train.network.low interpolates {pct} and {total}', () => {
     expect(tn('transport.train.network.low', 'fr', { pct: 80, total: 162 }))

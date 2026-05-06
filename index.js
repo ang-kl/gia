@@ -1521,6 +1521,11 @@ bot.on('callback_query', async (q) => {
       await runTransportDrive(chatId, cbLang);
       return;
     }
+    // v0.59.3: Drive view's 🅿️ Carpark button → carpark list (was transport:menu).
+    if (data === 'transport:carpark') {
+      await runCarparkCommand(chatId, cbLang);
+      return;
+    }
     // v0.52.0 hawker sub-menu dispatch (simplified):
     //   hawker:menu               → top-level menu (Cleaning + Browse)
     //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
@@ -1858,6 +1863,8 @@ async function sendBusMenu(chatId, lang = 'en') {
 
 async function runTransportTrain(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
+  const { formatDistance } = require('./format');
+  let mrtForMap = [];
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedStatus = await redis.get('lta:train_status');
@@ -1884,12 +1891,16 @@ async function runTransportTrain(chatId, lang = 'en') {
       try {
         const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
         if (mrt.length) {
+          mrtForMap = mrt;
           const wait = transport.estimateWaitMinutes();
           lines.push('', tn('transport.train.nearestHeader', lang, { min: wait.min, max: wait.max, label: wait.label }));
           for (const s of mrt) {
             const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
             const crowdNote = crowd ? ` · ${t(`transport.train.crowd.${crowd}`, lang)}` : '';
-            lines.push(`· ${s.name}${crowdNote}`);
+            const dist = (Number.isFinite(s.lat) && Number.isFinite(s.lng))
+              ? formatDistance(transport.haversineM(cachedLoc.lat, cachedLoc.lng, s.lat, s.lng))
+              : '';
+            lines.push(tn('transport.train.stationRow', lang, { name: s.name, dist, crowd: crowdNote }));
           }
         }
       } catch (err) {
@@ -1948,8 +1959,25 @@ async function runTransportTrain(chatId, lang = 'en') {
     const tmaButton = webhookDomain
       ? [[{ text: t('transport.train.openMapBtn', lang), web_app: { url: `https://${webhookDomain}/app/transport` } }]]
       : [];
+    // v0.59.3: nearby-stations one-map button (only if we have stations + a webhookDomain).
+    let stationsMapRow = [];
+    if (mrtForMap.length && webhookDomain) {
+      try {
+        const { buildMapHashUrl } = require('./maps-url');
+        const slim = mrtForMap
+          .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+          .map((s) => ({ ...s, name: s.name, placeId: s.placeId || '' }));
+        const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+        if (mapUrl) {
+          stationsMapRow = [[{ text: t('transport.map.stationsBtn', lang), web_app: { url: mapUrl } }]];
+        }
+      } catch (err) {
+        console.warn('[Transport] stations map build failed:', err.message);
+      }
+    }
     const buttons = [
       ...tmaButton,
+      ...stationsMapRow,
       [{ text: t('button.refresh', lang), callback_data: 'transport:train' }],
       [{ text: t('button.back', lang), callback_data: 'transport:menu' }]
     ];
@@ -1964,6 +1992,7 @@ async function runTransportTrain(chatId, lang = 'en') {
 
 async function runTransportBus(chatId, sub, lang = 'en') {
   const { t, tn } = require('./i18n');
+  const { formatDistance } = require('./format');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
@@ -1992,11 +2021,23 @@ async function runTransportBus(chatId, sub, lang = 'en') {
       }
       const lines = [t('transport.bus.nearestHeader', lang)];
       for (const stop of stops) {
-        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: stop.distanceM }));
+        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: formatDistance(stop.distanceM) }));
         lines.push(tn('transport.bus.stopCode', lang, { code: stop.code }));
       }
+      // v0.59.3: one-map button for nearest stops.
+      let mapRow = [];
+      if (webhookDomain) {
+        try {
+          const { buildMapHashUrl } = require('./maps-url');
+          const slim = stops
+            .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+            .map((s) => ({ name: `${s.description} (${s.code})`, placeId: '', lat: s.lat, lng: s.lng, area: s.roadName || '' }));
+          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
+        } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
+      }
       await safeSend(chatId, lines.join('\n'), {
-        reply_markup: { inline_keyboard: [backRow] }
+        reply_markup: { inline_keyboard: [...mapRow, backRow] }
       });
       return;
     }
@@ -2012,7 +2053,7 @@ async function runTransportBus(chatId, sub, lang = 'en') {
       const lines = [t('transport.bus.arrivalsHeader', lang)];
       for (const stop of stops) {
         const arrivals = await transport.busArrivals(stop.code);
-        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: stop.distanceM }));
+        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: formatDistance(stop.distanceM) }));
         if (!arrivals.length) { lines.push(t('transport.bus.noLive', lang)); continue; }
         for (const svc of arrivals.slice(0, 4)) {
           const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
@@ -2088,6 +2129,7 @@ async function runTransportBus(chatId, sub, lang = 'en') {
 
 async function runTransportTrafficIncidents(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
+  const { formatDistance } = require('./format');
   try {
     if (!process.env.LTA_ACCOUNT_KEY) {
       await safeSend(chatId, t('transport.incidents.offline', lang), {
@@ -2099,6 +2141,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
     const cachedLoc = await getUserLocation(redis, chatId);
     const all = await transport.fetchTrafficIncidents();
     const lines = [t('transport.incidents.heading', lang)];
+    let mapPool = []; // incidents to plot on the one-map view
     if (!all.length) {
       lines.push('', t('transport.incidents.none', lang));
     } else if (cachedLoc) {
@@ -2106,10 +2149,11 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
       if (near.length) {
         lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
         for (const inc of near) {
-          const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+          const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
           lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist }));
           lines.push(`  ${inc.message}`);
         }
+        mapPool = near;
       } else {
         lines.push('', tn('transport.incidents.noNear', lang, { total: all.length }));
       }
@@ -2119,10 +2163,23 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
         lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist: '' }));
         lines.push(`  ${inc.message}`);
       }
+      mapPool = all.slice(0, 8);
+    }
+    // v0.59.3: one-map button.
+    let mapRow = [];
+    if (mapPool.length && webhookDomain) {
+      try {
+        const { buildMapHashUrl } = require('./maps-url');
+        const slim = mapPool
+          .filter((i) => Number.isFinite(i.lat) && Number.isFinite(i.lng))
+          .map((i) => ({ name: i.type || 'Incident', placeId: '', lat: i.lat, lng: i.lng, area: i.message || '' }));
+        const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+        if (mapUrl) mapRow = [[{ text: t('transport.map.incidentsBtn', lang), web_app: { url: mapUrl } }]];
+      } catch (err) { console.warn('[Transport] incidents map build failed:', err.message); }
     }
     await safeSend(chatId, lines.join('\n'), {
       parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [[{ text: t('button.back', lang), callback_data: 'transport:menu' }]] }
+      reply_markup: { inline_keyboard: [...mapRow, [{ text: t('button.back', lang), callback_data: 'transport:menu' }]] }
     });
   } catch (err) {
     console.error('[Error] transport traffic incidents failed:', err.message);
@@ -2132,6 +2189,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
 
 async function runTransportDrive(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
+  const { formatDistance } = require('./format');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
@@ -2149,7 +2207,7 @@ async function runTransportDrive(chatId, lang = 'en') {
         if (near.length) {
           lines.push('', tn('transport.drive.trafficNear', lang, { n: near.length, total: all.length }));
           for (const inc of near) {
-            const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
+            const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
             lines.push(tn('transport.incidents.row', lang, { type: inc.type, dist }));
             lines.push(`  ${inc.message}`);
           }
@@ -2169,7 +2227,9 @@ async function runTransportDrive(chatId, lang = 'en') {
     } else {
       lines.push('', t('transport.drive.noLocation', lang));
     }
-    buttons.push([{ text: t('transport.drive.btn.carpark', lang), callback_data: 'transport:menu' }, { text: t('button.back', lang), callback_data: 'transport:menu' }]);
+    // v0.59.3: Drive→Carpark must actually open the carpark list.
+    // Previously both buttons routed back to transport:menu.
+    buttons.push([{ text: t('transport.drive.btn.carpark', lang), callback_data: 'transport:carpark' }, { text: t('button.back', lang), callback_data: 'transport:menu' }]);
     await safeSend(chatId, lines.join('\n'), {
       reply_markup: { inline_keyboard: buttons }
     });
@@ -2221,6 +2281,7 @@ async function runRecognisedCommand(chatId) {
 
 async function runCarparkCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
+  const { formatDistance } = require('./format');
   try {
     if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, t('carpark.offline', lang)); return; }
     // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
@@ -2230,7 +2291,7 @@ async function runCarparkCommand(chatId, lang = 'en') {
     const list = await carpark.nearest(cached.lat, cached.lng, 5);
     if (!list.length) { await safeSend(chatId, t('carpark.none', lang)); return; }
     const lines = [t('carpark.header', lang)];
-    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: c.development, lots: c.availableLots, dist: c.distanceM })));
+    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: c.development, lots: c.availableLots, dist: formatDistance(c.distanceM) })));
     await safeSend(chatId, lines.join('\n'));
     // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
     // Falls back to legacy directions URL when webhookDomain unavailable.
