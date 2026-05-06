@@ -841,7 +841,7 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // fresh cached location exists (≤30 min), also offer a Share-pin
 // reply-keyboard so the user can fix the anchor in one tap.
 const CUISINE_FRESH_LOC_MS = 30 * 60 * 1000;
-bot.onText(/^\/cuisine(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
+bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   try {
     if (!useWebhook) {
       await safeSend(
@@ -1018,25 +1018,25 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // below. Prior to v0.20.1 these handlers carried inline copies that drifted
 // behind /menu tile routing — /weather emitted the v0.18.0 "Now: X°C at Y"
 // line instead of the full humidity / rain / wind block.
-bot.onText(/^\/weather(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:weather|w)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runWeatherCommand(msg.chat.id, lang);
 });
 
-bot.onText(/^\/transport(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:transport|t)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendTransportMenu(msg.chat.id, lang);
 });
 
-bot.onText(/^\/carpark(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runCarparkCommand(msg.chat.id, lang);
 });
 
-bot.onText(/^\/hidden(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:hidden|h)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runSurpriseCommand(msg.chat.id, lang);
@@ -1071,14 +1071,14 @@ bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
 //   /language fr       → set to French + ack
 //   /language en       → set to English + ack
 //   /language auto     → clear preference; revert to Telegram locale
-bot.onText(/^\/language(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, match) => {
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
 });
 
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
-bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const rawText = (match?.[1] || '').trim();
   const chatId = msg.chat.id;
   // v0.58.25: special-case `/location current` (and synonyms `now`,
@@ -1260,7 +1260,7 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
 });
 
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
-bot.onText(/^\/hawker(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendHawkerMenu(msg.chat.id, lang);
@@ -1273,7 +1273,7 @@ bot.onText(/^\/hawker(?:@\w+)?$/, async (msg) => {
 // empty.
 // v0.37.0: optional category filter — /recognised michelin, /recognised bib,
 // /recognised michelin-star, etc. Falls through to all-categories when no arg.
-bot.onText(/^\/recognised(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognisedCommand(msg.chat.id, match?.[1] || null));
+bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognisedCommand(msg.chat.id, match?.[1] || null));
 
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
 // (Michelin SG list) and the heritage signal was thin / inconsistent.
@@ -1411,7 +1411,7 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
   }
 });
 
-bot.onText(/^\/share(?:@\w+)?$/, async (msg) => {
+bot.onText(/^\/(?:share|s)(?:@\w+)?$/, async (msg) => {
   try {
     const { getRecent } = require('./recent-picks');
     const recent = await getRecent(redis, msg.chat.id);
@@ -2534,10 +2534,22 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     clearInterval(pulseTimer);
 
     console.log(`[/hidden] Gemini ok model=${result.model} chars=${result.text.length}`);
+    // v0.59.5: post-process to replace fabricated rating + review counts
+    // with live values from Google Places API. Gemini's grounded search
+    // routinely returns stale counts (user reported 56→159, 114→162 on a
+    // single run). Falls back to the original block per venue when Places
+    // returns nothing — never makes the output worse.
+    let verifiedText = result.text;
+    try {
+      const { verifyHiddenGemsOutput } = require('./hidden-verify');
+      verifiedText = await verifyHiddenGemsOutput(result.text);
+    } catch (err) {
+      console.warn('[/hidden] verify post-process failed, keeping raw output:', err.message);
+    }
     // Telegram message limit is 4096 chars. Chunk on per-result
     // boundaries (lines starting "/^\d+\. /") so a single venue
     // never spans messages.
-    const chunks = chunkHiddenGemsOutput(result.text, 3800);
+    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
     // v0.58.46: parse_mode='HTML' so the bold venue-name tags
     // (<b>…</b>) actually render as bold, not literal angle brackets.
     // disable_web_page_preview keeps each pick compact (Google Maps
