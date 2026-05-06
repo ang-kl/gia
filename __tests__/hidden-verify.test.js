@@ -64,6 +64,30 @@ describe('parseBlocks', () => {
     expect(blocks.length).toBe(1);
     expect(blocks[0].name).toBe('THE CAFE');
   });
+
+  // Codex #209 #1: Gemini sometimes wraps headings in Markdown bold
+  // (`**1. NAME - cafe**`) despite the prompt rule. Without stripping,
+  // the regex misses and verification silently no-ops.
+  it('parses headings wrapped in Markdown bold', () => {
+    const text = [
+      '**1. MONDAY COFFEE BAR - lifestyle cafe**',
+      'Block 420A Clementi Avenue 1 - approx 1.5km north-east.',
+      'Google rating - 4.5 and 114 reviews.'
+    ].join('\n');
+    const { blocks } = parseBlocks(text);
+    expect(blocks.length).toBe(1);
+    expect(blocks[0].name).toBe('MONDAY COFFEE BAR');
+    // Cleaned heading is stored without surrounding asterisks.
+    expect(blocks[0].lines[0]).toBe('1. MONDAY COFFEE BAR - lifestyle cafe');
+  });
+
+  // Codex #209 #2: capture the block's address so downstream lookupVenue
+  // can disambiguate chains / duplicate names.
+  it('captures the block address from the line after the heading', () => {
+    const { blocks } = parseBlocks(SAMPLE_EN);
+    expect(blocks[0].address).toContain('Block 420A Clementi Avenue 1');
+    expect(blocks[1].address).toContain('Block 440 Clementi Avenue 3');
+  });
 });
 
 describe('applyVerified — EN', () => {

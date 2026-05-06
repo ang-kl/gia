@@ -31,18 +31,30 @@
 const axios = require('axios');
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
-const FIELD_MASK = 'places.id,places.displayName,places.rating,places.userRatingCount';
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount';
 const REQUEST_TIMEOUT_MS = 6000;
 
-// Look up a single venue by name. Returns { id, name, rating,
-// userRatingCount } or null.
-async function lookupVenue(name) {
+// Look up a single venue by name + (optional) address. Returns
+// { id, name, rating, userRatingCount } or null.
+//
+// Address disambiguation (Codex review #209): for chains or duplicate
+// names (multiple Singapore outlets), searching by name alone and using
+// places[0] can verify the wrong branch, replacing Gemini's count with
+// another outlet's live count. We:
+//   1. Bias the search by including the block's address in textQuery.
+//   2. From the response, pick the candidate whose formattedAddress
+//      shares the most ≥3-character tokens with the block's address.
+//   3. If even the best match scores zero, treat the lookup as
+//      ambiguous and return null (no rewrite — leaves the original block
+//      untouched).
+async function lookupVenue(name, address = '') {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey || !name) return null;
+  const query = address ? `${name} ${address} Singapore` : `${name} Singapore`;
   try {
     const { data } = await axios.post(
       SEARCH_URL,
-      { textQuery: `${name} Singapore`, languageCode: 'en' },
+      { textQuery: query, languageCode: 'en' },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -54,12 +66,26 @@ async function lookupVenue(name) {
     );
     const places = data?.places || [];
     if (!places.length) return null;
-    const p = places[0];
+    let chosen = places[0];
+    if (address) {
+      const wantTokens = address
+        .toLowerCase()
+        .split(/[\s,#/()]+/)
+        .filter((t) => t.length >= 3);
+      let bestScore = 0;
+      for (const p of places) {
+        const fa = (p.formattedAddress || '').toLowerCase();
+        const score = wantTokens.reduce((acc, t) => acc + (fa.includes(t) ? 1 : 0), 0);
+        if (score > bestScore) { bestScore = score; chosen = p; }
+      }
+      // No token overlap = ambiguous match. Refuse to overwrite.
+      if (bestScore === 0) return null;
+    }
     return {
-      id: p.id || '',
-      name: p.displayName?.text || '',
-      rating: typeof p.rating === 'number' ? p.rating : null,
-      userRatingCount: typeof p.userRatingCount === 'number' ? p.userRatingCount : null
+      id: chosen.id || '',
+      name: chosen.displayName?.text || '',
+      rating: typeof chosen.rating === 'number' ? chosen.rating : null,
+      userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null
     };
   } catch (err) {
     console.warn('[hidden-verify] lookup failed for', name, '→', err.message);
@@ -68,24 +94,40 @@ async function lookupVenue(name) {
 }
 
 // Parse a Gemini /hidden response into blocks. Returns
-// { prefix, blocks } where blocks is [{ number, name, lines }].
+// { prefix, blocks } where blocks is [{ number, name, address, lines }].
+//
+// Markdown handling (Codex review #209): Gemini occasionally wraps
+// headings in **bold** despite the prompt rule against Markdown. Strip
+// leading/trailing `*` and `_` runs from each line BEFORE matching, so
+// `**1. NAME - cafe**` parses as a heading. The cleaned form is what
+// we store in block.lines so downstream rendering doesn't show literal
+// asterisks (chunkHiddenGemsOutput's Markdown sanitizer would have
+// stripped them anyway, but this keeps the verified text consistent).
 function parseBlocks(text) {
-  const lines = String(text || '').split(/\r?\n/);
+  const rawLines = String(text || '').split(/\r?\n/);
   const prefix = [];
   const blocks = [];
   let current = null;
-  for (const line of lines) {
-    // Heading: "1. NAME - type" or "1. NAME — type" (em-dash). Capture
-    // everything up to the FIRST " - " or " — " hyphen as the venue name.
+  for (const rawLine of rawLines) {
+    const line = rawLine
+      .replace(/^[\s*_]+/, '')
+      .replace(/[\s*_]+$/, '');
     const headMatch = /^(\d+)\.\s+(.+?)(?:\s+[-—]\s+|$)/.exec(line);
     if (headMatch) {
       if (current) blocks.push(current);
       current = {
         number: Number(headMatch[1]),
         name: headMatch[2].trim(),
+        address: '',
         lines: [line]
       };
     } else if (current) {
+      // Capture the address from the line immediately after the heading.
+      // Format per the prompt: "Address - approx Xkm <direction>".
+      if (current.lines.length === 1 && !current.address) {
+        const addrMatch = /^(.+?)\s+[-—]\s+approx\b/i.exec(line);
+        current.address = (addrMatch ? addrMatch[1] : line).trim();
+      }
       current.lines.push(line);
     } else {
       prefix.push(line);
@@ -129,7 +171,7 @@ async function verifyHiddenGemsOutput(text) {
   if (!text || typeof text !== 'string') return text;
   const { prefix, blocks } = parseBlocks(text);
   if (!blocks.length) return text;
-  const lookups = await Promise.all(blocks.map((b) => lookupVenue(b.name)));
+  const lookups = await Promise.all(blocks.map((b) => lookupVenue(b.name, b.address)));
   const blockTexts = blocks.map((b, i) => applyVerified(b, lookups[i]).join('\n'));
   const prefixText = prefix.join('\n').replace(/\s+$/, '');
   const joined = blockTexts.join('\n\n');
