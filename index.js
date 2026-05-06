@@ -3393,29 +3393,29 @@ async function registerCommandsMenu() {
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
       { command: 'hawker',     description: '>100 Hawker Centres' },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand (< $45 meal), Asia 50/100 & Local Produce to Table' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand (under $45), Asia 50/100, local produce' },
       { command: 'carpark',    description: 'Nearest 5 carparks with available lots' },
       { command: 'location',   description: 'Set your locale by typing a place name' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'share',      description: 'Forward recent pick' },
       { command: 'privacy',    description: 'Data, retention & sources' },
-      { command: 'forgetme',   description: 'Erase your Redis state' }
+      { command: 'forgetme',   description: 'Erase your stored data' }
     ];
     const frCommands = [
       { command: 'cuisine',    description: 'Sélecteur de cuisine — plus de 70 choix' },
-      { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées 1,5–3 km autour' },
+      { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées à 1,5–3 km' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
       { command: 'hawker',     description: 'Plus de 100 Hawker Centres' },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand (< 45 $), Asia 50/100 & local-to-table' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand (moins de 45 $), Asia 50/100, produits locaux' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       { command: 'location',   description: 'Définir votre lieu par son nom' },
       { command: 'language',   description: 'Changer la langue (Français / English)' },
       { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
-      { command: 'share',      description: 'Partager une suggestion récente' },
+      { command: 'share',      description: 'Partager un choix récent' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
-      { command: 'forgetme',   description: 'Effacer vos données Redis' }
+      { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
     ];
     await bot.setMyCommands(enCommands);
     await bot.setMyCommands(frCommands, { language_code: 'fr' });
