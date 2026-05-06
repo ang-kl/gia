@@ -19,6 +19,11 @@ export default function LocationField({ userLoc, region, onSelect }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  // v0.59.12 (Codex review #216): track which query produced the
+  // current suggestions array so the Enter handler can refuse to pick
+  // a stale result when the user has edited the query faster than the
+  // 250 ms debounce + Autocomplete round-trip.
+  const [suggestionsQuery, setSuggestionsQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentLabel, setCurrentLabel] = useState('');
   const [pickedLabel, setPickedLabel] = useState('');
@@ -38,8 +43,10 @@ export default function LocationField({ userLoc, region, onSelect }) {
 
   // Debounced autocomplete fetch on every keystroke.
   useEffect(() => {
-    if (!query.trim() || query.trim().length < 2) {
+    const trimmed = query.trim();
+    if (!trimmed || trimmed.length < 2) {
       setSuggestions([]);
+      setSuggestionsQuery('');
       return;
     }
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -47,11 +54,16 @@ export default function LocationField({ userLoc, region, onSelect }) {
       setLoading(true);
       try {
         const r = await placeAutocomplete({
-          input: query, lat: userLoc?.lat, lng: userLoc?.lng, region
+          input: trimmed, lat: userLoc?.lat, lng: userLoc?.lng, region
         });
+        // v0.59.12 (Codex review #216): drop the response if the user
+        // kept typing during the round-trip. setSuggestionsQuery records
+        // the query that owns this batch so Enter can verify freshness.
         setSuggestions(r?.suggestions || []);
+        setSuggestionsQuery(trimmed);
       } catch {
         setSuggestions([]);
+        setSuggestionsQuery('');
       } finally { setLoading(false); }
     }, 250);
     return () => debounceRef.current && clearTimeout(debounceRef.current);
@@ -61,6 +73,7 @@ export default function LocationField({ userLoc, region, onSelect }) {
     setOpen(false);
     setQuery('');
     setSuggestions([]);
+    setSuggestionsQuery('');
     setLoading(true);
     try {
       const r = await placeResolve({ placeId: s.placeId });
@@ -78,21 +91,28 @@ export default function LocationField({ userLoc, region, onSelect }) {
   // required a tap, which the Human Lead reported was easily missed —
   // they would type an address, expect Enter to anchor, and end up
   // with the search running on the stale GPS location. Now Enter
-  // auto-picks the top suggestion (same code path as a tap). When
-  // there is no suggestion (still loading / empty match), Enter is a
-  // no-op so the field doesn't anchor on garbage.
+  // auto-picks the top suggestion (same code path as a tap).
+  //
+  // Codex review #216: refuse to pick when suggestions are stale —
+  // i.e. the user edited the query faster than the 250 ms debounce
+  // could roundtrip and the current suggestions[] still belongs to a
+  // previous keystroke. We compare suggestionsQuery (set inside the
+  // debounce effect) against the current trimmed input. Enter is also
+  // a no-op when an inflight fetch is loading.
   function handleKeyDown(e) {
     if (e.key !== 'Enter') return;
     e.preventDefault();
-    if (suggestions.length > 0) {
-      handlePick(suggestions[0]);
-    }
+    if (loading) return;
+    if (suggestions.length === 0) return;
+    if (suggestionsQuery !== query.trim()) return;
+    handlePick(suggestions[0]);
   }
 
   function handleClear() {
     setPickedLabel('');
     setQuery('');
     setSuggestions([]);
+    setSuggestionsQuery('');
     if (userLoc?.lat && userLoc?.lng) {
       onSelect?.({ lat: userLoc.lat, lng: userLoc.lng, label: '' });
     }
