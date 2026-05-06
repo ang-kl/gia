@@ -96,6 +96,10 @@ const STRINGS = {
   'locale.switchToEn':         { en: 'Switch to English', fr: 'Passer en anglais' },
   'locale.switchToFr':         { en: 'Switch to French', fr: 'Passer en français' },
 
+  // ----- Location field (v0.59.12) -----
+  'loc.enterHint':             { en: '↵ Press Enter to use the top result', fr: '↵ Appuyez sur Entrée pour le premier résultat' },
+  'loc.noMatch':               { en: 'No match — try a more specific name', fr: 'Aucun résultat — essayez un nom plus précis' },
+
   // ----- Cuisine drawer category labels (v0.59.6) -----
   // Server returns canonical EN labels via /api/cuisine/catalogue. The
   // TMA renders via this lookup keyed by category id so the drawer
