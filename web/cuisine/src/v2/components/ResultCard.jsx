@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import { tg } from '../../api/tg.js';
 import { copyOneToChat } from '../lib/api.js';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
 export default function ResultCard({ venue, focused, onTap }) {
+  const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
   const price = PRICE_LABEL[venue.priceLevel] || '';
   const dist = Number.isFinite(venue.distanceM) ? `${venue.distanceM} m` : '';
-  const walk = Number.isFinite(venue.walkMinutes) ? `${venue.walkMinutes} min walk` : '';
+  const walk = Number.isFinite(venue.walkMinutes)
+    ? (lang === 'fr' ? `${venue.walkMinutes} min à pied` : `${venue.walkMinutes} min walk`)
+    : '';
+  // v0.58.55: localise Open / Closed.
   const open = venue.openNow === true
-    ? 'Open'
+    ? tr('card.open', lang)
     : venue.openNow === false
-      ? (venue.closedTodayLabel || 'Closed')
+      ? (venue.closedTodayLabel || tr('card.closed', lang))
       : '';
   // v0.57.31: crowd chip from LTA-carpark availability around the venue.
   // Honest caveat — weak in CBD where lunch crowds are walk-in.
-  const crowd = venue.crowdLevel === 'high' ? '🔴 busy'
-    : venue.crowdLevel === 'medium' ? '🟡 moderate'
-    : venue.crowdLevel === 'low' ? '🟢 quiet'
-    : '';
+  // v0.58.55: localised crowd chip text.
+  const crowdMap = lang === 'fr'
+    ? { high: '🔴 chargé', medium: '🟡 modéré', low: '🟢 calme' }
+    : { high: '🔴 busy',  medium: '🟡 moderate', low: '🟢 quiet' };
+  const crowd = crowdMap[venue.crowdLevel] || '';
   const meta = [rating, price, open, crowd, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
@@ -78,7 +84,8 @@ export default function ResultCard({ venue, focused, onTap }) {
         transitMinutes: venue.transitMinutes,
         driveMinutes: venue.driveMinutes,
         url: venue.url,
-        primaryType: venue.primaryType
+        primaryType: venue.primaryType,
+        lang  // v0.58.55: server localises static labels accordingly
       });
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
@@ -86,7 +93,7 @@ export default function ResultCard({ venue, focused, onTap }) {
       console.warn('[Copy-One] failed:', err.message);
       const w = tg();
       if (w && typeof w.showAlert === 'function') {
-        w.showAlert("Couldn't send to chat — try again.");
+        w.showAlert(tr('err.copyFailed', lang));
       }
     } finally { setCopying(false); }
   }
@@ -118,7 +125,7 @@ export default function ResultCard({ venue, focused, onTap }) {
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
         <button type="button" onClick={copy} disabled={copying}
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
-          {copying ? '…' : copied ? '✓ Sent' : '📋 Copy'}
+          {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
         </button>
       </div>
     </button>

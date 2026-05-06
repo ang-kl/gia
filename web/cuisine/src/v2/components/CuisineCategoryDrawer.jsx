@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 // v0.59.0: drill-down overlay for a single cuisine category. Replaces
 // the v0.58.x inline-expansion drawer (which fought CSS-grid row
@@ -7,6 +8,7 @@ import React, { useEffect } from 'react';
 // grid of flag-prefixed pills. Tapping a pill toggles selection;
 // tapping back-arrow / scrim closes.
 export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected }) {
+  const [lang] = useLocale();
   // ESC closes the overlay (desktop / Telegram-Web users).
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') onClose?.(); }
@@ -37,7 +39,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
         <button
           type="button"
           onClick={onClose}
-          aria-label="Back"
+          aria-label={tr('cuisine.back', lang)}
           className="text-tg-accent text-base leading-none px-1 py-0.5"
         >←</button>
         <span aria-hidden>{category.emoji}</span>
@@ -78,7 +80,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           type="button"
           onClick={onClose}
           className="w-full text-xs font-semibold px-3 py-2 rounded-2xl bg-tg-accent text-tg-accent-text"
-        >Done</button>
+        >{tr('cuisine.done', lang)}</button>
       </div>
       </div>
     </div>

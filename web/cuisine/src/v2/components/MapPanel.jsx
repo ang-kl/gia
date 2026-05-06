@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 
 // v0.58.2: "Search this area" floating button. When the user pans
@@ -49,6 +50,7 @@ function metersBetween(a, b) {
 }
 
 export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, children }) {
+  const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -185,7 +187,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         // `.element`; its DOM is `.content`).
         const anchorPinNode = pin.element;
         userMarkerRef.current = new AdvancedMarkerElement({
-          map: mapRef.current, position: userLoc, title: 'You are here', content: anchorPinNode, gmpClickable: true
+          map: mapRef.current, position: userLoc, title: tr('map.youAreHere', lang), content: anchorPinNode, gmpClickable: true
         });
         anchorPinNodeRef.current = anchorPinNode;
       } else {
@@ -200,8 +202,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // subsequent renders.
       const anchorHtml =
         `<div style="min-width:120px;max-width:220px;padding:2px 4px;">
-           <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || 'You are here')}</div>
-           <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">your search anchor</div>
+           <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || tr('map.youAreHere', lang))}</div>
+           <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>
          </div>`;
       const anchorNode = anchorPinNodeRef.current;
       if (anchorNode && infoWindowRef.current) {
@@ -251,8 +253,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // On desktop the hint reads "Tap pin → Google Maps" because the
       // pin click itself opens Maps directly without showing the bubble.
       const ctaHtml = isTouchRef.current
-        ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">📍 Open in Google Maps</button>`
-        : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">Tap pin → Google Maps</div>`;
+        ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(tr('map.openInMaps', lang))}</button>`
+        : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
       const infoHtml =
         `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
@@ -367,8 +369,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleSearchHereClick}
           className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-white text-gray-900 text-xs font-medium shadow-md border border-gray-300 hover:bg-gray-50 active:bg-gray-100 z-10"
-          aria-label="Search this area"
-        >🔍 Search this area</button>
+          aria-label={tr('btn.searchHere', lang)}
+        >🔍 {tr('btn.searchHere', lang)}</button>
       )}
       {/* v0.58.29: "Show your location" recenter button. Bottom-right
           floating like the Google Maps native app. Disabled state
@@ -379,8 +381,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         onClick={handleRecenterClick}
         disabled={!userLoc}
         className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base z-10 ${userLoc ? 'hover:bg-gray-50 active:bg-gray-100 text-gray-900' : 'text-gray-400 cursor-not-allowed'}`}
-        aria-label="Show your location"
-        title="Show your location"
+        aria-label={tr('btn.showLocation', lang)}
+        title={tr('btn.showLocation', lang)}
       >
         <span aria-hidden>📍</span>
       </button>
