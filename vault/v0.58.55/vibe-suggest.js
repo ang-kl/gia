@@ -1,0 +1,402 @@
+const axios = require('axios');
+const llm = require('./llm-client');
+const { withRetry } = require('./gemini-retry');
+const { logger } = require('./logger');
+const { googleMapsUrl } = require('./maps-url');
+
+const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
+const MODEL_NAME = llm.DEFAULT_MODEL;
+const MAX_DISTANCE_M = 200; // accept Place if within 200m of user
+const SEARCH_RADIUS_M = 200; // walking radius from user-set centre
+
+const CATEGORIES = {
+  food: { label: null, hint: null }, // time-of-day branched in mealPeriodSGT
+  drink: { label: 'drinks', hint: 'bars, coffee bars, tea spots, juice bars — solo-friendly counter seating' },
+  groceries: { label: 'groceries', hint: 'supermarkets, fresh-market grocers, gourmet food stores within walking distance' },
+  cuisine: { label: 'cuisine picks', hint: null } // hint composed at runtime from cuisineType
+};
+
+function mealPeriodSGT(date = new Date()) {
+  const sgt = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+  const h = sgt.getHours();
+  if (h >= 7 && h < 11)
+    return { id: 'breakfast', label: 'breakfast', hint: 'breakfast spots — coffee, kaya toast, dim sum, bakeries' };
+  if (h >= 11 && h < 15)
+    return { id: 'lunch', label: 'lunch', hint: 'lunch spots — restaurants and cafés serving meals now' };
+  if (h >= 15 && h < 17)
+    return { id: 'afternoon', label: 'afternoon snack', hint: 'cafés, bakeries, tea houses, coffee bars, dessert spots' };
+  if (h >= 17 && h < 21)
+    return { id: 'dinner', label: 'dinner', hint: 'dinner spots — restaurants, omakase, hawker stalls' };
+  if (h >= 21 || h < 3)
+    return { id: 'supper', label: 'supper', hint: 'late-night supper — bars and restaurants still open' };
+  return { id: 'night_supper', label: 'night supper', hint: 'anything still open after midnight' };
+}
+
+// Extract Google's "Summarized with Gemini" overview from a Place object.
+// Safely handles missing field, region/place-type non-coverage, and the docs'
+// inconsistent disclosureText vs disclaimerText naming.
+function extractGenerativeSummary(place) {
+  const g = place?.generativeSummary;
+  const overview = g?.overview?.text?.trim();
+  if (!overview) return null;
+  const disclosure = (g?.disclosureText?.text || g?.disclaimerText?.text || 'Summarized with Gemini').trim();
+  return {
+    overview,
+    disclosure,
+    flagUri: g?.overviewFlagContentUri || ''
+  };
+}
+
+function haversineMeters(a, b) {
+  const R = 6371000;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const x = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+async function geminiCandidates(meal, lat, lng) {
+  if (!llm.isReady()) return [];
+  const prompt = `You suggest "Sanctuary" venues for a solo female diner in Singapore.
+Period: ${meal.label} (${meal.hint}).
+User is near latitude ${lat}, longitude ${lng}.
+
+Return EXACTLY a JSON array of 5 candidate venues open in this period
+within 800m of that location. Each item has the keys:
+  "name"   — the venue's exact common name
+  "area"   — the street or building it sits on
+  "vibe"   — one short phrase about why it suits a solo diner
+
+Do NOT include lat/lng — those will be looked up authoritatively.
+Return ONLY the JSON array, no preamble.`;
+
+  try {
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 1024 }),
+      { label: 'Vibe-Suggest' }
+    );
+    const parsed = JSON.parse(result.response.text());
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((c) => c && typeof c.name === 'string')
+      .slice(0, 5);
+  } catch (err) {
+    logger.error({ model: MODEL_NAME, err: { message: err.message } }, 'vibe-suggest LLM call failed');
+    return [];
+  }
+}
+
+const NEGATIVE_KEYWORDS = /\b(loud music|extremely (?:noisy|loud)|under construction|under renovation|renovation works?|closed for renovation|too crowded|over[-\s]?crowded|packed beyond)\b/i;
+const RECENT_REVIEW_DAYS = 30;
+
+function isRecentReview(review, now = Date.now()) {
+  const t = Date.parse(review?.publishTime ?? '');
+  if (!Number.isFinite(t)) return false;
+  return now - t <= RECENT_REVIEW_DAYS * 24 * 60 * 60 * 1000;
+}
+
+async function hasNegativeRecentReview(placeId) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey || !placeId) return false;
+  try {
+    const { data } = await axios.get(`https://places.googleapis.com/v1/places/${placeId}`, {
+      headers: { 'X-Goog-Api-Key': mapsApiKey, 'X-Goog-FieldMask': 'reviews' },
+      timeout: 6000
+    });
+    const all = data.reviews ?? [];
+    // v0.26.0: persist the last-5 reviews to place-reviews:<placeId> for the
+    // vault-index. Fire-and-forget — never block the validate flow on this.
+    try {
+      const { cacheReviews } = require('./vault-index');
+      cacheReviews(null, placeId, all).catch(() => {});
+    } catch { /* vault-index optional */ }
+
+    const recent = all.filter(isRecentReview);
+    const pool = recent.length ? recent : all.slice(0, 5);
+    return pool.some((r) => {
+      const text = `${r.text?.text ?? ''} ${r.originalText?.text ?? ''}`;
+      return NEGATIVE_KEYWORDS.test(text);
+    });
+  } catch (err) {
+    logger.error({ placeId, err: { message: err.message } }, 'vibe-suggest review keyword screen failed');
+    return false; // do not block on transient errors
+  }
+}
+
+async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey) return null;
+  try {
+    const { data } = await axios.post(
+      PLACES_TEXT_URL,
+      {
+        textQuery: `${candidate.name} Singapore`,
+        maxResultCount: 1,
+        locationBias: {
+          circle: { center: { latitude: near.lat, longitude: near.lng }, radius: radiusM }
+        }
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': mapsApiKey,
+          'X-Goog-FieldMask': [
+            'places.id',
+            'places.displayName',
+            'places.formattedAddress',
+            'places.location',
+            'places.rating',
+            'places.googleMapsUri',
+            'places.googleMapsLinks',
+            'places.generativeSummary',
+            'places.primaryType',
+            'places.businessStatus',
+            'places.currentOpeningHours.openNow'
+          ].join(',')
+        },
+        timeout: 8000
+      }
+    );
+    const place = (data.places ?? [])[0];
+    if (!place?.location) return null;
+    const placeCoord = { lat: place.location.latitude, lng: place.location.longitude };
+    const distance = haversineMeters(near, placeCoord);
+    if (distance > radiusM) return null;
+    if ((place.businessStatus ?? 'OPERATIONAL') !== 'OPERATIONAL') return null;
+    if (place.currentOpeningHours?.openNow === false) return null;
+    if (await hasNegativeRecentReview(place.id)) return null;
+    return {
+      placeId: place.id,
+      name: place.displayName?.text ?? candidate.name,
+      area: place.formattedAddress ?? candidate.area ?? '',
+      lat: placeCoord.lat,
+      lng: placeCoord.lng,
+      rating: place.rating ?? null,
+      businessStatus: place.businessStatus ?? null,
+      openNow: place.currentOpeningHours?.openNow ?? null,
+      url: googleMapsUrl(place) ?? '',
+      directionsUri: place.googleMapsLinks?.directionsUri ?? '',
+      reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
+      photosUri: place.googleMapsLinks?.photosUri ?? '',
+      primaryType: place.primaryType ?? 'restaurant',
+      vibe: candidate.vibe ?? '',
+      googleSummary: extractGenerativeSummary(place),
+      source: 'gemini+places'
+    };
+  } catch (err) {
+    logger.error({ candidate: candidate.name, err: { message: err.message } }, 'vibe-suggest Places validation failed');
+    return null;
+  }
+}
+
+async function rankByWalkingTime(userLat, userLng, venues) {
+  if (!venues.length) return venues;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return venues;
+  const candidates = venues.filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng));
+  if (!candidates.length) return venues;
+  try {
+    const body = {
+      origins: [{ waypoint: { location: { latLng: { latitude: userLat, longitude: userLng } } } }],
+      destinations: candidates.map((v) => ({
+        waypoint: { location: { latLng: { latitude: v.lat, longitude: v.lng } } }
+      })),
+      travelMode: 'WALK'
+    };
+    const { data } = await axios.post(
+      'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix',
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters,condition'
+        },
+        timeout: 8000
+      }
+    );
+    const elems = Array.isArray(data) ? data : [];
+    candidates.forEach((v, i) => {
+      const elem = elems.find((e) => e.destinationIndex === i && e.originIndex === 0);
+      if (!elem || !elem.duration) return;
+      const seconds = parseInt(String(elem.duration).replace(/s$/, ''), 10);
+      if (!Number.isFinite(seconds)) return;
+      v.walkSeconds = seconds;
+      v.walkMinutes = Math.max(1, Math.round(seconds / 60));
+      v.walkMeters = Number.isFinite(elem.distanceMeters) ? elem.distanceMeters : null;
+    });
+    return [...venues].sort((a, b) => {
+      const av = a.walkSeconds ?? Number.POSITIVE_INFINITY;
+      const bv = b.walkSeconds ?? Number.POSITIVE_INFINITY;
+      return av - bv;
+    });
+  } catch (err) {
+    logger.error({ err: { message: err.message } }, 'vibe-suggest rankByWalkingTime failed');
+    return venues;
+  }
+}
+
+const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
+
+// v0.46.0: Places-first inverted path for /eat /drink /groceries.
+// Mirrors the v0.41.0 inversion that fixed /cuisine — Google Places
+// returns 20 real candidates → Claude picks N best → rank by walking
+// time. Eliminates the hallucinate-then-validate failure class that
+// caused "Gia couldn't find a sanctuary within 200m" on non-CBD anchors.
+//
+// Maps category → discover() inputs:
+//   food      → empty cuisines → discover uses searchNearby with broad
+//               food types (restaurant, cafe, bar, meal_takeaway,
+//               food_court, bakery)
+//   drink     → cuisines: ['bar', 'coffee', 'tea', 'cocktail']
+//               → discover uses searchText with these keywords
+//   groceries → cuisines: ['supermarket', 'grocery store']
+//               → discover uses searchText
+//   cuisine   → cuisines: [opts.cuisineType]
+//
+// Radial expansion: 500m → 1000m → 2000m (was 200/500/1000/2000 in
+// legacy). 200m was unrealistic outside CBD; the legacy value caused
+// the empty-result reports. discover() with locationBias to a 500m
+// circle is still tight enough to be "near you" but wide enough that
+// most SG anchors return results.
+async function pickValidatedInverted(lat, lng, count, opts, meal) {
+  const pipeline = require('./pipeline');
+  const category = opts.category || 'food';
+
+  let cuisines = [];
+  if (category === 'drink') cuisines = ['bar', 'coffee', 'tea', 'cocktail'];
+  else if (category === 'groceries') cuisines = ['supermarket', 'grocery store'];
+  else if (category === 'cuisine' && opts.cuisineType) cuisines = [String(opts.cuisineType).trim()];
+  // food: leave empty → discover uses searchNearby with broad food types.
+
+  for (const r of [500, 1000, 2000]) {
+    const candidates = await pipeline.discover({
+      lat,
+      lng,
+      cuisines,
+      radius: r,
+      mealPeriod: meal.label,
+      maxResults: 20
+    });
+    if (!candidates.length) continue;
+
+    const narrated = await pipeline.rankAndNarrate({
+      candidates,
+      query: {
+        cuisines,
+        label: meal.label,
+        detail: meal.hint,
+        specialRequest: opts.specialRequest || ''
+      },
+      snapshot: { vault: [], summaries: {}, reviews: {} },
+      count
+    });
+    if (!narrated.length) continue;
+
+    const ranked = await rankByWalkingTime(lat, lng, narrated);
+    return { meal, venues: ranked, activeRadius: r };
+  }
+  return { meal, venues: [] };
+}
+
+async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
+  const category = opts.category || 'food';
+  const override = CATEGORIES[category] ?? CATEGORIES.food;
+  let meal;
+  if (category === 'cuisine' && opts.cuisineType) {
+    const c = String(opts.cuisineType).trim();
+    meal = {
+      id: 'cuisine',
+      label: `${c} cuisine`,
+      hint: `${c} restaurants and cafés serving authentic ${c} food, suitable for a solo diner`
+    };
+  } else if (override.hint) {
+    meal = { id: category, label: override.label, hint: override.hint };
+  } else {
+    meal = mealPeriodSGT();
+  }
+
+  // v0.46.0: Places-first inverted pipeline by default. Set
+  // EAT_INVERSION_ENABLED=false in Railway env to revert to v0.45.x
+  // legacy hallucinate-then-validate behaviour.
+  if (process.env.EAT_INVERSION_ENABLED !== 'false') {
+    const inverted = await pickValidatedInverted(lat, lng, count, opts, meal);
+    if (inverted.venues.length) return inverted;
+    // Defensive: if Places returns nothing at all radii (extremely
+    // rural anchor, or Places API outage), fall through to legacy
+    // path so the consultant / hidden-sanctuary fallbacks in runFlow
+    // still run with the legacy candidates as input.
+    logger.warn(
+      { category, lat: Math.round(lat * 1000) / 1000, lng: Math.round(lng * 1000) / 1000 },
+      'pickValidated inverted path returned empty; falling through to legacy'
+    );
+  }
+
+  // Legacy path (v0.45.x and earlier — radial expansion 200m → 500m →
+  // 1000m → 2000m, Claude invents → Places validates).
+  // Radial expansion policy (v0.19.0):
+  //   Try ALL Gemini candidates at 200 m. If any validate, use those
+  //   (no expansion needed). If 0 validate at 200 m, try all candidates
+  //   at 500 m, then 1000 m, then 2000 m.
+  const candidates = await geminiCandidates(meal, lat, lng);
+  if (!candidates.length) return { meal, venues: [] };
+
+  let validated = [];
+  let activeRadius = RADIAL_EXPANSION_M[0];
+  for (const r of RADIAL_EXPANSION_M) {
+    const acc = [];
+    for (const candidate of candidates) {
+      if (acc.length >= count) break;
+      const v = await validateWithPlaces(candidate, { lat, lng }, r);
+      if (v) acc.push(v);
+    }
+    if (acc.length) {
+      validated = acc;
+      activeRadius = r;
+      break; // first radius with any hits wins; tighter is better
+    }
+  }
+  if (!validated.length) return { meal, venues: [] };
+
+  const ranked = await rankByWalkingTime(lat, lng, validated.slice(0, count));
+  return { meal, venues: ranked, activeRadius };
+}
+
+async function geocodeQuery(text) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey || !text || !text.trim()) return null;
+  try {
+    const { data } = await axios.post(
+      PLACES_TEXT_URL,
+      {
+        textQuery: `${text.trim()} Singapore`,
+        maxResultCount: 1
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': mapsApiKey,
+          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress'].join(',')
+        },
+        timeout: 8000
+      }
+    );
+    const place = (data.places ?? [])[0];
+    if (!place?.location) return null;
+    return {
+      lat: place.location.latitude,
+      lng: place.location.longitude,
+      name: place.displayName?.text ?? text.trim(),
+      address: place.formattedAddress ?? '',
+      placeId: place.id ?? null
+    };
+  } catch (err) {
+    logger.error({ text, err: { message: err.message } }, 'vibe-suggest geocodeQuery failed');
+    return null;
+  }
+}
+
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, rankByWalkingTime };
