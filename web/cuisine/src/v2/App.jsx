@@ -257,6 +257,13 @@ export default function App() {
           setVenues(r.venues);
           setWarmStartSeed(r.seed || null);
           setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+          // v0.59.18 (Codex review #223): seed lastRunSnap with the
+          // current state signature so the dirty ring lights up the
+          // moment the user toggles a filter / cuisine / region after
+          // warm-start. Without this, dirty stays false until the user's
+          // first manual 🔍 — they'd see no visible cue that pressing
+          // Search would do something different.
+          setLastRunSnap(stateSig(state));
           console.log(`[Cuisine-TMA-v2] warm-start ok seed=${r.seed} count=${r.venues.length}`);
           return;
         }
