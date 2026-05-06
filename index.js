@@ -3580,6 +3580,29 @@ async function cacheBotUsername() {
 
     app.get('/health', (_req, res) => res.send('ok'));
 
+    // v0.59.10: hosted privacy policy page. Same content as the
+    // chat-side /privacy command — both render from i18n.privacy.body.
+    // Single source of truth, locale-aware via ?lang=fr (default 'en').
+    // BotFather's "Privacy Policy URL" field accepts this URL.
+    app.get('/privacy', (req, res) => {
+      try {
+        const { tn, pickLang } = require('./i18n');
+        const { renderPrivacyPage } = require('./privacy-html');
+        const lang = pickLang(req.query?.lang);
+        const operator = process.env.OPERATOR_LINKEDIN
+          ? `\n\nOperator: ${process.env.OPERATOR_LINKEDIN}`
+          : '';
+        const body = tn('privacy.body', lang, { operator });
+        const html = renderPrivacyPage(body, lang);
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.set('Cache-Control', 'public, max-age=300'); // 5 min — flips with i18n updates on next deploy
+        res.send(html);
+      } catch (err) {
+        console.error('[/privacy http] failed:', err.message);
+        res.status(500).send('Privacy page failed to render.');
+      }
+    });
+
     // v0.26.1: backend health probe for the TMA pre-flight ping. Returns
     // a flat capability snapshot the Diagnostics panel renders. Auth-free
     // by design — its purpose is to confirm "the bridge is up" before
