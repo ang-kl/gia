@@ -193,6 +193,26 @@ describe('buildMapHashUrl (TMA multi-marker view)', () => {
     expect(hashPart).not.toMatch(/[+/=]/);
   });
 
+  // v0.59.3 regression: caller-supplied `url` must win over the name-based
+  // fallback. Incidents and bus stops have generic names ('Accident',
+  // 'Roadwork', stop descriptions) that would otherwise text-search Google
+  // Maps instead of opening the actual coordinate pin.
+  it('preserves caller-supplied url for coordinate-only markers', () => {
+    const coordUrl = 'https://www.google.com/maps/search/?api=1&query=1.2839,103.8517';
+    const r = buildMapHashUrl([{
+      name: 'Accident',
+      placeId: '',
+      lat: 1.2839,
+      lng: 103.8517,
+      url: coordUrl
+    }]);
+    const hashPart = r.split('#venues=')[1];
+    const padded = hashPart + '='.repeat((4 - (hashPart.length % 4)) % 4);
+    const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    const venues = JSON.parse(decoded);
+    expect(venues[0].url).toBe(coordUrl);
+  });
+
   it('drops venues without lat/lng (filters before encoding)', () => {
     const r = buildMapHashUrl([
       { name: 'Has', lat: 1.28, lng: 103.85 },

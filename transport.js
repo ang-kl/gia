@@ -416,5 +416,6 @@ module.exports = {
   nearestIncidents,
   CROWD_LABEL,
   STOPS_GEO,
-  STOPS_HASH_PREFIX
+  STOPS_HASH_PREFIX,
+  haversineM
 };

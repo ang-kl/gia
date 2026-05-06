@@ -75,7 +75,7 @@ const STRINGS = {
   'carpark.lookingUp':         { en: '🅿️ Looking up nearest carparks…', fr: '🅿️ Recherche des parkings les plus proches…' },
   'carpark.none':              { en: 'No carparks with available lots near here.', fr: 'Aucun parking avec places disponibles à proximité.' },
   'carpark.header':            { en: '🅿️ Nearest carparks with available lots', fr: '🅿️ Parkings les plus proches avec places disponibles' },
-  'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist} m', fr: '{i}. {name}  ·  {lots} places  ·  {dist} m' },
+  'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist}', fr: '{i}. {name}  ·  {lots} places  ·  {dist}' },
   'carpark.mapAllCaption':     { en: '🗺 View all {n} carparks on one map:', fr: '🗺 Voir les {n} parkings sur une seule carte :' },
   'carpark.mapAllBtn':         { en: '🗺 View all {n} on map', fr: '🗺 Voir les {n} sur la carte' },
   'carpark.containerCaption':  { en: '🗺 Open all 5 carparks in one Google Maps container:', fr: '🗺 Ouvrir les 5 parkings dans un conteneur Google Maps :' },
@@ -123,7 +123,7 @@ const STRINGS = {
   'transport.bus.offline':          { en: '🚌 Bus lookup is offline (LTA key not configured).', fr: '🚌 Recherche de bus hors-ligne (clé LTA non configurée).' },
   'transport.bus.noStopsNearest':   { en: '🚏 No bus stops within 800 m of your saved location.', fr: '🚏 Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
   'transport.bus.nearestHeader':    { en: '🚏 Nearest bus stops', fr: '🚏 Arrêts de bus les plus proches' },
-  'transport.bus.stopRow':          { en: '· {desc} ({road}) — {dist} m', fr: '· {desc} ({road}) — {dist} m' },
+  'transport.bus.stopRow':          { en: '· {desc} ({road}) — {dist}', fr: '· {desc} ({road}) — {dist}' },
   'transport.bus.stopCode':         { en: '  Code: {code}', fr: '  Code : {code}' },
   'transport.bus.noStopsArrivals':  { en: '⏱ No bus stops within 800 m of your saved location.', fr: '⏱ Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
   'transport.bus.arrivalsHeader':   { en: '⏱ Next arrivals — top 3 nearest stops', fr: '⏱ Prochains passages — 3 arrêts les plus proches' },
@@ -181,7 +181,18 @@ const STRINGS = {
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
-  'location.got':              { en: '📍 Got your location.', fr: '📍 Position reçue.' }
+  'location.got':              { en: '📍 Got your location.', fr: '📍 Position reçue.' },
+
+  // v0.59.3 — one-map buttons for transport sub-views.
+  'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },
+  'transport.map.incidentsBtn':     { en: '🗺 View incidents on map', fr: '🗺 Voir les incidents' },
+  'transport.map.busStopsCaption':  { en: '🗺 View {n} bus stops on one map:', fr: '🗺 Voir les {n} arrêts sur une carte :' },
+  'transport.map.busStopsBtn':      { en: '🗺 View stops on map', fr: '🗺 Voir les arrêts' },
+  'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' },
+  'transport.map.stationsBtn':      { en: '🗺 View stations on map', fr: '🗺 Voir les stations' },
+
+  // Distance row addition for MRT stations (was previously bare).
+  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd}', fr: '· {name} · {dist}{crowd}' }
 };
 
 function pickLang(lang) {
