@@ -355,7 +355,26 @@ const STRINGS = {
   'incident.type.MassDisruption':      { en: 'Mass Disruption', fr: 'Perturbation majeure' },
   'incident.type.Weather':             { en: 'Weather', fr: 'Météo' },
   'incident.type.Animals':             { en: 'Animals', fr: 'Animaux' },
-  'incident.type.Incident':            { en: 'Incident', fr: 'Incident' }
+  'incident.type.Incident':            { en: 'Incident', fr: 'Incident' },
+
+  // v0.59.17 — /cuisine chat-side strings (the chat reply that opens
+  // the cuisine TMA, NOT the TMA itself which has its own i18n). Per
+  // Human Lead 2026-05-06: with /language fr or French device locale,
+  // the /cuisine chat message + buttons should be French.
+  'cuisine.chat.title':           { en: '🍴 Cuisine Picker — Singapore to Johor Bahru',
+                                    fr: '🍴 Sélecteur de cuisine — Singapour à Johor Bahru' },
+  'cuisine.chat.anchored':        { en: '📍 Anchored to your last shared location.',
+                                    fr: '📍 Ancré sur votre dernière position partagée.' },
+  'cuisine.chat.shareForAccurate':{ en: 'For accurate picks, share your location first — or open the picker to use device GPS.',
+                                    fr: 'Pour des choix précis, partagez d’abord votre position — ou ouvrez le sélecteur pour utiliser le GPS de l’appareil.' },
+  'cuisine.chat.openWithGps':     { en: "Or open the picker now (it'll try device GPS):",
+                                    fr: 'Ou ouvrez le sélecteur maintenant (il essaiera le GPS de l’appareil) :' },
+  'cuisine.chat.openBtn':         { en: '🍴 Open Cuisine Picker', fr: '🍴 Ouvrir le sélecteur' },
+  'cuisine.chat.shareLocBtn':     { en: '📍 Share location with bot', fr: '📍 Partager la position avec le bot' },
+  'cuisine.chat.openError':       { en: "Sorry, I can't open the Cuisine Picker right now.",
+                                    fr: 'Désolé, impossible d’ouvrir le sélecteur de cuisine pour le moment.' },
+  'cuisine.chat.webhookOnly':     { en: "The Cuisine Picker needs the webhook-mode TMA. Try /hidden for chat-based picks instead, or just type 'find me ramen' / similar and I'll search.",
+                                    fr: 'Le Sélecteur de cuisine nécessite la TMA en mode webhook. Essayez /hidden pour des choix en chat, ou tapez « trouve-moi des ramen » / similaire et je cherche.' }
 };
 
 // v0.59.14: translate an LTA Type field to the active locale.

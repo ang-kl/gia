@@ -845,12 +845,13 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // reply-keyboard so the user can fix the anchor in one tap.
 const CUISINE_FRESH_LOC_MS = 30 * 60 * 1000;
 bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
+  // v0.59.17: thread lang into the chat reply so it flips with /language.
+  const { resolveLang } = require('./user-prefs');
+  const { t } = require('./i18n');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
     if (!useWebhook) {
-      await safeSend(
-        msg.chat.id,
-        "The Cuisine Picker needs the webhook-mode TMA. Try /hidden for chat-based picks instead, or just type 'find me ramen' / similar and I'll search."
-      );
+      await safeSend(msg.chat.id, t('cuisine.chat.webhookOnly', lang));
       return;
     }
     const argsRaw = (match?.[1] || '').trim();
@@ -885,11 +886,11 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
 
     if (preResolvedAnchor) {
       await bot.sendMessage(msg.chat.id,
-        "🍴 Cuisine Picker — Singapore to Johor Bahru\n📍 Anchored to your last shared location.",
+        `${t('cuisine.chat.title', lang)}\n${t('cuisine.chat.anchored', lang)}`,
         {
           reply_markup: {
             inline_keyboard: [[{
-              text: '🍴 Open Cuisine Picker',
+              text: t('cuisine.chat.openBtn', lang),
               web_app: { url }
             }]]
           }
@@ -900,19 +901,19 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
       // messages because Telegram disallows mixing reply-keyboard with
       // inline-keyboard on a single message.
       await bot.sendMessage(msg.chat.id,
-        "🍴 Cuisine Picker — Singapore to Johor Bahru\n\nFor accurate picks, share your location first — or open the picker to use device GPS.",
+        `${t('cuisine.chat.title', lang)}\n\n${t('cuisine.chat.shareForAccurate', lang)}`,
         {
           reply_markup: {
-            keyboard: [[{ text: '📍 Share location with bot', request_location: true }]],
+            keyboard: [[{ text: t('cuisine.chat.shareLocBtn', lang), request_location: true }]],
             resize_keyboard: true,
             one_time_keyboard: true
           }
         }
       );
-      await bot.sendMessage(msg.chat.id, "Or open the picker now (it'll try device GPS):", {
+      await bot.sendMessage(msg.chat.id, t('cuisine.chat.openWithGps', lang), {
         reply_markup: {
           inline_keyboard: [[{
-            text: '🍴 Open Cuisine Picker',
+            text: t('cuisine.chat.openBtn', lang),
             web_app: { url }
           }]]
         }
@@ -920,7 +921,7 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
     }
   } catch (err) {
     console.error('[Error] /cuisine handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, I can't open the Cuisine Picker right now.");
+    await safeSend(msg.chat.id, t('cuisine.chat.openError', lang));
   }
 });
 
@@ -1741,8 +1742,11 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
       const url = type
         ? `https://${webhookDomain}/app/cuisine?cuisine=${encodeURIComponent(type)}`
         : `https://${webhookDomain}/app/cuisine`;
-      await bot.sendMessage(chatId, "🍴 Cuisine Picker - Singapore to Johor Bahru", {
-        reply_markup: { inline_keyboard: [[{ text: '🍴 Open Cuisine Picker', web_app: { url } }]] }
+      // v0.59.17: localised via routeMenuCommand's lang parameter (threaded
+       // from /start <param> deep links + web_app_data tile taps).
+      const { t: tCuisine } = require('./i18n');
+      await bot.sendMessage(chatId, tCuisine('cuisine.chat.title', lang), {
+        reply_markup: { inline_keyboard: [[{ text: tCuisine('cuisine.chat.openBtn', lang), web_app: { url } }]] }
       });
       return true;
     }
