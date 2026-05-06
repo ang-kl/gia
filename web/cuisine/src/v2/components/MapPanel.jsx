@@ -68,6 +68,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // doesn't mis-attribute the programmatic move to user panning.
   const programmaticUpdateRef = useRef(false);
   const [showSearchHere, setShowSearchHere] = useState(false);
+  // v0.58.54: detect once at mount whether the active pointer is touch
+  // (iPad / iPhone / Android). On touch devices `mouseover` never fires,
+  // so we surface the InfoWindow on tap instead and embed an "Open in
+  // Maps" CTA inside the bubble. matchMedia is the canonical truth —
+  // navigator.userAgent lies for iPadOS in desktop-mode.
+  const isTouchRef = useRef(false);
+  // v0.58.54: tablet-form-factor detection drives the map-height bump.
+  // Re-evaluated on resize so rotating an iPad updates the layout.
+  const [isTablet, setIsTablet] = useState(false);
+  // v0.58.54: cache the current venues array in a ref so the global
+  // `window.__giaOpenMap(placeId)` handler (registered once at mount,
+  // invoked from inside the InfoWindow's HTML) can resolve back to a
+  // venue object without going through React state.
+  const venuesRef = useRef([]);
+  useEffect(() => { venuesRef.current = venues || []; }, [venues]);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +97,32 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     }).catch((err) => console.warn('[Cuisine-TMA] maps-key fetch failed', err));
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // v0.58.54: pointer + viewport detection (touch, tablet) + global
+  // window.__giaOpenMap handler that the InfoWindow's CTA button calls.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const touchMql = window.matchMedia('(hover: none) and (pointer: coarse)');
+    isTouchRef.current = touchMql.matches;
+    const tabletMql = window.matchMedia('(min-width: 700px)');
+    setIsTablet(tabletMql.matches);
+    const onTouchChange = (e) => { isTouchRef.current = e.matches; };
+    const onTabletChange = (e) => setIsTablet(e.matches);
+    touchMql.addEventListener?.('change', onTouchChange);
+    tabletMql.addEventListener?.('change', onTabletChange);
+    // Global handler invoked from inside the InfoWindow's HTML CTA.
+    // Looks the venue up by placeId from the live `venuesRef` so the
+    // closure doesn't go stale across re-renders.
+    window.__giaOpenMap = (placeId) => {
+      const v = (venuesRef.current || []).find((x) => x.placeId === placeId);
+      if (v) openInGoogleMaps(v);
+    };
+    return () => {
+      touchMql.removeEventListener?.('change', onTouchChange);
+      tabletMql.removeEventListener?.('change', onTabletChange);
+      try { delete window.__giaOpenMap; } catch { window.__giaOpenMap = undefined; }
+    };
   }, []);
 
   function initMap() {
@@ -204,13 +245,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const ratingHtml = Number.isFinite(v.rating)
         ? `<div style="font-size:11px;color:#666;margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
         : '';
+      // v0.58.54: on touch devices, embed an "Open in Google Maps" CTA
+      // inside the bubble — the global `window.__giaOpenMap(placeId)`
+      // handler (registered at mount) routes through openInGoogleMaps.
+      // On desktop the hint reads "Tap pin → Google Maps" because the
+      // pin click itself opens Maps directly without showing the bubble.
+      const ctaHtml = isTouchRef.current
+        ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">📍 Open in Google Maps</button>`
+        : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">Tap pin → Google Maps</div>`;
       const infoHtml =
         `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
            ${addressHtml}
            ${travelHtml}
            ${ratingHtml}
-           <div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">Tap pin → Google Maps</div>
+           ${ctaHtml}
          </div>`;
       const onMouseOver = () => {
         if (!infoWindowRef.current) return;
@@ -225,18 +274,29 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // always undefined → the `if` guard silently no-op'd and no
       // hover ever fired. Hold the PinElement DOM in a local
       // (`pinNode = pin.element`) and attach listeners to that.
-      if (pinNode) {
+      // v0.58.54: only attach hover listeners on devices that fire
+      // pointer events. Touch devices skip this — taps go through
+      // marker.click below.
+      if (pinNode && !isTouchRef.current) {
         pinNode.style.cursor = 'pointer';
         pinNode.addEventListener('mouseover', onMouseOver);
         pinNode.addEventListener('mouseout', onMouseOut);
       }
-      // v0.58.51: click → open Google Maps via tg.openLink. On mobile
-      // (no hover), this is the primary interaction. Also keeps the
-      // existing focus-card behaviour so the result list still
-      // highlights the corresponding card on tap.
+      // v0.58.51: click on desktop → open Google Maps via tg.openLink.
+      // v0.58.54: on touch devices, click instead opens the InfoWindow
+      // preview with the embedded "📍 Open in Google Maps" CTA. The
+      // user taps once for preview, again for Maps — matches Google
+      // Maps' own native mobile pattern.
       marker.addListener('click', () => {
         onPinTap?.(v.placeId);
-        openInGoogleMaps(v);
+        if (isTouchRef.current) {
+          if (infoWindowRef.current) {
+            infoWindowRef.current.setContent(infoHtml);
+            infoWindowRef.current.open(mapRef.current, marker);
+          }
+        } else {
+          openInGoogleMaps(v);
+        }
       });
       markersRef.current.push(marker);
       bounds.extend({ lat: v.lat, lng: v.lng });
@@ -290,8 +350,18 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           ~240 px (50vh on a 480 px viewport ≈ 240); tablet/desktop
           get up to 420 px so the map isn't a tiny strip on a tall
           screen. min-height clamps to 240 so it never shrinks below
-          the original. */}
-      <div ref={containerRef} style={{ width: '100%', height: 'min(420px, 50vh)', minHeight: 240 }} />
+          the original.
+          v0.58.54: tablet form-factor (≥700 px wide, e.g. iPad Mini)
+          gets a taller cap of 640 px / 60vh — 420 was only ~37 % of a
+          1133 px iPad portrait viewport, which felt cramped. */}
+      <div
+        ref={containerRef}
+        style={{
+          width: '100%',
+          height: isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)',
+          minHeight: 240
+        }}
+      />
       {showSearchHere && (
         <button
           type="button"
