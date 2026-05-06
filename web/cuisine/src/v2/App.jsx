@@ -649,7 +649,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.12 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.13 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

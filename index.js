@@ -1280,7 +1280,11 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
 // empty.
 // v0.37.0: optional category filter — /recognised michelin, /recognised bib,
 // /recognised michelin-star, etc. Falls through to all-categories when no arg.
-bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, (msg, match) => runRecognisedCommand(msg.chat.id, match?.[1] || null));
+bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runRecognisedCommand(msg.chat.id, lang);
+});
 
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
 // (Michelin SG list) and the heritage signal was thin / inconsistent.
@@ -1324,6 +1328,9 @@ bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
 // v0.31.0: /buddy on|off|status|block|report — Buddy Level 2 controls.
 // Opt-in only. See prompt-templates/buddy-level-2-policy.md.
 bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i, async (msg, match) => {
+  const { resolveLang } = require('./user-prefs');
+  const { t, tn } = require('./i18n');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
     const buddy = require('./buddy-match');
     const action = (match?.[1] || 'status').toLowerCase();
@@ -1331,28 +1338,22 @@ bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i
 
     if (action === 'on') {
       await buddy.optIn(redis, msg.chat.id);
-      await safeSend(msg.chat.id,
-        '👥 *Buddy mode ON.*\n\n' +
-        'When you receive Sanctuary picks, a 👥 _Connect_ button appears next to venues where another opted-in soleat user is also heading in the next 60 min. ' +
-        'Both of you must confirm before first names + Telegram handles are revealed. ' +
-        'Daily cap: 5 connections / 24 h. `/buddy block <chat_id>` to block. `/buddy report <chat_id> <reason>` to flag. `/buddy off` to disable.\n\n' +
-        '⚠ _Pilot — meet only in public, treat as a stranger, trust your gut._'
-      );
+      await safeSend(msg.chat.id, t('buddy.on.body', lang));
       return;
     }
     if (action === 'off') {
       await buddy.optOut(redis, msg.chat.id);
-      await safeSend(msg.chat.id, '👥 Buddy mode OFF.');
+      await safeSend(msg.chat.id, t('buddy.off', lang));
       return;
     }
     if (action === 'block') {
       const target = String(arg).trim();
       if (!target) {
-        await safeSend(msg.chat.id, 'Usage: `/buddy block <chat_id>`. Get the chat ID from a previous match offer.');
+        await safeSend(msg.chat.id, t('buddy.block.usage', lang));
         return;
       }
       const ok = await buddy.block(redis, msg.chat.id, target);
-      await safeSend(msg.chat.id, ok ? `🚫 Blocked ${target}. They will never be matched with you.` : 'Could not block (max 50 blocks reached).');
+      await safeSend(msg.chat.id, ok ? tn('buddy.block.ok', lang, { target }) : t('buddy.block.cap', lang));
       return;
     }
     if (action === 'report') {
@@ -1360,24 +1361,21 @@ bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i
       const target = parts.shift() || '';
       const reason = parts.join(' ');
       if (!target) {
-        await safeSend(msg.chat.id, 'Usage: `/buddy report <chat_id> <reason>`.');
+        await safeSend(msg.chat.id, t('buddy.report.usage', lang));
         return;
       }
       await buddy.report(redis, msg.chat.id, target, reason);
       await buddy.block(redis, msg.chat.id, target).catch(() => {});
-      await safeSend(msg.chat.id, `📝 Report logged. ${target} is also auto-blocked from your matches. We'll review.`);
+      await safeSend(msg.chat.id, tn('buddy.report.ok', lang, { target }));
       return;
     }
     const on = await buddy.isOptedIn(redis, msg.chat.id);
     const cnt = await buddy.dailyCount(redis, msg.chat.id);
-    await safeSend(msg.chat.id,
-      `👥 Buddy mode is currently *${on ? 'ON' : 'OFF'}*. ` +
-      `Today's connections: ${cnt}/${buddy.DAILY_CAP}. ` +
-      'Use `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.'
-    );
+    const state = on ? t('buddy.status.on', lang) : t('buddy.status.off', lang);
+    await safeSend(msg.chat.id, tn('buddy.status', lang, { state, n: cnt, cap: buddy.DAILY_CAP }));
   } catch (err) {
     console.error('[Error] /buddy handler failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, /buddy hit an error.");
+    await safeSend(msg.chat.id, t('buddy.error', lang));
   }
 });
 
@@ -1419,11 +1417,14 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
 });
 
 bot.onText(/^\/(?:share|s)(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const { t, tn } = require('./i18n');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
     const { getRecent } = require('./recent-picks');
     const recent = await getRecent(redis, msg.chat.id);
     if (!recent.length) {
-      await safeSend(msg.chat.id, "No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a buddy.");
+      await safeSend(msg.chat.id, t('share.empty', lang));
       return;
     }
     const { saveShare } = require('./share');
@@ -1441,17 +1442,17 @@ bot.onText(/^\/(?:share|s)(?:@\w+)?$/, async (msg) => {
       }
     }
     if (!rows.length) {
-      await safeSend(msg.chat.id, "Sorry, I couldn't mint share links right now.");
+      await safeSend(msg.chat.id, t('share.mintFailed', lang));
       return;
     }
     await bot.sendMessage(
       msg.chat.id,
-      `Pick a venue to forward to your buddy (${rows.length} recent):`,
+      tn('share.prompt', lang, { n: rows.length }),
       { reply_markup: { inline_keyboard: rows } }
     );
   } catch (err) {
     console.error('[Error] /share failed:', err.message);
-    await safeSend(msg.chat.id, "Sorry, /share hit an error.");
+    await safeSend(msg.chat.id, t('share.error', lang));
   }
 });
 
@@ -1815,7 +1816,7 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'weather':   await runWeatherCommand(chatId, lang); return true;
     case 'transport': await sendTransportMenu(chatId, lang); return true;
     case 'hawker':    await sendHawkerMenu(chatId, lang); return true;
-    case 'recognised': await runRecognisedCommand(chatId); return true;
+    case 'recognised': await runRecognisedCommand(chatId, lang); return true;
     case 'carpark':   await runCarparkCommand(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
@@ -2009,15 +2010,30 @@ async function runTransportTrain(chatId, lang = 'en') {
       : [];
     // v0.59.3: nearby-stations one-map button (only if we have stations + a webhookDomain).
     let stationsMapRow = [];
-    if (mrtForMap.length && webhookDomain) {
+    let stationsGmapsRow = [];
+    if (mrtForMap.length) {
       try {
-        const { buildMapHashUrl } = require('./maps-url');
+        const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
         const slim = mrtForMap
           .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
           .map((s) => ({ ...s, name: s.name, placeId: s.placeId || '' }));
-        const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-        if (mapUrl) {
-          stationsMapRow = [[{ text: t('transport.map.stationsBtn', lang), web_app: { url: mapUrl } }]];
+        if (webhookDomain) {
+          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          if (mapUrl) {
+            stationsMapRow = [[{ text: t('transport.map.stationsBtn', lang), web_app: { url: mapUrl } }]];
+          }
+        }
+        // v0.59.13: Google Maps multi-stop directions URL — opens the
+        // user's Maps app on iOS Universal Links, lands on the stations
+        // pinned in walking-directions mode.
+        if (cachedLoc && Number.isFinite(cachedLoc.lat) && Number.isFinite(cachedLoc.lng)) {
+          const gmapsUrl = googleMapsContainerUrl(slim, {
+            travelmode: 'walking',
+            origin: `${cachedLoc.lat},${cachedLoc.lng}`
+          });
+          if (gmapsUrl) {
+            stationsGmapsRow = [[{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]];
+          }
         }
       } catch (err) {
         console.warn('[Transport] stations map build failed:', err.message);
@@ -2026,6 +2042,7 @@ async function runTransportTrain(chatId, lang = 'en') {
     const buttons = [
       ...tmaButton,
       ...stationsMapRow,
+      ...stationsGmapsRow,
       [{ text: t('button.refresh', lang), callback_data: 'transport:train' }],
       [{ text: t('button.back', lang), callback_data: 'transport:menu' }]
     ];
@@ -2072,29 +2089,35 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: formatDistance(stop.distanceM) }));
         lines.push(tn('transport.bus.stopCode', lang, { code: stop.code }));
       }
-      // v0.59.3: one-map button for nearest stops.
+      // v0.59.3: one-map button for nearest stops. v0.59.13: + Google Maps.
       let mapRow = [];
-      if (webhookDomain) {
-        try {
-          const { buildMapHashUrl } = require('./maps-url');
-          const slim = stops
-            .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
-            .map((s) => ({
-              name: `${s.description} (${s.code})`,
-              placeId: '',
-              lat: s.lat,
-              lng: s.lng,
-              area: s.roadName || '',
-              // Coord URL so the marker popup's "Open in Google Maps" lands
-              // on the stop pin, not a text search for the stop description.
-              url: `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`
-            }));
+      let gmapsRow = [];
+      try {
+        const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
+        const slim = stops
+          .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+          .map((s) => ({
+            name: `${s.description} (${s.code})`,
+            placeId: '',
+            lat: s.lat,
+            lng: s.lng,
+            area: s.roadName || '',
+            // Coord URL so the marker popup's "Open in Google Maps" lands
+            // on the stop pin, not a text search for the stop description.
+            url: `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`
+          }));
+        if (webhookDomain) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
-        } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
-      }
+        }
+        const gmapsUrl = googleMapsContainerUrl(slim, {
+          travelmode: 'walking',
+          origin: `${cachedLoc.lat},${cachedLoc.lng}`
+        });
+        if (gmapsUrl) gmapsRow = [[{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]];
+      } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
       await safeSend(chatId, lines.join('\n'), {
-        reply_markup: { inline_keyboard: [...mapRow, backRow] }
+        reply_markup: { inline_keyboard: [...mapRow, ...gmapsRow, backRow] }
       });
       return;
     }
@@ -2323,24 +2346,27 @@ async function sendHawkerMenu(chatId, lang = 'en') {
 
 
 // v0.35.0: /recognised + /heritage-food handlers. Both consume the
-async function runRecognisedCommand(chatId) {
-  // v0.56.3: per Human Lead — stop the LLM web_search query (was off);
-  // surface 4 curated Singapore award/listing pages as direct links
-  // in the requested order. Static, deterministic, zero LLM cost.
+async function runRecognisedCommand(chatId, lang = 'en') {
+  const { t } = require('./i18n');
+  // v0.56.3: 4 curated SG award/listing pages as direct links.
+  // v0.59.13: localised heading + button labels.
   const text = [
-    '🏆 *Singapore — recognised dining*',
+    t('recognised.heading', lang),
     '',
-    'Tap a list to open the source page:'
+    t('recognised.tap', lang)
   ].join('\n');
+  // v0.59.13: switch to FR Michelin Guide URL when locale is FR. The FR
+  // Michelin domain serves the same Singapore selection in French.
+  const michelinLocale = lang === 'fr' ? 'fr' : 'en';
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🍜 MICHELIN Bib Gourmand',          url: 'https://guide.michelin.com/sg/en/selection/singapore/restaurants/bib-gourmand' }],
-        [{ text: '⭐ MICHELIN Star',                   url: 'https://guide.michelin.com/sg/en/singapore-region/singapore/restaurants' }],
-        [{ text: "🌏 Asia's 50 Best Restaurants",     url: 'https://www.theworlds50best.com/asia/en/list/1-50' }],
-        [{ text: '🌱 Restaurants using Local Produce', url: 'https://www.sfa.gov.sg/fromSGtoSG/where-to-dine' }]
+        [{ text: t('recognised.btn.bib', lang),          url: `https://guide.michelin.com/sg/${michelinLocale}/selection/singapore/restaurants/bib-gourmand` }],
+        [{ text: t('recognised.btn.star', lang),         url: `https://guide.michelin.com/sg/${michelinLocale}/singapore-region/singapore/restaurants` }],
+        [{ text: t('recognised.btn.asia50', lang),       url: 'https://www.theworlds50best.com/asia/en/list/1-50' }],
+        [{ text: t('recognised.btn.localProduce', lang), url: 'https://www.sfa.gov.sg/fromSGtoSG/where-to-dine' }]
       ]
     }
   });
@@ -2362,15 +2388,30 @@ async function runCarparkCommand(chatId, lang = 'en') {
     await safeSend(chatId, lines.join('\n'));
     // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
     // Falls back to legacy directions URL when webhookDomain unavailable.
+    // v0.59.13: TMA leaflet button + Google Maps button rendered together
+    // when both are available, so the user picks whichever app is more
+    // ergonomic for them.
     try {
-      const { buildMapHashUrl } = require('./maps-url');
+      const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
       const carparksWithName = list.map((c) => ({ ...c, name: c.development, placeId: '' }));
       const mapUrl = webhookDomain ? buildMapHashUrl(carparksWithName, { webhookDomain }) : null;
+      const gmapsUrl = googleMapsContainerUrl(list, {
+        travelmode: 'driving',
+        origin: `${cached.lat},${cached.lng}`
+      });
+      const rows = [];
       if (mapUrl) {
+        rows.push([{ text: tn('carpark.mapAllBtn', lang, { n: list.length }), web_app: { url: mapUrl } }]);
+      }
+      if (gmapsUrl) {
+        rows.push([{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]);
+      }
+      if (rows.length) {
         await bot.sendMessage(chatId, tn('carpark.mapAllCaption', lang, { n: list.length }), {
-          reply_markup: { inline_keyboard: [[{ text: tn('carpark.mapAllBtn', lang, { n: list.length }), web_app: { url: mapUrl } }]] }
+          reply_markup: { inline_keyboard: rows }
         });
       } else {
+        // Last-resort fallback: legacy GoogleMapsContainer (drives directions URL).
         await sendGoogleMapsContainer(chatId, list, {
           travelmode: 'driving',
           caption: t('carpark.containerCaption', lang),
