@@ -2208,7 +2208,7 @@ async function runTransportBus(chatId, sub, lang = 'en') {
 }
 
 async function runTransportTrafficIncidents(chatId, lang = 'en') {
-  const { t, tn } = require('./i18n');
+  const { t, tn, translateIncidentType } = require('./i18n');
   const { formatDistance } = require('./format');
   try {
     if (!process.env.LTA_ACCOUNT_KEY) {
@@ -2230,7 +2230,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
         lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
         for (const inc of near) {
           const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
-          lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist }));
+          lines.push('', tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist }));
           lines.push(`  ${inc.message}`);
         }
         mapPool = near;
@@ -2240,7 +2240,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
     } else {
       lines.push('', tn('transport.incidents.noLoc', lang, { total: all.length }));
       for (const inc of all.slice(0, 5)) {
-        lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist: '' }));
+        lines.push('', tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist: '' }));
         lines.push(`  ${inc.message}`);
       }
       mapPool = all.slice(0, 8);
@@ -2278,7 +2278,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
 }
 
 async function runTransportDrive(chatId, lang = 'en') {
-  const { t, tn } = require('./i18n');
+  const { t, tn, translateIncidentType } = require('./i18n');
   const { formatDistance } = require('./format');
   try {
     if (!redis.isOpen) await redis.connect();
@@ -2298,7 +2298,7 @@ async function runTransportDrive(chatId, lang = 'en') {
           lines.push('', tn('transport.drive.trafficNear', lang, { n: near.length, total: all.length }));
           for (const inc of near) {
             const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
-            lines.push(tn('transport.incidents.row', lang, { type: inc.type, dist }));
+            lines.push(tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist }));
             lines.push(`  ${inc.message}`);
           }
         } else if (all.length) {
