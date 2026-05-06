@@ -334,6 +334,54 @@ const axios = require('axios');
 const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 
+// v0.59.19 — iconic Singapore dish names. When the user picks the
+// "Singaporean" cuisine chip, discover() rotates 2 random dishes from
+// this list into the Places textQuery (alongside the Singaporean
+// anchor) so the search diversifies recall across calls — chicken-rice
+// stalls one call, Bak Kut Teh another, Chilli Crab a third — without
+// losing the SG-cuisine breadth. Per Human Lead 2026-05-06.
+//
+// Names match how French-speaking SG residents refer to the dishes
+// (Telegram bot reply prose can sit around them in either EN or FR;
+// the dish name itself stays in its native form — same iconic-dish
+// carve-out the venue-templates and Gemini grounding prompt already
+// observe).
+const SINGAPOREAN_DISHES = [
+  'Hainanese Chicken Rice', 'Chilli Crab', 'Laksa', 'Char Kway Teow',
+  'Hokkien Mee', 'Bak Kut Teh', 'Bak Chor Mee', 'Chai Tow Kway',
+  'Oyster Omelette', 'Rojak', 'Ice Kacang', 'Chendol', 'Tau Huay',
+  'Popiah', 'Chwee Kueh', 'Curry Puff', 'Sambal Stingray', 'Prawn Mee',
+  'Wanton Mee', 'Ban Mian', 'Claypot Rice', 'Duck Rice', 'Lor Mee',
+  'Kway Chap', 'Yong Tau Foo', 'Nasi Lemak', 'Satay', 'Beef Rendang',
+  'Nasi Padang', 'Lontong', 'Mee Rebus', 'Mee Siam', 'Ayam Penyet',
+  'Soto Ayam', 'Mee Goreng', 'Sup Tulang', 'Asam Pedas', 'Sayur Lodeh',
+  'Otak-Otak', 'Tauhu Goreng', 'Pulut Hitam', 'Bubur Cha Cha',
+  'Roti Prata', 'Nasi Biryani', 'Murtabak', 'Fish Head Curry',
+  'Thosai', 'Vadai', 'Mutton Soup', 'Putu Mayam'
+];
+
+// Partial Fisher-Yates: returns up to n unique items drawn from arr.
+function pickRandomSubset(arr, n) {
+  const a = [...(arr || [])];
+  const out = [];
+  for (let i = 0; i < n && a.length; i++) {
+    const j = Math.floor(Math.random() * a.length);
+    out.push(a.splice(j, 1)[0]);
+  }
+  return out;
+}
+
+// Expand the user's cuisine selection: when 'singaporean' is present,
+// keep all original entries AND append 2 random iconic SG dishes from
+// SINGAPOREAN_DISHES. Match is case-insensitive. Non-SG selections
+// pass through unchanged.
+function expandSingaporeanCuisines(cuisines) {
+  if (!Array.isArray(cuisines)) return cuisines;
+  const has = cuisines.some((c) => String(c || '').toLowerCase() === 'singaporean');
+  if (!has) return cuisines;
+  return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 2)];
+}
+
 const DISCOVER_FIELD_MASK = [
   'places.id',
   'places.displayName',
@@ -393,13 +441,18 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
     return [];
   }
-  diag('D710', 'Discover Places start', true, { lat, lng, cuisines, radius });
+  // v0.59.19: when 'Singaporean' is selected, rotate in 2 random
+  // iconic-dish terms so consecutive calls return varied venues (not
+  // the same chicken-rice / laksa duo every time). Pass-through for
+  // every other cuisine selection.
+  const effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  diag('D710', 'Discover Places start', true, { lat, lng, cuisines: effectiveCuisines, radius });
   const t0 = Date.now();
   try {
-    const hasCuisines = Array.isArray(cuisines) && cuisines.length > 0;
+    const hasCuisines = Array.isArray(effectiveCuisines) && effectiveCuisines.length > 0;
     let data;
     if (hasCuisines) {
-      const cuisineQuery = cuisines.join(' OR ');
+      const cuisineQuery = effectiveCuisines.join(' OR ');
       // v0.57.15: append "cuisine" to disambiguate place-name overlap.
       // Bare names like "New Zealand" or "Australian" otherwise match
       // embassies / brand names / suburb references; "New Zealand
@@ -1087,4 +1140,18 @@ async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15
   return { candidates: refined, refined: true, diag: diag.events };
 }
 
-module.exports = { reason, reasonExecute, discover, rankAndNarrate, fetchContext, refine, runPipeline, clusterByGrid, computeCrowdSignal };
+module.exports = {
+  reason,
+  reasonExecute,
+  discover,
+  rankAndNarrate,
+  fetchContext,
+  refine,
+  runPipeline,
+  clusterByGrid,
+  computeCrowdSignal,
+  // v0.59.19 — exposed for unit tests of the Singaporean dish-rotation.
+  SINGAPOREAN_DISHES,
+  pickRandomSubset,
+  expandSingaporeanCuisines
+};
