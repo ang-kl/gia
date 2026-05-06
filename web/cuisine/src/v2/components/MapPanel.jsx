@@ -53,6 +53,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
+  // v0.58.53: cache the PinElement DOM node for the user-anchor pin
+  // so the hover handler can re-bind to it across syncMarkers re-runs
+  // without relying on AdvancedMarkerElement's (non-existent) `.element`.
+  const anchorPinNodeRef = useRef(null);
   // v0.58.51: shared InfoWindow for hover preview. Single instance
   // re-used across all markers (Google Maps best practice — keeps DOM
   // light and lets us close-on-mouseout without leaks).
@@ -124,12 +128,25 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
     const bounds = new window.google.maps.LatLngBounds();
+    // v0.58.53: hoist InfoWindow init above the userLoc block so the
+    // anchor-pin hover wiring sees a populated ref on the first sync.
+    if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
+      infoWindowRef.current = new window.google.maps.InfoWindow({
+        disableAutoPan: true,
+        pixelOffset: new window.google.maps.Size(0, -10)
+      });
+    }
     if (userLoc) {
       if (!userMarkerRef.current) {
         const pin = new PinElement({ background: '#1e88e5', borderColor: '#0d47a1', glyph: '●', glyphColor: '#fff', scale: 1 });
+        // v0.58.53: hold the PinElement DOM node so hover listeners
+        // can be attached to it (AdvancedMarkerElement has no
+        // `.element`; its DOM is `.content`).
+        const anchorPinNode = pin.element;
         userMarkerRef.current = new AdvancedMarkerElement({
-          map: mapRef.current, position: userLoc, title: 'You are here', content: pin.element, gmpClickable: true
+          map: mapRef.current, position: userLoc, title: 'You are here', content: anchorPinNode, gmpClickable: true
         });
+        anchorPinNodeRef.current = anchorPinNode;
       } else {
         userMarkerRef.current.position = userLoc;
         userMarkerRef.current.map = mapRef.current;
@@ -137,29 +154,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // v0.58.52: hover info on the user-anchor pin too. Shows the
       // reverse-geocoded area name when known (e.g. "Downtown Core"),
       // else falls back to the literal "You are here" label.
+      // v0.58.53: idempotent re-bind to the cached PinElement DOM node
+      // so the handler closure picks up the latest `anchorName` on
+      // subsequent renders.
       const anchorHtml =
         `<div style="min-width:120px;max-width:220px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || 'You are here')}</div>
            <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">your search anchor</div>
          </div>`;
-      if (userMarkerRef.current.element && infoWindowRef.current) {
-        // Replace prior listeners by re-attaching idempotently — the
-        // marker DOM persists across syncMarkers re-runs.
-        const elem = userMarkerRef.current.element;
-        elem.onmouseover = () => {
+      const anchorNode = anchorPinNodeRef.current;
+      if (anchorNode && infoWindowRef.current) {
+        anchorNode.style.cursor = 'pointer';
+        anchorNode.onmouseover = () => {
           infoWindowRef.current.setContent(anchorHtml);
           infoWindowRef.current.open(mapRef.current, userMarkerRef.current);
         };
-        elem.onmouseout = () => infoWindowRef.current.close();
+        anchorNode.onmouseout = () => infoWindowRef.current.close();
       }
       bounds.extend(userLoc);
-    }
-    // v0.58.51: lazy InfoWindow init (depends on google.maps loaded).
-    if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
-      infoWindowRef.current = new window.google.maps.InfoWindow({
-        disableAutoPan: true,
-        pixelOffset: new window.google.maps.Size(0, -10)
-      });
     }
     for (const v of venues || []) {
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
@@ -168,11 +180,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         background: focused ? '#FF9500' : '#34C759',
         borderColor: '#1c1c1f', glyphColor: '#fff', scale: focused ? 1.3 : 1
       });
+      const pinNode = pin.element;
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: v.lat, lng: v.lng },
         title: v.name,                                    // native browser tooltip (desktop hover)
-        content: pin.element,
+        content: pinNode,
         gmpClickable: true                                // enable click + DOM events on the pin
       });
       // v0.58.51 / v0.58.52: hover preview via InfoWindow. Desktop only.
@@ -207,9 +220,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const onMouseOut = () => {
         if (infoWindowRef.current) infoWindowRef.current.close();
       };
-      if (marker.element) {
-        marker.element.addEventListener('mouseover', onMouseOver);
-        marker.element.addEventListener('mouseout', onMouseOut);
+      // v0.58.53: AdvancedMarkerElement exposes its DOM at `.content`,
+      // NOT `.element`. Previous code used `marker.element` which was
+      // always undefined → the `if` guard silently no-op'd and no
+      // hover ever fired. Hold the PinElement DOM in a local
+      // (`pinNode = pin.element`) and attach listeners to that.
+      if (pinNode) {
+        pinNode.style.cursor = 'pointer';
+        pinNode.addEventListener('mouseover', onMouseOver);
+        pinNode.addEventListener('mouseout', onMouseOut);
       }
       // v0.58.51: click → open Google Maps via tg.openLink. On mobile
       // (no hover), this is the primary interaction. Also keeps the

@@ -30,13 +30,34 @@ export default function ResultPanel({
     setCopying(true);
     setCopied(false);
     try {
-      const slim = venues.slice(0, 12).map((v) => ({
+      // v0.58.53: pass through every field formatVenueBlock consumes
+      // server-side. The previous slim ({name, placeId, lat, lng})
+      // collapsed every optional row in the T2 detail block so the
+      // pasted message degenerated to "<b>NAME</b>\n📍 URL". The
+      // server's /api/cuisine/copy-all still re-validates via its own
+      // filter, so widening the payload here doesn't lower trust.
+      const enriched = venues.slice(0, 12).map((v) => ({
         name: v.name || '',
         placeId: v.placeId || '',
         lat: v.lat,
-        lng: v.lng
+        lng: v.lng,
+        area: v.area,
+        rating: v.rating,
+        userRatingCount: v.userRatingCount,
+        priceLevel: v.priceLevel,
+        crowdLevel: v.crowdLevel,
+        openNow: v.openNow,
+        weekdayDescriptions: v.weekdayDescriptions,
+        closedTodayLabel: v.closedTodayLabel,
+        websiteUri: v.websiteUri,
+        phone: v.phone,
+        dishes: v.dishes,
+        distanceM: v.distanceM,
+        transitMinutes: v.transitMinutes,
+        driveMinutes: v.driveMinutes,
+        url: v.url
       }));
-      await copyAllApi(slim);
+      await copyAllApi(enriched);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     } catch (err) {
