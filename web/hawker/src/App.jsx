@@ -43,7 +43,14 @@ export default function App() {
   const regionLabel = (en) => t(`region.${en}`, lang);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className="flex flex-col"
+      style={{
+        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
+    >
       <div className="px-3 pt-3 pb-2 border-b border-tg-border flex items-center gap-2">
         <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0 flex-1">

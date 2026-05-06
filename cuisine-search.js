@@ -250,7 +250,11 @@ async function searchCuisine({
         specialRequest // threaded through pipeline.reason()
       },
       validatedVenues: null,
-      count: 15
+      // v0.59.20: cap dropped from 15 → 12 per Human Lead's
+      // 7-12 final-list-size target. Lower bound (7) is a target,
+      // not a guarantee — when LLM rank+narrate has fewer
+      // high-quality candidates the list shows fewer.
+      count: 12
     });
     candidates = draftRun.candidates;
     pipelineDiag = draftRun.diag;

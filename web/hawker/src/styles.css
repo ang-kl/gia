@@ -18,3 +18,9 @@ body { -webkit-font-smoothing: antialiased; }
 @media (min-width: 600px) {
   html { font-size: 17px; }
 }
+
+/* v0.59.20: stop the body from scrolling on iPad — the inner panels
+   (results list, hawker list, etc.) already have flex-1 overflow-y-auto.
+   Without this, iPad allowed double-scroll (page + panel) which felt
+   janky and contributed to the 'doesn't feel fullscreen' perception. */
+body { overflow: hidden; }

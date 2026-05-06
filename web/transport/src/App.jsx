@@ -41,7 +41,14 @@ export default function App() {
   const focusedStatus = focusedCode ? statusByLine[focusedCode] : null;
 
   return (
-    <div className="min-h-screen bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[640px] mx-auto">
+    <div
+      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[640px] mx-auto"
+      style={{
+        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
+    >
       <header className="flex items-baseline justify-between">
         <div>
           <h1 className="text-lg font-bold leading-tight">🚇 SG MRT</h1>

@@ -26,7 +26,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className="flex flex-col"
+      style={{
+        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
+    >
       <div className="px-3 pt-3 pb-2 flex items-center gap-2">
         {/* v0.37.0: soleat brand mark inline. Copied from web/cuisine/public/. */}
         <img src="/app/menu/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />

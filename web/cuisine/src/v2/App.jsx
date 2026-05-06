@@ -448,7 +448,17 @@ export default function App() {
   // breathing room. Subsequent tiers can lean further into md:/lg:
   // variants for grid columns, side-by-side map+results, etc.
   return (
-    <div className="min-h-screen bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1024px] mx-auto px-3 md:px-6 lg:px-8">
+    <div
+      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1024px] mx-auto px-3 md:px-6 lg:px-8"
+      style={{
+        // v0.59.20: use Telegram's stable viewport variable so the
+        // container tracks the *visible* iframe height, not the buggy
+        // 100vh that iPad WebView resolves to the full sheet (including
+        // Telegram's bottom chrome) and leaves a drag-up gap.
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
+    >
       <header className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -643,7 +653,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.19 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.20 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
