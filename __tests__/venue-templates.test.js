@@ -130,6 +130,26 @@ describe('formatHoursLine — closedTodayLabel preferred over weekdayDescription
     expect(formatHoursLine({ openNow: false })).toBe('🕰️ Closed');
     expect(formatHoursLine({ openNow: null })).toBe('');
   });
+
+  // v0.58.55: lang propagates to formatHoursLine + formatStatsLine.
+  it('localises Open now / Closed when lang=fr', () => {
+    expect(formatHoursLine({ openNow: true }, 'fr')).toBe('🕰️ Ouvert maintenant');
+    expect(formatHoursLine({ openNow: false }, 'fr')).toBe('🕰️ Fermé');
+  });
+
+  it('localises crowd label when lang=fr', () => {
+    const en = formatStatsLine({ rating: 4.2, userRatingCount: 50, crowdLevel: 'high' });
+    const fr = formatStatsLine({ rating: 4.2, userRatingCount: 50, crowdLevel: 'high' }, { lang: 'fr' });
+    expect(en).toContain('🔴 busy');
+    expect(fr).toContain('🔴 chargé');
+  });
+
+  it('renders FR hours + crowd inside formatVenueBlock when lang=fr', () => {
+    const v = { name: 'Lieu', placeId: 'p1', openNow: true, crowdLevel: 'low', rating: 4.0 };
+    const out = formatVenueBlock(v, { variant: 'detail', lang: 'fr' });
+    expect(out).toContain('🕰️ Ouvert maintenant');
+    expect(out).toContain('🟢 calme');
+  });
 });
 
 describe('HTML escape — venue name with < > &', () => {

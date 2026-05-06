@@ -509,12 +509,19 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // (name bold / address / hours / stats with distance / Maps URL).
   // Replaces the v0.57.7 single-line numbered header per Human Lead's
   // standardised template request.
+  // v0.58.55: opts.lang ('en' | 'fr') threads through formatVenueBlock
+  // so static labels (Open now / Closed / crowd / etc.) and the picks
+  // header render in the user's locale. Defaults to 'en' when caller
+  // doesn't specify — preserves prior behaviour for paths that don't
+  // yet know the user's language preference.
+  const dpLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
   const { formatVenueBlock } = require('./venue-templates');
   const { googleMapsUrl } = require('./maps-url');
   const t3Blocks = picks.map((p, i) => formatVenueBlock(p, {
     variant: 'compact',
     number: i + 1,
-    googleMapsUrl
+    googleMapsUrl,
+    lang: dpLang
   })).filter(Boolean);
   // Preserve hidden-gems criteria-met annotation (v0.58.22) when present —
   // it's specific to /hidden's deterministic path and shouldn't appear
@@ -531,7 +538,10 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // Skipped entirely when picks.length === 1 — the single block is
   // already its own message.
   }).join(picks.length > 1 ? '\n\n\n' : '\n\n');
-  await safeSend(chatId, `Gia's ${mealLabel} sanctuary picks\n\n${t3Body}`, {
+  const headerLine = dpLang === 'fr'
+    ? `Sélections sanctuaire de Gia · ${mealLabel}`
+    : `Gia's ${mealLabel} sanctuary picks`;
+  await safeSend(chatId, `${headerLine}\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true
   });
@@ -1530,7 +1540,8 @@ bot.on('location', async (msg) => {
     // then shared location. Pending row is `freetext:<verbatim text>`.
     if (typeof pending === 'string' && pending.startsWith('freetext:')) {
       const text = pending.slice('freetext:'.length);
-      await runFreeTextSearch(msg.chat.id, text);
+      const fromLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
+      await runFreeTextSearch(msg.chat.id, text, { lang: fromLang === 'fr' ? 'fr' : 'en' });
       return;
     }
     // Legacy sanctuary / cuisine / nl flow.
@@ -2929,7 +2940,10 @@ bot.on('message', async (msg) => {
     // gatekeeper, no Claude ranking/narration. The user's verbatim
     // text becomes the searchText query. Saves ~3 LLM calls per
     // free-text message; deterministic results.
-    await runFreeTextSearch(msg.chat.id, text);
+    // v0.58.55: forward Telegram user's language_code so deliverPicks
+    // header + venue-template static labels render in their locale.
+    const fromLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
+    await runFreeTextSearch(msg.chat.id, text, { lang: fromLang === 'fr' ? 'fr' : 'en' });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
@@ -2972,7 +2986,11 @@ function looksLikePlaceQuery(text) {
 // No LLM. No classifier. No gatekeeper. The user's verbatim text is
 // the searchText query. Returns up to 12 venues filtered to SG with
 // haversine distance attached.
-async function runFreeTextSearch(chatId, text) {
+async function runFreeTextSearch(chatId, text, opts = {}) {
+  // v0.58.55: opts.lang ('en' | 'fr') threads through deliverPicks so
+  // chat replies render in the user's locale. Caller (msg handler)
+  // should pass msg.from?.language_code mapped to a supported locale.
+  const ftLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
@@ -3017,7 +3035,10 @@ async function runFreeTextSearch(chatId, text) {
       } catch (err) {
         console.warn('[free-text] travel-times enrichment failed:', err.message);
       }
-      await deliverPicks(chatId, `🔎 Results for "${text}"`, venues);
+      const headerLabel = ftLang === 'fr'
+        ? `🔎 Résultats pour "${text}"`
+        : `🔎 Results for "${text}"`;
+      await deliverPicks(chatId, headerLabel, venues, { lang: ftLang });
     } finally {
       await clearProcessing(redis, chatId).catch(() => {});
     }
@@ -3517,6 +3538,9 @@ async function cacheBotUsername() {
         }
         const chatId = verified.user.id;
         const incoming = Array.isArray(req.body?.venues) ? req.body.venues : [];
+        // v0.58.55: TMA POSTs the active locale ('en' | 'fr'); fall
+        // back to 'en' when missing or unsupported.
+        const reqLang = (typeof req.body?.lang === 'string' && ['en','fr'].includes(req.body.lang)) ? req.body.lang : 'en';
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
           .slice(0, 12); // /app/map has no hard cap; 12 matches /cuisine result count
@@ -3525,14 +3549,17 @@ async function cacheBotUsername() {
         }
         const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
         const { formatVenueBlock } = require('./venue-templates');
-        const header = slim.length === 1 ? '📋 1 place' : `📋 ${slim.length} places`;
+        const { tn: trn } = require('./i18n');
+        const header = slim.length === 1
+          ? trn('pick.header.one', reqLang)
+          : trn('pick.header.many', reqLang, { n: slim.length });
         // v0.58.50: T2 detail template per venue — name bold / address /
         // hours / website / phone / stats with distance / order / Maps URL.
-        // Single bot message, all venues in one scrollable block per
-        // Human Lead's preference.
+        // v0.58.55: pass lang so static labels render FR for FR users.
         const blocks = slim.map((v) => formatVenueBlock(v, {
           variant: 'detail',
-          googleMapsUrl
+          googleMapsUrl,
+          lang: reqLang
         })).filter(Boolean);
         // v0.58.51: two blank lines between picks for breathing room;
         // collapse to one when only a single venue is in the clip.
@@ -3581,6 +3608,10 @@ async function cacheBotUsername() {
         if (!venue || (!venue.placeId && !venue.name)) {
           return res.status(400).json({ error: 'missing venue' });
         }
+        // v0.58.55: lang propagated from TMA so the T1 block's static
+        // labels (Open now / Closed / crowd / "Sanctuary read for")
+        // render in the user's locale.
+        const oneLang = (typeof venue.lang === 'string' && ['en','fr'].includes(venue.lang)) ? venue.lang : 'en';
         const { formatVenueBlock } = require('./venue-templates');
         const { googleMapsUrl } = require('./maps-url');
         // Best-effort sanctuary read fetch (cached in Redis 24h).
@@ -3592,7 +3623,8 @@ async function cacheBotUsername() {
         const body = formatVenueBlock(venue, {
           variant: 'detail-with-sanctuary',
           sanctuaryRead,
-          googleMapsUrl
+          googleMapsUrl,
+          lang: oneLang
         });
         if (!body) return res.status(500).json({ error: 'could not format venue block' });
         await bot.sendMessage(chatId, body, {
@@ -3915,7 +3947,10 @@ async function cacheBotUsername() {
         if (!verified) return res.status(401).json({ error: 'invalid initData' });
         const chatId = verified.user?.id;
         if (!chatId) return res.status(400).json({ error: 'no chat id' });
-        const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location } = req.body || {};
+        const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location, lang: langIn } = req.body || {};
+        // v0.58.55: localise the friendly intro line. The /cuisine
+        // command itself is locale-agnostic.
+        const synLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : 'en';
 
         const cv = require('./cuisines-vault');
         const validSlugs = new Set(cv.getAllCuisines().map((c) => c.slug));
@@ -3961,7 +3996,9 @@ async function cacheBotUsername() {
         // HTML mode → wrap the command in <code> so Telegram styles it
         // as a tap-to-copy block. Escape only the angle-brackets / amp
         // / quote so accidental HTML in the friendly intro is safe.
-        const intro = '🔗 Re-runnable cuisine command — tap to copy, paste in any chat with @soleat_bot to relaunch this exact search:';
+        const intro = synLang === 'fr'
+          ? '🔗 Commande cuisine réutilisable — touchez pour copier, collez dans n’importe quelle discussion avec @soleat_bot pour relancer cette recherche :'
+          : '🔗 Re-runnable cuisine command — tap to copy, paste in any chat with @soleat_bot to relaunch this exact search:';
         const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         await bot.sendMessage(
           chatId,

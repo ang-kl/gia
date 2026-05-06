@@ -13,12 +13,23 @@
 // Telegram auto-links them. Missing fields gracefully omit their
 // row — no empty 🌐 or 📞 lines.
 
+const { t: tr } = require('./i18n');
+
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
+// Legacy English-only crowd label table kept for backward compatibility
+// with any caller that imports it directly. Renderer now goes through
+// crowdLabel(level, lang) so callers passing { lang } get FR variants.
 const CROWD_LABEL = {
   high:   '🔴 busy',
   medium: '🟡 moderate',
   low:    '🟢 quiet'
 };
+function crowdLabel(level, lang) {
+  if (level === 'high')   return tr('crowd.high', lang);
+  if (level === 'medium') return tr('crowd.medium', lang);
+  if (level === 'low')    return tr('crowd.low', lang);
+  return '';
+}
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -38,7 +49,7 @@ function sgtWeekday() {
 // Monday-first per their convention. If openNow is false and we have
 // a closedTodayLabel ("Closed today · Opens tomorrow 11:00 AM" from
 // open-hours.js v0.4 helper), prefer that — clearer for the user.
-function formatHoursLine(p) {
+function formatHoursLine(p, lang) {
   if (p.closedTodayLabel) return `🕰️ ${p.closedTodayLabel}`;
   // weekdayDescriptions is ordered Mon-Sun (Google convention) — JS
   // Date.getUTCDay() returns 0=Sun ... 6=Sat. Convert.
@@ -49,15 +60,15 @@ function formatHoursLine(p) {
     const todayLine = wd[idx] || '';
     if (todayLine) return `🕰️ ${escapeHtml(todayLine)}`;
   }
-  if (p.openNow === true)  return '🕰️ Open now';
-  if (p.openNow === false) return '🕰️ Closed';
+  if (p.openNow === true)  return `🕰️ ${tr('hours.openNow', lang)}`;
+  if (p.openNow === false) return `🕰️ ${tr('hours.closed', lang)}`;
   return '';
 }
 
 // Format the ✨ stats row. Stars + review count + price + crowd
 // + (optional) distance.
 function formatStatsLine(p, opts = {}) {
-  const { includeDistance = false } = opts;
+  const { includeDistance = false, lang } = opts;
   const parts = [];
   if (Number.isFinite(p.rating)) {
     const stars = `⭐${p.rating.toFixed(1)}`;
@@ -66,7 +77,8 @@ function formatStatsLine(p, opts = {}) {
   }
   const price = PRICE_LABEL[p.priceLevel];
   if (price) parts.push(price);
-  const crowd = CROWD_LABEL[p.crowdLevel];
+  // v0.58.55: localised crowd label via crowdLabel(level, lang).
+  const crowd = crowdLabel(p.crowdLevel, lang);
   if (crowd) parts.push(crowd);
   if (includeDistance && Number.isFinite(p.distanceM)) {
     parts.push(p.distanceM >= 1000
@@ -117,7 +129,8 @@ function formatVenueBlock(p, opts = {}) {
     variant = 'compact',
     number = null,
     sanctuaryRead = '',
-    googleMapsUrl: mapsFn = null
+    googleMapsUrl: mapsFn = null,
+    lang  // v0.58.55: 'en' | 'fr', forwarded to label helpers
   } = opts;
   const includeContact = (variant === 'detail' || variant === 'detail-with-sanctuary');
   const includeOrder   = (variant === 'detail' || variant === 'detail-with-sanctuary');
@@ -128,7 +141,7 @@ function formatVenueBlock(p, opts = {}) {
   const headPrefix = (number == null) ? '' : `${number}. `;
   lines.push(`${headPrefix}<b>${escapeHtml(p.name)}</b>`);
   if (p.area) lines.push(`📇 ${escapeHtml(p.area)}`);
-  const hours = formatHoursLine(p);
+  const hours = formatHoursLine(p, lang);
   if (hours) lines.push(hours);
   if (includeContact) {
     if (p.websiteUri) lines.push(`🌐 ${p.websiteUri}`);
@@ -136,11 +149,11 @@ function formatVenueBlock(p, opts = {}) {
   }
   if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
     lines.push('');                                    // blank line
-    lines.push(`🌿 Sanctuary read for ${escapeHtml(p.name)}`);
+    lines.push(`🌿 ${lang === 'fr' ? 'Lecture sanctuaire pour' : 'Sanctuary read for'} ${escapeHtml(p.name)}`);
     // Sanctuary read already carries `• Quiet: …` etc. lines.
     lines.push(escapeHtml(sanctuaryRead.trim()));
   }
-  const stats = formatStatsLine(p, { includeDistance });
+  const stats = formatStatsLine(p, { includeDistance, lang });
   // v0.58.51: per Human Lead — drop the blank line before the stats
   // row. The ✨ row should sit flush against the preceding row (or
   // the sanctuary read block) for compactness within a single pick.

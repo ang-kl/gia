@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -14,6 +15,7 @@ import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
 //   • Mouse-down preventDefault on suggestion buttons so the input
 //     doesn't blur before the click registers.
 export default function LocationField({ userLoc, region, onSelect }) {
+  const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -81,8 +83,8 @@ export default function LocationField({ userLoc, region, onSelect }) {
     }
   }
 
-  // Resting label: pickedLabel > currentLabel > 'Search location'.
-  const resting = pickedLabel || currentLabel || 'Search location';
+  // Resting label: pickedLabel > currentLabel > i18n('Search location').
+  const resting = pickedLabel || currentLabel || tr('loc.searchLocation', lang);
 
   return (
     <div className="relative">
@@ -109,7 +111,7 @@ export default function LocationField({ userLoc, region, onSelect }) {
             className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
           >
             <span className="truncate">{resting}</span>
-            <span className="text-[10px] text-tg-hint italic flex-shrink-0">tap to change</span>
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
           </button>
         )}
         {loading && <span className="text-tg-hint text-xs">…</span>}
@@ -117,7 +119,7 @@ export default function LocationField({ userLoc, region, onSelect }) {
           <button
             type="button"
             onClick={handleClear}
-            aria-label="Clear location"
+            aria-label={tr('loc.clear', lang)}
             className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
           >×</button>
         )}

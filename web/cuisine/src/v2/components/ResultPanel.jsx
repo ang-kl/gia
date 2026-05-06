@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 // v0.58.4: human-readable label for each warm-start seed id. Surfaces
 // as a muted caption above the result list so users know the initial
 // 5 venues come from a curated rotation, not from their (currently
 // empty) selection.
+// v0.58.55: bilingual EN / FR per active locale.
 const SEED_LABEL = {
-  'open-now-cheap':      '✨ Open now & cheap eats',
-  'newly-opened-halal':  '✨ Newly opened · halal',
-  'highly-rated-nearby': '✨ Highly rated nearby',
-  'open-now-popular':    '✨ Popular & open now',
-  'newly-opened-radius': '✨ Newly opened in your radius'
+  'open-now-cheap':      { en: '✨ Open now & cheap eats',   fr: '✨ Ouvert · pas cher' },
+  'newly-opened-halal':  { en: '✨ Newly opened · halal',     fr: '✨ Nouveaux · halal' },
+  'highly-rated-nearby': { en: '✨ Highly rated nearby',      fr: '✨ Très bien notés à proximité' },
+  'open-now-popular':    { en: '✨ Popular & open now',       fr: '✨ Populaires & ouverts maintenant' },
+  'newly-opened-radius': { en: '✨ Newly opened in your radius', fr: '✨ Nouveaux dans votre zone' }
 };
 
 // v0.59.0: ResultPanel replaces FlipPanel. The flip-card animation +
@@ -22,6 +24,7 @@ const SEED_LABEL = {
 export default function ResultPanel({
   venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState
 }) {
+  const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -57,14 +60,16 @@ export default function ResultPanel({
         driveMinutes: v.driveMinutes,
         url: v.url
       }));
-      await copyAllApi(enriched);
+      // v0.58.55: pass active TMA locale so the server's
+      // formatVenueBlock can render French static labels.
+      await copyAllApi(enriched, lang);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     } catch (err) {
       console.warn('[Copy-All] failed:', err.message);
       const w = tg();
       if (w && typeof w.showAlert === 'function') {
-        w.showAlert("Couldn't send to chat — try again.");
+        w.showAlert(tr('err.copyFailed', lang));
       }
     } finally { setCopying(false); }
   }
@@ -81,7 +86,8 @@ export default function ResultPanel({
         filters: copyState.filters || {},
         prices: copyState.filters?.prices || [],
         region: copyState.region || 'SG',
-        location: copyState.location || null
+        location: copyState.location || null,
+        lang  // v0.58.55: propagate to server so the wrapper line is FR-aware
       });
       setCopiedCmd(true);
       setTimeout(() => setCopiedCmd(false), 3000);
@@ -91,7 +97,7 @@ export default function ResultPanel({
       if (w && typeof w.showAlert === 'function') {
         // v0.58.41: server now accepts bare /cuisine; this branch only
         // fires on an actual network/auth error.
-        w.showAlert("Couldn't send the command. Try again in a moment.");
+        w.showAlert(tr('err.commandFailed', lang));
       }
     } finally { setCopyingCmd(false); }
   }
@@ -105,25 +111,33 @@ export default function ResultPanel({
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
-        <div className="text-xs font-semibold flex-shrink-0">Results {venues ? `(${venues.length})` : ''}</div>
+        <div className="text-xs font-semibold flex-shrink-0">{lang === 'fr' ? 'Résultats' : 'Results'} {venues ? `(${venues.length})` : ''}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (
             <button type="button" onClick={handleCopyAll} disabled={copying}
               className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
-              {copying ? '📋 Sending…' : copied ? '✓ Sent' : '📋 Copy all to chat'}
+              {copying
+                ? (lang === 'fr' ? '📋 Envoi…' : '📋 Sending…')
+                : copied
+                  ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent')
+                  : tr('btn.copyAll', lang)}
             </button>
           )}
           {canCopyCmd && (
             <button type="button" onClick={handleCopyCommand} disabled={copyingCmd}
               className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
-              {copyingCmd ? '🔗 Sending…' : copiedCmd ? '✓ Sent' : '🔗 Copy syntax'}
+              {copyingCmd
+                ? (lang === 'fr' ? '🔗 Envoi…' : '🔗 Sending…')
+                : copiedCmd
+                  ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent')
+                  : (lang === 'fr' ? '🔗 Copier la syntaxe' : '🔗 Copy syntax')}
             </button>
           )}
         </div>
       </div>
       {warmStartSeed && SEED_LABEL[warmStartSeed] && (
         <div className="text-[11px] text-tg-hint px-1 pb-1.5">
-          {SEED_LABEL[warmStartSeed]} · <span className="italic">tap 🔍 Search to refine</span>
+          {SEED_LABEL[warmStartSeed][lang] || SEED_LABEL[warmStartSeed].en} · <span className="italic">{lang === 'fr' ? 'touchez 🔍 Rechercher pour affiner' : 'tap 🔍 Search to refine'}</span>
         </div>
       )}
       {loading ? (

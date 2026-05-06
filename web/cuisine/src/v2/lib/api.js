@@ -46,8 +46,11 @@ export async function nlQuery({ text, lat, lng, filters }) {
 // single Google Maps URL containing all pins. Replaces the v0.57.31
 // tg.sendData approach (which is silently dropped for inline-keyboard
 // TMAs like the cuisine picker).
-export async function copyAllToChat(venues) {
-  return postJson('/api/cuisine/copy-all', { venues });
+// v0.58.55: optional lang ('en' | 'fr') propagated so the server's
+// formatVenueBlock renders French static labels (Open now / Closed /
+// 📋 N lieux header).
+export async function copyAllToChat(venues, lang) {
+  return postJson('/api/cuisine/copy-all', { venues, lang });
 }
 
 // v0.58.50: per-card 📋 Copy. POST one venue, server builds a T1
@@ -62,8 +65,8 @@ export async function copyOneToChat(venue) {
 // v0.58.10: copy-syntax — POST current TMA state, server returns a
 // re-runnable /cuisine command in the user's chat. Recipient pastes
 // it into any chat with @soleat_bot to relaunch this exact search.
-export async function copyCommandToChat({ cuisines, filters, prices, radius, region, location }) {
-  return postJson('/api/cuisine/copy-syntax', { cuisines, filters, prices, radius, region, location });
+export async function copyCommandToChat({ cuisines, filters, prices, radius, region, location, lang }) {
+  return postJson('/api/cuisine/copy-syntax', { cuisines, filters, prices, radius, region, location, lang });
 }
 
 // v0.58.4: warm-start. Lightweight initial fetch on TMA mount; returns

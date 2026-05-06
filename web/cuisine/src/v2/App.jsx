@@ -8,6 +8,8 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
+import LocaleToggle from './components/LocaleToggle.jsx';
+import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
 
 // v0.57.3: Singapore-wide search (no radius constraint).
@@ -24,6 +26,10 @@ import { tg } from '../api/tg.js';
 //   Order: Header → Region → Map → ActiveFilters → TellMe →
 //          [▾ Search criteria] → Result → Footer
 export default function App() {
+  // v0.58.55: active locale (EN | FR). useLocale persists to
+  // localStorage and re-renders on the 'gia:locale' CustomEvent
+  // dispatched by LocaleToggle.
+  const [lang] = useLocale();
   const [catalogue, setCatalogue] = useState(null);
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
@@ -454,8 +460,13 @@ export default function App() {
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
             <h1 className="text-lg font-bold leading-tight truncate">Cuisine</h1>
           </div>
-          <div className="text-[11px] text-tg-hint shrink-0">
-            {state.cuisines.length}c · {filterCount}f
+          {/* v0.58.55: discreet EN/FR locale toggle, top-right per
+              Human Lead. Slim flag-pair to the left of the count badge. */}
+          <div className="flex items-center gap-3 shrink-0">
+            <LocaleToggle />
+            <div className="text-[11px] text-tg-hint">
+              {state.cuisines.length}c · {filterCount}f
+            </div>
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.
@@ -464,8 +475,8 @@ export default function App() {
             the country. */}
         <div className="flex gap-1.5">
           {[
-            { id: 'SG', flag: '🇸🇬', label: 'Singapore' },
-            { id: 'JB', flag: 'johor-flag.png', label: 'Johor Bahru' }
+            { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
+            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (
@@ -491,27 +502,29 @@ export default function App() {
         if (!userLoc) {
           return (
             <div className="text-[11px] text-tg-hint italic px-1 py-1">
-              📍 Locating you…
+              📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
             </div>
           );
         }
         if (loading) {
           return (
             <div className="text-[11px] text-tg-hint px-1 py-1">
-              📍 {locationName || 'Searching nearby'} · finding places…
+              📍 {locationName || t('banner.locating', lang)} · {t('banner.locating.suffix', lang)}
             </div>
           );
         }
         if (!venues.length) {
           return (
             <div className="text-[11px] text-tg-hint px-1 py-1">
-              📍 {locationName || 'Anchor set'} · no places match — try Tell me, or share a fresh pin via /location.
+              📍 {locationName || t('banner.anchor', lang)} · {t('banner.no.match', lang)}
             </div>
           );
         }
         return (
           <div className="text-[11px] text-tg-hint px-1 py-1">
-            📍 {locationName || 'Showing places'} · {venues.length} place{venues.length === 1 ? '' : 's'} nearby
+            📍 {locationName || t('banner.showing', lang)} · {venues.length === 1
+              ? t('banner.places.one', lang)
+              : tn('banner.places.many', lang, { n: venues.length })}
           </div>
         );
       })()}
@@ -563,7 +576,7 @@ export default function App() {
           className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-tg-text hover:bg-tg-bg/30 transition-colors"
         >
           <span aria-hidden className="text-tg-accent text-base leading-none">{criteriaOpen ? '▾' : '▸'}</span>
-          <span className="flex-1 text-left">Search criteria</span>
+          <span className="flex-1 text-left">{lang === 'fr' ? 'Critères de recherche' : 'Search criteria'}</span>
           <span className="text-[11px] text-tg-hint font-normal">
             {state.cuisines.length}c · {filterCount}f
           </span>
@@ -571,7 +584,7 @@ export default function App() {
             aria-hidden
             className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text"
           >
-            {criteriaOpen ? 'Collapse ▴' : 'Edit search ▾'}
+            {criteriaOpen ? t('btn.collapse', lang) : t('btn.editSearch', lang)}
           </span>
         </button>
         {criteriaOpen && (
@@ -635,7 +648,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.54 · {state.region === 'JB' ? 'Johor Bahru' : 'Singapore'} · 💬 Tell me or 🔍 Search
+        v0.58.55 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
@@ -649,7 +662,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label="Back to top"
+            aria-label={t('btn.backToTop', lang)}
             className="pointer-events-auto w-11 h-11 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-base font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
           >↑</button>
         )}
@@ -657,7 +670,7 @@ export default function App() {
           type="button"
           onClick={() => runSearch(state)}
           disabled={loading}
-          aria-label="Search · Show me places to eat"
+          aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
           className={`pointer-events-auto w-11 h-11 rounded-full shadow-md text-base font-semibold flex items-center justify-center active:scale-95 transition-all ${
             loading ? 'bg-tg-card text-tg-hint border border-tg-border'
             : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
