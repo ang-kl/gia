@@ -8,7 +8,17 @@ export function tg() {
 export function applyTelegramTheme() {
   const w = tg();
   if (!w) return;
-  try { w.ready(); w.expand(); } catch { /* noop */ }
+  try {
+    w.ready();
+    w.expand();
+    // v0.59.18: tablet+ true fullscreen (Bot API 8.0+).
+    if (window.matchMedia?.('(min-width: 600px)').matches
+        && typeof w.isVersionAtLeast === 'function'
+        && w.isVersionAtLeast('8.0')
+        && typeof w.requestFullscreen === 'function') {
+      w.requestFullscreen();
+    }
+  } catch { /* noop */ }
   const tp = w.themeParams || {};
   const root = document.documentElement;
   const set = (k, v) => v && root.style.setProperty(k, v);
