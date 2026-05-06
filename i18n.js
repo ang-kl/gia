@@ -284,7 +284,50 @@ const STRINGS = {
     ].join('\n')
   },
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
-                                    fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' }
+                                    fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' },
+
+  // v0.59.13 — /recognised localisation
+  'recognised.heading':           { en: '🏆 *Singapore — recognised dining*', fr: '🏆 *Singapour — restaurants reconnus*' },
+  'recognised.tap':               { en: 'Tap a list to open the source page:', fr: 'Touchez une liste pour ouvrir la page source :' },
+  'recognised.btn.bib':           { en: '🍜 MICHELIN Bib Gourmand', fr: '🍜 MICHELIN Bib Gourmand' },
+  'recognised.btn.star':          { en: '⭐ MICHELIN Star', fr: '⭐ MICHELIN Étoile' },
+  'recognised.btn.asia50':        { en: "🌏 Asia's 50 Best Restaurants", fr: '🌏 Asia\'s 50 Best Restaurants' },
+  'recognised.btn.localProduce':  { en: '🌱 Restaurants using Local Produce', fr: '🌱 Restaurants avec produits locaux' },
+
+  // v0.59.13 — /share localisation
+  'share.empty':                  { en: 'No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a buddy.',
+                                    fr: 'Aucun choix récent. Lancez /cuisine ou /hidden d\'abord, puis /share pour partager avec un ami.' },
+  'share.prompt':                 { en: 'Pick a venue to forward to your buddy ({n} recent):',
+                                    fr: 'Choisissez un lieu à partager avec votre ami ({n} récents) :' },
+  'share.mintFailed':             { en: "Sorry, I couldn't mint share links right now.",
+                                    fr: 'Désolé, impossible de générer les liens de partage pour le moment.' },
+  'share.error':                  { en: 'Sorry, /share hit an error.',
+                                    fr: 'Désolé, /share a rencontré une erreur.' },
+
+  // v0.59.13 — /buddy localisation
+  'buddy.on.body':                { en: '👥 *Buddy mode ON.*\n\nWhen you receive Sanctuary picks, a 👥 _Connect_ button appears next to venues where another opted-in soleat user is also heading in the next 60 min. Both of you must confirm before first names + Telegram handles are revealed. Daily cap: 5 connections / 24 h. `/buddy block <chat_id>` to block. `/buddy report <chat_id> <reason>` to flag. `/buddy off` to disable.\n\n⚠ _Pilot — meet only in public, treat as a stranger, trust your gut._',
+                                    fr: '👥 *Mode buddy ACTIVÉ.*\n\nLorsque vous recevez des sélections sanctuaires, un bouton 👥 _Connecter_ apparaît à côté des lieux où un autre utilisateur soleat opté-in se rend dans les 60 prochaines minutes. Vous devez tous deux confirmer avant que les prénoms et identifiants Telegram soient révélés. Limite quotidienne : 5 connexions / 24 h. `/buddy block <chat_id>` pour bloquer. `/buddy report <chat_id> <raison>` pour signaler. `/buddy off` pour désactiver.\n\n⚠ _Pilote — rencontrez uniquement en public, traitez comme un inconnu, faites confiance à votre instinct._' },
+  'buddy.off':                    { en: '👥 Buddy mode OFF.', fr: '👥 Mode buddy DÉSACTIVÉ.' },
+  'buddy.block.usage':            { en: 'Usage: `/buddy block <chat_id>`. Get the chat ID from a previous match offer.',
+                                    fr: 'Usage : `/buddy block <chat_id>`. Récupérez l\'ID de chat depuis une offre de match précédente.' },
+  'buddy.block.ok':               { en: '🚫 Blocked {target}. They will never be matched with you.',
+                                    fr: '🚫 {target} bloqué. Vous ne serez plus jamais associé.' },
+  'buddy.block.cap':              { en: 'Could not block (max 50 blocks reached).',
+                                    fr: 'Impossible de bloquer (limite de 50 atteinte).' },
+  'buddy.report.usage':           { en: 'Usage: `/buddy report <chat_id> <reason>`.',
+                                    fr: 'Usage : `/buddy report <chat_id> <raison>`.' },
+  'buddy.report.ok':              { en: "📝 Report logged. {target} is also auto-blocked from your matches. We'll review.",
+                                    fr: '📝 Signalement enregistré. {target} est aussi auto-bloqué de vos matches. Nous examinerons.' },
+  'buddy.status':                 { en: '👥 Buddy mode is currently *{state}*. Today\'s connections: {n}/{cap}. Use `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.',
+                                    fr: '👥 Le mode buddy est actuellement *{state}*. Connexions aujourd\'hui : {n}/{cap}. Utilisez `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <raison>`.' },
+  'buddy.status.on':              { en: 'ON', fr: 'ACTIVÉ' },
+  'buddy.status.off':             { en: 'OFF', fr: 'DÉSACTIVÉ' },
+  'buddy.error':                  { en: 'Sorry, /buddy hit an error.', fr: 'Désolé, /buddy a rencontré une erreur.' },
+
+  // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
+  // /transport train (nearest stations), /transport bus (nearest stops).
+  // Caption + button label for the multi-stop Google Maps directions URL.
+  'gmaps.openBtn':                { en: '🗺 Open in Google Maps', fr: '🗺 Ouvrir dans Google Maps' }
 };
 
 function pickLang(lang) {

@@ -104,26 +104,38 @@ function googleMapsUrl(place) {
 function googleMapsContainerUrl(venues, opts = {}) {
   if (!Array.isArray(venues) || !venues.length) return null;
   const maxWaypoints = Math.min(9, Math.max(0, Number.isFinite(opts.maxWaypoints) ? opts.maxWaypoints : 4));
+  // v0.59.13 (Codex review #217): Google Maps directions URLs require
+  // `destination` (and `waypoints`) as the human-readable companion
+  // ALONGSIDE `destination_place_id` (and `waypoint_place_ids`). Emitting
+  // the place-id params alone yields an unpinned/invalid route. Each
+  // venue here is normalized into { display, placeId } where display is
+  // the lat/lng string if available, else the venue name. Place-id is
+  // optional and pins the result to the exact place when known.
   const normalized = venues
     .map((v) => {
-      const id = v.placeId || v.id;
-      if (id) return { type: 'place', value: id };
-      if (Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
-        return { type: 'coord', value: `${v.lat},${v.lng}` };
-      }
-      return null;
+      const placeId = v.placeId || v.id || null;
+      const coord = (Number.isFinite(v.lat) && Number.isFinite(v.lng)) ? `${v.lat},${v.lng}` : null;
+      const name = v.name || '';
+      const display = coord || name;
+      if (!display) return null;
+      return { display, placeId };
     })
     .filter(Boolean);
-  if (normalized.length < 1) return null;
+  if (!normalized.length) return null;
   const [destination, ...rest] = normalized;
   const waypoints = rest.slice(0, maxWaypoints);
   const params = ['https://www.google.com/maps/dir/?api=1', `travelmode=${encodeURIComponent(opts.travelmode || 'walking')}`];
   if (opts.origin) params.push(`origin=${encodeURIComponent(opts.origin)}`);
-  if (destination.type === 'place') params.push(`destination_place_id=${encodeURIComponent(destination.value)}`);
-  else params.push(`destination=${encodeURIComponent(destination.value)}`);
+  params.push(`destination=${encodeURIComponent(destination.display)}`);
+  if (destination.placeId) params.push(`destination_place_id=${encodeURIComponent(destination.placeId)}`);
   if (waypoints.length) {
-    const key = waypoints[0].type === 'place' ? 'waypoint_place_ids' : 'waypoints';
-    params.push(`${key}=${encodeURIComponent(waypoints.map((w) => w.value).join('|'))}`);
+    params.push(`waypoints=${encodeURIComponent(waypoints.map((w) => w.display).join('|'))}`);
+    // Only pair waypoint_place_ids when EVERY waypoint has a place-id —
+    // index alignment matters; mixing place-id and coord-only waypoints
+    // in the same param confuses Google's parser.
+    if (waypoints.every((w) => w.placeId)) {
+      params.push(`waypoint_place_ids=${encodeURIComponent(waypoints.map((w) => w.placeId).join('|'))}`);
+    }
   }
   return params.join('&');
 }
