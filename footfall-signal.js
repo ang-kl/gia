@@ -102,14 +102,20 @@ async function attachFootfallSignals(redis, venues) {
   if (!apiKey) return venues;
   const queue = venues.filter((v) => v?.placeId && v?.name);
   const PAR = 4;
+  let resolved = 0;
   for (let i = 0; i < queue.length; i += PAR) {
     const batch = queue.slice(i, i + PAR);
     const results = await Promise.all(batch.map((v) => fetchOne(redis, v, apiKey).catch(() => null)));
     batch.forEach((v, idx) => {
       const r = results[idx];
-      if (r) v.footfall = r;
+      if (r) { v.footfall = r; resolved += 1; }
     });
   }
+  // v0.59.6: debug log — Railway can confirm BestTime is being called
+  // and how many venues resolved. 0/N after the deploy points at a key
+  // or plan-tier issue; >0/N confirms wiring is healthy and any
+  // missing chips reflect BestTime's SG venue coverage gap.
+  console.log(`[footfall] besttime resolved=${resolved}/${queue.length}`);
   return venues;
 }
 

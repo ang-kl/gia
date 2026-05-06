@@ -1,7 +1,24 @@
 import React, { useState } from 'react';
 import CuisineCategoryDrawer from './CuisineCategoryDrawer.jsx';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 const MAX_SELECTED = 5;
+
+// v0.59.6: server returns canonical EN category labels; the TMA
+// localises via this id → i18n-key map so drawer cards render in
+// the active locale.
+const CATEGORY_LABEL_KEY = {
+  'common-here':     'cat.commonHere',
+  'southeast-asian': 'cat.southeastAsian',
+  'east-asian':      'cat.eastAsian',
+  'china-regional':  'cat.chinaRegional',
+  'south-asian':     'cat.southAsian',
+  'middle-eastern':  'cat.middleEastern',
+  'european':        'cat.european',
+  'americas':        'cat.americas',
+  'australasia':     'cat.australasia',
+  'african':         'cat.african'
+};
 
 // v0.59.0: cuisine drawer rebuilt as a 2-column grid of category
 // cards with preview chips. Tapping a card opens a full-overlay
@@ -16,6 +33,7 @@ const MAX_SELECTED = 5;
 // African). All cards same width in the 2-col grid.
 export default function CuisineDrawer({ catalogue, selected, onChange }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
+  const [lang] = useLocale();
 
   if (!catalogue) return null;
 
@@ -24,21 +42,27 @@ export default function CuisineDrawer({ catalogue, selected, onChange }) {
     else if (selected.length < MAX_SELECTED) onChange([...selected, slug]);
   }
 
+  function labelFor(cat) {
+    const key = CATEGORY_LABEL_KEY[cat.id];
+    return key ? tr(key, lang) : cat.label;
+  }
+
   const openCategory = openCategoryId
     ? catalogue.find((c) => c.id === openCategoryId)
     : null;
 
   function CategoryCard({ cat }) {
     const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
+    const label = labelFor(cat);
     return (
       <button
         type="button"
         onClick={() => setOpenCategoryId(cat.id)}
-        title={cat.label}
+        title={label}
         className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-left hover:border-tg-accent transition-colors"
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
-        <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{cat.label}</span>
+        <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{label}</span>
         {selectedInCat > 0 && (
           <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>
         )}

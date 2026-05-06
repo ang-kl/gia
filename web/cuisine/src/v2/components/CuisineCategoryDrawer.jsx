@@ -1,6 +1,20 @@
 import React, { useEffect } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 
+// v0.59.6: keep in sync with CuisineDrawer's CATEGORY_LABEL_KEY map.
+const CATEGORY_LABEL_KEY = {
+  'common-here':     'cat.commonHere',
+  'southeast-asian': 'cat.southeastAsian',
+  'east-asian':      'cat.eastAsian',
+  'china-regional':  'cat.chinaRegional',
+  'south-asian':     'cat.southAsian',
+  'middle-eastern':  'cat.middleEastern',
+  'european':        'cat.european',
+  'americas':        'cat.americas',
+  'australasia':     'cat.australasia',
+  'african':         'cat.african'
+};
+
 // v0.59.0: drill-down overlay for a single cuisine category. Replaces
 // the v0.58.x inline-expansion drawer (which fought CSS-grid row
 // heights and produced ragged chip-wraps in narrow cells). Layout:
@@ -18,6 +32,8 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
 
   if (!category) return null;
 
+  const labelKey = CATEGORY_LABEL_KEY[category.id];
+  const localisedLabel = labelKey ? tr(labelKey, lang) : category.label;
   const selectedInCat = category.cuisines.filter((c) => selected.includes(c.slug)).length;
 
   return (
@@ -29,7 +45,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
     <div
       className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
-      aria-label={`${category.label} cuisines`}
+      aria-label={`${localisedLabel} cuisines`}
       onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
       <div
@@ -43,7 +59,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           className="text-tg-accent text-base leading-none px-1 py-0.5"
         >←</button>
         <span aria-hidden>{category.emoji}</span>
-        <h2 className="text-sm font-semibold flex-1 truncate">{category.label}</h2>
+        <h2 className="text-sm font-semibold flex-1 truncate">{localisedLabel}</h2>
         {selectedInCat > 0 && (
           <span className="text-tg-accent text-xs font-semibold">[{selectedInCat}]</span>
         )}

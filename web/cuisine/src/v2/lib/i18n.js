@@ -94,7 +94,23 @@ const STRINGS = {
 
   // ----- Locale toggle -----
   'locale.switchToEn':         { en: 'Switch to English', fr: 'Passer en anglais' },
-  'locale.switchToFr':         { en: 'Switch to French', fr: 'Passer en français' }
+  'locale.switchToFr':         { en: 'Switch to French', fr: 'Passer en français' },
+
+  // ----- Cuisine drawer category labels (v0.59.6) -----
+  // Server returns canonical EN labels via /api/cuisine/catalogue. The
+  // TMA renders via this lookup keyed by category id so the drawer
+  // cards flip with the active locale. Keys mirror cuisines-vault.js
+  // CATEGORY_META ids.
+  'cat.commonHere':            { en: 'Common in Singapore', fr: 'Courant à Singapour' },
+  'cat.southeastAsian':        { en: 'Southeast Asian', fr: 'Asie du Sud-Est' },
+  'cat.eastAsian':             { en: 'East Asian', fr: 'Asie de l’Est' },
+  'cat.chinaRegional':         { en: 'China (Regional)', fr: 'Chine (régional)' },
+  'cat.southAsian':            { en: 'South Asian', fr: 'Asie du Sud' },
+  'cat.middleEastern':         { en: 'Middle Eastern & Central Asian', fr: 'Moyen-Orient & Asie centrale' },
+  'cat.european':              { en: 'European', fr: 'Européenne' },
+  'cat.americas':              { en: 'Americas', fr: 'Amériques' },
+  'cat.australasia':           { en: 'Australasia', fr: 'Australasie' },
+  'cat.african':               { en: 'African', fr: 'Africaine' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];
