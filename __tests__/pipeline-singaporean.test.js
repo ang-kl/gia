@@ -100,6 +100,30 @@ describe('expandSingaporeanCuisines', () => {
     expect(expandSingaporeanCuisines('Singaporean')).toBe('Singaporean');
   });
 
+  // Codex review #224 — index.js routes filter-prefixed cuisines like
+  // "halal Singaporean", "vegetarian Singaporean", "private dining
+  // home-cooked Singaporean" into discover(). Word-token match must
+  // catch them while respecting hyphenated boundaries.
+  it('expands when Singaporean appears with a halal modifier prefix', () => {
+    const out = expandSingaporeanCuisines(['halal Singaporean']);
+    expect(out.length).toBe(3);
+    expect(out[0]).toBe('halal Singaporean');
+  });
+
+  it('expands when Singaporean appears with a home-cooked modifier prefix', () => {
+    const out = expandSingaporeanCuisines(['home-cooked Singaporean']);
+    expect(out.length).toBe(3);
+  });
+
+  it('expands when Singaporean appears with a private-dining stack', () => {
+    const out = expandSingaporeanCuisines(['Singaporean private dining']);
+    expect(out.length).toBe(3);
+  });
+
+  it('does NOT expand "Singaporean-style" (one hyphenated token, not the cuisine pick)', () => {
+    expect(expandSingaporeanCuisines(['Singaporean-style fusion'])).toEqual(['Singaporean-style fusion']);
+  });
+
   it('handles empty array (passes through)', () => {
     expect(expandSingaporeanCuisines([])).toEqual([]);
   });

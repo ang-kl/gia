@@ -371,14 +371,31 @@ function pickRandomSubset(arr, n) {
   return out;
 }
 
-// Expand the user's cuisine selection: when 'singaporean' is present,
-// keep all original entries AND append 2 random iconic SG dishes from
-// SINGAPOREAN_DISHES. Match is case-insensitive. Non-SG selections
-// pass through unchanged.
+// Word-token match (Codex review #224): cuisines arriving here may
+// have search-modifier prefixes — index.js routes things like
+// 'halal Singaporean', 'vegetarian Singaporean', 'home-cooked
+// Singaporean', or 'private dining home-cooked Singaporean' into
+// discover(). An exact-string compare misses those. Splitting on
+// whitespace and matching any token equal to 'singaporean' (lc)
+// catches every prefixed form while respecting word boundaries —
+// e.g. 'singaporean-style' (one hyphenated token) still does NOT
+// match, which is correct (that's not a Singaporean cuisine pick).
+function containsSingaporeanCuisine(cuisines) {
+  if (!Array.isArray(cuisines)) return false;
+  return cuisines.some((c) =>
+    String(c || '')
+      .split(/\s+/)
+      .some((tok) => tok.toLowerCase() === 'singaporean')
+  );
+}
+
+// Expand the user's cuisine selection: when 'singaporean' appears as
+// a word-token in any cuisine entry, keep all original entries AND
+// append 2 random iconic SG dishes from SINGAPOREAN_DISHES. Non-SG
+// selections pass through unchanged.
 function expandSingaporeanCuisines(cuisines) {
   if (!Array.isArray(cuisines)) return cuisines;
-  const has = cuisines.some((c) => String(c || '').toLowerCase() === 'singaporean');
-  if (!has) return cuisines;
+  if (!containsSingaporeanCuisine(cuisines)) return cuisines;
   return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 2)];
 }
 
@@ -1153,5 +1170,9 @@ module.exports = {
   // v0.59.19 — exposed for unit tests of the Singaporean dish-rotation.
   SINGAPOREAN_DISHES,
   pickRandomSubset,
-  expandSingaporeanCuisines
+  expandSingaporeanCuisines,
+  // Codex review #224 — used by index.js /api/cuisine/search to
+  // decide whether to skip the 30-min Redis cache (each Singaporean
+  // call must re-run discover() so dish picks rotate per call).
+  containsSingaporeanCuisine
 };
