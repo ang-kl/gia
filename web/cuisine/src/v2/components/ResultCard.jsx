@@ -73,6 +73,10 @@ export default function ResultCard({ venue, focused, onTap }) {
         phone: venue.phone,
         dishes: venue.dishes,
         distanceM: venue.distanceM,
+        // v0.58.53: include the v0.58.52 travel-time fields so the
+        // per-card 📋 Copy clip carries the 🚊/🚘 row.
+        transitMinutes: venue.transitMinutes,
+        driveMinutes: venue.driveMinutes,
         url: venue.url,
         primaryType: venue.primaryType
       });
