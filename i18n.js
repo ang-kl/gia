@@ -334,11 +334,19 @@ const STRINGS = {
   // text stays EN (LTA returns free-text descriptions; translating per
   // item would need an LLM and is not worth the cost). Type carries
   // 80% of the user-visible signal.
+  // Keys cover both the LTA-documented spellings (per the TrafficIncidents
+  // API guide on datamall.lta.gov.sg) AND common variants we've observed
+  // in the wild. PascalCase normalisation in translateIncidentType maps
+  // the raw feed string to the lookup key. Codex review #218 caught the
+  // canonical values "Road Works" → RoadWorks and "Misc." → Misc; both
+  // are aliased below alongside the prior shorter forms.
   'incident.type.Accident':            { en: 'Accident', fr: 'Accident' },
   'incident.type.MajorAccident':       { en: 'Major Accident', fr: 'Accident grave' },
   'incident.type.Roadwork':            { en: 'Roadwork', fr: 'Travaux' },
+  'incident.type.RoadWorks':           { en: 'Road Works', fr: 'Travaux' },
   'incident.type.VehicleBreakdown':    { en: 'Vehicle Breakdown', fr: 'Véhicule en panne' },
   'incident.type.HeavyTraffic':        { en: 'Heavy Traffic', fr: 'Trafic dense' },
+  'incident.type.Misc':                { en: 'Misc.', fr: 'Incident divers' },
   'incident.type.MiscIncident':        { en: 'Miscellaneous', fr: 'Incident divers' },
   'incident.type.Diversion':           { en: 'Diversion', fr: 'Déviation' },
   'incident.type.UnattendedVehicle':   { en: 'Unattended Vehicle', fr: 'Véhicule abandonné' },

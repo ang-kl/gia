@@ -32,4 +32,11 @@ describe('translateIncidentType', () => {
     expect(translateIncidentType('Vehicle breakdown', 'fr')).toBe('Véhicule en panne');
     expect(translateIncidentType('VehicleBreakdown', 'fr')).toBe('Véhicule en panne');
   });
+
+  // Codex review #218: cover the LTA-documented canonical Type values
+  // exactly as they appear on the wire (per LTA's API guide PDF).
+  it('translates LTA-documented "Road Works" and "Misc."', () => {
+    expect(translateIncidentType('Road Works', 'fr')).toBe('Travaux');
+    expect(translateIncidentType('Misc.', 'fr')).toBe('Incident divers');
+  });
 });
