@@ -30,15 +30,16 @@ export async function fetchCatalogue() {
   return getJson('/api/cuisine/catalogue');
 }
 
-export async function searchCuisine({ lat, lng, cuisines, filters, region }) {
-  // v0.57.8: region: 'SG' | 'JB' (Johor Bahru city only).
-  // v0.58.18: client no longer sends `radius`; server falls back to
-  // its region-default (50 km SG / 18 km JB).
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region });
+// v0.59.0: callers may pass `lang` so Google Places returns weekday
+// descriptions / generative summaries in the active locale. Server
+// also honours the Redis /language pref so this is purely a fast path
+// when the TMA already knows.
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang }) {
+  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region, lang });
 }
 
-export async function nlQuery({ text, lat, lng, filters }) {
-  return postJson('/api/cuisine/nl-query', { text, lat, lng, filters });
+export async function nlQuery({ text, lat, lng, filters, lang }) {
+  return postJson('/api/cuisine/nl-query', { text, lat, lng, filters, lang });
 }
 
 // v0.57.32: server-driven "Copy all" — POST result venues, server
@@ -72,8 +73,8 @@ export async function copyCommandToChat({ cuisines, filters, prices, radius, reg
 // v0.58.4: warm-start. Lightweight initial fetch on TMA mount; returns
 // 5 random venues from a pool weighted by one of 5 rotating "criterion
 // seeds" so the picker never opens to an empty list.
-export async function warmStart({ lat, lng, region }) {
-  return postJson('/api/cuisine/warm-start', { lat, lng, region });
+export async function warmStart({ lat, lng, region, lang }) {
+  return postJson('/api/cuisine/warm-start', { lat, lng, region, lang });
 }
 
 // v0.58.7: location-field autocomplete. POST { input, lat, lng,
@@ -98,6 +99,26 @@ export async function placeResolve({ placeId }) {
 // header thanks to the getJson helper update above).
 export async function reverseGeocode({ lat, lng }) {
   return getJson(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+}
+
+// v0.59.0: language preference sync between TMA and chat. GET reads
+// the Redis-stored explicit preference (or null if user never typed
+// /language and never tapped the flag). POST writes it.
+export async function fetchUserLanguage() {
+  try {
+    const r = await getJson('/api/cuisine/user-language');
+    return r?.lang || null;
+  } catch {
+    return null;
+  }
+}
+export async function setUserLanguageRemote(lang) {
+  try {
+    return await postJson('/api/cuisine/user-language', { lang });
+  } catch (err) {
+    console.warn('[user-language] sync failed:', err.message);
+    return null;
+  }
 }
 
 // v0.58.20: fetch the bot's Redis-cached location for the current

@@ -1006,6 +1006,18 @@ bot.onText(/^\/legal(?:@\w+)?$/, (msg) => runLegalCommand(msg.chat.id));
 // inactivity auto-purge.
 bot.onText(/^\/forgetme(?:@\w+)?$/, (msg) => runForgetMeCommand(msg.chat.id));
 
+// v0.59.0: /language [en|fr|auto] — per-user locale preference. Stored
+// in Redis (1-year TTL) so it survives across devices and across TMA /
+// chat. Takes precedence over Telegram's user.language_code in every
+// chat reply path. With no argument, opens an inline keyboard.
+//   /language          → inline keyboard with 🇬🇧 / 🇫🇷 buttons
+//   /language fr       → set to French + ack
+//   /language en       → set to English + ack
+//   /language auto     → clear preference; revert to Telegram locale
+bot.onText(/^\/language(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, match) => {
+  await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
+});
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1428,6 +1440,18 @@ bot.on('callback_query', async (q) => {
     if (!chatId) return;
     bot.answerCallbackQuery(q.id).catch(() => {});
 
+    // v0.59.0: language toggle from /language inline keyboard.
+    if (data === 'language:set:en' || data === 'language:set:fr') {
+      const target = data.endsWith(':fr') ? 'fr' : 'en';
+      const { setUserLang } = require('./user-prefs');
+      await setUserLang(redis, chatId, target);
+      const ack = target === 'fr'
+        ? '✅ Langue réglée sur français.'
+        : '✅ Language set to English.';
+      await safeSend(chatId, ack);
+      return;
+    }
+
     if (data === 'refresh:transport') {
       await runTransportTrain(chatId); // legacy refresh button on bus stop list — point at train view
       return;
@@ -1540,8 +1564,10 @@ bot.on('location', async (msg) => {
     // then shared location. Pending row is `freetext:<verbatim text>`.
     if (typeof pending === 'string' && pending.startsWith('freetext:')) {
       const text = pending.slice('freetext:'.length);
-      const fromLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
-      await runFreeTextSearch(msg.chat.id, text, { lang: fromLang === 'fr' ? 'fr' : 'en' });
+      // v0.59.0: explicit /language pref outranks Telegram locale.
+      const { resolveLang } = require('./user-prefs');
+      const userLang = await resolveLang(redis, msg.chat.id, msg);
+      await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
       return;
     }
     // Legacy sanctuary / cuisine / nl flow.
@@ -2713,6 +2739,48 @@ async function runLegalCommand(chatId) {
 }
 
 // v0.57.25: /forgetme — self-service Redis erasure.
+// v0.59.0: /language handler. Three behaviours:
+//   /language          → inline keyboard (🇬🇧 / 🇫🇷)
+//   /language fr|en    → set + ack
+//   /language auto     → clear (revert to Telegram-locale heuristic)
+async function runLanguageCommand(msg, arg) {
+  const chatId = msg.chat.id;
+  const { setUserLang, getUserLang } = require('./user-prefs');
+  if (arg === 'auto') {
+    if (redis?.isOpen) {
+      try { await redis.del(`user:${chatId}:lang`); } catch { /* noop */ }
+    }
+    const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
+    const ackLang = ['en','fr'].includes(tgLang) ? tgLang : 'en';
+    await safeSend(chatId, ackLang === 'fr'
+      ? '✅ Préférence effacée. Gia suit désormais la langue de votre Telegram.'
+      : '✅ Preference cleared. Gia will follow your Telegram language.');
+    return;
+  }
+  if (arg === 'fr' || arg === 'en') {
+    await setUserLang(redis, chatId, arg);
+    await safeSend(chatId, arg === 'fr'
+      ? '✅ Langue réglée sur français.'
+      : '✅ Language set to English.');
+    return;
+  }
+  // No arg → inline keyboard. Show current pref alongside.
+  const current = await getUserLang(redis, chatId);
+  const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
+  const display = current || (['en','fr'].includes(tgLang) ? tgLang : 'en');
+  const promptText = display === 'fr'
+    ? `🌐 Langue actuelle : Français${current ? '' : ' (depuis votre Telegram)'}.\nChoisissez une langue :`
+    : `🌐 Current language: English${current ? '' : ' (from your Telegram)'}.\nChoose a language:`;
+  await bot.sendMessage(chatId, promptText, {
+    reply_markup: {
+      inline_keyboard: [[
+        { text: '🇬🇧 English',  callback_data: 'language:set:en' },
+        { text: '🇫🇷 Français', callback_data: 'language:set:fr' }
+      ]]
+    }
+  });
+}
+
 async function runForgetMeCommand(chatId) {
   try {
     const { forgetUserData } = require('./user-data');
@@ -2940,10 +3008,11 @@ bot.on('message', async (msg) => {
     // gatekeeper, no Claude ranking/narration. The user's verbatim
     // text becomes the searchText query. Saves ~3 LLM calls per
     // free-text message; deterministic results.
-    // v0.58.55: forward Telegram user's language_code so deliverPicks
-    // header + venue-template static labels render in their locale.
-    const fromLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
-    await runFreeTextSearch(msg.chat.id, text, { lang: fromLang === 'fr' ? 'fr' : 'en' });
+    // v0.58.55 / v0.59.0: resolveLang prefers the explicit /language
+    // pref in Redis, falls back to Telegram's user.language_code.
+    const { resolveLang } = require('./user-prefs');
+    const userLang = await resolveLang(redis, msg.chat.id, msg);
+    await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
@@ -2996,17 +3065,14 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
       return;
     }
+    const { t: trBot, tn: trnBot } = require('./i18n');
     const cached = await getUserLocation(redis, chatId);
     if (!cached) {
       // No location yet — store the verbatim text as a pending free-text
       // search, then prompt for location. When location lands the
       // location-handler resumes via the pending-meal path.
       await setPendingMeal(redis, chatId, `freetext:${text.slice(0, 200)}`);
-      await bot.sendMessage(
-        chatId,
-        "📍 Tap to share your location, or type a place name. I'll search after.",
-        LOCATION_REQUEST_KEYBOARD
-      );
+      await bot.sendMessage(chatId, trBot('bot.location.share', ftLang), LOCATION_REQUEST_KEYBOARD);
       return;
     }
     await setProcessing(redis, chatId);
@@ -3019,11 +3085,12 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         cuisines: [text],
         radius: 50000,
         maxResults: 12,
-        regionCode: 'SG'
+        regionCode: 'SG',
+        lang: ftLang                                       // v0.59.0
       });
       const venues = filterFreeTextResults(candidates, cached);
       if (!venues.length) {
-        await safeSend(chatId, `No Google Places results for "${text}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.`);
+        await safeSend(chatId, trnBot('bot.noresults', ftLang, { q: text }));
         return;
       }
       // v0.58.52: enrich each venue with TRANSIT + DRIVE minutes so
@@ -3035,6 +3102,14 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       } catch (err) {
         console.warn('[free-text] travel-times enrichment failed:', err.message);
       }
+      // v0.59.0: real per-venue footfall via BestTime (best-effort,
+      // dormant when BESTTIME_API_KEY is unset).
+      try {
+        const { attachFootfallSignals } = require('./footfall-signal');
+        await attachFootfallSignals(redis, venues);
+      } catch (err) {
+        console.warn('[free-text] footfall enrichment failed:', err.message);
+      }
       const headerLabel = ftLang === 'fr'
         ? `🔎 Résultats pour "${text}"`
         : `🔎 Results for "${text}"`;
@@ -3044,7 +3119,8 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
     }
   } catch (err) {
     console.error('[Error] free-text search failed:', err.message);
-    await safeSend(chatId, `Sorry, free-text search hit an error. Try /cuisine or /hidden.`);
+    const { t: trBotErr } = require('./i18n');
+    await safeSend(chatId, trBotErr('bot.error.freetext', ftLang));
   }
 }
 
@@ -3110,20 +3186,41 @@ async function registerCommandsMenu() {
     // a sub-sub-menu for nearest-stops/arrivals/crowd/route.
     // v0.56.0: hidden — /ver (dropped from autocomplete; handler still
     // works for power users). /buddy + /share moved to bottom.
-    await bot.setMyCommands([
-      { command: 'cuisine',   description: 'Cuisine Picker >70 choices' },
-      { command: 'hidden',    description: 'Up to 5 hidden gems 1.5–3 km away' },
-      { command: 'weather',   description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport', description: 'Bus, MRT trains, Walk or Drive' },
-      { command: 'hawker',    description: '>100 Hawker Centres' },
+    // v0.59.0: per-locale command lists. Telegram's setMyCommands
+    // accepts a `language_code` so French users see French descriptions
+    // in the slash-menu hint. Default (no language_code) covers EN.
+    const enCommands = [
+      { command: 'cuisine',    description: 'Cuisine Picker >70 choices' },
+      { command: 'hidden',     description: 'Up to 5 hidden gems 1.5–3 km away' },
+      { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
+      { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
+      { command: 'hawker',     description: '>100 Hawker Centres' },
       { command: 'recognised', description: 'Michelin, Bib Gourmand (< $45 meal), Asia 50/100 & Local Produce to Table' },
-      { command: 'carpark',   description: 'Nearest 5 carparks with available lots' },
-      { command: 'location',  description: 'Set your locale by typing a place name' },
-      { command: 'buddy',     description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'share',     description: 'Forward recent pick' },
-      { command: 'privacy',   description: 'Data, retention & sources' },
-      { command: 'forgetme',  description: 'Erase your Redis state' }
-    ]);
+      { command: 'carpark',    description: 'Nearest 5 carparks with available lots' },
+      { command: 'location',   description: 'Set your locale by typing a place name' },
+      { command: 'language',   description: 'Switch chat language (English / Français)' },
+      { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
+      { command: 'share',      description: 'Forward recent pick' },
+      { command: 'privacy',    description: 'Data, retention & sources' },
+      { command: 'forgetme',   description: 'Erase your Redis state' }
+    ];
+    const frCommands = [
+      { command: 'cuisine',    description: 'Sélecteur de cuisine — plus de 70 choix' },
+      { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées 1,5–3 km autour' },
+      { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
+      { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
+      { command: 'hawker',     description: 'Plus de 100 Hawker Centres' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand (< 45 $), Asia 50/100 & local-to-table' },
+      { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
+      { command: 'location',   description: 'Définir votre lieu par son nom' },
+      { command: 'language',   description: 'Changer la langue (Français / English)' },
+      { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
+      { command: 'share',      description: 'Partager une suggestion récente' },
+      { command: 'privacy',    description: 'Données, conservation et sources' },
+      { command: 'forgetme',   description: 'Effacer vos données Redis' }
+    ];
+    await bot.setMyCommands(enCommands);
+    await bot.setMyCommands(frCommands, { language_code: 'fr' });
     if (useWebhook) {
       await bot.setChatMenuButton({
         menu_button: {
@@ -3538,9 +3635,11 @@ async function cacheBotUsername() {
         }
         const chatId = verified.user.id;
         const incoming = Array.isArray(req.body?.venues) ? req.body.venues : [];
-        // v0.58.55: TMA POSTs the active locale ('en' | 'fr'); fall
-        // back to 'en' when missing or unsupported.
-        const reqLang = (typeof req.body?.lang === 'string' && ['en','fr'].includes(req.body.lang)) ? req.body.lang : 'en';
+        // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle is
+        // freshest), fall back to the Redis /language pref, then 'en'.
+        const { resolveLang } = require('./user-prefs');
+        const bodyLang = (typeof req.body?.lang === 'string' && ['en','fr'].includes(req.body.lang)) ? req.body.lang : null;
+        const reqLang = bodyLang || await resolveLang(redis, chatId, null);
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
           .slice(0, 12); // /app/map has no hard cap; 12 matches /cuisine result count
@@ -3608,16 +3707,17 @@ async function cacheBotUsername() {
         if (!venue || (!venue.placeId && !venue.name)) {
           return res.status(400).json({ error: 'missing venue' });
         }
-        // v0.58.55: lang propagated from TMA so the T1 block's static
-        // labels (Open now / Closed / crowd / "Sanctuary read for")
-        // render in the user's locale.
-        const oneLang = (typeof venue.lang === 'string' && ['en','fr'].includes(venue.lang)) ? venue.lang : 'en';
+        // v0.58.55 / v0.59.0: prefer the body's venue.lang (TMA toggle),
+        // fall back to the Redis /language pref, then 'en'.
+        const { resolveLang } = require('./user-prefs');
+        const venueLang = (typeof venue.lang === 'string' && ['en','fr'].includes(venue.lang)) ? venue.lang : null;
+        const oneLang = venueLang || await resolveLang(redis, chatId, null);
         const { formatVenueBlock } = require('./venue-templates');
         const { googleMapsUrl } = require('./maps-url');
         // Best-effort sanctuary read fetch (cached in Redis 24h).
         let sanctuaryRead = '';
         if (venue.placeId) {
-          try { sanctuaryRead = await getOrCacheSummary(redis, venue.placeId) || ''; }
+          try { sanctuaryRead = await getOrCacheSummary(redis, venue.placeId, oneLang) || ''; }
           catch { /* fall through; T1 will render without sanctuary section */ }
         }
         const body = formatVenueBlock(venue, {
@@ -3650,10 +3750,18 @@ async function cacheBotUsername() {
     // main 🔍 Search button runs the full enrichment pipeline.
     app.post('/api/cuisine/warm-start', async (req, res) => {
       try {
-        const { lat, lng, region = 'SG' } = req.body || {};
+        const { lat, lng, region = 'SG', lang: langIn } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // v0.59.0: thread the active locale into pipeline.discover so
+        // Google Places returns FR weekday descriptions / generative
+        // summaries when the TMA is in French.
+        const verifiedW = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        const wsChatId = verifiedW?.user?.id ? String(verifiedW.user.id) : null;
+        const { resolveLang } = require('./user-prefs');
+        const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         const searchCenter = isJB ? JB_CBD : { lat, lng };
@@ -3673,7 +3781,9 @@ async function cacheBotUsername() {
         ];
         const seedIdx = Math.floor(Date.now() / 60000) % SEEDS.length;
         const seed = SEEDS[seedIdx];
-        const cacheKey = `cuisine:warmstart:v1:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:${seed.id}`;
+        // v0.59.0: lang dimension. Different language venues come back
+        // with localised weekday descriptions / generative summaries.
+        const cacheKey = `cuisine:warmstart:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:${seed.id}:${wsLang}`;
         try {
           if (redis.isOpen) {
             const cached = await redis.get(cacheKey);
@@ -3687,7 +3797,8 @@ async function cacheBotUsername() {
           radius: searchRadius,
           cuisines: seed.queries,
           maxResults: 30,
-          regionCode: searchRegionCode
+          regionCode: searchRegionCode,
+          lang: wsLang                                     // v0.59.0
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
 
@@ -3735,7 +3846,8 @@ async function cacheBotUsername() {
               radius: searchRadius,
               cuisines: ['highly rated restaurants near me'],
               maxResults: 30,
-              regionCode: searchRegionCode
+              regionCode: searchRegionCode,
+              lang: wsLang                                 // v0.59.0
             });
             const fbVenues = (Array.isArray(fallback) ? fallback : (fallback?.venues || []))
               .filter(venueFilters.passesVenueFilter);
@@ -3759,6 +3871,11 @@ async function cacheBotUsername() {
           const { enrichTravelTimes } = require('./travel-times');
           await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
         } catch (err) { console.warn('[WarmStart] travel-times failed:', err.message); }
+        // v0.59.0: footfall enrichment (BestTime). Dormant without key.
+        try {
+          const { attachFootfallSignals } = require('./footfall-signal');
+          await attachFootfallSignals(redis, top);
+        } catch (err) { console.warn('[WarmStart] footfall failed:', err.message); }
         const payload = { venues: top, seed: resolvedSeed };
         try {
           if (redis.isOpen) await redis.setEx(cacheKey, 60, JSON.stringify(payload));
@@ -3907,6 +4024,48 @@ async function cacheBotUsername() {
     // results from the wrong neighbourhood. Stale = 404 → TMA falls
     // through to SG centroid (or fresh re-prompt).
     const CUISINE_LOC_FRESH_MS = 30 * 60 * 1000;
+    // v0.59.0: TMA <-> chat language sync. POST sets the per-user
+    // preference (mirroring `/language fr|en`); GET reads it. Both
+    // gated by initData. The TMA's `useLocale()` hook calls GET on
+    // mount and POST when the user taps the EN/FR flag toggle, so
+    // toggling in the TMA also flips chat replies and vice versa.
+    app.post('/api/cuisine/user-language', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const reqLang = String(req.body?.lang || '').slice(0, 2).toLowerCase();
+        if (!['en', 'fr'].includes(reqLang)) {
+          return res.status(400).json({ error: 'lang must be en or fr' });
+        }
+        const { setUserLang } = require('./user-prefs');
+        const saved = await setUserLang(redis, String(userId), reqLang);
+        if (!saved) return res.status(500).json({ error: 'redis write failed' });
+        res.json({ lang: saved });
+      } catch (err) {
+        console.error('[Error] POST /api/cuisine/user-language failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+    app.get('/api/cuisine/user-language', async (req, res) => {
+      try {
+        const initStr = req.headers['x-telegram-init-data'] || '';
+        const verified = verifyInitData(initStr, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const { getUserLang } = require('./user-prefs');
+        const explicit = await getUserLang(redis, String(userId));
+        // Return the explicit pref OR null so the TMA can fall back to
+        // its localStorage / Telegram-locale heuristic locally.
+        res.json({ lang: explicit });
+      } catch (err) {
+        console.error('[Error] GET /api/cuisine/user-language failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     app.post('/api/cuisine/user-location', async (req, res) => {
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -3948,9 +4107,11 @@ async function cacheBotUsername() {
         const chatId = verified.user?.id;
         if (!chatId) return res.status(400).json({ error: 'no chat id' });
         const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location, lang: langIn } = req.body || {};
-        // v0.58.55: localise the friendly intro line. The /cuisine
-        // command itself is locale-agnostic.
-        const synLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : 'en';
+        // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle),
+        // fall back to the Redis /language pref, then 'en'.
+        const { resolveLang } = require('./user-prefs');
+        const synBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        const synLang = synBodyLang || await resolveLang(redis, chatId, null);
 
         const cv = require('./cuisines-vault');
         const validSlugs = new Set(cv.getAllCuisines().map((c) => c.slug));
@@ -4018,10 +4179,17 @@ async function cacheBotUsername() {
         // city only, not the whole state of Johor or Malaysia). For JB
         // the search centres on JB CBD with regionCode 'MY' + a hard
         // formattedAddress filter for "Johor Bahru".
-        const { lat, lng, cuisines = [], filters = {}, region = 'SG', radius: clientRadius } = req.body || {};
+        const { lat, lng, cuisines = [], filters = {}, region = 'SG', radius: clientRadius, lang: langIn } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // v0.59.0: resolve active lang for this request — TMA body
+        // first, then Redis /language pref, then 'en'.
+        const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        const csChatId = verifiedSearch?.user?.id ? String(verifiedSearch.user.id) : null;
+        const { resolveLang: resolveLangSearch } = require('./user-prefs');
+        const csBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.58.26: reject {lat:0, lng:0} — the TMA had been firing
         // searches with uninitialised coords (Railway log evidence:
         // "center=0.0000,0.0000 radius=50000 → 0 candidates"). Zero
@@ -4109,10 +4277,11 @@ async function cacheBotUsername() {
         // v0.57.8: region in the key so SG and JB results don't collide.
         // v0.58.8: include searchRadius in the cache key so 80 km and
         // 5 km searches at the same lat/lng don't collide.
-        const cacheKey = `cuisine:search:v2:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:r${searchRadius}:` +
+        // v0.59.0: lang dimension added to the cache key — `:l${csLang}`.
+        const cacheKey = `cuisine:search:v3:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:r${searchRadius}:` +
           `${cuisineQueries.join('|')}:` +
           `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
-          `${(filters.prices || []).join(',')}`;
+          `${(filters.prices || []).join(',')}:l${csLang}`;
         try {
           if (redis.isOpen) {
             const cached = await redis.get(cacheKey);
@@ -4131,7 +4300,8 @@ async function cacheBotUsername() {
         console.log(`[Cuisine-Search] D701 cuisineQueries=${JSON.stringify(cuisineQueries)} cuisineMetas.length=${cuisineMetas.length} allSelectedAreGated=${allSelectedAreGated}`);
         const candidates = await pipeline.discover({
           lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-          cuisines: cuisineQueries, maxResults: 30, regionCode: searchRegionCode
+          cuisines: cuisineQueries, maxResults: 30, regionCode: searchRegionCode,
+          lang: csLang                                     // v0.59.0
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
@@ -4360,6 +4530,11 @@ async function cacheBotUsername() {
           const { enrichTravelTimes } = require('./travel-times');
           await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
         } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
+        // v0.59.0: footfall enrichment (BestTime). Dormant without key.
+        try {
+          const { attachFootfallSignals } = require('./footfall-signal');
+          await attachFootfallSignals(redis, top);
+        } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
         // v0.57.6: write to cache for 30 minutes.
@@ -4375,7 +4550,7 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine/nl-query', async (req, res) => {
       try {
-        const { text, lat, lng, filters = {} } = req.body || {};
+        const { text, lat, lng, filters = {}, lang: nlLangIn } = req.body || {};
         if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
 
         // v0.58.19: harden the LLM endpoint —
@@ -4512,8 +4687,13 @@ async function cacheBotUsername() {
             console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
           }
         }
+        // v0.59.0: resolve active lang for NL discovery.
+        const { resolveLang: resolveLangNL } = require('./user-prefs');
+        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr'].includes(nlLangIn)) ? nlLangIn : null;
+        const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
         const candidates = await pipeline.discover({
-          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30
+          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30,
+          lang: nlLang                                     // v0.59.0
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         // v0.57.5 / v0.58.31: shared deny-list module — type gate +
@@ -4604,6 +4784,11 @@ async function cacheBotUsername() {
           const { enrichTravelTimes } = require('./travel-times');
           await enrichTravelTimes(searchLat, searchLng, topNL);
         } catch (err) { console.warn('[NL-Query] travel-times failed:', err.message); }
+        // v0.59.0: footfall enrichment (BestTime). Dormant without key.
+        try {
+          const { attachFootfallSignals } = require('./footfall-signal');
+          await attachFootfallSignals(redis, topNL);
+        } catch (err) { console.warn('[NL-Query] footfall failed:', err.message); }
         res.json({
           venues: topNL,
           inferredCuisines, inferredFilters,

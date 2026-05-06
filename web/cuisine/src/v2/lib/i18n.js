@@ -145,10 +145,37 @@ export function setActiveLocale(lang) {
   if (typeof window === 'undefined') return;
   try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
   window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+  // v0.59.0: best-effort POST to /api/cuisine/user-language so chat
+  // replies (deliverPicks, free-text, /hidden) follow the same
+  // preference. Lazy-import to avoid a circular dep at module init.
+  import('./api.js').then((m) => m.setUserLanguageRemote?.(lang)).catch(() => {});
+}
+
+// v0.59.0: track whether we've hydrated from the server's per-user
+// preference. Module-level latch so multiple useLocale() calls in
+// different components don't each fire a redundant fetch.
+let serverHydrated = false;
+async function hydrateFromServerOnce() {
+  if (serverHydrated) return;
+  serverHydrated = true;
+  try {
+    const m = await import('./api.js');
+    const remote = await m.fetchUserLanguage?.();
+    if (SUPPORTED_LOCALES.includes(remote)) {
+      // Quietly write to localStorage + fire the locale event so
+      // every subscribed component re-renders. Skip the POST that
+      // setActiveLocale would otherwise make (the value just came
+      // from the server — round-tripping is wasteful).
+      try { window.localStorage.setItem(LOCALE_KEY, remote); } catch { /* noop */ }
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+    }
+  } catch { /* offline / 401 / 404 — keep local fallback */ }
 }
 
 // React hook: returns [lang, setLang]. Re-renders on locale change
 // (own setActiveLocale call OR another tab — storage + custom event).
+// On first mount, hydrates from the server's stored preference so the
+// TMA matches whatever the user last set via /language in chat.
 export function useLocale() {
   const [lang, setLangState] = useState(() => getActiveLocale());
   useEffect(() => {
@@ -161,6 +188,7 @@ export function useLocale() {
     }
     window.addEventListener(LOCALE_EVENT, onLocale);
     window.addEventListener('storage', onStorage);
+    hydrateFromServerOnce();
     return () => {
       window.removeEventListener(LOCALE_EVENT, onLocale);
       window.removeEventListener('storage', onStorage);
