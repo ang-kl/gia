@@ -247,6 +247,23 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const ratingHtml = Number.isFinite(v.rating)
         ? `<div style="font-size:11px;color:#666;margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
         : '';
+      // v0.59.0: footfall chip (real per-venue busyness from BestTime,
+      // populated server-side via footfall-signal.attachFootfallSignals).
+      let footfallHtml = '';
+      if (v.footfall) {
+        const live = v.footfall.liveBusyness;
+        const fc   = v.footfall.forecastNext;
+        const value = Number.isFinite(live) ? live : (Number.isFinite(fc) ? fc : null);
+        if (value != null) {
+          const verb = lang === 'fr'
+            ? (Number.isFinite(live) ? 'occupé maintenant' : 'prévu')
+            : (Number.isFinite(live) ? 'busy now' : 'forecast');
+          const peak = v.footfall.peakHour
+            ? ` · ${lang === 'fr' ? 'pic' : 'peaks'} ${escapeHtml(v.footfall.peakHour)}`
+            : '';
+          footfallHtml = `<div style="font-size:11px;color:#444;margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
+        }
+      }
       // v0.58.54: on touch devices, embed an "Open in Google Maps" CTA
       // inside the bubble — the global `window.__giaOpenMap(placeId)`
       // handler (registered at mount) routes through openInGoogleMaps.
@@ -259,6 +276,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
            ${addressHtml}
+           ${footfallHtml}
            ${travelHtml}
            ${ratingHtml}
            ${ctaHtml}

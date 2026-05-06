@@ -251,7 +251,7 @@ export default function App() {
       setLoading(true); setError(null);
       console.log('[Cuisine-TMA-v2] warm-start: requesting', { lat: userLoc.lat, lng: userLoc.lng, region: state.region });
       try {
-        const r = await warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region });
+        const r = await warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region, lang });
         console.log('[Cuisine-TMA-v2] warm-start: response', { venues: r?.venues?.length || 0, seed: r?.seed, cached: r?.cached });
         if (r?.venues?.length) {
           setVenues(r.venues);
@@ -317,7 +317,8 @@ export default function App() {
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
-        region: snap.region || 'SG'
+        region: snap.region || 'SG',
+        lang                                              // v0.59.0
       });
       setVenues(r.venues || []);
       setSearchCenter({ lat: center.lat, lng: center.lng });
@@ -366,7 +367,7 @@ export default function App() {
     const mode = opts.mode === 'replace' ? 'replace' : 'merge';
     setLastPrompt(text); setLoading(true); setError(null);
     try {
-      const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters });
+      const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters, lang });
       setVenues(r.venues || []);
       let nextState;
       if (mode === 'replace') {
@@ -648,7 +649,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.58.55 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.0 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

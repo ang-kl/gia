@@ -41,9 +41,31 @@ async function fetchReviewText(placeId) {
   }
 }
 
-async function summarizeVibe(reviews) {
+// v0.59.0: lang-aware sanctuary read. EN keeps the v0.58.x prompt
+// verbatim. FR uses a parallel French prompt with the same four-bullet
+// structure. Iconic SG dish names (laksa, char kway teow, kopi-o,
+// kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata,
+// nasi lemak, otah, kueh, chendol, ice kachang) MUST stay in their
+// original form even in French — that's how French-speaking SG
+// residents refer to them.
+const SG_ICONIC_DISHES = '(e.g. laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik)';
+
+async function summarizeVibe(reviews, lang = 'en') {
   if (!llm.isReady() || !reviews) return null;
-  const prompt = `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
+  const prompt = lang === 'fr'
+    ? `Lisez ces avis Google d’un restaurant au CBD de Singapour. Le lecteur dîne seul et cherche un "Sanctuaire" — calme, places confortables, ambiance accueillante. Voix : polie, utile, ancrée.
+
+Renvoyez EXACTEMENT quatre puces courtes, sans préambule ni conclusion :
+• Calme : <une phrase courte>
+• Places : <une phrase courte sur le bar/places solo/communales>
+• Ambiance : <une phrase courte sur le personnel et le ressenti pour dîner seul>
+• Accès : <indice de navigation niveau-bâtiment si mentionné — entrée, étage, ruelle, planqué-derrière, etc. Sinon, le seul mot : "—">
+
+IMPORTANT : conservez les noms de plats SG iconiques tels quels ${SG_ICONIC_DISHES} ; ne les traduisez pas en français.
+
+Avis :
+${reviews}`
+    : `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
 
 Return EXACTLY four short bullets, no preamble, no closing line:
 • Quiet: <one short phrase>
@@ -65,16 +87,19 @@ ${reviews}`;
   }
 }
 
-async function getOrCacheSummary(redis, placeId) {
+async function getOrCacheSummary(redis, placeId, lang = 'en') {
   if (!placeId) return null;
-  const cacheKey = `vibe:summary:${placeId}`;
+  // v0.59.0: lang dimension on the cache key. EN and FR sanctuary
+  // reads coexist for the same venue.
+  const safeLang = lang === 'fr' ? 'fr' : 'en';
+  const cacheKey = `vibe:summary:${placeId}:${safeLang}`;
   if (!redis.isOpen) await redis.connect();
   const cached = await redis.get(cacheKey);
   if (cached) return cached;
 
   const reviewText = await fetchReviewText(placeId);
   if (!reviewText) return null;
-  const summary = await summarizeVibe(reviewText);
+  const summary = await summarizeVibe(reviewText, safeLang);
   if (summary) {
     await redis.setEx(cacheKey, SUMMARY_TTL_SECONDS, summary);
   }

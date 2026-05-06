@@ -27,7 +27,24 @@ export default function ResultCard({ venue, focused, onTap }) {
     ? { high: '🔴 chargé', medium: '🟡 modéré', low: '🟢 calme' }
     : { high: '🔴 busy',  medium: '🟡 moderate', low: '🟢 quiet' };
   const crowd = crowdMap[venue.crowdLevel] || '';
-  const meta = [rating, price, open, crowd, dist || walk].filter(Boolean).join(' · ');
+  // v0.59.0: real per-venue footfall chip (BestTime). Prefers live
+  // busyness; falls back to forecast. Replaces the carpark crowd chip
+  // when both are present — BestTime is venue-resolved, carpark proxy
+  // is at-best area-resolved.
+  let footfallChip = '';
+  if (venue.footfall) {
+    const live = venue.footfall.liveBusyness;
+    const fc   = venue.footfall.forecastNext;
+    const value = Number.isFinite(live) ? live : (Number.isFinite(fc) ? fc : null);
+    if (value != null) {
+      const verb = lang === 'fr'
+        ? (Number.isFinite(live) ? 'occupé' : 'prévu')
+        : (Number.isFinite(live) ? 'busy' : 'forecast');
+      footfallChip = `🚦 ${value}% ${verb}`;
+    }
+  }
+  const livenessChip = footfallChip || crowd;
+  const meta = [rating, price, open, livenessChip, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —

@@ -381,7 +381,13 @@ function priceLevelToInt(p) {
 // specified, uses searchText with a cuisine keyword (better for cuisine
 // recall than searchNearby's includedTypes filter). Otherwise falls
 // back to searchNearby with a broad type set.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', diag = noopDiag() }) {
+// v0.59.0: `lang` ('en' | 'fr', default 'en') is forwarded to Google
+// Places as `languageCode` so weekday descriptions, generative
+// summaries, and primary-type display labels come back in the user's
+// language. Venue display names stay the actual brand (Google doesn't
+// translate proper nouns), which is what we want for SG iconic stalls.
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag() }) {
+  const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
     diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
@@ -409,10 +415,8 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           textQuery: `${cuisineQuery} cuisine restaurant`,
           includedType: 'restaurant',
           strictTypeFiltering: false,
-          // v0.57.8: regionCode is now a parameter ('SG' default, 'MY'
-          // for Johor Bahru). Combined with locationBias for proximity
-          // ranking inside the chosen country.
           regionCode,
+          languageCode,                                    // v0.59.0
           maxResultCount: Math.min(maxResults, 20),
           locationBias: {
             circle: {
@@ -438,6 +442,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         {
           includedTypes: ['restaurant', 'cafe', 'bar', 'meal_takeaway', 'food_court', 'bakery'],
           maxResultCount: Math.min(maxResults, 20),
+          languageCode,                                    // v0.59.0
           locationRestriction: {
             circle: {
               center: { latitude: lat, longitude: lng },
@@ -518,7 +523,17 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
 // Output drift (model picks fewer than asked, or returns invalid
 // placeIds) falls back to a deterministic top-N by rating + walking
 // distance, so a Claude failure never zeroes the result.
-async function rankAndNarrate({ candidates, query, snapshot, count = 5, diag = noopDiag() }) {
+// v0.59.0: `lang` ('en' | 'fr') determines whether the model emits
+// `vibe` / `dishes` / `signature_dish` in English or French. The
+// iconic-SG-dish rule below tells the model to keep dish names like
+// "laksa", "char kway teow", "kaya toast" in their original form even
+// when narrating in French — that's how French-speaking SG residents
+// refer to them.
+async function rankAndNarrate({ candidates, query, snapshot, count = 5, lang, diag = noopDiag() }) {
+  // v0.59.0: prefer top-level lang if caller passed one, else read
+  // query.lang (pipeline-task.js threads payload.lang into the query),
+  // else default to English.
+  lang = (lang === 'fr' || query?.lang === 'fr') ? 'fr' : 'en';
   if (!candidates || !candidates.length) return [];
   if (!llm.isReady()) {
     diag('D722', 'LLM unavailable — falling back to rating-sorted top-N', false);
@@ -561,12 +576,15 @@ async function rankAndNarrate({ candidates, query, snapshot, count = 5, diag = n
         }`
       : '';
 
+    const langBlock = lang === 'fr'
+      ? '\nLOCALISATION: write all "vibe", "dishes", and "signature_dish" strings in FRENCH. Keep iconic Singapore dish names in their ORIGINAL form, untranslated (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate descriptive prose around them ("hawker stall réputé pour son laksa onctueux"). Numbers, prices, placeIds stay raw.\n'
+      : '';
     const prompt = `You are Gia, a Singapore food concierge. Below are ${candidates.length} REAL venues from Google Places near the user. Your job is to pick the BEST ${count} for a solo diner and add narrative.
 
 ${periodLine}
 ${cuisineLine}
 ${specialLine}
-
+${langBlock}
 CANDIDATES (each line: index. [placeId] name — area — rating — price — open status — type):
 ${candidateLines}
 

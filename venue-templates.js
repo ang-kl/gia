@@ -116,6 +116,18 @@ function formatTravelLine(p) {
   return parts.length ? parts.join(' · ') : '';
 }
 
+// v0.59.0: footfall row (real per-venue busyness from BestTime, set
+// in footfall-signal.attachFootfallSignals). Renders nothing when
+// the venue has no footfall data — keeping the block tight for venues
+// outside BestTime's coverage.
+function formatFootfallLine(p, lang = 'en') {
+  if (!p?.footfall) return '';
+  try {
+    const { footfallChip } = require('./footfall-signal');
+    return footfallChip(p.footfall, lang) || '';
+  } catch { return ''; }
+}
+
 // Build a single venue block per the requested variant.
 //
 // opts:
@@ -163,6 +175,11 @@ function formatVenueBlock(p, opts = {}) {
     const orderLine = formatOrderLine(p);
     if (orderLine) lines.push(orderLine);
   }
+  // v0.59.0: footfall row sits ABOVE travel-time, so a user reading
+  // top-to-bottom sees "should I go now?" before "how do I get there?"
+  // Skipped silently when no BestTime signal is attached.
+  const footfallLine = formatFootfallLine(p, lang);
+  if (footfallLine) lines.push(footfallLine);
   // v0.58.52: travel-time row immediately above Maps URL — applies to
   // ALL three variants (T1/T2/T3) per Human Lead. Skipped silently
   // when Routes API didn't populate either transitMinutes or
@@ -181,6 +198,7 @@ module.exports = {
   formatOrderLine,
   formatMapsLine,
   formatTravelLine,
+  formatFootfallLine,
   escapeHtml,
   PRICE_LABEL,
   CROWD_LABEL
