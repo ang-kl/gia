@@ -182,6 +182,13 @@ const STRINGS = {
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
   'location.got':              { en: '📍 Got your location.', fr: '📍 Position reçue.' },
+  // v0.59.6: ensureLocation prompts (the "two messages" /hidden bug).
+  'location.shareLabel':       { en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
+                                 fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
+  'location.current':          { en: '📍 Current: {addr}{age}', fr: '📍 Actuel : {addr}{age}' },
+  'location.age.justShared':   { en: ' (just shared)', fr: ' (à l’instant)' },
+  'location.age.minAgo':       { en: ' ({n} min ago)', fr: ' (il y a {n} min)' },
+  'location.age.hourAgo':      { en: ' ({h} h {m} min ago)', fr: ' (il y a {h} h {m} min)' },
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },

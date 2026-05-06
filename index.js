@@ -184,13 +184,14 @@ async function reverseGeocodeAddress(lat, lng) {
 //     user can decide if they want to refresh manually.
 //   • No cached location at all → prompt for share (only first time).
 //     Sets pending-meal so bot.on('location') auto-resumes.
-async function ensureLocation(chatId, label) {
+async function ensureLocation(chatId, label, lang = 'en') {
+  const { t, tn } = require('./i18n');
   const cached = await getUserLocation(redis, chatId);
   if (!cached || !Number.isFinite(cached.lat) || !Number.isFinite(cached.lng)) {
     try { await setPendingMeal(redis, chatId, label); } catch { /* best effort */ }
     await bot.sendMessage(
       chatId,
-      `📍 Share your location once so ${label} uses your locale (or type \`/location <place name>\` to set it manually).`,
+      tn('location.shareLabel', lang, { label }),
       LOCATION_REQUEST_KEYBOARD
     );
     return null;
@@ -198,12 +199,14 @@ async function ensureLocation(chatId, label) {
   try {
     const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
     const ageMin = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
-    const ageNote = ageMin == null ? ''
-      : ageMin < 1 ? ' (just shared)'
-      : ageMin < 60 ? ` (${ageMin} min ago)`
-      : ` (${Math.floor(ageMin / 60)} h ${ageMin % 60} min ago)`;
+    let ageNote = '';
+    if (ageMin != null) {
+      if (ageMin < 1) ageNote = t('location.age.justShared', lang);
+      else if (ageMin < 60) ageNote = tn('location.age.minAgo', lang, { n: ageMin });
+      else ageNote = tn('location.age.hourAgo', lang, { h: Math.floor(ageMin / 60), m: ageMin % 60 });
+    }
     if (geo?.formatted) {
-      await safeSend(chatId, `📍 Current: ${geo.formatted}${ageNote}`);
+      await safeSend(chatId, tn('location.current', lang, { addr: geo.formatted, age: ageNote }));
     }
   } catch (err) {
     console.warn(`[${label}] reverse-geocode failed:`, err.message);
@@ -1860,7 +1863,7 @@ async function sendTransportMenu(chatId, lang = 'en') {
   const { t } = require('./i18n');
   // v0.56.1: use shared ensureLocation helper. Cached-of-any-age
   // returns immediately; only prompts when zero cached location.
-  const cached = await ensureLocation(chatId, '/transport');
+  const cached = await ensureLocation(chatId, '/transport', lang);
   if (!cached) return;
   await safeSend(chatId, t('transport.menu.title', lang), {
     parse_mode: 'Markdown',
@@ -2345,7 +2348,7 @@ async function runCarparkCommand(chatId, lang = 'en') {
   try {
     if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, t('carpark.offline', lang)); return; }
     // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
-    const cached = await ensureFreshLocationOrPrompt(chatId, '/carpark');
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/carpark', lang);
     if (!cached) return;
     await safeSend(chatId, t('carpark.lookingUp', lang));
     const list = await carpark.nearest(cached.lat, cached.lng, 5);
@@ -2407,7 +2410,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       await safeSend(chatId, t('hidden.busy', lang));
       return;
     }
-    const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden');
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden', lang);
     if (!cached) return;
     await setProcessing(redis, chatId);
 
@@ -2540,9 +2543,12 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // single run). Falls back to the original block per venue when Places
     // returns nothing — never makes the output worse.
     let verifiedText = result.text;
+    let verifiedVenues = [];
     try {
       const { verifyHiddenGemsOutput } = require('./hidden-verify');
-      verifiedText = await verifyHiddenGemsOutput(result.text);
+      const verifyResult = await verifyHiddenGemsOutput(result.text);
+      verifiedText = verifyResult.text;
+      verifiedVenues = verifyResult.venues || [];
     } catch (err) {
       console.warn('[/hidden] verify post-process failed, keeping raw output:', err.message);
     }
@@ -2550,15 +2556,42 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // boundaries (lines starting "/^\d+\. /") so a single venue
     // never spans messages.
     const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
-    // v0.58.46: parse_mode='HTML' so the bold venue-name tags
-    // (<b>…</b>) actually render as bold, not literal angle brackets.
-    // disable_web_page_preview keeps each pick compact (Google Maps
-    // URLs would otherwise expand into a giant card).
     for (const c of chunks) {
       await safeSend(chatId, c, {
         parse_mode: 'HTML',
         disable_web_page_preview: true
       });
+    }
+    // v0.59.6: one-map button for all 5 picks (post-list). Reuses the
+    // Places-API lat/lng captured during verification — only renders
+    // when at least 2 picks resolved (single venue is already its own
+    // map link inside the block) and webhookDomain is set.
+    try {
+      const plottable = verifiedVenues.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng));
+      if (plottable.length >= 2 && webhookDomain) {
+        const { buildMapHashUrl } = require('./maps-url');
+        const slim = plottable.map((v) => ({
+          name: v.displayHeading || v.name,
+          placeId: v.id || '',
+          lat: v.lat,
+          lng: v.lng,
+          area: v.address || ''
+        }));
+        const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+        if (mapUrl) {
+          const caption = lang === 'fr'
+            ? `🗺 Voir les ${plottable.length} trouvailles sur une carte :`
+            : `🗺 View all ${plottable.length} picks on one map:`;
+          const btnText = lang === 'fr'
+            ? `🗺 Voir les ${plottable.length} sur la carte`
+            : `🗺 Open ${plottable.length} on map`;
+          await bot.sendMessage(chatId, caption, {
+            reply_markup: { inline_keyboard: [[{ text: btnText, web_app: { url: mapUrl } }]] }
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('[/hidden] one-map button render failed:', err.message);
     }
   } catch (err) {
     console.error('[/hidden] outer catch:', err.message, err.stack);
@@ -3350,6 +3383,38 @@ async function registerCommandsMenu() {
     ];
     await bot.setMyCommands(enCommands);
     await bot.setMyCommands(frCommands, { language_code: 'fr' });
+
+    // v0.59.6: setMyDescription — the body shown above the command list
+    // when a user opens the empty chat with the bot ("What can this bot
+    // do?"). 512-char limit per Telegram. EN default + FR via
+    // language_code='fr'. Per Human Lead 2026-05-06 — refresh from the
+    // pre-v0.58.55 EN-only text and add a FR variant.
+    const enDescription =
+      "This is a breakfast, lunch & dining concierge service.\n\n" +
+      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/hidden — 5 new places to try 1.5–3 km away\n" +
+      "/hawker — >100 hawker centres (2025)\n" +
+      "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
+      "/transport — bus, train, drive, traffic\n" +
+      "/carpark — nearest 5 carparks\n" +
+      "/weather, /buddy, /share, /language, /privacy, /legal\n\n" +
+      "Free to use. Quirks welcome. Foodie.";
+    const frDescription =
+      "Conciergerie petit-déjeuner, déjeuner & dîner.\n\n" +
+      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/hidden — 5 trouvailles à 1,5–3 km\n" +
+      "/hawker — plus de 100 hawker centres (2025)\n" +
+      "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
+      "/transport — bus, métro, voiture, trafic\n" +
+      "/carpark — 5 parkings les plus proches\n" +
+      "/weather, /buddy, /share, /language, /privacy, /legal\n\n" +
+      "Gratuit. Curiosités bienvenues. Foodie.";
+    try {
+      await bot.setMyDescription(enDescription);
+      await bot.setMyDescription(frDescription, { language_code: 'fr' });
+    } catch (err) {
+      console.warn('[setMyDescription] failed (non-fatal):', err.message);
+    }
     if (useWebhook) {
       await bot.setChatMenuButton({
         menu_button: {

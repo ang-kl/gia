@@ -10,7 +10,13 @@ export default function ResultCard({ venue, focused, onTap }) {
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
   const price = PRICE_LABEL[venue.priceLevel] || '';
-  const dist = Number.isFinite(venue.distanceM) ? `${venue.distanceM} m` : '';
+  // v0.59.6: standardised distance template — `350m` for <1km, `1.24km`
+  // otherwise. Mirrors server-side format.formatDistance helper.
+  const dist = Number.isFinite(venue.distanceM)
+    ? (venue.distanceM >= 1000
+        ? `${(venue.distanceM / 1000).toFixed(2)}km`
+        : `${Math.round(venue.distanceM)}m`)
+    : '';
   const walk = Number.isFinite(venue.walkMinutes)
     ? (lang === 'fr' ? `${venue.walkMinutes} min à pied` : `${venue.walkMinutes} min walk`)
     : '';

@@ -31,7 +31,7 @@
 const axios = require('axios');
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
-const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount';
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount';
 const REQUEST_TIMEOUT_MS = 6000;
 
 // Look up a single venue by name + (optional) address. Returns
@@ -84,6 +84,9 @@ async function lookupVenue(name, address = '') {
     return {
       id: chosen.id || '',
       name: chosen.displayName?.text || '',
+      address: chosen.formattedAddress || '',
+      lat: chosen.location?.latitude ?? null,
+      lng: chosen.location?.longitude ?? null,
       rating: typeof chosen.rating === 'number' ? chosen.rating : null,
       userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null
     };
@@ -166,16 +169,28 @@ function applyVerified(block, verified) {
   });
 }
 
-// Top-level: takes a Gemini response and returns rewritten text.
+// Top-level: takes a Gemini response and returns
+// { text, venues } where:
+//   - text  = the rewritten output (rating + count corrected per block)
+//   - venues = the per-block Places lookup result (or null when the
+//              lookup failed / was ambiguous). Caller can use the
+//              non-null entries to build a one-map button.
 async function verifyHiddenGemsOutput(text) {
-  if (!text || typeof text !== 'string') return text;
+  if (!text || typeof text !== 'string') return { text, venues: [] };
   const { prefix, blocks } = parseBlocks(text);
-  if (!blocks.length) return text;
+  if (!blocks.length) return { text, venues: [] };
   const lookups = await Promise.all(blocks.map((b) => lookupVenue(b.name, b.address)));
   const blockTexts = blocks.map((b, i) => applyVerified(b, lookups[i]).join('\n'));
   const prefixText = prefix.join('\n').replace(/\s+$/, '');
   const joined = blockTexts.join('\n\n');
-  return prefixText ? `${prefixText}\n\n${joined}` : joined;
+  // Decorate each lookup with the Gemini block's heading name as a
+  // fallback display name (in case Places returned a slightly different
+  // displayName, we want the chat-side label to match what Gemini wrote).
+  const venues = lookups.map((lk, i) => lk ? { ...lk, displayHeading: blocks[i].name } : null);
+  return {
+    text: prefixText ? `${prefixText}\n\n${joined}` : joined,
+    venues
+  };
 }
 
 module.exports = { verifyHiddenGemsOutput, parseBlocks, applyVerified, lookupVenue };
