@@ -147,7 +147,12 @@ function buildMapHashUrl(venues, opts = {}) {
       lat: v.lat,
       lng: v.lng,
       vibe: v.vibe || '',
-      url: googleMapsUrl(v) || ''
+      // v0.59.3+: prefer caller-supplied url. Lets coordinate-only markers
+      // (traffic incidents, bus stops without a placeId) skip the
+      // name-only Google search fallback in googleMapsUrl, which would
+      // otherwise text-search "Accident" / "Roadwork" / a stop description
+      // instead of opening the actual coordinate pin.
+      url: v.url || googleMapsUrl(v) || ''
     }));
   if (!slim.length) return null;
   const json = JSON.stringify(slim);

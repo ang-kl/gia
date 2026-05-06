@@ -2031,7 +2031,16 @@ async function runTransportBus(chatId, sub, lang = 'en') {
           const { buildMapHashUrl } = require('./maps-url');
           const slim = stops
             .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
-            .map((s) => ({ name: `${s.description} (${s.code})`, placeId: '', lat: s.lat, lng: s.lng, area: s.roadName || '' }));
+            .map((s) => ({
+              name: `${s.description} (${s.code})`,
+              placeId: '',
+              lat: s.lat,
+              lng: s.lng,
+              area: s.roadName || '',
+              // Coord URL so the marker popup's "Open in Google Maps" lands
+              // on the stop pin, not a text search for the stop description.
+              url: `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`
+            }));
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
         } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
@@ -2172,7 +2181,17 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
         const { buildMapHashUrl } = require('./maps-url');
         const slim = mapPool
           .filter((i) => Number.isFinite(i.lat) && Number.isFinite(i.lng))
-          .map((i) => ({ name: i.type || 'Incident', placeId: '', lat: i.lat, lng: i.lng, area: i.message || '' }));
+          .map((i) => ({
+            name: i.type || 'Incident',
+            placeId: '',
+            lat: i.lat,
+            lng: i.lng,
+            area: i.message || '',
+            // Coord URL — incident "names" (Accident / Roadwork / Vehicle
+            // breakdown) are not searchable place names, so the popup's
+            // "Open in Google Maps" must land on the actual lat/lng.
+            url: `https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lng}`
+          }));
         const mapUrl = buildMapHashUrl(slim, { webhookDomain });
         if (mapUrl) mapRow = [[{ text: t('transport.map.incidentsBtn', lang), web_app: { url: mapUrl } }]];
       } catch (err) { console.warn('[Transport] incidents map build failed:', err.message); }
