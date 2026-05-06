@@ -981,11 +981,23 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // below. Prior to v0.20.1 these handlers carried inline copies that drifted
 // behind /menu tile routing — /weather emitted the v0.18.0 "Now: X°C at Y"
 // line instead of the full humidity / rain / wind block.
-bot.onText(/^\/weather(?:@\w+)?$/, (msg) => runWeatherCommand(msg.chat.id));
+bot.onText(/^\/weather(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runWeatherCommand(msg.chat.id, lang);
+});
 
-bot.onText(/^\/transport(?:@\w+)?$/, (msg) => sendTransportMenu(msg.chat.id));
+bot.onText(/^\/transport(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await sendTransportMenu(msg.chat.id, lang);
+});
 
-bot.onText(/^\/carpark(?:@\w+)?$/, (msg) => runCarparkCommand(msg.chat.id));
+bot.onText(/^\/carpark(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runCarparkCommand(msg.chat.id, lang);
+});
 
 bot.onText(/^\/hidden(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
 
@@ -1004,7 +1016,11 @@ bot.onText(/^\/legal(?:@\w+)?$/, (msg) => runLegalCommand(msg.chat.id));
 // buddy-optin, buddy-blocks, buddy-day:* and recent-picks rows for
 // the chatId. /privacy advertises both this command and the 90-day
 // inactivity auto-purge.
-bot.onText(/^\/forgetme(?:@\w+)?$/, (msg) => runForgetMeCommand(msg.chat.id));
+bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runForgetMeCommand(msg.chat.id, lang);
+});
 
 // v0.59.0: /language [en|fr|auto] — per-user locale preference. Stored
 // in Redis (1-year TTL) so it survives across devices and across TMA /
@@ -1203,7 +1219,11 @@ bot.onText(/^\/location(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
 });
 
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
-bot.onText(/^\/hawker(?:@\w+)?$/, (msg) => sendHawkerMenu(msg.chat.id));
+bot.onText(/^\/hawker(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await sendHawkerMenu(msg.chat.id, lang);
+});
 
 // v0.35.0: /recognised — nearest 5 award-winning venues (Michelin Star,
 // Bib Gourmand, Asia 50 Best, World Culinary Awards, Best Chef Awards,
@@ -1440,20 +1460,22 @@ bot.on('callback_query', async (q) => {
     if (!chatId) return;
     bot.answerCallbackQuery(q.id).catch(() => {});
 
+    // v0.59.1: resolve user lang once for all chrome dispatch below.
+    const { resolveLang } = require('./user-prefs');
+    const { t } = require('./i18n');
+    const cbLang = await resolveLang(redis, chatId, q);
+
     // v0.59.0: language toggle from /language inline keyboard.
     if (data === 'language:set:en' || data === 'language:set:fr') {
       const target = data.endsWith(':fr') ? 'fr' : 'en';
       const { setUserLang } = require('./user-prefs');
       await setUserLang(redis, chatId, target);
-      const ack = target === 'fr'
-        ? '✅ Langue réglée sur français.'
-        : '✅ Language set to English.';
-      await safeSend(chatId, ack);
+      await safeSend(chatId, t(target === 'fr' ? 'bot.lang.set.fr' : 'bot.lang.set.en', target));
       return;
     }
 
     if (data === 'refresh:transport') {
-      await runTransportTrain(chatId); // legacy refresh button on bus stop list — point at train view
+      await runTransportTrain(chatId, cbLang); // legacy refresh button on bus stop list — point at train view
       return;
     }
     // v0.31.1 transport sub-menu dispatch:
@@ -1467,7 +1489,7 @@ bot.on('callback_query', async (q) => {
     //   (removed in v0.57.6)
     //   transport:drive             → traffic incidents + driving directions deep link
     if (data === 'transport:menu') {
-      await sendTransportMenu(chatId);
+      await sendTransportMenu(chatId, cbLang);
       return;
     }
     if (data === 'transport:refresh-loc') {
@@ -1475,28 +1497,28 @@ bot.on('callback_query', async (q) => {
       // call falls into the share-location prompt.
       const { hashChatId } = require('./location-cache');
       await redis.del(`loc:${hashChatId(chatId)}`).catch(() => {});
-      await bot.sendMessage(chatId, "📍 Tap to share your current location.", LOCATION_REQUEST_KEYBOARD);
+      await bot.sendMessage(chatId, t('location.shareTap', cbLang), LOCATION_REQUEST_KEYBOARD);
       return;
     }
     if (data === 'transport:train') {
-      await runTransportTrain(chatId);
+      await runTransportTrain(chatId, cbLang);
       return;
     }
     if (data === 'transport:bus') {
-      await sendBusMenu(chatId);
+      await sendBusMenu(chatId, cbLang);
       return;
     }
     if (data.startsWith('transport:bus:')) {
       const sub = data.slice('transport:bus:'.length);
-      await runTransportBus(chatId, sub);
+      await runTransportBus(chatId, sub, cbLang);
       return;
     }
     if (data === 'transport:incidents') {
-      await runTransportTrafficIncidents(chatId);
+      await runTransportTrafficIncidents(chatId, cbLang);
       return;
     }
     if (data === 'transport:drive') {
-      await runTransportDrive(chatId);
+      await runTransportDrive(chatId, cbLang);
       return;
     }
     // v0.52.0 hawker sub-menu dispatch (simplified):
@@ -1504,7 +1526,7 @@ bot.on('callback_query', async (q) => {
     //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
     //   hawker:list:menu          → 5-region picker (Browse)
     //   hawker:list:region:<R>    → alphabetical list for that region
-    if (data === 'hawker:menu') { await sendHawkerMenu(chatId); return; }
+    if (data === 'hawker:menu') { await sendHawkerMenu(chatId, cbLang); return; }
     // v0.54.0: chat-side cleaning/list/region screens removed —
     // both /hawker buttons now open the TMA directly with ?tab= query
     // param. No intermediate dispatch needed.
@@ -1546,8 +1568,11 @@ bot.on('location', async (msg) => {
     // v0.56.1: dismiss the persistent "Share my location / Use Raffles
     // Place default" reply keyboard once we've received a location.
     // Per Human Lead — the buttons "keep on at iOS" until removed.
+    const { resolveLang } = require('./user-prefs');
+    const { t } = require('./i18n');
+    const locLang = await resolveLang(redis, msg.chat.id, msg);
     try {
-      await bot.sendMessage(msg.chat.id, '📍 Got your location.', {
+      await bot.sendMessage(msg.chat.id, t('location.got', locLang), {
         reply_markup: { remove_keyboard: true }
       });
     } catch (err) { /* non-fatal */ }
@@ -1558,8 +1583,8 @@ bot.on('location', async (msg) => {
     }
     // Auto-resume targets for ensureLocation callers.
     if (pending === '/hidden')     { await runSurpriseCommand(msg.chat.id); return; }
-    if (pending === '/transport')  { await sendTransportMenu(msg.chat.id);  return; }
-    if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id);  return; }
+    if (pending === '/transport')  { await sendTransportMenu(msg.chat.id, locLang);  return; }
+    if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id, locLang);  return; }
     // v0.57.27: free-text search resume — user typed text first,
     // then shared location. Pending row is `freetext:<verbatim text>`.
     if (typeof pending === 'string' && pending.startsWith('freetext:')) {
@@ -1631,35 +1656,21 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     }
     return;
   }
+  const { resolveLang } = require('./user-prefs');
+  const { t } = require('./i18n');
+  const startLang = await resolveLang(redis, msg.chat.id, msg);
   const param = rawParam.toLowerCase();
   if (param) {
-    const routed = await routeMenuCommand(msg.chat.id, param);
+    const routed = await routeMenuCommand(msg.chat.id, param, null, startLang);
     if (routed) return;
   }
-  await safeSend(
-    msg.chat.id,
-    "I'm Gia, the concierge inside soleat — your Singapore dining + transport guide.\n\n" +
-    "/cuisine   — full Cuisine Picker (70+ cuisines, SG + Johor Bahru, 6 quick filters)\n" +
-    "/hidden    — up to 5 hidden gems 1.5–3 km away (rarity-ranked)\n" +
-    "/hawker    — >100 hawker centres (2025)\n" +
-    "/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n" +
-    "/weather   — now + 2-hour NEA forecast\n" +
-    "/transport — bus, MRT, walk, drive\n" +
-    "/carpark   — nearest 5 with available lots\n" +
-    "/buddy     — live solo-dining match\n" +
-    "/share     — forward a recent pick\n" +
-    "/ver       — version + upstream API health\n" +
-    "/privacy   — data, retention & sources\n" +
-    "/legal     — disclaimer & jurisdiction notes\n" +
-    "/forgetme  — erase your stored data\n\n" +
-    "Or tap the menu button (🍴 Cuisine Picker) to jump straight in."
-  );
+  await safeSend(msg.chat.id, t('start.intro', startLang));
 });
 
 // Routes a single-word command name to the appropriate flow. Used by
 // (a) /start <cmd> deep links and (b) web_app_data tile taps. Returns
 // true if it routed something.
-async function routeMenuCommand(chatId, raw, payload = null) {
+async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
   const cmd = String(raw || '').trim().toLowerCase();
   switch (cmd) {
     // v0.57.1: eat / drink / groceries menu-router cases removed.
@@ -1748,21 +1759,22 @@ async function routeMenuCommand(chatId, raw, payload = null) {
       }
       return true;
     }
-    case 'weather':   await runWeatherCommand(chatId); return true;
-    case 'transport': await sendTransportMenu(chatId); return true;
-    case 'hawker':    await sendHawkerMenu(chatId); return true;
+    case 'weather':   await runWeatherCommand(chatId, lang); return true;
+    case 'transport': await sendTransportMenu(chatId, lang); return true;
+    case 'hawker':    await sendHawkerMenu(chatId, lang); return true;
     case 'recognised': await runRecognisedCommand(chatId); return true;
-    case 'carpark':   await runCarparkCommand(chatId); return true;
+    case 'carpark':   await runCarparkCommand(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId); return true;
     case 'privacy':   await runPrivacyCommand(chatId); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
-    case 'forgetme':  await runForgetMeCommand(chatId); return true;
+    case 'forgetme':  await runForgetMeCommand(chatId, lang); return true;
     case 'ver':       await runVerCommand(chatId); return true;
     default:          return false;
   }
 }
 
-async function runWeatherCommand(chatId) {
+async function runWeatherCommand(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     const cached = await getUserLocation(redis, chatId);
     const lat = cached?.lat ?? 1.2839;
@@ -1770,23 +1782,25 @@ async function runWeatherCommand(chatId) {
     const w = await weather.summary(lat, lng);
     const hasAny = Number.isFinite(w?.tempC) || Number.isFinite(w?.humidityPct) ||
       Number.isFinite(w?.rainMm) || w?.forecast;
-    if (!hasAny) { await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now."); return; }
-    const lines = ['☀️ Singapore weather'];
-    if (Number.isFinite(w.tempC)) lines.push(`Temp: ${w.tempC.toFixed(1)}°C @ ${w.tempStationName}`);
-    if (Number.isFinite(w.humidityPct)) lines.push(`Humidity: ${w.humidityPct.toFixed(0)}% @ ${w.humidityStationName}`);
-    if (Number.isFinite(w.rainMm) && w.rainMm > 0) lines.push(`Rain: ${w.rainMm} mm @ ${w.rainStationName}`);
+    if (!hasAny) { await safeSend(chatId, t('weather.unreachable', lang)); return; }
+    const lines = [t('weather.title', lang)];
+    if (Number.isFinite(w.tempC)) lines.push(tn('weather.temp', lang, { c: w.tempC.toFixed(1), at: w.tempStationName }));
+    if (Number.isFinite(w.humidityPct)) lines.push(tn('weather.humidity', lang, { pct: w.humidityPct.toFixed(0), at: w.humidityStationName }));
+    if (Number.isFinite(w.rainMm) && w.rainMm > 0) lines.push(tn('weather.rain', lang, { mm: w.rainMm, at: w.rainStationName }));
     if (Number.isFinite(w.windSpdKt)) {
       const dir = Number.isFinite(w.windDirDeg) ? `, ${Math.round(w.windDirDeg)}°` : '';
-      lines.push(`Wind: ${w.windSpdKt} kt${dir}`);
+      lines.push(tn('weather.wind', lang, { kt: w.windSpdKt, dir }));
     }
     if (w.forecast) {
-      const valid = w.forecastValidTo ? ` (until ${new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' })})` : '';
-      lines.push(`Next 2h in ${w.forecastArea}: ${w.forecast}${valid}`);
+      const valid = w.forecastValidTo
+        ? tn('weather.forecastUntil', lang, { time: new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' }) })
+        : '';
+      lines.push(tn('weather.forecastNext2h', lang, { area: w.forecastArea, desc: w.forecast, valid }));
     }
     await safeSend(chatId, lines.join('\n'));
   } catch (err) {
     console.error('[Error] weather command failed:', err.message);
-    await safeSend(chatId, "Sorry, I can't reach the NEA weather feed right now.");
+    await safeSend(chatId, t('weather.unreachable', lang));
   }
 }
 
@@ -1796,69 +1810,71 @@ async function runWeatherCommand(chatId) {
 // retained as runTransportFull below for any internal caller that still
 // wants the dense view, but the user-facing entry point is sendTransportMenu.
 
-async function sendTransportMenu(chatId) {
+async function sendTransportMenu(chatId, lang = 'en') {
+  const { t } = require('./i18n');
   // v0.56.1: use shared ensureLocation helper. Cached-of-any-age
   // returns immediately; only prompts when zero cached location.
   const cached = await ensureLocation(chatId, '/transport');
   if (!cached) return;
-  await safeSend(chatId, '🇸🇬 *Transport*', {
+  await safeSend(chatId, t('transport.menu.title', lang), {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
         [
-          { text: '🚇 Train',     callback_data: 'transport:train' },
-          { text: '🚌 Bus',       callback_data: 'transport:bus' }
+          { text: t('transport.menu.btn.train', lang), callback_data: 'transport:train' },
+          { text: t('transport.menu.btn.bus', lang),   callback_data: 'transport:bus' }
         ],
         [
-          { text: '🚦 Incidents', callback_data: 'transport:incidents' },
-          { text: '🚗 Drive',     callback_data: 'transport:drive' }
+          { text: t('transport.menu.btn.incidents', lang), callback_data: 'transport:incidents' },
+          { text: t('transport.menu.btn.drive', lang),     callback_data: 'transport:drive' }
         ],
         [
-          { text: '📍 Refresh location', callback_data: 'transport:refresh-loc' }
+          { text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'transport:refresh-loc' }
         ]
       ]
     }
   });
 }
 
-async function sendBusMenu(chatId) {
+async function sendBusMenu(chatId, lang = 'en') {
+  const { t } = require('./i18n');
   // v0.56.0: removed "Arrivals" + "Crowd / load" per Human Lead.
   // Both depend on per-stop user-side selection that the chat-side
   // flow couldn't make ergonomic.
-  await safeSend(chatId, '🚌 Bus — pick what you need', {
+  await safeSend(chatId, t('transport.bus.menu.title', lang), {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: '🚏 Nearest stops',   callback_data: 'transport:bus:nearest' },
-          { text: '🗺 Plan a route',    callback_data: 'transport:bus:route' }
+          { text: t('transport.bus.menu.btn.nearest', lang), callback_data: 'transport:bus:nearest' },
+          { text: t('transport.bus.menu.btn.route', lang),   callback_data: 'transport:bus:route' }
         ],
         [
-          { text: '⬅️ Back',            callback_data: 'transport:menu' }
+          { text: t('button.back', lang), callback_data: 'transport:menu' }
         ]
       ]
     }
   });
 }
 
-async function runTransportTrain(chatId) {
+async function runTransportTrain(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedStatus = await redis.get('lta:train_status');
     const status = cachedStatus ? JSON.parse(cachedStatus) : null;
     const cachedLoc = await getUserLocation(redis, chatId);
 
-    const lines = ['🚇 Train (MRT)'];
+    const lines = [t('transport.train.heading', lang)];
     if (status) {
-      lines.push('', `Status: ${status.status}`);
-      if (status.message) lines.push(`Notes: ${status.message}`);
-      lines.push(`Refreshed: ${status.updatedAt}`);
+      lines.push('', tn('transport.train.status', lang, { status: status.status }));
+      if (status.message) lines.push(tn('transport.train.notes', lang, { note: status.message }));
+      lines.push(tn('transport.train.refreshed', lang, { at: status.updatedAt }));
     } else {
-      lines.push('', 'Status: 🟡 warming up; try again in 30 s.');
+      lines.push('', t('transport.train.warmup', lang));
     }
 
     // v0.56.1: nearest 3 stations FIRST, each with crowd + wait estimate.
     // Network summary follows in plain English.
-    const CROWD_LABEL = { l: '🟢 low', m: '🟡 medium', h: '🔴 high' };
     let crowdMap = null;
     if (process.env.LTA_ACCOUNT_KEY) {
       try { crowdMap = await transport.fetchPlatformCrowdAll(); }
@@ -1869,10 +1885,10 @@ async function runTransportTrain(chatId) {
         const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
         if (mrt.length) {
           const wait = transport.estimateWaitMinutes();
-          lines.push('', `🚇 Nearest 3 stations · est. wait ${wait.min}–${wait.max} min (${wait.label})`);
+          lines.push('', tn('transport.train.nearestHeader', lang, { min: wait.min, max: wait.max, label: wait.label }));
           for (const s of mrt) {
             const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
-            const crowdNote = crowd ? ` · ${CROWD_LABEL[crowd] || crowd}` : '';
+            const crowdNote = crowd ? ` · ${t(`transport.train.crowd.${crowd}`, lang)}` : '';
             lines.push(`· ${s.name}${crowdNote}`);
           }
         }
@@ -1880,20 +1896,19 @@ async function runTransportTrain(chatId) {
         console.error('[Transport] nearestMrtStations failed:', err.message);
       }
     } else if (!cachedLoc) {
-      lines.push('', '🚇 Share your location once and Gia will list the nearest MRT stations too.');
+      lines.push('', t('transport.train.noLocation', lang));
     }
     if (crowdMap) {
       const summary = transport.networkCrowdSummary(crowdMap);
       if (summary) {
-        // Plain-English: e.g. "🟢 Network is uncrowded — all 162 platforms low density"
         const pct = summary.total > 0 ? Math.round((summary.low / summary.total) * 100) : 0;
         let networkLine;
         if (summary.overall === 'low') {
-          networkLine = `🟢 Network is uncrowded — ${pct}% of ${summary.total} platforms at low density.`;
+          networkLine = tn('transport.train.network.low', lang, { pct, total: summary.total });
         } else if (summary.overall === 'medium') {
-          networkLine = `🟡 Network is moderate — ${summary.medium} of ${summary.total} platforms at medium density, ${summary.high} high.`;
+          networkLine = tn('transport.train.network.medium', lang, { medium: summary.medium, total: summary.total, high: summary.high });
         } else {
-          networkLine = `🔴 Network is busy — ${summary.high} of ${summary.total} platforms at high density.`;
+          networkLine = tn('transport.train.network.high', lang, { high: summary.high, total: summary.total });
         }
         lines.push('', networkLine);
       }
@@ -1904,7 +1919,6 @@ async function runTransportTrain(chatId) {
       const mrtLines = require('./mrt-lines');
       const mrtEng = require('./mrt-engineering');
       const todayISO = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      // Per-line table from the live alerts payload.
       let alerts = null;
       if (process.env.LTA_ACCOUNT_KEY && lta) {
         try { const { data } = await lta.get('/TrainServiceAlerts'); alerts = data?.value || null; }
@@ -1913,7 +1927,7 @@ async function runTransportTrain(chatId) {
       const statusByLine = mrtLines.parseStatusByLine(alerts);
       const affected = Object.entries(statusByLine).filter(([_, s]) => s.status !== 'normal');
       if (affected.length) {
-        lines.push('', '⚠️ Affected lines:');
+        lines.push('', t('transport.train.affectedLines', lang));
         for (const [code, s] of affected) {
           const meta = mrtLines.LINES_BY_CODE[code];
           lines.push(`${meta?.emoji || '·'} ${code} ${meta?.name || ''} — ${s.status}${s.cause ? ` (${s.cause})` : ''}`);
@@ -1922,7 +1936,7 @@ async function runTransportTrain(chatId) {
       }
       const upcoming = mrtEng.upcoming(todayISO, 7);
       if (upcoming.length) {
-        lines.push('', '🔧 Upcoming engineering (next 7 d):');
+        lines.push('', t('transport.train.engineering', lang));
         for (const c of upcoming.slice(0, 5)) {
           lines.push(`· ${c.date} ${c.line} ${c.direction} — ${c.type} ${c.time}`);
         }
@@ -1932,36 +1946,37 @@ async function runTransportTrain(chatId) {
     }
 
     const tmaButton = webhookDomain
-      ? [[{ text: '🗺 Open MRT map', web_app: { url: `https://${webhookDomain}/app/transport` } }]]
+      ? [[{ text: t('transport.train.openMapBtn', lang), web_app: { url: `https://${webhookDomain}/app/transport` } }]]
       : [];
     const buttons = [
       ...tmaButton,
-      [{ text: '🔄 Refresh', callback_data: 'transport:train' }],
-      [{ text: '⬅️ Back', callback_data: 'transport:menu' }]
+      [{ text: t('button.refresh', lang), callback_data: 'transport:train' }],
+      [{ text: t('button.back', lang), callback_data: 'transport:menu' }]
     ];
     await safeSend(chatId, lines.join('\n'), {
       reply_markup: { inline_keyboard: buttons }
     });
   } catch (err) {
     console.error('[Error] transport train failed:', err.message);
-    await safeSend(chatId, "Sorry, I can't reach the MRT feed right now.");
+    await safeSend(chatId, t('transport.train.unreachable', lang));
   }
 }
 
-async function runTransportBus(chatId, sub) {
+async function runTransportBus(chatId, sub, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
-    const backRow = [{ text: '⬅️ Back', callback_data: 'transport:bus' }];
+    const backRow = [{ text: t('button.back', lang), callback_data: 'transport:bus' }];
 
     if (!cachedLoc) {
-      await safeSend(chatId, '🚌 I need your location first — share it once via the menu (📍) and Gia will remember.', {
+      await safeSend(chatId, t('transport.bus.noLocation', lang), {
         reply_markup: { inline_keyboard: [backRow] }
       });
       return;
     }
     if (!process.env.LTA_ACCOUNT_KEY) {
-      await safeSend(chatId, '🚌 Bus lookup is offline (LTA key not configured).', {
+      await safeSend(chatId, t('transport.bus.offline', lang), {
         reply_markup: { inline_keyboard: [backRow] }
       });
       return;
@@ -1970,15 +1985,15 @@ async function runTransportBus(chatId, sub) {
     if (sub === 'nearest') {
       const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 5);
       if (!stops.length) {
-        await safeSend(chatId, '🚏 No bus stops within 800 m of your saved location.', {
+        await safeSend(chatId, t('transport.bus.noStopsNearest', lang), {
           reply_markup: { inline_keyboard: [backRow] }
         });
         return;
       }
-      const lines = ['🚏 Nearest bus stops'];
+      const lines = [t('transport.bus.nearestHeader', lang)];
       for (const stop of stops) {
-        lines.push('', `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`);
-        lines.push(`  Code: ${stop.code}`);
+        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: stop.distanceM }));
+        lines.push(tn('transport.bus.stopCode', lang, { code: stop.code }));
       }
       await safeSend(chatId, lines.join('\n'), {
         reply_markup: { inline_keyboard: [backRow] }
@@ -1989,16 +2004,16 @@ async function runTransportBus(chatId, sub) {
     if (sub === 'arrivals') {
       const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
       if (!stops.length) {
-        await safeSend(chatId, '⏱ No bus stops within 800 m of your saved location.', {
+        await safeSend(chatId, t('transport.bus.noStopsArrivals', lang), {
           reply_markup: { inline_keyboard: [backRow] }
         });
         return;
       }
-      const lines = ['⏱ Next arrivals — top 3 nearest stops'];
+      const lines = [t('transport.bus.arrivalsHeader', lang)];
       for (const stop of stops) {
         const arrivals = await transport.busArrivals(stop.code);
-        lines.push('', `· ${stop.description} (${stop.roadName}) — ${stop.distanceM} m`);
-        if (!arrivals.length) { lines.push('  no real-time arrivals'); continue; }
+        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: stop.distanceM }));
+        if (!arrivals.length) { lines.push(t('transport.bus.noLive', lang)); continue; }
         for (const svc of arrivals.slice(0, 4)) {
           const nextStr = svc.next ? `${svc.next.minutes} min · ${svc.next.loadLabel}` : '—';
           const next2Str = svc.next2 ? ` · then ${svc.next2.minutes} min` : '';
@@ -2012,12 +2027,9 @@ async function runTransportBus(chatId, sub) {
     }
 
     if (sub === 'crowd') {
-      // Bus load is reported per-arrival via the LTA BusArrivalv2 Load field
-      // (SEA / SDA / LSD). Aggregate across the nearest 3 stops as a quick
-      // "is the next bus full?" snapshot.
       const stops = await transport.nearestStops(redis, cachedLoc.lat, cachedLoc.lng, 800, 3);
       if (!stops.length) {
-        await safeSend(chatId, '👥 No bus stops within 800 m to sample.', {
+        await safeSend(chatId, t('transport.bus.noStopsCrowd', lang), {
           reply_markup: { inline_keyboard: [backRow] }
         });
         return;
@@ -2037,15 +2049,15 @@ async function runTransportBus(chatId, sub) {
         }
         detail.push(`· ${stop.description}: ${arrivals.length} services`);
       }
-      const lines = ['👥 Bus load — sampled across nearest 3 stops'];
+      const lines = [t('transport.bus.loadHeader', lang)];
       lines.push('');
       if (total) {
-        lines.push(`Seats Available: ${SEA}`);
-        lines.push(`Standing Available: ${SDA}`);
-        lines.push(`Limited Standing: ${LSD}`);
-        lines.push(`(of ${total} services with live load data)`);
+        lines.push(tn('transport.bus.load.seats', lang, { n: SEA }));
+        lines.push(tn('transport.bus.load.standing', lang, { n: SDA }));
+        lines.push(tn('transport.bus.load.limited', lang, { n: LSD }));
+        lines.push(tn('transport.bus.load.footer', lang, { n: total }));
       } else {
-        lines.push('No live load data right now — try again in 30 s.');
+        lines.push(t('transport.bus.noLoad', lang));
       }
       lines.push('', ...detail);
       await safeSend(chatId, lines.join('\n'), {
@@ -2055,13 +2067,11 @@ async function runTransportBus(chatId, sub) {
     }
 
     if (sub === 'route') {
-      // Open Google Maps in transit mode from the saved location. The user
-      // types the destination in the Maps app.
       const url = `https://www.google.com/maps/dir/?api=1&origin=${cachedLoc.lat},${cachedLoc.lng}&travelmode=transit`;
-      await safeSend(chatId, '🗺 Tap below to open Google Maps in transit mode from your saved location. Type your destination in Maps.', {
+      await safeSend(chatId, t('transport.bus.routeCaption', lang), {
         reply_markup: {
           inline_keyboard: [
-            [{ text: '🗺 Open Google Maps (transit)', url }],
+            [{ text: t('transport.bus.routeBtn', lang), url }],
             backRow
           ]
         }
@@ -2069,61 +2079,63 @@ async function runTransportBus(chatId, sub) {
       return;
     }
 
-    await sendBusMenu(chatId);
+    await sendBusMenu(chatId, lang);
   } catch (err) {
     console.error('[Error] transport bus failed:', err.message);
-    await safeSend(chatId, "Sorry, the bus feed is unavailable right now.");
+    await safeSend(chatId, t('transport.bus.unreachable', lang));
   }
 }
 
-async function runTransportTrafficIncidents(chatId) {
+async function runTransportTrafficIncidents(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     if (!process.env.LTA_ACCOUNT_KEY) {
-      await safeSend(chatId, '🚦 Traffic feed offline (LTA key not configured).', {
-        reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
+      await safeSend(chatId, t('transport.incidents.offline', lang), {
+        reply_markup: { inline_keyboard: [[{ text: t('button.back', lang), callback_data: 'transport:menu' }]] }
       });
       return;
     }
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
     const all = await transport.fetchTrafficIncidents();
-    const lines = ['🚦 *Live traffic incidents*'];
+    const lines = [t('transport.incidents.heading', lang)];
     if (!all.length) {
-      lines.push('', 'No live incidents reported.');
+      lines.push('', t('transport.incidents.none', lang));
     } else if (cachedLoc) {
       const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, 10000, 8);
       if (near.length) {
-        lines.push('', `Top ${near.length} within 10 km (of ${all.length} island-wide):`);
+        lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
         for (const inc of near) {
           const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
-          lines.push('', `· ${inc.type}${dist}`);
+          lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist }));
           lines.push(`  ${inc.message}`);
         }
       } else {
-        lines.push('', `${all.length} incidents island-wide; none within 10 km of your location.`);
+        lines.push('', tn('transport.incidents.noNear', lang, { total: all.length }));
       }
     } else {
-      lines.push('', `${all.length} incidents island-wide. Share your location for nearest-first sorting.`);
+      lines.push('', tn('transport.incidents.noLoc', lang, { total: all.length }));
       for (const inc of all.slice(0, 5)) {
-        lines.push('', `· ${inc.type}`);
+        lines.push('', tn('transport.incidents.row', lang, { type: inc.type, dist: '' }));
         lines.push(`  ${inc.message}`);
       }
     }
     await safeSend(chatId, lines.join('\n'), {
       parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [[{ text: '⬅️ Back', callback_data: 'transport:menu' }]] }
+      reply_markup: { inline_keyboard: [[{ text: t('button.back', lang), callback_data: 'transport:menu' }]] }
     });
   } catch (err) {
     console.error('[Error] transport traffic incidents failed:', err.message);
-    await safeSend(chatId, "Sorry, the traffic feed failed.");
+    await safeSend(chatId, t('transport.incidents.unreachable', lang));
   }
 }
 
-async function runTransportDrive(chatId) {
+async function runTransportDrive(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
-    const lines = ['🚗 Drive'];
+    const lines = [t('transport.drive.title', lang)];
     if (process.env.LTA_ACCOUNT_KEY) {
       try {
         const all = await transport.fetchTrafficIncidents();
@@ -2135,16 +2147,16 @@ async function runTransportDrive(chatId) {
           5
         );
         if (near.length) {
-          lines.push('', `🚦 Traffic (top ${near.length} of ${all.length} island-wide):`);
+          lines.push('', tn('transport.drive.trafficNear', lang, { n: near.length, total: all.length }));
           for (const inc of near) {
             const dist = Number.isFinite(inc.distanceM) ? ` — ${inc.distanceM} m` : '';
-            lines.push(`· ${inc.type}${dist}`);
+            lines.push(tn('transport.incidents.row', lang, { type: inc.type, dist }));
             lines.push(`  ${inc.message}`);
           }
         } else if (all.length) {
-          lines.push('', `🚦 Traffic: ${all.length} incidents island-wide; none within 5 km.`);
+          lines.push('', tn('transport.drive.trafficNoNear', lang, { total: all.length }));
         } else {
-          lines.push('', '🚦 Traffic: no live incidents reported.');
+          lines.push('', t('transport.drive.trafficNone', lang));
         }
       } catch (err) {
         console.error('[Transport] traffic incidents failed:', err.message);
@@ -2153,31 +2165,30 @@ async function runTransportDrive(chatId) {
     const buttons = [];
     if (cachedLoc) {
       const url = `https://www.google.com/maps/dir/?api=1&origin=${cachedLoc.lat},${cachedLoc.lng}&travelmode=driving`;
-      buttons.push([{ text: '🗺 Open Google Maps (driving)', url }]);
+      buttons.push([{ text: t('transport.drive.openMapsBtn', lang), url }]);
     } else {
-      lines.push('', 'Share your location once and Gia will offer a one-tap driving directions link.');
+      lines.push('', t('transport.drive.noLocation', lang));
     }
-    buttons.push([{ text: '🅿️ Carpark', callback_data: 'transport:menu' }, { text: '⬅️ Back', callback_data: 'transport:menu' }]);
+    buttons.push([{ text: t('transport.drive.btn.carpark', lang), callback_data: 'transport:menu' }, { text: t('button.back', lang), callback_data: 'transport:menu' }]);
     await safeSend(chatId, lines.join('\n'), {
       reply_markup: { inline_keyboard: buttons }
     });
   } catch (err) {
     console.error('[Error] transport drive failed:', err.message);
-    await safeSend(chatId, "Sorry, the drive view failed.");
+    await safeSend(chatId, t('transport.drive.unreachable', lang));
   }
 }
 
 // v0.33.0: /hawker sub-menu + handlers.
-async function sendHawkerMenu(chatId) {
+async function sendHawkerMenu(chatId, lang = 'en') {
+  const { t } = require('./i18n');
   // v0.56.0: collapse to a SINGLE button — /hawker goes straight to
   // the TMA per Human Lead. TMA also simplified: only the regional
   // browser remains (Closures/R&R/About tabs removed).
-  const vault = require('./hawker-vault');
-  const total = vault.getAllCentres().length;
-  await safeSend(chatId, '🍚 Singapore Hawker Centres & Food Centres (2025). By NEA', {
+  await safeSend(chatId, t('hawker.title', lang), {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🍚 Open Hawker Centre', web_app: { url: `https://${webhookDomain}/app/hawker` } }]
+        [{ text: t('hawker.openTmaBtn', lang), web_app: { url: `https://${webhookDomain}/app/hawker` } }]
       ]
     }
   });
@@ -2208,17 +2219,18 @@ async function runRecognisedCommand(chatId) {
   });
 }
 
-async function runCarparkCommand(chatId) {
+async function runCarparkCommand(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
-    if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, "Carpark lookup is offline (LTA key not configured)."); return; }
+    if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, t('carpark.offline', lang)); return; }
     // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
     const cached = await ensureFreshLocationOrPrompt(chatId, '/carpark');
     if (!cached) return;
-    await safeSend(chatId, "🅿️ Looking up nearest carparks…");
+    await safeSend(chatId, t('carpark.lookingUp', lang));
     const list = await carpark.nearest(cached.lat, cached.lng, 5);
-    if (!list.length) { await safeSend(chatId, "No carparks with available lots near here."); return; }
-    const lines = ['🅿️ Nearest carparks with available lots'];
-    list.forEach((c, i) => lines.push(`${i + 1}. ${c.development}  ·  ${c.availableLots} lots  ·  ${c.distanceM} m`));
+    if (!list.length) { await safeSend(chatId, t('carpark.none', lang)); return; }
+    const lines = [t('carpark.header', lang)];
+    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: c.development, lots: c.availableLots, dist: c.distanceM })));
     await safeSend(chatId, lines.join('\n'));
     // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
     // Falls back to legacy directions URL when webhookDomain unavailable.
@@ -2227,14 +2239,14 @@ async function runCarparkCommand(chatId) {
       const carparksWithName = list.map((c) => ({ ...c, name: c.development, placeId: '' }));
       const mapUrl = webhookDomain ? buildMapHashUrl(carparksWithName, { webhookDomain }) : null;
       if (mapUrl) {
-        await bot.sendMessage(chatId, `🗺 View all ${list.length} carparks on one map:`, {
-          reply_markup: { inline_keyboard: [[{ text: `🗺 View all ${list.length} on map`, web_app: { url: mapUrl } }]] }
+        await bot.sendMessage(chatId, tn('carpark.mapAllCaption', lang, { n: list.length }), {
+          reply_markup: { inline_keyboard: [[{ text: tn('carpark.mapAllBtn', lang, { n: list.length }), web_app: { url: mapUrl } }]] }
         });
       } else {
         await sendGoogleMapsContainer(chatId, list, {
           travelmode: 'driving',
-          caption: '🗺 Open all 5 carparks in one Google Maps container:',
-          label: '🗺 View all carparks'
+          caption: t('carpark.containerCaption', lang),
+          label: t('carpark.viewAllBtn', lang)
         });
       }
     } catch (err) {
@@ -2242,7 +2254,7 @@ async function runCarparkCommand(chatId) {
     }
   } catch (err) {
     console.error('[Error] carpark command failed:', err.message);
-    await safeSend(chatId, "Sorry, I can't reach the LTA carpark feed right now.");
+    await safeSend(chatId, t('carpark.unreachable', lang));
   }
 }
 
@@ -2746,62 +2758,60 @@ async function runLegalCommand(chatId) {
 async function runLanguageCommand(msg, arg) {
   const chatId = msg.chat.id;
   const { setUserLang, getUserLang } = require('./user-prefs');
+  const { t, tn } = require('./i18n');
   if (arg === 'auto') {
     if (redis?.isOpen) {
       try { await redis.del(`user:${chatId}:lang`); } catch { /* noop */ }
     }
     const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
     const ackLang = ['en','fr'].includes(tgLang) ? tgLang : 'en';
-    await safeSend(chatId, ackLang === 'fr'
-      ? '✅ Préférence effacée. Gia suit désormais la langue de votre Telegram.'
-      : '✅ Preference cleared. Gia will follow your Telegram language.');
+    await safeSend(chatId, t('language.cleared', ackLang));
     return;
   }
   if (arg === 'fr' || arg === 'en') {
     await setUserLang(redis, chatId, arg);
-    await safeSend(chatId, arg === 'fr'
-      ? '✅ Langue réglée sur français.'
-      : '✅ Language set to English.');
+    await safeSend(chatId, t(arg === 'fr' ? 'bot.lang.set.fr' : 'bot.lang.set.en', arg));
     return;
   }
   // No arg → inline keyboard. Show current pref alongside.
   const current = await getUserLang(redis, chatId);
   const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
   const display = current || (['en','fr'].includes(tgLang) ? tgLang : 'en');
-  const promptText = display === 'fr'
-    ? `🌐 Langue actuelle : Français${current ? '' : ' (depuis votre Telegram)'}.\nChoisissez une langue :`
-    : `🌐 Current language: English${current ? '' : ' (from your Telegram)'}.\nChoose a language:`;
+  const fromTg = current ? '' : t('language.fromTg', display);
+  const promptText = tn('language.current', display, { fromTg });
   await bot.sendMessage(chatId, promptText, {
     reply_markup: {
       inline_keyboard: [[
-        { text: '🇬🇧 English',  callback_data: 'language:set:en' },
-        { text: '🇫🇷 Français', callback_data: 'language:set:fr' }
+        { text: t('language.btn.en', display), callback_data: 'language:set:en' },
+        { text: t('language.btn.fr', display), callback_data: 'language:set:fr' }
       ]]
     }
   });
 }
 
-async function runForgetMeCommand(chatId) {
+async function runForgetMeCommand(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     const { forgetUserData } = require('./user-data');
     const { deleted, keys } = await forgetUserData(redis, chatId);
     if (!deleted) {
-      await safeSend(chatId, '✅ Nothing to erase — I had no stored data for you. (Caches and request rows expire automatically; the persistent slots all came up empty.)');
+      await safeSend(chatId, t('forgetme.nothing', lang));
       return;
     }
+    const headerKey = deleted === 1 ? 'forgetme.eraseHeader' : 'forgetme.eraseHeaderMany';
     const lines = [
-      `✅ Erased *${deleted}* Redis ${deleted === 1 ? 'entry' : 'entries'} for your chat.`,
+      tn(headerKey, lang, { n: deleted }),
       '',
-      'Wiped:',
+      t('forgetme.wiped', lang),
       ...keys.slice(0, 8).map((k) => `• \`${k.replace(/^([^:]+:[a-f0-9]{4}).*$/, '$1…')}\``),
-      keys.length > 8 ? `…and ${keys.length - 8} more` : null,
+      keys.length > 8 ? tn('forgetme.andMore', lang, { n: keys.length - 8 }) : null,
       '',
-      'Send any command to start fresh. /buddy preferences, recent picks, and your last shared location are gone.'
+      t('forgetme.followup', lang)
     ].filter(Boolean);
     await safeSend(chatId, lines.join('\n'), { parse_mode: 'Markdown' });
   } catch (err) {
     console.error('[Error] /forgetme failed:', err.message);
-    await safeSend(chatId, "Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.");
+    await safeSend(chatId, t('forgetme.error', lang));
   }
 }
 
@@ -2939,7 +2949,9 @@ bot.on('message', async (msg) => {
       try {
         const payload = JSON.parse(msg.web_app_data.data);
         console.log(`[Cuisine-Diag] D731 web_app_data parsed cmd=${payload?.cmd}`);
-        const handled = await routeMenuCommand(msg.chat.id, payload?.cmd, payload);
+        const { resolveLang } = require('./user-prefs');
+        const wadLang = await resolveLang(redis, msg.chat.id, msg);
+        const handled = await routeMenuCommand(msg.chat.id, payload?.cmd, payload, wadLang);
         if (!handled) {
           console.warn(`[Cuisine-Diag] D732 web_app_data unhandled cmd=${payload?.cmd}`);
           await safeSend(msg.chat.id, "Unrecognised menu action.");
