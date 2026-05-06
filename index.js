@@ -1048,7 +1048,11 @@ bot.onText(/^\/(?:hidden|h)(?:@\w+)?$/, async (msg) => {
 // v0.57.21: /privacy — what data the bot collects, how long it's
 // retained, and which third parties it queries. OPERATOR_LINKEDIN
 // env var (optional) appends an authorship credit line.
-bot.onText(/^\/privacy(?:@\w+)?$/, (msg) => runPrivacyCommand(msg.chat.id));
+bot.onText(/^\/privacy(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runPrivacyCommand(msg.chat.id, lang);
+});
 
 // v0.57.23: /legal — hidden command (not in setMyCommands, same as
 // /ver). Surfaces disclaimer + IMDA Model AI Governance alignment +
@@ -1814,7 +1818,7 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'recognised': await runRecognisedCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
-    case 'privacy':   await runPrivacyCommand(chatId); return true;
+    case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
     case 'forgetme':  await runForgetMeCommand(chatId, lang); return true;
     case 'ver':       await runVerCommand(chatId); return true;
@@ -2853,36 +2857,17 @@ async function runVerCommand(chatId) {
 // v0.57.21: /privacy — what the bot collects, how long it's kept,
 // and which third parties it queries. OPERATOR_LINKEDIN env var
 // (optional) appends an authorship credit line.
-async function runPrivacyCommand(chatId) {
+async function runPrivacyCommand(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
-    const credit = process.env.OPERATOR_LINKEDIN
+    const operator = process.env.OPERATOR_LINKEDIN
       ? `\n\nOperator: ${process.env.OPERATOR_LINKEDIN}`
       : '';
-    const text = [
-      '🔒 *Privacy & data handling*',
-      '',
-      '*What I collect* (only when relevant):',
-      '• Location — when you send a location pin or use /cuisine, /hidden, /carpark, /transport. Cached 5 min, then forgotten.',
-      '• Chat ID — to reply to you and remember /buddy preferences.',
-      '• Recent picks — last few venues you saw, for /share + /picks. 24-hour TTL.',
-      '',
-      '*What I don\'t do:*',
-      '• No third-party trackers.',
-      '• No sharing with marketers.',
-      '• No cross-bot profiling.',
-      '',
-      '*Live data sources I query* (no PII sent):',
-      '• Google Places — venue search',
-      '• LTA DataMall — transport, traffic, carparks',
-      '• NEA — weather',
-      '• data.gov.sg — hawker centres, holidays',
-      '',
-      '*Retention:* data auto-purges after 90 days of inactivity. Manual erasure is available — type /forgetme.' + credit
-    ].join('\n');
+    const text = tn('privacy.body', lang, { operator });
     await safeSend(chatId, text, { parse_mode: 'Markdown' });
   } catch (err) {
     console.error('[Error] /privacy failed:', err.message);
-    await safeSend(chatId, "Sorry, /privacy hit an error. Try again in a moment.");
+    await safeSend(chatId, t('privacy.error', lang));
   }
 }
 

@@ -233,7 +233,58 @@ const STRINGS = {
                                     fr: 'Toutes les trouvailles proposées par Gemini se sont révélées temporairement ou définitivement fermées. Réessayez dans une minute — Gemini peut proposer d’autres trésors.' },
 
   // v0.59.4 — single-pick result-card "Nearby carparks" map button.
-  'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' }
+  'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' },
+
+  // v0.59.9 — /privacy rewrite: third-person voice referring to Soleat
+  // (the platform), polite tone, softened buddy-ChatID phrasing per
+  // Human Lead 2026-05-06. {operator} is the optional OPERATOR_LINKEDIN
+  // credit appended by the caller.
+  'privacy.body': {
+    en: [
+      '🔒 *Privacy & data handling*',
+      '',
+      '*What Soleat collects* (only when relevant):',
+      '• Location — used when you send a location pin or call /cuisine, /hidden, /carpark, /transport. Cached for 5 minutes, then forgotten.',
+      '• Telegram chat identifier — used so Soleat can reply in the right chat. If you opt into /buddy, the same identifier carries your match preferences while you remain opted in.',
+      '• Recent picks — the last few venues you saw, kept for /share and /picks. 24-hour TTL.',
+      '',
+      '*What Soleat does not do:*',
+      '• No third-party trackers.',
+      '• No sharing with marketers.',
+      '• No cross-bot profiling.',
+      '',
+      '*Live data sources Soleat queries* (no personal data sent):',
+      '• Google Places — venue search',
+      '• LTA DataMall — transport, traffic, carparks',
+      '• NEA — weather',
+      '• data.gov.sg — hawker centres, holidays',
+      '',
+      '*Retention:* stored data expires automatically after 90 days of inactivity. A manual erasure is available at any time — please type /forgetme.{operator}'
+    ].join('\n'),
+    fr: [
+      '🔒 *Confidentialité et gestion des données*',
+      '',
+      '*Ce que Soleat collecte* (uniquement quand pertinent) :',
+      '• Position — utilisée lorsque vous envoyez une épingle ou utilisez /cuisine, /hidden, /carpark, /transport. Mise en cache 5 minutes, puis oubliée.',
+      '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat. Si vous activez /buddy, ce même identifiant accompagne vos préférences de match tant que /buddy reste activé.',
+      '• Choix récents — les derniers lieux que vous avez vus, conservés pour /share et /picks. TTL de 24 heures.',
+      '',
+      '*Ce que Soleat ne fait pas :*',
+      '• Aucun traceur tiers.',
+      '• Aucun partage avec des annonceurs.',
+      '• Aucun profilage inter-bots.',
+      '',
+      '*Sources de données interrogées par Soleat* (aucune donnée personnelle envoyée) :',
+      '• Google Places — recherche de lieux',
+      '• LTA DataMall — transports, trafic, parkings',
+      '• NEA — météo',
+      '• data.gov.sg — hawker centres, jours fériés',
+      '',
+      '*Conservation :* les données expirent automatiquement après 90 jours d’inactivité. Une suppression manuelle est disponible à tout moment — veuillez taper /forgetme.{operator}'
+    ].join('\n')
+  },
+  'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
+                                    fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' }
 };
 
 function pickLang(lang) {
