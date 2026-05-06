@@ -58,6 +58,7 @@ const STRINGS = {
   // ----- Buttons -----
   'btn.search':                { en: '🔍 Search', fr: '🔍 Rechercher' },
   'btn.searching':             { en: 'Searching…', fr: 'Recherche…' },
+  'btn.searchFull':            { en: '🔍 Search · Show me places to eat', fr: '🔍 Rechercher · Trouvez où manger' },
   'btn.clear':                 { en: 'Clear', fr: 'Effacer' },
   'btn.copyAll':               { en: '📋 Copy all', fr: '📋 Tout copier' },
   'btn.copied':                { en: '✓ Copied to chat', fr: '✓ Copié vers le chat' },

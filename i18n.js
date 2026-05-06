@@ -327,8 +327,55 @@ const STRINGS = {
   // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
   // /transport train (nearest stations), /transport bus (nearest stops).
   // Caption + button label for the multi-stop Google Maps directions URL.
-  'gmaps.openBtn':                { en: '🗺 Open in Google Maps', fr: '🗺 Ouvrir dans Google Maps' }
+  'gmaps.openBtn':                { en: '🗺 Open in Google Maps', fr: '🗺 Ouvrir dans Google Maps' },
+
+  // v0.59.14 — LTA traffic-incident TYPE label translation. Mapped from
+  // the verbatim Type field on the LTA TrafficIncidents feed. Message
+  // text stays EN (LTA returns free-text descriptions; translating per
+  // item would need an LLM and is not worth the cost). Type carries
+  // 80% of the user-visible signal.
+  // Keys cover both the LTA-documented spellings (per the TrafficIncidents
+  // API guide on datamall.lta.gov.sg) AND common variants we've observed
+  // in the wild. PascalCase normalisation in translateIncidentType maps
+  // the raw feed string to the lookup key. Codex review #218 caught the
+  // canonical values "Road Works" → RoadWorks and "Misc." → Misc; both
+  // are aliased below alongside the prior shorter forms.
+  'incident.type.Accident':            { en: 'Accident', fr: 'Accident' },
+  'incident.type.MajorAccident':       { en: 'Major Accident', fr: 'Accident grave' },
+  'incident.type.Roadwork':            { en: 'Roadwork', fr: 'Travaux' },
+  'incident.type.RoadWorks':           { en: 'Road Works', fr: 'Travaux' },
+  'incident.type.VehicleBreakdown':    { en: 'Vehicle Breakdown', fr: 'Véhicule en panne' },
+  'incident.type.HeavyTraffic':        { en: 'Heavy Traffic', fr: 'Trafic dense' },
+  'incident.type.Misc':                { en: 'Misc.', fr: 'Incident divers' },
+  'incident.type.MiscIncident':        { en: 'Miscellaneous', fr: 'Incident divers' },
+  'incident.type.Diversion':           { en: 'Diversion', fr: 'Déviation' },
+  'incident.type.UnattendedVehicle':   { en: 'Unattended Vehicle', fr: 'Véhicule abandonné' },
+  'incident.type.Obstacle':            { en: 'Obstacle', fr: 'Obstacle' },
+  'incident.type.RoadBlock':           { en: 'Road Block', fr: 'Route bloquée' },
+  'incident.type.MassDisruption':      { en: 'Mass Disruption', fr: 'Perturbation majeure' },
+  'incident.type.Weather':             { en: 'Weather', fr: 'Météo' },
+  'incident.type.Animals':             { en: 'Animals', fr: 'Animaux' },
+  'incident.type.Incident':            { en: 'Incident', fr: 'Incident' }
 };
+
+// v0.59.14: translate an LTA Type field to the active locale.
+// Falls back to the verbatim EN string from the feed when the key is
+// not registered (new LTA category not yet mapped). Caller passes the
+// raw `inc.type` from transport.fetchTrafficIncidents().
+function translateIncidentType(rawType, lang = 'en') {
+  if (!rawType) return rawType || '';
+  // Normalise the LTA Type field to PascalCase. The feed mixes
+  // "Vehicle Breakdown", "Vehicle breakdown", and "VehicleBreakdown" —
+  // capitalise after each non-alphanumeric boundary AND the first char.
+  const pascal = String(rawType)
+    .replace(/[^A-Za-z0-9]+(.)/g, (_, c) => c.toUpperCase())
+    .replace(/[^A-Za-z0-9]+$/, '')             // strip trailing non-alphanumeric (e.g. "Misc." → "Misc")
+    .replace(/^./, (c) => c.toUpperCase());
+  const key = `incident.type.${pascal}`;
+  const localised = t(key, lang);
+  // t() returns the key itself when missing — fall back to raw EN.
+  return localised === key ? rawType : localised;
+}
 
 function pickLang(lang) {
   return SUPPORTED.includes(lang) ? lang : 'en';
@@ -346,4 +393,4 @@ function tn(key, lang, vars = {}) {
   return raw.replace(/\{(\w+)\}/g, (_, name) => (vars[name] != null ? String(vars[name]) : `{${name}}`));
 }
 
-module.exports = { t, tn, pickLang, SUPPORTED };
+module.exports = { t, tn, pickLang, SUPPORTED, translateIncidentType };
