@@ -586,7 +586,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     const pid = p.placeId ?? p.id;
     let summary = null;
     if (pid) {
-      try { summary = await getOrCacheSummary(redis, pid); }
+      // v0.59.4: thread dpLang into vibe summary so the "Sanctuary read"
+      // bullets render in French when the user has /language fr. Prior
+      // behaviour was hardcoded EN cache key + EN prompt — single-pick
+      // T1 cards always rendered EN bullets even on FR pref.
+      try { summary = await getOrCacheSummary(redis, pid, dpLang); }
       catch (err) { console.error('[Error] vibe summary fetch failed:', err.message); }
     }
     // v0.58.50: T1 detail-with-sanctuary template. Replaces the v0.27
@@ -630,7 +634,40 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
         console.warn('[Buddy] match-button decoration failed:', err.message);
       }
     }
-    const replyMarkup = buttons.length ? { reply_markup: { inline_keyboard: [buttons] } } : {};
+    // v0.59.4: nearby-carparks map button on the result card. Conditional
+    // on LTA_ACCOUNT_KEY (carpark lookup) + webhookDomain (TMA leaflet map)
+    // + venue having lat/lng. Skips silently otherwise so EN-card behaviour
+    // is unchanged when prerequisites aren't met.
+    const carparkButtons = [];
+    if (Number.isFinite(p.lat) && Number.isFinite(p.lng) && process.env.LTA_ACCOUNT_KEY && webhookDomain) {
+      try {
+        const cps = await carpark.nearest(p.lat, p.lng, 5);
+        if (cps.length) {
+          const { buildMapHashUrl } = require('./maps-url');
+          const slim = cps
+            .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
+            .map((c) => ({
+              name: `${c.development} (${c.availableLots} lots)`,
+              placeId: '',
+              lat: c.lat,
+              lng: c.lng,
+              area: '',
+              url: `https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`
+            }));
+          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          if (mapUrl) {
+            const { t: tCard } = require('./i18n');
+            carparkButtons.push({ text: tCard('card.carparkMapBtn', dpLang), web_app: { url: mapUrl } });
+          }
+        }
+      } catch (err) {
+        console.warn('[Picks] carpark button render failed:', err.message);
+      }
+    }
+    const buttonRows = [];
+    if (buttons.length) buttonRows.push(buttons);
+    if (carparkButtons.length) buttonRows.push(carparkButtons);
+    const replyMarkup = buttonRows.length ? { reply_markup: { inline_keyboard: buttonRows } } : {};
 
     if (body) {
       try {
@@ -999,7 +1036,11 @@ bot.onText(/^\/carpark(?:@\w+)?$/, async (msg) => {
   await runCarparkCommand(msg.chat.id, lang);
 });
 
-bot.onText(/^\/hidden(?:@\w+)?$/, (msg) => runSurpriseCommand(msg.chat.id));
+bot.onText(/^\/hidden(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runSurpriseCommand(msg.chat.id, lang);
+});
 
 // v0.57.21: /privacy — what data the bot collects, how long it's
 // retained, and which third parties it queries. OPERATOR_LINKEDIN
@@ -1587,7 +1628,7 @@ bot.on('location', async (msg) => {
       throw new Error('coordinates missing or malformed');
     }
     // Auto-resume targets for ensureLocation callers.
-    if (pending === '/hidden')     { await runSurpriseCommand(msg.chat.id); return; }
+    if (pending === '/hidden')     { await runSurpriseCommand(msg.chat.id, locLang); return; }
     if (pending === '/transport')  { await sendTransportMenu(msg.chat.id, locLang);  return; }
     if (pending === '/carpark')    { await runCarparkCommand(msg.chat.id, locLang);  return; }
     // v0.57.27: free-text search resume — user typed text first,
@@ -1769,7 +1810,7 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'hawker':    await sendHawkerMenu(chatId, lang); return true;
     case 'recognised': await runRecognisedCommand(chatId); return true;
     case 'carpark':   await runCarparkCommand(chatId, lang); return true;
-    case 'hidden':    await runSurpriseCommand(chatId); return true;
+    case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
     case 'forgetme':  await runForgetMeCommand(chatId, lang); return true;
@@ -2359,10 +2400,11 @@ async function runCarparkCommand(chatId, lang = 'en') {
 // single-venue v0.31 surprise flow.
 const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
 
-async function runSurpriseCommand(chatId) {
+async function runSurpriseCommand(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, t('hidden.busy', lang));
       return;
     }
     const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden');
@@ -2370,11 +2412,11 @@ async function runSurpriseCommand(chatId) {
     await setProcessing(redis, chatId);
 
     if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
-      await safeSend(chatId, '🎲 Hunting for one hidden gem 1.5–3 km away…');
+      await safeSend(chatId, t('hidden.huntingLegacy', lang));
       const { findSurprise } = require('./surprise');
       const venue = await findSurprise({ lat: cached.lat, lng: cached.lng, redis });
       if (!venue) {
-        await safeSend(chatId, "Gia couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.");
+        await safeSend(chatId, t('hidden.legacyNotFound', lang));
         return;
       }
       await deliverSurprise(chatId, venue);
@@ -2396,10 +2438,8 @@ async function runSurpriseCommand(chatId) {
       || /^singapore$/i.test(anchorName)
       || HIDDEN_NATURAL_NAME_RX.test(anchorName);
     if (looksGeneric) {
-      await safeSend(chatId,
-        `I couldn't pinpoint your area${anchorName ? ` (got "${anchorName}")` : ''}. ` +
-        "Type the building or area you're at — for example 'Raffles Place MRT Exit A' or 'Holland Village' — and I'll re-anchor /hidden."
-      );
+      const anchorClause = anchorName ? tn('hidden.anchorAmbiguous.got', lang, { name: anchorName }) : '';
+      await safeSend(chatId, tn('hidden.anchorAmbiguous', lang, { anchor: anchorClause }));
       try { await setPendingMeal(redis, chatId, 'hidden'); } catch { /* best-effort */ }
       return;
     }
@@ -2411,20 +2451,18 @@ async function runSurpriseCommand(chatId) {
     // v0.58.32: simpler waiting text per Human Lead. The 12-s
     // progress pulses below carry the "what's happening" detail so
     // the initial line stays short.
-    await safeSend(chatId, `🔍 Searching hidden gems near ${anchorName}… please wait.`);
+    await safeSend(chatId, tn('hidden.searching', lang, { anchor: anchorName }));
 
     // v0.58.30: progress pulses so the user sees life past 20 s.
     // v0.58.41: cap pulses at MAX_PULSES so a hung Gemini call doesn't
-    // spam the chat indefinitely (user reported a "loop" on v0.58.36
-    // when the fallback chain took 2+ min). Also drop the brand-name
-    // list per Human Lead. Hard 90 s timeout below catches the actual
-    // hang.
+    // spam the chat indefinitely. Hard 240 s timeout below catches the
+    // actual hang.
     const PROGRESS_LINES = [
-      '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
-      '⏳ Verifying source quality…',
-      '⏳ Checking opening dates and review counts against Google…',
-      '⏳ Almost there — drafting the picks.',
-      '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.'
+      t('hidden.progress.1', lang),
+      t('hidden.progress.2', lang),
+      t('hidden.progress.3', lang),
+      t('hidden.progress.4', lang),
+      t('hidden.progress.5', lang)
     ];
     // v0.58.41: 10 pulses × 12 s = 120 s of "still working" coverage.
     // Pairs with the 180 s timeout so the user sees activity for two
@@ -2447,7 +2485,7 @@ async function runSurpriseCommand(chatId) {
     let result;
     try {
       result = await Promise.race([
-        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT() }),
+        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT(), lang }),
         new Promise((_, reject) => setTimeout(
           () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
           HIDDEN_TIMEOUT_MS
@@ -2458,27 +2496,16 @@ async function runSurpriseCommand(chatId) {
       console.error(`[/hidden] Gemini call failed: ${err.message}`);
       const errs = Array.isArray(err.attemptErrors) ? err.attemptErrors : [];
       const requested = err.requestedModel || process.env.GEMINI_MODEL || 'gemini-flash-latest';
-      // v0.58.42: detect "every attempt was 503 high-demand" and show
-      // a short friendly retry hint instead of the 4-line debug dump.
-      // Server-side overload is upstream weather; the user can't fix
-      // it via env vars and shouldn't be told to.
+      // v0.58.42: detect "every attempt was 503 high-demand".
       const all503 = errs.length >= 2 && errs.every((e) => /\b503\b|high demand|service unavailable/i.test(e));
-      // v0.58.41: also detect our own 90/180s timeout — surface a
-      // distinct hint rather than a list of attempts that never
-      // completed.
+      // v0.58.41: also detect our own 240 s timeout.
       const isTimeout = /exceeded \d+s timeout/i.test(err.message || '');
       if (isTimeout) {
-        await safeSend(chatId,
-          `⏱ /hidden timed out after 4 minutes — Gemini was unresponsive on every fallback model.\n\n` +
-          `This usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.`
-        );
+        await safeSend(chatId, t('hidden.timeout', lang));
         return;
       }
       if (all503) {
-        await safeSend(chatId,
-          `⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\n` +
-          `Try /hidden again in a minute or two — your location is still cached so retry will be fast.`
-        );
+        await safeSend(chatId, t('hidden.overload', lang));
         return;
       }
       const detail = errs.length
@@ -2523,9 +2550,7 @@ async function runSurpriseCommand(chatId) {
     }
   } catch (err) {
     console.error('[/hidden] outer catch:', err.message, err.stack);
-    await safeSend(chatId,
-      "Sorry, /hidden hit an unexpected error. The team's been notified — please retry shortly."
-    );
+    await safeSend(chatId, t('hidden.outerError', lang));
   } finally {
     await clearProcessing(redis, chatId).catch(() => {});
   }

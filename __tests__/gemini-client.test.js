@@ -50,6 +50,31 @@ describe('buildHiddenGemsPrompt', () => {
     expect(out).not.toContain('{{GOOGLE_MAPS_URL}}');
     expect(out).not.toContain('{{TODAY_SGT}}');
   });
+
+  it('appends the FR LOCALISATION block when lang=fr', () => {
+    const out = buildHiddenGemsPrompt({
+      anchorName: 'Tanjong Pagar MRT',
+      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Tanjong%20Pagar',
+      todayIsoSGT: '2026-05-06',
+      lang: 'fr'
+    });
+    expect(out).toContain('LOCALISATION:');
+    // Iconic SG dish carve-out is preserved — French speakers in SG still
+    // call laksa "laksa", not "soupe au curry de coquillages".
+    expect(out).toContain('laksa');
+    expect(out).toContain('char kway teow');
+    // EN spec body is still present (criteria gate stays in English internally).
+    expect(out).toContain('C1 NEW_HIGHRATED');
+  });
+
+  it('omits the LOCALISATION block when lang=en (default)', () => {
+    const out = buildHiddenGemsPrompt({
+      anchorName: 'Tanjong Pagar MRT',
+      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Tanjong%20Pagar',
+      todayIsoSGT: '2026-05-06'
+    });
+    expect(out).not.toContain('LOCALISATION:');
+  });
 });
 
 describe('todaySGT', () => {

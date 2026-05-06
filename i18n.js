@@ -192,7 +192,39 @@ const STRINGS = {
   'transport.map.stationsBtn':      { en: '🗺 View stations on map', fr: '🗺 Voir les stations' },
 
   // Distance row addition for MRT stations (was previously bare).
-  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd}', fr: '· {name} · {dist}{crowd}' }
+  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd}', fr: '· {name} · {dist}{crowd}' },
+
+  // v0.59.4 — /hidden chrome localisation.
+  'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
+                                    fr: '⏳ Gia traite encore votre dernière demande — un instant.' },
+  'hidden.huntingLegacy':         { en: '🎲 Hunting for one hidden gem 1.5–3 km away…',
+                                    fr: '🎲 À la recherche d’un trésor caché à 1,5–3 km…' },
+  'hidden.legacyNotFound':        { en: "Gia couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.",
+                                    fr: 'Gia n’a pas trouvé de trésor dans votre zone. Essayez ailleurs ou ouvrez /cuisine.' },
+  'hidden.anchorAmbiguous':       { en: "I couldn't pinpoint your area{anchor}. Type the building or area you're at — for example 'Raffles Place MRT Exit A' or 'Holland Village' — and I'll re-anchor /hidden.",
+                                    fr: 'Je n’ai pas pu cerner votre zone{anchor}. Tapez le bâtiment ou le quartier où vous êtes — par exemple « Raffles Place MRT Exit A » ou « Holland Village » — et je ré-ancrerai /hidden.' },
+  'hidden.anchorAmbiguous.got':   { en: ' (got "{name}")', fr: ' (reçu : « {name} »)' },
+  'hidden.searching':             { en: '🔍 Searching hidden gems near {anchor}… please wait.',
+                                    fr: '🔍 Recherche de trésors près de {anchor}… veuillez patienter.' },
+  'hidden.progress.1':            { en: '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
+                                    fr: '⏳ Recherche en cours… recoupement des blogs et posts IG récents.' },
+  'hidden.progress.2':            { en: '⏳ Verifying source quality…',
+                                    fr: '⏳ Vérification de la qualité des sources…' },
+  'hidden.progress.3':            { en: '⏳ Checking opening dates and review counts against Google…',
+                                    fr: '⏳ Vérification des dates d’ouverture et du nombre d’avis sur Google…' },
+  'hidden.progress.4':            { en: '⏳ Almost there — drafting the picks.',
+                                    fr: '⏳ Presque fini — rédaction des choix.' },
+  'hidden.progress.5':            { en: "⏳ Hang tight — Gemini is being thorough so the picks aren't fluff.",
+                                    fr: '⏳ Patientez — Gemini fait ça soigneusement pour éviter les choix bidons.' },
+  'hidden.timeout':               { en: '⏱ /hidden timed out after 4 minutes — Gemini was unresponsive on every fallback model.\n\nThis usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.',
+                                    fr: '⏱ /hidden a dépassé le délai de 4 minutes — Gemini n’a pas répondu sur aucun modèle de repli.\n\nCela se résout en général en quelques minutes. Réessayez, ou vérifiez l’état de Google AI Studio si le problème persiste.' },
+  'hidden.overload':              { en: '⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\nTry /hidden again in a minute or two — your location is still cached so retry will be fast.',
+                                    fr: '⚠️ Gemini est actuellement saturé (erreur 503 « high demand » sur tous les modèles de repli).\n\nRéessayez /hidden dans une minute ou deux — votre position est en cache, le réessai sera rapide.' },
+  'hidden.outerError':            { en: "Sorry, /hidden hit an unexpected error. The team's been notified — please retry shortly.",
+                                    fr: 'Désolé, /hidden a rencontré une erreur inattendue. L’équipe a été notifiée — veuillez réessayer bientôt.' },
+
+  // v0.59.4 — single-pick result-card "Nearby carparks" map button.
+  'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' }
 };
 
 function pickLang(lang) {
