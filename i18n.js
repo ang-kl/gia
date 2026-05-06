@@ -369,6 +369,7 @@ function translateIncidentType(rawType, lang = 'en') {
   // capitalise after each non-alphanumeric boundary AND the first char.
   const pascal = String(rawType)
     .replace(/[^A-Za-z0-9]+(.)/g, (_, c) => c.toUpperCase())
+    .replace(/[^A-Za-z0-9]+$/, '')             // strip trailing non-alphanumeric (e.g. "Misc." → "Misc")
     .replace(/^./, (c) => c.toUpperCase());
   const key = `incident.type.${pascal}`;
   const localised = t(key, lang);
