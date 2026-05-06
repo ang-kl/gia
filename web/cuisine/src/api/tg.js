@@ -29,6 +29,15 @@ export function applyTelegramTheme() {
   try {
     w.ready();
     w.expand();
+    // v0.59.18: tablet+ true fullscreen (Bot API 8.0+, late 2024).
+    // Skipped on phones so the Telegram bottom chrome stays visible
+    // for fast back/app-switch. Older clients fall through harmlessly.
+    if (window.matchMedia?.('(min-width: 600px)').matches
+        && typeof w.isVersionAtLeast === 'function'
+        && w.isVersionAtLeast('8.0')
+        && typeof w.requestFullscreen === 'function') {
+      w.requestFullscreen();
+    }
   } catch { /* noop in non-Telegram contexts */ }
   const tp = w.themeParams || {};
   const root = document.documentElement;

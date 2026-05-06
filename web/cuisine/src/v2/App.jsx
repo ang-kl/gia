@@ -278,27 +278,12 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng]);
 
-  // v0.58.27: auto re-search when the user toggles a filter chip
-  // (newlyOpened, halal, openNow, vegetarian, homeBased, prices) or
-  // adds/removes a cuisine. Prior to v0.58.27 the user had to press
-  // 🔍 Search after every chip tap — the "New" chip looked broken
-  // because nothing happened on toggle. Debounced 350 ms so triple-
-  // tapping doesn't fire 3 requests.
-  //
-  // Skip on:
-  //   • initial mount (initialSearchDone.current still false →
-  //     warm-start path is responsible for the first paint)
-  //   • when userLoc isn't resolved yet
-  //   • when the dirty-signature matches the last submitted snap
-  //     (prevents a redundant re-search right after manual 🔍)
-  useEffect(() => {
-    if (!userLoc || !initialSearchDone.current) return;
-    const sig = stateSig(state);
-    if (sig === lastRunSnap) return;
-    const timer = setTimeout(() => { runSearch(state); }, 350);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.cuisines, state.filters, state.region]);
+  // v0.58.27 → v0.59.18: auto re-search effect REMOVED per Human Lead.
+  // Search now fires only on explicit triggers — the 🔍 Search button,
+  // the Tell-Me submit arrow, the floating-action search FAB, and the
+  // map's "Search this area" button. Filter / cuisine / region toggles
+  // stage state silently; the `dirty` ring around 🔍 Search is the
+  // visible cue that pending changes haven't been searched yet.
 
   async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
@@ -421,9 +406,11 @@ export default function App() {
     // v0.57.24: clearedFilters() turns ALL toggles off (defaultState
     // keeps newlyOpened: true and (since v0.58.1) halal: true as
     // first-load biases, which made Clear appear to do nothing).
+    // v0.59.18: drop the implicit runSearch — the user runs the next
+    // search explicitly via 🔍 Search / Tell-Me / FAB. Matches the
+    // auto-search-removal pattern from the same release.
     const fresh = { ...defaultState(), cuisines: [], filters: clearedFilters() };
     setState(fresh);
-    runSearch(fresh);
   }
 
   function removeCuisine(slug) {
@@ -649,7 +636,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.17 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.18 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
