@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { parseBlocks, applyVerified } = require('../hidden-verify.js');
+const { parseBlocks, applyVerified, verifyHiddenGemsOutput } = require('../hidden-verify.js');
 
 const SAMPLE_EN = `1. MONDAY COFFEE BAR - lifestyle cafe
 Block 420A Clementi Avenue 1, #01-01 - approx 1.5km north-east from Clementi central.
@@ -135,5 +135,87 @@ describe('applyVerified — FR (French locale)', () => {
     const why = out.find((l) => l.startsWith('💎'));
     expect(why).toContain('162 avis');
     expect(why).not.toContain('114 avis');
+  });
+});
+
+// v0.59.7: businessStatus drop. Closes the gap where Gemini's grounded
+// search misses a closed venue but Places already knows it's closed.
+describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
+  function fakeLookup(byName) {
+    return async (name) => byName[name] || null;
+  }
+
+  it('drops a CLOSED_PERMANENTLY venue and renumbers survivors', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'CLOSED_PERMANENTLY' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' }
+      })
+    });
+    expect(result.text).not.toContain('MONDAY COFFEE BAR');
+    expect(result.text).toContain('SEVEN SCOOPS AND BAKES');
+    // The surviving venue gets renumbered from "2." to "1."
+    expect(result.text).toMatch(/^1\. SEVEN SCOOPS AND BAKES/);
+    expect(result.venues.length).toBe(1);
+    expect(result.venues[0].name).toBe(undefined); // fake lookup didn't include name; fine
+  });
+
+  it('drops a CLOSED_TEMPORARILY venue too', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'CLOSED_TEMPORARILY' }
+      })
+    });
+    expect(result.text).toContain('MONDAY COFFEE BAR');
+    expect(result.text).not.toContain('SEVEN SCOOPS AND BAKES');
+    expect(result.venues.length).toBe(1);
+  });
+
+  it('keeps both when both are OPERATIONAL', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' }
+      })
+    });
+    expect(result.text).toContain('MONDAY COFFEE BAR');
+    expect(result.text).toContain('SEVEN SCOOPS AND BAKES');
+    expect(result.venues.length).toBe(2);
+  });
+
+  it('keeps a venue when the Places lookup itself failed (null)', async () => {
+    // Don't penalise on infra blip — leave the original block untouched.
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: async () => null
+    });
+    expect(result.text).toContain('MONDAY COFFEE BAR');
+    expect(result.text).toContain('SEVEN SCOOPS AND BAKES');
+    expect(result.allDropped).toBe(false);
+  });
+
+  // Codex review #211: when EVERY pick is closed, verifyHiddenGemsOutput
+  // would otherwise return an empty text — Telegram rejects empty
+  // messages. Caller (runSurpriseCommand) checks the allDropped flag
+  // and substitutes a user-facing fallback.
+  it('flags allDropped=true when every venue is closed', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'CLOSED_PERMANENTLY' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'CLOSED_TEMPORARILY' }
+      })
+    });
+    expect(result.allDropped).toBe(true);
+    expect(result.venues.length).toBe(0);
+  });
+
+  it('does not flag allDropped when at least one venue survives', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'CLOSED_TEMPORARILY' }
+      })
+    });
+    expect(result.allDropped).toBe(false);
   });
 });

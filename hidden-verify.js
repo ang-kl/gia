@@ -31,7 +31,7 @@
 const axios = require('axios');
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
-const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount';
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus';
 const REQUEST_TIMEOUT_MS = 6000;
 
 // Look up a single venue by name + (optional) address. Returns
@@ -88,7 +88,13 @@ async function lookupVenue(name, address = '') {
       lat: chosen.location?.latitude ?? null,
       lng: chosen.location?.longitude ?? null,
       rating: typeof chosen.rating === 'number' ? chosen.rating : null,
-      userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null
+      userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null,
+      // v0.59.7: status field used by verifyHiddenGemsOutput to drop
+      // venues that Gemini's grounded search included despite being
+      // CLOSED_TEMPORARILY / CLOSED_PERMANENTLY. Treat absence as
+      // OPERATIONAL — Places rarely omits this for known places, and
+      // dropping on absence would silently filter legitimate hits.
+      businessStatus: chosen.businessStatus || 'OPERATIONAL'
     };
   } catch (err) {
     console.warn('[hidden-verify] lookup failed for', name, '→', err.message);
@@ -175,22 +181,58 @@ function applyVerified(block, verified) {
 //   - venues = the per-block Places lookup result (or null when the
 //              lookup failed / was ambiguous). Caller can use the
 //              non-null entries to build a one-map button.
-async function verifyHiddenGemsOutput(text) {
+async function verifyHiddenGemsOutput(text, opts = {}) {
   if (!text || typeof text !== 'string') return { text, venues: [] };
   const { prefix, blocks } = parseBlocks(text);
   if (!blocks.length) return { text, venues: [] };
-  const lookups = await Promise.all(blocks.map((b) => lookupVenue(b.name, b.address)));
-  const blockTexts = blocks.map((b, i) => applyVerified(b, lookups[i]).join('\n'));
+  // v0.59.7: optional test seam. Pass `_lookup: async (name, addr) => ({...})`
+  // to bypass the real Places API. Production path uses lookupVenue.
+  const lookupFn = typeof opts._lookup === 'function' ? opts._lookup : lookupVenue;
+  const lookups = await Promise.all(blocks.map((b) => lookupFn(b.name, b.address)));
+  // v0.59.7: drop blocks whose live businessStatus is non-OPERATIONAL.
+  // Closes the gap where Gemini's grounded search misses a closed venue
+  // but Places already knows it's closed. Renumbers the surviving picks
+  // so the user sees "1. … 2. … 3. …" without numbering gaps.
+  const survivors = blocks
+    .map((b, i) => ({ block: b, lookup: lookups[i] }))
+    .filter(({ lookup }) => {
+      if (!lookup) return true; // lookup failed → keep (don't penalise on infra blip)
+      const status = lookup.businessStatus || 'OPERATIONAL';
+      if (status !== 'OPERATIONAL') {
+        console.log(`[hidden-verify] dropping non-OPERATIONAL venue: "${lookup.name}" (${status})`);
+        return false;
+      }
+      return true;
+    });
+  const blockTexts = survivors.map(({ block, lookup }, idx) => {
+    const lines = applyVerified(block, lookup);
+    // Renumber: replace the leading "N." in the heading with the new index.
+    if (lines[0]) {
+      lines[0] = lines[0].replace(/^\d+\./, `${idx + 1}.`);
+    }
+    return lines.join('\n');
+  });
   const prefixText = prefix.join('\n').replace(/\s+$/, '');
   const joined = blockTexts.join('\n\n');
-  // Decorate each lookup with the Gemini block's heading name as a
-  // fallback display name (in case Places returned a slightly different
-  // displayName, we want the chat-side label to match what Gemini wrote).
-  const venues = lookups.map((lk, i) => lk ? { ...lk, displayHeading: blocks[i].name } : null);
+  const venues = survivors.map(({ block, lookup }) =>
+    lookup ? { ...lookup, displayHeading: block.name } : null
+  );
+  // v0.59.7 (Codex review #211): flag the all-closed case so the
+  // caller can substitute a non-empty user-facing message. Without
+  // this, runSurpriseCommand would safeSend an empty string when
+  // every parsed block was CLOSED_*, and Telegram rejects empty
+  // messages — the user would see no final response after waiting.
+  const allDropped = blocks.length > 0 && survivors.length === 0;
   return {
     text: prefixText ? `${prefixText}\n\n${joined}` : joined,
-    venues
+    venues,
+    allDropped
   };
 }
 
-module.exports = { verifyHiddenGemsOutput, parseBlocks, applyVerified, lookupVenue };
+module.exports = {
+  verifyHiddenGemsOutput,
+  parseBlocks,
+  applyVerified,
+  lookupVenue
+};

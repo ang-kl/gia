@@ -2544,13 +2544,23 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // returns nothing — never makes the output worse.
     let verifiedText = result.text;
     let verifiedVenues = [];
+    let allDropped = false;
     try {
       const { verifyHiddenGemsOutput } = require('./hidden-verify');
       const verifyResult = await verifyHiddenGemsOutput(result.text);
       verifiedText = verifyResult.text;
       verifiedVenues = verifyResult.venues || [];
+      allDropped = !!verifyResult.allDropped;
     } catch (err) {
       console.warn('[/hidden] verify post-process failed, keeping raw output:', err.message);
+    }
+    // v0.59.7 (Codex review #211): if every parsed block was filtered
+    // out as CLOSED_*, the verified text is empty and Telegram rejects
+    // empty messages. Substitute a user-facing fallback (localised) so
+    // the user gets a clear final response instead of silence.
+    if (allDropped) {
+      await safeSend(chatId, t('hidden.allClosed', lang));
+      return;
     }
     // Telegram message limit is 4096 chars. Chunk on per-result
     // boundaries (lines starting "/^\d+\. /") so a single venue
