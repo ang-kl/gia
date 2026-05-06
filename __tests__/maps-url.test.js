@@ -109,8 +109,12 @@ describe('googleMapsContainerUrl (multi-stop directions)', () => {
     expect(googleMapsContainerUrl(null)).toBe(null);
   });
 
-  it('builds destination_place_id for first venue when placeId present', () => {
+  it('builds destination AND destination_place_id when both placeId + coords present (v0.59.13)', () => {
+    // Codex review #217: Google requires `destination` to accompany
+    // `destination_place_id` — the helper must emit both, not the
+    // place-id alone.
     const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a', lat: 1, lng: 2 }]);
+    expect(r).toContain('destination=1%2C2'); // coord as the human-readable companion
     expect(r).toContain('destination_place_id=ChIJ_a');
     expect(r).toContain('travelmode=walking');
   });
@@ -118,40 +122,64 @@ describe('googleMapsContainerUrl (multi-stop directions)', () => {
   it('falls back to coord destination when no placeId', () => {
     const r = googleMapsContainerUrl([{ lat: 1.28, lng: 103.85 }]);
     expect(r).toContain('destination=1.28%2C103.85');
+    expect(r).not.toContain('destination_place_id=');
+  });
+
+  it('returns null when first venue has no placeId AND no coords AND no name', () => {
+    expect(googleMapsContainerUrl([{ placeId: '' }])).toBe(null);
+  });
+
+  it('uses name as the display when coords absent but placeId + name present', () => {
+    const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a', name: 'Tanjong Pagar MRT' }]);
+    expect(r).toContain('destination=Tanjong%20Pagar%20MRT');
+    expect(r).toContain('destination_place_id=ChIJ_a');
   });
 
   it('caps waypoints at 4 (Google Maps URL limit = destination + 4)', () => {
-    const venues = Array.from({ length: 10 }, (_, i) => ({ placeId: `ChIJ_${i}` }));
+    const venues = Array.from({ length: 10 }, (_, i) => ({ placeId: `ChIJ_${i}`, lat: i + 1, lng: 100 + i }));
     const r = googleMapsContainerUrl(venues);
-    // destination = ChIJ_0, waypoints = ChIJ_1..ChIJ_4 (4 waypoints)
+    // destination = first venue, waypoints = next 4
+    expect(r).toContain('destination=1%2C100');
     expect(r).toContain('destination_place_id=ChIJ_0');
+    // waypoints are the human-readable companion to waypoint_place_ids
+    expect(r).toContain('waypoints=');
     expect(r).toContain('waypoint_place_ids=');
-    expect(r).toContain('ChIJ_1');
     expect(r).toContain('ChIJ_4');
     expect(r).not.toContain('ChIJ_5');
   });
 
+  it('omits waypoint_place_ids when waypoints are mixed (some without placeId)', () => {
+    const venues = [
+      { placeId: 'ChIJ_a', lat: 1, lng: 2 },     // dest
+      { placeId: 'ChIJ_b', lat: 3, lng: 4 },     // waypoint w/ id
+      { lat: 5, lng: 6 }                          // waypoint coord-only
+    ];
+    const r = googleMapsContainerUrl(venues);
+    expect(r).toContain('waypoints=');           // human-readable always emitted
+    expect(r).not.toContain('waypoint_place_ids=');  // mixed → omitted
+  });
+
   it('honours travelmode override', () => {
-    const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a' }], { travelmode: 'transit' });
+    const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a', lat: 1, lng: 2 }], { travelmode: 'transit' });
     expect(r).toContain('travelmode=transit');
   });
 
   it('includes origin when supplied', () => {
-    const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a' }], { origin: '1.28,103.85' });
+    const r = googleMapsContainerUrl([{ placeId: 'ChIJ_a', lat: 1, lng: 2 }], { origin: '1.28,103.85' });
     expect(r).toContain('origin=1.28%2C103.85');
   });
 
   // v0.57.31: maxWaypoints opt — bumps the cap from default 4 up to
   // Google's hard limit of 9 waypoints (10 total stops).
   it('honours maxWaypoints opt', () => {
-    const venues = Array.from({ length: 12 }, (_, i) => ({ placeId: `ChIJ_${i}` }));
+    const venues = Array.from({ length: 12 }, (_, i) => ({ placeId: `ChIJ_${i}`, lat: i + 1, lng: 100 + i }));
     const r = googleMapsContainerUrl(venues, { maxWaypoints: 9 });
     expect(r).toContain('ChIJ_9');
     expect(r).not.toContain('ChIJ_10');
   });
 
   it('clamps maxWaypoints at 9 (Google consumer Maps limit)', () => {
-    const venues = Array.from({ length: 15 }, (_, i) => ({ placeId: `ChIJ_${i}` }));
+    const venues = Array.from({ length: 15 }, (_, i) => ({ placeId: `ChIJ_${i}`, lat: i + 1, lng: 100 + i }));
     const r = googleMapsContainerUrl(venues, { maxWaypoints: 99 });
     // destination = ChIJ_0, waypoints = ChIJ_1..ChIJ_9
     expect(r).toContain('ChIJ_9');
@@ -159,7 +187,11 @@ describe('googleMapsContainerUrl (multi-stop directions)', () => {
   });
 
   it('clamps maxWaypoints at 0 (negative input)', () => {
-    const venues = [{ placeId: 'A' }, { placeId: 'B' }, { placeId: 'C' }];
+    const venues = [
+      { placeId: 'A', lat: 1, lng: 2 },
+      { placeId: 'B', lat: 3, lng: 4 },
+      { placeId: 'C', lat: 5, lng: 6 }
+    ];
     const r = googleMapsContainerUrl(venues, { maxWaypoints: -5 });
     // destination only — no waypoints
     expect(r).not.toContain('waypoint_place_ids');
