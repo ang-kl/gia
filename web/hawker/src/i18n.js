@@ -10,6 +10,7 @@
 // node-modules linkage. v0.60.x can extract a workspaces lib.
 
 import { useEffect, useState } from 'react';
+import { initData } from './tg.js';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
@@ -79,8 +80,34 @@ export function getActiveLocale() {
   return 'en';
 }
 
+// v0.59.15 (Codex review #219 P1): hydrate the chat-side /language
+// preference from Redis on first mount so a user who sets /language fr
+// then opens /hawker directly (without first toggling locale in the
+// cuisine TMA) gets the right locale. Mirrors cuisine TMA's
+// hydrateFromServerOnce. Module-level latch prevents redundant
+// fetches when multiple components subscribe to useLocale().
+let serverHydrated = false;
+async function hydrateFromServerOnce() {
+  if (serverHydrated) return;
+  serverHydrated = true;
+  try {
+    const res = await fetch('/api/cuisine/user-language', {
+      headers: { 'X-Telegram-Init-Data': initData() || '' }
+    });
+    if (!res.ok) return;
+    const body = await res.json();
+    const remote = body?.lang;
+    if (SUPPORTED.includes(remote)) {
+      try { window.localStorage.setItem(LOCALE_KEY, remote); } catch { /* noop */ }
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+    }
+  } catch { /* offline / 401 / 404 — keep local fallback */ }
+}
+
 // React hook: returns current lang, re-renders on cross-tab + same-tab
 // locale change (same 'gia:locale' CustomEvent pattern as cuisine TMA).
+// On first mount, hydrates from the server so the TMA matches whatever
+// the user last set via /language in chat.
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {
@@ -93,6 +120,7 @@ export function useLocale() {
     }
     window.addEventListener(LOCALE_EVENT, onLocale);
     window.addEventListener('storage', onStorage);
+    hydrateFromServerOnce();
     return () => {
       window.removeEventListener(LOCALE_EVENT, onLocale);
       window.removeEventListener('storage', onStorage);
