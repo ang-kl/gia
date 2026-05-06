@@ -26,7 +26,7 @@ const PRICES = ['$', '$$', '$$$'];
 function Chip({ active, onClick, children, ariaLabel }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={active} aria-label={ariaLabel}
-      className={`px-2.5 py-1 rounded-full border text-xs whitespace-nowrap transition-colors ${active ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
+      className={`px-2 py-1 rounded-full border text-xs whitespace-nowrap transition-colors ${active ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
       {children}
     </button>
   );
@@ -59,21 +59,21 @@ export default function QuickFilters({ filters, onChange }) {
 
   return (
     <div className="flex flex-col gap-1.5 px-0.5">
-      <div className="flex flex-wrap gap-1.5 items-center">
+      <div className="flex flex-wrap gap-1 items-center">
         {PRIMARY.map((f) => (
           <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
             ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-            <span className="mr-1">{f.icon}</span>{labelFor(f.key, f.i18n)}
+            <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
           </Chip>
         ))}
         <Chip active={selectedPrices.length > 0 || priceOpen} onClick={openPrice}
           ariaLabel={priceOpen ? tr('filter.closePrice', lang) : tr('filter.openPrice', lang)}>
-          <span className="mr-1" aria-hidden>💲</span>{priceLabel}
+          <span className="mr-0.5" aria-hidden>💲</span>{priceLabel}
           <span className="ml-1" aria-hidden>{priceOpen ? '▴' : '▾'}</span>
         </Chip>
         <Chip active={moreOpen} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
-          <span className="mr-1" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
+          <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
           {overflowActiveCount > 0 && (
             <span className="ml-1" aria-label={`${overflowActiveCount} more active`}>·{overflowActiveCount}</span>
           )}
@@ -92,7 +92,7 @@ export default function QuickFilters({ filters, onChange }) {
           {OVERFLOW.map((f) => (
             <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
               ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-              <span className="mr-1">{f.icon}</span>{labelFor(f.key, f.i18n)}
+              <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
             </Chip>
           ))}
         </div>
