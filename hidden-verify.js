@@ -217,9 +217,16 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   const venues = survivors.map(({ block, lookup }) =>
     lookup ? { ...lookup, displayHeading: block.name } : null
   );
+  // v0.59.7 (Codex review #211): flag the all-closed case so the
+  // caller can substitute a non-empty user-facing message. Without
+  // this, runSurpriseCommand would safeSend an empty string when
+  // every parsed block was CLOSED_*, and Telegram rejects empty
+  // messages — the user would see no final response after waiting.
+  const allDropped = blocks.length > 0 && survivors.length === 0;
   return {
     text: prefixText ? `${prefixText}\n\n${joined}` : joined,
-    venues
+    venues,
+    allDropped
   };
 }
 

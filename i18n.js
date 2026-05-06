@@ -229,6 +229,8 @@ const STRINGS = {
                                     fr: '⚠️ Gemini est actuellement saturé (erreur 503 « high demand » sur tous les modèles de repli).\n\nRéessayez /hidden dans une minute ou deux — votre position est en cache, le réessai sera rapide.' },
   'hidden.outerError':            { en: "Sorry, /hidden hit an unexpected error. The team's been notified — please retry shortly.",
                                     fr: 'Désolé, /hidden a rencontré une erreur inattendue. L’équipe a été notifiée — veuillez réessayer bientôt.' },
+  'hidden.allClosed':             { en: 'All picks Gemini found turned out to be temporarily or permanently closed. Try again in a minute — Gemini may surface different gems on retry.',
+                                    fr: 'Toutes les trouvailles proposées par Gemini se sont révélées temporairement ou définitivement fermées. Réessayez dans une minute — Gemini peut proposer d’autres trésors.' },
 
   // v0.59.4 — single-pick result-card "Nearby carparks" map button.
   'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' }

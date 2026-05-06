@@ -191,5 +191,31 @@ describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
     });
     expect(result.text).toContain('MONDAY COFFEE BAR');
     expect(result.text).toContain('SEVEN SCOOPS AND BAKES');
+    expect(result.allDropped).toBe(false);
+  });
+
+  // Codex review #211: when EVERY pick is closed, verifyHiddenGemsOutput
+  // would otherwise return an empty text — Telegram rejects empty
+  // messages. Caller (runSurpriseCommand) checks the allDropped flag
+  // and substitutes a user-facing fallback.
+  it('flags allDropped=true when every venue is closed', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'CLOSED_PERMANENTLY' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'CLOSED_TEMPORARILY' }
+      })
+    });
+    expect(result.allDropped).toBe(true);
+    expect(result.venues.length).toBe(0);
+  });
+
+  it('does not flag allDropped when at least one venue survives', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: fakeLookup({
+        'MONDAY COFFEE BAR':       { rating: 4.5, userRatingCount: 162, lat: 1, lng: 1, businessStatus: 'OPERATIONAL' },
+        'SEVEN SCOOPS AND BAKES':  { rating: 4.4, userRatingCount: 159, lat: 1, lng: 1, businessStatus: 'CLOSED_TEMPORARILY' }
+      })
+    });
+    expect(result.allDropped).toBe(false);
   });
 });
