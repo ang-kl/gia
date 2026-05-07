@@ -1,21 +1,29 @@
 counters:
-  commit: 103
+  commit: 104
   build: 0
   documents:
-    journal: 102
+    journal: 103
     builder: 0
     persona: 0
     feature: 29
     technical: 26
     legal: 1
-    register: 103
+    register: 104
 sessions:
-  current_chat_id: 2026-05-05
-  current_chat_counter: 700
-last_anchor_time: 05-05 '26 13:30 SGT
-last_anchor_source: claude_register_103_close_O1_address_sanitiser_cancel
-last_anchor_iso8601: 2026-05-05T13:30:00+08:00
-last_anchor_utc: 2026-05-05T05:30:00Z
+  current_chat_id: 2026-05-07
+  current_chat_counter: 800
+last_anchor_time: 07-05 '26 13:00 SGT
+last_anchor_source: claude_doc_catchup_v0_58_49_to_v0_59_53
+last_anchor_iso8601: 2026-05-07T13:00:00+08:00
+last_anchor_utc: 2026-05-07T05:00:00Z
+tf_7_self_correction_4:
+  prior_anchor: 05-05 '26 13:30 SGT (last register #103)
+  evidence: github_pr_merge_timestamps_for_v0_58_55_through_v0_59_53_arc
+  drift_minutes: ~3120
+  cause: docs_lag_during_v0_58_55_through_v0_59_53_rapid_iteration_arc
+  corrected_at: 07-05 '26 13:00 SGT
+  rule: TF_7
+  prior_correction: 05-05 '26 12:00 SGT (drift 1665 min during v0_58_x arc)
 tf_7_self_correction_3:
   prior_anchor: 04-05 '26 08:15 SGT (last journal at v0.53.0)
   evidence: railway_deploys_v0_54_through_v0_58_45_squash_merged_to_main_between_04-05_and_05-05
