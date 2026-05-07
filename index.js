@@ -4596,7 +4596,7 @@ async function cacheBotUsername() {
           try {
             const memoryPicks = await pipeline.pickSingaporeanDishesForChat({
               redis,
-              chatId: verified?.user?.id,
+              chatId: csChatId, // Codex review #231 P1: verified doesn't exist in this route's scope.
               count: 3
             });
             if (Array.isArray(memoryPicks) && memoryPicks.length) {
