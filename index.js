@@ -3919,7 +3919,11 @@ async function cacheBotUsername() {
         const reqLang = bodyLang || await resolveLang(redis, chatId, null);
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
-          .slice(0, 12); // /app/map has no hard cap; 12 matches /cuisine result count
+          // v0.59.23 (Codex #228 P2): 12 → 16, matches /cuisine
+          // result-list cap (band 8-16). Without this bump,
+          // searches returning 13-16 venues silently dropped cards
+          // 13-16 from the copied chat message.
+          .slice(0, 16);
         if (!slim.length) {
           return res.status(400).json({ error: 'no venues' });
         }
