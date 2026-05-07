@@ -4720,10 +4720,14 @@ async function cacheBotUsername() {
         if (filters.newlyOpened) {
           venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
         }
-        // Sort by walking distance ASC (closer first) so top 12 are most reachable.
+        // Sort by walking distance ASC (closer first) so top venues are most reachable.
+        // v0.59.23: 12 → 16. Aligns with cuisine-search.js:258 count: 16
+        // (band 8-16 per Human Lead 2026-05-07). Previously the
+        // server-side rank stage returned 16 but this slice clipped
+        // back to 12 — the user only ever saw 12 cards.
         venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
-        const top = venues.slice(0, 12);
-        // v0.57.31: attach LTA-carpark crowd signal to the top 12 (one
+        const top = venues.slice(0, 16);
+        // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
         // where lunch crowds are walk-in; useful at suburban / HDB.

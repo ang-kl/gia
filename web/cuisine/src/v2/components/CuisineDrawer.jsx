@@ -58,19 +58,38 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
   function CategoryCard({ cat }) {
     const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
     const label = labelFor(cat);
+    // v0.59.23: single-item categories (Dessert, Fusion) skip the
+    // drill-down sub-drawer — tapping the card toggles the only
+    // entry directly. Per Human Lead 2026-05-07: "if i click fusion
+    // or dessert drawers, can it be selection than drawer since
+    // there aren't further options".
+    const isSingle = cat.cuisines.length === 1;
+    const onlySlug = isSingle ? cat.cuisines[0].slug : null;
+    const isOnlySelected = isSingle && selected.includes(onlySlug);
     return (
       <button
         type="button"
-        onClick={() => setOpenCategoryId(cat.id)}
+        onClick={() => {
+          if (isSingle) {
+            toggle(onlySlug);
+            // Mirror the drawer-close FAB pulse so the user sees the
+            // next-step CTA after a direct toggle too.
+            onCategoryClose?.();
+          } else {
+            setOpenCategoryId(cat.id);
+          }
+        }}
         title={label}
         className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-left hover:border-tg-accent transition-colors"
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
         <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{label}</span>
-        {selectedInCat > 0 && (
+        {!isSingle && selectedInCat > 0 && (
           <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>
         )}
-        <span aria-hidden className="text-tg-hint flex-shrink-0">▸</span>
+        <span aria-hidden className={`flex-shrink-0 ${isSingle && isOnlySelected ? 'text-tg-accent font-semibold' : 'text-tg-hint'}`}>
+          {isSingle ? (isOnlySelected ? '✓' : '+') : '▸'}
+        </span>
       </button>
     );
   }
