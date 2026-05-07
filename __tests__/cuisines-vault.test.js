@@ -55,8 +55,8 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 74 cuisines (v0.59.21: +Dessert +Fusion)', () => {
-    expect(vault.getAllCuisines().length).toBe(74);
+  it('loads exactly 72 cuisines (v0.59.34: African collapse 4 → 2)', () => {
+    expect(vault.getAllCuisines().length).toBe(72);
   });
 
   it('groups by category with expected counts', () => {
@@ -76,11 +76,11 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['european']).toBe(17);
     expect(counts['americas']).toBe(7);             // + American, Mexican, Brazilian
     expect(counts['australasia']).toBe(2);          // (new) Australian, New Zealand
-    expect(counts['african']).toBe(4);
+    expect(counts['african']).toBe(2);              // v0.59.34: collapsed E/K/N into 'African' (kept South African)
     expect(counts['dessert']).toBe(1);              // v0.59.21: Dessert
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(74);
+    expect(total).toBe(72);
   });
 
   it('Common Here is the only defaultOpen', () => {
