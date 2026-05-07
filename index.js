@@ -2617,9 +2617,15 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       return;
     }
 
+    // v0.59.31 / Codex review #236 P2: pin the anchor URL to the
+    // validated lat/lng (not just the user's text + " Singapore").
+    // Without this, JB queries like "Johor Bahru City Square" or
+    // SG/JB ambiguous building names re-geocoded to the wrong
+    // generic SG result. Coordinate-based URL grounds Gemini to the
+    // exact place the user typed.
     const anchor = {
       name: geo.name,
-      googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(geo.name + ' Singapore')}`
+      googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${geo.lat},${geo.lng}`
     };
 
     const introMsg = lang === 'fr'
