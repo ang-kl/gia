@@ -55,15 +55,16 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 72 cuisines', () => {
-    expect(vault.getAllCuisines().length).toBe(72);
+  it('loads exactly 74 cuisines (v0.59.21: +Dessert +Fusion)', () => {
+    expect(vault.getAllCuisines().length).toBe(74);
   });
 
   it('groups by category with expected counts', () => {
     // v0.59.2: regrouped per Human Lead. Source markdown still has
     // 8 categories in the original layout; cuisines-vault remaps at
-    // load time into a 10-bucket world-region view. Total cuisine
-    // count remains 72; each cuisine's slug is unchanged.
+    // load time into a 10-bucket world-region view.
+    // v0.59.21: 2 new top-level categories (dessert + fusion), 1
+    // entry each. Total cuisine count 72 → 74.
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
     expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
@@ -76,8 +77,10 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['americas']).toBe(7);             // + American, Mexican, Brazilian
     expect(counts['australasia']).toBe(2);          // (new) Australian, New Zealand
     expect(counts['african']).toBe(4);
+    expect(counts['dessert']).toBe(1);              // v0.59.21: Dessert
+    expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(72);
+    expect(total).toBe(74);
   });
 
   it('Common Here is the only defaultOpen', () => {

@@ -70,6 +70,10 @@ export default function App() {
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  // v0.59.21: 3 s pulse on the 🔍 Search FAB after the user closes
+  // the cuisine drawer with at least one cuisine selected — subtle
+  // CTA "now press search" hint per Human Lead 2026-05-07.
+  const [searchHintActive, setSearchHintActive] = useState(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
   // "Telok Blangah · 5 places nearby" once everything's loaded.
@@ -607,7 +611,13 @@ export default function App() {
                 }} />
             )}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
-              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))} />
+              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
+              onCategoryClose={() => {
+                if (state.cuisines.length > 0) {
+                  setSearchHintActive(true);
+                  setTimeout(() => setSearchHintActive(false), 3000);
+                }
+              }} />
             <div className="flex gap-1.5 items-center">
               <button
                 type="button"
@@ -653,7 +663,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.20 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.21 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
@@ -680,7 +690,7 @@ export default function App() {
             loading ? 'bg-tg-card text-tg-hint border border-tg-border'
             : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
             : 'bg-tg-accent text-tg-accent-text'
-          }`}
+          } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
         >🔍</button>
       </div>
     </div>

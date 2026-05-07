@@ -17,8 +17,8 @@ const {
 } = require('../pipeline.js');
 
 describe('SINGAPOREAN_DISHES', () => {
-  it('contains the 50 iconic SG dishes from the Human Lead spec', () => {
-    expect(SINGAPOREAN_DISHES.length).toBe(50);
+  it('contains the 47 iconic SG dishes (v0.59.21: 50 → 47, removed Curry Puff/Ice Kacang/Chendol)', () => {
+    expect(SINGAPOREAN_DISHES.length).toBe(47);
     expect(SINGAPOREAN_DISHES).toContain('Hainanese Chicken Rice');
     expect(SINGAPOREAN_DISHES).toContain('Laksa');
     expect(SINGAPOREAN_DISHES).toContain('Char Kway Teow');
@@ -30,6 +30,12 @@ describe('SINGAPOREAN_DISHES', () => {
 
   it('has no duplicate entries', () => {
     expect(new Set(SINGAPOREAN_DISHES).size).toBe(SINGAPOREAN_DISHES.length);
+  });
+
+  it('does NOT contain v0.59.21-removed entries (Curry Puff, Ice Kacang, Chendol)', () => {
+    expect(SINGAPOREAN_DISHES).not.toContain('Curry Puff');
+    expect(SINGAPOREAN_DISHES).not.toContain('Ice Kacang');
+    expect(SINGAPOREAN_DISHES).not.toContain('Chendol');
   });
 });
 
@@ -58,25 +64,26 @@ describe('pickRandomSubset', () => {
 });
 
 describe('expandSingaporeanCuisines', () => {
-  it('appends 2 dishes when "Singaporean" is selected (case canonical)', () => {
+  it('appends 3 dishes when "Singaporean" is selected (v0.59.21: 2 → 3)', () => {
     const out = expandSingaporeanCuisines(['Singaporean']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
     expect(out[0]).toBe('Singaporean');
-    // The 2 appended items must come from the dish list.
+    // The 3 appended items must come from the dish list.
     expect(SINGAPOREAN_DISHES).toContain(out[1]);
     expect(SINGAPOREAN_DISHES).toContain(out[2]);
-    // They must be distinct.
-    expect(out[1]).not.toBe(out[2]);
+    expect(SINGAPOREAN_DISHES).toContain(out[3]);
+    // They must all be distinct.
+    expect(new Set([out[1], out[2], out[3]]).size).toBe(3);
   });
 
   it('matches case-insensitively (lowercase singaporean)', () => {
     const out = expandSingaporeanCuisines(['singaporean']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
   });
 
   it('matches case-insensitively (UPPERCASE)', () => {
     const out = expandSingaporeanCuisines(['SINGAPOREAN']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
   });
 
   it('passes through non-SG cuisines unchanged', () => {
@@ -86,12 +93,13 @@ describe('expandSingaporeanCuisines', () => {
 
   it('preserves other cuisines when Singaporean is mixed in', () => {
     const out = expandSingaporeanCuisines(['Singaporean', 'Korean']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(5);
     expect(out).toContain('Singaporean');
     expect(out).toContain('Korean');
-    // Last 2 entries are dishes.
+    // Last 3 entries are dishes.
     expect(SINGAPOREAN_DISHES).toContain(out[2]);
     expect(SINGAPOREAN_DISHES).toContain(out[3]);
+    expect(SINGAPOREAN_DISHES).toContain(out[4]);
   });
 
   it('handles non-array inputs without throwing (passes through)', () => {
@@ -106,18 +114,18 @@ describe('expandSingaporeanCuisines', () => {
   // catch them while respecting hyphenated boundaries.
   it('expands when Singaporean appears with a halal modifier prefix', () => {
     const out = expandSingaporeanCuisines(['halal Singaporean']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
     expect(out[0]).toBe('halal Singaporean');
   });
 
   it('expands when Singaporean appears with a home-cooked modifier prefix', () => {
     const out = expandSingaporeanCuisines(['home-cooked Singaporean']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
   });
 
   it('expands when Singaporean appears with a private-dining stack', () => {
     const out = expandSingaporeanCuisines(['Singaporean private dining']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(4);
   });
 
   it('does NOT expand "Singaporean-style" (one hyphenated token, not the cuisine pick)', () => {
@@ -137,7 +145,7 @@ describe('expandSingaporeanCuisines', () => {
     const sets = new Set();
     for (let i = 0; i < 5; i++) {
       const out = expandSingaporeanCuisines(['Singaporean']);
-      sets.add([out[1], out[2]].sort().join('|'));
+      sets.add([out[1], out[2], out[3]].sort().join('|'));
     }
     expect(sets.size).toBeGreaterThanOrEqual(2);
   });

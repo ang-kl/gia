@@ -346,11 +346,14 @@ const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby'
 // the dish name itself stays in its native form — same iconic-dish
 // carve-out the venue-templates and Gemini grounding prompt already
 // observe).
+// v0.59.21: removed 'Curry Puff' (brand-cluster offender — see
+// throttleBrands rationale), 'Ice Kacang' and 'Chendol' (better-served
+// by the Dessert cuisine entry's specialRequest). Pool 50 → 47.
 const SINGAPOREAN_DISHES = [
   'Hainanese Chicken Rice', 'Chilli Crab', 'Laksa', 'Char Kway Teow',
   'Hokkien Mee', 'Bak Kut Teh', 'Bak Chor Mee', 'Chai Tow Kway',
-  'Oyster Omelette', 'Rojak', 'Ice Kacang', 'Chendol', 'Tau Huay',
-  'Popiah', 'Chwee Kueh', 'Curry Puff', 'Sambal Stingray', 'Prawn Mee',
+  'Oyster Omelette', 'Rojak', 'Tau Huay',
+  'Popiah', 'Chwee Kueh', 'Sambal Stingray', 'Prawn Mee',
   'Wanton Mee', 'Ban Mian', 'Claypot Rice', 'Duck Rice', 'Lor Mee',
   'Kway Chap', 'Yong Tau Foo', 'Nasi Lemak', 'Satay', 'Beef Rendang',
   'Nasi Padang', 'Lontong', 'Mee Rebus', 'Mee Siam', 'Ayam Penyet',
@@ -396,7 +399,120 @@ function containsSingaporeanCuisine(cuisines) {
 function expandSingaporeanCuisines(cuisines) {
   if (!Array.isArray(cuisines)) return cuisines;
   if (!containsSingaporeanCuisine(cuisines)) return cuisines;
-  return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 2)];
+  // v0.59.21: 2 → 3 dishes per Human Lead 2026-05-07. The query stays
+  // well under Places' textQuery length cap and 3 OR-terms still
+  // produce enough varied recall without diluting the result list.
+  return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 3)];
+}
+
+// v0.59.21 — Dessert + Fusion query expansion (Codex review #226 P2).
+// /api/cuisine/search calls pipeline.discover() directly with no LLM
+// rank step — query.specialRequest never reaches an LLM in the TMA
+// flow. To honour Human Lead's Dessert/Fusion intent in the TMA path,
+// we expand the Places textQuery with grounded keywords the same way
+// Singaporean expands with random iconic dishes.
+const DESSERT_KEYWORDS = [
+  'kueh', 'kaya toast', 'bingsu', 'patisserie', 'tau huay',
+  'bubur cha cha', 'ice kachang', 'chendol', 'mochi', 'gelato',
+  'cake shop', 'soft serve'
+];
+const FUSION_KEYWORDS = [
+  'Michelin Star Singapore', 'Michelin Bib Gourmand Singapore',
+  "Asia's 50 Best Restaurants", 'modern Asian Singapore',
+  'contemporary Singapore'
+];
+
+function expandDessertCuisines(cuisines) {
+  if (!Array.isArray(cuisines)) return cuisines;
+  const has = cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
+  );
+  if (!has) return cuisines;
+  return [...cuisines, ...pickRandomSubset(DESSERT_KEYWORDS, 3)];
+}
+
+function expandFusionCuisines(cuisines) {
+  if (!Array.isArray(cuisines)) return cuisines;
+  const has = cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'fusion')
+  );
+  if (!has) return cuisines;
+  return [...cuisines, ...pickRandomSubset(FUSION_KEYWORDS, 2)];
+}
+
+// v0.59.21 — Brand-throttle dedup. After Google Places returns
+// candidates, runs of same-brand venues (Hong Lim Curry Puff at 3
+// outlets, Gold Xiang Curry Puff at 2 outlets, etc.) crowd out
+// dish-level variety. This helper extracts a "brand key" by
+// normalising the venue name and caps at `cap` venues per brand.
+//
+// Brand-key extraction:
+//   1. Lowercase, drop trailing branch markers after " - "
+//      ("GOLD XIANG CURRY PUFF PTE. LTD. - Bukit Merah" → "gold xiang
+//      curry puff pte. ltd.")
+//   2. Drop parenthesised suffixes ("Hong Lim Curry Puff (Maxwell
+//      Food Centre)" → "Hong Lim Curry Puff")
+//   3. Strip corporate-form tokens (pte, ltd, pte., ltd., co, co.,
+//      &) and punctuation
+//   4. Collapse whitespace, take first 4 tokens
+//
+// Wired into runPipeline between discover() and rankAndNarrate so
+// both cuisine-search and chat-side flows get the throttled list.
+const CORPORATE_TOKENS = new Set(['pte', 'ltd', 'pte.', 'ltd.', 'co', 'co.', '&', 'and', 'inc', 'inc.', 'llc']);
+function brandKey(venue) {
+  const raw = String(venue?.displayName?.text || venue?.displayName || venue?.name || '');
+  if (!raw) return '';
+  let s = raw.toLowerCase();
+  // Cut at " - " (en-dash hyphen variants too).
+  s = s.split(/\s[-–—]\s/)[0];
+  // Drop parenthesised suffixes, including "[ ... ]" and "{ ... }".
+  s = s.replace(/[(\[{][^)\]}]*[)\]}]/g, ' ');
+  // Strip punctuation.
+  s = s.replace(/[.,!?'"`]/g, ' ');
+  // Tokenise; drop corporate-form tokens.
+  const tokens = s.split(/\s+/).filter((t) => t && !CORPORATE_TOKENS.has(t));
+  // First 4 tokens — covers "Hong Lim Curry Puff" and "Gold Xiang
+  // Curry Puff" (both 4 tokens) without over-collapsing distinct
+  // brands like "Toast Box" vs "Toast Box Express".
+  return tokens.slice(0, 4).join(' ').trim();
+}
+
+function throttleBrands(venues, cap = 2) {
+  if (!Array.isArray(venues)) return venues;
+  const counts = new Map();
+  const out = [];
+  for (const v of venues) {
+    const key = brandKey(v);
+    if (!key) { out.push(v); continue; }
+    const n = counts.get(key) || 0;
+    if (n < cap) {
+      out.push(v);
+      counts.set(key, n + 1);
+    }
+  }
+  return out;
+}
+
+// v0.59.21 — Inject per-cuisine prompt augmentations into the
+// rankAndNarrate `specialRequest` slot. Currently for Dessert and
+// Fusion (new categories from Human Lead 2026-05-07).
+//
+// History-aware clauses ("past 4 months", "top 5 favorites") were
+// stripped per user direction — there's no user-history backing
+// store today. The prompt now grounds entirely against discover()
+// candidates + LLM training-data awareness. When user-history
+// infra ships later, this helper can grow the stripped clauses
+// back without changing call sites.
+function specialRequestForCuisines(cuisines) {
+  const lc = (cuisines || []).map((c) => String(c || '').toLowerCase());
+  const reqs = [];
+  if (lc.some((c) => c.split(/\s+/).some((tok) => tok === 'dessert'))) {
+    reqs.push("Surface dessert venues that are open now at the user's local time. Prefer variety across dessert styles (kueh, kaya toast, bingsu, patisserie, ice kachang, chendol) and avoid repeating the same brand more than twice.");
+  }
+  if (lc.some((c) => c.split(/\s+/).some((tok) => tok === 'fusion'))) {
+    reqs.push("Surface fusion restaurants that are open now. Prefer venues listed in the Michelin Guide Singapore 2025-2026 (Star or Bib Gourmand) or Asia's 50 Best Restaurants 2025-2026; if none are reachable, fall back to other well-regarded fusion venues. Avoid repeating the same brand more than twice.");
+  }
+  return reqs.join(' ');
 }
 
 const DISCOVER_FIELD_MASK = [
@@ -462,7 +578,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   // iconic-dish terms so consecutive calls return varied venues (not
   // the same chicken-rice / laksa duo every time). Pass-through for
   // every other cuisine selection.
-  const effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  // v0.59.21 (Codex #226 P2): chain Dessert/Fusion query expansion
+  // here too so the TMA path (which calls discover() directly with
+  // no LLM rank) still honours the Dessert/Fusion intent.
+  let effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  effectiveCuisines = expandDessertCuisines(effectiveCuisines);
+  effectiveCuisines = expandFusionCuisines(effectiveCuisines);
   diag('D710', 'Discover Places start', true, { lat, lng, cuisines: effectiveCuisines, radius });
   const t0 = Date.now();
   try {
@@ -577,8 +698,15 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         };
       })
       .filter((v) => v.placeId && v.name);
-    diag('D711', 'Discover Places ok', true, { n: raw.length, ms });
-    return raw;
+    // v0.59.21 — global brand-throttle (cap=2 per brand). Same brand
+    // with 3+ outlets crowded out dish-level variety in user
+    // screenshots (Hong Lim Curry Puff x3, Gold Xiang x2, etc.).
+    // Cap before downstream rank/narrate so the LLM gets variety to
+    // pick from. Per Human Lead 2026-05-07.
+    const throttled = throttleBrands(raw, 2);
+    const droppedBrand = raw.length - throttled.length;
+    diag('D711', 'Discover Places ok', true, { n: throttled.length, ms, droppedBrand });
+    return throttled;
   } catch (err) {
     const ms = Date.now() - t0;
     diag('D712', 'Discover Places failed', false, { err: err.message?.slice(0, 200), ms });
@@ -1124,6 +1252,16 @@ function makeDiag() {
 
 async function runPipeline({ redis, lat, lng, query, validatedVenues, count = 15 }) {
   const diag = makeDiag();
+  // v0.59.21 — Dessert/Fusion cuisine entries piggy-back on the
+  // specialRequest slot. Append the auto-generated prompt augmentation
+  // (currently-open + variety + Michelin grounding) to whatever the
+  // caller already passed.
+  if (query && Array.isArray(query.cuisines) && query.cuisines.length) {
+    const auto = specialRequestForCuisines(query.cuisines);
+    if (auto) {
+      query = { ...query, specialRequest: [query.specialRequest, auto].filter(Boolean).join(' ') };
+    }
+  }
   // Phase 1: Reason — vault snapshot first, then Gemini draft.
   const snapshot = await vaultIndex.snapshotForLocation(redis, { lat, lng }, query.radius || 1500);
   diag('D601', 'Vault snapshot', true, {
@@ -1174,5 +1312,15 @@ module.exports = {
   // Codex review #224 — used by index.js /api/cuisine/search to
   // decide whether to skip the 30-min Redis cache (each Singaporean
   // call must re-run discover() so dish picks rotate per call).
-  containsSingaporeanCuisine
+  containsSingaporeanCuisine,
+  // v0.59.21 — exposed for unit tests of brand-throttle dedup +
+  // Dessert/Fusion specialRequest injection.
+  brandKey,
+  throttleBrands,
+  specialRequestForCuisines,
+  // v0.59.21 (Codex #226 P2) — Dessert/Fusion Places query expansion.
+  DESSERT_KEYWORDS,
+  FUSION_KEYWORDS,
+  expandDessertCuisines,
+  expandFusionCuisines
 };
