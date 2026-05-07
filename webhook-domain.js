@@ -30,7 +30,13 @@ const { logger } = require('./logger');
 
 const PRIMARY  = process.env.WEBHOOK_DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN;
 const FALLBACK = process.env.WEBHOOK_DOMAIN_FALLBACK || null;
-const HEALTH_PATH = '/app/cuisine';
+// v0.59.30 / Codex #235 P1: content-verifying probe. /healthz on the
+// real Gia app returns { service: 'gia', ok: true }. A parking server
+// or any wrong-route service returning 200/403/etc with HTML content
+// is correctly classified as UNHEALTHY because JSON.service !== 'gia'.
+const HEALTH_PATH = '/healthz';
+const HEALTH_SIGNATURE_KEY = 'service';
+const HEALTH_SIGNATURE_VALUE = 'gia';
 const CHECK_INTERVAL_MS = 60_000;
 const PROBE_TIMEOUT_MS = 5_000;
 
@@ -45,11 +51,17 @@ async function probe(host) {
     const r = await axios.get(`https://${host}${HEALTH_PATH}`, {
       timeout: PROBE_TIMEOUT_MS,
       maxRedirects: 0,
-      validateStatus: () => true // any HTTP response counts as reachable
+      validateStatus: () => true // we judge health from BODY, not status
     });
-    // 2xx / 3xx / 4xx all mean "host responded" — domain is reachable.
-    // Only 5xx + network errors are treated as unhealthy.
-    return r.status >= 200 && r.status < 500;
+    // v0.59.30 / Codex #235 P1: status alone is insufficient. A
+    // parking-server 403 ("host_not_allowed") or a stray 200 from a
+    // misrouted CDN are both "HTTP responses" but NOT our app. Only
+    // count the host healthy when /healthz returns JSON with our
+    // signature.
+    if (r.status !== 200) return false;
+    const body = r.data;
+    return !!(body && typeof body === 'object'
+      && body[HEALTH_SIGNATURE_KEY] === HEALTH_SIGNATURE_VALUE);
   } catch {
     return false;
   }
