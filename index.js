@@ -3839,7 +3839,7 @@ async function registerCommandsMenu() {
     // accepts a `language_code` so French users see French descriptions
     // in the slash-menu hint. Default (no language_code) covers EN.
     const enCommands = [
-      { command: 'cuisine',    description: 'Cuisine Picker · 66 choices' },
+      { command: 'cuisine',    description: 'Cuisine Picker · over 55 cuisines' },
       { command: 'hidden',     description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
@@ -3855,7 +3855,7 @@ async function registerCommandsMenu() {
       { command: 'forgetme',   description: 'Erase your stored data' }
     ];
     const frCommands = [
-      { command: 'cuisine',    description: 'Sélecteur de cuisine · 66 choix' },
+      { command: 'cuisine',    description: 'Sélecteur de cuisine · plus de 55 cuisines' },
       { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées à 1,5–3 km' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
@@ -3880,7 +3880,7 @@ async function registerCommandsMenu() {
     // pre-v0.58.55 EN-only text and add a FR variant.
     const enDescription =
       "This is a breakfast, lunch & dining concierge service.\n\n" +
-      "/cuisine — 66 cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — over 55 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 new places to try 1.5–3 km away\n" +
       "/hawker — >100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -3890,7 +3890,7 @@ async function registerCommandsMenu() {
       "Free to use. Quirks welcome. Foodie.";
     const frDescription =
       "Conciergerie petit-déjeuner, déjeuner & dîner.\n\n" +
-      "/cuisine — 66 cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — plus de 55 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 trouvailles à 1,5–3 km\n" +
       "/hawker — plus de 100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
