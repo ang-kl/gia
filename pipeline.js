@@ -892,6 +892,32 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     diag('D712', 'GOOGLE_MAPS_API_KEY missing', false);
     return [];
   }
+  // v0.59.52: when the user runs Search with NO cuisine selected, the
+  // previous empty-cuisine path used searchNearby with POPULARITY,
+  // which at SG-wide 50 km returns a small pool — brand + dish-tail
+  // throttle then squeezed it down to 3 venues every call (Song Fa /
+  // JUMBO / Swee Choon, per Human Lead screenshots). Warm-start
+  // sidesteps this by using searchText with rotating "popular /
+  // highly rated / open now" seeds (4607-4621) — that path returns
+  // 12+ healthy venues. Mirror it here: when cuisines is empty, pick
+  // a random seed and route through the searchText path so consecutive
+  // taps land on different result sets.
+  const NO_CUISINE_SEEDS = [
+    'highly rated restaurants',
+    'popular restaurants',
+    'best restaurants near me',
+    'top rated restaurants',
+    'recommended restaurants',
+    'must try restaurants',
+    'famous local restaurants'
+  ];
+  let seededCuisines = cuisines;
+  const wasOriginallyEmpty = !Array.isArray(cuisines) || cuisines.length === 0;
+  if (wasOriginallyEmpty) {
+    const seed = NO_CUISINE_SEEDS[Math.floor(Math.random() * NO_CUISINE_SEEDS.length)];
+    seededCuisines = [seed];
+    diag('D709', 'Empty cuisines → seeded textQuery', true, { seed });
+  }
   // v0.59.19: when 'Singaporean' is selected, rotate in 2 random
   // iconic-dish terms so consecutive calls return varied venues (not
   // the same chicken-rice / laksa duo every time). Pass-through for
@@ -904,7 +930,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   // expandSingaporean=false to skip the in-place re-expansion that
   // would otherwise dilute the per-chatId memory by adding 3 more
   // random dishes on top of the chat-tracked picks.
-  let effectiveCuisines = expandSingaporean ? expandSingaporeanCuisines(cuisines) : cuisines;
+  let effectiveCuisines = expandSingaporean ? expandSingaporeanCuisines(seededCuisines) : seededCuisines;
   effectiveCuisines = expandDessertCuisines(effectiveCuisines);
   effectiveCuisines = expandFusionCuisines(effectiveCuisines);
   // v0.59.42: detect a Dessert pick. Dessert venues in SG are typically
@@ -1057,7 +1083,10 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     // a light Fisher-Yates shuffle on those two paths so consecutive
     // taps surface variety. Cuisine searches keep their order so the
     // LLM rank/narrate path receives a stable rating-influenced list.
-    const shouldShuffle = !hasCuisines || isDessertPick;
+    // v0.59.52: also shuffle when the user passed empty cuisines and
+    // we seeded a textQuery internally — same rotate-on-each-tap UX
+    // intent as the previous searchNearby empty path.
+    const shouldShuffle = !hasCuisines || isDessertPick || wasOriginallyEmpty;
     const finalList = shouldShuffle ? lightShuffle(throttled) : throttled;
     const droppedBrand = raw.length - brandThrottled.length;
     const droppedTail = brandThrottled.length - throttled.length;
