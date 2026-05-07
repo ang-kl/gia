@@ -862,7 +862,7 @@ function priceLevelToInt(p) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -1007,8 +1007,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     // v0.59.41: also throttle by dish-tail key (cap=2 per shared
     // last-token like "porridge", "rice", "noodle"). Catches the
     // "3 porridge shops in a row" UX issue user reported when the
-    // shops have different brand keys.
-    const throttled = throttleByDishTail(brandThrottled, 2);
+    // shops have different brand keys. Free-text searches (e.g.
+    // "porridge", "chicken rice") opt out — the user's literal query
+    // IS the dish tail, so capping at 2 would drop most matches.
+    const throttled = applyDishTailThrottle
+      ? throttleByDishTail(brandThrottled, 2)
+      : brandThrottled;
     const droppedBrand = raw.length - brandThrottled.length;
     const droppedTail = brandThrottled.length - throttled.length;
     diag('D711', 'Discover Places ok', true, { n: throttled.length, ms, droppedBrand, droppedTail });
