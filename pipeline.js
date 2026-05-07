@@ -346,21 +346,106 @@ const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby'
 // the dish name itself stays in its native form — same iconic-dish
 // carve-out the venue-templates and Gemini grounding prompt already
 // observe).
-// v0.59.21: removed 'Curry Puff' (brand-cluster offender — see
-// throttleBrands rationale), 'Ice Kacang' and 'Chendol' (better-served
-// by the Dessert cuisine entry's specialRequest). Pool 50 → 47.
+// v0.59.27: full SG hawker / zhi-char / Indian / Malay / Peranakan /
+// Hainanese / Hakka / fusion catalogue per Human Lead 2026-05-07.
+// Replaces the v0.59.21 47-item iconic-dish list with a ~180-item
+// pan-cuisine pool that mirrors what's actually served across SG
+// food courts and casual restaurants. Combined with the per-chatId
+// LRU memory (v0.59.26, 30-entry cap), repetition is now extremely
+// unlikely — over 30 consecutive searches a user sees ~90 distinct
+// rotated dishes from this pool.
 const SINGAPOREAN_DISHES = [
-  'Hainanese Chicken Rice', 'Chilli Crab', 'Laksa', 'Char Kway Teow',
-  'Hokkien Mee', 'Bak Kut Teh', 'Bak Chor Mee', 'Chai Tow Kway',
-  'Oyster Omelette', 'Rojak', 'Tau Huay',
-  'Popiah', 'Chwee Kueh', 'Sambal Stingray', 'Prawn Mee',
-  'Wanton Mee', 'Ban Mian', 'Claypot Rice', 'Duck Rice', 'Lor Mee',
-  'Kway Chap', 'Yong Tau Foo', 'Nasi Lemak', 'Satay', 'Beef Rendang',
-  'Nasi Padang', 'Lontong', 'Mee Rebus', 'Mee Siam', 'Ayam Penyet',
-  'Soto Ayam', 'Mee Goreng', 'Sup Tulang', 'Asam Pedas', 'Sayur Lodeh',
-  'Otak-Otak', 'Tauhu Goreng', 'Pulut Hitam', 'Bubur Cha Cha',
-  'Roti Prata', 'Nasi Biryani', 'Murtabak', 'Fish Head Curry',
-  'Thosai', 'Vadai', 'Mutton Soup', 'Putu Mayam'
+  // Chicken / duck / rice
+  'Steamed Chicken Rice', 'Roasted Chicken Rice', 'Yang Zhou Fried Rice',
+  'Duck Rice', 'Claypot Rice', 'Glutinous Rice with Chicken',
+  'Lor Mai Kai', 'Hainanese Curry Rice', 'Fried Rice with Silver Fish',
+  // Char kway teow / fried noodles / hokkien mee
+  'Char Kuay Teow', 'Fried Hokkien Mee', 'Beef Hor Fun',
+  'Moonlight Hor Fun', 'Shredded Chicken Hor Fun', 'San Lou Bee Hoon',
+  'Sin Chew Bee Hoon', 'Satay Bee Hoon', 'Maggi Goreng',
+  // Mee / noodles soup + dry
+  'Minced Meat Mee Pok', 'Economical Mee Goreng',
+  'Ban Mian Dry', 'Ban Mian Soup', 'Steamed Chicken Noodle',
+  'Char Siew Wanton Noodle', 'Dumpling You Mian', 'Fishball Noodle Soup',
+  'Lor Mee', 'Mee Sua', 'Mee Tai Mak', 'Kway Teow Kia',
+  'Traditional Beef Noodles', 'Fish Soup Bee Hoon',
+  // Indo-Malay mee
+  'Mee Soto', 'Mee Bandung', 'Mee Bakso', 'Mee Siam', 'Mee Rebus',
+  'Mee Rebus Tulang', 'Mee Kuah',
+  // Carrot cake / oyster / roast
+  'Fried Carrot Cake', 'Oyster Omelette', 'Chee Cheong Fun',
+  'Yam Cake', 'Chwee Kueh', 'Kway Chap',
+  // Soup / fish / pork
+  'Bak Kut Teh', 'Pig Organ Soup', 'Mutton Soup', 'Fish Head Curry',
+  'Fish Head Steamboat', 'Fish Soup with Milk', 'Sliced Fish Soup',
+  'Old Cucumber Soup', 'Lotus Root Soup', 'ABC Soup',
+  'Watercress Soup', 'Peanut Lotus Root Soup', 'Sup Tulang',
+  'Tulang Merah',
+  // Porridge
+  'Century Egg Porridge', 'Fish Porridge',
+  // Dim sum / steamed
+  'Seng Kong Pau', 'Siew Mai', 'Har Gow', 'Steam Egg',
+  'Tofu with Minced Meat',
+  // Malay / Indo nasi + ayam
+  'Ayam Penyet', 'Ikan Penyet', 'Nasi Kampung Goreng', 'Nasi Lemak',
+  'Nasi Ambang', 'Goreng Pisang', 'Tahu Goreng', 'Lontong',
+  'Kentang Ball with Rice Cube', 'Soto Ayam', 'Nasi Padang',
+  'Nasi Kuning', 'Ketupat', 'Otak Otak', 'Epok Epok',
+  'Ayam Masak Merah', 'Soto Babat', 'Nasi Rawon',
+  'Sotong Hitam', 'Ikan Bakar', 'Assam Pedas', 'Beef Rendang',
+  'Dendeng', 'Sambal Goreng', 'Sayur Lodeh', 'Paru Goreng',
+  // Satay
+  'Satay Chicken', 'Satay Mutton', 'Satay Beef',
+  // Rojak
+  'Rojak Malay', 'Rojak Chinese', 'Indian Rojak',
+  // Indian — appam / prata / biryani / naan / breads / chapati
+  'Original Appam', 'Egg Appam', 'Roti Prata Plain', 'Roti Prata Egg',
+  'Egg Prata with Chicken Curry', 'Crispy Specialty Prata',
+  'Boneless Mutton Biryani', 'Chicken Biryani', 'Fish Biryani',
+  'Vegetable Biryani', 'Vegetable Set Meal',
+  'Poori Set', 'Masala Thosai', 'Egg Thosai', 'Idli Set',
+  'Naan Plain', 'Garlic Naan', 'Butter Naan',
+  'Chapatti Set with Potato', 'Chapatti Set with Potato Masala',
+  'Putu Mayam', 'Vadai', 'Samosa',
+  'Murtabak Mutton', 'Murtabak Chicken',
+  // Indian curry mains (modern SG-Indian)
+  'Mutton Keema', 'Tandoori Chicken', 'Butter Chicken',
+  'Palak Paneer', 'Aloo Gobi', 'Dal Tadka',
+  // Kaya toast / breakfast
+  'Kaya Toast', 'Soft Boiled Eggs',
+  // Peranakan
+  'Popiah', 'Kueh Pie Tee', 'Peranakan Ayam Buah Keluak',
+  'Babi Pongteh', 'Chap Chye', 'Itek Tim', 'Ngoh Hiang',
+  // Hainanese-style mains / Western
+  'Hainanese Pork Chop', 'Western Chicken Chop',
+  'Western Fish and Chips', 'Western Chicken Cutlet',
+  // Sambal / kang kong
+  'Sambal Kang Kong', 'Sambal Sotong', 'Kang Kong Belacan',
+  // Seafood / crab / prawn / squid
+  'Chili Crab', 'Black Pepper Crab', 'Cereal Prawns',
+  'Drunken Prawns', 'Salted Egg Calamari', 'Cereal Squid',
+  'Stingray with Sambal', 'Lala in Superior Broth',
+  'Sambal Petai', 'Shark Meat',
+  // Zhi-char classics
+  'Bitter Gourd with Ribs', 'Sweet and Sour Pork',
+  'Stir Fried Beef with Ginger', 'Salted Egg Chicken',
+  'Coffee Pork Ribs', 'Marmite Chicken', 'Claypot Tofu',
+  'Venison with Ginger and Onion', 'Hotplate Tofu',
+  'Spinach with Triple Egg', 'Mongolian Pork Ribs',
+  'Superior Pot', 'Diced Chicken with Dried Chili',
+  'Sizzling Venison', 'Yam Ring', 'Salted Egg Pork Ribs',
+  'Oyster Sauce Kai Lan', 'Broccoli with Scallops',
+  'Pork Belly with Salted Fish', 'Braised Duck with Yam',
+  // Cantonese chicken classics
+  'Har Cheong Gai', 'Prawn Paste Chicken',
+  // Mala
+  'Mala Xiang Guo', 'Mala Tang',
+  // Hakka
+  'Thunder Tea Rice', 'Hakka Abacus Seeds',
+  // Hawker snacks / sweets adjacent
+  'Muah Chee', 'Tutu Kueh', 'Kachang Pool',
+  // Western fusion / hawker burgers
+  'Street Style Slider Burger', 'Roti John', 'Laksa'
 ];
 
 // Partial Fisher-Yates: returns up to n unique items drawn from arr.
@@ -457,10 +542,45 @@ async function pickSingaporeanDishesForChat({ redis, chatId, count = 3 }) {
 // flow. To honour Human Lead's Dessert/Fusion intent in the TMA path,
 // we expand the Places textQuery with grounded keywords the same way
 // Singaporean expands with random iconic dishes.
+// v0.59.27 — full SG-and-region dessert catalogue per Human Lead
+// 2026-05-07. The user-shared list is "consider, not compulsory":
+// items go into the Places textQuery as OR-terms to BROADEN recall
+// when /c Dessert is selected, but Places isn't forced to return
+// only these (the cuisine 'Dessert' anchor + 3 random keyword OR
+// terms is enough to pull dessert-themed venues without strict
+// gating). Combined with brand-throttle (cap=2) and the cuisine
+// rank stage, this gives diverse results without requiring a
+// "is this unique?" check.
 const DESSERT_KEYWORDS = [
-  'kueh', 'kaya toast', 'bingsu', 'patisserie', 'tau huay',
-  'bubur cha cha', 'ice kachang', 'chendol', 'mochi', 'gelato',
-  'cake shop', 'soft serve'
+  // Peranakan / SG kueh + nyonya sweets
+  'Kueh Lapis', 'Kueh Dadar', 'Kueh Salat', 'Kueh Kosui',
+  'Ondeh Ondeh', 'Ang Ku Kueh', 'Soon Kueh', 'Kueh Tutu',
+  'Putu Piring', 'Lapis Sagu', 'Kueh Bingka Ubi', 'Kueh Ambon',
+  'Kueh Bangkit', 'Kueh Bahulu', 'Kueh Kapit', 'Tutue Kueh',
+  // SG cold + warm desserts
+  'Ice Kachang', 'Chendol', 'Tau Huay', 'Bubur Cha Cha',
+  'Pulut Hitam', 'Cheng Tng', 'Red Bean Soup', 'Green Bean Soup',
+  'Tau Suan', 'Orh Nee', 'Suan Pan Zi',
+  'Mango Sago', 'Honeydew Sago', 'Durian Mousse',
+  'Tang Yuan', 'Ah Balling', 'Ice Cream Bread',
+  'Tapioca Cake', 'Gula Melaka Sago',
+  // Chinese guo tie
+  'Guo Tie',
+  // Thai sweets
+  'Mango Sticky Rice', 'Khanom Chan', 'Khanom Luak Chup',
+  'Bua Loy', 'Tub Tim Krob',
+  // Filipino sweets
+  'Leche Flan', 'Halo Halo', 'Bibingka', 'Puto Maya', 'Turon',
+  'Cassava Cake',
+  // Indonesian sweets
+  'Kue Putu', 'Es Teler', 'Martabak Manis', 'Klepon', 'Serabi',
+  'Bika Ambon', 'Bubur Sumsum', 'Wajik', 'Kolak Pisang',
+  // Vietnamese / Khmer sweets
+  'Nom Banh Chok', 'Nom Chak', 'Khao Nom Kok', 'Khao Niew Moon',
+  'Che Ba Mau', 'Che Troi Nuoc', 'Banh Cam', 'Banh Da Lon',
+  'Banh Chuoi',
+  // Western-style / hybrid bakery sweets common in SG
+  'Sujee Cake', 'Pandan Chiffon Cake'
 ];
 const FUSION_KEYWORDS = [
   'Michelin Star Singapore', 'Michelin Bib Gourmand Singapore',
