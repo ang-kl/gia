@@ -4458,28 +4458,33 @@ async function cacheBotUsername() {
           venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
         }
 
-        // Rating-rank, then pick 5 random from the top 15 via a
-        // truncated Fisher–Yates shuffle. Top-15 keeps quality high;
-        // the random sample inside that pool is what makes successive
-        // opens feel fresh.
-        function pickTopFive(list) {
+        // v0.59.42: rating-rank then pick up to 12 random from the
+        // top 20 (was 5 from top 15). Aligns warm-start with the 12-
+        // card grid /api/cuisine/search returns — Human Lead reported
+        // the picker showing 3 venues felt sparse. Truncated Fisher–
+        // Yates inside the top-20 pool keeps quality high while
+        // letting consecutive opens feel fresh.
+        function pickTopN(list, n) {
           const sorted = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-          const pool = sorted.slice(0, 15);
+          const pool = sorted.slice(0, Math.max(n, 20));
           const shuf = [...pool];
           for (let i = shuf.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuf[i], shuf[j]] = [shuf[j], shuf[i]];
           }
-          return shuf.slice(0, 5);
+          return shuf.slice(0, n);
         }
-        let top = pickTopFive(venues);
+        let top = pickTopN(venues, 12);
         let resolvedSeed = seed.id;
 
         // v0.58.16: fallback. When a narrow seed (e.g. newly-opened-
-        // halal) leaves us with < 3 venues post-filter, fetch a
+        // halal) leaves us with too few venues post-filter, fetch a
         // generic "highly rated restaurants" pool so the picker
-        // never opens with an empty / one-item list.
-        if (top.length < 3 && seed.id !== 'highly-rated-nearby') {
+        // never opens with an empty / sparse list.
+        // v0.59.42: bumped the fallback threshold 3 → 8 to align with
+        // the 12-card grid. A 5-venue warm-start showed gaps; below
+        // 8 we now broaden.
+        if (top.length < 8 && seed.id !== 'highly-rated-nearby') {
           try {
             const fallback = await pipeline.discover({
               lat: searchCenter.lat, lng: searchCenter.lng,
@@ -4491,7 +4496,7 @@ async function cacheBotUsername() {
             });
             const fbVenues = (Array.isArray(fallback) ? fallback : (fallback?.venues || []))
               .filter(venueFilters.passesVenueFilter);
-            const fbTop = pickTopFive(fbVenues);
+            const fbTop = pickTopN(fbVenues, 12);
             if (fbTop.length > top.length) {
               top = fbTop;
               // Use the canonical highly-rated-nearby seed id so
