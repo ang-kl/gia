@@ -39,10 +39,10 @@ export default function ResultPanel({
       // pasted message degenerated to "<b>NAME</b>\n📍 URL". The
       // server's /api/cuisine/copy-all still re-validates via its own
       // filter, so widening the payload here doesn't lower trust.
-      // v0.59.23: 12 → 16. Server cuisine-search.js:258 returns up to
-      // 16 (band 8-16 per Human Lead 2026-05-07); the v2 client was
-      // re-clipping to 12, so the server bump never reached the user.
-      const enriched = venues.slice(0, 16).map((v) => ({
+      // v0.59.29: 16 → 12 per Human Lead 2026-05-07. Mirrors the
+      // server-side cap revert in cuisine-search.js:258 to keep the
+      // copied chat message within Telegram's 4096-char limit.
+      const enriched = venues.slice(0, 12).map((v) => ({
         name: v.name || '',
         placeId: v.placeId || '',
         lat: v.lat,

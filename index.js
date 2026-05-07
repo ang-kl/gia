@@ -3922,11 +3922,11 @@ async function cacheBotUsername() {
         const reqLang = bodyLang || await resolveLang(redis, chatId, null);
         const slim = incoming
           .filter((v) => v && (v.placeId || (Number.isFinite(v.lat) && Number.isFinite(v.lng))))
-          // v0.59.23 (Codex #228 P2): 12 → 16, matches /cuisine
-          // result-list cap (band 8-16). Without this bump,
-          // searches returning 13-16 venues silently dropped cards
-          // 13-16 from the copied chat message.
-          .slice(0, 16);
+          // v0.59.29: 16 → 12 per Human Lead 2026-05-07. Reason:
+          // 16-venue body overflowed Telegram's 4096-char message
+          // cap and showed "Couldn't send to chat". Mirrors the
+          // server-side cap in cuisine-search.js:258.
+          .slice(0, 12);
         if (!slim.length) {
           return res.status(400).json({ error: 'no venues' });
         }
@@ -4754,12 +4754,13 @@ async function cacheBotUsername() {
           venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
         }
         // Sort by walking distance ASC (closer first) so top venues are most reachable.
-        // v0.59.23: 12 → 16. Aligns with cuisine-search.js:258 count: 16
-        // (band 8-16 per Human Lead 2026-05-07). Previously the
-        // server-side rank stage returned 16 but this slice clipped
-        // back to 12 — the user only ever saw 12 cards.
+        // v0.59.29: cap reverted 16 → 12 per Human Lead 2026-05-07.
+        // Reason: 16 venues × ~350 chars per detail block overflowed
+        // Telegram's 4096-char message cap when Copy-all assembled
+        // them — TMA showed "Couldn't send to chat". 12 keeps the
+        // body within budget without chunking machinery.
         venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
-        const top = venues.slice(0, 16);
+        const top = venues.slice(0, 12);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
