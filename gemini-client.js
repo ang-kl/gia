@@ -403,9 +403,157 @@ async function generateGroundedHiddenGems({
 //
 // No grounded search needed for this — it's pure classification + a
 // small reasoning step. Fast model, no tool wiring.
-async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-2.5-flash', _genAIFactory }) {
+//
+// v0.59.56: per-bug 2026-05-07 — "Goulash with dumplings" and
+// "Beef bourguignon" both fell through to the catch path. Two
+// failure modes confirmed:
+//   1. Gemini's RECITATION finishReason fires for some well-known
+//      dish names (the model thinks the answer would copy training
+//      data verbatim). `response.text()` then throws.
+//   2. The legacy SDK doesn't recognise `gemini-2.5-flash` in some
+//      regions, returning a 400.
+// Fix: model-fallback chain (gemini-flash-latest → 2.0-flash →
+// 2.5-flash-lite) + a small built-in dish dictionary for the common
+// European dishes that get blocked + NEVER throw — always return a
+// valid intent object.
+
+// Common dishes that Gemini's recitation filter sometimes blocks.
+// Used as a final deterministic fallback when every model errors out.
+// Keys are lowercased; match is "phrase contained in user text".
+const DISH_FALLBACK = [
+  // French
+  { match: ['beef bourguignon', 'boeuf bourguignon', 'bourguignon'], cuisine: 'French', why: 'Beef bourguignon is a Burgundian beef stew braised in red wine.' },
+  { match: ['coq au vin'], cuisine: 'French', why: 'Coq au vin is chicken braised in wine, a classic French peasant dish.' },
+  { match: ['cassoulet'], cuisine: 'French', why: 'Cassoulet is a slow-cooked Languedoc bean and meat casserole.' },
+  { match: ['ratatouille'], cuisine: 'French', why: 'Ratatouille is a Provençal stewed-vegetable dish.' },
+  { match: ['bouillabaisse'], cuisine: 'French', why: 'Bouillabaisse is a Marseille fish stew.' },
+  { match: ['steak frites', 'steak-frites'], cuisine: 'French', why: 'Steak frites is the French bistro staple of seared steak with chips.' },
+  // v0.59.58: 'duck confit' first so match[0] produces the English
+  // searchTerm preferred by SG Google Places ranking.
+  { match: ['duck confit', 'confit de canard'], cuisine: 'French', why: 'Duck confit is duck legs slow-cooked in their own fat.' },
+  { match: ['quiche lorraine'], cuisine: 'French', why: 'Quiche Lorraine is a savoury custard tart with bacon and cream.' },
+  { match: ['crepe', 'crêpe', 'galette'], cuisine: 'French', why: 'Crêpes are thin French pancakes; galettes are buckwheat-based and savoury.' },
+  // Hungarian/European
+  { match: ['goulash', 'gulyás'], cuisine: 'European', why: 'Goulash is a Hungarian beef paprika stew, often served with dumplings or noodles.' },
+  // Italian
+  { match: ['carbonara'], cuisine: 'Italian', why: 'Carbonara is a Roman pasta with egg, guanciale, pecorino, and pepper.' },
+  { match: ['cacio e pepe'], cuisine: 'Italian', why: 'Cacio e pepe is a Roman pasta of pecorino and pepper.' },
+  { match: ['osso buco', 'ossobuco'], cuisine: 'Italian', why: 'Osso buco is a Milanese braised veal shank.' },
+  { match: ['risotto'], cuisine: 'Italian', why: 'Risotto is a creamy short-grain Italian rice dish.' },
+  { match: ['lasagna', 'lasagne'], cuisine: 'Italian', why: 'Lasagna is a layered baked pasta.' },
+  // Thai
+  { match: ['pad thai', 'padthai'], cuisine: 'Thai', why: 'Pad Thai is the iconic Thai stir-fried rice noodle dish.' },
+  { match: ['tom yum', 'tom yam', 'tomyum'], cuisine: 'Thai', why: 'Tom yum is a hot-and-sour Thai broth.' },
+  { match: ['khao soi'], cuisine: 'Thai', why: 'Khao soi is a Northern Thai coconut-curry noodle soup.' },
+  { match: ['green curry', 'gaeng keow wan'], cuisine: 'Thai', why: 'Thai green curry is built on a fresh chilli + galangal paste.' },
+  // Indian
+  { match: ['butter chicken', 'murgh makhani'], cuisine: 'North Indian', why: 'Butter chicken is a Punjabi tomato-cream chicken curry.' },
+  { match: ['biryani', 'biriyani'], cuisine: 'North Indian', why: 'Biryani is a layered spiced rice dish with origins across the subcontinent.' },
+  { match: ['tandoori chicken'], cuisine: 'North Indian', why: 'Tandoori chicken is yogurt-marinated chicken roasted in a clay tandoor oven.' },
+  { match: ['dosa', 'masala dosa'], cuisine: 'South Indian', why: 'Dosa is a fermented-batter crisp South Indian crêpe.' },
+  // Japanese
+  { match: ['ramen'], cuisine: 'Japanese', why: 'Ramen is a Japanese wheat-noodle soup with regional broth styles.' },
+  { match: ['sushi'], cuisine: 'Japanese', why: 'Sushi pairs vinegared rice with raw fish or other toppings.' },
+  { match: ['tonkatsu'], cuisine: 'Japanese', why: 'Tonkatsu is a panko-breaded deep-fried pork cutlet.' },
+  // Korean
+  { match: ['bibimbap'], cuisine: 'Korean', why: 'Bibimbap is a mixed-rice bowl with vegetables, beef, and gochujang.' },
+  { match: ['kimchi jjigae', 'kimchi stew'], cuisine: 'Korean', why: 'Kimchi jjigae is a fermented-cabbage stew with pork or tofu.' },
+  // Mexican
+  { match: ['tacos', 'taco'], cuisine: 'Mexican', why: 'Tacos are folded soft-corn-tortilla street food across Mexican regions.' },
+  { match: ['mole'], cuisine: 'Mexican', why: 'Mole is a complex Mexican sauce family — Oaxacan moles use chiles, chocolate, and spices.' },
+  // Spanish
+  { match: ['paella'], cuisine: 'Spanish', why: 'Paella is a Valencian rice dish cooked in a wide flat pan.' },
+  { match: ['tapas'], cuisine: 'Spanish', why: 'Tapas are small Spanish sharing plates eaten with drinks.' },
+  // Vietnamese
+  { match: ['pho', 'phở'], cuisine: 'Vietnamese', why: 'Pho is a Vietnamese rice-noodle soup, beef (bò) or chicken (gà).' },
+  { match: ['banh mi', 'bánh mì'], cuisine: 'Vietnamese', why: 'Banh mi is a Vietnamese baguette sandwich, a French colonial fusion.' },
+  // British
+  { match: ['fish and chips', 'fish & chips'], cuisine: 'British', why: 'Fish and chips is the classic British battered-fish-with-fries combo.' },
+  { match: ['shepherd\'s pie', 'shepherds pie', 'cottage pie'], cuisine: 'British', why: 'Shepherd\'s pie is minced lamb topped with mashed potato, baked.' },
+  { match: ['beef wellington'], cuisine: 'British', why: 'Beef Wellington is a fillet of beef in pâté and puff pastry.' }
+];
+
+function dishFallback(text) {
+  const lc = String(text || '').toLowerCase();
+  for (const e of DISH_FALLBACK) {
+    if (e.match.some((m) => lc.includes(m))) return e;
+  }
+  return null;
+}
+
+// v0.59.57: cooking-technique fallback. Bug 2026-05-07: user typed
+// "/s Braisage" (French for braising) and the bot didn't explain
+// what the technique is before searching. Single foreign-language
+// technique words are easy for Gemini to mis-classify as ambiguous,
+// so we mirror the dish-fallback approach with a small curated
+// technique catalogue (EN + FR aliases). Each entry's `why` is the
+// one-sentence "this is what the technique does" explainer surfaced
+// to the user above the venue list.
+const TECHNIQUE_FALLBACK = [
+  { match: ['braising', 'braisage', 'braiser', 'braised'], cuisine: null, why: 'Braising = slow-cooking tougher cuts of meat in a small amount of seasoned liquid in a covered pot until tender. French classics: bourguignon, daube, navarin.', searchPhrase: 'braised meat restaurant Singapore' },
+  { match: ['rotisserie', 'rôtisserie', 'roasting on spit', 'spit-roasted'], cuisine: null, why: 'Rotisserie = roasting on a rotating spit so the juices baste the meat as it turns. Common for chicken, lamb, and porchetta.', searchPhrase: 'rotisserie restaurant Singapore' },
+  { match: ['sous vide', 'sous-vide'], cuisine: null, why: 'Sous vide = vacuum-sealing food and cooking it in a precisely temperature-controlled water bath, then searing to finish. Hits exact doneness every time.', searchPhrase: 'sous vide restaurant Singapore' },
+  { match: ['smoking', 'smoked', 'smokehouse'], cuisine: null, why: 'Smoking = cooking and flavouring food with low-temperature wood smoke (hickory, oak, mesquite, applewood) over hours. American BBQ, pastrami, smoked fish.', searchPhrase: 'smokehouse barbecue restaurant Singapore' },
+  { match: ['grilling', 'grillade', 'grilled', 'charcoal grill'], cuisine: null, why: 'Grilling = direct dry heat from below (gas, charcoal, or wood embers). Maillard sear on the outside, juicy inside.', searchPhrase: 'charcoal grill restaurant Singapore' },
+  { match: ['tandoor', 'tandoori', 'clay oven'], cuisine: 'North Indian', why: 'Tandoor = a vertical clay oven heated with charcoal to ~480 °C. Marinated meats and breads are slapped onto the wall; the intense heat seals in juices and chars the surface.', searchPhrase: 'tandoori indian restaurant Singapore' },
+  { match: ['robata', 'robatayaki'], cuisine: 'Japanese', why: 'Robatayaki = Japanese over-coal grilling on an open hearth, traditionally with binchotan charcoal. Diners sit around the grill and watch the chef.', searchPhrase: 'robata japanese restaurant Singapore' },
+  { match: ['binchotan'], cuisine: 'Japanese', why: 'Binchotan = white-hot, smoke-free Japanese oak charcoal that burns at very high temperatures. Used in yakitori and robata for clean, intense heat.', searchPhrase: 'binchotan yakitori restaurant Singapore' },
+  { match: ['yakitori'], cuisine: 'Japanese', why: 'Yakitori = Japanese skewered chicken (every part) grilled over binchotan with tare glaze or salt. A late-night izakaya staple.', searchPhrase: 'yakitori restaurant Singapore' },
+  { match: ['wok hei', 'breath of the wok'], cuisine: 'Cantonese', why: '镬气 (wok hei, "breath of the wok") = the smoky char a screaming-hot wok imparts to stir-fries. Requires a roaring flame and split-second timing.', searchPhrase: 'wok hei zi char restaurant Singapore' },
+  { match: ['char siu'], cuisine: 'Cantonese', why: 'Char siu = Cantonese roasted-pork technique: pork shoulder marinated in honey, five-spice, and red fermented bean curd, then hung on hooks in a vertical oven.', searchPhrase: 'char siu cantonese restaurant Singapore' },
+  { match: ['flambé', 'flambe', 'flaming'], cuisine: null, why: 'Flambé = igniting alcohol added to a pan to burn off harsh notes and add caramelised flavour. Showy table-side technique used for crêpes Suzette, steak Diane.', searchPhrase: 'flambé table side restaurant Singapore' },
+  { match: ['omakase'], cuisine: 'Japanese', why: 'Omakase = "I leave it to you" — diners surrender the menu to the chef, who serves a sequence of seasonal dishes (most often sushi).', searchPhrase: 'omakase restaurant Singapore' },
+  { match: ['teppanyaki'], cuisine: 'Japanese', why: 'Teppanyaki = Japanese flat-iron-griddle cooking, performed in front of diners at a counter. Wagyu, seafood, garlic-fried-rice classics.', searchPhrase: 'teppanyaki restaurant Singapore' },
+  { match: ['kamado', 'big green egg'], cuisine: null, why: 'Kamado = a Japanese-origin ceramic egg-shaped grill that holds steady low temperatures for hours — equally good at smoking, baking, and high-heat searing.', searchPhrase: 'kamado grill restaurant Singapore' },
+  { match: ['hibachi'], cuisine: 'Japanese', why: 'Hibachi = a small portable charcoal brazier; in modern usage often refers to the Western teppanyaki-style flat-iron-griddle show.', searchPhrase: 'hibachi japanese restaurant Singapore' },
+  { match: ['poaching', 'pochage', 'poché', 'poached'], cuisine: null, why: 'Poaching = gentle cooking in liquid held below a simmer (~70-85 °C). Preserves delicate proteins like fish, eggs, chicken breast.', searchPhrase: 'poached fish restaurant Singapore' },
+  { match: ['confit'], cuisine: 'French', why: 'Confit = slow-cooking food (classically duck legs) submerged in its own fat at low temperature until meltingly tender, then often crisped to finish.', searchPhrase: 'confit french restaurant Singapore' },
+  { match: ['mijoter', 'simmering', 'simmered'], cuisine: null, why: 'Mijoter / simmering = cooking just below the boil so flavours develop without breaking down delicate textures. The base of stews and reductions.', searchPhrase: 'slow simmered stew restaurant Singapore' },
+  { match: ['friture', 'deep fry', 'deep-fried', 'deep frying'], cuisine: null, why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.', searchPhrase: 'deep fried restaurant Singapore' },
+  { match: ['sauter', 'sautéing', 'sautéed', 'sauteed'], cuisine: null, why: 'Sautéing = cooking quickly in a small amount of fat over high heat, tossing the pan so food browns evenly without stewing.', searchPhrase: 'french bistro restaurant Singapore' }
+];
+
+function techniqueFallback(text) {
+  const lc = String(text || '').toLowerCase();
+  for (const e of TECHNIQUE_FALLBACK) {
+    if (e.match.some((m) => lc.includes(m))) return e;
+  }
+  return null;
+}
+
+const SEARCH_INTENT_MODEL_CHAIN = [
+  'gemini-flash-latest',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash-lite'
+];
+
+async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey && !_genAIFactory) throw new Error('GEMINI_API_KEY unset');
+  if (!apiKey && !_genAIFactory) {
+    // Caller-side env failure — log and return a graceful ambiguous.
+    console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dictionaries.');
+    // v0.59.58 (codex P2): dish dictionary runs FIRST so specific
+    // multi-word dish queries like "duck confit" and "tandoori
+    // chicken" keep hitting their pre-existing dish entries (with
+    // the precise searchTerm) instead of getting reclassified as
+    // the broader "confit"/"tandoor" technique. Standalone
+    // technique words ("tandoor", "braisage", "sous vide") still
+    // hit the technique entry on the second pass because no dish
+    // entry contains them as a substring.
+    const hit = dishFallback(text);
+    if (hit) {
+      // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
+      // not just the first user token, so "Beef bourguignon" searches
+      // "beef bourguignon restaurant Singapore" not "Beef restaurant
+      // Singapore".
+      return { intent: 'dish', cuisine: hit.cuisine, searchTerm: `${hit.match[0]} restaurant Singapore`, why: hit.why, clarify: '' };
+    }
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      return { intent: 'tool', cuisine: techHit.cuisine || null, searchTerm: techHit.searchPhrase, why: techHit.why, clarify: '' };
+    }
+    return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
+  }
   const histLines = (Array.isArray(history) ? history : [])
     .slice(-12)
     .map((h) => `${h.role === 'user' ? 'USER' : 'BOT'}: ${String(h.text || '').slice(0, 400)}`)
@@ -418,9 +566,9 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     '',
     'POSSIBLE INTENTS:',
     '- "dish": user named a specific dish (e.g. "goulash with dumpling", "pad thai", "khao soi", "carbonara").',
-    '- "ingredient": user named an ingredient or technique (e.g. "tandoor", "binchotan", "cold-pressed coconut milk", "burrata").',
-    '- "tool": user named a kitchen tool / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide").',
-    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify.',
+    '- "ingredient": user named an ingredient (e.g. "burrata", "uni", "wagyu", "cold-pressed coconut milk").',
+    '- "tool": user named a kitchen tool / cooking technique / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide", "braising", "braisage" (FR), "rôtisserie" (FR), "sauter" (FR), "tandoor", "smoking", "flambé", "omakase", "teppanyaki", "char siu method", "wok hei"). Even SINGLE-WORD foreign-language technique names belong here — do NOT mark them ambiguous. ALWAYS populate `why` with a one-sentence plain-English explanation of what the technique does.',
+    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language.',
     '',
     'WHEN A DISH IS NAMED:',
     '- Identify the dish\'s most likely culinary origin even if other-cuisine modifiers are present. "Goulash with dumpling" → Hungarian (NOT Chinese — goulash is the dish, dumpling is the side). "Pad Thai with shrimp" → Thai.',
@@ -446,13 +594,93 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     return new GoogleGenerativeAI(apiKey);
   });
   const genAI = factory();
-  const m = genAI.getGenerativeModel({ model });
-  const r = await m.generateContent(prompt);
-  const raw = r?.response?.text?.() || '';
-  const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
-  let parsed;
-  try { parsed = JSON.parse(cleaned); }
-  catch { parsed = { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: 'Sorry, I didn\'t catch that. Could you tell me which dish, ingredient, or kitchen technique you\'re curious about?' }; }
+  // Try the requested model first, then walk the fallback chain.
+  // De-duplicate so we don't retry the same model twice.
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  let parsed = null;
+  let lastErr = null;
+  for (const candidate of candidates) {
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await m.generateContent(prompt);
+      // SDK 0.24.x throws from response.text() if finishReason is
+      // SAFETY/RECITATION/OTHER — guard explicitly so a blocked
+      // response on one model doesn't kill the whole call.
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; }
+      catch (textErr) {
+        const fr = r?.response?.candidates?.[0]?.finishReason;
+        console.warn(`[Search-Intent] ${candidate} text() threw (finishReason=${fr || 'unknown'}): ${textErr.message}`);
+        lastErr = textErr;
+        continue;
+      }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) {
+        console.warn(`[Search-Intent] ${candidate} returned empty text — trying next model.`);
+        continue;
+      }
+      try {
+        parsed = JSON.parse(cleaned);
+        break;
+      } catch (parseErr) {
+        console.warn(`[Search-Intent] ${candidate} returned non-JSON: ${cleaned.slice(0, 120)}`);
+        lastErr = parseErr;
+        continue;
+      }
+    } catch (err) {
+      console.warn(`[Search-Intent] ${candidate} generateContent failed: ${err.message}`);
+      lastErr = err;
+      continue;
+    }
+  }
+  // Every model failed — fall back to the dictionaries, then to a
+  // graceful ambiguous prompt. NEVER throw.
+  if (!parsed) {
+    // v0.59.58 (codex P2 follow-up): dish dictionary runs FIRST so
+    // specific multi-word dish queries like "duck confit" and
+    // "tandoori chicken" keep their pre-existing dish entries
+    // instead of being reclassified as the broader "confit" /
+    // "tandoor" technique. Standalone technique words ("tandoor",
+    // "braisage", "sous vide") still hit the technique entry on
+    // the second pass because no dish entry contains them as a
+    // substring.
+    const hit = dishFallback(text);
+    if (hit) {
+      console.log(`[Search-Intent] dish-fallback hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
+      // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
+      // not just the first user token, so "Beef bourguignon" searches
+      // "beef bourguignon restaurant Singapore" not "Beef restaurant
+      // Singapore". Same fix on both fallback exits.
+      return {
+        intent: 'dish',
+        cuisine: hit.cuisine,
+        searchTerm: `${hit.match[0]} restaurant Singapore`,
+        why: hit.why,
+        clarify: ''
+      };
+    }
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      console.log(`[Search-Intent] technique-fallback hit for "${String(text).slice(0, 60)}" → ${techHit.match[0]}`);
+      return {
+        intent: 'tool',
+        cuisine: techHit.cuisine || null,
+        searchTerm: techHit.searchPhrase,
+        why: techHit.why,
+        clarify: ''
+      };
+    }
+    console.warn(`[Search-Intent] all models + dictionary failed for "${String(text).slice(0, 60)}" — returning ambiguous. lastErr=${lastErr?.message}`);
+    parsed = {
+      intent: 'ambiguous',
+      cuisine: null,
+      searchTerm: '',
+      why: '',
+      clarify: lang === 'fr'
+        ? 'Désolé, je n\'ai pas bien compris. Pouvez-vous me donner un nom de plat précis (par exemple : « pad thaï », « goulash ») ou un ingrédient ?'
+        : 'Sorry, I didn\'t catch that. Could you give me a specific dish name (e.g. "pad thai", "goulash") or an ingredient?'
+    };
+  }
   return {
     intent: ['dish', 'ingredient', 'tool', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
     cuisine: typeof parsed.cuisine === 'string' && parsed.cuisine.length ? parsed.cuisine : null,
@@ -465,6 +693,10 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
 module.exports = {
   generateGroundedHiddenGems,
   classifySearchIntent,
+  dishFallback,
+  techniqueFallback,
+  DISH_FALLBACK,
+  TECHNIQUE_FALLBACK,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,
