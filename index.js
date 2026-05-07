@@ -5138,14 +5138,19 @@ async function cacheBotUsername() {
           // Reject candidates whose LAST token is a stop-word/connector,
           // and prefix-block more nouny non-dish words.
           const TRAILING_STOPWORDS = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there)$/i;
-          const PREFIX_BLOCK_RX = /^(restaurant|place|food|foods|service|staff|ambien|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast|dessert|desserts|appetiser|appetizer|appetisers|appetizers|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|deal|deals|recommendation|recommendations)\b/i;
+          // v0.59.32 / Codex review #237 P2: anchor with $ (not \b) so
+          // we only block when the WHOLE candidate is a category word.
+          // "Special Fried Rice" / "Dessert Platter" / "Combo Set" etc.
+          // are valid menu items and should pass; only bare "specials"
+          // / "desserts" / "combos" alone are categorical and rejected.
+          const CATEGORY_BLOCK_RX = /^(restaurant|place|food|foods|service|staff|ambien|ambience|ambiance|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast|dessert|desserts|appetiser|appetizer|appetisers|appetizers|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|deal|deals|recommendation|recommendations)$/i;
           const dishes = new Set();
           for (const re of patterns) {
             let m;
             while ((m = re.exec(allText)) !== null && dishes.size < 5) {
               const candidate = (m[1] || '').trim();
               if (candidate.length < 3 || candidate.length > 40) continue;
-              if (PREFIX_BLOCK_RX.test(candidate)) continue;
+              if (CATEGORY_BLOCK_RX.test(candidate)) continue;
               if (TRAILING_STOPWORDS.test(candidate)) continue;
               // Require at least one capitalised internal token (proper-noun-ish)
               // OR the whole candidate to be a single recognisable word ≥4 chars.
