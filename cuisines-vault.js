@@ -56,31 +56,35 @@ const FLAG_BY_SLUG = {
   'new-zealand': '🇳🇿', 'burmese': '🇲🇲',
   // Southeast Asian
   'laotian': '🇱🇦', 'timorese': '🇹🇱',
-  // China regional — all 🇨🇳
+  // China regional — all 🇨🇳, plus HK/Macau use their SARs.
   'sichuan': '🇨🇳', 'shanghainese': '🇨🇳', 'cantonese': '🇨🇳',
   'hunan': '🇨🇳', 'hokkien': '🇨🇳', 'teochew': '🇨🇳',
   'hainanese': '🇨🇳', 'hakka': '🇨🇳',
   'northeastern': '🇨🇳', 'northwestern': '🇨🇳',
+  // v0.59.38 — HK + Macau flags per Human Lead 2026-05-07.
+  'hong-kong': '🇭🇰', 'macau': '🇲🇴',
   // South Asian
   'bengali': '🇧🇩', 'gujarati': '🇮🇳', 'goan': '🇮🇳',
   'nepalese': '🇳🇵', 'tibetan': '🏔️',
+  // v0.59.38 — Sri Lankan + Pakistani per Human Lead.
+  'sri-lankan': '🇱🇰', 'pakistani': '🇵🇰',
   // European
+  // v0.59.38 — generic 'european' catches Belgian/Dutch/Irish/etc.
+  'european': '🇪🇺',
   'mediterranean': '🌊', 'italian': '🇮🇹', 'spanish': '🇪🇸',
   'greek': '🇬🇷', 'french': '🇫🇷', 'british': '🇬🇧',
   'german': '🇩🇪', 'austrian': '🇦🇹', 'swiss': '🇨🇭',
   'portuguese': '🇵🇹', 'russian': '🇷🇺', 'ukrainian': '🇺🇦',
-  'polish': '🇵🇱', 'scandinavian': '🇸🇪', 'belgian': '🇧🇪',
-  'dutch': '🇳🇱', 'irish': '🇮🇪',
+  'polish': '🇵🇱', 'scandinavian': '🇸🇪',
   // Middle Eastern & Central Asian
   'lebanese': '🇱🇧', 'turkish': '🇹🇷', 'persian': '🇮🇷',
   'moroccan': '🇲🇦', 'egyptian': '🇪🇬', 'jordanian': '🇯🇴',
-  'israeli': '🇮🇱', 'afghan': '🇦🇫', 'uzbek': '🇺🇿', 'georgian': '🇬🇪',
+  'israeli': '🇮🇱', 'uzbek': '🇺🇿', 'georgian': '🇬🇪',
   // Americas
-  'peruvian': '🇵🇪', 'argentinian': '🇦🇷',
-  'cuban': '🇨🇺', 'jamaican': '🇯🇲',
-  // African
-  'ethiopian': '🇪🇹', 'kenyan': '🇰🇪',
-  'nigerian': '🇳🇬', 'south-african': '🇿🇦'
+  'argentinian': '🇦🇷',
+  'american': '🇺🇸', 'mexican': '🇲🇽', 'brazilian': '🇧🇷',
+  // African — v0.59.34 collapsed the individual cuisines into 'African'.
+  'african': '🌍', 'south-african': '🇿🇦'
 };
 
 // v0.59.2: regroup overlay. Source markdown (doc/Feature/cuisines_js.MD)

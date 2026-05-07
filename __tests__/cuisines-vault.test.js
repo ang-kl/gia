@@ -55,8 +55,8 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 68 cuisines (v0.59.36: -Laotian -Timorese)', () => {
-    expect(vault.getAllCuisines().length).toBe(68);
+  it('loads exactly 66 cuisines (v0.59.38: -Belgian -Dutch -Irish +European)', () => {
+    expect(vault.getAllCuisines().length).toBe(66);
   });
 
   it('groups by category with expected counts', () => {
@@ -73,7 +73,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['china-regional']).toBe(12);      // v0.59.35: + Hong Kong, Macau
     expect(counts['south-asian']).toBe(7);          // 5 source + South Indian + North Indian. v0.59.35: composition change (-Goan -Tibetan +Sri Lankan +Pakistani), count unchanged
     expect(counts['middle-eastern']).toBe(7);       // v0.59.35: -Afghan, Uzbek+Georgian moved to slavic-eastern-european → 7
-    expect(counts['european']).toBe(17);
+    expect(counts['european']).toBe(15);            // v0.59.38: -Belgian -Dutch -Irish +European generic = 15
     expect(counts['slavic-eastern-european']).toBe(2); // v0.59.35: new bucket — Uzbek, Georgian
     expect(counts['americas']).toBe(4);             // v0.59.35: Argentinian (source) + American, Mexican, Brazilian (remap). -Peruvian -Cuban -Jamaican = 4
     expect(counts['australasia']).toBe(2);          // Australian, New Zealand
@@ -81,7 +81,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['dessert']).toBe(1);              // v0.59.21: Dessert
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(68);
+    expect(total).toBe(66);
   });
 
   it('Common Here is the only defaultOpen', () => {

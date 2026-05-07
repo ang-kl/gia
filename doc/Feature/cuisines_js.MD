@@ -42,9 +42,9 @@ export const CUISINE_CATEGORIES = [
     id: 'european',
     label: 'European',
     items: [
-      'Mediterranean', 'Italian', 'Spanish', 'Greek', 'French', 'British',
+      'European', 'Mediterranean', 'Italian', 'Spanish', 'Greek', 'French', 'British',
       'German', 'Austrian', 'Swiss', 'Portuguese', 'Russian', 'Ukrainian',
-      'Polish', 'Scandinavian', 'Belgian', 'Dutch', 'Irish'
+      'Polish', 'Scandinavian'
     ]
   },
   {
