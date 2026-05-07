@@ -5051,10 +5051,14 @@ async function cacheBotUsername() {
         // (WAKANUI / Magpie / Blackbird) more reliably. Same approach
         // for the regional Australasia catch-all (Antipodean /
         // Pacific cues for venues like Cafe Melba).
-        const SEARCH_QUERY_OVERRIDE = {
-          'New Zealand': 'New Zealand Kiwi',
-          'Australasia': 'Antipodean Australasia Pacific'
-        };
+        // v0.59.50: BOTH overrides REVERTED. "New Zealand Kiwi cuisine
+        // restaurant" was too restrictive — Places returned 0. Same
+        // for "Antipodean Australasia Pacific cuisine restaurant".
+        // Per Human Lead: "NZ returns nothing." Plain names + the new
+        // gated-category validation (Australasia added to
+        // GATED_CATEGORIES below) handles the original junk-results
+        // concern without zeroing the result list.
+        const SEARCH_QUERY_OVERRIDE = {};
         const cuisineNames = cuisineMetas.map((c) => SEARCH_QUERY_OVERRIDE[c.name] || c.name);
         // v0.57.13: only gate non-local categories. Singapore common
         // food (SEA, China-regional, South Asian, Middle Eastern,
@@ -5063,7 +5067,17 @@ async function cacheBotUsername() {
         // aggressive. African / European / Americas cuisines are where
         // Google Places searchText falls back to arbitrary SG results
         // when the signal is weak.
-        const GATED_CATEGORIES = new Set(['african', 'european', 'americas']);
+        // v0.59.50: + australasia. SG has small but distinct Aussie /
+        // NZ / Antipodean pools; without the gate, "New Zealand cuisine
+        // restaurant" Places returns Japanese / Spanish noise (per
+        // Human Lead 2026-05-07). The dish-keyword fallback in
+        // cuisine-dish-keywords.js carries the cuisine signal when
+        // venue names don't (WAKANUI is Japanese-styled but serves NZ
+        // beef; Cafe Melba self-tags "Australasian" but its primary
+        // type is bar/cafe). SMALL_POOL bypass at venues.length ≤ 5
+        // means the gate won't lock out genuinely-empty NZ searches —
+        // the few real venues pass through unfiltered.
+        const GATED_CATEGORIES = new Set(['african', 'european', 'americas', 'australasia']);
         const gatedNames = cuisineMetas
           .filter((c) => GATED_CATEGORIES.has(c.categoryId))
           .map((c) => c.name);
@@ -5476,8 +5490,17 @@ async function cacheBotUsername() {
         // Short TTL keeps rapid double/triple clicks fast while still
         // returning fresh results 30+ s later. Singaporean still skips
         // (per-call dish rotation must not be pinned).
+        // v0.59.50: don't pin empty / near-empty results in the 30 s
+        // cache. Per Human Lead 2026-05-07: when /c New Zealand
+        // returned empty, the cache locked that empty payload for 30
+        // s, so consecutive Search-button taps surfaced nothing every
+        // time. Below the threshold (≤2 venues), let each tap re-hit
+        // Places — the user is most likely retrying because the small
+        // pool didn't satisfy them, and a stale empty pin frustrates
+        // the retry. Healthy result sets (≥3 venues) still get cached.
+        const cacheableResult = top.length >= 3;
         try {
-          if (redis.isOpen && !skipCache) {
+          if (redis.isOpen && !skipCache && cacheableResult) {
             await redis.setEx(cacheKey, SEARCH_CACHE_TTL_S, JSON.stringify(payload));
           }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }

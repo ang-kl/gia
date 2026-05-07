@@ -1,7 +1,7 @@
 {
   "name": "soleat-hawker-tma",
   "private": true,
-  "version": "0.59.49",
+  "version": "0.59.50",
   "type": "module",
   "scripts": {
     "build": "vite build",
