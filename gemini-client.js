@@ -76,7 +76,15 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   'Independent cafes, restaurants, bakeries, dessert shops, hawker stalls, bars, coffee roasters, and specialty kiosks.',
   '',
   'RANKING:',
-  'Return up to 5 results.',
+  // v0.59.53: bumped max 5 → 8 per Human Lead 2026-05-07. /hidden
+  // and /hidden <street> were both surfacing 1-2 venues at peak —
+  // user reported "lack of choices" and screenshots showed The
+  // Coconut Club appearing as the #1 result for two different
+  // anchors with hallucinated address variations (269 Beach Road
+  // vs 23 Beach Road). Bigger ceiling + explicit variety instruction
+  // gives Gemini room to surface a diverse set across categories.
+  'Return up to 8 results. Aim for at least 5 if the criteria gate yields enough qualifying venues.',
+  'Diversify across cuisines and venue types — do not return 5+ venues of the same dish category (e.g. avoid 5 brunch cafes in a row). Mix bakeries, hawker stalls, dessert kiosks, coffee roasters, bars, and ethnic restaurants when each category has a qualifying candidate.',
   'Rank by score, with C2 SOCIAL_BUZZ and C4 UNIQUE_OFFERING carrying the most weight.',
   'Prefer:',
   '1. Strong recent non-listicle coverage.',
