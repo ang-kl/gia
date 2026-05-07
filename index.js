@@ -4887,27 +4887,18 @@ async function cacheBotUsername() {
         // and rotates 2 fresh dish picks. Other cuisines keep their
         // cached results — only Singaporean bypasses.
         const skipCacheForSingaporean = require('./pipeline').containsSingaporeanCuisine(cuisineQueries);
-        // v0.59.32 — refresh-on-repeat-click. Per Human Lead 2026-05-07:
-        // tapping the search button / 🔍 FAB / Tell-Me arrow multiple
-        // times felt "stuck" because identical inputs hit the 30-min
-        // Redis cache and returned the same venue list every time.
-        // Now: track per-chatId last-search timestamp; if the user
-        // clicks search again within REFRESH_WINDOW_MS, bypass the
-        // cache so they see different (re-discovered) venues.
-        const REFRESH_WINDOW_MS = 60_000;
-        const recentClickKey = `cuisine:lastclick:${csChatId || 'anon'}`;
-        let skipCacheForRefresh = false;
-        try {
-          if (redis.isOpen && csChatId) {
-            const last = await redis.get(recentClickKey);
-            if (last) skipCacheForRefresh = true;
-            // Set/refresh the marker for the next click. EX 60 s.
-            await redis.set(recentClickKey, '1', { EX: Math.ceil(REFRESH_WINDOW_MS / 1000) });
-          }
-        } catch (err) {
-          console.warn('[Cuisine-Search] refresh-marker read/write failed:', err.message);
-        }
-        const skipCache = skipCacheForSingaporean || skipCacheForRefresh;
+        // v0.59.33 — every click of the 3 search triggers (🔍 Search
+        // button / 🔍 FAB / Tell-Me arrow) refreshes immediately. Per
+        // Human Lead 2026-05-07: the v0.59.32 60-s marker still made
+        // the FIRST click within a 30-min cache window serve stale
+        // data, which felt stuck. Now: bypass cache on every call to
+        // /api/cuisine/search. Cache reads + writes both skipped.
+        // Trade-off: every click costs one Places + LLM rank call
+        // (~2-5s, ~$0.001) — the user prefers freshness over speed.
+        // Warm-start (POST /api/cuisine/warm-start) is a separate
+        // route and keeps its own cache.
+        const skipCache = true; // Singaporean carve-out + always-refresh both fold into "always skip".
+        void skipCacheForSingaporean; // Retained for diagnostic logging if needed later.
         try {
           if (redis.isOpen && !skipCache) {
             const cached = await redis.get(cacheKey);
