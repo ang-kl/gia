@@ -158,7 +158,7 @@ describe('validateAuthenticity (Gemini grounded scorer)', () => {
     const factory = () => ({
       getGenerativeModel: () => ({
         generateContent: async () => ({
-          response: { text: () => '[{"placeId":"p1","score":85,"signals":["ingredients","dish"],"reason":"Authentic French braising"}, {"placeId":"p2","score":20,"signals":[],"reason":"Cantonese braised duck — different tradition"}]' }
+          response: { text: () => '[{"placeId":"p1","score":85,"signals":["ingredients","dish"],"reason":"Authentic French braising","orderTip":"Order the bourguignon Sunday only."}, {"placeId":"p2","score":20,"signals":[],"reason":"Cantonese braised duck — different tradition","orderTip":""}]' }
         })
       })
     });
@@ -177,7 +177,9 @@ describe('validateAuthenticity (Gemini grounded scorer)', () => {
     expect(out.p1).toBeDefined();
     expect(out.p1.score).toBe(85);
     expect(out.p1.signals).toContain('ingredients');
+    expect(out.p1.orderTip).toBe('Order the bourguignon Sunday only.');
     expect(out.p2.score).toBe(20);
+    expect(out.p2.orderTip).toBe('');
   });
 
   it('clamps scores to 0-100', async () => {

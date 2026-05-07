@@ -3667,7 +3667,16 @@ function flagFor(cuisine) {
 async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey }) {
   if (!mapsApiKey) return [];
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
-  const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri,places.primaryType';
+  // v0.60.2: expanded field mask so the rich card template can
+  // render hours / website / phone / price level. `location` is
+  // needed for enrichTravelTimes to compute 🚊 / 🚘 distances.
+  const FIELD_MASK = [
+    'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
+    'places.rating', 'places.userRatingCount', 'places.businessStatus',
+    'places.googleMapsUri', 'places.primaryType',
+    'places.regularOpeningHours.weekdayDescriptions',
+    'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
+  ].join(',');
   const axios = require('axios');
   try {
     const { data } = await axios.post(
@@ -3690,6 +3699,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
       }
     );
     const denyTypes = cuisine && CUISINE_TYPE_DENY[cuisine] ? CUISINE_TYPE_DENY[cuisine] : [];
+    const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
     return (Array.isArray(data?.places) ? data.places : [])
       .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
       .filter((p) => !denyTypes.includes(String(p?.primaryType || '')))
@@ -3698,6 +3708,16 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         name: p?.displayName?.text || 'Unnamed',
         rating: typeof p?.rating === 'number' ? p.rating : null,
         address: p?.formattedAddress || '',
+        // venue-templates expects `area` for the 📇 row (not `address`).
+        area: p?.formattedAddress || '',
+        lat: p?.location?.latitude ?? null,
+        lng: p?.location?.longitude ?? null,
+        weekdayDescriptions: Array.isArray(p?.regularOpeningHours?.weekdayDescriptions)
+          ? p.regularOpeningHours.weekdayDescriptions
+          : null,
+        websiteUri: p?.websiteUri || '',
+        phone: p?.nationalPhoneNumber || '',
+        priceLevel: PRICE_NUM[p?.priceLevel] || null,
         primaryType: p?.primaryType || '',
         url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
       }));
@@ -3707,129 +3727,249 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
   }
 }
 
+// v0.60.2 — render a single rich technique-venue card matching
+// /hidden's standard template (per Human Lead 2026-05-07). Builds
+// off venue-templates' helpers (formatHoursLine etc.) but uses the
+// 🍽️ icon and a per-venue Gemini-generated orderTip.
+function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishPhrase, orderTip }) {
+  const vt = require('./venue-templates');
+  const lines = [];
+  lines.push(`${number}. <b>${vt.escapeHtml(venue.name)}</b>`);
+  if (venue.area) lines.push(`📇 ${vt.escapeHtml(venue.area)}`);
+  const hours = vt.formatHoursLine(venue, lang);
+  if (hours) lines.push(hours);
+  if (venue.websiteUri) lines.push(`🌐 ${venue.websiteUri}`);
+  if (venue.phone)      lines.push(`📞 ${venue.phone}`);
+  // 🌟 rating row + footfall ("best time" chip from BestTime API).
+  const stats = vt.formatStatsLine(venue, { includeDistance: false, lang });
+  if (stats) lines.push(stats);
+  const footfall = vt.formatFootfallLine(venue, lang);
+  if (footfall) lines.push(footfall);
+  // 🚊 / 🚘 row populated by enrichTravelTimes.
+  const travel = vt.formatTravelLine(venue);
+  if (travel) lines.push(travel);
+  // 🍽️ Try the [dish] — [orderTip from Gemini grounded].
+  if (dishPhrase) {
+    const tip = orderTip ? ` — ${vt.escapeHtml(orderTip)}` : '';
+    lines.push(`🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} <b>${vt.escapeHtml(dishPhrase)}</b>${tip}`);
+  }
+  // 📍 maps URL.
+  const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
+  if (maps) lines.push(maps);
+  return lines.join('\n');
+}
+
 async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc }) {
   const gc = require('./gemini-client');
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   // Origin resolution.
   const origin = gc.resolveOrigin(techEntry, userText) || techEntry.defaultOrigin || 'International';
-  const originVariant = {
-    cuisine: origin,
-    dishKey: techEntry.originDish,
-    whyLocal: 'origin tradition',
-    isOrigin: true
+
+  // ---- Progressive feedback: typing indicator + status message.
+  // sendChatAction("typing") shows "Gia is typing…" for ~5s; we
+  // refresh every 4s so it stays continuous through the multi-phase
+  // pipeline (Places → Gemini validation → Routes → render).
+  let typingTimer = null;
+  const startTyping = () => {
+    const tick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
+    tick();
+    typingTimer = setInterval(tick, 4000);
   };
-  const variants = [originVariant, ...(Array.isArray(techEntry.variants) ? techEntry.variants : [])];
-  // Parallel Places searches.
-  const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey };
-  const variantSearches = variants.map((v) => {
-    const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
-    const max = v.isOrigin ? 5 : 2;
-    return searchVenuesByDish(`${dishPhrase} restaurant Singapore`, v.cuisine, { ...ctx, max });
-  });
-  const fusionEntry = techEntry.fusion;
-  const fusionSearch = fusionEntry
-    ? searchVenuesByDish(fusionEntry.searchPhrase, null, { ...ctx, max: 2 })
-    : Promise.resolve([]);
-  const [variantResults, fusionResults] = await Promise.all([Promise.all(variantSearches), fusionSearch]);
-  // Validate via Gemini grounded check (one call across all candidates).
-  const allCandidates = variantResults.flat().concat(fusionResults).filter((v) => v.placeId);
-  let scores = {};
-  if (allCandidates.length) {
+  const stopTyping = () => { if (typingTimer) { clearInterval(typingTimer); typingTimer = null; } };
+  startTyping();
+
+  // Status message — single message, edited at each phase boundary.
+  const techLabel = techEntry.match[0];
+  const initialStatus = lang === 'fr'
+    ? `🔍 <i>Cartographie de <b>${esc(techLabel)}</b> à travers les cuisines de Singapour…</i>`
+    : `🔍 <i>Mapping <b>${esc(techLabel)}</b> across Singapore cuisines…</i>`;
+  let statusMsgId = null;
+  try {
+    const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
+    statusMsgId = sent?.message_id || null;
+  } catch (err) {
+    console.warn('[Search-FanOut] status send failed:', err.message);
+  }
+  const editStatus = async (html) => {
+    if (!statusMsgId) return;
     try {
-      scores = await gc.validateAuthenticity({
-        technique: techEntry.match[0],
-        origin,
-        originDish: techEntry.originDish,
-        originIngredients: techEntry.originIngredients || [],
-        originTool: techEntry.originTool || '',
-        candidates: allCandidates.map((c) => ({ placeId: c.placeId, name: c.name, address: c.address })),
-        lang
-      });
-    } catch (err) {
-      console.warn('[Search-FanOut] validateAuthenticity failed (using rating-only fallback):', err.message);
-      scores = {};
-    }
-  }
-  // Apply scoring: drop < 40, sort by (score desc, rating desc).
-  // If no scores at all (validation skipped), keep all and sort by rating only.
-  const haveScores = Object.keys(scores).length > 0;
-  const filterAndRank = (list, capPerCuisine) => {
-    const annotated = list.map((v) => ({
-      ...v,
-      score: scores[v.placeId]?.score ?? null,
-      reason: scores[v.placeId]?.reason || ''
-    }));
-    const filtered = haveScores
-      ? annotated.filter((v) => (v.score ?? 0) >= 40)
-      : annotated;
-    filtered.sort((a, b) => {
-      const sa = a.score ?? 0;
-      const sb = b.score ?? 0;
-      if (sb !== sa) return sb - sa;
-      return (b.rating || 0) - (a.rating || 0);
-    });
-    return filtered.slice(0, capPerCuisine);
+      await bot.editMessageText(html, { chat_id: chatId, message_id: statusMsgId, parse_mode: 'HTML' });
+    } catch (err) { /* edit can fail if Telegram coalesces fast updates — non-fatal */ }
   };
-  // Build tier blocks.
-  const blocks = [];
-  let total = 0;
-  const TOTAL_CAP = 6;
-  for (let i = 0; i < variants.length && total < TOTAL_CAP; i++) {
-    const v = variants[i];
-    const cap = v.isOrigin ? 3 : 2;
-    const ranked = filterAndRank(variantResults[i], cap);
-    if (!ranked.length) continue;
-    const allowed = ranked.slice(0, Math.min(cap, TOTAL_CAP - total));
-    blocks.push({ kind: 'variant', variant: v, venues: allowed });
-    total += allowed.length;
-  }
-  if (fusionEntry && total < TOTAL_CAP) {
-    const ranked = filterAndRank(fusionResults, 1);
-    if (ranked.length) {
-      blocks.push({ kind: 'fusion', label: fusionEntry.label, venues: [ranked[0]] });
-      total += 1;
+  const deleteStatus = async () => {
+    if (!statusMsgId) return;
+    try { await bot.deleteMessage(chatId, statusMsgId); } catch { /* non-fatal */ }
+    statusMsgId = null;
+  };
+
+  try {
+    const originVariant = {
+      cuisine: origin,
+      dishKey: techEntry.originDish,
+      whyLocal: 'origin tradition',
+      isOrigin: true
+    };
+    const variants = [originVariant, ...(Array.isArray(techEntry.variants) ? techEntry.variants : [])];
+    // Phase 1 — parallel Places searches.
+    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey };
+    const variantSearches = variants.map((v) => {
+      const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
+      const max = v.isOrigin ? 5 : 2;
+      return searchVenuesByDish(`${dishPhrase} restaurant Singapore`, v.cuisine, { ...ctx, max });
+    });
+    const fusionEntry = techEntry.fusion;
+    const fusionSearch = fusionEntry
+      ? searchVenuesByDish(fusionEntry.searchPhrase, null, { ...ctx, max: 2 })
+      : Promise.resolve([]);
+    const [variantResults, fusionResults] = await Promise.all([Promise.all(variantSearches), fusionSearch]);
+    const allCandidates = variantResults.flat().concat(fusionResults).filter((v) => v.placeId);
+
+    await editStatus(lang === 'fr'
+      ? `✓ <i>${allCandidates.length} candidats trouvés à travers ${variants.length} cuisines · validation de l'authenticité…</i>`
+      : `✓ <i>Found ${allCandidates.length} candidates across ${variants.length} cuisines · validating authenticity…</i>`);
+
+    // Phase 2 — Gemini grounded validation (single batched call).
+    let scores = {};
+    if (allCandidates.length) {
+      try {
+        scores = await gc.validateAuthenticity({
+          technique: techEntry.match[0],
+          origin,
+          originDish: techEntry.originDish,
+          originIngredients: techEntry.originIngredients || [],
+          originTool: techEntry.originTool || '',
+          candidates: allCandidates.map((c) => ({ placeId: c.placeId, name: c.name, address: c.address })),
+          lang
+        });
+      } catch (err) {
+        console.warn('[Search-FanOut] validateAuthenticity failed (using rating-only fallback):', err.message);
+        scores = {};
+      }
     }
-  }
-  // Render HTML.
-  const lines = [];
-  const headerEmoji = '🔧';
-  const explainer = techEntry.why || 'Cooking technique.';
-  lines.push(`${headerEmoji} <b>${esc(explainer)}</b>`);
-  lines.push('');
-  if (!blocks.length) {
-    lines.push(lang === 'fr'
-      ? `Désolé, aucun restaurant authentique trouvé à Singapour pour cette technique. Essayez un nom de plat précis (par ex. « beef bourguignon », « osso buco »).`
-      : `Sorry, no authentic Singapore restaurants found for this technique. Try a specific dish name (e.g. "beef bourguignon", "osso buco").`);
-  } else {
-    lines.push(lang === 'fr'
-      ? `<i>À Singapour, cette technique se décline selon les cuisines:</i>`
-      : `<i>In Singapore, this technique looks different across cuisines:</i>`);
-    let venueIdx = 1;
-    for (const block of blocks) {
+
+    // Apply scoring: drop < 40, sort by (score desc, rating desc).
+    const haveScores = Object.keys(scores).length > 0;
+    const filterAndRank = (list, capPerCuisine) => {
+      const annotated = list.map((v) => ({
+        ...v,
+        score: scores[v.placeId]?.score ?? null,
+        reason: scores[v.placeId]?.reason || '',
+        orderTip: scores[v.placeId]?.orderTip || ''
+      }));
+      const filtered = haveScores ? annotated.filter((v) => (v.score ?? 0) >= 40) : annotated;
+      filtered.sort((a, b) => {
+        const sa = a.score ?? 0;
+        const sb = b.score ?? 0;
+        if (sb !== sa) return sb - sa;
+        return (b.rating || 0) - (a.rating || 0);
+      });
+      return filtered.slice(0, capPerCuisine);
+    };
+
+    // Build tier blocks.
+    const blocks = [];
+    let total = 0;
+    const TOTAL_CAP = 6;
+    for (let i = 0; i < variants.length && total < TOTAL_CAP; i++) {
+      const v = variants[i];
+      const cap = v.isOrigin ? 3 : 2;
+      const ranked = filterAndRank(variantResults[i], cap);
+      if (!ranked.length) continue;
+      const allowed = ranked.slice(0, Math.min(cap, TOTAL_CAP - total));
+      blocks.push({ kind: 'variant', variant: v, venues: allowed });
+      total += allowed.length;
+    }
+    if (fusionEntry && total < TOTAL_CAP) {
+      const ranked = filterAndRank(fusionResults, 1);
+      if (ranked.length) {
+        blocks.push({ kind: 'fusion', label: fusionEntry.label, venues: [ranked[0]] });
+        total += 1;
+      }
+    }
+
+    // Phase 3 — enrich the FINAL set (≤6) with travel times + footfall.
+    const finalVenues = blocks.flatMap((b) => b.venues);
+    if (finalVenues.length) {
+      await editStatus(lang === 'fr'
+        ? `✓ <i>${finalVenues.length} restaurants authentiques · récupération des temps de transport…</i>`
+        : `✓ <i>${finalVenues.length} authentic venues · fetching transit + drive times…</i>`);
+      try {
+        const { enrichTravelTimes } = require('./travel-times');
+        await enrichTravelTimes(center.lat, center.lng, finalVenues);
+      } catch (err) {
+        console.warn('[Search-FanOut] enrichTravelTimes failed (continuing without):', err.message);
+      }
+      try {
+        const { attachFootfallSignals } = require('./footfall-signal');
+        await attachFootfallSignals(redis, finalVenues);
+      } catch (err) {
+        console.warn('[Search-FanOut] attachFootfallSignals failed (continuing without):', err.message);
+      }
+    }
+
+    // Phase 4 — render. Header (technique explainer) goes on top, then
+    // a sub-header per cuisine block, then one rich card per venue
+    // separated by two blank lines (per Human Lead's spec).
+    const { googleMapsUrl } = require('./maps-url');
+    const lines = [];
+    lines.push(`🔧 <b>${esc(techEntry.why || 'Cooking technique.')}</b>`);
+    if (!blocks.length) {
       lines.push('');
-      if (block.kind === 'variant') {
-        const v = block.variant;
-        const flag = flagFor(v.cuisine);
-        const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
-        lines.push(`${flag} <b>${esc(v.cuisine)}</b> · ${esc(dishPhrase)}${v.whyLocal ? ` — ${esc(v.whyLocal)}` : ''}`);
-      } else {
-        lines.push(`✨ <b>${esc(block.label)}</b>`);
-      }
-      for (const venue of block.venues) {
-        const rating = Number.isFinite(venue.rating) ? `★${venue.rating.toFixed(1)}` : '';
-        lines.push(`  ${venueIdx}. ${esc(venue.name)} ${rating}`);
-        lines.push(`     📍 ${esc(venue.url)}`);
-        venueIdx++;
+      lines.push(lang === 'fr'
+        ? `Désolé, aucun restaurant authentique trouvé à Singapour pour cette technique. Essayez un nom de plat précis (par ex. « beef bourguignon », « osso buco »).`
+        : `Sorry, no authentic Singapore restaurants found for this technique. Try a specific dish name (e.g. "beef bourguignon", "osso buco").`);
+    } else {
+      lines.push('');
+      lines.push(lang === 'fr'
+        ? `<i>À Singapour, cette technique se décline selon les cuisines:</i>`
+        : `<i>In Singapore, this technique looks different across cuisines:</i>`);
+      let venueIdx = 1;
+      for (const block of blocks) {
+        lines.push('');
+        if (block.kind === 'variant') {
+          const v = block.variant;
+          const flag = flagFor(v.cuisine);
+          const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
+          lines.push(`${flag} <b>${esc(v.cuisine)}</b> · ${esc(dishPhrase)}${v.whyLocal ? ` — ${esc(v.whyLocal)}` : ''}`);
+        } else {
+          lines.push(`✨ <b>${esc(block.label)}</b>`);
+        }
+        // Two blank lines between venues per Human Lead's template.
+        const venueBlocks = block.venues.map((venue) => {
+          const dishPhrase = block.kind === 'variant'
+            ? gc.canonicalDishPhrase(block.variant.dishKey)
+            : techEntry.originDish;
+          const card = formatTechniqueVenueBlock(venue, {
+            number: venueIdx++,
+            lang,
+            googleMapsUrlFn: googleMapsUrl,
+            dishPhrase,
+            orderTip: venue.orderTip
+          });
+          return card;
+        });
+        lines.push(venueBlocks.join('\n\n\n'));
       }
     }
+    const reply = lines.join('\n');
+    const updated = await sc.appendExchange(redis, chatId, userText, reply, 'tool');
+    const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+    const suffix = rawSuffix
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/_([^_]+)_/g, '<i>$1</i>');
+    // Remove the status message before sending the final cards.
+    await deleteStatus();
+    await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
+  } catch (err) {
+    console.error('[Search-FanOut] fatal:', err.stack || err.message);
+    await safeSend(chatId, lang === 'fr'
+      ? `Désolé, erreur lors de la recherche pour <b>${esc(techEntry.match[0])}</b>. Réessayez ?`
+      : `Sorry, something went wrong while searching for <b>${esc(techEntry.match[0])}</b>. Try again?`,
+      { parse_mode: 'HTML' });
+  } finally {
+    stopTyping();
+    await deleteStatus();
   }
-  const reply = lines.join('\n');
-  const updated = await sc.appendExchange(redis, chatId, userText, reply, 'tool');
-  const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
-  const suffix = rawSuffix
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/_([^_]+)_/g, '<i>$1</i>');
-  await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
 }
 
 async function runForgetMeCommand(chatId, lang = 'en') {

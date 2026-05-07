@@ -869,8 +869,10 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
     '- 71-100 = authentic (multiple strong signals).',
     '',
     'OUTPUT: a single JSON array, one object per candidate, in the same order:',
-    '[{"placeId":"<exact id>","score":<int>,"signals":["ingredients","tool","dish","authentic","fusion","chef"],"reason":"one sentence"}, ...]',
+    '[{"placeId":"<exact id>","score":<int>,"signals":["ingredients","tool","dish","authentic","fusion","chef"],"reason":"one sentence","orderTip":"one sentence — what dish to order at THIS specific venue and how to phrase the request to get the technique done right (e.g. \\"Order the bœuf bourguignon and ask if it\'s slow-braised in red wine for 3+ hours.\\")"}, ...]',
     'Plain JSON only. No markdown fences. No prose outside the array.',
+    '',
+    'orderTip rules: refer to the specific venue\'s menu where you can; if you can\'t find a menu, give a conservative ordering hint based on the technique. ≤140 chars. End with a period.',
     '',
     `CANDIDATES (${candidates.length}):`,
     candidateLines
@@ -919,7 +921,11 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
         out[row.placeId] = {
           score: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 0,
           signals: Array.isArray(row.signals) ? row.signals.slice(0, 6) : [],
-          reason: typeof row.reason === 'string' ? row.reason.slice(0, 240) : ''
+          reason: typeof row.reason === 'string' ? row.reason.slice(0, 240) : '',
+          // v0.60.2: per-venue Gemini-grounded ordering tip — what to
+          // order at THIS specific venue and how to phrase it to get
+          // the technique done right. Rendered as the 🍽️ row.
+          orderTip: typeof row.orderTip === 'string' ? row.orderTip.slice(0, 240) : ''
         };
       }
     }
