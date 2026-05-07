@@ -1848,7 +1848,23 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     const routed = await routeMenuCommand(msg.chat.id, param, null, startLang);
     if (routed) return;
   }
-  await safeSend(msg.chat.id, t('start.intro', startLang));
+  let intro = t('start.intro', startLang);
+  // v0.59.37 — proactive language-drift hint. Per Human Lead 2026-05-07:
+  // when the user's Telegram client locale differs from their explicit
+  // Redis pref (set via /language en|fr), surface a one-line hint so
+  // they discover the /language auto subcommand without invoking it.
+  try {
+    const { getUserLang } = require('./user-prefs');
+    const stored = await getUserLang(redis, msg.chat.id);
+    const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
+    if (stored && ['en','fr'].includes(tgLang) && stored !== tgLang) {
+      const hint = startLang === 'fr'
+        ? `\n\nℹ️ Votre Telegram est en ${tgLang === 'fr' ? 'français' : 'anglais'} mais le bot répond en ${stored === 'fr' ? 'français' : 'anglais'}. Tapez \`/language auto\` pour suivre la langue de votre Telegram automatiquement.`
+        : `\n\nℹ️ Your Telegram client is in ${tgLang === 'fr' ? 'French' : 'English'} but the bot is replying in ${stored === 'fr' ? 'French' : 'English'}. Type \`/language auto\` to follow your Telegram client locale automatically.`;
+      intro = intro + hint;
+    }
+  } catch { /* drift check is best-effort */ }
+  await safeSend(msg.chat.id, intro, { parse_mode: 'Markdown' });
 });
 
 // Routes a single-word command name to the appropriate flow. Used by
@@ -3675,7 +3691,7 @@ async function registerCommandsMenu() {
     // accepts a `language_code` so French users see French descriptions
     // in the slash-menu hint. Default (no language_code) covers EN.
     const enCommands = [
-      { command: 'cuisine',    description: 'Cuisine Picker >70 choices' },
+      { command: 'cuisine',    description: 'Cuisine Picker · 68 choices' },
       { command: 'hidden',     description: 'Up to 5 hidden gems 1.5–3 km away' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
@@ -3683,14 +3699,14 @@ async function registerCommandsMenu() {
       { command: 'recognised', description: 'Michelin, Bib Gourmand (under $45), Asia 50/100, local produce' },
       { command: 'carpark',    description: 'Nearest 5 carparks with available lots' },
       { command: 'location',   description: 'Set your locale by typing a place name' },
-      { command: 'language',   description: 'Switch chat language (English / Français)' },
+      { command: 'language',   description: 'Chat lang: en / fr / auto (auto = follow Telegram client)' },
       { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'share',      description: 'Forward recent pick' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase your stored data' }
     ];
     const frCommands = [
-      { command: 'cuisine',    description: 'Sélecteur de cuisine — plus de 70 choix' },
+      { command: 'cuisine',    description: 'Sélecteur de cuisine · 68 choix' },
       { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées à 1,5–3 km' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
@@ -3698,7 +3714,7 @@ async function registerCommandsMenu() {
       { command: 'recognised', description: 'Michelin, Bib Gourmand (moins de 45 $), Asia 50/100, produits locaux' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       { command: 'location',   description: 'Définir votre lieu par son nom' },
-      { command: 'language',   description: 'Changer la langue (Français / English)' },
+      { command: 'language',   description: 'Langue : fr / en / auto (auto = suit le client Telegram)' },
       { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
       { command: 'share',      description: 'Partager un choix récent' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
