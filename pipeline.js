@@ -763,26 +763,24 @@ function dishTailKey(venue) {
 // v0.59.42: light shuffle for deterministic Places paths. POPULARITY-
 // ranked searchNearby returns the same ordering every call at the
 // same lat/lng — the user reported "always same 3 venues" for the
-// empty-cuisine + Dessert paths. Bucket the list into rating tiers
-// (≥4.5, ≥4.0, <4.0), Fisher-Yates within each tier, then concat.
-// Result: top-rated venues stay near the top (don't surface a 3.5★
-// place above a 4.7★), but order within a tier rotates per call.
+// empty-cuisine + Dessert paths.
+// v0.59.47: tier-preserving shuffle (≥4.5 → ≥4.0 → <4.0) had the
+// failure mode of pinning the same N high-rated venues at the top
+// every call — only their within-tier ordering rotated. Per Human
+// Lead 2026-05-07: "I refreshed the 3 search buttons and still the
+// same list back" persists. Switch to a TRUE Fisher-Yates over the
+// whole list. Trade-off: a 3.8★ venue may surface above a 4.7★ on
+// some calls. Acceptable — the user picked NO criterion, so any
+// reasonable food venue is on-target. Quality bar still floor-gated
+// downstream (≤3.0 venues are rare from Places POPULARITY anyway).
 function lightShuffle(venues) {
   if (!Array.isArray(venues) || venues.length < 2) return venues;
-  const tiers = [[], [], []];
-  for (const v of venues) {
-    const r = Number(v?.rating) || 0;
-    if (r >= 4.5) tiers[0].push(v);
-    else if (r >= 4.0) tiers[1].push(v);
-    else tiers[2].push(v);
+  const out = [...venues];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
   }
-  for (const tier of tiers) {
-    for (let i = tier.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tier[i], tier[j]] = [tier[j], tier[i]];
-    }
-  }
-  return [...tiers[0], ...tiers[1], ...tiers[2]];
+  return out;
 }
 
 function throttleByDishTail(venues, cap = 2) {
