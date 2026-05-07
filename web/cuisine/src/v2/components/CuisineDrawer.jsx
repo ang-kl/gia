@@ -31,7 +31,11 @@ const CATEGORY_LABEL_KEY = {
 // Singapore / Southeast Asian / East Asian / China-regional /
 // South Asian / Middle Eastern / European / Americas / Australasia /
 // African). All cards same width in the 2-col grid.
-export default function CuisineDrawer({ catalogue, selected, onChange }) {
+// v0.59.21: onCategoryClose fires when the drilled-down category
+// drawer closes. App.jsx uses it to nudge a 3 s pulse on the 🔍
+// Search FAB so the user sees the next-step CTA right after picking
+// a cuisine.
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   const [lang] = useLocale();
 
@@ -90,7 +94,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange }) {
           category={openCategory}
           selected={selected}
           onToggle={toggle}
-          onClose={() => setOpenCategoryId(null)}
+          onClose={() => { setOpenCategoryId(null); onCategoryClose?.(); }}
           maxSelected={MAX_SELECTED}
         />
       )}

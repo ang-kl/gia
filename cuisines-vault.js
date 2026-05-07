@@ -29,7 +29,10 @@ const CATEGORY_META = [
   { id: 'european',        emoji: '🇪🇺' },
   { id: 'americas',        emoji: '🌎' },
   { id: 'australasia',     emoji: '🦘' },
-  { id: 'african',         emoji: '🌍' }
+  { id: 'african',         emoji: '🌍' },
+  // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
+  { id: 'dessert',         emoji: '🍮' },
+  { id: 'fusion',          emoji: '🌐' }
 ];
 
 // v0.59.0: per-cuisine flag emoji. Drives the flag prefix on each
@@ -99,6 +102,9 @@ const FLAG_BY_SLUG = {
 // Slugs are stable — Tell Gia validation, copy-syntax, search-cache
 // keys all keep working. Only display grouping changes.
 const SLUG_TO_CATEGORY = {
+  // v0.59.21 — new top-level categories.
+  'dessert':     'dessert',
+  'fusion':      'fusion',
   // Common in Singapore
   'singaporean': 'common-here',
   'peranakan':   'common-here',
@@ -145,7 +151,10 @@ const CATEGORY_LABEL_OVERRIDE = {
   'european':          'European',
   'americas':          'Americas',
   'australasia':       'Australasia',
-  'african':           'African'
+  'african':           'African',
+  // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
+  'dessert':           'Dessert',
+  'fusion':            'Fusion'
 };
 
 function slugify(name) {

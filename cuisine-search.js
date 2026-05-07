@@ -126,7 +126,7 @@ async function geminiCandidates15(promptArgs) {
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter((c) => c && typeof c.name === 'string')
-      .slice(0, 15)
+      .slice(0, 16) // v0.59.21: 15 → 16 (cuisine final-list band 8-16).
       .map((c) => ({
         name: c.name,
         area: c.area || '',
@@ -250,11 +250,12 @@ async function searchCuisine({
         specialRequest // threaded through pipeline.reason()
       },
       validatedVenues: null,
-      // v0.59.20: cap dropped from 15 → 12 per Human Lead's
-      // 7-12 final-list-size target. Lower bound (7) is a target,
-      // not a guarantee — when LLM rank+narrate has fewer
-      // high-quality candidates the list shows fewer.
-      count: 12
+      // v0.59.21: cap raised 12 → 16 per Human Lead 2026-05-07
+      // (band 8-16). Lower bound (8) is a target, not a guarantee —
+      // when LLM rank+narrate has fewer high-quality candidates the
+      // list shows fewer; brand-throttle dedup (cap=2 per brand) in
+      // discover() further refines what reaches the rank stage.
+      count: 16
     });
     candidates = draftRun.candidates;
     pipelineDiag = draftRun.diag;
@@ -273,7 +274,7 @@ async function searchCuisine({
   // (~1s × 15 candidates = ~15s); now Promise.allSettled fans out and
   // typically completes in ~2-3s. This was the dominant slow phase
   // pushing total pipeline latency past the 25s TMA timeout.
-  const validateLimit = Math.min(candidates.length, 15);
+  const validateLimit = Math.min(candidates.length, 16); // v0.59.21: 15 → 16.
   const settled = await Promise.allSettled(
     candidates.slice(0, validateLimit).map((c) => validateWithPlaces(c, { lat, lng }, radius))
   );

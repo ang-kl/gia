@@ -48,7 +48,14 @@ export default function TellMePanel({ onSubmit, onReplace, lastPrompt, loading }
           onClick={submit}
           disabled={!text.trim() || submitting || loading}
           aria-label={tr('tellme.submit', lang)}
-          className="text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0"
+          // v0.59.21: pulse + ring when the input has text (and we're
+          // not loading/submitting) so the user notices the submit
+          // arrow is the next-step CTA. Per Human Lead 2026-05-07.
+          className={`text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${
+            text.trim() && !submitting && !loading
+              ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent'
+              : ''
+          }`}
         >{submitting ? '…' : '→'}</button>
       </div>
       {lastPrompt && !submitting && (
