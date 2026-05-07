@@ -69,7 +69,7 @@ Return JSON exactly:
 {
   "intent": "food" | "drinks" | "groceries" | "update-location" | "other",
   "confidence": <float 0..1>,
-  "cuisines": [<canonical English cuisine names from this catalogue if mentioned or implied; omit if generic — pick from: ${CUISINE_CATALOGUE.join(', ')}>],
+  "cuisines": [<canonical English cuisine names from this catalogue if mentioned or implied; omit if generic — pick from: ${CUISINE_CATALOGUE.join(', ')}. DISH-PRIORITISATION RULE (v0.59.54): when the message names a specific dish, classify by the DISH'S country of origin even if the message contains side-dish or modifier words from other cuisines. "Goulash with dumpling" → ["European"] (goulash is the dish, dumpling is a side; goulash is Hungarian → European catch-all since Hungarian is not in the catalogue). "Pad Thai with shrimp" → ["Thai"]. "Carbonara with mushrooms" → ["Italian"]. "Kimchi fried rice" → ["Korean"]. Do NOT pick the cuisine matching only the side/modifier word.>],
   "special_request": "<distinctive qualifier in English: 'Michelin-starred', 'halal', 'vegetarian', 'romantic dinner', 'kid-friendly', 'late-night', 'outdoor seating', 'budget under $20', etc.; empty string if none>",
   "location_override": "<Singapore place name the user explicitly mentioned to anchor the search around — e.g. 'Tanjong Pagar MRT', 'Raffles Place', 'Bishan', 'Joo Chiat', 'Holland Village'. Empty string if the user didn't mention a specific anchor (in which case the bot uses their cached GPS).>",
   "lang": "<ISO 639-1 two-letter code of the input language>",
@@ -91,6 +91,8 @@ Examples:
   "Find Korean food near Tanjong Pagar MRT" → {intent:"food",confidence:0.95,cuisines:["Korean"],special_request:"",location_override:"Tanjong Pagar MRT",lang:"en",ack_text:"🌿 Searching for Korean food near Tanjong Pagar MRT…"}
   "Newly opened restaurants 1km of Raffles Place" → {intent:"food",confidence:0.9,cuisines:[],special_request:"newly opened",location_override:"Raffles Place MRT",lang:"en",ack_text:"🌿 Hunting newly opened restaurants near Raffles Place…"}
   "Bishan halal food" → {intent:"food",confidence:0.9,cuisines:[],special_request:"halal",location_override:"Bishan",lang:"en",ack_text:"🌿 Halal food near Bishan…"}
+  "Goulash with dumpling" → {intent:"food",confidence:0.9,cuisines:["European"],special_request:"goulash",location_override:"",lang:"en",ack_text:"🌿 Looking for Hungarian-style goulash…"}
+  "Pad Thai with shrimp" → {intent:"food",confidence:0.95,cuisines:["Thai"],special_request:"pad thai",location_override:"",lang:"en",ack_text:"🌿 Hunting Pad Thai…"}
   "where can I find good kopi" → {intent:"drinks",confidence:0.9,cuisines:["Singaporean"],special_request:"local kopi / coffee",location_override:"",lang:"en",ack_text:"🌿 Hunting for kopi near you…"}
   "supermarket open now" → {intent:"groceries",confidence:0.9,cuisines:[],special_request:"open now",location_override:"",lang:"en",ack_text:"🌿 Finding supermarkets open now…"}
   "My location change" → {intent:"update-location",confidence:0.95,cuisines:[],special_request:"",location_override:"",lang:"en",ack_text:"📍 Tap to share your new location, or type a place name."}

@@ -395,8 +395,76 @@ async function generateGroundedHiddenGems({
   throw aggregate;
 }
 
+// v0.59.54: /search command — multi-turn intent disambiguator.
+// Caller passes the user's latest free-text + the recent history, gets
+// back a structured intent (dish/ingredient/tool/ambiguous) + either a
+// clarifying question (when ambiguous) or a Places-shaped textQuery +
+// canonical cuisine + a one-sentence "why this matters".
+//
+// No grounded search needed for this — it's pure classification + a
+// small reasoning step. Fast model, no tool wiring.
+async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-2.5-flash', _genAIFactory }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) throw new Error('GEMINI_API_KEY unset');
+  const histLines = (Array.isArray(history) ? history : [])
+    .slice(-12)
+    .map((h) => `${h.role === 'user' ? 'USER' : 'BOT'}: ${String(h.text || '').slice(0, 400)}`)
+    .join('\n');
+  const langInstruction = lang === 'fr'
+    ? 'Reply in French (fr) — clarifying questions and "why" prose. Keep dish names, cuisine labels, and Places searchTerm in English.'
+    : 'Reply in English (en).';
+  const prompt = [
+    'You are a Singapore F&B research assistant. The user has typed a free-text query about food, drinks, ingredients, or kitchen tools. Classify the user\'s intent and return a single-line JSON object.',
+    '',
+    'POSSIBLE INTENTS:',
+    '- "dish": user named a specific dish (e.g. "goulash with dumpling", "pad thai", "khao soi", "carbonara").',
+    '- "ingredient": user named an ingredient or technique (e.g. "tandoor", "binchotan", "cold-pressed coconut milk", "burrata").',
+    '- "tool": user named a kitchen tool / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide").',
+    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify.',
+    '',
+    'WHEN A DISH IS NAMED:',
+    '- Identify the dish\'s most likely culinary origin even if other-cuisine modifiers are present. "Goulash with dumpling" → Hungarian (NOT Chinese — goulash is the dish, dumpling is the side). "Pad Thai with shrimp" → Thai.',
+    '- Map the origin to the closest catalogue cuisine. Catalogue includes: Singaporean, Peranakan, Malaysian, Indonesian, Thai, Filipino, Vietnamese, Japanese, Chinese, Korean, Taiwanese, American, Mexican, Brazilian, Australian, New Zealand, Australasia, Burmese, Sichuan, Shanghainese, Cantonese, Hunan, Hokkien, Teochew, Hainanese, Hakka, Northeastern, Northwestern, Hong Kong, Macau, Bengali, Gujarati, Nepalese, Sri Lankan, Pakistani, South Indian, North Indian, European, Mediterranean, Italian, Spanish, Greek, French, British, German, Austrian, Swiss, Portuguese, Russian, Ukrainian, Polish, Scandinavian, Slavic, Lebanese, Turkish, Persian, Moroccan, Egyptian, Israeli, Uzbek, Georgian, African, South African, Argentinian, Eurasian, Eastern European, Dessert, Fusion.',
+    '- If origin is European but not in the catalogue (Hungarian, Czech, Slovak, etc.), use "European".',
+    '',
+    'WHEN AMBIGUOUS:',
+    '- Suggest the most likely interpretation politely. Example: user typed "cold drink" → "Could you tell me a bit more? Are you thinking iced tea, kopi peng, smoothies, or something stronger like a cocktail?"',
+    '',
+    'OUTPUT JSON SHAPE (single line, no markdown):',
+    '{"intent":"dish|ingredient|tool|ambiguous","cuisine":"<catalogue name OR null>","searchTerm":"<Places textQuery suitable for searchText: \'goulash restaurant Singapore\', \'tandoor indian restaurant Singapore\', etc. — or empty string when ambiguous>","why":"<one sentence explaining the cooking method, ingredient origin, or dish backstory — or empty string when ambiguous>","clarify":"<polite clarifying question — empty string when not ambiguous>"}',
+    '',
+    'IMPORTANT:',
+    '- Plain JSON only. No markdown fences. No backticks. No prose outside the JSON.',
+    '- Use double quotes throughout.',
+    '- ' + langInstruction,
+    '',
+    histLines ? `RECENT CONVERSATION:\n${histLines}\n` : '',
+    `USER\'s LATEST QUERY: ${String(text || '').slice(0, 600)}`
+  ].filter(Boolean).join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  const genAI = factory();
+  const m = genAI.getGenerativeModel({ model });
+  const r = await m.generateContent(prompt);
+  const raw = r?.response?.text?.() || '';
+  const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+  let parsed;
+  try { parsed = JSON.parse(cleaned); }
+  catch { parsed = { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: 'Sorry, I didn\'t catch that. Could you tell me which dish, ingredient, or kitchen technique you\'re curious about?' }; }
+  return {
+    intent: ['dish', 'ingredient', 'tool', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
+    cuisine: typeof parsed.cuisine === 'string' && parsed.cuisine.length ? parsed.cuisine : null,
+    searchTerm: String(parsed.searchTerm || '').slice(0, 200),
+    why: String(parsed.why || '').slice(0, 400),
+    clarify: String(parsed.clarify || '').slice(0, 400)
+  };
+}
+
 module.exports = {
   generateGroundedHiddenGems,
+  classifySearchIntent,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,
