@@ -609,24 +609,44 @@ export default function App() {
         className="rounded-2xl border border-tg-accent/40 overflow-hidden"
         style={{ backgroundColor: 'color-mix(in srgb, var(--tg-card) 88%, var(--tg-accent) 12%)' }}
       >
-        <button
-          type="button"
-          onClick={() => setCriteriaOpen((o) => !o)}
-          aria-expanded={criteriaOpen}
-          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-tg-text hover:bg-tg-bg/30 transition-colors"
-        >
-          <span aria-hidden className="text-tg-accent text-base leading-none">{criteriaOpen ? '▾' : '▸'}</span>
-          <span className="flex-1 text-left">{lang === 'fr' ? 'Critères de recherche' : 'Search criteria'}</span>
-          <span className="text-[11px] text-tg-hint font-normal">
-            {state.cuisines.length}c · {filterCount}f
-          </span>
-          <span
+        {/* v0.59.51: header is now a flex row, not a single button — so
+            the Clear pill can sit alongside the toggle even when the
+            criteria panel is collapsed. Clicking the chevron / label
+            still toggles open/close; clicking Clear stops propagation
+            and just clears state. */}
+        <div className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-tg-text">
+          <button
+            type="button"
+            onClick={() => setCriteriaOpen((o) => !o)}
+            aria-expanded={criteriaOpen}
+            className="flex-1 flex items-center gap-2 text-left hover:opacity-80 transition-opacity"
+          >
+            <span aria-hidden className="text-tg-accent text-base leading-none">{criteriaOpen ? '▾' : '▸'}</span>
+            <span className="flex-1 text-left">{lang === 'fr' ? 'Critères de recherche' : 'Search criteria'}</span>
+            <span className="text-[11px] text-tg-hint font-normal">
+              {state.cuisines.length}c · {filterCount}f
+            </span>
+          </button>
+          {/* v0.59.51: Clear pill mirrors the in-panel Clear button so
+              users with a result list and a collapsed criteria panel
+              can wipe selection without expanding first. */}
+          {canClear && !criteriaOpen && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); clearAll(); }}
+              disabled={loading}
+              className="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-tg-border bg-tg-card text-tg-text hover:bg-tg-bg/40"
+            >Clear</button>
+          )}
+          <button
+            type="button"
+            onClick={() => setCriteriaOpen((o) => !o)}
             aria-hidden
             className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text"
           >
             {criteriaOpen ? t('btn.collapse', lang) : t('btn.editSearch', lang)}
-          </span>
-        </button>
+          </button>
+        </div>
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
             <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
@@ -694,7 +714,7 @@ export default function App() {
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
       <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.59.50 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+        v0.59.51 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
