@@ -73,9 +73,11 @@ const STRINGS = {
   // ----- Result card -----
   'card.open':                 { en: 'Open', fr: 'Ouvert' },
   'card.closed':               { en: 'Closed', fr: 'Fermé' },
-  // v0.59.23 — "What to order" line on cuisine ResultCards (mirrors
-  // /hidden's signature_dish surface). Per Human Lead 2026-05-07.
-  'card.whatToOrder':          { en: 'What to order', fr: 'À commander' },
+  // v0.59.23 / v0.59.24 — "Try ·" line on cuisine ResultCards
+  // (mirrors /hidden's signature_dish surface). Per Human Lead
+  // 2026-05-07: label trimmed to a tight "Try ·" form, same emoji
+  // glyph used at the start of the dish line.
+  'card.whatToOrder':          { en: 'Try', fr: 'Essayez' },
 
   // ----- Tell me panel -----
   'tellme.placeholder':        { en: 'What are you craving? e.g. spicy thai', fr: 'Quelle est votre envie ? ex. thaï épicé' },

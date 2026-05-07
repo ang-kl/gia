@@ -4776,10 +4776,16 @@ async function cacheBotUsername() {
           }
           return { dishes: [...dishes].slice(0, 3), snippet: String(recent[0].text).slice(0, 200).trim() };
         }
+        // v0.59.24: drinks filter for "🍴 Try ·" — per Human Lead
+        // 2026-05-07. Skip for Dessert/Fusion cuisines (drinks are
+        // legitimate headline items there).
+        const pipelineMod = require('./pipeline');
+        const dropDrinks = pipelineMod.shouldFilterDrinks(cuisineQueries);
         for (const v of top) {
           if (Array.isArray(v.reviews) && v.reviews.length) {
             const { dishes, snippet } = extractDishes(v.reviews);
-            if (dishes.length) v.dishes = dishes;
+            const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
+            if (filtered.length) v.dishes = filtered;
             if (snippet) v.recentReview = snippet;
           }
         }

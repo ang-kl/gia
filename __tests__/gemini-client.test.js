@@ -431,11 +431,28 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('No exclamation marks');
   });
 
-  it('v0.58.46: OUTPUT FORMAT lines have functional icons', () => {
+  it('v0.59.24: OUTPUT FORMAT lines have functional icons (6: 🕒 🌟 📝 💎 🍴 📍)', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🕒 Opening hours');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🌟 Google rating');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📝 Latest rating/review');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('💎 Why a gem');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍴 Order this');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📍 Google Map URL');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍴 Try ·');
+    // v0.59.24: 📍 line drops the "Google Map URL:" label — emoji + raw URL only.
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/📍 <raw full Google Maps URL/);
+  });
+
+  it('v0.59.24: drinks BANNED in the 🍴 Try · line', () => {
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/never drinks/i);
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/EXCLUDE all drinks/);
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/kopi.*teh.*coffee/);
+  });
+
+  it('v0.59.24: rating line drops review count (rating only)', () => {
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/🌟 Google rating · rating only \(no review count\)/);
+  });
+
+  it('v0.59.24: 🍴 Try line specifies 5/3 dish count rule', () => {
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/4\+ distinct dishes, list 5; otherwise list 3/);
   });
 
   it('v0.58.47: EXCLUDE block forbids permanently closed venues', () => {
@@ -459,13 +476,14 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/more than 300 Google reviews/);
   });
 
-  it('v0.58.37: drops the Criteria/Confidence/Sources lines from OUTPUT FORMAT', () => {
+  it('v0.58.37 / v0.59.24: drops Criteria/Confidence/Sources; uses middot-separated labels', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('Criteria met:');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('Confidence: HIGH');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('\nSources:\n');
-    // OUTPUT FORMAT still has the rest of the per-result fields.
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Why a gem:');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Order this:');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Google Map URL:');
+    // v0.59.24: middot-separated label form ("· …" replaces ": …").
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Why a gem ·');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Try ·');
+    // v0.59.24: 🍴 Order this renamed → 🍴 Try; old wording removed.
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('🍴 Order this');
   });
 });

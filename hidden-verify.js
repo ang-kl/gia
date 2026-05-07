@@ -155,21 +155,32 @@ function applyVerified(block, verified) {
   const ratingText = useFr
     ? verified.rating.toFixed(1).replace('.', ',')
     : verified.rating.toFixed(1);
-  const reviewWord = useFr ? 'avis' : 'reviews';
   return block.lines.map((line) => {
-    // 1) Authoritative rating line:
+    // v0.59.24: new format "🌟 Google rating · 4.5" (rating only, no
+    // count). Match label + middot + numeric → rewrite with verified
+    // rating; counts are no longer printed per Human Lead 2026-05-07.
+    const newRatingLine = line.replace(
+      /(🌟\s*(?:Google rating|Note Google))([\s:·–—-]+)([0-9]+[.,]?[0-9]*)/i,
+      (_, label, sep, _r) => `${label}${sep}${ratingText}`
+    );
+    if (newRatingLine !== line) return newRatingLine;
+
+    // 1) Legacy authoritative rating line (pre-v0.59.24):
     //    "Google rating - 4.5 and 114 reviews." / "Google rating: 4.5 and 114 reviews."
     //    "Note Google : 4,5 et 114 avis." / "Note Google - 4,5 et 114 avis."
-    const ratingLine = line.replace(
-      /(Google rating|Note Google)([\s:–—-]+)([0-9]+[.,]?[0-9]*)([^\d]+?)(\d+)(\s+(?:reviews?|avis)\b)/i,
-      (_, label, sep1, _r, sep2, _n, suffix) => `${label}${sep1}${ratingText}${sep2}${verified.userRatingCount}${suffix}`
+    //    Per the v0.59.24 "rating only" rule, the count is stripped.
+    const legacyRatingLine = line.replace(
+      /(Google rating|Note Google)([\s:–—-]+)([0-9]+[.,]?[0-9]*)([^\d]+?)(\d+)(\s+(?:reviews?|avis)\b\.?)/i,
+      (_, label, sep1) => `${label}${sep1}${ratingText}`
     );
-    if (ratingLine !== line) return ratingLine;
+    if (legacyRatingLine !== line) return legacyRatingLine;
 
-    // 2) Prose mentions: "with 114 reviews" / "over 114 reviews" / "114 avis".
+    // 2) Prose mentions of review counts ("with 114 reviews", "over 114
+    // avis"): drop the count entirely per v0.59.24 (counts inaccurate
+    // per Human Lead). The rest of the prose stays.
     const proseLine = line.replace(
-      /(\b)(\d+)(\s+(?:reviews?|avis)\b)/gi,
-      (_, pre, _n, suffix) => `${pre}${verified.userRatingCount}${suffix}`
+      /\s*(\b(?:with|over|featuring|across|sur|à partir de|avec|plus de)\s+)?\d+\s+(?:reviews?|avis)\b/gi,
+      ''
     );
     return proseLine;
   });
