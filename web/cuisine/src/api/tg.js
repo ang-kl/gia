@@ -26,38 +26,48 @@ export function getLanguage() {
 export function applyTelegramTheme() {
   const w = tg();
   if (!w) return;
-  try {
-    w.ready();
-    w.expand();
 
-    // v0.59.25 — boot-time diagnostic so we can debug "iPad doesn't
-    // fill the screen" reports from the user's prod console (Telegram
-    // desktop devtools / mobile inspector). Tells us instantly which
-    // gate is failing: phone-mode iPad? old client? requestFullscreen
-    // missing? viewport variable not set?
-    try {
-      console.log('[TMA-Diag-v0.59.25]', JSON.stringify({
-        platform: w.platform || null,
-        version: w.version || null,
-        viewportWidth: typeof window !== 'undefined' ? window.innerWidth : null,
-        viewportHeight: typeof window !== 'undefined' ? window.innerHeight : null,
-        isVersionAtLeast8: typeof w.isVersionAtLeast === 'function' ? w.isVersionAtLeast('8.0') : null,
-        hasRequestFullscreen: typeof w.requestFullscreen,
-        isExpanded: !!w.isExpanded,
-        isFullscreen: !!w.isFullscreen,
-        tgViewportHeight: typeof w.viewportHeight === 'number' ? w.viewportHeight : null,
-        tgViewportStableHeight: typeof w.viewportStableHeight === 'number' ? w.viewportStableHeight : null
-      }));
-    } catch { /* diag is best-effort */ }
+  // v0.59.28 — per-step try/catch isolation. Per Human Lead 2026-05-07
+  // "web.telegram does not work": any single throwing init step (e.g.
+  // requestFullscreen on Telegram Web without a user gesture, an
+  // older client missing onEvent) could abort the whole init and
+  // leave the TMA blank. Now each step fails independently and a
+  // [TMA-Init-Err] log surfaces the offending step in the user's
+  // console.
+  const safe = (label, fn) => {
+    try { fn(); }
+    catch (err) {
+      try { console.warn(`[TMA-Init-Err] ${label}:`, err?.message || err); } catch { /* noop */ }
+    }
+  };
 
-    // v0.59.18 / v0.59.25: tablet+ true fullscreen (Bot API 8.0+, late
-    // 2024). Skipped on phones so the Telegram bottom chrome stays
-    // visible for fast back/app-switch.
-    // v0.59.25: gate now also passes for `platform === 'ipados'`,
-    // catching iPad-mode Telegram even if the user installed only the
-    // iPhone-version Telegram (which runs on iPad in phone-compat mode
-    // at <600px CSS width — previously failed our matchMedia gate).
+  safe('ready', () => w.ready());
+  safe('expand', () => w.expand());
+
+  safe('diag-log', () => {
+    console.log('[TMA-Diag-v0.59.28]', JSON.stringify({
+      platform: w.platform || null,
+      version: w.version || null,
+      viewportWidth: typeof window !== 'undefined' ? window.innerWidth : null,
+      viewportHeight: typeof window !== 'undefined' ? window.innerHeight : null,
+      isVersionAtLeast8: typeof w.isVersionAtLeast === 'function' ? w.isVersionAtLeast('8.0') : null,
+      hasRequestFullscreen: typeof w.requestFullscreen,
+      isExpanded: !!w.isExpanded,
+      isFullscreen: !!w.isFullscreen,
+      tgViewportHeight: typeof w.viewportHeight === 'number' ? w.viewportHeight : null,
+      tgViewportStableHeight: typeof w.viewportStableHeight === 'number' ? w.viewportStableHeight : null
+    }));
+  });
+
+  // v0.59.18 / v0.59.25 / v0.59.28: tablet+ fullscreen.
+  // v0.59.28 — Telegram Web (weba/webk) explicitly EXCLUDED.
+  // requestFullscreen on Telegram Web invokes the browser's
+  // Element.requestFullscreen which throws without a user gesture
+  // and aborts init. Telegram Web's iframe is already wide; no
+  // benefit from forcing fullscreen there.
+  safe('fullscreen', () => {
     const platform = String(w.platform || '').toLowerCase();
+    if (platform === 'weba' || platform === 'webk' || platform === 'web') return;
     const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
     const wideViewport = typeof window !== 'undefined'
       && window.matchMedia?.('(min-width: 600px)').matches;
@@ -65,31 +75,25 @@ export function applyTelegramTheme() {
         && typeof w.isVersionAtLeast === 'function'
         && w.isVersionAtLeast('8.0')
         && typeof w.requestFullscreen === 'function') {
-      try { w.requestFullscreen(); }
-      catch (err) { console.warn('[TMA-Diag] requestFullscreen failed:', err?.message || err); }
+      w.requestFullscreen();
     }
+  });
 
-    // v0.59.25 — explicit viewport-stable-height handler. Telegram
-    // SHOULD set --tg-viewport-stable-height on its own when it fires
-    // viewportChanged, but on older clients (and in some iPad WebView
-    // builds) the variable stays unset and our `var(..., 100vh)`
-    // fallback hits — which is the buggy 100vh value we were trying
-    // to escape. Subscribing to viewportChanged + writing the variable
-    // ourselves guarantees the correct stable height is in CSS scope.
-    if (typeof w.onEvent === 'function') {
-      const writeViewportVar = () => {
+  safe('viewport-handler', () => {
+    if (typeof w.onEvent !== 'function') return;
+    const writeViewportVar = () => {
+      try {
         const h = typeof w.viewportStableHeight === 'number'
           ? w.viewportStableHeight
           : (typeof w.viewportHeight === 'number' ? w.viewportHeight : null);
         if (h && document?.documentElement) {
           document.documentElement.style.setProperty('--tg-viewport-stable-height', `${h}px`);
         }
-      };
-      writeViewportVar(); // initial
-      try { w.onEvent('viewportChanged', writeViewportVar); }
-      catch { /* older clients may not support this event name */ }
-    }
-  } catch { /* noop in non-Telegram contexts */ }
+      } catch { /* noop */ }
+    };
+    writeViewportVar();
+    w.onEvent('viewportChanged', writeViewportVar);
+  });
   const tp = w.themeParams || {};
   const root = document.documentElement;
   const set = (k, v) => v && root.style.setProperty(k, v);
