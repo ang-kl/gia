@@ -84,7 +84,12 @@ function nameOverlap(claimed, candidate) {
 
 async function lookupVenue(name, address = '') {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey || !name) return null;
+  // v0.59.39 / Codex review #244 P2: missing API key is a verifier-
+  // unavailable state (NOT a hallucination signal). Return the
+  // apiError marker so the post-processor KEEPS the block — letting
+  // /hidden still return Gemini's results when Maps isn't configured.
+  if (!apiKey) return { apiError: true };
+  if (!name) return null;
   const query = address ? `${name} ${address} Singapore` : `${name} Singapore`;
   try {
     const { data } = await axios.post(
