@@ -365,10 +365,15 @@ const STRINGS = {
                                     fr: '🍴 Sélecteur de cuisine — Singapour à Johor Bahru' },
   'cuisine.chat.anchored':        { en: '📍 Anchored to your last shared location.',
                                     fr: '📍 Ancré sur votre dernière position partagée.' },
-  'cuisine.chat.shareForAccurate':{ en: 'For accurate picks, share your location first — or open the picker to use device GPS.',
-                                    fr: 'Pour des choix précis, partagez d’abord votre position — ou ouvrez le sélecteur pour utiliser le GPS de l’appareil.' },
-  'cuisine.chat.openWithGps':     { en: "Or open the picker now (it'll try device GPS):",
-                                    fr: 'Ou ouvrez le sélecteur maintenant (il essaiera le GPS de l’appareil) :' },
+  // v0.59.22 — both strings trimmed per Human Lead 2026-05-07. The
+  // previous wording duplicated "open the picker" / "device GPS"
+  // across the two messages (Telegram needs them split because
+  // reply-keyboard + inline-keyboard can't share a message). Now
+  // each message says one thing once.
+  'cuisine.chat.shareForAccurate':{ en: 'For accurate picks, share your location first.',
+                                    fr: 'Pour des choix précis, partagez d’abord votre position.' },
+  'cuisine.chat.openWithGps':     { en: '↓',
+                                    fr: '↓' },
   'cuisine.chat.openBtn':         { en: '🍴 Open Cuisine Picker', fr: '🍴 Ouvrir le sélecteur' },
   'cuisine.chat.shareLocBtn':     { en: '📍 Share location with bot', fr: '📍 Partager la position avec le bot' },
   'cuisine.chat.openError':       { en: "Sorry, I can't open the Cuisine Picker right now.",
