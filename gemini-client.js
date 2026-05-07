@@ -428,7 +428,9 @@ const DISH_FALLBACK = [
   { match: ['ratatouille'], cuisine: 'French', why: 'Ratatouille is a Provençal stewed-vegetable dish.' },
   { match: ['bouillabaisse'], cuisine: 'French', why: 'Bouillabaisse is a Marseille fish stew.' },
   { match: ['steak frites', 'steak-frites'], cuisine: 'French', why: 'Steak frites is the French bistro staple of seared steak with chips.' },
-  { match: ['confit de canard', 'duck confit'], cuisine: 'French', why: 'Duck confit is duck legs slow-cooked in their own fat.' },
+  // v0.59.58: 'duck confit' first so match[0] produces the English
+  // searchTerm preferred by SG Google Places ranking.
+  { match: ['duck confit', 'confit de canard'], cuisine: 'French', why: 'Duck confit is duck legs slow-cooked in their own fat.' },
   { match: ['quiche lorraine'], cuisine: 'French', why: 'Quiche Lorraine is a savoury custard tart with bacon and cream.' },
   { match: ['crepe', 'crêpe', 'galette'], cuisine: 'French', why: 'Crêpes are thin French pancakes; galettes are buckwheat-based and savoury.' },
   // Hungarian/European
@@ -530,13 +532,14 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
   if (!apiKey && !_genAIFactory) {
     // Caller-side env failure — log and return a graceful ambiguous.
     console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dictionaries.');
-    // v0.59.57: technique dictionary takes precedence over dish
-    // dictionary so "/s tandoor" surfaces the technique explainer
-    // rather than falling through to a Tandoori Chicken dish match.
-    const techHit = techniqueFallback(text);
-    if (techHit) {
-      return { intent: 'tool', cuisine: techHit.cuisine || null, searchTerm: techHit.searchPhrase, why: techHit.why, clarify: '' };
-    }
+    // v0.59.58 (codex P2): dish dictionary runs FIRST so specific
+    // multi-word dish queries like "duck confit" and "tandoori
+    // chicken" keep hitting their pre-existing dish entries (with
+    // the precise searchTerm) instead of getting reclassified as
+    // the broader "confit"/"tandoor" technique. Standalone
+    // technique words ("tandoor", "braisage", "sous vide") still
+    // hit the technique entry on the second pass because no dish
+    // entry contains them as a substring.
     const hit = dishFallback(text);
     if (hit) {
       // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
@@ -544,6 +547,10 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
       // "beef bourguignon restaurant Singapore" not "Beef restaurant
       // Singapore".
       return { intent: 'dish', cuisine: hit.cuisine, searchTerm: `${hit.match[0]} restaurant Singapore`, why: hit.why, clarify: '' };
+    }
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      return { intent: 'tool', cuisine: techHit.cuisine || null, searchTerm: techHit.searchPhrase, why: techHit.why, clarify: '' };
     }
     return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
   }
@@ -626,25 +633,20 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
       continue;
     }
   }
-  // Every model failed — fall back to the dish dictionary, then to a
+  // Every model failed — fall back to the dictionaries, then to a
   // graceful ambiguous prompt. NEVER throw.
   if (!parsed) {
-    // v0.59.57: technique dictionary takes precedence over dish
-    // dictionary on the all-models-failed path too.
-    const techHit = techniqueFallback(text);
-    if (techHit) {
-      console.log(`[Search-Intent] technique-fallback hit for "${String(text).slice(0, 60)}" → ${techHit.match[0]}`);
-      return {
-        intent: 'tool',
-        cuisine: techHit.cuisine || null,
-        searchTerm: techHit.searchPhrase,
-        why: techHit.why,
-        clarify: ''
-      };
-    }
+    // v0.59.58 (codex P2 follow-up): dish dictionary runs FIRST so
+    // specific multi-word dish queries like "duck confit" and
+    // "tandoori chicken" keep their pre-existing dish entries
+    // instead of being reclassified as the broader "confit" /
+    // "tandoor" technique. Standalone technique words ("tandoor",
+    // "braisage", "sous vide") still hit the technique entry on
+    // the second pass because no dish entry contains them as a
+    // substring.
     const hit = dishFallback(text);
     if (hit) {
-      console.log(`[Search-Intent] fallback dictionary hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
+      console.log(`[Search-Intent] dish-fallback hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
       // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
       // not just the first user token, so "Beef bourguignon" searches
       // "beef bourguignon restaurant Singapore" not "Beef restaurant
@@ -654,6 +656,17 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
         cuisine: hit.cuisine,
         searchTerm: `${hit.match[0]} restaurant Singapore`,
         why: hit.why,
+        clarify: ''
+      };
+    }
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      console.log(`[Search-Intent] technique-fallback hit for "${String(text).slice(0, 60)}" → ${techHit.match[0]}`);
+      return {
+        intent: 'tool',
+        cuisine: techHit.cuisine || null,
+        searchTerm: techHit.searchPhrase,
+        why: techHit.why,
         clarify: ''
       };
     }

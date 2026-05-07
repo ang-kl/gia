@@ -98,6 +98,75 @@ describe('classifySearchIntent — technique-dictionary fallback', () => {
     expect(out.why).toMatch(/clay oven/i);
   });
 
+  // v0.59.58 (codex P2 follow-up): when a user types a SPECIFIC
+  // multi-word dish that contains a technique alias as a substring
+  // ("duck confit" → contains "confit"; "tandoori chicken" → contains
+  // "tandoor"/"tandoori"), the dish dictionary must win — the user
+  // wants the precise dish-specific Places search, not a broader
+  // "french restaurant" / "indian restaurant" search.
+  it('"duck confit" → dish-fallback, NOT technique (codex P2)', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'duck confit', _genAIFactory: factory });
+    expect(out.intent).toBe('dish');
+    expect(out.cuisine).toBe('French');
+    expect(out.searchTerm.toLowerCase()).toContain('duck confit');
+    // Must NOT be the broad technique searchPhrase.
+    expect(out.searchTerm.toLowerCase()).not.toContain('confit french restaurant');
+  });
+
+  it('"tandoori chicken" → dish-fallback, NOT technique (codex P2)', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'tandoori chicken', _genAIFactory: factory });
+    expect(out.intent).toBe('dish');
+    expect(out.cuisine).toBe('North Indian');
+    expect(out.searchTerm.toLowerCase()).toContain('tandoori chicken');
+    expect(out.why).toMatch(/yogurt-marinated|clay tandoor oven/i);
+  });
+
+  it('"confit de canard" (FR alias) → dish-fallback', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'confit de canard', _genAIFactory: factory });
+    expect(out.intent).toBe('dish');
+    expect(out.cuisine).toBe('French');
+  });
+
+  it('"braisage" alone → technique-fallback (regression guard for v0.59.57)', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'braisage', _genAIFactory: factory });
+    expect(out.intent).toBe('tool');
+    expect(out.why).toMatch(/braising|liquid/i);
+  });
+
+  it('"confit" alone (technique only, no dish modifier) → technique-fallback', async () => {
+    // Standalone "confit" must hit the technique explainer because
+    // no dish entry contains the substring "confit" by itself —
+    // dish entries require "confit de canard" or "duck confit".
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'confit', _genAIFactory: factory });
+    expect(out.intent).toBe('tool');
+    expect(out.why).toMatch(/own fat|low temperature/i);
+  });
+
   it('respects Gemini when it succeeds (technique dictionary is fallback only)', async () => {
     const factory = () => ({
       getGenerativeModel: () => ({
