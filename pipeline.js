@@ -405,6 +405,52 @@ function expandSingaporeanCuisines(cuisines) {
   return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 3)];
 }
 
+// v0.59.26 — Per-chatId Singaporean dish memory. Per Human Lead
+// 2026-05-07: even with random rotation, repetition still hit users
+// because the picker had no memory of what THIS chat already saw.
+// Now: each chatId has a Redis sorted set of recently-picked dishes
+// (capped at 30, score = epoch ms). On each pick we exclude the
+// recents — only when the unseen pool drops below `count` do we
+// fall back to including recents (avoid starvation).
+//
+// Key:   cuisine:sg-dishes:<chatId>
+// Score: Date.now() (ms)
+// TTL:   7 days (dormant chats don't accumulate)
+//
+// Returns an array of `count` dish strings from SINGAPOREAN_DISHES.
+async function pickSingaporeanDishesForChat({ redis, chatId, count = 3 }) {
+  // Defensive: if no redis or no chatId, fall back to the stateless
+  // random picker (the v0.59.21 behaviour).
+  if (!redis || !redis.isOpen || !chatId) {
+    return pickRandomSubset(SINGAPOREAN_DISHES, count);
+  }
+  const key = `cuisine:sg-dishes:${chatId}`;
+  let recent = [];
+  try {
+    recent = await redis.zRange(key, 0, -1);
+  } catch (err) {
+    // Redis read failed; degrade to stateless pick rather than throw.
+    logger.warn({ err: { message: err.message }, chatId }, 'sg-dish-memory zRange failed');
+    return pickRandomSubset(SINGAPOREAN_DISHES, count);
+  }
+  const recentSet = new Set(recent);
+  const unseen = SINGAPOREAN_DISHES.filter((d) => !recentSet.has(d));
+  const pool = unseen.length >= count ? unseen : SINGAPOREAN_DISHES;
+  const picks = pickRandomSubset(pool, count);
+  // Add picks back to the set with current timestamp; trim to 30 LRU.
+  try {
+    const now = Date.now();
+    const zaddArgs = picks.map((dish) => ({ score: now, value: dish }));
+    if (zaddArgs.length) await redis.zAdd(key, zaddArgs);
+    await redis.zRemRangeByRank(key, 0, -31); // keep newest 30
+    await redis.expire(key, 7 * 24 * 60 * 60); // 7-day TTL
+  } catch (err) {
+    // Don't fail the whole search if memory write fails.
+    logger.warn({ err: { message: err.message }, chatId }, 'sg-dish-memory write failed');
+  }
+  return picks;
+}
+
 // v0.59.21 — Dessert + Fusion query expansion (Codex review #226 P2).
 // /api/cuisine/search calls pipeline.discover() directly with no LLM
 // rank step — query.specialRequest never reaches an LLM in the TMA
@@ -627,7 +673,7 @@ function priceLevelToInt(p) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag() }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -641,7 +687,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   // v0.59.21 (Codex #226 P2): chain Dessert/Fusion query expansion
   // here too so the TMA path (which calls discover() directly with
   // no LLM rank) still honours the Dessert/Fusion intent.
-  let effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  // v0.59.26: callers that have already done chat-aware Singaporean
+  // expansion (via pickSingaporeanDishesForChat) pass
+  // expandSingaporean=false to skip the in-place re-expansion that
+  // would otherwise dilute the per-chatId memory by adding 3 more
+  // random dishes on top of the chat-tracked picks.
+  let effectiveCuisines = expandSingaporean ? expandSingaporeanCuisines(cuisines) : cuisines;
   effectiveCuisines = expandDessertCuisines(effectiveCuisines);
   effectiveCuisines = expandFusionCuisines(effectiveCuisines);
   diag('D710', 'Discover Places start', true, { lat, lng, cuisines: effectiveCuisines, radius });
@@ -1387,5 +1438,7 @@ module.exports = {
   DRINK_TERMS,
   isDrink,
   filterOutDrinks,
-  shouldFilterDrinks
+  shouldFilterDrinks,
+  // v0.59.26 — per-chatId Singaporean dish memory.
+  pickSingaporeanDishesForChat
 };
