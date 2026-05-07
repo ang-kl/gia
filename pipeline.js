@@ -440,6 +440,66 @@ function expandFusionCuisines(cuisines) {
   return [...cuisines, ...pickRandomSubset(FUSION_KEYWORDS, 2)];
 }
 
+// v0.59.24 — Drinks filter. Per Human Lead 2026-05-07: the
+// "🍴 Try ·" recommendation should be a *food* dish, not a drink.
+// Applied to the dishes array + signatureDish before they reach
+// the user. Conditional: skipped when the user picks Dessert or
+// Fusion cuisines, since those venues legitimately surface sweet
+// drinks (chendol, bandung) and signature coffee/cocktail programs.
+// Per Human Lead 2026-05-07. Multi-word forms preferred over
+// standalone "teh" / "tea" / "coffee" to avoid false-positives on
+// SG food dishes whose names contain those tokens (Bak Kut Teh =
+// pork rib soup, Tea-Smoked Duck = dish, Coffee Pork Ribs = dish).
+const DRINK_TERMS = [
+  // SG / Asian beverages — multi-word + unambiguous singles
+  'kopi', 'kopi-o', 'kopi-c', 'kopi gao', 'kopi peng', 'kopi siew dai',
+  'teh-o', 'teh-c', 'teh tarik', 'teh peng', 'teh halia',
+  'milo', 'milo dinosaur', 'horlicks', 'ovaltine',
+  'bandung', 'soya bean', 'soy milk', 'soybean milk', 'barley water',
+  'chrysanthemum tea', 'sugarcane juice', 'lime juice', 'lemon juice',
+  // Western coffee / tea — multi-word forms only
+  'latte', 'cappuccino', 'espresso', 'mocha', 'macchiato',
+  'americano', 'flat white', 'cold brew', 'iced coffee', 'iced tea',
+  'iced latte', 'hot chocolate', 'matcha latte', 'chai latte',
+  // Bubble tea / sweet drinks
+  'bubble tea', 'boba', 'milk tea', 'taro milk', 'thai milk tea',
+  'fruit tea', 'fresh juice', 'smoothie', 'milkshake',
+  'lemonade', 'soda', 'cola', 'sparkling water',
+  // Bar / alcohol
+  'beer', 'craft beer', 'wine', 'red wine', 'white wine', 'champagne',
+  'cocktail', 'mocktail', 'whisky', 'whiskey', 'bourbon', 'scotch',
+  'sake', 'soju', 'shochu', 'mojito', 'margarita', 'martini',
+  'gin and tonic', 'old fashioned', 'sangria', 'spritz'
+];
+const DRINK_RE = new RegExp(
+  '\\b(' + DRINK_TERMS
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'))
+    .join('|') + ')\\b',
+  'i'
+);
+
+function isDrink(dish) {
+  return DRINK_RE.test(String(dish || ''));
+}
+
+function filterOutDrinks(dishes) {
+  if (!Array.isArray(dishes)) return dishes;
+  return dishes.filter((d) => !isDrink(d));
+}
+
+// Returns true when the drinks filter SHOULD run for this cuisine
+// selection. False when 'dessert' or 'fusion' is in the list — those
+// venues legitimately surface drinks as headline items.
+function shouldFilterDrinks(cuisines) {
+  if (!Array.isArray(cuisines)) return true;
+  return !cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => {
+      const t = tok.toLowerCase();
+      return t === 'dessert' || t === 'fusion';
+    })
+  );
+}
+
 // v0.59.21 — Brand-throttle dedup. After Google Places returns
 // candidates, runs of same-brand venues (Hong Lim Curry Puff at 3
 // outlets, Gold Xiang Curry Puff at 2 outlets, etc.) crowd out
@@ -1322,5 +1382,10 @@ module.exports = {
   DESSERT_KEYWORDS,
   FUSION_KEYWORDS,
   expandDessertCuisines,
-  expandFusionCuisines
+  expandFusionCuisines,
+  // v0.59.24 — drinks filter (skip for Dessert/Fusion cuisines).
+  DRINK_TERMS,
+  isDrink,
+  filterOutDrinks,
+  shouldFilterDrinks
 };

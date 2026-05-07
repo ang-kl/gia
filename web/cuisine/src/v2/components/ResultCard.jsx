@@ -145,7 +145,7 @@ export default function ResultCard({ venue, focused, onTap }) {
               <>
                 {primaryDish && (
                   <div className="text-[12px] text-tg-text mt-1 leading-snug">
-                    🍴 <span className="font-medium">{tr('card.whatToOrder', lang)}:</span> {primaryDish}
+                    🍴 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
                   </div>
                 )}
                 {restDishes.length > 0 && (

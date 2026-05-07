@@ -91,11 +91,16 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '1. NAME - primary type',
   'Address - approx walking distance and direction from anchor.',
   '🕒 Opening hours - if verifiable, otherwise write "unverified".',
-  'Google rating - rating and review count if verifiable; otherwise write "unverified".',
-  'Latest rating/review signal - date if verifiable; otherwise write "unverified".',
-  '💎 Why a gem: one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
-  '🍴 Order this: one signature item only.',
-  '📍 Google Map URL: raw full URL.',
+  // v0.59.24: rating without review count (counts were inaccurate per
+  // Human Lead 2026-05-07). 🌟 emoji prefix added.
+  '🌟 Google rating · rating only (no review count). If unverifiable, write "unverified".',
+  // v0.59.24: 📝 prefix + middot + short-date format requirement.
+  '📝 Latest rating/review · short date in DD MMM YYYY (e.g. "12 Jan 2026"). If unverifiable, write "unverified".',
+  '💎 Why a gem · one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
+  // v0.59.24: rename "Order this" → "Try"; drinks BANNED; 5/3 dishes
+  // based on Google review distinct-dish count.
+  '🍴 Try · top FOOD dishes only — never drinks. If Google reviews mention 4+ distinct dishes, list 5; otherwise list 3. Comma-separated. EXCLUDE all drinks: kopi, teh, teh tarik, milo, bandung, coffee, latte, cappuccino, espresso, mocha, americano, flat white, cold brew, iced tea, bubble tea, boba, milk tea, smoothies, juices, lemonade, soda, beer, wine, cocktails, whisky, sake, soju, mojito, margarita, etc.',
+  '📍 <raw full Google Maps URL — emoji prefix only, no "Google Map URL:" label>.',
   // v0.58.37: removed Criteria-met / Confidence / Sources lines per
   // Human Lead. The criteria gate is still enforced internally — you
   // must judge each candidate against C1-C4 silently and only output
@@ -115,7 +120,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Use Singapore English.',
   '- Keep the tone neutral.',
   '- No exclamation marks.',
-  '- No decorative emojis. Use exactly the four functional icons in the OUTPUT FORMAT (🕒 💎 🍴 📍) and no others — no flag, no food emoji, no thumbs-up, etc.',
+  '- No decorative emojis. Use exactly the six functional icons in the OUTPUT FORMAT (🕒 🌟 📝 💎 🍴 📍) and no others — no flag, no food emoji, no thumbs-up, etc.',
   '- No marketing language.',
   '- Plain text only. Do not use Markdown formatting — no double-asterisk bold (**...**), no underscores for italics, no headings (#), no backticks. The Telegram client renders these as literal characters.'
 ].join('\n');
@@ -135,7 +140,9 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   '',
   'LOCALISATION:',
   'Render the entire user-facing output in French, with these rules:',
-  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "Google rating" → "Note Google", "Latest rating/review signal" → "Dernier signal d’avis", "💎 Why a gem:" → "💎 Pourquoi un trésor :", "🍴 Order this:" → "🍴 À commander :", "📍 Google Map URL:" → "📍 Lien Google Maps :".',
+  // v0.59.24: labels updated to match the new EN OUTPUT FORMAT
+  // (rating-only, 📝 prefix, middot separators, "🍴 Essayez").
+  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "🌟 Google rating ·" → "🌟 Note Google ·", "📝 Latest rating/review ·" → "📝 Dernier avis ·", "💎 Why a gem ·" → "💎 Pourquoi un trésor ·", "🍴 Try ·" → "🍴 Essayez ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
   '- Keep iconic Singapore dish names in their original form (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate the surrounding prose (e.g. "stall réputée pour son laksa onctueux").',
   '- Keep proper nouns (venue names, neighbourhoods, MRT stations) untranslated.',
   '- Keep URLs verbatim — do not translate or modify the Google Maps URL.',

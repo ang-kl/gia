@@ -279,14 +279,22 @@ async function searchCuisine({
     candidates.slice(0, validateLimit).map((c) => validateWithPlaces(c, { lat, lng }, radius))
   );
   const validated = [];
+  // v0.59.24: drinks filter — applied to signatureDish + dishes
+  // when the user's cuisine list does NOT include dessert/fusion.
+  // Per Human Lead 2026-05-07.
+  const pipelineMod = require('./pipeline');
+  const dropDrinks = pipelineMod.shouldFilterDrinks(cuisines);
   settled.forEach((s, i) => {
     if (s.status !== 'fulfilled' || !s.value) return;
     const v = s.value;
     const c = candidates[i];
-    v.signatureDish    = c.signatureDish    || '';
+    let sig = c.signatureDish || '';
+    if (dropDrinks && sig && pipelineMod.isDrink(sig)) sig = '';
+    v.signatureDish    = sig;
     v.queueMinEstimate = c.queueMinEstimate != null ? c.queueMinEstimate : null;
     v.bookingRequired  = !!c.bookingRequired;
-    v.dishes           = Array.isArray(c.dishes) ? c.dishes : (c.signatureDish ? [c.signatureDish] : []);
+    const rawDishes    = Array.isArray(c.dishes) ? c.dishes : (sig ? [sig] : []);
+    v.dishes           = dropDrinks ? pipelineMod.filterOutDrinks(rawDishes) : rawDishes;
     v.costEstimateSgd  = c.costEstimateSgd || null;
     // v0.30.3 GEOSPATIAL_CULINARY_ANALYST fields. Note: Places URL
     // remains authoritative — verifiedGoogleMapsUrl is purely the
