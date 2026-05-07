@@ -201,6 +201,94 @@ async function reverseGeocodeAddress(lat, lng) {
   }
 }
 
+// v0.59.31 — forward geocode + validation for /hidden free-text mode.
+// Per Human Lead 2026-05-07: when user types `/hidden Tanjong Pagar
+// MRT`, we need to validate the text resolves to a real
+// street/building/POI/MRT and pin the search to that lat/lng. Garbage
+// like `/hidden ramen` must be rejected with a bilingual hint.
+//
+// Returns:
+//   { ok: true, lat, lng, name, formatted, types } on a valid place
+//   { ok: false, reason: 'no_results'|'wrong_type'|'no_api_key' } otherwise
+//
+// Region bias: SG. Includes JB via the city/country-name match in the
+// formatted_address (Google's region biasing accepts cross-border
+// results when the query explicitly names them).
+async function forwardGeocodeAndValidate(query) {
+  if (!query || typeof query !== 'string') return { ok: false, reason: 'empty' };
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return { ok: false, reason: 'no_api_key' };
+  const cacheKey = `geocode:fwd:${String(query).slice(0, 120).toLowerCase()}`;
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    }
+  } catch { /* cache miss is fine */ }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json`
+      + `?address=${encodeURIComponent(query)}`
+      + `&region=sg`
+      + `&key=${apiKey}`;
+    const { data } = await axios.get(url, { timeout: 5000 });
+    if (data.status !== 'OK' || !Array.isArray(data.results) || !data.results.length) {
+      const result = { ok: false, reason: 'no_results' };
+      try { if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(result), { EX: 300 }); } catch { /* noop */ }
+      return result;
+    }
+    const r = data.results[0];
+    const types = r.types || [];
+    // Acceptable place-types for an /hidden anchor:
+    //   street/route, building/POI, MRT, locality, neighborhood
+    const VALID_TYPES = new Set([
+      'route', 'street_address', 'street_number', 'subpremise', 'premise',
+      'establishment', 'point_of_interest', 'transit_station',
+      'subway_station', 'bus_station',
+      'locality', 'sublocality', 'sublocality_level_1', 'sublocality_level_2',
+      'neighborhood', 'administrative_area_level_2',
+      'shopping_mall', 'tourist_attraction', 'park'
+    ]);
+    const matched = types.some((t) => VALID_TYPES.has(t));
+    if (!matched) {
+      const result = { ok: false, reason: 'wrong_type', types };
+      try { if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(result), { EX: 300 }); } catch { /* noop */ }
+      return result;
+    }
+    const lat = r.geometry?.location?.lat;
+    const lng = r.geometry?.location?.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return { ok: false, reason: 'no_coords' };
+    }
+    // Pretty name: prefer establishment/route/locality components.
+    const components = r.address_components || [];
+    const findComp = (t) => components.find((c) => c.types?.includes(t))?.long_name;
+    const name = findComp('establishment')
+      || findComp('point_of_interest')
+      || findComp('subpremise')
+      || findComp('premise')
+      || findComp('route')
+      || findComp('neighborhood')
+      || findComp('sublocality_level_1')
+      || findComp('sublocality')
+      || findComp('locality')
+      || (r.formatted_address || query).split(',')[0]
+      || query;
+    const result = {
+      ok: true,
+      lat,
+      lng,
+      name: name.trim(),
+      formatted: r.formatted_address,
+      types
+    };
+    try { if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(result), { EX: 24 * 60 * 60 }); } catch { /* noop */ }
+    return result;
+  } catch (err) {
+    console.warn('[forwardGeocode] failed:', err.message);
+    return { ok: false, reason: 'api_error', error: err.message };
+  }
+}
+
 // v0.56.1: location-preload pattern, background-refresh mode.
 // Per Human Lead: "why ask user to refresh location, can you refresh
 // location in the background". Behaviour:
@@ -1065,10 +1153,26 @@ bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
   await runCarparkCommand(msg.chat.id, lang);
 });
 
-bot.onText(/^\/(?:hidden|h)(?:@\w+)?$/, async (msg) => {
+// v0.59.31 — /hidden now accepts an optional free-text location after
+// the command. Per Human Lead 2026-05-07:
+//   /hidden                       → existing behavior (1km-3km from
+//                                   user's GPS/cached anchor)
+//   /hidden Tanjong Pagar MRT     → forward-geocode the free text to
+//                                   a lat/lng anchor, search 200m-3km
+//                                   around it (replaces user's GPS)
+//   /hidden ramen                 → reject (not a valid place);
+//                                   bilingual hint to enter a street/
+//                                   building name
+// Includes Johor Bahru as a valid territory.
+bot.onText(/^\/(?:hidden|h)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
-  await runSurpriseCommand(msg.chat.id, lang);
+  const freeText = (match && match[1] ? String(match[1]).trim() : '');
+  if (freeText) {
+    await runSurpriseCommandWithFreeText(msg.chat.id, lang, freeText);
+  } else {
+    await runSurpriseCommand(msg.chat.id, lang);
+  }
 });
 
 // v0.57.21: /privacy — what data the bot collects, how long it's
@@ -2476,6 +2580,151 @@ async function runCarparkCommand(chatId, lang = 'en') {
 // Rollback: PIPELINE_TASKS_ENABLED=false still drops back to the
 // single-venue v0.31 surprise flow.
 const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
+
+// v0.59.31 — /hidden free-text variant. Per Human Lead 2026-05-07:
+// when the user types `/hidden Tanjong Pagar MRT`, we forward-geocode
+// that text to a lat/lng anchor, search 200m-3km around THAT anchor
+// (replacing the user's GPS), and pass the same constraint to Gemini.
+// Validation rejects garbage like `/hidden ramen` with a bilingual hint.
+async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
+  const { t, tn } = require('./i18n');
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, t('hidden.busy', lang));
+      return;
+    }
+    // Validate the free text via forward-geocode + place-type check.
+    const geo = await forwardGeocodeAndValidate(freeText);
+    if (!geo.ok) {
+      // Bilingual hint: "give me a street/building/MRT name".
+      const hint = lang === 'fr'
+        ? `Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
+        : `I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
+      await safeSend(chatId, hint, { parse_mode: 'Markdown' });
+      return;
+    }
+    await setProcessing(redis, chatId);
+
+    if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
+      await safeSend(chatId, t('hidden.huntingLegacy', lang));
+      const { findSurprise } = require('./surprise');
+      const venue = await findSurprise({ lat: geo.lat, lng: geo.lng, redis });
+      if (!venue) {
+        await safeSend(chatId, t('hidden.legacyNotFound', lang));
+        return;
+      }
+      await deliverSurprise(chatId, venue);
+      return;
+    }
+
+    const anchor = {
+      name: geo.name,
+      googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(geo.name + ' Singapore')}`
+    };
+
+    const introMsg = lang === 'fr'
+      ? `🔍 Recherche autour de *${geo.name}* (200 m – 3 km)…`
+      : `🔍 Searching around *${geo.name}* (200 m – 3 km)…`;
+    await safeSend(chatId, introMsg, { parse_mode: 'Markdown' });
+
+    const PROGRESS_LINES = [
+      t('hidden.progress.1', lang),
+      t('hidden.progress.2', lang),
+      t('hidden.progress.3', lang),
+      t('hidden.progress.4', lang),
+      t('hidden.progress.5', lang)
+    ];
+    const MAX_PULSES = 10;
+    let pulseIdx = 0;
+    const pulseTimer = setInterval(() => {
+      if (pulseIdx >= MAX_PULSES) { clearInterval(pulseTimer); return; }
+      safeSend(chatId, PROGRESS_LINES[pulseIdx % PROGRESS_LINES.length]).catch(() => {});
+      pulseIdx++;
+    }, 12_000);
+
+    const HIDDEN_TIMEOUT_MS = 240_000;
+    const gc = require('./gemini-client');
+    let result;
+    try {
+      result = await Promise.race([
+        gc.generateGroundedHiddenGems({
+          anchor,
+          todayIsoSGT: gc.todaySGT(),
+          lang,
+          // v0.59.31: free-text mode widens the radius band and
+          // passes the new bounds as a CONSTRAINT to Gemini.
+          radiusBand: '200m to 3km',
+          radiusLower: '200m',
+          radiusUpper: '3km'
+        }),
+        new Promise((_, reject) => setTimeout(
+          () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
+          HIDDEN_TIMEOUT_MS
+        ))
+      ]);
+    } catch (err) {
+      clearInterval(pulseTimer);
+      console.error(`[/hidden free-text] Gemini call failed: ${err.message}`);
+      await safeSend(chatId, t('hidden.outerError', lang));
+      return;
+    }
+    clearInterval(pulseTimer);
+
+    let verifiedText = result.text;
+    let verifiedVenues = [];
+    let allDropped = false;
+    try {
+      const { verifyHiddenGemsOutput } = require('./hidden-verify');
+      const verifyResult = await verifyHiddenGemsOutput(result.text);
+      verifiedText = verifyResult.text;
+      verifiedVenues = verifyResult.venues || [];
+      allDropped = !!verifyResult.allDropped;
+    } catch (err) {
+      console.warn('[/hidden free-text] verify post-process failed:', err.message);
+    }
+    if (allDropped) {
+      await safeSend(chatId, t('hidden.allClosed', lang));
+      return;
+    }
+    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
+    for (const c of chunks) {
+      await safeSend(chatId, c, { parse_mode: 'HTML', disable_web_page_preview: true });
+    }
+    // One-map button (mirrors the GPS-anchored path).
+    try {
+      const plottable = verifiedVenues.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng));
+      if (plottable.length >= 2 && webhookDomain) {
+        const { buildMapHashUrl } = require('./maps-url');
+        const slim = plottable.map((v) => ({
+          name: v.displayHeading || v.name,
+          placeId: v.id || '',
+          lat: v.lat,
+          lng: v.lng,
+          area: v.address || ''
+        }));
+        const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+        if (mapUrl) {
+          const caption = lang === 'fr'
+            ? `🗺 Voir les ${plottable.length} trouvailles sur une carte :`
+            : `🗺 View all ${plottable.length} picks on one map:`;
+          const btnText = lang === 'fr'
+            ? `🗺 Voir les ${plottable.length} sur la carte`
+            : `🗺 Open ${plottable.length} on map`;
+          await bot.sendMessage(chatId, caption, {
+            reply_markup: { inline_keyboard: [[{ text: btnText, web_app: { url: mapUrl } }]] }
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('[/hidden free-text] map button render failed:', err.message);
+    }
+  } catch (err) {
+    console.error('[/hidden free-text] outer catch:', err.message, err.stack);
+    await safeSend(chatId, require('./i18n').t('hidden.outerError', lang));
+  } finally {
+    await clearProcessing(redis, chatId).catch(() => {});
+  }
+}
 
 async function runSurpriseCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');

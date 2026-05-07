@@ -18,7 +18,7 @@
 const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   'You are a Singapore F&B discovery analyst.',
   '',
-  'Use Google Search grounding to find hidden food/drink gems within a 1km to 3km walking band around the anchor location.',
+  'Use Google Search grounding to find hidden food/drink gems within a {{RADIUS_BAND}} walking band around the anchor location.',
   '',
   'ANCHOR_LOCATION:',
   '{{ANCHOR_NAME}}',
@@ -68,8 +68,8 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- Places with fewer than 8 Google reviews unless C2 fires with at least 2 independent recent mentions.',
   '- Places with more than 300 Google reviews UNLESS C1 fires (newly opened in the last 4 months). 300+ reviews means the venue is already widely known — not hidden — regardless of buzz or unique offering.',
   '- Anything rated below 4.0.',
-  '- Places below 1km walking distance from the anchor.',
-  '- Places above 3km walking distance from the anchor.',
+  '- Places below {{RADIUS_LOWER}} walking distance from the anchor.',
+  '- Places above {{RADIUS_UPPER}} walking distance from the anchor.',
   '- Places where all rating, review count, opening date, and social buzz signals are unverifiable.',
   '',
   'PRIORITISE:',
@@ -83,7 +83,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '2. Clearly distinctive signature item.',
   '3. Independent or less obvious operator.',
   '4. Verified Google rating and review count.',
-  '5. Walking distance comfortably within 1km to 3km.',
+  '5. Walking distance comfortably within {{RADIUS_BAND}}.',
   '',
   'OUTPUT FORMAT:',
   'For each result, use this exact structure:',
@@ -151,14 +151,21 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   '- The "place qualifies if…" criteria gate, EXCLUDE list, RANKING, and OUTPUT FORMAT instructions stay in English internally — they are for your reasoning, not for the user. Only the final output text (one block per result) is in French.'
 ].join('\n');
 
-function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 'en' }) {
+// v0.59.31 — radiusBand opt. Default ('1km to 3km') matches the
+// existing GPS-anchored /hidden behaviour. Free-text /hidden mode
+// passes '200m to 3km' to widen recall around a user-specified
+// street/building/MRT.
+function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 'en', radiusBand = '1km to 3km', radiusLower = '1km', radiusUpper = '3km' }) {
   if (!anchorName || !googleMapsUrl || !todayIsoSGT) {
     throw new Error('buildHiddenGemsPrompt: anchorName, googleMapsUrl, todayIsoSGT all required');
   }
   const base = HIDDEN_GEMS_PROMPT_TEMPLATE
     .replace('{{ANCHOR_NAME}}', anchorName)
     .replace('{{GOOGLE_MAPS_URL}}', googleMapsUrl)
-    .replace('{{TODAY_SGT}}', todayIsoSGT);
+    .replace('{{TODAY_SGT}}', todayIsoSGT)
+    .replace(/\{\{RADIUS_BAND\}\}/g, radiusBand)
+    .replace(/\{\{RADIUS_LOWER\}\}/g, radiusLower)
+    .replace(/\{\{RADIUS_UPPER\}\}/g, radiusUpper);
   return lang === 'fr' ? `${base}\n${HIDDEN_GEMS_LOCALISATION_FR}` : base;
 }
 
@@ -212,6 +219,10 @@ async function generateGroundedHiddenGems({
   todayIsoSGT,
   model = DEFAULT_MODEL,
   lang = 'en',
+  // v0.59.31 — radius-band overrides for free-text /hidden mode.
+  radiusBand,
+  radiusLower,
+  radiusUpper,
   // Test seam — pass a mock factory to avoid real SDK calls.
   _genAIFactory
 }) {
@@ -227,7 +238,10 @@ async function generateGroundedHiddenGems({
     anchorName: anchor.name,
     googleMapsUrl: anchor.googleMapsUrl,
     todayIsoSGT,
-    lang
+    lang,
+    ...(radiusBand ? { radiusBand } : {}),
+    ...(radiusLower ? { radiusLower } : {}),
+    ...(radiusUpper ? { radiusUpper } : {})
   });
   const factory = _genAIFactory || (() => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
