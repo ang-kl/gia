@@ -240,6 +240,23 @@ describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
     expect(result.allDropped).toBe(false);
   });
 
+  // v0.59.40 / Codex review #244 P2: a missing GOOGLE_MAPS_API_KEY
+  // makes lookupVenue return the apiError marker (NOT null) so
+  // verification is treated as "unavailable" rather than
+  // "hallucination". Without this, /hidden in deployments lacking
+  // a Maps key would drop ALL Gemini results.
+  it('lookupVenue returns apiError marker (not null) when GOOGLE_MAPS_API_KEY is unset', async () => {
+    const { lookupVenue } = require('../hidden-verify.js');
+    const original = process.env.GOOGLE_MAPS_API_KEY;
+    delete process.env.GOOGLE_MAPS_API_KEY;
+    try {
+      const r = await lookupVenue('Some Cafe', 'Some address');
+      expect(r).toEqual({ apiError: true });
+    } finally {
+      if (original !== undefined) process.env.GOOGLE_MAPS_API_KEY = original;
+    }
+  });
+
   // Codex review #211: when EVERY pick is closed, verifyHiddenGemsOutput
   // would otherwise return an empty text — Telegram rejects empty
   // messages. Caller (runSurpriseCommand) checks the allDropped flag
