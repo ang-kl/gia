@@ -76,7 +76,7 @@ describe('pickRandomSubset', () => {
 describe('expandSingaporeanCuisines', () => {
   it('appends 3 dishes when "Singaporean" is selected (v0.59.21: 2 → 3)', () => {
     const out = expandSingaporeanCuisines(['Singaporean']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
     expect(out[0]).toBe('Singaporean');
     // The 3 appended items must come from the dish list.
     expect(SINGAPOREAN_DISHES).toContain(out[1]);
@@ -88,12 +88,12 @@ describe('expandSingaporeanCuisines', () => {
 
   it('matches case-insensitively (lowercase singaporean)', () => {
     const out = expandSingaporeanCuisines(['singaporean']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
   });
 
   it('matches case-insensitively (UPPERCASE)', () => {
     const out = expandSingaporeanCuisines(['SINGAPOREAN']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
   });
 
   it('passes through non-SG cuisines unchanged', () => {
@@ -103,7 +103,7 @@ describe('expandSingaporeanCuisines', () => {
 
   it('preserves other cuisines when Singaporean is mixed in', () => {
     const out = expandSingaporeanCuisines(['Singaporean', 'Korean']);
-    expect(out.length).toBe(5);
+    expect(out.length).toBe(7);
     expect(out).toContain('Singaporean');
     expect(out).toContain('Korean');
     // Last 3 entries are dishes.
@@ -124,18 +124,18 @@ describe('expandSingaporeanCuisines', () => {
   // catch them while respecting hyphenated boundaries.
   it('expands when Singaporean appears with a halal modifier prefix', () => {
     const out = expandSingaporeanCuisines(['halal Singaporean']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
     expect(out[0]).toBe('halal Singaporean');
   });
 
   it('expands when Singaporean appears with a home-cooked modifier prefix', () => {
     const out = expandSingaporeanCuisines(['home-cooked Singaporean']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
   });
 
   it('expands when Singaporean appears with a private-dining stack', () => {
     const out = expandSingaporeanCuisines(['Singaporean private dining']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
   });
 
   it('does NOT expand "Singaporean-style" (one hyphenated token, not the cuisine pick)', () => {

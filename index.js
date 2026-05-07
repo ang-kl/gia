@@ -3587,7 +3587,11 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         radius: 50000,
         maxResults: 12,
         regionCode: 'SG',
-        lang: ftLang                                       // v0.59.0
+        lang: ftLang,                                      // v0.59.0
+        // v0.59.41 (Codex P2 PR #246): the user's literal query is
+        // typically a dish name; capping at 2 per dish-tail would
+        // drop nearly every match. Disable for free-text only.
+        applyDishTailThrottle: false
       });
       const venues = filterFreeTextResults(candidates, cached);
       if (!venues.length) {
@@ -4962,7 +4966,7 @@ async function cacheBotUsername() {
             const memoryPicks = await pipeline.pickSingaporeanDishesForChat({
               redis,
               chatId: csChatId, // Codex review #231 P1: verified doesn't exist in this route's scope.
-              count: 3
+              count: 5
             });
             if (Array.isArray(memoryPicks) && memoryPicks.length) {
               cuisinesForDiscover = [...cuisineQueries, ...memoryPicks];

@@ -487,7 +487,10 @@ function expandSingaporeanCuisines(cuisines) {
   // v0.59.21: 2 → 3 dishes per Human Lead 2026-05-07. The query stays
   // well under Places' textQuery length cap and 3 OR-terms still
   // produce enough varied recall without diluting the result list.
-  return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 3)];
+  // v0.59.41: 3 → 5 per Human Lead 2026-05-07 — wider OR-soup so
+  // Places returns enough raw candidates for the post-throttle
+  // result list to hit ~10 even after brand + dish-tail caps.
+  return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 5)];
 }
 
 // v0.59.26 — Per-chatId Singaporean dish memory. Per Human Lead
@@ -594,7 +597,8 @@ function expandDessertCuisines(cuisines) {
     String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
   );
   if (!has) return cuisines;
-  return [...cuisines, ...pickRandomSubset(DESSERT_KEYWORDS, 3)];
+  // v0.59.41: 3 → 5 per Human Lead — broader recall for /c Dessert.
+  return [...cuisines, ...pickRandomSubset(DESSERT_KEYWORDS, 5)];
 }
 
 function expandFusionCuisines(cuisines) {
@@ -603,7 +607,8 @@ function expandFusionCuisines(cuisines) {
     String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'fusion')
   );
   if (!has) return cuisines;
-  return [...cuisines, ...pickRandomSubset(FUSION_KEYWORDS, 2)];
+  // v0.59.41: 2 → 5 per Human Lead — broader recall for /c Fusion.
+  return [...cuisines, ...pickRandomSubset(FUSION_KEYWORDS, 5)];
 }
 
 // v0.59.24 — Drinks filter. Per Human Lead 2026-05-07: the
@@ -719,6 +724,70 @@ function throttleBrands(venues, cap = 2) {
   return out;
 }
 
+// v0.59.41 — Dish-tail throttle. Per Human Lead 2026-05-07: brand-
+// throttle correctly preserves DIFFERENT shops with the same dish
+// (Tew Chew Porridge + Tiong Shian Porridge + Ah Chiang's Porridge
+// = 3 brand keys), but the user sees them as "3 porridge places in
+// a row". Need a second throttle that keys on the dish-name TAIL of
+// the venue name and caps at 2.
+//
+// Algorithm:
+//   1. Strip corporate/branch markers ("- Outlet", "(Branch)", "Pte.").
+//   2. Drop punctuation. Take the LAST 2 tokens as the dish-tail key.
+//   3. Group venues by tail key, cap each at `cap`.
+//   4. Preserves order — earlier (rating/distance-sorted) venues win.
+//
+// Examples:
+//   "Tew Chew Street Tew Chew Porridge"   → tail "tew porridge"   (last 2)
+//   "Tiong Shian Porridge"                → tail "shian porridge"
+//   "Ah Chiang's Porridge"                → tail "ah's porridge"  (after punct strip)
+//
+// Hmm — that's actually multi-key for the porridge case. The shared
+// final word IS "porridge" so we should also try a 1-token tail.
+// Composite approach: track BOTH a 1-token and 2-token tail; cap on
+// the 1-token tail because that's the dish-category signal.
+function dishTailKey(venue) {
+  const raw = String(venue?.displayName?.text || venue?.displayName || venue?.name || '');
+  if (!raw) return '';
+  let s = raw.toLowerCase()
+    .split(/\s[-–—]\s/)[0]
+    .replace(/[(\[{][^)\]}]*[)\]}]/g, ' ')
+    .replace(/[.,!?'"`]/g, ' ');
+  const tokens = s.split(/\s+/).filter((t) => t && !CORPORATE_TOKENS.has(t));
+  if (!tokens.length) return '';
+  // 1-token tail — primary dish-category signal
+  // (e.g. "porridge", "rice", "noodle", "satay").
+  return tokens[tokens.length - 1];
+}
+
+function throttleByDishTail(venues, cap = 2) {
+  if (!Array.isArray(venues)) return venues;
+  // Dish-tail words that ARE generic enough to over-cluster. Skip
+  // throttling when the tail is too generic (would falsely cap
+  // unrelated venues like "Cafe X" + "Cafe Y").
+  const SKIP_TAILS = new Set([
+    'cafe', 'restaurant', 'bistro', 'kitchen', 'grill', 'house', 'place',
+    'corner', 'shop', 'centre', 'center', 'court', 'hall', 'club',
+    'bar', 'lounge', 'eatery', 'kopitiam', 'food', 'plaza', 'mall',
+    'pte', 'ltd', 'singapore', 'sg', 'co'
+  ]);
+  const counts = new Map();
+  const out = [];
+  for (const v of venues) {
+    const key = dishTailKey(v);
+    if (!key || SKIP_TAILS.has(key)) {
+      out.push(v);
+      continue;
+    }
+    const n = counts.get(key) || 0;
+    if (n < cap) {
+      out.push(v);
+      counts.set(key, n + 1);
+    }
+  }
+  return out;
+}
+
 // v0.59.21 — Inject per-cuisine prompt augmentations into the
 // rankAndNarrate `specialRequest` slot. Currently for Dessert and
 // Fusion (new categories from Human Lead 2026-05-07).
@@ -793,7 +862,7 @@ function priceLevelToInt(p) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -934,9 +1003,19 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     // screenshots (Hong Lim Curry Puff x3, Gold Xiang x2, etc.).
     // Cap before downstream rank/narrate so the LLM gets variety to
     // pick from. Per Human Lead 2026-05-07.
-    const throttled = throttleBrands(raw, 2);
-    const droppedBrand = raw.length - throttled.length;
-    diag('D711', 'Discover Places ok', true, { n: throttled.length, ms, droppedBrand });
+    const brandThrottled = throttleBrands(raw, 2);
+    // v0.59.41: also throttle by dish-tail key (cap=2 per shared
+    // last-token like "porridge", "rice", "noodle"). Catches the
+    // "3 porridge shops in a row" UX issue user reported when the
+    // shops have different brand keys. Free-text searches (e.g.
+    // "porridge", "chicken rice") opt out — the user's literal query
+    // IS the dish tail, so capping at 2 would drop most matches.
+    const throttled = applyDishTailThrottle
+      ? throttleByDishTail(brandThrottled, 2)
+      : brandThrottled;
+    const droppedBrand = raw.length - brandThrottled.length;
+    const droppedTail = brandThrottled.length - throttled.length;
+    diag('D711', 'Discover Places ok', true, { n: throttled.length, ms, droppedBrand, droppedTail });
     return throttled;
   } catch (err) {
     const ms = Date.now() - t0;
@@ -1548,6 +1627,9 @@ module.exports = {
   // Dessert/Fusion specialRequest injection.
   brandKey,
   throttleBrands,
+  // v0.59.41 — dish-tail throttle (caps "porridge", "rice", etc.)
+  dishTailKey,
+  throttleByDishTail,
   specialRequestForCuisines,
   // v0.59.21 (Codex #226 P2) — Dessert/Fusion Places query expansion.
   DESSERT_KEYWORDS,
