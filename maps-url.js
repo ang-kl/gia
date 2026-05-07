@@ -150,7 +150,19 @@ function googleMapsContainerUrl(venues, opts = {}) {
 //                  not shareable from chat)
 function buildMapHashUrl(venues, opts = {}) {
   if (!Array.isArray(venues) || !venues.length) return null;
-  const slim = venues
+  // v0.59.26 — Telegram inline-button URLs cap at ~4 KB practical
+  // (TG_HASH_MAX). After v0.59.23 raised the cuisine cap from 12 to
+  // 16, the base64-encoded venue payload grew past the limit and
+  // bot.sendMessage rejected the inline keyboard, surfacing as
+  // "Couldn't send to chat — try again" in the TMA. Fix:
+  //   1. Build the encoded payload with the full set first.
+  //   2. If the resulting URL exceeds TG_HASH_MAX, drop the lowest-
+  //      priority venues (last ones — the slice() callers feed in
+  //      rating- or distance-sorted order) until it fits.
+  //   3. Re-apply the relative-vs-absolute branching at the end so
+  //      the length check is enforced for BOTH branches (previously
+  //      the webhookDomain branch was unguarded).
+  const buildSlim = (vs) => vs
     .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng))
     .map((v) => ({
       placeId: v.placeId || v.id || '',
@@ -166,16 +178,27 @@ function buildMapHashUrl(venues, opts = {}) {
       // instead of opening the actual coordinate pin.
       url: v.url || googleMapsUrl(v) || ''
     }));
-  if (!slim.length) return null;
-  const json = JSON.stringify(slim);
-  const b64 = Buffer.from(json, 'utf8').toString('base64')
+  const encode = (slim) => Buffer.from(JSON.stringify(slim), 'utf8')
+    .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
-  const path = `/app/map#venues=${b64}`;
-  if (opts.webhookDomain) return `https://${opts.webhookDomain}${path}`;
-  if (path.length > TG_HASH_MAX) return null;
-  return path;
+
+  let working = venues.slice();
+  let slim = buildSlim(working);
+  if (!slim.length) return null;
+  const prefix = opts.webhookDomain ? `https://${opts.webhookDomain}` : '';
+  const buildPath = (s) => `/app/map#venues=${encode(s)}`;
+  let path = buildPath(slim);
+  // Trim from the tail until the resulting URL fits the Telegram
+  // inline-button URL budget. Keep at least 1 venue (caller chose
+  // multi-marker; a 1-pin map is still useful).
+  while (slim.length > 1 && (prefix + path).length > TG_HASH_MAX) {
+    slim = slim.slice(0, slim.length - 1);
+    path = buildPath(slim);
+  }
+  if ((prefix + path).length > TG_HASH_MAX) return null;
+  return prefix ? `${prefix}${path}` : path;
 }
 
 module.exports = { googleMapsUrl, googleMapsContainerUrl, buildMapHashUrl };

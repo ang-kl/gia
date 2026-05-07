@@ -259,4 +259,63 @@ describe('buildMapHashUrl (TMA multi-marker view)', () => {
     expect(venues.length).toBe(1);
     expect(venues[0].name).toBe('Has');
   });
+
+  // v0.59.26 — Telegram inline-button URLs cap at ~4 KB. After
+  // v0.59.23 raised the cuisine cap from 12 to 16, the encoded
+  // payload could exceed the limit and bot.sendMessage would reject
+  // the inline keyboard, surfacing as "Couldn't send to chat" in the
+  // TMA. The fix trims the venue list from the tail until the URL
+  // fits, instead of returning null (relative path) or producing an
+  // overlong URL (webhook-domain path — previously unguarded).
+  describe('v0.59.26: TG_HASH_MAX overflow guard', () => {
+    function makeBigVenue(i) {
+      // ~280 chars per venue once mapped; 16 venues → ~4500 chars JSON
+      // → ~6000 chars base64 + prefix → exceeds 4096-char practical cap.
+      return {
+        placeId: `ChIJ_LongPlaceIDForBigPayloadTest_v0.59.26_index_${i}_padding`,
+        name: `Venue Number ${i} With A Reasonably Long Name For Padding`,
+        area: `Block ${100 + i} Long Street Name #01-0${i}, Singapore 12345${i}`,
+        lat: 1.28 + i * 0.001,
+        lng: 103.85 + i * 0.001,
+        vibe: `vibe text for venue ${i} with extra padding to push the JSON size up`,
+        url: `https://www.google.com/maps/search/?api=1&query=Venue+${i}+Singapore+padding`
+      };
+    }
+
+    it('trims venues from the tail until the absolute (webhookDomain) URL fits', () => {
+      const venues = Array.from({ length: 16 }, (_, i) => makeBigVenue(i));
+      const r = buildMapHashUrl(venues, { webhookDomain: 'gia.example.com' });
+      expect(r).toBeTruthy();
+      expect(r.length).toBeLessThanOrEqual(4096);
+      expect(r.startsWith('https://gia.example.com/app/map#venues=')).toBe(true);
+      // Decode and verify some-but-not-all venues made it
+      const hashPart = r.split('#venues=')[1];
+      const padded = hashPart + '='.repeat((4 - (hashPart.length % 4)) % 4);
+      const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+      const decodedVenues = JSON.parse(decoded);
+      expect(decodedVenues.length).toBeGreaterThanOrEqual(1);
+      expect(decodedVenues.length).toBeLessThan(16);
+      // Top venues (front of input list) must be preserved.
+      expect(decodedVenues[0].name).toContain('Venue Number 0');
+    });
+
+    it('keeps all venues when they comfortably fit', () => {
+      const venues = Array.from({ length: 4 }, (_, i) => makeBigVenue(i));
+      const r = buildMapHashUrl(venues, { webhookDomain: 'gia.example.com' });
+      const hashPart = r.split('#venues=')[1];
+      const padded = hashPart + '='.repeat((4 - (hashPart.length % 4)) % 4);
+      const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+      const decodedVenues = JSON.parse(decoded);
+      expect(decodedVenues.length).toBe(4);
+    });
+
+    it('relative-path branch also enforces the cap (returns null only when even 1 venue overflows)', () => {
+      // 16 big venues, no webhookDomain → relative-path mode, must trim
+      const venues = Array.from({ length: 16 }, (_, i) => makeBigVenue(i));
+      const r = buildMapHashUrl(venues);
+      expect(r).toBeTruthy();
+      expect(r.length).toBeLessThanOrEqual(4096);
+      expect(r.startsWith('/app/map#venues=')).toBe(true);
+    });
+  });
 });

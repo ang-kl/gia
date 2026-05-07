@@ -4584,10 +4584,36 @@ async function cacheBotUsername() {
         // post-discover candidate count, post-NON_FOOD_TYPES count.
         console.log(`[Cuisine-Search] D700 incoming cuisines=${JSON.stringify(cuisines || [])} filters=${JSON.stringify(filters)} region=${region} center=${searchCenter.lat.toFixed(4)},${searchCenter.lng.toFixed(4)} radius=${searchRadius}`);
         console.log(`[Cuisine-Search] D701 cuisineQueries=${JSON.stringify(cuisineQueries)} cuisineMetas.length=${cuisineMetas.length} allSelectedAreGated=${allSelectedAreGated}`);
+
+        // v0.59.26 — per-chatId Singaporean dish memory. When the user
+        // picks Singaporean, draw 3 dishes that EXCLUDE the most-recent
+        // 30 picks for THIS chatId so subsequent searches don't see
+        // the same trio repeating. Falls back to the stateless picker
+        // if redis is down or chatId isn't available.
+        let cuisinesForDiscover = cuisineQueries;
+        let skipExpand = false;
+        if (pipeline.containsSingaporeanCuisine(cuisineQueries)) {
+          try {
+            const memoryPicks = await pipeline.pickSingaporeanDishesForChat({
+              redis,
+              chatId: csChatId, // Codex review #231 P1: verified doesn't exist in this route's scope.
+              count: 3
+            });
+            if (Array.isArray(memoryPicks) && memoryPicks.length) {
+              cuisinesForDiscover = [...cuisineQueries, ...memoryPicks];
+              skipExpand = true;
+              console.log(`[Cuisine-Search] D701b SG-memory picks=${JSON.stringify(memoryPicks)}`);
+            }
+          } catch (err) {
+            console.warn('[Cuisine-Search] SG-memory pick failed; falling back to stateless:', err.message);
+          }
+        }
+
         const candidates = await pipeline.discover({
           lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-          cuisines: cuisineQueries, maxResults: 30, regionCode: searchRegionCode,
-          lang: csLang                                     // v0.59.0
+          cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
+          lang: csLang,                                    // v0.59.0
+          expandSingaporean: !skipExpand                   // v0.59.26
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
