@@ -129,12 +129,33 @@ export default function ResultCard({ venue, focused, onTap }) {
           <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
-          {/* v0.57.10: surface 3 reviewer-recommended dishes per Human Lead */}
-          {Array.isArray(venue.dishes) && venue.dishes.length > 0 && (
-            <div className="text-[12px] text-tg-text mt-1 leading-snug">
-              🍴 {venue.dishes.slice(0, 3).join(' · ')}
-            </div>
-          )}
+          {/* v0.59.23: primary "What to order" line — LLM-picked
+              signature dish if present (rankAndNarrate path), else
+              fall back to the first reviewer-extracted dish from
+              the dishes array (TMA HTTP /api/cuisine/search path
+              that uses pipeline.discover() directly with no LLM
+              rank). Mirrors /hidden's signature_dish surface. */}
+          {(() => {
+            const primaryDish = venue.signatureDish
+              || (Array.isArray(venue.dishes) && venue.dishes.length ? venue.dishes[0] : '');
+            const restDishes = Array.isArray(venue.dishes)
+              ? (venue.signatureDish ? venue.dishes.slice(0, 3) : venue.dishes.slice(1, 4))
+              : [];
+            return (
+              <>
+                {primaryDish && (
+                  <div className="text-[12px] text-tg-text mt-1 leading-snug">
+                    🍴 <span className="font-medium">{tr('card.whatToOrder', lang)}:</span> {primaryDish}
+                  </div>
+                )}
+                {restDishes.length > 0 && (
+                  <div className="text-[11px] text-tg-hint mt-0.5 leading-snug">
+                    {restDishes.join(' · ')}
+                  </div>
+                )}
+              </>
+            );
+          })()}
           {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
           {venue.recentReview && (
             <div className="text-[11px] text-tg-hint mt-1 leading-snug italic">
