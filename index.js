@@ -3525,10 +3525,25 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } catch (err) {
     console.warn('[Search] discover failed:', err.message);
   }
-  // Build the reply: 1-line "why" header, then up to 3 venues with name + area + maps URL.
+  // Build the reply.
+  // v0.59.57: differentiate the header by intent so cooking
+  // techniques get a 🔧 explainer ("Braising = slow-cook in liquid…
+  // looking for SG restaurants that braise…") rather than the same
+  // 🍽 dish-style header. Per Human Lead 2026-05-07.
   const top = (Array.isArray(venues) ? venues : []).slice(0, 3);
   const lines = [];
-  if (intent.cuisine) {
+  if (intent.intent === 'tool') {
+    // Cooking technique / kitchen tool — lead with the explainer.
+    const explainer = intent.why || (lang === 'fr' ? 'technique de cuisson.' : 'cooking technique.');
+    lines.push(lang === 'fr'
+      ? `🔧 *${explainer}*\n\n_Recherche de restaurants à Singapour qui utilisent cette technique…_`
+      : `🔧 *${explainer}*\n\n_Searching for Singapore restaurants that use this technique…_`);
+  } else if (intent.intent === 'ingredient') {
+    const explainer = intent.why || (lang === 'fr' ? 'ingrédient.' : 'ingredient.');
+    lines.push(lang === 'fr'
+      ? `🌿 *${explainer}*\n\n_Recherche de restaurants à Singapour qui le mettent en valeur…_`
+      : `🌿 *${explainer}*\n\n_Searching for Singapore restaurants that feature it…_`);
+  } else if (intent.cuisine) {
     lines.push(lang === 'fr'
       ? `🍽 *${intent.cuisine}* — ${intent.why || 'recherche en cours.'}`
       : `🍽 *${intent.cuisine}* — ${intent.why || 'searching.'}`);

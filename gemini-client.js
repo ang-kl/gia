@@ -479,6 +479,46 @@ function dishFallback(text) {
   return null;
 }
 
+// v0.59.57: cooking-technique fallback. Bug 2026-05-07: user typed
+// "/s Braisage" (French for braising) and the bot didn't explain
+// what the technique is before searching. Single foreign-language
+// technique words are easy for Gemini to mis-classify as ambiguous,
+// so we mirror the dish-fallback approach with a small curated
+// technique catalogue (EN + FR aliases). Each entry's `why` is the
+// one-sentence "this is what the technique does" explainer surfaced
+// to the user above the venue list.
+const TECHNIQUE_FALLBACK = [
+  { match: ['braising', 'braisage', 'braiser', 'braised'], cuisine: null, why: 'Braising = slow-cooking tougher cuts of meat in a small amount of seasoned liquid in a covered pot until tender. French classics: bourguignon, daube, navarin.', searchPhrase: 'braised meat restaurant Singapore' },
+  { match: ['rotisserie', 'rôtisserie', 'roasting on spit', 'spit-roasted'], cuisine: null, why: 'Rotisserie = roasting on a rotating spit so the juices baste the meat as it turns. Common for chicken, lamb, and porchetta.', searchPhrase: 'rotisserie restaurant Singapore' },
+  { match: ['sous vide', 'sous-vide'], cuisine: null, why: 'Sous vide = vacuum-sealing food and cooking it in a precisely temperature-controlled water bath, then searing to finish. Hits exact doneness every time.', searchPhrase: 'sous vide restaurant Singapore' },
+  { match: ['smoking', 'smoked', 'smokehouse'], cuisine: null, why: 'Smoking = cooking and flavouring food with low-temperature wood smoke (hickory, oak, mesquite, applewood) over hours. American BBQ, pastrami, smoked fish.', searchPhrase: 'smokehouse barbecue restaurant Singapore' },
+  { match: ['grilling', 'grillade', 'grilled', 'charcoal grill'], cuisine: null, why: 'Grilling = direct dry heat from below (gas, charcoal, or wood embers). Maillard sear on the outside, juicy inside.', searchPhrase: 'charcoal grill restaurant Singapore' },
+  { match: ['tandoor', 'tandoori', 'clay oven'], cuisine: 'North Indian', why: 'Tandoor = a vertical clay oven heated with charcoal to ~480 °C. Marinated meats and breads are slapped onto the wall; the intense heat seals in juices and chars the surface.', searchPhrase: 'tandoori indian restaurant Singapore' },
+  { match: ['robata', 'robatayaki'], cuisine: 'Japanese', why: 'Robatayaki = Japanese over-coal grilling on an open hearth, traditionally with binchotan charcoal. Diners sit around the grill and watch the chef.', searchPhrase: 'robata japanese restaurant Singapore' },
+  { match: ['binchotan'], cuisine: 'Japanese', why: 'Binchotan = white-hot, smoke-free Japanese oak charcoal that burns at very high temperatures. Used in yakitori and robata for clean, intense heat.', searchPhrase: 'binchotan yakitori restaurant Singapore' },
+  { match: ['yakitori'], cuisine: 'Japanese', why: 'Yakitori = Japanese skewered chicken (every part) grilled over binchotan with tare glaze or salt. A late-night izakaya staple.', searchPhrase: 'yakitori restaurant Singapore' },
+  { match: ['wok hei', 'breath of the wok'], cuisine: 'Cantonese', why: '镬气 (wok hei, "breath of the wok") = the smoky char a screaming-hot wok imparts to stir-fries. Requires a roaring flame and split-second timing.', searchPhrase: 'wok hei zi char restaurant Singapore' },
+  { match: ['char siu'], cuisine: 'Cantonese', why: 'Char siu = Cantonese roasted-pork technique: pork shoulder marinated in honey, five-spice, and red fermented bean curd, then hung on hooks in a vertical oven.', searchPhrase: 'char siu cantonese restaurant Singapore' },
+  { match: ['flambé', 'flambe', 'flaming'], cuisine: null, why: 'Flambé = igniting alcohol added to a pan to burn off harsh notes and add caramelised flavour. Showy table-side technique used for crêpes Suzette, steak Diane.', searchPhrase: 'flambé table side restaurant Singapore' },
+  { match: ['omakase'], cuisine: 'Japanese', why: 'Omakase = "I leave it to you" — diners surrender the menu to the chef, who serves a sequence of seasonal dishes (most often sushi).', searchPhrase: 'omakase restaurant Singapore' },
+  { match: ['teppanyaki'], cuisine: 'Japanese', why: 'Teppanyaki = Japanese flat-iron-griddle cooking, performed in front of diners at a counter. Wagyu, seafood, garlic-fried-rice classics.', searchPhrase: 'teppanyaki restaurant Singapore' },
+  { match: ['kamado', 'big green egg'], cuisine: null, why: 'Kamado = a Japanese-origin ceramic egg-shaped grill that holds steady low temperatures for hours — equally good at smoking, baking, and high-heat searing.', searchPhrase: 'kamado grill restaurant Singapore' },
+  { match: ['hibachi'], cuisine: 'Japanese', why: 'Hibachi = a small portable charcoal brazier; in modern usage often refers to the Western teppanyaki-style flat-iron-griddle show.', searchPhrase: 'hibachi japanese restaurant Singapore' },
+  { match: ['poaching', 'pochage', 'poché', 'poached'], cuisine: null, why: 'Poaching = gentle cooking in liquid held below a simmer (~70-85 °C). Preserves delicate proteins like fish, eggs, chicken breast.', searchPhrase: 'poached fish restaurant Singapore' },
+  { match: ['confit'], cuisine: 'French', why: 'Confit = slow-cooking food (classically duck legs) submerged in its own fat at low temperature until meltingly tender, then often crisped to finish.', searchPhrase: 'confit french restaurant Singapore' },
+  { match: ['mijoter', 'simmering', 'simmered'], cuisine: null, why: 'Mijoter / simmering = cooking just below the boil so flavours develop without breaking down delicate textures. The base of stews and reductions.', searchPhrase: 'slow simmered stew restaurant Singapore' },
+  { match: ['friture', 'deep fry', 'deep-fried', 'deep frying'], cuisine: null, why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.', searchPhrase: 'deep fried restaurant Singapore' },
+  { match: ['sauter', 'sautéing', 'sautéed', 'sauteed'], cuisine: null, why: 'Sautéing = cooking quickly in a small amount of fat over high heat, tossing the pan so food browns evenly without stewing.', searchPhrase: 'french bistro restaurant Singapore' }
+];
+
+function techniqueFallback(text) {
+  const lc = String(text || '').toLowerCase();
+  for (const e of TECHNIQUE_FALLBACK) {
+    if (e.match.some((m) => lc.includes(m))) return e;
+  }
+  return null;
+}
+
 const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-flash-latest',
   'gemini-2.0-flash',
@@ -489,7 +529,14 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) {
     // Caller-side env failure — log and return a graceful ambiguous.
-    console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dish dictionary.');
+    console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dictionaries.');
+    // v0.59.57: technique dictionary takes precedence over dish
+    // dictionary so "/s tandoor" surfaces the technique explainer
+    // rather than falling through to a Tandoori Chicken dish match.
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      return { intent: 'tool', cuisine: techHit.cuisine || null, searchTerm: techHit.searchPhrase, why: techHit.why, clarify: '' };
+    }
     const hit = dishFallback(text);
     if (hit) {
       // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
@@ -512,9 +559,9 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     '',
     'POSSIBLE INTENTS:',
     '- "dish": user named a specific dish (e.g. "goulash with dumpling", "pad thai", "khao soi", "carbonara").',
-    '- "ingredient": user named an ingredient or technique (e.g. "tandoor", "binchotan", "cold-pressed coconut milk", "burrata").',
-    '- "tool": user named a kitchen tool / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide").',
-    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify.',
+    '- "ingredient": user named an ingredient (e.g. "burrata", "uni", "wagyu", "cold-pressed coconut milk").',
+    '- "tool": user named a kitchen tool / cooking technique / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide", "braising", "braisage" (FR), "rôtisserie" (FR), "sauter" (FR), "tandoor", "smoking", "flambé", "omakase", "teppanyaki", "char siu method", "wok hei"). Even SINGLE-WORD foreign-language technique names belong here — do NOT mark them ambiguous. ALWAYS populate `why` with a one-sentence plain-English explanation of what the technique does.',
+    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language.',
     '',
     'WHEN A DISH IS NAMED:',
     '- Identify the dish\'s most likely culinary origin even if other-cuisine modifiers are present. "Goulash with dumpling" → Hungarian (NOT Chinese — goulash is the dish, dumpling is the side). "Pad Thai with shrimp" → Thai.',
@@ -582,6 +629,19 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
   // Every model failed — fall back to the dish dictionary, then to a
   // graceful ambiguous prompt. NEVER throw.
   if (!parsed) {
+    // v0.59.57: technique dictionary takes precedence over dish
+    // dictionary on the all-models-failed path too.
+    const techHit = techniqueFallback(text);
+    if (techHit) {
+      console.log(`[Search-Intent] technique-fallback hit for "${String(text).slice(0, 60)}" → ${techHit.match[0]}`);
+      return {
+        intent: 'tool',
+        cuisine: techHit.cuisine || null,
+        searchTerm: techHit.searchPhrase,
+        why: techHit.why,
+        clarify: ''
+      };
+    }
     const hit = dishFallback(text);
     if (hit) {
       console.log(`[Search-Intent] fallback dictionary hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
@@ -621,7 +681,9 @@ module.exports = {
   generateGroundedHiddenGems,
   classifySearchIntent,
   dishFallback,
+  techniqueFallback,
   DISH_FALLBACK,
+  TECHNIQUE_FALLBACK,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,
