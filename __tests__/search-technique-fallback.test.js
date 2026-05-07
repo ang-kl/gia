@@ -12,12 +12,16 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const gc = require('../gemini-client.js');
 
+// v0.60.0: techniqueFallback retained for backward-compat (returns
+// the entry, but the schema is now the tier-aware shape — fields
+// `defaultOrigin`, `originDish`, `variants[]` instead of flat
+// `cuisine` + `searchPhrase`).
 describe('techniqueFallback', () => {
   it('matches "Braisage" (FR) → braising explainer', () => {
     const hit = gc.techniqueFallback('Braisage');
     expect(hit).not.toBeNull();
     expect(hit.why).toMatch(/braising|tougher cuts|liquid/i);
-    expect(hit.searchPhrase).toContain('braised');
+    expect(hit.originDish).toBe('beef bourguignon');
   });
   it('matches "braising" (EN) → same explainer', () => {
     const hit = gc.techniqueFallback('I want braising');
@@ -32,22 +36,22 @@ describe('techniqueFallback', () => {
     const hit = gc.techniqueFallback('what is sous vide');
     expect(hit.why).toMatch(/water bath|temperature/i);
   });
-  it('matches "tandoor" with cuisine="North Indian"', () => {
+  it('matches "tandoor" with defaultOrigin="North Indian"', () => {
     const hit = gc.techniqueFallback('tandoor');
-    expect(hit.cuisine).toBe('North Indian');
+    expect(hit.defaultOrigin).toBe('North Indian');
     expect(hit.why).toMatch(/clay oven|charcoal/i);
   });
-  it('matches "robata" with cuisine="Japanese"', () => {
+  it('matches "robata" with defaultOrigin="Japanese"', () => {
     const hit = gc.techniqueFallback('robata');
-    expect(hit.cuisine).toBe('Japanese');
+    expect(hit.defaultOrigin).toBe('Japanese');
   });
   it('matches "wok hei"', () => {
     const hit = gc.techniqueFallback('wok hei');
     expect(hit.why).toMatch(/wok|breath|smoky char/i);
-    expect(hit.cuisine).toBe('Cantonese');
+    expect(hit.defaultOrigin).toBe('Cantonese');
   });
   it('matches "omakase"', () => {
-    expect(gc.techniqueFallback('omakase').cuisine).toBe('Japanese');
+    expect(gc.techniqueFallback('omakase').defaultOrigin).toBe('Japanese');
   });
   it('matches "flambé"', () => {
     expect(gc.techniqueFallback('flambé').why).toMatch(/alcohol|igniting/i);
@@ -57,10 +61,10 @@ describe('techniqueFallback', () => {
     expect(gc.techniqueFallback('smokehouse').why).toMatch(/wood smoke/i);
   });
   it('matches "confit"', () => {
-    expect(gc.techniqueFallback('confit').cuisine).toBe('French');
+    expect(gc.techniqueFallback('confit').defaultOrigin).toBe('French');
   });
   it('matches "binchotan"', () => {
-    expect(gc.techniqueFallback('binchotan').cuisine).toBe('Japanese');
+    expect(gc.techniqueFallback('binchotan').defaultOrigin).toBe('Japanese');
   });
   it('returns null for unknown techniques', () => {
     expect(gc.techniqueFallback('something random')).toBeNull();
@@ -82,7 +86,10 @@ describe('classifySearchIntent — technique-dictionary fallback', () => {
     const out = await gc.classifySearchIntent({ text: 'Braisage', _genAIFactory: factory });
     expect(out.intent).toBe('tool');
     expect(out.why).toMatch(/braising|liquid/i);
-    expect(out.searchTerm.toLowerCase()).toContain('braised');
+    // v0.60.0: technique-fallback path now returns the originDish as
+    // the searchTerm seed (caller's fan-out path will replace it
+    // with per-cuisine queries). For 'Braisage' that's "beef bourguignon".
+    expect(out.searchTerm.toLowerCase()).toMatch(/bourguignon|braised/);
   });
 
   it('technique dictionary takes precedence over dish dictionary for "tandoor"', async () => {
@@ -182,14 +189,15 @@ describe('classifySearchIntent — technique-dictionary fallback', () => {
 });
 
 describe('TECHNIQUE_FALLBACK shape', () => {
-  it('every entry has match[], why, searchPhrase', () => {
+  it('every entry has match[], defaultOrigin, originDish, variants[], why', () => {
     for (const e of gc.TECHNIQUE_FALLBACK) {
       expect(Array.isArray(e.match)).toBe(true);
       expect(e.match.length).toBeGreaterThan(0);
       expect(typeof e.why).toBe('string');
       expect(e.why.length).toBeGreaterThan(20);
-      expect(typeof e.searchPhrase).toBe('string');
-      expect(e.searchPhrase.toLowerCase()).toContain('singapore');
+      expect(typeof e.defaultOrigin).toBe('string');
+      expect(typeof e.originDish).toBe('string');
+      expect(Array.isArray(e.variants)).toBe(true);
     }
   });
 });
