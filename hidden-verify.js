@@ -47,6 +47,41 @@ const REQUEST_TIMEOUT_MS = 6000;
 //   3. If even the best match scores zero, treat the lookup as
 //      ambiguous and return null (no rewrite — leaves the original block
 //      untouched).
+// v0.59.39 — name-similarity gate. Per Human Lead 2026-05-07: Gemini
+// hallucinated "New Station Snack Bar (Fort Canning)" and "Kelate";
+// Places returned unrelated venues (Fort Canning Park, Tiong Bahru
+// Bakery for the first; sponsored Seafood-by-the-River ads for the
+// second). The pre-v0.59.39 lookupVenue picked the highest-address-
+// overlap result without checking the name — hallucinated venues
+// passed because address overlap was 0 (no address in block) and
+// the function returned null AT line 82, which the post-processor
+// then KEPT (line 210 "don't penalise on infra blip").
+//
+// Two-part fix:
+//   1. Add a name-token-overlap requirement — pick the candidate
+//      whose displayName shares the most ≥3-char tokens with the
+//      claimed name. If best score is 0 or top candidate has < 50%
+//      token overlap, return null (no match).
+//   2. Distinguish "no match" (returns null) from "API error"
+//      (returns { apiError: true }). The post-processor uses this
+//      to drop hallucinated venues but keep blocks during infra blips.
+function nameTokens(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[(){}[\]'"`,.&!?]/g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 3 && !/^(the|and|of|with|for|by|at|in|on|to|de|du|la|le|les)$/.test(t));
+}
+
+function nameOverlap(claimed, candidate) {
+  const a = new Set(nameTokens(claimed));
+  const b = new Set(nameTokens(candidate));
+  if (!a.size) return 0;
+  let hits = 0;
+  for (const t of a) if (b.has(t)) hits++;
+  return hits / a.size; // fraction of claimed tokens present in candidate
+}
+
 async function lookupVenue(name, address = '') {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey || !name) return null;
@@ -66,21 +101,46 @@ async function lookupVenue(name, address = '') {
     );
     const places = data?.places || [];
     if (!places.length) return null;
-    let chosen = places[0];
-    if (address) {
-      const wantTokens = address
-        .toLowerCase()
-        .split(/[\s,#/()]+/)
-        .filter((t) => t.length >= 3);
-      let bestScore = 0;
-      for (const p of places) {
-        const fa = (p.formattedAddress || '').toLowerCase();
-        const score = wantTokens.reduce((acc, t) => acc + (fa.includes(t) ? 1 : 0), 0);
-        if (score > bestScore) { bestScore = score; chosen = p; }
+
+    // v0.59.39: composite scoring — pick the candidate with the
+    // highest combined name + address overlap. Both ≥ 50% required
+    // when address is present; ≥ 50% name when no address.
+    const NAME_FLOOR = 0.5; // claimed-name tokens that must appear in candidate
+    const wantAddrTokens = address
+      ? address.toLowerCase().split(/[\s,#/()]+/).filter((t) => t.length >= 3)
+      : [];
+    let best = null;
+    let bestScore = -1;
+    for (const p of places) {
+      const candName = p.displayName?.text || '';
+      const candAddr = (p.formattedAddress || '').toLowerCase();
+      const nameFrac = nameOverlap(name, candName);
+      let addrHits = 0;
+      if (wantAddrTokens.length) {
+        addrHits = wantAddrTokens.reduce((acc, t) => acc + (candAddr.includes(t) ? 1 : 0), 0);
       }
-      // No token overlap = ambiguous match. Refuse to overwrite.
-      if (bestScore === 0) return null;
+      // Composite: name fraction (0..1) + address-hit count (capped 5).
+      const score = nameFrac * 10 + Math.min(addrHits, 5);
+      if (score > bestScore) {
+        bestScore = score;
+        best = { p, nameFrac, addrHits };
+      }
     }
+    if (!best) return null;
+    // Hard floor on name match — prevents Gemini's "Kelate"
+    // hallucinations (Places top-result "Seafood by the River")
+    // from passing because they share 0 name tokens.
+    if (best.nameFrac < NAME_FLOOR) {
+      console.log(`[hidden-verify] name-mismatch reject: claimed="${name}" got="${best.p.displayName?.text || ''}" frac=${best.nameFrac.toFixed(2)}`);
+      return null;
+    }
+    if (address && best.addrHits === 0) {
+      // Address was claimed but Places' top match has zero token
+      // overlap — likely wrong address even if name matches.
+      console.log(`[hidden-verify] address-mismatch reject: claimed="${name}" addr="${address}" got="${best.p.formattedAddress || ''}"`);
+      return null;
+    }
+    const chosen = best.p;
     return {
       id: chosen.id || '',
       name: chosen.displayName?.text || '',
@@ -98,7 +158,11 @@ async function lookupVenue(name, address = '') {
     };
   } catch (err) {
     console.warn('[hidden-verify] lookup failed for', name, '→', err.message);
-    return null;
+    // v0.59.39: return a marker (not plain null) on API errors so
+    // the post-processor can distinguish "no Places match" (drop the
+    // hallucinated block) from "axios threw / 5xx" (keep the block,
+    // don't penalise infra blip).
+    return { apiError: true };
   }
 }
 
@@ -206,8 +270,20 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   // so the user sees "1. … 2. … 3. …" without numbering gaps.
   const survivors = blocks
     .map((b, i) => ({ block: b, lookup: lookups[i] }))
-    .filter(({ lookup }) => {
-      if (!lookup) return true; // lookup failed → keep (don't penalise on infra blip)
+    .filter(({ block, lookup }) => {
+      // v0.59.39: discriminated lookup returns:
+      //   - plain object  → Places matched (good or bad businessStatus)
+      //   - null          → Places searched but no name+address match
+      //                     (Gemini hallucination → drop the block)
+      //   - { apiError }  → axios/5xx infra blip (keep the block)
+      if (lookup === null) {
+        console.log(`[hidden-verify] dropping unverifiable venue (no Places match): "${block.name}"`);
+        return false;
+      }
+      if (lookup?.apiError) {
+        console.warn(`[hidden-verify] keeping "${block.name}" despite probe API error`);
+        return true;
+      }
       const status = lookup.businessStatus || 'OPERATIONAL';
       if (status !== 'OPERATIONAL') {
         console.log(`[hidden-verify] dropping non-OPERATIONAL venue: "${lookup.name}" (${status})`);
@@ -226,7 +302,8 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   const prefixText = prefix.join('\n').replace(/\s+$/, '');
   const joined = blockTexts.join('\n\n');
   const venues = survivors.map(({ block, lookup }) =>
-    lookup ? { ...lookup, displayHeading: block.name } : null
+    // v0.59.39: skip apiError markers (no real Places data) and nulls.
+    (lookup && !lookup.apiError) ? { ...lookup, displayHeading: block.name } : null
   );
   // v0.59.7 (Codex review #211): flag the all-closed case so the
   // caller can substitute a non-empty user-facing message. Without

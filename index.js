@@ -3812,6 +3812,26 @@ async function reregisterTelegramWebhook(nextDomain) {
   } catch (err) {
     console.warn('[Updates] re-register setWebHook failed (will retry on next switch):', err.message);
   }
+  // v0.59.39 — also refresh the chat-menu button. Per Human Lead
+  // 2026-05-07: when WEBHOOK_DOMAIN was swapped on Railway, the
+  // 🍴 Cuisine Picker menu button in Telegram Web kept loading the
+  // OLD URL because Telegram caches setChatMenuButton server-side
+  // until next call. The webhook re-register doesn't refresh the
+  // menu button — they're separate Bot API resources. Re-call it
+  // here so users on web.telegram.org pick up the new domain
+  // within ~10 min (Telegram client menu-button cache TTL).
+  try {
+    await bot.setChatMenuButton({
+      menu_button: {
+        type: 'web_app',
+        text: '🍴 Cuisine Picker',
+        web_app: { url: `https://${nextDomain}/app/cuisine` }
+      }
+    });
+    console.log(`[Updates] Chat menu button refreshed: https://${nextDomain}/app/cuisine`);
+  } catch (err) {
+    console.warn('[Updates] setChatMenuButton refresh failed (non-fatal):', err.message);
+  }
 }
 globalThis.__giaReregisterWebhook = reregisterTelegramWebhook;
 
