@@ -5319,7 +5319,18 @@ async function cacheBotUsername() {
         // Telegram's 4096-char message cap when Copy-all assembled
         // them — TMA showed "Couldn't send to chat". 12 keeps the
         // body within budget without chunking machinery.
-        venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+        // v0.59.46: distance is deterministic for any (user, venue)
+        // pair — sorting by it for empty + Dessert paths UNDOES
+        // discover()'s lightShuffle and pins the same 12 venues for
+        // every click. Per Human Lead 2026-05-07: "I refreshed the 3
+        // search buttons and still the same list back." For shuffle
+        // paths, preserve the lightShuffle order (rating-tier rotation)
+        // and skip distance-sort. Cuisine-specific searches (Italian /
+        // Japanese / etc.) keep distance-sort since the result set is
+        // narrow enough that "closer first" is the right read.
+        if (!skipCacheForShuffle) {
+          venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+        }
         const top = venues.slice(0, 12);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
