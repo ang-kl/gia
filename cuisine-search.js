@@ -126,7 +126,7 @@ async function geminiCandidates15(promptArgs) {
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter((c) => c && typeof c.name === 'string')
-      .slice(0, 16) // v0.59.21: 15 → 16 (cuisine final-list band 8-16).
+      .slice(0, 12) // v0.59.29: 16 → 12 (keep within Telegram's 4096-char message limit per Human Lead).
       .map((c) => ({
         name: c.name,
         area: c.area || '',
@@ -250,12 +250,12 @@ async function searchCuisine({
         specialRequest // threaded through pipeline.reason()
       },
       validatedVenues: null,
-      // v0.59.21: cap raised 12 → 16 per Human Lead 2026-05-07
-      // (band 8-16). Lower bound (8) is a target, not a guarantee —
-      // when LLM rank+narrate has fewer high-quality candidates the
-      // list shows fewer; brand-throttle dedup (cap=2 per brand) in
-      // discover() further refines what reaches the rank stage.
-      count: 16
+      // v0.59.29: cap reduced 16 → 12 per Human Lead 2026-05-07.
+      // Reason: Copy-all body assembled from 16 detail blocks
+      // (~350 chars each) was overflowing Telegram's 4096-char
+      // message cap and throwing "Couldn't send to chat". 12 keeps
+      // the body within budget without chunking machinery.
+      count: 12
     });
     candidates = draftRun.candidates;
     pipelineDiag = draftRun.diag;
@@ -274,7 +274,7 @@ async function searchCuisine({
   // (~1s × 15 candidates = ~15s); now Promise.allSettled fans out and
   // typically completes in ~2-3s. This was the dominant slow phase
   // pushing total pipeline latency past the 25s TMA timeout.
-  const validateLimit = Math.min(candidates.length, 16); // v0.59.21: 15 → 16.
+  const validateLimit = Math.min(candidates.length, 12); // v0.59.29: 16 → 12.
   const settled = await Promise.allSettled(
     candidates.slice(0, validateLimit).map((c) => validateWithPlaces(c, { lat, lng }, radius))
   );
