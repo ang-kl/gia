@@ -492,7 +492,11 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dish dictionary.');
     const hit = dishFallback(text);
     if (hit) {
-      return { intent: 'dish', cuisine: hit.cuisine, searchTerm: `${String(text).split(/\s+/)[0]} restaurant Singapore`, why: hit.why, clarify: '' };
+      // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
+      // not just the first user token, so "Beef bourguignon" searches
+      // "beef bourguignon restaurant Singapore" not "Beef restaurant
+      // Singapore".
+      return { intent: 'dish', cuisine: hit.cuisine, searchTerm: `${hit.match[0]} restaurant Singapore`, why: hit.why, clarify: '' };
     }
     return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
   }
@@ -581,11 +585,14 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     const hit = dishFallback(text);
     if (hit) {
       console.log(`[Search-Intent] fallback dictionary hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
-      const firstWord = String(text).trim().split(/\s+/)[0];
+      // v0.59.56 / codex P2: use the canonical dish phrase (match[0])
+      // not just the first user token, so "Beef bourguignon" searches
+      // "beef bourguignon restaurant Singapore" not "Beef restaurant
+      // Singapore". Same fix on both fallback exits.
       return {
         intent: 'dish',
         cuisine: hit.cuisine,
-        searchTerm: `${firstWord} restaurant Singapore`,
+        searchTerm: `${hit.match[0]} restaurant Singapore`,
         why: hit.why,
         clarify: ''
       };

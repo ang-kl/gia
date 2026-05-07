@@ -77,8 +77,37 @@ describe('classifySearchIntent — robust to model failure', () => {
     const out = await gc.classifySearchIntent({ text: 'Beef bourguignon', _genAIFactory: factory });
     expect(out.intent).toBe('dish');
     expect(out.cuisine).toBe('French');
-    expect(out.searchTerm.toLowerCase()).toContain('beef');
+    // v0.59.56 / codex P2 regression: searchTerm must contain the
+    // canonical dish phrase, not just the first user token. The bug
+    // fix uses match[0] ("beef bourguignon") so multi-word dishes
+    // route to the correct Places query.
+    expect(out.searchTerm.toLowerCase()).toContain('beef bourguignon');
     expect(out.why).toMatch(/burgundian|wine/i);
+  });
+
+  it('canonicalises French alias to English for searchTerm (codex P2)', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'Boeuf bourguignon s\'il vous plaît', _genAIFactory: factory });
+    expect(out.cuisine).toBe('French');
+    // match[0] is "beef bourguignon" (canonical English) — preferred
+    // for SG Places search ranking even if the user typed the French
+    // alias.
+    expect(out.searchTerm.toLowerCase()).toContain('beef bourguignon');
+  });
+
+  it('keeps multi-word dish phrase for "pad thai" (codex P2)', async () => {
+    const factory = () => ({
+      getGenerativeModel: () => ({
+        generateContent: async () => { throw new Error('down'); }
+      })
+    });
+    const out = await gc.classifySearchIntent({ text: 'pad thai with shrimp', _genAIFactory: factory });
+    expect(out.cuisine).toBe('Thai');
+    expect(out.searchTerm.toLowerCase()).toContain('pad thai');
   });
 
   it('falls back to dish dictionary on Goulash + RECITATION block', async () => {
