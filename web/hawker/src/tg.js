@@ -11,12 +11,46 @@ export function applyTelegramTheme() {
   try {
     w.ready();
     w.expand();
-    // v0.59.18: tablet+ true fullscreen (Bot API 8.0+).
-    if (window.matchMedia?.('(min-width: 600px)').matches
+    // v0.59.25 — see web/cuisine/src/api/tg.js for the full rationale.
+    // Boot diag + ipados gate-relax + explicit viewport-stable-height
+    // handler so older clients still get the correct CSS variable.
+    try {
+      console.log('[TMA-Diag-v0.59.25-hawker]', JSON.stringify({
+        platform: w.platform || null,
+        version: w.version || null,
+        viewportWidth: typeof window !== 'undefined' ? window.innerWidth : null,
+        viewportHeight: typeof window !== 'undefined' ? window.innerHeight : null,
+        isVersionAtLeast8: typeof w.isVersionAtLeast === 'function' ? w.isVersionAtLeast('8.0') : null,
+        hasRequestFullscreen: typeof w.requestFullscreen,
+        isExpanded: !!w.isExpanded,
+        isFullscreen: !!w.isFullscreen,
+        tgViewportHeight: typeof w.viewportHeight === 'number' ? w.viewportHeight : null,
+        tgViewportStableHeight: typeof w.viewportStableHeight === 'number' ? w.viewportStableHeight : null
+      }));
+    } catch { /* diag best-effort */ }
+    const platform = String(w.platform || '').toLowerCase();
+    const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
+    const wideViewport = typeof window !== 'undefined'
+      && window.matchMedia?.('(min-width: 600px)').matches;
+    if ((wideViewport || isTabletPlatform)
         && typeof w.isVersionAtLeast === 'function'
         && w.isVersionAtLeast('8.0')
         && typeof w.requestFullscreen === 'function') {
-      w.requestFullscreen();
+      try { w.requestFullscreen(); }
+      catch (err) { console.warn('[TMA-Diag] requestFullscreen failed:', err?.message || err); }
+    }
+    if (typeof w.onEvent === 'function') {
+      const writeViewportVar = () => {
+        const h = typeof w.viewportStableHeight === 'number'
+          ? w.viewportStableHeight
+          : (typeof w.viewportHeight === 'number' ? w.viewportHeight : null);
+        if (h && document?.documentElement) {
+          document.documentElement.style.setProperty('--tg-viewport-stable-height', `${h}px`);
+        }
+      };
+      writeViewportVar();
+      try { w.onEvent('viewportChanged', writeViewportVar); }
+      catch { /* older clients may not support this event */ }
     }
   } catch { /* noop */ }
   const tp = w.themeParams || {};

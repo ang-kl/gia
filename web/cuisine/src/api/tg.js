@@ -29,14 +29,65 @@ export function applyTelegramTheme() {
   try {
     w.ready();
     w.expand();
-    // v0.59.18: tablet+ true fullscreen (Bot API 8.0+, late 2024).
-    // Skipped on phones so the Telegram bottom chrome stays visible
-    // for fast back/app-switch. Older clients fall through harmlessly.
-    if (window.matchMedia?.('(min-width: 600px)').matches
+
+    // v0.59.25 — boot-time diagnostic so we can debug "iPad doesn't
+    // fill the screen" reports from the user's prod console (Telegram
+    // desktop devtools / mobile inspector). Tells us instantly which
+    // gate is failing: phone-mode iPad? old client? requestFullscreen
+    // missing? viewport variable not set?
+    try {
+      console.log('[TMA-Diag-v0.59.25]', JSON.stringify({
+        platform: w.platform || null,
+        version: w.version || null,
+        viewportWidth: typeof window !== 'undefined' ? window.innerWidth : null,
+        viewportHeight: typeof window !== 'undefined' ? window.innerHeight : null,
+        isVersionAtLeast8: typeof w.isVersionAtLeast === 'function' ? w.isVersionAtLeast('8.0') : null,
+        hasRequestFullscreen: typeof w.requestFullscreen,
+        isExpanded: !!w.isExpanded,
+        isFullscreen: !!w.isFullscreen,
+        tgViewportHeight: typeof w.viewportHeight === 'number' ? w.viewportHeight : null,
+        tgViewportStableHeight: typeof w.viewportStableHeight === 'number' ? w.viewportStableHeight : null
+      }));
+    } catch { /* diag is best-effort */ }
+
+    // v0.59.18 / v0.59.25: tablet+ true fullscreen (Bot API 8.0+, late
+    // 2024). Skipped on phones so the Telegram bottom chrome stays
+    // visible for fast back/app-switch.
+    // v0.59.25: gate now also passes for `platform === 'ipados'`,
+    // catching iPad-mode Telegram even if the user installed only the
+    // iPhone-version Telegram (which runs on iPad in phone-compat mode
+    // at <600px CSS width — previously failed our matchMedia gate).
+    const platform = String(w.platform || '').toLowerCase();
+    const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
+    const wideViewport = typeof window !== 'undefined'
+      && window.matchMedia?.('(min-width: 600px)').matches;
+    if ((wideViewport || isTabletPlatform)
         && typeof w.isVersionAtLeast === 'function'
         && w.isVersionAtLeast('8.0')
         && typeof w.requestFullscreen === 'function') {
-      w.requestFullscreen();
+      try { w.requestFullscreen(); }
+      catch (err) { console.warn('[TMA-Diag] requestFullscreen failed:', err?.message || err); }
+    }
+
+    // v0.59.25 — explicit viewport-stable-height handler. Telegram
+    // SHOULD set --tg-viewport-stable-height on its own when it fires
+    // viewportChanged, but on older clients (and in some iPad WebView
+    // builds) the variable stays unset and our `var(..., 100vh)`
+    // fallback hits — which is the buggy 100vh value we were trying
+    // to escape. Subscribing to viewportChanged + writing the variable
+    // ourselves guarantees the correct stable height is in CSS scope.
+    if (typeof w.onEvent === 'function') {
+      const writeViewportVar = () => {
+        const h = typeof w.viewportStableHeight === 'number'
+          ? w.viewportStableHeight
+          : (typeof w.viewportHeight === 'number' ? w.viewportHeight : null);
+        if (h && document?.documentElement) {
+          document.documentElement.style.setProperty('--tg-viewport-stable-height', `${h}px`);
+        }
+      };
+      writeViewportVar(); // initial
+      try { w.onEvent('viewportChanged', writeViewportVar); }
+      catch { /* older clients may not support this event name */ }
     }
   } catch { /* noop in non-Telegram contexts */ }
   const tp = w.themeParams || {};
