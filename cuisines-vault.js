@@ -20,19 +20,21 @@ const SOURCE_PATH = path.join(__dirname, 'doc', 'Feature', 'cuisines_js.MD');
 // (emoji + defaultOpen). Order matches the source file.
 // v0.59.2: regrouped — added east-asian and australasia entries.
 const CATEGORY_META = [
-  { id: 'common-here',     emoji: '🌟' },
-  { id: 'southeast-asian', emoji: '🌴' },
-  { id: 'east-asian',      emoji: '🍜' },
-  { id: 'china-regional',  emoji: '🐉' },
-  { id: 'south-asian',     emoji: '🌶' },
-  { id: 'middle-eastern',  emoji: '🕌' },
-  { id: 'european',        emoji: '🇪🇺' },
-  { id: 'americas',        emoji: '🌎' },
-  { id: 'australasia',     emoji: '🦘' },
-  { id: 'african',         emoji: '🌍' },
+  { id: 'common-here',             emoji: '🌟' },
+  { id: 'southeast-asian',         emoji: '🌴' },
+  { id: 'east-asian',              emoji: '🍜' },
+  { id: 'china-regional',          emoji: '🐉' },
+  { id: 'south-asian',             emoji: '🌶' },
+  { id: 'middle-eastern',          emoji: '🕌' },
+  { id: 'european',                emoji: '🇪🇺' },
+  // v0.59.35 — Slavic / Eastern European (new bucket).
+  { id: 'slavic-eastern-european', emoji: '🪆' },
+  { id: 'americas',                emoji: '🌎' },
+  { id: 'australasia',             emoji: '🦘' },
+  { id: 'african',                 emoji: '🌍' },
   // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
-  { id: 'dessert',         emoji: '🍮' },
-  { id: 'fusion',          emoji: '🌐' }
+  { id: 'dessert',                 emoji: '🍮' },
+  { id: 'fusion',                  emoji: '🌐' }
 ];
 
 // v0.59.0: per-cuisine flag emoji. Drives the flag prefix on each
@@ -124,13 +126,21 @@ const SLUG_TO_CATEGORY = {
   // South Asian — absorbs S/N Indian
   'south-indian': 'south-asian',
   'north-indian': 'south-asian',
+  // v0.59.35 — South Asian additions per Human Lead 2026-05-07.
+  'sri-lankan':   'south-asian',
+  'pakistani':    'south-asian',
   // Americas — absorbs Anglo-American + Latin classics
   'american':    'americas',
   'mexican':     'americas',
   'brazilian':   'americas',
   // Australasia
   'australian':  'australasia',
-  'new-zealand': 'australasia'
+  'new-zealand': 'australasia',
+  // v0.59.35 — Slavic / Eastern European (new bucket). Uzbek + Georgian
+  // remap out of middle-eastern per Human Lead 2026-05-07. Russian /
+  // Ukrainian / Polish stay in European per user choice (Option A).
+  'uzbek':       'slavic-eastern-european',
+  'georgian':    'slavic-eastern-european'
 };
 
 // v0.59.2: source-category label remap.
@@ -142,19 +152,21 @@ const SLUG_TO_CATEGORY = {
 // many cuisines moved out of the old common-here block dragged that
 // label with them.
 const CATEGORY_LABEL_OVERRIDE = {
-  'common-here':       'Common in Singapore',
-  'southeast-asian':   'Southeast Asian',
-  'east-asian':        'East Asian',
-  'china-regional':    'China (Regional)',
-  'south-asian':       'South Asian',
-  'middle-eastern':    'Middle Eastern & Central Asian',
-  'european':          'European',
-  'americas':          'Americas',
-  'australasia':       'Australasia',
-  'african':           'African',
+  'common-here':             'Common in Singapore',
+  'southeast-asian':         'Southeast Asian',
+  'east-asian':              'East Asian',
+  'china-regional':          'China (Regional)',
+  'south-asian':             'South Asian',
+  'middle-eastern':          'Middle Eastern & Central Asian',
+  'european':                'European',
+  // v0.59.35 — new bucket per Human Lead 2026-05-07.
+  'slavic-eastern-european': 'Slavic / Eastern European',
+  'americas':                'Americas',
+  'australasia':             'Australasia',
+  'african':                 'African',
   // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
-  'dessert':           'Dessert',
-  'fusion':            'Fusion'
+  'dessert':                 'Dessert',
+  'fusion':                  'Fusion'
 };
 
 function slugify(name) {

@@ -3714,7 +3714,7 @@ async function registerCommandsMenu() {
     // pre-v0.58.55 EN-only text and add a FR variant.
     const enDescription =
       "This is a breakfast, lunch & dining concierge service.\n\n" +
-      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — 68 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 new places to try 1.5–3 km away\n" +
       "/hawker — >100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -3724,7 +3724,7 @@ async function registerCommandsMenu() {
       "Free to use. Quirks welcome. Foodie.";
     const frDescription =
       "Conciergerie petit-déjeuner, déjeuner & dîner.\n\n" +
-      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — 68 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 trouvailles à 1,5–3 km\n" +
       "/hawker — plus de 100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -4883,22 +4883,20 @@ async function cacheBotUsername() {
           `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}:l${csLang}`;
         // Codex review #224: when Singaporean is in the cuisines list,
-        // skip the 30-min Redis cache so each call re-runs discover()
-        // and rotates 2 fresh dish picks. Other cuisines keep their
-        // cached results — only Singaporean bypasses.
+        // skip the cache so each call re-runs discover() and rotates
+        // fresh dish picks.
         const skipCacheForSingaporean = require('./pipeline').containsSingaporeanCuisine(cuisineQueries);
-        // v0.59.33 — every click of the 3 search triggers (🔍 Search
-        // button / 🔍 FAB / Tell-Me arrow) refreshes immediately. Per
-        // Human Lead 2026-05-07: the v0.59.32 60-s marker still made
-        // the FIRST click within a 30-min cache window serve stale
-        // data, which felt stuck. Now: bypass cache on every call to
-        // /api/cuisine/search. Cache reads + writes both skipped.
-        // Trade-off: every click costs one Places + LLM rank call
-        // (~2-5s, ~$0.001) — the user prefers freshness over speed.
-        // Warm-start (POST /api/cuisine/warm-start) is a separate
-        // route and keeps its own cache.
-        const skipCache = true; // Singaporean carve-out + always-refresh both fold into "always skip".
-        void skipCacheForSingaporean; // Retained for diagnostic logging if needed later.
+        // v0.59.35 — re-introduce a SHORT cache (30 s TTL) for non-
+        // Singaporean searches. Per Human Lead 2026-05-07: v0.59.33's
+        // always-fresh removal made every click incur a 2-5 s
+        // Places+LLM round-trip, which felt sluggish on iPad.
+        // 30 s window means rapid double/triple clicks of the same
+        // search feel instant; clicks ≥ 30 s apart re-fetch fresh.
+        // Best of both: speed for "I tapped twice by accident" + still
+        // reasonably fresh for "I want to see different options 30 s
+        // later". Singaporean still bypasses (per-call dish rotation).
+        const SEARCH_CACHE_TTL_S = 30;
+        const skipCache = skipCacheForSingaporean;
         try {
           if (redis.isOpen && !skipCache) {
             const cached = await redis.get(cacheKey);
@@ -5215,16 +5213,13 @@ async function cacheBotUsername() {
         } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
         const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
-        // v0.57.6: write to cache for 30 minutes.
-        // Codex review #224: skip the write when Singaporean is in
-        // the cuisines list — caching the rotated dish-pair would pin
-        // it across the TTL and defeat the per-call rotation goal.
-        // v0.59.32: also skip the write when the user is in a rapid-
-        // refresh window. Otherwise the next click would re-write the
-        // same payload we just bypassed; defeats the refresh intent.
+        // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
+        // Short TTL keeps rapid double/triple clicks fast while still
+        // returning fresh results 30+ s later. Singaporean still skips
+        // (per-call dish rotation must not be pinned).
         try {
           if (redis.isOpen && !skipCache) {
-            await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
+            await redis.setEx(cacheKey, SEARCH_CACHE_TTL_S, JSON.stringify(payload));
           }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
         res.json({ ...payload, cached: false });
