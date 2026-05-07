@@ -60,7 +60,7 @@ describe('FUSION_KEYWORDS', () => {
 describe('expandDessertCuisines', () => {
   it('appends 3 keywords when "Dessert" is in the cuisines list', () => {
     const out = expandDessertCuisines(['Dessert']);
-    expect(out.length).toBe(4);
+    expect(out.length).toBe(6);
     expect(out[0]).toBe('Dessert');
     expect(DESSERT_KEYWORDS).toContain(out[1]);
     expect(DESSERT_KEYWORDS).toContain(out[2]);
@@ -69,8 +69,8 @@ describe('expandDessertCuisines', () => {
   });
 
   it('matches case-insensitively', () => {
-    expect(expandDessertCuisines(['dessert']).length).toBe(4);
-    expect(expandDessertCuisines(['DESSERT']).length).toBe(4);
+    expect(expandDessertCuisines(['dessert']).length).toBe(6);
+    expect(expandDessertCuisines(['DESSERT']).length).toBe(6);
   });
 
   it('passes through non-dessert cuisines unchanged', () => {
@@ -79,7 +79,7 @@ describe('expandDessertCuisines', () => {
 
   it('preserves other cuisines when Dessert is mixed in', () => {
     const out = expandDessertCuisines(['Dessert', 'Korean']);
-    expect(out.length).toBe(5);
+    expect(out.length).toBe(7);
     expect(out).toContain('Dessert');
     expect(out).toContain('Korean');
   });
@@ -99,7 +99,7 @@ describe('expandDessertCuisines', () => {
 describe('expandFusionCuisines', () => {
   it('appends 2 Michelin/50-Best signals when "Fusion" is selected', () => {
     const out = expandFusionCuisines(['Fusion']);
-    expect(out.length).toBe(3);
+    expect(out.length).toBe(6);
     expect(out[0]).toBe('Fusion');
     expect(FUSION_KEYWORDS).toContain(out[1]);
     expect(FUSION_KEYWORDS).toContain(out[2]);
@@ -107,8 +107,8 @@ describe('expandFusionCuisines', () => {
   });
 
   it('matches case-insensitively', () => {
-    expect(expandFusionCuisines(['fusion']).length).toBe(3);
-    expect(expandFusionCuisines(['FUSION']).length).toBe(3);
+    expect(expandFusionCuisines(['fusion']).length).toBe(6);
+    expect(expandFusionCuisines(['FUSION']).length).toBe(6);
   });
 
   it('passes through non-fusion cuisines unchanged', () => {
@@ -117,7 +117,8 @@ describe('expandFusionCuisines', () => {
 
   it('preserves other cuisines when Fusion is mixed in', () => {
     const out = expandFusionCuisines(['Fusion', 'Italian']);
-    expect(out.length).toBe(4);
+    // 2 cuisines + 5 fusion keywords = 7 (v0.59.41: 2 → 5 keywords)
+    expect(out.length).toBe(7);
     expect(out).toContain('Fusion');
     expect(out).toContain('Italian');
   });

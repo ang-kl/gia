@@ -122,3 +122,62 @@ describe('throttleBrands', () => {
     expect(throttleBrands([], 2)).toEqual([]);
   });
 });
+
+// v0.59.41 — dish-tail throttle. Per Human Lead 2026-05-07: brand-
+// throttle correctly preserves DIFFERENT shops with the same dish
+// (Tew Chew Porridge + Tiong Shian Porridge = 2 brand keys), but
+// the user sees them as "3 porridge places in a row". Need a
+// secondary throttle keyed on the LAST dish-name token (cap=2).
+describe('dishTailKey + throttleByDishTail (v0.59.41)', () => {
+  const { dishTailKey, throttleByDishTail } = require('../pipeline.js');
+
+  it('extracts the last token as the dish-tail key', () => {
+    expect(dishTailKey({ name: 'Tew Chew Street Tew Chew Porridge' })).toBe('porridge');
+    expect(dishTailKey({ name: 'Tiong Shian Porridge' })).toBe('porridge');
+    expect(dishTailKey({ name: 'Ah Chiang\'s Porridge' })).toBe('porridge');
+  });
+
+  it('strips branch markers / parens / corp tokens', () => {
+    expect(dishTailKey({ name: 'Hong Lim Curry Puff (Maxwell)' })).toBe('puff');
+    expect(dishTailKey({ name: 'Tian Tian Hainanese Chicken Rice Pte Ltd' })).toBe('rice');
+  });
+
+  it('caps a 3-shop porridge cluster at 2 (matches user screenshot)', () => {
+    const venues = [
+      { name: 'Tew Chew Street Tew Chew Porridge', placeId: 't1' },
+      { name: 'Tiong Shian Porridge', placeId: 't2' },
+      { name: 'Ah Chiang\'s Porridge', placeId: 't3' }
+    ];
+    const out = throttleByDishTail(venues, 2);
+    expect(out.length).toBe(2);
+    expect(out.map((v) => v.placeId)).toEqual(['t1', 't2']);
+  });
+
+  it('skips throttling on generic tails (cafe, restaurant, etc.)', () => {
+    const venues = [
+      { name: 'Atlas Cafe', placeId: 'a' },
+      { name: 'Wild Honey Cafe', placeId: 'b' },
+      { name: 'Tiong Bahru Cafe', placeId: 'c' }
+    ];
+    const out = throttleByDishTail(venues, 2);
+    expect(out.length).toBe(3); // "cafe" is in SKIP_TAILS — no throttle
+  });
+
+  it('preserves discover order across mixed dish tails', () => {
+    const venues = [
+      { name: 'Atlas Coffeehouse', placeId: 'a1' },
+      { name: 'Tew Chew Porridge', placeId: 'p1' },
+      { name: 'Maxwell Hokkien Mee', placeId: 'm1' },
+      { name: 'Tiong Shian Porridge', placeId: 'p2' },
+      { name: 'Ah Chiang Porridge', placeId: 'p3' },        // 3rd porridge → DROPPED
+      { name: 'Boon Tong Kee Chicken Rice', placeId: 'r1' }
+    ];
+    const out = throttleByDishTail(venues, 2);
+    expect(out.map((v) => v.placeId)).toEqual(['a1', 'p1', 'm1', 'p2', 'r1']);
+  });
+
+  it('handles non-array / empty inputs without throwing', () => {
+    expect(throttleByDishTail(null, 2)).toBe(null);
+    expect(throttleByDishTail([], 2)).toEqual([]);
+  });
+});
