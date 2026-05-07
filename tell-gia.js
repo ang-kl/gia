@@ -77,6 +77,14 @@ CRITICAL CONSTRAINTS:
       → ["dessert"]                           (the dedicated Dessert entry)
   For other broad asks ("anything Asian", "something Mediterranean") that don't have a generic
   catch-all in the list, MAP to the closest specific slugs (e.g. ["italian","french","greek"]) or return empty array.
+- DISH-PRIORITISATION RULE (v0.59.54): when the user names a SPECIFIC DISH alongside other-cuisine modifiers, classify by the DISH'S country of origin, NOT the modifier:
+    "Goulash with dumpling" → ["european"] (goulash = Hungarian → European catch-all; dumpling is the side, NOT a Chinese signal)
+    "Pad Thai with shrimp" → ["thai"] (pad thai is the dish; shrimp is an ingredient)
+    "Carbonara with mushrooms" → ["italian"] (carbonara is Italian; mushrooms generic)
+    "Kimchi fried rice" → ["korean"] (kimchi anchors Korean; fried rice is generic)
+    "Beef Wellington pho-style" → ["british"] (Beef Wellington is British; pho-style is a fanciful modifier — pick the named dish)
+    "Tom Yum lasagna" → ["thai"] (tom yum anchors Thai; lasagna is a vehicle word)
+  General: if exactly ONE named dish is present, follow that dish's origin. If MULTIPLE named dishes from different cuisines are present, return BOTH cuisines.
 - If you cannot confidently map a user phrase to one of the ${cuisineSlugList.length} slugs, OMIT that cuisine. Empty cuisines array is the correct answer when nothing matches.
 - "location_override" MUST be a Singapore place — neighbourhood, road, MRT station, mall, expressway, landmark. NEVER a cuisine type, never a filter word, never a generic word like "near me" or "around here". When the user says "near me" / "nearby" → empty string (user's GPS will be used). When the user says "Kallang" or "Marina Bay" or "PIE" → set the location_override to that place.
 - Return ONLY the JSON object — no prose, no markdown fences, no commentary.

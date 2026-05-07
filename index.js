@@ -1546,7 +1546,12 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
   }
 });
 
-bot.onText(/^\/(?:share|s)(?:@\w+)?$/, async (msg) => {
+// v0.59.54: /share renamed to /toshare. /s alias retired here and
+// reassigned to the new /search command (see runSearchCommand below).
+// Per Human Lead 2026-05-07: deprecate the share flow — remove from
+// setMyCommands EN+FR but keep the handler so old in-chat share-link
+// buttons keep resolving.
+bot.onText(/^\/toshare(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const { t, tn } = require('./i18n');
   const lang = await resolveLang(redis, msg.chat.id, msg);
@@ -1626,6 +1631,20 @@ bot.onText(/^\/(?:clip|cl)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
   await runClipCommand(msg.chat.id, arg, lang);
+});
+
+// v0.59.54: /search (alias /s) — conversational dish / ingredient /
+// kitchen-tool finder. Per Human Lead 2026-05-07.
+//   /s              → starts a conversation, prompts for query
+//   /s <text>       → starts/continues with the given query
+//   /s e | /s end   → end the conversation
+// Any other / command also ends the conversation (handled in
+// preEmptSearchOnSlash, called at the top of bot.on('text')).
+bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  const arg = (match?.[1] || '').trim();
+  await runSearchCommand(msg.chat.id, arg, lang);
 });
 
 bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
@@ -3422,6 +3441,119 @@ function formatTimeAgo(deltaMs, lang) {
   return lang === 'fr' ? `il y a ${w} sem` : `${w} w ago`;
 }
 
+// v0.59.54: /search dispatch.
+//   arg = ''         → start a conversation; prompt for the user's query
+//   arg = 'e'/'end'  → end the conversation (clears Redis state)
+//   arg = '<text>'   → start (if no active conv) or continue with that query
+async function runSearchCommand(chatId, arg, lang = 'en') {
+  const sc = require('./search-conversation');
+  // End signal — explicit.
+  if (/^(e|end|stop|quit|done|fini|terminer|arr[eê]ter)$/i.test(arg)) {
+    await sc.endConversation(redis, chatId);
+    await safeSend(chatId, lang === 'fr'
+      ? '✅ Conversation `/search` terminée. À bientôt.'
+      : '✅ /search conversation ended. See you next time.');
+    return;
+  }
+  // Empty arg with no active conversation → prompt the user for input.
+  let conv = await sc.getConversation(redis, chatId);
+  if (!arg && !conv) {
+    await sc.startConversation(redis, chatId);
+    await safeSend(chatId, lang === 'fr'
+      ? '🔎 *Recherche culinaire — discutez avec moi*\n\nTapez le nom d\'un plat, d\'un ingrédient ou d\'une technique de cuisson — par ex. "goulash aux quenelles", "tandoor", "binchotan".\n\nJe trouverai des restaurants à Singapour qui correspondent et je vous expliquerai pourquoi.\n\n_Tapez `/s end` pour terminer, ou n\'importe quelle commande `/...` pour passer à autre chose._'
+      : '🔎 *Search a dish, ingredient or kitchen tool — chat with me*\n\nType a dish name, ingredient, or cooking technique — e.g. "goulash with dumpling", "tandoor", "binchotan".\n\nI\'ll find Singapore restaurants that match and tell you why.\n\n_Type `/s end` to finish, or any `/...` command to switch._',
+      { parse_mode: 'Markdown' });
+    return;
+  }
+  // Empty arg with an active conversation → re-prompt continuation.
+  if (!arg && conv) {
+    await safeSend(chatId, lang === 'fr'
+      ? '🔎 Continuez : tapez le plat, l\'ingrédient ou la technique qui vous intéresse.'
+      : '🔎 Go on — type the dish, ingredient, or technique you\'re curious about.');
+    return;
+  }
+  // Real query — classify intent and dispatch.
+  await handleSearchTurn(chatId, arg, lang);
+}
+
+// One round-trip: take user text, ask Gemini to classify intent, then
+// either reply with a clarifying question OR dispatch a Places search
+// and stream back top venues.
+async function handleSearchTurn(chatId, userText, lang = 'en') {
+  const sc = require('./search-conversation');
+  const gc = require('./gemini-client');
+  let conv = await sc.getConversation(redis, chatId);
+  if (!conv) conv = await sc.startConversation(redis, chatId);
+  const history = Array.isArray(conv?.history) ? conv.history : [];
+  let intent;
+  try {
+    intent = await gc.classifySearchIntent({ text: userText, history, lang });
+  } catch (err) {
+    console.warn('[Search] classifySearchIntent failed:', err.message);
+    await safeSend(chatId, lang === 'fr'
+      ? 'Désolé, je n\'ai pas pu interpréter votre requête. Réessayez avec un nom de plat ou d\'ingrédient.'
+      : 'Sorry, I couldn\'t interpret that. Try a dish name or ingredient.');
+    return;
+  }
+  // Ambiguous → polite clarifying question.
+  if (intent.intent === 'ambiguous' || !intent.searchTerm) {
+    const reply = intent.clarify || (lang === 'fr'
+      ? 'Pouvez-vous préciser ? Quel plat ou ingrédient cherchez-vous exactement ?'
+      : 'Could you clarify? Which dish or ingredient are you looking for exactly?');
+    const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
+    const suffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+    await safeSend(chatId, reply + suffix, { parse_mode: 'Markdown' });
+    return;
+  }
+  // Resolved intent → run a Places searchText against the canonical query.
+  const pipeline = require('./pipeline');
+  const { hashChatId, getUserLocation } = require('./location-cache');
+  const loc = await getUserLocation(redis, chatId).catch(() => null);
+  const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+  const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+  let venues = [];
+  try {
+    venues = await pipeline.discover({
+      lat: center.lat, lng: center.lng,
+      cuisines: [intent.searchTerm],
+      radius: 50000,
+      maxResults: 8,
+      regionCode: 'SG',
+      lang,
+      applyDishTailThrottle: false   // user typed an explicit dish; don't cap to 2
+    });
+  } catch (err) {
+    console.warn('[Search] discover failed:', err.message);
+  }
+  // Build the reply: 1-line "why" header, then up to 3 venues with name + area + maps URL.
+  const top = (Array.isArray(venues) ? venues : []).slice(0, 3);
+  const lines = [];
+  if (intent.cuisine) {
+    lines.push(lang === 'fr'
+      ? `🍽 *${intent.cuisine}* — ${intent.why || 'recherche en cours.'}`
+      : `🍽 *${intent.cuisine}* — ${intent.why || 'searching.'}`);
+  } else if (intent.why) {
+    lines.push(`🍽 ${intent.why}`);
+  }
+  if (!top.length) {
+    lines.push(lang === 'fr'
+      ? `Désolé, aucun lieu correspondant trouvé près de Singapour pour cette requête. Essayez un autre plat ou ingrédient.`
+      : `Sorry, no matching venues found in Singapore for that query. Try another dish or ingredient.`);
+  } else {
+    lines.push('');
+    top.forEach((v, i) => {
+      const rating = Number.isFinite(v.rating) ? `★${v.rating.toFixed(1)}` : '';
+      const area = v.area ? ` · ${v.area}` : '';
+      const mapsUrl = v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + ' Singapore')}`;
+      lines.push(`*${i + 1}. ${v.name}* ${rating}${area}\n📍 ${mapsUrl}`);
+    });
+  }
+  const reply = lines.join('\n');
+  const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
+  const suffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+  await safeSend(chatId, reply + suffix, { parse_mode: 'Markdown', disable_web_page_preview: true });
+}
+
 async function runForgetMeCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -3599,10 +3731,38 @@ bot.on('message', async (msg) => {
     if (!msg.text) return;
     const text = msg.text.trim();
     if (!text) return;
-    if (text.startsWith('/')) return;
+    if (text.startsWith('/')) {
+      // v0.59.54: any slash command other than /search /s ends an
+      // active /search conversation. The slash-handler itself runs in
+      // its own bot.onText callback; we just clear the Redis state
+      // here so the next free-text won't be routed back into the
+      // search-conversation continuation path.
+      try {
+        const sc = require('./search-conversation');
+        if (sc.isOtherSlashCommand(text)) {
+          await sc.endConversation(redis, msg.chat.id);
+        }
+      } catch (err) { /* best-effort */ }
+      return;
+    }
     if (KEYBOARD_TEXTS.has(text)) return;
     const hasCommand = (msg.entities ?? []).some((e) => e.type === 'bot_command');
     if (hasCommand) return;
+
+    // v0.59.54: if a /search conversation is active, every free-text
+    // reply continues the conversation (Gemini intent classification +
+    // Places dispatch + 6-round-trip nudge). Pre-empts the gatekeeper
+    // / pending-meal path entirely.
+    try {
+      const sc = require('./search-conversation');
+      const activeConv = await sc.getConversation(redis, msg.chat.id);
+      if (activeConv) {
+        const { resolveLang } = require('./user-prefs');
+        const scLang = await resolveLang(redis, msg.chat.id, msg);
+        await handleSearchTurn(msg.chat.id, text, scLang);
+        return;
+      }
+    } catch (err) { console.warn('[Search] active-conv check failed:', err.message); }
 
     const pending = await consumePendingMeal(redis, msg.chat.id);
     if (pending) {
@@ -3849,7 +4009,7 @@ async function registerCommandsMenu() {
       { command: 'location',   description: 'Set your locale by typing a place name' },
       { command: 'language',   description: 'Chat lang: en / fr / auto (auto = follow Telegram client)' },
       { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'share',      description: 'Forward recent pick' },
+      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational' },
       { command: 'clip',       description: 'Your last 50 cuisine clips · filter by cuisine' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase your stored data' }
@@ -3865,7 +4025,7 @@ async function registerCommandsMenu() {
       { command: 'location',   description: 'Définir votre lieu par son nom' },
       { command: 'language',   description: 'Langue : fr / en / auto (auto = suit le client Telegram)' },
       { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
-      { command: 'share',      description: 'Partager un choix récent' },
+      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel' },
       { command: 'clip',       description: 'Vos 50 derniers clips · filtrer par cuisine' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
