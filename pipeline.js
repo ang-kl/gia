@@ -405,6 +405,41 @@ function expandSingaporeanCuisines(cuisines) {
   return [...cuisines, ...pickRandomSubset(SINGAPOREAN_DISHES, 3)];
 }
 
+// v0.59.21 — Dessert + Fusion query expansion (Codex review #226 P2).
+// /api/cuisine/search calls pipeline.discover() directly with no LLM
+// rank step — query.specialRequest never reaches an LLM in the TMA
+// flow. To honour Human Lead's Dessert/Fusion intent in the TMA path,
+// we expand the Places textQuery with grounded keywords the same way
+// Singaporean expands with random iconic dishes.
+const DESSERT_KEYWORDS = [
+  'kueh', 'kaya toast', 'bingsu', 'patisserie', 'tau huay',
+  'bubur cha cha', 'ice kachang', 'chendol', 'mochi', 'gelato',
+  'cake shop', 'soft serve'
+];
+const FUSION_KEYWORDS = [
+  'Michelin Star Singapore', 'Michelin Bib Gourmand Singapore',
+  "Asia's 50 Best Restaurants", 'modern Asian Singapore',
+  'contemporary Singapore'
+];
+
+function expandDessertCuisines(cuisines) {
+  if (!Array.isArray(cuisines)) return cuisines;
+  const has = cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
+  );
+  if (!has) return cuisines;
+  return [...cuisines, ...pickRandomSubset(DESSERT_KEYWORDS, 3)];
+}
+
+function expandFusionCuisines(cuisines) {
+  if (!Array.isArray(cuisines)) return cuisines;
+  const has = cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'fusion')
+  );
+  if (!has) return cuisines;
+  return [...cuisines, ...pickRandomSubset(FUSION_KEYWORDS, 2)];
+}
+
 // v0.59.21 — Brand-throttle dedup. After Google Places returns
 // candidates, runs of same-brand venues (Hong Lim Curry Puff at 3
 // outlets, Gold Xiang Curry Puff at 2 outlets, etc.) crowd out
@@ -543,7 +578,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   // iconic-dish terms so consecutive calls return varied venues (not
   // the same chicken-rice / laksa duo every time). Pass-through for
   // every other cuisine selection.
-  const effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  // v0.59.21 (Codex #226 P2): chain Dessert/Fusion query expansion
+  // here too so the TMA path (which calls discover() directly with
+  // no LLM rank) still honours the Dessert/Fusion intent.
+  let effectiveCuisines = expandSingaporeanCuisines(cuisines);
+  effectiveCuisines = expandDessertCuisines(effectiveCuisines);
+  effectiveCuisines = expandFusionCuisines(effectiveCuisines);
   diag('D710', 'Discover Places start', true, { lat, lng, cuisines: effectiveCuisines, radius });
   const t0 = Date.now();
   try {
@@ -1277,5 +1317,10 @@ module.exports = {
   // Dessert/Fusion specialRequest injection.
   brandKey,
   throttleBrands,
-  specialRequestForCuisines
+  specialRequestForCuisines,
+  // v0.59.21 (Codex #226 P2) — Dessert/Fusion Places query expansion.
+  DESSERT_KEYWORDS,
+  FUSION_KEYWORDS,
+  expandDessertCuisines,
+  expandFusionCuisines
 };
