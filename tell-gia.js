@@ -64,7 +64,19 @@ THE ONLY ${cuisineSlugList.length} ALLOWED CUISINE SLUGS — return EMPTY array 
 ${cuisineSlugList.join(', ')}
 
 CRITICAL CONSTRAINTS:
-- The "cuisines" array MUST contain ONLY slugs from the list above. NEVER invent, abbreviate, combine, or pluralise. If the user asks for "korean bbq" → return ["korean"] (the slug). If they ask for "fusion" or "anything Asian" or "modern European" → match to specific slugs from the list (e.g. ["italian","french"]) or return empty array.
+- The "cuisines" array MUST contain ONLY slugs from the list above. NEVER invent, abbreviate, combine, or pluralise. If the user asks for "korean bbq" → return ["korean"] (the slug).
+- v0.59.38 generic catch-alls — USE THEM when the user's request is broad rather than returning empty:
+    "European", "modern European", "Belgian", "Dutch", "Irish", "Norwegian", "Swedish", "Danish",
+    "Finnish", "Czech", "Hungarian", "Croatian", "Bulgarian", "Romanian", "Albanian"
+      → ["european"]                          (use the generic European catch-all)
+    "African", "Ethiopian", "Kenyan", "Nigerian", "any African food"
+      → ["african"]                           (use the generic African catch-all)
+    "Fusion", "fusion food", "modern Asian fusion"
+      → ["fusion"]                            (the dedicated Fusion entry)
+    "Dessert", "desserts", "sweet shop", "ice kachang", "chendol shop"
+      → ["dessert"]                           (the dedicated Dessert entry)
+  For other broad asks ("anything Asian", "something Mediterranean") that don't have a generic
+  catch-all in the list, MAP to the closest specific slugs (e.g. ["italian","french","greek"]) or return empty array.
 - If you cannot confidently map a user phrase to one of the ${cuisineSlugList.length} slugs, OMIT that cuisine. Empty cuisines array is the correct answer when nothing matches.
 - "location_override" MUST be a Singapore place — neighbourhood, road, MRT station, mall, expressway, landmark. NEVER a cuisine type, never a filter word, never a generic word like "near me" or "around here". When the user says "near me" / "nearby" → empty string (user's GPS will be used). When the user says "Kallang" or "Marina Bay" or "PIE" → set the location_override to that place.
 - Return ONLY the JSON object — no prose, no markdown fences, no commentary.
