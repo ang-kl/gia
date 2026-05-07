@@ -60,7 +60,25 @@ const CUISINE_DISH_KEYWORDS = {
   peruvian:       ['ceviche', 'lomo saltado', 'ají de gallina', 'aji de gallina', 'anticucho', 'causa', 'pisco', 'tiradito', 'chicha morada', 'rocoto'],
   argentinian:    ['asado', 'empanada', 'milanesa', 'chimichurri', 'choripán', 'choripan', 'parrilla', 'provoleta', 'dulce de leche'],
   cuban:          ['ropa vieja', 'lechón', 'lechon', 'mojito', 'picadillo', 'tostones', 'plantain', 'cubano sandwich', 'moros', 'medianoche'],
-  jamaican:       ['jerk chicken', 'jerk pork', 'ackee', 'oxtail', 'curry goat', 'callaloo', 'patties', 'rice and peas', 'escovitch', 'festival']
+  jamaican:       ['jerk chicken', 'jerk pork', 'ackee', 'oxtail', 'curry goat', 'callaloo', 'patties', 'rice and peas', 'escovitch', 'festival'],
+
+  // ─── Australasia (v0.59.50) ────────────────────────────────────
+  // SG has small but distinct Antipodean / NZ pools. Keywords cover
+  // brunch culture (flat white / smashed avo), proteins (Wagyu, lamb,
+  // ocean beef), and signature dishes / brand cues. The gate uses
+  // these to keep WAKANUI / Magpie / Blackbird / Boomarang / Barossa
+  // / Burnt Ends / Wooloomooloo when Places searchText brings back
+  // unrelated venues that just mentioned "New Zealand" or "Australia"
+  // in a review.
+  australian:     ['flat white', 'long black', 'smashed avocado', 'avo on toast', 'modern australian', 'antipodean',
+                   'lamington', 'meat pie', 'tim tam', 'pavlova', 'vegemite', 'aussie brunch',
+                   'wagyu', 'angus', 'australian beef', 'lamb', 'kangaroo', 'barramundi'],
+  'new zealand':  ['flat white', 'kiwi', 'pavlova', 'hokey pokey', 'manuka', 'south island lamb',
+                   'ocean beef', 'wakanui', 'magpie', 'blackbird', 'moa tiki',
+                   'pacific', 'antipodean', 'brunch', 'fish and chips'],
+  australasia:    ['flat white', 'long black', 'antipodean', 'modern australian', 'pacific', 'brunch',
+                   'smashed avocado', 'pavlova', 'wagyu', 'lamb', 'ocean beef', 'cafe melba',
+                   'kiwi', 'south island', 'manuka']
 };
 
 // Quick lookup: cuisine display-name → keyword list. Keys lowercased.
