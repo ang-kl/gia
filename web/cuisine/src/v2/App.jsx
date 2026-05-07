@@ -296,6 +296,37 @@ export default function App() {
   // stage state silently; the `dirty` ring around 🔍 Search is the
   // visible cue that pending changes haven't been searched yet.
 
+  // v0.59.43: flush the result list when the TMA is closed/hidden so
+  // the next open is a clean slate. Per Human Lead 2026-05-07: re-
+  // opening should feel fresh, not show the previous results from
+  // before the close. The OS clipboard is untouched (we never write
+  // to it from React state — Copy/Copy-all writes happen at click
+  // time through the navigator.clipboard API and persist independently).
+  // - `pagehide` fires when the iframe is going to be unloaded OR put
+  //   into bfcache. Clearing venues here means a bfcache restore
+  //   surfaces an empty list, which the warm-start effect will refill.
+  // - `pageshow` with persisted=true means we're returning from
+  //   bfcache; reset the initialSearchDone gate so warm-start re-fires.
+  useEffect(() => {
+    function onPageHide() {
+      setVenues([]);
+      setLastRunSnap(null);
+      setWarmStartSeed(null);
+      setSearchCenter(null);
+    }
+    function onPageShow(e) {
+      if (e.persisted) {
+        initialSearchDone.current = false;
+      }
+    }
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, []);
+
   async function runSearch(snap = state, anchor = null) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
