@@ -18,9 +18,23 @@
 
 const CUISINE_DISH_KEYWORDS = {
   // ─── African ───────────────────────────────────────────────────
-  ethiopian:      ['injera', 'doro wat', 'kitfo', 'tibs', 'berbere', 'shiro', 'niter kibbeh', 'wat', 'awaze'],
-  kenyan:         ['ugali', 'sukuma', 'nyama choma', 'githeri', 'mukimo', 'irio'],
-  nigerian:       ['jollof', 'suya', 'egusi', 'fufu', 'akara', 'efo', 'ogbono', 'pounded yam'],
+  // v0.59.34: collapsed Ethiopian/Kenyan/Nigerian into a single
+  // 'African' entry per Human Lead 2026-05-07. SG had near-zero
+  // real coverage for the three individual cuisines (Kafe Utu was
+  // the only consistent hit for Ethiopian; Kenyan/Nigerian had 0
+  // genuine matches). Google Places' textQuery for each was
+  // returning Italian/Turkish/Mediterranean fuzzy-matches that
+  // slipped through the gate. One broad 'African' search with the
+  // union of dish keywords lets the few real African-leaning SG
+  // venues (Kafe Utu, JaBistro, etc.) match without locking each
+  // cuisine to an empty-result UX.
+  // South African kept as a distinct entry — its dish vocabulary
+  // (bobotie/biltong/boerewors/malva) has less overlap with the
+  // East/West-African union and Springbok Pies / Lions Lodge are
+  // still findable by name.
+  african:        ['injera', 'doro wat', 'kitfo', 'tibs', 'berbere', 'shiro', 'niter kibbeh', 'wat', 'awaze',
+                   'ugali', 'sukuma', 'nyama choma', 'githeri', 'mukimo', 'irio',
+                   'jollof', 'suya', 'egusi', 'fufu', 'akara', 'efo', 'ogbono', 'pounded yam'],
   'south african': ['bobotie', 'biltong', 'boerewors', 'malva', 'bunny chow', 'chakalaka', 'pap', 'potjiekos'],
 
   // ─── European ──────────────────────────────────────────────────

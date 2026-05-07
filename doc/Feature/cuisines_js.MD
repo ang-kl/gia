@@ -57,7 +57,7 @@ export const CUISINE_CATEGORIES = [
   {
     id: 'african',
     label: 'African',
-    items: ['Ethiopian', 'Kenyan', 'Nigerian', 'South African']
+    items: ['African', 'South African']
   },
   {
     id: 'dessert',
