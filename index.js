@@ -4047,6 +4047,15 @@ async function registerCommandsMenu() {
     ];
     await bot.setMyCommands(enCommands);
     await bot.setMyCommands(frCommands, { language_code: 'fr' });
+    // v0.59.55: defensive purge of stale scopes. setMyCommands only
+    // overwrites the (scope, language_code) pair it targets — any
+    // /share entry left behind on a `language_code: 'en'` scope (or
+    // other historical scopes) keeps surfacing in the slash-menu.
+    // Re-issuing setMyCommands against every default-chat scope
+    // explicitly forces Telegram to drop the cached /share row.
+    try {
+      await bot.setMyCommands(enCommands, { language_code: 'en' });
+    } catch (err) { console.warn('[setMyCommands] en-scope re-set failed:', err.message); }
 
     // v0.59.6: setMyDescription — the body shown above the command list
     // when a user opens the empty chat with the bot ("What can this bot
