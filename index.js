@@ -4887,8 +4887,29 @@ async function cacheBotUsername() {
         // and rotates 2 fresh dish picks. Other cuisines keep their
         // cached results — only Singaporean bypasses.
         const skipCacheForSingaporean = require('./pipeline').containsSingaporeanCuisine(cuisineQueries);
+        // v0.59.32 — refresh-on-repeat-click. Per Human Lead 2026-05-07:
+        // tapping the search button / 🔍 FAB / Tell-Me arrow multiple
+        // times felt "stuck" because identical inputs hit the 30-min
+        // Redis cache and returned the same venue list every time.
+        // Now: track per-chatId last-search timestamp; if the user
+        // clicks search again within REFRESH_WINDOW_MS, bypass the
+        // cache so they see different (re-discovered) venues.
+        const REFRESH_WINDOW_MS = 60_000;
+        const recentClickKey = `cuisine:lastclick:${csChatId || 'anon'}`;
+        let skipCacheForRefresh = false;
         try {
-          if (redis.isOpen && !skipCacheForSingaporean) {
+          if (redis.isOpen && csChatId) {
+            const last = await redis.get(recentClickKey);
+            if (last) skipCacheForRefresh = true;
+            // Set/refresh the marker for the next click. EX 60 s.
+            await redis.set(recentClickKey, '1', { EX: Math.ceil(REFRESH_WINDOW_MS / 1000) });
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] refresh-marker read/write failed:', err.message);
+        }
+        const skipCache = skipCacheForSingaporean || skipCacheForRefresh;
+        try {
+          if (redis.isOpen && !skipCache) {
             const cached = await redis.get(cacheKey);
             if (cached) {
               const parsed = JSON.parse(cached);
@@ -5110,13 +5131,32 @@ async function cacheBotUsername() {
             /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
             /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
           ];
+          // v0.59.32 — tighter dish-quality filter. Per Human Lead
+          // 2026-05-07 screenshot: "🍴 Try · desserts which" was
+          // garbage from a review like "the desserts which were…".
+          // The capture grabbed "desserts which" as a noun phrase.
+          // Reject candidates whose LAST token is a stop-word/connector,
+          // and prefix-block more nouny non-dish words.
+          const TRAILING_STOPWORDS = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there)$/i;
+          // v0.59.32 / Codex review #237 P2: anchor with $ (not \b) so
+          // we only block when the WHOLE candidate is a category word.
+          // "Special Fried Rice" / "Dessert Platter" / "Combo Set" etc.
+          // are valid menu items and should pass; only bare "specials"
+          // / "desserts" / "combos" alone are categorical and rejected.
+          const CATEGORY_BLOCK_RX = /^(restaurant|place|food|foods|service|staff|ambien|ambience|ambiance|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast|dessert|desserts|appetiser|appetizer|appetisers|appetizers|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|deal|deals|recommendation|recommendations)$/i;
           const dishes = new Set();
           for (const re of patterns) {
             let m;
             while ((m = re.exec(allText)) !== null && dishes.size < 5) {
               const candidate = (m[1] || '').trim();
               if (candidate.length < 3 || candidate.length > 40) continue;
-              if (/^(restaurant|place|food|service|staff|ambien|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast)/i.test(candidate)) continue;
+              if (CATEGORY_BLOCK_RX.test(candidate)) continue;
+              if (TRAILING_STOPWORDS.test(candidate)) continue;
+              // Require at least one capitalised internal token (proper-noun-ish)
+              // OR the whole candidate to be a single recognisable word ≥4 chars.
+              const tokens = candidate.split(/\s+/);
+              const hasCapitalised = tokens.some((t) => /^[A-Z][a-z]+/.test(t));
+              if (!hasCapitalised && tokens.length > 1) continue;
               dishes.add(candidate);
             }
           }
@@ -5188,8 +5228,11 @@ async function cacheBotUsername() {
         // Codex review #224: skip the write when Singaporean is in
         // the cuisines list — caching the rotated dish-pair would pin
         // it across the TTL and defeat the per-call rotation goal.
+        // v0.59.32: also skip the write when the user is in a rapid-
+        // refresh window. Otherwise the next click would re-write the
+        // same payload we just bypassed; defeats the refresh intent.
         try {
-          if (redis.isOpen && !skipCacheForSingaporean) {
+          if (redis.isOpen && !skipCache) {
             await redis.setEx(cacheKey, 30 * 60, JSON.stringify(payload));
           }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
