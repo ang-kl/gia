@@ -264,8 +264,10 @@ async function generateGroundedHiddenGems({
   //   1. user's model       + tool detected by version regex
   //   2. user's model       + opposite tool (per-model quirks)
   //   3. gemini-2.5-flash   + googleSearch          (current-gen, low-latency)
-  //   4. gemini-2.0-flash   + googleSearch          (older 2.x baseline)
-  //   5. gemini-flash-latest + googleSearch         (alias — auto-routes)
+  //   4. gemini-flash-latest + googleSearch         (alias — auto-routes)
+  //
+  // (gemini-2.0-flash was permanently retired by Google in May 2026
+  // — removed from the chain in v0.60.1.)
   //
   // attempts[].degraded === true means we fell back from the user's
   // requested model — caller can surface a "fallback model used"
@@ -925,9 +927,15 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
   return out;
 }
 
+// v0.60.1 — model fallback chain. `gemini-2.0-flash` was permanently
+// retired by Google ("404 — no longer available to new users"),
+// removed from the chain. `gemini-2.5-flash` added as a middle step
+// to keep three distinct fallback layers and mirror the /hidden
+// FALLBACK_CHAIN at line 219. classifySearchIntent and
+// validateAuthenticity both use this chain.
 const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-flash-latest',
-  'gemini-2.0-flash',
+  'gemini-2.5-flash',
   'gemini-2.5-flash-lite'
 ];
 
