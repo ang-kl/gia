@@ -217,10 +217,23 @@ describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
     expect(result.venues.length).toBe(2);
   });
 
-  it('keeps a venue when the Places lookup itself failed (null)', async () => {
-    // Don't penalise on infra blip — leave the original block untouched.
+  // v0.59.39: lookup-null semantics changed. Plain null = "Places searched
+  // but no name+address match" → drop the block (Gemini hallucination).
+  // Infra-blip case is now signalled by { apiError: true } and KEEPS the
+  // block (test below).
+  it('drops a venue when Places returns no name+address match (null = hallucination)', async () => {
     const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
       _lookup: async () => null
+    });
+    // Both blocks should be dropped (no Places match) → allDropped=true
+    expect(result.allDropped).toBe(true);
+  });
+
+  // v0.59.39 — apiError marker keeps the block so the user doesn't lose
+  // results during a transient Places API outage.
+  it('keeps a venue when Places lookup hits an API error ({ apiError: true })', async () => {
+    const result = await verifyHiddenGemsOutput(SAMPLE_EN, {
+      _lookup: async () => ({ apiError: true })
     });
     expect(result.text).toContain('MONDAY COFFEE BAR');
     expect(result.text).toContain('SEVEN SCOOPS AND BAKES');
