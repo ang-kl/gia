@@ -53,15 +53,18 @@ const FLAG_BY_SLUG = {
   'korean': '🇰🇷', 'taiwanese': '🇹🇼',
   'american': '🇺🇸', 'mexican': '🇲🇽',
   'brazilian': '🇧🇷',
-  // v0.59.48 — Australia + New Zealand merged into a single cuisine
-  // entry "Australasia" (slug australasia). NZ alone returned
-  // Japanese / Spanish noise via Places searchText because the
-  // keyword has weak food-name signal in SG. The combined entry
-  // queries the regional cuisine label, which Places resolves more
-  // cleanly. Cuisine name == category id; the existing "Australasia"
-  // category label still groups the bucket. Same pattern as the
-  // "European" cuisine + "European" category coexistence (v0.59.38).
-  'australasia': '🇦🇺',
+  // v0.59.49 — Australian + New Zealand split back to separate
+  // entries (web search of SG F&B confirms each is distinct: Burnt
+  // Ends / Boomarang / Barossa for Australian; WAKANUI / Magpie /
+  // Blackbird for NZ). The v0.59.48 "Australasia"-only merge was a
+  // regression — almost no SG venue self-tags as Australasian.
+  // Australasia kept as a third catch-all entry for Pacific
+  // Islander / Antipodean fusion (Cafe Melba). NZ + Australasia get
+  // tightened search queries (see SEARCH_QUERY_OVERRIDE in index.js)
+  // so Places ranks Kiwi/Antipodean cues above arbitrary noise.
+  'australian':  '🇦🇺',
+  'new-zealand': '🇳🇿',
+  'australasia': '🌏',
   'burmese': '🇲🇲',
   // Southeast Asian
   'laotian': '🇱🇦', 'timorese': '🇹🇱',
@@ -146,10 +149,10 @@ const SLUG_TO_CATEGORY = {
   'american':    'americas',
   'mexican':     'americas',
   'brazilian':   'americas',
-  // Australasia — v0.59.48: Australian + New Zealand merged into
-  // a single "Australasia" cuisine entry. The cuisine slug equals
-  // the category id; remap is a no-op but kept here for explicit
-  // documentation of the bucket membership.
+  // Australasia — v0.59.49: 3 entries (Australian, New Zealand, and
+  // Australasia regional catch-all) all bucket here.
+  'australian':  'australasia',
+  'new-zealand': 'australasia',
   'australasia': 'australasia',
   // v0.59.35 — Slavic / Eastern European (new bucket). Uzbek + Georgian
   // remap out of middle-eastern per Human Lead 2026-05-07. Russian /

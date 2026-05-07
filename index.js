@@ -5041,7 +5041,21 @@ async function cacheBotUsername() {
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
-        const cuisineNames = cuisineMetas.map((c) => c.name);
+        // v0.59.49 — search-query tightening for cuisines whose
+        // chip-label has weak food-name signal in Places. The chip
+        // shows the user's chosen label (e.g. "New Zealand"), but the
+        // actual textQuery sent to Places gets cued tokens that rank
+        // relevant SG venues above arbitrary noise. User reported
+        // /c "New Zealand" returned Japanese / Spanish results —
+        // adding "Kiwi" makes Places resolve to NZ-themed venues
+        // (WAKANUI / Magpie / Blackbird) more reliably. Same approach
+        // for the regional Australasia catch-all (Antipodean /
+        // Pacific cues for venues like Cafe Melba).
+        const SEARCH_QUERY_OVERRIDE = {
+          'New Zealand': 'New Zealand Kiwi',
+          'Australasia': 'Antipodean Australasia Pacific'
+        };
+        const cuisineNames = cuisineMetas.map((c) => SEARCH_QUERY_OVERRIDE[c.name] || c.name);
         // v0.57.13: only gate non-local categories. Singapore common
         // food (SEA, China-regional, South Asian, Middle Eastern,
         // common-here) often has idiosyncratic restaurant names that
