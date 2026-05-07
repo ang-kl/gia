@@ -55,8 +55,8 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 70 cuisines (v0.59.35: 6 removes + 4 adds + 1 new category)', () => {
-    expect(vault.getAllCuisines().length).toBe(70);
+  it('loads exactly 68 cuisines (v0.59.36: -Laotian -Timorese)', () => {
+    expect(vault.getAllCuisines().length).toBe(68);
   });
 
   it('groups by category with expected counts', () => {
@@ -68,7 +68,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
     expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
-    expect(counts['southeast-asian']).toBe(8);      // + Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese (remap) + Laotian, Timorese (source)
+    expect(counts['southeast-asian']).toBe(6);      // Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese (all remapped from common-here). v0.59.36: Laotian + Timorese removed.
     expect(counts['east-asian']).toBe(4);           // Japanese, Chinese, Korean, Taiwanese
     expect(counts['china-regional']).toBe(12);      // v0.59.35: + Hong Kong, Macau
     expect(counts['south-asian']).toBe(7);          // 5 source + South Indian + North Indian. v0.59.35: composition change (-Goan -Tibetan +Sri Lankan +Pakistani), count unchanged
@@ -81,7 +81,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['dessert']).toBe(1);              // v0.59.21: Dessert
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(70);
+    expect(total).toBe(68);
   });
 
   it('Common Here is the only defaultOpen', () => {
