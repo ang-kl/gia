@@ -470,7 +470,19 @@ const DISH_FALLBACK = [
   // British
   { match: ['fish and chips', 'fish & chips'], cuisine: 'British', why: 'Fish and chips is the classic British battered-fish-with-fries combo.' },
   { match: ['shepherd\'s pie', 'shepherds pie', 'cottage pie'], cuisine: 'British', why: 'Shepherd\'s pie is minced lamb topped with mashed potato, baked.' },
-  { match: ['beef wellington'], cuisine: 'British', why: 'Beef Wellington is a fillet of beef in pâté and puff pastry.' }
+  { match: ['beef wellington'], cuisine: 'British', why: 'Beef Wellington is a fillet of beef in pâté and puff pastry.' },
+  // v0.60.0 — variant dishes referenced by TECHNIQUE_FALLBACK fan-out.
+  // These are the canonical iconic dishes for the non-origin cuisines
+  // when a technique fans across cultures. dishKey lookups in the
+  // technique entries reference match[0] of these entries.
+  { match: ['lu shui braised', 'lu shui', 'lou sui', 'lo bah', '卤水'], cuisine: 'Cantonese', why: 'Lu shui = a Cantonese soy + star-anise master stock used to braise duck, eggs, tofu and pork.' },
+  { match: ['pörkölt', 'porkolt'], cuisine: 'European', why: 'Pörkölt is a Hungarian paprika meat stew, denser than goulash.' },
+  { match: ['nimono'], cuisine: 'Japanese', why: 'Nimono is a Japanese simmered dish, dashi + soy + mirin, vegetables and protein.' },
+  { match: ['kakuni'], cuisine: 'Japanese', why: 'Kakuni is Japanese braised pork belly — soy, sake, ginger, slow-simmered to tender squares.' },
+  { match: ['pot-au-feu', 'pot au feu'], cuisine: 'French', why: 'Pot-au-feu is a French boiled-beef-and-vegetables one-pot, served with mustard and gros sel.' },
+  { match: ['brasato al barolo', 'brasato'], cuisine: 'Italian', why: 'Brasato al Barolo is Piedmontese beef braised in Barolo wine.' },
+  { match: ['kway chap'], cuisine: 'Teochew', why: 'Kway chap is Teochew flat rice sheets in dark-soy braised broth with assorted braised innards.' },
+  { match: ['braised duck', 'lor ack'], cuisine: 'Teochew', why: 'Teochew braised duck (lor ack) is duck slow-cooked in a soy + 5-spice + galangal master stock.' }
 ];
 
 function dishFallback(text) {
@@ -489,28 +501,270 @@ function dishFallback(text) {
 // technique catalogue (EN + FR aliases). Each entry's `why` is the
 // one-sentence "this is what the technique does" explainer surfaced
 // to the user above the venue list.
+// v0.60.0 — TECHNIQUE_FALLBACK schema extended with origin-first
+// tier-grouping. Per Human Lead 2026-05-07: the previous flat
+// `searchPhrase` keyword search returned wrong-cuisine venues (bug:
+// "/s Braisage" returned Chinese braised-duck stalls). New shape:
+//
+//   defaultOrigin     — the textbook origin cuisine of the technique
+//   originByAlias     — language-keyed override (e.g. "lu shui" → Cantonese)
+//   originDish        — canonical iconic dish for the origin
+//   originIngredients — signal ingredients used in scoring
+//   originTool        — unique tool/equipment that signals authenticity
+//   variants[]        — OTHER authentic traditions for fan-out
+//   fusion            — optional modern-fusion section
+//
+// Fan-out: origin block (≤3 venues) → variant blocks (1-2 each) →
+// fusion (≤1). Cap 6 total. Validated by Gemini grounded check.
+//
+// Techniques that have a fixed cuisine (tandoor → North Indian, etc.)
+// keep their cuisine but get an empty variants[] — single-tier render
+// via the same code path, just no fan-out.
 const TECHNIQUE_FALLBACK = [
-  { match: ['braising', 'braisage', 'braiser', 'braised'], cuisine: null, why: 'Braising = slow-cooking tougher cuts of meat in a small amount of seasoned liquid in a covered pot until tender. French classics: bourguignon, daube, navarin.', searchPhrase: 'braised meat restaurant Singapore' },
-  { match: ['rotisserie', 'rôtisserie', 'roasting on spit', 'spit-roasted'], cuisine: null, why: 'Rotisserie = roasting on a rotating spit so the juices baste the meat as it turns. Common for chicken, lamb, and porchetta.', searchPhrase: 'rotisserie restaurant Singapore' },
-  { match: ['sous vide', 'sous-vide'], cuisine: null, why: 'Sous vide = vacuum-sealing food and cooking it in a precisely temperature-controlled water bath, then searing to finish. Hits exact doneness every time.', searchPhrase: 'sous vide restaurant Singapore' },
-  { match: ['smoking', 'smoked', 'smokehouse'], cuisine: null, why: 'Smoking = cooking and flavouring food with low-temperature wood smoke (hickory, oak, mesquite, applewood) over hours. American BBQ, pastrami, smoked fish.', searchPhrase: 'smokehouse barbecue restaurant Singapore' },
-  { match: ['grilling', 'grillade', 'grilled', 'charcoal grill'], cuisine: null, why: 'Grilling = direct dry heat from below (gas, charcoal, or wood embers). Maillard sear on the outside, juicy inside.', searchPhrase: 'charcoal grill restaurant Singapore' },
-  { match: ['tandoor', 'tandoori', 'clay oven'], cuisine: 'North Indian', why: 'Tandoor = a vertical clay oven heated with charcoal to ~480 °C. Marinated meats and breads are slapped onto the wall; the intense heat seals in juices and chars the surface.', searchPhrase: 'tandoori indian restaurant Singapore' },
-  { match: ['robata', 'robatayaki'], cuisine: 'Japanese', why: 'Robatayaki = Japanese over-coal grilling on an open hearth, traditionally with binchotan charcoal. Diners sit around the grill and watch the chef.', searchPhrase: 'robata japanese restaurant Singapore' },
-  { match: ['binchotan'], cuisine: 'Japanese', why: 'Binchotan = white-hot, smoke-free Japanese oak charcoal that burns at very high temperatures. Used in yakitori and robata for clean, intense heat.', searchPhrase: 'binchotan yakitori restaurant Singapore' },
-  { match: ['yakitori'], cuisine: 'Japanese', why: 'Yakitori = Japanese skewered chicken (every part) grilled over binchotan with tare glaze or salt. A late-night izakaya staple.', searchPhrase: 'yakitori restaurant Singapore' },
-  { match: ['wok hei', 'breath of the wok'], cuisine: 'Cantonese', why: '镬气 (wok hei, "breath of the wok") = the smoky char a screaming-hot wok imparts to stir-fries. Requires a roaring flame and split-second timing.', searchPhrase: 'wok hei zi char restaurant Singapore' },
-  { match: ['char siu'], cuisine: 'Cantonese', why: 'Char siu = Cantonese roasted-pork technique: pork shoulder marinated in honey, five-spice, and red fermented bean curd, then hung on hooks in a vertical oven.', searchPhrase: 'char siu cantonese restaurant Singapore' },
-  { match: ['flambé', 'flambe', 'flaming'], cuisine: null, why: 'Flambé = igniting alcohol added to a pan to burn off harsh notes and add caramelised flavour. Showy table-side technique used for crêpes Suzette, steak Diane.', searchPhrase: 'flambé table side restaurant Singapore' },
-  { match: ['omakase'], cuisine: 'Japanese', why: 'Omakase = "I leave it to you" — diners surrender the menu to the chef, who serves a sequence of seasonal dishes (most often sushi).', searchPhrase: 'omakase restaurant Singapore' },
-  { match: ['teppanyaki'], cuisine: 'Japanese', why: 'Teppanyaki = Japanese flat-iron-griddle cooking, performed in front of diners at a counter. Wagyu, seafood, garlic-fried-rice classics.', searchPhrase: 'teppanyaki restaurant Singapore' },
-  { match: ['kamado', 'big green egg'], cuisine: null, why: 'Kamado = a Japanese-origin ceramic egg-shaped grill that holds steady low temperatures for hours — equally good at smoking, baking, and high-heat searing.', searchPhrase: 'kamado grill restaurant Singapore' },
-  { match: ['hibachi'], cuisine: 'Japanese', why: 'Hibachi = a small portable charcoal brazier; in modern usage often refers to the Western teppanyaki-style flat-iron-griddle show.', searchPhrase: 'hibachi japanese restaurant Singapore' },
-  { match: ['poaching', 'pochage', 'poché', 'poached'], cuisine: null, why: 'Poaching = gentle cooking in liquid held below a simmer (~70-85 °C). Preserves delicate proteins like fish, eggs, chicken breast.', searchPhrase: 'poached fish restaurant Singapore' },
-  { match: ['confit'], cuisine: 'French', why: 'Confit = slow-cooking food (classically duck legs) submerged in its own fat at low temperature until meltingly tender, then often crisped to finish.', searchPhrase: 'confit french restaurant Singapore' },
-  { match: ['mijoter', 'simmering', 'simmered'], cuisine: null, why: 'Mijoter / simmering = cooking just below the boil so flavours develop without breaking down delicate textures. The base of stews and reductions.', searchPhrase: 'slow simmered stew restaurant Singapore' },
-  { match: ['friture', 'deep fry', 'deep-fried', 'deep frying'], cuisine: null, why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.', searchPhrase: 'deep fried restaurant Singapore' },
-  { match: ['sauter', 'sautéing', 'sautéed', 'sauteed'], cuisine: null, why: 'Sautéing = cooking quickly in a small amount of fat over high heat, tossing the pan so food browns evenly without stewing.', searchPhrase: 'french bistro restaurant Singapore' }
+  {
+    match: ['braising', 'braisage', 'braiser', 'braised'],
+    defaultOrigin: 'French',
+    originByAlias: { 'lu shui': 'Cantonese', '卤水': 'Cantonese', 'kway chap': 'Teochew', 'lor ack': 'Teochew', 'kakuni': 'Japanese', 'pörkölt': 'European' },
+    why: 'Braising = slow-cooking tougher cuts in a small amount of seasoned liquid in a covered pot until tender. French canon: bourguignon, daube, navarin.',
+    originDish: 'beef bourguignon',
+    originIngredients: ['red wine', 'beef chuck', 'mirepoix', 'pearl onions', 'lardons'],
+    originTool: 'cocotte / dutch oven',
+    variants: [
+      { cuisine: 'Italian',   dishKey: 'osso buco',        whyLocal: 'Milanese veal shank, gremolata-finished.' },
+      { cuisine: 'Cantonese', dishKey: 'lu shui braised',  whyLocal: 'Soy + star-anise master stock; duck, eggs, tofu.' },
+      { cuisine: 'European',  dishKey: 'goulash',          whyLocal: 'Hungarian paprika beef stew.' }
+    ],
+    fusion: { label: 'Modern European', searchPhrase: 'modern european braised restaurant Singapore' }
+  },
+  {
+    match: ['rotisserie', 'rôtisserie', 'roasting on spit', 'spit-roasted'],
+    defaultOrigin: 'French',
+    why: 'Rotisserie = roasting on a rotating spit so the juices baste the meat as it turns. Common for chicken, lamb, porchetta.',
+    originDish: 'rotisserie chicken',
+    originIngredients: ['poulet rôti', 'thyme', 'butter'],
+    originTool: 'rotisserie spit',
+    variants: [
+      { cuisine: 'Italian',   dishKey: 'porchetta',        whyLocal: 'Italian rolled pork belly + loin, herb-stuffed.' },
+      { cuisine: 'Turkish',   dishKey: 'doner',            whyLocal: 'Vertical-spit shaved meat sandwich.' },
+      { cuisine: 'Cantonese', dishKey: 'siu yuk',          whyLocal: 'Cantonese roast pork with crackling skin.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['sous vide', 'sous-vide'],
+    defaultOrigin: 'French',
+    why: 'Sous vide = vacuum-sealing food and cooking it in a precisely temperature-controlled water bath, then searing to finish. Hits exact doneness every time.',
+    originDish: 'sous vide steak',
+    originIngredients: ['precision water bath', 'vacuum-sealed bag'],
+    originTool: 'immersion circulator',
+    variants: [
+      { cuisine: 'American',  dishKey: 'sous vide brisket', whyLocal: 'Modernist American — 36-hour sous vide brisket.' },
+      { cuisine: 'Japanese',  dishKey: 'sous vide tonkatsu', whyLocal: 'Japanese sous-vide pork katsu, crisp finish.' }
+    ],
+    fusion: { label: 'Modernist fusion', searchPhrase: 'modernist sous vide tasting menu Singapore' }
+  },
+  {
+    match: ['smoking', 'smoked', 'smokehouse'],
+    defaultOrigin: 'American',
+    why: 'Smoking = cooking and flavouring food with low-temperature wood smoke (hickory, oak, mesquite, applewood) over hours. American BBQ canon.',
+    originDish: 'smoked brisket',
+    originIngredients: ['oak', 'hickory', 'mesquite', 'applewood', 'salt-pepper rub'],
+    originTool: 'offset smoker',
+    variants: [
+      { cuisine: 'European',  dishKey: 'smoked salmon',    whyLocal: 'Scandinavian cold-smoked salmon (gravlax adjacent).' },
+      { cuisine: 'Cantonese', dishKey: 'tea smoked duck',  whyLocal: 'Sichuan/Cantonese tea-smoked duck, camphor + jasmine.' },
+      { cuisine: 'Japanese',  dishKey: 'sakura smoked',    whyLocal: 'Japanese sakura cherry-wood smoked fish.' }
+    ],
+    fusion: { label: 'Modern smokehouse', searchPhrase: 'modern smokehouse fine dining Singapore' }
+  },
+  {
+    match: ['grilling', 'grillade', 'grilled', 'charcoal grill'],
+    defaultOrigin: 'Argentinian',
+    why: 'Grilling = direct dry heat from below (gas, charcoal, wood embers). Maillard sear outside, juicy inside.',
+    originDish: 'asado',
+    originIngredients: ['parrilla', 'wood embers', 'chimichurri'],
+    originTool: 'parrilla grill',
+    variants: [
+      { cuisine: 'Japanese',  dishKey: 'yakitori',         whyLocal: 'Binchotan-grilled chicken skewers.' },
+      { cuisine: 'Korean',    dishKey: 'samgyeopsal',      whyLocal: 'Korean BBQ pork belly, table-side grill.' },
+      { cuisine: 'Turkish',   dishKey: 'shish kebab',      whyLocal: 'Turkish skewered grilled lamb.' }
+    ],
+    fusion: { label: 'Modern grill', searchPhrase: 'modern wood fire grill restaurant Singapore' }
+  },
+  {
+    match: ['tandoor', 'tandoori', 'clay oven'],
+    defaultOrigin: 'North Indian',
+    why: 'Tandoor = a vertical clay oven heated with charcoal to ~480 °C. Marinated meats and breads are slapped onto the wall; the intense heat seals in juices and chars the surface.',
+    originDish: 'tandoori chicken',
+    originIngredients: ['yogurt marinade', 'kasuri methi', 'ginger-garlic'],
+    originTool: 'tandoor clay oven',
+    variants: [
+      { cuisine: 'Pakistani', dishKey: 'tandoori naan',    whyLocal: 'Pakistani tandoor naan, charred bubbled crust.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['robata', 'robatayaki'],
+    defaultOrigin: 'Japanese',
+    why: 'Robatayaki = Japanese over-coal grilling on an open hearth, traditionally with binchotan charcoal. Diners sit around the grill.',
+    originDish: 'robatayaki',
+    originIngredients: ['binchotan', 'tare', 'shichimi'],
+    originTool: 'robata hearth grill',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['binchotan'],
+    defaultOrigin: 'Japanese',
+    why: 'Binchotan = white-hot, smoke-free Japanese oak charcoal at very high temperatures. Used in yakitori and robata for clean intense heat.',
+    originDish: 'binchotan yakitori',
+    originIngredients: ['binchotan oak charcoal', 'tare'],
+    originTool: 'binchotan grill',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['yakitori'],
+    defaultOrigin: 'Japanese',
+    why: 'Yakitori = Japanese skewered chicken (every part) grilled over binchotan with tare glaze or salt.',
+    originDish: 'yakitori',
+    originIngredients: ['binchotan', 'tare', 'shichimi', 'leek'],
+    originTool: 'binchotan grill',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['wok hei', 'breath of the wok'],
+    defaultOrigin: 'Cantonese',
+    why: '镬气 (wok hei, "breath of the wok") = the smoky char a screaming-hot wok imparts to stir-fries. Requires roaring flame + split-second timing.',
+    originDish: 'wok hei hor fun',
+    originIngredients: ['carbon steel wok', 'high flame', 'lard'],
+    originTool: 'carbon-steel wok over jet flame',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['char siu'],
+    defaultOrigin: 'Cantonese',
+    why: 'Char siu = Cantonese roasted-pork: pork shoulder marinated in honey, five-spice, red fermented bean curd, hung on hooks in a vertical oven.',
+    originDish: 'char siu',
+    originIngredients: ['honey', 'maltose', 'five spice', 'red fermented bean curd'],
+    originTool: 'char siu vertical oven',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['flambé', 'flambe', 'flaming'],
+    defaultOrigin: 'French',
+    why: 'Flambé = igniting alcohol added to a pan to burn off harsh notes and add caramelised flavour. Table-side classics: crêpes Suzette, steak Diane.',
+    originDish: 'crêpes suzette',
+    originIngredients: ['orange liqueur', 'butter', 'sugar'],
+    originTool: 'flambé pan',
+    variants: [
+      { cuisine: 'American',  dishKey: 'bananas foster',   whyLocal: 'New Orleans table-side flambé dessert.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['omakase'],
+    defaultOrigin: 'Japanese',
+    why: 'Omakase = "I leave it to you" — diners surrender the menu to the chef, who serves a sequence of seasonal dishes (most often sushi).',
+    originDish: 'omakase',
+    originIngredients: ['seasonal seafood', 'edomae sushi'],
+    originTool: 'sushi counter',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['teppanyaki'],
+    defaultOrigin: 'Japanese',
+    why: 'Teppanyaki = Japanese flat-iron-griddle cooking, performed in front of diners at a counter. Wagyu, seafood, garlic-fried-rice classics.',
+    originDish: 'teppanyaki',
+    originIngredients: ['wagyu', 'garlic chips', 'soy butter'],
+    originTool: 'teppan flat-top griddle',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['kamado', 'big green egg'],
+    defaultOrigin: 'Japanese',
+    why: 'Kamado = a Japanese-origin ceramic egg-shaped grill that holds steady low temperatures for hours — equally good at smoking, baking, and high-heat searing.',
+    originDish: 'kamado grilled fish',
+    originIngredients: ['ceramic kamado', 'lump charcoal'],
+    originTool: 'kamado grill',
+    variants: [
+      { cuisine: 'American',  dishKey: 'kamado brisket',   whyLocal: 'American kamado low-and-slow brisket.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['hibachi'],
+    defaultOrigin: 'Japanese',
+    why: 'Hibachi = a small portable charcoal brazier; in modern usage often refers to Western teppanyaki-style flat-iron-griddle show.',
+    originDish: 'hibachi',
+    originIngredients: ['lump charcoal'],
+    originTool: 'hibachi brazier',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['poaching', 'pochage', 'poché', 'poached'],
+    defaultOrigin: 'French',
+    why: 'Poaching = gentle cooking in liquid held below a simmer (~70-85 °C). Preserves delicate proteins like fish, eggs, chicken breast.',
+    originDish: 'poached cod',
+    originIngredients: ['court bouillon', 'butter', 'tarragon'],
+    originTool: 'wide shallow saucepan',
+    variants: [
+      { cuisine: 'Cantonese', dishKey: 'white cut chicken', whyLocal: 'Cantonese pak chit gai — poached in seasoned stock.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['confit'],
+    defaultOrigin: 'French',
+    why: 'Confit = slow-cooking food (classically duck legs) submerged in its own fat at low temperature until meltingly tender, then often crisped to finish.',
+    originDish: 'duck confit',
+    originIngredients: ['duck fat', 'thyme', 'salt cure'],
+    originTool: 'cassole / heavy pot',
+    variants: [],
+    fusion: null
+  },
+  {
+    match: ['mijoter', 'simmering', 'simmered'],
+    defaultOrigin: 'French',
+    why: 'Mijoter / simmering = cooking just below the boil so flavours develop without breaking down delicate textures. Base of stews and reductions.',
+    originDish: 'pot-au-feu',
+    originIngredients: ['beef shank', 'leek', 'carrot', 'gros sel'],
+    originTool: 'stockpot',
+    variants: [
+      { cuisine: 'Italian',   dishKey: 'brasato al barolo', whyLocal: 'Piemontese beef simmered in Barolo wine.' },
+      { cuisine: 'Japanese',  dishKey: 'nimono',            whyLocal: 'Japanese dashi-simmered vegetables and protein.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['friture', 'deep fry', 'deep-fried', 'deep frying'],
+    defaultOrigin: 'French',
+    why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.',
+    originDish: 'pommes frites',
+    originIngredients: ['neutral oil', 'beef tallow', 'fleur de sel'],
+    originTool: 'fryer',
+    variants: [
+      { cuisine: 'Japanese',  dishKey: 'tempura',           whyLocal: 'Japanese tempura — light cold-batter fritters.' },
+      { cuisine: 'American',  dishKey: 'fried chicken',     whyLocal: 'American Southern fried chicken.' }
+    ],
+    fusion: null
+  },
+  {
+    match: ['sauter', 'sautéing', 'sautéed', 'sauteed'],
+    defaultOrigin: 'French',
+    why: 'Sautéing = cooking quickly in a small amount of fat over high heat, tossing the pan so food browns evenly without stewing.',
+    originDish: 'sauté de veau',
+    originIngredients: ['butter', 'shallot', 'demi-glace'],
+    originTool: 'sauteuse pan',
+    variants: [],
+    fusion: null
+  }
 ];
 
 function techniqueFallback(text) {
@@ -519,6 +773,156 @@ function techniqueFallback(text) {
     if (e.match.some((m) => lc.includes(m))) return e;
   }
   return null;
+}
+
+// v0.60.0 — return the technique entry whose match[] OR originByAlias
+// keys appear in the user text. originByAlias is checked so that
+// foreign-language aliases ("lu shui", "kakuni", "pörkölt") route to
+// the parent technique entry (braising) rather than missing the
+// dictionary because they aren't in match[]. resolveOrigin then
+// handles the origin override per alias.
+function lookupTechnique(text) {
+  const lc = String(text || '').toLowerCase();
+  if (!lc) return null;
+  for (const e of TECHNIQUE_FALLBACK) {
+    if (e.match.some((m) => lc.includes(String(m).toLowerCase()))) return e;
+    if (e.originByAlias && Object.keys(e.originByAlias).some((alias) => lc.includes(String(alias).toLowerCase()))) return e;
+  }
+  return null;
+}
+
+// v0.60.0 — resolve the per-turn origin cuisine. Each technique has a
+// defaultOrigin (textbook origin) plus optional originByAlias overrides
+// that fire when the user typed a non-default-language alias. So
+// "/s lu shui" matches braising's 'lu shui' alias → origin='Cantonese'
+// even though braising's defaultOrigin is 'French'. Returns the cuisine
+// label string, or null if no technique entry passed.
+function resolveOrigin(techEntry, userText) {
+  if (!techEntry) return null;
+  const lc = String(userText || '').toLowerCase();
+  const overrides = techEntry.originByAlias || {};
+  for (const [alias, cuisine] of Object.entries(overrides)) {
+    if (lc.includes(String(alias).toLowerCase())) return cuisine;
+  }
+  return techEntry.defaultOrigin || techEntry.cuisine || null;
+}
+
+// v0.60.0 — given the canonical dish phrase (match[0] of a DISH_FALLBACK
+// entry, or a free-form string), return it directly. Centralised so
+// the fan-out caller can resolve a `dishKey` via the dictionary if it
+// matches an entry, otherwise pass through as-is. dishKey usage in
+// TECHNIQUE_FALLBACK.variants is kept human-readable (e.g. "lu shui
+// braised") and we don't strictly require it to match a dictionary
+// entry — the value is used directly as the Places searchText.
+function canonicalDishPhrase(dishKey) {
+  if (!dishKey) return '';
+  const lc = String(dishKey).toLowerCase();
+  for (const e of DISH_FALLBACK) {
+    if (e.match.some((m) => lc.includes(String(m).toLowerCase()) || String(m).toLowerCase().includes(lc))) {
+      return e.match[0];
+    }
+  }
+  return String(dishKey);
+}
+
+// v0.60.0 — Gemini grounded-search authenticity grader. Per Human
+// Lead 2026-05-07: every candidate venue from the technique fan-out
+// is scored 0-100 against (ingredients > tool > dish > authentic >
+// fusion > chef nationality). One Gemini call per /s turn covers all
+// candidates. Adds ~2-3s latency, deemed acceptable for accuracy
+// because the alternative is the v0.59.59 keyword-only search that
+// returned Chinese braised-duck stalls for "/s Braisage".
+//
+// Input shape:
+//   { technique, origin, originDish, originIngredients[], originTool,
+//     candidates: [{ placeId, name, address }] }
+// Output shape:
+//   { [placeId]: { score: 0-100, signals: ['ingredients', ...], reason: '…' } }
+//
+// Failure mode: returns empty object on Gemini error → caller falls
+// back to rating-only ranking (same behaviour as v0.59.59).
+async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) return {};
+  if (!Array.isArray(candidates) || candidates.length === 0) return {};
+  const ingredientsList = originIngredients.length ? originIngredients.join(', ') : 'canonical ingredients';
+  const candidateLines = candidates.map((c, i) => `${i + 1}. [${c.placeId}] ${c.name} — ${c.address || 'Singapore'}`).join('\n');
+  const prompt = [
+    'You are a Singapore F&B authenticity grader. For each candidate Singapore restaurant below,',
+    `score 0-100 how likely it is that the restaurant authentically uses the cooking technique "${technique}" in the ${origin} tradition.`,
+    '',
+    'Use Google Search to read recent reviews, menus, and blog posts where helpful.',
+    '',
+    'SCORING SIGNALS (highest weight first):',
+    `1. INGREDIENTS — does the menu use the canonical ingredients (${ingredientsList})?`,
+    `2. TOOL — do they have / use the unique equipment (${originTool || 'specialised gear'})?`,
+    `3. DISH — is "${originDish}" or a close variant explicitly on their menu?`,
+    `4. AUTHENTIC CUISINE — is the restaurant's stated cuisine genuinely ${origin}?`,
+    '5. FUSION — modern fusion that still respects the technique gets a moderate score.',
+    `6. CHEF NATIONALITY — chef from ${origin} is a weak signal (only score this if mentioned).`,
+    '',
+    'SCORE BANDS:',
+    '- 0-40 = false positive (the venue name happens to contain a keyword but the technique is not authentic). DROP.',
+    '- 41-70 = plausible (some signals match).',
+    '- 71-100 = authentic (multiple strong signals).',
+    '',
+    'OUTPUT: a single JSON array, one object per candidate, in the same order:',
+    '[{"placeId":"<exact id>","score":<int>,"signals":["ingredients","tool","dish","authentic","fusion","chef"],"reason":"one sentence"}, ...]',
+    'Plain JSON only. No markdown fences. No prose outside the array.',
+    '',
+    `CANDIDATES (${candidates.length}):`,
+    candidateLines
+  ].join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  const genAI = factory();
+  // Prefer the grounded search tool — it lets Gemini check actual
+  // SG menus / reviews. Fall back to ungrounded if the tool fails.
+  const candidates_models = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  let parsed = null;
+  for (const m of candidates_models) {
+    try {
+      const tool = searchToolForModel(m);
+      const gen = genAI.getGenerativeModel({ model: m, tools: [tool] });
+      const r = await gen.generateContent(prompt);
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; }
+      catch (textErr) {
+        console.warn(`[Authenticity] ${m} text() threw: ${textErr.message}`);
+        continue;
+      }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      try {
+        parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed)) break;
+      } catch (parseErr) {
+        // Try to extract a JSON array from somewhere in the text.
+        const m2 = cleaned.match(/\[[\s\S]*\]/);
+        if (m2) {
+          try { parsed = JSON.parse(m2[0]); if (Array.isArray(parsed)) break; } catch { /* keep trying */ }
+        }
+        console.warn(`[Authenticity] ${m} non-JSON: ${cleaned.slice(0, 120)}`);
+      }
+    } catch (err) {
+      console.warn(`[Authenticity] ${m} generateContent failed: ${err.message}`);
+    }
+  }
+  const out = {};
+  if (Array.isArray(parsed)) {
+    for (const row of parsed) {
+      if (row && typeof row.placeId === 'string') {
+        const score = Number(row.score);
+        out[row.placeId] = {
+          score: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 0,
+          signals: Array.isArray(row.signals) ? row.signals.slice(0, 6) : [],
+          reason: typeof row.reason === 'string' ? row.reason.slice(0, 240) : ''
+        };
+      }
+    }
+  }
+  return out;
 }
 
 const SEARCH_INTENT_MODEL_CHAIN = [
@@ -550,7 +954,17 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     }
     const techHit = techniqueFallback(text);
     if (techHit) {
-      return { intent: 'tool', cuisine: techHit.cuisine || null, searchTerm: techHit.searchPhrase, why: techHit.why, clarify: '' };
+      // v0.60.0: schema changed to tier-aware. Map to the legacy
+      // classifySearchIntent return shape so the existing API stays
+      // stable. handleSearchTurn re-derives the technique entry via
+      // lookupTechnique and runs the fan-out separately.
+      return {
+        intent: 'tool',
+        cuisine: techHit.defaultOrigin || null,
+        searchTerm: `${techHit.originDish} restaurant Singapore`,
+        why: techHit.why,
+        clarify: ''
+      };
     }
     return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
   }
@@ -662,10 +1076,14 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     const techHit = techniqueFallback(text);
     if (techHit) {
       console.log(`[Search-Intent] technique-fallback hit for "${String(text).slice(0, 60)}" → ${techHit.match[0]}`);
+      // v0.60.0: legacy return shape (cuisine + searchTerm) maintained
+      // so callers that don't yet route through fan-out keep working.
+      // handleSearchTurn now re-derives the technique entry and runs
+      // tier-grouped fan-out for `tool` intent — see runTechniqueFanOut.
       return {
         intent: 'tool',
-        cuisine: techHit.cuisine || null,
-        searchTerm: techHit.searchPhrase,
+        cuisine: techHit.defaultOrigin || null,
+        searchTerm: `${techHit.originDish} restaurant Singapore`,
         why: techHit.why,
         clarify: ''
       };
@@ -695,6 +1113,10 @@ module.exports = {
   classifySearchIntent,
   dishFallback,
   techniqueFallback,
+  lookupTechnique,
+  resolveOrigin,
+  canonicalDishPhrase,
+  validateAuthenticity,
   DISH_FALLBACK,
   TECHNIQUE_FALLBACK,
   buildHiddenGemsPrompt,

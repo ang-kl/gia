@@ -3520,15 +3520,24 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     await safeSend(chatId, esc(reply) + esc(suffix), { parse_mode: 'HTML' });
     return;
   }
-  // Resolved intent → call Places searchText DIRECTLY with the
-  // intent.searchTerm as the textQuery. Bypass pipeline.discover so
-  // we don't get the " cuisine restaurant" suffix or the cuisine OR
-  // joining.
+  // Resolved intent. Two paths now (v0.60.0):
+  //   • tool intent + technique entry exists → fan-out: parallel
+  //     Places searches per cuisine variant + Gemini authenticity
+  //     validation + tier-grouped HTML render. Per Human Lead
+  //     2026-05-07 (origin → other authentic traditions → fusion;
+  //     ≤3 origin, ≤2 per variant, ≤1 fusion, ≤6 total).
+  //   • dish / ingredient / cuisine-tagged tool → existing single
+  //     Places query path (unchanged from v0.59.59).
   const { getUserLocation } = require('./location-cache');
   const axios = require('axios');
   const loc = await getUserLocation(redis, chatId).catch(() => null);
   const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
   const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+  const techEntry = intent.intent === 'tool' ? gc.lookupTechnique(userText) : null;
+  if (techEntry) {
+    return await runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc });
+  }
+  // ---- Existing single-query path (dish / ingredient / cuisine-tagged tool) ----
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri';
   let venues = [];
@@ -3604,6 +3613,218 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
   // The 6-RT nudge string contains markdown back-ticks (`/s end`).
   // Convert to HTML <code>…</code> so it renders cleanly in HTML mode.
+  const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+  const suffix = rawSuffix
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/_([^_]+)_/g, '<i>$1</i>');
+  await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
+}
+
+// v0.60.0 — technique fan-out. See plan: gleaming-imagining-iverson.md
+//
+// 1. Resolve origin per alias.
+// 2. Build variant list = origin + techEntry.variants (+ optional fusion).
+// 3. Parallel Places searchText per variant (5 origin / 2 each variant).
+// 4. Cuisine-type post-filter drops obvious mismatches.
+// 5. ONE Gemini grounded validation across all candidates → score 0-100.
+// 6. Drop scores < 40, rank within each variant by score then rating.
+// 7. Caps: ≤3 origin, ≤2 per variant, ≤1 fusion, ≤6 total.
+// 8. Render tier-grouped HTML reply.
+//
+// Failure-mode resilience: if validation returns empty (Gemini error),
+// fall back to rating-only ranking and skip the < 40 drop. If Places
+// returns nothing for a variant, the variant block is dropped from
+// the render. If GOOGLE_MAPS_API_KEY is missing, the function still
+// produces the explainer header with a "no venues" tail.
+const CUISINE_TYPE_DENY = {
+  'French':       ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant'],
+  'Italian':      ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant'],
+  'Cantonese':    ['french_restaurant', 'italian_restaurant', 'japanese_restaurant', 'indian_restaurant', 'thai_restaurant'],
+  'Teochew':      ['french_restaurant', 'italian_restaurant', 'japanese_restaurant', 'indian_restaurant'],
+  'Japanese':     ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'indian_restaurant'],
+  'Korean':       ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'indian_restaurant'],
+  'Thai':         ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'japanese_restaurant', 'indian_restaurant'],
+  'Vietnamese':   ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'japanese_restaurant', 'indian_restaurant'],
+  'North Indian': ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'japanese_restaurant', 'thai_restaurant'],
+  'Pakistani':    ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'japanese_restaurant'],
+  'Turkish':      ['french_restaurant', 'italian_restaurant', 'chinese_restaurant', 'japanese_restaurant', 'indian_restaurant'],
+  'European':     ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant'],
+  'American':     ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant'],
+  'Argentinian':  ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant']
+};
+
+const CUISINE_FLAG = {
+  'French': '🇫🇷', 'Italian': '🇮🇹', 'Cantonese': '🇨🇳', 'Teochew': '🇨🇳',
+  'Japanese': '🇯🇵', 'Korean': '🇰🇷', 'Thai': '🇹🇭', 'Vietnamese': '🇻🇳',
+  'North Indian': '🇮🇳', 'Pakistani': '🇵🇰', 'Turkish': '🇹🇷',
+  'European': '🇪🇺', 'American': '🇺🇸', 'Argentinian': '🇦🇷'
+};
+
+function flagFor(cuisine) {
+  return CUISINE_FLAG[cuisine] || '🍽';
+}
+
+async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey }) {
+  if (!mapsApiKey) return [];
+  const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
+  const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri,places.primaryType';
+  const axios = require('axios');
+  try {
+    const { data } = await axios.post(
+      PLACES_TEXT_URL,
+      {
+        textQuery,
+        regionCode: 'SG',
+        languageCode: lang === 'fr' ? 'fr' : 'en',
+        maxResultCount: Math.min(Math.max(max, 1), 10),
+        locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: 50000 } },
+        openNow: false
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': mapsApiKey,
+          'X-Goog-FieldMask': FIELD_MASK
+        },
+        timeout: 8000
+      }
+    );
+    const denyTypes = cuisine && CUISINE_TYPE_DENY[cuisine] ? CUISINE_TYPE_DENY[cuisine] : [];
+    return (Array.isArray(data?.places) ? data.places : [])
+      .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
+      .filter((p) => !denyTypes.includes(String(p?.primaryType || '')))
+      .map((p) => ({
+        placeId: p?.id || '',
+        name: p?.displayName?.text || 'Unnamed',
+        rating: typeof p?.rating === 'number' ? p.rating : null,
+        address: p?.formattedAddress || '',
+        primaryType: p?.primaryType || '',
+        url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
+      }));
+  } catch (err) {
+    console.warn(`[Search-FanOut] Places searchText "${String(textQuery).slice(0, 60)}" failed:`, err.message);
+    return [];
+  }
+}
+
+async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc }) {
+  const gc = require('./gemini-client');
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  // Origin resolution.
+  const origin = gc.resolveOrigin(techEntry, userText) || techEntry.defaultOrigin || 'International';
+  const originVariant = {
+    cuisine: origin,
+    dishKey: techEntry.originDish,
+    whyLocal: 'origin tradition',
+    isOrigin: true
+  };
+  const variants = [originVariant, ...(Array.isArray(techEntry.variants) ? techEntry.variants : [])];
+  // Parallel Places searches.
+  const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey };
+  const variantSearches = variants.map((v) => {
+    const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
+    const max = v.isOrigin ? 5 : 2;
+    return searchVenuesByDish(`${dishPhrase} restaurant Singapore`, v.cuisine, { ...ctx, max });
+  });
+  const fusionEntry = techEntry.fusion;
+  const fusionSearch = fusionEntry
+    ? searchVenuesByDish(fusionEntry.searchPhrase, null, { ...ctx, max: 2 })
+    : Promise.resolve([]);
+  const [variantResults, fusionResults] = await Promise.all([Promise.all(variantSearches), fusionSearch]);
+  // Validate via Gemini grounded check (one call across all candidates).
+  const allCandidates = variantResults.flat().concat(fusionResults).filter((v) => v.placeId);
+  let scores = {};
+  if (allCandidates.length) {
+    try {
+      scores = await gc.validateAuthenticity({
+        technique: techEntry.match[0],
+        origin,
+        originDish: techEntry.originDish,
+        originIngredients: techEntry.originIngredients || [],
+        originTool: techEntry.originTool || '',
+        candidates: allCandidates.map((c) => ({ placeId: c.placeId, name: c.name, address: c.address })),
+        lang
+      });
+    } catch (err) {
+      console.warn('[Search-FanOut] validateAuthenticity failed (using rating-only fallback):', err.message);
+      scores = {};
+    }
+  }
+  // Apply scoring: drop < 40, sort by (score desc, rating desc).
+  // If no scores at all (validation skipped), keep all and sort by rating only.
+  const haveScores = Object.keys(scores).length > 0;
+  const filterAndRank = (list, capPerCuisine) => {
+    const annotated = list.map((v) => ({
+      ...v,
+      score: scores[v.placeId]?.score ?? null,
+      reason: scores[v.placeId]?.reason || ''
+    }));
+    const filtered = haveScores
+      ? annotated.filter((v) => (v.score ?? 0) >= 40)
+      : annotated;
+    filtered.sort((a, b) => {
+      const sa = a.score ?? 0;
+      const sb = b.score ?? 0;
+      if (sb !== sa) return sb - sa;
+      return (b.rating || 0) - (a.rating || 0);
+    });
+    return filtered.slice(0, capPerCuisine);
+  };
+  // Build tier blocks.
+  const blocks = [];
+  let total = 0;
+  const TOTAL_CAP = 6;
+  for (let i = 0; i < variants.length && total < TOTAL_CAP; i++) {
+    const v = variants[i];
+    const cap = v.isOrigin ? 3 : 2;
+    const ranked = filterAndRank(variantResults[i], cap);
+    if (!ranked.length) continue;
+    const allowed = ranked.slice(0, Math.min(cap, TOTAL_CAP - total));
+    blocks.push({ kind: 'variant', variant: v, venues: allowed });
+    total += allowed.length;
+  }
+  if (fusionEntry && total < TOTAL_CAP) {
+    const ranked = filterAndRank(fusionResults, 1);
+    if (ranked.length) {
+      blocks.push({ kind: 'fusion', label: fusionEntry.label, venues: [ranked[0]] });
+      total += 1;
+    }
+  }
+  // Render HTML.
+  const lines = [];
+  const headerEmoji = '🔧';
+  const explainer = techEntry.why || 'Cooking technique.';
+  lines.push(`${headerEmoji} <b>${esc(explainer)}</b>`);
+  lines.push('');
+  if (!blocks.length) {
+    lines.push(lang === 'fr'
+      ? `Désolé, aucun restaurant authentique trouvé à Singapour pour cette technique. Essayez un nom de plat précis (par ex. « beef bourguignon », « osso buco »).`
+      : `Sorry, no authentic Singapore restaurants found for this technique. Try a specific dish name (e.g. "beef bourguignon", "osso buco").`);
+  } else {
+    lines.push(lang === 'fr'
+      ? `<i>À Singapour, cette technique se décline selon les cuisines:</i>`
+      : `<i>In Singapore, this technique looks different across cuisines:</i>`);
+    let venueIdx = 1;
+    for (const block of blocks) {
+      lines.push('');
+      if (block.kind === 'variant') {
+        const v = block.variant;
+        const flag = flagFor(v.cuisine);
+        const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
+        lines.push(`${flag} <b>${esc(v.cuisine)}</b> · ${esc(dishPhrase)}${v.whyLocal ? ` — ${esc(v.whyLocal)}` : ''}`);
+      } else {
+        lines.push(`✨ <b>${esc(block.label)}</b>`);
+      }
+      for (const venue of block.venues) {
+        const rating = Number.isFinite(venue.rating) ? `★${venue.rating.toFixed(1)}` : '';
+        lines.push(`  ${venueIdx}. ${esc(venue.name)} ${rating}`);
+        lines.push(`     📍 ${esc(venue.url)}`);
+        venueIdx++;
+      }
+    }
+  }
+  const reply = lines.join('\n');
+  const updated = await sc.appendExchange(redis, chatId, userText, reply, 'tool');
   const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
   const suffix = rawSuffix
     .replace(/`([^`]+)`/g, '<code>$1</code>')
