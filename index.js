@@ -53,7 +53,32 @@ if (missing.length) {
 }
 
 const ltaEnabled = Boolean(process.env.LTA_ACCOUNT_KEY);
-const webhookDomain = process.env.WEBHOOK_DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN;
+// v0.59.30 — soleat.net auto-fallback to soleat.up.railway.app when
+// the primary domain is unreachable. webhook-domain.js runs a
+// background probe and notifies us via onSwitch() so this top-level
+// `let webhookDomain` always reflects the current active host. All
+// downstream call sites that read `webhookDomain` (template strings,
+// passed-as-opt to buildMapHashUrl, Telegram setWebhook URL, etc.)
+// see the latest value at evaluation time without per-callsite edits.
+const webhookDomainModule = require('./webhook-domain');
+let webhookDomain = webhookDomainModule.getActiveWebhookDomain();
+// v0.59.30 / Codex #235 P1: when the active host switches mid-runtime
+// (primary went down, fallback took over), re-register Telegram's
+// webhook URL too — otherwise Telegram keeps posting updates to the
+// broken primary, /cuisine and friends never reach the bot, and the
+// fallback link generation is moot. The listener calls a wrapper
+// that re-runs configureUpdates() with the new webhookDomain. The
+// wrapper is wired AFTER configureUpdates is defined later in this
+// file (see end of bot setup), via setSwitchListener().
+webhookDomainModule.onSwitch((next) => {
+  webhookDomain = next;
+  if (typeof globalThis.__giaReregisterWebhook === 'function') {
+    globalThis.__giaReregisterWebhook(next).catch((err) => {
+      console.warn('[webhook-domain] re-register on switch failed:', err.message);
+    });
+  }
+});
+webhookDomainModule.startHealthCheck();
 const useWebhook = Boolean(webhookDomain);
 const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || crypto.randomBytes(16).toString('hex');
 
@@ -3494,6 +3519,31 @@ async function registerCommandsMenu() {
   }
 }
 
+// v0.59.30 / Codex #235 P1: expose a re-register hook that the
+// webhook-domain onSwitch listener calls when the active host
+// changes. Mirrors configureUpdates()'s setWebHook block but skips
+// process.exit on failure (transient switch failures shouldn't
+// crash the process — next probe will retry).
+async function reregisterTelegramWebhook(nextDomain) {
+  if (!useWebhook) return;
+  const url = `https://${nextDomain}/webhook`;
+  try {
+    await bot.deleteWebHook({ drop_pending_updates: false });
+  } catch (err) {
+    console.warn('[Updates] re-register deleteWebHook failed (non-fatal):', err.message);
+  }
+  try {
+    await bot.setWebHook(url, {
+      secret_token: webhookSecret,
+      drop_pending_updates: false
+    });
+    console.log(`[Updates] Webhook re-registered after host switch: ${url}`);
+  } catch (err) {
+    console.warn('[Updates] re-register setWebHook failed (will retry on next switch):', err.message);
+  }
+}
+globalThis.__giaReregisterWebhook = reregisterTelegramWebhook;
+
 async function configureUpdates() {
   if (useWebhook) {
     const url = `https://${webhookDomain}/webhook`;
@@ -3846,6 +3896,17 @@ async function cacheBotUsername() {
     });
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
+
+    // v0.59.30 — content-verifying health endpoint for the
+    // webhook-domain auto-fallback probe. Per Codex review #235 P1:
+    // a 2xx/3xx/4xx response from a parking server (NameCheap returns
+    // 403 host_not_allowed when soleat.net misroutes) would still pass
+    // a status-only probe. Probe now hits /healthz and verifies the
+    // response is OUR app — only when JSON.service === 'gia' does
+    // the host count as healthy.
+    app.get('/healthz', (req, res) => {
+      res.json({ service: 'gia', version: pkg.version, ok: true });
+    });
 
     // v0.29.0: aggressive no-cache headers on TMA HTML responses so
     // Telegram's in-app webview can't pin a stale bundle. Vite-built
