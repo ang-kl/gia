@@ -22,12 +22,22 @@ const {
 } = require('../pipeline.js');
 
 describe('DESSERT_KEYWORDS', () => {
-  it('contains a mix of SG and international dessert terms', () => {
-    expect(DESSERT_KEYWORDS.length).toBeGreaterThanOrEqual(8);
-    expect(DESSERT_KEYWORDS).toContain('kueh');
-    expect(DESSERT_KEYWORDS).toContain('kaya toast');
-    expect(DESSERT_KEYWORDS).toContain('bingsu');
-    expect(DESSERT_KEYWORDS).toContain('patisserie');
+  it('v0.59.27: replaced 12-keyword pool with the user-supplied 67-item dessert catalogue', () => {
+    expect(DESSERT_KEYWORDS.length).toBeGreaterThanOrEqual(60);
+    // Spot-check Peranakan kueh
+    expect(DESSERT_KEYWORDS).toContain('Kueh Lapis');
+    expect(DESSERT_KEYWORDS).toContain('Ondeh Ondeh');
+    expect(DESSERT_KEYWORDS).toContain('Ang Ku Kueh');
+    // SG cold/warm staples
+    expect(DESSERT_KEYWORDS).toContain('Ice Kachang');
+    expect(DESSERT_KEYWORDS).toContain('Chendol');
+    expect(DESSERT_KEYWORDS).toContain('Tau Huay');
+    expect(DESSERT_KEYWORDS).toContain('Cheng Tng');
+    // Regional: Thai, Filipino, Indonesian, Vietnamese
+    expect(DESSERT_KEYWORDS).toContain('Mango Sticky Rice');
+    expect(DESSERT_KEYWORDS).toContain('Halo Halo');
+    expect(DESSERT_KEYWORDS).toContain('Es Teler');
+    expect(DESSERT_KEYWORDS).toContain('Che Ba Mau');
   });
 
   it('has no duplicate entries', () => {

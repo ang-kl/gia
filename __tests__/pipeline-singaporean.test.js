@@ -17,25 +17,35 @@ const {
 } = require('../pipeline.js');
 
 describe('SINGAPOREAN_DISHES', () => {
-  it('contains the 47 iconic SG dishes (v0.59.21: 50 → 47, removed Curry Puff/Ice Kacang/Chendol)', () => {
-    expect(SINGAPOREAN_DISHES.length).toBe(47);
-    expect(SINGAPOREAN_DISHES).toContain('Hainanese Chicken Rice');
+  it('v0.59.27: ~180-item pan-cuisine SG catalogue (replaces the v0.59.21 47-item list)', () => {
+    expect(SINGAPOREAN_DISHES.length).toBeGreaterThanOrEqual(180);
+    // Spot-check key items across the user-supplied catalogue.
+    expect(SINGAPOREAN_DISHES).toContain('Steamed Chicken Rice');
+    expect(SINGAPOREAN_DISHES).toContain('Char Kuay Teow');
     expect(SINGAPOREAN_DISHES).toContain('Laksa');
-    expect(SINGAPOREAN_DISHES).toContain('Char Kway Teow');
-    expect(SINGAPOREAN_DISHES).toContain('Roti Prata');
     expect(SINGAPOREAN_DISHES).toContain('Bak Kut Teh');
-    expect(SINGAPOREAN_DISHES).toContain('Chilli Crab');
-    expect(SINGAPOREAN_DISHES).toContain('Putu Mayam');
+    expect(SINGAPOREAN_DISHES).toContain('Hainanese Curry Rice');
+    expect(SINGAPOREAN_DISHES).toContain('Beef Rendang');
+    expect(SINGAPOREAN_DISHES).toContain('Tandoori Chicken');
+    expect(SINGAPOREAN_DISHES).toContain('Hakka Abacus Seeds');
+    expect(SINGAPOREAN_DISHES).toContain('Roti John');
+    expect(SINGAPOREAN_DISHES).toContain('Mala Xiang Guo');
   });
 
   it('has no duplicate entries', () => {
     expect(new Set(SINGAPOREAN_DISHES).size).toBe(SINGAPOREAN_DISHES.length);
   });
 
-  it('does NOT contain v0.59.21-removed entries (Curry Puff, Ice Kacang, Chendol)', () => {
+  // v0.59.27: dessert items moved out of the SG dish-rotation pool
+  // and into the dedicated Dessert cuisine entry's keyword list.
+  // Curry Puff was dropped earlier (v0.59.21) for brand-cluster
+  // reasons. None should appear in the SG list.
+  it('does NOT contain dessert / removed entries', () => {
     expect(SINGAPOREAN_DISHES).not.toContain('Curry Puff');
     expect(SINGAPOREAN_DISHES).not.toContain('Ice Kacang');
     expect(SINGAPOREAN_DISHES).not.toContain('Chendol');
+    expect(SINGAPOREAN_DISHES).not.toContain('Tau Huay'); // moved to Dessert
+    expect(SINGAPOREAN_DISHES).not.toContain('Bubur Cha Cha'); // moved to Dessert
   });
 });
 
