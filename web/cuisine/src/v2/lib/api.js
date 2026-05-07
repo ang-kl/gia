@@ -50,8 +50,17 @@ export async function nlQuery({ text, lat, lng, filters, lang }) {
 // v0.58.55: optional lang ('en' | 'fr') propagated so the server's
 // formatVenueBlock renders French static labels (Open now / Closed /
 // 📋 N lieux header).
-export async function copyAllToChat(venues, lang) {
-  return postJson('/api/cuisine/copy-all', { venues, lang });
+// v0.59.44: also forward the active selection (cuisines/filters/
+// region) so the server's /clip history can filter past clips by
+// cuisine. Without this the clip record is bodiless metadata.
+export async function copyAllToChat(venues, lang, context = {}) {
+  return postJson('/api/cuisine/copy-all', {
+    venues,
+    lang,
+    cuisines: Array.isArray(context.cuisines) ? context.cuisines : [],
+    filters: context.filters || {},
+    region: context.region || 'SG'
+  });
 }
 
 // v0.58.50: per-card 📋 Copy. POST one venue, server builds a T1
@@ -59,8 +68,15 @@ export async function copyAllToChat(venues, lang) {
 // sanctuary read + stats + order + Maps URL) and bot.sendMessage to
 // the user's chat. Replaces the v0.58.7 client-side clipboard-only
 // behaviour with a richer chat-delivered card.
-export async function copyOneToChat(venue) {
-  return postJson('/api/cuisine/copy-one', { venue });
+// v0.59.44: also forward the active TMA selection (cuisines/filters/
+// region) so /clip can group + filter per-card copies by cuisine.
+export async function copyOneToChat(venue, context = {}) {
+  return postJson('/api/cuisine/copy-one', {
+    venue,
+    cuisines: Array.isArray(context.cuisines) ? context.cuisines : [],
+    filters: context.filters || {},
+    region: context.region || 'SG'
+  });
 }
 
 // v0.58.10: copy-syntax — POST current TMA state, server returns a

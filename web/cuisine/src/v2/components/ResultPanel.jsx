@@ -65,7 +65,11 @@ export default function ResultPanel({
       }));
       // v0.58.55: pass active TMA locale so the server's
       // formatVenueBlock can render French static labels.
-      await copyAllApi(enriched, lang);
+      await copyAllApi(enriched, lang, {
+        cuisines: copyState?.cuisines || [],
+        filters: copyState?.filters || {},
+        region: copyState?.region || 'SG'
+      });
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     } catch (err) {
@@ -150,7 +154,7 @@ export default function ResultPanel({
       ) : (
         <div className="flex flex-col gap-1.5">
           {venues.map((v, i) => (
-            <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} />
+            <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} />
           ))}
         </div>
       )}

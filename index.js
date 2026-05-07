@@ -1611,6 +1611,23 @@ function resolvePending(pending) {
   return { kind: 'sanctuary', category: 'food' };
 }
 
+// v0.59.44: /clip — list the user's last 50 cuisine clips (Copy / Copy
+// all snapshots), filterable by cuisine. Telegram's chat history
+// preserves every Copy click as a real message; this command adds
+// structured-cuisine filtering that native chat search can't match
+// against (the cuisine label was a chip in the picker, not in the
+// clip body).
+//   /clip               → most-recent 5 with inline Resend buttons
+//   /clip Italian       → filter to Italian cuisines
+//   /clip 7             → resend clip #7 immediately
+//   /clip clear         → wipe history (asks confirm)
+bot.onText(/^\/(?:clip|cl)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  const arg = (match?.[1] || '').trim();
+  await runClipCommand(msg.chat.id, arg, lang);
+});
+
 bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
   try {
     const pending = await consumePendingMeal(redis, msg.chat.id);
@@ -1717,6 +1734,41 @@ bot.on('callback_query', async (q) => {
     // v0.31.0 Buddy Level 2 callback dispatch.
     if (data.startsWith('buddy:')) {
       await handleBuddyCallback(data, chatId, q);
+      return;
+    }
+    // v0.59.44: /clip inline-keyboard callbacks.
+    if (data.startsWith('clip:')) {
+      const { getClip, clearClips } = require('./clip-store');
+      if (data.startsWith('clip:resend:')) {
+        const idx = Number(data.slice('clip:resend:'.length));
+        if (Number.isFinite(idx)) {
+          const clip = await getClip(redis, chatId, idx);
+          if (clip) {
+            await bot.sendMessage(chatId, clip.body, { parse_mode: 'HTML', disable_web_page_preview: true });
+          }
+        }
+        return;
+      }
+      if (data === 'clip:clear:ask') {
+        await bot.sendMessage(chatId,
+          cbLang === 'fr' ? '🗑 Effacer tous vos clips ?' : '🗑 Clear all your clips?',
+          { reply_markup: { inline_keyboard: [[
+            { text: cbLang === 'fr' ? 'Oui, effacer' : 'Yes, clear', callback_data: 'clip:clear:yes' },
+            { text: cbLang === 'fr' ? 'Annuler' : 'Cancel', callback_data: 'clip:clear:no' }
+          ]] } });
+        return;
+      }
+      if (data === 'clip:clear:yes') {
+        await clearClips(redis, chatId);
+        await bot.sendMessage(chatId, cbLang === 'fr'
+          ? '✅ Tous vos clips ont été effacés.'
+          : '✅ All your clips have been cleared.');
+        return;
+      }
+      if (data === 'clip:clear:no') {
+        await bot.sendMessage(chatId, cbLang === 'fr' ? 'Annulé.' : 'Cancelled.');
+        return;
+      }
       return;
     }
     if (data.startsWith('share:')) {
@@ -3278,6 +3330,98 @@ async function runLanguageCommand(msg, arg) {
   });
 }
 
+// v0.59.44: /clip dispatch.
+//   arg = ''           → list 5 most-recent
+//   arg = '<cuisine>'  → filter list
+//   arg = '<n>'        → resend clip n (1-based)
+//   arg = 'clear'      → confirm + wipe
+async function runClipCommand(chatId, arg, lang = 'en') {
+  const { listClips, getClip, clearClips } = require('./clip-store');
+  // Resend by index (1-based).
+  if (/^\d+$/.test(arg)) {
+    const idx = Number(arg) - 1;
+    const clip = await getClip(redis, chatId, idx);
+    if (!clip) {
+      await safeSend(chatId, lang === 'fr'
+        ? '❓ Aucun clip à cet emplacement.'
+        : '❓ No clip at that index.');
+      return;
+    }
+    await bot.sendMessage(chatId, clip.body, { parse_mode: 'HTML', disable_web_page_preview: true });
+    return;
+  }
+  // Clear path.
+  if (/^(clear|wipe|reset|effacer|vider)$/i.test(arg)) {
+    await bot.sendMessage(chatId,
+      lang === 'fr' ? '🗑 Effacer tous vos clips ?' : '🗑 Clear all your clips?',
+      { reply_markup: { inline_keyboard: [[
+        { text: lang === 'fr' ? 'Oui, effacer' : 'Yes, clear', callback_data: 'clip:clear:yes' },
+        { text: lang === 'fr' ? 'Annuler' : 'Cancel', callback_data: 'clip:clear:no' }
+      ]] } });
+    return;
+  }
+  // List path (with optional cuisine filter).
+  const cuisineFilter = arg || null;
+  const PAGE = 5;
+  const { items, total } = await listClips(redis, chatId, { cuisine: cuisineFilter, limit: PAGE, offset: 0 });
+  if (!total) {
+    await safeSend(chatId, cuisineFilter
+      ? (lang === 'fr'
+        ? `📋 Aucun clip pour « ${cuisineFilter} ».`
+        : `📋 No clips matching "${cuisineFilter}".`)
+      : (lang === 'fr'
+        ? '📋 Vous n\'avez pas encore de clips. Tapez "Copier" dans le sélecteur de cuisine, puis revenez ici.'
+        : '📋 No clips yet. Tap Copy in the cuisine picker, then come back here.'));
+    return;
+  }
+  const header = cuisineFilter
+    ? (lang === 'fr' ? `📋 Vos derniers clips · « ${cuisineFilter} »` : `📋 Your last clips · "${cuisineFilter}"`)
+    : (lang === 'fr' ? '📋 Vos derniers clips' : '📋 Your last clips');
+  const lines = [header, ''];
+  items.forEach((c, i) => {
+    const cuisinesLabel = (c.cuisines && c.cuisines.length) ? c.cuisines.join(', ') : (lang === 'fr' ? '— pas de cuisine —' : '— no cuisine —');
+    const ago = formatTimeAgo(Date.now() - c.ts, lang);
+    const venuesWord = c.venueCount === 1
+      ? (lang === 'fr' ? 'lieu' : 'venue')
+      : (lang === 'fr' ? 'lieux' : 'venues');
+    lines.push(`<b>${i + 1}.</b> 🍽 ${cuisinesLabel} · ${c.venueCount} ${venuesWord} · ${ago}`);
+    if (c.preview) lines.push(`   <i>${c.preview.slice(0, 80)}</i>`);
+  });
+  if (total > items.length) {
+    lines.push('');
+    lines.push(lang === 'fr'
+      ? `Voir plus : ${total} clips au total.`
+      : `${total} total · showing first ${items.length}.`);
+  }
+  // Inline keyboard: Resend buttons (one per item) + Clear button.
+  const resendRow = items.map((c, i) => ({
+    text: `📤 ${i + 1}`,
+    callback_data: `clip:resend:${c.index}`
+  }));
+  const keyboardRows = [resendRow];
+  keyboardRows.push([{
+    text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
+    callback_data: 'clip:clear:ask'
+  }]);
+  await bot.sendMessage(chatId, lines.join('\n'), {
+    parse_mode: 'HTML',
+    disable_web_page_preview: true,
+    reply_markup: { inline_keyboard: keyboardRows }
+  });
+}
+
+function formatTimeAgo(deltaMs, lang) {
+  const m = Math.max(0, Math.floor(deltaMs / 60000));
+  if (m < 1) return lang === 'fr' ? "à l'instant" : 'just now';
+  if (m < 60) return lang === 'fr' ? `il y a ${m} min` : `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return lang === 'fr' ? `il y a ${h} h` : `${h} h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return lang === 'fr' ? `il y a ${d} j` : `${d} d ago`;
+  const w = Math.floor(d / 7);
+  return lang === 'fr' ? `il y a ${w} sem` : `${w} w ago`;
+}
+
 async function runForgetMeCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -3706,6 +3850,7 @@ async function registerCommandsMenu() {
       { command: 'language',   description: 'Chat lang: en / fr / auto (auto = follow Telegram client)' },
       { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
       { command: 'share',      description: 'Forward recent pick' },
+      { command: 'clip',       description: 'Your last 50 cuisine clips · filter by cuisine' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase your stored data' }
     ];
@@ -3721,6 +3866,7 @@ async function registerCommandsMenu() {
       { command: 'language',   description: 'Langue : fr / en / auto (auto = suit le client Telegram)' },
       { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
       { command: 'share',      description: 'Partager un choix récent' },
+      { command: 'clip',       description: 'Vos 50 derniers clips · filtrer par cuisine' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
     ];
@@ -4325,6 +4471,24 @@ async function cacheBotUsername() {
             }
           });
         }
+        // v0.59.44: snapshot the clip so /clip can list + filter past
+        // copies by cuisine. Telegram's chat history preserves the
+        // sent message; the clip record holds the structured cuisine
+        // selection that native chat-search can't match against.
+        try {
+          const { pushClip } = require('./clip-store');
+          await pushClip(redis, chatId, {
+            ts: Date.now(),
+            type: 'all',
+            cuisines: Array.isArray(req.body?.cuisines) ? req.body.cuisines : [],
+            filters: req.body?.filters || {},
+            region: req.body?.region === 'JB' ? 'JB' : 'SG',
+            venueCount: slim.length,
+            preview: slim.slice(0, 3).map((v) => v.name || '').filter(Boolean).join(' · '),
+            body,
+            lang: reqLang
+          });
+        } catch (err) { console.warn('[Cuisine] pushClip (copy-all) failed:', err.message); }
         res.json({ ok: true, count: slim.length });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-all failed:', err.message);
@@ -4371,6 +4535,21 @@ async function cacheBotUsername() {
           parse_mode: 'HTML',
           disable_web_page_preview: true
         });
+        // v0.59.44: clip history snapshot.
+        try {
+          const { pushClip } = require('./clip-store');
+          await pushClip(redis, chatId, {
+            ts: Date.now(),
+            type: 'one',
+            cuisines: Array.isArray(req.body?.cuisines) ? req.body.cuisines : [],
+            filters: req.body?.filters || {},
+            region: req.body?.region === 'JB' ? 'JB' : 'SG',
+            venueCount: 1,
+            preview: venue.name || '',
+            body,
+            lang: oneLang
+          });
+        } catch (err) { console.warn('[Cuisine] pushClip (copy-one) failed:', err.message); }
         res.json({ ok: true });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-one failed:', err.message);

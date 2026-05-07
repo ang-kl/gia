@@ -13,10 +13,11 @@
 //                                   the bot for ≥90 days
 //   buddy-day:<chatId>:<YMD>       24 h  (buddy-match)
 //   recent-picks:<chatId>          24 h  (recent-picks)
+//   clip:<chatId>                  30 d  (clip-store, v0.59.44)
 //
 // `loc:`, `loc:pending:`, `proc:` are hashed (sha256, 16-hex) per
-// location-cache.js. The buddy + recent-picks keys use the plain
-// chatId. `forgetUserData` covers both encodings.
+// location-cache.js. The buddy + recent-picks + clip keys use the
+// plain chatId. `forgetUserData` covers both encodings.
 
 const { hashChatId } = require('./location-cache');
 
@@ -27,7 +28,8 @@ function plainKeys(chatId) {
   return [
     `buddy-optin:${chatId}`,
     `buddy-blocks:${chatId}`,
-    `recent-picks:${chatId}`
+    `recent-picks:${chatId}`,
+    `clip:${chatId}`
   ];
 }
 
