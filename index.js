@@ -4940,8 +4940,18 @@ async function cacheBotUsername() {
         // Best of both: speed for "I tapped twice by accident" + still
         // reasonably fresh for "I want to see different options 30 s
         // later". Singaporean still bypasses (per-call dish rotation).
+        // v0.59.43: also skip the cache when discover()'s lightShuffle
+        // path is active — empty cuisines and Dessert. Otherwise
+        // consecutive clicks of "Search" return the SAME shuffled
+        // list (the shuffle ran once and got pinned in Redis for 30 s).
+        // Per Human Lead 2026-05-07: clicking Search must surface a
+        // different rotation each time, not pin one.
+        const isDessertPick = cuisineQueries.some((c) =>
+          String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
+        );
+        const skipCacheForShuffle = cuisineQueries.length === 0 || isDessertPick;
         const SEARCH_CACHE_TTL_S = 30;
-        const skipCache = skipCacheForSingaporean;
+        const skipCache = skipCacheForSingaporean || skipCacheForShuffle;
         try {
           if (redis.isOpen && !skipCache) {
             const cached = await redis.get(cacheKey);
