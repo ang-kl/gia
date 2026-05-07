@@ -403,9 +403,99 @@ async function generateGroundedHiddenGems({
 //
 // No grounded search needed for this — it's pure classification + a
 // small reasoning step. Fast model, no tool wiring.
-async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-2.5-flash', _genAIFactory }) {
+//
+// v0.59.56: per-bug 2026-05-07 — "Goulash with dumplings" and
+// "Beef bourguignon" both fell through to the catch path. Two
+// failure modes confirmed:
+//   1. Gemini's RECITATION finishReason fires for some well-known
+//      dish names (the model thinks the answer would copy training
+//      data verbatim). `response.text()` then throws.
+//   2. The legacy SDK doesn't recognise `gemini-2.5-flash` in some
+//      regions, returning a 400.
+// Fix: model-fallback chain (gemini-flash-latest → 2.0-flash →
+// 2.5-flash-lite) + a small built-in dish dictionary for the common
+// European dishes that get blocked + NEVER throw — always return a
+// valid intent object.
+
+// Common dishes that Gemini's recitation filter sometimes blocks.
+// Used as a final deterministic fallback when every model errors out.
+// Keys are lowercased; match is "phrase contained in user text".
+const DISH_FALLBACK = [
+  // French
+  { match: ['beef bourguignon', 'boeuf bourguignon', 'bourguignon'], cuisine: 'French', why: 'Beef bourguignon is a Burgundian beef stew braised in red wine.' },
+  { match: ['coq au vin'], cuisine: 'French', why: 'Coq au vin is chicken braised in wine, a classic French peasant dish.' },
+  { match: ['cassoulet'], cuisine: 'French', why: 'Cassoulet is a slow-cooked Languedoc bean and meat casserole.' },
+  { match: ['ratatouille'], cuisine: 'French', why: 'Ratatouille is a Provençal stewed-vegetable dish.' },
+  { match: ['bouillabaisse'], cuisine: 'French', why: 'Bouillabaisse is a Marseille fish stew.' },
+  { match: ['steak frites', 'steak-frites'], cuisine: 'French', why: 'Steak frites is the French bistro staple of seared steak with chips.' },
+  { match: ['confit de canard', 'duck confit'], cuisine: 'French', why: 'Duck confit is duck legs slow-cooked in their own fat.' },
+  { match: ['quiche lorraine'], cuisine: 'French', why: 'Quiche Lorraine is a savoury custard tart with bacon and cream.' },
+  { match: ['crepe', 'crêpe', 'galette'], cuisine: 'French', why: 'Crêpes are thin French pancakes; galettes are buckwheat-based and savoury.' },
+  // Hungarian/European
+  { match: ['goulash', 'gulyás'], cuisine: 'European', why: 'Goulash is a Hungarian beef paprika stew, often served with dumplings or noodles.' },
+  // Italian
+  { match: ['carbonara'], cuisine: 'Italian', why: 'Carbonara is a Roman pasta with egg, guanciale, pecorino, and pepper.' },
+  { match: ['cacio e pepe'], cuisine: 'Italian', why: 'Cacio e pepe is a Roman pasta of pecorino and pepper.' },
+  { match: ['osso buco', 'ossobuco'], cuisine: 'Italian', why: 'Osso buco is a Milanese braised veal shank.' },
+  { match: ['risotto'], cuisine: 'Italian', why: 'Risotto is a creamy short-grain Italian rice dish.' },
+  { match: ['lasagna', 'lasagne'], cuisine: 'Italian', why: 'Lasagna is a layered baked pasta.' },
+  // Thai
+  { match: ['pad thai', 'padthai'], cuisine: 'Thai', why: 'Pad Thai is the iconic Thai stir-fried rice noodle dish.' },
+  { match: ['tom yum', 'tom yam', 'tomyum'], cuisine: 'Thai', why: 'Tom yum is a hot-and-sour Thai broth.' },
+  { match: ['khao soi'], cuisine: 'Thai', why: 'Khao soi is a Northern Thai coconut-curry noodle soup.' },
+  { match: ['green curry', 'gaeng keow wan'], cuisine: 'Thai', why: 'Thai green curry is built on a fresh chilli + galangal paste.' },
+  // Indian
+  { match: ['butter chicken', 'murgh makhani'], cuisine: 'North Indian', why: 'Butter chicken is a Punjabi tomato-cream chicken curry.' },
+  { match: ['biryani', 'biriyani'], cuisine: 'North Indian', why: 'Biryani is a layered spiced rice dish with origins across the subcontinent.' },
+  { match: ['tandoori chicken'], cuisine: 'North Indian', why: 'Tandoori chicken is yogurt-marinated chicken roasted in a clay tandoor oven.' },
+  { match: ['dosa', 'masala dosa'], cuisine: 'South Indian', why: 'Dosa is a fermented-batter crisp South Indian crêpe.' },
+  // Japanese
+  { match: ['ramen'], cuisine: 'Japanese', why: 'Ramen is a Japanese wheat-noodle soup with regional broth styles.' },
+  { match: ['sushi'], cuisine: 'Japanese', why: 'Sushi pairs vinegared rice with raw fish or other toppings.' },
+  { match: ['tonkatsu'], cuisine: 'Japanese', why: 'Tonkatsu is a panko-breaded deep-fried pork cutlet.' },
+  // Korean
+  { match: ['bibimbap'], cuisine: 'Korean', why: 'Bibimbap is a mixed-rice bowl with vegetables, beef, and gochujang.' },
+  { match: ['kimchi jjigae', 'kimchi stew'], cuisine: 'Korean', why: 'Kimchi jjigae is a fermented-cabbage stew with pork or tofu.' },
+  // Mexican
+  { match: ['tacos', 'taco'], cuisine: 'Mexican', why: 'Tacos are folded soft-corn-tortilla street food across Mexican regions.' },
+  { match: ['mole'], cuisine: 'Mexican', why: 'Mole is a complex Mexican sauce family — Oaxacan moles use chiles, chocolate, and spices.' },
+  // Spanish
+  { match: ['paella'], cuisine: 'Spanish', why: 'Paella is a Valencian rice dish cooked in a wide flat pan.' },
+  { match: ['tapas'], cuisine: 'Spanish', why: 'Tapas are small Spanish sharing plates eaten with drinks.' },
+  // Vietnamese
+  { match: ['pho', 'phở'], cuisine: 'Vietnamese', why: 'Pho is a Vietnamese rice-noodle soup, beef (bò) or chicken (gà).' },
+  { match: ['banh mi', 'bánh mì'], cuisine: 'Vietnamese', why: 'Banh mi is a Vietnamese baguette sandwich, a French colonial fusion.' },
+  // British
+  { match: ['fish and chips', 'fish & chips'], cuisine: 'British', why: 'Fish and chips is the classic British battered-fish-with-fries combo.' },
+  { match: ['shepherd\'s pie', 'shepherds pie', 'cottage pie'], cuisine: 'British', why: 'Shepherd\'s pie is minced lamb topped with mashed potato, baked.' },
+  { match: ['beef wellington'], cuisine: 'British', why: 'Beef Wellington is a fillet of beef in pâté and puff pastry.' }
+];
+
+function dishFallback(text) {
+  const lc = String(text || '').toLowerCase();
+  for (const e of DISH_FALLBACK) {
+    if (e.match.some((m) => lc.includes(m))) return e;
+  }
+  return null;
+}
+
+const SEARCH_INTENT_MODEL_CHAIN = [
+  'gemini-flash-latest',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash-lite'
+];
+
+async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey && !_genAIFactory) throw new Error('GEMINI_API_KEY unset');
+  if (!apiKey && !_genAIFactory) {
+    // Caller-side env failure — log and return a graceful ambiguous.
+    console.warn('[Search-Intent] GEMINI_API_KEY unset — falling back to dish dictionary.');
+    const hit = dishFallback(text);
+    if (hit) {
+      return { intent: 'dish', cuisine: hit.cuisine, searchTerm: `${String(text).split(/\s+/)[0]} restaurant Singapore`, why: hit.why, clarify: '' };
+    }
+    return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
+  }
   const histLines = (Array.isArray(history) ? history : [])
     .slice(-12)
     .map((h) => `${h.role === 'user' ? 'USER' : 'BOT'}: ${String(h.text || '').slice(0, 400)}`)
@@ -446,13 +536,71 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     return new GoogleGenerativeAI(apiKey);
   });
   const genAI = factory();
-  const m = genAI.getGenerativeModel({ model });
-  const r = await m.generateContent(prompt);
-  const raw = r?.response?.text?.() || '';
-  const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
-  let parsed;
-  try { parsed = JSON.parse(cleaned); }
-  catch { parsed = { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: 'Sorry, I didn\'t catch that. Could you tell me which dish, ingredient, or kitchen technique you\'re curious about?' }; }
+  // Try the requested model first, then walk the fallback chain.
+  // De-duplicate so we don't retry the same model twice.
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  let parsed = null;
+  let lastErr = null;
+  for (const candidate of candidates) {
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await m.generateContent(prompt);
+      // SDK 0.24.x throws from response.text() if finishReason is
+      // SAFETY/RECITATION/OTHER — guard explicitly so a blocked
+      // response on one model doesn't kill the whole call.
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; }
+      catch (textErr) {
+        const fr = r?.response?.candidates?.[0]?.finishReason;
+        console.warn(`[Search-Intent] ${candidate} text() threw (finishReason=${fr || 'unknown'}): ${textErr.message}`);
+        lastErr = textErr;
+        continue;
+      }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) {
+        console.warn(`[Search-Intent] ${candidate} returned empty text — trying next model.`);
+        continue;
+      }
+      try {
+        parsed = JSON.parse(cleaned);
+        break;
+      } catch (parseErr) {
+        console.warn(`[Search-Intent] ${candidate} returned non-JSON: ${cleaned.slice(0, 120)}`);
+        lastErr = parseErr;
+        continue;
+      }
+    } catch (err) {
+      console.warn(`[Search-Intent] ${candidate} generateContent failed: ${err.message}`);
+      lastErr = err;
+      continue;
+    }
+  }
+  // Every model failed — fall back to the dish dictionary, then to a
+  // graceful ambiguous prompt. NEVER throw.
+  if (!parsed) {
+    const hit = dishFallback(text);
+    if (hit) {
+      console.log(`[Search-Intent] fallback dictionary hit for "${String(text).slice(0, 60)}" → ${hit.cuisine}`);
+      const firstWord = String(text).trim().split(/\s+/)[0];
+      return {
+        intent: 'dish',
+        cuisine: hit.cuisine,
+        searchTerm: `${firstWord} restaurant Singapore`,
+        why: hit.why,
+        clarify: ''
+      };
+    }
+    console.warn(`[Search-Intent] all models + dictionary failed for "${String(text).slice(0, 60)}" — returning ambiguous. lastErr=${lastErr?.message}`);
+    parsed = {
+      intent: 'ambiguous',
+      cuisine: null,
+      searchTerm: '',
+      why: '',
+      clarify: lang === 'fr'
+        ? 'Désolé, je n\'ai pas bien compris. Pouvez-vous me donner un nom de plat précis (par exemple : « pad thaï », « goulash ») ou un ingrédient ?'
+        : 'Sorry, I didn\'t catch that. Could you give me a specific dish name (e.g. "pad thai", "goulash") or an ingredient?'
+    };
+  }
   return {
     intent: ['dish', 'ingredient', 'tool', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
     cuisine: typeof parsed.cuisine === 'string' && parsed.cuisine.length ? parsed.cuisine : null,
@@ -465,6 +613,8 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
 module.exports = {
   generateGroundedHiddenGems,
   classifySearchIntent,
+  dishFallback,
+  DISH_FALLBACK,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,
