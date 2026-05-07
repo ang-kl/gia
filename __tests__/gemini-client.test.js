@@ -31,6 +31,38 @@ describe('buildHiddenGemsPrompt', () => {
     expect(out).toContain('C4 UNIQUE_OFFERING');
   });
 
+  // v0.59.31 — radius band is templated; default = 1km to 3km, free-text mode = 200m to 3km.
+  it('v0.59.31: defaults to "1km to 3km" when radiusBand is not provided', () => {
+    const out = buildHiddenGemsPrompt({
+      anchorName: 'Anywhere',
+      googleMapsUrl: 'https://example.com/',
+      todayIsoSGT: '2026-05-07'
+    });
+    expect(out).toContain('1km to 3km walking band');
+    expect(out).toContain('Walking distance comfortably within 1km to 3km');
+    expect(out).toContain('Places below 1km walking distance');
+    expect(out).toContain('Places above 3km walking distance');
+    expect(out).not.toContain('{{RADIUS_BAND}}');
+    expect(out).not.toContain('{{RADIUS_LOWER}}');
+    expect(out).not.toContain('{{RADIUS_UPPER}}');
+  });
+
+  it('v0.59.31: free-text mode substitutes "200m to 3km" + 200m/3km bounds', () => {
+    const out = buildHiddenGemsPrompt({
+      anchorName: 'Tanjong Pagar MRT',
+      googleMapsUrl: 'https://example.com/',
+      todayIsoSGT: '2026-05-07',
+      radiusBand: '200m to 3km',
+      radiusLower: '200m',
+      radiusUpper: '3km'
+    });
+    expect(out).toContain('200m to 3km walking band');
+    expect(out).toContain('Walking distance comfortably within 200m to 3km');
+    expect(out).toContain('Places below 200m walking distance');
+    expect(out).toContain('Places above 3km walking distance');
+    expect(out).not.toContain('1km to 3km'); // overridden
+  });
+
   it('throws when required fields are missing', () => {
     expect(() => buildHiddenGemsPrompt({ anchorName: '', googleMapsUrl: 'x', todayIsoSGT: 'y' }))
       .toThrow();
@@ -423,7 +455,9 @@ describe('generateGroundedHiddenGems — picks correct tool by model', () => {
 describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
   it('contains the verbatim spec rules', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('You are a Singapore F&B discovery analyst');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('1km to 3km walking band');
+    // v0.59.31: radius band is now templated ({{RADIUS_BAND}}); the
+    // built prompt substitutes per-call. Default band = '1km to 3km'.
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('{{RADIUS_BAND}} walking band');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('AT LEAST TWO of the following');
     // v0.58.46: relaxed "No emojis" → "No decorative emojis" so the
     // four functional icons in OUTPUT FORMAT (🕒 💎 🍴 📍) are allowed.
