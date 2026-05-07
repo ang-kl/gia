@@ -77,6 +77,30 @@ describe('lookupTechnique', () => {
     expect(gc.lookupTechnique('asdfgh')).toBeNull();
     expect(gc.lookupTechnique('')).toBeNull();
   });
+  // v0.60.3 — French process-noun forms (-age) and past-participle
+  // forms must route to the same technique entry as the verb. Bug
+  // from Human Lead 2026-05-07 with screenshot: "/s Sautage" fell
+  // through to the v0.59.x single-query path because 'sautage' was
+  // not in any match[]. Same gap covered fumage, grillage, rôtissage,
+  // flambage. Regression-test all six.
+  it('"Sautage" → sauter entry (FR -age noun)', () => {
+    expect(gc.lookupTechnique('Sautage')?.match[0]).toBe('sauter');
+  });
+  it('"sauté" → sauter entry (FR past participle)', () => {
+    expect(gc.lookupTechnique('sauté')?.match[0]).toBe('sauter');
+  });
+  it('"Fumage" → smoking entry (FR -age noun)', () => {
+    expect(gc.lookupTechnique('Fumage')?.match[0]).toBe('smoking');
+  });
+  it('"Grillage" → grilling entry (FR -age noun)', () => {
+    expect(gc.lookupTechnique('Grillage')?.match[0]).toBe('grilling');
+  });
+  it('"Rôtissage" → rotisserie entry (FR -age noun)', () => {
+    expect(gc.lookupTechnique('Rôtissage')?.match[0]).toBe('rotisserie');
+  });
+  it('"Flambage" → flambé entry (FR -age noun)', () => {
+    expect(gc.lookupTechnique('Flambage')?.match[0]).toBe('flambé');
+  });
 });
 
 describe('resolveOrigin (language-alias override)', () => {

@@ -539,7 +539,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: { label: 'Modern European', searchPhrase: 'modern european braised restaurant Singapore' }
   },
   {
-    match: ['rotisserie', 'rôtisserie', 'roasting on spit', 'spit-roasted'],
+    match: ['rotisserie', 'rôtisserie', 'rôtissage', 'rotissage', 'roasting on spit', 'spit-roasted'],
     defaultOrigin: 'French',
     why: 'Rotisserie = roasting on a rotating spit so the juices baste the meat as it turns. Common for chicken, lamb, porchetta.',
     originDish: 'rotisserie chicken',
@@ -566,7 +566,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: { label: 'Modernist fusion', searchPhrase: 'modernist sous vide tasting menu Singapore' }
   },
   {
-    match: ['smoking', 'smoked', 'smokehouse'],
+    match: ['smoking', 'smoked', 'smokehouse', 'fumage', 'fumé', 'fume'],
     defaultOrigin: 'American',
     why: 'Smoking = cooking and flavouring food with low-temperature wood smoke (hickory, oak, mesquite, applewood) over hours. American BBQ canon.',
     originDish: 'smoked brisket',
@@ -580,7 +580,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: { label: 'Modern smokehouse', searchPhrase: 'modern smokehouse fine dining Singapore' }
   },
   {
-    match: ['grilling', 'grillade', 'grilled', 'charcoal grill'],
+    match: ['grilling', 'grillade', 'grillage', 'grillé', 'grilled', 'charcoal grill'],
     defaultOrigin: 'Argentinian',
     why: 'Grilling = direct dry heat from below (gas, charcoal, wood embers). Maillard sear outside, juicy inside.',
     originDish: 'asado',
@@ -656,7 +656,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: null
   },
   {
-    match: ['flambé', 'flambe', 'flaming'],
+    match: ['flambé', 'flambe', 'flambage', 'flaming'],
     defaultOrigin: 'French',
     why: 'Flambé = igniting alcohol added to a pan to burn off harsh notes and add caramelised flavour. Table-side classics: crêpes Suzette, steak Diane.',
     originDish: 'crêpes suzette',
@@ -758,7 +758,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: null
   },
   {
-    match: ['sauter', 'sautéing', 'sautéed', 'sauteed'],
+    match: ['sauter', 'sautage', 'sauté', 'saute', 'sautéing', 'sauteing', 'sautéed', 'sauteed'],
     defaultOrigin: 'French',
     why: 'Sautéing = cooking quickly in a small amount of fat over high heat, tossing the pan so food browns evenly without stewing.',
     originDish: 'sauté de veau',
