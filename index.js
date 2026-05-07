@@ -53,7 +53,17 @@ if (missing.length) {
 }
 
 const ltaEnabled = Boolean(process.env.LTA_ACCOUNT_KEY);
-const webhookDomain = process.env.WEBHOOK_DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN;
+// v0.59.30 — soleat.net auto-fallback to soleat.up.railway.app when
+// the primary domain is unreachable. webhook-domain.js runs a
+// background probe and notifies us via onSwitch() so this top-level
+// `let webhookDomain` always reflects the current active host. All
+// downstream call sites that read `webhookDomain` (template strings,
+// passed-as-opt to buildMapHashUrl, Telegram setWebhook URL, etc.)
+// see the latest value at evaluation time without per-callsite edits.
+const webhookDomainModule = require('./webhook-domain');
+let webhookDomain = webhookDomainModule.getActiveWebhookDomain();
+webhookDomainModule.onSwitch((next) => { webhookDomain = next; });
+webhookDomainModule.startHealthCheck();
 const useWebhook = Boolean(webhookDomain);
 const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || crypto.randomBytes(16).toString('hex');
 
