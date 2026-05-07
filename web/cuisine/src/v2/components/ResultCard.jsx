@@ -5,7 +5,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
-export default function ResultCard({ venue, focused, onTap }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {} }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -109,6 +109,12 @@ export default function ResultCard({ venue, focused, onTap }) {
         url: venue.url,
         primaryType: venue.primaryType,
         lang  // v0.58.55: server localises static labels accordingly
+      }, {
+        // v0.59.44: forward TMA selection so /clip can group + filter
+        // per-card copies by cuisine.
+        cuisines: copyContext?.cuisines || [],
+        filters: copyContext?.filters || {},
+        region: copyContext?.region || 'SG'
       });
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
