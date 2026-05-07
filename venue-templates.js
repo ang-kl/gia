@@ -65,15 +65,16 @@ function formatHoursLine(p, lang) {
   return '';
 }
 
-// Format the ✨ stats row. Stars + review count + price + crowd
-// + (optional) distance.
+// v0.59.28 — Stats row with single-emoji rating, NO review count.
+// Per Human Lead 2026-05-07: dual-icon "✨ ⭐4.8 (100)" was visually
+// noisy and review counts were inaccurate (same reason v0.59.24
+// stripped them from /hidden). New format: "🌟4.8 • $$ • busy".
+// 🌟 chosen to match v0.59.24's /hidden card icon.
 function formatStatsLine(p, opts = {}) {
   const { includeDistance = false, lang } = opts;
   const parts = [];
   if (Number.isFinite(p.rating)) {
-    const stars = `⭐${p.rating.toFixed(1)}`;
-    const count = Number.isFinite(p.userRatingCount) ? ` (${p.userRatingCount})` : '';
-    parts.push(`${stars}${count}`);
+    parts.push(`🌟${p.rating.toFixed(1)}`); // rating only, no count
   }
   const price = PRICE_LABEL[p.priceLevel];
   if (price) parts.push(price);
@@ -85,7 +86,9 @@ function formatStatsLine(p, opts = {}) {
       ? `${(p.distanceM / 1000).toFixed(2)} km`
       : `${p.distanceM} m`);
   }
-  return parts.length ? `✨ ${parts.join(' • ')}` : '';
+  // v0.59.28: dropped the leading ✨ (it duplicated ⭐ visually). The
+  // rating glyph itself acts as the "stats" cue.
+  return parts.length ? parts.join(' • ') : '';
 }
 
 // Format the 🧾 order line — top dishes (capped at 3).

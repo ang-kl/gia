@@ -2808,7 +2808,10 @@ async function deliverSurprise(chatId, v) {
     addRecent(redis, chatId, { ...v, kind: 'surprise', signatureDish: v.dishes?.[0] || '' }).catch(() => {});
   } catch { /* optional */ }
   const km = (v.distanceM / 1000).toFixed(2);
-  const rating = v.rating ? `⭐${v.rating.toFixed(1)} (${v.userRatingCount} reviews)` : '';
+  // v0.59.28: rating only, no review count (counts were inaccurate
+  // per Human Lead 2026-05-07; same reason v0.59.24 stripped them
+  // from /hidden). 🌟 emoji to match v0.59.24's /hidden card.
+  const rating = v.rating ? `🌟${v.rating.toFixed(1)}` : '';
   const open = v.openNow === true ? 'Open now' : v.openNow === false ? 'Opens soon' : '';
   const dishes = v.dishes?.length
     ? '\n\n🍴 *Try the:*\n' + v.dishes.map((d) => `  • ${d}`).join('\n')

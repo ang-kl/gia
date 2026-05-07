@@ -41,7 +41,7 @@ describe('formatVenueBlock — T1 detail-with-sanctuary', () => {
     expect(out).toContain('📞 +65 6555 1234');
     expect(out).toContain('🌿 Sanctuary read for Lazy Lizard');
     expect(out).toContain('• Quiet: yes');
-    expect(out).toContain('✨ ⭐4.5 (87) • $$ • 🟢 quiet');
+    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet');
     expect(out).not.toContain('km');     // T1 omits distance
     expect(out).not.toContain('1240');
     expect(out).toContain('🧾 Truffle Risotto · Carbonara · Tiramisu');
@@ -58,7 +58,7 @@ describe('formatVenueBlock — T2 detail (no sanctuary, with distance)', () => {
     expect(out).toContain('🌐 https://lazylizard.sg');
     expect(out).toContain('📞 +65 6555 1234');
     expect(out).not.toContain('🌿 Sanctuary read');
-    expect(out).toContain('✨ ⭐4.5 (87) • $$ • 🟢 quiet • 1.24 km');
+    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet • 1.24 km');
     expect(out).toContain('🧾');
     expect(out).toContain('📍');
   });
@@ -84,7 +84,7 @@ describe('formatVenueBlock — T3 compact', () => {
     expect(out).not.toContain('📞');
     expect(out).not.toContain('🌿');
     expect(out).not.toContain('🧾');
-    expect(out).toContain('✨ ⭐4.5 (87) • $$ • 🟢 quiet • 1.24 km');
+    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet • 1.24 km');
     expect(out).toContain('📍');
   });
 });
@@ -163,7 +163,7 @@ describe('HTML escape — venue name with < > &', () => {
 
 describe('formatStatsLine variants', () => {
   it('omits price/crowd/distance when fields absent', () => {
-    expect(formatStatsLine({ rating: 4.2, userRatingCount: 50 })).toBe('✨ ⭐4.2 (50)');
+    expect(formatStatsLine({ rating: 4.2, userRatingCount: 50 })).toBe('🌟4.2');
   });
 
   it('returns empty string when no rating', () => {
