@@ -4800,7 +4800,12 @@ async function cacheBotUsername() {
                 if (!raw) return;
                 const reviews = JSON.parse(raw);
                 const { dishes, snippet } = extractDishes(reviews);
-                if (dishes.length) v.dishes = dishes;
+                // v0.59.24 (Codex #229 P2): same drinks filter as the
+                // inline-review path above. Without this, cached reviews
+                // mentioning "kopi"/"teh tarik"/cocktails could still
+                // become the 🍴 Try · item despite dropDrinks being true.
+                const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
+                if (filtered.length) v.dishes = filtered;
                 if (snippet && !v.recentReview) v.recentReview = snippet;
               } catch { /* per-venue best-effort */ }
             }));
