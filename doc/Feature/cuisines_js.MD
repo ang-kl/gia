@@ -25,11 +25,6 @@ export const CUISINE_CATEGORIES = [
     ]
   },
   {
-    id: 'southeast-asian',
-    label: 'Southeast Asian',
-    items: ['Laotian', 'Timorese']
-  },
-  {
     id: 'china-regional',
     label: 'China (Regional)',
     items: [

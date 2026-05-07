@@ -3714,7 +3714,7 @@ async function registerCommandsMenu() {
     // pre-v0.58.55 EN-only text and add a FR variant.
     const enDescription =
       "This is a breakfast, lunch & dining concierge service.\n\n" +
-      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — 68 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 new places to try 1.5–3 km away\n" +
       "/hawker — >100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -3724,7 +3724,7 @@ async function registerCommandsMenu() {
       "Free to use. Quirks welcome. Foodie.";
     const frDescription =
       "Conciergerie petit-déjeuner, déjeuner & dîner.\n\n" +
-      "/cuisine — 70+ cuisines (SG + Johor Bahru)\n" +
+      "/cuisine — 68 cuisines (SG + Johor Bahru)\n" +
       "/hidden — 5 trouvailles à 1,5–3 km\n" +
       "/hawker — plus de 100 hawker centres (2025)\n" +
       "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
