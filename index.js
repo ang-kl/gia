@@ -3479,6 +3479,17 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
 // One round-trip: take user text, ask Gemini to classify intent, then
 // either reply with a clarifying question OR dispatch a Places search
 // and stream back top venues.
+//
+// v0.59.59: two production bugs fixed.
+//   1. Reply switched from parse_mode='Markdown' to 'HTML'. Production
+//      logs showed `ETELEGRAM: 400 can't parse entities at byte offset
+//      763/800` — Markdown is unforgiving when dynamic content (Gemini
+//      `why` text, venue names) contains `_`, `*`, `[`, etc. HTML mode
+//      only requires escaping `& < >`, far more robust.
+//   2. Places dispatch switched from pipeline.discover() (which joins
+//      cuisines with " OR " and appends " cuisine restaurant" — turning
+//      our intent.searchTerm into garbage) to a direct Places searchText
+//      call with intent.searchTerm as the raw textQuery.
 async function handleSearchTurn(chatId, userText, lang = 'en') {
   const sc = require('./search-conversation');
   const gc = require('./gemini-client');
@@ -3495,60 +3506,87 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       : 'Sorry, I couldn\'t interpret that. Try a dish name or ingredient.');
     return;
   }
-  // Ambiguous → polite clarifying question.
+  // HTML escape — only `& < >` are special in Telegram HTML mode.
+  const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Ambiguous → polite clarifying question. No HTML markup needed,
+  // just escape and send as plain (with HTML parse_mode so the rest
+  // of the conversation stays consistent).
   if (intent.intent === 'ambiguous' || !intent.searchTerm) {
     const reply = intent.clarify || (lang === 'fr'
       ? 'Pouvez-vous préciser ? Quel plat ou ingrédient cherchez-vous exactement ?'
       : 'Could you clarify? Which dish or ingredient are you looking for exactly?');
     const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
     const suffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
-    await safeSend(chatId, reply + suffix, { parse_mode: 'Markdown' });
+    await safeSend(chatId, esc(reply) + esc(suffix), { parse_mode: 'HTML' });
     return;
   }
-  // Resolved intent → run a Places searchText against the canonical query.
-  const pipeline = require('./pipeline');
-  const { hashChatId, getUserLocation } = require('./location-cache');
+  // Resolved intent → call Places searchText DIRECTLY with the
+  // intent.searchTerm as the textQuery. Bypass pipeline.discover so
+  // we don't get the " cuisine restaurant" suffix or the cuisine OR
+  // joining.
+  const { getUserLocation } = require('./location-cache');
+  const axios = require('axios');
   const loc = await getUserLocation(redis, chatId).catch(() => null);
   const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
   const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+  const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
+  const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri';
   let venues = [];
   try {
-    venues = await pipeline.discover({
-      lat: center.lat, lng: center.lng,
-      cuisines: [intent.searchTerm],
-      radius: 50000,
-      maxResults: 8,
-      regionCode: 'SG',
-      lang,
-      applyDishTailThrottle: false   // user typed an explicit dish; don't cap to 2
-    });
+    const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!mapsApiKey) {
+      console.warn('[Search] GOOGLE_MAPS_API_KEY missing — skipping venues.');
+    } else {
+      const { data } = await axios.post(
+        PLACES_TEXT_URL,
+        {
+          textQuery: intent.searchTerm,
+          regionCode: 'SG',
+          languageCode: lang === 'fr' ? 'fr' : 'en',
+          maxResultCount: 8,
+          locationBias: { circle: { center: { latitude: center.lat, longitude: center.lng }, radius: 50000 } },
+          openNow: false
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': mapsApiKey,
+            'X-Goog-FieldMask': FIELD_MASK
+          },
+          timeout: 8000
+        }
+      );
+      venues = (Array.isArray(data?.places) ? data.places : [])
+        .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
+        .map((p) => ({
+          name: p?.displayName?.text || 'Unnamed',
+          rating: typeof p?.rating === 'number' ? p.rating : null,
+          address: p?.formattedAddress || '',
+          url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
+        }));
+    }
   } catch (err) {
-    console.warn('[Search] discover failed:', err.message);
+    console.warn('[Search] Places searchText failed:', err.message);
   }
-  // Build the reply.
-  // v0.59.57: differentiate the header by intent so cooking
-  // techniques get a 🔧 explainer ("Braising = slow-cook in liquid…
-  // looking for SG restaurants that braise…") rather than the same
-  // 🍽 dish-style header. Per Human Lead 2026-05-07.
-  const top = (Array.isArray(venues) ? venues : []).slice(0, 3);
+  // Build the reply in HTML mode.
+  const top = venues.slice(0, 3);
   const lines = [];
   if (intent.intent === 'tool') {
     // Cooking technique / kitchen tool — lead with the explainer.
     const explainer = intent.why || (lang === 'fr' ? 'technique de cuisson.' : 'cooking technique.');
     lines.push(lang === 'fr'
-      ? `🔧 *${explainer}*\n\n_Recherche de restaurants à Singapour qui utilisent cette technique…_`
-      : `🔧 *${explainer}*\n\n_Searching for Singapore restaurants that use this technique…_`);
+      ? `🔧 <b>${esc(explainer)}</b>\n\n<i>Recherche de restaurants à Singapour qui utilisent cette technique…</i>`
+      : `🔧 <b>${esc(explainer)}</b>\n\n<i>Searching for Singapore restaurants that use this technique…</i>`);
   } else if (intent.intent === 'ingredient') {
     const explainer = intent.why || (lang === 'fr' ? 'ingrédient.' : 'ingredient.');
     lines.push(lang === 'fr'
-      ? `🌿 *${explainer}*\n\n_Recherche de restaurants à Singapour qui le mettent en valeur…_`
-      : `🌿 *${explainer}*\n\n_Searching for Singapore restaurants that feature it…_`);
+      ? `🌿 <b>${esc(explainer)}</b>\n\n<i>Recherche de restaurants à Singapour qui le mettent en valeur…</i>`
+      : `🌿 <b>${esc(explainer)}</b>\n\n<i>Searching for Singapore restaurants that feature it…</i>`);
   } else if (intent.cuisine) {
-    lines.push(lang === 'fr'
-      ? `🍽 *${intent.cuisine}* — ${intent.why || 'recherche en cours.'}`
-      : `🍽 *${intent.cuisine}* — ${intent.why || 'searching.'}`);
+    const why = intent.why || (lang === 'fr' ? 'recherche en cours.' : 'searching.');
+    lines.push(`🍽 <b>${esc(intent.cuisine)}</b> — ${esc(why)}`);
   } else if (intent.why) {
-    lines.push(`🍽 ${intent.why}`);
+    lines.push(`🍽 ${esc(intent.why)}`);
   }
   if (!top.length) {
     lines.push(lang === 'fr'
@@ -3558,15 +3596,19 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     lines.push('');
     top.forEach((v, i) => {
       const rating = Number.isFinite(v.rating) ? `★${v.rating.toFixed(1)}` : '';
-      const area = v.area ? ` · ${v.area}` : '';
-      const mapsUrl = v.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + ' Singapore')}`;
-      lines.push(`*${i + 1}. ${v.name}* ${rating}${area}\n📍 ${mapsUrl}`);
+      const mapsUrl = v.url;
+      lines.push(`<b>${i + 1}. ${esc(v.name)}</b> ${rating}\n📍 ${esc(mapsUrl)}`);
     });
   }
   const reply = lines.join('\n');
   const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
-  const suffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
-  await safeSend(chatId, reply + suffix, { parse_mode: 'Markdown', disable_web_page_preview: true });
+  // The 6-RT nudge string contains markdown back-ticks (`/s end`).
+  // Convert to HTML <code>…</code> so it renders cleanly in HTML mode.
+  const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+  const suffix = rawSuffix
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/_([^_]+)_/g, '<i>$1</i>');
+  await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
 }
 
 async function runForgetMeCommand(chatId, lang = 'en') {
