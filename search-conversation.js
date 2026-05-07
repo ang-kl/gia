@@ -121,11 +121,32 @@ function endNudge(lang = 'en') {
     : '\n\n_Tip: type `/s end` to finish this conversation, or any other `/...` command to switch._';
 }
 
+// v0.60.4 — R.E.D disambiguation sticky. The conversation cache
+// holds the user's last interpretation choice so a follow-up turn
+// like "/s carrot cake again" stays on the same interpretation
+// without forcing the user to re-disambiguate. TTL inherits from
+// the conversation key so it expires with the conversation.
+async function setLastDisambig(redis, chatId, stickyKey) {
+  if (!redis || !chatId || !stickyKey) return null;
+  let conv = await getConversation(redis, chatId);
+  if (!conv) conv = { started: Date.now(), rt: 0, history: [], intent: null };
+  conv.lastDisambig = { entryMatch: stickyKey.entryMatch, chosenId: stickyKey.chosenId, at: Date.now() };
+  try {
+    if (!redis.isOpen) await redis.connect();
+    await redis.setEx(`${KEY_PREFIX}${chatId}`, TTL_S, JSON.stringify(conv));
+    return conv;
+  } catch (err) {
+    console.warn('[Search-Conv] setLastDisambig failed:', err.message);
+    return null;
+  }
+}
+
 module.exports = {
   getConversation,
   startConversation,
   appendExchange,
   endConversation,
+  setLastDisambig,
   isOtherSlashCommand,
   isEndSignal,
   shouldNudgeEnd,

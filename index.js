@@ -3520,19 +3520,62 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     await safeSend(chatId, esc(reply) + esc(suffix), { parse_mode: 'HTML' });
     return;
   }
-  // Resolved intent. Two paths now (v0.60.0):
-  //   • tool intent + technique entry exists → fan-out: parallel
-  //     Places searches per cuisine variant + Gemini authenticity
-  //     validation + tier-grouped HTML render. Per Human Lead
-  //     2026-05-07 (origin → other authentic traditions → fusion;
-  //     ≤3 origin, ≤2 per variant, ≤1 fusion, ≤6 total).
-  //   • dish / ingredient / cuisine-tagged tool → existing single
-  //     Places query path (unchanged from v0.59.59).
+  // Resolved intent. Three paths now (v0.60.4):
+  //   • R.E.D ambiguity hit → handle disambiguation:
+  //       - LOW confidence → render both interpretations side-by-side,
+  //         no Places call (let user one-tap pivot).
+  //       - HIGH/MEDIUM confidence → override searchTerm with the
+  //         disambig.searchSpec.searchPhrase + prepend disclosure header.
+  //   • tool intent + technique entry exists → existing v0.60.0 fan-out.
+  //   • dish / ingredient / cuisine-tagged tool → existing single Places
+  //     query path (unchanged from v0.59.59).
   const { getUserLocation } = require('./location-cache');
   const axios = require('axios');
   const loc = await getUserLocation(redis, chatId).catch(() => null);
   const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
   const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+  // v0.60.4 — R.E.D disambiguation pre-step. Deterministic, no Gemini.
+  const disambig = gc.disambiguateTerm({
+    text: userText,
+    ctx: {
+      lang,
+      locale: 'SG',                            // physical location, NOT user nationality
+      lastDisambig: conv?.lastDisambig
+    }
+  });
+  if (disambig.kind !== 'none' && disambig.confidence === 'low' && disambig.alternatives.length > 0) {
+    // LOW confidence — show both interpretations, no Places call.
+    // Disclosure already lists each alternative as a one-tap pivot.
+    const reply = (lang === 'fr'
+      ? `🤔 <i>Plusieurs interprétations possibles. Tapez l'une des options ci-dessous:</i>\n\n`
+      : `🤔 <i>This term has multiple meanings — tap one to refine:</i>\n\n`)
+      + disambig.disclosure[lang === 'fr' ? 'fr' : 'en'];
+    const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
+    // Persist sticky for the next turn (so a follow-up "Western" doesn't reset).
+    if (disambig.searchSpec?.stickyKey) {
+      try { await sc.setLastDisambig(redis, chatId, disambig.searchSpec.stickyKey); }
+      catch (err) { console.warn('[Search] setLastDisambig failed:', err.message); }
+    }
+    const rawSuffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
+    const suffix = rawSuffix.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/_([^_]+)_/g, '<i>$1</i>');
+    await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
+    return;
+  }
+  // HIGH or MEDIUM confidence — replace searchTerm + prepend disclosure to render path.
+  let disambigDisclosure = null;
+  if (disambig.kind !== 'none' && disambig.searchSpec?.searchPhrase) {
+    intent = {
+      ...intent,
+      searchTerm: disambig.searchSpec.searchPhrase,
+      cuisine: intent.cuisine || disambig.chosen.cuisine
+    };
+    disambigDisclosure = disambig.disclosure[lang === 'fr' ? 'fr' : 'en'];
+    // Persist sticky so the next turn knows which interpretation we're on.
+    if (disambig.searchSpec.stickyKey) {
+      try { await sc.setLastDisambig(redis, chatId, disambig.searchSpec.stickyKey); }
+      catch (err) { console.warn('[Search] setLastDisambig failed:', err.message); }
+    }
+  }
   const techEntry = intent.intent === 'tool' ? gc.lookupTechnique(userText) : null;
   if (techEntry) {
     return await runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc });
@@ -3580,6 +3623,11 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // Build the reply in HTML mode.
   const top = venues.slice(0, 3);
   const lines = [];
+  // v0.60.4 — prepend disambiguation disclosure if R.E.D pre-step resolved an ambiguous term.
+  if (disambigDisclosure) {
+    lines.push(disambigDisclosure);
+    lines.push('');
+  }
   if (intent.intent === 'tool') {
     // Cooking technique / kitchen tool — lead with the explainer.
     const explainer = intent.why || (lang === 'fr' ? 'technique de cuisson.' : 'cooking technique.');

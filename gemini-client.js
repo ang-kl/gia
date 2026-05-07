@@ -933,12 +933,681 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
   return out;
 }
 
-// v0.60.1 — model fallback chain. `gemini-2.0-flash` was permanently
-// retired by Google ("404 — no longer available to new users"),
-// removed from the chain. `gemini-2.5-flash` added as a middle step
-// to keep three distinct fallback layers and mirror the /hidden
-// FALLBACK_CHAIN at line 219. classifySearchIntent and
-// validateAuthenticity both use this chain.
+// v0.60.4 — R.E.D ambiguity dictionary. Per Human Lead 2026-05-07:
+// Singapore is a culinary melting pot, so dish names overlap across
+// traditions and the bot must DETERMINISTICALLY disambiguate before
+// running a search. NO Gemini in this pipeline — too risky for
+// silent-guess output. Dictionary-only, signal-weighted.
+//
+// Each entry has multiple `interpretations[]`. Each interpretation has:
+//   - id           : stable identifier
+//   - label        : human-readable, used in disclosure
+//   - cuisine      : routes to existing cuisine classification
+//   - flag         : country flag emoji for tourist render
+//   - defaultIn[]  : ISO codes / 'SG' tags — locale tiebreaker
+//   - signals[]    : modifier substrings that pin THIS interpretation
+//                    (e.g. 'cream cheese' → western dessert)
+//
+// Match precedence: explicit modifier (signals) > locale default >
+// conversation history > LOW-CONFIDENCE fallback (show both, never guess).
+const AMBIGUOUS_DISHES = [
+  {
+    match: ['carrot cake', 'chai tow kway', '菜头粿'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-chai-tow-kway',
+        label: 'Singapore savoury fried carrot cake',
+        cuisine: 'Teochew', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['white', 'black', 'chai tow kway', 'fried', 'kway', 'savoury', 'hawker', 'wok'] },
+      { id: 'western-dessert',
+        label: 'Western carrot cake dessert',
+        cuisine: 'American', flag: '🇺🇸',
+        defaultIn: ['US', 'UK', 'EU', 'AU'],
+        signals: ['cream cheese', 'cinnamon', 'walnut', 'frosted', 'slice', 'cake shop', 'dessert', 'icing', 'bakery'] }
+    ]
+  },
+  {
+    match: ['bak kut teh', 'bkt'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'teochew-bkt',
+        label: 'Teochew bak kut teh (peppery clear broth)',
+        cuisine: 'Teochew', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['peppery', 'pepper', 'clear', 'white', 'teochew', 'song fa'] },
+      { id: 'hokkien-bkt',
+        label: 'Hokkien bak kut teh (dark herbal broth)',
+        cuisine: 'Hokkien', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['herbal', 'dark', 'klang', 'hokkien', 'malaysian'] }
+    ]
+  },
+  {
+    match: ['laksa'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'katong-laksa',
+        label: 'Katong laksa (creamy coconut, cut noodles)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['katong', 'coconut', 'creamy', 'cut noodles', 'laksa lemak', 'nyonya', 'peranakan'] },
+      { id: 'penang-asam-laksa',
+        label: 'Penang asam laksa (tamarind, fish, no coconut)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['penang', 'asam', 'tamarind', 'sour', 'fish', 'no coconut'] },
+      { id: 'sarawak-laksa',
+        label: 'Sarawak laksa (sambal belacan + coconut + chicken)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['sarawak', 'sambal belacan'] }
+    ]
+  },
+  {
+    match: ['rojak'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'chinese-rojak',
+        label: 'Chinese rojak (fruit + dough fritters + prawn paste)',
+        cuisine: 'Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['chinese', 'prawn paste', 'haebee', 'cucumber', 'pineapple', 'you tiao'] },
+      { id: 'indian-rojak',
+        label: 'Indian rojak (mixed fritters + sweet potato sauce)',
+        cuisine: 'Indian-Singaporean', flag: '🇮🇳',
+        defaultIn: ['SG'],
+        signals: ['indian', 'pasembur', 'fritter', 'sweet sauce'] }
+    ]
+  },
+  {
+    match: ['curry puff', 'karipap'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-curry-puff',
+        label: 'Singapore curry puff (Old Chang Kee style — chicken curry, hard pastry)',
+        cuisine: 'Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['old chang kee', 'chicken', 'potato', 'crispy', 'hard pastry'] },
+      { id: 'malay-karipap',
+        label: 'Malay karipap (cumin + potato, flaky pastry)',
+        cuisine: 'Malay', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['malay', 'karipap', 'cumin', 'flaky', 'pusing'] }
+    ]
+  },
+  {
+    match: ['chicken rice', 'hainanese chicken rice'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'hainanese-poached',
+        label: 'Hainanese poached chicken rice (default)',
+        cuisine: 'Hainanese', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['poached', 'white', 'hainanese'] },
+      { id: 'roasted-chicken-rice',
+        label: 'Roasted chicken rice',
+        cuisine: 'Cantonese', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['roasted', 'roast', 'siu mei'] },
+      { id: 'soy-sauce-chicken-rice',
+        label: 'Soya sauce chicken rice',
+        cuisine: 'Cantonese', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['soy sauce', 'soya', 'see yew', 'liao fan'] }
+    ]
+  },
+  {
+    match: ['char kway teow', 'char kuey teow', 'ckt'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-ckt',
+        label: 'Singapore char kway teow (sweeter, lighter)',
+        cuisine: 'Teochew', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'sweet', 'cockle'] },
+      { id: 'penang-ckt',
+        label: 'Penang char kway teow (drier, more wok hei)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['penang', 'wok hei', 'duck egg', 'lard'] }
+    ]
+  },
+  {
+    match: ['hokkien mee'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-hokkien-mee',
+        label: 'Singapore Hokkien mee (yellow + bee hoon, prawn stock)',
+        cuisine: 'Hokkien', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'prawn', 'yellow', 'bee hoon', 'sambal'] },
+      { id: 'kl-hokkien-mee',
+        label: 'KL Hokkien mee (dark soy, thick noodle, pork lard)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['kl', 'dark', 'thick', 'lard', 'kuala lumpur'] },
+      { id: 'penang-hokkien-mee',
+        label: 'Penang Hokkien mee (prawn-paste broth, hae mee)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['penang', 'hae mee', 'prawn broth'] }
+    ]
+  },
+  {
+    match: ['mee goreng'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'malay-mee-goreng',
+        label: 'Malay mee goreng (sambal-based, sweet-spicy)',
+        cuisine: 'Malay', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['malay', 'sambal', 'sweet'] },
+      { id: 'mamak-mee-goreng',
+        label: 'Mamak / Indian-Muslim mee goreng (tomato-based)',
+        cuisine: 'Indian-Singaporean', flag: '🇮🇳',
+        defaultIn: ['SG', 'MY'],
+        signals: ['mamak', 'indian', 'tomato', 'tamil'] }
+    ]
+  },
+  {
+    match: ['biryani', 'briyani', 'nasi briyani'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'hyderabadi-biryani',
+        label: 'Hyderabadi biryani (dum-cooked, saffron, mutton)',
+        cuisine: 'North Indian', flag: '🇮🇳',
+        defaultIn: ['IN'],
+        signals: ['hyderabadi', 'dum', 'saffron'] },
+      { id: 'lucknowi-biryani',
+        label: 'Lucknowi / Awadhi biryani (lighter spicing)',
+        cuisine: 'North Indian', flag: '🇮🇳',
+        defaultIn: ['IN'],
+        signals: ['lucknowi', 'awadhi'] },
+      { id: 'sg-nasi-briyani',
+        label: 'Singapore nasi briyani (Indian-Muslim style, ghee rice + curry)',
+        cuisine: 'Indian-Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['nasi briyani', 'mamak', 'ghee', 'singapore'] }
+    ]
+  },
+  {
+    match: ['goulash', 'gulyás'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'hu-stew',
+        label: 'Hungarian gulyás (paprika beef stew, soup-like)',
+        cuisine: 'European', flag: '🇭🇺',
+        defaultIn: ['HU'],
+        signals: ['hungarian', 'paprika', 'soup', 'kettle', 'gulyás', 'gulyas'] },
+      { id: 'cz-with-dumplings',
+        label: 'Czech guláš with bread dumplings',
+        cuisine: 'European', flag: '🇨🇿',
+        defaultIn: ['CZ'],
+        signals: ['dumpling', 'dumplings', 'knedlík', 'knedlíky', 'czech'] },
+      { id: 'at-bavarian',
+        label: 'Austrian/Bavarian goulash (with spätzle or bread dumplings)',
+        cuisine: 'European', flag: '🇦🇹',
+        defaultIn: ['AT', 'DE'],
+        signals: ['austrian', 'bavarian', 'wiener', 'spätzle', 'spaetzle'] }
+    ]
+  },
+  {
+    match: ['wonton', 'wantan', 'wanton'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'cantonese-wonton',
+        label: 'Cantonese wonton (prawn + pork, thin skin, broth)',
+        cuisine: 'Cantonese', flag: '🇨🇳',
+        defaultIn: ['SG', 'HK', 'CN'],
+        signals: ['cantonese', 'prawn', 'broth', 'thin skin', 'hong kong'] },
+      { id: 'sichuan-wonton',
+        label: 'Sichuan chao shou wonton (chili oil, vinegar)',
+        cuisine: 'Sichuan', flag: '🇨🇳',
+        defaultIn: ['CN'],
+        signals: ['sichuan', 'chao shou', 'chili oil', 'spicy', 'red oil'] }
+    ]
+  },
+  {
+    match: ['prata', 'paratha', 'roti prata', 'roti paratha'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-roti-prata',
+        label: 'Singapore roti prata (flaky, with curry)',
+        cuisine: 'Indian-Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'flaky', 'curry', 'kosong', 'plaster', 'cheese prata'] },
+      { id: 'in-paratha',
+        label: 'Indian paratha (denser layered flatbread)',
+        cuisine: 'North Indian', flag: '🇮🇳',
+        defaultIn: ['IN'],
+        signals: ['indian', 'aloo', 'gobi', 'punjabi', 'stuffed paratha'] }
+    ]
+  },
+  {
+    match: ['chendol', 'cendol'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-chendol',
+        label: 'Singapore/Malaysian chendol (gula melaka + green jelly + coconut milk)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['gula melaka', 'green jelly', 'coconut', 'singapore', 'malaysian'] },
+      { id: 'id-es-cendol',
+        label: 'Indonesian es cendol (similar but red bean variant common)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['indonesian', 'es cendol', 'red bean', 'jakarta'] }
+    ]
+  },
+  {
+    match: ['oyster omelette', 'orh luak', 'or chien', 'orh chien'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'teochew-orh-luak',
+        label: 'Teochew orh luak (gooey starch base, oyster + egg)',
+        cuisine: 'Teochew', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['teochew', 'orh luak', 'singapore', 'starch'] },
+      { id: 'taiwan-o-a-chian',
+        label: 'Taiwanese o-á-chian (sweeter sauce, larger oysters)',
+        cuisine: 'Taiwanese', flag: '🇹🇼',
+        defaultIn: ['TW'],
+        signals: ['taiwan', 'taiwanese', 'shilin', 'sweet sauce'] }
+    ]
+  },
+  {
+    match: ['mee siam'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-mee-siam',
+        label: 'Singapore mee siam (sweet-tangy gravy with peanuts)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'gravy', 'tau cheo'] },
+      { id: 'malay-mee-siam',
+        label: 'Malay mee siam (drier, sambal-fried)',
+        cuisine: 'Malay', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['malay', 'dry', 'sambal'] }
+    ]
+  },
+  {
+    match: ['satay'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-malay-satay',
+        label: 'Malay/Singaporean satay (chicken, beef, mutton + peanut sauce)',
+        cuisine: 'Malay', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['malay', 'chicken', 'beef', 'mutton', 'lau pa sat'] },
+      { id: 'indonesian-sate',
+        label: 'Indonesian sate (regional variants — sate ayam, sate padang)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['indonesian', 'sate ayam', 'sate padang', 'jakarta', 'java'] },
+      { id: 'thai-moo-satay',
+        label: 'Thai-style satay (sweeter peanut sauce + ajat)',
+        cuisine: 'Thai', flag: '🇹🇭',
+        defaultIn: ['TH'],
+        signals: ['thai', 'ajat', 'bangkok'] }
+    ]
+  },
+  {
+    match: ['pho'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'pho-bac',
+        label: 'Northern Vietnamese phở Bắc (clear broth, simpler)',
+        cuisine: 'Vietnamese', flag: '🇻🇳',
+        defaultIn: ['VN'],
+        signals: ['hanoi', 'bac', 'northern', 'clear'] },
+      { id: 'pho-nam',
+        label: 'Southern Vietnamese phở Nam (sweeter, richer broth)',
+        cuisine: 'Vietnamese', flag: '🇻🇳',
+        defaultIn: ['VN'],
+        signals: ['saigon', 'nam', 'southern', 'hoisin', 'sriracha'] }
+    ]
+  },
+  {
+    match: ['ramen'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'tonkotsu',
+        label: 'Tonkotsu ramen (Hakata/Fukuoka — pork bone, milky)',
+        cuisine: 'Japanese', flag: '🇯🇵',
+        defaultIn: ['JP'],
+        signals: ['tonkotsu', 'hakata', 'fukuoka', 'pork bone', 'milky'] },
+      { id: 'shoyu',
+        label: 'Shoyu ramen (Tokyo — soy-based clear broth)',
+        cuisine: 'Japanese', flag: '🇯🇵',
+        defaultIn: ['JP'],
+        signals: ['shoyu', 'tokyo', 'soy', 'clear'] },
+      { id: 'miso',
+        label: 'Miso ramen (Sapporo — fermented soybean paste)',
+        cuisine: 'Japanese', flag: '🇯🇵',
+        defaultIn: ['JP'],
+        signals: ['miso', 'sapporo', 'hokkaido'] },
+      { id: 'shio',
+        label: 'Shio ramen (salt-based, lightest)',
+        cuisine: 'Japanese', flag: '🇯🇵',
+        defaultIn: ['JP'],
+        signals: ['shio', 'salt'] }
+    ]
+  },
+  {
+    match: ['ban mian', 'pan mee'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-ban-mian',
+        label: 'Singapore ban mian (clear broth, ikan bilis, hand-pulled noodles)',
+        cuisine: 'Hakka', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'ikan bilis', 'hand pulled'] },
+      { id: 'kl-pan-mee',
+        label: 'KL pan mee (dry chili variant common, mushroom + sambal)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['kl', 'dry chili', 'mushroom', 'sambal', 'kuala lumpur'] }
+    ]
+  },
+  {
+    match: ['popiah'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-popiah',
+        label: 'Singapore popiah (turnip + sweet sauce, fresh wrap)',
+        cuisine: 'Hokkien', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['turnip', 'sweet sauce', 'kee chap', 'singapore'] },
+      { id: 'taiwan-popiah',
+        label: 'Taiwanese run-bing (peanut crumb forward)',
+        cuisine: 'Taiwanese', flag: '🇹🇼',
+        defaultIn: ['TW'],
+        signals: ['taiwan', 'run bing', 'peanut crumb'] }
+    ]
+  },
+  {
+    match: ['gado gado'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'jakarta-gado-gado',
+        label: 'Jakarta gado-gado (peanut sauce + rice cake + tofu + tempeh)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['jakarta', 'java', 'lontong'] },
+      { id: 'sg-gado-gado',
+        label: 'Singapore-style gado gado (less peanut, more sambal)',
+        cuisine: 'Indonesian', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'sambal'] }
+    ]
+  },
+  {
+    match: ['murtabak'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-murtabak',
+        label: 'Singapore Indian-Muslim murtabak (mutton/chicken + onion stuffed prata)',
+        cuisine: 'Indian-Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'mamak', 'mutton', 'chicken', 'zam zam'] },
+      { id: 'arabic-murtabak',
+        label: 'Arabic murtabak (egg + meat folded crepe, Yemeni origin)',
+        cuisine: 'Middle Eastern', flag: '🇾🇪',
+        defaultIn: ['YE', 'AE'],
+        signals: ['arabic', 'yemeni', 'egg crepe'] }
+    ]
+  },
+  {
+    match: ['chwee kueh', 'shui guo'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-chwee-kueh',
+        label: 'Singapore chwee kueh (steamed rice cake + fried preserved radish)',
+        cuisine: 'Teochew', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'preserved radish', 'chai poh'] }
+    ]
+  },
+  {
+    match: ['otak', 'otah'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-otah',
+        label: 'Singapore otah (banana-leaf wrapped fish cake)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['banana leaf', 'fish cake', 'singapore'] },
+      { id: 'id-otak-otak',
+        label: 'Indonesian otak-otak (smaller, sweeter, served with peanut sauce)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['indonesian', 'palembang', 'peanut sauce'] }
+    ]
+  },
+  {
+    match: ['ice kachang', 'ais kacang', 'ice kacang'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-ice-kachang',
+        label: 'Singapore ice kachang (shaved ice + syrup + corn + red bean + jelly)',
+        cuisine: 'Singaporean', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['shaved ice', 'red bean', 'corn', 'syrup'] }
+    ]
+  },
+  {
+    match: ['kuih lapis', 'kueh lapis'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'kuih-lapis-sagu',
+        label: 'Kuih lapis sagu (steamed sago + coconut layered cake)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['sagu', 'sago', 'steamed', 'coconut', 'colorful'] },
+      { id: 'kuih-lapis-legit',
+        label: 'Kuih lapis legit / lapis Surabaya (rich butter spice cake, Indo-Dutch)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['legit', 'spekkoek', 'surabaya', 'butter'] }
+    ]
+  },
+  {
+    match: ['ondeh ondeh', 'klepon'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-ondeh-ondeh',
+        label: 'Ondeh ondeh (pandan glutinous rice ball + gula melaka + coconut)',
+        cuisine: 'Peranakan', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['pandan', 'gula melaka', 'glutinous'] },
+      { id: 'id-klepon',
+        label: 'Indonesian klepon (smaller, similar fill, often green)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['indonesian', 'klepon', 'java'] }
+    ]
+  },
+  {
+    match: ['mee rebus'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-mee-rebus',
+        label: 'Singapore mee rebus (sweet potato gravy, egg, lime)',
+        cuisine: 'Malay', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['singapore', 'sweet potato gravy', 'lime'] }
+    ]
+  },
+  {
+    match: ['soto ayam'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'id-soto-ayam',
+        label: 'Indonesian soto ayam (turmeric chicken broth, vermicelli)',
+        cuisine: 'Indonesian', flag: '🇮🇩',
+        defaultIn: ['ID'],
+        signals: ['indonesian', 'turmeric', 'kunyit'] },
+      { id: 'sg-soto-ayam',
+        label: 'Singapore/Malay soto ayam (lighter, served with ketupat or bergedil)',
+        cuisine: 'Malay', flag: '🇸🇬',
+        defaultIn: ['SG', 'MY'],
+        signals: ['ketupat', 'bergedil', 'singapore', 'malay'] }
+    ]
+  },
+  {
+    match: ['prawn noodle', 'hae mee', 'har mee'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'sg-prawn-noodle',
+        label: 'Singapore prawn mee (clear prawn broth, dry or soup)',
+        cuisine: 'Hokkien', flag: '🇸🇬',
+        defaultIn: ['SG'],
+        signals: ['singapore', 'clear', 'sambal', 'pork rib'] },
+      { id: 'penang-hae-mee',
+        label: 'Penang hae mee (richer prawn broth, more sweetness)',
+        cuisine: 'Malaysian', flag: '🇲🇾',
+        defaultIn: ['MY'],
+        signals: ['penang', 'rich', 'malaysian'] }
+    ]
+  }
+];
+
+// v0.60.4 — disambiguateTerm: deterministic ambiguity resolver. NO
+// Gemini call here (per Human Lead). Signal-weighted: explicit
+// modifier > geographic locale default > conversation history >
+// low-confidence fallback (show both).
+//
+// Inputs:
+//   text          : raw user query
+//   ctx           : { lang, locale, history, lastDisambig }
+//                   - locale: ISO country code (e.g. 'SG'). NOT user nationality.
+//                   - lastDisambig: { entryMatch, chosenId } from prior turn
+//                                    in same conversation; sticky for 6 turns.
+//
+// Returns { kind, chosen, alternatives, confidence, isTourist,
+//           disclosure, searchSpec } or { kind: 'none' } if no match.
+//
+// IMPORTANT: language of `text` is NOT a signal. Only the dish-level
+// `signals[]` matches and explicit nation names matter. A Singaporean
+// typing 'Sautage' wants French food; that the word is French has
+// no bearing on user nationality and routes purely on the dish entry.
+function disambiguateTerm({ text, ctx = {} }) {
+  const lc = String(text || '').toLowerCase().trim();
+  if (!lc) return { kind: 'none' };
+  const locale = String(ctx.locale || 'SG').toUpperCase();
+  const lang = String(ctx.lang || 'en').toLowerCase();
+  // Find the matching ambiguous-dish entry.
+  const entry = AMBIGUOUS_DISHES.find((e) => e.match.some((m) => lc.includes(String(m).toLowerCase())));
+  if (!entry) return { kind: 'none' };
+  // Score each interpretation by SIGNALS hits in user text.
+  const scored = entry.interpretations.map((i) => {
+    const signalHits = (i.signals || []).filter((s) => lc.includes(String(s).toLowerCase())).length;
+    const localeMatch = (i.defaultIn || []).includes(locale);
+    return { interp: i, signalHits, localeMatch };
+  });
+  const maxSignals = Math.max(0, ...scored.map((s) => s.signalHits));
+  let chosen = null;
+  let confidence = 'low';
+  let alternatives = [];
+  if (maxSignals > 0) {
+    // HIGH confidence — explicit modifier wins.
+    const winners = scored.filter((s) => s.signalHits === maxSignals);
+    chosen = winners[0].interp;
+    confidence = winners.length === 1 ? 'high' : 'medium';
+    alternatives = scored.filter((s) => s.interp.id !== chosen.id).map((s) => s.interp);
+  } else {
+    // No modifier hit. Try locale.
+    const localeWinners = scored.filter((s) => s.localeMatch);
+    if (localeWinners.length === 1) {
+      // MEDIUM confidence — locale gives a single default.
+      chosen = localeWinners[0].interp;
+      confidence = 'medium';
+      alternatives = scored.filter((s) => s.interp.id !== chosen.id).map((s) => s.interp);
+    } else if (localeWinners.length > 1) {
+      // Multiple interpretations all default in this locale. LOW confidence.
+      chosen = localeWinners[0].interp;
+      confidence = 'low';
+      alternatives = entry.interpretations.filter((i) => i.id !== chosen.id);
+    } else {
+      // No locale match. LOW confidence — show all.
+      chosen = entry.interpretations[0];
+      confidence = 'low';
+      alternatives = entry.interpretations.slice(1);
+    }
+  }
+  // Conversation history sticky: if prior turn picked a different id
+  // for this same entry, prefer it (overrides MEDIUM but not HIGH).
+  const last = ctx.lastDisambig;
+  if (last && last.entryMatch === entry.match[0] && last.chosenId && confidence !== 'high') {
+    const stickyInterp = entry.interpretations.find((i) => i.id === last.chosenId);
+    if (stickyInterp && stickyInterp.id !== chosen.id) {
+      chosen = stickyInterp;
+      confidence = 'medium';
+      alternatives = entry.interpretations.filter((i) => i.id !== chosen.id);
+    }
+  }
+  // Tourist heuristic: bare query (≤3 words), no signals, no history.
+  const tokenCount = lc.split(/\s+/).filter(Boolean).length;
+  const isTourist = tokenCount <= 3 && maxSignals === 0 && !last;
+  // Disclosure copy.
+  const disclosure = buildDisclosure({ entry, chosen, alternatives, confidence, lang });
+  return {
+    kind: entry.kind,
+    chosen: { id: chosen.id, label: chosen.label, cuisine: chosen.cuisine, flag: chosen.flag || '🍽' },
+    alternatives: alternatives.map((a) => ({ id: a.id, label: a.label, cuisine: a.cuisine, flag: a.flag || '🍽', oneTapHint: pickOneTapHint(a) })),
+    confidence,
+    isTourist,
+    disclosure,
+    searchSpec: {
+      kind: entry.kind,
+      cuisine: chosen.cuisine,
+      dishKey: entry.match[0],
+      searchPhrase: deriveSearchPhrase(chosen),
+      wantSpread: confidence === 'low',                   // low → show both side by side
+      stickyKey: { entryMatch: entry.match[0], chosenId: chosen.id }
+    }
+  };
+}
+
+// Strip parenthetical descriptions and any leading "Singapore" from
+// the interpretation label, then suffix "Singapore" for Places query.
+// "Singapore savoury fried carrot cake" → "savoury fried carrot cake Singapore"
+// "Hungarian gulyás (paprika beef stew, soup-like)" → "Hungarian gulyás Singapore"
+function deriveSearchPhrase(interp) {
+  if (!interp || typeof interp.label !== 'string') return '';
+  let label = interp.label.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+  label = label.replace(/^Singapore\s+/i, '');
+  return `${label} restaurant Singapore`.replace(/\s+/g, ' ').trim();
+}
+
+// Pick the first signal as a one-tap hint for the alternative.
+// Used in the disclosure: "Meant the X? → /s {term} {hint}".
+function pickOneTapHint(interp) {
+  const sig = (interp.signals || []).find((s) => s.length <= 12 && !s.includes(' '));
+  return sig || (interp.signals && interp.signals[0]) || '';
+}
+
+function buildDisclosure({ entry, chosen, alternatives, confidence, lang }) {
+  const term = entry.match[0];
+  const fr = lang === 'fr';
+  const head = fr
+    ? `ℹ️ <i>Lecture: <b>${chosen.label}</b> (${chosen.cuisine}).</i>`
+    : `ℹ️ <i>Reading this as <b>${chosen.label}</b> (${chosen.cuisine}).</i>`;
+  // High confidence — modifier was explicit; no alternative offered.
+  if (confidence === 'high') return { en: head, fr: head };
+  // Medium / low confidence — offer one-tap pivots.
+  const altLines = alternatives.slice(0, 3).map((a) => {
+    const hint = pickOneTapHint(a);
+    return fr
+      ? `   <i>Voulu <b>${a.label}</b> ? → <code>/s ${term} ${hint}</code></i>`
+      : `   <i>Meant <b>${a.label}</b>? → <code>/s ${term} ${hint}</code></i>`;
+  }).join('\n');
+  const text = `${head}\n${altLines}`;
+  return { en: text, fr: text };
+}
+
 const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-flash-latest',
   'gemini-2.5-flash',
@@ -1131,8 +1800,10 @@ module.exports = {
   resolveOrigin,
   canonicalDishPhrase,
   validateAuthenticity,
+  disambiguateTerm,
   DISH_FALLBACK,
   TECHNIQUE_FALLBACK,
+  AMBIGUOUS_DISHES,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,
