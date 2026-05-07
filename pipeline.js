@@ -760,6 +760,31 @@ function dishTailKey(venue) {
   return tokens[tokens.length - 1];
 }
 
+// v0.59.42: light shuffle for deterministic Places paths. POPULARITY-
+// ranked searchNearby returns the same ordering every call at the
+// same lat/lng — the user reported "always same 3 venues" for the
+// empty-cuisine + Dessert paths. Bucket the list into rating tiers
+// (≥4.5, ≥4.0, <4.0), Fisher-Yates within each tier, then concat.
+// Result: top-rated venues stay near the top (don't surface a 3.5★
+// place above a 4.7★), but order within a tier rotates per call.
+function lightShuffle(venues) {
+  if (!Array.isArray(venues) || venues.length < 2) return venues;
+  const tiers = [[], [], []];
+  for (const v of venues) {
+    const r = Number(v?.rating) || 0;
+    if (r >= 4.5) tiers[0].push(v);
+    else if (r >= 4.0) tiers[1].push(v);
+    else tiers[2].push(v);
+  }
+  for (const tier of tiers) {
+    for (let i = tier.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tier[i], tier[j]] = [tier[j], tier[i]];
+    }
+  }
+  return [...tiers[0], ...tiers[1], ...tiers[2]];
+}
+
 function throttleByDishTail(venues, cap = 2) {
   if (!Array.isArray(venues)) return venues;
   // Dish-tail words that ARE generic enough to over-cluster. Skip
@@ -884,12 +909,20 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   let effectiveCuisines = expandSingaporean ? expandSingaporeanCuisines(cuisines) : cuisines;
   effectiveCuisines = expandDessertCuisines(effectiveCuisines);
   effectiveCuisines = expandFusionCuisines(effectiveCuisines);
+  // v0.59.42: detect a Dessert pick. Dessert venues in SG are typically
+  // primaryType bakery / cafe / dessert_restaurant, NOT 'restaurant'.
+  // The text path's `includedType: 'restaurant'` was under-returning
+  // them (user reported /c Dessert showed nothing). Route Dessert to
+  // searchNearby with the right type set instead.
+  const isDessertPick = Array.isArray(cuisines) && cuisines.some((c) =>
+    String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
+  );
   diag('D710', 'Discover Places start', true, { lat, lng, cuisines: effectiveCuisines, radius });
   const t0 = Date.now();
   try {
     const hasCuisines = Array.isArray(effectiveCuisines) && effectiveCuisines.length > 0;
     let data;
-    if (hasCuisines) {
+    if (hasCuisines && !isDessertPick) {
       const cuisineQuery = effectiveCuisines.join(' OR ');
       // v0.57.15: append "cuisine" to disambiguate place-name overlap.
       // Bare names like "New Zealand" or "Australian" otherwise match
@@ -928,10 +961,17 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
       );
       data = textData;
     } else {
+      // v0.59.42: when Dessert is selected, query the dessert-shaped
+      // type set instead of the generic restaurant set. Empty-cuisine
+      // path keeps the generic set but adds dessert_restaurant + ice_
+      // cream_shop so dessert-y popular spots can surface there too.
+      const includedTypes = isDessertPick
+        ? ['dessert_restaurant', 'bakery', 'cafe', 'ice_cream_shop', 'meal_takeaway']
+        : ['restaurant', 'cafe', 'bar', 'meal_takeaway', 'food_court', 'bakery', 'dessert_restaurant'];
       const { data: nearbyData } = await axios.post(
         PLACES_NEARBY_URL,
         {
-          includedTypes: ['restaurant', 'cafe', 'bar', 'meal_takeaway', 'food_court', 'bakery'],
+          includedTypes,
           maxResultCount: Math.min(maxResults, 20),
           languageCode,                                    // v0.59.0
           locationRestriction: {
@@ -1013,10 +1053,18 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
     const throttled = applyDishTailThrottle
       ? throttleByDishTail(brandThrottled, 2)
       : brandThrottled;
+    // v0.59.42: empty-cuisine + Dessert paths use POPULARITY-ranked
+    // searchNearby — deterministic. User reported "always same 3"
+    // because the source ordering doesn't change between calls. Apply
+    // a light Fisher-Yates shuffle on those two paths so consecutive
+    // taps surface variety. Cuisine searches keep their order so the
+    // LLM rank/narrate path receives a stable rating-influenced list.
+    const shouldShuffle = !hasCuisines || isDessertPick;
+    const finalList = shouldShuffle ? lightShuffle(throttled) : throttled;
     const droppedBrand = raw.length - brandThrottled.length;
     const droppedTail = brandThrottled.length - throttled.length;
-    diag('D711', 'Discover Places ok', true, { n: throttled.length, ms, droppedBrand, droppedTail });
-    return throttled;
+    diag('D711', 'Discover Places ok', true, { n: finalList.length, ms, droppedBrand, droppedTail, shuffled: shouldShuffle });
+    return finalList;
   } catch (err) {
     const ms = Date.now() - t0;
     diag('D712', 'Discover Places failed', false, { err: err.message?.slice(0, 200), ms });
