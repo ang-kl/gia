@@ -352,7 +352,18 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
     }
     return lines.join('\n');
   });
-  const prefixText = prefix.join('\n').replace(/\s+$/, '');
+  // v0.60.32 — rewrite Gemini's "I found N hidden gems" prose to
+  // match the actual delivered count after dedup + verifier drops.
+  // Pre-v0.60.32 the user saw "I found 4 hidden gems" but only 3
+  // cards rendered (the 4th was filtered as CLOSED / unverifiable).
+  // Match EN ("I found 4 hidden gems"), FR ("J'ai trouvé 4 trésors").
+  const deliveredCount = survivors.length;
+  const prefixText = prefix
+    .map((line) => line.replace(
+      /\b(I found|J'ai trouvé)\s+\d+\s+(hidden gems?|trésors? cachés?)\b/i,
+      (_, verb, noun) => `${verb} ${deliveredCount} ${noun}`
+    ))
+    .join('\n').replace(/\s+$/, '');
   const joined = blockTexts.join('\n\n');
   const venues = survivors.map(({ block, lookup }) =>
     // v0.59.39: skip apiError markers (no real Places data) and nulls.
