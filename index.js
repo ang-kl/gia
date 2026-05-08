@@ -2788,10 +2788,28 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     // Validate the free text via forward-geocode + place-type check.
     const geo = await forwardGeocodeAndValidate(freeText);
     if (!geo.ok) {
+      // v0.60.23 — disambig pre-step for /hidden free-text. If the
+      // user typed a cuisine / dish name (e.g. /hidden ramen,
+      // /hidden Chinese), prepend a redirect line pointing at /s
+      // before falling through to the generic place-name hint.
+      // /hidden's anchor MUST be a place; /s handles cuisine search.
+      let cuisineRedirect = '';
+      try {
+        const gc = require('./gemini-client');
+        const probe = gc.disambiguateTerm({ text: freeText, ctx: { lang, locale: 'SG' } });
+        if (probe && probe.kind !== 'none') {
+          const term = String(freeText).trim();
+          cuisineRedirect = lang === 'fr'
+            ? `🍽 _"${term}"_ semble être une cuisine ou un plat. Pour une recherche culinaire, utilisez \`/s ${term}\`. \`/hidden\` cherche autour d'un *lieu*.\n\n`
+            : `🍽 _"${term}"_ looks like a cuisine or dish. For a food search, use \`/s ${term}\`. \`/hidden\` is for searching around a *place*.\n\n`;
+        }
+      } catch (err) {
+        console.warn('[/hidden] disambig pre-step failed (continuing):', err.message);
+      }
       // Bilingual hint: "give me a street/building/MRT name".
       const hint = lang === 'fr'
-        ? `Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
-        : `I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
+        ? `${cuisineRedirect}Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
+        : `${cuisineRedirect}I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
       await safeSend(chatId, hint, { parse_mode: 'Markdown' });
       return;
     }
@@ -6766,7 +6784,7 @@ async function cacheBotUsername() {
           });
         }
 
-        const cuisineMetas = (cuisines || [])
+        let cuisineMetas = (cuisines || [])
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
@@ -6781,13 +6799,16 @@ async function cacheBotUsername() {
         // the canonical interpretation. The result is forwarded to
         // the client as `disambig` so the TMA can render the
         // disclosure pill ("ℹ️ Reading this as Katong laksa").
+        // v0.60.23 — also handles parent-cuisine umbrellas (Chinese,
+        // Indian, European, Mediterranean…). When the user taps the
+        // umbrella chip alone, we expand cuisineMetas server-side to
+        // include the dominant sub-styles so Places returns an
+        // authentic spread (Cantonese / Sichuan / Hokkien) rather
+        // than the generic "Chinese restaurant" cluster.
         let chipDisambig = null;
         try {
           const gc = require('./gemini-client');
           const ctxLocale = (req.body?.region === 'JB') ? 'MY' : 'SG';
-          // Compose a probe string from the (free-text + first-cuisine-name)
-          // so phrases like "laksa" / "carrot cake" hit. Falls through
-          // silently when nothing ambiguous matches.
           const probeText = [String(req.body?.freeText || '').trim(), ...(cuisineMetas.map((m) => m.name))]
             .filter(Boolean).join(' ');
           if (probeText) {
@@ -6797,16 +6818,29 @@ async function cacheBotUsername() {
                 kind: probe.kind,
                 chosen: probe.chosen,
                 confidence: probe.confidence,
-                disclosure: probe.disclosure
+                disclosure: probe.disclosure,
+                subStyles: probe.subStyles || null
               };
+              // Parent-cuisine spread expansion. Only when the user
+              // selected exactly the umbrella alone — if they also
+              // picked specific sub-styles (e.g. Chinese + Sichuan)
+              // we keep their explicit choice and skip the spread.
+              if (probe.kind === 'parent-cuisine'
+                  && probe.searchSpec?.cuisines?.length
+                  && cuisineMetas.length === 1
+                  && cuisineMetas[0].slug === probe.searchSpec.cuisine) {
+                const subSlugs = probe.searchSpec.cuisines.slice(0, 5);
+                const subMetas = subSlugs.map((s) => cv.findBySlug(s)).filter(Boolean);
+                if (subMetas.length) {
+                  cuisineMetas = subMetas;
+                  console.log(`[Cuisine-Search] D703 parent-cuisine spread "${probe.chosen.cuisine}" → ${subSlugs.join(',')}`);
+                }
+              }
             }
           }
         } catch (err) {
           console.warn('[Cuisine-Search] disambig pre-step failed (continuing):', err.message);
         }
-        // attach to outer scope so the response builder picks it up.
-        const _chipDisambigForPayload = chipDisambig;
-        void _chipDisambigForPayload;
         // v0.59.49 — search-query tightening for cuisines whose
         // chip-label has weak food-name signal in Places. The chip
         // shows the user's chosen label (e.g. "New Zealand"), but the
@@ -7311,7 +7345,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: _chipDisambigForPayload, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
@@ -7412,13 +7446,23 @@ async function cacheBotUsername() {
               kind: probe.kind,
               chosen: probe.chosen,
               confidence: probe.confidence,
-              disclosure: probe.disclosure
+              disclosure: probe.disclosure,
+              subStyles: probe.subStyles || null
             };
-            // Promote the disambiguated cuisine — keep the inferred
-            // list as a fallback if disambig pointed elsewhere.
-            const disambigCuisine = String(probe.searchSpec.cuisine).toLowerCase();
-            if (disambigCuisine && !inferredCuisines.map((c) => String(c).toLowerCase()).includes(disambigCuisine)) {
-              inferredCuisines = [disambigCuisine, ...inferredCuisines].slice(0, 5);
+            // v0.60.23 — parent-cuisine fan-out. When the inferred /
+            // probed term is an umbrella (Chinese, Indian, European,
+            // Mediterranean…), replace inferredCuisines with the
+            // sub-style spread so the TMA renders an authentic fan-out
+            // (Cantonese / Sichuan / Hokkien) rather than the generic
+            // umbrella query. Cap at 5 to fit the existing chip cap.
+            if (probe.kind === 'parent-cuisine' && Array.isArray(probe.searchSpec?.cuisines)) {
+              inferredCuisines = probe.searchSpec.cuisines.slice(0, 5);
+            } else {
+              // Single-cuisine promotion path (the v0.60.18 behaviour).
+              const disambigCuisine = String(probe.searchSpec.cuisine).toLowerCase();
+              if (disambigCuisine && !inferredCuisines.map((c) => String(c).toLowerCase()).includes(disambigCuisine)) {
+                inferredCuisines = [disambigCuisine, ...inferredCuisines].slice(0, 5);
+              }
             }
           }
         } catch (err) {
