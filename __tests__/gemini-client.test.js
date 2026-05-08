@@ -31,17 +31,19 @@ describe('buildHiddenGemsPrompt', () => {
     expect(out).toContain('C4 UNIQUE_OFFERING');
   });
 
-  // v0.59.31 — radius band is templated; default = 1km to 3km, free-text mode = 200m to 3km.
-  it('v0.59.31: defaults to "1km to 3km" when radiusBand is not provided', () => {
+  // v0.59.31 — radius band is templated; default updated by v0.60.7
+  // (Human Lead 2026-05-08): '1km to 3km' → '100m to 2km'. Free-text
+  // mode still passes its own band ('200m to 3km').
+  it('v0.60.7: defaults to "100m to 2km" when radiusBand is not provided', () => {
     const out = buildHiddenGemsPrompt({
       anchorName: 'Anywhere',
       googleMapsUrl: 'https://example.com/',
       todayIsoSGT: '2026-05-07'
     });
-    expect(out).toContain('1km to 3km walking band');
-    expect(out).toContain('Walking distance comfortably within 1km to 3km');
-    expect(out).toContain('Places below 1km walking distance');
-    expect(out).toContain('Places above 3km walking distance');
+    expect(out).toContain('100m to 2km walking band');
+    expect(out).toContain('Walking distance comfortably within 100m to 2km');
+    expect(out).toContain('Places below 100m walking distance');
+    expect(out).toContain('Places above 2km walking distance');
     expect(out).not.toContain('{{RADIUS_BAND}}');
     expect(out).not.toContain('{{RADIUS_LOWER}}');
     expect(out).not.toContain('{{RADIUS_UPPER}}');

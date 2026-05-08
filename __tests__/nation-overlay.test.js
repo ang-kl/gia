@@ -393,25 +393,40 @@ describe('findNationIconic — order-independent SG dish/drink detection (v0.60.
   });
 });
 
-describe('TECHNIQUE_FALLBACK — Japanese deep-fry aliases (v0.60.6 fix)', () => {
-  it('"agemono" lookup resolves to friture technique entry', () => {
+describe('TECHNIQUE_FALLBACK — Japanese deep-fry routing (v0.60.7)', () => {
+  // v0.60.7 (Human Lead 2026-05-08): "agemono" was piggybacked onto the
+  // French friture entry in PR #273, which routed /s Agemono to French
+  // venues (La Vache, Bouillon Gavroche). Now lives in its own entry
+  // with defaultOrigin=Japanese + originDish=tempura.
+  it('"agemono" routes to Japanese (NOT French friture)', () => {
     const techEntry = gc.lookupTechnique('Agemono');
     expect(techEntry).toBeTruthy();
-    expect(techEntry.match).toContain('friture');
+    expect(techEntry.defaultOrigin).toBe('Japanese');
+    expect(techEntry.originDish).toBe('tempura');
     expect(techEntry.match).toContain('agemono');
+    expect(techEntry.match).not.toContain('friture');           // separate entry now
   });
 
-  it('"karaage" lookup resolves to the same friture entry', () => {
+  it('"karaage" routes to the same Japanese entry', () => {
     const techEntry = gc.lookupTechnique('karaage');
     expect(techEntry).toBeTruthy();
-    expect(techEntry.match).toContain('friture');
+    expect(techEntry.defaultOrigin).toBe('Japanese');
+    expect(techEntry.originDish).toBe('tempura');
     expect(techEntry.match).toContain('karaage');
+  });
+
+  it('"deep fry" still resolves to French friture (regression check)', () => {
+    const techEntry = gc.lookupTechnique('deep fry');
+    expect(techEntry).toBeTruthy();
+    expect(techEntry.defaultOrigin).toBe('French');
+    expect(techEntry.originDish).toBe('pommes frites');
   });
 
   it('"confit" still resolves separately (regression check)', () => {
     const techEntry = gc.lookupTechnique('Confitage');
     expect(techEntry).toBeTruthy();
     expect(techEntry.match).toContain('confit');
+    expect(techEntry.defaultOrigin).toBe('French');
   });
 });
 
