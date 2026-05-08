@@ -217,6 +217,87 @@ function buildPlacesQuery(entry) {
   return `${name} Singapore`;
 }
 
+// v0.60.16 — venue cross-reference. Used by every rich-card render
+// path (formatTechniqueVenueBlock, /api/cuisine/search response,
+// /hidden) to detect when a Places result is on the Michelin Guide
+// list and append a "✳️ Michelin · ⭐⭐⭐" or "✳️ Bib Gourmand · 2025"
+// line. Matching is name-first (case-insensitive exact), then
+// postal-augmented chain match (e.g. multiple "Imperial Treasure"
+// branches — only the Orchard ION outlet is Michelin-listed), and
+// finally a token-overlap fuzzy match (≥80% of entry name tokens
+// present in the candidate name) for minor name drift like
+// "Burnt Ends" vs "Burnt Ends Restaurant".
+function _nameTokens(s) {
+  return String(s || '').toLowerCase()
+    .normalize('NFD').replace(/\p{M}/gu, '')
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3)
+    .filter((t) => !/^(the|and|of|with|for|by|at|in|on|to|de|du|la|le|les|by)$/.test(t));
+}
+
+function findMichelinMatch(name, address = '') {
+  if (!name) return null;
+  const candName = String(name).toLowerCase().trim();
+  const candAddr = String(address || '').toLowerCase();
+
+  // Tier 1: exact (case-insensitive) name match.
+  for (const e of ALL) {
+    if (e.name.toLowerCase() === candName) return e;
+  }
+
+  // Tier 2: postal-augmented chain match — entry name appears as a
+  // substring of the candidate AND the candidate's address contains
+  // the entry's postal code. Catches "Imperial Treasure Fine Teochew
+  // Cuisine (Orchard)" vs other Imperial Treasure outlets.
+  if (candAddr) {
+    for (const e of ALL) {
+      if (!e.postal) continue;
+      const eName = e.name.toLowerCase();
+      if (candName.includes(eName) && candAddr.includes(e.postal)) return e;
+    }
+  }
+
+  // Tier 3: token-overlap. Both directions — entry tokens must mostly
+  // appear in candidate tokens, AND vice-versa for short entry names —
+  // so "Iggy's" doesn't accidentally match a 5-word candidate that
+  // happens to contain "Iggy".
+  const candTokens = new Set(_nameTokens(candName));
+  if (!candTokens.size) return null;
+  let best = null;
+  let bestScore = 0;
+  for (const e of ALL) {
+    const entryTokens = _nameTokens(e.name);
+    if (!entryTokens.length) continue;
+    const matched = entryTokens.filter((t) => candTokens.has(t)).length;
+    const entryFrac = matched / entryTokens.length;
+    if (entryFrac < 0.8) continue;
+    if (matched < 2 && entryTokens.length > 1) continue;       // require ≥2 token overlap when entry has ≥2 tokens
+    // Prefer longer (more specific) matches.
+    const score = matched + entryFrac;
+    if (score > bestScore) {
+      best = e;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
+// Build the rich-card annotation line. Year defaults to 2025 (the
+// edition of the dataset). Returns plain string suitable for HTML
+// (no escaping needed — emoji + ASCII).
+const _CATEGORY_LABEL = {
+  'three-star':   '✳️ Michelin · ⭐⭐⭐',
+  'two-star':     '✳️ Michelin · ⭐⭐',
+  'one-star':     '✳️ Michelin · ⭐',
+  'bib-gourmand': '✳️ Bib Gourmand'
+};
+
+function formatMichelinLine(entry, year = 2025) {
+  if (!entry || !entry.category) return '';
+  const prefix = _CATEGORY_LABEL[entry.category] || '✳️ Michelin';
+  return `${prefix} · ${year}`;
+}
+
 module.exports = {
   STARS_THREE,
   STARS_TWO,
@@ -228,5 +309,7 @@ module.exports = {
   getAll,
   getByCategory,
   findByName,
-  buildPlacesQuery
+  buildPlacesQuery,
+  findMichelinMatch,
+  formatMichelinLine
 };

@@ -111,6 +111,82 @@ describe('Michelin helpers', () => {
   });
 });
 
+describe('findMichelinMatch — venue cross-reference', () => {
+  it('exact name match', () => {
+    const r = m.findMichelinMatch('Les Amis');
+    expect(r).toBeTruthy();
+    expect(r.category).toBe('three-star');
+  });
+
+  it('case-insensitive exact match', () => {
+    expect(m.findMichelinMatch('odette')?.category).toBe('three-star');
+    expect(m.findMichelinMatch('BURNT ENDS')?.category).toBe('one-star');
+  });
+
+  it('suffix-tolerant token match ("Burnt Ends Restaurant")', () => {
+    const r = m.findMichelinMatch('Burnt Ends Restaurant');
+    expect(r).toBeTruthy();
+    expect(r.name).toBe('Burnt Ends');
+  });
+
+  it('postal-augmented chain match — Imperial Treasure ION wins', () => {
+    const r = m.findMichelinMatch(
+      'Imperial Treasure Fine Teochew Cuisine',
+      '2 Orchard Turn, ION Orchard, Singapore 238801'
+    );
+    expect(r).toBeTruthy();
+    expect(r.name).toContain('Orchard');
+  });
+
+  it('chain name without matching postal returns null', () => {
+    expect(m.findMichelinMatch('Imperial Treasure', '99 Random Road 100000')).toBeNull();
+  });
+
+  it('curly-quote tolerance (Iggy\'s vs Iggy’s)', () => {
+    const r = m.findMichelinMatch("Iggy's Restaurant", '581 Orchard Road');
+    expect(r).toBeTruthy();
+    expect(r.name).toContain('Iggy');
+  });
+
+  it('Bib Gourmand entry matches', () => {
+    expect(m.findMichelinMatch('Tian Tian Hainanese Chicken Rice')?.category)
+      .toBe('bib-gourmand');
+  });
+
+  it('unrelated venue returns null', () => {
+    expect(m.findMichelinMatch('Random Cafe That Does Not Exist', '')).toBeNull();
+    expect(m.findMichelinMatch('', '')).toBeNull();
+    expect(m.findMichelinMatch(null)).toBeNull();
+  });
+});
+
+describe('formatMichelinLine — rendered annotation', () => {
+  it('three-star → ⭐⭐⭐', () => {
+    expect(m.formatMichelinLine({ category: 'three-star' })).toBe('✳️ Michelin · ⭐⭐⭐ · 2025');
+  });
+
+  it('two-star → ⭐⭐', () => {
+    expect(m.formatMichelinLine({ category: 'two-star' })).toBe('✳️ Michelin · ⭐⭐ · 2025');
+  });
+
+  it('one-star → ⭐', () => {
+    expect(m.formatMichelinLine({ category: 'one-star' })).toBe('✳️ Michelin · ⭐ · 2025');
+  });
+
+  it('bib-gourmand → ✳️ Bib Gourmand', () => {
+    expect(m.formatMichelinLine({ category: 'bib-gourmand' })).toBe('✳️ Bib Gourmand · 2025');
+  });
+
+  it('custom year', () => {
+    expect(m.formatMichelinLine({ category: 'one-star' }, 2024)).toBe('✳️ Michelin · ⭐ · 2024');
+  });
+
+  it('null entry returns empty string', () => {
+    expect(m.formatMichelinLine(null)).toBe('');
+    expect(m.formatMichelinLine({})).toBe('');
+  });
+});
+
 describe('Michelin signature venues sanity', () => {
   it('includes both three-star icons (Les Amis, Odette)', () => {
     const names = m.STARS_THREE.map((e) => e.name);
