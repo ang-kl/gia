@@ -74,13 +74,17 @@ export default function App() {
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
   const [searchHintActive, setSearchHintActive] = useState(false);
-  // v0.60.14 — Google-limitation tip beside the 🔍 Search FAB. Shown
-  // for 4 s after every successful runSearch press. Explains that
-  // re-clicking Search with the same criteria surfaces a different
-  // slice (we dedup against the per-chatId seen-set server-side),
-  // and that adding new criteria / free-text resets the dedup so
-  // the user sees the full ranking again.
+  // v0.60.14 / v0.60.18 — Google-limitation tip beside the 🔍 Search
+  // FAB. Originally shown after every search. Per Human Lead 2026-05-08
+  // that was too noisy ("the bubble keeps popping after each click").
+  // Now shown only at:
+  //   • first search of the session (the user has never seen it)
+  //   • dedup exhaustion (server returns exhausted=true)
+  // The "first" path uses tipFirstShownRef so the tip suppresses on
+  // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
+  const [exhaustedNote, setExhaustedNote] = useState(false);
+  const tipFirstShownRef = useRef(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
   // "Telok Blangah · 5 places nearby" once everything's loaded.
@@ -368,9 +372,18 @@ export default function App() {
       if (Array.isArray(r.venues) && r.venues.length > 0) {
         setCriteriaOpen(false);
       }
-      // v0.60.14 — show Google-limit tip for 4 s after every search.
-      setSearchTipShow(true);
-      setTimeout(() => setSearchTipShow(false), 4000);
+      // v0.60.18 — subtle Google-limit tip: show only on first search
+      // of the session OR when the server tells us the dedup pool was
+      // exhausted (response.exhausted === true). Auto-dismiss after 4s.
+      const shouldShowTip = !tipFirstShownRef.current || r?.exhausted === true;
+      if (shouldShowTip) {
+        setSearchTipShow(true);
+        tipFirstShownRef.current = true;
+        setTimeout(() => setSearchTipShow(false), 4000);
+      }
+      // End-of-list note rendered separately at the result list bottom
+      // (sticky, not a popup). Cleared on the next non-exhausted search.
+      setExhaustedNote(r?.exhausted === true);
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -699,6 +712,17 @@ export default function App() {
             location: locationAnchor
           }}
         />
+        {/* v0.60.18 — end-of-list note when the server returns
+            exhausted=true. The seen-set is reset for the next search
+            so the user can keep clicking; the line just signals that
+            the next click will recycle. */}
+        {exhaustedNote && !loading && venues.length > 0 && (
+          <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
+            {lang === 'fr'
+              ? `— Fin de la liste pour ces critères. Réappuyez sur 🔍 pour la relancer, ou ajoutez un critère / texte libre. —`
+              : `— End of list for these criteria. Tap 🔍 again to recycle, or add a new criterion / free-text. —`}
+          </div>
+        )}
       </div>
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}

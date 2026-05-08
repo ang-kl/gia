@@ -16,72 +16,82 @@
 
 'use strict';
 
+// v0.60.18 — every starred entry tagged with a `cuisine` slug so the
+// /cuisine TMA can pre-filter the Michelin pool BEFORE incurring
+// Places API lookups. Without these tags the cuisine combo (e.g.
+// Japanese + Michelin) was returning only 3 venues because the
+// 20-entry pre-Places slice happened to contain only a handful of
+// Japanese restaurants. Slugs match cuisines-vault.js where possible;
+// 'modern' is used for boundary-pushing kitchens that don't fit a
+// single national tradition (Cloudstreet, Born, Euphoria, Marguerite,
+// Nouri, Araya). Bib Gourmand entries skip the tag — most are SG
+// hawker so the existing primaryType post-filter handles them.
 const STARS_THREE = [
   { name: 'Les Amis',
     address: '1 Scotts Road, #01-16 Shaw Centre, Singapore 228208',
-    postal: '228208', category: 'three-star' },
+    postal: '228208', category: 'three-star', cuisine: 'french' },
   { name: 'Odette',
     address: '1 St Andrew’s Road, #01-04 National Gallery Singapore, Singapore 178957',
-    postal: '178957', category: 'three-star' }
+    postal: '178957', category: 'three-star', cuisine: 'french' }
 ];
 
 const STARS_TWO = [
   { name: 'Cloudstreet',
     address: '84 Amoy Street, Singapore 069903',
-    postal: '069903', category: 'two-star' },
+    postal: '069903', category: 'two-star', cuisine: 'modern' },
   { name: 'JAAN by Kirk Westaway',
     address: '2 Stamford Road, Level 70, Swissôtel The Stamford, Singapore 178882',
-    postal: '178882', category: 'two-star' },
+    postal: '178882', category: 'two-star', cuisine: 'british' },
   { name: 'Meta',
     address: '9 Mohamed Sultan Road, #01-01, Singapore 238959',
-    postal: '238959', category: 'two-star' },
+    postal: '238959', category: 'two-star', cuisine: 'korean' },
   { name: 'Saint Pierre',
     address: '1 Fullerton Road, #02-02B One Fullerton, Singapore 049213',
-    postal: '049213', category: 'two-star' },
+    postal: '049213', category: 'two-star', cuisine: 'french' },
   { name: 'Shoukouwa',
     address: '1 Fullerton Road, #02-02A One Fullerton, Singapore 049213',
-    postal: '049213', category: 'two-star' },
+    postal: '049213', category: 'two-star', cuisine: 'japanese' },
   { name: 'Sushi Sakuta',
     address: '25A Dempsey Road, Singapore 247691',
-    postal: '247691', category: 'two-star' },
+    postal: '247691', category: 'two-star', cuisine: 'japanese' },
   { name: 'Thevar',
     address: '9 Keong Saik Road, Singapore 089117',
-    postal: '089117', category: 'two-star' }
+    postal: '089117', category: 'two-star', cuisine: 'north-indian' }
 ];
 
 const STARS_ONE = [
-  { name: 'Alma', address: '22 Scotts Road, Goodwood Park Hotel, Singapore 228221', postal: '228221', category: 'one-star' },
-  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star' },
-  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star' },
-  { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star' },
-  { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star' },
-  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star' },
-  { name: 'Chaleur', address: '77 Tras Street, Singapore 079016', postal: '079016', category: 'one-star' },
-  { name: 'CUT', address: '10 Bayfront Avenue, B1-71, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star' },
-  { name: 'Esora', address: '15 Mohamed Sultan Road, Singapore 238964', postal: '238964', category: 'one-star' },
-  { name: 'Euphoria', address: '76 Tras Street, Singapore 079015', postal: '079015', category: 'one-star' },
-  { name: 'Hamamoto', address: '58 Tras Street, Singapore 078997', postal: '078997', category: 'one-star' },
-  { name: 'Hill Street Tai Hwa Pork Noodle', address: '466 Crawford Lane, #01-12, Singapore 190465', postal: '190465', category: 'one-star' },
-  { name: 'Iggy’s', address: '581 Orchard Road, Level 3, voco Orchard Singapore, Singapore 238883', postal: '238883', category: 'one-star' },
-  { name: 'Imperial Treasure Fine Teochew Cuisine (Orchard)', address: '2 Orchard Turn, #03-05 ION Orchard, Singapore 238801', postal: '238801', category: 'one-star' },
-  { name: 'Jag', address: '76 Duxton Road, Singapore 089535', postal: '089535', category: 'one-star' },
-  { name: 'Labyrinth', address: '8 Raffles Avenue, #02-23 Esplanade Mall, Singapore 039802', postal: '039802', category: 'one-star' },
-  { name: 'Lei Garden', address: '30 Victoria Street, #01-24 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star' },
-  { name: 'Lerouy', address: '7 Mohamed Sultan Road, Singapore 238957', postal: '238957', category: 'one-star' },
-  { name: 'Ma Cuisine', address: '38 Craig Road, Singapore 089676', postal: '089676', category: 'one-star' },
-  { name: 'Marguerite', address: '18 Marina Gardens Drive, #01-09 Flower Dome, Gardens by the Bay, Singapore 018953', postal: '018953', category: 'one-star' },
-  { name: 'Nae:um', address: '161 Telok Ayer Street, Singapore 068615', postal: '068615', category: 'one-star' },
-  { name: 'Nouri', address: '72 Amoy Street, Singapore 069891', postal: '069891', category: 'one-star' },
-  { name: 'Omakase @ Stevens', address: '30 Stevens Road, Singapore 257840', postal: '257840', category: 'one-star' },
-  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star' },
-  { name: 'Seroja', address: '7 Fraser Street, #01-30 Duo Galleria, Singapore 189356', postal: '189356', category: 'one-star' },
-  { name: 'Shisen Hanten', address: '333 Orchard Road, Level 35, Hilton Singapore Orchard, Singapore 238867', postal: '238867', category: 'one-star' },
-  { name: 'Summer Palace', address: '1 Cuscaden Road, Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star' },
-  { name: 'Summer Pavilion', address: '7 Raffles Avenue, The Ritz-Carlton Millenia Singapore, Singapore 039799', postal: '039799', category: 'one-star' },
-  { name: 'Sushi Ichi', address: '1 Nanson Road, #02-07 InterContinental Singapore Robertson Quay, Singapore 238909', postal: '238909', category: 'one-star' },
-  { name: 'Waku Ghin', address: '10 Bayfront Avenue, L2-03, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star' },
-  { name: 'Whitegrass', address: '30 Victoria Street, #01-26/27 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star' },
-  { name: 'Willow', address: '39 Hongkong Street, Singapore 059678', postal: '059678', category: 'one-star' }
+  { name: 'Alma', address: '22 Scotts Road, Goodwood Park Hotel, Singapore 228221', postal: '228221', category: 'one-star', cuisine: 'spanish' },
+  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star', cuisine: 'modern' },
+  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', cuisine: 'modern' },
+  { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star', cuisine: 'italian' },
+  { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star', cuisine: 'australian' },
+  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', cuisine: 'peranakan' },
+  { name: 'Chaleur', address: '77 Tras Street, Singapore 079016', postal: '079016', category: 'one-star', cuisine: 'french' },
+  { name: 'CUT', address: '10 Bayfront Avenue, B1-71, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', cuisine: 'american' },
+  { name: 'Esora', address: '15 Mohamed Sultan Road, Singapore 238964', postal: '238964', category: 'one-star', cuisine: 'japanese' },
+  { name: 'Euphoria', address: '76 Tras Street, Singapore 079015', postal: '079015', category: 'one-star', cuisine: 'modern' },
+  { name: 'Hamamoto', address: '58 Tras Street, Singapore 078997', postal: '078997', category: 'one-star', cuisine: 'japanese' },
+  { name: 'Hill Street Tai Hwa Pork Noodle', address: '466 Crawford Lane, #01-12, Singapore 190465', postal: '190465', category: 'one-star', cuisine: 'singaporean' },
+  { name: 'Iggy’s', address: '581 Orchard Road, Level 3, voco Orchard Singapore, Singapore 238883', postal: '238883', category: 'one-star', cuisine: 'italian' },
+  { name: 'Imperial Treasure Fine Teochew Cuisine (Orchard)', address: '2 Orchard Turn, #03-05 ION Orchard, Singapore 238801', postal: '238801', category: 'one-star', cuisine: 'teochew' },
+  { name: 'Jag', address: '76 Duxton Road, Singapore 089535', postal: '089535', category: 'one-star', cuisine: 'french' },
+  { name: 'Labyrinth', address: '8 Raffles Avenue, #02-23 Esplanade Mall, Singapore 039802', postal: '039802', category: 'one-star', cuisine: 'singaporean' },
+  { name: 'Lei Garden', address: '30 Victoria Street, #01-24 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', cuisine: 'cantonese' },
+  { name: 'Lerouy', address: '7 Mohamed Sultan Road, Singapore 238957', postal: '238957', category: 'one-star', cuisine: 'french' },
+  { name: 'Ma Cuisine', address: '38 Craig Road, Singapore 089676', postal: '089676', category: 'one-star', cuisine: 'french' },
+  { name: 'Marguerite', address: '18 Marina Gardens Drive, #01-09 Flower Dome, Gardens by the Bay, Singapore 018953', postal: '018953', category: 'one-star', cuisine: 'modern' },
+  { name: 'Nae:um', address: '161 Telok Ayer Street, Singapore 068615', postal: '068615', category: 'one-star', cuisine: 'korean' },
+  { name: 'Nouri', address: '72 Amoy Street, Singapore 069891', postal: '069891', category: 'one-star', cuisine: 'modern' },
+  { name: 'Omakase @ Stevens', address: '30 Stevens Road, Singapore 257840', postal: '257840', category: 'one-star', cuisine: 'japanese' },
+  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star', cuisine: 'peranakan' },
+  { name: 'Seroja', address: '7 Fraser Street, #01-30 Duo Galleria, Singapore 189356', postal: '189356', category: 'one-star', cuisine: 'malaysian' },
+  { name: 'Shisen Hanten', address: '333 Orchard Road, Level 35, Hilton Singapore Orchard, Singapore 238867', postal: '238867', category: 'one-star', cuisine: 'sichuan' },
+  { name: 'Summer Palace', address: '1 Cuscaden Road, Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star', cuisine: 'cantonese' },
+  { name: 'Summer Pavilion', address: '7 Raffles Avenue, The Ritz-Carlton Millenia Singapore, Singapore 039799', postal: '039799', category: 'one-star', cuisine: 'cantonese' },
+  { name: 'Sushi Ichi', address: '1 Nanson Road, #02-07 InterContinental Singapore Robertson Quay, Singapore 238909', postal: '238909', category: 'one-star', cuisine: 'japanese' },
+  { name: 'Waku Ghin', address: '10 Bayfront Avenue, L2-03, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', cuisine: 'japanese' },
+  { name: 'Whitegrass', address: '30 Victoria Street, #01-26/27 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', cuisine: 'australian' },
+  { name: 'Willow', address: '39 Hongkong Street, Singapore 059678', postal: '059678', category: 'one-star', cuisine: 'japanese' }
 ];
 
 const BIB_GOURMAND = [
