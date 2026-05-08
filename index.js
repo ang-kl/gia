@@ -3100,16 +3100,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const transport = require('./transport');
     const RADIUS_PRIMARY_M = 2000;     // matches default '100m to 2km'
     const RADIUS_FALLBACK_M = 3000;    // matches retry '1.5km to 3km'
-    // v0.60.20 → v0.60.21 (Codex review on PR #285): lowered
-    // MIN_SURVIVORS to 2 so that 2 verified venues are acceptable
-    // and short-circuit the Tier 2 + Tier 3 fallbacks. With the
-    // earlier value of 3, `withinRadius < MIN_SURVIVORS` still
-    // evaluated true at exactly 2 survivors and pushed through the
-    // 90s wider Gemini retry + 90s Claude fallback even though the
-    // user-visible "ranking by distance…" message was already showing
-    // the hang. Distance computation itself is pure haversine math —
-    // the hang came from chasing more venues via LLM fallbacks.
-    const MIN_SURVIVORS = 2;
+    // v0.60.21 → v0.60.26 (Human Lead 2026-05-08): MIN_SURVIVORS = 1.
+    // Production logs show Gemini frequently surfaces 6 candidates and
+    // Places verification trims to 1-2 survivors after CLOSED_PERMANENTLY
+    // + address-mismatch rejection. With the earlier value of 2 a single
+    // survivor still triggered tier 2 (90s wider-band Gemini) AND tier 3
+    // (90s Claude web_search), neither of which usually beat tier 1's
+    // 1 survivor — but the user saw a 3-minute hang under a stale
+    // "ranking by distance…" milestone. 1 verified hidden gem is a
+    // useful answer; only escalate when allDropped (zero survivors).
+    const MIN_SURVIVORS = 1;
 
     async function verifyAndFilter(text, radiusM) {
       let verifyResult;
@@ -3167,6 +3167,15 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const needTier2 = allDropped || primary.withinRadius < MIN_SURVIVORS;
     if (needTier2) {
       console.log(`[/hidden] tier 1 yielded ${primary.withinRadius} survivors (allDropped=${allDropped}) — trying Gemini wider band`);
+      // v0.60.26 — interim user-visible progress when tier 2 fires.
+      // Without this the tier 1 "X verified · ranking by distance…"
+      // milestone stays on screen for the full 90s tier 2 + 90s tier 3
+      // duration, which feels like a hang.
+      safeSend(chatId, lang === 'fr'
+        ? '↻ <i>Élargissement à 1.5–3 km…</i>'
+        : '↻ <i>Widening to 1.5–3 km…</i>',
+        { parse_mode: 'HTML' }
+      ).catch(() => {});
       try {
         const wider = await Promise.race([
           gc.generateGroundedHiddenGems({
@@ -3209,6 +3218,12 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         console.log('[/hidden] tier 3 skipped (ANTHROPIC_API_KEY unset)');
       } else {
         console.log(`[/hidden] Gemini exhausted (best=${primary.withinRadius}, allDropped=${allDropped}) — trying Claude fallback`);
+        // v0.60.26 — interim user-visible progress for the Claude tier.
+        safeSend(chatId, lang === 'fr'
+          ? '↻ <i>Recherche élargie via Claude (jusqu\'à 90 s)…</i>'
+          : '↻ <i>Wider Claude web search (up to 90 s)…</i>',
+          { parse_mode: 'HTML' }
+        ).catch(() => {});
         try {
           const claudeResult = await Promise.race([
             gc.generateGroundedHiddenGemsClaude({
