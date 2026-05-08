@@ -429,10 +429,47 @@ function rewriteDistanceClaims(text, venues) {
   return prefixText ? `${prefixText}\n\n${joined}` : joined;
 }
 
+// v0.60.33 — drop entire blocks whose displayHeading matches a name
+// in the dropNames set. Used by runSurpriseCommand's verifyAndFilter
+// to strip out-of-radius venues from the displayed text. Pre-v0.60.33
+// the haversine filter only counted within-radius survivors but did
+// not prune the rendered text, so an out-of-band venue (e.g. The
+// Coconut Club @ 6.3 km from a 2 km band) still appeared in the
+// delivered message. parseBlocks → filter → re-join is the same
+// pattern as rewriteDistanceClaims above. Block name matched
+// case-insensitively.
+function dropBlocksByName(text, dropNames) {
+  if (!text || !dropNames || !dropNames.size) return text;
+  const lcDrop = new Set([...dropNames].map((n) => String(n || '').toLowerCase()));
+  const { prefix, blocks } = parseBlocks(text);
+  if (!blocks.length) return text;
+  const kept = blocks.filter((b) => !lcDrop.has(String(b.name || '').toLowerCase()));
+  if (kept.length === blocks.length) return text;
+  // Renumber survivors so the user sees "1. … 2. …" without gaps.
+  const renumbered = kept.map((b, idx) => {
+    const lines = [...b.lines];
+    if (lines[0]) lines[0] = lines[0].replace(/^\d+\./, `${idx + 1}.`);
+    return lines.join('\n');
+  });
+  // Codex review on PR #292 (P2): verifyHiddenGemsOutput already
+  // rewrote "I found N hidden gems" to match the post-Places count.
+  // Dropping additional blocks here leaves the intro stale ("I found
+  // 5…" with only 4 cards). Rewrite the prefix count a second time
+  // to match the post-haversine kept count. EN + FR.
+  const prefixLines = prefix.map((line) => line.replace(
+    /\b(I found|J'ai trouvé)\s+\d+\s+(hidden gems?|trésors? cachés?)\b/i,
+    (_, verb, noun) => `${verb} ${kept.length} ${noun}`
+  ));
+  const prefixText = prefixLines.join('\n').replace(/\s+$/, '');
+  const joined = renumbered.join('\n\n');
+  return prefixText ? `${prefixText}\n\n${joined}` : joined;
+}
+
 module.exports = {
   verifyHiddenGemsOutput,
   parseBlocks,
   applyVerified,
+  dropBlocksByName,
   lookupVenue,
   rewriteDistanceClaims,
   formatHumanDistance
