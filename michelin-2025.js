@@ -18,14 +18,18 @@
 
 // v0.60.18 — every starred entry tagged with a `cuisine` slug so the
 // /cuisine TMA can pre-filter the Michelin pool BEFORE incurring
-// Places API lookups. Without these tags the cuisine combo (e.g.
-// Japanese + Michelin) was returning only 3 venues because the
-// 20-entry pre-Places slice happened to contain only a handful of
-// Japanese restaurants. Slugs match cuisines-vault.js where possible;
-// 'modern' is used for boundary-pushing kitchens that don't fit a
-// single national tradition (Cloudstreet, Born, Euphoria, Marguerite,
-// Nouri, Araya). Bib Gourmand entries skip the tag — most are SG
-// hawker so the existing primaryType post-filter handles them.
+// Places API lookups.
+// v0.60.21 — added `vegetarian` (boolean) + `halal` (boolean) tags
+// per Human Lead 2026-05-08. Most Michelin SG venues are non-halal
+// (pork + alcohol) and non-vegetarian. Vegetarian-friendly: Pangium
+// (modern peranakan with veg tasting), Candlenut (peranakan with
+// veg options); strict-halal: none in the SG 2025 starred list (the
+// closest non-halal-but-no-pork are Thevar tasting-veg menu nights;
+// some Bib Gourmand Indian-Muslim stalls are halal). The boolean
+// tags default to false when unspecified — only set true when we
+// have positive confirmation. The /cuisine TMA's Halal / Veg filter
+// chips will narrow Michelin results to entries where the matching
+// flag is true.
 const STARS_THREE = [
   { name: 'Les Amis',
     address: '1 Scotts Road, #01-16 Shaw Centre, Singapore 228208',
@@ -56,7 +60,7 @@ const STARS_TWO = [
     postal: '247691', category: 'two-star', cuisine: 'japanese' },
   { name: 'Thevar',
     address: '9 Keong Saik Road, Singapore 089117',
-    postal: '089117', category: 'two-star', cuisine: 'north-indian' }
+    postal: '089117', category: 'two-star', cuisine: 'north-indian', vegetarian: true }
 ];
 
 const STARS_ONE = [
@@ -65,7 +69,7 @@ const STARS_ONE = [
   { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', cuisine: 'modern' },
   { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star', cuisine: 'italian' },
   { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star', cuisine: 'australian' },
-  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', cuisine: 'peranakan' },
+  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', cuisine: 'peranakan', vegetarian: true },
   { name: 'Chaleur', address: '77 Tras Street, Singapore 079016', postal: '079016', category: 'one-star', cuisine: 'french' },
   { name: 'CUT', address: '10 Bayfront Avenue, B1-71, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', cuisine: 'american' },
   { name: 'Esora', address: '15 Mohamed Sultan Road, Singapore 238964', postal: '238964', category: 'one-star', cuisine: 'japanese' },
@@ -83,7 +87,7 @@ const STARS_ONE = [
   { name: 'Nae:um', address: '161 Telok Ayer Street, Singapore 068615', postal: '068615', category: 'one-star', cuisine: 'korean' },
   { name: 'Nouri', address: '72 Amoy Street, Singapore 069891', postal: '069891', category: 'one-star', cuisine: 'modern' },
   { name: 'Omakase @ Stevens', address: '30 Stevens Road, Singapore 257840', postal: '257840', category: 'one-star', cuisine: 'japanese' },
-  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star', cuisine: 'peranakan' },
+  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star', cuisine: 'peranakan', vegetarian: true },
   { name: 'Seroja', address: '7 Fraser Street, #01-30 Duo Galleria, Singapore 189356', postal: '189356', category: 'one-star', cuisine: 'malaysian' },
   { name: 'Shisen Hanten', address: '333 Orchard Road, Level 35, Hilton Singapore Orchard, Singapore 238867', postal: '238867', category: 'one-star', cuisine: 'sichuan' },
   { name: 'Summer Palace', address: '1 Cuscaden Road, Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star', cuisine: 'cantonese' },

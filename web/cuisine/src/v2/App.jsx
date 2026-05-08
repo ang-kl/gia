@@ -711,6 +711,8 @@ export default function App() {
             region: state.region,
             location: locationAnchor
           }}
+          onSearch={() => runSearch(state)}
+          onScrollTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         />
         {/* v0.60.18 — end-of-list note when the server returns
             exhausted=true. The seen-set is reset for the next search

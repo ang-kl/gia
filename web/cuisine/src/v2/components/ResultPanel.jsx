@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
@@ -21,8 +21,14 @@ const SEED_LABEL = {
 // "Ask Gia" back-face are retired now that TellMePanel lives separately
 // as an always-visible input below the map. Result panel = front-face
 // only, with the existing Copy-all + Copy-syntax buttons preserved.
+// v0.60.22 — pagination kicks in past this threshold. Mirrors the
+// 12-venue cap used for /api/cuisine/copy-all so the user never sees
+// more than one full page worth of cards on screen at once.
+const PAGE_SIZE = 12;
+
 export default function ResultPanel({
-  venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState
+  venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState,
+  onSearch, onScrollTop
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -115,6 +121,20 @@ export default function ResultPanel({
   // result list.
   const canCopyCmd = !!(copyState && Array.isArray(venues) && venues.length);
 
+  // v0.60.22 — pagination state. Reset to page 1 whenever the venues
+  // identity changes (a new search) and clamp when the page count
+  // shrinks (e.g. filter narrows the list mid-session).
+  const totalPages = Math.max(1, Math.ceil((venues?.length || 0) / PAGE_SIZE));
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [venues]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pagedVenues = useMemo(() => {
+    if (!Array.isArray(venues) || venues.length === 0) return [];
+    if (totalPages === 1) return venues;
+    const start = (page - 1) * PAGE_SIZE;
+    return venues.slice(start, start + PAGE_SIZE);
+  }, [venues, page, totalPages]);
+
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
@@ -153,9 +173,54 @@ export default function ResultPanel({
         <div className="text-xs text-tg-hint px-2 py-4">No matches yet — pick a cuisine or use 💬 Tell me above.</div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          {venues.map((v, i) => (
+          {pagedVenues.map((v, i) => (
             <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} />
           ))}
+          {/* v0.60.22 — pagination strip. Only renders when the result
+              set exceeds one PAGE_SIZE chunk. The strip stacks three
+              compact controls (smaller than the floating FABs) so the
+              user can navigate pages, jump to the top, or re-run the
+              search without scrolling back to the criteria builder. */}
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center gap-1 pt-1.5">
+              <button
+                type="button"
+                onClick={onScrollTop}
+                aria-label={lang === 'fr' ? 'Haut de page' : 'Back to top'}
+                className="w-8 h-8 rounded-full bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center active:scale-95"
+              >↑</button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  aria-label={lang === 'fr' ? 'Page précédente' : 'Previous page'}
+                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
+                >◀</button>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => (p >= totalPages ? 1 : p + 1))}
+                  aria-label={lang === 'fr' ? `Page ${page} sur ${totalPages}` : `Page ${page} of ${totalPages}`}
+                  className="min-w-[80px] h-8 px-2 rounded-lg bg-tg-card text-tg-text border border-tg-border text-[11px] font-semibold flex items-center justify-center active:scale-95"
+                >📄 {Math.min(page * PAGE_SIZE, venues.length)} / {venues.length}</button>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  aria-label={lang === 'fr' ? 'Page suivante' : 'Next page'}
+                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
+                >▶</button>
+              </div>
+              {onSearch && (
+                <button
+                  type="button"
+                  onClick={onSearch}
+                  aria-label={lang === 'fr' ? 'Rechercher' : 'Search'}
+                  className="w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text text-xs font-semibold flex items-center justify-center active:scale-95"
+                >🔍</button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

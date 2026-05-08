@@ -1010,7 +1010,7 @@ function isOrderedPrefix(userTokens, termTokens) {
   return true;
 }
 
-function findCookingMethod(text) {
+function findCookingMethod(text, opts = {}) {
   if (!text) return null;
   // Reject very short inputs (< 3 chars) that would falsely match
   // term-leading particles like "a" / "al" / "om".
@@ -1020,7 +1020,7 @@ function findCookingMethod(text) {
   const userSet = new Set(userTokens);
   const userLower = stripDiacritics(text).toLowerCase();
 
-  for (const [slug, methods] of Object.entries(COOKING_METHODS)) {
+  const matchInCuisine = (slug, methods) => {
     for (const term of methods) {
       const termTokens = tokenize(term);
       if (termTokens.length === 0) continue;
@@ -1037,6 +1037,21 @@ function findCookingMethod(text) {
         }
       }
     }
+    return null;
+  };
+
+  // v0.60.21 — sticky-cuisine bias. When the prior turn locked a
+  // cuisine, prefer it on ambiguous method matches.
+  const stickySlug = opts.stickyCuisine ? String(opts.stickyCuisine).toLowerCase() : null;
+  if (stickySlug && COOKING_METHODS[stickySlug]) {
+    const hit = matchInCuisine(stickySlug, COOKING_METHODS[stickySlug]);
+    if (hit) return { ...hit, sticky: true };
+  }
+
+  for (const [slug, methods] of Object.entries(COOKING_METHODS)) {
+    if (stickySlug && slug === stickySlug) continue;
+    const hit = matchInCuisine(slug, methods);
+    if (hit) return hit;
   }
   return null;
 }

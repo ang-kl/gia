@@ -2159,6 +2159,674 @@ const NATION_OVERLAY = {
       en: 'Australian cuisine is multicultural fusion + British colonial substrate + native bush-tucker. Modern Australian (\"Mod-Oz\") draws from Asian, Mediterranean, and Indigenous traditions — barramundi with native pepperberry, lamb roast, flat white coffee. Pavlova vs NZ debate ongoing.',
       fr: 'La cuisine australienne, c\'est fusion multiculturelle + substrat colonial britannique + bush-tucker autochtone. La \"Mod-Oz\" puise dans les traditions asiatiques, méditerranéennes et indigènes — barramundi au poivre des baies, agneau rôti, café flat white. Débat pavlova vs Nouvelle-Zélande en cours.'
     }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // v0.60.20 — Tier-2 Phase 2 (28 cuisines) per Human Lead 2026-05-08.
+  // Closes the v0.60.6 plan delta apart from the four umbrella catch-
+  // alls (european, mediterranean, dessert, fusion) which need a
+  // different model. Average 18-22 dishes per cuisine, no per-cuisine
+  // duplicates. Bengali / Gujarati split off North Indian; Goan
+  // split off South Indian; Macau pairs Cantonese with Portuguese.
+  // ──────────────────────────────────────────────────────────────────
+
+  'bengali': {
+    flag: '🇧🇩',
+    aliases: ['bengali', 'bangla', 'bangladesh', 'west bengal'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('macher jhol'), F('shorshe ilish'), F('chingri malai curry'),
+      F('kosha mangsho'), F('luchi alur dom'), F('rosogolla'), F('mishti doi'),
+      F('shukto'), F('aloo posto'), F('cholar dal'), F('begun bhaja'),
+      F('panta bhat'), F('biryani kolkata'), F('phuchka'), F('jhal muri'),
+      F('sandesh'), F('payesh'), F('chomchom'), F('kati roll'), F('macher kalia'),
+      F('panch phoron tempering'), F('bhuna khichuri')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'north-indian', reason: 'East Indian Bengali tradition shares spice substrate with the broader Indian subcontinent' },
+      { slug: 'bangladeshi',  reason: 'West Bengal + Bangladesh share Bengali language + cuisine; partition split a single tradition' },
+      { slug: 'gujarati',     reason: 'Both Indian regional cuisines emphasise vegetarian + sweet courses' }
+    ],
+    touristExplainer: {
+      en: 'Bengali cuisine is fish + rice + mustard, with sweet endings (rosogolla, mishti doi, sandesh) the world-known signature. Panch phoron (5-spice tempering: nigella, fenugreek, fennel, cumin, mustard) is the foundational aromatic.',
+      fr: 'La cuisine bengalie c\'est poisson + riz + moutarde, avec des desserts sucrés (rosogolla, mishti doi, sandesh) comme signature mondiale. Panch phoron (mélange 5-épices: nigelle, fenugrec, fenouil, cumin, moutarde) est l\'arôme fondamental.'
+    }
+  },
+
+  'gujarati': {
+    flag: '🇮🇳',
+    aliases: ['gujarati', 'gujarat'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('dhokla'), F('khandvi'), F('thepla'), F('handvo'), F('gujarati thali'),
+      F('undhiyu'), F('dal dhokli'), F('khaman'), F('fafda'), F('jalebi gujarati'),
+      F('kachori'), F('shrikhand'), F('basundi'), F('mohanthal'), F('khichdi'),
+      F('sev tameta nu shaak'), F('bhakri'), F('kadhi gujarati'), F('patra'),
+      F('lapsi'), F('dudhi muthia')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'north-indian', reason: 'Gujarati is one of the major Indian regional sub-cuisines' },
+      { slug: 'bengali',      reason: 'Both share strong sweet-course traditions in regional Indian cooking' }
+    ],
+    touristExplainer: {
+      en: 'Gujarati cuisine is the most famous vegetarian tradition in India — sweet-savoury balance, steamed gram-flour snacks (dhokla, khandvi), thali culture. Strict vegetarianism rooted in Jain heritage; even garlic + onion are skipped in many households.',
+      fr: 'La cuisine gujaratie est la tradition végétarienne la plus célèbre d\'Inde — équilibre sucré-salé, snacks vapeur à base de farine de pois chiche (dhokla, khandvi), culture thali. Végétarisme strict d\'origine jaïne; ail + oignon souvent évités à la maison.'
+    }
+  },
+
+  'nepalese': {
+    flag: '🇳🇵',
+    aliases: ['nepalese', 'nepali', 'nepal'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('momos'), F('dal bhat'), F('sel roti'), F('thukpa'), F('gundruk'),
+      F('chatamari'), F('newari kachila'), F('yomari'), F('aloo tama'),
+      F('kwati'), F('choila'), F('sekuwa'), F('dhindo'), F('jhol momo'),
+      F('sukuti'), F('bara'), F('chhoyala'), F('lapsi'), F('juju dhau'),
+      F('sinki soup'), F('bhutuwa')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'tibetan',      reason: 'Himalayan substrate; momos + thukpa + tsampa shared between cultures' },
+      { slug: 'north-indian', reason: 'Border-region exchange; dal bhat + spice palette overlap' }
+    ],
+    touristExplainer: {
+      en: 'Nepalese cuisine sits at the Himalayan crossroads of Tibet + India + ethnic Newari traditions. Momos (dumplings) are the global ambassador; dal bhat (lentils + rice) is the everyday staple. Newari banquet tradition is the haute version — chatamari, kachila, choila.',
+      fr: 'La cuisine népalaise est au carrefour himalayen entre Tibet + Inde + traditions ethniques Newari. Les momos (raviolis) sont l\'ambassadeur mondial; le dal bhat (lentilles + riz) est le quotidien. La tradition de banquet Newari est la version haute — chatamari, kachila, choila.'
+    }
+  },
+
+  'austrian': {
+    flag: '🇦🇹',
+    aliases: ['austrian', 'austria', 'österreich', 'wien'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('wiener schnitzel'), F('sachertorte'), F('apfelstrudel'), F('tafelspitz'),
+      F('kaiserschmarrn'), F('goulash austrian'), F('knödel'), F('palatschinken'),
+      F('beuschel'), F('selch fleisch'), F('käsespätzle'), F('linzer torte'),
+      F('marillenknödel'), F('zwetschgenknödel'), F('topfenstrudel'), F('vanillekipferl'),
+      F('mozartkugel'), F('gulaschsuppe'), F('rindsuppe mit frittaten'),
+      F('powidltascherl'), F('topfenpalatschinken')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'german',      reason: 'Sister Germanic tradition; schnitzel, knödel, strudel shared' },
+      { slug: 'hungarian',   reason: 'Habsburg empire fused Austrian + Hungarian — goulash, paprika, dumpling crossover' },
+      { slug: 'czech',       reason: 'Bohemian tradition crossed via the empire — knödel + roast pork + dark beer' }
+    ],
+    touristExplainer: {
+      en: 'Austrian cuisine is Habsburg refinement of Central European traditions — Wiener Schnitzel, Sachertorte, apfelstrudel as the global icons. Vienna coffee-house culture (Kaffeehaus) is UNESCO Intangible Cultural Heritage. Heavy on dumplings + sweet pastries.',
+      fr: 'La cuisine autrichienne est le raffinement habsbourgeois des traditions d\'Europe centrale — Wiener Schnitzel, Sachertorte, strudel aux pommes en icônes mondiales. La culture des cafés viennois (Kaffeehaus) est patrimoine immatériel UNESCO. Riche en quenelles et pâtisseries sucrées.'
+    }
+  },
+
+  'swiss': {
+    flag: '🇨🇭',
+    aliases: ['swiss', 'switzerland', 'schweiz', 'suisse', 'helvetia'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('fondue'), F('raclette'), F('rösti'), F('zürcher geschnetzeltes'),
+      F('älplermagronen'), F('cervelat'), F('birchermüesli'), F('chocolate swiss'),
+      F('emmentaler cheese'), F('gruyère'), F('appenzeller cheese'), F('papet vaudois'),
+      F('capuns'), F('pizzoccheri ticino'), F('berner platte'), F('basler läckerli'),
+      F('zopf'), F('toblerone'), F('luxemburgerli'), F('engadiner nusstorte'),
+      F('älplermagronen with apfelmus')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'french',  reason: 'Romande Switzerland is French-speaking; fondue + raclette + cuisine bourgeoise shared' },
+      { slug: 'italian', reason: 'Ticino + southern Switzerland is Italian-speaking; risotto, pizzoccheri, polenta shared' },
+      { slug: 'german',  reason: 'Most Swiss cantons are German-speaking; rösti, sausages, knödel-style dumplings overlap' }
+    ],
+    touristExplainer: {
+      en: 'Swiss cuisine is the four-language collision: French (Romande fondue + raclette), German (rösti + cervelat + bircher), Italian (Ticino pizzoccheri + risotto), Romansh (Engadin capuns). Globally famous for chocolate (Lindt, Toblerone) and aged cheese (Gruyère, Emmentaler).',
+      fr: 'La cuisine suisse est la collision des quatre langues: français (fondue + raclette), allemand (rösti + cervelat + bircher), italien (pizzoccheri + risotto du Tessin), romanche (capuns de l\'Engadine). Mondialement célèbre pour le chocolat (Lindt, Toblerone) et les fromages affinés (Gruyère, Emmentaler).'
+    }
+  },
+
+  'russian': {
+    flag: '🇷🇺',
+    aliases: ['russian', 'russia', 'rossiya'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('borscht'), F('pelmeni'), F('beef stroganoff'), F('blini'), F('pirozhki'),
+      F('shchi'), F('solyanka'), F('vinaigrette salad'), F('olivier salad'),
+      F('selyodka pod shuboy'), F('kasha'), F('kvass'), F('medovik'), F('syrniki'),
+      F('vatrushka'), F('okroshka'), F('ukha'), F('beef stew russian'),
+      F('vareniki'), F('golubtsy'), F('kulebyaka'), F('chebureki')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'ukrainian', reason: 'Sister Slavic cuisines; borscht, vareniki, pelmeni often disputed in origin' },
+      { slug: 'georgian',  reason: 'Caucasian + Russian crossover via Soviet era; khachapuri, satsivi, shashlik in Russian repertoire' },
+      { slug: 'polish',    reason: 'Slavic cousin; pierogi/pelmeni + bigos/solyanka overlaps' }
+    ],
+    touristExplainer: {
+      en: 'Russian cuisine is dumpling + stew + smoked-fish heavy, evolved across vast climate zones. Borscht (technically Ukrainian) is the global ambassador; beef stroganoff (Saint Petersburg) and pelmeni (Siberian dumplings) round out the trio. Tea ritual via samovar; vodka pairings universal.',
+      fr: 'La cuisine russe c\'est ravioli + ragoût + poisson fumé, développée sur d\'immenses zones climatiques. Le borscht (techniquement ukrainien) est l\'ambassadeur mondial; bœuf Stroganoff (Saint-Pétersbourg) et pelmeni (raviolis sibériens) complètent le trio. Rituel du thé au samovar; vodka universelle.'
+    }
+  },
+
+  'ukrainian': {
+    flag: '🇺🇦',
+    aliases: ['ukrainian', 'ukraine', 'ukrayina'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('borscht ukrainian'), F('varenyky'), F('salo'), F('chicken kyiv'),
+      F('holubtsi'), F('deruny'), F('pampushky'), F('paska'), F('syrniky'),
+      F('uzvar'), F('kotleta po kyivsky'), F('halushky'), F('mlyntsi'),
+      F('kapusta'), F('kvas ukrainian'), F('vushka'), F('verhuny'),
+      F('crimean tatar chebureki'), F('odessan forshmak'), F('lard sandwiches'),
+      F('domashnya kovbasa')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'russian', reason: 'Heavy overlap from shared Slavic + Soviet history; borscht origin disputed' },
+      { slug: 'polish',  reason: 'Western Ukraine + eastern Poland share varenyky/pierogi, holubtsi/golabki' }
+    ],
+    touristExplainer: {
+      en: 'Ukrainian cuisine is borscht country (UNESCO inscribed Ukrainian borscht in 2022). Salo (cured pork fat) is the national symbol. Varenyky (filled dumplings, sweet or savoury) are the everyday comfort. Chicken Kyiv is the international restaurant ambassador.',
+      fr: 'La cuisine ukrainienne c\'est le pays du borscht (UNESCO a inscrit le borscht ukrainien en 2022). Le salo (graisse de porc salée) est le symbole national. Varenyky (raviolis fourrés, sucrés ou salés) au quotidien. Le poulet à la Kiev est l\'ambassadeur restaurant à l\'international.'
+    }
+  },
+
+  'polish': {
+    flag: '🇵🇱',
+    aliases: ['polish', 'poland', 'polska'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('pierogi'), F('bigos'), F('kielbasa'), F('zurek'), F('rosol'),
+      F('golabki'), F('placki ziemniaczane'), F('kotlet schabowy'), F('mizeria'),
+      F('barszcz polish'), F('oscypek'), F('paczki'), F('makowiec'), F('sernik'),
+      F('flaki'), F('kapusta kiszona'), F('mazurek'), F('pierogi ruskie'),
+      F('chlodnik'), F('pyzy'), F('zapiekanka')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'ukrainian', reason: 'Eastern Polish + Western Ukrainian cuisines mirror each other; pierogi/varenyky etc.' },
+      { slug: 'russian',   reason: 'Slavic substrate; soup + dumpling + cabbage tradition shared' },
+      { slug: 'german',    reason: 'Western Polish + Eastern German overlap on sausage + sauerkraut + rye bread' }
+    ],
+    touristExplainer: {
+      en: 'Polish cuisine is sour-savoury Slavic comfort food: pierogi (filled dumplings, 30+ traditional fillings), bigos (hunter\'s stew), żurek (sour rye soup with sausage). Heavy on cabbage, beetroot, pork, sour cream. Pączki and makowiec lead the sweet repertoire.',
+      fr: 'La cuisine polonaise c\'est le réconfort slave aigre-salé: pierogi (raviolis fourrés, 30+ garnitures traditionnelles), bigos (ragoût du chasseur), żurek (soupe au seigle aigre avec saucisse). Riche en chou, betterave, porc, crème aigre. Pączki et makowiec en tête du sucré.'
+    }
+  },
+
+  'scandinavian': {
+    flag: '🇸🇪',
+    aliases: ['scandinavian', 'scandi', 'nordic', 'sweden', 'norway', 'denmark'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('gravlax'), F('smörrebröd'), F('köttbullar'), F('lutefisk'), F('rakfisk'),
+      F('janssons frestelse'), F('sill (pickled herring)'), F('kanelbullar'),
+      F('lefse'), F('rye bread danish'), F('smörgåstårta'), F('reindeer steak'),
+      F('aquavit'), F('lingonberry jam'), F('cloudberry'), F('semla'),
+      F('kalops'), F('blodpudding'), F('frikadeller'), F('flæskesteg'),
+      F('æbleskiver'), F('toscakaka')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'finnish', reason: 'Adjacent Nordic; salmon + rye + berry traditions shared' },
+      { slug: 'german',  reason: 'Hanseatic + Baltic exchange; pickled herring + smoked sausage + black bread overlap' }
+    ],
+    touristExplainer: {
+      en: 'Scandinavian cuisine is the cured-fish + rye + berry trinity: gravlax (cured salmon), smörrebröd (open sandwiches), pickled herring, rye bread. New Nordic movement (Noma 2003+) reframed the global fine-dining conversation around foraged + fermented + hyper-local.',
+      fr: 'La cuisine scandinave c\'est la trinité poisson saumuré + seigle + baies: gravlax (saumon mariné), smörrebröd (tartines), hareng mariné, pain de seigle. Le mouvement Nouvelle Cuisine Nordique (Noma 2003+) a redéfini la haute gastronomie mondiale autour du cueilli + fermenté + hyper-local.'
+    }
+  },
+
+  'persian': {
+    flag: '🇮🇷',
+    aliases: ['persian', 'iranian', 'iran', 'farsi'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('chelo kabab'), F('ghormeh sabzi'), F('fesenjan'), F('tahdig'),
+      F('zereshk polo'), F('khoresh bademjan'), F('ash reshteh'), F('kashk e bademjan'),
+      F('joojeh kabab'), F('kuku sabzi'), F('mirza ghasemi'), F('sabzi polo ba mahi'),
+      F('lubia polo'), F('halim'), F('faloodeh'), F('saffron rice persian'),
+      F('barberry polo'), F('eggplant kashk'), F('shirazi salad'), F('doogh'),
+      F('baklava persian')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'turkish',     reason: 'Ottoman + Persian empires exchanged dishes; baklava + kebab + pilav shared' },
+      { slug: 'lebanese',    reason: 'Levantine + Persian pomegranate-walnut overlap (fesenjan ↔ muhammara)' },
+      { slug: 'azerbaijani', reason: 'Azeri cuisine inherits heavily from Persian — plov, dolma, kebab' }
+    ],
+    touristExplainer: {
+      en: 'Persian cuisine is saffron + dried-lime + pomegranate sophistication, with rice (polo) elevated to ceremonial status. Tahdig (the crispy rice base) is the national obsession. Fesenjan (walnut-pomegranate stew) and ghormeh sabzi (herb stew) are the iconic khoresh.',
+      fr: 'La cuisine persane c\'est la sophistication safran + citron séché + grenade, avec le riz (polo) élevé au rang cérémoniel. Le tahdig (riz croustillant du fond) est l\'obsession nationale. Fesenjan (ragoût noix-grenade) et ghormeh sabzi (ragoût aux herbes) sont les khoresh iconiques.'
+    }
+  },
+
+  'moroccan': {
+    flag: '🇲🇦',
+    aliases: ['moroccan', 'morocco', 'maroc'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('tagine'), F('couscous moroccan'), F('pastilla'), F('harira'), F('mechoui'),
+      F('zaalouk'), F('chermoula'), F('rfissa'), F('msemen'), F('baghrir'),
+      F('briouats'), F('khobz'), F('tagine kefta'), F('chicken tagine preserved lemon'),
+      F('lamb tagine prunes'), F('seffa'), F('moroccan mint tea'), F('chebakia'),
+      F('ghoriba'), F('tanjia marrakchia'), F('bissara')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'lebanese', reason: 'Mediterranean + Arab substrate; mezze + grilled meat + lamb traditions cross' },
+      { slug: 'spanish',  reason: 'Andalusian + Moorish history; almonds, saffron, citrus shared across the strait' },
+      { slug: 'french',   reason: 'Colonial era brought Moroccan tagine + couscous to global Parisian fame' }
+    ],
+    touristExplainer: {
+      en: 'Moroccan cuisine is the slow-cooked tagine tradition: conical clay vessels concentrating spice, fruit, lamb. Couscous Friday is the family ritual. Preserved-lemon + olive + ras el hanout spice blend define the flavour. Sweet mint tea poured from height is the social handshake.',
+      fr: 'La cuisine marocaine c\'est la tradition du tagine: récipients en terre cuite coniques concentrant épices, fruits, agneau. Le couscous du vendredi est le rituel familial. Citron confit + olive + ras el hanout définissent les saveurs. Le thé à la menthe versé de haut est la poignée de main sociale.'
+    }
+  },
+
+  'egyptian': {
+    flag: '🇪🇬',
+    aliases: ['egyptian', 'egypt', 'masr'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('koshari'), F('ful medames'), F('molokhia'), F('shawarma egyptian'),
+      F('mahshi'), F('fattah'), F('kofta egyptian'), F('feteer meshaltet'),
+      F('bessara'), F('hawawshi'), F('ta\'meya (egyptian falafel)'),
+      F('tahini egyptian'), F('basbousa'), F('umm ali'), F('konafa'),
+      F('mulukhiyah with rabbit'), F('roz me\'ammar'), F('kebda iskandarani'),
+      F('fasolia bil zayt'), F('lamb sayadia rice')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'lebanese',  reason: 'Levantine substrate; tahini + falafel + shawarma + mezze widely shared' },
+      { slug: 'jordanian', reason: 'Bilad al-Sham overlap; mahshi + kibbeh + rice traditions cross' }
+    ],
+    touristExplainer: {
+      en: 'Egyptian cuisine is the bean + rice + greens trinity, anchored by koshari (the national street-food: rice + macaroni + lentils + chickpeas + caramelised onion + tomato sauce). Ful medames and ta\'meya (Egyptian falafel) are the breakfast staples; molokhia is the iconic green soup.',
+      fr: 'La cuisine égyptienne c\'est la trinité haricot + riz + légumes-verts, ancrée par le koshari (street-food national: riz + macaroni + lentilles + pois chiches + oignon caramélisé + sauce tomate). Ful medames et ta\'meya (falafel égyptien) au petit-déjeuner; molokhia est la soupe verte iconique.'
+    }
+  },
+
+  'jordanian': {
+    flag: '🇯🇴',
+    aliases: ['jordanian', 'jordan'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('mansaf'), F('maqluba'), F('mujadara jordanian'), F('musakhan'),
+      F('kunafa nabulsiya'), F('shrak bread'), F('mezze jordanian'), F('zarb (bedouin bbq)'),
+      F('makloubeh'), F('galayet bandora'), F('mahshi jordanian'), F('jameed'),
+      F('ka\'ak jerusalem'), F('warak enab jordanian'), F('lamb ouzi'), F('kibbeh jordanian'),
+      F('tabbouleh jordanian'), F('hummus jordanian'), F('falafel jordanian'),
+      F('za\'atar man\'ousheh')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'lebanese', reason: 'Bilad al-Sham (Greater Syria) shared cuisine; mezze + grills + rice dishes cross' },
+      { slug: 'israeli',  reason: 'Levantine substrate; hummus, falafel, shawarma, mansaf-related dishes cross' },
+      { slug: 'egyptian', reason: 'Arab + Bedouin substrate; lamb + grain + dates traditions shared' }
+    ],
+    touristExplainer: {
+      en: 'Jordanian cuisine is the lamb + rice + jameed (fermented yoghurt) culture, with mansaf (saffron-lamb-rice with jameed sauce) the unrivalled national dish. Bedouin slow-cooking traditions (zarb underground oven) survive in formal hospitality. Knafeh nabulsiya is the dessert apex.',
+      fr: 'La cuisine jordanienne c\'est la culture agneau + riz + jameed (yaourt fermenté), avec le mansaf (riz-agneau au safran et sauce jameed) plat national incontesté. Traditions bédouines de cuisson lente (four enterré zarb) survivent dans l\'hospitalité formelle. La knafeh nabulsiya en sommet sucré.'
+    }
+  },
+
+  'israeli': {
+    flag: '🇮🇱',
+    aliases: ['israeli', 'israel'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('shakshuka'), F('hummus israeli'), F('falafel israeli'), F('sabich'),
+      F('israeli salad'), F('schug'), F('amba'), F('jachnun'), F('malabi'),
+      F('challah'), F('matzo ball soup'), F('cholent'), F('bourekas'), F('kubaneh'),
+      F('shawarma israeli'), F('labneh'), F('latkes'), F('kibbeh israeli'),
+      F('rugelach'), F('halva israeli'), F('israeli breakfast platter')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'lebanese',  reason: 'Levantine substrate; hummus + falafel + shawarma cross' },
+      { slug: 'jordanian', reason: 'Bilad al-Sham overlap; mezze + grills + rice traditions shared' },
+      { slug: 'egyptian',  reason: 'Mediterranean SE substrate; ful + falafel + tahini cross' }
+    ],
+    touristExplainer: {
+      en: 'Israeli cuisine fuses Levantine staples (hummus, falafel, shakshuka) with Eastern European Jewish (challah, cholent, latkes), Yemenite (jachnun, kubaneh, schug), and Iraqi-Mizrahi (sabich, amba) traditions. Israeli breakfast (eggs + cheeses + salads + breads) is a cultural institution.',
+      fr: 'La cuisine israélienne fusionne les bases levantines (houmous, falafel, shakshuka) avec les traditions juives d\'Europe de l\'Est (challah, cholent, latkes), yéménites (jachnun, kubaneh, schug), et irakiennes-mizrahi (sabich, amba). Le petit-déjeuner israélien (œufs + fromages + salades + pains) est une institution culturelle.'
+    }
+  },
+
+  'uzbek': {
+    flag: '🇺🇿',
+    aliases: ['uzbek', 'uzbekistan'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('plov'), F('manty'), F('lagman'), F('shashlik'), F('samsa'),
+      F('non bread'), F('shurpa'), F('chuchvara'), F('beshbarmak uzbek'),
+      F('dimlama'), F('halim uzbek'), F('khanum'), F('chak chak'), F('navat'),
+      F('katyk'), F('mastava'), F('kazy'), F('atala'), F('hasip'),
+      F('honim'), F('green tea uzbek')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'kazakh',  reason: 'Central Asian shared substrate; lamb + rice + dough traditions cross' },
+      { slug: 'persian', reason: 'Persian-Tajik linguistic + culinary influence; pilav lineage' },
+      { slug: 'uyghur',  reason: 'Silk Road exchange; lagman, samsa, plov widely shared' }
+    ],
+    touristExplainer: {
+      en: 'Uzbek cuisine is the Silk Road plov tradition — slow-rendered fat-tail lamb + rice + carrots + onions in a kazan over open fire. UNESCO Intangible Heritage 2016. Manty (steamed dumplings), lagman (hand-pulled noodles), samsa (tandoor pastries) round the staple set.',
+      fr: 'La cuisine ouzbèke c\'est la tradition plov de la route de la soie — agneau à queue grasse + riz + carottes + oignons mijotés dans un kazan sur feu ouvert. Patrimoine immatériel UNESCO 2016. Manty (raviolis vapeur), lagman (nouilles tirées main), samsa (feuilletés tandoor) complètent le quotidien.'
+    }
+  },
+
+  'georgian': {
+    flag: '🇬🇪',
+    aliases: ['georgian', 'georgia', 'sakartvelo'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('khachapuri adjaruli'), F('khinkali'), F('satsivi'), F('lobio'),
+      F('mtsvadi'), F('chakapuli'), F('chakhokhbili'), F('phali'), F('badrijani nigvzit'),
+      F('churchkhela'), F('tonis puri'), F('ostri'), F('khinkali kalakuri'),
+      F('elarji'), F('gebzhalia'), F('kuchmachi'), F('imeretian khachapuri'),
+      F('mchadi'), F('walnut-paste pkhali'), F('georgian wine qvevri'),
+      F('ajika')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'armenian',    reason: 'Caucasian neighbours; tonir bread, khorovats/mtsvadi grilled meats, walnut sauces shared' },
+      { slug: 'azerbaijani', reason: 'Adjacent Caucasian; pakhlava, khinkali-style dumplings, dolma cross' },
+      { slug: 'russian',     reason: 'Soviet-era diffusion put khachapuri, khinkali, satsivi on Russian tables' }
+    ],
+    touristExplainer: {
+      en: 'Georgian cuisine is the cradle of wine (8000-year qvevri tradition) plus the supra (banquet) culture. Khachapuri (cheese bread, regional variants) and khinkali (pleated dumplings) are the iconic carbs. Walnut sauces (satsivi, bazha) and herbs define the signature.',
+      fr: 'La cuisine géorgienne est le berceau du vin (tradition qvevri 8000 ans) et la culture supra (banquet). Khachapuri (pain au fromage, variantes régionales) et khinkali (raviolis plissés) sont les glucides iconiques. Sauces aux noix (satsivi, bazha) et herbes en signature.'
+    }
+  },
+
+  'brazilian': {
+    flag: '🇧🇷',
+    aliases: ['brazilian', 'brazil', 'brasil'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('feijoada'), F('pão de queijo'), F('churrasco brazilian'), F('moqueca'),
+      F('coxinha'), F('brigadeiro'), F('açai bowl'), F('pastel'), F('feijão tropeiro'),
+      F('vatapá'), F('acarajé'), F('quindim'), F('caipirinha'), F('farofa'),
+      F('picanha'), F('pão de mel'), F('beijinho'), F('arroz com feijão'),
+      F('bolinho de bacalhau brasil'), F('sopa de palmito'), F('barreado'),
+      F('tapioca')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'portuguese',  reason: 'Colonial legacy 1500-1822; bacalhau, pastel de nata-style egg desserts, farofa lineage' },
+      { slug: 'argentinian', reason: 'Southern-cone churrasco / asado overlap; gaucho beef culture' }
+    ],
+    touristExplainer: {
+      en: 'Brazilian cuisine is regional + colonial-mix: Bahia\'s Afro-influenced moqueca + acarajé, Minas Gerais\' pão de queijo + feijão tropeiro, Rio\'s feijoada (the national dish). Churrasco rodízio is the global ambassador. Caipirinha (cachaça + lime) is the signature cocktail.',
+      fr: 'La cuisine brésilienne est régionale + colonial-métissée: moqueca + acarajé afro-bahianais, pão de queijo + feijão tropeiro du Minas Gerais, feijoada (plat national) de Rio. Le churrasco rodízio est l\'ambassadeur mondial. La caipirinha (cachaça + citron vert) en cocktail signature.'
+    }
+  },
+
+  'argentinian': {
+    flag: '🇦🇷',
+    aliases: ['argentinian', 'argentine', 'argentina'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('asado'), F('empanada argentina'), F('milanesa'), F('choripán'),
+      F('matambre'), F('locro'), F('humita'), F('dulce de leche'), F('alfajores'),
+      F('provoleta'), F('chimichurri'), F('mate'), F('medialunas'), F('fugazza'),
+      F('parrilla mixta'), F('tira de asado'), F('bife de chorizo'), F('morcilla'),
+      F('vacio steak'), F('flan con dulce de leche'), F('pizza fugazzeta'),
+      F('cazuela criolla')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'brazilian', reason: 'Southern-cone beef + parrilla overlap; gaucho heritage straddles the Pampas border' },
+      { slug: 'spanish',   reason: 'Spanish colonial substrate; empanadas, milanesa, flan; large Spanish-Italian immigration' },
+      { slug: 'italian',   reason: 'Massive Italian diaspora 19-20th c; pasta, pizza fugazzeta, milanesa heavily Italian-influenced' }
+    ],
+    touristExplainer: {
+      en: 'Argentinian cuisine is parrilla (open-fire grill) culture: tira de asado, vacío, bife de chorizo, morcilla, choripán, all served with chimichurri. Large Italian diaspora made pizza fugazzeta + milanesa staples. Mate is the all-day social drink; dulce de leche is the sweet obsession.',
+      fr: 'La cuisine argentine c\'est la culture parrilla (grill au feu de bois): tira de asado, vacío, bife de chorizo, morcilla, choripán, tous servis avec chimichurri. Importante diaspora italienne a fait de la pizza fugazzeta + milanesa des staples. Le mate est la boisson sociale; dulce de leche l\'obsession sucrée.'
+    }
+  },
+
+  'new-zealand': {
+    flag: '🇳🇿',
+    aliases: ['new zealand', 'new-zealand', 'kiwi', 'nz', 'aotearoa'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('hangi'), F('lamb roast nz'), F('pavlova nz'), F('whitebait fritter'),
+      F('hokey pokey ice cream'), F('marlborough sounds mussels'), F('crayfish kaikoura'),
+      F('manuka honey'), F('kumara'), F('boil-up'), F('rewena bread'),
+      F('lolly cake'), F('afghan biscuit'), F('anzac biscuit nz'), F('fish and chips kiwi'),
+      F('green-lipped mussel'), F('venison nz'), F('blue cod tempura'), F('kiwi burger'),
+      F('cheese roll'), F('paua fritter')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'australian',  reason: 'Trans-Tasman cousin; pavlova, lamington, BBQ, flat white debate ongoing' },
+      { slug: 'australasia', reason: 'Pacific Oceania umbrella; Maori + Pasifika traditions cross' },
+      { slug: 'british',     reason: 'British colonial substrate; fish and chips, meat pie, roast lamb' }
+    ],
+    touristExplainer: {
+      en: 'New Zealand cuisine is Maori hangi (earth oven) + British colonial + Pacific Rim modern. Lamb is the national protein; manuka honey + green-lipped mussel + crayfish + paua are the prized exports. Hokey-pokey ice cream and pavlova (NZ-claimed origin, AU-disputed) are the dessert icons.',
+      fr: 'La cuisine néo-zélandaise c\'est le hangi maori (four enterré) + héritage colonial britannique + cuisine du Pacifique moderne. L\'agneau est la protéine nationale; miel manuka + moules à lèvres vertes + langoustes + paua sont les exports prisés. Glace hokey-pokey et pavlova (origine NZ revendiquée, contestée par AU) en icônes sucrées.'
+    }
+  },
+
+  'australasia': {
+    flag: '🌏',
+    aliases: ['australasia', 'oceania', 'pacific islander', 'pasifika', 'antipodean'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('palusami'), F('lovo'), F('kokoda'), F('umu'), F('luau pig'),
+      F('chop suey samoan'), F('sapasui'), F('oka i\'a'), F('coconut bread'),
+      F('breadfruit roasted'), F('taro leaves coconut'), F('island lobster'),
+      F('hangi style cooking'), F('faiakai chop'), F('kaipake plate'),
+      F('cassava cake pacific'), F('coconut crab samoan'), F('fish suckling pacific'),
+      F('antipodean cafe brunch'), F('pasifika fusion plate')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'australian',  reason: 'Modern Australian "Mod-Oz" includes Pasifika influences from Melanesian / Polynesian diasporas' },
+      { slug: 'new-zealand', reason: 'NZ has the largest Polynesian diaspora outside the islands; deep Pasifika overlap' },
+      { slug: 'filipino',    reason: 'Pacific Rim cousin; coconut + tropical fruit + grilled-fish traditions cross' }
+    ],
+    touristExplainer: {
+      en: 'Australasian / Pacific cuisine spans Polynesia (Samoa, Tonga, Tahiti, Hawaii), Melanesia (Fiji, PNG), and Micronesia. Underground earth-oven cooking (umu / lovo / hangi) is the shared technique. Coconut + breadfruit + taro + reef fish + suckling pig define the iconic ingredients.',
+      fr: 'La cuisine australasienne / pacifique couvre la Polynésie (Samoa, Tonga, Tahiti, Hawaï), la Mélanésie (Fidji, PNG), et la Micronésie. La cuisson en four enterré (umu / lovo / hangi) est la technique partagée. Coco + fruit à pain + taro + poisson de récif + cochon de lait définissent les ingrédients iconiques.'
+    }
+  },
+
+  'macau': {
+    flag: '🇲🇴',
+    aliases: ['macau', 'macao', 'macanese'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('macanese egg tart'), F('african chicken'), F('minchi'), F('galinha à portuguesa'),
+      F('porco bafassá'), F('caldo verde macau'), F('serradura'),
+      F('pork chop bun'), F('almond cookies'), F('bacalhau macau'), F('arroz de pato macau'),
+      F('feijoada macau'), F('chilli crab macanese'), F('capela'), F('tacho'),
+      F('linguica macau'), F('caca-mato'), F('pastel de nata macau'),
+      F('coconut sweet macau'), F('serradura sago')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'cantonese',  reason: 'Cantonese substrate; dim sum, roast meat, congee all present' },
+      { slug: 'portuguese', reason: '463 years of Portuguese rule (1557-1999); fundamental fusion partner — egg tart, bacalhau, linguiça' },
+      { slug: 'hong-kong',  reason: 'Sister SAR; cha chaan teng + milk tea + roast meat + dim sum overlap' }
+    ],
+    touristExplainer: {
+      en: 'Macanese cuisine is one of the world\'s oldest documented fusion cuisines: 463 years of Portuguese rule fused with Cantonese, plus African + Goan + Malay + Indian colonial-trade additions. African chicken (piri-piri Portuguese-Macanese), Macanese egg tart, minchi (minced meat + potato hash) are the signature dishes.',
+      fr: 'La cuisine macanaise est l\'une des plus anciennes cuisines fusion documentées: 463 ans de domination portugaise fusionnée avec la cuisine cantonaise, plus apports africains + goanais + malais + indiens issus du commerce colonial. Poulet africain (piri-piri portugais-macanais), pastel de nata macanais, minchi (hachis viande-pomme de terre) en signatures.'
+    }
+  },
+
+  'northeastern': {
+    flag: '🇨🇳',
+    aliases: ['northeastern', 'dongbei', 'manchurian', 'manchurian chinese'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('guo bao rou'), F('dongbei suancai stew'), F('di san xian'), F('dongbei pork dumplings'),
+      F('xiao ji dun mogu'), F('cong you bing dongbei'), F('jianbing northeastern'),
+      F('huo guo dongbei'), F('da pai dang chinese bbq'), F('changchun braised duck'),
+      F('zha jiang mian'), F('dongbei xiang chang'), F('shao mai dongbei'),
+      F('three rice porridge'), F('cold dongbei dishes'), F('fermented soybean dongbei'),
+      F('lamb dumpling soup'), F('fried glutinous rice cakes'),
+      F('elm seed dumpling'), F('northeastern chao fan')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'chinese',  reason: 'Northeastern (Dongbei) is one of the recognised Chinese regional sub-cuisines' },
+      { slug: 'korean',   reason: 'Yanbian Korean Autonomous Prefecture sits in Dongbei; Korean-Chinese fusion dishes there' },
+      { slug: 'mongolian', reason: 'Inner Mongolia + Manchuria border; lamb + dairy + steppe-style cooking shared' }
+    ],
+    touristExplainer: {
+      en: 'Northeastern (Dongbei) Chinese cuisine is hearty cold-climate cooking: pork stews, sauerkraut (suancai) preserves, large-scale dumplings, vinegar-sweet sauces. Guo bao rou (sweet-sour pork) and di san xian (three earthen treasures: potato + eggplant + pepper) are the iconic exports.',
+      fr: 'La cuisine du nord-est chinois (Dongbei) est nourrissante et adaptée au climat froid: ragoûts de porc, choucroute (suancai) conservée, grands raviolis, sauces aigre-douces. Guo bao rou (porc aigre-doux) et di san xian (trois trésors de la terre: pomme de terre + aubergine + poivron) en exports iconiques.'
+    }
+  },
+
+  'northwestern': {
+    flag: '🇨🇳',
+    aliases: ['northwestern', 'xibei', 'lanzhou', 'shaanxi'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('lanzhou lamian'), F('biang biang noodles'), F('rou jia mo'), F('yangrou paomo'),
+      F('liang pi'), F('xinjiang da pan ji'), F('hand-pulled noodles xibei'),
+      F('shaanxi sour noodles'), F('jian bing northwestern'), F('xibei lamb skewer'),
+      F('cumin lamb'), F('xinjiang pilaf'), F('naang bread northwest'),
+      F('hui muslim noodles'), F('beef noodle lanzhou'), F('cold skin noodles liangpi'),
+      F('shaanxi qi shan noodles'), F('xibei dumpling soup'), F('xinjiang big plate chicken'),
+      F('hui hui style stew'), F('garlic-vinegar dipping')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'chinese',  reason: 'Xibei (northwestern) is a recognised Chinese regional cluster spanning Shaanxi, Gansu, Ningxia, Xinjiang' },
+      { slug: 'uyghur',   reason: 'Xinjiang shares Uyghur cuisine; lamian, naan, lamb skewer, pilaf cross' },
+      { slug: 'kazakh',   reason: 'Northwest border with Central Asia; lamb + flatbread + hand-pulled noodle cross' }
+    ],
+    touristExplainer: {
+      en: 'Northwestern (Xibei) Chinese cuisine spans Shaanxi, Gansu, Ningxia, Xinjiang — heavy Hui Muslim influence (no pork). Lanzhou lamian (hand-pulled beef noodle soup), biang biang noodles (Shaanxi belt-wide noodles), rou jia mo (Chinese hamburger) are the global icons. Cumin-lamb skewers + naan link to Central Asia.',
+      fr: 'La cuisine du nord-ouest chinois (Xibei) couvre Shaanxi, Gansu, Ningxia, Xinjiang — forte influence musulmane Hui (sans porc). Lanzhou lamian (nouilles tirées au bœuf), biang biang noodles (nouilles ceinture du Shaanxi), rou jia mo (hamburger chinois) sont les icônes mondiales. Brochettes d\'agneau au cumin + naan relient à l\'Asie centrale.'
+    }
+  },
+
+  'african': {
+    flag: '🌍',
+    aliases: ['african', 'pan-african', 'africa'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('jollof rice'), F('suya'), F('injera ethiopian'), F('doro wat'), F('bobotie'),
+      F('bunny chow'), F('chakalaka'), F('biltong'), F('couscous north african'),
+      F('tagine north african'), F('fufu'), F('egusi soup'), F('nyama choma'),
+      F('moin moin'), F('puff puff'), F('akara'), F('ugali'), F('mandazi'),
+      F('plantain dishes'), F('ful medames african'), F('berbere spice')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'south-african', reason: 'Sub-Saharan + colonial-era South African cuisine sits inside the broader African umbrella' },
+      { slug: 'moroccan',      reason: 'North African Maghreb cuisine (tagine, couscous, harira) is part of the African continent\'s cuisine map' },
+      { slug: 'egyptian',      reason: 'North African Mediterranean cuisine; ful, kofta, molokhia widely shared' }
+    ],
+    touristExplainer: {
+      en: 'African cuisine spans 54 countries + 5 culinary regions: West African (jollof + suya + fufu), East African (injera + nyama choma + ugali), North African (couscous + tagine + harira), Southern African (bobotie + biltong + bunny chow), Central African. Pan-African common threads: stews + grain staples + grilled meat + fermented beverages.',
+      fr: 'La cuisine africaine couvre 54 pays + 5 régions culinaires: ouest-africain (jollof + suya + fufu), est-africain (injera + nyama choma + ugali), nord-africain (couscous + tagine + harira), austral (bobotie + biltong + bunny chow), centre-africain. Fils communs pan-africains: ragoûts + céréales de base + viande grillée + boissons fermentées.'
+    }
+  },
+
+  'south-african': {
+    flag: '🇿🇦',
+    aliases: ['south african', 'south-african', 'rsa'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('bobotie'), F('biltong'), F('boerewors'), F('bunny chow'), F('chakalaka'),
+      F('potjiekos'), F('vetkoek'), F('koeksisters'), F('milk tart (melktert)'),
+      F('sosatie'), F('umngqusho'), F('amasi'), F('chakalaka with pap'),
+      F('cape malay curry'), F('snoek braai'), F('bobotie pie'), F('peri-peri chicken'),
+      F('rooibos tea'), F('mealie meal pap'), F('gatsby (cape town)'),
+      F('pickled fish (cape malay)'), F('boerewors roll')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'african',     reason: 'South African is part of the broader sub-Saharan African cuisine map' },
+      { slug: 'portuguese',  reason: 'Portuguese + Cape Malay heritage; peri-peri chicken (via Mozambique), bobotie spice palette' }
+    ],
+    touristExplainer: {
+      en: 'South African cuisine is the meeting of Indigenous African (umngqusho, pap, biltong), Cape Malay (bobotie, sosatie, koeksisters from indentured-Malay slaves), Dutch-Afrikaner (boerewors, potjiekos, vetkoek), and British colonial (curries, biscuits) traditions. Braai (BBQ) is the national social ritual; Gatsby is the legendary Cape Town sandwich.',
+      fr: 'La cuisine sud-africaine c\'est la rencontre des traditions africaines indigènes (umngqusho, pap, biltong), Cape Malay (bobotie, sosatie, koeksisters héritées des esclaves malais), néerlandaises-afrikaners (boerewors, potjiekos, vetkoek), et coloniales britanniques (curries, biscuits). Le braai (BBQ) est le rituel social national; le Gatsby le sandwich légendaire du Cap.'
+    }
+  },
+
+  'goan': {
+    flag: '🇮🇳',
+    aliases: ['goan', 'goa'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('vindaloo goan'), F('xacuti'), F('cafreal'), F('balchao'), F('sorpotel'),
+      F('bebinca'), F('fish curry rice goan'), F('prawn balchao'), F('chouriço goan'),
+      F('feni'), F('caldine'), F('ambot tik'), F('rava fried fish'), F('crab xec xec'),
+      F('pork roast goan'), F('arroz doce goan'), F('dodol'), F('alle belle'),
+      F('apa de camarao'), F('goan poi bread'), F('coconut-vinegar curry')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'south-indian', reason: 'Goa borders coastal Karnataka; coconut + rice + seafood traditions overlap' },
+      { slug: 'portuguese',   reason: '451 years of Portuguese rule (1510-1961); vindaloo, sorpotel, bebinca all Portuguese-Indian fusion' },
+      { slug: 'eurasian',     reason: 'Both inherit Portuguese vindaloo lineage; spice palette + vinegar profile shared' }
+    ],
+    touristExplainer: {
+      en: 'Goan cuisine is the four-century Portuguese-Indian fusion: vindaloo (vinha d\'alhos = wine + garlic), sorpotel (organ-meat curry), xacuti (roasted-coconut spice), bebinca (16-layer coconut cake). Coastal Konkani seafood + pork (rare in Hindu India) + feni (cashew distillate) are the regional anchors.',
+      fr: 'La cuisine goanaise c\'est la fusion portugaise-indienne de quatre siècles: vindaloo (vinha d\'alhos = vin + ail), sorpotel (curry d\'abats), xacuti (épices à la noix de coco torréfiée), bebinca (gâteau coco 16 couches). Fruits de mer côtiers konkani + porc (rare en Inde hindoue) + feni (distillat de noix de cajou) en ancres régionales.'
+    }
+  },
+
+  'dessert': {
+    flag: '🍮',
+    aliases: ['dessert', 'sweets', 'pastry', 'patisserie'],
+    populationInSG: 'high',
+    iconicDishes: [
+      F('tiramisu'), F('crème brûlée'), F('cheesecake'), F('chocolate fondant'),
+      F('macarons'), F('opera cake'), F('paris-brest'), F('mille-feuille'),
+      F('panna cotta'), F('eclair'), F('profiterole'), F('pavlova'),
+      F('tarte tatin'), F('cannoli'), F('gelato'), F('soufflé chocolate'),
+      F('crepes suzette'), F('croquembouche'), F('lava cake'), F('baba au rhum'),
+      F('saint honoré'), F('religieuse'), F('bombe alaska')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'french',  reason: 'French pâtisserie defines global haute-dessert tradition (Lenôtre, Hermé, Conticini)' },
+      { slug: 'italian', reason: 'Italian dolci (tiramisu, gelato, cannoli, panna cotta) globally exported' },
+      { slug: 'austrian', reason: 'Vienna pastry tradition (Sachertorte, apfelstrudel) heavily influenced modern pâtisserie' }
+    ],
+    touristExplainer: {
+      en: 'Dessert as a category: a curated cross-cuisine pool of plated sweets, with French + Italian + Austrian as the haute-pâtisserie pillars. Singapore offers the global selection — French cake shops at Maison Kayser/Tiong Bahru Bakery, Italian gelato at Birds of Paradise, plated Asian desserts at Janice Wong / 2am:dessertbar.',
+      fr: 'Le dessert comme catégorie: un pool transversal de douceurs à l\'assiette, avec la France + l\'Italie + l\'Autriche comme piliers haute-pâtisserie. Singapour offre la sélection mondiale — pâtisseries françaises chez Maison Kayser/Tiong Bahru Bakery, glaces italiennes chez Birds of Paradise, desserts asiatiques à l\'assiette chez Janice Wong / 2am:dessertbar.'
+    }
+  },
+
+  'fusion': {
+    flag: '🌐',
+    aliases: ['fusion', 'modern', 'mod-sin', 'mod-asian'],
+    populationInSG: 'high',
+    iconicDishes: [
+      F('chilli crab pasta'), F('laksa carbonara'), F('rendang croissant'), F('sambal pizza'),
+      F('hainanese chicken risotto'), F('kaya french toast'), F('salted egg pasta'),
+      F('truffle char kway teow'), F('miso pasta'), F('mod-sin tasting menu'),
+      F('kombu butter steak'), F('bak kut teh ramen'), F('peranakan tasting menu'),
+      F('asian-french degustation'), F('mod-asian small plates'), F('uni linguine'),
+      F('foie gras char siu'), F('xo sauce burger'), F('sake brûlée'), F('matcha tiramisu'),
+      F('soy-sauce gelato'), F('curry leaf risotto')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'singaporean', reason: 'Mod-Sin (modern Singaporean) is the most active local fusion movement; chef Andre Chiang, Willin Low pioneered' },
+      { slug: 'peranakan',   reason: 'Many fusion menus draw from Peranakan heritage as a Singapore-rooted starting point' },
+      { slug: 'french',      reason: 'French technique is the most common haute-fusion base; Asian-French is the dominant pairing' }
+    ],
+    touristExplainer: {
+      en: 'Fusion as a category: chef-driven cross-cultural plating. In Singapore, "Mod-Sin" (modern Singaporean — Wild Rocket, Labyrinth, Andre, Burnt Ends) and Asian-French (Lerouy, Born, Esora) are the strongest movements. The Asian-Mediterranean axis (Nouri, Meta) is the second wave.',
+      fr: 'La fusion comme catégorie: dressage transculturel piloté par chef. À Singapour, le "Mod-Sin" (singapourien moderne — Wild Rocket, Labyrinth, Andre, Burnt Ends) et l\'asiatique-français (Lerouy, Born, Esora) sont les mouvements les plus forts. L\'axe asiatique-méditerranéen (Nouri, Meta) en deuxième vague.'
+    }
   }
 };
 
@@ -2209,7 +2877,7 @@ function getOverlayedSlugs() {
 //     names ("crème brûlée") and vice versa. Per Codex review on PR #272.
 //
 // Returns { slug, flag, dish, kind, sharedWith } or null.
-function findNationIconic(text) {
+function findNationIconic(text, opts = {}) {
   if (!text) return null;
   const stripDiacritics = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '');
   const tokenize = (s) => stripDiacritics(s).toLowerCase()
@@ -2218,10 +2886,11 @@ function findNationIconic(text) {
   const userTokens = tokenize(text);
   if (userTokens.length < 2) return null;
   const userSet = new Set(userTokens);
-  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+
+  const matchInOverlay = (slug, overlay) => {
     for (const dish of (overlay.iconicDishes || [])) {
       const dishName = String(dish.name).toLowerCase()
-        .replace(/\([^)]*\)/g, '')                               // strip parens like "(san lou)"
+        .replace(/\([^)]*\)/g, '')
         .trim();
       const dishTokens = tokenize(dishName);
       if (dishTokens.length < 2) continue;
@@ -2235,6 +2904,22 @@ function findNationIconic(text) {
         };
       }
     }
+    return null;
+  };
+
+  // v0.60.21 — sticky-cuisine bias. When the user's prior turn locked a
+  // cuisine (e.g. /s rendang → indonesian), prefer that cuisine on the
+  // next ambiguous match before the default first-cuisine-wins scan.
+  const stickySlug = opts.stickyCuisine ? String(opts.stickyCuisine).toLowerCase() : null;
+  if (stickySlug && NATION_OVERLAY[stickySlug]) {
+    const hit = matchInOverlay(stickySlug, NATION_OVERLAY[stickySlug]);
+    if (hit) return { ...hit, sticky: true };
+  }
+
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    if (stickySlug && slug === stickySlug) continue; // already checked
+    const hit = matchInOverlay(slug, overlay);
+    if (hit) return hit;
   }
   return null;
 }

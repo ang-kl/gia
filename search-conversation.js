@@ -141,12 +141,37 @@ async function setLastDisambig(redis, chatId, stickyKey) {
   }
 }
 
+// v0.60.21 — sticky-cuisine thread for nation-iconic + cooking-method
+// queries. Per Human Lead 2026-05-08. AMBIGUOUS_DISHES already had
+// `lastDisambig` for explicit interpretation locking. NATION_OVERLAY
+// (findNationIconic) and COOKING_METHODS (findCookingMethod) currently
+// return first-match-wins; this stores the user's last successful
+// cuisine choice so when a future ambiguous match could go to multiple
+// cuisines (e.g. "rendang" tagged in both Malaysian + Indonesian
+// iconicDishes), we prefer the previously-chosen cuisine. 6-turn
+// expiry enforced by the conversation TTL itself.
+async function setLastCuisine(redis, chatId, source, slug, term) {
+  if (!redis || !chatId || !slug) return null;
+  let conv = await getConversation(redis, chatId);
+  if (!conv) conv = { started: Date.now(), rt: 0, history: [], intent: null };
+  conv.lastCuisine = { source: String(source || 'unknown'), slug: String(slug).toLowerCase(), term: String(term || ''), at: Date.now() };
+  try {
+    if (!redis.isOpen) await redis.connect();
+    await redis.setEx(`${KEY_PREFIX}${chatId}`, TTL_S, JSON.stringify(conv));
+    return conv;
+  } catch (err) {
+    console.warn('[Search-Conv] setLastCuisine failed:', err.message);
+    return null;
+  }
+}
+
 module.exports = {
   getConversation,
   startConversation,
   appendExchange,
   endConversation,
   setLastDisambig,
+  setLastCuisine,
   isOtherSlashCommand,
   isEndSignal,
   shouldNudgeEnd,
