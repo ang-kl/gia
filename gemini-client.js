@@ -745,7 +745,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: null
   },
   {
-    match: ['friture', 'deep fry', 'deep-fried', 'deep frying'],
+    match: ['friture', 'deep fry', 'deep-fried', 'deep frying', 'agemono', 'karaage'],
     defaultOrigin: 'French',
     why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.',
     originDish: 'pommes frites',

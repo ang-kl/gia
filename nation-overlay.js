@@ -653,6 +653,51 @@ function getOverlayedSlugs() {
   return Object.keys(NATION_OVERLAY);
 }
 
+// v0.60.6 — Find a NATION_OVERLAY iconicDish entry whose name tokens are
+// all present in `text` (order-independent). Used by the search router
+// to detect canonical SG dishes/drinks BEFORE falling through to raw
+// Places (e.g. "dinosaur Milo" or "Milo dinosaur" both → SG drink).
+//
+// Rules:
+//   - Multi-word matches only (single-word entries like "kopi", "milo",
+//     "satay" are too generic for substring matching — they live in
+//     AMBIGUOUS_DISHES with proper signal disambiguation, or are caught
+//     by classifySearchIntent's dish/cuisine path).
+//   - All dish-name tokens (≥3 chars) must appear in user-text tokens.
+//   - First match wins; cuisines are scanned in NATION_OVERLAY key order
+//     (Singaporean first → SG-canonical wins for cross-cuisine collisions
+//     like "kaya toast").
+//
+// Returns { slug, flag, dish, kind, sharedWith } or null.
+function findNationIconic(text) {
+  if (!text) return null;
+  const tokenize = (s) => String(s).toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3);
+  const userTokens = tokenize(text);
+  if (userTokens.length < 2) return null;
+  const userSet = new Set(userTokens);
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    for (const dish of (overlay.iconicDishes || [])) {
+      const dishName = String(dish.name).toLowerCase()
+        .replace(/\([^)]*\)/g, '')                               // strip parens like "(san lou)"
+        .trim();
+      const dishTokens = tokenize(dishName);
+      if (dishTokens.length < 2) continue;
+      if (dishTokens.every((t) => userSet.has(t))) {
+        return {
+          slug,
+          flag: overlay.flag,
+          dish: dish.name,
+          kind: dish.kind,
+          sharedWith: dish.sharedWith || []
+        };
+      }
+    }
+  }
+  return null;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Tourist-mode formatter — pure (no I/O, no Places, no Gemini).
 // Produces an HTML-flavoured string for Telegram parse_mode='HTML'.
@@ -749,6 +794,7 @@ module.exports = {
   NATION_OVERLAY,
   getNationOverlay,
   findNationByAlias,
+  findNationIconic,
   getOverlayedSlugs,
   formatNationOverlay,
   formatIconicList,

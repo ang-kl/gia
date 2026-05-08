@@ -299,6 +299,95 @@ describe('formatNationOverlay — tourist-mode renderer', () => {
   });
 });
 
+describe('findNationIconic — order-independent SG dish/drink detection (v0.60.6)', () => {
+  it('matches "milo dinosaur" → SG drink', () => {
+    const hit = overlay.findNationIconic('milo dinosaur');
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('singaporean');
+    expect(hit.dish).toBe('milo dinosaur');
+    expect(hit.kind).toBe('drink');
+  });
+
+  it('matches "dinosaur Milo" (reverse word order) → SG drink', () => {
+    const hit = overlay.findNationIconic('dinosaur Milo');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('milo dinosaur');
+  });
+
+  it('matches "Milo Dinosaur Singapore" (mixed case + extra context)', () => {
+    const hit = overlay.findNationIconic('Milo Dinosaur Singapore');
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('singaporean');
+  });
+
+  it('matches "kaya toast" → SG food', () => {
+    const hit = overlay.findNationIconic('kaya toast');
+    expect(hit).toBeTruthy();
+    expect(hit.kind).toBe('food');
+    expect(hit.dish).toBe('kaya toast');
+  });
+
+  it('matches "chilli crab" → SG food', () => {
+    const hit = overlay.findNationIconic('chilli crab');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('chilli crab');
+  });
+
+  it('matches "fish head curry" → SG food', () => {
+    const hit = overlay.findNationIconic('fish head curry');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('fish head curry');
+  });
+
+  it('does NOT match single-word "kopi" (too generic)', () => {
+    expect(overlay.findNationIconic('kopi')).toBeNull();
+  });
+
+  it('does NOT match single-word "milo" (too generic; would catch theme parks)', () => {
+    expect(overlay.findNationIconic('milo')).toBeNull();
+  });
+
+  it('does NOT match unrelated text', () => {
+    expect(overlay.findNationIconic('hello world')).toBeNull();
+    expect(overlay.findNationIconic('jurassic world experience')).toBeNull();
+  });
+
+  it('does NOT match empty / null / undefined', () => {
+    expect(overlay.findNationIconic('')).toBeNull();
+    expect(overlay.findNationIconic(null)).toBeNull();
+    expect(overlay.findNationIconic(undefined)).toBeNull();
+  });
+
+  it('strips parenthetical descriptions in dish names ("orh nee (yam paste...)")', () => {
+    // "orh nee" is a valid 2-token match even though canonical name has parens
+    const hit = overlay.findNationIconic('orh nee');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toContain('orh nee');
+  });
+});
+
+describe('TECHNIQUE_FALLBACK — Japanese deep-fry aliases (v0.60.6 fix)', () => {
+  it('"agemono" lookup resolves to friture technique entry', () => {
+    const techEntry = gc.lookupTechnique('Agemono');
+    expect(techEntry).toBeTruthy();
+    expect(techEntry.match).toContain('friture');
+    expect(techEntry.match).toContain('agemono');
+  });
+
+  it('"karaage" lookup resolves to the same friture entry', () => {
+    const techEntry = gc.lookupTechnique('karaage');
+    expect(techEntry).toBeTruthy();
+    expect(techEntry.match).toContain('friture');
+    expect(techEntry.match).toContain('karaage');
+  });
+
+  it('"confit" still resolves separately (regression check)', () => {
+    const techEntry = gc.lookupTechnique('Confitage');
+    expect(techEntry).toBeTruthy();
+    expect(techEntry.match).toContain('confit');
+  });
+});
+
 describe('NATION_OVERLAY — neighboringCuisines integrity', () => {
   it.each(REQUIRED_SLUGS)(
     '%s: every neighbor has slug + reason',

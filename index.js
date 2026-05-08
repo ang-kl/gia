@@ -3580,6 +3580,16 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (techEntry) {
     return await runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc });
   }
+  // v0.60.6 — Nation-iconic detection: if the query matches a known
+  // SG iconic dish or drink (e.g. "milo dinosaur", "kaya toast",
+  // "chilli crab"), route through runNationIconicFanOut so the user
+  // gets the rich-card template + correct kopitiam/hawker targeting
+  // instead of literal Places search.
+  const overlay = require('./nation-overlay');
+  const niHit = overlay.findNationIconic(userText);
+  if (niHit) {
+    return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
+  }
   // ---- Existing single-query path (dish / ingredient / cuisine-tagged tool) ----
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri';
@@ -4020,6 +4030,130 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
   }
 }
 
+// v0.60.6 — Nation-iconic fan-out. Triggers when a free-text or /s
+// query matches a NATION_OVERLAY iconicDish entry (e.g. "milo dinosaur"
+// → SG drink, "kaya toast" → SG food). Renders the same rich-card
+// template as runTechniqueFanOut so users get full venue details
+// (address, hours, website, phone, rating, transit, "Try X" line, maps)
+// instead of the thin deliverPicks / runFreeTextSearch fallback.
+async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }) {
+  const overlay = require('./nation-overlay');
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Refined query — anchor by SG context + venue type so Places ranks
+  // hawker/kopitiam stalls above unrelated literals (e.g. "dinosaur Milo"
+  // matching theme parks).
+  const venueType = hit.kind === 'drink'
+    ? 'kopitiam OR hawker OR coffee shop'
+    : 'hawker OR restaurant';
+  const textQuery = `"${hit.dish}" Singapore ${venueType}`;
+
+  // Progressive feedback (mirrors runTechniqueFanOut UX).
+  let typingTimer = null;
+  const startTyping = () => {
+    const tick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
+    tick();
+    typingTimer = setInterval(tick, 4000);
+  };
+  const stopTyping = () => { if (typingTimer) { clearInterval(typingTimer); typingTimer = null; } };
+  startTyping();
+
+  let statusMsgId = null;
+  const cuisineLabel = hit.slug.charAt(0).toUpperCase() + hit.slug.slice(1);
+  const initialStatus = lang === 'fr'
+    ? `🔍 <i>Recherche de <b>${esc(hit.dish)}</b> à Singapour…</i>`
+    : `🔍 <i>Searching for <b>${esc(hit.dish)}</b> in Singapore…</i>`;
+  try {
+    const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
+    statusMsgId = sent?.message_id || null;
+  } catch (err) {
+    console.warn('[Nation-Iconic] status send failed:', err.message);
+  }
+  const deleteStatus = async () => {
+    if (!statusMsgId) return;
+    try { await bot.deleteMessage(chatId, statusMsgId); } catch { /* non-fatal */ }
+    statusMsgId = null;
+  };
+
+  try {
+    const venues = await searchVenuesByDish(textQuery, cuisineLabel, {
+      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+    });
+    if (!venues.length) {
+      await deleteStatus();
+      await safeSend(chatId, lang === 'fr'
+        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b> à Singapour.`
+        : `Sorry, no Singapore venues found for <b>${esc(hit.dish)}</b>.`,
+        { parse_mode: 'HTML' });
+      return;
+    }
+    // Phase 2 — enrich with travel times + footfall (best-effort).
+    try {
+      const { enrichTravelTimes } = require('./travel-times');
+      await enrichTravelTimes(center.lat, center.lng, venues);
+    } catch (err) {
+      console.warn('[Nation-Iconic] enrichTravelTimes failed:', err.message);
+    }
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, venues);
+    } catch (err) {
+      console.warn('[Nation-Iconic] attachFootfallSignals failed:', err.message);
+    }
+
+    // Phase 3 — render. Header is the cuisine + dish + a tourist-friendly
+    // single-line explainer pulled from NATION_OVERLAY.
+    const { googleMapsUrl } = require('./maps-url');
+    const overlayEntry = overlay.getNationOverlay(hit.slug);
+    const tourist = overlayEntry?.touristExplainer?.[lang === 'fr' ? 'fr' : 'en'] || '';
+    const kindLabel = hit.kind === 'drink'
+      ? (lang === 'fr' ? 'boisson' : 'drink')
+      : (lang === 'fr' ? 'plat' : 'dish');
+    const lines = [];
+    lines.push(`${hit.flag} <b>${esc(hit.dish)}</b> · ${esc(cuisineLabel)} ${kindLabel}`);
+    if (tourist) {
+      lines.push('');
+      lines.push(`<i>${esc(tourist)}</i>`);
+    }
+    if (hit.sharedWith && hit.sharedWith.length) {
+      lines.push('');
+      lines.push(lang === 'fr'
+        ? `🔄 <i>Aussi revendiqué par: ${hit.sharedWith.join(', ')}</i>`
+        : `🔄 <i>Also claimed by: ${hit.sharedWith.join(', ')}</i>`);
+    }
+    lines.push('');
+    const cards = venues.slice(0, 5).map((venue, i) => formatTechniqueVenueBlock(venue, {
+      number: i + 1,
+      lang,
+      googleMapsUrlFn: googleMapsUrl,
+      dishPhrase: hit.dish,
+      orderTip: ''
+    }));
+    lines.push(cards.join('\n\n\n'));
+
+    const reply = lines.join('\n');
+    const updated = sc
+      ? await sc.appendExchange(redis, chatId, userText, reply, 'nation-iconic')
+      : null;
+    const rawSuffix = (sc && updated && sc.shouldNudgeEnd(updated)) ? sc.endNudge(lang) : '';
+    const suffix = rawSuffix
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/_([^_]+)_/g, '<i>$1</i>');
+    await deleteStatus();
+    await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
+  } catch (err) {
+    console.error('[Nation-Iconic] fatal:', err.stack || err.message);
+    await deleteStatus();
+    await safeSend(chatId, lang === 'fr'
+      ? `Désolé, erreur lors de la recherche de <b>${esc(hit.dish)}</b>.`
+      : `Sorry, something went wrong searching for <b>${esc(hit.dish)}</b>.`,
+      { parse_mode: 'HTML' });
+  } finally {
+    stopTyping();
+  }
+}
+
 async function runForgetMeCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -4283,6 +4417,30 @@ bot.on('message', async (msg) => {
     // pref in Redis, falls back to Telegram's user.language_code.
     const { resolveLang } = require('./user-prefs');
     const userLang = await resolveLang(redis, msg.chat.id, msg);
+    // v0.60.6 — Nation-iconic detection BEFORE raw Places. If the text
+    // matches a known SG iconic dish or drink (e.g. "milo dinosaur"
+    // → SG drink; "kaya toast" → SG food), route through the rich-card
+    // fan-out so users get correct kopitiam/hawker targeting + full
+    // venue cards instead of literal-string Places matches (which
+    // turn "dinosaur Milo" into "Jurassic World" theme park).
+    try {
+      const overlay = require('./nation-overlay');
+      const niHit = overlay.findNationIconic(text);
+      if (niHit) {
+        const { getUserLocation } = require('./location-cache');
+        const loc = await getUserLocation(redis, msg.chat.id).catch(() => null);
+        const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+        const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+        const sc = require('./search-conversation');
+        await runNationIconicFanOut({
+          chatId: msg.chat.id, userText: text, hit: niHit,
+          lang: userLang, center, sc
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn('[free-text] nation-iconic check failed (continuing to raw search):', err.message);
+    }
     await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
