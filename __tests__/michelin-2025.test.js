@@ -142,6 +142,32 @@ describe('findMichelinMatch — venue cross-reference', () => {
     expect(m.findMichelinMatch('Imperial Treasure', '99 Random Road 100000')).toBeNull();
   });
 
+  it('Codex review fix — branch-qualifier guard rejects non-Orchard Imperial Treasure', () => {
+    // Pre-fix bug: "Imperial Treasure Fine Teochew Cuisine" (5 tokens)
+    // matched "(Orchard)" entry (6 tokens) at 0.83 fraction even when
+    // candidate address didn't contain postal 238801. Now requires
+    // the qualifier text OR postal to be present.
+    expect(m.findMichelinMatch(
+      'Imperial Treasure Fine Teochew Cuisine',
+      '99 Marina Bay 018960'
+    )).toBeNull();
+  });
+
+  it('Codex review fix — short-entry guard rejects "Ma Cuisine" lookalike', () => {
+    // Pre-fix bug: "Ma Cuisine" (1 distinguishing token "cuisine") fuzzy-
+    // matched any candidate with "cuisine" in the name. Now short
+    // entries (≤2 tokens) require the entry name as a substring.
+    expect(m.findMichelinMatch(
+      'Imperial Treasure Fine Teochew Cuisine',
+      '10 Random Road'
+    )).toBeNull();
+  });
+
+  it('short-entry guard still allows "Ma Cuisine Singapore" suffix-tolerant match', () => {
+    const r = m.findMichelinMatch('Ma Cuisine Singapore', '38 Craig Road');
+    expect(r?.name).toBe('Ma Cuisine');
+  });
+
   it('curly-quote tolerance (Iggy\'s vs Iggy’s)', () => {
     const r = m.findMichelinMatch("Iggy's Restaurant", '581 Orchard Road');
     expect(r).toBeTruthy();

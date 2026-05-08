@@ -227,12 +227,26 @@ function buildPlacesQuery(entry) {
 // finally a token-overlap fuzzy match (≥80% of entry name tokens
 // present in the candidate name) for minor name drift like
 // "Burnt Ends" vs "Burnt Ends Restaurant".
+function _normalizeQuotes(s) {
+  return String(s || '')
+    .replace(/[‘’ʼ′]/g, "'")              // curly + modifier letter apostrophe
+    .replace(/[“”″]/g, '"');                    // curly double quotes
+}
+
 function _nameTokens(s) {
-  return String(s || '').toLowerCase()
+  return _normalizeQuotes(s).toLowerCase()
     .normalize('NFD').replace(/\p{M}/gu, '')
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length >= 3)
     .filter((t) => !/^(the|and|of|with|for|by|at|in|on|to|de|du|la|le|les|by)$/.test(t));
+}
+
+// Lower-cased, quote-normalized form for substring comparisons in the
+// short-entry guard. Same normalisation pipeline as _nameTokens minus
+// the splitting — keeps spaces so multi-word entry names ("Ma Cuisine")
+// stay intact for substring tests against the candidate.
+function _normalizedLower(s) {
+  return _normalizeQuotes(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
 }
 
 function findMichelinMatch(name, address = '') {
@@ -261,8 +275,19 @@ function findMichelinMatch(name, address = '') {
   // appear in candidate tokens, AND vice-versa for short entry names —
   // so "Iggy's" doesn't accidentally match a 5-word candidate that
   // happens to contain "Iggy".
+  //
+  // v0.60.16 (Codex review on PR #281): when the entry name has a
+  // parenthesised branch qualifier like "Imperial Treasure Fine
+  // Teochew Cuisine (Orchard)" — meaning only ONE outlet of a chain
+  // is Michelin-listed — fuzzy token matching alone is dangerous. A
+  // non-ION Imperial Treasure shares 5/6 tokens with the entry (the
+  // "orchard" qualifier is the only missing token) and passes the
+  // 0.8 threshold, mis-annotating the wrong branch as one-star.
+  // Require the qualifier to appear in the candidate name/address
+  // OR the postal code to match — otherwise skip this entry in tier 3.
   const candTokens = new Set(_nameTokens(candName));
   if (!candTokens.size) return null;
+  const candFullLower = (candName + ' ' + candAddr).toLowerCase();
   let best = null;
   let bestScore = 0;
   for (const e of ALL) {
@@ -272,6 +297,36 @@ function findMichelinMatch(name, address = '') {
     const entryFrac = matched / entryTokens.length;
     if (entryFrac < 0.8) continue;
     if (matched < 2 && entryTokens.length > 1) continue;       // require ≥2 token overlap when entry has ≥2 tokens
+
+    // Short-entry guard: when the entry has only 1-2 distinguishing
+    // tokens (e.g. "Ma Cuisine" → just ['cuisine'] after stop-word
+    // filter), require the entry's full name to appear as a substring
+    // of the candidate name. Without this guard, single-token entries
+    // mis-match anything sharing the token (e.g. "Imperial Treasure
+    // Fine Teochew Cuisine" → "Ma Cuisine"). Tier 1 already covers
+    // exact matches; tier 2 handles chain-postal matches; tier 3
+    // remains the suffix-tolerant path ("Burnt Ends Restaurant" →
+    // "Burnt Ends") which needs entryTokens > 2 to be safe.
+    if (entryTokens.length <= 2) {
+      const candNorm = _normalizedLower(candName);
+      const entryNorm = _normalizedLower(e.name);
+      if (!candNorm.includes(entryNorm)) continue;
+    }
+
+    // Branch-qualifier guard: if the entry name carries a "(Branch)"
+    // suffix, the candidate MUST either include the qualifier text
+    // OR have an address containing the entry's postal code. Without
+    // this, other branches of the same chain get falsely annotated.
+    const qualifierMatch = /\(([^)]+)\)/.exec(String(e.name));
+    if (qualifierMatch) {
+      const qualifier = qualifierMatch[1].toLowerCase().trim();
+      const qualifierTokens = qualifier.split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
+      const qualifierOk = qualifierTokens.length === 0
+        || qualifierTokens.some((t) => candFullLower.includes(t));
+      const postalOk = e.postal && candAddr.includes(e.postal);
+      if (!qualifierOk && !postalOk) continue;
+    }
+
     // Prefer longer (more specific) matches.
     const score = matched + entryFrac;
     if (score > bestScore) {
