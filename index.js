@@ -297,8 +297,15 @@ async function forwardGeocodeAndValidate(query) {
 //     user can decide if they want to refresh manually.
 //   • No cached location at all → prompt for share (only first time).
 //     Sets pending-meal so bot.on('location') auto-resumes.
-async function ensureLocation(chatId, label, lang = 'en') {
+// v0.60.7 (Human Lead 2026-05-08): added `opts.maxAgeMin` so /hidden
+// can reject locations older than 15 min (and prompt user to refresh)
+// while /cuisine + /carpark continue to accept anything within the
+// 24 h LOC_TTL. When a location is stale per maxAgeMin, we surface
+// the pin keyboard with a clear "your location is N min old, share
+// fresh GPS or run /location <place>" message.
+async function ensureLocation(chatId, label, lang = 'en', opts = {}) {
   const { t, tn } = require('./i18n');
+  const maxAgeMin = Number.isFinite(opts.maxAgeMin) ? opts.maxAgeMin : null;
   const cached = await getUserLocation(redis, chatId);
   if (!cached || !Number.isFinite(cached.lat) || !Number.isFinite(cached.lng)) {
     try { await setPendingMeal(redis, chatId, label); } catch { /* best effort */ }
@@ -309,9 +316,22 @@ async function ensureLocation(chatId, label, lang = 'en') {
     );
     return null;
   }
+  // v0.60.7 — if caller specified a maxAgeMin and our cache is older,
+  // treat as missing: pop the share-pin keyboard and bail out.
+  const ageMin = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
+  if (maxAgeMin != null && ageMin != null && ageMin > maxAgeMin) {
+    try { await setPendingMeal(redis, chatId, label); } catch { /* best effort */ }
+    const ageStr = ageMin < 60
+      ? tn('location.age.minAgo', lang, { n: ageMin })
+      : tn('location.age.hourAgo', lang, { h: Math.floor(ageMin / 60), m: ageMin % 60 });
+    const stalePrompt = lang === 'fr'
+      ? `📍 Votre position partagée date de ${ageStr}. ${label} a besoin d'un point GPS plus frais (≤ ${maxAgeMin} min). Touchez le bouton ci-dessous pour partager une nouvelle position, ou tapez \`/location <lieu>\`.`
+      : `📍 Your shared location is ${ageStr} old. ${label} needs a fresher GPS pin (≤ ${maxAgeMin} min). Tap the button below to share a new pin, or run \`/location <place>\`.`;
+    await bot.sendMessage(chatId, stalePrompt, LOCATION_REQUEST_KEYBOARD);
+    return null;
+  }
   try {
     const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
-    const ageMin = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
     let ageNote = '';
     if (ageMin != null) {
       if (ageMin < 1) ageNote = t('location.age.justShared', lang);
@@ -954,9 +974,16 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 // it into the TMA via #lat&lng&place. Fixes the prod bug where the
 // TMA fired /api/cuisine/search with center=0.0000,0.0000 because
 // userLoc never resolved before the warm-start fallback ran. When no
-// fresh cached location exists (≤30 min), also offer a Share-pin
+// fresh cached location exists (≤24 h), also offer a Share-pin
 // reply-keyboard so the user can fix the anchor in one tap.
-const CUISINE_FRESH_LOC_MS = 30 * 60 * 1000;
+//
+// v0.60.7 (Human Lead 2026-05-08): raised 30 min → 24 h to match
+// LOC_TTL. Users complained that /cuisine kept asking for fresh GPS
+// even with a 4-hour-old location. Cuisine search isn't sensitive to
+// sub-hour location drift — most SG residents don't move > 1 km in
+// 4 h. The 24 h cap matches the location-cache TTL so cached → asked
+// for fresh transitions only when the cache itself expires.
+const CUISINE_FRESH_LOC_MS = 24 * 60 * 60 * 1000;
 bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   // v0.59.17: thread lang into the chat reply so it flips with /language.
   const { resolveLang } = require('./user-prefs');
@@ -2826,7 +2853,12 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       await safeSend(chatId, t('hidden.busy', lang));
       return;
     }
-    const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden', lang);
+    // v0.60.7 — /hidden requires fresh GPS (≤ 15 min) per Human Lead
+    // 2026-05-08. Hidden-gem search is highly location-sensitive (we're
+    // looking for venues within 100m–2km radius), so a 4-h-old anchor
+    // can lead to walks across the city. /cuisine + /carpark stay on
+    // the 24 h cache.
+    const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden', lang, { maxAgeMin: 15 });
     if (!cached) return;
     await setProcessing(redis, chatId);
 
@@ -2954,21 +2986,77 @@ async function runSurpriseCommand(chatId, lang = 'en') {
 
     console.log(`[/hidden] Gemini ok model=${result.model} chars=${result.text.length}`);
     // v0.59.5: post-process to replace fabricated rating + review counts
-    // with live values from Google Places API. Gemini's grounded search
-    // routinely returns stale counts (user reported 56→159, 114→162 on a
-    // single run). Falls back to the original block per venue when Places
-    // returns nothing — never makes the output worse.
-    let verifiedText = result.text;
-    let verifiedVenues = [];
-    let allDropped = false;
-    try {
-      const { verifyHiddenGemsOutput } = require('./hidden-verify');
-      const verifyResult = await verifyHiddenGemsOutput(result.text);
-      verifiedText = verifyResult.text;
-      verifiedVenues = verifyResult.venues || [];
-      allDropped = !!verifyResult.allDropped;
-    } catch (err) {
-      console.warn('[/hidden] verify post-process failed, keeping raw output:', err.message);
+    // with live values from Google Places API. v0.60.7 (Human Lead
+    // 2026-05-08): also haversine-filter survivors to the requested
+    // radius (default 2km), and retry generateGroundedHiddenGems with
+    // a wider band when fewer than 5 verified survivors remain.
+    const transport = require('./transport');
+    const RADIUS_PRIMARY_M = 2000;     // matches default '100m to 2km'
+    const RADIUS_FALLBACK_M = 3000;    // matches retry '1.5km to 3km'
+    const MIN_SURVIVORS = 5;
+
+    async function verifyAndFilter(text, radiusM) {
+      let verifyResult;
+      try {
+        const { verifyHiddenGemsOutput } = require('./hidden-verify');
+        verifyResult = await verifyHiddenGemsOutput(text);
+      } catch (err) {
+        console.warn('[/hidden] verify post-process failed:', err.message);
+        return { text, venues: [], allDropped: false, withinRadius: 0 };
+      }
+      // Haversine-filter against anchor coords. Each verified venue
+      // (non-null, non-apiError) carries lat/lng from the Places API.
+      const venues = verifyResult.venues || [];
+      let withinRadius = 0;
+      for (const v of venues) {
+        if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
+        const distM = transport.haversineM(cached.lat, cached.lng, v.lat, v.lng);
+        v.distanceM = Math.round(distM);
+        if (distM <= radiusM) withinRadius++;
+      }
+      return {
+        text: verifyResult.text,
+        venues,
+        allDropped: !!verifyResult.allDropped,
+        withinRadius
+      };
+    }
+
+    let primary = await verifyAndFilter(result.text, RADIUS_PRIMARY_M);
+    let verifiedText = primary.text;
+    let verifiedVenues = primary.venues;
+    let allDropped = primary.allDropped;
+
+    // v0.60.7 — when verification + haversine kills too many venues,
+    // re-call Gemini with the wider 1.5–3 km band so the user gets ≥ 5.
+    if (!allDropped && primary.withinRadius < MIN_SURVIVORS) {
+      console.log(`[/hidden] only ${primary.withinRadius} survivors within ${RADIUS_PRIMARY_M}m — retrying with wider radius`);
+      try {
+        const wider = await Promise.race([
+          gc.generateGroundedHiddenGems({
+            anchor,
+            todayIsoSGT: gc.todaySGT(),
+            lang,
+            radiusBand: '1.5km to 3km',
+            radiusLower: '1.5km',
+            radiusUpper: '3km'
+          }),
+          new Promise((_, reject) => setTimeout(
+            () => reject(new Error('retry exceeded 90s')),
+            90_000
+          ))
+        ]);
+        const fallback = await verifyAndFilter(wider.text, RADIUS_FALLBACK_M);
+        // Use the fallback only if it actually beats the primary result.
+        if (!fallback.allDropped && fallback.withinRadius > primary.withinRadius) {
+          verifiedText = fallback.text;
+          verifiedVenues = fallback.venues;
+          allDropped = fallback.allDropped;
+          console.log(`[/hidden] fallback band returned ${fallback.withinRadius} within ${RADIUS_FALLBACK_M}m`);
+        }
+      } catch (err) {
+        console.warn('[/hidden] wider-radius retry failed (keeping primary):', err.message);
+      }
     }
     // v0.59.7 (Codex review #211): if every parsed block was filtered
     // out as CLOSED_*, the verified text is empty and Telegram rejects
@@ -3496,6 +3584,33 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   let conv = await sc.getConversation(redis, chatId);
   if (!conv) conv = await sc.startConversation(redis, chatId);
   const history = Array.isArray(conv?.history) ? conv.history : [];
+
+  // v0.60.7 (Human Lead 2026-05-08) — deterministic technique short-
+  // circuit BEFORE the LLM intent step. classifySearchIntent is a
+  // Gemini call and occasionally returns intent='dish' for a known
+  // technique like "Agemono" or "Confit", causing the rich-card
+  // runTechniqueFanOut to be bypassed and the user to see the thin
+  // fallback template. lookupTechnique is a deterministic dictionary
+  // hit — if it fires, we know the user typed a technique and can
+  // route directly to the fan-out without the LLM round-trip (saves
+  // ~1-2 s and removes the routing flake).
+  {
+    const techShortcut = gc.lookupTechnique(userText);
+    if (techShortcut) {
+      const { getUserLocation } = require('./location-cache');
+      const locShortcut = await getUserLocation(redis, chatId).catch(() => null);
+      const SG_CENTROID_SHORTCUT = { lat: 1.3521, lng: 103.8198 };
+      const centerShortcut = (locShortcut?.lat && locShortcut?.lng)
+        ? { lat: locShortcut.lat, lng: locShortcut.lng }
+        : SG_CENTROID_SHORTCUT;
+      const escShortcut = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return await runTechniqueFanOut({
+        chatId, userText, techEntry: techShortcut, lang,
+        center: centerShortcut, sc, esc: escShortcut
+      });
+    }
+  }
+
   let intent;
   try {
     intent = await gc.classifySearchIntent({ text: userText, history, lang });
@@ -3590,45 +3705,43 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (niHit) {
     return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
   }
-  // ---- Existing single-query path (dish / ingredient / cuisine-tagged tool) ----
-  const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
-  const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri';
+  // ---- Single-query path (dish / ingredient / cuisine-tagged tool) ----
+  // v0.60.9 (Human Lead 2026-05-08): unified rich-card template across
+  // ALL /s queries that return Places venues. Previously only
+  // runTechniqueFanOut + runNationIconicFanOut used formatTechniqueVenueBlock;
+  // any /s query that didn't hit a known technique or NATION_OVERLAY
+  // dish (e.g. "/s Mocheniye", "/s some-rare-dish") fell to a thin
+  // "name + ★ + raw maps URL" line per venue. Now the same rich card
+  // is used everywhere: address, hours, website, phone, rating + footfall,
+  // 🚊 / 🚘 travel times, "Try X" line, maps URL.
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   let venues = [];
-  try {
-    const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!mapsApiKey) {
-      console.warn('[Search] GOOGLE_MAPS_API_KEY missing — skipping venues.');
-    } else {
-      const { data } = await axios.post(
-        PLACES_TEXT_URL,
-        {
-          textQuery: intent.searchTerm,
-          regionCode: 'SG',
-          languageCode: lang === 'fr' ? 'fr' : 'en',
-          maxResultCount: 8,
-          locationBias: { circle: { center: { latitude: center.lat, longitude: center.lng }, radius: 50000 } },
-          openNow: false
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': mapsApiKey,
-            'X-Goog-FieldMask': FIELD_MASK
-          },
-          timeout: 8000
-        }
-      );
-      venues = (Array.isArray(data?.places) ? data.places : [])
-        .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
-        .map((p) => ({
-          name: p?.displayName?.text || 'Unnamed',
-          rating: typeof p?.rating === 'number' ? p.rating : null,
-          address: p?.formattedAddress || '',
-          url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
-        }));
+  if (!mapsApiKey) {
+    console.warn('[Search] GOOGLE_MAPS_API_KEY missing — skipping venues.');
+  } else {
+    try {
+      venues = await searchVenuesByDish(intent.searchTerm, intent.cuisine || null, {
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+      });
+    } catch (err) {
+      console.warn('[Search] searchVenuesByDish failed:', err.message);
     }
-  } catch (err) {
-    console.warn('[Search] Places searchText failed:', err.message);
+  }
+  // Best-effort travel + footfall enrichment so the rich card can render
+  // 🚊 / 🚘 minutes and the BestTime "good time to go" chip.
+  if (venues.length) {
+    try {
+      const { enrichTravelTimes } = require('./travel-times');
+      await enrichTravelTimes(center.lat, center.lng, venues);
+    } catch (err) {
+      console.warn('[Search] enrichTravelTimes failed:', err.message);
+    }
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, venues);
+    } catch (err) {
+      console.warn('[Search] attachFootfallSignals failed:', err.message);
+    }
   }
   // Build the reply in HTML mode.
   const top = venues.slice(0, 3);
@@ -3661,11 +3774,16 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       : `Sorry, no matching venues found in Singapore for that query. Try another dish or ingredient.`);
   } else {
     lines.push('');
-    top.forEach((v, i) => {
-      const rating = Number.isFinite(v.rating) ? `★${v.rating.toFixed(1)}` : '';
-      const mapsUrl = v.url;
-      lines.push(`<b>${i + 1}. ${esc(v.name)}</b> ${rating}\n📍 ${esc(mapsUrl)}`);
-    });
+    const { googleMapsUrl } = require('./maps-url');
+    const dishPhraseForCard = intent.searchTerm || userText;
+    const venueCards = top.map((venue, i) => formatTechniqueVenueBlock(venue, {
+      number: i + 1,
+      lang,
+      googleMapsUrlFn: googleMapsUrl,
+      dishPhrase: dishPhraseForCard,
+      orderTip: ''
+    }));
+    lines.push(venueCards.join('\n\n\n'));
   }
   const reply = lines.join('\n');
   const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
@@ -5640,7 +5758,7 @@ async function cacheBotUsername() {
     // anchoring cuisine searches to a 14-hour-old pin produces
     // results from the wrong neighbourhood. Stale = 404 → TMA falls
     // through to SG centroid (or fresh re-prompt).
-    const CUISINE_LOC_FRESH_MS = 30 * 60 * 1000;
+    const CUISINE_LOC_FRESH_MS = 24 * 60 * 60 * 1000;        // v0.60.7: 30 min → 24 h, matches LOC_TTL
     // v0.59.0: TMA <-> chat language sync. POST sets the per-user
     // preference (mirroring `/language fr|en`); GET reads it. Both
     // gated by initData. The TMA's `useLocale()` hook calls GET on

@@ -159,11 +159,12 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   '- The "place qualifies if…" criteria gate, EXCLUDE list, RANKING, and OUTPUT FORMAT instructions stay in English internally — they are for your reasoning, not for the user. Only the final output text (one block per result) is in French.'
 ].join('\n');
 
-// v0.59.31 — radiusBand opt. Default ('1km to 3km') matches the
-// existing GPS-anchored /hidden behaviour. Free-text /hidden mode
-// passes '200m to 3km' to widen recall around a user-specified
-// street/building/MRT.
-function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 'en', radiusBand = '1km to 3km', radiusLower = '1km', radiusUpper = '3km' }) {
+// v0.59.31 — radiusBand opt. Default '100m to 2km' (per Human Lead
+// 2026-05-08 — was '1km to 3km' in v0.59.31). Free-text /hidden mode
+// can pass a wider band ('200m to 3km') for user-specified anchor.
+// runSurpriseCommand retries with '1.5km to 3km' when the tight band
+// yields fewer than 5 verified survivors.
+function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 'en', radiusBand = '100m to 2km', radiusLower = '100m', radiusUpper = '2km' }) {
   if (!anchorName || !googleMapsUrl || !todayIsoSGT) {
     throw new Error('buildHiddenGemsPrompt: anchorName, googleMapsUrl, todayIsoSGT all required');
   }
@@ -745,7 +746,7 @@ const TECHNIQUE_FALLBACK = [
     fusion: null
   },
   {
-    match: ['friture', 'deep fry', 'deep-fried', 'deep frying', 'agemono', 'karaage'],
+    match: ['friture', 'deep fry', 'deep-fried', 'deep frying'],
     defaultOrigin: 'French',
     why: 'Friture / deep frying = submerging food in 170-190 °C oil so the surface dehydrates rapidly into a crisp shell while the interior steams.',
     originDish: 'pommes frites',
@@ -754,6 +755,24 @@ const TECHNIQUE_FALLBACK = [
     variants: [
       { cuisine: 'Japanese',  dishKey: 'tempura',           whyLocal: 'Japanese tempura — light cold-batter fritters.' },
       { cuisine: 'American',  dishKey: 'fried chicken',     whyLocal: 'American Southern fried chicken.' }
+    ],
+    fusion: null
+  },
+  // v0.60.7 (Human Lead 2026-05-08) — Japanese deep-frying as its own
+  // technique entry. v0.60.7 PR #273 piggybacked 'agemono'/'karaage'
+  // onto the French friture entry, which produced "🇫🇷 French · pommes
+  // frites" venues (La Vache, Bouillon Gavroche) for /s Agemono. Now
+  // routes correctly to Japanese tempura/karaage/tonkatsu venues.
+  {
+    match: ['agemono', 'karaage', 'kara-age'],
+    defaultOrigin: 'Japanese',
+    why: 'Agemono = Japanese deep-frying technique umbrella, covering tempura (cold-batter fritters), karaage (marinated bite-sized fried chicken), and tonkatsu (panko-breaded cutlets).',
+    originDish: 'tempura',
+    originIngredients: ['tempura flour', 'cold sparkling water', 'sesame oil'],
+    originTool: 'tempura nabe',
+    variants: [
+      { cuisine: 'Korean',     dishKey: 'korean fried chicken', whyLocal: 'Korean double-fried chicken — gochujang or soy-garlic glazed.' },
+      { cuisine: 'American',   dishKey: 'fried chicken',        whyLocal: 'American Southern fried chicken — buttermilk-brined, deep-fried.' }
     ],
     fusion: null
   },
