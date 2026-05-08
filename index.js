@@ -3063,6 +3063,17 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     clearInterval(pulseTimer);
 
     console.log(`[/hidden] Gemini ok model=${result.model} chars=${result.text.length}`);
+    // v0.60.18 — verbose stage feedback per Human Lead 2026-05-08:
+    // "/hidden use to have feedback on what is it doing." The 5 generic
+    // 12-s pulses keep cycling but we now also inject pipeline-stage
+    // milestones at real phase boundaries so the user sees concrete
+    // progress ("Gemini found N candidates · validating", "X verified
+    // · ranking by distance"). Best-effort — failure is logged.
+    safeSend(chatId, lang === 'fr'
+      ? `✓ <i>Gemini a trouvé ${result.text.split(/^\s*\d+\.\s+/m).length - 1} candidats · validation en cours via Google Places…</i>`
+      : `✓ <i>Gemini found ${result.text.split(/^\s*\d+\.\s+/m).length - 1} candidates · validating via Google Places…</i>`,
+      { parse_mode: 'HTML' }
+    ).catch(() => {});
     // v0.59.5: post-process to replace fabricated rating + review counts
     // with live values from Google Places API. v0.60.7 (Human Lead
     // 2026-05-08): also haversine-filter survivors to the requested
@@ -3104,6 +3115,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     let verifiedText = primary.text;
     let verifiedVenues = primary.venues;
     let allDropped = primary.allDropped;
+
+    // v0.60.18 — second stage milestone after Places verification +
+    // haversine filter completes.
+    if (!allDropped) {
+      safeSend(chatId, lang === 'fr'
+        ? `✓ <i>${primary.withinRadius} candidat${primary.withinRadius === 1 ? '' : 's'} dans le rayon · classement par distance…</i>`
+        : `✓ <i>${primary.withinRadius} venue${primary.withinRadius === 1 ? '' : 's'} verified within radius · ranking by distance…</i>`,
+        { parse_mode: 'HTML' }
+      ).catch(() => {});
+    }
 
     // v0.60.7 / v0.60.10 — three-tier retry ladder when verification +
     // haversine kills too many venues:
@@ -4620,23 +4641,40 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
 
   // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
   // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
-  // shuffle to give each click a different slice. The earlier code
-  // grouped all stars together but didn't enforce the 3 → 2 → 1
-  // sub-order, so 1-star Hill Street Tai Hwa Pork Noodle could appear
-  // before 2-star Cloudstreet on a random page-load.
+  // shuffle to give each click a different slice.
+  // v0.60.18 — pre-filter the pool by entry's `cuisine` tag when the
+  // user combined Michelin with another cuisine. This avoids the
+  // "Japanese + Michelin shows only 3 venues" bug from v0.60.17:
+  // earlier we sliced 20 entries top-down then post-filtered via
+  // Places primaryType, so non-Japanese entries (Les Amis, Saint
+  // Pierre, etc.) ate the slice budget. Now starred entries with
+  // matching cuisine tag pass straight through; unrelated entries
+  // are filtered before Places lookup. Bib Gourmand entries (no
+  // cuisine tag) fall through to the v0.60.17 primaryType post-
+  // filter so the cuisine constraint still applies.
   const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
   const allEntries = michelin.getAll();
+  const cuisineSlugSet = new Set(otherCuisineSlugs.filter(Boolean));
+  const cuisineTagMatches = (e) => {
+    if (cuisineSlugSet.size === 0) return true;
+    if (!e.cuisine) return true;                                 // untagged entries (Bib Gourmand) — keep, post-filter via primaryType
+    return cuisineSlugSet.has(String(e.cuisine).toLowerCase());
+  };
   const candidates = allEntries.filter((e) => {
+    if (!cuisineTagMatches(e)) return false;
     const dedupKey = `${e.name}|${e.address || ''}`.toLowerCase();
     return !seen.has(dedupKey);
   });
 
   // If everything has been seen, reset + return the top tier again.
+  // v0.60.18 — when reset triggered, still apply the cuisine pre-
+  // filter so we don't surface non-matching cuisines after exhausting
+  // the dedup pool.
   let pool = candidates;
   let didReset = false;
   if (pool.length === 0) {
     await resetSeenSet(csChatId, criteriaHash);
-    pool = allEntries;
+    pool = allEntries.filter(cuisineTagMatches);
     didReset = true;
   }
 
@@ -4717,7 +4755,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // Michelin annotations attached for the TMA card render.
       michelinCategory: entry.category,
       michelinName: entry.name,
-      michelinPostal: entry.postal || ''
+      michelinPostal: entry.postal || '',
+      michelinCuisine: entry.cuisine || ''
     } : {
       // Places lookup failed — return curated entry only.
       placeId: '',
@@ -4731,7 +4770,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
       michelinCategory: entry.category,
       michelinName: entry.name,
-      michelinPostal: entry.postal || ''
+      michelinPostal: entry.postal || '',
+      michelinCuisine: entry.cuisine || ''
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -4798,13 +4838,41 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       if (types) types.forEach((t) => allowed.add(t));
     }
     if (allowed.size > 0) {
-      const matched = venues.filter((v) => v.primaryType && allowed.has(v.primaryType));
+      const matched = venues.filter((v) => {
+        // v0.60.18 — accept either curated cuisine-tag match (set in
+        // the slice loop) OR Places primaryType match. Bib Gourmand
+        // entries have no curated tag so still rely on primaryType.
+        if (v.michelinCuisine && cuisineSlugSet.has(String(v.michelinCuisine).toLowerCase())) return true;
+        return v.primaryType && allowed.has(v.primaryType);
+      });
       if (matched.length > 0) {
         filteredVenues = matched;
       } else {
         console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')}; returning empty rather than wrong cuisine`);
         filteredVenues = [];
       }
+    }
+  }
+
+  // v0.60.18 — Halal / Vegetarian / Price filter combinator. Halal
+  // and Vegetarian don't have explicit per-venue flags in the
+  // curated dataset (Michelin doesn't certify those tags) so we log
+  // a warning and skip — most Michelin venues serve pork / shellfish
+  // and aren't halal-certified, so the filter would empty the result
+  // set silently. Price ($/$$/$$$/$$$$) maps to Places priceLevel.
+  if (filters && (filters.halal || filters.vegetarian)) {
+    console.log(`[Michelin] halal=${!!filters.halal} vegetarian=${!!filters.vegetarian} requested but Michelin dataset has no per-venue tags — passing through unfiltered`);
+  }
+  const requestedPrices = Array.isArray(req.body?.prices) ? req.body.prices : [];
+  if (requestedPrices.length > 0 && filteredVenues.length > 0) {
+    const allowedPrices = new Set(requestedPrices.map(Number).filter(Number.isFinite));
+    const priceFiltered = filteredVenues.filter((v) =>
+      v.priceLevel === null || v.priceLevel === undefined || allowedPrices.has(v.priceLevel)
+    );
+    if (priceFiltered.length > 0) {
+      filteredVenues = priceFiltered;
+    } else {
+      console.log(`[Michelin] price filter ${[...allowedPrices].join(',')} produced 0 matches — returning unfiltered`);
     }
   }
 
@@ -4826,10 +4894,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const returnedKeys = filteredVenues.map((v) => `${v.michelinName || v.name}|${v.address || ''}`.toLowerCase());
   await appendSeenSet(csChatId, criteriaHash, returnedKeys.length ? returnedKeys : newDedupKeys);
 
+  // v0.60.18 — emit `exhausted` so the TMA (a) shows the
+  // Google-limit tip ONLY at first-search-of-session and at the
+  // moment of exhaustion (not every click), and (b) renders an
+  // explicit end-of-list note ("All N matching Michelin venues
+  // shown — restart to see again"). Exhausted = the seen-set was
+  // just reset for this criteria-hash, OR the filtered pool size
+  // dropped below 3.
+  const exhausted = didReset || filteredVenues.length < 3;
   return res.json({
     venues: filteredVenues,
     cached: false,
     seed: 'michelin',
+    exhausted,
     michelinSummary: {
       total: allEntries.length,
       threeStar: michelin.STARS_THREE.length,
@@ -6588,6 +6665,43 @@ async function cacheBotUsername() {
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
+
+        // v0.60.18 — R.E.D disambig pre-step on the chip-click surface
+        // (last of the 5 surfaces from the v0.60.6 plan). When the
+        // user picks a cuisine chip whose name is itself ambiguous —
+        // e.g. they clicked a "Laksa" / "Carrot Cake" / "Bak Kut Teh"
+        // hawker-dish chip from a hypothetical extension, or the
+        // free-text qualifier ("laksa") in req.body.freeText resolves
+        // to an AMBIGUOUS_DISHES entry — run disambiguateTerm to pin
+        // the canonical interpretation. The result is forwarded to
+        // the client as `disambig` so the TMA can render the
+        // disclosure pill ("ℹ️ Reading this as Katong laksa").
+        let chipDisambig = null;
+        try {
+          const gc = require('./gemini-client');
+          const ctxLocale = (req.body?.region === 'JB') ? 'MY' : 'SG';
+          // Compose a probe string from the (free-text + first-cuisine-name)
+          // so phrases like "laksa" / "carrot cake" hit. Falls through
+          // silently when nothing ambiguous matches.
+          const probeText = [String(req.body?.freeText || '').trim(), ...(cuisineMetas.map((m) => m.name))]
+            .filter(Boolean).join(' ');
+          if (probeText) {
+            const probe = gc.disambiguateTerm({ text: probeText, ctx: { lang: csLang, locale: ctxLocale } });
+            if (probe && probe.kind !== 'none') {
+              chipDisambig = {
+                kind: probe.kind,
+                chosen: probe.chosen,
+                confidence: probe.confidence,
+                disclosure: probe.disclosure
+              };
+            }
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] disambig pre-step failed (continuing):', err.message);
+        }
+        // attach to outer scope so the response builder picks it up.
+        const _chipDisambigForPayload = chipDisambig;
+        void _chipDisambigForPayload;
         // v0.59.49 — search-query tightening for cuisines whose
         // chip-label has weak food-name signal in Places. The chip
         // shows the user's chosen label (e.g. "New Zealand"), but the
@@ -7043,6 +7157,11 @@ async function cacheBotUsername() {
         // the user see the full list again. Adding new criteria /
         // free-text changes the hash so dedup resets implicitly.
         let dedupedTop = top;
+        // v0.60.18 — exhausted flag drives TMA tip-bubble subtlety
+        // (show only at first search + on dedup reset) + end-of-list
+        // hint. Set true when fresh pool was empty (forced reset) OR
+        // result count fell below 3 after dedup.
+        let dedupExhausted = false;
         try {
           const dedupHash = computeCriteriaHash({
             cuisines, filters, prices: req.body?.prices || [],
@@ -7064,6 +7183,10 @@ async function cacheBotUsername() {
           }
           const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
           await appendSeenSet(csChatId, dedupHash, newIds);
+          // v0.60.18 — set exhausted flag for the TMA tip-bubble +
+          // end-of-list signal. Trigger when dedup forced a reset
+          // (everything seen, full list re-served) OR fresh pool < 3.
+          dedupExhausted = (fresh.length === 0) || (dedupedTop.length < 3 && top.length >= 3);
         } catch (err) {
           console.warn('[Cuisine-Search] dedup pass failed (using raw top):', err.message);
         }
@@ -7083,7 +7206,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: _chipDisambigForPayload, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
@@ -7155,9 +7278,47 @@ async function cacheBotUsername() {
         const cv = require('./cuisines-vault');
         const tellGia = require('./tell-gia');
         const inferred = await tellGia.inferTellGia({ text, chatId, redis, vault: cv });
-        const inferredCuisines = inferred.cuisines || [];
+        let inferredCuisines = inferred.cuisines || [];
         const inferredFilters = inferred.filters || {};
         const inferredLocation = (inferred.location_override || '').trim();
+
+        // v0.60.18 — R.E.D disambig pre-step on the NL surface (one of
+        // the 5 surfaces the v0.60.6 plan called for). Run
+        // disambiguateTerm on the raw user text plus each inferred
+        // cuisine so an ambiguous phrase ("laksa", "carrot cake")
+        // gets the correct interpretation before we hit Places. The
+        // result attaches `disambig` to the response so the TMA can
+        // surface the disclosure pill ("ℹ️ Reading this as …").
+        let nlDisambig = null;
+        try {
+          const gc = require('./gemini-client');
+          const ctxLocale = req.body?.region === 'JB' ? 'MY' : 'SG';
+          // First pass: the user's full text.
+          let probe = gc.disambiguateTerm({ text, ctx: { lang: nlLangIn, locale: ctxLocale } });
+          // Fallback: each inferred cuisine slug, until one resolves.
+          if (probe?.kind === 'none' && inferredCuisines.length) {
+            for (const slug of inferredCuisines) {
+              const p2 = gc.disambiguateTerm({ text: String(slug), ctx: { lang: nlLangIn, locale: ctxLocale } });
+              if (p2 && p2.kind !== 'none') { probe = p2; break; }
+            }
+          }
+          if (probe && probe.kind !== 'none' && probe.searchSpec?.cuisine) {
+            nlDisambig = {
+              kind: probe.kind,
+              chosen: probe.chosen,
+              confidence: probe.confidence,
+              disclosure: probe.disclosure
+            };
+            // Promote the disambiguated cuisine — keep the inferred
+            // list as a fallback if disambig pointed elsewhere.
+            const disambigCuisine = String(probe.searchSpec.cuisine).toLowerCase();
+            if (disambigCuisine && !inferredCuisines.map((c) => String(c).toLowerCase()).includes(disambigCuisine)) {
+              inferredCuisines = [disambigCuisine, ...inferredCuisines].slice(0, 5);
+            }
+          }
+        } catch (err) {
+          console.warn('[NL-Query] disambig pre-step failed (continuing without):', err.message);
+        }
         const pipeline = require('./pipeline');
         // v0.57.30: location_override — when the LLM extracts a SG
         // location anchor (neighbourhood, road, MRT, mall, expressway),
@@ -7356,7 +7517,12 @@ async function cacheBotUsername() {
           inferredCuisines, inferredFilters,
           locationOverride: inferredLocation || '',
           locationLabel,
-          source: inferred.source || 'unknown'
+          source: inferred.source || 'unknown',
+          // v0.60.18 — disambig disclosure for the NL surface (R.E.D
+          // pre-step). When a phrase like "laksa" or "carrot cake"
+          // resolved to a specific interpretation, the TMA can show a
+          // small "ℹ️ Reading this as Katong laksa (Peranakan)" note.
+          disambig: nlDisambig
         });
       } catch (err) {
         console.error('[Error] /api/cuisine/nl-query failed:', err.message);
