@@ -398,6 +398,52 @@ async function generateGroundedHiddenGems({
   throw aggregate;
 }
 
+// v0.60.10 — Claude fallback for /hidden when Gemini returns nothing
+// usable (every venue closed, or post-verify haversine kills all picks).
+// Mirrors generateGroundedHiddenGems shape: same prompt template, same
+// {text, model} return value, so verifyHiddenGemsOutput parses it
+// identically. Uses Anthropic web_search server-side tool (already wired
+// in llm-client.js v0.48.0) to ground on live Singapore venue listings.
+//
+// Triggered explicitly by runSurpriseCommand only — this does NOT replace
+// Gemini as the primary path. Adds ~$0.03 / call when it fires.
+async function generateGroundedHiddenGemsClaude({
+  anchor,
+  todayIsoSGT,
+  lang = 'en',
+  radiusBand,
+  radiusLower,
+  radiusUpper
+}) {
+  if (!anchor?.name || !anchor?.googleMapsUrl) {
+    throw new Error('generateGroundedHiddenGemsClaude: anchor.name + anchor.googleMapsUrl required');
+  }
+  if (!todayIsoSGT) throw new Error('generateGroundedHiddenGemsClaude: todayIsoSGT required');
+  const llm = require('./llm-client');
+  if (!llm.isReady()) throw new Error('ANTHROPIC_API_KEY unset');
+  const prompt = buildHiddenGemsPrompt({
+    anchorName: anchor.name,
+    googleMapsUrl: anchor.googleMapsUrl,
+    todayIsoSGT,
+    lang,
+    ...(radiusBand ? { radiusBand } : {}),
+    ...(radiusLower ? { radiusLower } : {}),
+    ...(radiusUpper ? { radiusUpper } : {})
+  });
+  const result = await llm.generate({
+    prompt,
+    webSearch: true,
+    maxTokens: 4096
+  });
+  const text = result.response.text();
+  return {
+    text,
+    model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+    requestedModel: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+    degraded: false
+  };
+}
+
 // v0.59.54: /search command — multi-turn intent disambiguator.
 // Caller passes the user's latest free-text + the recent history, gets
 // back a structured intent (dish/ingredient/tool/ambiguous) + either a
@@ -1812,6 +1858,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
 
 module.exports = {
   generateGroundedHiddenGems,
+  generateGroundedHiddenGemsClaude,
   classifySearchIntent,
   dishFallback,
   techniqueFallback,

@@ -3027,10 +3027,20 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     let verifiedVenues = primary.venues;
     let allDropped = primary.allDropped;
 
-    // v0.60.7 — when verification + haversine kills too many venues,
-    // re-call Gemini with the wider 1.5–3 km band so the user gets ≥ 5.
-    if (!allDropped && primary.withinRadius < MIN_SURVIVORS) {
-      console.log(`[/hidden] only ${primary.withinRadius} survivors within ${RADIUS_PRIMARY_M}m — retrying with wider radius`);
+    // v0.60.7 / v0.60.10 — three-tier retry ladder when verification +
+    // haversine kills too many venues:
+    //   Tier 1: Gemini default '100m to 2km' (already attempted as `primary`)
+    //   Tier 2: Gemini wider '1.5km to 3km' (still grounded on Google Search)
+    //   Tier 3: Claude with web_search_20260209 tool, default '100m to 2km'
+    //           — independent grounding source (Anthropic web search) so
+    //           "Gemini found nothing usable" doesn't dead-end the user.
+    // Each tier only runs if the previous didn't yield ≥ 5 verified
+    // survivors OR returned `allDropped`. The result of any tier is
+    // promoted only if it strictly beats the current best (more survivors
+    // and not allDropped).
+    const needTier2 = allDropped || primary.withinRadius < MIN_SURVIVORS;
+    if (needTier2) {
+      console.log(`[/hidden] tier 1 yielded ${primary.withinRadius} survivors (allDropped=${allDropped}) — trying Gemini wider band`);
       try {
         const wider = await Promise.race([
           gc.generateGroundedHiddenGems({
@@ -3047,15 +3057,61 @@ async function runSurpriseCommand(chatId, lang = 'en') {
           ))
         ]);
         const fallback = await verifyAndFilter(wider.text, RADIUS_FALLBACK_M);
-        // Use the fallback only if it actually beats the primary result.
-        if (!fallback.allDropped && fallback.withinRadius > primary.withinRadius) {
+        const beatsPrimary = !fallback.allDropped && fallback.withinRadius > primary.withinRadius;
+        if (beatsPrimary) {
           verifiedText = fallback.text;
           verifiedVenues = fallback.venues;
-          allDropped = fallback.allDropped;
-          console.log(`[/hidden] fallback band returned ${fallback.withinRadius} within ${RADIUS_FALLBACK_M}m`);
+          allDropped = false;
+          // Track for tier-3 decision below.
+          primary = { withinRadius: fallback.withinRadius, allDropped: false };
+          console.log(`[/hidden] tier 2 promoted: ${fallback.withinRadius} within ${RADIUS_FALLBACK_M}m`);
+        } else {
+          console.log(`[/hidden] tier 2 did not beat tier 1 (kept ${primary.withinRadius})`);
         }
       } catch (err) {
-        console.warn('[/hidden] wider-radius retry failed (keeping primary):', err.message);
+        console.warn('[/hidden] tier 2 wider-radius retry failed:', err.message);
+      }
+    }
+
+    // Tier 3: Claude web_search fallback. Fires only when Gemini's
+    // primary AND wider retries both failed to surface ≥ 5 survivors —
+    // OR when the Gemini path returned allDropped.
+    const needTier3 = allDropped || primary.withinRadius < MIN_SURVIVORS;
+    if (needTier3) {
+      const llm = require('./llm-client');
+      if (!llm.isReady()) {
+        console.log('[/hidden] tier 3 skipped (ANTHROPIC_API_KEY unset)');
+      } else {
+        console.log(`[/hidden] Gemini exhausted (best=${primary.withinRadius}, allDropped=${allDropped}) — trying Claude fallback`);
+        try {
+          const claudeResult = await Promise.race([
+            gc.generateGroundedHiddenGemsClaude({
+              anchor,
+              todayIsoSGT: gc.todaySGT(),
+              lang,
+              radiusBand: '100m to 2km',
+              radiusLower: '100m',
+              radiusUpper: '2km'
+            }),
+            new Promise((_, reject) => setTimeout(
+              () => reject(new Error('Claude exceeded 90s')),
+              90_000
+            ))
+          ]);
+          const claudeFiltered = await verifyAndFilter(claudeResult.text, RADIUS_PRIMARY_M);
+          const beatsCurrent = !claudeFiltered.allDropped &&
+                               claudeFiltered.withinRadius > primary.withinRadius;
+          if (beatsCurrent) {
+            verifiedText = claudeFiltered.text;
+            verifiedVenues = claudeFiltered.venues;
+            allDropped = false;
+            console.log(`[/hidden] tier 3 (Claude) promoted: ${claudeFiltered.withinRadius} within ${RADIUS_PRIMARY_M}m`);
+          } else {
+            console.log(`[/hidden] tier 3 Claude returned ${claudeFiltered.withinRadius} (allDropped=${claudeFiltered.allDropped}) — did not beat Gemini`);
+          }
+        } catch (err) {
+          console.warn('[/hidden] tier 3 Claude fallback failed:', err.message);
+        }
       }
     }
     // v0.59.7 (Codex review #211): if every parsed block was filtered
