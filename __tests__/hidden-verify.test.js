@@ -368,4 +368,44 @@ describe('dropBlocksByName (v0.60.33)', () => {
     expect(dropBlocksByName('', new Set(['X']))).toBe('');
     expect(dropBlocksByName('No headings here', new Set(['X']))).toBe('No headings here');
   });
+
+  // Codex review on PR #292 (P2): when verifyHiddenGemsOutput already
+  // rewrote "I found N hidden gems" to match the post-Places count,
+  // dropBlocksByName must rewrite again to match the post-haversine
+  // kept count. Otherwise the intro reads "I found 5…" with 4 cards.
+  it('rewrites "I found N hidden gems" prefix to match kept count (EN)', () => {
+    const text = [
+      'I found 3 hidden gems within 100m to 2km of Bukit Merah.',
+      '',
+      '1. ALPHA - Cafe',
+      'addr - approx 0.5 km.',
+      '',
+      '2. BETA - Cafe',
+      'addr - approx 5.0 km.',
+      '',
+      '3. GAMMA - Cafe',
+      'addr - approx 0.8 km.'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['BETA']));
+    expect(out).toContain('I found 2 hidden gems');
+    expect(out).not.toContain('I found 3 hidden gems');
+  });
+
+  it("rewrites \"J'ai trouvé N trésors cachés\" prefix (FR)", () => {
+    const text = [
+      "J'ai trouvé 3 trésors cachés autour de Bukit Merah.",
+      '',
+      '1. ALPHA - Café',
+      'adr - approx 0,5 km.',
+      '',
+      '2. BETA - Café',
+      'adr - approx 5,0 km.',
+      '',
+      '3. GAMMA - Café',
+      'adr - approx 0,8 km.'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['BETA']));
+    expect(out).toContain("J'ai trouvé 2 trésors cachés");
+    expect(out).not.toContain("J'ai trouvé 3 trésors cachés");
+  });
 });

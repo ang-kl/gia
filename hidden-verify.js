@@ -451,7 +451,16 @@ function dropBlocksByName(text, dropNames) {
     if (lines[0]) lines[0] = lines[0].replace(/^\d+\./, `${idx + 1}.`);
     return lines.join('\n');
   });
-  const prefixText = prefix.join('\n').replace(/\s+$/, '');
+  // Codex review on PR #292 (P2): verifyHiddenGemsOutput already
+  // rewrote "I found N hidden gems" to match the post-Places count.
+  // Dropping additional blocks here leaves the intro stale ("I found
+  // 5…" with only 4 cards). Rewrite the prefix count a second time
+  // to match the post-haversine kept count. EN + FR.
+  const prefixLines = prefix.map((line) => line.replace(
+    /\b(I found|J'ai trouvé)\s+\d+\s+(hidden gems?|trésors? cachés?)\b/i,
+    (_, verb, noun) => `${verb} ${kept.length} ${noun}`
+  ));
+  const prefixText = prefixLines.join('\n').replace(/\s+$/, '');
   const joined = renumbered.join('\n\n');
   return prefixText ? `${prefixText}\n\n${joined}` : joined;
 }

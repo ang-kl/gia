@@ -2916,7 +2916,11 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
         ? dropBlocksByName(verifyResult.text, droppedNames)
         : verifyResult.text;
       verifiedVenues = within;
-      const fullyDropped = (verifyResult.venues || []).length > 0 && within.length === 0;
+      // Codex review on PR #292 (P2): exclude apiError nulls so the
+      // free-text path also degrades gracefully when Places is
+      // unavailable instead of flipping to hidden.allClosed.
+      const placesResolvedCountFT = (verifyResult.venues || []).filter((v) => v !== null).length;
+      const fullyDropped = placesResolvedCountFT > 0 && within.length === 0;
       allDropped = !!verifyResult.allDropped || fullyDropped;
     } catch (err) {
       console.warn('[/hidden free-text] verify post-process failed:', err.message);
@@ -3182,7 +3186,15 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         }
       }
       const withinRadius = within.length;
-      const fullyDropped = venues.length > 0 && within.length === 0;
+      // Codex review on PR #292 (P2): only count Places-resolved
+      // venues (non-null entries) when deciding fullyDropped. The
+      // verifier intentionally returns null for apiError lookups
+      // (e.g. GOOGLE_MAPS_API_KEY unset, transient Places outage)
+      // but keeps those blocks in the text — without this filter
+      // we'd flip them to "hidden.allClosed" and silently mask the
+      // kept Gemini output in staging / outage scenarios.
+      const placesResolvedCount = venues.filter((v) => v !== null).length;
+      const fullyDropped = placesResolvedCount > 0 && within.length === 0;
       return {
         text: filteredText,
         venues: within,
