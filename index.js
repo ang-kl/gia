@@ -4872,13 +4872,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Type filter still has enough survivors.
   // v0.60.30 → v0.60.34: cap evolved 12 → 24 → 28 chasing pagination
   // headroom and per-click cost.
-  // v0.60.37 — pure Michelin uncapped (full 130-entry curated SG
-  //   Michelin Guide 2025).
+  // v0.60.37 — pure Michelin uncapped (full 130-entry curated SG Guide).
   // v0.60.39 (Human Lead 2026-05-08): combo path also uncapped.
   //   Previous cap of 28 was clipping legit cuisine-filtered survivors
   //   (e.g. "Chinese + Michelin" expands to 7+ sub-cuisine slugs and
-  //   can match 30+ entries from the 130-row table). Now the slice
-  //   passes through every entry that survives cuisineTagMatches.
+  //   can match 30+ entries from the 130-row table). Now every entry
+  //   that survives cuisineTagMatches passes through to Places lookup.
   //   Per-click Places cost rises proportionally to filter survivors,
   //   but the user explicitly accepted the trade for full coverage.
   const sliceCap = pool.length;
