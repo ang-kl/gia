@@ -3082,16 +3082,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const transport = require('./transport');
     const RADIUS_PRIMARY_M = 2000;     // matches default '100m to 2km'
     const RADIUS_FALLBACK_M = 3000;    // matches retry '1.5km to 3km'
-    // v0.60.20 (Human Lead 2026-05-08) — lowered MIN_SURVIVORS 5 → 3.
-    // Production logs showed /hidden chasing Claude fallback for 60-90s
-    // when Tier 1 already had 2-3 verified venues — the user saw the
-    // "ranking by distance…" pulse hang because we kept escalating to
-    // wider-radius Gemini and then Anthropic web_search to push past 5.
-    // 3 venues is plenty for /hidden's surprise-discovery purpose; if
-    // Tier 1 yields fewer, Tier 2 + Tier 3 still attempt to top up.
-    // Distance computation itself is pure haversine math — the hang
-    // came from the upstream LLM fallbacks, not the distance pass.
-    const MIN_SURVIVORS = 3;
+    // v0.60.20 → v0.60.21 (Codex review on PR #285): lowered
+    // MIN_SURVIVORS to 2 so that 2 verified venues are acceptable
+    // and short-circuit the Tier 2 + Tier 3 fallbacks. With the
+    // earlier value of 3, `withinRadius < MIN_SURVIVORS` still
+    // evaluated true at exactly 2 survivors and pushed through the
+    // 90s wider Gemini retry + 90s Claude fallback even though the
+    // user-visible "ranking by distance…" message was already showing
+    // the hang. Distance computation itself is pure haversine math —
+    // the hang came from chasing more venues via LLM fallbacks.
+    const MIN_SURVIVORS = 2;
 
     async function verifyAndFilter(text, radiusM) {
       let verifyResult;
@@ -3879,8 +3879,11 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // gets the rich-card template + correct kopitiam/hawker targeting
   // instead of literal Places search.
   const overlay = require('./nation-overlay');
-  const niHit = overlay.findNationIconic(userText);
+  const stickyCuisineSlug = conv?.lastCuisine?.slug || null;
+  const niHit = overlay.findNationIconic(userText, { stickyCuisine: stickyCuisineSlug });
   if (niHit) {
+    try { await sc.setLastCuisine(redis, chatId, 'nation', niHit.slug, niHit.dish); }
+    catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
     return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
   }
   // v0.60.12 — Cooking-method detection. 70 cuisines × 30 methods
@@ -3892,8 +3895,10 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // rich-card fan-out using the same formatTechniqueVenueBlock
   // template used everywhere else.
   const cookingMethods = require('./cooking-methods');
-  const cmHit = cookingMethods.findCookingMethod(userText);
+  const cmHit = cookingMethods.findCookingMethod(userText, { stickyCuisine: stickyCuisineSlug });
   if (cmHit) {
+    try { await sc.setLastCuisine(redis, chatId, 'cooking-method', cmHit.slug, cmHit.term); }
+    catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
     return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc });
   }
   // ---- Single-query path (dish / ingredient / cuisine-tagged tool) ----
@@ -3966,7 +3971,19 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } else {
     lines.push('');
     const { googleMapsUrl } = require('./maps-url');
-    const dishPhraseForCard = intent.searchTerm || userText;
+    // v0.60.21 (Human Lead 2026-05-08) — strip Places-search boilerplate
+    // from the dish phrase before rendering the "🍽️ Try X" line.
+    // classifySearchIntent returns searchTerm with " restaurant
+    // Singapore" / " Singapore" appended for Places ranking, but the
+    // user-facing card should say "Try steamed sea bream", not
+    // "Try steamed sea bream restaurant Singapore".
+    const cleanDishPhrase = (s) => String(s || '')
+      .replace(/\s+restaurant\s+singapore\s*$/i, '')
+      .replace(/\s+singapore\s*$/i, '')
+      .replace(/\s+restaurant\s*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const dishPhraseForCard = cleanDishPhrase(intent.searchTerm || userText) || userText;
     const venueCards = top.map((venue, i) => formatTechniqueVenueBlock(venue, {
       number: i + 1,
       lang,
@@ -4807,7 +4824,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinCategory: entry.category,
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
-      michelinCuisine: entry.cuisine || ''
+      michelinCuisine: entry.cuisine || '',
+      michelinVegetarian: entry.vegetarian === true,
+      michelinHalal: entry.halal === true
     } : {
       // Places lookup failed — return curated entry only.
       placeId: '',
@@ -4822,7 +4841,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinCategory: entry.category,
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
-      michelinCuisine: entry.cuisine || ''
+      michelinCuisine: entry.cuisine || '',
+      michelinVegetarian: entry.vegetarian === true,
+      michelinHalal: entry.halal === true
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -4883,8 +4904,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       'american':       new Set(['american_restaurant', 'steak_house', 'hamburger_restaurant']),
       'australian':     new Set(['australian_restaurant'])
     };
+    // v0.60.21 — iterate expandedSlugs (post-PARENT_CUISINE_EXPANSION),
+    // not the raw user-supplied otherCuisineSlugs. Without this,
+    // umbrella slugs like 'mediterranean' / 'chinese' (which are not
+    // direct keys in SLUG_TO_PRIMARY_TYPES) produce allowed.size=0 →
+    // the post-filter is skipped → unrelated Bib Gourmand venues bleed
+    // through into a Mediterranean+Michelin combo. Expanding first
+    // turns 'mediterranean' into {greek, turkish, lebanese, ...} which
+    // each have entries.
     const allowed = new Set();
-    for (const slug of otherCuisineSlugs) {
+    for (const slug of expandedSlugs) {
       const types = SLUG_TO_PRIMARY_TYPES[slug];
       if (types) types.forEach((t) => allowed.add(t));
     }
@@ -4899,20 +4928,37 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       if (matched.length > 0) {
         filteredVenues = matched;
       } else {
-        console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')}; returning empty rather than wrong cuisine`);
+        console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')} (expanded=${[...expandedSlugs].join(',')}); returning empty rather than wrong cuisine`);
         filteredVenues = [];
       }
     }
   }
 
-  // v0.60.18 — Halal / Vegetarian / Price filter combinator. Halal
-  // and Vegetarian don't have explicit per-venue flags in the
-  // curated dataset (Michelin doesn't certify those tags) so we log
-  // a warning and skip — most Michelin venues serve pork / shellfish
-  // and aren't halal-certified, so the filter would empty the result
-  // set silently. Price ($/$$/$$$/$$$$) maps to Places priceLevel.
-  if (filters && (filters.halal || filters.vegetarian)) {
-    console.log(`[Michelin] halal=${!!filters.halal} vegetarian=${!!filters.vegetarian} requested but Michelin dataset has no per-venue tags — passing through unfiltered`);
+  // v0.60.21 — Halal / Vegetarian filters now respect per-entry tags
+  // in michelin-2025.js. The dataset only sets the flag where we
+  // have positive confirmation (e.g. Candlenut, Pangium, Thevar
+  // marked vegetarian-friendly; halal currently empty for SG 2025
+  // starred — most serve pork or alcohol). When the filter is
+  // requested but no tagged matches survive, return empty rather
+  // than wrong-filter venues — same defensive behaviour as the
+  // cuisine combo filter above.
+  if (filters && filters.vegetarian && filteredVenues.length > 0) {
+    const vegOk = filteredVenues.filter((v) => v.michelinVegetarian === true);
+    if (vegOk.length > 0) {
+      filteredVenues = vegOk;
+    } else {
+      console.log('[Michelin] vegetarian filter: 0 tagged matches; returning empty');
+      filteredVenues = [];
+    }
+  }
+  if (filters && filters.halal && filteredVenues.length > 0) {
+    const halalOk = filteredVenues.filter((v) => v.michelinHalal === true);
+    if (halalOk.length > 0) {
+      filteredVenues = halalOk;
+    } else {
+      console.log('[Michelin] halal filter: 0 tagged matches in SG 2025 dataset; returning empty');
+      filteredVenues = [];
+    }
   }
   const requestedPrices = Array.isArray(req.body?.prices) ? req.body.prices : [];
   if (requestedPrices.length > 0 && filteredVenues.length > 0) {
@@ -5240,13 +5286,17 @@ bot.on('message', async (msg) => {
     // turn "dinosaur Milo" into "Jurassic World" theme park).
     try {
       const overlay = require('./nation-overlay');
-      const niHit = overlay.findNationIconic(text);
+      const sc = require('./search-conversation');
+      const conv = await sc.getConversation(redis, msg.chat.id).catch(() => null);
+      const stickyCuisineSlug = conv?.lastCuisine?.slug || null;
+      const niHit = overlay.findNationIconic(text, { stickyCuisine: stickyCuisineSlug });
       if (niHit) {
         const { getUserLocation } = require('./location-cache');
         const loc = await getUserLocation(redis, msg.chat.id).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
-        const sc = require('./search-conversation');
+        try { await sc.setLastCuisine(redis, msg.chat.id, 'nation', niHit.slug, niHit.dish); }
+        catch (err) { console.warn('[free-text] setLastCuisine failed:', err.message); }
         await runNationIconicFanOut({
           chatId: msg.chat.id, userText: text, hit: niHit,
           lang: userLang, center, sc

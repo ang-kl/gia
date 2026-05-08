@@ -2877,7 +2877,7 @@ function getOverlayedSlugs() {
 //     names ("crème brûlée") and vice versa. Per Codex review on PR #272.
 //
 // Returns { slug, flag, dish, kind, sharedWith } or null.
-function findNationIconic(text) {
+function findNationIconic(text, opts = {}) {
   if (!text) return null;
   const stripDiacritics = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '');
   const tokenize = (s) => stripDiacritics(s).toLowerCase()
@@ -2886,10 +2886,11 @@ function findNationIconic(text) {
   const userTokens = tokenize(text);
   if (userTokens.length < 2) return null;
   const userSet = new Set(userTokens);
-  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+
+  const matchInOverlay = (slug, overlay) => {
     for (const dish of (overlay.iconicDishes || [])) {
       const dishName = String(dish.name).toLowerCase()
-        .replace(/\([^)]*\)/g, '')                               // strip parens like "(san lou)"
+        .replace(/\([^)]*\)/g, '')
         .trim();
       const dishTokens = tokenize(dishName);
       if (dishTokens.length < 2) continue;
@@ -2903,6 +2904,22 @@ function findNationIconic(text) {
         };
       }
     }
+    return null;
+  };
+
+  // v0.60.21 — sticky-cuisine bias. When the user's prior turn locked a
+  // cuisine (e.g. /s rendang → indonesian), prefer that cuisine on the
+  // next ambiguous match before the default first-cuisine-wins scan.
+  const stickySlug = opts.stickyCuisine ? String(opts.stickyCuisine).toLowerCase() : null;
+  if (stickySlug && NATION_OVERLAY[stickySlug]) {
+    const hit = matchInOverlay(stickySlug, NATION_OVERLAY[stickySlug]);
+    if (hit) return { ...hit, sticky: true };
+  }
+
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    if (stickySlug && slug === stickySlug) continue; // already checked
+    const hit = matchInOverlay(slug, overlay);
+    if (hit) return hit;
   }
   return null;
 }

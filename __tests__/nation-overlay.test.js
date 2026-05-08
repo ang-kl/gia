@@ -412,6 +412,32 @@ describe('findNationIconic — order-independent SG dish/drink detection (v0.60.
     expect(hit).toBeTruthy();
     expect(hit.dish).toContain('orh nee');
   });
+
+  // v0.60.21 — sticky-cuisine bias.
+  it('sticky-cuisine bias is ignored when the locked overlay does not contain the dish', () => {
+    // "kaya toast" is Singaporean only; biasing toward an unrelated
+    // overlay must NOT produce sticky:true and must fall back to the
+    // genuine claimant.
+    const hit = overlay.findNationIconic('kaya toast', { stickyCuisine: 'french' });
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('singaporean');
+    expect(hit.sticky).toBeUndefined();
+  });
+
+  it('sticky-cuisine bias passes through cleanly for unmatched queries', () => {
+    expect(overlay.findNationIconic('jurassic world experience', { stickyCuisine: 'french' })).toBeNull();
+    expect(overlay.findNationIconic('hello world', { stickyCuisine: 'singaporean' })).toBeNull();
+  });
+
+  it('sticky-cuisine bias annotates sticky:true when the locked cuisine claims the dish', () => {
+    // Verify the option-shape contract directly: the dish "kaya toast"
+    // genuinely lives in the 'singaporean' overlay, so biasing toward
+    // 'singaporean' must mark the result sticky:true.
+    const hit = overlay.findNationIconic('kaya toast', { stickyCuisine: 'singaporean' });
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('singaporean');
+    expect(hit.sticky).toBe(true);
+  });
 });
 
 describe('TECHNIQUE_FALLBACK — Japanese deep-fry routing (v0.60.7)', () => {
