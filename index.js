@@ -3276,7 +3276,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // Tier 3: Claude web_search fallback. Fires only when Gemini's
     // primary AND wider retries both failed to surface ≥ 5 survivors —
     // OR when the Gemini path returned allDropped.
-    const needTier3 = allDropped || primary.withinRadius < MIN_SURVIVORS;
+    // v0.60.35 (Human Lead 2026-05-08): gated on HIDDEN_CLAUDE_TIER3
+    // env (default OFF). Each tier 3 call invokes Claude Sonnet with
+    // the web_search tool — the highest-cost-per-call surface in the
+    // app at $0.05–0.10 each. Disabling by default removes today's
+    // $30 spend spike. Set HIDDEN_CLAUDE_TIER3=true on Railway to
+    // re-enable as an escape hatch. When skipped, the tier 1/2
+    // result (or the v0.60.33 hidden.allClosed empty-band message)
+    // is delivered.
+    const tier3Enabled = process.env.HIDDEN_CLAUDE_TIER3 === 'true';
+    const needTier3 = tier3Enabled && (allDropped || primary.withinRadius < MIN_SURVIVORS);
     if (needTier3) {
       const llm = require('./llm-client');
       if (!llm.isReady()) {
@@ -6494,7 +6503,11 @@ async function cacheBotUsername() {
           }
           return shuf.slice(0, n);
         }
-        let top = pickTopN(venues, 12);
+        // v0.60.35 (Human Lead 2026-05-08): warm-start cap 12 → 8.
+        // Reduces Places-enrichment fan-out (travel times + BestTime
+        // footfall) on the first /cuisine open; user-perceived load
+        // time drops, fewer accidental re-taps from impatient users.
+        let top = pickTopN(venues, 8);
         let resolvedSeed = seed.id;
 
         // v0.58.16: fallback. When a narrow seed (e.g. newly-opened-
@@ -7294,15 +7307,15 @@ async function cacheBotUsername() {
         if (!skipCacheForShuffle) {
           venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         }
-        // v0.60.27 — server cap raised 12 → 24 so the TMA's PAGE_SIZE=12
-        // pagination strip actually has something to paginate. Without
-        // this the TMA's totalPages was always 1 (≤12 venues) and the
-        // `📄 12 / 24` indicator never appeared. Telegram's 4096-char
-        // message cap still applies to /api/cuisine/copy-all, but that
-        // endpoint slices its own input to 12 (cuisine-search.js:258 +
-        // index.js:6116), so widening the TMA payload doesn't break the
-        // chat copy-all path.
-        const top = venues.slice(0, 24);
+        // v0.60.27 — server cap raised 12 → 24 for in-response pagination.
+        // v0.60.35 (Human Lead 2026-05-08) — reverted to 12. Each 🔍
+        // Search tap now returns 12 venues, and consecutive taps with
+        // unchanged criteria rotate through the dedup pool (v0.60.25
+        // shuffle-on-reset) to surface the next 12. Trade-off: the
+        // TMA in-response pagination strip never renders for /cuisine
+        // (PAGE_SIZE=12 = 1 page). Restores the v0.60.21 "tap again
+        // for more" behaviour the user prefers.
+        const top = venues.slice(0, 12);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
@@ -7792,9 +7805,8 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL } = require('./open-hours');
-        // v0.60.27 — match /api/cuisine/search server cap so the TMA
-        // pagination strip has 2-page input from the NL-query path too.
-        const topNL = venues.slice(0, 24);
+        // v0.60.35 — match /api/cuisine/search reverted cap of 12.
+        const topNL = venues.slice(0, 12);
         for (const v of topNL) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
