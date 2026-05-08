@@ -7362,9 +7362,23 @@ async function cacheBotUsername() {
             const seenList = top.filter((v) => v.placeId && seen.has(v.placeId));
             dedupedTop = [...fresh, ...seenList];
           } else {
-            // Everything seen — reset and serve original top.
+            // Everything seen — reset and serve a SHUFFLED top so
+            // consecutive taps after exhaustion still surface the
+            // pool in different order.
+            // v0.60.25 — Fisher-Yates shuffle on reset. Without this
+            // the recycle path returned the same distance-sorted
+            // list every tap and the user perceived "the 3 search
+            // buttons stopped refreshing" once the pool was small
+            // enough (e.g. 8 American venues). Order matters more
+            // than novelty here — ratings, distance, and footfall
+            // are still authentic; only the lineup rotates.
             await resetSeenSet(csChatId, dedupHash);
-            dedupedTop = top;
+            const shuffled = [...top];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            dedupedTop = shuffled;
           }
           const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
           await appendSeenSet(csChatId, dedupHash, newIds);

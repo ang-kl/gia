@@ -272,7 +272,17 @@ function loadAll() {
 function getAllCuisines() { return loadAll(); }
 
 function getByCategory() {
-  if (_byCategory) return _byCategory;
+  // v0.60.22 / v0.60.25 — ALWAYS return a fresh shallow copy. The
+  // /api/cuisine/catalogue endpoint .push'es a synthetic "Michelin
+  // List" tile onto the returned array; if we hand back the cached
+  // reference on the hot path, that .push leaks into the cache and
+  // every subsequent request grows the array. v0.60.22 added the
+  // slice on the cold-cache path only — the hot-path early-return
+  // still leaked, so the duplicate Michelin tile resurfaced after
+  // the second catalogue request. The slice on every return closes
+  // the loophole. Inner cuisines arrays are still shared by
+  // reference; callers must not mutate them.
+  if (_byCategory) return _byCategory.slice();
   const all = loadAll();
   // v0.59.2: order categories per CATEGORY_META (the regrouped world-
   // region view), not per source-file order. This puts the 10 buckets
