@@ -2890,12 +2890,34 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     let verifiedVenues = [];
     let allDropped = false;
     try {
-      const { verifyHiddenGemsOutput } = require('./hidden-verify');
+      const { verifyHiddenGemsOutput, dropBlocksByName } = require('./hidden-verify');
+      const transport = require('./transport');
       // v0.60.31 — band ceiling = 3000m for free-text mode (200m–3km).
       const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000 });
-      verifiedText = verifyResult.text;
-      verifiedVenues = verifyResult.venues || [];
-      allDropped = !!verifyResult.allDropped;
+      // v0.60.33 — haversine drop on free-text path too. Mirrors the
+      // GPS-anchored path: any verified venue whose Places-resolved
+      // coords are >3km from anchor is stripped from text + venues.
+      const RADIUS_FT_M = 3000;
+      const within = [];
+      const droppedNames = new Set();
+      for (const v of (verifyResult.venues || [])) {
+        if (!v) continue;
+        if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) { within.push(v); continue; }
+        const distM = transport.haversineM(geo.lat, geo.lng, v.lat, v.lng);
+        v.distanceM = Math.round(distM);
+        if (distM <= RADIUS_FT_M) {
+          within.push(v);
+        } else {
+          if (v.displayHeading) droppedNames.add(v.displayHeading);
+          console.log(`[/hidden free-text] haversine drop "${v.displayHeading || v.name}" at ${Math.round(distM)}m vs radius ${RADIUS_FT_M}m`);
+        }
+      }
+      verifiedText = droppedNames.size > 0
+        ? dropBlocksByName(verifyResult.text, droppedNames)
+        : verifyResult.text;
+      verifiedVenues = within;
+      const fullyDropped = (verifyResult.venues || []).length > 0 && within.length === 0;
+      allDropped = !!verifyResult.allDropped || fullyDropped;
     } catch (err) {
       console.warn('[/hidden free-text] verify post-process failed:', err.message);
     }
@@ -3126,18 +3148,45 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       }
       // Haversine-filter against anchor coords. Each verified venue
       // (non-null, non-apiError) carries lat/lng from the Places API.
+      // v0.60.33 — also strip out-of-radius blocks from the displayed
+      // text. Pre-v0.60.33 the haversine filter ONLY counted within-
+      // radius survivors but did not prune the rendered output, so a
+      // venue Places resolved >2km away (e.g. The Coconut Club @ 6.3
+      // km from a Bukit Merah anchor) still appeared in the delivered
+      // message. Now it's dropped from text and venues alike.
       const venues = verifyResult.venues || [];
-      let withinRadius = 0;
+      const within = [];
+      const droppedNames = new Set();
       for (const v of venues) {
-        if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
+        if (!v) continue;
+        if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) {
+          within.push(v);                          // no coords → can't filter
+          continue;
+        }
         const distM = transport.haversineM(cached.lat, cached.lng, v.lat, v.lng);
         v.distanceM = Math.round(distM);
-        if (distM <= radiusM) withinRadius++;
+        if (distM <= radiusM) {
+          within.push(v);
+        } else {
+          if (v.displayHeading) droppedNames.add(v.displayHeading);
+          console.log(`[/hidden] haversine drop "${v.displayHeading || v.name}" at ${Math.round(distM)}m vs radius ${radiusM}m`);
+        }
       }
+      let filteredText = verifyResult.text;
+      if (droppedNames.size > 0) {
+        try {
+          const { dropBlocksByName } = require('./hidden-verify');
+          filteredText = dropBlocksByName(verifyResult.text, droppedNames);
+        } catch (err) {
+          console.warn('[/hidden] dropBlocksByName failed (using unfiltered text):', err.message);
+        }
+      }
+      const withinRadius = within.length;
+      const fullyDropped = venues.length > 0 && within.length === 0;
       return {
-        text: verifyResult.text,
-        venues,
-        allDropped: !!verifyResult.allDropped,
+        text: filteredText,
+        venues: within,
+        allDropped: !!verifyResult.allDropped || fullyDropped,
         withinRadius
       };
     }
