@@ -177,15 +177,42 @@ async function reverseGeocodeAddress(lat, lng) {
     }
   } catch { /* cache miss is fine */ }
   try {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
-    const { data } = await axios.get(url, { timeout: 5000 });
-    if (data.status !== 'OK' || !data.results?.length) return null;
-    const r = data.results[0];
+    // v0.60.15 (Human Lead 2026-05-08) — bias the geocode toward
+    // named features (premise / POI / street / neighbourhood) BEFORE
+    // the wider 'sublocality / locality' tier. Without this bias
+    // Google's first result for "252 N Bridge Rd" was the planning
+    // subzone "Downtown Core", while the POI "Raffles City" was
+    // further down the result list. /hidden's anchor then used
+    // "Downtown Core" as the search centre while /location's reply
+    // showed the friendlier "Raffles City" — the mismatch confused
+    // users. Also skip Google Plus-Code rows ("9R29+RW Singapore")
+    // when no street name is available.
+    const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
+    const filteredUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&result_type=premise|point_of_interest|street_address|intersection|neighborhood|sublocality|locality&key=${apiKey}`;
+    let { data } = await axios.get(filteredUrl, { timeout: 5000 });
+    let r = (data?.results || [])
+      .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address));
+    if (!r) {
+      // Wider net if the filtered query came back empty.
+      const wideUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+      const wide = await axios.get(wideUrl, { timeout: 5000 });
+      r = (wide.data?.results || [])
+        .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address))
+        || wide.data?.results?.[0];
+    }
+    if (!r) return null;
     const components = r.address_components || [];
     const findComp = (t) => components.find((c) => c.types?.includes(t))?.long_name;
-    const name = findComp('neighborhood')
+    // POI / premise first — "Raffles City", "ION Orchard", "Marina
+    // Bay Sands" beat the planning subzone. Then route (street name)
+    // before falling through to the broader area names.
+    const name = findComp('point_of_interest')
+      || findComp('premise')
+      || findComp('establishment')
+      || findComp('neighborhood')
       || findComp('sublocality_level_1')
       || findComp('sublocality')
+      || findComp('route')
       || findComp('locality')
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
@@ -1264,9 +1291,40 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const wantsCurrent = CURRENT_KEYWORDS.has(rawText.toLowerCase());
   const text = wantsCurrent ? '' : rawText;
   if (wantsCurrent) {
+    // v0.60.15 (Human Lead 2026-05-08) — `/l now` now first reports the
+    // cached location (if any) before showing the share-pin keyboard.
+    // Previously the cache was suppressed, so users had no feedback
+    // about what was anchoring their /cuisine + /hidden searches and
+    // had to repeat the share-pin tap each time. Cache TTL is 24 h so
+    // this is not stale enough to be misleading.
+    try {
+      const cached = await getUserLocation(redis, chatId);
+      if (cached?.lat && cached?.lng) {
+        const ageM = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
+        const ageStr = ageM == null ? '' : (ageM < 1 ? ' · just now'
+          : ageM < 60 ? ` · ${ageM} min ago`
+          : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
+          : ` · ${Math.floor(ageM / 1440)} d ago`);
+        let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+        try {
+          const geo = await reverseGeocodeAddress(cached.lat, cached.lng);
+          if (geo?.formatted) {
+            placeLine = geo.name && !geo.formatted.startsWith(geo.name)
+              ? `${geo.name} — ${geo.formatted}`
+              : geo.formatted;
+          }
+        } catch { /* reverse-geocode failure is non-fatal */ }
+        await safeSend(chatId,
+          `📍 *Cached location*${ageStr}\n${placeLine}\n\n` +
+          `_To refresh to your current GPS, tap the button below._`,
+          { parse_mode: 'Markdown' }
+        );
+      }
+    } catch (err) {
+      console.warn('[/l now] cached-location feedback failed:', err.message);
+    }
     // Bots can't read device GPS unsolicited; the only way to "catch
     // current location" is the user tapping the Share-pin keyboard.
-    // Make that path the entire response — no stale-cache distraction.
     await safeSend(chatId,
       "📍 *To set your current location, tap the button below.*\n\n" +
       "Bots can't auto-detect device GPS — Telegram requires you to share it explicitly. " +
