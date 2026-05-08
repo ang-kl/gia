@@ -3705,45 +3705,43 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (niHit) {
     return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
   }
-  // ---- Existing single-query path (dish / ingredient / cuisine-tagged tool) ----
-  const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
-  const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.googleMapsUri';
+  // ---- Single-query path (dish / ingredient / cuisine-tagged tool) ----
+  // v0.60.9 (Human Lead 2026-05-08): unified rich-card template across
+  // ALL /s queries that return Places venues. Previously only
+  // runTechniqueFanOut + runNationIconicFanOut used formatTechniqueVenueBlock;
+  // any /s query that didn't hit a known technique or NATION_OVERLAY
+  // dish (e.g. "/s Mocheniye", "/s some-rare-dish") fell to a thin
+  // "name + ★ + raw maps URL" line per venue. Now the same rich card
+  // is used everywhere: address, hours, website, phone, rating + footfall,
+  // 🚊 / 🚘 travel times, "Try X" line, maps URL.
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   let venues = [];
-  try {
-    const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!mapsApiKey) {
-      console.warn('[Search] GOOGLE_MAPS_API_KEY missing — skipping venues.');
-    } else {
-      const { data } = await axios.post(
-        PLACES_TEXT_URL,
-        {
-          textQuery: intent.searchTerm,
-          regionCode: 'SG',
-          languageCode: lang === 'fr' ? 'fr' : 'en',
-          maxResultCount: 8,
-          locationBias: { circle: { center: { latitude: center.lat, longitude: center.lng }, radius: 50000 } },
-          openNow: false
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': mapsApiKey,
-            'X-Goog-FieldMask': FIELD_MASK
-          },
-          timeout: 8000
-        }
-      );
-      venues = (Array.isArray(data?.places) ? data.places : [])
-        .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
-        .map((p) => ({
-          name: p?.displayName?.text || 'Unnamed',
-          rating: typeof p?.rating === 'number' ? p.rating : null,
-          address: p?.formattedAddress || '',
-          url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
-        }));
+  if (!mapsApiKey) {
+    console.warn('[Search] GOOGLE_MAPS_API_KEY missing — skipping venues.');
+  } else {
+    try {
+      venues = await searchVenuesByDish(intent.searchTerm, intent.cuisine || null, {
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+      });
+    } catch (err) {
+      console.warn('[Search] searchVenuesByDish failed:', err.message);
     }
-  } catch (err) {
-    console.warn('[Search] Places searchText failed:', err.message);
+  }
+  // Best-effort travel + footfall enrichment so the rich card can render
+  // 🚊 / 🚘 minutes and the BestTime "good time to go" chip.
+  if (venues.length) {
+    try {
+      const { enrichTravelTimes } = require('./travel-times');
+      await enrichTravelTimes(center.lat, center.lng, venues);
+    } catch (err) {
+      console.warn('[Search] enrichTravelTimes failed:', err.message);
+    }
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, venues);
+    } catch (err) {
+      console.warn('[Search] attachFootfallSignals failed:', err.message);
+    }
   }
   // Build the reply in HTML mode.
   const top = venues.slice(0, 3);
@@ -3776,11 +3774,16 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       : `Sorry, no matching venues found in Singapore for that query. Try another dish or ingredient.`);
   } else {
     lines.push('');
-    top.forEach((v, i) => {
-      const rating = Number.isFinite(v.rating) ? `★${v.rating.toFixed(1)}` : '';
-      const mapsUrl = v.url;
-      lines.push(`<b>${i + 1}. ${esc(v.name)}</b> ${rating}\n📍 ${esc(mapsUrl)}`);
-    });
+    const { googleMapsUrl } = require('./maps-url');
+    const dishPhraseForCard = intent.searchTerm || userText;
+    const venueCards = top.map((venue, i) => formatTechniqueVenueBlock(venue, {
+      number: i + 1,
+      lang,
+      googleMapsUrlFn: googleMapsUrl,
+      dishPhrase: dishPhraseForCard,
+      orderTip: ''
+    }));
+    lines.push(venueCards.join('\n\n\n'));
   }
   const reply = lines.join('\n');
   const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
