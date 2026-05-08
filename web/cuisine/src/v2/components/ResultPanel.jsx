@@ -28,7 +28,14 @@ const PAGE_SIZE = 12;
 
 export default function ResultPanel({
   venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState,
-  onPageChange
+  onPageChange,
+  // v0.60.43 — music-player-skip pagination continuity. When the user
+  // taps ▶ on the last page of the loaded venues, the panel calls
+  // onLastPageNext() to ask the parent for the next batch from the
+  // server instead of wrapping client-side. exhausted=true (set when
+  // the dedup pool has been fully recycled server-side) suppresses the
+  // server fetch and falls back to the wrap-to-1 recycle behaviour.
+  onLastPageNext, exhausted
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -204,8 +211,19 @@ export default function ResultPanel({
               >📄 {Math.min(page * PAGE_SIZE, venues.length)} / {venues.length}</button>
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
+                onClick={() => {
+                  // v0.60.43 — last-page tap fetches the next 40 from
+                  // the server (music-player-skip continuity). When
+                  // server flags exhausted=true the tap stays a no-op
+                  // here so the centered indicator's wrap-to-1 path
+                  // (existing recycle UX) handles re-cycling.
+                  if (page < totalPages) {
+                    setPage((p) => p + 1);
+                  } else if (typeof onLastPageNext === 'function' && !exhausted) {
+                    onLastPageNext();
+                  }
+                }}
+                disabled={page >= totalPages && (!onLastPageNext || exhausted)}
                 aria-label={lang === 'fr' ? 'Page suivante' : 'Next page'}
                 className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
               >▶</button>

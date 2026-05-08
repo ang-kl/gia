@@ -48,25 +48,28 @@ const STARS_TWO = [
     postal: '178882', category: 'two-star', cuisine: 'british' },
   { name: 'Meta',
     address: '9 Mohamed Sultan Road, #01-01, Singapore 238959',
-    postal: '238959', category: 'two-star', cuisine: 'korean' },
+    postal: '238959', category: 'two-star', cuisine: 'korean',
+    michelinCuisineLabel: 'Modern European' },
   { name: 'Saint Pierre',
     address: '1 Fullerton Road, #02-02B One Fullerton, Singapore 049213',
     postal: '049213', category: 'two-star', cuisine: 'french' },
   { name: 'Shoukouwa',
     address: '1 Fullerton Road, #02-02A One Fullerton, Singapore 049213',
-    postal: '049213', category: 'two-star', cuisine: 'japanese' },
+    postal: '049213', category: 'two-star', cuisine: 'japanese',
+    michelinCuisineLabel: 'Sushi · Authentic Japanese' },
   { name: 'Sushi Sakuta',
     address: '25A Dempsey Road, Singapore 247691',
     postal: '247691', category: 'two-star', cuisine: 'japanese' },
   { name: 'Thevar',
     address: '9 Keong Saik Road, Singapore 089117',
-    postal: '089117', category: 'two-star', cuisine: 'north-indian', vegetarian: true }
+    postal: '089117', category: 'two-star', cuisine: 'north-indian', vegetarian: true,
+    michelinCuisineLabel: 'Modern Indian' }
 ];
 
 const STARS_ONE = [
   { name: 'Alma', address: '22 Scotts Road, Goodwood Park Hotel, Singapore 228221', postal: '228221', category: 'one-star', cuisine: 'spanish' },
-  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star', cuisine: 'modern' },
-  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', cuisine: 'modern' },
+  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star', cuisine: 'modern', michelinCuisineLabel: 'Chilean' },
+  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', cuisine: 'modern', michelinCuisineLabel: 'Fusion · Fine Dining' },
   { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star', cuisine: 'italian' },
   { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star', cuisine: 'australian' },
   { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', cuisine: 'peranakan', vegetarian: true },
@@ -364,7 +367,14 @@ const _CATEGORY_LABEL = {
 function formatMichelinLine(entry, year = 2025) {
   if (!entry || !entry.category) return '';
   const prefix = _CATEGORY_LABEL[entry.category] || '✳️ Michelin';
-  return `${prefix} · ${year}`;
+  // v0.60.43 — append the Michelin Guide's own descriptive cuisine
+  // label when the entry carries one. The `cuisine` slug is for
+  // routing (combo filtering); `michelinCuisineLabel` is human-
+  // readable per Michelin's classification (e.g. "Chilean",
+  // "Modern Indian", "Sushi · Authentic Japanese"). Field is
+  // optional — entries without it render unchanged.
+  const label = entry.michelinCuisineLabel ? ` · ${entry.michelinCuisineLabel}` : '';
+  return `${prefix} · ${year}${label}`;
 }
 
 module.exports = {
