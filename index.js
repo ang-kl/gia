@@ -4873,14 +4873,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.30 → v0.60.34: cap evolved 12 → 24 → 28 chasing pagination
   // headroom and per-click cost.
   // v0.60.37 — pure Michelin uncapped (full 130-entry curated SG Guide).
-  // v0.60.39 (Human Lead 2026-05-08): combo path also uncapped.
-  //   Previous cap of 28 was clipping legit cuisine-filtered survivors
-  //   (e.g. "Chinese + Michelin" expands to 7+ sub-cuisine slugs and
-  //   can match 30+ entries from the 130-row table). Now every entry
-  //   that survives cuisineTagMatches passes through to Places lookup.
-  //   Per-click Places cost rises proportionally to filter survivors,
-  //   but the user explicitly accepted the trade for full coverage.
-  const sliceCap = pool.length;
+  // v0.60.39 — combo path also uncapped (sliceCap = pool.length).
+  // v0.60.42 (Human Lead 2026-05-08): sliceCap = 40 across both pure
+  // and combo paths. The pool.length cap meant pure Michelin loaded
+  // 130 Places searchText calls in series → ~3-min wait. 40 caps
+  // each click at ~10–15 s. The existing v0.60.25 dedup-shuffle already
+  // rotates the pool across consecutive 🔍 Search taps, so users
+  // reach all 130 entries in ~4 taps. After exhaustion the existing
+  // didReset path + `exhausted: true` flag drives the TMA's
+  // end-of-list note + recycle-on-next-tap behaviour. Per-click cost
+  // drops by 70 %, browse latency by similar margin.
+  const sliceCap = Math.min(pool.length, 40);
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the

@@ -32,4 +32,17 @@ body { -webkit-font-smoothing: antialiased; }
    the change to every sized element. */
 @media (min-width: 600px) {
   html { font-size: 17px; }
+
+  /* v0.60.42 — tablet/desktop centered column. */
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--tg-card, #1c1c1f);
+  }
+  #root {
+    width: 100%;
+    max-width: 800px;
+    min-height: var(--tg-viewport-stable-height, 100vh);
+    background-color: var(--tg-bg);
+  }
 }
