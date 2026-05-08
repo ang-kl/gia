@@ -5324,7 +5324,53 @@ bot.on('message', async (msg) => {
     } catch (err) {
       console.warn('[free-text] nation-iconic check failed (continuing to raw search):', err.message);
     }
-    await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
+    // v0.60.24 — R.E.D disambig for the free-text chat path. Without
+    // this, an ambiguous-dish query like "Goulash dumplings" was sent
+    // verbatim to Places, which has no Czech anchors in SG and falls
+    // through to ranking by keyword overlap → returns Chinese dumpling
+    // places. Mirroring the /s flow: HIGH/MEDIUM confidence overrides
+    // the Places query with the disambiguated searchPhrase; LOW
+    // confidence shows both interpretations and skips the search so
+    // the user can one-tap pivot.
+    let resolvedText = text;
+    let disambigDisclosureFT = null;
+    try {
+      const gc = require('./gemini-client');
+      const sc = require('./search-conversation');
+      const conv = await sc.getConversation(redis, msg.chat.id).catch(() => null);
+      const disambig = gc.disambiguateTerm({
+        text,
+        ctx: { lang: userLang, locale: 'SG', lastDisambig: conv?.lastDisambig }
+      });
+      if (disambig.kind !== 'none' && disambig.kind !== 'parent-cuisine') {
+        const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (disambig.confidence === 'low' && Array.isArray(disambig.alternatives) && disambig.alternatives.length > 0) {
+          const reply = (userLang === 'fr'
+            ? `🤔 <i>Plusieurs interprétations possibles. Tapez l'une des options ci-dessous:</i>\n\n`
+            : `🤔 <i>This term has multiple meanings — tap one to refine:</i>\n\n`)
+            + disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
+          if (disambig.searchSpec?.stickyKey) {
+            try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
+            catch (err) { console.warn('[free-text] setLastDisambig failed:', err.message); }
+          }
+          await safeSend(msg.chat.id, reply, { parse_mode: 'HTML', disable_web_page_preview: true });
+          return;
+        }
+        if (disambig.searchSpec?.searchPhrase) {
+          resolvedText = disambig.searchSpec.searchPhrase;
+          disambigDisclosureFT = disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
+          if (disambig.searchSpec.stickyKey) {
+            try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
+            catch (err) { console.warn('[free-text] setLastDisambig failed:', err.message); }
+          }
+          await safeSend(msg.chat.id, disambigDisclosureFT, { parse_mode: 'HTML', disable_web_page_preview: true });
+          void esc;
+        }
+      }
+    } catch (err) {
+      console.warn('[free-text] disambig pre-step failed (continuing with raw text):', err.message);
+    }
+    await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
