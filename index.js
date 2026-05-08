@@ -7221,7 +7221,15 @@ async function cacheBotUsername() {
         if (!skipCacheForShuffle) {
           venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         }
-        const top = venues.slice(0, 12);
+        // v0.60.27 — server cap raised 12 → 24 so the TMA's PAGE_SIZE=12
+        // pagination strip actually has something to paginate. Without
+        // this the TMA's totalPages was always 1 (≤12 venues) and the
+        // `📄 12 / 24` indicator never appeared. Telegram's 4096-char
+        // message cap still applies to /api/cuisine/copy-all, but that
+        // endpoint slices its own input to 12 (cuisine-search.js:258 +
+        // index.js:6116), so widening the TMA payload doesn't break the
+        // chat copy-all path.
+        const top = venues.slice(0, 24);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
@@ -7711,7 +7719,9 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL } = require('./open-hours');
-        const topNL = venues.slice(0, 12);
+        // v0.60.27 — match /api/cuisine/search server cap so the TMA
+        // pagination strip has 2-page input from the NL-query path too.
+        const topNL = venues.slice(0, 24);
         for (const v of topNL) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
