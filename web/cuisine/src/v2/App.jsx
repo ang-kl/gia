@@ -34,6 +34,10 @@ export default function App() {
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
   const [venues, setVenues] = useState([]);
+  // v0.60.28 — current page slice surfaced by ResultPanel. The map
+  // shows only this slice so paging left/right also rotates the pins,
+  // keeping the visual context aligned with what the user is reading.
+  const [visibleVenues, setVisibleVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
@@ -592,9 +596,15 @@ export default function App() {
         );
       })()}
 
-      <MapPanel venues={venues} userLoc={userLoc} focusedPlaceId={focusedPlaceId} onPinTap={setFocusedPlaceId}
-        searchCenter={searchCenter || userLoc} onSearchHere={runSearchAt}
-        anchorName={locationName} />
+      <MapPanel
+        venues={visibleVenues.length ? visibleVenues : venues}
+        userLoc={userLoc}
+        focusedPlaceId={focusedPlaceId}
+        onPinTap={setFocusedPlaceId}
+        searchCenter={searchCenter || userLoc}
+        onSearchHere={runSearchAt}
+        anchorName={locationName}
+      />
 
       {/* v0.59.0: ActiveFilters chip bar moved BELOW the map per
           Human Lead. Always visible regardless of whether the
@@ -711,8 +721,7 @@ export default function App() {
             region: state.region,
             location: locationAnchor
           }}
-          onSearch={() => runSearch(state)}
-          onScrollTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onPageChange={setVisibleVenues}
         />
         {/* v0.60.18 — end-of-list note when the server returns
             exhausted=true. The seen-set is reset for the next search
@@ -745,7 +754,7 @@ export default function App() {
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label={t('btn.backToTop', lang)}
-            className="pointer-events-auto w-11 h-11 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-base font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
+            className="pointer-events-auto w-8 h-8 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-xs font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
           >↑</button>
         )}
         <div className="flex items-center gap-2 pointer-events-none">
@@ -767,7 +776,7 @@ export default function App() {
             onClick={() => runSearch(state)}
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            className={`pointer-events-auto w-11 h-11 rounded-full shadow-md text-base font-semibold flex items-center justify-center active:scale-95 transition-all ${
+            className={`pointer-events-auto w-8 h-8 rounded-full shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
               loading ? 'bg-tg-card text-tg-hint border border-tg-border'
               : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
               : 'bg-tg-accent text-tg-accent-text'
