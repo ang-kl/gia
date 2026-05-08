@@ -43,10 +43,26 @@ const STRINGS = {
   // the map", and route to soleat's multi-pin /app/map when coords
   // are present (Google Maps fallback retained for missing-coord
   // edge cases).
+  // v0.60.41: embedded map ships, so the external button is repurposed
+  // as a "Fullscreen map ↗" affordance. Old key kept for fallback.
+  'btn.openFullscreenMap':   { en: '🗺 Fullscreen map ↗',
+                               fr: '🗺 Carte plein écran ↗' },
   'btn.viewAllOnMap':        { en: '🗺 View {n} Hawker Centres on the map',
                                fr: '🗺 Voir les {n} centres de hawker sur la carte' },
   'btn.openAllOnGoogleMaps': { en: '🗺 Open all {n} on Google Maps',
                                fr: '🗺 Voir les {n} sur Google Maps' },
+
+  // v0.60.41 — embedded HawkerMapPanel strings.
+  'map.loading':             { en: 'Loading map…',
+                               fr: 'Chargement de la carte…' },
+  'map.nokey':               { en: 'Map unavailable (key not configured).',
+                               fr: 'Carte indisponible (clé non configurée).' },
+  'map.noCoords':            { en: 'Hawker centre coordinates not yet loaded — use the list below.',
+                               fr: 'Coordonnées des centres non chargées — voir la liste ci-dessous.' },
+  'map.openInGoogleMaps':    { en: '📍 Open on Google Maps',
+                               fr: '📍 Voir sur Google Maps' },
+  'map.aria':                { en: 'Map of hawker centres in the active region',
+                               fr: 'Carte des centres de hawker dans la région active' },
 
   // Per-centre Maps deep-link
   'btn.maps':                { en: '📍 Maps', fr: '📍 Carte' }
