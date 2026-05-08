@@ -178,6 +178,27 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
         </button>
       </div>
+      {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
+          below the Maps + Copy buttons when /api/cuisine/search
+          attached michelinCategory to the venue payload. */}
+      {venue.michelinCategory && (
+        <div className="text-[11px] text-tg-text mt-1 font-semibold">
+          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
+        </div>
+      )}
     </button>
   );
+}
+
+// v0.60.16 — mirror the chat-card formatter (michelin-2025.js
+// formatMichelinLine) so the TMA UI shows the same labels.
+function michelinAnnotation(category, year) {
+  const labels = {
+    'three-star':   '✳️ Michelin · ⭐⭐⭐',
+    'two-star':     '✳️ Michelin · ⭐⭐',
+    'one-star':     '✳️ Michelin · ⭐',
+    'bib-gourmand': '✳️ Bib Gourmand'
+  };
+  const prefix = labels[category] || '✳️ Michelin';
+  return `${prefix} · ${year}`;
 }

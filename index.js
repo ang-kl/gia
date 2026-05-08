@@ -4059,6 +4059,31 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
   if (maps) lines.push(maps);
+  // v0.60.16 — Michelin / Bib Gourmand annotation row appended after
+  // the maps URL (per Human Lead 2026-05-08). When the venue is on
+  // the curated Singapore Michelin Guide 2025 list (michelin-2025.js),
+  // append "✳️ Michelin · ⭐⭐⭐ · 2025" or "✳️ Bib Gourmand · 2025".
+  // Cross-reference is name-first then postal-augmented (so
+  // "Imperial Treasure Fine Teochew Cuisine (Orchard)" matches but
+  // other Imperial Treasure outlets don't), then token-overlap fuzzy
+  // for minor name drift. If the upstream handler already set
+  // venue.michelinCategory (e.g. handleMichelinSearch from v0.60.14),
+  // we skip the lookup and use that directly.
+  try {
+    const michelin = require('./michelin-2025');
+    let entry = null;
+    if (venue.michelinCategory) {
+      entry = { category: venue.michelinCategory, name: venue.michelinName || venue.name };
+    } else {
+      entry = michelin.findMichelinMatch(venue.name, venue.area || venue.address || '');
+    }
+    if (entry) {
+      const line = michelin.formatMichelinLine(entry);
+      if (line) lines.push(line);
+    }
+  } catch (err) {
+    console.warn('[Michelin-Annotate] formatTechniqueVenueBlock cross-ref failed:', err.message);
+  }
   return lines.join('\n');
 }
 
@@ -6925,6 +6950,22 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] dedup pass failed (using raw top):', err.message);
         }
+        // v0.60.16 — annotate every venue with Michelin / Bib Gourmand
+        // category if it cross-refs to the curated Singapore Michelin
+        // Guide 2025 list. The TMA's VenueCard renders the annotation
+        // below the maps URL (matching the chat rich-card row format).
+        try {
+          const michelin = require('./michelin-2025');
+          for (const v of dedupedTop) {
+            if (v.michelinCategory) continue;        // already annotated by handleMichelinSearch
+            const e = michelin.findMichelinMatch(v.name, v.area || v.address || '');
+            if (e) {
+              v.michelinCategory = e.category;
+              v.michelinName = e.name;
+              v.michelinYear = 2025;
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
         const payload = { venues: dedupedTop, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
