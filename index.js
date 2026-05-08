@@ -5115,11 +5115,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     } catch (err) { console.warn('[Michelin] footfall failed:', err.message); }
   }
 
-  // Track only the dedup keys for venues actually returned, so future
-  // searches can re-surface the filtered-out (other-cuisine) venues
-  // when the user removes the cuisine constraint.
-  const returnedKeys = filteredVenues.map((v) => `${v.michelinName || v.name}|${v.address || ''}`.toLowerCase());
-  await appendSeenSet(csChatId, criteriaHash, returnedKeys.length ? returnedKeys : newDedupKeys);
+  // v0.60.44 — append entry-derived dedup keys (name|entry.address)
+  // built during the Places loop above. The previous returnedKeys
+  // construction used `v.address` (= placesData.formattedAddress),
+  // which usually differs from `entry.address` enough that
+  // `seen.has(\`${e.name}|${e.address}\`.toLowerCase())` at line 4844
+  // returned false on the next click — same Michelin entries kept
+  // resurfacing instead of the next 40. The criteriaHash already
+  // partitions seen-sets by cuisine combo, so appending the full
+  // attempted-batch (including post-filter drops) is safe: removing
+  // the cuisine constraint creates a fresh hash and a fresh set.
+  await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
 
   // v0.60.18 — emit `exhausted` so the TMA (a) shows the
   // Google-limit tip ONLY at first-search-of-session and at the
