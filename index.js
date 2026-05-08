@@ -4791,10 +4791,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
 
   // v0.60.17 — when user combines Michelin with other cuisines (e.g.
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
-  // Type filter still has enough survivors. We look up to 20 entries
-  // (vs 12 in pure Michelin mode) and rank by tier; the cuisine filter
-  // below trims to the selected primaryType.
-  const sliceCap = otherCuisineSlugs.length > 0 ? 20 : 12;
+  // Type filter still has enough survivors.
+  // v0.60.30 — caps bumped to 24 (pure) / 28 (combo) to match the
+  // /api/cuisine/search slice (v0.60.27) so the TMA's PAGE_SIZE=12
+  // pagination strip can render. Pre-v0.60.30 the Michelin response
+  // capped at 12 (pure) / 20 (combo); the strip needs >12 venues to
+  // appear, so Michelin searches were stuck on a single page.
+  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : 24;
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
