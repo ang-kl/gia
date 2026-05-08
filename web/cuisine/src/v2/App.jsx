@@ -39,6 +39,14 @@ export default function App() {
   // keeping the visual context aligned with what the user is reading.
   const [visibleVenues, setVisibleVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  // v0.60.32 — first-load indicator. Set to true on mount, cleared
+  // after the first venues array arrives. Drives the "Please wait
+  // while loading list…" banner so the user knows the longer initial
+  // fetch (warm-start + travel-times + footfall enrichment for the
+  // first batch) is intentional, not a hang. Subsequent searches in
+  // the same TMA session are fast enough that the regular spinner
+  // suffices.
+  const [firstLoadPending, setFirstLoadPending] = useState(true);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
@@ -274,6 +282,7 @@ export default function App() {
         console.log('[Cuisine-TMA-v2] warm-start: response', { venues: r?.venues?.length || 0, seed: r?.seed, cached: r?.cached });
         if (r?.venues?.length) {
           setVenues(r.venues);
+          setFirstLoadPending(false);
           setWarmStartSeed(r.seed || null);
           setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
           // v0.59.18 (Codex review #223): seed lastRunSnap with the
@@ -363,6 +372,7 @@ export default function App() {
         lang                                              // v0.59.0
       });
       setVenues(r.venues || []);
+      setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
       // v0.58.4: any explicit search supersedes the warm-start label.
@@ -423,6 +433,7 @@ export default function App() {
     try {
       const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters, lang });
       setVenues(r.venues || []);
+      setFirstLoadPending(false);
       let nextState;
       if (mode === 'replace') {
         nextState = { ...defaultState(), region: state.region, cuisines: [], filters: clearedFilters() };
@@ -707,6 +718,14 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {firstLoadPending && loading && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card p-3 text-xs text-tg-text">
+          ⏳ {lang === 'fr'
+            ? 'Veuillez patienter pendant le chargement de la liste…'
+            : 'Please wait while loading list…'}
+        </div>
+      )}
 
       <div ref={resultPanelRef}>
         <ResultPanel
