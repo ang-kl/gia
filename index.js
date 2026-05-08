@@ -4947,6 +4947,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.60.43 — Michelin Guide's own descriptive cuisine label
+      // (distinct from the routing slug). Surfaced on the venue
+      // card via ResultCard.jsx michelinAnnotation().
+      michelinCuisineLabel: entry.michelinCuisineLabel || '',
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true
     } : {
@@ -4964,6 +4968,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.60.43 — Michelin Guide's own descriptive cuisine label
+      // (distinct from the routing slug). Surfaced on the venue
+      // card via ResultCard.jsx michelinAnnotation().
+      michelinCuisineLabel: entry.michelinCuisineLabel || '',
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true
     };

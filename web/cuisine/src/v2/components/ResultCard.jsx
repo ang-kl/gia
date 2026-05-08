@@ -183,7 +183,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           attached michelinCategory to the venue payload. */}
       {venue.michelinCategory && (
         <div className="text-[11px] text-tg-text mt-1 font-semibold">
-          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
+          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025, venue.michelinCuisineLabel)}
         </div>
       )}
     </button>
@@ -192,7 +192,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
 
 // v0.60.16 — mirror the chat-card formatter (michelin-2025.js
 // formatMichelinLine) so the TMA UI shows the same labels.
-function michelinAnnotation(category, year) {
+// v0.60.43 — append Michelin Guide's own descriptive cuisine label
+// when the venue carries one (e.g. "Chilean", "Modern Indian",
+// "Sushi · Authentic Japanese"). Optional — entries without it
+// render unchanged.
+function michelinAnnotation(category, year, cuisineLabel) {
   const labels = {
     'three-star':   '✳️ Michelin · ⭐⭐⭐',
     'two-star':     '✳️ Michelin · ⭐⭐',
@@ -200,5 +204,6 @@ function michelinAnnotation(category, year) {
     'bib-gourmand': '✳️ Bib Gourmand'
   };
   const prefix = labels[category] || '✳️ Michelin';
-  return `${prefix} · ${year}`;
+  const label = cuisineLabel ? ` · ${cuisineLabel}` : '';
+  return `${prefix} · ${year}${label}`;
 }

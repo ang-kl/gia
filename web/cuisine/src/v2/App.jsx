@@ -704,7 +704,7 @@ export default function App() {
                   : 'bg-tg-accent text-tg-accent-text'
                 }`}
               >
-                {loading ? '…' : t('btn.searchFull', lang)}
+                {loading ? t('btn.searchPleaseWait', lang) : t('btn.searchFull', lang)}
               </button>
               {canClear && (
                 <button
@@ -712,7 +712,7 @@ export default function App() {
                   onClick={clearAll}
                   disabled={loading}
                   className="shrink-0 text-xs px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-tg-text"
-                >Clear</button>
+                >{t('btn.clear', lang)}</button>
               )}
             </div>
           </div>
@@ -741,6 +741,14 @@ export default function App() {
             location: locationAnchor
           }}
           onPageChange={setVisibleVenues}
+          // v0.60.43 — music-player-skip pagination. ▶ on the last
+          // page asks the server for the next 40 via the same
+          // runSearch path that the 🔍 Search FABs use. The dedup
+          // pool rotates server-side. Server's `exhausted` flag
+          // suppresses the fetch when all venues have been seen so
+          // the centered indicator's wrap-to-1 recycle UX takes over.
+          onLastPageNext={() => runSearch(state)}
+          exhausted={exhaustedNote}
         />
         {/* v0.60.18 — end-of-list note when the server returns
             exhausted=true. The seen-set is reset for the next search

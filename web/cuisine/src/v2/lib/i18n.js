@@ -58,8 +58,17 @@ const STRINGS = {
   // ----- Buttons -----
   'btn.search':                { en: '🔍 Search', fr: '🔍 Rechercher' },
   'btn.searching':             { en: 'Searching…', fr: 'Recherche…' },
+  // v0.60.43 — replaces the hardcoded "…" literal in the criteria-card
+  // Search pill. Per Human Lead 2026-05-08 — the bare ellipsis read
+  // as "broken" rather than "loading"; explicit prose reassures.
+  'btn.searchPleaseWait':      { en: 'Please wait …', fr: 'Veuillez patienter …' },
   'btn.searchFull':            { en: '🔍 Search · Show me places to eat', fr: '🔍 Rechercher · Trouvez où manger' },
   'btn.clear':                 { en: 'Clear', fr: 'Effacer' },
+  // v0.60.43 — drawer "Clear all" relabel. The criteria-card pill
+  // ("Clear") wipes EVERYTHING (cuisines + filters + region); the
+  // drawer's button only wipes cuisines. Renaming makes the narrower
+  // scope explicit.
+  'btn.clearCuisines':         { en: 'Clear cuisines', fr: 'Effacer les cuisines' },
   'btn.copyAll':               { en: '📋 Copy all', fr: '📋 Tout copier' },
   'btn.copied':                { en: '✓ Copied to chat', fr: '✓ Copié vers le chat' },
   'btn.copySyntax':            { en: '🔗 Copy /cuisine command', fr: '🔗 Copier la commande /cuisine' },

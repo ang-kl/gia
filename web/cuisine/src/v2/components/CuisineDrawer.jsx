@@ -104,7 +104,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>
-          <button onClick={() => onChange([])} className="underline">Clear all</button>
+          <button onClick={() => onChange([])} className="underline">{tr('btn.clearCuisines', lang)}</button>
         </div>
       )}
 
