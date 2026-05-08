@@ -1272,6 +1272,7 @@ bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, matc
 bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const rawText = (match?.[1] || '').trim();
   const chatId = msg.chat.id;
+  console.log(`[/l] chatId=${chatId} rawText="${rawText.slice(0, 60)}"`);
   // v0.58.25: special-case `/location current` (and synonyms `now`,
   // `here`, `me`, `my`, `gps`, `device`). Previously these keywords
   // were passed verbatim to Google Geocoding which interpreted them
@@ -1898,12 +1899,29 @@ bot.on('callback_query', async (q) => {
 
 bot.on('location', async (msg) => {
   let pending;
+  // v0.60.17 (Human Lead 2026-05-08) — diagnostic logging for Issue 7.
+  // Issue 7 surfaces as Telegram's generic "An error occurred, please
+  // try again later" overlay after a user shares location via the
+  // chat keyboard. Server logs showed 499 client-cancelled responses
+  // on /api/cuisine/* requests (TMA closing while in-flight), but no
+  // visibility into the location-share flow itself. These structured
+  // logs capture chatId, coords, message-source (hint of edited /
+  // forwarded), elapsed-ms — so we can correlate next time it fires.
+  const locStartMs = Date.now();
+  console.log(`[location] received chatId=${msg.chat.id} hasLat=${Number.isFinite(msg.location?.latitude)} hasLng=${Number.isFinite(msg.location?.longitude)} edit=${!!msg.edit_date} forward=${!!msg.forward_date}`);
   try {
     const lat = msg.location?.latitude;
     const lng = msg.location?.longitude;
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
-      try { await setUserLocation(redis, msg.chat.id, lat, lng); }
-      catch (err) { console.warn('[location] setUserLocation failed:', err.message); }
+      try {
+        await setUserLocation(redis, msg.chat.id, lat, lng);
+        console.log(`[location] setUserLocation OK chatId=${msg.chat.id} lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} elapsed=${Date.now() - locStartMs}ms`);
+      }
+      catch (err) {
+        console.error(`[location] setUserLocation FAILED chatId=${msg.chat.id}:`, err.message);
+      }
+    } else {
+      console.warn(`[location] coords missing/malformed chatId=${msg.chat.id} location=${JSON.stringify(msg.location)}`);
     }
     // v0.56.1: dismiss the persistent "Share my location / Use Raffles
     // Place default" reply keyboard once we've received a location.
@@ -1946,7 +1964,9 @@ bot.on('location', async (msg) => {
       await runFlow(msg.chat.id, lat, lng, resolved.category);
     }
   } catch (err) {
-    console.error('[Error] location handler failed:', err.message);
+    // v0.60.17 — capture full stack so Issue 7's "An error occurred"
+    // overlay has a server-side breadcrumb if it fires from this path.
+    console.error(`[location] handler FAILED chatId=${msg.chat.id} pending=${pending || 'none'} elapsed=${Date.now() - locStartMs}ms err=${err.message}\n${err.stack || ''}`);
     if (pending) {
       try { await setPendingMeal(redis, msg.chat.id, pending); } catch { /* best-effort */ }
     }
@@ -4578,7 +4598,7 @@ async function resetSeenSet(chatId, criteriaHash) {
 // to get live coords + ratings + hours, applies per-chatId dedup so
 // consecutive clicks return different slices, and falls back to
 // reset+full-list when every venue has been seen.
-async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters }) {
+async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [] }) {
   if (isJB) {
     return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
   }
@@ -4589,7 +4609,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   }
 
   const criteriaHash = computeCriteriaHash({
-    cuisines: ['michelin'],
+    cuisines: ['michelin', ...otherCuisineSlugs],            // include combo so dedup resets when user changes cuisine
     filters: filters || {},
     prices: req.body?.prices || [],
     radius: searchRadius,
@@ -4598,10 +4618,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   });
   const seen = await readSeenSet(csChatId, criteriaHash);
 
-  // Source list: full Michelin set, deterministic order. Pull stars
-  // first (3-star → 2-star → 1-star) then Bib Gourmand. The first
-  // pass through this list shows the highest-tier venues; subsequent
-  // passes (after dedup) progress through the remainder.
+  // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
+  // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
+  // shuffle to give each click a different slice. The earlier code
+  // grouped all stars together but didn't enforce the 3 → 2 → 1
+  // sub-order, so 1-star Hill Street Tai Hwa Pork Noodle could appear
+  // before 2-star Cloudstreet on a random page-load.
+  const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
   const allEntries = michelin.getAll();
   const candidates = allEntries.filter((e) => {
     const dedupKey = `${e.name}|${e.address || ''}`.toLowerCase();
@@ -4617,18 +4640,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     didReset = true;
   }
 
-  // Take a random-but-stable slice for the search session. Cap at
-  // 12 lookups per call to bound Places API cost. Order: stars first,
-  // then a randomised tail of bib gourmand so each click surfaces
-  // a different slice without re-paying the full 130-venue Places
-  // bill.
-  const stars = pool.filter((e) => e.category !== 'bib-gourmand');
+  // Sort star tiers explicitly; shuffle bib gourmand so each click
+  // surfaces a different slice without re-paying the full Places bill.
+  const stars = pool.filter((e) => e.category !== 'bib-gourmand')
+    .sort((a, b) => (TIER_ORDER[a.category] ?? 99) - (TIER_ORDER[b.category] ?? 99));
   const bib = pool.filter((e) => e.category === 'bib-gourmand');
   for (let i = bib.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [bib[i], bib[j]] = [bib[j], bib[i]];
   }
-  const slice = [...stars, ...bib].slice(0, 12);
+
+  // v0.60.17 — when user combines Michelin with other cuisines (e.g.
+  // Japanese + Michelin), enlarge the slice so the post-Places primary-
+  // Type filter still has enough survivors. We look up to 20 entries
+  // (vs 12 in pure Michelin mode) and rank by tier; the cuisine filter
+  // below trims to the selected primaryType.
+  const sliceCap = otherCuisineSlugs.length > 0 ? 20 : 12;
+  const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
   // entry's curated metadata if Places fails.
@@ -4711,22 +4739,95 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }
   }
 
+  // v0.60.17 (Human Lead 2026-05-08) — when user combined Michelin
+  // with other cuisines (e.g. Japanese + Michelin), filter the
+  // results to venues whose Places primaryType matches the selected
+  // cuisine. Without this filter, repeated Search clicks exhausted
+  // the dedup set and started returning unrelated Michelin venues
+  // (user's screenshot showed Hong Kong Yummy Soup / Sin Heng
+  // Claypot Bak Koot Teh appearing under Japanese+Michelin).
+  let filteredVenues = venues;
+  if (otherCuisineSlugs.length > 0) {
+    // Map cuisine slugs to Places primaryType strings. The list is
+    // intentionally narrow — only the primary types Google issues
+    // for our overlay cuisines. Misses fall through to "no filter"
+    // (shown as is) which is preferable to a hard-zero.
+    const SLUG_TO_PRIMARY_TYPES = {
+      'japanese':       new Set(['japanese_restaurant', 'sushi_restaurant', 'ramen_restaurant']),
+      'korean':         new Set(['korean_restaurant', 'barbecue_restaurant']),
+      'chinese':        new Set(['chinese_restaurant', 'dim_sum_restaurant']),
+      'cantonese':      new Set(['chinese_restaurant', 'dim_sum_restaurant']),
+      'sichuan':        new Set(['chinese_restaurant']),
+      'shanghainese':   new Set(['chinese_restaurant']),
+      'hokkien':        new Set(['chinese_restaurant']),
+      'teochew':        new Set(['chinese_restaurant']),
+      'hainanese':      new Set(['chinese_restaurant']),
+      'hunan':          new Set(['chinese_restaurant']),
+      'hakka':          new Set(['chinese_restaurant']),
+      'taiwanese':      new Set(['chinese_restaurant', 'taiwanese_restaurant']),
+      'hong-kong':      new Set(['chinese_restaurant']),
+      'thai':           new Set(['thai_restaurant']),
+      'vietnamese':     new Set(['vietnamese_restaurant']),
+      'malaysian':      new Set(['malaysian_restaurant', 'asian_restaurant']),
+      'indonesian':     new Set(['indonesian_restaurant', 'asian_restaurant']),
+      'singaporean':    new Set(['asian_restaurant', 'restaurant']),
+      'peranakan':      new Set(['asian_restaurant', 'restaurant']),
+      'eurasian':       new Set(['restaurant']),
+      'filipino':       new Set(['filipino_restaurant']),
+      'burmese':        new Set(['asian_restaurant']),
+      'sri-lankan':     new Set(['asian_restaurant']),
+      'north-indian':   new Set(['indian_restaurant']),
+      'south-indian':   new Set(['indian_restaurant']),
+      'pakistani':      new Set(['indian_restaurant', 'pakistani_restaurant']),
+      'italian':        new Set(['italian_restaurant', 'pizza_restaurant']),
+      'french':         new Set(['french_restaurant']),
+      'spanish':        new Set(['spanish_restaurant']),
+      'lebanese':       new Set(['lebanese_restaurant', 'mediterranean_restaurant']),
+      'mexican':        new Set(['mexican_restaurant']),
+      'greek':          new Set(['greek_restaurant', 'mediterranean_restaurant']),
+      'turkish':        new Set(['turkish_restaurant', 'mediterranean_restaurant']),
+      'german':         new Set(['german_restaurant']),
+      'british':        new Set(['british_restaurant']),
+      'portuguese':     new Set(['portuguese_restaurant']),
+      'american':       new Set(['american_restaurant', 'steak_house', 'hamburger_restaurant']),
+      'australian':     new Set(['australian_restaurant'])
+    };
+    const allowed = new Set();
+    for (const slug of otherCuisineSlugs) {
+      const types = SLUG_TO_PRIMARY_TYPES[slug];
+      if (types) types.forEach((t) => allowed.add(t));
+    }
+    if (allowed.size > 0) {
+      const matched = venues.filter((v) => v.primaryType && allowed.has(v.primaryType));
+      if (matched.length > 0) {
+        filteredVenues = matched;
+      } else {
+        console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')}; returning empty rather than wrong cuisine`);
+        filteredVenues = [];
+      }
+    }
+  }
+
   // Best-effort travel-time + footfall enrichment.
-  if (venues.length) {
+  if (filteredVenues.length) {
     try {
       const { enrichTravelTimes } = require('./travel-times');
-      await enrichTravelTimes(searchCenter.lat, searchCenter.lng, venues);
+      await enrichTravelTimes(searchCenter.lat, searchCenter.lng, filteredVenues);
     } catch (err) { console.warn('[Michelin] travel-times failed:', err.message); }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
-      await attachFootfallSignals(redis, venues);
+      await attachFootfallSignals(redis, filteredVenues);
     } catch (err) { console.warn('[Michelin] footfall failed:', err.message); }
   }
 
-  await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
+  // Track only the dedup keys for venues actually returned, so future
+  // searches can re-surface the filtered-out (other-cuisine) venues
+  // when the user removes the cuisine constraint.
+  const returnedKeys = filteredVenues.map((v) => `${v.michelinName || v.name}|${v.address || ''}`.toLowerCase());
+  await appendSeenSet(csChatId, criteriaHash, returnedKeys.length ? returnedKeys : newDedupKeys);
 
   return res.json({
-    venues,
+    venues: filteredVenues,
     cached: false,
     seed: 'michelin',
     michelinSummary: {
@@ -6297,11 +6398,18 @@ async function cacheBotUsername() {
     });
 
     app.post('/api/cuisine/user-location', async (req, res) => {
+      const ulStart = Date.now();
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
-        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        if (!verified) {
+          console.warn(`[user-location] 401 invalid initData elapsed=${Date.now() - ulStart}ms`);
+          return res.status(401).json({ error: 'invalid initData' });
+        }
         const userId = verified.user?.id;
-        if (!userId) return res.status(400).json({ error: 'no user id' });
+        if (!userId) {
+          console.warn('[user-location] 400 no user id in verified initData');
+          return res.status(400).json({ error: 'no user id' });
+        }
         const cached = await getUserLocation(redis, String(userId));
         if (!cached?.lat || !cached?.lng) {
           return res.status(404).json({ error: 'no cached location' });
@@ -6316,7 +6424,7 @@ async function cacheBotUsername() {
         }
         res.json({ lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null });
       } catch (err) {
-        console.error('[Error] /api/cuisine/user-location failed:', err.message);
+        console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
         res.status(500).json({ error: err.message });
       }
     });
@@ -6459,10 +6567,19 @@ async function cacheBotUsername() {
           String(s || '').toLowerCase() === 'michelin'
         );
         if (isMichelinSearch) {
+          // v0.60.17 — pass the OTHER selected cuisine slugs through to
+          // handleMichelinSearch so it can filter the curated list by
+          // primaryType (e.g. Japanese + Michelin → only japanese_restaurant
+          // entries). Drops 'michelin' from the list since that's the
+          // routing flag, not a cuisine constraint.
+          const otherCuisineSlugs = (cuisines || [])
+            .map((s) => String(s || '').toLowerCase())
+            .filter((s) => s && s !== 'michelin');
           return await handleMichelinSearch({
             req, res, csChatId, csLang,
             searchCenter, searchRadius,
             isJB, freeText: req.body?.freeText || '',
+            otherCuisineSlugs,
             filters
           });
         }
