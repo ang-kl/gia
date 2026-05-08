@@ -6044,6 +6044,10 @@ async function cacheBotUsername() {
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');
+        // v0.60.22 — getByCategory returns a fresh shallow copy so
+        // the .push below is safe. Before that fix, repeated catalogue
+        // requests duplicated the synthetic "Michelin List" tile in
+        // the TMA grid (see cuisines-vault.js getByCategory).
         const categories = cv.getByCategory();
         // v0.60.14 — append "✳️ Michelin List" as a synthetic single-
         // item category, alongside the existing Fusion / Dessert

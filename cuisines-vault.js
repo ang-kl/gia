@@ -293,7 +293,13 @@ function getByCategory() {
     });
   }
   _byCategory = ordered;
-  return ordered;
+  // v0.60.22 — return a shallow copy so callers that .push synthetic
+  // categories (the /api/cuisine/catalogue endpoint appends "Michelin
+  // List" as a single-item tile) cannot mutate the cache. Before this,
+  // each catalogue request grew the cached array and the TMA grid
+  // duplicated the Michelin tile on every reload. The inner cuisines
+  // arrays are shared references — callers must not mutate them either.
+  return ordered.slice();
 }
 
 function findBySlug(slug) {

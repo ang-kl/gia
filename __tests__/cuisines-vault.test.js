@@ -84,6 +84,21 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(total).toBe(67);
   });
 
+  // v0.60.22 — defend against the duplicate-Michelin bug. The
+  // /api/cuisine/catalogue endpoint .push'es a synthetic "Michelin
+  // List" tile onto the value returned by getByCategory(). The
+  // function must therefore return an array reference that is NOT the
+  // memoised cache, otherwise every catalogue request grows the
+  // cached array and the TMA grid duplicates the tile.
+  it('getByCategory returns a fresh top-level array — caller .push() does not leak into the next call', () => {
+    const a = vault.getByCategory();
+    const lenBefore = a.length;
+    a.push({ id: '__synthetic_test__', label: 'X', emoji: '?', defaultOpen: false, cuisines: [] });
+    const b = vault.getByCategory();
+    expect(b.length).toBe(lenBefore);
+    expect(b.find((c) => c.id === '__synthetic_test__')).toBeUndefined();
+  });
+
   it('Common Here is the only defaultOpen', () => {
     const by = vault.getByCategory();
     const open = by.filter((c) => c.defaultOpen);
