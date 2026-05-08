@@ -4870,17 +4870,18 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.17 — when user combines Michelin with other cuisines (e.g.
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
   // Type filter still has enough survivors.
-  // v0.60.30 — caps bumped to 24/28 for pagination headroom.
-  // v0.60.32 — reverted to 12/16 for token-burn relief.
-  // v0.60.34 (Human Lead 2026-05-08): restored to 24/28. With cap=12
-  // the in-response pagination strip never rendered (PAGE_SIZE=12 in
-  // ResultPanel) and the user was stuck on a single page of 12 with
-  // no way to browse. Per-click Places cost doubles vs v0.60.32 but
-  // browseability is the priority — the v0.60.32 "Please wait while
-  // loading list" toast already covers the latency UX. The dedup
-  // pool still rotates across taps so all 130 curated entries remain
-  // reachable in ~6 clicks instead of ~11.
-  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : 24;
+  // v0.60.30 → v0.60.34: cap evolved 12 → 24 → 28 chasing pagination
+  // headroom and per-click cost.
+  // v0.60.37 (Human Lead 2026-05-08): cap removed for pure Michelin —
+  // load the entire 130-entry curated SG Michelin Guide 2025 dataset
+  // in one response so users can paginate through every venue. Combo
+  // with another cuisine still capped (cuisineTagMatches filter trims
+  // before Places lookup, so 130 wouldn't fan out anyway). Trade-off:
+  // ~130 Places searchText calls per pure-Michelin click — costly
+  // but Places is much cheaper than Anthropic, and the v0.60.32
+  // "Please wait while loading list" toast already covers latency.
+  const PURE_MICHELIN_CAP = 130;
+  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : PURE_MICHELIN_CAP;
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
@@ -5669,7 +5670,11 @@ async function registerCommandsMenu() {
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
       { command: 'carpark',    description: 'Nearest 5 with available lots' },
       { command: 'buddy',      description: 'Live solo-dining match' },
-      { command: 'share',      description: 'Forward a recent pick' },
+      // v0.60.37 — /search (alias /s), the conversational dish /
+      // ingredient / kitchen-tool finder. Replaces the v0.60.36
+      // mistake that listed /share — /share's handler stays in the
+      // bot but is unlisted (same pattern as /hidden / /legal / /ver).
+      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational (or /s)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase stored data' }
@@ -5683,7 +5688,7 @@ async function registerCommandsMenu() {
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       { command: 'buddy',      description: 'Match solo en direct' },
-      { command: 'share',      description: 'Partager une trouvaille récente' },
+      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel (ou /s)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
@@ -5714,12 +5719,12 @@ async function registerCommandsMenu() {
       "/cuisine (or /c) · 50+ cuisines, SG + Johor Bahru, quick filters\n" +
       "/location (or /l) · change location [street]\n" +
       "/hawker · >100 hawker centres (2025)\n" +
-      "/recognised · Michelin, Bib Gourmand, Asia 50/100, Local Produce\n" +
+      "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
       "/weather · now + 2-hour NEA forecast\n" +
       "/transport · bus, MRT, walk, drive\n" +
       "/carpark · nearest 5 with available lots\n" +
       "/buddy · live solo-dining match\n" +
-      "/share · forward a recent pick\n" +
+      "/search (or /s) · dishes, ingredients, tools\n" +
       "/language · English / Français\n" +
       "/privacy · data + sources\n" +
       "/forgetme · erase stored data\n\n" +
@@ -5733,7 +5738,7 @@ async function registerCommandsMenu() {
       "/transport · bus, MRT, marche, voiture\n" +
       "/carpark · 5 parkings les plus proches\n" +
       "/buddy · match solo en direct\n" +
-      "/share · partager une trouvaille\n" +
+      "/search (ou /s) · plats, ingrédients, ustensiles\n" +
       "/language · English / Français\n" +
       "/privacy · données + sources\n" +
       "/forgetme · effacer vos données\n\n" +
