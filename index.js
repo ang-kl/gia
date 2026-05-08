@@ -6105,27 +6105,28 @@ async function cacheBotUsername() {
         // skip the cache so each call re-runs discover() and rotates
         // fresh dish picks.
         const skipCacheForSingaporean = require('./pipeline').containsSingaporeanCuisine(cuisineQueries);
-        // v0.59.35 — re-introduce a SHORT cache (30 s TTL) for non-
-        // Singaporean searches. Per Human Lead 2026-05-07: v0.59.33's
-        // always-fresh removal made every click incur a 2-5 s
-        // Places+LLM round-trip, which felt sluggish on iPad.
-        // 30 s window means rapid double/triple clicks of the same
-        // search feel instant; clicks ≥ 30 s apart re-fetch fresh.
-        // Best of both: speed for "I tapped twice by accident" + still
-        // reasonably fresh for "I want to see different options 30 s
-        // later". Singaporean still bypasses (per-call dish rotation).
-        // v0.59.43: also skip the cache when discover()'s lightShuffle
-        // path is active — empty cuisines and Dessert. Otherwise
-        // consecutive clicks of "Search" return the SAME shuffled
-        // list (the shuffle ran once and got pinned in Redis for 30 s).
-        // Per Human Lead 2026-05-07: clicking Search must surface a
-        // different rotation each time, not pin one.
+        // v0.59.35 → v0.60.11 — the 30 s short-cache that was
+        // re-introduced in v0.59.35 has been removed again per Human
+        // Lead 2026-05-08. Symptom: clicking any of the 3 cuisine-
+        // search triggers (🔍 Search button / 🔍 search-icon FAB /
+        // Tell-Me arrow) within 30 s of a previous click served the
+        // SAME cached list, which feels broken to the user ("the
+        // 3 search buttons can't refresh after the first list").
+        // The "speed for accidental double-tap" benefit was outweighed
+        // by the freshness regression. Restoring v0.59.33 always-fresh
+        // semantics: every /api/cuisine/search re-runs Places + LLM
+        // rank → different venues. Trade-off: ~2-5 s per click,
+        // ~$0.001 per call. Singaporean (per-call dish rotation) and
+        // lightShuffle paths (empty cuisines / Dessert) remain in their
+        // carve-out variables for diagnostic logging.
         const isDessertPick = cuisineQueries.some((c) =>
           String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
         );
         const skipCacheForShuffle = cuisineQueries.length === 0 || isDessertPick;
-        const SEARCH_CACHE_TTL_S = 30;
-        const skipCache = skipCacheForSingaporean || skipCacheForShuffle;
+        const SEARCH_CACHE_TTL_S = 30;     // retained for any code paths that still reference it
+        const skipCache = true;            // v0.60.11 — unconditional, restores v0.59.33
+        void skipCacheForSingaporean;      // kept for diagnostic logging surface
+        void skipCacheForShuffle;
         try {
           if (redis.isOpen && !skipCache) {
             const cached = await redis.get(cacheKey);
