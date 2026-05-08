@@ -22,4 +22,22 @@ body { -webkit-font-smoothing: antialiased; }
    the change to every sized element. */
 @media (min-width: 600px) {
   html { font-size: 17px; }
+
+  /* v0.60.42 — tablet/desktop centered column. iPads + Telegram
+     Desktop letterbox the TMA at a wider aspect than mobile; left
+     unhandled, cards stretch edge-to-edge and look unreadable. The
+     body becomes a flex container painted in the secondary bg
+     (matches the Telegram letterbox), and #root caps at 800 px
+     centered with the primary bg so the app feels raised. */
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--tg-card, #1c1c1f);
+  }
+  #root {
+    width: 100%;
+    max-width: 800px;
+    min-height: var(--tg-viewport-stable-height, 100vh);
+    background-color: var(--tg-bg);
+  }
 }

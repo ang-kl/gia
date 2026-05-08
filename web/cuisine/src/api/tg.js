@@ -79,6 +79,18 @@ export function applyTelegramTheme() {
     }
   });
 
+  // v0.60.42 — sync Telegram's header + chrome background colours to
+  // the secondary bg so the iPad/desktop letterbox area outside our
+  // centered #root column reads as a cohesive part of the app rather
+  // than a default-grey window. Both APIs are no-ops on Bot API < 6.1
+  // and we wrap each in safe() so missing methods don't abort init.
+  safe('header-color', () => {
+    if (typeof w.setHeaderColor === 'function') w.setHeaderColor('secondary_bg_color');
+  });
+  safe('background-color', () => {
+    if (typeof w.setBackgroundColor === 'function') w.setBackgroundColor('secondary_bg_color');
+  });
+
   safe('viewport-handler', () => {
     if (typeof w.onEvent !== 'function') return;
     const writeViewportVar = () => {

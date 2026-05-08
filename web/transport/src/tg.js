@@ -48,6 +48,14 @@ export function applyTelegramTheme() {
     }
   });
 
+  // v0.60.42 — sync Telegram header + chrome bg to secondary.
+  safe('header-color', () => {
+    if (typeof w.setHeaderColor === 'function') w.setHeaderColor('secondary_bg_color');
+  });
+  safe('background-color', () => {
+    if (typeof w.setBackgroundColor === 'function') w.setBackgroundColor('secondary_bg_color');
+  });
+
   safe('viewport-handler', () => {
     if (typeof w.onEvent !== 'function') return;
     const writeViewportVar = () => {
