@@ -324,9 +324,58 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   };
 }
 
+// v0.60.19 (Human Lead 2026-05-08) — distance-text rewrite. Replaces
+// Gemini's prose distance claim ("approx 2.4km north-east") with the
+// computed haversine distance (in metres) for each venue. Pairs the
+// already-verified text with the venues array (each carrying
+// `distanceM` from runSurpriseCommand's haversine filter), parses
+// blocks by the same "1. NAME" heading logic, and rewrites each
+// block's "approx X km/m" pattern in place.
+//
+// Patterns rewritten:
+//   "approx 2.4km north-east"  → "approx 1.8km north-east" (real)
+//   "approx 200 m away"        → "approx 0.3km away"
+//   "About 1.5 km from anchor" → "About 1.2km from anchor"
+//
+// Direction text is preserved verbatim — we only swap the numeric
+// distance + unit. If a block has no matching venue (or the venue
+// has no distanceM), we leave the prose alone.
+function formatHumanDistance(distM) {
+  if (!Number.isFinite(distM)) return null;
+  if (distM < 950) return `${Math.round(distM)} m`;
+  return `${(distM / 1000).toFixed(1)} km`;
+}
+
+function rewriteDistanceClaims(text, venues) {
+  if (!text || !venues || !venues.length) return text;
+  const { prefix, blocks } = parseBlocks(text);
+  if (!blocks.length) return text;
+  // Pair blocks with venues by index. The verified text + venues
+  // array are produced by the same survivors filter so they line up.
+  const distRx = /\b(approx(?:imately)?|about|approximately)\.?\s+([0-9]+(?:\.[0-9]+)?)\s*(km|m)\b/gi;
+  const parts = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const venue = venues[i];
+    const computed = venue && Number.isFinite(venue.distanceM)
+      ? formatHumanDistance(venue.distanceM)
+      : null;
+    const blockText = block.lines.join('\n');
+    const rewritten = computed
+      ? blockText.replace(distRx, (_m, lead, _num, _unit) => `${lead} ${computed}`)
+      : blockText;
+    parts.push(rewritten);
+  }
+  const prefixText = prefix.join('\n').replace(/\s+$/, '');
+  const joined = parts.join('\n\n');
+  return prefixText ? `${prefixText}\n\n${joined}` : joined;
+}
+
 module.exports = {
   verifyHiddenGemsOutput,
   parseBlocks,
   applyVerified,
-  lookupVenue
+  lookupVenue,
+  rewriteDistanceClaims,
+  formatHumanDistance
 };
