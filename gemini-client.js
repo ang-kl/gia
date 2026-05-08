@@ -1015,6 +1015,64 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
 //
 // Match precedence: explicit modifier (signals) > locale default >
 // conversation history > LOW-CONFIDENCE fallback (show both, never guess).
+// v0.60.23 — parent-cuisine table. The umbrellas Singaporeans /
+// tourists most commonly type into the chip grid or the "Tell me"
+// box. When the user picks the umbrella alone (no sub-style modifier),
+// we want to fan out into the dominant sub-styles rather than search
+// the umbrella as a single Places query — Places returns generic
+// "Chinese restaurant" entries that miss authentic Cantonese / Sichuan
+// venues. Sub-style ordering reflects the populationInSG signal so
+// the spread we surface matches the SG dining landscape.
+const PARENT_CUISINES = [
+  { slug: 'chinese',
+    aliases: ['chinese', 'china', 'chinois', 'chinoise', 'cn'],
+    flag: '🇨🇳',
+    label: { en: 'Chinese', fr: 'Chinois' },
+    subStyles: ['cantonese', 'teochew', 'hokkien', 'sichuan', 'hainanese', 'shanghainese', 'hunan', 'hakka', 'hong-kong', 'taiwanese'] },
+  { slug: 'indian',
+    aliases: ['indian', 'india', 'indien', 'indienne', 'in'],
+    flag: '🇮🇳',
+    label: { en: 'Indian', fr: 'Indien' },
+    subStyles: ['north-indian', 'south-indian', 'bengali', 'gujarati', 'goan'] },
+  { slug: 'south-asian',
+    aliases: ['south asian', 'south-asian', 'subcontinent', 'asie du sud'],
+    flag: '🌏',
+    label: { en: 'South Asian', fr: 'Asie du Sud' },
+    subStyles: ['north-indian', 'south-indian', 'bengali', 'gujarati', 'goan', 'pakistani', 'sri-lankan', 'nepalese'] },
+  { slug: 'middle-eastern',
+    aliases: ['middle eastern', 'middle-eastern', 'mideast', 'moyen-orient', 'moyen orient'],
+    flag: '🕌',
+    label: { en: 'Middle Eastern', fr: 'Moyen-Oriental' },
+    subStyles: ['lebanese', 'persian', 'turkish', 'jordanian', 'israeli', 'egyptian'] },
+  { slug: 'european',
+    aliases: ['european', 'europe', 'européen', 'européenne'],
+    flag: '🇪🇺',
+    label: { en: 'European', fr: 'Européen' },
+    subStyles: ['french', 'italian', 'spanish', 'german', 'austrian', 'swiss', 'british', 'portuguese', 'greek', 'russian'] },
+  { slug: 'mediterranean',
+    aliases: ['mediterranean', 'med', 'méditerranéen', 'mediterranée'],
+    flag: '🌊',
+    label: { en: 'Mediterranean', fr: 'Méditerranéen' },
+    subStyles: ['italian', 'spanish', 'greek', 'turkish', 'lebanese', 'moroccan'] }
+];
+
+function findParentCuisine(text) {
+  const lc = String(text || '').toLowerCase().trim();
+  if (!lc) return null;
+  // Exact / contained alias match. Word-boundary against the alias
+  // string so "europe" does not match "europe-something" verbatim
+  // but "/s European" does.
+  for (const p of PARENT_CUISINES) {
+    for (const alias of p.aliases) {
+      const a = alias.toLowerCase();
+      // Whole-word match: alias surrounded by start/end or non-word.
+      const re = new RegExp(`(?:^|\\W)${a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|\\W)`, 'i');
+      if (re.test(` ${lc} `)) return p;
+    }
+  }
+  return null;
+}
+
 const AMBIGUOUS_DISHES = [
   {
     match: ['carrot cake', 'chai tow kway', '菜头粿'],
@@ -1563,6 +1621,53 @@ function disambiguateTerm({ text, ctx = {} }) {
   if (!lc) return { kind: 'none' };
   const locale = String(ctx.locale || 'SG').toUpperCase();
   const lang = String(ctx.lang || 'en').toLowerCase();
+  // v0.60.23 — parent-cuisine fan-out. Checked BEFORE AMBIGUOUS_DISHES
+  // because the umbrella name is itself unambiguous (it always means
+  // "show me the spread"); only when no umbrella matches do we look
+  // for dish-level ambiguity. AMBIGUOUS_DISHES never matches plain
+  // "Chinese" / "Indian" / "Mediterranean" so the order doesn't
+  // shadow any existing dish entry.
+  const parent = findParentCuisine(lc);
+  if (parent) {
+    let overlay = null;
+    try { overlay = require('./nation-overlay'); } catch { overlay = null; }
+    const subStyleDetails = parent.subStyles.map((slug) => {
+      const o = overlay && typeof overlay.getNationOverlay === 'function'
+        ? overlay.getNationOverlay(slug)
+        : null;
+      const dishes = o && Array.isArray(o.iconicDishes)
+        ? o.iconicDishes.filter((d) => d && d.kind !== 'drink').slice(0, 3).map((d) => d.name)
+        : [];
+      return {
+        slug,
+        label: o?.aliases?.[0] || slug,
+        flag: o?.flag || '',
+        iconicDishes: dishes
+      };
+    });
+    const labelEn = parent.label.en;
+    const labelFr = parent.label.fr || labelEn;
+    const sample = subStyleDetails.slice(0, 4).map((s) => s.label).filter(Boolean).join(', ');
+    const disclosure = {
+      en: `ℹ️ <i>Reading "${labelEn}" as an umbrella — showing a spread of sub-styles${sample ? ` (${sample}…)` : ''}.</i>`,
+      fr: `ℹ️ <i>Lecture de "${labelFr}" en tant que famille — éventail de sous-styles${sample ? ` (${sample}…)` : ''}.</i>`
+    };
+    return {
+      kind: 'parent-cuisine',
+      chosen: { id: parent.slug, label: lang === 'fr' ? labelFr : labelEn, cuisine: parent.slug, flag: parent.flag },
+      alternatives: [],
+      subStyles: subStyleDetails,
+      confidence: 'low',
+      isTourist: true,
+      disclosure,
+      searchSpec: {
+        kind: 'parent-cuisine',
+        cuisine: parent.slug,
+        cuisines: parent.subStyles,
+        wantSpread: true
+      }
+    };
+  }
   // Find the matching ambiguous-dish entry.
   const entry = AMBIGUOUS_DISHES.find((e) => e.match.some((m) => lc.includes(String(m).toLowerCase())));
   if (!entry) return { kind: 'none' };
@@ -1870,6 +1975,8 @@ module.exports = {
   DISH_FALLBACK,
   TECHNIQUE_FALLBACK,
   AMBIGUOUS_DISHES,
+  PARENT_CUISINES,
+  findParentCuisine,
   buildHiddenGemsPrompt,
   todaySGT,
   searchToolForModel,

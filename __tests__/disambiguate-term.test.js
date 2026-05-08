@@ -239,3 +239,70 @@ describe('disambiguateTerm — non-match passthrough', () => {
     expect(gc.disambiguateTerm({ text: 'sushi' }).kind).toBe('none');
   });
 });
+
+// v0.60.23 — parent-cuisine fan-out tests. Umbrella terms (Chinese,
+// Indian, European, Mediterranean, …) resolve to kind:'parent-cuisine'
+// with searchSpec.cuisines populated for the chip-click + NL-query
+// expansion path.
+describe('disambiguateTerm — parent-cuisine fan-out', () => {
+  it('"Chinese" → parent-cuisine with sub-style spread', () => {
+    const r = gc.disambiguateTerm({ text: 'Chinese', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('parent-cuisine');
+    expect(r.chosen.cuisine).toBe('chinese');
+    expect(Array.isArray(r.searchSpec.cuisines)).toBe(true);
+    expect(r.searchSpec.cuisines.length).toBeGreaterThan(3);
+    expect(r.searchSpec.cuisines).toContain('cantonese');
+    expect(r.searchSpec.cuisines).toContain('sichuan');
+    expect(r.searchSpec.wantSpread).toBe(true);
+  });
+  it('"Indian" → parent-cuisine with North + South spread', () => {
+    const r = gc.disambiguateTerm({ text: 'Indian', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('parent-cuisine');
+    expect(r.searchSpec.cuisines).toContain('north-indian');
+    expect(r.searchSpec.cuisines).toContain('south-indian');
+  });
+  it('"European" → parent-cuisine with French + Italian + Spanish', () => {
+    const r = gc.disambiguateTerm({ text: 'European', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('parent-cuisine');
+    expect(r.searchSpec.cuisines).toContain('french');
+    expect(r.searchSpec.cuisines).toContain('italian');
+    expect(r.searchSpec.cuisines).toContain('spanish');
+  });
+  it('"Mediterranean" → parent-cuisine spread', () => {
+    const r = gc.disambiguateTerm({ text: 'Mediterranean', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('parent-cuisine');
+    expect(r.searchSpec.cuisines).toContain('greek');
+    expect(r.searchSpec.cuisines).toContain('lebanese');
+  });
+  it('parent-cuisine returns subStyles[] with iconic dish previews', () => {
+    const r = gc.disambiguateTerm({ text: 'Chinese', ctx: { locale: 'SG' } });
+    expect(Array.isArray(r.subStyles)).toBe(true);
+    expect(r.subStyles.length).toBeGreaterThan(0);
+    const cantonese = r.subStyles.find((s) => s.slug === 'cantonese');
+    expect(cantonese).toBeTruthy();
+    expect(Array.isArray(cantonese.iconicDishes)).toBe(true);
+  });
+  it('FR locale gets French label in chosen', () => {
+    const r = gc.disambiguateTerm({ text: 'Chinese', ctx: { locale: 'SG', lang: 'fr' } });
+    expect(r.chosen.label).toBe('Chinois');
+  });
+  it('disclosure rendered in both EN and FR', () => {
+    const r = gc.disambiguateTerm({ text: 'Chinese', ctx: { locale: 'SG' } });
+    expect(typeof r.disclosure.en).toBe('string');
+    expect(typeof r.disclosure.fr).toBe('string');
+    expect(r.disclosure.en).toContain('Chinese');
+  });
+  it('non-parent term still falls through to AMBIGUOUS_DISHES path', () => {
+    const r = gc.disambiguateTerm({ text: 'carrot cake', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('ambiguous-dish');
+  });
+  it('non-parent + non-ambiguous → kind:none', () => {
+    const r = gc.disambiguateTerm({ text: 'banana', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('none');
+  });
+  it('parent term embedded in a longer query is detected', () => {
+    const r = gc.disambiguateTerm({ text: 'show me Chinese please', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('parent-cuisine');
+    expect(r.chosen.cuisine).toBe('chinese');
+  });
+});

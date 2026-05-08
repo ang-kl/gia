@@ -2788,10 +2788,28 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     // Validate the free text via forward-geocode + place-type check.
     const geo = await forwardGeocodeAndValidate(freeText);
     if (!geo.ok) {
+      // v0.60.23 — disambig pre-step for /hidden free-text. If the
+      // user typed a cuisine / dish name (e.g. /hidden ramen,
+      // /hidden Chinese), prepend a redirect line pointing at /s
+      // before falling through to the generic place-name hint.
+      // /hidden's anchor MUST be a place; /s handles cuisine search.
+      let cuisineRedirect = '';
+      try {
+        const gc = require('./gemini-client');
+        const probe = gc.disambiguateTerm({ text: freeText, ctx: { lang, locale: 'SG' } });
+        if (probe && probe.kind !== 'none') {
+          const term = String(freeText).trim();
+          cuisineRedirect = lang === 'fr'
+            ? `🍽 _"${term}"_ semble être une cuisine ou un plat. Pour une recherche culinaire, utilisez \`/s ${term}\`. \`/hidden\` cherche autour d'un *lieu*.\n\n`
+            : `🍽 _"${term}"_ looks like a cuisine or dish. For a food search, use \`/s ${term}\`. \`/hidden\` is for searching around a *place*.\n\n`;
+        }
+      } catch (err) {
+        console.warn('[/hidden] disambig pre-step failed (continuing):', err.message);
+      }
       // Bilingual hint: "give me a street/building/MRT name".
       const hint = lang === 'fr'
-        ? `Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
-        : `I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
+        ? `${cuisineRedirect}Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
+        : `${cuisineRedirect}I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
       await safeSend(chatId, hint, { parse_mode: 'Markdown' });
       return;
     }
@@ -3082,16 +3100,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const transport = require('./transport');
     const RADIUS_PRIMARY_M = 2000;     // matches default '100m to 2km'
     const RADIUS_FALLBACK_M = 3000;    // matches retry '1.5km to 3km'
-    // v0.60.20 → v0.60.21 (Codex review on PR #285): lowered
-    // MIN_SURVIVORS to 2 so that 2 verified venues are acceptable
-    // and short-circuit the Tier 2 + Tier 3 fallbacks. With the
-    // earlier value of 3, `withinRadius < MIN_SURVIVORS` still
-    // evaluated true at exactly 2 survivors and pushed through the
-    // 90s wider Gemini retry + 90s Claude fallback even though the
-    // user-visible "ranking by distance…" message was already showing
-    // the hang. Distance computation itself is pure haversine math —
-    // the hang came from chasing more venues via LLM fallbacks.
-    const MIN_SURVIVORS = 2;
+    // v0.60.21 → v0.60.26 (Human Lead 2026-05-08): MIN_SURVIVORS = 1.
+    // Production logs show Gemini frequently surfaces 6 candidates and
+    // Places verification trims to 1-2 survivors after CLOSED_PERMANENTLY
+    // + address-mismatch rejection. With the earlier value of 2 a single
+    // survivor still triggered tier 2 (90s wider-band Gemini) AND tier 3
+    // (90s Claude web_search), neither of which usually beat tier 1's
+    // 1 survivor — but the user saw a 3-minute hang under a stale
+    // "ranking by distance…" milestone. 1 verified hidden gem is a
+    // useful answer; only escalate when allDropped (zero survivors).
+    const MIN_SURVIVORS = 1;
 
     async function verifyAndFilter(text, radiusM) {
       let verifyResult;
@@ -3149,6 +3167,15 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const needTier2 = allDropped || primary.withinRadius < MIN_SURVIVORS;
     if (needTier2) {
       console.log(`[/hidden] tier 1 yielded ${primary.withinRadius} survivors (allDropped=${allDropped}) — trying Gemini wider band`);
+      // v0.60.26 — interim user-visible progress when tier 2 fires.
+      // Without this the tier 1 "X verified · ranking by distance…"
+      // milestone stays on screen for the full 90s tier 2 + 90s tier 3
+      // duration, which feels like a hang.
+      safeSend(chatId, lang === 'fr'
+        ? '↻ <i>Élargissement à 1.5–3 km…</i>'
+        : '↻ <i>Widening to 1.5–3 km…</i>',
+        { parse_mode: 'HTML' }
+      ).catch(() => {});
       try {
         const wider = await Promise.race([
           gc.generateGroundedHiddenGems({
@@ -3191,6 +3218,12 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         console.log('[/hidden] tier 3 skipped (ANTHROPIC_API_KEY unset)');
       } else {
         console.log(`[/hidden] Gemini exhausted (best=${primary.withinRadius}, allDropped=${allDropped}) — trying Claude fallback`);
+        // v0.60.26 — interim user-visible progress for the Claude tier.
+        safeSend(chatId, lang === 'fr'
+          ? '↻ <i>Recherche élargie via Claude (jusqu\'à 90 s)…</i>'
+          : '↻ <i>Wider Claude web search (up to 90 s)…</i>',
+          { parse_mode: 'HTML' }
+        ).catch(() => {});
         try {
           const claudeResult = await Promise.race([
             gc.generateGroundedHiddenGemsClaude({
@@ -5306,7 +5339,53 @@ bot.on('message', async (msg) => {
     } catch (err) {
       console.warn('[free-text] nation-iconic check failed (continuing to raw search):', err.message);
     }
-    await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
+    // v0.60.24 — R.E.D disambig for the free-text chat path. Without
+    // this, an ambiguous-dish query like "Goulash dumplings" was sent
+    // verbatim to Places, which has no Czech anchors in SG and falls
+    // through to ranking by keyword overlap → returns Chinese dumpling
+    // places. Mirroring the /s flow: HIGH/MEDIUM confidence overrides
+    // the Places query with the disambiguated searchPhrase; LOW
+    // confidence shows both interpretations and skips the search so
+    // the user can one-tap pivot.
+    let resolvedText = text;
+    let disambigDisclosureFT = null;
+    try {
+      const gc = require('./gemini-client');
+      const sc = require('./search-conversation');
+      const conv = await sc.getConversation(redis, msg.chat.id).catch(() => null);
+      const disambig = gc.disambiguateTerm({
+        text,
+        ctx: { lang: userLang, locale: 'SG', lastDisambig: conv?.lastDisambig }
+      });
+      if (disambig.kind !== 'none' && disambig.kind !== 'parent-cuisine') {
+        const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (disambig.confidence === 'low' && Array.isArray(disambig.alternatives) && disambig.alternatives.length > 0) {
+          const reply = (userLang === 'fr'
+            ? `🤔 <i>Plusieurs interprétations possibles. Tapez l'une des options ci-dessous:</i>\n\n`
+            : `🤔 <i>This term has multiple meanings — tap one to refine:</i>\n\n`)
+            + disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
+          if (disambig.searchSpec?.stickyKey) {
+            try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
+            catch (err) { console.warn('[free-text] setLastDisambig failed:', err.message); }
+          }
+          await safeSend(msg.chat.id, reply, { parse_mode: 'HTML', disable_web_page_preview: true });
+          return;
+        }
+        if (disambig.searchSpec?.searchPhrase) {
+          resolvedText = disambig.searchSpec.searchPhrase;
+          disambigDisclosureFT = disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
+          if (disambig.searchSpec.stickyKey) {
+            try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
+            catch (err) { console.warn('[free-text] setLastDisambig failed:', err.message); }
+          }
+          await safeSend(msg.chat.id, disambigDisclosureFT, { parse_mode: 'HTML', disable_web_page_preview: true });
+          void esc;
+        }
+      }
+    } catch (err) {
+      console.warn('[free-text] disambig pre-step failed (continuing with raw text):', err.message);
+    }
+    await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
@@ -6766,7 +6845,7 @@ async function cacheBotUsername() {
           });
         }
 
-        const cuisineMetas = (cuisines || [])
+        let cuisineMetas = (cuisines || [])
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
           .filter(Boolean);
@@ -6781,13 +6860,16 @@ async function cacheBotUsername() {
         // the canonical interpretation. The result is forwarded to
         // the client as `disambig` so the TMA can render the
         // disclosure pill ("ℹ️ Reading this as Katong laksa").
+        // v0.60.23 — also handles parent-cuisine umbrellas (Chinese,
+        // Indian, European, Mediterranean…). When the user taps the
+        // umbrella chip alone, we expand cuisineMetas server-side to
+        // include the dominant sub-styles so Places returns an
+        // authentic spread (Cantonese / Sichuan / Hokkien) rather
+        // than the generic "Chinese restaurant" cluster.
         let chipDisambig = null;
         try {
           const gc = require('./gemini-client');
           const ctxLocale = (req.body?.region === 'JB') ? 'MY' : 'SG';
-          // Compose a probe string from the (free-text + first-cuisine-name)
-          // so phrases like "laksa" / "carrot cake" hit. Falls through
-          // silently when nothing ambiguous matches.
           const probeText = [String(req.body?.freeText || '').trim(), ...(cuisineMetas.map((m) => m.name))]
             .filter(Boolean).join(' ');
           if (probeText) {
@@ -6797,16 +6879,29 @@ async function cacheBotUsername() {
                 kind: probe.kind,
                 chosen: probe.chosen,
                 confidence: probe.confidence,
-                disclosure: probe.disclosure
+                disclosure: probe.disclosure,
+                subStyles: probe.subStyles || null
               };
+              // Parent-cuisine spread expansion. Only when the user
+              // selected exactly the umbrella alone — if they also
+              // picked specific sub-styles (e.g. Chinese + Sichuan)
+              // we keep their explicit choice and skip the spread.
+              if (probe.kind === 'parent-cuisine'
+                  && probe.searchSpec?.cuisines?.length
+                  && cuisineMetas.length === 1
+                  && cuisineMetas[0].slug === probe.searchSpec.cuisine) {
+                const subSlugs = probe.searchSpec.cuisines.slice(0, 5);
+                const subMetas = subSlugs.map((s) => cv.findBySlug(s)).filter(Boolean);
+                if (subMetas.length) {
+                  cuisineMetas = subMetas;
+                  console.log(`[Cuisine-Search] D703 parent-cuisine spread "${probe.chosen.cuisine}" → ${subSlugs.join(',')}`);
+                }
+              }
             }
           }
         } catch (err) {
           console.warn('[Cuisine-Search] disambig pre-step failed (continuing):', err.message);
         }
-        // attach to outer scope so the response builder picks it up.
-        const _chipDisambigForPayload = chipDisambig;
-        void _chipDisambigForPayload;
         // v0.59.49 — search-query tightening for cuisines whose
         // chip-label has weak food-name signal in Places. The chip
         // shows the user's chosen label (e.g. "New Zealand"), but the
@@ -7126,7 +7221,15 @@ async function cacheBotUsername() {
         if (!skipCacheForShuffle) {
           venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         }
-        const top = venues.slice(0, 12);
+        // v0.60.27 — server cap raised 12 → 24 so the TMA's PAGE_SIZE=12
+        // pagination strip actually has something to paginate. Without
+        // this the TMA's totalPages was always 1 (≤12 venues) and the
+        // `📄 12 / 24` indicator never appeared. Telegram's 4096-char
+        // message cap still applies to /api/cuisine/copy-all, but that
+        // endpoint slices its own input to 12 (cuisine-search.js:258 +
+        // index.js:6116), so widening the TMA payload doesn't break the
+        // chat copy-all path.
+        const top = venues.slice(0, 24);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
@@ -7282,9 +7385,23 @@ async function cacheBotUsername() {
             const seenList = top.filter((v) => v.placeId && seen.has(v.placeId));
             dedupedTop = [...fresh, ...seenList];
           } else {
-            // Everything seen — reset and serve original top.
+            // Everything seen — reset and serve a SHUFFLED top so
+            // consecutive taps after exhaustion still surface the
+            // pool in different order.
+            // v0.60.25 — Fisher-Yates shuffle on reset. Without this
+            // the recycle path returned the same distance-sorted
+            // list every tap and the user perceived "the 3 search
+            // buttons stopped refreshing" once the pool was small
+            // enough (e.g. 8 American venues). Order matters more
+            // than novelty here — ratings, distance, and footfall
+            // are still authentic; only the lineup rotates.
             await resetSeenSet(csChatId, dedupHash);
-            dedupedTop = top;
+            const shuffled = [...top];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            dedupedTop = shuffled;
           }
           const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
           await appendSeenSet(csChatId, dedupHash, newIds);
@@ -7311,7 +7428,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: _chipDisambigForPayload, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
@@ -7412,13 +7529,23 @@ async function cacheBotUsername() {
               kind: probe.kind,
               chosen: probe.chosen,
               confidence: probe.confidence,
-              disclosure: probe.disclosure
+              disclosure: probe.disclosure,
+              subStyles: probe.subStyles || null
             };
-            // Promote the disambiguated cuisine — keep the inferred
-            // list as a fallback if disambig pointed elsewhere.
-            const disambigCuisine = String(probe.searchSpec.cuisine).toLowerCase();
-            if (disambigCuisine && !inferredCuisines.map((c) => String(c).toLowerCase()).includes(disambigCuisine)) {
-              inferredCuisines = [disambigCuisine, ...inferredCuisines].slice(0, 5);
+            // v0.60.23 — parent-cuisine fan-out. When the inferred /
+            // probed term is an umbrella (Chinese, Indian, European,
+            // Mediterranean…), replace inferredCuisines with the
+            // sub-style spread so the TMA renders an authentic fan-out
+            // (Cantonese / Sichuan / Hokkien) rather than the generic
+            // umbrella query. Cap at 5 to fit the existing chip cap.
+            if (probe.kind === 'parent-cuisine' && Array.isArray(probe.searchSpec?.cuisines)) {
+              inferredCuisines = probe.searchSpec.cuisines.slice(0, 5);
+            } else {
+              // Single-cuisine promotion path (the v0.60.18 behaviour).
+              const disambigCuisine = String(probe.searchSpec.cuisine).toLowerCase();
+              if (disambigCuisine && !inferredCuisines.map((c) => String(c).toLowerCase()).includes(disambigCuisine)) {
+                inferredCuisines = [disambigCuisine, ...inferredCuisines].slice(0, 5);
+              }
             }
           }
         } catch (err) {
@@ -7592,7 +7719,9 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL } = require('./open-hours');
-        const topNL = venues.slice(0, 12);
+        // v0.60.27 — match /api/cuisine/search server cap so the TMA
+        // pagination strip has 2-page input from the NL-query path too.
+        const topNL = venues.slice(0, 24);
         for (const v of topNL) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);

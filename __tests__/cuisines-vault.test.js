@@ -91,12 +91,21 @@ describe('integration — load real cuisines_js.MD file', () => {
   // memoised cache, otherwise every catalogue request grows the
   // cached array and the TMA grid duplicates the tile.
   it('getByCategory returns a fresh top-level array — caller .push() does not leak into the next call', () => {
+    // Multi-call mutation chain. Pre-v0.60.25 the hot-path early-
+    // return handed back the cached reference directly, so a .push
+    // on a SECOND call leaked into the cache and every subsequent
+    // call grew the array (visible in the TMA as duplicate Michelin
+    // tiles). The fix slices on every call.
+    const lenBefore = vault.getByCategory().length;
     const a = vault.getByCategory();
-    const lenBefore = a.length;
-    a.push({ id: '__synthetic_test__', label: 'X', emoji: '?', defaultOpen: false, cuisines: [] });
+    a.push({ id: '__synthetic_test_1__', label: 'X', emoji: '?', defaultOpen: false, cuisines: [] });
     const b = vault.getByCategory();
     expect(b.length).toBe(lenBefore);
-    expect(b.find((c) => c.id === '__synthetic_test__')).toBeUndefined();
+    expect(b.find((c) => c.id === '__synthetic_test_1__')).toBeUndefined();
+    b.push({ id: '__synthetic_test_2__', label: 'Y', emoji: '?', defaultOpen: false, cuisines: [] });
+    const c = vault.getByCategory();
+    expect(c.length).toBe(lenBefore);
+    expect(c.find((cat) => cat.id === '__synthetic_test_2__')).toBeUndefined();
   });
 
   it('Common Here is the only defaultOpen', () => {
