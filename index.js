@@ -4858,16 +4858,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
   // Type filter still has enough survivors.
   // v0.60.30 — caps bumped to 24/28 for pagination headroom.
-  // v0.60.32 (Human Lead 2026-05-08): reverted to 12/16. The Michelin
-  // path makes ONE Places searchText call PER curated entry (vs the
-  // regular cuisine path's single multi-result call), so cap=24
-  // doubled the per-click Places spend. Each tap on 🔍 Search already
-  // rotates through the dedup pool (v0.60.25 shuffle on reset), so
-  // the user can browse all 130 entries in ~11 clicks at the lower
-  // cap. Loses the in-response pagination strip for Michelin (only
-  // appears when result count > 12), which is acceptable trade-off
-  // vs ~50% Places API saving.
-  const sliceCap = otherCuisineSlugs.length > 0 ? 16 : 12;
+  // v0.60.32 — reverted to 12/16 for token-burn relief.
+  // v0.60.34 (Human Lead 2026-05-08): restored to 24/28. With cap=12
+  // the in-response pagination strip never rendered (PAGE_SIZE=12 in
+  // ResultPanel) and the user was stuck on a single page of 12 with
+  // no way to browse. Per-click Places cost doubles vs v0.60.32 but
+  // browseability is the priority — the v0.60.32 "Please wait while
+  // loading list" toast already covers the latency UX. The dedup
+  // pool still rotates across taps so all 130 curated entries remain
+  // reachable in ~6 clicks instead of ~11.
+  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : 24;
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
