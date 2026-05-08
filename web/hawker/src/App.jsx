@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { openLink } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
+import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 const NEA_HOME = 'https://www.nea.gov.sg/our-services/hawker-management';
@@ -112,9 +113,20 @@ export default function App() {
                   <strong className="text-tg-text">{regionLabel(active.region)}</strong>
                   {tn('list.headingBody', lang, { n: active.count })}
                 </div>
+                {/* v0.60.41 — embedded multi-pin map for the active region.
+                    Falls back to a "coordinates not yet loaded" placeholder
+                    when data/hawker-coords.json hasn't been bootstrapped yet. */}
+                <HawkerMapPanel centres={active.centres} region={activeRegion} />
+                {/* External fullscreen button — repurposed as the
+                    "open in soleat /app/map" affordance for users who
+                    want the dedicated multi-pin TMA. Shows the v0.60.40
+                    Google-Maps-text-query fallback label only when no
+                    coords are present. */}
                 <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
-                  className="mx-1 text-xs text-center px-3 py-1.5 rounded-md bg-tg-accent text-tg-accent-text">
-                  {tn(multiPinUrl ? 'btn.viewAllOnMap' : 'btn.openAllOnGoogleMaps', lang, { n: active.count })}
+                  className="mx-1 text-xs text-center px-3 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
+                  {multiPinUrl
+                    ? t('btn.openFullscreenMap', lang)
+                    : tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
                 </a>
                 <div className="flex flex-col gap-1.5 mt-1">
                   {active.centres.map((c, i) => (
