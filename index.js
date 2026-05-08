@@ -4872,16 +4872,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Type filter still has enough survivors.
   // v0.60.30 → v0.60.34: cap evolved 12 → 24 → 28 chasing pagination
   // headroom and per-click cost.
-  // v0.60.37 (Human Lead 2026-05-08): cap removed for pure Michelin —
-  // load the entire 130-entry curated SG Michelin Guide 2025 dataset
-  // in one response so users can paginate through every venue. Combo
-  // with another cuisine still capped (cuisineTagMatches filter trims
-  // before Places lookup, so 130 wouldn't fan out anyway). Trade-off:
-  // ~130 Places searchText calls per pure-Michelin click — costly
-  // but Places is much cheaper than Anthropic, and the v0.60.32
-  // "Please wait while loading list" toast already covers latency.
-  const PURE_MICHELIN_CAP = 130;
-  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : PURE_MICHELIN_CAP;
+  // v0.60.37 — pure Michelin uncapped (full 130-entry curated SG Guide).
+  // v0.60.39 (Human Lead 2026-05-08): combo path also uncapped.
+  //   Previous cap of 28 was clipping legit cuisine-filtered survivors
+  //   (e.g. "Chinese + Michelin" expands to 7+ sub-cuisine slugs and
+  //   can match 30+ entries from the 130-row table). Now every entry
+  //   that survives cuisineTagMatches passes through to Places lookup.
+  //   Per-click Places cost rises proportionally to filter survivors,
+  //   but the user explicitly accepted the trade for full coverage.
+  const sliceCap = pool.length;
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
