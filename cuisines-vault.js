@@ -14,6 +14,16 @@
 const fs = require('fs');
 const path = require('path');
 
+// v0.60.5a — NATION_OVERLAY (per-cuisine validated dishes + drinks +
+// shared-with-neighbors graph + tourist explainer). Lives in its own
+// file because the curated data is large (~150 SG entries alone).
+const {
+  NATION_OVERLAY,
+  getNationOverlay,
+  findNationByAlias,
+  getOverlayedSlugs
+} = require('./nation-overlay');
+
 const SOURCE_PATH = path.join(__dirname, 'doc', 'Feature', 'cuisines_js.MD');
 
 // CATEGORY_META carries display metadata not captured in the source
@@ -291,6 +301,19 @@ function findBySlug(slug) {
   return loadAll().find((c) => c.slug === slug.toLowerCase()) || null;
 }
 
+// v0.60.5a — merge overlay into the parsed cuisine record. Callers that
+// want the overlay (tourist render, /s nation fan-out) use this; callers
+// that want the bare parsed record (chip rendering, search-cache keys)
+// keep using findBySlug. Returns null when the slug is unknown to the
+// parser even if no overlay exists.
+function findBySlugWithOverlay(slug) {
+  const base = findBySlug(slug);
+  if (!base) return null;
+  const overlay = getNationOverlay(base.slug);
+  if (!overlay) return base;
+  return { ...base, overlay };
+}
+
 function findByNameOrKeyword(query) {
   if (!query) return null;
   const q = String(query).toLowerCase().trim();
@@ -315,5 +338,11 @@ module.exports = {
   parseSource, loadAll, slugify,
   getAllCuisines, getByCategory,
   findBySlug, findByNameOrKeyword,
+  // v0.60.5a — NATION_OVERLAY re-exports
+  NATION_OVERLAY,
+  getNationOverlay,
+  findNationByAlias,
+  getOverlayedSlugs,
+  findBySlugWithOverlay,
   _resetCache
 };
