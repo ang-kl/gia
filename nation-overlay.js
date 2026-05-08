@@ -1482,6 +1482,683 @@ const NATION_OVERLAY = {
       en: 'Mexican cuisine is UNESCO heritage (2010), built on the corn-bean-chili "milpa" trinity for 9000 years + Spanish colonial overlay. Regional: Oaxacan moles, Yucatán Maya pibil, Pueblan chiles en nogada, Jalisco birria + tequila, Baja seafood. Tex-Mex is a separate hybrid — different cuisine.',
       fr: 'La cuisine mexicaine est patrimoine UNESCO (2010), basée sur la trinité maïs-haricot-piment (milpa) depuis 9000 ans + couche coloniale espagnole. Régionale: moles oaxaqueños, pibil maya du Yucatán, chiles en nogada de Puebla, birria + tequila de Jalisco, fruits de mer de Baja. Le Tex-Mex est un hybride distinct — cuisine différente.'
     }
+  },
+  // v0.60.8 — Tier-2 Phase 1 (16 cuisines).
+  // Cap 30 per cuisine; smaller cuisines naturally land at 12-20.
+  // Note: the Foreign Tier-1 (15 cuisines) ships in PR #272; this
+  // PR coexists cleanly since both add disjoint slugs to NATION_OVERLAY.
+  // ──────────────────────────────────────────────────────────────────
+
+  'chinese': {
+    flag: '🇨🇳',
+    aliases: ['chinese', 'china', 'zhongguo', 'mandarin'],
+    populationInSG: 'high',
+    iconicDishes: [
+      F('peking duck'),                                           // Beijing imperial roasted duck
+      F('xiao long bao',          ['shanghainese']),
+      F('mapo tofu',              ['sichuan']),
+      F('kung pao chicken',       ['sichuan']),
+      F('sweet and sour pork',    ['cantonese']),
+      F('hot pot',                ['sichuan']),
+      F('zhajiangmian'),                                          // Beijing fermented bean noodle
+      F('jianbing'),                                              // Beijing breakfast crepe
+      F('baozi'),                                                 // steamed bun
+      F('jiaozi'),                                                // dumpling
+      F('mantou'),                                                // steamed bread
+      F('lanzhou lamian'),                                        // Lanzhou hand-pulled noodle
+      F('biang biang noodles'),                                   // Shaanxi belt noodles
+      F('beggar\'s chicken'),                                     // Hangzhou clay-baked chicken
+      F('west lake fish'),                                        // Hangzhou sweet-sour vinegar fish
+      F('yangzhou fried rice',    ['cantonese']),
+      F('shaanxi rou jia mo'),                                    // Chinese hamburger
+      F('chongqing noodles'),
+      F('chinese new year nian gao'),
+      F('moon cake'),
+      F('zongzi'),                                                // rice dumpling festival
+      F('mooncake'),                                              // alt spelling
+      F('chow mein'),
+      F('lo mein'),
+      F('egg drop soup'),
+      F('hot and sour soup'),
+      F('spring rolls')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'cantonese',     reason: 'Cantonese is one of 8 Great Traditions of Chinese cuisine; many "Chinese" restaurants overseas are actually Cantonese' },
+      { slug: 'sichuan',       reason: 'Sichuan is the spice-forward branch of Chinese cuisine' },
+      { slug: 'shanghainese',  reason: 'Shanghainese / Jiangsu cuisine is the sweet-savoury eastern branch' },
+      { slug: 'taiwanese',     reason: 'Taiwanese cuisine is rooted in Hokkien + Hakka + Japanese-occupation overlay' },
+      { slug: 'hong-kong',     reason: 'HK is Cantonese-British fusion; the largest single export channel for "Chinese food" globally' }
+    ],
+    touristExplainer: {
+      en: 'Chinese cuisine is 8 Great Traditions (Cantonese, Sichuan, Shanghai, Hunan, Hokkien, Anhui, Zhejiang, Shandong) + countless regional variants. In Singapore "Chinese restaurant" usually means Cantonese cze char or Northern Chinese hand-pulled-noodle. Specify the region for authentic results.',
+      fr: 'La cuisine chinoise compte 8 grandes traditions (cantonaise, sichuanaise, shanghaïenne, hunanaise, hokkien, anhui, zhejiang, shandong) + d\'innombrables variantes régionales. À Singapour "restaurant chinois" signifie généralement cze char cantonais ou nouilles tirées du nord. Précisez la région pour des résultats authentiques.'
+    }
+  },
+
+  'taiwanese': {
+    flag: '🇹🇼',
+    aliases: ['taiwanese', 'taiwan', 'taipei', 'formosa'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('beef noodle soup'),                                      // niu rou mian — Taiwan national dish
+      F('lu rou fan'),                                            // braised pork rice
+      F('oyster omelette taiwan'),                                // o-a-tsian, distinct from SG version
+      F('three cup chicken'),                                     // san bei ji
+      F('stinky tofu'),                                           // chou doufu
+      F('gua bao'),                                               // Taiwanese pork-belly bun
+      F('xiao long bao',          ['shanghainese']),              // Din Tai Fung is Taiwanese
+      F('din tai fung dumplings'),
+      F('popcorn chicken taiwan'),                                // jian su ji / yansuji
+      F('scallion pancake'),                                      // cong you bing
+      F('mango shaved ice'),                                      // xue hua bing
+      F('pineapple cake'),
+      F('taiwanese sausage'),                                     // xiang chang
+      F('danzi noodles'),                                         // Tainan small-bowl noodles
+      F('iron egg'),                                              // tie dan
+      F('Taiwan night market dishes'),
+      D('bubble tea'),                                            // boba — Taiwanese invention 1980s
+      D('milk tea taiwan style'),
+      D('taiwan beer')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'hokkien',       reason: 'Taiwan Hoklo population are Hokkien diaspora; oyster omelette + popiah + mee suah shared' },
+      { slug: 'japanese',      reason: '50 years of Japanese colonial influence (1895-1945); Taiwan adopted oden, mochi, onigiri' },
+      { slug: 'cantonese',     reason: 'Cross-strait migration and HK food chains in TW; dim sum overlap' },
+      { slug: 'chinese',       reason: 'Mainland Chinese substrate via 1949 KMT migration; Sichuan + Shanghai influences in TW' }
+    ],
+    touristExplainer: {
+      en: 'Taiwanese cuisine is Hokkien + Hakka + Japanese-occupation overlay + 1949 mainland migration overlay. Night-market street food is the icon (lu rou fan, oyster omelette, gua bao, stinky tofu); Din Tai Fung made xiao long bao globally famous. Bubble tea is a Taiwanese invention.',
+      fr: 'La cuisine taïwanaise mélange hokkien + hakka + héritage colonial japonais + migration continentale de 1949. La street food des marchés nocturnes est l\'icône (lu rou fan, omelette aux huîtres, gua bao, tofu puant); Din Tai Fung a popularisé les xiao long bao. Le bubble tea est une invention taïwanaise.'
+    }
+  },
+
+  'hong-kong': {
+    flag: '🇭🇰',
+    aliases: ['hong kong', 'hong-kong', 'hk', 'hongkong', 'cha chaan teng'],
+    populationInSG: 'high',
+    iconicDishes: [
+      F('hk-style milk tea'),                                     // silk-stocking milk tea
+      F('egg tart'),                                              // dan tat — Cantonese / HK contested
+      F('pineapple bun'),                                         // bo lo bao
+      F('french toast hk-style'),                                 // sai do si — fried sandwich + condensed milk
+      F('hk-style wonton noodle',  ['cantonese']),
+      F('clay pot rice',           ['cantonese']),
+      F('siu mei platter',         ['cantonese']),                // roast meat — char siu, siu yuk, soy chicken
+      F('char chaan teng dishes'),                                // umbrella for HK diner culture
+      F('macaroni soup'),                                         // breakfast soup with ham
+      F('hk-style baked pork chop rice'),
+      F('hk-style baked seafood rice'),
+      F('curry fish balls'),                                      // Tsim Sha Tsui street food
+      F('siu mai street'),                                        // street-stall siu mai with curry sauce
+      F('dim sum hong kong'),
+      F('shrimp wonton noodle'),
+      F('beef brisket noodle'),                                   // ngau lam
+      F('roasted goose'),                                         // Yung Kee, Kam Wing Tai
+      F('sweet and sour pork hk'),
+      F('typhoon shelter crab'),
+      F('mantis shrimp'),
+      D('yuan yang',               ['singaporean']),              // milk tea + coffee
+      D('hk-style lemon tea'),
+      D('horlicks hk-style')
+    ],
+    sharedWithNeighbors: [
+      S('ramen',              'ramen',            ['japanese'])
+    ],
+    neighboringCuisines: [
+      { slug: 'cantonese',    reason: 'HK cuisine evolved from Cantonese with British influence; many shared dishes (dim sum, char siu, claypot rice)' },
+      { slug: 'macau',        reason: 'HK + Macau both former European colonies (UK + Portugal); Macanese dishes (egg tart, African chicken) crossed' },
+      { slug: 'singaporean',  reason: 'Strong HK food chain presence in SG (Tim Ho Wan, Tsui Wah, etc.); HK milk tea common in SG kopitiams' },
+      { slug: 'british',      reason: '156 years of British rule shaped HK breakfast culture (toast, milk tea, baked rice)' }
+    ],
+    touristExplainer: {
+      en: 'Hong Kong cuisine is Cantonese refined + 156 years of British colonial influence. Cha chaan teng (HK-style diner) is the icon — milk tea, French toast, baked pork chop rice, macaroni soup. Dim sum + roast meat are the heritage; bubble tea + bingsu are the modern imports.',
+      fr: 'La cuisine hongkongaise, c\'est la cantonaise raffinée + 156 ans d\'influence coloniale britannique. Le cha chaan teng (diner hongkongais) est l\'icône — milk tea, pain perdu, riz côtelette de porc, soupe de macaroni. Dim sum + viandes rôties au patrimoine; bubble tea + bingsu pour le moderne.'
+    }
+  },
+
+  'shanghainese': {
+    flag: '🇨🇳',
+    aliases: ['shanghainese', 'shanghai', 'jiangsu', 'huaiyang'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('xiao long bao'),                                         // soup dumpling — Shanghainese origin
+      F('shengjianbao'),                                          // pan-fried soup bun
+      F('hong shao rou'),                                         // red-braised pork belly
+      F('drunken chicken'),                                       // zui ji
+      F('lion\'s head meatball'),                                 // shi zi tou
+      F('squirrel fish'),                                         // song shu yu
+      F('beggar\'s chicken jiangsu'),
+      F('soup dumplings'),                                        // alt name xlb
+      F('pan-fried noodles shanghai'),
+      F('shanghai fried noodles'),                                // chow mein style
+      F('crab roe noodle'),                                       // xie huang mian
+      F('hairy crab'),                                            // da zha xie — autumn delicacy
+      F('shanghai wontons'),
+      F('sticky rice shumai shanghai'),                           // glutinous rice siu mai
+      F('shanghainese smoked fish'),                              // xun yu
+      F('eight treasure rice'),                                   // ba bao fan
+      F('jiangsu duck blood soup'),
+      F('rice cake noodles'),                                     // nian gao
+      F('drunken shrimp'),
+      F('youtiao')                                                // fried dough breakfast
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'chinese',       reason: 'Shanghainese is one of the 8 Great Chinese cuisines (Jiangsu / Huaiyang)' },
+      { slug: 'cantonese',     reason: 'Both eastern + southern Chinese cuisines; some ingredient overlap, divergent in flavour profile' },
+      { slug: 'taiwanese',     reason: 'Din Tai Fung carried Shanghainese xiao long bao to global fame from Taiwan' }
+    ],
+    touristExplainer: {
+      en: 'Shanghainese cuisine (technically Jiangsu / Huaiyang) is sweeter and oilier than other Chinese sub-cuisines. Xiao long bao is the global ambassador. Hong shao rou (red-braised pork) and hairy crab (autumn) are the seasonal classics.',
+      fr: 'La cuisine shanghaïenne (techniquement Jiangsu / Huaiyang) est plus sucrée et grasse que les autres sous-cuisines chinoises. Le xiao long bao en est l\'ambassadeur mondial. Hong shao rou (porc braisé rouge) et le crabe poilu (automne) sont les classiques saisonniers.'
+    }
+  },
+
+  'hunan': {
+    flag: '🇨🇳',
+    aliases: ['hunan', 'hunanese', 'xiang'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('chairman mao\'s red braised pork'),                      // mao shi hong shao rou
+      F('hunan-style steamed fish head'),                         // duo jiao yu tou — pickled chili
+      F('stir-fried pork with chili'),                            // la jiao chao rou
+      F('dry-pot chicken hunan'),
+      F('hunan smoked pork'),                                     // la rou
+      F('changsha stinky tofu'),                                  // distinct from Taiwan version, blacker
+      F('hunan rice noodles'),                                    // mi fen
+      F('crispy fried duck hunan'),
+      F('hunan beef noodles'),
+      F('orange beef hunan'),                                     // chen pi niu rou
+      F('spicy crayfish hunan'),
+      F('hunan pickled vegetables'),
+      F('hunan pumpkin cake'),
+      F('mao family dishes'),                                     // Chairman Mao's home-cooking style
+      F('hunan dry-fried green beans')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'sichuan',       reason: 'Both Hunan + Sichuan use chili heavily; Hunan is hot-without-numbing, Sichuan is hot-AND-numbing (ma la)' },
+      { slug: 'chinese',       reason: 'Hunan (Xiang) is one of the 8 Great Chinese cuisines' }
+    ],
+    touristExplainer: {
+      en: 'Hunan (Xiang) cuisine is the chili-forward but NOT numbing branch of Chinese cuisine. Smoked + cured + pickled flavours dominate; Chairman Mao\'s favourite was hong shao rou. More aggressive heat than Sichuan despite no Sichuan peppercorn.',
+      fr: 'La cuisine hunanaise (xiang) est la branche piment-mais-pas-engourdissante de la cuisine chinoise. Saveurs fumées + saumurées + marinées dominent; le hong shao rou était le préféré du Président Mao. Plus piquant que le sichuanais malgré l\'absence du poivre de Sichuan.'
+    }
+  },
+
+  'hakka': {
+    flag: '🇨🇳',
+    aliases: ['hakka', 'kejia', 'ke jia'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('yong tau foo',           ['singaporean']),               // Hakka stuffed tofu/vegetables
+      F('lei cha'),                                               // thunder tea rice
+      F('abacus seeds'),                                          // suan pan zi — yam dough rolls
+      F('salt baked chicken'),                                    // yan ju ji
+      F('hakka stuffed tofu'),
+      F('mei cai kou rou'),                                       // pork belly + preserved mustard
+      F('hakka noodles'),
+      F('pounded tea'),                                           // alt name lei cha
+      F('hakka pork belly with taro'),                            // wu tou kou rou
+      F('three-cup mushroom hakka'),
+      F('hakka rice cake'),
+      F('hakka stuffed bitter gourd'),
+      F('hakka pork lard noodles'),
+      F('hakka rice wine chicken'),
+      F('preserved vegetable braised pork')
+    ],
+    sharedWithNeighbors: [
+      S('ban mian',          'ban mian',         ['singaporean'])
+    ],
+    neighboringCuisines: [
+      { slug: 'cantonese',     reason: 'Hakka migrated through Guangdong; some cooking traditions overlap; Hakka-Cantonese fusion in HK' },
+      { slug: 'taiwanese',     reason: 'Large Hakka population in Taiwan; lei cha + abacus seeds common' },
+      { slug: 'singaporean',   reason: 'Hakka diaspora is one of the smaller Chinese SG groups; yong tau foo is SG-mainstream now' }
+    ],
+    touristExplainer: {
+      en: 'Hakka (Kejia, "guest people") cuisine is the most travelled Chinese sub-cuisine — the Hakka migrated south over centuries, carrying their food. Pickled-mustard flavours, salt-baked techniques, lei cha (thunder tea rice), abacus seeds. Yong tau foo is the SG-mainstream icon.',
+      fr: 'La cuisine hakka (kejia, "invités") est la sous-cuisine chinoise la plus voyageuse — les Hakka ont migré vers le sud sur des siècles. Saveurs de moutarde marinée, techniques de cuisson au sel, lei cha (riz au thé tonnerre), graines d\'abacus. Le yong tau foo en est l\'icône singapourienne.'
+    }
+  },
+
+  'filipino': {
+    flag: '🇵🇭',
+    aliases: ['filipino', 'philippines', 'pinoy', 'pilipino'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('adobo'),                                                 // vinegar + soy + garlic + bay leaf — national dish
+      F('chicken adobo'),
+      F('pork adobo'),
+      F('sinigang'),                                              // sour tamarind soup
+      F('lechon'),                                                // whole roasted pig — national festive dish
+      F('lechon kawali'),                                         // crispy pork belly
+      F('pancit'),                                                // umbrella stir-fried noodle
+      F('pancit bihon'),
+      F('pancit canton'),
+      F('lumpia'),                                                // spring roll
+      F('lumpia shanghai'),                                       // small fried meat lumpia
+      F('halo-halo'),                                             // mixed shaved ice + ube + leche flan dessert
+      F('kare-kare'),                                             // peanut + oxtail stew
+      F('sisig'),                                                 // sizzling pork face
+      F('crispy pata'),                                           // deep-fried pork knuckle
+      F('chicken inasal'),                                        // Bacolod grilled chicken
+      F('beef tapa'),                                             // cured beef breakfast
+      F('longganisa'),                                            // sweet sausage
+      F('bangus'),                                                // milkfish, often grilled or in sinigang
+      F('ube halaya'),                                            // purple yam dessert
+      F('leche flan'),                                            // caramel custard
+      F('bibingka'),                                              // rice cake
+      F('puto'),                                                  // steamed rice cake
+      F('ensaymada'),                                             // sweet bread roll
+      D('san miguel beer'),
+      D('calamansi juice filipino')                               // distinct from SG calamansi
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'spanish',       reason: 'Spanish colonial influence (1565-1898) — adobo, lechon, lumpia, sisig, leche flan all Spanish-Filipino fusion' },
+      { slug: 'chinese',       reason: 'Hokkien diaspora brought pancit + lumpia; significant Chinese-Filipino food culture' },
+      { slug: 'malaysian',     reason: 'Sulu archipelago + Mindanao share Tausug/Malay traditions; sinigang + grilled fish overlap' },
+      { slug: 'american',      reason: '50 years of US occupation (1898-1946) seeded fast-food + condiment culture (banana ketchup, hotdog spaghetti)' }
+    ],
+    touristExplainer: {
+      en: 'Filipino cuisine is the 4-way fusion of Malay-Chinese-Spanish-American — vinegar-forward (adobo, kinilaw), Spanish-derived (lechon, leche flan), pancit (Chinese-Hokkien), sinigang (Malay tamarind). Halo-halo is the national dessert. Underrated and hard to find done well outside the Philippines.',
+      fr: 'La cuisine philippine est une fusion à 4 voies: malaise + chinoise + espagnole + américaine — au vinaigre (adobo, kinilaw), héritage espagnol (lechon, leche flan), pancit (chinois-hokkien), sinigang (tamarin malais). Halo-halo est le dessert national. Sous-estimée et difficile à trouver authentique hors des Philippines.'
+    }
+  },
+
+  'burmese': {
+    flag: '🇲🇲',
+    aliases: ['burmese', 'myanmar', 'burma', 'bamar'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('mohinga'),                                               // fish-broth rice noodle — national dish
+      F('lahpet thoke'),                                          // fermented tea-leaf salad
+      F('ohn no khao swe'),                                       // coconut chicken noodle
+      F('shan noodles'),                                          // tomato + pickled-mustard noodle
+      F('burmese curry'),                                         // hin
+      F('chickpea tofu'),                                         // tohu
+      F('shan-style tofu salad'),
+      F('balachaung'),                                            // chili dried-shrimp condiment
+      F('burmese fish curry'),
+      F('kao swe'),                                               // umbrella for noodle dishes
+      F('si jet khauk swe'),                                      // oily noodles
+      F('mont di'),                                               // Rakhine fish noodle
+      F('tea leaf rice'),                                         // alt name lahpet thoke
+      F('shwe yin aye'),                                          // sago-coconut dessert
+      F('falooda'),                                               // Indian-Burmese rose milk dessert
+      F('htamin gyaw'),                                           // Burmese fried rice
+      F('e kya kway'),                                            // Burmese youtiao
+      F('paratha burmese style'),
+      F('aloo paratha burmese')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'thai',          reason: 'Northern Thai (Lanna) shares Burmese-influenced khao soi and some shan-style noodles' },
+      { slug: 'south-indian',  reason: 'Significant Indian-Burmese community; biryani + paratha + falooda common in Yangon' },
+      { slug: 'chinese',       reason: 'Yunnan-Burmese border; some Yunnanese-Chinese ingredients (rice noodles, pickled mustard)' },
+      { slug: 'bangladeshi',   reason: 'Western Burma (Rakhine) shares some seafood + rice traditions with Chittagong / Bangladesh' }
+    ],
+    touristExplainer: {
+      en: 'Burmese cuisine sits at the crossroads of Indian-Chinese-Thai but with its own identity: fermented tea-leaf salad (lahpet thoke), fish-broth rice noodles (mohinga), curries cooked in oil-floating style (htamin gyaw). Rare in SG but increasingly findable around Peninsula / North Bridge.',
+      fr: 'La cuisine birmane est au carrefour des cuisines indienne-chinoise-thaïe mais avec sa propre identité: salade de feuilles de thé fermentées (lahpet thoke), nouilles de riz au bouillon de poisson (mohinga), curries cuits style huile-flottante (htamin gyaw). Rare à Singapour mais de plus en plus trouvable autour de Peninsula / North Bridge.'
+    }
+  },
+
+  'sri-lankan': {
+    flag: '🇱🇰',
+    aliases: ['sri lankan', 'sri-lankan', 'sinhalese', 'lanka', 'ceylonese'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('rice and curry'),                                        // umbrella — Sri Lankan thali
+      F('sri lankan fish curry'),                                 // ambul thiyal — sour tamarind fish
+      F('hoppers',                ['south-indian']),              // appa — fermented bowl-shaped pancake
+      F('string hoppers',         ['south-indian']),              // idiyappam — rice-flour vermicelli nests
+      F('kottu roti'),                                            // chopped roti + vegetables / meat
+      F('lamprais'),                                              // banana-leaf rice + curries Burgher heritage
+      F('pol sambol'),                                            // coconut sambol
+      F('seeni sambol'),                                          // caramelized onion sambol
+      F('jackfruit curry'),                                       // polos curry
+      F('devilled chicken'),                                      // Burgher-Sri Lankan dish
+      F('devilled prawns'),
+      F('coconut roti'),                                          // pol roti
+      F('sri lankan crab curry'),                                 // Ministry of Crab Colombo
+      F('milk rice'),                                             // kiribath
+      F('watalappan'),                                            // jaggery-coconut custard dessert
+      F('pittu'),                                                 // steamed rice flour cylinder
+      F('parippu'),                                               // dhal curry sri lankan style
+      F('roast paan'),                                            // Sri Lankan-Portuguese bread
+      F('kola kanda'),                                            // herbal porridge
+      F('mallum'),                                                // shredded greens stir-fry
+      D('ceylon tea')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'south-indian',  reason: 'Tamil cuisine straddles Tamil Nadu + Northern Sri Lanka; hoppers, kottu roti, dosa shared' },
+      { slug: 'singaporean',   reason: 'Sri Lankan-SG community small but distinct; Burgher-heritage dishes (lamprais) findable' }
+    ],
+    touristExplainer: {
+      en: 'Sri Lankan cuisine is rice-and-curry but spicier and more coconut-forward than South Indian. Hoppers (bowl pancakes), string hoppers (rice nests), kottu roti (chopped flatbread) are the icons. Ministry of Crab in Colombo made Sri Lankan crab curry world-famous.',
+      fr: 'La cuisine sri-lankaise est riz-et-curry mais plus épicée et plus axée coco que la cuisine du Sud de l\'Inde. Hoppers (crêpes en bol), string hoppers (nids de riz), kottu roti (galettes hachées) en sont les icônes. Ministry of Crab à Colombo a rendu le curry de crabe sri-lankais mondialement célèbre.'
+    }
+  },
+
+  'greek': {
+    flag: '🇬🇷',
+    aliases: ['greek', 'greece', 'hellenic'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('moussaka'),                                              // baked aubergine + meat + béchamel
+      F('souvlaki'),                                              // skewered grilled meat
+      F('gyros'),                                                 // spit-roasted meat in pita
+      F('spanakopita'),                                           // spinach + feta phyllo pie
+      F('tiropita'),                                              // cheese phyllo pie
+      F('pastitsio'),                                             // baked pasta + meat sauce + béchamel
+      F('dolmades'),                                              // stuffed grape leaves
+      F('horiatiki salad'),                                       // Greek village salad — feta + olives + tomato
+      F('tzatziki'),                                              // yogurt-cucumber-garlic dip
+      F('hummus greek style'),
+      F('taramasalata'),                                          // fish roe spread
+      F('saganaki'),                                              // pan-fried cheese
+      F('greek octopus'),
+      F('kleftiko'),                                              // slow-roasted lamb
+      F('stifado'),                                               // beef stew with shallots
+      F('avgolemono'),                                            // egg-lemon chicken soup
+      F('baklava greek'),                                         // honey + nuts + phyllo
+      F('galaktoboureko'),                                        // custard phyllo dessert
+      F('loukoumades'),                                           // honey doughnuts
+      F('feta cheese'),
+      F('halloumi greek style'),
+      F('greek yogurt with honey'),
+      D('ouzo'),                                                  // anise spirit
+      D('retsina'),                                               // pine-resin wine
+      D('greek coffee')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'turkish',       reason: 'Ottoman empire shared dishes (gyros ↔ döner, baklava, dolmades, mezze culture)' },
+      { slug: 'lebanese',      reason: 'Eastern Mediterranean substrate — phyllo + grilled meat + olive oil shared' },
+      { slug: 'italian',       reason: 'Magna Graecia substrate; olive oil + grain + Mediterranean diet shared' },
+      { slug: 'mediterranean', reason: 'Greece is one of the 3 anchor Mediterranean cuisines' }
+    ],
+    touristExplainer: {
+      en: 'Greek cuisine is Mediterranean diet exemplified — olive oil, feta, lamb, oregano, lemon. Mezze culture (small plates with ouzo); moussaka and souvlaki as the export icons; phyllo pies (spanakopita, tiropita) are the everyday. Greek yogurt and feta lead the global dairy exports.',
+      fr: 'La cuisine grecque incarne le régime méditerranéen — huile d\'olive, feta, agneau, origan, citron. Culture mezze (petits plats avec ouzo); moussaka et souvlaki à l\'export; tartes phyllo (spanakopita, tiropita) au quotidien. Yaourt grec et feta dominent l\'export laitier mondial.'
+    }
+  },
+
+  'turkish': {
+    flag: '🇹🇷',
+    aliases: ['turkish', 'turkey', 'turkiye', 'ottoman'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('döner kebab'),                                           // spit-roasted meat
+      F('shish kebab'),                                           // skewered grilled meat
+      F('adana kebab'),                                           // hand-minced spicy lamb
+      F('iskender kebab'),                                        // sliced döner over yogurt + tomato
+      F('lahmacun'),                                              // Turkish flatbread + minced meat
+      F('pide'),                                                  // Turkish boat-shaped pizza
+      F('borek'),                                                 // phyllo pie
+      F('su böreği'),                                             // boiled phyllo with cheese
+      F('manti'),                                                 // Turkish dumpling with yogurt
+      F('köfte'),                                                 // meatballs
+      F('kuru fasulye'),                                          // bean stew
+      F('mantı'),                                                 // alt spelling
+      F('imam bayildi'),                                          // stuffed aubergine
+      F('hünkar beğendi'),                                        // sultan\'s delight — lamb + smoky aubergine purée
+      F('iç pilav'),                                              // pilaf with liver
+      F('meze platter turkish'),
+      F('cacık'),                                                 // yogurt-cucumber dip (Turkish tzatziki)
+      F('baklava turkish'),
+      F('künefe'),                                                // shredded pastry + cheese + syrup
+      F('lokma'),                                                 // syrup-soaked doughnuts
+      F('turkish delight'),                                       // lokum
+      F('simit'),                                                 // sesame circle bread
+      D('turkish tea (çay)'),
+      D('turkish coffee'),
+      D('ayran'),                                                 // yogurt drink
+      D('rakı')                                                   // anise spirit
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'greek',         reason: 'Ottoman empire shared dishes (döner ↔ gyros, baklava, dolmades, manti, ayran)' },
+      { slug: 'lebanese',      reason: 'Levantine substrate; meze + grilled meat + tahini shared' },
+      { slug: 'persian',       reason: 'Persian-Ottoman exchange shaped pilaf + kebab + sweet baklava traditions' },
+      { slug: 'mediterranean', reason: 'Turkey straddles Mediterranean + Black Sea + Caucasus — multiple regional sub-cuisines' }
+    ],
+    touristExplainer: {
+      en: 'Turkish cuisine spans 7 regional traditions across Anatolia, the Aegean, and the Black Sea coast. Kebabs are the export icon (Adana, Urfa, Iskender, döner) — but pide, lahmacun, manti, mezze and the tea-coffee-rakı social ritual matter equally. Mediterranean diet meets Central Asian nomad heritage.',
+      fr: 'La cuisine turque s\'étend sur 7 traditions régionales en Anatolie, dans l\'Égée et sur la côte de la mer Noire. Les kebabs sont l\'icône à l\'export (Adana, Urfa, Iskender, döner) — mais pide, lahmacun, manti, mezze et le rituel social thé-café-rakı comptent autant. Régime méditerranéen + héritage nomade d\'Asie centrale.'
+    }
+  },
+
+  'german': {
+    flag: '🇩🇪',
+    aliases: ['german', 'germany', 'deutsch', 'deutsche'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('schnitzel'),                                             // breaded veal/pork cutlet
+      F('wiener schnitzel',       ['austrian']),                  // veal — Vienna origin
+      F('schweinshaxe'),                                          // pork knuckle, Bavarian
+      F('bratwurst'),                                             // grilled sausage
+      F('weisswurst'),                                            // Bavarian white sausage
+      F('sauerkraut'),                                            // fermented cabbage
+      F('spätzle'),                                               // egg noodle
+      F('käsespätzle'),                                           // cheese spätzle
+      F('rouladen'),                                              // beef rolls with bacon + pickles
+      F('sauerbraten'),                                           // marinated pot roast
+      F('königsberger klopse'),                                   // capers meatballs
+      F('knödel'),                                                // bread/potato dumpling
+      F('kartoffelpuffer'),                                       // potato pancake
+      F('eisbein'),                                               // cured pork knuckle
+      F('frankfurter würstchen'),                                 // Frankfurt sausage
+      F('currywurst'),                                            // Berlin curry-ketchup sausage
+      F('döner kebab german'),                                    // German döner is a distinct hybrid
+      F('flammkuchen'),                                           // tarte flambée — German + Alsatian
+      F('black forest cake'),                                     // schwarzwälder kirschtorte
+      F('apfelstrudel',           ['austrian']),
+      F('lebkuchen'),                                             // gingerbread
+      F('stollen'),                                               // Christmas fruit bread
+      F('pretzels'),                                              // brezel
+      F('rye bread'),                                             // roggenbrot
+      D('german beer'),
+      D('riesling wine'),
+      D('apfelschorle')                                           // apple-juice spritzer
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'austrian',      reason: 'Wiener schnitzel + apfelstrudel are Austrian; German + Austrian + Bavarian cuisines closely overlap' },
+      { slug: 'swiss',         reason: 'German-speaking Switzerland shares rösti, fondue traditions; some sausage overlap' },
+      { slug: 'french',        reason: 'Alsace is German-French border; flammkuchen, choucroute, sausage shared' },
+      { slug: 'polish',        reason: 'Eastern German + Polish cuisine shares pierogi-knödel + sauerkraut + sausage traditions' }
+    ],
+    touristExplainer: {
+      en: 'German cuisine is hearty + bread-rich + meat-forward, regionally diverse. Bavarian beer-hall food (schweinshaxe, weisswurst, pretzels) is the global icon; northern German pork-and-potato is the everyday. Beer + sausage + bread are the foundational trinity.',
+      fr: 'La cuisine allemande est nourrissante + riche en pain + carnée, régionalement diverse. La cuisine de brasserie bavaroise (schweinshaxe, weisswurst, bretzels) en est l\'icône mondiale; le porc-pomme-de-terre du nord est le quotidien. Bière + saucisse + pain sont la trinité fondamentale.'
+    }
+  },
+
+  'british': {
+    flag: '🇬🇧',
+    aliases: ['british', 'uk', 'england', 'english', 'scottish', 'welsh', 'cornish'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('fish and chips'),                                        // battered fried cod + potato
+      F('full english breakfast'),                                // bacon, eggs, beans, toast, sausage, mushroom, tomato
+      F('shepherd\'s pie'),                                       // lamb + mash
+      F('cottage pie'),                                           // beef + mash
+      F('beef wellington'),                                       // pastry-wrapped beef
+      F('bangers and mash'),                                      // sausage + mash
+      F('toad in the hole'),                                      // sausage in yorkshire batter
+      F('yorkshire pudding'),
+      F('sunday roast'),                                          // beef/lamb/pork + roast vegetables + gravy
+      F('roast beef'),
+      F('cornish pasty'),                                         // beef + potato + swede pastry
+      F('scotch egg'),                                            // boiled egg in sausage meat + breadcrumbs
+      F('haggis'),                                                // Scottish offal pudding
+      F('black pudding'),                                         // blood sausage
+      F('chicken tikka masala'),                                  // British-Indian — UK-claimed
+      F('balti curry'),                                           // Birmingham-Pakistani
+      F('cream tea'),                                             // scones + cream + jam + tea
+      F('victoria sponge'),
+      F('eton mess'),                                             // strawberries + cream + meringue
+      F('sticky toffee pudding'),
+      F('trifle'),                                                // layered custard + jelly + sponge
+      F('crumpets'),
+      F('marmite on toast'),
+      D('english breakfast tea'),
+      D('earl grey tea'),
+      D('pimm\'s'),                                               // gin-based summer drink
+      D('british ale')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'french',         reason: 'Norman invasion (1066) seeded French culinary terms in English (mutton, beef, pork)' },
+      { slug: 'irish',          reason: 'Shared British Isles substrate; potato + lamb + stew traditions overlap' },
+      { slug: 'north-indian',   reason: 'British-Indian fusion — chicken tikka masala, balti curry, kedgeree all UK creations from Indian roots' },
+      { slug: 'hong-kong',      reason: '156 years of British rule shaped HK breakfast (toast, milk tea, baked rice) and reverse-imported afternoon tea' }
+    ],
+    touristExplainer: {
+      en: 'British cuisine is undergoing a renaissance — once mocked, now celebrated for fish & chips, Sunday roast, the full English. Cream tea + afternoon tea are global cultural exports. UK-Indian fusion (chicken tikka masala, balti) is so embedded it\'s claimed as British. Sticky toffee pudding is the dessert.',
+      fr: 'La cuisine britannique connaît une renaissance — autrefois moquée, désormais célébrée pour fish & chips, Sunday roast, full English. Cream tea + thé de l\'après-midi sont des exports culturels mondiaux. La fusion britannique-indienne (chicken tikka masala, balti) est si ancrée qu\'elle est revendiquée britannique. Sticky toffee pudding en dessert.'
+    }
+  },
+
+  'portuguese': {
+    flag: '🇵🇹',
+    aliases: ['portuguese', 'portugal', 'lusitanian'],
+    populationInSG: 'low',
+    iconicDishes: [
+      F('bacalhau'),                                              // salt cod — umbrella, 365+ recipes
+      F('bacalhau à brás'),                                       // shredded cod + onion + potato + egg
+      F('bacalhau com natas'),                                    // cod + cream + potato bake
+      F('francesinha'),                                           // Porto layered sandwich
+      F('caldo verde'),                                           // kale-potato-chouriço soup
+      F('cataplana'),                                             // Algarve seafood stew
+      F('arroz de marisco'),                                      // seafood rice
+      F('porco preto'),                                           // black pig — Alentejo prized
+      F('alheira'),                                               // smoked sausage (Jewish-Portuguese heritage)
+      F('feijoada portuguesa'),                                   // bean + meat stew (predecessor to Brazilian)
+      F('bifana'),                                                // pork sandwich
+      F('pastel de nata'),                                        // egg custard tart — global icon
+      F('pastéis de belém'),                                      // the original Lisbon recipe (1837)
+      F('pão de queijo portuguese style'),
+      F('bolinhos de bacalhau'),                                  // cod fritters
+      F('chouriço'),                                              // Portuguese chorizo
+      F('piri-piri chicken'),                                     // Portuguese-Mozambican
+      F('queijo da serra'),                                       // Serra da Estrela cheese
+      F('arroz doce'),                                            // rice pudding
+      F('pão alentejano'),                                        // Alentejo bread
+      F('caldeirada'),                                            // Portuguese fish stew
+      D('port wine'),
+      D('vinho verde'),
+      D('madeira wine')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'spanish',        reason: 'Iberian peninsula shared substrate; bacalao + chorizo + bread cultures overlap' },
+      { slug: 'brazilian',      reason: 'Portuguese colonial legacy (1500-1822) — feijoada, pastel de nata, bacalhau all crossed' },
+      { slug: 'macau',          reason: 'Portuguese colony 1557-1999; Macanese cuisine is Cantonese-Portuguese fusion (egg tart, African chicken, pork chop bun)' },
+      { slug: 'eurasian',       reason: 'Kristang heritage in Melaka traces 16th-c Portuguese; egg tarts + curries crossed' },
+      { slug: 'mozambican',     reason: 'Piri-piri chicken originated in Portuguese-Mozambique; spread to Nando\'s globally' }
+    ],
+    touristExplainer: {
+      en: 'Portuguese cuisine is Atlantic-facing seafood + Mediterranean substrate + global colonial reach. Bacalhau (salt cod) is so foundational there are reportedly 365 recipes — one for each day. Pastel de nata is the global ambassador. Port wine and Madeira are the fortified-wine icons. Macau\'s egg tarts trace here.',
+      fr: 'La cuisine portugaise, c\'est les fruits de mer atlantiques + substrat méditerranéen + portée coloniale mondiale. La morue (bacalhau) est si fondamentale qu\'on dit qu\'il existe 365 recettes — une par jour. Le pastel de nata est l\'ambassadeur mondial. Porto et Madère pour les vins fortifiés. Les tartes aux œufs de Macao en proviennent.'
+    }
+  },
+
+  'american': {
+    flag: '🇺🇸',
+    aliases: ['american', 'usa', 'us', 'united states', 'cajun', 'creole', 'soul food', 'tex-mex'],
+    populationInSG: 'high',
+    iconicDishes: [
+      F('hamburger'),                                             // umbrella icon
+      F('cheeseburger'),
+      F('hot dog'),
+      F('bbq brisket'),                                           // Texas BBQ
+      F('bbq pulled pork'),                                       // Carolina + Memphis BBQ
+      F('bbq ribs'),                                              // Memphis + Kansas City
+      F('mac and cheese'),
+      F('fried chicken'),
+      F('buffalo wings'),                                         // Buffalo NY 1964
+      F('philly cheesesteak'),
+      F('new york pizza'),                                        // distinct slice tradition
+      F('chicago deep dish pizza'),
+      F('clam chowder'),                                          // New England
+      F('lobster roll'),                                          // Maine
+      F('gumbo'),                                                 // Louisiana Cajun-Creole
+      F('jambalaya'),                                             // Louisiana rice + sausage + seafood
+      F('po\' boy'),                                              // Louisiana fried sandwich
+      F('beignet'),                                               // New Orleans powdered fritter
+      F('biscuits and gravy'),                                    // Southern breakfast
+      F('soul food platter'),                                     // collards + cornbread + fried chicken
+      F('pancakes'),
+      F('bagel with lox'),                                        // NYC Jewish-American
+      F('pastrami sandwich'),                                     // NYC deli
+      F('reuben'),                                                // corned beef + sauerkraut + swiss
+      F('apple pie'),
+      F('chocolate chip cookie'),
+      F('cheesecake new york'),
+      D('coca-cola'),
+      D('american craft beer'),
+      D('bourbon')
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'mexican',        reason: 'Tex-Mex is the US-Mexican hybrid — chili con carne, hard-shell tacos, fajitas' },
+      { slug: 'british',        reason: 'Colonial-era British cooking is the substrate; biscuits, pies, pot roast all evolved from English' },
+      { slug: 'caribbean',      reason: 'Cajun-Creole Louisiana cuisine shares with Caribbean; jerk + gumbo + spice overlaps' },
+      { slug: 'italian',        reason: 'Italian-American is its own cuisine — chicken parm, NYC pizza, baked ziti are US inventions from Italian roots' },
+      { slug: 'chinese',        reason: 'American-Chinese cuisine (General Tso\'s, fortune cookie, chow mein) is a distinct hybrid' }
+    ],
+    touristExplainer: {
+      en: 'American cuisine is regional, immigrant-driven, and post-colonial. Southern BBQ (Carolina/Memphis/Texas/KC are 4 distinct schools), Louisiana Cajun-Creole, NYC deli, New England seafood, Southwestern Tex-Mex, soul food, and Italian-American + Chinese-American + Mexican-American hybrids. The hamburger is the global ambassador.',
+      fr: 'La cuisine américaine est régionale, immigrante et post-coloniale. BBQ du Sud (Carolina/Memphis/Texas/KC sont 4 écoles distinctes), Cajun-Creole de Louisiane, deli new-yorkais, fruits de mer de Nouvelle-Angleterre, Tex-Mex du Sud-Ouest, soul food, et hybrides italo-américain + sino-américain + mexicano-américain. Le hamburger est l\'ambassadeur mondial.'
+    }
+  },
+
+  'australian': {
+    flag: '🇦🇺',
+    aliases: ['australian', 'australia', 'aussie', 'oz'],
+    populationInSG: 'medium',
+    iconicDishes: [
+      F('meat pie'),                                              // Aussie hand-held pie
+      F('vegemite on toast'),
+      F('lamington'),                                             // sponge + chocolate + coconut
+      F('pavlova'),                                               // meringue + cream + fruit (NZ-AU contested)
+      F('anzac biscuit'),                                         // oat-coconut WWI biscuit
+      F('barramundi'),                                            // signature Australian fish
+      F('chiko roll'),                                            // Aussie fast-food pastry
+      F('damper'),                                                // outback bush bread
+      F('australian bbq'),                                        // umbrella — sausages, prawns, lamb
+      F('snags on bread'),                                        // sausage + buttered bread (Bunnings classic)
+      F('fairy bread'),                                           // bread + butter + sprinkles
+      F('tim tam'),                                               // chocolate biscuit
+      F('flat white'),                                            // espresso milk drink — Aussie/NZ contested
+      F('avocado toast'),                                         // Bills Sydney 1993
+      F('aussie burger'),                                         // burger with the lot (beetroot, egg, pineapple)
+      F('parmigiana'),                                            // chicken parm pub classic
+      F('kangaroo steak'),
+      F('crocodile fillet'),                                      // NT specialty
+      F('barramundi pie'),
+      F('bush tucker'),                                           // umbrella — wattle, bunya, finger lime
+      D('flat white australian'),
+      D('long black'),                                            // Australian espresso style
+      D('australian wine')                                        // Barossa, Hunter, Margaret River
+    ],
+    sharedWithNeighbors: [],
+    neighboringCuisines: [
+      { slug: 'new-zealand',    reason: 'AU + NZ closely share food culture (pavlova contested, flat white, ANZAC biscuits, lamb)' },
+      { slug: 'british',        reason: 'British colonial substrate; pies, fish & chips, pub-grub all carried over' },
+      { slug: 'singaporean',    reason: 'Strong Aussie F&B presence in SG (Bills, Burnt Ends, Common Man); flat white culture transplanted' },
+      { slug: 'australasia',    reason: 'Oceanic regional umbrella; some Pacific Islander + Melanesian dishes overlap' }
+    ],
+    touristExplainer: {
+      en: 'Australian cuisine is multicultural fusion + British colonial substrate + native bush-tucker. Modern Australian (\"Mod-Oz\") draws from Asian, Mediterranean, and Indigenous traditions — barramundi with native pepperberry, lamb roast, flat white coffee. Pavlova vs NZ debate ongoing.',
+      fr: 'La cuisine australienne, c\'est fusion multiculturelle + substrat colonial britannique + bush-tucker autochtone. La \"Mod-Oz\" puise dans les traditions asiatiques, méditerranéennes et indigènes — barramundi au poivre des baies, agneau rôti, café flat white. Débat pavlova vs Nouvelle-Zélande en cours.'
+    }
   }
 };
 

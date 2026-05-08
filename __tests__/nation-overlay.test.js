@@ -31,12 +31,17 @@ const REQUIRED_SLUGS = [
   // v0.60.5a — SG-anchor
   'singaporean', 'peranakan', 'eurasian',
   'hokkien', 'cantonese', 'hainanese', 'teochew',
-  // v0.60.5b — Foreign Tier-1
+  // v0.60.6 — Foreign Tier-1
   'japanese', 'korean', 'sichuan',
   'malaysian', 'indonesian', 'thai', 'vietnamese',
   'north-indian', 'south-indian', 'pakistani',
   'italian', 'french', 'spanish',
-  'lebanese', 'mexican'
+  'lebanese', 'mexican',
+  // v0.60.13 — Tier-2 Phase 1 (East Asian + EU + others)
+  'chinese', 'taiwanese', 'hong-kong', 'shanghainese', 'hunan', 'hakka',
+  'filipino', 'burmese', 'sri-lankan',
+  'greek', 'turkish', 'german', 'british', 'portuguese',
+  'american', 'australian'
 ];
 
 describe('NATION_OVERLAY — required SG-anchor cuisines exist', () => {
@@ -197,12 +202,12 @@ describe('cuisines-vault — overlay merge', () => {
   });
 
   it('findBySlugWithOverlay() returns base record for cuisines without overlay', () => {
-    // Pick a cuisine NOT in v0.60.5a/5b. Burmese is a real
-    // cuisines-vault entry but no NATION_OVERLAY yet (Tier-2).
-    const b = cv.findBySlugWithOverlay('burmese');
-    expect(b).toBeTruthy();
-    expect(b.slug).toBe('burmese');
-    expect(b.overlay).toBeUndefined();
+    // Pick a cuisine still without an overlay in v0.60.13.
+    // 'gujarati' is a real cuisines-vault entry; remains Tier-2-Phase-2.
+    const g = cv.findBySlugWithOverlay('gujarati');
+    expect(g).toBeTruthy();
+    expect(g.slug).toBe('gujarati');
+    expect(g.overlay).toBeUndefined();
   });
 
   it('findBySlugWithOverlay() returns null for unknown slug', () => {
@@ -458,9 +463,11 @@ describe('NATION_OVERLAY — neighboringCuisines integrity', () => {
       'indian-singaporean',
       'malay',
       // Future-phase cuisines referenced as neighbors but not yet
-      // parsed from cuisines_js.MD. Tier-2 will add some of these.
-      'laotian', 'cambodian', 'afghani',
-      'belgian', 'guatemalan'
+      // overlayed (or not in the cuisines-vault parser). Future
+      // phases will overlay some of these.
+      'laotian', 'cambodian', 'afghani', 'belgian', 'guatemalan',
+      'irish', 'caribbean', 'mozambican', 'bangladeshi',
+      'mediterranean'                                              // catch-all
     ]);
 
     const orphans = [];
