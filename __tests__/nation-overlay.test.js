@@ -367,6 +367,24 @@ describe('findNationIconic — order-independent SG dish/drink detection (v0.60.
     expect(overlay.findNationIconic(undefined)).toBeNull();
   });
 
+  it('matches accented dish names typed with accents (per Codex review)', () => {
+    const hit = overlay.findNationIconic('crème brûlée');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('crème brûlée');
+  });
+
+  it('matches accented dish names typed in ASCII (per Codex review)', () => {
+    const hit = overlay.findNationIconic('creme brulee');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('crème brûlée');
+  });
+
+  it('matches accented case-insensitive (Crème Brûlée → crème brûlée)', () => {
+    const hit = overlay.findNationIconic('Crème Brûlée');
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('french');
+  });
+
   it('strips parenthetical descriptions in dish names ("orh nee (yam paste...)")', () => {
     // "orh nee" is a valid 2-token match even though canonical name has parens
     const hit = overlay.findNationIconic('orh nee');

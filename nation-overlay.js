@@ -1527,11 +1527,15 @@ function getOverlayedSlugs() {
 //   - First match wins; cuisines are scanned in NATION_OVERLAY key order
 //     (Singaporean first → SG-canonical wins for cross-cuisine collisions
 //     like "kaya toast").
+//   - Diacritics stripped before tokenization (NFD + remove combining
+//     marks) so user-typed ASCII ("creme brulee") matches accented dish
+//     names ("crème brûlée") and vice versa. Per Codex review on PR #272.
 //
 // Returns { slug, flag, dish, kind, sharedWith } or null.
 function findNationIconic(text) {
   if (!text) return null;
-  const tokenize = (s) => String(s).toLowerCase()
+  const stripDiacritics = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '');
+  const tokenize = (s) => stripDiacritics(s).toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length >= 3);
   const userTokens = tokenize(text);
