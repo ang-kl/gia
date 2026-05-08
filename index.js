@@ -4870,17 +4870,18 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.17 — when user combines Michelin with other cuisines (e.g.
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
   // Type filter still has enough survivors.
-  // v0.60.30 — caps bumped to 24/28 for pagination headroom.
-  // v0.60.32 — reverted to 12/16 for token-burn relief.
-  // v0.60.34 (Human Lead 2026-05-08): restored to 24/28. With cap=12
-  // the in-response pagination strip never rendered (PAGE_SIZE=12 in
-  // ResultPanel) and the user was stuck on a single page of 12 with
-  // no way to browse. Per-click Places cost doubles vs v0.60.32 but
-  // browseability is the priority — the v0.60.32 "Please wait while
-  // loading list" toast already covers the latency UX. The dedup
-  // pool still rotates across taps so all 130 curated entries remain
-  // reachable in ~6 clicks instead of ~11.
-  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : 24;
+  // v0.60.30 → v0.60.34: cap evolved 12 → 24 → 28 chasing pagination
+  // headroom and per-click cost.
+  // v0.60.37 (Human Lead 2026-05-08): cap removed for pure Michelin —
+  // load the entire 130-entry curated SG Michelin Guide 2025 dataset
+  // in one response so users can paginate through every venue. Combo
+  // with another cuisine still capped (cuisineTagMatches filter trims
+  // before Places lookup, so 130 wouldn't fan out anyway). Trade-off:
+  // ~130 Places searchText calls per pure-Michelin click — costly
+  // but Places is much cheaper than Anthropic, and the v0.60.32
+  // "Please wait while loading list" toast already covers latency.
+  const PURE_MICHELIN_CAP = 130;
+  const sliceCap = otherCuisineSlugs.length > 0 ? 28 : PURE_MICHELIN_CAP;
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
@@ -5652,38 +5653,43 @@ async function registerCommandsMenu() {
     // v0.59.0: per-locale command lists. Telegram's setMyCommands
     // accepts a `language_code` so French users see French descriptions
     // in the slash-menu hint. Default (no language_code) covers EN.
+    // v0.60.37 (Human Lead 2026-05-08): command list rewritten to the
+    // canonical 12-command surface. /search and /clip removed from
+    // the public menu (handlers retained for power users); /share
+    // promoted into the menu; /buddy and /share moved to the
+    // social-actions cluster; descriptions tightened. Aliases /c (for
+    // /cuisine) and /l (for /location) are surfaced inline in the
+    // description so users learn the shortcut. /hidden, /legal, /ver
+    // remain "special commands" — handlers exist, menu does not.
     const enCommands = [
-      { command: 'cuisine',    description: 'Cuisine Picker · over 55 cuisines' },
-      // v0.60.36 (Human Lead 2026-05-08): /hidden removed from the
-      // public command menu (kept as a special command, mirroring
-      // /legal /ver). bot.onText handler at index.js:1221 still
-      // accepts /hidden so existing shortcuts keep working.
+      { command: 'cuisine',    description: 'Cuisine Picker · 50+ cuisines, SG + Johor Bahru, quick filters (or /c)' },
+      { command: 'location',   description: 'Change location · /location [street] (or /l)' },
+      { command: 'hawker',     description: '>100 hawker centres (2025)' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
-      { command: 'hawker',     description: '>100 Hawker Centres' },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand (under $45), Asia 50/100, local produce' },
-      { command: 'carpark',    description: 'Nearest 5 carparks with available lots' },
-      { command: 'location',   description: 'Set your locale by typing a place name' },
-      { command: 'language',   description: 'Chat lang: en / fr / auto (auto = follow Telegram client)' },
-      { command: 'buddy',      description: 'Live solo-dining match: /buddy on/off/status/block/report' },
-      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational' },
-      { command: 'clip',       description: 'Your last 50 cuisine clips · filter by cuisine' },
+      { command: 'transport',  description: 'Bus, MRT, walk, drive' },
+      { command: 'carpark',    description: 'Nearest 5 with available lots' },
+      { command: 'buddy',      description: 'Live solo-dining match' },
+      // v0.60.37 — /search (alias /s), the conversational dish /
+      // ingredient / kitchen-tool finder. Replaces the v0.60.36
+      // mistake that listed /share — /share's handler stays in the
+      // bot but is unlisted (same pattern as /hidden / /legal / /ver).
+      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational (or /s)' },
+      { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
-      { command: 'forgetme',   description: 'Erase your stored data' }
+      { command: 'forgetme',   description: 'Erase stored data' }
     ];
     const frCommands = [
-      { command: 'cuisine',    description: 'Sélecteur de cuisine · plus de 55 cuisines' },
-      // v0.60.36 — /hidden retiré du menu public (commande spéciale).
+      { command: 'cuisine',    description: 'Sélecteur de cuisine · 50+ cuisines, SG + Johor Bahru, filtres rapides (ou /c)' },
+      { command: 'location',   description: 'Changer de lieu · /location [rue] (ou /l)' },
+      { command: 'hawker',     description: 'Plus de 100 hawker centres (2025)' },
+      { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, produits locaux' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
-      { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
-      { command: 'hawker',     description: 'Plus de 100 Hawker Centres' },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand (moins de 45 $), Asia 50/100, produits locaux' },
+      { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
-      { command: 'location',   description: 'Définir votre lieu par son nom' },
-      { command: 'language',   description: 'Langue : fr / en / auto (auto = suit le client Telegram)' },
-      { command: 'buddy',      description: 'Match solo en direct : /buddy on/off/status/block/report' },
-      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel' },
-      { command: 'clip',       description: 'Vos 50 derniers clips · filtrer par cuisine' },
+      { command: 'buddy',      description: 'Match solo en direct' },
+      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel (ou /s)' },
+      { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
     ];
@@ -5704,26 +5710,39 @@ async function registerCommandsMenu() {
     // do?"). 512-char limit per Telegram. EN default + FR via
     // language_code='fr'. Per Human Lead 2026-05-06 — refresh from the
     // pre-v0.58.55 EN-only text and add a FR variant.
+    // v0.60.37 (Human Lead 2026-05-08): rewritten to the canonical
+    // 12-command surface. setMyDescription is capped at 512 chars per
+    // Telegram so the "Soleat for Solo eats…" preamble lives in
+    // setMyShortDescription (120-char "About" pane); the body here is
+    // the menu list + a tap-to-open hint.
     const enDescription =
-      "This is a breakfast, lunch & dining concierge service.\n\n" +
-      "/cuisine — over 55 cuisines (SG + Johor Bahru)\n" +
-      "/hidden — 5 new places to try 1.5–3 km away\n" +
-      "/hawker — >100 hawker centres (2025)\n" +
-      "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
-      "/transport — bus, train, drive, traffic\n" +
-      "/carpark — nearest 5 carparks\n" +
-      "/weather, /buddy, /share, /language, /privacy, /legal\n\n" +
-      "Free to use. Quirks welcome. Foodie.";
+      "/cuisine (or /c) · 50+ cuisines, SG + Johor Bahru, quick filters\n" +
+      "/location (or /l) · change location [street]\n" +
+      "/hawker · >100 hawker centres (2025)\n" +
+      "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
+      "/weather · now + 2-hour NEA forecast\n" +
+      "/transport · bus, MRT, walk, drive\n" +
+      "/carpark · nearest 5 with available lots\n" +
+      "/buddy · live solo-dining match\n" +
+      "/search (or /s) · dishes, ingredients, tools\n" +
+      "/language · English / Français\n" +
+      "/privacy · data + sources\n" +
+      "/forgetme · erase stored data\n\n" +
+      "Tap 🍴 Cuisine Picker to jump in.";
     const frDescription =
-      "Conciergerie petit-déjeuner, déjeuner & dîner.\n\n" +
-      "/cuisine — plus de 55 cuisines (SG + Johor Bahru)\n" +
-      "/hidden — 5 trouvailles à 1,5–3 km\n" +
-      "/hawker — plus de 100 hawker centres (2025)\n" +
-      "/recognised — Michelin, Bib Gourmand, Asia 50/100\n" +
-      "/transport — bus, métro, voiture, trafic\n" +
-      "/carpark — 5 parkings les plus proches\n" +
-      "/weather, /buddy, /share, /language, /privacy, /legal\n\n" +
-      "Gratuit. Curiosités bienvenues. Foodie.";
+      "/cuisine (ou /c) · 50+ cuisines, SG + Johor Bahru, filtres\n" +
+      "/location (ou /l) · changer de lieu [rue]\n" +
+      "/hawker · plus de 100 hawker centres (2025)\n" +
+      "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
+      "/weather · actuel + prévision NEA 2 h\n" +
+      "/transport · bus, MRT, marche, voiture\n" +
+      "/carpark · 5 parkings les plus proches\n" +
+      "/buddy · match solo en direct\n" +
+      "/search (ou /s) · plats, ingrédients, ustensiles\n" +
+      "/language · English / Français\n" +
+      "/privacy · données + sources\n" +
+      "/forgetme · effacer vos données\n\n" +
+      "Appuyez sur 🍴 pour ouvrir.";
     // v0.59.8 (Codex review #212): node-telegram-bot-api signature is
     // setMyDescription(form = {}) — a single options object, NOT
     // (text, options). The v0.59.6 calls passed the text positionally
@@ -5740,10 +5759,12 @@ async function registerCommandsMenu() {
     // v0.59.8: setMyShortDescription — the "About" blurb shown on the
     // bot's profile page and in share / forward previews. 120-char limit
     // per Telegram. EN default + FR via language_code='fr'.
+    // v0.60.37 — short blurb carries the user-facing tagline
+    // (the longer preamble + command list lives in setMyDescription).
     const enShortDescription =
-      "Singapore breakfast/lunch/dining concierge — cuisines, hawkers, transport, weather. Free to use.";
+      "Soleat — for Solo eats. Singapore dining concierge + a quick simple transport guide.";
     const frShortDescription =
-      "Conciergerie petit-déj/déjeuner/dîner à Singapour — cuisines, hawkers, transports, météo. Gratuit.";
+      "Soleat — pour repas solo. Conciergerie cuisine + transport simple à Singapour.";
     try {
       await bot.setMyShortDescription({ short_description: enShortDescription });
       await bot.setMyShortDescription({ short_description: frShortDescription, language_code: 'fr' });
