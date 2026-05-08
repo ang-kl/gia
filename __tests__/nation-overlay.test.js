@@ -28,8 +28,15 @@ const gc = require('../gemini-client.js');
 const SG_CAP = 200;
 const DEFAULT_CAP = 30;
 const REQUIRED_SLUGS = [
+  // v0.60.5a — SG-anchor
   'singaporean', 'peranakan', 'eurasian',
-  'hokkien', 'cantonese', 'hainanese', 'teochew'
+  'hokkien', 'cantonese', 'hainanese', 'teochew',
+  // v0.60.5b — Foreign Tier-1
+  'japanese', 'korean', 'sichuan',
+  'malaysian', 'indonesian', 'thai', 'vietnamese',
+  'north-indian', 'south-indian', 'pakistani',
+  'italian', 'french', 'spanish',
+  'lebanese', 'mexican'
 ];
 
 describe('NATION_OVERLAY — required SG-anchor cuisines exist', () => {
@@ -190,10 +197,12 @@ describe('cuisines-vault — overlay merge', () => {
   });
 
   it('findBySlugWithOverlay() returns base record for cuisines without overlay', () => {
-    const j = cv.findBySlugWithOverlay('japanese');
-    expect(j).toBeTruthy();
-    expect(j.slug).toBe('japanese');
-    expect(j.overlay).toBeUndefined();                 // no overlay in 5a phase
+    // Pick a cuisine NOT in v0.60.5a/5b. Burmese is a real
+    // cuisines-vault entry but no NATION_OVERLAY yet (Tier-2).
+    const b = cv.findBySlugWithOverlay('burmese');
+    expect(b).toBeTruthy();
+    expect(b.slug).toBe('burmese');
+    expect(b.overlay).toBeUndefined();
   });
 
   it('findBySlugWithOverlay() returns null for unknown slug', () => {
@@ -358,6 +367,24 @@ describe('findNationIconic — order-independent SG dish/drink detection (v0.60.
     expect(overlay.findNationIconic(undefined)).toBeNull();
   });
 
+  it('matches accented dish names typed with accents (per Codex review)', () => {
+    const hit = overlay.findNationIconic('crème brûlée');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('crème brûlée');
+  });
+
+  it('matches accented dish names typed in ASCII (per Codex review)', () => {
+    const hit = overlay.findNationIconic('creme brulee');
+    expect(hit).toBeTruthy();
+    expect(hit.dish).toBe('crème brûlée');
+  });
+
+  it('matches accented case-insensitive (Crème Brûlée → crème brûlée)', () => {
+    const hit = overlay.findNationIconic('Crème Brûlée');
+    expect(hit).toBeTruthy();
+    expect(hit.slug).toBe('french');
+  });
+
   it('strips parenthetical descriptions in dish names ("orh nee (yam paste...)")', () => {
     // "orh nee" is a valid 2-token match even though canonical name has parens
     const hit = overlay.findNationIconic('orh nee');
@@ -414,7 +441,11 @@ describe('NATION_OVERLAY — neighboringCuisines integrity', () => {
     // overlay graph that are NOT in the cuisines-vault parser.
     const synthetic = new Set([
       'indian-singaporean',
-      'malay'
+      'malay',
+      // Future-phase cuisines referenced as neighbors but not yet
+      // parsed from cuisines_js.MD. Tier-2 will add some of these.
+      'laotian', 'cambodian', 'afghani',
+      'belgian', 'guatemalan'
     ]);
 
     const orphans = [];

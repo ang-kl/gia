@@ -622,6 +622,866 @@ const NATION_OVERLAY = {
       en: 'Teochew (Chaoshan) cuisine from coastal Guangdong is famously light: clear broths, steamed pomfret, congee with side-dish accompaniments. The peppery (not herbal) bak kut teh; the original char kway teow; orh nee for dessert.',
       fr: 'La cuisine teochew (Chaoshan) du Guangdong côtier est légère: bouillons clairs, pomfret vapeur, congee accompagné de plats. Le bak kut teh poivré (et non aux herbes); le char kway teow d\'origine; l\'orh nee en dessert.'
     }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // v0.60.5b — Foreign Tier-1 (15 cuisines, ~300 dishes).
+  // Cap 30 per cuisine; smaller cuisines naturally land at 12-20.
+  // ──────────────────────────────────────────────────────────────────
+
+  // ──────────────────────────────────────────────────────────────────
+  // Japanese — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'japanese': {
+    flag: '🇯🇵',
+    aliases: ['japanese', 'japan', 'nihon', 'nippon', 'jp', 'washoku'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('sushi'),                                                 // umbrella — nigiri, maki, gunkan, chirashi
+      F('sashimi'),
+      F('omakase'),                                               // chef-choice tasting menu
+      F('chirashi don'),
+      F('tonkotsu ramen'),                                        // pork-bone broth, Hakata-Fukuoka style
+      F('miso ramen'),                                            // miso-based broth, Sapporo origin
+      F('shio ramen'),                                            // salt broth, light + clear
+      F('tsukemen'),                                              // dipping ramen
+      F('tempura'),
+      F('tonkatsu'),                                              // breaded pork cutlet
+      F('chicken katsu'),
+      F('katsu curry'),
+      F('japanese curry rice'),
+      F('gyoza'),                                                 // pan-fried dumpling
+      F('takoyaki'),                                              // octopus balls, Osaka street food
+      F('okonomiyaki'),                                           // savoury pancake, Hiroshima/Osaka variants
+      F('yakitori'),                                              // grilled chicken skewers
+      F('yakiniku'),                                              // grilled meat (Korean-Japanese)
+      F('shabu shabu'),                                           // hot pot
+      F('sukiyaki'),                                              // sweet soy hot pot
+      F('unagi don'),                                             // grilled eel rice bowl
+      F('oyakodon'),                                              // chicken + egg rice bowl
+      F('katsudon'),                                              // pork katsu + egg rice bowl
+      F('gyudon'),                                                // beef rice bowl
+      F('soba'),                                                  // buckwheat noodle, hot or cold
+      F('udon'),                                                  // thick wheat noodle
+      F('onigiri'),                                               // rice ball
+      F('mochi'),                                                 // glutinous rice cake (incl. daifuku)
+      D('sake',                        []),                        // rice wine
+      D('matcha',                      [])                         // powdered green tea
+    ],
+
+    sharedWithNeighbors: [
+      S('ramen',                'ramen',            ['hong-kong'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'korean',        reason: 'Adjacent East Asian; yakiniku origin Korean barbecue, gyoza ↔ mandu, ramen ↔ ramyeon' },
+      { slug: 'chinese',       reason: 'Buddhist + ramen + gyoza all trace Chinese roots; Japan refined them into distinct cuisines' },
+      { slug: 'taiwanese',     reason: '50 years of Japanese colonial influence; Taiwan adopted onigiri, oden, mochi' },
+      { slug: 'singaporean',   reason: 'High Japanese restaurant density in SG (Orchard, Robertson Quay); ramen + sushi mainstreamed' }
+    ],
+
+    touristExplainer: {
+      en: 'Japanese cuisine emphasizes seasonality, umami, and ingredient purity. Sushi at the top end, ramen at the everyday — Singapore has the highest concentration of Japanese restaurants outside Japan. Look for omakase or 2nd-gen ramen-ya for the real thing.',
+      fr: 'La cuisine japonaise privilégie la saisonnalité, l\'umami et la pureté des ingrédients. Les sushis au sommet, les ramens au quotidien — Singapour a la plus forte densité de restaurants japonais hors Japon. Cherchez l\'omakase ou les ramen-ya de deuxième génération pour l\'authentique.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Korean — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'korean': {
+    flag: '🇰🇷',
+    aliases: ['korean', 'korea', 'k-food', 'hansik'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('bibimbap'),                                              // mixed rice bowl with namul + gochujang
+      F('dolsot bibimbap'),                                       // hot stone bowl version
+      F('bulgogi'),                                               // marinated grilled beef
+      F('galbi'),                                                 // marinated short rib
+      F('samgyeopsal'),                                           // grilled pork belly
+      F('korean fried chicken'),                                  // double-fried, gochujang or soy garlic
+      F('kimchi jjigae'),                                         // kimchi stew
+      F('sundubu jjigae'),                                        // soft tofu stew
+      F('doenjang jjigae'),                                       // soybean paste stew
+      F('budae jjigae'),                                          // army stew (spam + ramyeon)
+      F('dakgalbi'),                                              // spicy stir-fried chicken
+      F('japchae'),                                               // sweet potato glass noodle stir-fry
+      F('jjajangmyeon'),                                          // black bean noodle (Korean-Chinese)
+      F('jjamppong'),                                             // spicy seafood noodle (Korean-Chinese)
+      F('naengmyeon'),                                            // cold buckwheat noodle
+      F('tteokbokki'),                                            // spicy rice cake
+      F('kimbap'),                                                // seaweed rice roll
+      F('mandu'),                                                 // dumpling
+      F('bossam'),                                                // boiled pork belly + lettuce wrap
+      F('jokbal'),                                                // pig trotter
+      F('gimbap'),                                                // alt spelling of kimbap
+      F('seollangtang'),                                          // ox-bone broth
+      F('galbitang'),                                             // beef short rib soup
+      F('samgyetang'),                                            // ginseng chicken soup
+      F('hotteok'),                                               // sweet pancake
+      F('bingsu'),                                                // shaved ice with toppings
+      F('banchan platter'),                                       // side-dish array
+      F('kimchi'),                                                // foundational fermented vegetable
+      D('soju',                        []),
+      D('makgeolli',                   [])                         // unfiltered rice wine
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'japanese',     reason: 'Yakiniku origin Korean BBQ; mandu ↔ gyoza; seaweed + soy heritage shared' },
+      { slug: 'chinese',      reason: 'Korean-Chinese cuisine (jjajangmyeon, jjamppong) — diaspora-driven hybrid' },
+      { slug: 'singaporean',  reason: 'K-pop + K-drama wave drove Korean food mainstream in SG (Geylang Korea-town, Robertson Walk)' }
+    ],
+
+    touristExplainer: {
+      en: 'Korean cuisine is fermentation-heavy (kimchi, gochujang, doenjang) with a strong banchan culture: every meal arrives with 4-12 small side dishes. BBQ is the social meal; jjigae stews and Korean fried chicken are the late-night comfort.',
+      fr: 'La cuisine coréenne est riche en fermentations (kimchi, gochujang, doenjang) avec une forte culture du banchan: chaque repas arrive avec 4 à 12 petits plats d\'accompagnement. Le BBQ est le repas social; jjigae et poulet frit coréen sont le réconfort nocturne.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Sichuan — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'sichuan': {
+    flag: '🇨🇳',
+    aliases: ['sichuan', 'szechuan', 'szechwan', 'sze chuan', 'chuan cai'],
+    populationInSG: 'medium',
+
+    iconicDishes: [
+      F('mapo tofu'),                                             // Chen Mapo Doufu, Chengdu 1862
+      F('kung pao chicken (gong bao ji ding)'),                   // peanuts + dried chili + Sichuan pepper
+      F('twice-cooked pork (hui guo rou)'),
+      F('dan dan noodles'),                                       // chili oil + Sichuan pepper noodles
+      F('sichuan hot pot'),                                       // ma la broth, beef tallow base
+      F('chongqing hot pot'),                                     // separate sub-style, more numbing
+      F('fish-fragrant pork (yu xiang rou si)'),                  // contains no fish — sweet-sour-spicy
+      F('fish-fragrant aubergine'),
+      F('husband and wife lung slices (fu qi fei pian)'),         // chilled offal in chili oil
+      F('mouthwatering chicken (kou shui ji)'),
+      F('boiled fish in chili oil (shui zhu yu)'),
+      F('boiled beef in chili oil (shui zhu niu rou)'),
+      F('ma la xiang guo'),                                       // dry pot, choose-your-ingredients
+      F('chongqing chicken (la zi ji)'),                          // chicken buried in dried chilies
+      F('sichuan dry-fried green beans'),
+      F('chengdu dan dan noodles'),
+      F('zhong dumplings'),
+      F('chao shou'),                                             // Sichuan wonton, red oil
+      F('sichuan-style smoked duck (zhang cha ya)'),
+      F('beggar\'s chicken'),                                     // also Hangzhou but Sichuan claims a variant
+      F('sichuan cold noodle'),
+      F('saliva chicken (kou shui ji) alt name'),
+      F('pock-marked old woman tofu (mapo doufu alt)'),
+      F('sichuan pickled mustard greens'),
+      F('sichuan-style spicy crayfish'),
+      F('mala beef noodle')
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'hunan',         reason: 'Both Hunan + Sichuan use chili heavily; Hunan is hot-without-numbing, Sichuan is hot-AND-numbing (ma la)' },
+      { slug: 'chinese',       reason: 'Sichuan is one of the 8 Great Traditions of Chinese cuisine' },
+      { slug: 'cantonese',     reason: 'Adjacent regional Chinese sub-cuisine; Cantonese is light-sweet, Sichuan is bold-pungent' }
+    ],
+
+    touristExplainer: {
+      en: 'Sichuan cuisine is built around two heat sensations: la (chili-fire) and ma (Sichuan-pepper-numbing) — together "ma la". Liberal use of fermented broad bean paste (doubanjiang), pickled chilies and Sichuan peppercorns. Chongqing hot pot is the most famous export.',
+      fr: 'La cuisine sichuanaise repose sur deux sensations: la (piment-feu) et ma (poivre-engourdissant) — ensemble "ma la". Usage généreux de pâte de fève fermentée (doubanjiang), piments marinés et poivre de Sichuan. La fondue chongqing est l\'exportation la plus célèbre.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Malaysian — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'malaysian': {
+    flag: '🇲🇾',
+    aliases: ['malaysian', 'malay', 'malaysia', 'msia', 'mamak'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('nasi lemak',                  ['singaporean']),          // national dish — coconut rice + sambal
+      F('roti canai'),                                            // Malaysian flaky flatbread (vs SG roti prata)
+      F('curry mee penang'),                                      // Penang curry coconut noodle
+      F('asam laksa penang'),
+      F('sarawak laksa'),
+      F('nasi kandar'),                                           // Penang Indian-Muslim mixed rice
+      F('wantan mee dry malaysian'),
+      F('apom balik'),                                            // peanut + sweetcorn pancake
+      F('lor mee penang'),                                        // dark gravy noodle
+      F('cucur udang'),                                           // prawn fritter
+      F('rendang',                     ['indonesian']),           // Padang origin, both nations claim
+      F('kuih lapis penang'),
+      F('cendol penang'),
+      F('apam'),
+      F('nasi kerabu'),                                           // Kelantanese blue rice
+      F('roti john malaysian'),
+      F('asam pedas'),                                            // sour-spicy fish stew
+      F('ayam masak merah'),                                      // tomato-chili chicken
+      F('beef rendang malaysian'),
+      F('curry laksa kl'),
+      F('penang char kway teow',       ['singaporean']),
+      F('hokkien mee kl',              ['singaporean']),
+      F('hokkien mee penang',          ['singaporean']),
+      F('mee mamak goreng'),
+      F('teh tarik',                   ['singaporean']),
+      F('dim sum kl style'),
+      F('bak kut teh klang',           ['hokkien']),               // herbal Hokkien-style
+      F('lobak'),                                                 // Penang ngoh hiang
+      F('kuih kapit malaysian'),
+      F('ais kacang malaysian')
+    ],
+
+    sharedWithNeighbors: [
+      S('laksa',                'laksa',            ['singaporean', 'peranakan']),
+      S('satay',                'satay',            ['singaporean', 'indonesian']),
+      S('mee goreng',           'mee goreng',       ['singaporean']),
+      S('curry puff',           'curry puff',       ['singaporean']),
+      S('bak kut teh',          'bak kut teh',      ['singaporean', 'teochew', 'hokkien']),
+      S('chendol',              'chendol',          ['singaporean', 'peranakan', 'indonesian']),
+      S('mee siam',             'mee siam',         ['singaporean', 'peranakan']),
+      S('mee rebus',            'mee rebus',        ['singaporean']),
+      S('roti prata',           'prata',            ['singaporean']),
+      S('murtabak',             'murtabak',         ['singaporean']),
+      S('ice kacang',           'ice kachang',      ['singaporean']),
+      S('soto ayam',            'soto ayam',        ['singaporean', 'indonesian']),
+      S('otak-otak',            'otah',             ['singaporean', 'peranakan', 'indonesian']),
+      S('chicken rice',         'chicken rice',     ['singaporean', 'hainanese', 'cantonese'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'singaporean',  reason: 'Shared Peranakan + Hokkien + Malay heritage; many SG dishes also Malaysian (laksa, char kway teow, hokkien mee, nasi lemak, rendang)' },
+      { slug: 'indonesian',   reason: 'Nusantara archipelago — Padang, sate, sambal traditions span both nations' },
+      { slug: 'thai',         reason: 'Northern Malay states share Thai-Muslim cuisine (tom yum mee, nasi kerabu)' },
+      { slug: 'peranakan',    reason: 'Penang + Melaka are the heart of Peranakan culture' }
+    ],
+
+    touristExplainer: {
+      en: 'Malaysian cuisine is a 3-way fusion of Malay, Chinese (Hokkien/Teochew/Cantonese diaspora) and Indian (mamak) traditions. Penang is the food capital — char kway teow, asam laksa, nasi kandar all peak there. The Singapore overlap is huge but versions differ.',
+      fr: 'La cuisine malaisienne est une fusion à 3 voies: traditions malaises, chinoises (diaspora hokkien/teochew/cantonaise) et indiennes (mamak). Penang est la capitale gastronomique — char kway teow, asam laksa, nasi kandar y atteignent leur sommet. Le chevauchement avec Singapour est énorme mais les versions diffèrent.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Indonesian — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'indonesian': {
+    flag: '🇮🇩',
+    aliases: ['indonesian', 'indonesia', 'indo', 'idn'],
+    populationInSG: 'medium',
+
+    iconicDishes: [
+      F('nasi goreng'),                                           // national dish — fried rice with kecap manis
+      F('rendang',                     ['malaysian']),            // Padang slow-cooked beef
+      F('bakso'),                                                 // beef-meatball soup, Java street
+      F('soto betawi'),                                           // Jakarta coconut-milk beef soup
+      F('soto madura'),
+      F('soto kudus'),
+      F('rawon'),                                                 // East Javanese black beef soup
+      F('ayam betutu'),                                           // Balinese steamed-roasted chicken
+      F('babi guling'),                                           // Balinese suckling pig
+      F('pepes ikan'),                                            // banana-leaf fish
+      F('nasi padang'),                                           // Padang mixed-rice display restaurant
+      F('gulai kambing'),                                         // Padang goat curry
+      F('gulai ikan'),
+      F('ikan bakar indonesian'),
+      F('ayam penyet'),                                           // smashed fried chicken
+      F('ayam goreng kalasan'),
+      F('es teler'),                                              // avocado + jackfruit + young coconut dessert
+      F('pisang goreng'),                                         // fried banana fritter
+      F('lontong sayur'),
+      F('martabak telur'),                                        // savoury egg pancake
+      F('martabak manis'),                                        // sweet pancake (terang bulan)
+      F('siomay'),                                                // steamed dumpling with peanut sauce
+      F('batagor'),                                               // fried tofu siomay
+      F('rujak'),                                                 // fruit + sweet-sour-spicy sauce
+      F('asinan'),                                                // pickled vegetable salad
+      F('tempeh goreng'),
+      F('tahu goreng indonesian'),
+      F('nasi uduk'),                                             // Jakarta coconut rice
+      F('dadar gulung indonesian')
+    ],
+
+    sharedWithNeighbors: [
+      S('mie goreng',           'mee goreng',       ['malaysian', 'singaporean']),
+      S('sate',                 'satay',            ['malaysian', 'singaporean']),
+      S('gado gado',            'gado gado',        ['singaporean']),
+      S('soto ayam',            'soto ayam',        ['malaysian', 'singaporean']),
+      S('es cendol',            'chendol',          ['singaporean', 'malaysian', 'peranakan']),
+      S('klepon',               'ondeh ondeh',      ['singaporean', 'malaysian', 'peranakan']),
+      S('otak-otak indonesian', 'otah',             ['singaporean', 'malaysian', 'peranakan']),
+      S('lapis legit',          'kuih lapis',       ['singaporean', 'malaysian', 'peranakan'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'malaysian',     reason: 'Nusantara archipelago — Padang, satay, sambal, lontong span both' },
+      { slug: 'singaporean',   reason: 'Peranakan + colonial-era diaspora; rendang, gado-gado, satay all present' },
+      { slug: 'thai',          reason: 'Some southern Sumatra cuisine shares Thai-Muslim traditions' },
+      { slug: 'filipino',      reason: 'Bahasa-Tagalog substrate; some sambal-adjacent traditions' }
+    ],
+
+    touristExplainer: {
+      en: 'Indonesian cuisine spans 17,000 islands — 6 major regional traditions (Padang/Minang, Java, Bali, Sundanese, Manado, Aceh). Padang is the most exported (rendang, gulai); Bali is the only Hindu-Indonesian cuisine (babi guling, pork). Sambal is foundational — every region has its own.',
+      fr: 'La cuisine indonésienne s\'étend sur 17 000 îles — 6 grandes traditions régionales (Padang/Minang, Java, Bali, Sundanese, Manado, Aceh). Padang est la plus exportée (rendang, gulai); Bali est la seule cuisine hindoue-indonésienne (babi guling, porc). Le sambal est fondamental — chaque région a le sien.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Thai — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'thai': {
+    flag: '🇹🇭',
+    aliases: ['thai', 'thailand', 'siamese'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('pad thai'),                                              // national dish, 1940s
+      F('tom yum goong'),                                         // hot-and-sour shrimp soup
+      F('tom kha gai'),                                           // coconut chicken soup
+      F('green curry (gaeng keow wan)'),
+      F('red curry (gaeng phed)'),
+      F('massaman curry'),                                        // Muslim Thai curry, peanuts + cardamom
+      F('panang curry'),
+      F('jungle curry (gaeng pa)'),                               // no coconut milk, intensely spicy
+      F('khao soi'),                                              // Northern Thai coconut curry noodle
+      F('som tam'),                                               // green papaya salad (Isaan)
+      F('larb gai'),                                              // minced chicken salad (Isaan)
+      F('larb moo'),                                              // minced pork salad
+      F('nam tok'),                                               // grilled meat salad
+      F('khao pad'),                                              // Thai fried rice
+      F('khao pad sapparod'),                                     // pineapple fried rice
+      F('pad krapow moo'),                                        // basil pork rice
+      F('pad see ew'),
+      F('pad kee mao'),                                           // drunken noodles
+      F('boat noodles (kuay teow rua)'),
+      F('thai beef noodle'),
+      F('thai chicken rice (khao man gai)',  ['hainanese']),
+      F('moo ping'),                                              // grilled pork skewer
+      F('thai fishcake (tod mun pla)'),
+      F('mango sticky rice'),                                     // khao niao mamuang
+      F('thai coconut ice cream'),
+      F('thai milk tea (cha yen)'),
+      F('roti gluay'),                                            // banana roti street snack
+      F('khanom krok'),                                           // coconut pancake
+      F('kanom buang')                                            // crispy crepe with cream filling
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'laotian',       reason: 'Isaan (NE Thai) cuisine is essentially Lao — som tam, larb, sticky rice' },
+      { slug: 'cambodian',     reason: 'Shared Khmer substrate; some currys + rice traditions overlap' },
+      { slug: 'malaysian',     reason: 'Southern Thai (Pattani, Yala) shares Thai-Muslim cuisine' },
+      { slug: 'vietnamese',    reason: 'Some pho-like Thai noodle soups; shared rice-paper traditions in Isaan' },
+      { slug: 'burmese',       reason: 'Northern Thai (Lanna) shares burmese-influenced Khao Soi' }
+    ],
+
+    touristExplainer: {
+      en: 'Thai cuisine balances 4 tastes — sweet, sour, salty, spicy — in every dish. Curries built on house pastes (no jarred curry powders), aromatic basil, lime, lemongrass, fish sauce. The Bangkok-Isaan-Northern-Southern split is real: 4 distinct regional traditions.',
+      fr: 'La cuisine thaïlandaise équilibre 4 saveurs — sucré, acide, salé, épicé — dans chaque plat. Curry à base de pâtes maison (pas de poudre en pot), basilic aromatique, citron vert, citronnelle, sauce de poisson. La répartition Bangkok-Isaan-Nord-Sud est réelle: 4 traditions régionales distinctes.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Vietnamese — cap 30, naturally smaller (~20)
+  // ──────────────────────────────────────────────────────────────────
+  'vietnamese': {
+    flag: '🇻🇳',
+    aliases: ['vietnamese', 'vietnam', 'viet'],
+    populationInSG: 'medium',
+
+    iconicDishes: [
+      F('pho bo'),                                                // beef noodle soup
+      F('pho ga'),                                                // chicken noodle soup
+      F('banh mi'),                                               // baguette sandwich (French-Viet)
+      F('bun cha'),                                               // grilled pork + rice noodle (Hanoi)
+      F('bun bo hue'),                                            // spicy beef noodle (central VN)
+      F('bun rieu'),                                              // crab tomato noodle
+      F('bun thit nuong'),                                        // grilled pork rice noodle
+      F('goi cuon'),                                              // fresh spring roll
+      F('cha gio (nem ran)'),                                     // fried spring roll
+      F('com tam'),                                               // broken-rice plate (Saigon)
+      F('banh xeo'),                                              // turmeric crepe
+      F('banh khot'),                                             // mini crepe
+      F('cao lau'),                                               // Hoi An noodle
+      F('mi quang'),                                              // turmeric noodle (central)
+      F('cha ca la vong'),                                        // Hanoi turmeric fish
+      F('bo kho'),                                                // beef stew
+      F('ca kho to'),                                             // caramelized claypot fish
+      F('thit kho trung'),                                        // braised pork + egg
+      F('canh chua'),                                             // sour fish soup
+      F('nem nuong'),                                             // grilled pork sausage
+      F('xoi'),                                                   // sticky rice
+      F('che'),                                                   // umbrella for sweet desserts
+      D('vietnamese coffee (ca phe sua da)'),                     // condensed-milk iced coffee
+      D('vietnamese egg coffee (ca phe trung)')                   // Hanoi specialty
+    ],
+
+    sharedWithNeighbors: [
+      S('pho',                  'pho',              [])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'cambodian',      reason: 'Mekong delta + cuisine substrate; shared rice paper, some curries' },
+      { slug: 'laotian',        reason: 'Northern VN ↔ Lao border dishes; sticky rice, some grilled meat traditions' },
+      { slug: 'thai',           reason: 'Some basil + lime + rice noodle parallels; differs in sweetness' },
+      { slug: 'french',         reason: 'Banh mi + Vietnamese coffee both inherit from French colonial era (1887-1954)' },
+      { slug: 'chinese',        reason: 'Northern VN cuisine (Hanoi pho) inherits Chinese noodle + soup traditions' }
+    ],
+
+    touristExplainer: {
+      en: 'Vietnamese cuisine is famously light, herb-forward and balanced. Pho is the symbol but bun cha, banh mi and com tam are equally iconic. Hanoi (north) is subtle + clear; Saigon (south) is sweeter + bolder; central (Hue, Hoi An) is spicier + more royal-court.',
+      fr: 'La cuisine vietnamienne est célèbre pour sa légèreté, ses herbes et son équilibre. Le pho est le symbole, mais bun cha, banh mi et com tam sont tout aussi emblématiques. Hanoi (nord) est subtil et clair; Saigon (sud) plus sucré et audacieux; le centre (Hue, Hoi An) est plus épicé et royal.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // North Indian — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'north-indian': {
+    flag: '🇮🇳',
+    aliases: ['north indian', 'north-indian', 'punjabi', 'mughlai', 'hindi'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('butter chicken'),                                        // Moti Mahal, Delhi 1950s
+      F('dal makhani'),                                           // creamy black lentil
+      F('palak paneer'),                                          // spinach + cottage cheese
+      F('saag paneer'),                                           // mustard greens variant
+      F('paneer tikka'),
+      F('chicken tikka masala'),                                  // British-Indian, sometimes claimed Punjabi
+      F('chicken tikka'),
+      F('rogan josh'),                                            // Kashmiri red lamb curry
+      F('seekh kebab'),
+      F('shami kebab'),
+      F('galouti kebab'),                                         // Lucknowi melt-in-mouth kebab
+      F('tandoori chicken'),
+      F('naan'),                                                  // tandoor-baked flatbread
+      F('butter naan'),
+      F('garlic naan'),
+      F('roti / chapati'),
+      F('paratha'),
+      F('aloo paratha'),
+      F('kulcha'),
+      F('dal tadka'),
+      F('dal fry'),
+      F('chana masala'),
+      F('rajma'),                                                 // kidney bean curry
+      F('samosa'),
+      F('pakora'),
+      F('chaat'),                                                 // umbrella street snack
+      F('pani puri'),
+      F('bhel puri'),
+      F('gulab jamun'),
+      F('jalebi')
+    ],
+
+    sharedWithNeighbors: [
+      S('biryani',              'biryani',          ['indian-singaporean']),
+      S('hyderabadi biryani',   'biryani',          ['indian-singaporean']),
+      S('lucknowi biryani',     'biryani',          ['indian-singaporean'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'south-indian',   reason: 'Both Indian sub-cuisines but distinct: North uses wheat + dairy + tandoor; South uses rice + coconut + tamarind' },
+      { slug: 'pakistani',      reason: 'Punjab + Sindh shared culinary heritage with Pakistan; biryani + kebabs straddle the border' },
+      { slug: 'nepalese',       reason: 'Northern Indian → Nepalese spillover (dal-bhat, momos)' },
+      { slug: 'bengali',        reason: 'East Indian Bengali tradition is distinct from North; rice-fish vs wheat-meat' }
+    ],
+
+    touristExplainer: {
+      en: 'North Indian (Punjabi + Mughlai + Awadhi) cuisine is wheat-based: tandoor breads (naan, roti), creamy dairy curries (butter chicken, dal makhani), and rich kebabs (Lucknowi galouti). What most non-Indians mean by "Indian food" globally.',
+      fr: 'La cuisine du Nord de l\'Inde (penjabi + moghole + awadhi) est à base de blé: pains du tandoor (naan, roti), curry crémeux (butter chicken, dal makhani), kebabs riches (galouti de Lucknow). Ce que la plupart des non-Indiens entendent par "cuisine indienne" dans le monde.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // South Indian — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'south-indian': {
+    flag: '🇮🇳',
+    aliases: ['south indian', 'south-indian', 'tamil', 'kerala', 'andhra', 'karnataka', 'malayali'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('dosa'),                                                  // fermented rice-lentil crepe
+      F('masala dosa'),
+      F('paper dosa'),
+      F('rava dosa'),
+      F('idli'),                                                  // steamed rice cake
+      F('vada'),                                                  // savoury fried doughnut
+      F('medu vada'),
+      F('uttapam'),                                               // thick fermented pancake
+      F('upma'),
+      F('pongal'),
+      F('sambar'),                                                // tamarind lentil broth
+      F('rasam'),                                                 // peppery tamarind broth
+      F('coconut chutney'),
+      F('tomato chutney'),
+      F('chettinad chicken'),                                     // Tamil black-pepper chicken
+      F('kerala fish curry'),                                     // coconut + kokum
+      F('avial'),                                                 // Kerala mixed vegetable
+      F('appam'),                                                 // Kerala lacy pancake
+      F('puttu'),                                                 // Kerala steamed rice cylinder
+      F('kerala beef fry'),
+      F('andhra mutton curry'),
+      F('chettinad pepper crab'),
+      F('hyderabadi haleem'),                                     // Telugu Muslim wheat-meat porridge
+      F('thali'),                                                 // South Indian banana-leaf set meal
+      F('meals (sappadu)'),                                       // Tamil banana-leaf meal
+      F('payasam'),                                               // milk-rice pudding (kheer)
+      F('mysore pak'),                                            // ghee-besan sweet
+      F('filter coffee')
+    ],
+
+    sharedWithNeighbors: [
+      S('biryani',              'biryani',          ['indian-singaporean', 'north-indian']),
+      S('hyderabadi biryani',   'biryani',          ['indian-singaporean'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'north-indian',   reason: 'Both Indian sub-cuisines but distinct: South uses rice + coconut + tamarind; North uses wheat + dairy' },
+      { slug: 'sri-lankan',     reason: 'Tamil cuisine straddles Tamil Nadu + Northern Sri Lanka; hoppers, kothu roti shared' },
+      { slug: 'singaporean',    reason: 'Tamil diaspora is one of SG\'s 4 founding ethnic groups; Little India is its anchor' }
+    ],
+
+    touristExplainer: {
+      en: 'South Indian cuisine is rice-based and largely vegetarian (Tamil Brahmin tradition) with a sub-cuisine each in Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana. Chettinad is the meat-heavy outlier; Kerala is the seafood + coconut anchor; Hyderabadi is the Telugu-Muslim biryani heartland.',
+      fr: 'La cuisine du Sud de l\'Inde est à base de riz et largement végétarienne (tradition brahmane tamoule) avec une sous-cuisine pour chaque État (Tamil Nadu, Kerala, Karnataka, Andhra Pradesh, Telangana). Chettinad est l\'exception carnée; le Kerala est l\'ancre fruits-de-mer + coco; Hyderabad est le cœur du biryani télougou-musulman.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Pakistani — cap 30, naturally ~15
+  // ──────────────────────────────────────────────────────────────────
+  'pakistani': {
+    flag: '🇵🇰',
+    aliases: ['pakistani', 'pakistan', 'sindhi', 'pashtun', 'balti'],
+    populationInSG: 'low',
+
+    iconicDishes: [
+      F('nihari'),                                                // overnight slow-braised beef shank
+      F('haleem'),                                                // wheat + meat porridge
+      F('chicken karahi'),                                        // wok-cooked tomato chicken
+      F('mutton karahi'),
+      F('chapli kebab'),                                          // Peshawar-style flat minced kebab
+      F('seekh kebab pakistani'),
+      F('beef pulao'),                                            // not biryani — distinct one-pot rice
+      F('mutton paya'),                                           // trotter soup
+      F('siri paya'),                                             // head + trotter soup
+      F('chicken jalfrezi pakistani'),
+      F('lahori chargha'),                                        // marinated whole roast chicken
+      F('peshawari naan'),                                        // sweet naan with raisins
+      F('balti gosht'),                                           // Birmingham-Pakistani fusion
+      F('saag paneer pakistani'),
+      F('aloo gosht'),
+      F('palak gosht'),
+      F('chana pulao'),
+      F('keema matar'),
+      F('kheer pakistani'),
+      F('ras malai'),
+      F('gulab jamun pakistani'),
+      F('shahi tukda'),                                           // royal bread pudding
+      F('pakistani milk tea (doodh patti)')
+    ],
+
+    sharedWithNeighbors: [
+      S('biryani',              'biryani',          ['indian-singaporean', 'north-indian']),
+      S('sindhi biryani',       'biryani',          ['indian-singaporean'])
+    ],
+
+    neighboringCuisines: [
+      { slug: 'north-indian',   reason: 'Punjab + Sindh shared culinary heritage with India; biryani + kebabs straddle the border' },
+      { slug: 'persian',        reason: 'Pulao + chelo + meat traditions inherit from Persian Mughlai roots' },
+      { slug: 'afghani',        reason: 'Pashtun + Baloch + Afghan border cuisine; chapli kebab + lahori chargha shared' }
+    ],
+
+    touristExplainer: {
+      en: 'Pakistani cuisine is meat-forward (mutton + beef + chicken; pork is haram), wheat + rice based, with strong Mughal + Persian + Punjabi roots. Distinct from Indian: more pulao than biryani, more karahi-style than tandoori, less dairy-curry, more bone-broth and slow-braised shank.',
+      fr: 'La cuisine pakistanaise est carnée (mouton + bœuf + poulet; porc haram), à base de blé + riz, avec de fortes racines moghole + persane + penjabi. Distincte de l\'indienne: plus de pulao que de biryani, plus de karahi que de tandoor, moins de curry crémeux, plus de bouillons d\'os et de braisés lents.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Italian — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'italian': {
+    flag: '🇮🇹',
+    aliases: ['italian', 'italy', 'italia', 'italiana'],
+    populationInSG: 'high',
+
+    iconicDishes: [
+      F('pizza margherita'),                                      // Naples, 1889
+      F('pizza marinara'),
+      F('focaccia'),
+      F('spaghetti carbonara'),                                   // egg + guanciale + pecorino + pepper
+      F('cacio e pepe'),                                          // pecorino + pepper, Roman
+      F('pasta alla gricia'),
+      F('pasta amatriciana'),
+      F('spaghetti aglio e olio'),
+      F('lasagna alla bolognese'),
+      F('tagliatelle al ragù'),                                   // the real "spaghetti bolognese"
+      F('risotto alla milanese'),                                 // saffron risotto
+      F('risotto ai funghi'),
+      F('osso buco alla milanese'),                               // braised veal shank
+      F('vitello tonnato'),                                       // veal with tuna sauce, Piedmontese
+      F('saltimbocca'),                                           // veal + prosciutto + sage
+      F('parmigiana di melanzane'),                               // baked aubergine
+      F('caponata'),                                              // Sicilian aubergine relish
+      F('arancini'),                                              // Sicilian rice balls
+      F('cannoli'),                                               // Sicilian fried pastry
+      F('tiramisu'),                                              // Treviso, 1960s
+      F('panna cotta'),
+      F('gelato'),
+      F('affogato'),                                              // espresso + gelato
+      F('gnocchi'),
+      F('ravioli'),
+      F('tortellini in brodo'),
+      F('bruschetta'),
+      F('caprese salad'),                                         // tomato + mozzarella + basil
+      F('prosciutto e melone'),
+      F('panettone')                                              // Christmas Milanese
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'french',         reason: 'Riviera + Piedmontese cuisine borders French Provence + Savoy; truffle + risotto traditions overlap' },
+      { slug: 'spanish',        reason: 'Mediterranean + Aragonese influence in Sardinia + Sicily' },
+      { slug: 'greek',          reason: 'Adriatic + Magna Graecia substrate; olive oil + grain + Mediterranean diet shared' },
+      { slug: 'austrian',       reason: 'Trentino + Alto Adige (South Tyrol) is bilingual Italian-German; speck, knödel, strudel' },
+      { slug: 'mediterranean',  reason: 'Italy is the largest single Mediterranean cuisine; olive oil + grain + tomato base' }
+    ],
+
+    touristExplainer: {
+      en: 'Italian cuisine is regional, not national — 20 regions, each with its own pasta shapes, sauces, breads, and desserts. The North is butter + risotto + polenta; Central (Roman + Tuscan) is pecorino + guanciale + Chianti; the South is tomato + olive oil + seafood. Pizza Napoletana is UNESCO heritage.',
+      fr: 'La cuisine italienne est régionale, pas nationale — 20 régions, chacune avec ses pâtes, sauces, pains et desserts. Le Nord c\'est beurre + risotto + polenta; le centre (romain + toscan) c\'est pecorino + guanciale + chianti; le Sud c\'est tomate + huile d\'olive + fruits de mer. La pizza napolitaine est patrimoine UNESCO.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // French — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'french': {
+    flag: '🇫🇷',
+    aliases: ['french', 'france', 'française', 'gaulois'],
+    populationInSG: 'medium',
+
+    iconicDishes: [
+      F('boeuf bourguignon'),                                     // Burgundian beef + red wine stew
+      F('coq au vin'),                                            // chicken in wine
+      F('cassoulet'),                                             // Toulouse white-bean + duck stew
+      F('ratatouille'),                                           // Provençal vegetable stew
+      F('bouillabaisse'),                                         // Marseille fish stew
+      F('soupe à l\'oignon'),                                     // gratinéed onion soup
+      F('croque monsieur'),                                       // ham + cheese toast
+      F('croque madame'),                                         // with fried egg
+      F('duck confit'),                                           // Gascon salt-cured duck leg
+      F('foie gras'),                                             // duck or goose liver
+      F('escargots de Bourgogne'),                                // garlic-butter snails
+      F('steak frites'),
+      F('steak tartare'),
+      F('sole meunière'),
+      F('blanquette de veau'),                                    // white veal stew
+      F('pot-au-feu'),                                            // boiled beef + vegetables
+      F('quiche lorraine'),                                       // bacon + egg + cream tart
+      F('soufflé au fromage'),
+      F('tarte tatin'),                                           // upside-down apple tart
+      F('crème brûlée'),
+      F('macarons'),                                              // Parisian almond meringue
+      F('éclair'),
+      F('mille-feuille'),
+      F('paris-brest'),
+      F('croissant'),
+      F('pain au chocolat'),
+      F('baguette'),
+      F('tarte flambée alsacienne'),                              // Alsatian flammkuchen
+      F('choucroute alsacienne'),                                 // sauerkraut + sausage + pork
+      F('pissaladière niçoise')                                   // anchovy + onion tart
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'italian',        reason: 'Riviera (Niçois) cuisine shares with Liguria; truffle + olive + herb traditions' },
+      { slug: 'spanish',        reason: 'Pays Basque is shared by France + Spain — pintxos, piperade, cidre' },
+      { slug: 'belgian',        reason: 'Northern French + Flemish tradition extends through Belgium; pommes frites, beer, mussels' },
+      { slug: 'swiss',          reason: 'Romande Switzerland is French-speaking; fondue, raclette' },
+      { slug: 'german',         reason: 'Alsace is German-French border; choucroute, tarte flambée' },
+      { slug: 'vietnamese',     reason: 'Banh mi + VN coffee inherit French colonial era; pâté + baguette + condensed milk' },
+      { slug: 'lebanese',       reason: 'Lebanese cuisine in France large; some Levantine ingredients used in Provençal' }
+    ],
+
+    touristExplainer: {
+      en: 'French cuisine is the foundational reference of Western fine dining (UNESCO heritage 2010). Regional: Provençal (olive oil + herbs), Burgundian (wine stews), Gascon (duck + foie gras), Norman (cream + apple), Alsatian (German-French). Bistros and brasseries handle the everyday; tasting menus the upmarket.',
+      fr: 'La cuisine française est la référence fondatrice de la haute gastronomie occidentale (patrimoine UNESCO 2010). Régionale: provençale (huile d\'olive + herbes), bourguignonne (mijotés au vin), gasconne (canard + foie gras), normande (crème + pomme), alsacienne (germano-française). Bistrots et brasseries au quotidien; menus dégustation pour le haut de gamme.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Spanish — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'spanish': {
+    flag: '🇪🇸',
+    aliases: ['spanish', 'spain', 'española', 'castilian', 'iberian'],
+    populationInSG: 'medium',
+
+    iconicDishes: [
+      F('paella valenciana'),                                     // rabbit + chicken + green beans (the original)
+      F('paella de mariscos'),                                    // seafood paella
+      F('arroz negro'),                                           // squid-ink rice
+      F('fideuà'),                                                // noodle paella
+      F('tortilla española'),                                     // potato + egg omelette
+      F('gazpacho'),                                              // cold tomato soup, Andalusian
+      F('salmorejo'),                                             // thicker tomato cream, Cordoban
+      F('jamón ibérico'),                                         // acorn-fed cured ham
+      F('jamón serrano'),
+      F('chorizo'),                                               // smoked paprika sausage
+      F('croquetas'),
+      F('patatas bravas'),                                        // fried potatoes + tomato + aioli
+      F('pan con tomate'),                                        // Catalan tomato bread
+      F('pulpo a la gallega'),                                    // Galician octopus + paprika + olive oil
+      F('cocido madrileño'),                                      // Madrid chickpea + meat stew
+      F('fabada asturiana'),                                      // Asturian bean + chorizo stew
+      F('pisto'),                                                 // Manchego ratatouille
+      F('callos a la madrileña'),                                 // Madrid tripe stew
+      F('bacalao al pil pil'),                                    // Basque cod
+      F('txangurro'),                                             // Basque crab
+      F('pintxos'),                                               // Basque tapas
+      F('migas'),                                                 // breadcrumbs + sausage
+      F('gambas al ajillo'),                                      // garlic prawns
+      F('churros con chocolate'),
+      F('crema catalana'),                                        // Catalan crème brûlée ancestor
+      F('flan'),
+      F('tarta de Santiago'),                                     // Galician almond cake
+      D('sangria'),
+      D('cava'),                                                  // Catalan sparkling wine
+      D('horchata de chufa')                                      // Valencian tigernut milk
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'french',         reason: 'Pays Basque is shared; pintxos ↔ pintxos, piperade, cidre' },
+      { slug: 'portuguese',     reason: 'Iberian peninsula shared substrate; bacalhau + chorizo + paella vs arroz traditions' },
+      { slug: 'italian',        reason: 'Mediterranean + Aragonese influence in Sardinia + Sicily; olive oil + grain shared' },
+      { slug: 'mexican',        reason: 'Spanish colonial influence (1521-1821) seeded modern Mexican cuisine; rice + cumin + lard' },
+      { slug: 'mediterranean',  reason: 'Spain is one of 3 anchor Mediterranean cuisines (Italy + Greece + Spain)' }
+    ],
+
+    touristExplainer: {
+      en: 'Spanish cuisine is regional and shared-plate. 17 autonomous communities each with their own — Andalusia (gazpacho + jamón), Catalonia (paella ancestors + cava), Basque (pintxos + bacalao), Galicia (octopus), Madrid (cocido). Tapas culture is the social meal; lunch is the big meal.',
+      fr: 'La cuisine espagnole est régionale et conviviale. 17 communautés autonomes chacune avec sa cuisine — Andalousie (gazpacho + jambon), Catalogne (ancêtres de la paella + cava), Pays Basque (pintxos + bacalao), Galice (poulpe), Madrid (cocido). La culture tapas est le repas social; le déjeuner est le grand repas.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Lebanese — cap 30, naturally ~15-20
+  // ──────────────────────────────────────────────────────────────────
+  'lebanese': {
+    flag: '🇱🇧',
+    aliases: ['lebanese', 'lebanon', 'levantine', 'levant'],
+    populationInSG: 'low',
+
+    iconicDishes: [
+      F('hummus'),                                                // chickpea + tahini purée
+      F('baba ghanoush'),                                         // smoked aubergine purée
+      F('moutabal'),                                              // close cousin of baba ghanoush
+      F('falafel'),                                               // chickpea fritters
+      F('tabbouleh'),                                             // parsley + bulgur + tomato salad
+      F('fattoush'),                                              // toasted-bread salad
+      F('shawarma'),                                              // spit-roast meat
+      F('shish taouk'),                                           // grilled chicken skewer
+      F('kibbeh'),                                                // bulgur + minced meat torpedo
+      F('kibbeh nayyeh'),                                         // raw kibbeh
+      F('kafta'),                                                 // grilled minced meat
+      F('mujadara'),                                              // lentils + rice + caramelized onion
+      F('fatteh'),                                                // chickpea + yogurt + bread layers
+      F('manakish'),                                              // za\'atar flatbread
+      F('manakish jibneh'),                                       // cheese flatbread
+      F('mezze platter'),                                         // umbrella for the small-plates set
+      F('warak enab'),                                            // stuffed grape leaves
+      F('makdous'),                                               // stuffed pickled aubergine
+      F('lebanese arak'),                                         // anise spirit (with food, not as drink)
+      F('knafeh'),                                                // shredded-pastry + cheese + syrup
+      F('baklava lebanese'),
+      F('maamoul'),                                               // date-stuffed semolina cookie
+      F('halva'),                                                 // sesame + sugar confection
+      D('arak'),
+      D('lebanese coffee')                                        // cardamom-spiced
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'turkish',        reason: 'Ottoman empire (16th-20th c) shared kebab + meze + baklava traditions' },
+      { slug: 'israeli',        reason: 'Levantine substrate; hummus + falafel + shawarma claimed by both' },
+      { slug: 'jordanian',      reason: 'Bilad al-Sham (Greater Syria) shared cuisine; mansaf is Jordanian-distinct' },
+      { slug: 'egyptian',       reason: 'Mediterranean SE substrate; ful + falafel + tahini overlap' },
+      { slug: 'greek',          reason: 'Eastern Mediterranean substrate; phyllo + grilled meat + olive oil shared' }
+    ],
+
+    touristExplainer: {
+      en: 'Lebanese cuisine is the most exported Levantine tradition globally — mezze culture (10+ small plates), grilled meats, olive oil + tahini + lemon backbone. Distinct from Turkish: less smoke, more parsley + lemon. The diaspora restaurant standard for "Middle Eastern food" in most cities.',
+      fr: 'La cuisine libanaise est la tradition levantine la plus exportée — culture mezze (10+ petits plats), grillades, dorsale huile d\'olive + tahini + citron. Distincte de la turque: moins fumée, plus de persil + citron. Le standard restaurant-diaspora pour la "cuisine du Moyen-Orient" dans la plupart des villes.'
+    }
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Mexican — cap 30
+  // ──────────────────────────────────────────────────────────────────
+  'mexican': {
+    flag: '🇲🇽',
+    aliases: ['mexican', 'mexico', 'mexicana', 'tex-mex'],
+    populationInSG: 'low',
+
+    iconicDishes: [
+      F('tacos al pastor'),                                       // marinated pork + pineapple, trompo
+      F('tacos de carnitas'),                                     // braised pork
+      F('tacos de barbacoa'),                                     // pit-cooked lamb
+      F('tacos de pescado'),                                      // Baja fish tacos
+      F('mole poblano'),                                          // Pueblan chocolate-chili sauce
+      F('mole negro oaxaqueño'),                                  // Oaxacan black mole
+      F('mole verde'),                                            // herb mole
+      F('chiles en nogada'),                                      // Pueblan walnut sauce, mexican-flag dish
+      F('cochinita pibil'),                                       // Yucatecan banana-leaf pork
+      F('pozole'),                                                // hominy + meat stew
+      F('birria'),                                                // Jalisciense slow-stewed beef/lamb
+      F('tamales'),                                               // corn-husk wrapped masa
+      F('enchiladas'),                                            // rolled tortillas + sauce
+      F('enchiladas verdes'),
+      F('chilaquiles'),                                           // tortilla + salsa breakfast
+      F('quesadillas'),
+      F('flautas'),                                               // rolled crispy tacos
+      F('tostadas'),
+      F('elote'),                                                 // grilled corn + lime + chili + cheese
+      F('esquites'),                                              // off-the-cob version
+      F('ceviche mexicano'),
+      F('aguachile'),                                             // green ceviche
+      F('guacamole'),
+      F('pico de gallo'),
+      F('salsa verde'),
+      F('churros mexican'),
+      F('flan mexicano'),
+      D('horchata mexicana'),                                     // rice milk + cinnamon
+      D('mezcal'),
+      D('tequila reposado')
+    ],
+
+    sharedWithNeighbors: [],
+
+    neighboringCuisines: [
+      { slug: 'spanish',        reason: 'Spanish colonial influence (1521-1821) seeded the rice + cumin + lard layer; Mexican is pre-Hispanic + Spanish + American syncretism' },
+      { slug: 'american',       reason: 'Tex-Mex is its own hybrid; chili con carne, hard-shell tacos, fajitas all US-Mexican' },
+      { slug: 'guatemalan',     reason: 'Maya substrate shared with southern Mexico (Yucatán + Chiapas); tamales + corn traditions' }
+    ],
+
+    touristExplainer: {
+      en: 'Mexican cuisine is UNESCO heritage (2010), built on the corn-bean-chili "milpa" trinity for 9000 years + Spanish colonial overlay. Regional: Oaxacan moles, Yucatán Maya pibil, Pueblan chiles en nogada, Jalisco birria + tequila, Baja seafood. Tex-Mex is a separate hybrid — different cuisine.',
+      fr: 'La cuisine mexicaine est patrimoine UNESCO (2010), basée sur la trinité maïs-haricot-piment (milpa) depuis 9000 ans + couche coloniale espagnole. Régionale: moles oaxaqueños, pibil maya du Yucatán, chiles en nogada de Puebla, birria + tequila de Jalisco, fruits de mer de Baja. Le Tex-Mex est un hybride distinct — cuisine différente.'
+    }
   }
 };
 
@@ -667,11 +1527,15 @@ function getOverlayedSlugs() {
 //   - First match wins; cuisines are scanned in NATION_OVERLAY key order
 //     (Singaporean first → SG-canonical wins for cross-cuisine collisions
 //     like "kaya toast").
+//   - Diacritics stripped before tokenization (NFD + remove combining
+//     marks) so user-typed ASCII ("creme brulee") matches accented dish
+//     names ("crème brûlée") and vice versa. Per Codex review on PR #272.
 //
 // Returns { slug, flag, dish, kind, sharedWith } or null.
 function findNationIconic(text) {
   if (!text) return null;
-  const tokenize = (s) => String(s).toLowerCase()
+  const stripDiacritics = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '');
+  const tokenize = (s) => stripDiacritics(s).toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length >= 3);
   const userTokens = tokenize(text);
