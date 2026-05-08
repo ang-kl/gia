@@ -8086,6 +8086,12 @@ async function cacheBotUsername() {
             address: c.address,
             postal: c.postal,
             mapsUrl: c.mapsUrl,
+            // v0.60.40 — optional lat/lng from data/hawker-coords.json
+            // (data.gov.sg public dataset). When present the TMA opens
+            // soleat's multi-pin /app/map; when absent it falls back
+            // to the per-centre mapsUrl (Google search query).
+            lat: Number.isFinite(c.lat) ? c.lat : null,
+            lng: Number.isFinite(c.lng) ? c.lng : null,
             isNew: !!c.isNew
           }))
         }));

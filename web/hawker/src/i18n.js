@@ -39,7 +39,12 @@ const STRINGS = {
   'list.headingBody':        { en: ' — {n} hawker centres (alphabetical)',
                                fr: ' — {n} centres de hawker (alphabétique)' },
 
-  // Open-all button
+  // Open-all button — v0.60.40: relabel to "View N Hawker Centres on
+  // the map", and route to soleat's multi-pin /app/map when coords
+  // are present (Google Maps fallback retained for missing-coord
+  // edge cases).
+  'btn.viewAllOnMap':        { en: '🗺 View {n} Hawker Centres on the map',
+                               fr: '🗺 Voir les {n} centres de hawker sur la carte' },
   'btn.openAllOnGoogleMaps': { en: '🗺 Open all {n} on Google Maps',
                                fr: '🗺 Voir les {n} sur Google Maps' },
 

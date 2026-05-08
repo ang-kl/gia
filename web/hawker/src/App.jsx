@@ -33,9 +33,33 @@ export default function App() {
 
   const regionList = data?.regions || [];
   const active = regionList.find((r) => r.region === activeRegion);
-  const allOnMapUrl = active
+
+  // v0.60.40 — when the active region's centres carry lat/lng (from
+  // data/hawker-coords.json populated by scripts/fetch-hawker-coords.js),
+  // build a soleat /app/map multi-pin URL so users see all N pins on
+  // one map. Falls back to the v0.50 Google Maps free-text query when
+  // coords aren't present (e.g. before the geocode JSON is committed).
+  const buildMultiPinUrl = (centres) => {
+    const slim = (centres || [])
+      .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
+      .map((c) => ({
+        placeId: '',
+        name: c.name,
+        area: c.address || '',
+        lat: c.lat,
+        lng: c.lng,
+        url: c.mapsUrl || ''
+      }));
+    if (!slim.length) return null;
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(slim))))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return `/app/map#venues=${enc}`;
+  };
+  const multiPinUrl = active ? buildMultiPinUrl(active.centres) : null;
+  const fallbackGoogleUrl = active
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('hawker centres ' + activeRegion + ' Singapore')}`
     : '';
+  const allOnMapUrl = multiPinUrl || fallbackGoogleUrl;
 
   // Localised region label — the API returns canonical EN names
   // (Central/South/East/North/West); we render the FR equivalent at
@@ -88,9 +112,9 @@ export default function App() {
                   <strong className="text-tg-text">{regionLabel(active.region)}</strong>
                   {tn('list.headingBody', lang, { n: active.count })}
                 </div>
-                <a href={allOnMapUrl} target="_blank" rel="noreferrer"
+                <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
                   className="mx-1 text-xs text-center px-3 py-1.5 rounded-md bg-tg-accent text-tg-accent-text">
-                  {tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
+                  {tn(multiPinUrl ? 'btn.viewAllOnMap' : 'btn.openAllOnGoogleMaps', lang, { n: active.count })}
                 </a>
                 <div className="flex flex-col gap-1.5 mt-1">
                   {active.centres.map((c, i) => (
