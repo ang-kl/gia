@@ -3221,6 +3221,20 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       await safeSend(chatId, t('hidden.allClosed', lang));
       return;
     }
+    // v0.60.19 (Human Lead 2026-05-08) — replace Gemini's claimed
+    // distance prose ("approx 2.4km north-east") with the computed
+    // haversine value for each surviving venue. Best-effort: if the
+    // rewriter throws or finds no matching pattern, the original
+    // text is preserved.
+    try {
+      const { rewriteDistanceClaims } = require('./hidden-verify');
+      const within = verifiedVenues.filter((v) => v && Number.isFinite(v.distanceM));
+      if (within.length) {
+        verifiedText = rewriteDistanceClaims(verifiedText, within);
+      }
+    } catch (err) {
+      console.warn('[/hidden] distance-rewrite failed (keeping original):', err.message);
+    }
     // Telegram message limit is 4096 chars. Chunk on per-result
     // boundaries (lines starting "/^\d+\. /") so a single venue
     // never spans messages.
