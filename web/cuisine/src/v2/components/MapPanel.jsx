@@ -130,7 +130,18 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   function initMap() {
     if (!containerRef.current || mapRef.current) return;
     const { Map } = window.google.maps;
-    const center = userLoc || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
+    // v0.60.19 — initial map center + zoom prefers the anchored
+    // searchCenter (the user's chosen anchor) over the raw userLoc
+    // GPS reading, per Human Lead 2026-05-08: "TMA you should look
+    // at the current anchored-location, don't refresh as it may
+    // have set by user for a purposed. It is just centering of
+    // current location is off." When the user manually anchored
+    // (e.g. /location Tanjong Pagar MRT), searchCenter holds those
+    // coords; centering the map there matches the search radius
+    // ring and result distances. userLoc remains the fallback for
+    // first-paint before searchCenter resolves.
+    const center = searchCenter || userLoc
+      || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
     mapRef.current = new Map(containerRef.current, {
       center, zoom: 14, disableDefaultUI: true, zoomControl: true,
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
@@ -163,7 +174,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     setShowSearchHere(false);
   }, [searchCenter?.lat, searchCenter?.lng]);
 
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, focusedPlaceId]); // eslint-disable-line
+  // v0.60.19 — re-run syncMarkers when searchCenter changes too, so
+  // the anchor pin moves to the new anchor immediately after a
+  // /location override. Previously the dep array tracked only
+  // userLoc, so the pin stayed at GPS even when the search anchored
+  // elsewhere.
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, focusedPlaceId]); // eslint-disable-line
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
@@ -179,7 +195,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         pixelOffset: new window.google.maps.Size(0, -10)
       });
     }
-    if (userLoc) {
+    // v0.60.19 — anchor pin position prefers searchCenter (user's
+    // chosen anchor) over userLoc (raw GPS). Same reasoning as the
+    // initMap() center fix above: when the user has manually
+    // anchored, the "you are here" pin must reflect that anchor,
+    // not the device GPS, so the visual matches the search radius
+    // ring + result distances.
+    const anchorPos = searchCenter || userLoc;
+    if (anchorPos) {
       if (!userMarkerRef.current) {
         const pin = new PinElement({ background: '#1e88e5', borderColor: '#0d47a1', glyph: '●', glyphColor: '#fff', scale: 1 });
         // v0.58.53: hold the PinElement DOM node so hover listeners
@@ -187,11 +210,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         // `.element`; its DOM is `.content`).
         const anchorPinNode = pin.element;
         userMarkerRef.current = new AdvancedMarkerElement({
-          map: mapRef.current, position: userLoc, title: tr('map.youAreHere', lang), content: anchorPinNode, gmpClickable: true
+          map: mapRef.current, position: anchorPos, title: tr('map.youAreHere', lang), content: anchorPinNode, gmpClickable: true
         });
         anchorPinNodeRef.current = anchorPinNode;
       } else {
-        userMarkerRef.current.position = userLoc;
+        userMarkerRef.current.position = anchorPos;
         userMarkerRef.current.map = mapRef.current;
       }
       // v0.58.52: hover info on the user-anchor pin too. Shows the
