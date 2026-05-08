@@ -3082,7 +3082,16 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const transport = require('./transport');
     const RADIUS_PRIMARY_M = 2000;     // matches default '100m to 2km'
     const RADIUS_FALLBACK_M = 3000;    // matches retry '1.5km to 3km'
-    const MIN_SURVIVORS = 5;
+    // v0.60.20 (Human Lead 2026-05-08) — lowered MIN_SURVIVORS 5 → 3.
+    // Production logs showed /hidden chasing Claude fallback for 60-90s
+    // when Tier 1 already had 2-3 verified venues — the user saw the
+    // "ranking by distance…" pulse hang because we kept escalating to
+    // wider-radius Gemini and then Anthropic web_search to push past 5.
+    // 3 venues is plenty for /hidden's surprise-discovery purpose; if
+    // Tier 1 yields fewer, Tier 2 + Tier 3 still attempt to top up.
+    // Distance computation itself is pure haversine math — the hang
+    // came from the upstream LLM fallbacks, not the distance pass.
+    const MIN_SURVIVORS = 3;
 
     async function verifyAndFilter(text, radiusM) {
       let verifyResult;
@@ -4668,7 +4677,35 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // filter so the cuisine constraint still applies.
   const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
   const allEntries = michelin.getAll();
-  const cuisineSlugSet = new Set(otherCuisineSlugs.filter(Boolean));
+
+  // v0.60.20 — parent-cuisine expansion. When the user picks an
+  // umbrella cuisine like "Chinese", the curated Michelin entries
+  // are tagged with regional sub-cuisines (cantonese, teochew,
+  // sichuan, hokkien, hong-kong, etc.) — none with the literal
+  // "chinese" tag. Without expansion, "Chinese + Michelin" returned
+  // empty (logs: "[Michelin] no Michelin venues matched
+  // cuisines=chinese; returning empty"). Same for "Indian" → north-
+  // indian / south-indian / bengali / gujarati / goan etc.
+  const PARENT_CUISINE_EXPANSION = {
+    'chinese':       ['chinese', 'cantonese', 'teochew', 'sichuan', 'hokkien', 'hainanese', 'shanghainese', 'hunan', 'hakka', 'hong-kong', 'northeastern', 'northwestern', 'taiwanese'],
+    'indian':        ['north-indian', 'south-indian', 'bengali', 'gujarati', 'goan'],
+    'south-asian':   ['north-indian', 'south-indian', 'bengali', 'gujarati', 'goan', 'pakistani', 'sri-lankan', 'nepalese'],
+    'middle-eastern':['lebanese', 'persian', 'turkish', 'jordanian', 'israeli', 'egyptian'],
+    'european':      ['french', 'italian', 'spanish', 'german', 'austrian', 'swiss', 'british', 'portuguese', 'greek', 'russian', 'ukrainian', 'polish', 'scandinavian'],
+    'mediterranean': ['italian', 'spanish', 'greek', 'turkish', 'lebanese', 'moroccan'],
+    'central-asian': ['uzbek', 'kazakh', 'uyghur', 'mongolian'],
+    'caucasian':     ['georgian', 'armenian', 'azerbaijani'],
+    'african':       ['moroccan', 'egyptian', 'south-african']
+  };
+  const expandedSlugs = new Set();
+  for (const slug of otherCuisineSlugs.filter(Boolean)) {
+    const lc = String(slug).toLowerCase();
+    expandedSlugs.add(lc);
+    if (PARENT_CUISINE_EXPANSION[lc]) {
+      PARENT_CUISINE_EXPANSION[lc].forEach((s) => expandedSlugs.add(s));
+    }
+  }
+  const cuisineSlugSet = expandedSlugs;
   const cuisineTagMatches = (e) => {
     if (cuisineSlugSet.size === 0) return true;
     if (!e.cuisine) return true;                                 // untagged entries (Bib Gourmand) — keep, post-filter via primaryType
