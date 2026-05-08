@@ -3761,6 +3761,19 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (niHit) {
     return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
   }
+  // v0.60.12 — Cooking-method detection. 70 cuisines × 30 methods
+  // (~2,100 entries) curated by Human Lead. Catches /s queries that
+  // mention a cooking method but aren't already handled by
+  // TECHNIQUE_FALLBACK / AMBIGUOUS_DISHES / NATION_OVERLAY iconic
+  // dishes (e.g. "/s mohinga" → Burmese, "/s tahdig" → Persian,
+  // "/s pörkölt" → Hungarian). Routes through a single-cuisine
+  // rich-card fan-out using the same formatTechniqueVenueBlock
+  // template used everywhere else.
+  const cookingMethods = require('./cooking-methods');
+  const cmHit = cookingMethods.findCookingMethod(userText);
+  if (cmHit) {
+    return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc });
+  }
   // ---- Single-query path (dish / ingredient / cuisine-tagged tool) ----
   // v0.60.9 (Human Lead 2026-05-08): unified rich-card template across
   // ALL /s queries that return Places venues. Previously only
@@ -4322,6 +4335,103 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     await safeSend(chatId, lang === 'fr'
       ? `Désolé, erreur lors de la recherche de <b>${esc(hit.dish)}</b>.`
       : `Sorry, something went wrong searching for <b>${esc(hit.dish)}</b>.`,
+      { parse_mode: 'HTML' });
+  } finally {
+    stopTyping();
+  }
+}
+
+// v0.60.12 — Cooking-method fan-out. Mirrors runNationIconicFanOut
+// shape but anchored to a per-cuisine method dictionary (cooking-
+// methods.js, 70 cuisines × 30 methods). Used when user types a
+// method-phrase term like "tadka tempering" or "mohinga" alone.
+// The cuisine label is pulled from the method-dict slug; the Places
+// query combines the term + cuisine label + Singapore for tight
+// targeting (e.g. "tadka tempering Indian Singapore restaurant").
+async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc }) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  let typingTimer = null;
+  const startTyping = () => {
+    const tick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
+    tick();
+    typingTimer = setInterval(tick, 4000);
+  };
+  const stopTyping = () => { if (typingTimer) { clearInterval(typingTimer); typingTimer = null; } };
+  startTyping();
+
+  let statusMsgId = null;
+  const initialStatus = lang === 'fr'
+    ? `🔍 <i>Recherche de <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)} à Singapour…</i>`
+    : `🔍 <i>Searching for <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)} in Singapore…</i>`;
+  try {
+    const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
+    statusMsgId = sent?.message_id || null;
+  } catch (err) {
+    console.warn('[Cooking-Method] status send failed:', err.message);
+  }
+  const deleteStatus = async () => {
+    if (!statusMsgId) return;
+    try { await bot.deleteMessage(chatId, statusMsgId); } catch { /* non-fatal */ }
+    statusMsgId = null;
+  };
+
+  try {
+    const textQuery = `"${hit.term}" ${hit.cuisineLabel} Singapore restaurant`;
+    const venues = await searchVenuesByDish(textQuery, hit.cuisineLabel, {
+      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+    });
+    if (!venues.length) {
+      await deleteStatus();
+      await safeSend(chatId, lang === 'fr'
+        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé à Singapour pour <b>${esc(hit.term)}</b>.`
+        : `Sorry, no Singapore <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>.`,
+        { parse_mode: 'HTML' });
+      return;
+    }
+    try {
+      const { enrichTravelTimes } = require('./travel-times');
+      await enrichTravelTimes(center.lat, center.lng, venues);
+    } catch (err) {
+      console.warn('[Cooking-Method] enrichTravelTimes failed:', err.message);
+    }
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, venues);
+    } catch (err) {
+      console.warn('[Cooking-Method] attachFootfallSignals failed:', err.message);
+    }
+
+    const { googleMapsUrl } = require('./maps-url');
+    const lines = [];
+    lines.push(`🔧 <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)}`);
+    lines.push('');
+    const cards = venues.slice(0, 5).map((venue, i) => formatTechniqueVenueBlock(venue, {
+      number: i + 1,
+      lang,
+      googleMapsUrlFn: googleMapsUrl,
+      dishPhrase: hit.term,
+      orderTip: ''
+    }));
+    lines.push(cards.join('\n\n\n'));
+
+    const reply = lines.join('\n');
+    const updated = sc
+      ? await sc.appendExchange(redis, chatId, userText, reply, 'cooking-method')
+      : null;
+    const rawSuffix = (sc && updated && sc.shouldNudgeEnd(updated)) ? sc.endNudge(lang) : '';
+    const suffix = rawSuffix
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/_([^_]+)_/g, '<i>$1</i>');
+    await deleteStatus();
+    await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
+  } catch (err) {
+    console.error('[Cooking-Method] fatal:', err.stack || err.message);
+    await deleteStatus();
+    await safeSend(chatId, lang === 'fr'
+      ? `Désolé, erreur lors de la recherche de <b>${esc(hit.term)}</b>.`
+      : `Sorry, something went wrong searching for <b>${esc(hit.term)}</b>.`,
       { parse_mode: 'HTML' });
   } finally {
     stopTyping();
