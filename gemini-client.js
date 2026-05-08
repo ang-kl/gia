@@ -121,6 +121,12 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '- In "Why a gem" do NOT mention which criteria (C1/C2/C3/C4) the place meets. State the actual evidence in plain prose only — e.g. "rated 4.6 over 87 reviews, opened in March 2026, Eatbook coverage in February" — without the letters Cx. The criteria gate is internal.',
   '- Even though sources are not printed, you MUST verify each candidate against at least one non-aggregator source (Eatbook, HungryGoWhere, SethLui, DanielFoodDiary, Time Out Singapore, 8days, CNA Lifestyle, The Ranting Panda, Honeycombers, Rubbish Eat Rubbish Grow, or the establishment\'s own Instagram). If you cannot verify, do not include the place.',
   '- Do not fabricate ratings, addresses, opening dates, review counts, opening hours, Google Map links, or source links.',
+  // v0.60.29 — production logs show Gemini routinely re-anchors a real
+  // venue's address to the user's neighbourhood (e.g. THE BETTER HALF,
+  // genuinely at 1 Everton Park, was rendered as "1 Bukit Merah Lane 1
+  // 01-08" because the user anchored on Bukit Merah). The verifier
+  // catches the mismatch but the venue still gets dropped.
+  '- The address must be copied verbatim from the venue\'s authoritative Google Maps listing — same street name, same block / unit, same postal code. Do NOT invent or paraphrase an address to fit the anchor neighbourhood. If the venue\'s true address is not within the {{RADIUS_BAND}} band you set above, simply do not include the venue.',
   '- If a number is unverifiable, write "unverified".',
   '- If the place only meets one criterion, or its only matched criteria are C2 + C4 (no C1 and no C3), exclude it — that is not hidden.',
   '- If fewer than 3 places qualify, say so plainly and list what was filtered out and why.',
