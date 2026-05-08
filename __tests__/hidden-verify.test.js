@@ -1,6 +1,6 @@
 // __tests__/hidden-verify.test.js — v0.59.5
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -307,5 +307,105 @@ describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
       })
     });
     expect(result.allDropped).toBe(false);
+  });
+});
+
+// v0.60.33 — dropBlocksByName helper used by runSurpriseCommand to
+// strip out-of-radius venues from the displayed text after the
+// haversine filter identifies them. Pre-v0.60.33 the haversine pass
+// only counted within-radius survivors but did not prune the rendered
+// output, so a venue Places resolved >2 km away still appeared in the
+// delivered message.
+describe('dropBlocksByName (v0.60.33)', () => {
+  let dropBlocksByName;
+  beforeAll(async () => {
+    const mod = await import('../hidden-verify.js');
+    dropBlocksByName = mod.default?.dropBlocksByName || mod.dropBlocksByName;
+  });
+
+  it('drops the matching block by name (case-insensitive)', () => {
+    const text = [
+      'Some intro.',
+      '',
+      '1. NEAR PLACE - Cafe',
+      'Block 100 Some Road - approx 1.2 km North.',
+      '🌟 4.5',
+      '',
+      '2. THE COCONUT CLUB - Restaurant',
+      '269 Beach Road - approx 6.3 km East.',
+      '🌟 4.4'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['THE COCONUT CLUB']));
+    expect(out).toContain('NEAR PLACE');
+    expect(out).not.toContain('COCONUT');
+    expect(out).not.toContain('Beach Road');
+  });
+
+  it('renumbers survivors so the user sees no gaps in numbering', () => {
+    const text = [
+      '1. ALPHA - Cafe',
+      'addr - approx 0.5 km.',
+      '',
+      '2. BETA - Cafe',
+      'addr - approx 5.0 km.',
+      '',
+      '3. GAMMA - Cafe',
+      'addr - approx 0.8 km.'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['BETA']));
+    expect(out).toMatch(/^1\.\s+ALPHA/m);
+    expect(out).toMatch(/^2\.\s+GAMMA/m);
+    expect(out).not.toContain('BETA');
+  });
+
+  it('returns input unchanged when dropNames is empty or no match', () => {
+    const text = '1. ALPHA - Cafe\naddr - approx 0.5 km.';
+    expect(dropBlocksByName(text, new Set())).toBe(text);
+    expect(dropBlocksByName(text, new Set(['NONEXISTENT']))).toBe(text);
+  });
+
+  it('handles empty / non-block input gracefully', () => {
+    expect(dropBlocksByName('', new Set(['X']))).toBe('');
+    expect(dropBlocksByName('No headings here', new Set(['X']))).toBe('No headings here');
+  });
+
+  // Codex review on PR #292 (P2): when verifyHiddenGemsOutput already
+  // rewrote "I found N hidden gems" to match the post-Places count,
+  // dropBlocksByName must rewrite again to match the post-haversine
+  // kept count. Otherwise the intro reads "I found 5…" with 4 cards.
+  it('rewrites "I found N hidden gems" prefix to match kept count (EN)', () => {
+    const text = [
+      'I found 3 hidden gems within 100m to 2km of Bukit Merah.',
+      '',
+      '1. ALPHA - Cafe',
+      'addr - approx 0.5 km.',
+      '',
+      '2. BETA - Cafe',
+      'addr - approx 5.0 km.',
+      '',
+      '3. GAMMA - Cafe',
+      'addr - approx 0.8 km.'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['BETA']));
+    expect(out).toContain('I found 2 hidden gems');
+    expect(out).not.toContain('I found 3 hidden gems');
+  });
+
+  it("rewrites \"J'ai trouvé N trésors cachés\" prefix (FR)", () => {
+    const text = [
+      "J'ai trouvé 3 trésors cachés autour de Bukit Merah.",
+      '',
+      '1. ALPHA - Café',
+      'adr - approx 0,5 km.',
+      '',
+      '2. BETA - Café',
+      'adr - approx 5,0 km.',
+      '',
+      '3. GAMMA - Café',
+      'adr - approx 0,8 km.'
+    ].join('\n');
+    const out = dropBlocksByName(text, new Set(['BETA']));
+    expect(out).toContain("J'ai trouvé 2 trésors cachés");
+    expect(out).not.toContain("J'ai trouvé 3 trésors cachés");
   });
 });
