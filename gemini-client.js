@@ -93,7 +93,13 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   // anchors with hallucinated address variations (269 Beach Road
   // vs 23 Beach Road). Bigger ceiling + explicit variety instruction
   // gives Gemini room to surface a diverse set across categories.
-  'Return up to 8 results. Aim for at least 5 if the criteria gate yields enough qualifying venues.',
+  // v0.60.35 (Human Lead 2026-05-08): hard-cap at 5 (was "up to 8 / aim
+  // for 5"). Reduces Gemini output tokens AND verifier surface (5
+  // Places lookups instead of 8). The Coconut-Club hallucination is
+  // already solved at the verifier layer (v0.60.31 prose pre-filter +
+  // v0.60.33 haversine drop), so the v0.59.53 ceiling-bump rationale
+  // ("more rope to surface a diverse set") is no longer needed.
+  'Return EXACTLY 5 results. If fewer than 5 venues qualify within the band, return only those that qualify — do NOT pad with farther venues. 5 is a hard cap, not a target to overshoot.',
   'Diversify across cuisines and venue types — do not return 5+ venues of the same dish category (e.g. avoid 5 brunch cafes in a row). Mix bakeries, hawker stalls, dessert kiosks, coffee roasters, bars, and ethnic restaurants when each category has a qualifying candidate.',
   'Rank by score, with C2 SOCIAL_BUZZ and C4 UNIQUE_OFFERING carrying the most weight.',
   'Prefer:',
