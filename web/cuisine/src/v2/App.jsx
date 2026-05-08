@@ -74,6 +74,13 @@ export default function App() {
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
   const [searchHintActive, setSearchHintActive] = useState(false);
+  // v0.60.14 — Google-limitation tip beside the 🔍 Search FAB. Shown
+  // for 4 s after every successful runSearch press. Explains that
+  // re-clicking Search with the same criteria surfaces a different
+  // slice (we dedup against the per-chatId seen-set server-side),
+  // and that adding new criteria / free-text resets the dedup so
+  // the user sees the full ranking again.
+  const [searchTipShow, setSearchTipShow] = useState(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
   // "Telok Blangah · 5 places nearby" once everything's loaded.
@@ -361,6 +368,9 @@ export default function App() {
       if (Array.isArray(r.venues) && r.venues.length > 0) {
         setCriteriaOpen(false);
       }
+      // v0.60.14 — show Google-limit tip for 4 s after every search.
+      setSearchTipShow(true);
+      setTimeout(() => setSearchTipShow(false), 4000);
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -712,17 +722,32 @@ export default function App() {
             className="pointer-events-auto w-11 h-11 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-base font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
           >↑</button>
         )}
-        <button
-          type="button"
-          onClick={() => runSearch(state)}
-          disabled={loading}
-          aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-          className={`pointer-events-auto w-11 h-11 rounded-full shadow-md text-base font-semibold flex items-center justify-center active:scale-95 transition-all ${
-            loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-            : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
-            : 'bg-tg-accent text-tg-accent-text'
-          } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
-        >🔍</button>
+        <div className="flex items-center gap-2 pointer-events-none">
+          {/* v0.60.14 — Google-limit tip beside the 🔍 Search FAB. Auto-
+              dismisses after 4 s; appears whenever runSearch completes. */}
+          {searchTipShow && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="pointer-events-auto max-w-[260px] bg-tg-card text-tg-text text-[11px] leading-snug rounded-xl border border-tg-border shadow-md px-3 py-2"
+            >
+              {lang === 'fr'
+                ? 'Limite Google: appuyez de nouveau sur 🔍 pour une autre liste. Ajoutez un critère ou du texte libre pour réinitialiser.'
+                : 'Google has a search limit. Tap 🔍 again for a different list — or add a new criterion / free-text to reset.'}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => runSearch(state)}
+            disabled={loading}
+            aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+            className={`pointer-events-auto w-11 h-11 rounded-full shadow-md text-base font-semibold flex items-center justify-center active:scale-95 transition-all ${
+              loading ? 'bg-tg-card text-tg-hint border border-tg-border'
+              : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
+              : 'bg-tg-accent text-tg-accent-text'
+            } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+          >🔍</button>
+        </div>
       </div>
     </div>
   );

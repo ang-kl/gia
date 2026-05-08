@@ -4438,6 +4438,225 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
   }
 }
 
+// v0.60.14 — Compute a stable hash of the search criteria for the
+// per-chatId seen-set Redis key. Same criteria → same hash → same
+// dedup bucket. Adding a new cuisine / filter / free-text resets
+// the bucket implicitly. Truncated to 16 hex chars for compactness.
+function computeCriteriaHash(parts) {
+  const crypto = require('crypto');
+  const json = JSON.stringify({
+    cuisines: Array.isArray(parts.cuisines) ? [...parts.cuisines].sort() : [],
+    filters: parts.filters || {},
+    prices: Array.isArray(parts.prices) ? [...parts.prices].sort() : [],
+    radius: parts.radius || null,
+    region: parts.region || 'SG',
+    freeText: String(parts.freeText || '').trim().toLowerCase()
+  });
+  return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16);
+}
+
+const SEEN_SET_TTL_S = 60 * 60;       // 1 h — long enough that "click 5 times" stays consistent
+
+async function readSeenSet(chatId, criteriaHash) {
+  if (!chatId || !redis.isOpen) return new Set();
+  try {
+    const key = `cuisine:seen:${chatId}:${criteriaHash}`;
+    const ids = await redis.sMembers(key);
+    return new Set(Array.isArray(ids) ? ids : []);
+  } catch (err) {
+    console.warn('[Cuisine-Seen] read failed:', err.message);
+    return new Set();
+  }
+}
+
+async function appendSeenSet(chatId, criteriaHash, placeIds) {
+  if (!chatId || !redis.isOpen || !placeIds.length) return;
+  try {
+    const key = `cuisine:seen:${chatId}:${criteriaHash}`;
+    await redis.sAdd(key, placeIds);
+    await redis.expire(key, SEEN_SET_TTL_S);
+  } catch (err) {
+    console.warn('[Cuisine-Seen] write failed:', err.message);
+  }
+}
+
+async function resetSeenSet(chatId, criteriaHash) {
+  if (!chatId || !redis.isOpen) return;
+  try {
+    const key = `cuisine:seen:${chatId}:${criteriaHash}`;
+    await redis.del(key);
+  } catch (err) {
+    console.warn('[Cuisine-Seen] reset failed:', err.message);
+  }
+}
+
+// v0.60.14 — "✳️ Michelin List" search handler. Looks up each
+// curated Michelin Singapore 2025 venue via Places API (in batches)
+// to get live coords + ratings + hours, applies per-chatId dedup so
+// consecutive clicks return different slices, and falls back to
+// reset+full-list when every venue has been seen.
+async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters }) {
+  if (isJB) {
+    return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
+  }
+  const michelin = require('./michelin-2025');
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+  }
+
+  const criteriaHash = computeCriteriaHash({
+    cuisines: ['michelin'],
+    filters: filters || {},
+    prices: req.body?.prices || [],
+    radius: searchRadius,
+    region: 'SG',
+    freeText: freeText || ''
+  });
+  const seen = await readSeenSet(csChatId, criteriaHash);
+
+  // Source list: full Michelin set, deterministic order. Pull stars
+  // first (3-star → 2-star → 1-star) then Bib Gourmand. The first
+  // pass through this list shows the highest-tier venues; subsequent
+  // passes (after dedup) progress through the remainder.
+  const allEntries = michelin.getAll();
+  const candidates = allEntries.filter((e) => {
+    const dedupKey = `${e.name}|${e.address || ''}`.toLowerCase();
+    return !seen.has(dedupKey);
+  });
+
+  // If everything has been seen, reset + return the top tier again.
+  let pool = candidates;
+  let didReset = false;
+  if (pool.length === 0) {
+    await resetSeenSet(csChatId, criteriaHash);
+    pool = allEntries;
+    didReset = true;
+  }
+
+  // Take a random-but-stable slice for the search session. Cap at
+  // 12 lookups per call to bound Places API cost. Order: stars first,
+  // then a randomised tail of bib gourmand so each click surfaces
+  // a different slice without re-paying the full 130-venue Places
+  // bill.
+  const stars = pool.filter((e) => e.category !== 'bib-gourmand');
+  const bib = pool.filter((e) => e.category === 'bib-gourmand');
+  for (let i = bib.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [bib[i], bib[j]] = [bib[j], bib[i]];
+  }
+  const slice = [...stars, ...bib].slice(0, 12);
+
+  // Look each up via Places searchText. Best-effort — keep the
+  // entry's curated metadata if Places fails.
+  const PLACES_URL = 'https://places.googleapis.com/v1/places:searchText';
+  const FIELD_MASK = [
+    'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
+    'places.rating', 'places.userRatingCount', 'places.businessStatus',
+    'places.googleMapsUri', 'places.primaryType',
+    'places.regularOpeningHours.weekdayDescriptions',
+    'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
+  ].join(',');
+  const axios = require('axios');
+  const venues = [];
+  const newDedupKeys = [];
+  for (const entry of slice) {
+    const textQuery = michelin.buildPlacesQuery(entry);
+    let placesData;
+    try {
+      const { data } = await axios.post(
+        PLACES_URL,
+        {
+          textQuery,
+          regionCode: 'SG',
+          languageCode: csLang === 'fr' ? 'fr' : 'en',
+          maxResultCount: 1
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': FIELD_MASK
+          },
+          timeout: 6000
+        }
+      );
+      placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+    } catch (err) {
+      console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
+    }
+    const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
+    const venue = placesData ? {
+      placeId: placesData?.id || '',
+      name: placesData?.displayName?.text || entry.name,
+      rating: typeof placesData?.rating === 'number' ? placesData.rating : null,
+      userRatingCount: typeof placesData?.userRatingCount === 'number' ? placesData.userRatingCount : null,
+      address: placesData?.formattedAddress || entry.address || '',
+      area: placesData?.formattedAddress || entry.address || '',
+      lat: placesData?.location?.latitude ?? null,
+      lng: placesData?.location?.longitude ?? null,
+      weekdayDescriptions: Array.isArray(placesData?.regularOpeningHours?.weekdayDescriptions)
+        ? placesData.regularOpeningHours.weekdayDescriptions
+        : null,
+      websiteUri: placesData?.websiteUri || '',
+      phone: placesData?.nationalPhoneNumber || '',
+      priceLevel: PRICE_NUM[placesData?.priceLevel] || null,
+      primaryType: placesData?.primaryType || '',
+      url: placesData?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
+      // Michelin annotations attached for the TMA card render.
+      michelinCategory: entry.category,
+      michelinName: entry.name,
+      michelinPostal: entry.postal || ''
+    } : {
+      // Places lookup failed — return curated entry only.
+      placeId: '',
+      name: entry.name,
+      rating: null, userRatingCount: null,
+      address: entry.address || '',
+      area: entry.address || '',
+      lat: null, lng: null,
+      weekdayDescriptions: null,
+      websiteUri: '', phone: '', priceLevel: null, primaryType: '',
+      url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
+      michelinCategory: entry.category,
+      michelinName: entry.name,
+      michelinPostal: entry.postal || ''
+    };
+    if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
+      venues.push(venue);
+      newDedupKeys.push(`${entry.name}|${entry.address || ''}`.toLowerCase());
+    }
+  }
+
+  // Best-effort travel-time + footfall enrichment.
+  if (venues.length) {
+    try {
+      const { enrichTravelTimes } = require('./travel-times');
+      await enrichTravelTimes(searchCenter.lat, searchCenter.lng, venues);
+    } catch (err) { console.warn('[Michelin] travel-times failed:', err.message); }
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, venues);
+    } catch (err) { console.warn('[Michelin] footfall failed:', err.message); }
+  }
+
+  await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
+
+  return res.json({
+    venues,
+    cached: false,
+    seed: 'michelin',
+    michelinSummary: {
+      total: allEntries.length,
+      threeStar: michelin.STARS_THREE.length,
+      twoStar: michelin.STARS_TWO.length,
+      oneStar: michelin.STARS_ONE.length,
+      bibGourmand: michelin.BIB_GOURMAND.length,
+      reset: didReset
+    }
+  });
+}
+
 async function runForgetMeCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -5463,7 +5682,34 @@ async function cacheBotUsername() {
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');
-        res.json({ categories: cv.getByCategory() });
+        const categories = cv.getByCategory();
+        // v0.60.14 — append "✳️ Michelin List" as a synthetic single-
+        // item category, alongside the existing Fusion / Dessert
+        // catch-alls. The single-item card pattern in CuisineDrawer
+        // (v0.59.23) toggles the slug directly without a drill-down
+        // sub-drawer. Server-side, /api/cuisine/search detects the
+        // 'michelin' slug and branches to handleMichelinSearch which
+        // serves the curated Singapore Michelin Guide 2025 list.
+        const michelin = require('./michelin-2025');
+        categories.push({
+          id: 'michelin',
+          label: 'Michelin List',
+          emoji: '✳️',
+          defaultOpen: false,
+          cuisines: [{
+            categoryId: 'michelin',
+            categoryLabel: 'Michelin List',
+            categoryEmoji: '✳️',
+            defaultOpen: false,
+            name: 'Michelin Singapore 2025',
+            slug: 'michelin',
+            flag: '✳️',
+            searchQuery: 'Michelin Singapore restaurant',
+            keywords: ['michelin', 'star', 'bib gourmand'],
+            description: `Singapore Michelin Guide 2025: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
+          }]
+        });
+        res.json({ categories });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
         res.status(500).json({ error: err.message });
@@ -6114,6 +6360,30 @@ async function cacheBotUsername() {
           : DEFAULT_RADIUS;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         const cv = require('./cuisines-vault');
+
+        // v0.60.14 — "✳️ Michelin List" criteria card (Human Lead
+        // 2026-05-08). When the client passes 'michelin' as a cuisine
+        // slug, we branch to the curated Singapore Michelin Guide 2025
+        // list (michelin-2025.js: 2 three-star + 7 two-star + 32
+        // one-star + 89 bib gourmand = 130 venues) and look each up
+        // via Places API to get live coords + ratings. We dedup
+        // against the per-chatId seen-set so consecutive search
+        // clicks on the same criteria surface a different slice of
+        // the list each time (the user explicitly asked for this
+        // behaviour without breaking v0.59.33's always-fresh cache
+        // skip — see PR #277).
+        const isMichelinSearch = (cuisines || []).some((s) =>
+          String(s || '').toLowerCase() === 'michelin'
+        );
+        if (isMichelinSearch) {
+          return await handleMichelinSearch({
+            req, res, csChatId, csLang,
+            searchCenter, searchRadius,
+            isJB, freeText: req.body?.freeText || '',
+            filters
+          });
+        }
+
         const cuisineMetas = (cuisines || [])
           .slice(0, 5)
           .map((slug) => cv.findBySlug(slug))
@@ -6562,8 +6832,43 @@ async function cacheBotUsername() {
           const { attachFootfallSignals } = require('./footfall-signal');
           await attachFootfallSignals(redis, top);
         } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
-        const payload = { venues: top, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
-        console.log(`[Cuisine-Search] D704 returning ${top.length} venues to client`);
+        // v0.60.14 — per-chatId result dedup. The user clicks "Search"
+        // → gets list A. Clicks again with the same criteria → expects
+        // list B (different venues), not the same A. v0.60.11 already
+        // makes the upstream Places + LLM rank fresh on every click,
+        // but the underlying Places result set is largely stable for
+        // the same query, so identical top-N can still appear. We
+        // filter out previously-seen placeIds for this chatId +
+        // criteria-hash; when nothing new remains we reset and let
+        // the user see the full list again. Adding new criteria /
+        // free-text changes the hash so dedup resets implicitly.
+        let dedupedTop = top;
+        try {
+          const dedupHash = computeCriteriaHash({
+            cuisines, filters, prices: req.body?.prices || [],
+            radius: searchRadius, region, freeText: req.body?.freeText || ''
+          });
+          const seen = await readSeenSet(csChatId, dedupHash);
+          const fresh = top.filter((v) => v.placeId && !seen.has(v.placeId));
+          if (fresh.length >= 3) {
+            dedupedTop = fresh;
+          } else if (fresh.length > 0) {
+            // Mix: prepend fresh, then append seen so user still gets
+            // a full list but new venues lead.
+            const seenList = top.filter((v) => v.placeId && seen.has(v.placeId));
+            dedupedTop = [...fresh, ...seenList];
+          } else {
+            // Everything seen — reset and serve original top.
+            await resetSeenSet(csChatId, dedupHash);
+            dedupedTop = top;
+          }
+          const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
+          await appendSeenSet(csChatId, dedupHash, newIds);
+        } catch (err) {
+          console.warn('[Cuisine-Search] dedup pass failed (using raw top):', err.message);
+        }
+        const payload = { venues: dedupedTop, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
         // returning fresh results 30+ s later. Singaporean still skips
