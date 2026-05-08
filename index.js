@@ -1218,7 +1218,11 @@ bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
 //                                   bilingual hint to enter a street/
 //                                   building name
 // Includes Johor Bahru as a valid territory.
-bot.onText(/^\/(?:hidden|h)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+// v0.60.36 (Human Lead 2026-05-08): dropped the /h alias so the
+// command surface is just /hidden — the alias was undocumented in
+// setMyCommands anyway. Removes accidental triggers from chat /h
+// typos.
+bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const freeText = (match && match[1] ? String(match[1]).trim() : '');
@@ -5650,7 +5654,10 @@ async function registerCommandsMenu() {
     // in the slash-menu hint. Default (no language_code) covers EN.
     const enCommands = [
       { command: 'cuisine',    description: 'Cuisine Picker · over 55 cuisines' },
-      { command: 'hidden',     description: 'Up to 5 hidden gems 1.5–3 km away' },
+      // v0.60.36 (Human Lead 2026-05-08): /hidden removed from the
+      // public command menu (kept as a special command, mirroring
+      // /legal /ver). bot.onText handler at index.js:1221 still
+      // accepts /hidden so existing shortcuts keep working.
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT trains, Walk or Drive' },
       { command: 'hawker',     description: '>100 Hawker Centres' },
@@ -5666,7 +5673,7 @@ async function registerCommandsMenu() {
     ];
     const frCommands = [
       { command: 'cuisine',    description: 'Sélecteur de cuisine · plus de 55 cuisines' },
-      { command: 'hidden',     description: 'Jusqu’à 5 trouvailles cachées à 1,5–3 km' },
+      // v0.60.36 — /hidden retiré du menu public (commande spéciale).
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche ou voiture' },
       { command: 'hawker',     description: 'Plus de 100 Hawker Centres' },
