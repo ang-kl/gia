@@ -28,7 +28,7 @@ const PAGE_SIZE = 12;
 
 export default function ResultPanel({
   venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState,
-  onSearch, onScrollTop
+  onPageChange
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -134,6 +134,11 @@ export default function ResultPanel({
     const start = (page - 1) * PAGE_SIZE;
     return venues.slice(start, start + PAGE_SIZE);
   }, [venues, page, totalPages]);
+  // v0.60.28 — notify App.jsx of the visible-page slice so the map
+  // can sync its markers to the current page.
+  useEffect(() => {
+    if (typeof onPageChange === 'function') onPageChange(pagedVenues);
+  }, [pagedVenues, onPageChange]);
 
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
@@ -177,48 +182,33 @@ export default function ResultPanel({
             <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} />
           ))}
           {/* v0.60.22 — pagination strip. Only renders when the result
-              set exceeds one PAGE_SIZE chunk. The strip stacks three
-              compact controls (smaller than the floating FABs) so the
-              user can navigate pages, jump to the top, or re-run the
-              search without scrolling back to the criteria builder. */}
+              set exceeds one PAGE_SIZE chunk. v0.60.28 (Human Lead
+              2026-05-08): trimmed to ◀ 📄 N/T ▶ alone — the in-strip
+              ↑ Top and 🔍 Search were redundant with the floating FABs,
+              which are now small enough (w-8 h-8) to share the visual
+              language. */}
           {totalPages > 1 && (
-            <div className="flex flex-col items-center gap-1 pt-1.5">
+            <div className="flex items-center justify-center gap-1.5 pt-1.5">
               <button
                 type="button"
-                onClick={onScrollTop}
-                aria-label={lang === 'fr' ? 'Haut de page' : 'Back to top'}
-                className="w-8 h-8 rounded-full bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center active:scale-95"
-              >↑</button>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  aria-label={lang === 'fr' ? 'Page précédente' : 'Previous page'}
-                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
-                >◀</button>
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => (p >= totalPages ? 1 : p + 1))}
-                  aria-label={lang === 'fr' ? `Page ${page} sur ${totalPages}` : `Page ${page} of ${totalPages}`}
-                  className="min-w-[80px] h-8 px-2 rounded-lg bg-tg-card text-tg-text border border-tg-border text-[11px] font-semibold flex items-center justify-center active:scale-95"
-                >📄 {Math.min(page * PAGE_SIZE, venues.length)} / {venues.length}</button>
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  aria-label={lang === 'fr' ? 'Page suivante' : 'Next page'}
-                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
-                >▶</button>
-              </div>
-              {onSearch && (
-                <button
-                  type="button"
-                  onClick={onSearch}
-                  aria-label={lang === 'fr' ? 'Rechercher' : 'Search'}
-                  className="w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text text-xs font-semibold flex items-center justify-center active:scale-95"
-                >🔍</button>
-              )}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                aria-label={lang === 'fr' ? 'Page précédente' : 'Previous page'}
+                className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
+              >◀</button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => (p >= totalPages ? 1 : p + 1))}
+                aria-label={lang === 'fr' ? `Page ${page} sur ${totalPages}` : `Page ${page} of ${totalPages}`}
+                className="min-w-[80px] h-8 px-2 rounded-lg bg-tg-card text-tg-text border border-tg-border text-[11px] font-semibold flex items-center justify-center active:scale-95"
+              >📄 {Math.min(page * PAGE_SIZE, venues.length)} / {venues.length}</button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                aria-label={lang === 'fr' ? 'Page suivante' : 'Next page'}
+                className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
+              >▶</button>
             </div>
           )}
         </div>
