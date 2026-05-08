@@ -219,6 +219,19 @@ function parseBlocks(text) {
       if (current.lines.length === 1 && !current.address) {
         const addrMatch = /^(.+?)\s+[-—]\s+approx\b/i.exec(line);
         current.address = (addrMatch ? addrMatch[1] : line).trim();
+        // v0.60.31 — extract the claimed distance from Gemini's prose
+        // ("approx 6.3 km east", "approx 200 m away") so the post-
+        // processor can drop blocks whose claimed distance exceeds the
+        // requested band BEFORE paying for the Places lookup. Pre-
+        // v0.60.31 a Coconut-Club-at-Beach-Road block from a Telok
+        // Blangah anchor cost a Places call AND a haversine compute
+        // even though Gemini openly stated it was 6.3 km away.
+        const distMatch = /\bapprox(?:imately)?\s+(\d+(?:[.,]\d+)?)\s*(km|m)\b/i.exec(line);
+        if (distMatch) {
+          const value = parseFloat(distMatch[1].replace(',', '.'));
+          const unit = distMatch[2].toLowerCase();
+          current.claimedDistanceM = unit === 'km' ? Math.round(value * 1000) : Math.round(value);
+        }
       }
       current.lines.push(line);
     } else {
@@ -279,15 +292,36 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   if (!text || typeof text !== 'string') return { text, venues: [] };
   const { prefix, blocks } = parseBlocks(text);
   if (!blocks.length) return { text, venues: [] };
+  // v0.60.31 — pre-filter blocks whose claimed distance ("approx X km
+  // east") already exceeds the requested upper band. Gemini sometimes
+  // includes a 6 km venue from a 2 km-band anchor; the haversine
+  // filter would drop it after a Places lookup, but checking the
+  // claimed distance up front saves the API call and the wall-clock
+  // time. opts.maxDistanceM is the band ceiling in metres (e.g. 2000
+  // for the 100m-2km primary band, 3000 for the 1.5-3km wider band).
+  // 20 % tolerance lets borderline claims through (Gemini's "approx 2
+  // km" might actually be 2.1 km, which the haversine filter accepts).
+  const maxDistM = Number.isFinite(opts.maxDistanceM) ? opts.maxDistanceM * 1.2 : null;
+  const distanceSurvivors = maxDistM
+    ? blocks.filter((b) => {
+        if (!Number.isFinite(b.claimedDistanceM)) return true;        // no distance prose → defer to haversine
+        if (b.claimedDistanceM <= maxDistM) return true;
+        console.log(`[hidden-verify] pre-filter drop "${b.name}" claims ${b.claimedDistanceM}m vs band ${Math.round(maxDistM)}m`);
+        return false;
+      })
+    : blocks;
+  if (!distanceSurvivors.length) {
+    return { text, venues: [], allDropped: true };
+  }
   // v0.59.7: optional test seam. Pass `_lookup: async (name, addr) => ({...})`
   // to bypass the real Places API. Production path uses lookupVenue.
   const lookupFn = typeof opts._lookup === 'function' ? opts._lookup : lookupVenue;
-  const lookups = await Promise.all(blocks.map((b) => lookupFn(b.name, b.address)));
+  const lookups = await Promise.all(distanceSurvivors.map((b) => lookupFn(b.name, b.address)));
   // v0.59.7: drop blocks whose live businessStatus is non-OPERATIONAL.
   // Closes the gap where Gemini's grounded search misses a closed venue
   // but Places already knows it's closed. Renumbers the surviving picks
   // so the user sees "1. … 2. … 3. …" without numbering gaps.
-  const survivors = blocks
+  const survivors = distanceSurvivors
     .map((b, i) => ({ block: b, lookup: lookups[i] }))
     .filter(({ block, lookup }) => {
       // v0.59.39: discriminated lookup returns:

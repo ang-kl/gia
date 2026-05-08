@@ -20,6 +20,16 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '',
   'Use Google Search grounding to find hidden food/drink gems within a {{RADIUS_BAND}} walking band around the anchor location.',
   '',
+  // v0.60.31 — radius is the HARDEST constraint. Production shows
+  // Gemini routinely returns venues 5-7 km away (Coconut Club @ Beach
+  // Road from a Telok Blangah anchor) when the band is "100m to 2km".
+  // Lifting the rule out of the EXCLUDE list and stating it twice up
+  // front so the model treats it as a precondition, not a soft filter.
+  'HARD CONSTRAINT — DISTANCE:',
+  '- Every venue you return MUST be within walking distance {{RADIUS_BAND}} of the anchor.',
+  '- If the venue\'s Google Maps page shows it is more than {{RADIUS_UPPER}} from the anchor, do NOT return it. No exceptions, no padding the list with farther venues.',
+  '- If fewer than 3 qualifying venues exist within the band, return fewer (or zero). Saying "I found nothing within {{RADIUS_BAND}}" is correct; returning a 6 km venue is wrong.',
+  '',
   'ANCHOR_LOCATION:',
   '{{ANCHOR_NAME}}',
   'Google Maps URL: {{GOOGLE_MAPS_URL}}',

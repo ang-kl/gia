@@ -2891,7 +2891,8 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     let allDropped = false;
     try {
       const { verifyHiddenGemsOutput } = require('./hidden-verify');
-      const verifyResult = await verifyHiddenGemsOutput(result.text);
+      // v0.60.31 — band ceiling = 3000m for free-text mode (200m–3km).
+      const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000 });
       verifiedText = verifyResult.text;
       verifiedVenues = verifyResult.venues || [];
       allDropped = !!verifyResult.allDropped;
@@ -3115,7 +3116,10 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       let verifyResult;
       try {
         const { verifyHiddenGemsOutput } = require('./hidden-verify');
-        verifyResult = await verifyHiddenGemsOutput(text);
+        // v0.60.31 — pass the band ceiling so the verifier can drop
+        // blocks whose claimed distance ("approx 6.3 km east") already
+        // exceeds the radius before paying for the Places lookup.
+        verifyResult = await verifyHiddenGemsOutput(text, { maxDistanceM: radiusM });
       } catch (err) {
         console.warn('[/hidden] verify post-process failed:', err.message);
         return { text, venues: [], allDropped: false, withinRadius: 0 };

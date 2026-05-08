@@ -88,6 +88,33 @@ describe('parseBlocks', () => {
     expect(blocks[0].address).toContain('Block 420A Clementi Avenue 1');
     expect(blocks[1].address).toContain('Block 440 Clementi Avenue 3');
   });
+
+  // v0.60.31 — extract claimed distance from the address line so the
+  // verifier can pre-filter blocks that exceed the band before paying
+  // for a Places lookup.
+  it('extracts claimedDistanceM from "approx 1.5km" prose (km unit)', () => {
+    const text = '1. CAFE - coffee\nBlock 420A Clementi Avenue 1 - approx 1.5km north-east.';
+    const { blocks } = parseBlocks(text);
+    expect(blocks[0].claimedDistanceM).toBe(1500);
+  });
+
+  it('extracts claimedDistanceM from "approx 6.3 km east" (decimal km)', () => {
+    const text = '1. THE COCONUT CLUB - Restaurant\n269 Beach Road - approx 6.3 km east from anchor.';
+    const { blocks } = parseBlocks(text);
+    expect(blocks[0].claimedDistanceM).toBe(6300);
+  });
+
+  it('extracts claimedDistanceM from "approx 200 m away" (m unit)', () => {
+    const text = '1. CAFE - coffee\nBlock 1 Some Road - approx 200 m away.';
+    const { blocks } = parseBlocks(text);
+    expect(blocks[0].claimedDistanceM).toBe(200);
+  });
+
+  it('leaves claimedDistanceM undefined when prose omits distance', () => {
+    const text = '1. CAFE - coffee\nBlock 1 Some Road - just nearby.';
+    const { blocks } = parseBlocks(text);
+    expect(blocks[0].claimedDistanceM).toBeUndefined();
+  });
 });
 
 describe('applyVerified — EN', () => {
