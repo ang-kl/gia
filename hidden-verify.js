@@ -141,10 +141,23 @@ async function lookupVenue(name, address = '') {
       return null;
     }
     if (address && best.addrHits === 0) {
-      // Address was claimed but Places' top match has zero token
-      // overlap — likely wrong address even if name matches.
-      console.log(`[hidden-verify] address-mismatch reject: claimed="${name}" addr="${address}" got="${best.p.formattedAddress || ''}"`);
-      return null;
+      // v0.60.29 — salvage path. Pre-v0.60.29 we hard-rejected on
+      // address-mismatch even when the name was a strong match. In
+      // production this dropped legitimate venues whose address
+      // Gemini fabricated to fit the anchor neighbourhood (e.g. "THE
+      // BETTER HALF" claimed at "1 Bukit Merah Lane 1" but resolves
+      // to 1 Everton Park; same venue, real, near the anchor).
+      // When name match is strong (≥0.7), trust Places' resolved
+      // address and let the downstream haversine radius filter
+      // decide whether the actual venue is in range. The 0.5 floor
+      // path still rejects since name uncertainty + wrong address
+      // is too risky.
+      const STRONG_NAME = 0.7;
+      if (best.nameFrac < STRONG_NAME) {
+        console.log(`[hidden-verify] address-mismatch reject: claimed="${name}" addr="${address}" got="${best.p.formattedAddress || ''}" nameFrac=${best.nameFrac.toFixed(2)}`);
+        return null;
+      }
+      console.log(`[hidden-verify] address-mismatch salvage: claimed="${name}" addr="${address}" → using Places addr="${best.p.formattedAddress || ''}" nameFrac=${best.nameFrac.toFixed(2)}`);
     }
     const chosen = best.p;
     return {
