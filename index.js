@@ -2157,6 +2157,34 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'legal':     await runLegalCommand(chatId); return true;
     case 'forgetme':  await runForgetMeCommand(chatId, lang); return true;
     case 'ver':       await runVerCommand(chatId); return true;
+    // v0.60.51 — Menu TMA hub gained Discover-section tiles. Each
+    // dispatches to the same handler the corresponding chat
+    // command uses, so the hub stays the single source of truth
+    // for "what can this bot do" without duplicating logic.
+    case 'search':    await runSearchCommand(chatId, '', lang); return true;
+    case 'buddy': {
+      const { t: tBuddy, tn: tnBuddy } = require('./i18n');
+      try {
+        const buddy = require('./buddy-match');
+        const on = await buddy.isOptedIn(redis, chatId);
+        const cnt = await buddy.dailyCount(redis, chatId);
+        const state = on ? tBuddy('buddy.status.on', lang) : tBuddy('buddy.status.off', lang);
+        await safeSend(chatId, tnBuddy('buddy.status', lang, { state, n: cnt, cap: buddy.DAILY_CAP }));
+      } catch (err) {
+        console.error('[routeMenuCommand] buddy failed:', err.message);
+        await safeSend(chatId, tBuddy('buddy.error', lang));
+      }
+      return true;
+    }
+    case 'language': {
+      // runLanguageCommand reads msg.chat.id + msg.from.language_code.
+      // For TMA tile dispatch we synthesise a minimal msg using the
+      // resolved lang as the Telegram language_code hint (it's only
+      // used for the "auto / from-Telegram" path, which the no-arg
+      // tile tap never hits).
+      await runLanguageCommand({ chat: { id: chatId }, from: { language_code: lang } }, null);
+      return true;
+    }
     default:          return false;
   }
 }

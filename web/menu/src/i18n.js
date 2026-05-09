@@ -1,0 +1,109 @@
+// i18n.js — v0.60.51
+//
+// Minimal EN/FR localisation for the Menu TMA hub. Mirrors the
+// shape of web/cuisine/src/v2/lib/i18n.js but trims the server
+// hydration path: the menu hub has no live UI to change locale
+// (that's done via the /language chat command), so it just reads
+// the active locale and renders. The 'gia.locale' localStorage
+// key is shared across all TMAs, so a user who flipped the
+// cuisine TMA to FR sees a FR menu hub on the next mount.
+
+import { useEffect, useState } from 'react';
+
+const LOCALE_KEY = 'gia.locale';
+const LOCALE_EVENT = 'gia:locale';
+const SUPPORTED_LOCALES = ['en', 'fr'];
+
+const STRINGS = {
+  // ----- Hero -----
+  'hero.title':            { en: 'Soleat Menu',     fr: 'Soleat Menu' },
+  'hero.tagline.line1':    { en: 'Solo eat',        fr: 'Manger seul' },
+  'hero.tagline.line2':    { en: "So let’s eat", fr: "Alors, mangeons" },
+
+  // ----- Section headings -----
+  'section.eat':           { en: 'Eat',             fr: 'Manger' },
+  'section.discover':      { en: 'Discover',        fr: 'Découvrir' },
+  'section.plan':          { en: 'Plan',            fr: 'Planifier' },
+
+  // ----- Eat tiles -----
+  'tile.cuisine.label':    { en: 'Cuisine Picker',           fr: 'Sélecteur de cuisine' },
+  'tile.cuisine.sub':      { en: 'Find places to eat',       fr: 'Trouver où manger' },
+  'tile.hawker.label':     { en: 'Hawker Centre Directory',  fr: 'Annuaire des hawker centres' },
+  'tile.hawker.sub':       { en: 'Browse by region',         fr: 'Parcourir par région' },
+  'tile.recognised.label': { en: 'Recognised List',          fr: 'Liste reconnue' },
+  'tile.recognised.sub':   { en: 'Curated venues',           fr: 'Lieux sélectionnés' },
+
+  // ----- Discover tiles -----
+  'tile.search.label':     { en: 'Search',                          fr: 'Recherche' },
+  'tile.search.sub':       { en: 'Dishes, ingredients, tools',      fr: 'Plats, ingrédients, ustensiles' },
+  'tile.buddy.label':      { en: 'Buddy',                           fr: 'Buddy' },
+  'tile.buddy.sub':        { en: 'Live solo-dining match',          fr: 'Match solo en direct' },
+  'tile.weather.label':    { en: 'Weather',                         fr: 'Météo' },
+  'tile.weather.sub':      { en: 'Now + 2-hour forecast',           fr: 'Maintenant + prévision 2 h' },
+
+  // ----- Plan tiles -----
+  'tile.location.label':   { en: 'Set Location',                    fr: 'Définir le lieu' },
+  'tile.location.sub':     { en: 'Anchor your searches',            fr: "Point d’ancrage" },
+  'tile.drive.label':      { en: 'Drive & Carpark',                 fr: 'Conduire & parking' },
+  'tile.drive.sub':        { en: 'Route + nearby lots',             fr: 'Itinéraire + parkings' },
+  'tile.train.label':      { en: 'Train Status',                    fr: 'État des trains' },
+  'tile.train.sub':        { en: 'MRT pulse & nearest stations',    fr: 'MRT + stations proches' },
+  'tile.incidents.label':  { en: "Today’s Traffic Incidents",  fr: "Incidents de circulation" },
+  'tile.incidents.sub':    { en: 'Live LTA road status',            fr: 'État routier LTA en direct' },
+
+  // ----- Footer chips (admin) -----
+  'chip.language':         { en: 'Language',  fr: 'Langue' },
+  'chip.privacy':          { en: 'Privacy',   fr: 'Confidentialité' },
+  'chip.forgetme':         { en: 'Forget me', fr: 'Oublier mes données' },
+
+  // ----- Footer brand line -----
+  'footer.brand':          { en: 'Soleat',    fr: 'Soleat' }
+};
+
+export function t(key, lang) {
+  const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';
+  const entry = STRINGS[key];
+  if (!entry) return key;
+  return entry[l] || entry.en || key;
+}
+
+function detectFromTelegram() {
+  if (typeof window === 'undefined') return null;
+  const code = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+  if (typeof code !== 'string') return null;
+  const two = code.slice(0, 2).toLowerCase();
+  return SUPPORTED_LOCALES.includes(two) ? two : null;
+}
+
+function detectFromNavigator() {
+  if (typeof navigator === 'undefined') return null;
+  const code = navigator.language || (navigator.languages && navigator.languages[0]);
+  if (typeof code !== 'string') return null;
+  const two = code.slice(0, 2).toLowerCase();
+  return SUPPORTED_LOCALES.includes(two) ? two : null;
+}
+
+export function getActiveLocale() {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem(LOCALE_KEY);
+      if (SUPPORTED_LOCALES.includes(stored)) return stored;
+    } catch { /* private mode / quota — fall through */ }
+  }
+  return detectFromTelegram() || detectFromNavigator() || 'en';
+}
+
+export function useLocale() {
+  const [lang, setLang] = useState(() => getActiveLocale());
+  useEffect(() => {
+    function onLocale(e) { setLang(e?.detail?.lang || getActiveLocale()); }
+    function onStorage(e) { if (e.key === LOCALE_KEY) setLang(getActiveLocale()); }
+    window.addEventListener(LOCALE_EVENT, onLocale);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(LOCALE_EVENT, onLocale);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+  return lang;
+}
