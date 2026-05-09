@@ -33,7 +33,9 @@ body { -webkit-font-smoothing: antialiased; }
 @media (min-width: 600px) {
   html { font-size: 17px; }
 
-  /* v0.60.42 — tablet/desktop centered column. */
+  /* v0.60.42 — tablet/desktop centered column.
+     v0.60.57 — root cap raised 800 → 1280 to match the menu/hawker/
+     cuisine TMAs (v0.60.49 wide-screen bump that this TMA missed). */
   body {
     display: flex;
     justify-content: center;
@@ -41,7 +43,7 @@ body { -webkit-font-smoothing: antialiased; }
   }
   #root {
     width: 100%;
-    max-width: 800px;
+    max-width: 1280px;
     min-height: var(--tg-viewport-stable-height, 100vh);
     background-color: var(--tg-bg);
   }
