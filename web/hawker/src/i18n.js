@@ -65,7 +65,17 @@ const STRINGS = {
                                fr: 'Carte des centres de hawker dans la région active' },
 
   // Per-centre Maps deep-link
-  'btn.maps':                { en: '📍 Maps', fr: '📍 Carte' }
+  'btn.maps':                { en: '📍 Maps', fr: '📍 Carte' },
+  // v0.60.53 — copy-to-chat companion button per centre.
+  'btn.saveToChat':          { en: '📤 Save to chat', fr: '📤 Envoyer au chat' },
+  'btn.saving':              { en: 'Sending…', fr: 'Envoi…' },
+  'msg.savedClose':          { en: 'Sent to chat. You can close this view.',
+                               fr: 'Envoyé au chat. Vous pouvez fermer cette vue.' },
+  'msg.saveFailed':          { en: 'Could not send to chat — please try again.',
+                               fr: 'Échec de l’envoi au chat — réessayez.' },
+  // v0.60.53 — upcoming closure tag.
+  'closure.tag':             { en: '🚧 Closed {from} → {to}',
+                               fr: '🚧 Fermé {from} → {to}' }
 };
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }

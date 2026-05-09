@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { openLink } from './tg.js';
+import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
+import BackFab from './components/BackFab.jsx';
+
+// v0.60.53 — render "Closed 1 Jun → 15 Jun 2026" from ISO date pair.
+function formatClosure(closure, lang) {
+  if (!closure?.from || !closure?.to) return '';
+  const fmt = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    try {
+      return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB',
+        { day: 'numeric', month: 'short' });
+    } catch { return iso; }
+  };
+  return tn('closure.tag', lang, { from: fmt(closure.from), to: fmt(closure.to) });
+}
 
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 const NEA_HOME = 'https://www.nea.gov.sg/our-services/hawker-management';
@@ -23,6 +38,33 @@ export default function App() {
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState(null);
   const [activeRegion, setActiveRegion] = useState('Central');
+  const [savingName, setSavingName] = useState(null);
+
+  // v0.60.53 — POST /api/hawker/save-pick. Server validates initData,
+  // looks up the centre in the vault, and sends a formatted chat card
+  // back via the bot. On success, close the WebApp.
+  const saveToChat = async (centreName) => {
+    if (savingName) return;
+    setSavingName(centreName);
+    try {
+      const res = await fetch('/api/hawker/save-pick', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: initData(), centreName })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const w = tg();
+      if (w && typeof w.close === 'function') w.close();
+    } catch (e) {
+      const w = tg();
+      const msg = t('msg.saveFailed', lang);
+      if (w && typeof w.showAlert === 'function') w.showAlert(msg);
+      else alert(msg);
+      console.warn('[hawker] save-to-chat failed:', e.message);
+    } finally {
+      setSavingName(null);
+    }
+  };
 
   useEffect(() => {
     fetch('/api/hawker/centres-by-region')
@@ -91,6 +133,8 @@ export default function App() {
         </button>
       </div>
 
+      <BackFab />
+
       <div className="flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2">
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
@@ -135,12 +179,24 @@ export default function App() {
                         {i + 1}. {c.name}{c.isNew ? ' 🆕' : ''}
                       </div>
                       {c.address && <div className="text-tg-hint mt-0.5">{c.address}</div>}
-                      {c.mapsUrl && (
-                        <a href={c.mapsUrl} target="_blank" rel="noreferrer"
-                          className="inline-block mt-1.5 text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
-                          {t('btn.maps', lang)}
-                        </a>
+                      {c.closure?.from && c.closure?.to && (
+                        <div className="mt-0.5 text-[10px] text-amber-600">
+                          {formatClosure(c.closure, lang)}
+                        </div>
                       )}
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {c.mapsUrl && (
+                          <a href={c.mapsUrl} target="_blank" rel="noreferrer"
+                            className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
+                            {t('btn.maps', lang)}
+                          </a>
+                        )}
+                        <button type="button" onClick={() => saveToChat(c.name)}
+                          disabled={savingName === c.name}
+                          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg disabled:opacity-60">
+                          {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -9,6 +9,7 @@ import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
+import BackFab from './components/BackFab.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
 
@@ -812,6 +813,8 @@ export default function App() {
             : 'ℹ️ Google search limit · tap 🔍 again or add a criterion.'}
         </div>
       )}
+
+      <BackFab />
 
       <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30 pointer-events-none">
         {scrolledPastHero && (
