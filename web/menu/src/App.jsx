@@ -2,6 +2,13 @@ import React from 'react';
 import Tile from './components/Tile.jsx';
 import { sendData } from './tg.js';
 
+// v0.60.50 — branding update per Human Lead 2026-05-09: TMA is
+// "Soleat Menu" with the "Solo eat / So let's eat" tagline pair
+// (the brand pun the project is named after). Footer surfaces the
+// build version (injected via vite.config.js define) so users can
+// confirm they are on the latest bundle.
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
+
 // v0.60.48 — Menu TMA promoted to the chat menu button. Tile order
 // fixed by Human Lead 2026-05-09: Set Location first (every other
 // feature is anchor-dependent), then the picker TMAs, transport
@@ -40,9 +47,10 @@ export default function App() {
       <div className="px-3 pt-3 pb-2 flex items-center gap-2">
         {/* v0.37.0: soleat brand mark inline. Copied from web/cuisine/public/. */}
         <img src="/app/menu/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
-        <div className="min-w-0">
-          <h1 className="text-base font-semibold">Gia Menu</h1>
-          <p className="text-[11px] text-tg-hint">Pick a feature</p>
+        <div className="min-w-0 leading-tight">
+          <h1 className="text-base font-semibold">Soleat Menu</h1>
+          <p className="text-[11px] text-tg-hint">Solo eat</p>
+          <p className="text-[11px] text-tg-hint">So let&rsquo;s eat</p>
         </div>
       </div>
       <div className="flex-1 px-3 pb-4 grid grid-cols-2 gap-2 content-start">
@@ -51,7 +59,7 @@ export default function App() {
         ))}
       </div>
       <div className="text-center text-[10px] text-tg-hint pb-3">
-        soleat · powered by Gia
+        Soleat {BUILD_VERSION} · 2026
       </div>
     </div>
   );
