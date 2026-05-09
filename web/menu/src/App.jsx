@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Tile from './components/Tile.jsx';
 import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
@@ -61,6 +61,21 @@ const FOOTER_CHIPS = [
 export default function App() {
   const lang = useLocale();
   const [busy, setBusy] = useState(null);
+  // v0.60.54 — fetch the cached LTA train status once on mount and
+  // surface a one-line summary inline on the Train tile. Endpoint
+  // reads Redis only, so no extra LTA roundtrip per hub load.
+  const [liveTrainCode, setLiveTrainCode] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/menu/live')
+      .then((r) => r.ok ? r.json() : null)
+      .then((b) => { if (!cancelled) setLiveTrainCode(b?.train?.code || null); })
+      .catch(() => { /* silent — tile just shows the static sub */ });
+    return () => { cancelled = true; };
+  }, []);
+  const trainExtra = liveTrainCode
+    ? t(`tile.train.live.${liveTrainCode}`, lang)
+    : null;
 
   const dispatchCmd = async (cmd) => {
     const w = tg();
@@ -140,12 +155,19 @@ export default function App() {
                   icon={tile.icon}
                   label={t(tile.labelKey, lang)}
                   sub={t(tile.subKey, lang)}
+                  extra={tile.id === 'train' ? trainExtra : null}
                   onClick={() => handle(tile)}
                 />
               ))}
             </div>
           </section>
         ))}
+        {/* v0.60.54 — interaction hint, kept subtle. Acts as a
+            wayfinding cue for first-time users without competing
+            with the tile grid for visual weight. */}
+        <p className="text-[10px] text-tg-hint text-center pt-1 px-2 leading-snug">
+          {t('hint.tap', lang)}
+        </p>
       </div>
 
       <div className="px-3 pb-2 flex flex-wrap gap-1.5 justify-center">

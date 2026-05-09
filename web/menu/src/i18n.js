@@ -46,8 +46,13 @@ const STRINGS = {
   'tile.location.sub':     { en: 'Anchor your searches',            fr: "Point d’ancrage" },
   'tile.drive.label':      { en: 'Drive & Carpark',                 fr: 'Conduire & parking' },
   'tile.drive.sub':        { en: 'Route + nearby lots',             fr: 'Itinéraire + parkings' },
-  'tile.train.label':      { en: 'Train Status',                    fr: 'État des trains' },
-  'tile.train.sub':        { en: 'MRT pulse & nearest stations',    fr: 'MRT + stations proches' },
+  'tile.train.label':      { en: 'Train',                           fr: 'Train' },
+  'tile.train.sub':        { en: 'Live status + MRT map',           fr: 'État en direct + carte MRT' },
+  // v0.60.54 — live status shown inline under the Train tile.
+  // Pulled from /api/menu/live on hub mount.
+  'tile.train.live.healthy':    { en: '🟢 All lines normal',          fr: '🟢 Toutes les lignes normales' },
+  'tile.train.live.disruption': { en: '🔴 Disruption — tap for details', fr: '🔴 Perturbation — touchez pour voir' },
+  'tile.train.live.offline':    { en: '🟡 LTA sensor offline',         fr: '🟡 Capteur LTA hors ligne' },
   'tile.incidents.label':  { en: "Today’s Traffic Incidents",  fr: "Incidents de circulation" },
   'tile.incidents.sub':    { en: 'Live LTA road status',            fr: 'État routier LTA en direct' },
 
@@ -57,7 +62,11 @@ const STRINGS = {
   'chip.forgetme':         { en: 'Forget me', fr: 'Oublier mes données' },
 
   // ----- Footer brand line -----
-  'footer.brand':          { en: 'Soleat',    fr: 'Soleat' }
+  'footer.brand':          { en: 'Soleat',    fr: 'Soleat' },
+
+  // v0.60.54 — interaction hint shown under the tile grid.
+  'hint.tap':              { en: 'Tap a tile to begin · swipe down to close',
+                             fr: 'Touchez une tuile pour commencer · glissez vers le bas pour fermer' }
 };
 
 export function t(key, lang) {

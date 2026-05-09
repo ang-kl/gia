@@ -6882,6 +6882,34 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.60.54 — Menu hub live-status endpoint. Reads only Redis cache
+    // (lta:train_status, populated by the periodic updateTransitStatus
+    // sniffer) so a hub mount adds zero extra LTA calls. Response is
+    // language-agnostic: client localises off `code`. Public — same
+    // shape as /maps-key (catalogue-only, no per-user data).
+    app.get('/api/menu/live', async (_req, res) => {
+      try {
+        if (!redis.isOpen) await redis.connect();
+        const cached = await redis.get('lta:train_status').catch(() => null);
+        const parsed = cached ? JSON.parse(cached) : null;
+        const status = String(parsed?.status || '');
+        let code = null;
+        if (status.includes('🟢')) code = 'healthy';
+        else if (status.includes('🔴')) code = 'disruption';
+        else if (status.includes('🟡')) code = 'offline';
+        res.json({
+          train: {
+            code,
+            ok: code === 'healthy' ? true : (code === 'disruption' ? false : null),
+            updatedAt: parsed?.updatedAt || null
+          }
+        });
+      } catch (err) {
+        console.error('[menu/live] failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.60.53 — hawker-centre "📤 Save to chat" companion to the
     // cuisine VenueCard pattern. Mini-App initData is verified, the
     // requested centre name is resolved against the vault (fuzzy fallback
