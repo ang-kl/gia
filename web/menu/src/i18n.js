@@ -26,35 +26,32 @@ const STRINGS = {
   'section.plan':          { en: 'Plan',            fr: 'Planifier' },
 
   // ----- Eat tiles -----
-  'tile.cuisine.label':    { en: 'Cuisine Picker',           fr: 'Sélecteur de cuisine' },
-  'tile.cuisine.sub':      { en: 'Find places to eat',       fr: 'Trouver où manger' },
-  'tile.hawker.label':     { en: 'Hawker Centre Directory',  fr: 'Annuaire des hawker centres' },
-  'tile.hawker.sub':       { en: 'Browse by region',         fr: 'Parcourir par région' },
-  'tile.recognised.label': { en: 'Recognised List',          fr: 'Liste reconnue' },
-  'tile.recognised.sub':   { en: 'Curated venues',           fr: 'Lieux sélectionnés' },
+  // v0.60.55 — single-word labels per Human Lead 2026-05-09
+  // ("half the size"). 3-column grid drops sub-text entirely.
+  'tile.cuisine.label':    { en: 'Cuisine',     fr: 'Cuisine' },
+  'tile.hawker.label':     { en: 'Hawker',      fr: 'Hawker' },
+  'tile.recognised.label': { en: 'Recognised',  fr: 'Reconnus' },
 
   // ----- Discover tiles -----
-  'tile.search.label':     { en: 'Search',                          fr: 'Recherche' },
-  'tile.search.sub':       { en: 'Dishes, ingredients, tools',      fr: 'Plats, ingrédients, ustensiles' },
-  'tile.buddy.label':      { en: 'Buddy',                           fr: 'Buddy' },
-  'tile.buddy.sub':        { en: 'Live solo-dining match',          fr: 'Match solo en direct' },
-  'tile.weather.label':    { en: 'Weather',                         fr: 'Météo' },
-  'tile.weather.sub':      { en: 'Now + 2-hour forecast',           fr: 'Maintenant + prévision 2 h' },
+  'tile.search.label':     { en: 'Search',      fr: 'Recherche' },
+  'tile.buddy.label':      { en: 'Buddy',       fr: 'Buddy' },
+  'tile.weather.label':    { en: 'Weather',     fr: 'Météo' },
 
   // ----- Plan tiles -----
-  'tile.location.label':   { en: 'Set Location',                    fr: 'Définir le lieu' },
-  'tile.location.sub':     { en: 'Anchor your searches',            fr: "Point d’ancrage" },
-  'tile.drive.label':      { en: 'Drive & Carpark',                 fr: 'Conduire & parking' },
-  'tile.drive.sub':        { en: 'Route + nearby lots',             fr: 'Itinéraire + parkings' },
-  'tile.train.label':      { en: 'Train',                           fr: 'Train' },
-  'tile.train.sub':        { en: 'Live status + MRT map',           fr: 'État en direct + carte MRT' },
-  // v0.60.54 — live status shown inline under the Train tile.
-  // Pulled from /api/menu/live on hub mount.
+  'tile.location.label':   { en: 'Location',    fr: 'Lieu' },
+  'tile.drive.label':      { en: 'Drive',       fr: 'Conduire' },
+  'tile.incidents.label':  { en: 'Incidents',   fr: 'Incidents' },
+
+  // ----- Always-visible Train panel (v0.60.55) -----
+  // Replaced the v0.60.54 Train tile. Status fetched at hub mount
+  // from /api/menu/live (Redis-only — no extra LTA call).
+  'panel.train.title':     { en: 'Train',       fr: 'Train' },
+  'panel.train.map':       { en: 'MRT map',     fr: 'Carte MRT' },
+  'panel.train.more':      { en: 'Full status', fr: 'État complet' },
   'tile.train.live.healthy':    { en: '🟢 All lines normal',          fr: '🟢 Toutes les lignes normales' },
   'tile.train.live.disruption': { en: '🔴 Disruption — tap for details', fr: '🔴 Perturbation — touchez pour voir' },
   'tile.train.live.offline':    { en: '🟡 LTA sensor offline',         fr: '🟡 Capteur LTA hors ligne' },
-  'tile.incidents.label':  { en: "Today’s Traffic Incidents",  fr: "Incidents de circulation" },
-  'tile.incidents.sub':    { en: 'Live LTA road status',            fr: 'État routier LTA en direct' },
+  'tile.train.live.warmup':     { en: 'Warming up…',                    fr: 'Initialisation…' },
 
   // ----- Footer chips (admin) -----
   'chip.language':         { en: 'Language',  fr: 'Langue' },

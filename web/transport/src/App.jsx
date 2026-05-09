@@ -6,6 +6,7 @@ import SystemMap from './components/SystemMap.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
+import BackFab from './components/BackFab.jsx';
 
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
@@ -80,6 +81,8 @@ export default function App() {
       <footer className="text-[10px] text-tg-hint text-center pt-2">
         Source: LTA TrainServiceAlerts (live) + curated engineering schedule
       </footer>
+
+      <BackFab />
     </div>
   );
 }

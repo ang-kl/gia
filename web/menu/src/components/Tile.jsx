@@ -1,19 +1,16 @@
 import React from 'react';
 
-// v0.60.54 — slimmer tile per Human Lead 2026-05-09 ("can this menu
-// be subtle and smaller"). Padding p-3 → p-2.5, icon 2xl → lg, body
-// text down a step. Optional `extra` slot renders a third line — used
-// by the Train tile to surface live MRT status pulled at hub load.
-export default function Tile({ icon, label, sub, extra, onClick }) {
+// v0.60.55 — emoji + single short label only (sub-text removed
+// per Human Lead 2026-05-09 "still big, half the size"). Used in
+// the new 3-column hub grid where space is tight.
+export default function Tile({ icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="text-left flex flex-col gap-0.5 rounded-md bg-tg-card border border-tg-border p-2.5 active:bg-tg-accent active:text-tg-accent-text transition"
+      className="flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-2 active:bg-tg-accent active:text-tg-accent-text transition aspect-square"
     >
-      <div className="text-lg leading-none">{icon}</div>
-      <div className="text-[13px] font-semibold leading-tight">{label}</div>
-      <div className="text-[10px] text-tg-hint leading-snug">{sub}</div>
-      {extra ? <div className="text-[10px] leading-snug">{extra}</div> : null}
+      <div className="text-xl leading-none">{icon}</div>
+      <div className="text-[11px] font-medium leading-tight text-center">{label}</div>
     </button>
   );
 }

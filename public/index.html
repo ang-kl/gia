@@ -49,11 +49,42 @@
     }
     .gia-pin.user { background: #1e88e5; color: #fff; padding: 6px 10px; }
     .gia-pin.user .num { background: #fff; color: #1e88e5; width: 18px; height: 18px; font-size: 11px; }
+    /* v0.60.55 — bottom-left FAB. Smart-detects whether to act as
+       Back (pop history) or Close (close the WebApp). One affordance,
+       two meanings — icon switches at mount based on history depth. */
+    #gia-back-fab {
+      position: fixed; bottom: 16px; left: 16px;
+      width: 32px; height: 32px;
+      background: #fff; color: #222;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; line-height: 1;
+      cursor: pointer; z-index: 30;
+      padding: 0;
+    }
+    #gia-back-fab:active { transform: scale(0.95); }
   </style>
 </head>
 <body>
   <div id="status"><span class="spinner"></span><span class="msg">Gia is Thinking…</span></div>
   <div id="map"></div>
+  <button id="gia-back-fab" type="button" aria-label="Close"></button>
+  <script>
+    (function () {
+      var hasHist = window.history && window.history.length > 1;
+      var fab = document.getElementById('gia-back-fab');
+      if (!fab) return;
+      fab.textContent = hasHist ? '⬅' : '🔚';
+      fab.setAttribute('aria-label', hasHist ? 'Back' : 'Close');
+      fab.addEventListener('click', function () {
+        var w = window.Telegram && window.Telegram.WebApp;
+        if (window.history && window.history.length > 1) window.history.back();
+        else if (w && typeof w.close === 'function') w.close();
+      });
+    }());
+  </script>
   <script src="/static/app.js"></script>
 </body>
 </html>
