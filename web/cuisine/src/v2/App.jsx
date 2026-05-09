@@ -52,7 +52,16 @@ export default function App() {
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
-  const [criteriaOpen, setCriteriaOpen] = useState(true);
+  // v0.60.47: default closed on first render — the warm-start fetch
+  // takes ~4s and an open builder dominating the viewport while
+  // results loaded behind it confused users. Now the page opens
+  // calm; once warm-start finishes we briefly pulse the "Edit search"
+  // pill so the builder is discoverable without forcing it open.
+  const [criteriaOpen, setCriteriaOpen] = useState(false);
+  // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
+  // delivers the first 5 suggestions. Mirrors the searchHintActive
+  // pattern below for the floating 🔍 FAB.
+  const [editSearchPulse, setEditSearchPulse] = useState(false);
   const [lastPrompt, setLastPrompt] = useState(null);
   const [lastRunSnap, setLastRunSnap] = useState(null);
   // v0.58.2: lat/lng anchor of the last successful search. The map
@@ -292,6 +301,12 @@ export default function App() {
           // first manual 🔍 — they'd see no visible cue that pressing
           // Search would do something different.
           setLastRunSnap(stateSig(state));
+          // v0.60.47 — pulse the "Edit search" pill for 3s so the
+          // user discovers the entry-point to the criteria builder
+          // (which is collapsed on first load — see criteriaOpen
+          // initial state above).
+          setEditSearchPulse(true);
+          setTimeout(() => setEditSearchPulse(false), 3000);
           console.log(`[Cuisine-TMA-v2] warm-start ok seed=${r.seed} count=${r.venues.length}`);
           return;
         }
@@ -666,7 +681,9 @@ export default function App() {
           </span>
           <span
             aria-hidden
-            className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text"
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text transition-shadow ${
+              !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent ring-offset-1 animate-pulse' : ''
+            }`}
           >
             {criteriaOpen ? t('btn.collapse', lang) : t('btn.editSearch', lang)}
           </span>
@@ -775,6 +792,25 @@ export default function App() {
           appears when the user has scrolled past the hero (map +
           active filters). Stacked bottom-right, fixed positioning,
           z-30 to sit above the result panel. */}
+      {/* v0.60.47 — Google-limit tip re-styled as a centered bottom
+          toast. Previous inline-beside-FAB rendering used the same
+          `bg-tg-card` shell as every other panel, making it visually
+          indistinct (Human Lead 2026-05-09). Now uses the accent
+          colour palette + a pill shape so it reads as a transient
+          status overlay. Auto-dismisses after 4s. Sits above the
+          FAB stack via z-40. */}
+      {searchTipShow && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 max-w-[90vw] bg-tg-accent text-tg-accent-text shadow-xl rounded-full px-4 py-2 text-[12px] font-medium leading-snug z-40 animate-in fade-in slide-in-from-bottom-2"
+        >
+          {lang === 'fr'
+            ? 'ℹ️ Limite Google · appuyez de nouveau sur 🔍 ou ajoutez un critère.'
+            : 'ℹ️ Google search limit · tap 🔍 again or add a criterion.'}
+        </div>
+      )}
+
       <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30 pointer-events-none">
         {scrolledPastHero && (
           <button
@@ -785,19 +821,6 @@ export default function App() {
           >↑</button>
         )}
         <div className="flex items-center gap-2 pointer-events-none">
-          {/* v0.60.14 — Google-limit tip beside the 🔍 Search FAB. Auto-
-              dismisses after 4 s; appears whenever runSearch completes. */}
-          {searchTipShow && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="pointer-events-auto max-w-[260px] bg-tg-card text-tg-text text-[11px] leading-snug rounded-xl border border-tg-border shadow-md px-3 py-2"
-            >
-              {lang === 'fr'
-                ? 'Limite Google: appuyez de nouveau sur 🔍 pour une autre liste. Ajoutez un critère ou du texte libre pour réinitialiser.'
-                : 'Google has a search limit. Tap 🔍 again for a different list — or add a new criterion / free-text to reset.'}
-            </div>
-          )}
           <button
             type="button"
             onClick={() => runSearch(state)}
