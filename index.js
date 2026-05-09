@@ -844,7 +844,7 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       }
     } else if (buttons.length) {
       try {
-        await bot.sendMessage(chatId, `<b>${require('./venue-templates').escapeHtml(p.name)}</b>`, {
+        await bot.sendMessage(chatId, `<b>${require('./venue-templates').escapeHtmlForTelegram(p.name)}</b>`, {
           ...replyMarkup,
           parse_mode: 'HTML'
         });
@@ -4287,8 +4287,8 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
 function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishPhrase, orderTip }) {
   const vt = require('./venue-templates');
   const lines = [];
-  lines.push(`${number}. <b>${vt.escapeHtml(venue.name)}</b>`);
-  if (venue.area) lines.push(`📇 ${vt.escapeHtml(venue.area)}`);
+  lines.push(`${number}. <b>${vt.escapeHtmlForTelegram(venue.name)}</b>`);
+  if (venue.area) lines.push(`📇 ${vt.escapeHtmlForTelegram(venue.area)}`);
   const hours = vt.formatHoursLine(venue, lang);
   if (hours) lines.push(hours);
   if (venue.websiteUri) lines.push(`🌐 ${venue.websiteUri}`);
@@ -4303,8 +4303,8 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   if (travel) lines.push(travel);
   // 🍽️ Try the [dish] — [orderTip from Gemini grounded].
   if (dishPhrase) {
-    const tip = orderTip ? ` — ${vt.escapeHtml(orderTip)}` : '';
-    lines.push(`🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} <b>${vt.escapeHtml(dishPhrase)}</b>${tip}`);
+    const tip = orderTip ? ` — ${vt.escapeHtmlForTelegram(orderTip)}` : '';
+    lines.push(`🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
   }
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
@@ -6850,28 +6850,77 @@ async function cacheBotUsername() {
     // /start <cmd> deep links and (legacy) web_app_data taps use,
     // so every menu command keeps a single server-side handler.
     app.post('/api/menu-dispatch', async (req, res) => {
+      const t0 = Date.now();
+      const initDataLen = String(req.body?.initData || '').length;
+      const rawCmd = String(req.body?.cmd || '').trim().toLowerCase();
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) {
+          console.warn(`[menu-dispatch] reject verified=false initData.len=${initDataLen} cmd="${rawCmd}"`);
+          return res.status(401).json({ ok: false, error: 'invalid initData' });
+        }
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
+        if (!rawCmd) return res.status(400).json({ ok: false, error: 'no cmd' });
+        // Cap the dispatch surface to lowercase ASCII letters — keeps
+        // the endpoint from being abused as a generic command relay.
+        if (!/^[a-z]{1,32}$/.test(rawCmd)) return res.status(400).json({ ok: false, error: 'bad cmd' });
+        const { resolveLang } = require('./user-prefs');
+        const lang = await resolveLang(redis, String(userId), {
+          from: { language_code: verified.user?.language_code }
+        });
+        const handled = await routeMenuCommand(String(userId), rawCmd, null, lang);
+        const ms = Date.now() - t0;
+        console.log(`[menu-dispatch] cmd=${rawCmd} user=${userId} lang=${lang} initData.len=${initDataLen} handled=${handled} took=${ms}ms`);
+        if (!handled) {
+          return res.status(404).json({ ok: false, error: 'unknown cmd' });
+        }
+        res.json({ ok: true });
+      } catch (err) {
+        console.error(`[menu-dispatch] failed cmd="${rawCmd}" initData.len=${initDataLen}:`, err.message);
+        res.status(500).json({ ok: false, error: err.message });
+      }
+    });
+
+    // v0.60.53 — hawker-centre "📤 Save to chat" companion to the
+    // cuisine VenueCard pattern. Mini-App initData is verified, the
+    // requested centre name is resolved against the vault (fuzzy fallback
+    // for safety), then a formatted chat card is delivered to the user.
+    // Unlike sendData (which Telegram silently drops for Mini-App launches
+    // that didn't come from a Reply Keyboard), an HTTPS POST always works.
+    app.post('/api/hawker/save-pick', async (req, res) => {
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         if (!verified) return res.status(401).json({ ok: false, error: 'invalid initData' });
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
-        const cmd = String(req.body?.cmd || '').trim().toLowerCase();
-        if (!cmd) return res.status(400).json({ ok: false, error: 'no cmd' });
-        // Cap the dispatch surface to lowercase ASCII letters — keeps
-        // the endpoint from being abused as a generic command relay.
-        if (!/^[a-z]{1,32}$/.test(cmd)) return res.status(400).json({ ok: false, error: 'bad cmd' });
-        const { resolveLang } = require('./user-prefs');
-        const lang = await resolveLang(redis, String(userId), {
-          from: { language_code: verified.user?.language_code }
-        });
-        const handled = await routeMenuCommand(String(userId), cmd, null, lang);
-        if (!handled) {
-          console.warn(`[menu-dispatch] unhandled cmd="${cmd}" user=${userId}`);
-          return res.status(404).json({ ok: false, error: 'unknown cmd' });
+        const centreName = String(req.body?.centreName || '').trim().slice(0, 200);
+        if (!centreName) return res.status(400).json({ ok: false, error: 'no centreName' });
+
+        const vault = require('./hawker-vault');
+        const all = vault.getAllCentres();
+        const exact = all.find((c) => c.name === centreName)
+          || all.find((c) => String(c.name || '').toLowerCase() === centreName.toLowerCase());
+        const match = exact || vault.findByName(centreName)?.centre;
+        if (!match) return res.status(404).json({ ok: false, error: 'centre not found' });
+
+        const lines = [`<b>🍚 ${escapeHtmlForTelegram(match.name)}</b>${match.isNew ? ' 🆕' : ''}`];
+        if (match.region) lines.push(`<i>${escapeHtmlForTelegram(match.region)}</i>`);
+        if (match.address) lines.push(escapeHtmlForTelegram(match.address));
+        if (match.postal) lines.push(`Postal: ${escapeHtmlForTelegram(match.postal)}`);
+        if (match.mgmt) lines.push(escapeHtmlForTelegram(match.mgmt));
+        if (match.closure?.from && match.closure?.to) {
+          lines.push(`🚧 ${escapeHtmlForTelegram(match.closure.reason || 'Closed')} ${escapeHtmlForTelegram(match.closure.from)} → ${escapeHtmlForTelegram(match.closure.to)}`);
         }
+        if (match.mapsUrl) lines.push(`📍 <a href="${escapeHtmlForTelegram(match.mapsUrl)}">Open in Google Maps</a>`);
+
+        await safeSend(String(userId), lines.join('\n'), {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        });
         res.json({ ok: true });
       } catch (err) {
-        console.error('[menu-dispatch] failed:', err.message);
+        console.error('[hawker/save-pick] failed:', err.message);
         res.status(500).json({ ok: false, error: err.message });
       }
     });
@@ -8234,7 +8283,11 @@ async function cacheBotUsername() {
             // to the per-centre mapsUrl (Google search query).
             lat: Number.isFinite(c.lat) ? c.lat : null,
             lng: Number.isFinite(c.lng) ? c.lng : null,
-            isNew: !!c.isNew
+            isNew: !!c.isNew,
+            // v0.60.53 — next upcoming closure window from
+            // data/hawker-closures.json (data.gov.sg quarterly
+            // cleaning schedule). Absent → no upcoming closure.
+            closure: c.closure || null
           }))
         }));
         res.json({ regions, totalCount: vault.getAllCentres().length });

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/fetch-hawker-coords.js — v0.60.52
+// scripts/fetch-hawker-coords.js — v0.60.53
 //
 // One-shot fetcher for Singapore hawker centre coordinates.
 //
@@ -13,6 +13,10 @@
 //      endpoint). Tries the centre name, then postal code, then
 //      address. Sanity-bounded to Singapore (lat 1.15–1.50,
 //      lng 103.55–104.10). Covers most of the remaining 91.
+//   3. Google Places searchText (v0.60.53 — final fallback)
+//      Uses vibe-suggest.geocodeQuery. Requires GOOGLE_MAPS_API_KEY
+//      in env; silently skipped when the key is absent. Sanity-
+//      bounded to SG. Picks up the long-tail centres OneMap misses.
 //
 // Output: data/hawker-coords.json — { "<centre name>": { lat, lng } }
 //
@@ -43,6 +47,7 @@ const SG_BOUNDS = { latMin: 1.15, latMax: 1.50, lngMin: 103.55, lngMax: 104.10 }
 
 const dryRun = process.argv.includes('--dry');
 const skipOneMap = process.argv.includes('--no-onemap');
+const skipPlaces = process.argv.includes('--no-places');
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
@@ -168,6 +173,44 @@ function normalise(s) {
       }
     }
     console.log(`[fetch-hawker-coords] OneMap recovered: ${onemapHits} (skipped ${onemapSkipped})`);
+  }
+
+  // ----- Source 3: Google Places searchText (v0.60.53) -----
+  if (!skipPlaces) {
+    if (!process.env.GOOGLE_MAPS_API_KEY) {
+      console.log('[fetch-hawker-coords] GOOGLE_MAPS_API_KEY absent — skipping Places fallback');
+    } else {
+      let geocodeQuery;
+      try {
+        ({ geocodeQuery } = require('../vibe-suggest'));
+      } catch (err) {
+        console.warn(`[fetch-hawker-coords] failed to load vibe-suggest (${err.message}) — skipping Places fallback`);
+      }
+      if (typeof geocodeQuery === 'function') {
+        const stillMissing = ourCentres.filter((c) => !finalMap[c.name]);
+        console.log(`[fetch-hawker-coords] Places pass: ${stillMissing.length} centres still missing coords`);
+        let placesHits = 0;
+        let placesSkipped = 0;
+        for (const c of stillMissing) {
+          // eslint-disable-next-line no-await-in-loop
+          const geo = await geocodeQuery(c.name);
+          // eslint-disable-next-line no-await-in-loop
+          await sleep(200);
+          if (geo
+            && Number.isFinite(geo.lat) && Number.isFinite(geo.lng)
+            && geo.lat >= SG_BOUNDS.latMin && geo.lat <= SG_BOUNDS.latMax
+            && geo.lng >= SG_BOUNDS.lngMin && geo.lng <= SG_BOUNDS.lngMax) {
+            finalMap[c.name] = { lat: geo.lat, lng: geo.lng };
+            placesHits++;
+            console.log(`  ✓ ${c.name} → ${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)} (Places)`);
+          } else {
+            placesSkipped++;
+            console.log(`  ✗ ${c.name} — no Places match`);
+          }
+        }
+        console.log(`[fetch-hawker-coords] Places recovered: ${placesHits} (skipped ${placesSkipped})`);
+      }
+    }
   }
 
   const finalCount = Object.keys(finalMap).length;
