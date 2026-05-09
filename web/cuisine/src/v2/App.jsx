@@ -535,9 +535,11 @@ export default function App() {
   // (≤640 px) is unchanged; >640 px viewports get progressively more
   // breathing room. Subsequent tiers can lean further into md:/lg:
   // variants for grid columns, side-by-side map+results, etc.
+  // v0.60.49 — bumped 1024 → 1280 in lock-step with #root cap in
+  // styles.css so wide windows actually use the extra width.
   return (
     <div
-      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1024px] mx-auto px-3 md:px-6 lg:px-8"
+      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1280px] mx-auto px-3 md:px-6 lg:px-8"
       style={{
         // v0.59.20: use Telegram's stable viewport variable so the
         // container tracks the *visible* iframe height, not the buggy
