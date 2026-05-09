@@ -814,24 +814,31 @@ export default function App() {
         </div>
       )}
 
-      <BackFab />
-
-      <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30 pointer-events-none">
-        {scrolledPastHero && (
-          <button
-            type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label={t('btn.backToTop', lang)}
-            className="pointer-events-auto w-8 h-8 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-xs font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all"
-          >↑</button>
-        )}
-        <div className="flex items-center gap-2 pointer-events-none">
+      {/* v0.60.58 — single bottom row holding BackFab (left) + the
+          right-side stack (top + search). Previously each FAB was its
+          own `fixed bottom-4` element; in practice the left and right
+          ones rendered at very slightly different baselines on some
+          devices. A shared row container makes alignment by
+          construction. Bowl shape (rounded-t-md rounded-b-[16px])
+          across all three FABs per Human Lead 2026-05-09 — replaces
+          the prior rounded-full circles. */}
+      <div className="fixed bottom-4 left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3">
+        <BackFab inline />
+        <div className="flex flex-col gap-2 items-end pointer-events-none">
+          {scrolledPastHero && (
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label={t('btn.backToTop', lang)}
+              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] bg-tg-card text-tg-text border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all whitespace-nowrap"
+            >{t('btn.topShort', lang)}</button>
+          )}
           <button
             type="button"
             onClick={() => runSearch(state)}
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            className={`pointer-events-auto w-8 h-8 rounded-full shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
+            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
               loading ? 'bg-tg-card text-tg-hint border border-tg-border'
               : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
               : 'bg-tg-accent text-tg-accent-text'

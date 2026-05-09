@@ -4,8 +4,12 @@ import React from 'react';
 // the right semantic per Human Lead 2026-05-09:
 //   • window.history.length > 1  → ⬅ Back (pop history)
 //   • otherwise                   → 🔚 Close (close the WebApp)
-// Mirror of the bottom-right FAB stack so the layout stays balanced.
-export default function BackFab() {
+// v0.60.58 — bowl shape (rounded-t-md rounded-b-[16px]) per Human
+// Lead. Supports `inline` mode so the cuisine TMA can place it in a
+// shared bottom-row container alongside the right-stack FABs (back
+// + search were drifting in vertical alignment as separate fixed
+// elements; a shared row makes alignment by construction).
+export default function BackFab({ inline = false }) {
   const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
   const onClick = () => {
     const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -15,12 +19,15 @@ export default function BackFab() {
       w.close();
     }
   };
+  const positionClasses = inline
+    ? 'pointer-events-auto'
+    : 'fixed bottom-4 left-4 z-30';
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'Close'}
-      className="fixed bottom-4 left-4 w-8 h-8 rounded-full bg-tg-card text-tg-text border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95 z-30"
+      className={`${positionClasses} w-8 h-8 rounded-t-md rounded-b-[16px] bg-tg-card text-tg-text border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
     </button>
