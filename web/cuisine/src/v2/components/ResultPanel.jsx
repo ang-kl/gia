@@ -9,12 +9,15 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // 5 venues come from a curated rotation, not from their (currently
 // empty) selection.
 // v0.58.55: bilingual EN / FR per active locale.
+// v0.60.47: stripped the leading "✨ " — the warm-start caption now
+// composes as `✨ {n} suggestions · {seedName} · tap 🔍 to refine` so
+// users see the explicit count first.
 const SEED_LABEL = {
-  'open-now-cheap':      { en: '✨ Open now & cheap eats',   fr: '✨ Ouvert · pas cher' },
-  'newly-opened-halal':  { en: '✨ Newly opened · halal',     fr: '✨ Nouveaux · halal' },
-  'highly-rated-nearby': { en: '✨ Highly rated nearby',      fr: '✨ Très bien notés à proximité' },
-  'open-now-popular':    { en: '✨ Popular & open now',       fr: '✨ Populaires & ouverts maintenant' },
-  'newly-opened-radius': { en: '✨ Newly opened in your radius', fr: '✨ Nouveaux dans votre zone' }
+  'open-now-cheap':      { en: 'open now & cheap eats',     fr: 'ouvert · pas cher' },
+  'newly-opened-halal':  { en: 'newly opened · halal',      fr: 'nouveaux · halal' },
+  'highly-rated-nearby': { en: 'highly rated nearby',       fr: 'très bien notés à proximité' },
+  'open-now-popular':    { en: 'popular & open now',        fr: 'populaires & ouverts maintenant' },
+  'newly-opened-radius': { en: 'newly opened in your radius', fr: 'nouveaux dans votre zone' }
 };
 
 // v0.59.0: ResultPanel replaces FlipPanel. The flip-card animation +
@@ -176,7 +179,12 @@ export default function ResultPanel({
       </div>
       {warmStartSeed && SEED_LABEL[warmStartSeed] && (
         <div className="text-[11px] text-tg-hint px-1 pb-1.5">
-          {SEED_LABEL[warmStartSeed][lang] || SEED_LABEL[warmStartSeed].en} · <span className="italic">{lang === 'fr' ? 'touchez 🔍 Rechercher pour affiner' : 'tap 🔍 Search to refine'}</span>
+          {/* v0.60.47 — explicit count first ("✨ 5 suggestions") so
+              the warm-start cap (server pickTopN limit) is obvious.
+              Followed by the curated seed flavour and the refine CTA. */}
+          ✨ {lang === 'fr'
+            ? `${venues.length} suggestion${venues.length === 1 ? '' : 's'}`
+            : `${venues.length} suggestion${venues.length === 1 ? '' : 's'}`} · {SEED_LABEL[warmStartSeed][lang] || SEED_LABEL[warmStartSeed].en} · <span className="italic">{lang === 'fr' ? 'touchez 🔍 Rechercher pour affiner' : 'tap 🔍 Search to refine'}</span>
         </div>
       )}
       {loading ? (

@@ -6587,7 +6587,10 @@ async function cacheBotUsername() {
         // Reduces Places-enrichment fan-out (travel times + BestTime
         // footfall) on the first /cuisine open; user-perceived load
         // time drops, fewer accidental re-taps from impatient users.
-        let top = pickTopN(venues, 8);
+        // v0.60.47 (Human Lead 2026-05-09): 8 → 5. The first-load wait
+        // was still ~4s; capping at 5 brings it under 3s and aligns
+        // with the new "✨ 5 suggestions" caption in the TMA.
+        let top = pickTopN(venues, 5);
         let resolvedSeed = seed.id;
 
         // v0.58.16: fallback. When a narrow seed (e.g. newly-opened-
@@ -6597,7 +6600,10 @@ async function cacheBotUsername() {
         // v0.59.42: bumped the fallback threshold 3 → 8 to align with
         // the 12-card grid. A 5-venue warm-start showed gaps; below
         // 8 we now broaden.
-        if (top.length < 8 && seed.id !== 'highly-rated-nearby') {
+        // v0.60.47: with the warm-start cap back at 5 (Human Lead
+        // 2026-05-09), the threshold drops to 5 so a sparse seed
+        // result still fills all five slots via the broader fallback.
+        if (top.length < 5 && seed.id !== 'highly-rated-nearby') {
           try {
             const fallback = await pipeline.discover({
               lat: searchCenter.lat, lng: searchCenter.lng,
@@ -6609,7 +6615,7 @@ async function cacheBotUsername() {
             });
             const fbVenues = (Array.isArray(fallback) ? fallback : (fallback?.venues || []))
               .filter(venueFilters.passesVenueFilter);
-            const fbTop = pickTopN(fbVenues, 12);
+            const fbTop = pickTopN(fbVenues, 5);
             if (fbTop.length > top.length) {
               top = fbTop;
               // Use the canonical highly-rated-nearby seed id so

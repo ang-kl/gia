@@ -107,6 +107,12 @@ export default function HawkerMapPanel({ centres, region }) {
     mapRef.current = new Map(containerRef.current, {
       center: SG_CENTROID,
       zoom: 11,
+      // v0.60.47 — mapId required by AdvancedMarkerElement since
+      // 2024. Without it some browser/network combos throw the
+      // "This page can't load Google Maps correctly" auth dialog
+      // instead of falling back to legacy markers. Mirrors the
+      // value used in cuisine MapPanel.jsx.
+      mapId: 'DEMO_MAP_ID',
       disableDefaultUI: true,
       zoomControl: true,
       gestureHandling: 'greedy'
