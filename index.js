@@ -1270,6 +1270,112 @@ bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, matc
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
 });
 
+// v0.60.48 — extracted from the /location no-args branch so the Menu
+// TMA's "Set Location" tile (which dispatches `cmd: 'location'` via
+// web_app_data → routeMenuCommand) and the chat regex handler share
+// a single implementation. Reports the cached location (with reverse-
+// geocoded place name) and surfaces the request_location keyboard so
+// the user can refresh in one tap. Telegram bots cannot read device
+// GPS unsolicited — the keyboard is the only path.
+async function runLocationCommand(chatId) {
+  // v0.58.20: no-args path now reports the cached location
+  // (instead of just printing usage). When nothing is cached, we
+  // still surface the usage hint so the user knows how to set one.
+  try {
+    const cached = await getUserLocation(redis, chatId);
+    if (cached?.lat && cached?.lng) {
+      const ageM = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
+      const ageStr = ageM == null ? '' : (ageM < 1 ? ' · just now'
+        : ageM < 60 ? ` · ${ageM} min ago`
+        : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
+        : ` · ${Math.floor(ageM / 1440)} d ago`);
+      const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
+      // v0.59.2: reverse-geocode the cached coords into a readable
+      // street/neighbourhood name so users see "Telok Blangah" not
+      // a raw lat/lng.
+      // v0.59.3: skip Google Plus-Code results (e.g. "9R29+RW
+      // Singapore") — these surface when the coords land on
+      // something with no street name. Use result_type to bias the
+      // first call toward named features; if the picked result's
+      // formatted_address is still a Plus Code, walk the unfiltered
+      // results for a non-Plus-Code one. Falls back to coords if
+      // nothing usable comes back.
+      const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
+      let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+      try {
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (apiKey) {
+          const filteredUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&result_type=premise|point_of_interest|street_address|intersection|neighborhood|sublocality|locality&key=${apiKey}`;
+          let { data } = await axios.get(filteredUrl, { timeout: 5000 });
+          let r = (data?.results || [])
+            .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address));
+          if (!r) {
+            const wideUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&key=${apiKey}`;
+            const wide = await axios.get(wideUrl, { timeout: 5000 });
+            r = (wide.data?.results || [])
+              .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address))
+              || wide.data?.results?.[0];
+          }
+          if (r?.formatted_address) {
+            const components = r.address_components || [];
+            const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
+            const friendly = findComp('premise')
+              || findComp('point_of_interest')
+              || findComp('neighborhood')
+              || findComp('sublocality_level_1')
+              || findComp('sublocality')
+              || findComp('route')
+              || findComp('locality');
+            const isPlus = PLUS_CODE_RE.test(r.formatted_address);
+            if (isPlus) {
+              placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+            } else if (friendly && !r.formatted_address.startsWith(friendly)) {
+              placeLine = `${friendly} — ${r.formatted_address}`;
+            } else {
+              placeLine = r.formatted_address;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[/location] reverse-geocode failed:', err.message);
+      }
+      const isStale = ageM != null && ageM > 30;
+      const staleNote = isStale
+        ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
+        : '\n\n_Bots can\'t read your device GPS automatically. Tap the button below to share a fresh pin, or run `/location <place>` to anchor manually._';
+      const opts = {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+        reply_markup: {
+          keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      };
+      await safeSend(chatId,
+        `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
+        'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
+        opts
+      );
+      return;
+    }
+  } catch (err) {
+    console.warn('[/location] cache lookup failed:', err.message);
+  }
+  await safeSend(chatId,
+    "No location cached yet.\n\n" +
+    "_Bots can't read your device GPS automatically._ Tap the button below to share your current location pin, or set one manually with `/location <place>` (e.g. `/location Tanjong Pagar MRT`).",
+    {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    }
+  );
+}
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1346,116 +1452,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     return;
   }
   if (!text) {
-    // v0.58.20: no-args path now reports the cached location
-    // (instead of just printing usage). When nothing is cached, we
-    // still surface the usage hint so the user knows how to set one.
-    try {
-      const cached = await getUserLocation(redis, chatId);
-      if (cached?.lat && cached?.lng) {
-        const ageM = cached.setAt ? Math.floor((Date.now() - cached.setAt) / 60000) : null;
-        const ageStr = ageM == null ? '' : (ageM < 1 ? ' · just now'
-          : ageM < 60 ? ` · ${ageM} min ago`
-          : ageM < 1440 ? ` · ${Math.floor(ageM / 60)} h ago`
-          : ` · ${Math.floor(ageM / 1440)} d ago`);
-        const mapsUrl = `https://maps.google.com/?q=${cached.lat},${cached.lng}`;
-        // v0.59.2: reverse-geocode the cached coords into a readable
-        // street/neighbourhood name so users see "Telok Blangah" not
-        // a raw lat/lng.
-        // v0.59.3: skip Google Plus-Code results (e.g. "9R29+RW
-        // Singapore") — these surface when the coords land on
-        // something with no street name. Use result_type to bias the
-        // first call toward named features; if the picked result's
-        // formatted_address is still a Plus Code, walk the unfiltered
-        // results for a non-Plus-Code one. Falls back to coords if
-        // nothing usable comes back.
-        const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
-        let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
-        try {
-          const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-          if (apiKey) {
-            const filteredUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&result_type=premise|point_of_interest|street_address|intersection|neighborhood|sublocality|locality&key=${apiKey}`;
-            let { data } = await axios.get(filteredUrl, { timeout: 5000 });
-            let r = (data?.results || [])
-              .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address));
-            if (!r) {
-              // Filter returned nothing usable; widen the net then
-              // skip Plus-Code rows.
-              const wideUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${cached.lat},${cached.lng}&key=${apiKey}`;
-              const wide = await axios.get(wideUrl, { timeout: 5000 });
-              r = (wide.data?.results || [])
-                .find((x) => x?.formatted_address && !PLUS_CODE_RE.test(x.formatted_address))
-                || wide.data?.results?.[0];
-            }
-            if (r?.formatted_address) {
-              const components = r.address_components || [];
-              const findComp = (type) => components.find((c) => c.types?.includes(type))?.long_name;
-              const friendly = findComp('premise')
-                || findComp('point_of_interest')
-                || findComp('neighborhood')
-                || findComp('sublocality_level_1')
-                || findComp('sublocality')
-                || findComp('route')
-                || findComp('locality');
-              const isPlus = PLUS_CODE_RE.test(r.formatted_address);
-              if (isPlus) {
-                // Don't pollute the display with the Plus Code — show
-                // the friendly component alone if we have one.
-                placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
-              } else if (friendly && !r.formatted_address.startsWith(friendly)) {
-                placeLine = `${friendly} — ${r.formatted_address}`;
-              } else {
-                placeLine = r.formatted_address;
-              }
-            }
-          }
-        } catch (err) {
-          console.warn('[/location] reverse-geocode failed:', err.message);
-        }
-        // v0.58.21: stale gate. v0.59.2: when stale, surface a
-        // request_location keyboard.
-        // v0.58.23: keyboard now ALWAYS shows on /location no-args
-        // (not just stale). Bots can't auto-detect device GPS — the
-        // user must explicitly share. Surfacing the button at all
-        // times makes the share path one tap regardless of cache
-        // freshness.
-        const isStale = ageM != null && ageM > 30;
-        const staleNote = isStale
-          ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
-          : '\n\n_Bots can\'t read your device GPS automatically. Tap the button below to share a fresh pin, or run `/location <place>` to anchor manually._';
-        const opts = {
-          parse_mode: 'Markdown',
-          disable_web_page_preview: true,
-          reply_markup: {
-            keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
-            one_time_keyboard: true,
-            resize_keyboard: true
-          }
-        };
-        await safeSend(chatId,
-          `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
-          'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
-          opts
-        );
-        return;
-      }
-    } catch (err) {
-      console.warn('[/location] cache lookup failed:', err.message);
-    }
-    // v0.58.23: no-cache fallthrough also offers the share-location
-    // keyboard. Bots can't pull device GPS automatically; the user
-    // must initiate the share.
-    await safeSend(chatId,
-      "No location cached yet.\n\n" +
-      "_Bots can't read your device GPS automatically._ Tap the button below to share your current location pin, or set one manually with `/location <place>` (e.g. `/location Tanjong Pagar MRT`).",
-      {
-        parse_mode: 'Markdown',
-        reply_markup: {
-          keyboard: [[{ text: '📍 Share my current location', request_location: true }]],
-          one_time_keyboard: true,
-          resize_keyboard: true
-        }
-      }
-    );
+    await runLocationCommand(chatId);
     return;
   }
   if (!process.env.GOOGLE_MAPS_API_KEY) {
@@ -2147,6 +2144,14 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'hawker':    await sendHawkerMenu(chatId, lang); return true;
     case 'recognised': await runRecognisedCommand(chatId, lang); return true;
     case 'carpark':   await runCarparkCommand(chatId, lang); return true;
+    // v0.60.48 — Menu TMA hub tiles. Each dispatches via web_app_data
+    // to the same handler the corresponding chat command / inline
+    // callback already uses, so the hub gives one-tap reach to every
+    // user-facing feature without duplicating logic.
+    case 'location':  await runLocationCommand(chatId); return true;
+    case 'incidents': await runTransportTrafficIncidents(chatId, lang); return true;
+    case 'train':     await runTransportTrain(chatId, lang); return true;
+    case 'drive':     await runTransportDrive(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
@@ -5824,11 +5829,16 @@ async function registerCommandsMenu() {
       console.warn('[setMyShortDescription] failed (non-fatal):', err.message);
     }
     if (useWebhook) {
+      // v0.60.48 — chat menu button now opens the Menu TMA hub
+      // (Set Location, Cuisine Picker, Hawker Directory, Traffic
+      // Incidents, Train Status, Drive + Carpark, Recognised List,
+      // Weather). Previously pointed straight at /app/cuisine; the
+      // hub gives one-tap reach to every user-facing feature.
       await bot.setChatMenuButton({
         menu_button: {
           type: 'web_app',
-          text: '🍴 Cuisine Picker',
-          web_app: { url: `https://${webhookDomain}/app/cuisine` }
+          text: 'Menu',
+          web_app: { url: `https://${webhookDomain}/app/menu` }
         }
       });
     } else {
@@ -5863,21 +5873,22 @@ async function reregisterTelegramWebhook(nextDomain) {
   }
   // v0.59.39 — also refresh the chat-menu button. Per Human Lead
   // 2026-05-07: when WEBHOOK_DOMAIN was swapped on Railway, the
-  // 🍴 Cuisine Picker menu button in Telegram Web kept loading the
-  // OLD URL because Telegram caches setChatMenuButton server-side
-  // until next call. The webhook re-register doesn't refresh the
-  // menu button — they're separate Bot API resources. Re-call it
-  // here so users on web.telegram.org pick up the new domain
-  // within ~10 min (Telegram client menu-button cache TTL).
+  // Menu button in Telegram Web kept loading the OLD URL because
+  // Telegram caches setChatMenuButton server-side until next call.
+  // The webhook re-register doesn't refresh the menu button —
+  // they're separate Bot API resources. Re-call it here so users
+  // on web.telegram.org pick up the new domain within ~10 min
+  // (Telegram client menu-button cache TTL).
+  // v0.60.48 — repointed at /app/menu (the Menu TMA hub).
   try {
     await bot.setChatMenuButton({
       menu_button: {
         type: 'web_app',
-        text: '🍴 Cuisine Picker',
-        web_app: { url: `https://${nextDomain}/app/cuisine` }
+        text: 'Menu',
+        web_app: { url: `https://${nextDomain}/app/menu` }
       }
     });
-    console.log(`[Updates] Chat menu button refreshed: https://${nextDomain}/app/cuisine`);
+    console.log(`[Updates] Chat menu button refreshed: https://${nextDomain}/app/menu`);
   } catch (err) {
     console.warn('[Updates] setChatMenuButton refresh failed (non-fatal):', err.message);
   }
