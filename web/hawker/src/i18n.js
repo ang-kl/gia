@@ -51,6 +51,11 @@ const STRINGS = {
                                fr: '🗺 Voir les {n} centres de hawker sur la carte' },
   'btn.openAllOnGoogleMaps': { en: '🗺 Open all {n} on Google Maps',
                                fr: '🗺 Voir les {n} sur Google Maps' },
+  // v0.60.56 — external "tour" URL pinning every centre with coords.
+  'btn.openTourGoogleMaps':  { en: '🌐 {n} pins in Google Maps',
+                               fr: '🌐 {n} épingles sur Google Maps' },
+  'map.mappedRatio':         { en: '📍 {mapped}/{total} centres mapped',
+                               fr: '📍 {mapped}/{total} centres cartographiés' },
 
   // v0.60.41 — embedded HawkerMapPanel strings.
   'map.loading':             { en: 'Loading map…',

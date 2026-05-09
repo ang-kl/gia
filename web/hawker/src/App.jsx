@@ -161,17 +161,37 @@ export default function App() {
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
                 <HawkerMapPanel centres={active.centres} region={activeRegion} />
-                {/* External fullscreen button — repurposed as the
-                    "open in soleat /app/map" affordance for users who
-                    want the dedicated multi-pin TMA. Shows the v0.60.40
-                    Google-Maps-text-query fallback label only when no
-                    coords are present. */}
-                <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
-                  className="mx-1 text-xs text-center px-3 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
-                  {multiPinUrl
-                    ? t('btn.openFullscreenMap', lang)
-                    : tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
-                </a>
+                {/* v0.60.56 — explicit mapped-vs-total status so the
+                    user knows when the data file is incomplete (i.e.
+                    fewer pins than centres in the region). */}
+                <div className="px-1 text-[10px] text-tg-hint">
+                  {tn('map.mappedRatio', lang, {
+                    mapped: Number.isFinite(active.mappedCount) ? active.mappedCount : 0,
+                    total: active.count
+                  })}
+                </div>
+                {/* Two side-by-side actions:
+                    1. Internal /app/map — multi-pin in the WebApp,
+                       handles all centres regardless of count.
+                    2. External Google Maps — opens the user's Maps app
+                       with every centre pinned (up to 25, the URL cap)
+                       in walking-tour mode. */}
+                <div className="mx-1 grid grid-cols-2 gap-1.5">
+                  <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
+                    className="text-xs text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
+                    {multiPinUrl
+                      ? t('btn.openFullscreenMap', lang)
+                      : tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
+                  </a>
+                  {active.tourUrl && (
+                    <a href={active.tourUrl} target="_blank" rel="noreferrer"
+                      className="text-xs text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
+                      {tn('btn.openTourGoogleMaps', lang, {
+                        n: Number.isFinite(active.mappedCount) ? active.mappedCount : active.count
+                      })}
+                    </a>
+                  )}
+                </div>
                 <div className="flex flex-col gap-1.5 mt-1">
                   {active.centres.map((c, i) => (
                     <div key={i} className="rounded-md border border-tg-border bg-tg-card p-2 text-xs">
