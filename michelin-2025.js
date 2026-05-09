@@ -367,14 +367,11 @@ const _CATEGORY_LABEL = {
 function formatMichelinLine(entry, year = 2025) {
   if (!entry || !entry.category) return '';
   const prefix = _CATEGORY_LABEL[entry.category] || '✳️ Michelin';
-  // v0.60.43 — append the Michelin Guide's own descriptive cuisine
-  // label when the entry carries one. The `cuisine` slug is for
-  // routing (combo filtering); `michelinCuisineLabel` is human-
-  // readable per Michelin's classification (e.g. "Chilean",
-  // "Modern Indian", "Sushi · Authentic Japanese"). Field is
-  // optional — entries without it render unchanged.
-  const label = entry.michelinCuisineLabel ? ` · ${entry.michelinCuisineLabel}` : '';
-  return `${prefix} · ${year}${label}`;
+  // v0.60.45 — cuisine label moved out of this line. The chat-side
+  // formatVenueBlock now emits a separate `🍽️ <restaurantType>` row
+  // below the venue name, sourced from michelinCuisineLabel or
+  // Places' primaryTypeDisplayName.
+  return `${prefix} · ${year}`;
 }
 
 module.exports = {

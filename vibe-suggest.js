@@ -153,6 +153,7 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
             'places.googleMapsLinks',
             'places.generativeSummary',
             'places.primaryType',
+            'places.primaryTypeDisplayName',     // v0.60.45 — for restaurantType render line
             'places.businessStatus',
             'places.currentOpeningHours.openNow'
           ].join(',')
@@ -182,6 +183,13 @@ async function validateWithPlaces(candidate, near, radiusM = SEARCH_RADIUS_M) {
       reviewsUri: place.googleMapsLinks?.reviewsUri ?? '',
       photosUri: place.googleMapsLinks?.photosUri ?? '',
       primaryType: place.primaryType ?? 'restaurant',
+      // v0.60.45 — humanised cuisine label for the new `🍽️` line below
+      // the venue name in formatVenueBlock. Strips trailing "restaurant".
+      restaurantType: (() => {
+        const t = place.primaryTypeDisplayName?.text || '';
+        let s = t || (place.primaryType || '').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        return s.replace(/\s+restaurant$/i, '').replace(/^restaurant\s+/i, '').trim();
+      })(),
       vibe: candidate.vibe ?? '',
       googleSummary: extractGenerativeSummary(place),
       source: 'gemini+places'

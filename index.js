@@ -4159,16 +4159,38 @@ function flagFor(cuisine) {
   return CUISINE_FLAG[cuisine] || '🍽';
 }
 
+// v0.60.45 — humanise a Places `primaryTypeDisplayName.text` (or the
+// raw `primaryType` enum as fallback) for the new restaurantType line.
+// Strips the trailing word "restaurant" (EN) and the leading
+// "Restaurant " (FR) so the line is a bare cuisine adjective:
+//   "Sushi restaurant"      → "Sushi"
+//   "Cantonese restaurant"  → "Cantonese"
+//   "Restaurant japonais"   → "japonais"
+//   "sushi_restaurant"      → "Sushi" (raw enum fallback)
+function humaniseRestaurantType(displayText, primaryTypeEnum) {
+  let s = (displayText && String(displayText).trim()) || '';
+  if (!s && primaryTypeEnum) {
+    s = String(primaryTypeEnum).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  if (!s) return '';
+  s = s.replace(/\s+restaurant$/i, '').replace(/^restaurant\s+/i, '').trim();
+  return s;
+}
+
 async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey }) {
   if (!mapsApiKey) return [];
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   // v0.60.2: expanded field mask so the rich card template can
   // render hours / website / phone / price level. `location` is
   // needed for enrichTravelTimes to compute 🚊 / 🚘 distances.
+  // v0.60.45 — added places.primaryTypeDisplayName for the new
+  // restaurantType line on every result card. Localized per
+  // languageCode (FR users see "Restaurant japonais" → stripped to
+  // "japonais" by humaniseRestaurantType below).
   const FIELD_MASK = [
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
-    'places.googleMapsUri', 'places.primaryType',
+    'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
   ].join(',');
@@ -4214,6 +4236,9 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         phone: p?.nationalPhoneNumber || '',
         priceLevel: PRICE_NUM[p?.priceLevel] || null,
         primaryType: p?.primaryType || '',
+        // v0.60.45 — surface a localized cuisine label below the venue
+        // name on every result card (Sushi / Japanese / Cantonese, etc.).
+        restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType),
         url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
       }));
   } catch (err) {
@@ -4889,10 +4914,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Look each up via Places searchText. Best-effort — keep the
   // entry's curated metadata if Places fails.
   const PLACES_URL = 'https://places.googleapis.com/v1/places:searchText';
+  // v0.60.45 — added places.primaryTypeDisplayName so non-Michelin-
+  // labelled entries fall through to the Places-derived restaurantType.
   const FIELD_MASK = [
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
-    'places.googleMapsUri', 'places.primaryType',
+    'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
   ].join(',');
@@ -4948,9 +4975,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
-      // (distinct from the routing slug). Surfaced on the venue
-      // card via ResultCard.jsx michelinAnnotation().
+      // (distinct from the routing slug). Surfaced via the unified
+      // restaurantType line below.
       michelinCuisineLabel: entry.michelinCuisineLabel || '',
+      // v0.60.45 — unified restaurantType: prefer the curated Michelin
+      // Guide label; fall back to Places' localized primaryTypeDisplayName.
+      restaurantType: entry.michelinCuisineLabel
+        ? humaniseRestaurantType(entry.michelinCuisineLabel, '')
+        : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType),
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true
     } : {
@@ -4969,9 +5001,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
-      // (distinct from the routing slug). Surfaced on the venue
-      // card via ResultCard.jsx michelinAnnotation().
+      // (distinct from the routing slug). Surfaced via the unified
+      // restaurantType line below.
       michelinCuisineLabel: entry.michelinCuisineLabel || '',
+      // v0.60.45 — unified restaurantType. Places lookup failed so
+      // only the curated Michelin label is available; blank when entry
+      // has no curated label.
+      restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true
     };
@@ -5115,11 +5151,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     } catch (err) { console.warn('[Michelin] footfall failed:', err.message); }
   }
 
-  // Track only the dedup keys for venues actually returned, so future
-  // searches can re-surface the filtered-out (other-cuisine) venues
-  // when the user removes the cuisine constraint.
-  const returnedKeys = filteredVenues.map((v) => `${v.michelinName || v.name}|${v.address || ''}`.toLowerCase());
-  await appendSeenSet(csChatId, criteriaHash, returnedKeys.length ? returnedKeys : newDedupKeys);
+  // v0.60.44 — append entry-derived dedup keys (name|entry.address)
+  // built during the Places loop above. The previous returnedKeys
+  // construction used `v.address` (= placesData.formattedAddress),
+  // which usually differs from `entry.address` enough that
+  // `seen.has(\`${e.name}|${e.address}\`.toLowerCase())` at line 4844
+  // returned false on the next click — same Michelin entries kept
+  // resurfacing instead of the next 40. The criteriaHash already
+  // partitions seen-sets by cuisine combo, so appending the full
+  // attempted-batch (including post-filter drops) is safe: removing
+  // the cuisine constraint creates a fresh hash and a fresh set.
+  await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
 
   // v0.60.18 — emit `exhausted` so the TMA (a) shows the
   // Google-limit tip ONLY at first-search-of-session and at the

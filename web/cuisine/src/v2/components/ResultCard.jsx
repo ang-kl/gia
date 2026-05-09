@@ -133,6 +133,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
+          {/* v0.60.45 — restaurant type line. Sourced from
+              michelinCuisineLabel (when present) or Places API
+              primaryTypeDisplayName, with the trailing "restaurant"
+              word stripped server-side. Renders directly under the
+              venue name so users see the cuisine descriptor at a
+              glance without scanning chips. */}
+          {venue.restaurantType && (
+            <div className="text-[11px] text-tg-text/80 truncate">{venue.restaurantType}</div>
+          )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {/* v0.59.23: primary "What to order" line — LLM-picked
@@ -180,10 +189,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
       </div>
       {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
           below the Maps + Copy buttons when /api/cuisine/search
-          attached michelinCategory to the venue payload. */}
+          attached michelinCategory to the venue payload.
+          v0.60.45 — cuisine label moved out of this row into the new
+          restaurantType line below the venue name. The annotation
+          here is now just star-tier + year. */}
       {venue.michelinCategory && (
         <div className="text-[11px] text-tg-text mt-1 font-semibold">
-          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025, venue.michelinCuisineLabel)}
+          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
         </div>
       )}
     </button>
@@ -192,11 +204,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
 
 // v0.60.16 — mirror the chat-card formatter (michelin-2025.js
 // formatMichelinLine) so the TMA UI shows the same labels.
-// v0.60.43 — append Michelin Guide's own descriptive cuisine label
-// when the venue carries one (e.g. "Chilean", "Modern Indian",
-// "Sushi · Authentic Japanese"). Optional — entries without it
-// render unchanged.
-function michelinAnnotation(category, year, cuisineLabel) {
+function michelinAnnotation(category, year) {
   const labels = {
     'three-star':   '✳️ Michelin · ⭐⭐⭐',
     'two-star':     '✳️ Michelin · ⭐⭐',
@@ -204,6 +212,5 @@ function michelinAnnotation(category, year, cuisineLabel) {
     'bib-gourmand': '✳️ Bib Gourmand'
   };
   const prefix = labels[category] || '✳️ Michelin';
-  const label = cuisineLabel ? ` · ${cuisineLabel}` : '';
-  return `${prefix} · ${year}${label}`;
+  return `${prefix} · ${year}`;
 }
