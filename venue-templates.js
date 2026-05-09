@@ -155,6 +155,11 @@ function formatVenueBlock(p, opts = {}) {
   const lines = [];
   const headPrefix = (number == null) ? '' : `${number}. `;
   lines.push(`${headPrefix}<b>${escapeHtml(p.name)}</b>`);
+  // v0.60.45 — restaurant type line below the bold name. Mirrors the
+  // TMA result card. Sourced from michelinCuisineLabel (when present)
+  // or Places primaryTypeDisplayName, with the trailing "restaurant"
+  // word stripped upstream by humaniseRestaurantType in index.js.
+  if (p.restaurantType) lines.push(`🍽️ ${escapeHtml(p.restaurantType)}`);
   if (p.area) lines.push(`📇 ${escapeHtml(p.area)}`);
   const hours = formatHoursLine(p, lang);
   if (hours) lines.push(hours);
