@@ -201,4 +201,41 @@ function buildMapHashUrl(venues, opts = {}) {
   return prefix ? `${prefix}${path}` : path;
 }
 
-module.exports = { googleMapsUrl, googleMapsContainerUrl, buildMapHashUrl };
+// v0.60.56 — multi-stop Google Maps URL with a higher waypoint cap.
+// googleMapsContainerUrl above hard-caps at 9 (the documented Maps
+// URLs API limit). For the hawker TMA we want to surface ALL centres
+// in a region (up to ~22) on Google Maps. Consumer Maps tolerates
+// more waypoints than the documented API ceiling, so we accept an
+// explicit override and trust the caller's request size limit.
+//
+// Usage: googleMapsTourUrl(places, { travelmode, maxStops })
+//   places: array of { lat, lng, name?, placeId? }
+//   travelmode: 'walking' | 'driving' | 'transit' | 'bicycling'
+//   maxStops:   total stops including destination + waypoints (cap 25)
+//
+// Returns null if there are fewer than 2 plottable places.
+function googleMapsTourUrl(places, opts = {}) {
+  if (!Array.isArray(places) || !places.length) return null;
+  const cap = Math.min(25, Math.max(2, Number.isFinite(opts.maxStops) ? opts.maxStops : 25));
+  const travelmode = encodeURIComponent(opts.travelmode || 'walking');
+  const points = places
+    .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
+    .slice(0, cap)
+    .map((p) => `${p.lat},${p.lng}`);
+  if (points.length < 2) return null;
+  const destination = points[points.length - 1];
+  const origin = opts.origin || points[0];
+  const waypoints = points.slice(1, -1);
+  const params = [
+    'https://www.google.com/maps/dir/?api=1',
+    `travelmode=${travelmode}`,
+    `origin=${encodeURIComponent(origin)}`,
+    `destination=${encodeURIComponent(destination)}`
+  ];
+  if (waypoints.length) {
+    params.push(`waypoints=${encodeURIComponent(waypoints.join('|'))}`);
+  }
+  return params.join('&');
+}
+
+module.exports = { googleMapsUrl, googleMapsContainerUrl, googleMapsTourUrl, buildMapHashUrl };
