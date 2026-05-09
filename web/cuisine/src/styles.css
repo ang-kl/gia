@@ -27,8 +27,13 @@ body { -webkit-font-smoothing: antialiased; }
      Desktop letterbox the TMA at a wider aspect than mobile; left
      unhandled, cards stretch edge-to-edge and look unreadable. The
      body becomes a flex container painted in the secondary bg
-     (matches the Telegram letterbox), and #root caps at 800 px
-     centered with the primary bg so the app feels raised. */
+     (matches the Telegram letterbox), and #root caps centered with
+     the primary bg so the app feels raised.
+     v0.60.49 — Human Lead 2026-05-09 raised the cap from 800 →
+     1280 px after a desktop screenshot showed >50% letterbox on a
+     1920 px window. 1280 still preserves the centered-column
+     aesthetic on ultrawide monitors but gives Telegram Desktop +
+     iPad-landscape room to breathe. */
   body {
     display: flex;
     justify-content: center;
@@ -36,7 +41,7 @@ body { -webkit-font-smoothing: antialiased; }
   }
   #root {
     width: 100%;
-    max-width: 800px;
+    max-width: 1280px;
     min-height: var(--tg-viewport-stable-height, 100vh);
     background-color: var(--tg-bg);
   }
