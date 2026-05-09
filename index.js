@@ -1490,6 +1490,33 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   await sendHawkerMenu(msg.chat.id, lang);
 });
 
+// v0.60.56 — /menu (alias /m) — opens the Soleat menu hub Mini App.
+// Slash commands can't directly launch a Mini App; the handler sends
+// a one-tap button (`web_app`) that opens https://<host>/app/menu in
+// the same WebApp container the chat-menu button uses.
+bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  if (!webhookDomain) {
+    await safeSend(msg.chat.id,
+      lang === 'fr' ? '⚠️ Menu indisponible (hôte non configuré).'
+                    : '⚠️ Menu unavailable (host not configured).');
+    return;
+  }
+  const text = lang === 'fr'
+    ? '🍚 *Soleat Menu* — touchez pour ouvrir.'
+    : '🍚 *Soleat Menu* — tap to open.';
+  const buttonText = lang === 'fr' ? 'Ouvrir le menu' : 'Open menu';
+  await safeSend(msg.chat.id, text, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [[
+        { text: buttonText, web_app: { url: `https://${webhookDomain}/app/menu` } }
+      ]]
+    }
+  });
+});
+
 // v0.35.0: /recognised — nearest 5 award-winning venues (Michelin Star,
 // Bib Gourmand, Asia 50 Best, World Culinary Awards, Best Chef Awards,
 // UNESCO ICH) within 5 km. Consumes the v0.34 recog:venue:* table —
@@ -5747,6 +5774,7 @@ async function registerCommandsMenu() {
     // description so users learn the shortcut. /hidden, /legal, /ver
     // remain "special commands" — handlers exist, menu does not.
     const enCommands = [
+      { command: 'menu',       description: 'Soleat menu hub · one-tap reach to every feature (or /m)' },
       { command: 'cuisine',    description: 'Cuisine Picker · 50+ cuisines, SG + Johor Bahru, quick filters (or /c)' },
       { command: 'location',   description: 'Change location · /location [street] (or /l)' },
       { command: 'hawker',     description: '>100 hawker centres (2025)' },
@@ -5765,6 +5793,7 @@ async function registerCommandsMenu() {
       { command: 'forgetme',   description: 'Erase stored data' }
     ];
     const frCommands = [
+      { command: 'menu',       description: 'Hub Soleat · accès rapide à toutes les fonctionnalités (ou /m)' },
       { command: 'cuisine',    description: 'Sélecteur de cuisine · 50+ cuisines, SG + Johor Bahru, filtres rapides (ou /c)' },
       { command: 'location',   description: 'Changer de lieu · /location [rue] (ou /l)' },
       { command: 'hawker',     description: 'Plus de 100 hawker centres (2025)' },
