@@ -37,18 +37,41 @@ export function applyTelegramTheme() {
     }));
   });
 
+  // v0.60.52 — wire Telegram's BackButton so users can return to
+  // the Menu hub without leaving Telegram. The Hawker TMA is
+  // navigated to via `window.location.href = '/app/hawker'` from
+  // the Menu tile, so window.history has a /app/menu entry to go
+  // back to. When opened directly (deep link or no history), fall
+  // back to closing the WebApp entirely. Required when the WebApp
+  // is in fullscreen mode because Telegram's chrome — which
+  // normally provides the swipe-down-to-close affordance — is
+  // hidden in fullscreen.
+  safe('back-button', () => {
+    if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
+    w.BackButton.show();
+    const handler = () => {
+      if (typeof window !== 'undefined' && window.history.length > 1) {
+        window.history.back();
+      } else if (typeof w.close === 'function') {
+        w.close();
+      }
+    };
+    if (typeof w.onEvent === 'function') {
+      w.onEvent('backButtonClicked', handler);
+    } else if (typeof w.BackButton.onClick === 'function') {
+      w.BackButton.onClick(handler);
+    }
+  });
+
+  // v0.60.52 — auto-fullscreen ONLY on iPad. See web/menu/src/tg.js
+  // for the full rationale (notebook users on Telegram Desktop
+  // were getting an unwanted fullscreen takeover).
   safe('fullscreen', () => {
     const platform = String(w.platform || '').toLowerCase();
-    if (platform === 'weba' || platform === 'webk' || platform === 'web') return;
-    const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
-    const wideViewport = typeof window !== 'undefined'
-      && window.matchMedia?.('(min-width: 600px)').matches;
-    if ((wideViewport || isTabletPlatform)
-        && typeof w.isVersionAtLeast === 'function'
-        && w.isVersionAtLeast('8.0')
-        && typeof w.requestFullscreen === 'function') {
-      w.requestFullscreen();
-    }
+    if (platform !== 'ipados') return;
+    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
+    if (typeof w.requestFullscreen !== 'function') return;
+    w.requestFullscreen();
   });
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary so the
