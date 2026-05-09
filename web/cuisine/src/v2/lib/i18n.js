@@ -76,6 +76,9 @@ const STRINGS = {
   'btn.collapse':              { en: 'Collapse ▴', fr: 'Réduire ▴' },
   'btn.editSearch':            { en: 'Edit search ▾', fr: 'Modifier la recherche ▾' },
   'btn.backToTop':             { en: 'Back to top', fr: 'Retour en haut' },
+  // v0.60.58 — short-form label for the FAB ("⇡ top" / "⇡ haut").
+  // The long-form key above stays as the aria-label for screen readers.
+  'btn.topShort':              { en: '⇡ top', fr: '⇡ haut' },
   'btn.showLocation':          { en: 'Show your location', fr: 'Afficher votre position' },
   'btn.searchHere':            { en: 'Search this area', fr: 'Rechercher dans cette zone' },
 
