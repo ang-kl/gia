@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Tile from './components/Tile.jsx';
 import TrainPanel from './components/TrainPanel.jsx';
+import BackFab from './components/BackFab.jsx';
 import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
 
@@ -180,6 +181,8 @@ export default function App() {
       <div className="text-center text-[9px] text-tg-hint pb-2">
         {t('footer.brand', lang)} {BUILD_VERSION} · 2026
       </div>
+
+      <BackFab />
     </div>
   );
 }

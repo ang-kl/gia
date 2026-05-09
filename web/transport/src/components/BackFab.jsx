@@ -1,13 +1,10 @@
 import React from 'react';
 
-// v0.60.55 — single bottom-left FAB that detects context and shows
-// the right semantic per Human Lead 2026-05-09 ("is end and back
-// too confusing, can you detect the difference"):
-//   • window.history.length > 1  → ⬅ Back (pop history)
-//   • otherwise                   → 🔚 Close (close the WebApp)
-// One affordance, two meanings — the icon + aria-label tell the
-// user which one applies right now, so it never looks like the
-// other action is also lurking.
+// v0.60.55 — bottom-left FAB. Smart-detects whether to act as Back
+// (pop history) or Close (close the WebApp). On the transport TMA
+// users typically arrive via the chat's `Open MRT map` web_app
+// button (fresh history) — they'll see 🔚 Close. If a future flow
+// pushes a route into history, ⬅ Back appears instead.
 export default function BackFab() {
   const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
   const onClick = () => {
