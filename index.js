@@ -6832,6 +6832,50 @@ async function cacheBotUsername() {
     // gated by initData. The TMA's `useLocale()` hook calls GET on
     // mount and POST when the user taps the EN/FR flag toggle, so
     // toggling in the TMA also flips chat replies and vice versa.
+    // v0.60.52 — Menu hub tile dispatch.
+    //
+    // Why this endpoint exists at all: the Menu TMA is launched via
+    // setChatMenuButton's web_app URL (index.js:5827, 5873). In that
+    // launch mode `tg.sendData()` is silently no-op'd by Telegram —
+    // sendData only delivers a service message when the WebApp was
+    // opened from a Reply Keyboard button. The Menu hub's v0.60.48
+    // dispatch path therefore worked only by accident on platforms
+    // where Telegram chose to forward sendData, and not at all on
+    // others. See https://core.telegram.org/bots/webapps#initializing-mini-apps
+    //
+    // The fix routes tile taps through a normal HTTPS request: the
+    // TMA POSTs { initData, cmd } here, the server validates initData
+    // (twa-auth.js, identical to the cuisine endpoints), then calls
+    // routeMenuCommand(chatId, cmd, …) — the same routing path that
+    // /start <cmd> deep links and (legacy) web_app_data taps use,
+    // so every menu command keeps a single server-side handler.
+    app.post('/api/menu-dispatch', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ ok: false, error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
+        const cmd = String(req.body?.cmd || '').trim().toLowerCase();
+        if (!cmd) return res.status(400).json({ ok: false, error: 'no cmd' });
+        // Cap the dispatch surface to lowercase ASCII letters — keeps
+        // the endpoint from being abused as a generic command relay.
+        if (!/^[a-z]{1,32}$/.test(cmd)) return res.status(400).json({ ok: false, error: 'bad cmd' });
+        const { resolveLang } = require('./user-prefs');
+        const lang = await resolveLang(redis, String(userId), {
+          from: { language_code: verified.user?.language_code }
+        });
+        const handled = await routeMenuCommand(String(userId), cmd, null, lang);
+        if (!handled) {
+          console.warn(`[menu-dispatch] unhandled cmd="${cmd}" user=${userId}`);
+          return res.status(404).json({ ok: false, error: 'unknown cmd' });
+        }
+        res.json({ ok: true });
+      } catch (err) {
+        console.error('[menu-dispatch] failed:', err.message);
+        res.status(500).json({ ok: false, error: err.message });
+      }
+    });
+
     app.post('/api/cuisine/user-language', async (req, res) => {
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);

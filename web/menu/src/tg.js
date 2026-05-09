@@ -36,17 +36,19 @@ export function applyTelegramTheme() {
   });
 
   safe('fullscreen', () => {
+    // v0.60.52 — auto-fullscreen ONLY on iPad. Earlier revisions
+    // (v0.59.18 / v0.59.25 / v0.59.28) also fullscreened tdesktop,
+    // macos, and any viewport ≥600px wide; that was overreach —
+    // notebook users running Telegram Desktop got an unwanted
+    // fullscreen takeover with no chrome and no easy exit. iPad
+    // is the one platform where Telegram puts the WebApp in a
+    // narrow letterboxed column that genuinely benefits from
+    // requesting fullscreen.
     const platform = String(w.platform || '').toLowerCase();
-    if (platform === 'weba' || platform === 'webk' || platform === 'web') return;
-    const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
-    const wideViewport = typeof window !== 'undefined'
-      && window.matchMedia?.('(min-width: 600px)').matches;
-    if ((wideViewport || isTabletPlatform)
-        && typeof w.isVersionAtLeast === 'function'
-        && w.isVersionAtLeast('8.0')
-        && typeof w.requestFullscreen === 'function') {
-      w.requestFullscreen();
-    }
+    if (platform !== 'ipados') return;
+    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
+    if (typeof w.requestFullscreen !== 'function') return;
+    w.requestFullscreen();
   });
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
