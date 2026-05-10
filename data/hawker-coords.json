@@ -1,33 +1,490 @@
 {
-  "Maxwell Food Centre": { "lat": 1.2802, "lng": 103.8442 },
-  "Amoy Street Food Centre": { "lat": 1.2799, "lng": 103.8472 },
-  "Chinatown Complex Market & Hawker Centre": { "lat": 1.2823, "lng": 103.8438 },
-  "Hong Lim Market & Food Centre": { "lat": 1.2843, "lng": 103.8438 },
-  "Newton Food Centre": { "lat": 1.3128, "lng": 103.8378 },
-  "Tekka Market": { "lat": 1.3066, "lng": 103.8508 },
-  "Blk 127 Toa Payoh Lorong 1": { "lat": 1.3344, "lng": 103.8485 },
-  "Blks 91/92 Whampoa Drive": { "lat": 1.3242, "lng": 103.855 },
-  "Tiong Bahru Market": { "lat": 1.2854, "lng": 103.8316 },
-  "ABC Brickworks Market & Food Centre": { "lat": 1.2851, "lng": 103.8189 },
-  "Blk 163 Bukit Merah Central": { "lat": 1.2814, "lng": 103.8163 },
-  "Blk 79 Telok Blangah Drive": { "lat": 1.273, "lng": 103.81 },
-  "Alexandra Village Food Centre": { "lat": 1.2885, "lng": 103.8014 },
-  "Blk 51 Old Airport Road": { "lat": 1.308, "lng": 103.8861 },
-  "Blk 85 Bedok North Street 4": { "lat": 1.3236, "lng": 103.9301 },
-  "Blk 511 Bedok North Street 3": { "lat": 1.3275, "lng": 103.9302 },
-  "Geylang Serai Market": { "lat": 1.316, "lng": 103.8978 },
-  "Blk 84 Marine Parade Central": { "lat": 1.3023, "lng": 103.9067 },
-  "Dunman Food Centre": { "lat": 1.3131, "lng": 103.8915 },
-  "Adam Food Centre": { "lat": 1.3266, "lng": 103.8147 },
-  "Blk 44 Holland Drive": { "lat": 1.311, "lng": 103.7964 },
-  "Blk 20 Ghim Moh Road": { "lat": 1.3097, "lng": 103.7878 },
-  "Blk 448 Clementi Ave 3": { "lat": 1.314, "lng": 103.766 },
-  "Taman Jurong Market & Food Centre": { "lat": 1.3375, "lng": 103.7184 },
-  "Blks 221A/B Boon Lay Place": { "lat": 1.3383, "lng": 103.7068 },
-  "Yishun Park Hawker Centre": { "lat": 1.4204, "lng": 103.8395 },
-  "Marsiling Mall Hawker Centre": { "lat": 1.4326, "lng": 103.7747 },
-  "Blks 20/21 Marsiling Lane": { "lat": 1.4405, "lng": 103.7794 },
-  "Chong Pang Market & Food Centre": { "lat": 1.4307, "lng": 103.8329 },
-  "Sembawang Hills Food Centre": { "lat": 1.37, "lng": 103.8358 },
-  "Bukit Panjang Hawker Centre & Market": { "lat": 1.3787, "lng": 103.7615 }
+  "Maxwell Food Centre": {
+    "lat": 1.2802,
+    "lng": 103.8442
+  },
+  "Amoy Street Food Centre": {
+    "lat": 1.2799,
+    "lng": 103.8472
+  },
+  "Chinatown Complex Market & Hawker Centre": {
+    "lat": 1.2823,
+    "lng": 103.8438
+  },
+  "Hong Lim Market & Food Centre": {
+    "lat": 1.2843,
+    "lng": 103.8438
+  },
+  "Newton Food Centre": {
+    "lat": 1.3128,
+    "lng": 103.8378
+  },
+  "Tekka Market": {
+    "lat": 1.3066,
+    "lng": 103.8508
+  },
+  "Blk 127 Toa Payoh Lorong 1": {
+    "lat": 1.3344,
+    "lng": 103.8485
+  },
+  "Blks 91/92 Whampoa Drive": {
+    "lat": 1.3242,
+    "lng": 103.855
+  },
+  "Tiong Bahru Market": {
+    "lat": 1.2854,
+    "lng": 103.8316
+  },
+  "ABC Brickworks Market & Food Centre": {
+    "lat": 1.2851,
+    "lng": 103.8189
+  },
+  "Blk 163 Bukit Merah Central": {
+    "lat": 1.2814,
+    "lng": 103.8163
+  },
+  "Blk 79 Telok Blangah Drive": {
+    "lat": 1.273,
+    "lng": 103.81
+  },
+  "Alexandra Village Food Centre": {
+    "lat": 1.2885,
+    "lng": 103.8014
+  },
+  "Blk 51 Old Airport Road": {
+    "lat": 1.308,
+    "lng": 103.8861
+  },
+  "Blk 85 Bedok North Street 4": {
+    "lat": 1.3236,
+    "lng": 103.9301
+  },
+  "Blk 511 Bedok North Street 3": {
+    "lat": 1.3275,
+    "lng": 103.9302
+  },
+  "Geylang Serai Market": {
+    "lat": 1.316,
+    "lng": 103.8978
+  },
+  "Blk 84 Marine Parade Central": {
+    "lat": 1.3023,
+    "lng": 103.9067
+  },
+  "Dunman Food Centre": {
+    "lat": 1.3131,
+    "lng": 103.8915
+  },
+  "Adam Food Centre": {
+    "lat": 1.3266,
+    "lng": 103.8147
+  },
+  "Blk 44 Holland Drive": {
+    "lat": 1.311,
+    "lng": 103.7964
+  },
+  "Blk 20 Ghim Moh Road": {
+    "lat": 1.3097,
+    "lng": 103.7878
+  },
+  "Blk 448 Clementi Ave 3": {
+    "lat": 1.314,
+    "lng": 103.766
+  },
+  "Taman Jurong Market & Food Centre": {
+    "lat": 1.3375,
+    "lng": 103.7184
+  },
+  "Blks 221A/B Boon Lay Place": {
+    "lat": 1.3383,
+    "lng": 103.7068
+  },
+  "Yishun Park Hawker Centre": {
+    "lat": 1.4204,
+    "lng": 103.8395
+  },
+  "Marsiling Mall Hawker Centre": {
+    "lat": 1.4326,
+    "lng": 103.7747
+  },
+  "Blks 20/21 Marsiling Lane": {
+    "lat": 1.4405,
+    "lng": 103.7794
+  },
+  "Chong Pang Market & Food Centre": {
+    "lat": 1.4307,
+    "lng": 103.8329
+  },
+  "Sembawang Hills Food Centre": {
+    "lat": 1.37,
+    "lng": 103.8358
+  },
+  "Bukit Panjang Hawker Centre & Market": {
+    "lat": 1.3787,
+    "lng": 103.7615
+  },
+  "Bedok Food Centre": {
+    "lat": 1.320350159561291,
+    "lng": 103.9554775987236
+  },
+  "Beo Crescent Market": {
+    "lat": 1.28883089150259,
+    "lng": 103.8273538922275
+  },
+  "Berseh Food Centre": {
+    "lat": 1.307344109463725,
+    "lng": 103.8568887837683
+  },
+  "Chomp Chomp Food Centre": {
+    "lat": 1.364232524768871,
+    "lng": 103.8665270173799
+  },
+  "Commonwealth Crescent Market": {
+    "lat": 1.306900132063356,
+    "lng": 103.8003672712181
+  },
+  "East Coast Lagoon Food Village": {
+    "lat": 1.307261065911731,
+    "lng": 103.9347997370979
+  },
+  "Golden Mile Food Centre": {
+    "lat": 1.303141753203337,
+    "lng": 103.8638776153336
+  },
+  "Holland Village Market & Food Centre": {
+    "lat": 1.311072974021275,
+    "lng": 103.7948764196615
+  },
+  "Kallang Estate Market": {
+    "lat": 1.307343983704754,
+    "lng": 103.8840176993185
+  },
+  "Margaret Drive Hawker Centre": {
+    "lat": 1.297486559328558,
+    "lng": 103.8046937974298
+  },
+  "Market Street Hawker Centre": {
+    "lat": 1.284059451735137,
+    "lng": 103.8498823843494
+  },
+  "North Bridge Road Market & Food Centre": {
+    "lat": 1.306140807465193,
+    "lng": 103.8640992812755
+  },
+  "Pasir Panjang Food Centre": {
+    "lat": 1.275917974392925,
+    "lng": 103.7914109086557
+  },
+  "Serangoon Garden Market": {
+    "lat": 1.362736807774827,
+    "lng": 103.8661621630418
+  },
+  "Tanglin Halt Market": {
+    "lat": 1.300544075074275,
+    "lng": 103.7977379802471
+  },
+  "Zion Riverside Food Centre": {
+    "lat": 1.292342211420699,
+    "lng": 103.8311890236229
+  },
+  "Albert Centre Market & Food Centre": {
+    "lat": 1.301102015734238,
+    "lng": 103.8541157790862
+  },
+  "Blk 117 Aljunied Ave 2": {
+    "lat": 1.320646367819823,
+    "lng": 103.8870241399993
+  },
+  "Blk 226D Ang Mo Kio Ave 1": {
+    "lat": 1.36680096218072,
+    "lng": 103.8391522742238
+  },
+  "Blk 341 Ang Mo Kio Ave 1": {
+    "lat": 1.36410720984458,
+    "lng": 103.8482421658603
+  },
+  "Blks 160/162 Ang Mo Kio Ave 4": {
+    "lat": 1.37452773784114,
+    "lng": 103.8391760609051
+  },
+  "Blk 628 Ang Mo Kio Ave 4": {
+    "lat": 1.380987616654542,
+    "lng": 103.8406280874841
+  },
+  "Blk 724 Ang Mo Kio Ave 6": {
+    "lat": 1.372172585451713,
+    "lng": 103.8465103102021
+  },
+  "Blk 409 Ang Mo Kio Ave 10": {
+    "lat": 1.36265410749322,
+    "lng": 103.8552882976312
+  },
+  "Blk 453A Ang Mo Kio Ave 10": {
+    "lat": 1.368247788776508,
+    "lng": 103.8563616498629
+  },
+  "Blk 527 Ang Mo Kio Ave 10": {
+    "lat": 1.372772093027544,
+    "lng": 103.854457955288
+  },
+  "Blk 226H Ang Mo Kio Street 22": {
+    "lat": 1.367196537523802,
+    "lng": 103.8400222239506
+  },
+  "Blk 216 Bedok North Street 1": {
+    "lat": 1.327062742057474,
+    "lng": 103.9332179707457
+  },
+  "Blk 538 Bedok North Street 3": {
+    "lat": 1.33206727712281,
+    "lng": 103.9246213149709
+  },
+  "Blk 630 Bedok Reservoir Road": {
+    "lat": 1.332772792172124,
+    "lng": 103.9141908402982
+  },
+  "Blk 16 Bedok South Road": {
+    "lat": 1.320552219387105,
+    "lng": 103.9355391716127
+  },
+  "Blk 29 Bendemeer Road": {
+    "lat": 1.319216678901136,
+    "lng": 103.8630209225932
+  },
+  "Blk 115 Bukit Merah View": {
+    "lat": 1.285504455674354,
+    "lng": 103.8218232560867
+  },
+  "Blks 2 & 3 Changi Village Road": {
+    "lat": 1.38915164858571,
+    "lng": 103.9882452477256
+  },
+  "Blks 79/79A Circuit Road": {
+    "lat": 1.326597067296303,
+    "lng": 103.8850522857353
+  },
+  "Blk 80 Circuit Road": {
+    "lat": 1.327834146159377,
+    "lng": 103.8871026692355
+  },
+  "Blk 89 Circuit Road": {
+    "lat": 1.323579714005833,
+    "lng": 103.8854388424738
+  },
+  "Blk 353 Clementi Ave 2": {
+    "lat": 1.314379179789571,
+    "lng": 103.7709195611356
+  },
+  "Blk 726 Clementi West Street 2": {
+    "lat": 1.303810731841269,
+    "lng": 103.7642507484353
+  },
+  "Blk 7 Empress Road": {
+    "lat": 1.316240529605173,
+    "lng": 103.8056367003967
+  },
+  "Blk 4A Eunos Crescent": {
+    "lat": 1.320331260100958,
+    "lng": 103.9042564784258
+  },
+  "Blk 69 Geylang Bahru": {
+    "lat": 1.321463110467801,
+    "lng": 103.8700050145466
+  },
+  "Blks 13/14 Haig Road": {
+    "lat": 1.315142049722833,
+    "lng": 103.8956095442037
+  },
+  "Blks 22A/B Havelock Road": {
+    "lat": 1.28797051657173,
+    "lng": 103.8296234135538
+  },
+  "Blk 105 Hougang Ave 1": {
+    "lat": 1.354082739101452,
+    "lng": 103.890130407955
+  },
+  "Blk 4A Jalan Batu": {
+    "lat": 1.302360348271005,
+    "lng": 103.8839094737256
+  },
+  "Blk 112 Jalan Bukit Merah": {
+    "lat": 1.280004801351239,
+    "lng": 103.8260132962092
+  },
+  "Blk 1 Jalan Kukoh": {
+    "lat": 1.288231015280508,
+    "lng": 103.8399341680651
+  },
+  "Blk 347 Jurong East Ave 1": {
+    "lat": 1.345416983127755,
+    "lng": 103.7317038383537
+  },
+  "Blk 254 Jurong East Street 24": {
+    "lat": 1.343488185204953,
+    "lng": 103.73773841183
+  },
+  "Blk 505 Jurong West Street 52": {
+    "lat": 1.349657291307473,
+    "lng": 103.7184436778251
+  },
+  "Kovan Market & Food Centre": {
+    "lat": 1.359083840910492,
+    "lng": 103.8860553680639
+  },
+  "Blk 50A Marine Terrace": {
+    "lat": 1.305729735919159,
+    "lng": 103.9157370353332
+  },
+  "Blk 159 Mei Chin Road": {
+    "lat": 1.293236244437354,
+    "lng": 103.8029038718891
+  },
+  "Blk 58 New Upper Changi Road": {
+    "lat": 1.324200873340016,
+    "lng": 103.9411252775471
+  },
+  "Blk 208B New Upper Changi Road": {
+    "lat": 1.324782369856288,
+    "lng": 103.9305703045582
+  },
+  "Pek Kio Market & Food Centre": {
+    "lat": 1.316131280294595,
+    "lng": 103.8502329351617
+  },
+  "People's Park Food Centre": {
+    "lat": 1.284979431084668,
+    "lng": 103.8425676808297
+  },
+  "Blk 79 Redhill Lane": {
+    "lat": 1.287843172980647,
+    "lng": 103.8183520972984
+  },
+  "Blk 85 Redhill Lane": {
+    "lat": 1.287307515015534,
+    "lng": 103.8183111953068
+  },
+  "Blk 320 Shunfu Road": {
+    "lat": 1.352007454015918,
+    "lng": 103.8370318621031
+  },
+  "Blk 49 Sims Place": {
+    "lat": 1.317035023753244,
+    "lng": 103.8793098547741
+  },
+  "Blk 137 Tampines Street 11": {
+    "lat": 1.345373473737498,
+    "lng": 103.9446294228272
+  },
+  "Blk 6 Tanjong Pagar Plaza": {
+    "lat": 1.276613669833867,
+    "lng": 103.8431616776339
+  },
+  "Blk 37A Teban Gardens Road": {
+    "lat": 1.320831093414238,
+    "lng": 103.7427481191047
+  },
+  "Blk 11 Telok Blangah Crescent": {
+    "lat": 1.277368132257612,
+    "lng": 103.8186515243339
+  },
+  "Blk 82 Telok Blangah Drive": {
+    "lat": 1.273890767756292,
+    "lng": 103.8079003375433
+  },
+  "Blk 36 Telok Blangah Rise": {
+    "lat": 1.272761285702876,
+    "lng": 103.8223635422557
+  },
+  "Blk 74 Toa Payoh Lorong 4": {
+    "lat": 1.334550748721397,
+    "lng": 103.852003509176
+  },
+  "Blk 93 Toa Payoh Lorong 4": {
+    "lat": 1.33847469611073,
+    "lng": 103.8495134488531
+  },
+  "Blk 75 Toa Payoh Lorong 5": {
+    "lat": 1.336020767662008,
+    "lng": 103.8529569880616
+  },
+  "Blk 22 Toa Payoh Lorong 7": {
+    "lat": 1.33538261333779,
+    "lng": 103.857003709119
+  },
+  "Blk 210 Toa Payoh Lorong 8": {
+    "lat": 1.340216008576239,
+    "lng": 103.8548725644398
+  },
+  "Blk 17 Upper Boon Keng Road": {
+    "lat": 1.315028415147315,
+    "lng": 103.87162041674
+  },
+  "Blk 502 West Coast Drive": {
+    "lat": 1.311906957239438,
+    "lng": 103.7591280189392
+  },
+  "Blk 503 West Coast Drive": {
+    "lat": 1.311803089264245,
+    "lng": 103.7597514055419
+  },
+  "Blk 90 Whampoa Drive": {
+    "lat": 1.323064938011603,
+    "lng": 103.8549961835556
+  },
+  "Ci Yuan Hawker Centre": {
+    "lat": 1.375429015788586,
+    "lng": 103.8829779977051
+  },
+  "Hawker Centre @ Our Tampines Hub": {
+    "lat": 1.35354740485205,
+    "lng": 103.9403811045466
+  },
+  "Kampung Admiralty Hawker Centre": {
+    "lat": 1.439749517980793,
+    "lng": 103.8007207116206
+  },
+  "Jurong West Hawker Centre": {
+    "lat": 1.34126410393953,
+    "lng": 103.6972418521889
+  },
+  "Pasir Ris Central Hawker Centre": {
+    "lat": 1.373472520643268,
+    "lng": 103.9515713424669
+  },
+  "Fernvale Hawker Centre and Market": {
+    "lat": 1.391722092792314,
+    "lng": 103.877039073044
+  },
+  "One Punggol Hawker Centre": {
+    "lat": 1.408521580886012,
+    "lng": 103.9050342080301
+  },
+  "Senja Hawker Centre": {
+    "lat": 1.387194004152826,
+    "lng": 103.7610839763762
+  },
+  "Bukit Canberra Hawker Centre": {
+    "lat": 1.448263364101597,
+    "lng": 103.8227636318894
+  },
+  "Buangkok Hawker Centre": {
+    "lat": 1.383705648290412,
+    "lng": 103.8923086025885
+  },
+  "Anchorvale Village Hawker Centre": {
+    "lat": 1.39679315311901,
+    "lng": 103.8884373447716
+  },
+  "Woodleigh Village Hawker Centre": {
+    "lat": 1.339772028009056,
+    "lng": 103.8720969832764
+  },
+  "Bukit Batok West Hawker Centre": {
+    "lat": 1.355450618356299,
+    "lng": 103.7421029132333
+  },
+  "Punggol Coast Hawker Centre": {
+    "lat": 1.414518009808142,
+    "lng": 103.9085426013343
+  }
 }
