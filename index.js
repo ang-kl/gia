@@ -7748,10 +7748,26 @@ async function cacheBotUsername() {
               lang: csLang, expandSingaporean: false
             });
             const andVenues = Array.isArray(andCandidates) ? andCandidates : (andCandidates?.venues || []);
-            if (andVenues.length >= 1) {
+            // v0.60.84 — operator 2026-05-10: tighter validation. The
+            // v0.60.82 ≥1 threshold treated any Google result as a
+            // true combo, so "Turkish South Indian" got a false
+            // match from Turkish-only restaurants (Grand Konak,
+            // Sultan Palace). Now require at least 1 AND-result
+            // whose name/types actually contain BOTH cuisine
+            // keywords (case-insensitive substring). If validation
+            // fails, fall back to OR round-robin + show the banner.
+            const lowerCuisineNames = cuisineNames.map((n) => String(n).toLowerCase());
+            const venueMatchesAll = (v) => {
+              const haystack = `${v.name || ''} ${v.primaryType || ''} ${(v.types || []).join(' ')}`.toLowerCase();
+              return lowerCuisineNames.every((c) => haystack.includes(c));
+            };
+            const validatedHits = andVenues.filter(venueMatchesAll);
+            if (validatedHits.length >= 1) {
               venues = andVenues;
               comboInfo.matched = true;
-              console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" matched ${andVenues.length} venues`);
+              console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" validated (${validatedHits.length} of ${andVenues.length} contain all cuisines)`);
+            } else if (andVenues.length >= 1) {
+              console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" returned ${andVenues.length} venues but 0 contain all cuisine keywords → falling back to OR + banner`);
             } else {
               console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" empty → falling back to OR round-robin`);
             }
