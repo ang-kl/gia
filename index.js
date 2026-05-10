@@ -8347,7 +8347,7 @@ async function cacheBotUsername() {
     app.get('/api/hawker/centres-by-region', (_req, res) => {
       try {
         const vault = require('./hawker-vault');
-        const { googleMapsTourUrl } = require('./maps-url');
+        const { googleMapsTourUrl, GOOGLE_MAPS_TOUR_MAX } = require('./maps-url');
         const by = vault.getByRegion();
         const regions = Object.entries(by).map(([region, centres]) => {
           const slim = centres.map((c) => ({
@@ -8369,13 +8369,20 @@ async function cacheBotUsername() {
           // coords (capped at 25, the Maps URL practical ceiling).
           // Renders all stops as pins in the user's Google Maps app
           // — the closest thing the URL API offers to a "list view".
-          const tourUrl = googleMapsTourUrl(slim, { travelmode: 'walking', maxStops: 25 });
+          const tourUrl = googleMapsTourUrl(slim, { travelmode: 'walking' });
           const mappedCount = slim.filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng)).length;
+          // v0.60.60 — Google Maps URL API hard-caps at 11 stops
+          // (1 origin + 9 waypoints + 1 destination). Anything above
+          // that gets silently truncated. tourPinCount tells the
+          // client how many pins the URL actually carries so the
+          // button label can be honest ("11 of 21 pins").
+          const tourPinCount = Math.min(mappedCount, GOOGLE_MAPS_TOUR_MAX);
           return {
             region,
             count: centres.length,
             mappedCount,
             tourUrl: tourUrl || null,
+            tourPinCount,
             centres: slim
           };
         });

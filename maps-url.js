@@ -201,26 +201,28 @@ function buildMapHashUrl(venues, opts = {}) {
   return prefix ? `${prefix}${path}` : path;
 }
 
-// v0.60.56 — multi-stop Google Maps URL with a higher waypoint cap.
-// googleMapsContainerUrl above hard-caps at 9 (the documented Maps
-// URLs API limit). For the hawker TMA we want to surface ALL centres
-// in a region (up to ~22) on Google Maps. Consumer Maps tolerates
-// more waypoints than the documented API ceiling, so we accept an
-// explicit override and trust the caller's request size limit.
+// v0.60.56 — multi-stop Google Maps URL.
+// v0.60.60 — capped at 11 stops total (1 origin + 9 waypoints + 1
+// destination), the actual Google Maps URL API limit. Earlier the
+// cap was 25 because consumer Maps was assumed to tolerate more, but
+// observation in the field showed Google silently truncates to 9
+// waypoints regardless — a region with 21 hawker centres would fire
+// off a 21-stop URL and Google rendered only 9. Capping at the real
+// ceiling means the button label and Google's view stay in sync.
 //
-// Usage: googleMapsTourUrl(places, { travelmode, maxStops })
+// Usage: googleMapsTourUrl(places, { travelmode })
 //   places: array of { lat, lng, name?, placeId? }
 //   travelmode: 'walking' | 'driving' | 'transit' | 'bicycling'
-//   maxStops:   total stops including destination + waypoints (cap 25)
 //
 // Returns null if there are fewer than 2 plottable places.
+const GOOGLE_MAPS_TOUR_MAX = 11;
+
 function googleMapsTourUrl(places, opts = {}) {
   if (!Array.isArray(places) || !places.length) return null;
-  const cap = Math.min(25, Math.max(2, Number.isFinite(opts.maxStops) ? opts.maxStops : 25));
   const travelmode = encodeURIComponent(opts.travelmode || 'walking');
   const points = places
     .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
-    .slice(0, cap)
+    .slice(0, GOOGLE_MAPS_TOUR_MAX)
     .map((p) => `${p.lat},${p.lng}`);
   if (points.length < 2) return null;
   const destination = points[points.length - 1];
@@ -238,4 +240,4 @@ function googleMapsTourUrl(places, opts = {}) {
   return params.join('&');
 }
 
-module.exports = { googleMapsUrl, googleMapsContainerUrl, googleMapsTourUrl, buildMapHashUrl };
+module.exports = { googleMapsUrl, googleMapsContainerUrl, googleMapsTourUrl, buildMapHashUrl, GOOGLE_MAPS_TOUR_MAX };

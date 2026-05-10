@@ -54,6 +54,10 @@ const STRINGS = {
   // v0.60.56 — external "tour" URL pinning every centre with coords.
   'btn.openTourGoogleMaps':  { en: '🌐 {n} pins in Google Maps',
                                fr: '🌐 {n} épingles sur Google Maps' },
+  // v0.60.60 — when the region has more centres than Google Maps'
+  // 11-stop URL ceiling, the label is honest about the partial view.
+  'btn.openTourGoogleMapsPartial': { en: '🌐 {n} of {total} pins in Google Maps',
+                                     fr: '🌐 {n} sur {total} épingles sur Google Maps' },
   'map.mappedRatio':         { en: '📍 {mapped}/{total} centres mapped',
                                fr: '📍 {mapped}/{total} centres cartographiés' },
 
