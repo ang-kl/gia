@@ -18,18 +18,17 @@ import { t, useLocale } from './i18n.js';
 // (index.js:2050) — same routing path /start <cmd> deep links use.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 
+// v0.60.67 — operator slim: Buddy / Recognised / Location / Drive /
+// Plan-route tiles dropped (still reachable via slash commands; the
+// hub focuses on the most-used surfaces). Each section now renders
+// 2 tiles in a grid-cols-2 layout.
 const SECTIONS = [
   {
     id: 'eat',
     titleKey: 'section.eat',
     tiles: [
-      // v0.60.62 — custom PNG illustrations replace 🍛 and 🥢. The
-      // emoji stays as the fallback when the PNG fails to load
-      // (Tile.jsx onError handler), so the hub still renders during
-      // any gap between code-merge and asset upload.
-      { id: 'cuisine',    icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label',    kind: 'navigate', path: '/app/cuisine' },
-      { id: 'hawker',     icon: '🥢', iconImage: '/app/menu/hawker-icon.png',  labelKey: 'tile.hawker.label',     kind: 'navigate', path: '/app/hawker' },
-      { id: 'recognised', icon: '✳️', labelKey: 'tile.recognised.label', kind: 'dispatch' }
+      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label', kind: 'navigate', path: '/app/cuisine' },
+      { id: 'hawker',  icon: '🥢', iconImage: '/app/menu/hawker-icon.png',  labelKey: 'tile.hawker.label',  kind: 'navigate', path: '/app/hawker' }
     ]
   },
   {
@@ -37,23 +36,15 @@ const SECTIONS = [
     titleKey: 'section.discover',
     tiles: [
       { id: 'search',  icon: '🔍', iconImage: '/app/menu/search-icon.png', labelKey: 'tile.search.label',  kind: 'dispatch' },
-      { id: 'buddy',   icon: '🤝', labelKey: 'tile.buddy.label',   kind: 'dispatch' },
       { id: 'weather', icon: '🌇', labelKey: 'tile.weather.label', kind: 'dispatch' }
     ]
   },
   {
     id: 'plan',
     titleKey: 'section.plan',
-    // v0.60.55 — train moved out into the inline TrainPanel above
-    // these tiles. v0.60.62 adds Bus stops + Plan route so the
-    // /transport bus subcommands are reachable from the hub. With
-    // 5 tiles the 3-col grid wraps to a 3+2 layout.
     tiles: [
-      { id: 'location',   icon: '📍', labelKey: 'tile.location.label',   kind: 'dispatch' },
-      { id: 'drive',      icon: '🚦', labelKey: 'tile.drive.label',      kind: 'dispatch' },
       { id: 'incidents',  icon: '🚧', labelKey: 'tile.incidents.label',  kind: 'dispatch' },
-      { id: 'busnearest', icon: '🚏', iconImage: '/app/menu/bus-icon.png', labelKey: 'tile.busNearest.label', kind: 'dispatch' },
-      { id: 'busroute',   icon: '🗺',  labelKey: 'tile.busRoute.label',   kind: 'dispatch' }
+      { id: 'busnearest', icon: '🚏', iconImage: '/app/menu/bus-icon.png', labelKey: 'tile.busNearest.label', kind: 'dispatch' }
     ]
   }
 ];
@@ -68,7 +59,6 @@ const FOOTER_CHIPS = [
 
 export default function App() {
   const lang = useLocale();
-  const [busy, setBusy] = useState(null);
   // v0.60.54 / v0.60.55 — fetch cached LTA train status once on
   // mount. Endpoint reads Redis only, so no extra LTA roundtrip.
   const [live, setLive] = useState({ code: null, updatedAt: null });
@@ -87,36 +77,34 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
-  const dispatchCmd = async (cmd) => {
+  // v0.60.67 — fire-and-forget. Per Human Lead 2026-05-10, the TMA
+  // wasn't closing immediately after a dispatch tap (Incidents,
+  // Location, …). Root cause: prior implementation awaited the fetch
+  // before calling w.close(), so any sluggish round-trip kept the
+  // hub visible. The /api/menu-dispatch endpoint already returns 202
+  // synchronously and runs the actual command in the background
+  // (the bot delivers output via sendMessage, not the HTTP body) —
+  // so we can fire the request and close the WebApp on the same
+  // tick. Errors surface server-side via console + bot fallback
+  // sendMessage; the user sees them in chat after the TMA collapses.
+  //
+  // v0.60.69 — keepalive:true so Telegram's webview tear-down on
+  // close() doesn't abort the request before bytes hit the wire
+  // (Codex review 2026-05-10). The 64 KB keepalive cap is not a
+  // concern — payload is initData + cmd, well under 1 KB.
+  const dispatchCmd = (cmd) => {
     const w = tg();
     if (!w) {
       alert('This menu only works inside Telegram.');
       return;
     }
-    setBusy(cmd);
-    try {
-      const res = await fetch('/api/menu-dispatch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData: w.initData || '', cmd })
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        const msg = body?.error || `dispatch failed (${res.status})`;
-        if (typeof w.showAlert === 'function') w.showAlert(msg);
-        else alert(msg);
-        setBusy(null);
-        return;
-      }
-    } catch (err) {
-      const msg = `dispatch failed: ${err?.message || 'network error'}`;
-      if (typeof w.showAlert === 'function') w.showAlert(msg);
-      else alert(msg);
-      setBusy(null);
-      return;
-    }
+    fetch('/api/menu-dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: w.initData || '', cmd }),
+      keepalive: true
+    }).catch(() => { /* logged server-side; user sees fallback in chat */ });
     if (typeof w.close === 'function') w.close();
-    else setBusy(null);
   };
 
   const handle = (tile) => {
@@ -135,12 +123,24 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
-      <div className="px-3 pt-2 pb-1.5 flex items-center gap-2">
-        <img src="/app/menu/soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
-        <div className="min-w-0 leading-tight">
+      {/* v0.60.67 — hero rework: LocaleToggle moved out of the footer
+          and lives at the right end of the subtitle row, so the
+          language flip is reachable without scrolling to the bottom.
+          A new sub-tagline ("Explore Singapore's 50+ cuisines beyond
+          familiar favourites") sits below the existing "Solo eat ·
+          So let's eat" line to pitch the catalogue breadth. */}
+      <div className="px-3 pt-2 pb-1.5 flex items-start gap-2">
+        <img src="/app/menu/soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0 mt-0.5" />
+        <div className="min-w-0 leading-tight flex-1">
           <h1 className="text-sm font-semibold">{t('hero.title', lang)}</h1>
-          <p className="text-[10px] text-tg-hint">
-            {t('hero.tagline.line1', lang)} · {t('hero.tagline.line2', lang)}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] text-tg-hint truncate">
+              {t('hero.tagline.line1', lang)} · {t('hero.tagline.line2', lang)}
+            </p>
+            <LocaleToggle />
+          </div>
+          <p className="text-[10px] text-tg-hint leading-snug pt-0.5">
+            {t('hero.subtagline', lang)}
           </p>
         </div>
       </div>
@@ -158,7 +158,10 @@ export default function App() {
                 onFullStatus={() => dispatchCmd('train')}
               />
             )}
-            <div className="grid grid-cols-3 gap-1.5">
+            {/* v0.60.67 — each section now carries 2 tiles after the
+                operator slim, so grid drops from 3 cols to 2 cols
+                (each tile gets ~170 px on a 375 px phone). */}
+            <div className="grid grid-cols-2 gap-1.5">
               {section.tiles.map((tile) => (
                 <Tile
                   key={tile.id}
@@ -176,15 +179,14 @@ export default function App() {
         </p>
       </div>
 
+      {/* v0.60.67 — LocaleToggle moved to the hero subtitle row, so
+          the footer trims down to just Privacy + Forget me chips. */}
       <div className="px-3 pb-1.5 flex flex-wrap gap-1.5 justify-center items-center">
-        <LocaleToggle />
-        <span className="text-[10px] text-tg-hint">·</span>
         {FOOTER_CHIPS.map((chip) => (
           <button
             key={chip.id}
             onClick={() => dispatchCmd(chip.id)}
-            disabled={busy === chip.id}
-            className="text-[10px] px-2 py-0.5 rounded-full bg-tg-card border border-tg-border text-tg-hint active:bg-tg-accent active:text-tg-accent-text transition disabled:opacity-60"
+            className="text-[10px] px-2 py-0.5 rounded-full bg-tg-card border border-tg-border text-tg-hint active:bg-tg-accent active:text-tg-accent-text transition"
           >
             {t(chip.labelKey, lang)}
           </button>

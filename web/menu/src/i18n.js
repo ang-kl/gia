@@ -19,6 +19,11 @@ const STRINGS = {
   'hero.title':            { en: 'Soleat Menu',     fr: 'Soleat Menu' },
   'hero.tagline.line1':    { en: 'Solo eat',        fr: 'Manger seul' },
   'hero.tagline.line2':    { en: "So let’s eat", fr: "Alors, mangeons" },
+  // v0.60.67 — sub-tagline below the "Solo eat · So let's eat" row.
+  // Pitches the breadth of the cuisine catalogue (>50 cuisines) so
+  // users discover the picker isn't just chicken-rice + laksa.
+  'hero.subtagline':       { en: "Explore Singapore’s 50+ cuisines beyond familiar favourites",
+                             fr: "Explorez plus de 50 cuisines singapouriennes au-delà des classiques" },
 
   // ----- Section headings -----
   'section.eat':           { en: 'Eat',             fr: 'Manger' },
