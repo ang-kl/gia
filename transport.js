@@ -115,7 +115,13 @@ async function nearestStops(redis, lat, lng, radiusM = 800, count = 3) {
   return out;
 }
 
-const LOAD_LABEL = { SEA: 'seats', SDA: 'standing', LSD: 'limited', '': '?' };
+// v0.60.71 — empty Load → no label. Previously the empty-string key
+// mapped to '?' which rendered as a literal "№ 273 — ≤5 min · ?"
+// for unmonitored services / NextBus2 / NextBus3 (LTA frequently
+// returns blank Load there). Drop the '' entry; the fallback chain
+// in arrivalToObject() now resolves to '' so the chat + map popup
+// both omit the load suffix entirely when no info is available.
+const LOAD_LABEL = { SEA: 'seats', SDA: 'standing', LSD: 'limited' };
 
 async function busArrivals(busStopCode) {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
@@ -148,7 +154,7 @@ function arrivalToObject(b, nowMs) {
   return {
     minutes,
     load: b.Load || '',
-    loadLabel: LOAD_LABEL[b.Load] || b.Load || '?',
+    loadLabel: LOAD_LABEL[b.Load] || b.Load || '',
     type: b.Type || '',  // SD = single deck, DD = double deck, BD = bendy
     feature: b.Feature || '' // WAB = wheelchair-accessible
   };

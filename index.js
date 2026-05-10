@@ -2573,7 +2573,10 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         }
         if (Number.isFinite(stop.lat) && Number.isFinite(stop.lng)) {
           slim.push({
-            name: `${stop.description} (${stop.code})`,
+            // v0.60.71 — popup title format: "Blk 54 (🚏 № 14041)".
+            // The 🚏 № prefix on the code matches the chat-side stop
+            // header pattern and disambiguates the parens content.
+            name: `${stop.description} (🚏 № ${stop.code})`,
             placeId: '',
             lat: stop.lat,
             lng: stop.lng,
