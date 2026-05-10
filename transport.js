@@ -154,7 +154,12 @@ function arrivalToObject(b, nowMs) {
   return {
     minutes,
     load: b.Load || '',
-    loadLabel: LOAD_LABEL[b.Load] || b.Load || '',
+    // v0.60.74 — operator requested the "· seats / standing / limited"
+    // suffix dropped entirely from arrival rows 2026-05-10. Force
+    // loadLabel to '' so chat formatter (index.js:3674) and /app/map
+    // popup (public/app.js:170) both omit the suffix. Raw load code
+    // is still on the row object as `load` for future re-enable.
+    loadLabel: '',
     type: b.Type || '',  // SD = single deck, DD = double deck, BD = bendy
     feature: b.Feature || '' // WAB = wheelchair-accessible
   };
