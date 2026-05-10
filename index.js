@@ -2420,20 +2420,31 @@ async function runTransportTrain(chatId, lang = 'en') {
           mrtForMap = mrt;
           const wait = transport.estimateWaitMinutes();
           lines.push('', tn('transport.train.nearestHeader', lang, { min: wait.min, max: wait.max, label: wait.label }));
+          // v0.60.81 — prefix the station name with a colored line
+          // emoji + code per operator request 2026-05-10:
+          // "Telok Blangah" → "🟠 CCL Telok Blangah"; interchanges
+          // list all lines, e.g. "🟣 NEL · 🟠 CCL HarbourFront".
+          // Telegram chat HTML doesn't support inline text colors;
+          // the emoji prefix is the color signal.
+          const mrtLinesMod = require('./mrt-lines');
           for (const s of mrt) {
             const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
             const crowdNote = crowd ? ` · ${t(`transport.train.crowd.${crowd}`, lang)}` : '';
             const dist = (Number.isFinite(s.lat) && Number.isFinite(s.lng))
               ? formatDistance(transport.haversineM(cachedLoc.lat, cachedLoc.lng, s.lat, s.lng))
               : '';
-            // v0.60.72 — per-station Google Maps deep link. Operator
-            // wants "live arrival times like Google Maps shows" surfaced
-            // inline. LTA DataMall doesn't expose train arrivals, but
-            // Google Maps' place sheet for an MRT station does. We wrap
-            // the station name as <a href="…"> so a tap opens that sheet.
             const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`;
+            const linesForStation = mrtLinesMod.linesForStation(s.name);
+            const linePrefix = linesForStation.length
+              ? linesForStation
+                  .map((code) => {
+                    const meta = mrtLinesMod.LINES_BY_CODE[code];
+                    return meta ? `${meta.emoji} ${escapeHtmlForTelegram(code)}` : escapeHtmlForTelegram(code);
+                  })
+                  .join(' · ') + ' '
+              : '';
             lines.push(tn('transport.train.stationRow', lang, {
-              name: escapeHtmlForTelegram(s.name),
+              name: linePrefix + escapeHtmlForTelegram(s.name),
               dist,
               crowd: crowdNote,
               gmapsUrl
@@ -3781,11 +3792,21 @@ function formatBusArrivalsHtml(arrivals) {
       return am - bm;
     })
     .slice(0, 6);
-  return rows.map((r) => {
+  // v0.60.81 — group rows by band per operator request 2026-05-10:
+  // "№ 145, 273, 120 — ≤5 min" instead of one line per service.
+  // Already sorted by absolute minutes ascending, so insertion order
+  // into each band preserves "earliest first" within the band.
+  const byBand = new Map();
+  for (const r of rows) {
     const band = busArrivalBand(r.minutes);
-    const bandStr = band ? `<b>${band}</b>` : '<i>—</i>';
-    const loadStr = r.loadLabel ? ` · ${escapeHtmlForTelegram(r.loadLabel)}` : '';
-    return `  № ${escapeHtmlForTelegram(r.service)} — ${bandStr}${loadStr}`;
+    const key = band || '—';
+    if (!byBand.has(key)) byBand.set(key, []);
+    byBand.get(key).push(r);
+  }
+  return [...byBand.entries()].map(([band, group]) => {
+    const services = group.map((r) => escapeHtmlForTelegram(r.service)).join(', ');
+    const bandStr = band === '—' ? '<i>—</i>' : `<b>${band}</b>`;
+    return `  № ${services} — ${bandStr}`;
   });
 }
 
@@ -7701,14 +7722,85 @@ async function cacheBotUsername() {
           }
         }
 
-        const candidates = await pipeline.discover({
-          lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-          cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
-          lang: csLang,                                    // v0.59.0
-          expandSingaporean: !skipExpand                   // v0.59.26
-        });
-        let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
-        console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
+        // v0.60.82 — multi-cuisine AND/OR search. Operator 2026-05-10:
+        // when 2+ cuisines are selected, FIRST try an AND combo query
+        // (single string with all cuisines joined — Google may surface
+        // a hawker stall or fusion eatery serving both). If ≥1 hit,
+        // those are the primary results and the combo banner is hidden
+        // (comboInfo.matched=true). If empty, fall back to per-cuisine
+        // OR queries merged round-robin so the list interleaves
+        // cuisines (e.g. italian[0], cantonese[0], italian[1], ...)
+        // instead of being dominated by one cuisine. Banner reads
+        // "No exact cuisine combination found. Showing separate
+        // eateries for each selected cuisine." on the client.
+        let comboInfo = { attempted: false, matched: false };
+        let venues = [];
+        const isMultiCuisine = cuisineQueries.length >= 2;
+
+        if (isMultiCuisine) {
+          comboInfo.attempted = true;
+          // Phase A — single combined AND query
+          const andQuery = cuisineQueries.join(' ').replace(/\s+/g, ' ').trim();
+          try {
+            const andCandidates = await pipeline.discover({
+              lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
+              cuisines: [andQuery], maxResults: 30, regionCode: searchRegionCode,
+              lang: csLang, expandSingaporean: false
+            });
+            const andVenues = Array.isArray(andCandidates) ? andCandidates : (andCandidates?.venues || []);
+            if (andVenues.length >= 1) {
+              venues = andVenues;
+              comboInfo.matched = true;
+              console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" matched ${andVenues.length} venues`);
+            } else {
+              console.log(`[Cuisine-Search] D702a AND combo "${andQuery}" empty → falling back to OR round-robin`);
+            }
+          } catch (err) {
+            console.warn(`[Cuisine-Search] AND combo phase failed: ${err.message}`);
+          }
+        }
+
+        if (!venues.length) {
+          if (isMultiCuisine) {
+            // Phase B — per-cuisine fan-out + round-robin merge
+            const perCuisine = await Promise.all(cuisinesForDiscover.map((q) =>
+              pipeline.discover({
+                lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
+                cuisines: [q], maxResults: 15, regionCode: searchRegionCode,
+                lang: csLang, expandSingaporean: !skipExpand
+              }).catch((err) => {
+                console.warn(`[Cuisine-Search] per-cuisine discover "${q}" failed: ${err.message}`);
+                return [];
+              })
+            ));
+            const arrays = perCuisine.map((r) => Array.isArray(r) ? r : (r?.venues || []));
+            const seen = new Set();
+            const maxLen = Math.max(0, ...arrays.map((a) => a.length));
+            for (let i = 0; i < maxLen; i++) {
+              for (const arr of arrays) {
+                const v = arr[i];
+                if (!v) continue;
+                const key = v.placeId || v.id || `${v.name}|${v.lat}|${v.lng}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                venues.push(v);
+                if (venues.length >= 30) break;
+              }
+              if (venues.length >= 30) break;
+            }
+            console.log(`[Cuisine-Search] D702b OR round-robin merged ${venues.length} venues from ${cuisinesForDiscover.length} cuisines`);
+          } else {
+            // Single cuisine (or empty) — original single-call path
+            const candidates = await pipeline.discover({
+              lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
+              cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
+              lang: csLang,                                    // v0.59.0
+              expandSingaporean: !skipExpand                   // v0.59.26
+            });
+            venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+            console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
+          }
+        }
         // v0.57.5: defensive deny-list — drop venues whose primaryType
         // says "this is lodging / a complex / a mall / etc." even when
         // Google's strictTypeFiltering on the search call missed them.
@@ -8067,7 +8159,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still

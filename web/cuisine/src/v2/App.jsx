@@ -35,6 +35,11 @@ export default function App() {
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
   const [venues, setVenues] = useState([]);
+  // v0.60.82 — server's AND/OR combo metadata for multi-cuisine
+  // searches. { attempted: bool, matched: bool }. When attempted &&
+  // !matched, ResultPanel renders the "No exact cuisine combination
+  // found" banner above the first result card.
+  const [comboInfo, setComboInfo] = useState(null);
   // v0.60.28 — current page slice surfaced by ResultPanel. The map
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
@@ -350,6 +355,7 @@ export default function App() {
   useEffect(() => {
     function onPageHide() {
       setVenues([]);
+      setComboInfo(null);
       setLastRunSnap(null);
       setWarmStartSeed(null);
       setSearchCenter(null);
@@ -388,6 +394,8 @@ export default function App() {
         lang                                              // v0.59.0
       });
       setVenues(r.venues || []);
+      // v0.60.82 — capture combo metadata; null when single/no cuisine
+      setComboInfo(r.comboInfo || null);
       setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
@@ -449,6 +457,7 @@ export default function App() {
     try {
       const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters, lang });
       setVenues(r.venues || []);
+      setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
       let nextState;
       if (mode === 'replace') {
@@ -715,7 +724,13 @@ export default function App() {
               </span>
             </div>
             {!criteriaOpen && criteriaSummary.length > 0 && (
-              <div className="text-[10px] font-normal text-tg-accent mt-0.5 leading-tight truncate">
+              // v0.60.82 — switch the preview line to `text-tg-text`
+              // (body text colour) so it contrasts against the tinted-
+              // cyan card background on iOS light theme. The title
+              // above is `text-tg-text font-semibold`; this line is
+              // the same colour at `font-normal` so it reads as
+              // subordinate body text without blending in.
+              <div className="text-[10px] font-normal text-tg-text mt-0.5 leading-tight truncate">
                 {criteriaSummary.join(' • ')}
               </div>
             )}
@@ -784,6 +799,7 @@ export default function App() {
           focusedPlaceId={focusedPlaceId}
           onCardTap={setFocusedPlaceId}
           warmStartSeed={warmStartSeed}
+          comboInfo={comboInfo}
           copyState={{
             cuisines: state.cuisines,
             filters: state.filters,
@@ -860,7 +876,11 @@ export default function App() {
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label={t('btn.backToTop', lang)}
-              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] bg-tg-card text-tg-text border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center hover:bg-tg-bg active:scale-95 transition-all whitespace-nowrap"
+              // v0.60.82 — ice-blue background per operator 2026-05-10
+              // (same hex as BackFab). Dark text for contrast across
+              // light/dark themes.
+              style={{ backgroundColor: '#D6ECEF', color: '#1c1c1f' }}
+              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
             >{t('btn.topShort', lang)}</button>
           )}
           <button
