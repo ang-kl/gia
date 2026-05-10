@@ -1515,6 +1515,17 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   await sendHawkerMenu(msg.chat.id, lang);
 });
 
+// v0.60.72 — /causeway (alias /checkpoint) — hidden shortcut to
+// the SG ⟷ JB live border-crossing camera view (Woodlands Causeway
+// + Tuas 2nd Link). NOT in setMyCommands per Human Lead 2026-05-10
+// — discovered via word-of-mouth or sharing. Power users typing
+// the command get one photo per camera with caption.
+bot.onText(/^\/(?:causeway|checkpoint)(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runTransportCauseway(msg.chat.id, lang);
+});
+
 // v0.60.61 — /b (alias /bus) — hidden shortcut to the bus-stop
 // nearest-stops view. NOT in setMyCommands (per Human Lead — keep
 // the public slash menu lean), but the handler is live for power
@@ -2245,6 +2256,8 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     // ids busnearest / busroute (both reuse runTransportBus subcases).
     case 'busnearest': await runTransportBus(chatId, 'nearest', lang); return true;
     case 'busroute':   await runTransportBus(chatId, 'route',   lang); return true;
+    // v0.60.72 — /causeway dispatch (hidden, no Menu TMA tile yet).
+    case 'causeway':   await runTransportCauseway(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
@@ -2413,7 +2426,18 @@ async function runTransportTrain(chatId, lang = 'en') {
             const dist = (Number.isFinite(s.lat) && Number.isFinite(s.lng))
               ? formatDistance(transport.haversineM(cachedLoc.lat, cachedLoc.lng, s.lat, s.lng))
               : '';
-            lines.push(tn('transport.train.stationRow', lang, { name: s.name, dist, crowd: crowdNote }));
+            // v0.60.72 — per-station Google Maps deep link. Operator
+            // wants "live arrival times like Google Maps shows" surfaced
+            // inline. LTA DataMall doesn't expose train arrivals, but
+            // Google Maps' place sheet for an MRT station does. We wrap
+            // the station name as <a href="…"> so a tap opens that sheet.
+            const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`;
+            lines.push(tn('transport.train.stationRow', lang, {
+              name: escapeHtmlForTelegram(s.name),
+              dist,
+              crowd: crowdNote,
+              gmapsUrl
+            }));
           }
         }
       } catch (err) {
@@ -2510,7 +2534,15 @@ async function runTransportTrain(chatId, lang = 'en') {
       [{ text: t('button.refresh', lang), callback_data: 'transport:train' }],
       [{ text: t('button.back', lang), callback_data: 'transport:menu' }]
     ];
+    // v0.60.72 — HTML parse_mode so the per-station <a> wrappers
+    // (transport.train.stationRow gmapsUrl) render as live links.
+    // All upstream lines (status, network summary, line breakdown,
+    // engineering closures, etc.) are operator/data-controlled
+    // strings safe for HTML; user-supplied station names go through
+    // escapeHtmlForTelegram() at row-build time above.
     await safeSend(chatId, lines.join('\n'), {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
       reply_markup: { inline_keyboard: buttons }
     });
   } catch (err) {
@@ -2719,7 +2751,11 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
     if (!all.length) {
       lines.push('', t('transport.incidents.none', lang));
     } else if (cachedLoc) {
-      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, 10000, 8);
+      // v0.60.72 — radius 10 km → 20 km per Human Lead 2026-05-10.
+      // Wider window catches incidents on the operator's typical
+      // commute (Telok Blangah ⟷ Raffles ⟷ Changi corridors are
+      // 12–18 km). Cap stays at 8 to avoid wall-of-text deliveries.
+      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, 20000, 8);
       if (near.length) {
         lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
         for (const inc of near) {
@@ -2768,6 +2804,43 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
   } catch (err) {
     console.error('[Error] transport traffic incidents failed:', err.message);
     await safeSend(chatId, t('transport.incidents.unreachable', lang));
+  }
+}
+
+// v0.60.72 — Causeway / Tuas 2nd Link checkpoint cameras. Sends one
+// photo per camera (LTA returns ~2–4 stills total: Woodlands inbound
+// + outbound + 2nd Link inbound + outbound). The image is short-
+// lived (LTA refreshes the URLs every ~1 min) so the bot uploads
+// the URL directly and Telegram caches it.
+async function runTransportCauseway(chatId, lang = 'en') {
+  const { t, tn } = require('./i18n');
+  try {
+    if (!process.env.LTA_ACCOUNT_KEY) {
+      await safeSend(chatId, t('transport.causeway.unreachable', lang));
+      return;
+    }
+    const cameras = await transport.fetchCheckpointTraffic();
+    if (!cameras.length) {
+      await safeSend(chatId, t('transport.causeway.empty', lang));
+      return;
+    }
+    const sgNow = new Date(Date.now() + 8 * 60 * 60 * 1000)
+      .toISOString().replace('T', ' ').slice(0, 16) + ' SGT';
+    await safeSend(chatId,
+      `${t('transport.causeway.heading', lang)}\n${tn('transport.causeway.refreshed', lang, { at: sgNow })}`,
+      { parse_mode: 'Markdown' });
+    for (const cam of cameras) {
+      try {
+        await bot.sendPhoto(chatId, cam.imageUrl, {
+          caption: `${cam.label} · #${cam.cameraId}`
+        });
+      } catch (err) {
+        console.warn(`[Transport] sendPhoto ${cam.label} failed:`, err.message);
+      }
+    }
+  } catch (err) {
+    console.error('[Error] transport causeway failed:', err.message);
+    await safeSend(chatId, t('transport.causeway.unreachable', lang));
   }
 }
 
@@ -5929,9 +6002,8 @@ async function registerCommandsMenu() {
       { command: 'carpark',    description: 'Nearest 5 with available lots' },
       { command: 'buddy',      description: 'Live solo-dining match' },
       // v0.60.37 — /search (alias /s), the conversational dish /
-      // ingredient / kitchen-tool finder. Replaces the v0.60.36
-      // mistake that listed /share — /share's handler stays in the
-      // bot but is unlisted (same pattern as /hidden / /legal / /ver).
+      // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
+      // alias mention per Human Lead clarification 2026-05-10.
       { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational (or /s)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },

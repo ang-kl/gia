@@ -142,10 +142,17 @@ const STRINGS = {
   // /transport incidents
   'transport.incidents.offline':    { en: '🚦 Traffic feed offline (LTA key not configured).', fr: '🚦 Flux de circulation hors-ligne (clé LTA non configurée).' },
   'transport.incidents.heading':    { en: '🚦 *Live traffic incidents*', fr: '🚦 *Incidents de circulation en direct*' },
+  // v0.60.72 — /causeway live SG ⟷ JB border camera stills.
+  'transport.causeway.heading':     { en: '🛂 SG ⟷ JB checkpoint cameras', fr: '🛂 Caméras du poste-frontière SG ⟷ JB' },
+  'transport.causeway.refreshed':   { en: '_Refreshed: {at}_', fr: '_Actualisé : {at}_' },
+  'transport.causeway.empty':       { en: 'LTA returned no checkpoint cameras right now — try again in a minute.',
+                                      fr: 'LTA n’a renvoyé aucune caméra de poste-frontière — réessayez dans une minute.' },
+  'transport.causeway.unreachable': { en: '🛂 Couldn’t reach LTA for checkpoint cameras — try again in a minute.',
+                                      fr: '🛂 Impossible de joindre LTA pour les caméras de poste-frontière — réessayez dans une minute.' },
   'transport.incidents.none':       { en: 'No live incidents reported.', fr: 'Aucun incident en direct signalé.' },
-  'transport.incidents.nearHeader': { en: 'Top {n} within 10 km (of {total} island-wide):', fr: 'Top {n} à moins de 10 km (sur {total} dans tout le pays) :' },
+  'transport.incidents.nearHeader': { en: 'Top {n} within 20 km (of {total} island-wide):', fr: 'Top {n} à moins de 20 km (sur {total} dans tout le pays) :' },
   'transport.incidents.row':        { en: '· {type}{dist}', fr: '· {type}{dist}' },
-  'transport.incidents.noNear':     { en: '{total} incidents island-wide; none within 10 km of your location.', fr: '{total} incidents dans tout le pays ; aucun à moins de 10 km de votre position.' },
+  'transport.incidents.noNear':     { en: '{total} incidents island-wide; none within 20 km of your location.', fr: '{total} incidents dans tout le pays ; aucun à moins de 20 km de votre position.' },
   'transport.incidents.noLoc':      { en: '{total} incidents island-wide. Share your location for nearest-first sorting.', fr: '{total} incidents dans tout le pays. Partagez votre position pour un tri par proximité.' },
   'transport.incidents.unreachable':{ en: 'Sorry, the traffic feed failed.', fr: 'Désolé, le flux de circulation a échoué.' },
 
@@ -180,8 +187,12 @@ const STRINGS = {
   // favour of a Soleat pitch that names the catalogue depth (50+
   // cuisines, hawkers, Michelin, Bib Gourmand, weather, transport)
   // and closes with /c · /cuisine · /m · /menu CTA.
-  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hidden    — up to 5 hidden gems 1.5–3 km away (rarity-ranked)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/buddy     — live solo-dining match\n/share     — forward a recent pick\n/language  — switch chat language (English / Français)\n/ver       — version + upstream API health\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hidden    — jusqu’à 5 trouvailles à 1,5–3 km (classées par rareté)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/buddy     — match solo en direct\n/share     — partager un choix récent\n/language  — changer la langue (Français / English)\n/ver       — version + santé des API en amont\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+  // v0.60.72 — /hidden, /ver, and /share removed from the public
+  // /start listing per Human Lead 2026-05-10. All three handlers
+  // stay live for power users; they just don't surface in the
+  // slash-command tour.
+  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/buddy     — live solo-dining match\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
+                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/buddy     — match solo en direct\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
@@ -206,7 +217,12 @@ const STRINGS = {
   'transport.map.stationsBtn':      { en: '🗺 View stations on map', fr: '🗺 Voir les stations' },
 
   // Distance row addition for MRT stations (was previously bare).
-  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd}', fr: '· {name} · {dist}{crowd}' },
+  // v0.60.72 — per-station row carries an HTML <a> wrapping the
+  // station name. The link opens Google Maps' transit detail panel
+  // (the operator's "incorporate" ask 2026-05-10): tapping it lands
+  // on the station's place sheet with live arrival times. The chat
+  // send is HTML parse_mode (see runTransportTrain in index.js).
+  'transport.train.stationRow':     { en: '· <a href="{gmapsUrl}">{name}</a> · {dist}{crowd}', fr: '· <a href="{gmapsUrl}">{name}</a> · {dist}{crowd}' },
 
   // v0.59.4 — /hidden chrome localisation.
   'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
