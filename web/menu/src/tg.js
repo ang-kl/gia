@@ -18,7 +18,13 @@ export function applyTelegramTheme() {
   };
 
   safe('ready', () => w.ready());
-  safe('expand', () => w.expand());
+  // v0.60.78 — operator request 2026-05-10: don't auto-expand the
+  // Menu TMA on iPhone. The hub fits in Telegram's compact half-
+  // screen sheet now that v0.60.73 shrunk the tiles to 56 px.
+  // Users who want full-height can still swipe up — Telegram exposes
+  // the manual expand gesture regardless. (iPad still gets the
+  // requestFullscreen call below at safe('fullscreen', ...) since
+  // its narrow letterboxed default benefits from the takeover.)
 
   safe('diag-log', () => {
     console.log('[TMA-Diag-v0.59.28-menu]', JSON.stringify({
