@@ -663,16 +663,10 @@ export default function App() {
         anchorName={locationName}
       />
 
-      {/* v0.59.0: ActiveFilters chip bar moved BELOW the map per
-          Human Lead. Always visible regardless of whether the
-          collapsible Search-criteria section is open. */}
-      <ActiveFilters
-        cuisines={state.cuisines}
-        filters={state.filters}
-        onRemoveCuisine={removeCuisine}
-        onRemoveFilter={removeFilter}
-        onResetAll={clearAll}
-      />
+      {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
+          operator 2026-05-10. The pills now live inside the Search
+          criteria header below the title (visible only when collapsed)
+          — see the <ActiveFilters /> mount further down. */}
 
       {/* v0.59.0: Tell-me input box also moved BELOW the map. Always
           visible — single-line composer, expands the conversation
@@ -723,19 +717,26 @@ export default function App() {
                 {criteriaOpen ? t('btn.collapse', lang) : t('btn.editSearch', lang)}
               </span>
             </div>
-            {!criteriaOpen && criteriaSummary.length > 0 && (
-              // v0.60.82 — switch the preview line to `text-tg-text`
-              // (body text colour) so it contrasts against the tinted-
-              // cyan card background on iOS light theme. The title
-              // above is `text-tg-text font-semibold`; this line is
-              // the same colour at `font-normal` so it reads as
-              // subordinate body text without blending in.
-              <div className="text-[10px] font-normal text-tg-text mt-0.5 leading-tight truncate">
-                {criteriaSummary.join(' • ')}
-              </div>
-            )}
           </div>
         </button>
+        {/* v0.60.84 — operator 2026-05-10: pills now live inside the
+            criteria card below the toggle button (visible only when
+            collapsed AND something is selected). Replaces the v0.60.80
+            text preview "Japanese • Open now • $$". Mounted as a
+            sibling of the <button>, not nested inside it — nested
+            <button> in <button> is invalid HTML and breaks the X-tap
+            removal on each pill. */}
+        {!criteriaOpen && criteriaSummary.length > 0 && (
+          <div className="px-3 pb-2 -mt-1">
+            <ActiveFilters
+              cuisines={state.cuisines}
+              filters={state.filters}
+              onRemoveCuisine={removeCuisine}
+              onRemoveFilter={removeFilter}
+              onResetAll={clearAll}
+            />
+          </div>
+        )}
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
             <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
@@ -876,22 +877,28 @@ export default function App() {
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label={t('btn.backToTop', lang)}
-              // v0.60.82 — ice-blue background per operator 2026-05-10
-              // (same hex as BackFab). Dark text for contrast across
-              // light/dark themes.
-              style={{ backgroundColor: '#D6ECEF', color: '#1c1c1f' }}
+              // v0.60.83 — aqua (#7FDBDB) — same hex as BackFab + Search,
+              // unified per operator 2026-05-10 ("use aqua colour
+              // background for all three"). Replaces v0.60.82 ice-blue.
+              style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
               className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
             >{t('btn.topShort', lang)}</button>
           )}
+          {/* v0.60.83 — Search FAB now also on aqua (#7FDBDB) so all
+              three floating buttons share the same background per
+              operator 2026-05-10. The dirty / searchHintActive states
+              keep the existing pulsing ring for visibility; loading
+              just reduces text opacity. */}
           <button
             type="button"
             onClick={() => runSearch(state)}
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
-              loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-              : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
-              : 'bg-tg-accent text-tg-accent-text'
+            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
+              loading ? 'opacity-60'
+              : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
+              : ''
             } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
           >🔍</button>
         </div>
