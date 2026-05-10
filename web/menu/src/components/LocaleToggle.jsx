@@ -25,7 +25,7 @@ export default function LocaleToggle() {
         onClick={() => setActiveLocale('en')}
         aria-label="English"
         aria-pressed={lang === 'en'}
-      >EN</button>
+      >🇬🇧EN</button>
       <span className="text-tg-hint">·</span>
       <button
         type="button"
@@ -33,7 +33,7 @@ export default function LocaleToggle() {
         onClick={() => setActiveLocale('fr')}
         aria-label="Français"
         aria-pressed={lang === 'fr'}
-      >FR</button>
+      >🇫🇷FR</button>
     </div>
   );
 }
