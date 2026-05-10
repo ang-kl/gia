@@ -42,11 +42,14 @@ const MD_PATH = path.join(__dirname, 'data', 'list-of-hawker-centres.md');
 // Missing file → centres ship without coords (TMA falls back to the
 // per-centre Google Maps URL).
 const COORDS_PATH = path.join(__dirname, 'data', 'hawker-coords.json');
-// v0.60.53 — optional next-closure window per centre, derived from
-// the same data.gov.sg dataset by scripts/fetch-hawker-closures.js.
-// Schema: { "Maxwell Food Centre": { from: "2026-06-01", to: "2026-06-15", reason: "Cleaning" }, ... }
-// Missing file → centres ship without closure metadata.
-const CLOSURES_PATH = path.join(__dirname, 'data', 'hawker-closures.json');
+// v0.60.59 — optional per-centre stall count + operating status,
+// derived from the data.gov.sg "Hawker Centres (GEOJSON)" dataset by
+// scripts/fetch-hawker-stalls.js. Replaces the v0.60.53 closures path
+// (NEA retired the closures dataset; the same resource id was reused
+// for this richer GeoJSON).
+// Schema: { "Maxwell Food Centre": { stalls: 64, status: "Existing" }, ... }
+// Missing file → centres ship without stall metadata.
+const STALLS_PATH = path.join(__dirname, 'data', 'hawker-stalls.json');
 const REGIONS = ['Central', 'South', 'East', 'North', 'West'];
 
 // Geography-keyword → region. Strong-signal place names that override
@@ -197,16 +200,19 @@ function loadCoords() {
   }
 }
 
-function loadClosures() {
+function loadStalls() {
   try {
-    const raw = fs.readFileSync(CLOSURES_PATH, 'utf8');
+    const raw = fs.readFileSync(STALLS_PATH, 'utf8');
     const parsed = JSON.parse(raw);
     const exact = {};
     const normalised = {};
     for (const [k, v] of Object.entries(parsed || {})) {
-      if (!v || !v.from || !v.to) continue;
+      if (!v) continue;
+      const stalls = Number.isFinite(v.stalls) && v.stalls > 0 ? Math.round(v.stalls) : null;
+      const status = typeof v.status === 'string' && v.status.trim() ? v.status.trim() : null;
+      if (stalls == null && !status) continue;
+      const obj = { stalls, status };
       const lc = String(k).toLowerCase().trim();
-      const obj = { from: String(v.from), to: String(v.to), reason: String(v.reason || 'Cleaning') };
       exact[lc] = obj;
       const norm = _normaliseHawkerName(k);
       if (norm && !normalised[norm]) normalised[norm] = obj;
@@ -214,7 +220,7 @@ function loadClosures() {
     return { exact, normalised };
   } catch (err) {
     if (err.code !== 'ENOENT') {
-      console.warn('[HawkerVault] closures load failed:', err.message);
+      console.warn('[HawkerVault] stalls load failed:', err.message);
     }
     return { exact: {}, normalised: {} };
   }
@@ -247,23 +253,25 @@ function loadAll() {
       }
       console.log(`[HawkerVault] coords: ${hits}/${_allCentres.length} centres geocoded`);
     }
-    // v0.60.53 — attach next upcoming closure window when known.
-    const closures = loadClosures();
-    if (Object.keys(closures.exact).length || Object.keys(closures.normalised).length) {
-      let chits = 0;
+    // v0.60.59 — attach stall count + operating status when known
+    // (data.gov.sg "Hawker Centres (GEOJSON)" via fetch-hawker-stalls.js).
+    const stalls = loadStalls();
+    if (Object.keys(stalls.exact).length || Object.keys(stalls.normalised).length) {
+      let shits = 0;
       for (const c of _allCentres) {
         const lc = String(c.name || '').toLowerCase().trim();
-        let cl = closures.exact[lc];
-        if (!cl) {
+        let s = stalls.exact[lc];
+        if (!s) {
           const norm = _normaliseHawkerName(c.name || '');
-          if (norm) cl = closures.normalised[norm];
+          if (norm) s = stalls.normalised[norm];
         }
-        if (cl) {
-          c.closure = { from: cl.from, to: cl.to, reason: cl.reason };
-          chits++;
+        if (s) {
+          if (s.stalls != null) c.stalls = s.stalls;
+          if (s.status) c.status = s.status;
+          shits++;
         }
       }
-      console.log(`[HawkerVault] closures: ${chits}/${_allCentres.length} centres with upcoming closure`);
+      console.log(`[HawkerVault] stalls: ${shits}/${_allCentres.length} centres with stall metadata`);
     }
   } catch (err) {
     console.warn('[HawkerVault] MD load failed:', err.message);

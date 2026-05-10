@@ -6982,9 +6982,17 @@ async function cacheBotUsername() {
         if (match.address) lines.push(escapeHtmlForTelegram(match.address));
         if (match.postal) lines.push(`Postal: ${escapeHtmlForTelegram(match.postal)}`);
         if (match.mgmt) lines.push(escapeHtmlForTelegram(match.mgmt));
-        if (match.closure?.from && match.closure?.to) {
-          lines.push(`🚧 ${escapeHtmlForTelegram(match.closure.reason || 'Closed')} ${escapeHtmlForTelegram(match.closure.from)} → ${escapeHtmlForTelegram(match.closure.to)}`);
+        // v0.60.59 — stall count + operating status (from data.gov.sg
+        // GEOJSON via fetch-hawker-stalls.js). Replaces the v0.60.53
+        // closure tag (closures dataset retired by NEA).
+        const stallStatusBits = [];
+        if (Number.isFinite(match.stalls) && match.stalls > 0) {
+          stallStatusBits.push(`🍳 ${match.stalls} stalls`);
         }
+        if (match.status) {
+          stallStatusBits.push(escapeHtmlForTelegram(match.status));
+        }
+        if (stallStatusBits.length) lines.push(stallStatusBits.join(' · '));
         if (match.mapsUrl) lines.push(`📍 <a href="${escapeHtmlForTelegram(match.mapsUrl)}">Open in Google Maps</a>`);
 
         await safeSend(String(userId), lines.join('\n'), {
@@ -8350,7 +8358,11 @@ async function cacheBotUsername() {
             lat: Number.isFinite(c.lat) ? c.lat : null,
             lng: Number.isFinite(c.lng) ? c.lng : null,
             isNew: !!c.isNew,
-            closure: c.closure || null
+            // v0.60.59 — per-centre stall count + operating status from
+            // data.gov.sg "Hawker Centres (GEOJSON)". Replaces the
+            // v0.60.53 closure path (NEA retired the closures dataset).
+            stalls: Number.isFinite(c.stalls) ? c.stalls : null,
+            status: c.status || null
           }));
           // v0.60.56 — external multi-pin Google Maps URL: a
           // walking-tour directions URL that pins every centre with

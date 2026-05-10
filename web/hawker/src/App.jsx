@@ -4,18 +4,23 @@ import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BackFab from './components/BackFab.jsx';
 
-// v0.60.53 — render "Closed 1 Jun → 15 Jun 2026" from ISO date pair.
-function formatClosure(closure, lang) {
-  if (!closure?.from || !closure?.to) return '';
-  const fmt = (iso) => {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    try {
-      return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB',
-        { day: 'numeric', month: 'short' });
-    } catch { return iso; }
-  };
-  return tn('closure.tag', lang, { from: fmt(closure.from), to: fmt(closure.to) });
+// v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
+// Opérationnel" when stall count and/or status are known. Replaces
+// the v0.60.53 closure-tag helper (closures dataset retired by NEA).
+// Status values come from the data.gov.sg dataset (typical: "Existing",
+// "Under Construction"); we localise via stalls.status.<key> when a
+// translation exists, otherwise fall through to the raw English label.
+function formatStalls(centre, lang) {
+  const bits = [];
+  if (Number.isFinite(centre.stalls) && centre.stalls > 0) {
+    bits.push(tn('stalls.count', lang, { n: centre.stalls }));
+  }
+  if (centre.status) {
+    const key = `stalls.status.${centre.status.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    const localised = t(key, lang);
+    bits.push(localised === key ? centre.status : localised);
+  }
+  return bits.join(' · ');
 }
 
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -199,9 +204,9 @@ export default function App() {
                         {i + 1}. {c.name}{c.isNew ? ' 🆕' : ''}
                       </div>
                       {c.address && <div className="text-tg-hint mt-0.5">{c.address}</div>}
-                      {c.closure?.from && c.closure?.to && (
-                        <div className="mt-0.5 text-[10px] text-amber-600">
-                          {formatClosure(c.closure, lang)}
+                      {(Number.isFinite(c.stalls) || c.status) && (
+                        <div className="mt-0.5 text-[10px] text-tg-hint">
+                          {formatStalls(c, lang)}
                         </div>
                       )}
                       <div className="flex flex-wrap gap-1 mt-1.5">
