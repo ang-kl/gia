@@ -1490,6 +1490,16 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   await sendHawkerMenu(msg.chat.id, lang);
 });
 
+// v0.60.61 — /b (alias /bus) — hidden shortcut to the bus-stop
+// nearest-stops view. NOT in setMyCommands (per Human Lead — keep
+// the public slash menu lean), but the handler is live for power
+// users who type the command directly.
+bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, async (msg) => {
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, msg.chat.id, msg);
+  await runTransportBus(msg.chat.id, 'nearest', lang);
+});
+
 // v0.60.56 — /menu (alias /m) — opens the Soleat menu hub Mini App.
 // Slash commands can't directly launch a Mini App; the handler sends
 // a one-tap button (`web_app`) that opens https://<host>/app/menu in
@@ -2473,29 +2483,54 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         });
         return;
       }
-      const lines = [t('transport.bus.nearestHeader', lang)];
+      // v0.60.61 — fetch arrivals per stop and render with HTML
+      // styling + banded ETAs (≤5 / ≤10 / ≤15 / ≤20 / >20 min).
+      // Per-stop arrivals are also baked into the slim payload so
+      // the /app/map InfoWindow can render the same template.
+      const lines = [`<b>${t('transport.bus.nearestHeader', lang)}</b>`];
+      const slim = [];
       for (const stop of stops) {
-        lines.push('', tn('transport.bus.stopRow', lang, { desc: stop.description, road: stop.roadName, dist: formatDistance(stop.distanceM) }));
-        lines.push(tn('transport.bus.stopCode', lang, { code: stop.code }));
+        // Fetch arrivals (4-second timeout in transport.js); empty
+        // array on failure.
+        // eslint-disable-next-line no-await-in-loop
+        const arrivals = await transport.busArrivals(stop.code);
+        const arrivalRows = formatBusArrivalsHtml(arrivals);
+        // Per-stop block: header + meta + arrivals. 2 blank lines
+        // between stops achieved by joining with '\n\n' between
+        // blocks plus the empty leading line.
+        if (lines.length > 1) lines.push('', '');
+        lines.push(`🚏 <b>${escapeHtmlForTelegram(stop.description)}</b> — <i>${escapeHtmlForTelegram(stop.roadName || '')}</i>`);
+        lines.push(`📍 ${escapeHtmlForTelegram(formatDistance(stop.distanceM))} · № ${escapeHtmlForTelegram(stop.code)}`);
+        if (arrivalRows.length) {
+          lines.push(...arrivalRows);
+        } else {
+          lines.push(`<i>${t('transport.bus.noLive', lang).trim()}</i>`);
+        }
+        if (Number.isFinite(stop.lat) && Number.isFinite(stop.lng)) {
+          slim.push({
+            name: `${stop.description} (${stop.code})`,
+            placeId: '',
+            lat: stop.lat,
+            lng: stop.lng,
+            area: stop.roadName || '',
+            // v0.60.61 — bake arrivals into the URL hash so the
+            // /app/map TMA's InfoWindow renders the same template.
+            // Trimmed to the top 6 services to stay within the
+            // 4 KB Telegram URL ceiling.
+            arrivals: arrivals.slice(0, 6).map((a) => ({
+              service: a.service,
+              minutes: a.next?.minutes ?? null,
+              loadLabel: a.next?.loadLabel || ''
+            })),
+            url: `https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}`
+          });
+        }
       }
-      // v0.59.3: one-map button for nearest stops. v0.59.13: + Google Maps.
       let mapRow = [];
       let gmapsRow = [];
       try {
         const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
-        const slim = stops
-          .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
-          .map((s) => ({
-            name: `${s.description} (${s.code})`,
-            placeId: '',
-            lat: s.lat,
-            lng: s.lng,
-            area: s.roadName || '',
-            // Coord URL so the marker popup's "Open in Google Maps" lands
-            // on the stop pin, not a text search for the stop description.
-            url: `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`
-          }));
-        if (webhookDomain) {
+        if (webhookDomain && slim.length) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
         }
@@ -2506,6 +2541,8 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         if (gmapsUrl) gmapsRow = [[{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]];
       } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
       await safeSend(chatId, lines.join('\n'), {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
         reply_markup: { inline_keyboard: [...mapRow, ...gmapsRow, backRow] }
       });
       return;
@@ -3532,6 +3569,46 @@ function escapeHtmlForTelegram(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// v0.60.61 — bucket an LTA-reported "minutes to arrival" into one
+// of five bands. Per Human Lead 2026-05-10: users want a quick read
+// "is this bus coming soon or not", not exact-minute precision.
+// Bands: ≤5 / ≤10 / ≤15 / ≤20 / >20 min.
+function busArrivalBand(minutes) {
+  if (!Number.isFinite(minutes)) return null;
+  if (minutes <= 5) return '≤5 min';
+  if (minutes <= 10) return '≤10 min';
+  if (minutes <= 15) return '≤15 min';
+  if (minutes <= 20) return '≤20 min';
+  return '>20 min';
+}
+
+// v0.60.61 — render an arrivals[] (from transport.busArrivals) as
+// HTML rows, one per service, sorted by next-arrival minute. Each
+// row: "  № 174 — <b>≤5 min</b> · seats". HTML entities are
+// pre-escaped because safeSend is called with parse_mode HTML.
+function formatBusArrivalsHtml(arrivals) {
+  if (!Array.isArray(arrivals) || !arrivals.length) return [];
+  const rows = arrivals
+    .map((svc) => ({
+      service: svc.service,
+      minutes: svc.next?.minutes ?? null,
+      loadLabel: svc.next?.loadLabel || ''
+    }))
+    .filter((r) => r.service)
+    .sort((a, b) => {
+      const am = Number.isFinite(a.minutes) ? a.minutes : 9999;
+      const bm = Number.isFinite(b.minutes) ? b.minutes : 9999;
+      return am - bm;
+    })
+    .slice(0, 6);
+  return rows.map((r) => {
+    const band = busArrivalBand(r.minutes);
+    const bandStr = band ? `<b>${band}</b>` : '<i>—</i>';
+    const loadStr = r.loadLabel ? ` · ${escapeHtmlForTelegram(r.loadLabel)}` : '';
+    return `  № ${escapeHtmlForTelegram(r.service)} — ${bandStr}${loadStr}`;
+  });
 }
 
 // v0.58.46: bold the venue-name slug on every numbered heading line.
@@ -8369,20 +8446,30 @@ async function cacheBotUsername() {
           // coords (capped at 25, the Maps URL practical ceiling).
           // Renders all stops as pins in the user's Google Maps app
           // — the closest thing the URL API offers to a "list view".
-          const tourUrl = googleMapsTourUrl(slim, { travelmode: 'walking' });
           const mappedCount = slim.filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng)).length;
-          // v0.60.60 — Google Maps URL API hard-caps at 11 stops
-          // (1 origin + 9 waypoints + 1 destination). Anything above
-          // that gets silently truncated. tourPinCount tells the
-          // client how many pins the URL actually carries so the
-          // button label can be honest ("11 of 21 pins").
-          const tourPinCount = Math.min(mappedCount, GOOGLE_MAPS_TOUR_MAX);
+          // v0.60.61 — paginate the external Google Maps tour URL.
+          // Google Maps URL API caps at 11 stops (1 origin + 9
+          // waypoints + 1 destination); to surface ALL centres in a
+          // region we emit up to 2 chunks of 11 — covering up to 22
+          // centres across two buttons. Regions with > 22 centres
+          // (East/North/West) still see the first 22; the embedded
+          // /app/map handles all sizes regardless.
+          const TOUR_CHUNKS = 2;
+          const tours = [];
+          for (let i = 0; i < TOUR_CHUNKS; i++) {
+            const offset = i * GOOGLE_MAPS_TOUR_MAX;
+            if (offset >= mappedCount) break;
+            const url = googleMapsTourUrl(slim, { travelmode: 'walking', offset });
+            if (!url) break;
+            const start = offset + 1;
+            const end = Math.min(offset + GOOGLE_MAPS_TOUR_MAX, mappedCount);
+            tours.push({ url, start, end });
+          }
           return {
             region,
             count: centres.length,
             mappedCount,
-            tourUrl: tourUrl || null,
-            tourPinCount,
+            tours,
             centres: slim
           };
         });

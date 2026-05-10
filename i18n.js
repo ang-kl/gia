@@ -194,7 +194,10 @@ const STRINGS = {
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },
   'transport.map.incidentsBtn':     { en: '🗺 View incidents on map', fr: '🗺 Voir les incidents' },
   'transport.map.busStopsCaption':  { en: '🗺 View {n} bus stops on one map:', fr: '🗺 Voir les {n} arrêts sur une carte :' },
-  'transport.map.busStopsBtn':      { en: '🗺 View stops on map', fr: '🗺 Voir les arrêts' },
+  // v0.60.61 — relabelled per Human Lead. Standardise on the 🚏
+  // bus-stop emoji + drop the literal "on map" suffix (it's
+  // implied by the button context).
+  'transport.map.busStopsBtn':      { en: '🚏 View bus stops', fr: '🚏 Voir les arrêts de bus' },
   'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' },
   'transport.map.stationsBtn':      { en: '🗺 View stations on map', fr: '🗺 Voir les stations' },
 
