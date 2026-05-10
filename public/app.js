@@ -154,6 +154,30 @@
       const linkHtml = (v.placeId || v.url || v.name)
         ? `<br><a href="#" id="${linkId}">Open 📍 in a map ↗</a>`
         : '';
+      // v0.60.76 — when the venue carries `lines` (MRT station
+      // payload from /transport train), render the operating-line
+      // emojis inside the popup. Mirrors the chat-side pattern.
+      const LINE_META = {
+        EWL:  { e: '🟢', n: 'EWL'  },
+        CGL:  { e: '🟢', n: 'CGL'  },
+        NSL:  { e: '🔴', n: 'NSL'  },
+        NEL:  { e: '🟣', n: 'NEL'  },
+        CCL:  { e: '🟠', n: 'CCL'  },
+        DTL:  { e: '🔵', n: 'DTL'  },
+        TEL:  { e: '🟤', n: 'TEL'  },
+        JRL:  { e: '🔷', n: 'JRL'  },
+        CRL:  { e: '🟢', n: 'CRL'  },
+        BPL:  { e: '⚪', n: 'BPL'  },
+        SLRT: { e: '⚪', n: 'SLRT' },
+        PLRT: { e: '⚪', n: 'PLRT' }
+      };
+      const linesHtml = (Array.isArray(v.lines) && v.lines.length)
+        ? '<br>' + v.lines.map((code) => {
+            const m = LINE_META[code];
+            if (!m) return escapeHtml(code);
+            return `${m.e} <strong>${escapeHtml(m.n)}</strong>`;
+          }).join(' · ')
+        : '';
       // v0.60.61 — when the venue carries `arrivals` (bus-stop
       // payload from /transport bus nearest), render them inside
       // the popup using the same template the chat reply uses:
@@ -175,7 +199,7 @@
           }).join('<br>')
         : '';
       const info = new google.maps.InfoWindow({
-        content: `<div style="max-width:260px;font-size:12px;line-height:1.45"><strong>${escapeHtml(v.name)}</strong><br>${escapeHtml(v.area || '')}${v.vibe ? '<br><em>' + escapeHtml(v.vibe) + '</em>' : ''}${arrivalsHtml}${linkHtml}</div>`
+        content: `<div style="max-width:260px;font-size:12px;line-height:1.45"><strong>${escapeHtml(v.name)}</strong><br>${escapeHtml(v.area || '')}${v.vibe ? '<br><em>' + escapeHtml(v.vibe) + '</em>' : ''}${linesHtml}${arrivalsHtml}${linkHtml}</div>`
       });
       marker.addListener('click', () => info.open({ anchor: marker, map }));
       info.addListener('domready', () => {

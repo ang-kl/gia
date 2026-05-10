@@ -2528,13 +2528,19 @@ async function runTransportTrain(chatId, lang = 'en') {
         // pins the neighbourhood instead of the MRT station — and the
         // station's place sheet is what carries the live transit
         // arrival panel the operator wants.
+        // v0.60.76 — also tag each venue with its operating-line
+        // codes (linesForStation lookup) so the popup renders
+        // "🟠 CCL · 🟣 NEL" etc. Stations not in the table get [],
+        // popup falls back to the bare name.
+        const mrtLines = require('./mrt-lines');
         const slim = mrtForMap
           .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
           .map((s) => ({
             ...s,
             name: s.name,
             placeId: s.placeId || '',
-            url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`
+            url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`,
+            lines: mrtLines.linesForStation(s.name)
           }));
         if (webhookDomain) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
