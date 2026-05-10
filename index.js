@@ -2041,7 +2041,23 @@ bot.on('location', async (msg) => {
   }
 });
 
+// v0.60.69 — /ver is owner-only when TELEGRAM_OWNER_CHAT_ID is set.
+// The health-check report leaks deploy hashes, dependency status, and
+// upstream API health that's only useful to the operator. When the
+// env var is unset (dev / fork installs) /ver stays open so the bot
+// still self-reports for any caller. Silent no-op rather than an
+// error so non-owners can't probe for the command's existence.
+function isOwnerChat(chatId) {
+  const owner = process.env.TELEGRAM_OWNER_CHAT_ID;
+  if (!owner) return true;
+  return String(chatId) === String(owner);
+}
+
 bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/ver] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
   try {
     await safeSend(msg.chat.id, '🩺 Running health check…');
     const report = await runHealthCheck(bot, redis);
@@ -2233,7 +2249,16 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
     case 'forgetme':  await runForgetMeCommand(chatId, lang); return true;
-    case 'ver':       await runVerCommand(chatId); return true;
+    case 'ver':
+      // v0.60.69 — same owner gate as the bot.onText handler.
+      // Non-owners get a silent return so the menu-dispatch endpoint
+      // logs `handled=true` instead of churning a noisy 401.
+      if (!isOwnerChat(chatId)) {
+        console.log(`[ver] dispatch denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return true;
+      }
+      await runVerCommand(chatId);
+      return true;
     // v0.60.51 — Menu TMA hub gained Discover-section tiles. Each
     // dispatches to the same handler the corresponding chat
     // command uses, so the hub stays the single source of truth
