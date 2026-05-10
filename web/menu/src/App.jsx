@@ -36,7 +36,7 @@ const SECTIONS = [
     id: 'discover',
     titleKey: 'section.discover',
     tiles: [
-      { id: 'search',  icon: '🔍', labelKey: 'tile.search.label',  kind: 'dispatch' },
+      { id: 'search',  icon: '🔍', iconImage: '/app/menu/search-icon.png', labelKey: 'tile.search.label',  kind: 'dispatch' },
       { id: 'buddy',   icon: '🤝', labelKey: 'tile.buddy.label',   kind: 'dispatch' },
       { id: 'weather', icon: '🌇', labelKey: 'tile.weather.label', kind: 'dispatch' }
     ]
@@ -52,7 +52,7 @@ const SECTIONS = [
       { id: 'location',   icon: '📍', labelKey: 'tile.location.label',   kind: 'dispatch' },
       { id: 'drive',      icon: '🚦', labelKey: 'tile.drive.label',      kind: 'dispatch' },
       { id: 'incidents',  icon: '🚧', labelKey: 'tile.incidents.label',  kind: 'dispatch' },
-      { id: 'busnearest', icon: '🚏', labelKey: 'tile.busNearest.label', kind: 'dispatch' },
+      { id: 'busnearest', icon: '🚏', iconImage: '/app/menu/bus-icon.png', labelKey: 'tile.busNearest.label', kind: 'dispatch' },
       { id: 'busroute',   icon: '🗺',  labelKey: 'tile.busRoute.label',   kind: 'dispatch' }
     ]
   }
