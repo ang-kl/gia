@@ -2420,20 +2420,31 @@ async function runTransportTrain(chatId, lang = 'en') {
           mrtForMap = mrt;
           const wait = transport.estimateWaitMinutes();
           lines.push('', tn('transport.train.nearestHeader', lang, { min: wait.min, max: wait.max, label: wait.label }));
+          // v0.60.81 — prefix the station name with a colored line
+          // emoji + code per operator request 2026-05-10:
+          // "Telok Blangah" → "🟠 CCL Telok Blangah"; interchanges
+          // list all lines, e.g. "🟣 NEL · 🟠 CCL HarbourFront".
+          // Telegram chat HTML doesn't support inline text colors;
+          // the emoji prefix is the color signal.
+          const mrtLinesMod = require('./mrt-lines');
           for (const s of mrt) {
             const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
             const crowdNote = crowd ? ` · ${t(`transport.train.crowd.${crowd}`, lang)}` : '';
             const dist = (Number.isFinite(s.lat) && Number.isFinite(s.lng))
               ? formatDistance(transport.haversineM(cachedLoc.lat, cachedLoc.lng, s.lat, s.lng))
               : '';
-            // v0.60.72 — per-station Google Maps deep link. Operator
-            // wants "live arrival times like Google Maps shows" surfaced
-            // inline. LTA DataMall doesn't expose train arrivals, but
-            // Google Maps' place sheet for an MRT station does. We wrap
-            // the station name as <a href="…"> so a tap opens that sheet.
             const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`;
+            const linesForStation = mrtLinesMod.linesForStation(s.name);
+            const linePrefix = linesForStation.length
+              ? linesForStation
+                  .map((code) => {
+                    const meta = mrtLinesMod.LINES_BY_CODE[code];
+                    return meta ? `${meta.emoji} ${escapeHtmlForTelegram(code)}` : escapeHtmlForTelegram(code);
+                  })
+                  .join(' · ') + ' '
+              : '';
             lines.push(tn('transport.train.stationRow', lang, {
-              name: escapeHtmlForTelegram(s.name),
+              name: linePrefix + escapeHtmlForTelegram(s.name),
               dist,
               crowd: crowdNote,
               gmapsUrl
@@ -3781,11 +3792,21 @@ function formatBusArrivalsHtml(arrivals) {
       return am - bm;
     })
     .slice(0, 6);
-  return rows.map((r) => {
+  // v0.60.81 — group rows by band per operator request 2026-05-10:
+  // "№ 145, 273, 120 — ≤5 min" instead of one line per service.
+  // Already sorted by absolute minutes ascending, so insertion order
+  // into each band preserves "earliest first" within the band.
+  const byBand = new Map();
+  for (const r of rows) {
     const band = busArrivalBand(r.minutes);
-    const bandStr = band ? `<b>${band}</b>` : '<i>—</i>';
-    const loadStr = r.loadLabel ? ` · ${escapeHtmlForTelegram(r.loadLabel)}` : '';
-    return `  № ${escapeHtmlForTelegram(r.service)} — ${bandStr}${loadStr}`;
+    const key = band || '—';
+    if (!byBand.has(key)) byBand.set(key, []);
+    byBand.get(key).push(r);
+  }
+  return [...byBand.entries()].map(([band, group]) => {
+    const services = group.map((r) => escapeHtmlForTelegram(r.service)).join(', ');
+    const bandStr = band === '—' ? '<i>—</i>' : `<b>${band}</b>`;
+    return `  № ${services} — ${bandStr}`;
   });
 }
 
