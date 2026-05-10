@@ -8,9 +8,14 @@
 
 const axios = require('axios');
 
+// v0.60.68 — LTA DataMall API User Guide v6.8 (21 Apr 2026) renamed
+// BusArrivalv2 → v3/BusArrival. The old URL now returns 404 "The
+// requested API was not found" (per probe by Human Lead 2026-05-10),
+// which is why every /b lookup was rendering "no real-time arrivals"
+// for every stop. BusStops catalogue endpoint is unchanged.
 const LTA_BASE = 'https://datamall2.mytransport.sg/ltaodataservice';
 const BUS_STOPS_URL = `${LTA_BASE}/BusStops`;
-const BUS_ARRIVAL_URL = `${LTA_BASE}/BusArrivalv2`;
+const BUS_ARRIVAL_URL = `${LTA_BASE}/v3/BusArrival`;
 const PAGE_SIZE = 500;
 
 const STOPS_GEO = 'lta:busstops:geo';        // GEO sorted set, member = BusStopCode
