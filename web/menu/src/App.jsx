@@ -87,6 +87,11 @@ export default function App() {
   // so we can fire the request and close the WebApp on the same
   // tick. Errors surface server-side via console + bot fallback
   // sendMessage; the user sees them in chat after the TMA collapses.
+  //
+  // v0.60.69 — keepalive:true so Telegram's webview tear-down on
+  // close() doesn't abort the request before bytes hit the wire
+  // (Codex review 2026-05-10). The 64 KB keepalive cap is not a
+  // concern — payload is initData + cmd, well under 1 KB.
   const dispatchCmd = (cmd) => {
     const w = tg();
     if (!w) {
@@ -96,7 +101,8 @@ export default function App() {
     fetch('/api/menu-dispatch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: w.initData || '', cmd })
+      body: JSON.stringify({ initData: w.initData || '', cmd }),
+      keepalive: true
     }).catch(() => { /* logged server-side; user sees fallback in chat */ });
     if (typeof w.close === 'function') w.close();
   };
