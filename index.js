@@ -1483,6 +1483,31 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   }
 });
 
+// v0.60.65 — per-chat menu-button refresh. The default menu button
+// is set at boot via setChatMenuButton (no chat_id) — but Telegram
+// caches the per-chat binding client-side, so users who interacted
+// with the bot pre-v0.60.48 (when default was 'commands') still see
+// the stale slash-commands list when they tap the bottom-left Menu
+// button. Re-calling setChatMenuButton WITH chat_id explicitly
+// overrides the cached per-chat binding. Cheap (one Bot API call,
+// best-effort) so we run it on /start and /menu — the two places a
+// user is most likely to want the menu hub.
+async function refreshChatMenuButton(chatId) {
+  if (!useWebhook || !webhookDomain) return;
+  try {
+    await bot.setChatMenuButton({
+      chat_id: chatId,
+      menu_button: {
+        type: 'web_app',
+        text: 'Menu',
+        web_app: { url: `https://${webhookDomain}/app/menu` }
+      }
+    });
+  } catch (err) {
+    console.warn(`[MenuButton] per-chat refresh failed for ${chatId}:`, err.message);
+  }
+}
+
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
 bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
@@ -1507,6 +1532,10 @@ bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, async (msg) => {
 bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
+  // v0.60.65 — refresh the per-chat menu-button binding so the
+  // bottom-left Menu button opens the TMA on next tap (clears any
+  // stale 'commands' cache from pre-v0.60.48).
+  refreshChatMenuButton(msg.chat.id);
   if (!webhookDomain) {
     await safeSend(msg.chat.id,
       lang === 'fr' ? '⚠️ Menu indisponible (hôte non configuré).'
@@ -2057,6 +2086,12 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const { t } = require('./i18n');
   const startLang = await resolveLang(redis, msg.chat.id, msg);
+  // v0.60.65 — refresh the per-chat menu-button binding on every
+  // /start so the bottom-left Menu button opens the Menu TMA in one
+  // tap. Required because Telegram caches the per-chat binding
+  // client-side; users who interacted pre-v0.60.48 (when the default
+  // was 'commands') still see the stale slash-commands list.
+  refreshChatMenuButton(msg.chat.id);
   const param = rawParam.toLowerCase();
   if (param) {
     const routed = await routeMenuCommand(msg.chat.id, param, null, startLang);
