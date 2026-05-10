@@ -84,6 +84,18 @@
     externalOpen(httpsUrl);
   }
 
+  // v0.60.61 — minimal HTML escape for InfoWindow content. Mirrors
+  // index.js's escapeHtmlForTelegram so server- and client-side
+  // bus-stop popups stay byte-identical for any name/load string.
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function makePinContent(num, name, isUser) {
     const div = document.createElement('div');
     div.className = isUser ? 'gia-pin user' : 'gia-pin';
@@ -139,8 +151,28 @@
       const linkHtml = (v.placeId || v.url || v.name)
         ? `<br><a href="#" id="${linkId}">Open in Google Maps</a>`
         : '';
+      // v0.60.61 — when the venue carries `arrivals` (bus-stop
+      // payload from /transport bus nearest), render them inside
+      // the popup using the same template the chat reply uses:
+      //   № 174 — ≤5 min · seats
+      // The band logic mirrors busArrivalBand() server-side.
+      const arrivalsHtml = (Array.isArray(v.arrivals) && v.arrivals.length)
+        ? '<br>' + v.arrivals.map((a) => {
+            const m = Number.isFinite(a.minutes) ? a.minutes : null;
+            let band = '—';
+            if (m != null) {
+              if (m <= 5) band = '≤5 min';
+              else if (m <= 10) band = '≤10 min';
+              else if (m <= 15) band = '≤15 min';
+              else if (m <= 20) band = '≤20 min';
+              else band = '>20 min';
+            }
+            const load = a.loadLabel ? ' · ' + escapeHtml(a.loadLabel) : '';
+            return `№ ${escapeHtml(String(a.service))} — <strong>${band}</strong>${load}`;
+          }).join('<br>')
+        : '';
       const info = new google.maps.InfoWindow({
-        content: `<div style="max-width:240px"><strong>${v.name}</strong><br>${v.area || ''}<br><em>${v.vibe || ''}</em>${linkHtml}</div>`
+        content: `<div style="max-width:260px;font-size:12px;line-height:1.45"><strong>${escapeHtml(v.name)}</strong><br>${escapeHtml(v.area || '')}${v.vibe ? '<br><em>' + escapeHtml(v.vibe) + '</em>' : ''}${arrivalsHtml}${linkHtml}</div>`
       });
       marker.addListener('click', () => info.open({ anchor: marker, map }));
       info.addListener('domready', () => {

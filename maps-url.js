@@ -203,26 +203,27 @@ function buildMapHashUrl(venues, opts = {}) {
 
 // v0.60.56 — multi-stop Google Maps URL.
 // v0.60.60 — capped at 11 stops total (1 origin + 9 waypoints + 1
-// destination), the actual Google Maps URL API limit. Earlier the
-// cap was 25 because consumer Maps was assumed to tolerate more, but
-// observation in the field showed Google silently truncates to 9
-// waypoints regardless — a region with 21 hawker centres would fire
-// off a 21-stop URL and Google rendered only 9. Capping at the real
-// ceiling means the button label and Google's view stay in sync.
+// destination), the actual Google Maps URL API limit.
+// v0.60.61 — accept `offset` so callers can paginate large region
+// lists across multiple URLs (e.g. 22-centre region → tour 1
+// covers index 0..10, tour 2 covers index 11..21).
 //
-// Usage: googleMapsTourUrl(places, { travelmode })
+// Usage: googleMapsTourUrl(places, { travelmode, offset })
 //   places: array of { lat, lng, name?, placeId? }
 //   travelmode: 'walking' | 'driving' | 'transit' | 'bicycling'
+//   offset:     start index (default 0). Slice taken is
+//               [offset, offset + GOOGLE_MAPS_TOUR_MAX).
 //
-// Returns null if there are fewer than 2 plottable places.
+// Returns null if the slice has fewer than 2 plottable places.
 const GOOGLE_MAPS_TOUR_MAX = 11;
 
 function googleMapsTourUrl(places, opts = {}) {
   if (!Array.isArray(places) || !places.length) return null;
   const travelmode = encodeURIComponent(opts.travelmode || 'walking');
+  const offset = Number.isFinite(opts.offset) && opts.offset > 0 ? Math.floor(opts.offset) : 0;
   const points = places
     .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
-    .slice(0, GOOGLE_MAPS_TOUR_MAX)
+    .slice(offset, offset + GOOGLE_MAPS_TOUR_MAX)
     .map((p) => `${p.lat},${p.lng}`);
   if (points.length < 2) return null;
   const destination = points[points.length - 1];

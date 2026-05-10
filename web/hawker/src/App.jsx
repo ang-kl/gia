@@ -178,36 +178,31 @@ export default function App() {
                     total: active.count
                   })}
                 </div>
-                {/* Two side-by-side actions:
-                    1. Internal /app/map — multi-pin in the WebApp,
-                       handles all centres regardless of count.
-                    2. External Google Maps — opens the user's Maps app
-                       with every centre pinned (up to 25, the URL cap)
-                       in walking-tour mode. */}
-                <div className="mx-1 grid grid-cols-2 gap-1.5">
+                {/* v0.60.61 — three buttons squeezed into one row:
+                    1. Internal /app/map (Fullscreen) — handles all
+                       centres regardless of count.
+                    2. External Google Maps tour 1 (pins 1–11).
+                    3. External Google Maps tour 2 (pins 12–22).
+                    Google Maps URL API caps at 11 stops, so a 22-
+                    centre region needs two URLs. The 📍 icon stands
+                    in for "Google Maps" without claiming the brand. */}
+                <div className={`mx-1 grid gap-1.5 ${(active.tours?.length || 0) >= 2 ? 'grid-cols-3' : (active.tours?.length === 1 ? 'grid-cols-2' : 'grid-cols-1')}`}>
                   <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
-                    className="text-xs text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
+                    className="text-[11px] text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text whitespace-nowrap">
                     {multiPinUrl
                       ? t('btn.openFullscreenMap', lang)
                       : tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
                   </a>
-                  {active.tourUrl && (
-                    <a href={active.tourUrl} target="_blank" rel="noreferrer"
-                      className="text-xs text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
-                      {(() => {
-                        // v0.60.60 — Google Maps URL API caps at 11 stops.
-                        // If the region has more, label says "11 of N"
-                        // so users know the external view is partial.
-                        const pinCount = Number.isFinite(active.tourPinCount)
-                          ? active.tourPinCount
-                          : (Number.isFinite(active.mappedCount) ? active.mappedCount : active.count);
-                        const total = Number.isFinite(active.mappedCount) ? active.mappedCount : active.count;
-                        return pinCount < total
-                          ? tn('btn.openTourGoogleMapsPartial', lang, { n: pinCount, total })
-                          : tn('btn.openTourGoogleMaps', lang, { n: pinCount });
-                      })()}
+                  {(active.tours || []).map((tour, idx) => (
+                    <a key={idx} href={tour.url} target="_blank" rel="noreferrer"
+                      className="text-[11px] text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text whitespace-nowrap">
+                      {tn('btn.openTourGoogleMapsRange', lang, {
+                        from: tour.start,
+                        to: tour.end,
+                        total: active.mappedCount
+                      })}
                     </a>
-                  )}
+                  ))}
                 </div>
                 <div className="flex flex-col gap-1.5 mt-1">
                   {active.centres.map((c, i) => (
