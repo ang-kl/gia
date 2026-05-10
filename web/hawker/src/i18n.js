@@ -42,11 +42,12 @@ const STRINGS = {
   // Open-all button — v0.60.40: relabel to "View N Hawker Centres on
   // the map", and route to soleat's multi-pin /app/map when coords
   // are present (Google Maps fallback retained for missing-coord
-  // edge cases).
-  // v0.60.41: embedded map ships, so the external button is repurposed
-  // as a "Fullscreen map ↗" affordance. Old key kept for fallback.
-  'btn.openFullscreenMap':   { en: '🗺 Fullscreen map ↗',
-                               fr: '🗺 Carte plein écran ↗' },
+  // v0.60.66 — unified label pattern across the four region-map
+  // buttons: "## 📍 in a map ↗" (where ## is "Full" or a pin range).
+  // Replaces the cut-off "🗺 Fullscreen map ↗" label that overflowed
+  // when the 4-button row landed on a 27-pin region.
+  'btn.openFullscreenMap':   { en: 'Full 📍 in a map ↗',
+                               fr: 'Plein 📍 dans une carte ↗' },
   'btn.viewAllOnMap':        { en: '🗺 View {n} Hawker Centres on the map',
                                fr: '🗺 Voir les {n} centres de hawker sur la carte' },
   'btn.openAllOnGoogleMaps': { en: '🗺 Open all {n} on Google Maps',
@@ -55,14 +56,13 @@ const STRINGS = {
   'btn.openTourGoogleMaps':  { en: '🌐 {n} pins in Google Maps',
                                fr: '🌐 {n} épingles sur Google Maps' },
   // v0.60.61 — paginated tour-URL chunks. v0.60.62 — bumped to 3
-  // chunks (covers regions with 23-33 centres). Label tightened to
-  // drop the "of {total}" suffix because grid-cols-4 squeezes each
-  // cell to ~80 px on phones — and the same {total} is already
-  // shown one line above as "📍 N/N centres mapped".
-  // 📍 stands in for the Google Maps wordmark without claiming the
-  // protected brand asset.
-  'btn.openTourGoogleMapsRange': { en: '📍 {from}–{to}',
-                                   fr: '📍 {from}–{to}' },
+  // chunks (covers regions with 23–33 centres). v0.60.66 — label
+  // unified with the fullscreen button as "## 📍 in a map ↗" so
+  // every button in the row reads the same way. Layout switches to
+  // 2x2 (grid-cols-2) when 4 buttons are present, so the longer
+  // text fits.
+  'btn.openTourGoogleMapsRange': { en: '{from}–{to} 📍 in a map ↗',
+                                   fr: '{from}–{to} 📍 dans une carte ↗' },
   'map.mappedRatio':         { en: '📍 {mapped}/{total} centres mapped',
                                fr: '📍 {mapped}/{total} centres cartographiés' },
 

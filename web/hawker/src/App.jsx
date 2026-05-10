@@ -186,8 +186,12 @@ export default function App() {
                     Google Maps URL API caps at 11 stops, so a 22-
                     centre region needs two URLs. The 📍 icon stands
                     in for "Google Maps" without claiming the brand. */}
+                {/* v0.60.66 — 4-button row switches to 2x2 (grid-cols-2)
+                    instead of 1x4 because the unified "## 📍 in a map ↗"
+                    label needs ~140 px and would overflow at grid-cols-4
+                    (~80 px per cell on a 375 px phone). */}
                 <div className={`mx-1 grid gap-1.5 ${
-                  (active.tours?.length || 0) >= 3 ? 'grid-cols-4'
+                  (active.tours?.length || 0) >= 3 ? 'grid-cols-2'
                   : (active.tours?.length === 2 ? 'grid-cols-3'
                   : (active.tours?.length === 1 ? 'grid-cols-2'
                   : 'grid-cols-1'))
