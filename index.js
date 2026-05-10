@@ -2493,6 +2493,25 @@ async function runTransportTrain(chatId, lang = 'en') {
       console.warn('[Transport] per-line + engineering enrichment failed:', err.message);
     }
 
+    // v0.60.75 — static network frequency footer (LTA published
+    // headways). Operator confirmed scraping Google Maps for live
+    // arrivals isn't worth the ToS / fragility tax — this surfaces
+    // expected frequency without an upstream call.
+    try {
+      const mrtLines = require('./mrt-lines');
+      const r = mrtLines.networkHeadwayRange();
+      if (r && Number.isFinite(r.peakMin)) {
+        lines.push('', tn('transport.train.headway', lang, {
+          peakMin: r.peakMin,
+          peakMax: r.peakMax,
+          offMin:  r.offMin,
+          offMax:  r.offMax
+        }));
+      }
+    } catch (err) {
+      console.warn('[Transport] headway footer render failed:', err.message);
+    }
+
     const tmaButton = webhookDomain
       ? [[{ text: t('transport.train.openMapBtn', lang), web_app: { url: `https://${webhookDomain}/app/transport` } }]]
       : [];
