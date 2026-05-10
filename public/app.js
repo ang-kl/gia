@@ -157,19 +157,20 @@
       // v0.60.76 — when the venue carries `lines` (MRT station
       // payload from /transport train), render the operating-line
       // emojis inside the popup. Mirrors the chat-side pattern.
+      // v0.60.83 — square emojis (mirrors mrt-lines.js LINES table).
       const LINE_META = {
-        EWL:  { e: '🟢', n: 'EWL'  },
-        CGL:  { e: '🟢', n: 'CGL'  },
-        NSL:  { e: '🔴', n: 'NSL'  },
-        NEL:  { e: '🟣', n: 'NEL'  },
-        CCL:  { e: '🟠', n: 'CCL'  },
-        DTL:  { e: '🔵', n: 'DTL'  },
-        TEL:  { e: '🟤', n: 'TEL'  },
-        JRL:  { e: '🔷', n: 'JRL'  },
-        CRL:  { e: '🟢', n: 'CRL'  },
-        BPL:  { e: '⚪', n: 'BPL'  },
-        SLRT: { e: '⚪', n: 'SLRT' },
-        PLRT: { e: '⚪', n: 'PLRT' }
+        EWL:  { e: '🟩', n: 'EWL'  },
+        CGL:  { e: '🟩', n: 'CGL'  },
+        NSL:  { e: '🟥', n: 'NSL'  },
+        NEL:  { e: '🟪', n: 'NEL'  },
+        CCL:  { e: '🟧', n: 'CCL'  },
+        DTL:  { e: '🟦', n: 'DTL'  },
+        TEL:  { e: '🟫', n: 'TEL'  },
+        JRL:  { e: '🟦', n: 'JRL'  },
+        CRL:  { e: '🟩', n: 'CRL'  },
+        BPL:  { e: '⬜', n: 'BPL'  },
+        SLRT: { e: '⬜', n: 'SLRT' },
+        PLRT: { e: '⬜', n: 'PLRT' }
       };
       const linesHtml = (Array.isArray(v.lines) && v.lines.length)
         ? '<br>' + v.lines.map((code) => {

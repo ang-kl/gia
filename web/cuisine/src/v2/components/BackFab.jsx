@@ -22,17 +22,17 @@ export default function BackFab({ inline = false }) {
   const positionClasses = inline
     ? 'pointer-events-auto'
     : 'fixed bottom-4 left-4 z-30';
-  // v0.60.82 — ice-blue background per operator 2026-05-10. Fixed
-  // hex (not a theme token) so the colour reads as "ice blue"
-  // identically across light/dark Telegram themes. Text stays
-  // dark (#1c1c1f) for legible contrast on the pale background
-  // regardless of theme.
+  // v0.60.83 — aqua (#7FDBDB) for all three cuisine TMA FABs (Back/
+  // End, ↑ top, 🔍 Search) per operator 2026-05-10: "use aqua colour
+  // background for all three". Replaces v0.60.82's ice-blue. Dark text
+  // (#1c1c1f) stays for contrast against the pale aqua across both
+  // Telegram light + dark themes.
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'Close'}
-      style={{ backgroundColor: '#D6ECEF', color: '#1c1c1f' }}
+      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
       className={`${positionClasses} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>

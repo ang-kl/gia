@@ -9,19 +9,26 @@
 // Surfaced in /transport train chat as a network-level frequency
 // footer so users know what to expect even though LTA doesn't expose
 // per-train arrival times publicly.
+// v0.60.83 — square emoji replaces round per operator 2026-05-10
+// ("Remove all the colours balls sharp, replace with square…").
+// Telegram chat HTML can't colour the literal "CCL" text, but
+// 🟧 / 🟪 / 🟦 / etc. ARE the line colour signal — square shape
+// distinguishes from the v0.60.81 round emoji that operator
+// flagged. JRL (teal) and BPL/SLRT/PLRT (grey-green) use the
+// closest available square emoji.
 const LINES = [
-  { code: 'EWL',  name: 'East-West Line',         hex: '#009645', emoji: '🟢', endpoints: ['Tuas Link', 'Pasir Ris'],         headway: { peak: '2-3', offpeak: '5-7' } },
-  { code: 'CGL',  name: 'Changi Airport Branch',  hex: '#009645', emoji: '🟢', endpoints: ['Tanah Merah', 'Changi Airport'],  parent: 'EWL', headway: { peak: '7-8', offpeak: '12-14' } },
-  { code: 'NSL',  name: 'North-South Line',       hex: '#D42E12', emoji: '🔴', endpoints: ['Jurong East', 'Marina South Pier'], headway: { peak: '2-3', offpeak: '5-7' } },
-  { code: 'NEL',  name: 'North-East Line',        hex: '#9900AA', emoji: '🟣', endpoints: ['HarbourFront', 'Punggol'],         headway: { peak: '2-4', offpeak: '5-8' } },
-  { code: 'CCL',  name: 'Circle Line',            hex: '#FA9E0D', emoji: '🟠', endpoints: ['Dhoby Ghaut', 'HarbourFront (loop)'], headway: { peak: '3-4', offpeak: '6-8' } },
-  { code: 'DTL',  name: 'Downtown Line',          hex: '#005EC4', emoji: '🔵', endpoints: ['Bukit Panjang', 'Expo'],           headway: { peak: '2-3', offpeak: '5-7' } },
-  { code: 'TEL',  name: 'Thomson-East Coast',     hex: '#9D5B25', emoji: '🟤', endpoints: ['Woodlands North', 'Bayshore'],     headway: { peak: '3-4', offpeak: '5-7' } },
-  { code: 'JRL',  name: 'Jurong Region Line',     hex: '#0099AA', emoji: '🔷', endpoints: ['Choa Chu Kang', 'Pandan Reservoir'], future: true },
-  { code: 'CRL',  name: 'Cross Island Line',      hex: '#97C616', emoji: '🟢', endpoints: ['Aviation Park', 'Bright Hill'],    future: true },
-  { code: 'BPL',  name: 'Bukit Panjang LRT',      hex: '#718472', emoji: '⚪', endpoints: ['Choa Chu Kang', 'Bukit Panjang'], headway: { peak: '4-5', offpeak: '6-8' } },
-  { code: 'SLRT', name: 'Sengkang LRT',           hex: '#718472', emoji: '⚪', endpoints: ['Sengkang', '(loop)'],             headway: { peak: '3-4', offpeak: '5-8' } },
-  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', emoji: '⚪', endpoints: ['Punggol', '(loop)'],              headway: { peak: '3-4', offpeak: '5-8' } }
+  { code: 'EWL',  name: 'East-West Line',         hex: '#009645', emoji: '🟩', endpoints: ['Tuas Link', 'Pasir Ris'],         headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'CGL',  name: 'Changi Airport Branch',  hex: '#009645', emoji: '🟩', endpoints: ['Tanah Merah', 'Changi Airport'],  parent: 'EWL', headway: { peak: '7-8', offpeak: '12-14' } },
+  { code: 'NSL',  name: 'North-South Line',       hex: '#D42E12', emoji: '🟥', endpoints: ['Jurong East', 'Marina South Pier'], headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'NEL',  name: 'North-East Line',        hex: '#9900AA', emoji: '🟪', endpoints: ['HarbourFront', 'Punggol'],         headway: { peak: '2-4', offpeak: '5-8' } },
+  { code: 'CCL',  name: 'Circle Line',            hex: '#FA9E0D', emoji: '🟧', endpoints: ['Dhoby Ghaut', 'HarbourFront (loop)'], headway: { peak: '3-4', offpeak: '6-8' } },
+  { code: 'DTL',  name: 'Downtown Line',          hex: '#005EC4', emoji: '🟦', endpoints: ['Bukit Panjang', 'Expo'],           headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'TEL',  name: 'Thomson-East Coast',     hex: '#9D5B25', emoji: '🟫', endpoints: ['Woodlands North', 'Bayshore'],     headway: { peak: '3-4', offpeak: '5-7' } },
+  { code: 'JRL',  name: 'Jurong Region Line',     hex: '#0099AA', emoji: '🟦', endpoints: ['Choa Chu Kang', 'Pandan Reservoir'], future: true },
+  { code: 'CRL',  name: 'Cross Island Line',      hex: '#97C616', emoji: '🟩', endpoints: ['Aviation Park', 'Bright Hill'],    future: true },
+  { code: 'BPL',  name: 'Bukit Panjang LRT',      hex: '#718472', emoji: '⬜', endpoints: ['Choa Chu Kang', 'Bukit Panjang'], headway: { peak: '4-5', offpeak: '6-8' } },
+  { code: 'SLRT', name: 'Sengkang LRT',           hex: '#718472', emoji: '⬜', endpoints: ['Sengkang', '(loop)'],             headway: { peak: '3-4', offpeak: '5-8' } },
+  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', emoji: '⬜', endpoints: ['Punggol', '(loop)'],              headway: { peak: '3-4', offpeak: '5-8' } }
 ];
 
 // Compute the network-wide min / max headway for the static footer

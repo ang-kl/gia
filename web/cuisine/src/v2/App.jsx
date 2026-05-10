@@ -876,22 +876,28 @@ export default function App() {
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label={t('btn.backToTop', lang)}
-              // v0.60.82 — ice-blue background per operator 2026-05-10
-              // (same hex as BackFab). Dark text for contrast across
-              // light/dark themes.
-              style={{ backgroundColor: '#D6ECEF', color: '#1c1c1f' }}
+              // v0.60.83 — aqua (#7FDBDB) — same hex as BackFab + Search,
+              // unified per operator 2026-05-10 ("use aqua colour
+              // background for all three"). Replaces v0.60.82 ice-blue.
+              style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
               className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
             >{t('btn.topShort', lang)}</button>
           )}
+          {/* v0.60.83 — Search FAB now also on aqua (#7FDBDB) so all
+              three floating buttons share the same background per
+              operator 2026-05-10. The dirty / searchHintActive states
+              keep the existing pulsing ring for visibility; loading
+              just reduces text opacity. */}
           <button
             type="button"
             onClick={() => runSearch(state)}
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
-              loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-              : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent'
-              : 'bg-tg-accent text-tg-accent-text'
+            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
+              loading ? 'opacity-60'
+              : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
+              : ''
             } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
           >🔍</button>
         </div>
