@@ -16,7 +16,10 @@ function formatStalls(centre, lang) {
     bits.push(tn('stalls.count', lang, { n: centre.stalls }));
   }
   if (centre.status) {
-    const key = `stalls.status.${centre.status.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    const slug = centre.status.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const key = `stalls.status.${slug}`;
     const localised = t(key, lang);
     bits.push(localised === key ? centre.status : localised);
   }
@@ -191,9 +194,18 @@ export default function App() {
                   {active.tourUrl && (
                     <a href={active.tourUrl} target="_blank" rel="noreferrer"
                       className="text-xs text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text">
-                      {tn('btn.openTourGoogleMaps', lang, {
-                        n: Number.isFinite(active.mappedCount) ? active.mappedCount : active.count
-                      })}
+                      {(() => {
+                        // v0.60.60 — Google Maps URL API caps at 11 stops.
+                        // If the region has more, label says "11 of N"
+                        // so users know the external view is partial.
+                        const pinCount = Number.isFinite(active.tourPinCount)
+                          ? active.tourPinCount
+                          : (Number.isFinite(active.mappedCount) ? active.mappedCount : active.count);
+                        const total = Number.isFinite(active.mappedCount) ? active.mappedCount : active.count;
+                        return pinCount < total
+                          ? tn('btn.openTourGoogleMapsPartial', lang, { n: pinCount, total })
+                          : tn('btn.openTourGoogleMaps', lang, { n: pinCount });
+                      })()}
                     </a>
                   )}
                 </div>
