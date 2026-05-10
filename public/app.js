@@ -148,8 +148,11 @@
         content
       });
       const linkId = `open-maps-${i}`;
+      // v0.60.71 — label aligned with the v0.60.66 Hawker pattern
+      // ("Open 📍 in a map ↗"). Behaviour unchanged — still routes
+      // through openMapsForVenue(v) which uses v.url.
       const linkHtml = (v.placeId || v.url || v.name)
-        ? `<br><a href="#" id="${linkId}">Open in Google Maps</a>`
+        ? `<br><a href="#" id="${linkId}">Open 📍 in a map ↗</a>`
         : '';
       // v0.60.61 — when the venue carries `arrivals` (bus-stop
       // payload from /transport bus nearest), render them inside
