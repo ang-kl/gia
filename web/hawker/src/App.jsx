@@ -186,7 +186,12 @@ export default function App() {
                     Google Maps URL API caps at 11 stops, so a 22-
                     centre region needs two URLs. The 📍 icon stands
                     in for "Google Maps" without claiming the brand. */}
-                <div className={`mx-1 grid gap-1.5 ${(active.tours?.length || 0) >= 2 ? 'grid-cols-3' : (active.tours?.length === 1 ? 'grid-cols-2' : 'grid-cols-1')}`}>
+                <div className={`mx-1 grid gap-1.5 ${
+                  (active.tours?.length || 0) >= 3 ? 'grid-cols-4'
+                  : (active.tours?.length === 2 ? 'grid-cols-3'
+                  : (active.tours?.length === 1 ? 'grid-cols-2'
+                  : 'grid-cols-1'))
+                }`}>
                   <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
                     className="text-[11px] text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text whitespace-nowrap">
                     {multiPinUrl

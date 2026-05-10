@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Tile from './components/Tile.jsx';
 import TrainPanel from './components/TrainPanel.jsx';
 import BackFab from './components/BackFab.jsx';
+import LocaleToggle from './components/LocaleToggle.jsx';
 import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
 
@@ -22,8 +23,12 @@ const SECTIONS = [
     id: 'eat',
     titleKey: 'section.eat',
     tiles: [
-      { id: 'cuisine',    icon: '🍛', labelKey: 'tile.cuisine.label',    kind: 'navigate', path: '/app/cuisine' },
-      { id: 'hawker',     icon: '🥢', labelKey: 'tile.hawker.label',     kind: 'navigate', path: '/app/hawker' },
+      // v0.60.62 — custom PNG illustrations replace 🍛 and 🥢. The
+      // emoji stays as the fallback when the PNG fails to load
+      // (Tile.jsx onError handler), so the hub still renders during
+      // any gap between code-merge and asset upload.
+      { id: 'cuisine',    icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label',    kind: 'navigate', path: '/app/cuisine' },
+      { id: 'hawker',     icon: '🥢', iconImage: '/app/menu/hawker-icon.png',  labelKey: 'tile.hawker.label',     kind: 'navigate', path: '/app/hawker' },
       { id: 'recognised', icon: '✳️', labelKey: 'tile.recognised.label', kind: 'dispatch' }
     ]
   },
@@ -40,18 +45,23 @@ const SECTIONS = [
     id: 'plan',
     titleKey: 'section.plan',
     // v0.60.55 — train moved out into the inline TrainPanel above
-    // these tiles, so the grid here is just Location / Drive /
-    // Incidents and stays balanced at 3 columns.
+    // these tiles. v0.60.62 adds Bus stops + Plan route so the
+    // /transport bus subcommands are reachable from the hub. With
+    // 5 tiles the 3-col grid wraps to a 3+2 layout.
     tiles: [
-      { id: 'location',  icon: '📍', labelKey: 'tile.location.label',  kind: 'dispatch' },
-      { id: 'drive',     icon: '🚦', labelKey: 'tile.drive.label',     kind: 'dispatch' },
-      { id: 'incidents', icon: '🚧', labelKey: 'tile.incidents.label', kind: 'dispatch' }
+      { id: 'location',   icon: '📍', labelKey: 'tile.location.label',   kind: 'dispatch' },
+      { id: 'drive',      icon: '🚦', labelKey: 'tile.drive.label',      kind: 'dispatch' },
+      { id: 'incidents',  icon: '🚧', labelKey: 'tile.incidents.label',  kind: 'dispatch' },
+      { id: 'busnearest', icon: '🚏', labelKey: 'tile.busNearest.label', kind: 'dispatch' },
+      { id: 'busroute',   icon: '🗺',  labelKey: 'tile.busRoute.label',   kind: 'dispatch' }
     ]
   }
 ];
 
+// v0.60.62 — `language` chip removed; replaced by inline LocaleToggle
+// (the chip dispatched a `language` cmd that routeMenuCommand never
+// handled, so it was a silent no-op).
 const FOOTER_CHIPS = [
-  { id: 'language', labelKey: 'chip.language' },
   { id: 'privacy',  labelKey: 'chip.privacy' },
   { id: 'forgetme', labelKey: 'chip.forgetme' }
 ];
@@ -153,6 +163,7 @@ export default function App() {
                 <Tile
                   key={tile.id}
                   icon={tile.icon}
+                  iconImage={tile.iconImage}
                   label={t(tile.labelKey, lang)}
                   onClick={() => handle(tile)}
                 />
@@ -165,7 +176,9 @@ export default function App() {
         </p>
       </div>
 
-      <div className="px-3 pb-1.5 flex flex-wrap gap-1.5 justify-center">
+      <div className="px-3 pb-1.5 flex flex-wrap gap-1.5 justify-center items-center">
+        <LocaleToggle />
+        <span className="text-[10px] text-tg-hint">·</span>
         {FOOTER_CHIPS.map((chip) => (
           <button
             key={chip.id}

@@ -2189,6 +2189,11 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     case 'incidents': await runTransportTrafficIncidents(chatId, lang); return true;
     case 'train':     await runTransportTrain(chatId, lang); return true;
     case 'drive':     await runTransportDrive(chatId, lang); return true;
+    // v0.60.62 — Menu TMA "Bus stops" + "Plan route" tiles. The dispatch
+    // endpoint /^[a-z]{1,32}$/ regex rejects colons, hence the no-colon
+    // ids busnearest / busroute (both reuse runTransportBus subcases).
+    case 'busnearest': await runTransportBus(chatId, 'nearest', lang); return true;
+    case 'busroute':   await runTransportBus(chatId, 'route',   lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
@@ -8454,7 +8459,7 @@ async function cacheBotUsername() {
           // centres across two buttons. Regions with > 22 centres
           // (East/North/West) still see the first 22; the embedded
           // /app/map handles all sizes regardless.
-          const TOUR_CHUNKS = 2;
+          const TOUR_CHUNKS = 3;
           const tours = [];
           for (let i = 0; i < TOUR_CHUNKS; i++) {
             const offset = i * GOOGLE_MAPS_TOUR_MAX;
