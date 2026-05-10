@@ -3,20 +3,43 @@
 // Used by /transport text view, the new transport TMA, and the
 // disruption parser. Colours match the official LTA palette.
 
+// v0.60.75 — `headway` block per line. Static published values from
+// LTA's service standards (2026 timetable). Format:
+//   { peak: '2-3', offpeak: '5-7' } → "2-3 min peak · 5-7 min off-peak"
+// Surfaced in /transport train chat as a network-level frequency
+// footer so users know what to expect even though LTA doesn't expose
+// per-train arrival times publicly.
 const LINES = [
-  { code: 'EWL',  name: 'East-West Line',         hex: '#009645', emoji: '🟢', endpoints: ['Tuas Link', 'Pasir Ris'] },
-  { code: 'CGL',  name: 'Changi Airport Branch',  hex: '#009645', emoji: '🟢', endpoints: ['Tanah Merah', 'Changi Airport'], parent: 'EWL' },
-  { code: 'NSL',  name: 'North-South Line',       hex: '#D42E12', emoji: '🔴', endpoints: ['Jurong East', 'Marina South Pier'] },
-  { code: 'NEL',  name: 'North-East Line',        hex: '#9900AA', emoji: '🟣', endpoints: ['HarbourFront', 'Punggol'] },
-  { code: 'CCL',  name: 'Circle Line',            hex: '#FA9E0D', emoji: '🟠', endpoints: ['Dhoby Ghaut', 'HarbourFront (loop)'] },
-  { code: 'DTL',  name: 'Downtown Line',          hex: '#005EC4', emoji: '🔵', endpoints: ['Bukit Panjang', 'Expo'] },
-  { code: 'TEL',  name: 'Thomson-East Coast',     hex: '#9D5B25', emoji: '🟤', endpoints: ['Woodlands North', 'Bayshore'] },
+  { code: 'EWL',  name: 'East-West Line',         hex: '#009645', emoji: '🟢', endpoints: ['Tuas Link', 'Pasir Ris'],         headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'CGL',  name: 'Changi Airport Branch',  hex: '#009645', emoji: '🟢', endpoints: ['Tanah Merah', 'Changi Airport'],  parent: 'EWL', headway: { peak: '7-8', offpeak: '12-14' } },
+  { code: 'NSL',  name: 'North-South Line',       hex: '#D42E12', emoji: '🔴', endpoints: ['Jurong East', 'Marina South Pier'], headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'NEL',  name: 'North-East Line',        hex: '#9900AA', emoji: '🟣', endpoints: ['HarbourFront', 'Punggol'],         headway: { peak: '2-4', offpeak: '5-8' } },
+  { code: 'CCL',  name: 'Circle Line',            hex: '#FA9E0D', emoji: '🟠', endpoints: ['Dhoby Ghaut', 'HarbourFront (loop)'], headway: { peak: '3-4', offpeak: '6-8' } },
+  { code: 'DTL',  name: 'Downtown Line',          hex: '#005EC4', emoji: '🔵', endpoints: ['Bukit Panjang', 'Expo'],           headway: { peak: '2-3', offpeak: '5-7' } },
+  { code: 'TEL',  name: 'Thomson-East Coast',     hex: '#9D5B25', emoji: '🟤', endpoints: ['Woodlands North', 'Bayshore'],     headway: { peak: '3-4', offpeak: '5-7' } },
   { code: 'JRL',  name: 'Jurong Region Line',     hex: '#0099AA', emoji: '🔷', endpoints: ['Choa Chu Kang', 'Pandan Reservoir'], future: true },
-  { code: 'CRL',  name: 'Cross Island Line',      hex: '#97C616', emoji: '🟢', endpoints: ['Aviation Park', 'Bright Hill'], future: true },
-  { code: 'BPL',  name: 'Bukit Panjang LRT',      hex: '#718472', emoji: '⚪', endpoints: ['Choa Chu Kang', 'Bukit Panjang'] },
-  { code: 'SLRT', name: 'Sengkang LRT',           hex: '#718472', emoji: '⚪', endpoints: ['Sengkang', '(loop)'] },
-  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', emoji: '⚪', endpoints: ['Punggol', '(loop)'] }
+  { code: 'CRL',  name: 'Cross Island Line',      hex: '#97C616', emoji: '🟢', endpoints: ['Aviation Park', 'Bright Hill'],    future: true },
+  { code: 'BPL',  name: 'Bukit Panjang LRT',      hex: '#718472', emoji: '⚪', endpoints: ['Choa Chu Kang', 'Bukit Panjang'], headway: { peak: '4-5', offpeak: '6-8' } },
+  { code: 'SLRT', name: 'Sengkang LRT',           hex: '#718472', emoji: '⚪', endpoints: ['Sengkang', '(loop)'],             headway: { peak: '3-4', offpeak: '5-8' } },
+  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', emoji: '⚪', endpoints: ['Punggol', '(loop)'],              headway: { peak: '3-4', offpeak: '5-8' } }
 ];
+
+// Compute the network-wide min / max headway for the static footer
+// surfaced in /transport train. Skips future lines (JRL, CRL) and
+// the airport branch (CGL) which has its own published 7-min cycle.
+function networkHeadwayRange() {
+  const operating = LINES.filter((l) => l.headway && !l.future && !l.parent);
+  let pkMin = Infinity, pkMax = 0, opMin = Infinity, opMax = 0;
+  for (const l of operating) {
+    const [pa, pb] = l.headway.peak.split('-').map(Number);
+    const [oa, ob] = l.headway.offpeak.split('-').map(Number);
+    if (pa < pkMin) pkMin = pa;
+    if (pb > pkMax) pkMax = pb;
+    if (oa < opMin) opMin = oa;
+    if (ob > opMax) opMax = ob;
+  }
+  return { peakMin: pkMin, peakMax: pkMax, offMin: opMin, offMax: opMax };
+}
 
 const LINES_BY_CODE = LINES.reduce((m, l) => { m[l.code] = l; return m; }, {});
 
@@ -85,5 +108,6 @@ module.exports = {
   LINES_BY_CODE,
   LINE_SYNONYMS,
   affectedLines,
-  parseStatusByLine
+  parseStatusByLine,
+  networkHeadwayRange
 };
