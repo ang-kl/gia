@@ -78,9 +78,17 @@ const STRINGS = {
                                fr: 'Envoyé au chat. Vous pouvez fermer cette vue.' },
   'msg.saveFailed':          { en: 'Could not send to chat — please try again.',
                                fr: 'Échec de l’envoi au chat — réessayez.' },
-  // v0.60.53 — upcoming closure tag.
-  'closure.tag':             { en: '🚧 Closed {from} → {to}',
-                               fr: '🚧 Fermé {from} → {to}' }
+  // v0.60.59 — stall count + operating status (from data.gov.sg
+  // "Hawker Centres (GEOJSON)" via fetch-hawker-stalls.js). Replaces
+  // the v0.60.53 closure-tag string (closures dataset retired by NEA).
+  'stalls.count':            { en: '🍳 {n} stalls',
+                               fr: '🍳 {n} stands' },
+  // Status localisations — keyed by lowercased+normalised value from
+  // the dataset. Unknown status values fall through to the raw label
+  // (the formatStalls helper does the lookup-or-passthrough).
+  'stalls.status.existing':           { en: 'Operating',          fr: 'Opérationnel' },
+  'stalls.status.under_construction': { en: 'Under construction', fr: 'En construction' },
+  'stalls.status.proposed':           { en: 'Proposed',           fr: 'Proposé' }
 };
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }
