@@ -103,11 +103,197 @@ function parseStatusByLine(rawAlerts) {
   return byLine;
 }
 
+// v0.60.76 — station → operating lines lookup. Used by /app/map
+// InfoWindow to surface line emojis (e.g. "🟠 CCL · 🟣 NEL") on
+// MRT station pins. Keys are normalised station names (lowercase,
+// no "MRT/Station/Stn" suffix). Multiple lines for interchanges.
+//
+// Comprehensive coverage of the operating network as of 2026:
+// EWL, NSL, NEL, CCL, DTL, TEL + LRTs (BPL, SLRT, PLRT) + the
+// EWL Changi branch (CGL).
+const STATION_LINES = {
+  // North-South Line (NSL) — Jurong East ↔ Marina South Pier
+  'jurong east':         ['NSL', 'EWL'],
+  'bukit batok':         ['NSL'],
+  'bukit gombak':        ['NSL'],
+  'choa chu kang':       ['NSL', 'BPL'],
+  'yew tee':             ['NSL'],
+  'kranji':              ['NSL'],
+  'marsiling':           ['NSL'],
+  'woodlands':           ['NSL', 'TEL'],
+  'admiralty':           ['NSL'],
+  'sembawang':           ['NSL'],
+  'canberra':            ['NSL'],
+  'yishun':              ['NSL'],
+  'khatib':              ['NSL'],
+  'yio chu kang':        ['NSL'],
+  'ang mo kio':          ['NSL', 'CRL'],
+  'bishan':              ['NSL', 'CCL'],
+  'braddell':            ['NSL'],
+  'toa payoh':           ['NSL'],
+  'novena':              ['NSL'],
+  'newton':              ['NSL', 'DTL'],
+  'orchard':             ['NSL', 'TEL'],
+  'somerset':            ['NSL'],
+  'dhoby ghaut':         ['NSL', 'NEL', 'CCL'],
+  'city hall':           ['NSL', 'EWL'],
+  'raffles place':       ['NSL', 'EWL'],
+  'marina bay':          ['NSL', 'CCL', 'TEL'],
+  'marina south pier':   ['NSL'],
+  // East-West Line (EWL) — Tuas Link ↔ Pasir Ris
+  'tuas link':           ['EWL'],
+  'tuas west road':      ['EWL'],
+  'tuas crescent':       ['EWL'],
+  'gul circle':          ['EWL'],
+  'joo koon':            ['EWL'],
+  'pioneer':             ['EWL'],
+  'boon lay':            ['EWL'],
+  'lakeside':            ['EWL'],
+  'chinese garden':      ['EWL', 'JRL'],
+  'clementi':            ['EWL'],
+  'dover':               ['EWL'],
+  'buona vista':         ['EWL', 'CCL'],
+  'commonwealth':        ['EWL'],
+  'queenstown':          ['EWL'],
+  'redhill':             ['EWL'],
+  'tiong bahru':         ['EWL'],
+  'outram park':         ['EWL', 'NEL', 'TEL'],
+  'tanjong pagar':       ['EWL'],
+  'bugis':               ['EWL', 'DTL'],
+  'lavender':            ['EWL'],
+  'kallang':             ['EWL'],
+  'aljunied':            ['EWL'],
+  'paya lebar':          ['EWL', 'CCL'],
+  'eunos':               ['EWL'],
+  'kembangan':           ['EWL'],
+  'bedok':               ['EWL'],
+  'tanah merah':         ['EWL', 'CGL'],
+  'simei':               ['EWL'],
+  'tampines':            ['EWL', 'DTL'],
+  'pasir ris':           ['EWL', 'CRL'],
+  'expo':                ['EWL', 'DTL', 'CGL'],
+  'changi airport':      ['EWL', 'CGL'],
+  // North-East Line (NEL) — HarbourFront ↔ Punggol
+  'harbourfront':        ['NEL', 'CCL'],
+  'outram park':         ['EWL', 'NEL', 'TEL'],   // dup-overwrite ok
+  'chinatown':           ['NEL', 'DTL'],
+  'clarke quay':         ['NEL'],
+  'dhoby ghaut':         ['NSL', 'NEL', 'CCL'],
+  'little india':        ['NEL', 'DTL'],
+  'farrer park':         ['NEL'],
+  'boon keng':           ['NEL'],
+  'potong pasir':        ['NEL'],
+  'woodleigh':           ['NEL'],
+  'serangoon':           ['NEL', 'CCL'],
+  'kovan':               ['NEL'],
+  'hougang':             ['NEL', 'CRL'],
+  'buangkok':            ['NEL'],
+  'sengkang':            ['NEL', 'SLRT'],
+  'punggol':             ['NEL', 'PLRT'],
+  'punggol coast':       ['NEL'],
+  // Circle Line (CCL) — Dhoby Ghaut ↔ HarbourFront
+  'bras basah':          ['CCL'],
+  'esplanade':           ['CCL'],
+  'promenade':           ['CCL', 'DTL'],
+  'nicoll highway':      ['CCL'],
+  'stadium':             ['CCL'],
+  'mountbatten':         ['CCL'],
+  'dakota':              ['CCL'],
+  'macpherson':          ['CCL', 'DTL'],
+  'tai seng':            ['CCL'],
+  'bartley':             ['CCL'],
+  'lorong chuan':        ['CCL'],
+  'marymount':           ['CCL'],
+  'caldecott':           ['CCL', 'TEL'],
+  'botanic gardens':     ['CCL', 'DTL'],
+  'farrer road':         ['CCL'],
+  'holland village':     ['CCL'],
+  'one-north':           ['CCL'],
+  'kent ridge':          ['CCL'],
+  'haw par villa':       ['CCL'],
+  'pasir panjang':       ['CCL'],
+  'labrador park':       ['CCL'],
+  'telok blangah':       ['CCL'],
+  'keppel':              ['CCL'],
+  'cantonment':          ['CCL'],
+  'prince edward road':  ['CCL'],
+  'bayfront':            ['CCL', 'DTL'],
+  // Downtown Line (DTL) — Bukit Panjang ↔ Expo
+  'bukit panjang':       ['DTL', 'BPL'],
+  'cashew':              ['DTL'],
+  'hillview':            ['DTL'],
+  'beauty world':        ['DTL'],
+  'king albert park':    ['DTL'],
+  'sixth avenue':        ['DTL'],
+  'tan kah kee':         ['DTL'],
+  'stevens':             ['DTL', 'TEL'],
+  'rochor':              ['DTL'],
+  'downtown':            ['DTL'],
+  'telok ayer':          ['DTL'],
+  'fort canning':        ['DTL'],
+  'bencoolen':           ['DTL'],
+  'jalan besar':         ['DTL'],
+  'bendemeer':           ['DTL'],
+  'geylang bahru':       ['DTL'],
+  'mattar':              ['DTL'],
+  'ubi':                 ['DTL'],
+  'kaki bukit':          ['DTL'],
+  'bedok north':         ['DTL'],
+  'bedok reservoir':     ['DTL'],
+  'tampines west':       ['DTL'],
+  'tampines east':       ['DTL'],
+  'upper changi':        ['DTL'],
+  // Thomson-East Coast Line (TEL) — Woodlands North ↔ Bayshore
+  'woodlands north':     ['TEL', 'CRL'],
+  'woodlands south':     ['TEL'],
+  'springleaf':          ['TEL'],
+  'lentor':              ['TEL'],
+  'mayflower':           ['TEL'],
+  'bright hill':         ['TEL', 'CRL'],
+  'upper thomson':       ['TEL'],
+  'napier':              ['TEL'],
+  'orchard boulevard':   ['TEL'],
+  'great world':         ['TEL'],
+  'havelock':            ['TEL'],
+  'maxwell':             ['TEL'],
+  'shenton way':         ['TEL'],
+  'gardens by the bay':  ['TEL'],
+  'tanjong rhu':         ['TEL'],
+  'katong park':         ['TEL'],
+  'tanjong katong':      ['TEL'],
+  'marine parade':       ['TEL'],
+  'marine terrace':      ['TEL'],
+  'siglap':              ['TEL'],
+  'bayshore':            ['TEL']
+};
+
+// Normalise an arbitrary station name to the lookup key. Strips
+// trailing "MRT", "LRT", "Station", "Stn", parens, line-code suffixes
+// like "(CC27)" — all the ways Google Places labels SG stations.
+function normaliseStationName(raw) {
+  return String(raw || '')
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, '')                   // drop "(CC27 / NE1)" etc.
+    .replace(/\b(?:mrt|lrt|station|stn)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Public lookup: returns array of line codes (in display order) for
+// a given station name, or [] when the station isn't in the table.
+function linesForStation(stationName) {
+  const key = normaliseStationName(stationName);
+  return STATION_LINES[key] || [];
+}
+
 module.exports = {
   LINES,
   LINES_BY_CODE,
   LINE_SYNONYMS,
+  STATION_LINES,
   affectedLines,
   parseStatusByLine,
-  networkHeadwayRange
+  networkHeadwayRange,
+  normaliseStationName,
+  linesForStation
 };

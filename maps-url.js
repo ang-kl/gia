@@ -164,20 +164,30 @@ function buildMapHashUrl(venues, opts = {}) {
   //      the webhookDomain branch was unguarded).
   const buildSlim = (vs) => vs
     .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng))
-    .map((v) => ({
-      placeId: v.placeId || v.id || '',
-      name: v.name || '',
-      area: v.area || v.formattedAddress || '',
-      lat: v.lat,
-      lng: v.lng,
-      vibe: v.vibe || '',
-      // v0.59.3+: prefer caller-supplied url. Lets coordinate-only markers
-      // (traffic incidents, bus stops without a placeId) skip the
-      // name-only Google search fallback in googleMapsUrl, which would
-      // otherwise text-search "Accident" / "Roadwork" / a stop description
-      // instead of opening the actual coordinate pin.
-      url: v.url || googleMapsUrl(v) || ''
-    }));
+    .map((v) => {
+      const slim = {
+        placeId: v.placeId || v.id || '',
+        name: v.name || '',
+        area: v.area || v.formattedAddress || '',
+        lat: v.lat,
+        lng: v.lng,
+        vibe: v.vibe || '',
+        // v0.59.3+: prefer caller-supplied url. Lets coordinate-only markers
+        // (traffic incidents, bus stops without a placeId) skip the
+        // name-only Google search fallback in googleMapsUrl, which would
+        // otherwise text-search "Accident" / "Roadwork" / a stop description
+        // instead of opening the actual coordinate pin.
+        url: v.url || googleMapsUrl(v) || ''
+      };
+      // v0.60.76 — preserve arrivals + lines on the slim payload so
+      // the /app/map InfoWindow can render bus-stop arrival rows
+      // (public/app.js:159-176) and MRT station line emojis. Prior
+      // builds dropped both, which is why bus-stop popups rendered
+      // blank and MRT popups had no line indicator.
+      if (Array.isArray(v.arrivals) && v.arrivals.length) slim.arrivals = v.arrivals;
+      if (Array.isArray(v.lines) && v.lines.length)       slim.lines    = v.lines;
+      return slim;
+    });
   const encode = (slim) => Buffer.from(JSON.stringify(slim), 'utf8')
     .toString('base64')
     .replace(/\+/g, '-')
