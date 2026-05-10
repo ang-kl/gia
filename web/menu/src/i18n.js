@@ -41,6 +41,10 @@ const STRINGS = {
   'tile.location.label':   { en: 'Location',    fr: 'Lieu' },
   'tile.drive.label':      { en: 'Drive',       fr: 'Conduire' },
   'tile.incidents.label':  { en: 'Incidents',   fr: 'Incidents' },
+  // v0.60.62 — direct hub access to /transport bus subcommands
+  // (previously only reachable via /transport → bus submenu).
+  'tile.busNearest.label': { en: 'Bus stops',   fr: 'Arrêts de bus' },
+  'tile.busRoute.label':   { en: 'Plan route',  fr: 'Itinéraire' },
 
   // ----- Always-visible Train panel (v0.60.55) -----
   // Replaced the v0.60.54 Train tile. Status fetched at hub mount
@@ -97,6 +101,27 @@ export function getActiveLocale() {
     } catch { /* private mode / quota — fall through */ }
   }
   return detectFromTelegram() || detectFromNavigator() || 'en';
+}
+
+// v0.60.62 — flip the active locale from inside the menu hub.
+// Mirrors the cuisine TMA's setActiveLocale: writes localStorage,
+// fires the gia:locale CustomEvent (so every subscribed useLocale
+// re-renders), and best-effort POSTs to /api/cuisine/user-language
+// so the chat-side /language preference syncs across sessions.
+export function setActiveLocale(lang) {
+  if (!SUPPORTED_LOCALES.includes(lang)) return;
+  try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+  try {
+    const initData = window.Telegram?.WebApp?.initData || '';
+    if (initData) {
+      fetch('/api/cuisine/user-language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData, lang })
+      }).catch(() => { /* silent — local toggle still works */ });
+    }
+  } catch { /* noop */ }
 }
 
 export function useLocale() {

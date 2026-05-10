@@ -54,12 +54,15 @@ const STRINGS = {
   // v0.60.56 — external "tour" URL pinning every centre with coords.
   'btn.openTourGoogleMaps':  { en: '🌐 {n} pins in Google Maps',
                                fr: '🌐 {n} épingles sur Google Maps' },
-  // v0.60.61 — paginated tour-URL chunks. Up to 2 buttons, each
-  // covering up to 11 pins (the Google Maps URL ceiling). Format:
-  // "📍 1–11 of 22" / "📍 12–22 of 22" — the 📍 stands in for
-  // "Google Maps" without using the protected wordmark.
-  'btn.openTourGoogleMapsRange': { en: '📍 {from}–{to} of {total}',
-                                   fr: '📍 {from}–{to} sur {total}' },
+  // v0.60.61 — paginated tour-URL chunks. v0.60.62 — bumped to 3
+  // chunks (covers regions with 23-33 centres). Label tightened to
+  // drop the "of {total}" suffix because grid-cols-4 squeezes each
+  // cell to ~80 px on phones — and the same {total} is already
+  // shown one line above as "📍 N/N centres mapped".
+  // 📍 stands in for the Google Maps wordmark without claiming the
+  // protected brand asset.
+  'btn.openTourGoogleMapsRange': { en: '📍 {from}–{to}',
+                                   fr: '📍 {from}–{to}' },
   'map.mappedRatio':         { en: '📍 {mapped}/{total} centres mapped',
                                fr: '📍 {mapped}/{total} centres cartographiés' },
 
