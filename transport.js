@@ -365,37 +365,46 @@ function networkCrowdSummary(crowdByCode) {
 // Message is pre-formatted by LTA, e.g. "(15/4)18:30 Accident on PIE..."
 const TRAFFIC_INCIDENTS_URL = `${LTA_BASE}/TrafficIncidents`;
 
-// v0.60.72 — LTA's two dedicated SG ⟷ JB checkpoint endpoints.
-// Each returns one or two CCTV stills (CameraID + ImageLink + lat/lng).
-// Used by /causeway to surface live border-crossing congestion.
-const WOODLANDS_TRAFFIC_URL = `${LTA_BASE}/WoodlandsTraffic`;
-const SECOND_LINK_TRAFFIC_URL = `${LTA_BASE}/2ndLinkTraffic`;
+// v0.60.72 — Live SG ⟷ JB checkpoint cameras. v0.60.73: switched
+// from the dedicated /WoodlandsTraffic + /2ndLinkTraffic endpoints
+// (which 404'd in production — likely deprecated by LTA's revamp,
+// per Human Lead 2026-05-10) to /Traffic-Imagesv2 + a camera-ID
+// allow-list. Traffic-Imagesv2 returns ~80 cameras across SG; we
+// keep only the four checkpoint ones (Woodlands inbound + outbound,
+// Tuas 2nd Link inbound + outbound).
+const TRAFFIC_IMAGES_URL = `${LTA_BASE}/Traffic-Imagesv2`;
+
+const CHECKPOINT_CAMERAS = {
+  '2701': 'Woodlands Causeway',
+  '2702': 'Woodlands Causeway',
+  '4709': 'Tuas 2nd Link',
+  '4710': 'Tuas 2nd Link'
+};
 
 async function fetchCheckpointTraffic() {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
-  const sources = [
-    { url: WOODLANDS_TRAFFIC_URL,   label: 'Woodlands Causeway' },
-    { url: SECOND_LINK_TRAFFIC_URL, label: 'Tuas 2nd Link' }
-  ];
   const out = [];
-  await Promise.all(sources.map(async ({ url, label }) => {
-    try {
-      const { data } = await axios.get(url, { headers: authHeaders(), timeout: 6000 });
-      const rows = data?.value ?? [];
-      for (const r of rows) {
-        if (!r.ImageLink) continue;
-        out.push({
-          label,
-          cameraId: String(r.CameraID || ''),
-          imageUrl: String(r.ImageLink),
-          lat: Number(r.Latitude),
-          lng: Number(r.Longitude)
-        });
-      }
-    } catch (err) {
-      console.error(`[Transport] checkpoint ${label} fetch failed:`, err.message);
+  try {
+    const { data } = await axios.get(TRAFFIC_IMAGES_URL, {
+      headers: authHeaders(),
+      timeout: 6000
+    });
+    const rows = data?.value ?? [];
+    for (const r of rows) {
+      const id = String(r.CameraID || '');
+      const label = CHECKPOINT_CAMERAS[id];
+      if (!label || !r.ImageLink) continue;
+      out.push({
+        label,
+        cameraId: id,
+        imageUrl: String(r.ImageLink),
+        lat: Number(r.Latitude),
+        lng: Number(r.Longitude)
+      });
     }
-  }));
+  } catch (err) {
+    console.error('[Transport] Traffic-Imagesv2 fetch failed:', err.message);
+  }
   return out;
 }
 

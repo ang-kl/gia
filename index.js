@@ -2502,9 +2502,21 @@ async function runTransportTrain(chatId, lang = 'en') {
     if (mrtForMap.length) {
       try {
         const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
+        // v0.60.73 — set v.url per station so the /app/map InfoWindow's
+        // "Open 📍 in a map ↗" link lands precisely on the station's
+        // place sheet in Google Maps. Without it, openMapsForVenue
+        // falls through to a bare-name search ("Telok Blangah") which
+        // pins the neighbourhood instead of the MRT station — and the
+        // station's place sheet is what carries the live transit
+        // arrival panel the operator wants.
         const slim = mrtForMap
           .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
-          .map((s) => ({ ...s, name: s.name, placeId: s.placeId || '' }));
+          .map((s) => ({
+            ...s,
+            name: s.name,
+            placeId: s.placeId || '',
+            url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`
+          }));
         if (webhookDomain) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (mapUrl) {

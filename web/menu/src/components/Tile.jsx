@@ -18,20 +18,33 @@ import React, { useState } from 'react';
 // →text-base, tighten padding p-2→p-1.5. Tiles are now 170×80 px —
 // roughly half the previous height. Vertical icon-top + label-bottom
 // layout preserved per AskUserQuestion 2026-05-10.
+//
+// v0.60.73 — operator reported tiles still rendering tall in v0.60.71.
+// Replace the `h-20` Tailwind class (height:5rem via stylesheet) with
+// an inline style: telegram WebView occasionally caches the prior
+// CSS bundle even after a JS update, and inline style wins regardless
+// (no specificity battle, no purge risk). Also shrink the box to
+// 56 px so the hub is unmistakably compact, and bump the icon to
+// w-6 h-6 (24 px) so it still reads at a glance against the smaller
+// box. Add explicit minHeight:0 to defeat any UA-default min-height
+// on <button> in nested grid contexts.
+const TILE_STYLE = { height: '56px', minHeight: 0 };
+
 export default function Tile({ icon, iconImage, label, onClick }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-1.5 h-20 active:bg-tg-accent active:text-tg-accent-text transition"
+      style={TILE_STYLE}
+      className="flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-1 active:bg-tg-accent active:text-tg-accent-text transition"
     >
       {showImage
         ? (
           <img
             src={iconImage}
             alt=""
-            className="w-5 h-5 object-contain"
+            className="w-6 h-6 object-contain"
             loading="lazy"
             onError={() => setImgFailed(true)}
           />
