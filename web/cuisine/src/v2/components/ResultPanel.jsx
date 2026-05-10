@@ -38,7 +38,12 @@ export default function ResultPanel({
   // server instead of wrapping client-side. exhausted=true (set when
   // the dedup pool has been fully recycled server-side) suppresses the
   // server fetch and falls back to the wrap-to-1 recycle behaviour.
-  onLastPageNext, exhausted
+  onLastPageNext, exhausted,
+  // v0.60.82 — server's AND/OR combo metadata. When attempted but not
+  // matched (multi-cuisine search where no Google result combined the
+  // cuisines), render a banner above the result list explaining the
+  // fallback. { attempted: bool, matched: bool } or null.
+  comboInfo
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -193,6 +198,20 @@ export default function ResultPanel({
         <div className="text-xs text-tg-hint px-2 py-4">No matches yet — pick a cuisine or use 💬 Tell me above.</div>
       ) : (
         <div className="flex flex-col gap-1.5">
+          {/* v0.60.82 — combo fallback banner. When the user picked 2+
+              cuisines and the server's AND-combo phase returned 0
+              results, the OR-interleaved fallback ran. Surface that
+              honestly so the user knows the results aren't a single
+              fusion eatery — they're separate Italian + Cantonese (etc.)
+              cards. text-tg-text is theme-respecting (operator's "Black"
+              renders black on iOS light, white on dark). */}
+          {comboInfo?.attempted && !comboInfo?.matched && (
+            <div className="text-[12px] font-medium text-tg-text px-2 pt-1 pb-1 leading-snug">
+              {lang === 'fr'
+                ? "Aucune combinaison exacte de cuisines trouvée. Affichage d'établissements distincts pour chaque cuisine sélectionnée."
+                : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
+            </div>
+          )}
           {pagedVenues.map((v, i) => (
             <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} />
           ))}
