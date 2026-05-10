@@ -16,7 +16,10 @@ function formatStalls(centre, lang) {
     bits.push(tn('stalls.count', lang, { n: centre.stalls }));
   }
   if (centre.status) {
-    const key = `stalls.status.${centre.status.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    const slug = centre.status.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const key = `stalls.status.${slug}`;
     const localised = t(key, lang);
     bits.push(localised === key ? centre.status : localised);
   }

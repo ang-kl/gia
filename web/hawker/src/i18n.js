@@ -90,9 +90,12 @@ const STRINGS = {
   // Status localisations — keyed by lowercased+normalised value from
   // the dataset. Unknown status values fall through to the raw label
   // (the formatStalls helper does the lookup-or-passthrough).
-  'stalls.status.existing':           { en: 'Operating',          fr: 'Opérationnel' },
-  'stalls.status.under_construction': { en: 'Under construction', fr: 'En construction' },
-  'stalls.status.proposed':           { en: 'Proposed',           fr: 'Proposé' }
+  'stalls.status.existing':              { en: 'Operating',          fr: 'Opérationnel' },
+  'stalls.status.existing_new':          { en: 'New',                fr: 'Nouveau' },
+  'stalls.status.existing_replacement':  { en: 'Replaced',           fr: 'Reconstruit' },
+  'stalls.status.interim_centre':        { en: 'Interim',            fr: 'Centre temporaire' },
+  'stalls.status.under_construction':    { en: 'Under construction', fr: 'En construction' },
+  'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' }
 };
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }
