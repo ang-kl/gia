@@ -261,7 +261,11 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus }) {
       )}
       <div
         ref={containerRef}
-        style={{ height: '480px', width: '100%' }}
+        // v0.60.93 — match Cuisine MapPanel responsive height per
+        // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
+        // 420 px; minHeight 240 px so the map remains usable on tiny
+        // viewports. No tablet bump yet — defer until needed.
+        style={{ height: 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label="Map of MRT and LRT stations in Singapore"
       />
       {stations && (

@@ -29,6 +29,18 @@ export default function App() {
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
   const [mapView, setMapView] = useState('png');
+  // v0.60.93 — scroll FAB state machine mirroring the cuisine TMA's
+  // `scrolledPastHero` pattern. Bottom-right FAB shows ↓ when the
+  // user is at the top (map below the fold), flips to ↑ once the
+  // user has scrolled past the hero. Same threshold heuristic
+  // (240 px) as the Cuisine TMA modulo the smaller hero height
+  // here — covers status banner + view toggle row.
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolledPastHero(window.scrollY > 240);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     fetch('/api/transport/status?initData=' + encodeURIComponent(initData()))
@@ -122,6 +134,21 @@ export default function App() {
       </footer>
 
       <BackFab />
+
+      {/* v0.60.93 — bottom-right scroll FAB. Mirrors Cuisine TMA's
+          ↑ top button (same inverse theme colour as BackFab so the
+          pair reads as a matched set). ↓ scrolls one viewport down
+          when above the hero threshold; ↑ scrolls to top otherwise. */}
+      <button
+        type="button"
+        onClick={() => window.scrollTo({
+          top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+          behavior: 'smooth'
+        })}
+        aria-label={scrolledPastHero ? 'Back to top' : 'Scroll down'}
+        style={{ backgroundColor: 'var(--tg-text)', color: 'var(--tg-bg)' }}
+        className="fixed bottom-4 right-4 w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95 z-50"
+      ><span aria-hidden="true">{scrolledPastHero ? '↑' : '↓'}</span></button>
     </div>
   );
 }
