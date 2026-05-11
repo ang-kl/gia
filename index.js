@@ -2457,28 +2457,14 @@ async function runTransportTrain(chatId, lang = 'en') {
     } else if (!cachedLoc) {
       lines.push('', t('transport.train.noLocation', lang));
     }
-    if (crowdMap) {
-      const summary = transport.networkCrowdSummary(crowdMap);
-      if (summary) {
-        // v0.60.88 — surface CROWDED counts + which lines (instead of
-        // the previous "% at low density"). When no line is crowded
-        // (overall=low) the low-density message stays.
-        const linesStr = (summary.crowdedLines || []).join(', ') || '—';
-        let networkLine;
-        if (summary.overall === 'low') {
-          networkLine = tn('transport.train.network.low', lang, { total: summary.total });
-        } else if (summary.overall === 'medium') {
-          networkLine = tn('transport.train.network.medium', lang, {
-            medium: summary.medium, total: summary.total, high: summary.high, lines: linesStr
-          });
-        } else {
-          networkLine = tn('transport.train.network.high', lang, {
-            high: summary.high, total: summary.total, medium: summary.medium, lines: linesStr
-          });
-        }
-        lines.push('', networkLine);
-      }
-    }
+    // v0.60.89 — network-level crowd summary line dropped per operator
+    // 2026-05-11. "Network is uncrowded — 93% of 184 platforms at low
+    // density" was confusing and redundant with the LTA service status
+    // line at the top of the reply. Per-station crowd badges (in the
+    // "Nearest 3 stations" block above) survive — they're sourced
+    // directly from the live PCDRealTime fetch and carry the actually-
+    // actionable info. transport.networkCrowdSummary helper is kept
+    // in case future surfaces want it; just no longer rendered here.
 
     // v0.51.0: per-line breakdown + Hitachi-style TMA + engineering closures.
     try {
