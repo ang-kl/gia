@@ -129,6 +129,12 @@ export default function MrtMapPanel() {
     mapRef.current = new window.google.maps.Map(containerRef.current, {
       center: SG_CENTROID,
       zoom: SG_DEFAULT_ZOOM,
+      // v0.60.86 — mapId required by AdvancedMarkerElement since 2024.
+      // Without it Google throws the "This page can't load Google
+      // Maps correctly" auth overlay (operator screenshot 2026-05-11)
+      // instead of falling back to legacy markers. Mirrors the value
+      // used in web/hawker/src/components/HawkerMapPanel.jsx:115.
+      mapId: 'DEMO_MAP_ID',
       disableDefaultUI: false,
       clickableIcons: false,
       gestureHandling: 'greedy',
