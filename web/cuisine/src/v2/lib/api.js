@@ -34,8 +34,11 @@ export async function fetchCatalogue() {
 // descriptions / generative summaries in the active locale. Server
 // also honours the Redis /language pref so this is purely a fast path
 // when the TMA already knows.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang }) {
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region, lang });
+// v0.60.117: resetSeen wipes this chat's accumulating exclusion +
+// query-variant index server-side ("↺ Start over" on the terminal note)
+// so the next results begin fresh from the first ~60 again.
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen }) {
+  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true });
 }
 
 export async function nlQuery({ text, lat, lng, filters, lang }) {
