@@ -6083,6 +6083,29 @@ bot.on('message', async (msg) => {
     } catch (err) {
       console.warn('[free-text] disambig pre-step failed (continuing with raw text):', err.message);
     }
+    // v0.60.128 — "misrepresented dish" note. If the typed term names a
+    // dish from data/Misrepresented Dish Dessert Drink.MD (e.g. "ramen",
+    // "carbonara", "goulash dumplings") and R.E.D didn't already resolve
+    // it (no double disclosure), surface the "often assumed X, but
+    // actually Y" context line before the results. Informational only —
+    // it doesn't change the search. Distinct from /s.
+    if (!disambigDisclosureFT) {
+      try {
+        const { lookupMisrepresentedDish } = require('./misrepresented-dishes');
+        const mr = lookupMisrepresentedDish(text);
+        if (mr) {
+          const { tn: trnMr } = require('./i18n');
+          const escH = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          await safeSend(
+            msg.chat.id,
+            trnMr('misrep.note', userLang, { name: escH(mr.name), note: escH(mr.note) }),
+            { parse_mode: 'HTML', disable_web_page_preview: true }
+          );
+        }
+      } catch (err) {
+        console.warn('[free-text] misrepresented-dish note failed (continuing):', err.message);
+      }
+    }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
@@ -7908,6 +7931,22 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] disambig pre-step failed (continuing):', err.message);
         }
+        // v0.60.128 — "misrepresented dish" note for the Cuisine TMA
+        // "Tell me" free-text box. When the typed text names a dish from
+        // data/Misrepresented Dish Dessert Drink.MD and R.E.D didn't
+        // itself resolve the term, forward an informational note that
+        // the TMA renders above the result list ("often assumed X, but
+        // actually Y"). Distinct from /s and from R.E.D's disambig.
+        let misrepNote = null;
+        try {
+          const ftRaw = String(req.body?.freeText || '').trim();
+          if (ftRaw && !chipDisambig) {
+            const { lookupMisrepresentedDish } = require('./misrepresented-dishes');
+            misrepNote = lookupMisrepresentedDish(ftRaw);
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] misrepresented-dish lookup failed (continuing):', err.message);
+        }
         // v0.59.49 — search-query tightening for cuisines whose
         // chip-label has weak food-name signal in Places. The chip
         // shows the user's chosen label (e.g. "New Zealand"), but the
@@ -8591,7 +8630,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client (poolCount=${poolCount} exhausted=${dedupExhausted})`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still

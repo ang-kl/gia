@@ -56,6 +56,13 @@ const STRINGS = {
   // doesn't wrap. Operator-specified copy 2026-05-11.
   'freetext.divider':          { en: '⇩── Eatery matches below; similar dishes/cuisines ── ⇩\n⇩── not exact [{dish}] ── ⇩',
                                  fr: '⇩── Établissements proches ci-dessous (plats/cuisines voisins) ── ⇩\n⇩── pas exactement [{dish}] ── ⇩' },
+  // v0.60.128 — "misrepresented dish" note. Surfaced on the free-text
+  // dish-search paths (chat + Cuisine TMA "Tell me" box) when the typed
+  // term names a dish from data/Misrepresented Dish Dessert Drink.MD.
+  // Informational only; the {note} text stays English (source data is
+  // English-only). Caller HTML-escapes {name} / {note}.
+  'misrep.note':               { en: 'ℹ️ <b>{name}</b> — {note}',
+                                 fr: 'ℹ️ <b>{name}</b> — {note}' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
