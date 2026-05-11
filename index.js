@@ -697,18 +697,29 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // Preserve hidden-gems criteria-met annotation (v0.58.22) when present —
   // it's specific to /hidden's deterministic path and shouldn't appear
   // on other flows.
-  const t3Body = t3Blocks.map((block, i) => {
+  const t3Annotated = t3Blocks.map((block, i) => {
     const p = picks[i];
     if (Array.isArray(p.criteriaMet) && p.criteriaMet.length) {
       const why = (p.whyAGem && typeof p.whyAGem === 'string') ? ` — ${p.whyAGem}` : '';
       return `${block}\n🎯 [${p.criteriaMet.join(', ')}]${why}`;
     }
     return block;
+  });
   // v0.58.51: two blank lines between picks (single newline between
   // rows within a pick stays \n). Header still uses one blank line.
   // Skipped entirely when picks.length === 1 — the single block is
   // already its own message.
-  }).join(picks.length > 1 ? '\n\n\n' : '\n\n');
+  const blockSep = picks.length > 1 ? '\n\n\n' : '\n\n';
+  // v0.60.123 — optional section divider: callers (currently the
+  // free-text dish search) can pass opts.dividerAfter (N) +
+  // opts.dividerText to split the list into "above the line" (the
+  // strong dish/cuisine matches) and "below the line" (looser Google
+  // text matches). No-op for every other caller.
+  const dAfter = Number.isInteger(opts.dividerAfter) ? opts.dividerAfter : 0;
+  const dText = (typeof opts.dividerText === 'string' && opts.dividerText.trim()) ? opts.dividerText.trim() : '';
+  const t3Body = (dText && dAfter > 0 && dAfter < t3Annotated.length)
+    ? `${t3Annotated.slice(0, dAfter).join(blockSep)}${blockSep}${dText}${blockSep}${t3Annotated.slice(dAfter).join(blockSep)}`
+    : t3Annotated.join(blockSep);
   // v0.60.108 — operator 2026-05-11: header must read "Soleat", never
   // "Gia's" (the persona name was retired in the rebrand).
   const headerLine = dpLang === 'fr'
@@ -6032,6 +6043,8 @@ bot.on('message', async (msg) => {
     // the user can one-tap pivot.
     let resolvedText = text;
     let disambigDisclosureFT = null;
+    let ftCuisineOut = null;       // v0.60.123 — passed to runFreeTextSearch for ranking + divider
+    let ftDishLabelOut = null;
     try {
       const gc = require('./gemini-client');
       const sc = require('./search-conversation');
@@ -6056,6 +6069,8 @@ bot.on('message', async (msg) => {
         }
         if (disambig.searchSpec?.searchPhrase) {
           resolvedText = disambig.searchSpec.searchPhrase;
+          ftCuisineOut = disambig.chosen?.cuisine || null;
+          ftDishLabelOut = disambig.chosen?.label || null;
           disambigDisclosureFT = disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
           if (disambig.searchSpec.stickyKey) {
             try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
@@ -6068,7 +6083,7 @@ bot.on('message', async (msg) => {
     } catch (err) {
       console.warn('[free-text] disambig pre-step failed (continuing with raw text):', err.message);
     }
-    await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang });
+    await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
   }
@@ -6115,7 +6130,13 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
   // v0.58.55: opts.lang ('en' | 'fr') threads through deliverPicks so
   // chat replies render in the user's locale. Caller (msg handler)
   // should pass msg.from?.language_code mapped to a supported locale.
+  // v0.60.123: opts.cuisine / opts.dishLabel — when a R.E.D
+  // disambiguation resolved the query (e.g. "goulash dumplings" →
+  // "Czech guláš with bread dumplings", "European"), they drive the
+  // relevance ranking + the above/below-the-line divider.
   const ftLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
+  const ftCuisine = (typeof opts.cuisine === 'string' && opts.cuisine.trim()) ? opts.cuisine.trim() : null;
+  const ftDishLabel = (typeof opts.dishLabel === 'string' && opts.dishLabel.trim()) ? opts.dishLabel.trim() : null;
   try {
     if (await isProcessing(redis, chatId)) {
       await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
@@ -6135,45 +6156,94 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
     try {
       const pipeline = require('./pipeline');
       const { filterFreeTextResults } = require('./free-text-search');
+      // v0.60.123 — when a R.E.D disambiguation resolved this query,
+      // `text` is an already-anchored phrase ("Czech guláš with bread
+      // dumplings restaurant Singapore") — feed it to Places verbatim
+      // via queryOverride instead of letting discover() append
+      // " cuisine restaurant" on top of it.
+      const disambiguated = !!(ftCuisine || ftDishLabel);
       const candidates = await pipeline.discover({
         lat: cached.lat,
         lng: cached.lng,
         cuisines: [text],
         radius: 50000,
-        maxResults: 12,
+        maxResults: 15,                                    // v0.60.123 — more candidates for the ≥7-result list
         regionCode: 'SG',
         lang: ftLang,                                      // v0.59.0
         // v0.59.41 (Codex P2 PR #246): the user's literal query is
         // typically a dish name; capping at 2 per dish-tail would
         // drop nearly every match. Disable for free-text only.
-        applyDishTailThrottle: false
+        applyDishTailThrottle: false,
+        queryOverride: disambiguated ? text : undefined    // v0.60.123
       });
-      const venues = filterFreeTextResults(candidates, cached);
+      let venues = filterFreeTextResults(candidates, cached, { limit: 20 });
       if (!venues.length) {
-        await safeSend(chatId, trnBot('bot.noresults', ftLang, { q: text }));
+        await safeSend(chatId, trnBot('bot.noresults', ftLang, { q: ftDishLabel || text }));
         return;
       }
-      // v0.58.52: enrich each venue with TRANSIT + DRIVE minutes so
-      // deliverPicks's T1/T3 templates can render the 🚊/🚘 row.
-      // Best-effort: failures don't block delivery.
+      // v0.60.123 — rank: dish/cuisine matches first (the "actually
+      // serves it" tier), then a divider, then the looser Google
+      // text-matches. Within each tier: strongest match → best rating
+      // → nearest → further. Operator 2026-05-11: don't drop anything,
+      // just sort exact → possibilities, ~7+ shown.
+      let dividerAfter; let dividerText;
+      const stripD = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      const rOf = (v) => (Number.isFinite(v?.rating) ? v.rating : -1);
+      const dOf = (v) => (Number.isFinite(v?.distanceM) ? v.distanceM : Infinity);
+      if (disambiguated) {
+        const { getDishKeywords } = require('./cuisine-dish-keywords');
+        const STOP = new Set(['with', 'and', 'the', 'for', 'restaurant', 'singapore', 'cuisine', 'near', 'best', 'authentic', 'style', 'dish', 'food']);
+        const kw = new Set();
+        if (ftCuisine) kw.add(stripD(ftCuisine));
+        if (ftCuisine) for (const k of (getDishKeywords(ftCuisine) || [])) { const s = stripD(k).trim(); if (s) kw.add(s); }
+        if (ftDishLabel) for (const w of stripD(ftDishLabel).split(/[^a-z0-9]+/)) { if (w && w.length >= 4 && !STOP.has(w)) kw.add(w); }
+        const cuisineRestType = ftCuisine ? `${stripD(ftCuisine).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}_restaurant` : '';
+        const scoreOf = (v) => {
+          const nameH = stripD(v?.name);
+          const otherH = stripD([v?.area, v?.primaryType, v?.googleSummary?.overview,
+            Array.isArray(v?.reviews) ? v.reviews.map((r) => r?.text || '').join(' ') : ''].join(' '));
+          let s = 0;
+          for (const k of kw) { if (!k) continue; if (nameH.includes(k)) s += 2; else if (otherH.includes(k)) s += 1; }
+          if (cuisineRestType && v?.primaryType === cuisineRestType) s += 2;
+          return s;
+        };
+        const scored = venues.map((v) => ({ v, s: scoreOf(v) }));
+        const above = scored.filter((x) => x.s > 0)
+          .sort((a, b) => (b.s - a.s) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const below = scored.filter((x) => x.s === 0)
+          .sort((a, b) => (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        venues = [...above, ...below].slice(0, 8);
+        if (above.length > 0 && above.length < venues.length) {
+          dividerAfter = above.length;
+          const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
+          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
+        }
+      } else {
+        // Plain free text (no disambiguation): no relevance signal —
+        // keep the distance order filterFreeTextResults produced, just
+        // show up to 8 instead of 5.
+        venues = venues.slice(0, 8);
+      }
+      // v0.58.52: enrich the (now ≤8) set with TRANSIT + DRIVE minutes
+      // + BestTime footfall so deliverPicks's cards render the 🚊/🚘
+      // + 👥 rows. Best-effort: failures don't block delivery.
       try {
         const { enrichTravelTimes } = require('./travel-times');
         await enrichTravelTimes(cached.lat, cached.lng, venues);
       } catch (err) {
         console.warn('[free-text] travel-times enrichment failed:', err.message);
       }
-      // v0.59.0: real per-venue footfall via BestTime (best-effort,
-      // dormant when BESTTIME_API_KEY is unset).
       try {
         const { attachFootfallSignals } = require('./footfall-signal');
         await attachFootfallSignals(redis, venues);
       } catch (err) {
         console.warn('[free-text] footfall enrichment failed:', err.message);
       }
+      const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
       const headerLabel = ftLang === 'fr'
-        ? `🔎 Résultats pour "${text}"`
-        : `🔎 Results for "${text}"`;
-      await deliverPicks(chatId, headerLabel, venues, { lang: ftLang });
+        ? `🔎 Résultats pour "${headerDish}"`
+        : `🔎 Results for "${headerDish}"`;
+      await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
     } finally {
       await clearProcessing(redis, chatId).catch(() => {});
     }
