@@ -881,25 +881,10 @@ export default function App() {
       <div className="fixed bottom-4 left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3">
         <BackFab inline />
         <div className="flex flex-col gap-2 items-end pointer-events-none">
-          {/* v0.60.96 — always-render scroll FAB; label flips between
-              "⇣ down" (when there's more to scroll) and "⇡ top" (when
-              at-bottom). Matches the Hawker + Transport + Menu pattern
-              for navigation parity across all TMAs. */}
-          <button
-            type="button"
-            onClick={() => window.scrollTo({
-              top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
-              behavior: 'smooth'
-            })}
-            aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-            className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
-          >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
-          {/* v0.60.83 — Search FAB now also on aqua (#7FDBDB) so all
-              three floating buttons share the same background per
-              operator 2026-05-10. The dirty / searchHintActive states
-              keep the existing pulsing ring for visibility; loading
-              just reduces text opacity. */}
+          {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
+              and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
+              'down'." Search FAB now renders FIRST (top of column);
+              scroll FAB renders SECOND (below). */}
           <button
             type="button"
             onClick={() => runSearch(state)}
@@ -912,6 +897,16 @@ export default function App() {
               : ''
             } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
           >🔍</button>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({
+              top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+              behavior: 'smooth'
+            })}
+            aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
+            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+            className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
+          >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
         </div>
       </div>
     </div>

@@ -128,7 +128,8 @@ const STRINGS = {
   // about timing, not trains.
   'transport.train.headway':        { en: '⏱️ Frequency: {peakMin}–{peakMax} min peak · {offMin}–{offMax} min off-peak (LTA published)',
                                       fr: '⏱️ Fréquence : {peakMin}–{peakMax} min en heure de pointe · {offMin}–{offMax} min hors pointe (LTA publié)' },
-  'transport.train.engineering':    { en: '🔧 Upcoming engineering (next 7 d):', fr: '🔧 Travaux à venir (sous 7 j) :' },
+  // v0.60.97 — operator: spell "d" as "days" / "jours".
+  'transport.train.engineering':    { en: '🔧 Upcoming engineering (next 7 days):', fr: '🔧 Travaux à venir (sous 7 jours) :' },
   'transport.train.openMapBtn':     { en: '🗺 Open MRT map', fr: '🗺 Ouvrir la carte MRT' },
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." },
 
