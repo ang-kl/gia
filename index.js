@@ -5188,7 +5188,19 @@ function computeCriteriaHash(parts) {
   return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16);
 }
 
-const SEEN_SET_TTL_S = 60 * 60;       // 1 h — long enough that "click 5 times" stays consistent
+// v0.60.116 — sliding 15-min "exclude what you've seen" window.
+// Operator 2026-05-11: re-tapping 🔍 within ~15 min advances through
+// the pool excluding what was already shown; a >15-min idle gap
+// resets the round so the next search feels fresh again. Each
+// appendSeenSet refreshes this TTL, so an actively-clicking user
+// keeps the exclusion alive for the duration of the session.
+const SEEN_SET_TTL_S = 15 * 60;       // 15 min sliding
+// v0.60.116 — per-chatId Places-result pool cache (the ~3-page deep
+// list for a cuisine+criteria combo). Kept a touch longer than the
+// seen-set so the pool persists while the user pages through it; slid
+// on each access. First 🔍 of a window builds it (3 Google calls);
+// subsequent clicks reuse it (0 Google calls).
+const POOL_CACHE_TTL_S = 20 * 60;     // 20 min sliding
 
 async function readSeenSet(chatId, criteriaHash) {
   if (!chatId || !redis.isOpen) return new Set();
@@ -7903,14 +7915,48 @@ async function cacheBotUsername() {
             }
             console.log(`[Cuisine-Search] D702b OR round-robin merged ${venues.length} venues from ${cuisinesForDiscover.length} cuisines`);
           } else {
-            // Single cuisine (or empty) — original single-call path
-            const candidates = await pipeline.discover({
-              lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-              cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
-              lang: csLang,                                    // v0.59.0
-              expandSingaporean: !skipExpand                   // v0.59.26
-            });
-            venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+            // Single cuisine (or empty) — original single-call path.
+            // v0.60.116 — paginate up to 3 pages so re-tapping 🔍
+            // advances through a deeper pool (≈60 raw → ≈30-50 after
+            // throttle) instead of re-showing the same ~12. The 3-page
+            // pool is cached per-chatId so re-clicks within the window
+            // don't re-pay for 3 Google calls each — only the first
+            // click of a window builds it. Skipped for the no-cuisine
+            // warm-start path (its seeds rotate per call by design).
+            let candidates = null;
+            const haveCuisinePool = Array.isArray(cuisinesForDiscover) && cuisinesForDiscover.length > 0;
+            let poolKey = '';
+            if (haveCuisinePool) {
+              try {
+                poolKey = `cuisine:pool:${csChatId}:${computeCriteriaHash({
+                  cuisines, filters, prices: req.body?.prices || [],
+                  radius: searchRadius, region, freeText: req.body?.freeText || ''
+                })}`;
+                const cached = redis.isOpen ? await redis.get(poolKey) : null;
+                if (cached) {
+                  const parsed = JSON.parse(cached);
+                  if (Array.isArray(parsed) && parsed.length) {
+                    candidates = parsed;
+                    redis.expire(poolKey, POOL_CACHE_TTL_S).catch(() => {});  // slide TTL on active use
+                    console.log(`[Cuisine-Search] D702c pool-cache HIT ${parsed.length} venues`);
+                  }
+                }
+              } catch (err) { console.warn('[Cuisine-Search] pool-cache read failed:', err.message); }
+            }
+            if (!candidates) {
+              candidates = await pipeline.discover({
+                lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
+                cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
+                lang: csLang,                                    // v0.59.0
+                expandSingaporean: !skipExpand,                  // v0.59.26
+                maxPages: 3                                      // v0.60.116
+              });
+              candidates = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+              if (haveCuisinePool && poolKey && redis.isOpen && candidates.length >= 3) {
+                redis.setEx(poolKey, POOL_CACHE_TTL_S, JSON.stringify(candidates)).catch(() => {});
+              }
+            }
+            venues = Array.isArray(candidates) ? candidates : [];
             console.log(`[Cuisine-Search] D702 discover returned ${venues.length} candidates`);
           }
         }
@@ -8073,7 +8119,31 @@ async function cacheBotUsername() {
         // TMA in-response pagination strip never renders for /cuisine
         // (PAGE_SIZE=12 = 1 page). Restores the v0.60.21 "tap again
         // for more" behaviour the user prefers.
-        const top = venues.slice(0, 12);
+        // v0.60.116 — per-chatId "exclude what you've seen" slice.
+        // Operator 2026-05-11: unlike Google Maps (which re-shows page
+        // 1 every search), re-tapping 🔍 with unchanged criteria should
+        // SKIP the venues you've already been shown and serve the next
+        // unseen 12 from the (now ~3-page-deep) pool. The seen-set has
+        // a 15-min sliding TTL (SEEN_SET_TTL_S), so an idle gap of >15
+        // min resets the exclusion and the next search starts a fresh
+        // round. Once every pooled venue is seen → `top` is the first
+        // 12 of the full pool and `exhausted` is set so the client
+        // shows the quantified "that's all N places" terminal note.
+        let dedupHash = '';
+        let seen = new Set();
+        try {
+          dedupHash = computeCriteriaHash({
+            cuisines, filters, prices: req.body?.prices || [],
+            radius: searchRadius, region, freeText: req.body?.freeText || ''
+          });
+          seen = await readSeenSet(csChatId, dedupHash);
+        } catch (err) {
+          console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
+        }
+        const poolCount = venues.length;
+        const unseenVenues = venues.filter((v) => v.placeId && !seen.has(v.placeId));
+        const dedupExhausted = poolCount > 0 && unseenVenues.length === 0;
+        const top = (unseenVenues.length ? unseenVenues : venues).slice(0, 12);
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
         // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
@@ -8198,59 +8268,22 @@ async function cacheBotUsername() {
           const { attachFootfallSignals } = require('./footfall-signal');
           await attachFootfallSignals(redis, top);
         } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
-        // v0.60.14 — per-chatId result dedup. The user clicks "Search"
-        // → gets list A. Clicks again with the same criteria → expects
-        // list B (different venues), not the same A. v0.60.11 already
-        // makes the upstream Places + LLM rank fresh on every click,
-        // but the underlying Places result set is largely stable for
-        // the same query, so identical top-N can still appear. We
-        // filter out previously-seen placeIds for this chatId +
-        // criteria-hash; when nothing new remains we reset and let
-        // the user see the full list again. Adding new criteria /
-        // free-text changes the hash so dedup resets implicitly.
-        let dedupedTop = top;
-        // v0.60.18 — exhausted flag drives TMA tip-bubble subtlety +
-        // end-of-list hint. v0.60.115 (operator 2026-05-11) — the old
-        // behaviour reset the seen-set and reshuffled `top` on
-        // exhaustion, so consecutive taps after the pool was used up
-        // just re-served the same venues in a new order — the user saw
-        // "repeated results" with no clear end. Now: once `fresh` is
-        // empty we DON'T reset; we return the pool in its natural order
-        // with `exhausted: true` and `poolCount` (how many distinct
-        // venues we've shown for this criteria-hash) so the client can
-        // say "that's all N — change a criterion to find more." A
-        // criteria change still resets the dedup (different hash → empty
-        // seen-set), and the 1 h TTL eventually expires it too.
-        let dedupExhausted = false;
-        let poolCount = 0;
+        // v0.60.116 — `top` was already chosen above as the next 12
+        // *unseen* venues from the ~3-page-deep pool (see the
+        // "exclude what you've seen" block before the enrichments).
+        // Here we just record those 12 in the per-chatId seen-set so
+        // the NEXT 🔍 tap skips them. appendSeenSet refreshes the
+        // 15-min sliding TTL each call, so an active user keeps
+        // advancing and a >15-min idle gap resets the round. A
+        // criteria change uses a different hash → empty seen-set →
+        // fresh round immediately.
+        const dedupedTop = top;
         try {
-          const dedupHash = computeCriteriaHash({
-            cuisines, filters, prices: req.body?.prices || [],
-            radius: searchRadius, region, freeText: req.body?.freeText || ''
-          });
-          const seen = await readSeenSet(csChatId, dedupHash);
-          const fresh = top.filter((v) => v.placeId && !seen.has(v.placeId));
-          if (fresh.length >= 3) {
-            dedupedTop = fresh;
-          } else if (fresh.length > 0) {
-            // Mix: prepend fresh, then append seen so user still gets
-            // a full list but new venues lead.
-            const seenList = top.filter((v) => v.placeId && seen.has(v.placeId));
-            dedupedTop = [...fresh, ...seenList];
-          } else {
-            // Everything seen — DON'T reset. Return the pool in its
-            // natural (distance/rating-sorted) order and flag exhausted
-            // so the client shows the terminal "that's all N" message.
-            dedupedTop = top;
-            dedupExhausted = true;
+          if (dedupHash) {
+            await appendSeenSet(csChatId, dedupHash, top.map((v) => v.placeId).filter(Boolean));
           }
-          const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
-          await appendSeenSet(csChatId, dedupHash, newIds);
-          poolCount = new Set([...seen, ...newIds]).size;
-          // v0.60.115 — exhausted iff no fresh venue came back this turn.
-          if (!dedupExhausted) dedupExhausted = (fresh.length === 0);
         } catch (err) {
-          console.warn('[Cuisine-Search] dedup pass failed (using raw top):', err.message);
+          console.warn('[Cuisine-Search] seen-set append failed:', err.message);
         }
         // v0.60.16 — annotate every venue with Michelin / Bib Gourmand
         // category if it cross-refs to the curated Singapore Michelin

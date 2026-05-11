@@ -885,7 +885,7 @@ function priceLevelToInt(p) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1 }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -957,33 +957,55 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
       // home-based / takeaway-only operators surface (e.g. Rakae,
       // Empress Family Feast). Non-food types (lodging, mall, etc.)
       // are still removed by the post-fetch NON_FOOD_TYPES deny-list.
-      const { data: textData } = await axios.post(
-        PLACES_TEXT_URL,
-        {
-          textQuery: `${cuisineQuery} cuisine restaurant`,
-          includedType: 'restaurant',
-          strictTypeFiltering: false,
-          regionCode,
-          languageCode,                                    // v0.59.0
-          maxResultCount: Math.min(maxResults, 20),
-          locationBias: {
-            circle: {
-              center: { latitude: lat, longitude: lng },
-              radius
-            }
-          },
-          openNow: false // Surface closed venues too — refine layer decides
+      // v0.60.116 — optional pagination. When the caller passes
+      // maxPages > 1 (the Cuisine TMA search uses 3), we walk Google's
+      // `nextPageToken` up to maxPages-1 more times and concatenate the
+      // `places` arrays — so the dedup-and-serve-next-slice flow has a
+      // deeper pool (~3 pages × 20 ≈ 60 raw, ~30-50 after the brand /
+      // dish-tail throttle) to advance through before the user hits the
+      // "that's all N" terminal note. Default maxPages=1 → unchanged.
+      const PLACES_PAGE_HEADERS = {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': mapsApiKey,
+        'X-Goog-FieldMask': `${DISCOVER_FIELD_MASK},nextPageToken`
+      };
+      const textBody = {
+        textQuery: `${cuisineQuery} cuisine restaurant`,
+        includedType: 'restaurant',
+        strictTypeFiltering: false,
+        regionCode,
+        languageCode,                                    // v0.59.0
+        maxResultCount: Math.min(maxResults, 20),
+        locationBias: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius
+          }
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': mapsApiKey,
-            'X-Goog-FieldMask': DISCOVER_FIELD_MASK
-          },
-          timeout: 8000
-        }
-      );
+        openNow: false // Surface closed venues too — refine layer decides
+      };
+      const { data: textData } = await axios.post(PLACES_TEXT_URL, textBody, { headers: PLACES_PAGE_HEADERS, timeout: 8000 });
       data = textData;
+      let pageToken = textData?.nextPageToken || null;
+      let pagesFetched = 1;
+      const wantPages = Math.max(1, Math.min(Number(maxPages) || 1, 3));   // Google caps text-search at ~3 pages / 60 results
+      while (pageToken && pagesFetched < wantPages) {
+        try {
+          const { data: pageData } = await axios.post(
+            PLACES_TEXT_URL,
+            { ...textBody, pageToken },
+            { headers: PLACES_PAGE_HEADERS, timeout: 8000 }
+          );
+          if (Array.isArray(pageData?.places) && pageData.places.length) {
+            data = { ...data, places: [...(data.places || []), ...pageData.places] };
+          }
+          pageToken = pageData?.nextPageToken || null;
+          pagesFetched++;
+        } catch (err) {
+          console.warn(`[discover] page ${pagesFetched + 1} fetch failed: ${err.message}`);
+          break;
+        }
+      }
     } else {
       // v0.59.42: when Dessert is selected, query the dessert-shaped
       // type set instead of the generic restaurant set. Empty-cuisine
