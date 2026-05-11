@@ -37,7 +37,7 @@ export default function BackFab({ inline = false }) {
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'End'}
       style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
+      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-2 left-4 z-50'} px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
     >
       <span aria-hidden="true">{hasHistory ? '⇠' : '🔚'}</span>
       <span>{hasHistory ? 'back' : 'end'}</span>

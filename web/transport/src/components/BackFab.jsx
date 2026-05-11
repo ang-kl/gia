@@ -22,7 +22,7 @@ export default function BackFab() {
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'End'}
       style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className="fixed bottom-4 left-4 px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+      className="fixed bottom-2 left-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
     >
       <span aria-hidden="true">{hasHistory ? '⇠' : '🔚'}</span>
       <span>{hasHistory ? 'back' : 'end'}</span>
