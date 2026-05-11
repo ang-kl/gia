@@ -6193,25 +6193,41 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       if (disambiguated) {
         const { getDishKeywords } = require('./cuisine-dish-keywords');
         const STOP = new Set(['with', 'and', 'the', 'for', 'restaurant', 'singapore', 'cuisine', 'near', 'best', 'authentic', 'style', 'dish', 'food']);
-        const kw = new Set();
-        if (ftCuisine) kw.add(stripD(ftCuisine));
-        if (ftCuisine) for (const k of (getDishKeywords(ftCuisine) || [])) { const s = stripD(k).trim(); if (s) kw.add(s); }
-        if (ftDishLabel) for (const w of stripD(ftDishLabel).split(/[^a-z0-9]+/)) { if (w && w.length >= 4 && !STOP.has(w)) kw.add(w); }
+        // STRONG keywords = the cuisine name + the curated per-cuisine
+        // dish / demonym vocabulary (czech, hungarian, slavic, bohemian,
+        // goulash, knedlík, schnitzel, …). A hit here means the venue is
+        // plausibly that cuisine / serves that dish → ABOVE the line.
+        const strongKw = new Set();
+        if (ftCuisine) strongKw.add(stripD(ftCuisine));
+        if (ftCuisine) for (const k of (getDishKeywords(ftCuisine) || [])) { const s = stripD(k).trim(); if (s) strongKw.add(s); }
+        // WEAK keywords = the generic words pulled out of the dish *label*
+        // that aren't already strong ("bread", "dumplings" from "Czech
+        // guláš with bread dumplings"). A hit on these ALONE is a bare
+        // word-match, not a meaning-match — a Chinese 灌汤包 also "has
+        // dumplings" — so such a venue goes BELOW the line (ahead of
+        // totally-unrelated results, behind the real cuisine matches).
+        // Operator 2026-05-11: the line separates "exact" from "matched
+        // your words, not the meaning".
+        const weakKw = new Set();
+        if (ftDishLabel) for (const w of stripD(ftDishLabel).split(/[^a-z0-9]+/)) {
+          if (w && w.length >= 4 && !STOP.has(w) && !strongKw.has(w)) weakKw.add(w);
+        }
         const cuisineRestType = ftCuisine ? `${stripD(ftCuisine).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}_restaurant` : '';
         const scoreOf = (v) => {
           const nameH = stripD(v?.name);
           const otherH = stripD([v?.area, v?.primaryType, v?.googleSummary?.overview,
             Array.isArray(v?.reviews) ? v.reviews.map((r) => r?.text || '').join(' ') : ''].join(' '));
-          let s = 0;
-          for (const k of kw) { if (!k) continue; if (nameH.includes(k)) s += 2; else if (otherH.includes(k)) s += 1; }
-          if (cuisineRestType && v?.primaryType === cuisineRestType) s += 2;
-          return s;
+          let strong = 0; let weak = 0;
+          for (const k of strongKw) { if (!k) continue; if (nameH.includes(k)) strong += 2; else if (otherH.includes(k)) strong += 1; }
+          if (cuisineRestType && v?.primaryType === cuisineRestType) strong += 2;
+          for (const k of weakKw) { if (!k) continue; if (nameH.includes(k)) weak += 2; else if (otherH.includes(k)) weak += 1; }
+          return { strong, weak };
         };
-        const scored = venues.map((v) => ({ v, s: scoreOf(v) }));
-        const above = scored.filter((x) => x.s > 0)
-          .sort((a, b) => (b.s - a.s) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
-        const below = scored.filter((x) => x.s === 0)
-          .sort((a, b) => (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const scored = venues.map((v) => ({ v, ...scoreOf(v) }));
+        const above = scored.filter((x) => x.strong > 0)
+          .sort((a, b) => (b.strong - a.strong) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const below = scored.filter((x) => x.strong === 0)
+          .sort((a, b) => (b.weak - a.weak) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
