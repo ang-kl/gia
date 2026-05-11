@@ -271,7 +271,51 @@ const STATION_LINES = {
   'marine parade':       ['TEL'],
   'marine terrace':      ['TEL'],
   'siglap':              ['TEL'],
-  'bayshore':            ['TEL']
+  'bayshore':            ['TEL'],
+  // v0.60.100 — LRT-only stops. Interchanges (Choa Chu Kang,
+  // Bukit Panjang, Sengkang, Punggol) are already covered above
+  // via their heavy-rail line; these are the loop stations that
+  // only carry an LRT code. Needed so chat-side /transport train
+  // can prefix the line emoji when Google Places surfaces an LRT
+  // stop as the nearest station.
+  // Bukit Panjang LRT (BPLRT)
+  'south view':          ['BPL'],
+  'keat hong':           ['BPL'],
+  'teck whye':           ['BPL'],
+  'phoenix':             ['BPL'],
+  'petir':               ['BPL'],
+  'pending':             ['BPL'],
+  'bangkit':             ['BPL'],
+  'fajar':               ['BPL'],
+  'segar':               ['BPL'],
+  'jelapang':            ['BPL'],
+  'senja':               ['BPL'],
+  // Sengkang LRT (SKLRT)
+  'cheng lim':           ['SLRT'],
+  'farmway':             ['SLRT'],
+  'kupang':              ['SLRT'],
+  'thanggam':            ['SLRT'],
+  'renjong':             ['SLRT'],
+  'compassvale':         ['SLRT'],
+  'rumbia':              ['SLRT'],
+  'bakau':               ['SLRT'],
+  'kangkar':             ['SLRT'],
+  'ranggung':            ['SLRT'],
+  // Punggol LRT (PGLRT)
+  'cove':                ['PLRT'],
+  'meridian':            ['PLRT'],
+  'coral edge':          ['PLRT'],
+  'riviera':             ['PLRT'],
+  'kadaloor':            ['PLRT'],
+  'oasis':               ['PLRT'],
+  'damai':               ['PLRT'],
+  'sam kee':             ['PLRT'],
+  'punggol point':       ['PLRT'],
+  'samudera':            ['PLRT'],
+  'nibong':              ['PLRT'],
+  'sumang':              ['PLRT'],
+  'soo teck':            ['PLRT'],
+  'teck lee':            ['PLRT']
 };
 
 // Normalise an arbitrary station name to the lookup key. Strips

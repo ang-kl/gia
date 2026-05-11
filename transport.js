@@ -180,7 +180,12 @@ async function nearestMrtStations(lat, lng, radiusM = 1500, count = 3) {
     const { data } = await axios.post(
       'https://places.googleapis.com/v1/places:searchNearby',
       {
-        includedTypes: ['subway_station'],
+        // v0.60.100 — include LRT (light_rail_station) alongside MRT
+        // (subway_station) so BPLRT / SKLRT / PGLRT stops surface in
+        // /transport train's nearest-stations enrichment. Operator
+        // 2026-05-11: LRT lines should be first-class citizens in
+        // the chat-side results, not just the TMA scroll.
+        includedTypes: ['subway_station', 'light_rail_station'],
         maxResultCount: Math.max(count, 5),
         locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: radiusM } },
         rankPreference: 'DISTANCE'

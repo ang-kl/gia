@@ -8184,6 +8184,35 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
+        // v0.60.101 — tag each venue with which of the user's selected
+        // cuisines Google's `places.types` (+ name fallback) says it
+        // actually serves. Renders as small chips on the result card
+        // so a combo search like Italian + Cantonese shows which one
+        // each eatery is (operator 2026-05-11). Only attached when 2+
+        // cuisines were selected — single-cuisine searches don't need
+        // the badge since the selection is unambiguous.
+        if (Array.isArray(cuisines) && cuisines.length >= 2) {
+          try {
+            const { matchedCuisinesForVenue } = require('./cuisine-google-types');
+            const cuisineMetaBySlug = {};
+            for (const meta of cuisineMetas || []) {
+              if (meta?.slug) cuisineMetaBySlug[meta.slug] = meta;
+            }
+            for (const v of dedupedTop) {
+              const slugs = matchedCuisinesForVenue(v, cuisines);
+              if (slugs.length) {
+                v.matchedCuisines = slugs.map((slug) => {
+                  const m = cuisineMetaBySlug[slug];
+                  return {
+                    slug,
+                    label: m?.name || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                    flag: m?.flag || ''
+                  };
+                });
+              }
+            }
+          } catch (err) { console.warn('[Cuisine-Search] matchedCuisines tagging failed:', err.message); }
+        }
         const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).

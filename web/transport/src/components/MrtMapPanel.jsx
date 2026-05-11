@@ -51,7 +51,7 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-export default function MrtMapPanel({ focusedCode = null, onResetFocus }) {
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusByLine = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -214,8 +214,23 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus }) {
         const futureLine = isFuture && s.opensYear
           ? `<br><em style="color:#9CA3AF">Opens ${escapeHtml(String(s.opensYear))}</em>`
           : '';
+        // v0.60.99 — per-station train status block. For each line
+        // the station serves, look up statusByLine (from /api/
+        // transport/status) and render "🔴 NSL · status: Normal
+        // service" or the matching disruption label. Hidden for
+        // future stations.
+        const STATUS_LABEL = { delay: 'Delay', disrupted: 'Service disrupted', closure: 'Closure', normal: 'Normal service', unknown: 'Unknown' };
+        const statusHtml = (!isFuture && statusByLine && Array.isArray(s.lines) && s.lines.length)
+          ? '<br>' + s.lines.map((ln) => {
+              const emoji = LINE_EMOJI[ln] || '⬜';
+              const st = statusByLine[ln]?.status || 'normal';
+              const label = STATUS_LABEL[st] || st;
+              const color = st === 'normal' ? '#34C759' : (st === 'delay' ? '#FF9500' : '#FF3B30');
+              return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
+            }).join('<br>')
+          : '';
         const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">Open 📍 in a map ↗</a>`;
-        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${futureLine}${linkHtml}</div>`;
+        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
         infoWindowRef.current?.setContent(html);
         infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
       });

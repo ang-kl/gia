@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { initData } from './tg.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
@@ -29,6 +29,13 @@ export default function App() {
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
   const [mapView, setMapView] = useState('png');
+  // v0.60.99 — one-shot auto-switch from PNG → Google Map on the
+  // first line-chip tap. After that (whether the user stayed on
+  // Google Map or toggled back to Schematic), subsequent chip taps
+  // respect the user's current view choice. Codex P2 2026-05-11:
+  // without this guard, tap-line → toggle-Schematic → tap-line
+  // would yank the user back to Google Map.
+  const autoSwitchedRef = useRef(false);
   // v0.60.96 — operator: "flip to Top when I am at the bottom of the
   // screen". atBottom = within 50 px of the document's full height.
   const [atBottom, setAtBottom] = useState(false);
@@ -113,17 +120,33 @@ export default function App() {
         </div>
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
-          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} />}
+          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} statusByLine={statusByLine} />}
       </div>
 
       {focusedLine && (
         <LineStatusPanel line={focusedLine} status={focusedStatus} />
       )}
 
+      {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT)
+          in the default scroll, not just heavy rail. When no lines
+          are affected, show every operating line including LRTs. */}
       <AffectedTicker
-        affectedCodes={affectedCodes.length ? affectedCodes : LINES.slice(0, 7).map((l) => l.code)}
+        affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
         focusedCode={focusedCode}
-        onFocus={setFocusedCode}
+        onFocus={(code) => {
+          setFocusedCode(code);
+          // v0.60.99 — auto-switch to Google Map ONLY on the first
+          // line-chip tap when still on the initial Schematic view.
+          // The "All Lines" reset (code === null) is ignored; after
+          // the one-shot fires, later taps respect whatever view
+          // the user is currently on (so Schematic-after-toggle
+          // sticks). See Codex review on PR #342.
+          if (code && !autoSwitchedRef.current) {
+            autoSwitchedRef.current = true;
+            setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+          }
+        }}
+        statusByLine={statusByLine}
       />
 
       <LocationCard address={data.address} nearest={data.nearestMrt} />

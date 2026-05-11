@@ -142,6 +142,26 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {venue.restaurantType && (
             <div className="text-[11px] text-tg-text/80 truncate">{venue.restaurantType}</div>
           )}
+          {/* v0.60.101 — combo-cuisine match chips. /api/cuisine/search
+              attaches venue.matchedCuisines when the user picked 2+
+              cuisines, using Google's places.types (italian_restaurant,
+              japanese_restaurant, …) with a keyword fallback for
+              regional cuisines Google doesn't tag. Lets the user see
+              at a glance whether each eatery serves Japanese, Italian,
+              or both when the combo AND-search returned nothing and we
+              fell back to OR-interleaved results. */}
+          {Array.isArray(venue.matchedCuisines) && venue.matchedCuisines.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-0.5">
+              {venue.matchedCuisines.map((c) => (
+                <span
+                  key={c.slug}
+                  className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border border-tg-accent/40 bg-tg-accent/10 text-tg-text whitespace-nowrap"
+                >
+                  {c.flag ? `${c.flag} ` : ''}{c.label}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {/* v0.59.23: primary "What to order" line — LLM-picked
