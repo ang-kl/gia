@@ -7990,6 +7990,20 @@ async function cacheBotUsername() {
             ];
           }
         }
+        // v0.60.126 — fold the TMA's "Tell me" free-text box content
+        // into the actual Places query as a qualifier, so selecting a
+        // cuisine no longer silently drops what the user typed. e.g.
+        // cuisine=Portuguese + freeText="goulash dumplings" → query
+        // "Portuguese goulash dumplings"; with no cuisine selected the
+        // free text becomes the whole query. (It already feeds the
+        // criteria hash + the R.E.D disambig probe — this makes it
+        // actually steer the Places search too.)
+        const ftQualifier = String(req.body?.freeText || '').trim().slice(0, 80);
+        if (ftQualifier) {
+          cuisineQueries = (Array.isArray(cuisineQueries) && cuisineQueries.length)
+            ? cuisineQueries.map((q) => `${q} ${ftQualifier}`.replace(/\s+/g, ' ').trim())
+            : [ftQualifier];
+        }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
         // v0.57.8: region in the key so SG and JB results don't collide.
