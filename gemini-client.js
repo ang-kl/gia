@@ -1129,6 +1129,28 @@ const AMBIGUOUS_DISHES = [
     ]
   },
   {
+    // v0.60.114 — operator 2026-05-11: `/s asado` should interact and
+    // confirm rather than guess "asado grilling" (cooking-method path).
+    // "asado" means two distinct dishes: the Argentinian/Uruguayan
+    // open-fire parrilla feast, or the Filipino Chinese-influenced
+    // sweet soy-braised pork. Neither defaults in SG → LOW confidence
+    // → handleSearchTurn renders both as one-tap pivots, no Places call.
+    match: ['asado'],
+    kind: 'ambiguous-dish',
+    interpretations: [
+      { id: 'argentinian-asado',
+        label: 'Argentinian asado (open-fire parrilla feast)',
+        cuisine: 'Argentinian', flag: '🇦🇷',
+        defaultIn: ['AR', 'UY'],
+        signals: ['argentine', 'argentinian', 'uruguayan', 'parrilla', 'tira de asado', 'choripan', 'choripán', 'chimichurri', 'vacio', 'vacío', 'morcilla', 'grill', 'grilled', 'bbq', 'barbecue', 'open fire'] },
+      { id: 'filipino-asado',
+        label: 'Filipino asado (sweet soy-braised pork)',
+        cuisine: 'Filipino', flag: '🇵🇭',
+        defaultIn: ['PH'],
+        signals: ['filipino', 'pinoy', 'siopao', 'asado roll', 'pork asado', 'braised pork', 'sweet', 'soy', 'star anise', 'kapampangan', 'pampanga'] }
+    ]
+  },
+  {
     match: ['laksa'],
     kind: 'ambiguous-dish',
     interpretations: [
