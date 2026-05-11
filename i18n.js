@@ -193,7 +193,7 @@ const STRINGS = {
   'forgetme.eraseHeaderMany':  { en: '✅ Erased *{n}* Redis entries for your chat.', fr: '✅ {n} entrées Redis effacées pour votre conversation.' },
   'forgetme.wiped':            { en: 'Wiped:', fr: 'Effacé :' },
   'forgetme.andMore':          { en: '…and {n} more', fr: '…et {n} autres' },
-  'forgetme.followup':         { en: 'Send any command to start fresh. /buddy preferences, recent picks, and your last shared location are gone.', fr: 'Envoyez n’importe quelle commande pour repartir à neuf. Vos préférences /buddy, vos choix récents et votre dernière position partagée ont été effacés.' },
+  'forgetme.followup':         { en: 'Send any command to start fresh. Recent picks and your last shared location are gone.', fr: 'Envoyez n’importe quelle commande pour repartir à neuf. Vos choix récents et votre dernière position partagée ont été effacés.' },
   'forgetme.error':            { en: 'Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.', fr: 'Désolé, /forgetme a rencontré une erreur. Réessayez dans un instant, ou contactez l’opérateur.' },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
@@ -212,8 +212,8 @@ const STRINGS = {
   // /start listing per Human Lead 2026-05-10. All three handlers
   // stay live for power users; they just don't surface in the
   // slash-command tour.
-  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/buddy     — live solo-dining match\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/buddy     — match solo en direct\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
+                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
@@ -292,7 +292,7 @@ const STRINGS = {
       '',
       '*What Soleat collects* (only when relevant):',
       '• Location — used when you send a location pin or call /cuisine, /hidden, /carpark, /transport. Cached for up to 24 hours so subsequent commands don\'t have to re-prompt; you can refresh anytime via /transport\'s 📍 Refresh location button, or wipe it immediately via /forgetme.',
-      '• Telegram chat identifier — used so Soleat can reply in the right chat. If you opt into /buddy, the same identifier carries your match preferences while you remain opted in.',
+      '• Telegram chat identifier — used so Soleat can reply in the right chat.',
       '• Recent picks — the last few venues you saw, kept for /share and /picks. 24-hour TTL.',
       '',
       '*What Soleat does not do:*',
@@ -313,7 +313,7 @@ const STRINGS = {
       '',
       '*Ce que Soleat collecte* (uniquement quand pertinent) :',
       '• Position — utilisée lorsque vous envoyez une épingle ou utilisez /cuisine, /hidden, /carpark, /transport. Conservée jusqu’à 24 heures pour éviter de redemander à chaque commande ; vous pouvez l’actualiser à tout moment via le bouton 📍 Actualiser la position de /transport, ou la supprimer immédiatement via /forgetme.',
-      '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat. Si vous activez /buddy, ce même identifiant accompagne vos préférences de match tant que /buddy reste activé.',
+      '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat.',
       '• Choix récents — les derniers lieux que vous avez vus, conservés pour /share et /picks. TTL de 24 heures.',
       '',
       '*Ce que Soleat ne fait pas :*',
@@ -342,9 +342,9 @@ const STRINGS = {
   'recognised.btn.localProduce':  { en: '🌱 Restaurants using Local Produce', fr: '🌱 Restaurants avec produits locaux' },
 
   // v0.59.13 — /share localisation
-  'share.empty':                  { en: 'No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a buddy.',
+  'share.empty':                  { en: 'No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a friend.',
                                     fr: 'Aucun choix récent. Lancez /cuisine ou /hidden d\'abord, puis /share pour partager avec un ami.' },
-  'share.prompt':                 { en: 'Pick a venue to forward to your buddy ({n} recent):',
+  'share.prompt':                 { en: 'Pick a venue to forward to your friend ({n} recent):',
                                     fr: 'Choisissez un lieu à partager avec votre ami ({n} récents) :' },
   'share.mintFailed':             { en: "Sorry, I couldn't mint share links right now.",
                                     fr: 'Désolé, impossible de générer les liens de partage pour le moment.' },

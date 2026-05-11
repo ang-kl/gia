@@ -38,8 +38,9 @@ const STRINGS = {
   'tile.recognised.label': { en: 'Recognised',  fr: 'Reconnus' },
 
   // ----- Discover tiles -----
+  // v0.60.113 — 'tile.buddy.label' removed (Buddy feature retired; the
+  // hub tile itself was already dropped in v0.60.67).
   'tile.search.label':     { en: 'Search',      fr: 'Recherche' },
-  'tile.buddy.label':      { en: 'Buddy',       fr: 'Buddy' },
   'tile.weather.label':    { en: 'Weather',     fr: 'Météo' },
 
   // ----- Plan tiles -----
