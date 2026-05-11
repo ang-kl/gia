@@ -162,12 +162,16 @@ const STRINGS = {
   // v0.60.72 — /causeway live SG ⟷ JB border camera stills.
   'transport.causeway.heading':     { en: '🛂 SG ⟷ JB checkpoint cameras', fr: '🛂 Caméras du poste-frontière SG ⟷ JB' },
   'transport.causeway.refreshed':   { en: '_Refreshed: {at}_', fr: '_Actualisé : {at}_' },
+  // v0.60.103 — live camera count + per-checkpoint breakdown.
+  'transport.causeway.count':       { en: '_{n} cameras live ({breakdown})_', fr: '_{n} caméras en direct ({breakdown})_' },
   'transport.causeway.empty':       { en: 'LTA returned no checkpoint cameras right now — try again in a minute.',
                                       fr: 'LTA n’a renvoyé aucune caméra de poste-frontière — réessayez dans une minute.' },
   'transport.causeway.unreachable': { en: '🛂 Couldn’t reach LTA for checkpoint cameras — try again in a minute.',
                                       fr: '🛂 Impossible de joindre LTA pour les caméras de poste-frontière — réessayez dans une minute.' },
   'transport.incidents.none':       { en: 'No live incidents reported.', fr: 'Aucun incident en direct signalé.' },
-  'transport.incidents.nearHeader': { en: 'Top {n} within 20 km (of {total} island-wide):', fr: 'Top {n} à moins de 20 km (sur {total} dans tout le pays) :' },
+  // v0.60.103 — uncapped: show every island-wide incident, sorted
+  // nearest-first when location is shared.
+  'transport.incidents.nearHeader': { en: 'All {n} island-wide incidents, nearest first:', fr: 'Tous les {n} incidents nationaux, du plus proche au plus éloigné :' },
   'transport.incidents.row':        { en: '· {type}{dist}', fr: '· {type}{dist}' },
   'transport.incidents.noNear':     { en: '{total} incidents island-wide; none within 20 km of your location.', fr: '{total} incidents dans tout le pays ; aucun à moins de 20 km de votre position.' },
   'transport.incidents.noLoc':      { en: '{total} incidents island-wide. Share your location for nearest-first sorting.', fr: '{total} incidents dans tout le pays. Partagez votre position pour un tri par proximité.' },

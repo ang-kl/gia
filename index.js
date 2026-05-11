@@ -1515,12 +1515,15 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   await sendHawkerMenu(msg.chat.id, lang);
 });
 
-// v0.60.72 — /causeway (alias /checkpoint) — hidden shortcut to
-// the SG ⟷ JB live border-crossing camera view (Woodlands Causeway
-// + Tuas 2nd Link). NOT in setMyCommands per Human Lead 2026-05-10
-// — discovered via word-of-mouth or sharing. Power users typing
-// the command get one photo per camera with caption.
-bot.onText(/^\/(?:causeway|checkpoint)(?:@\w+)?$/, async (msg) => {
+// v0.60.72 — /checkpoint — hidden shortcut to the SG ⟷ JB live
+// border-crossing camera view (Woodlands + Tuas 2nd Link). NOT in
+// setMyCommands per Human Lead 2026-05-10 — discovered via word-of-
+// mouth or sharing. Power users typing the command get one photo per
+// camera with caption.
+// v0.60.103 — operator 2026-05-11: dropped the /causeway alias to
+// avoid confusion with /checkpoint (both used to dispatch the same
+// handler). Only /checkpoint accepted now.
+bot.onText(/^\/checkpoint(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runTransportCauseway(msg.chat.id, lang);
@@ -2256,8 +2259,9 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     // ids busnearest / busroute (both reuse runTransportBus subcases).
     case 'busnearest': await runTransportBus(chatId, 'nearest', lang); return true;
     case 'busroute':   await runTransportBus(chatId, 'route',   lang); return true;
-    // v0.60.72 — /causeway dispatch (hidden, no Menu TMA tile yet).
-    case 'causeway':   await runTransportCauseway(chatId, lang); return true;
+    // v0.60.72 — /checkpoint dispatch (hidden, no Menu TMA tile yet).
+    // v0.60.103 — /causeway alias dropped per Human Lead 2026-05-11.
+    case 'checkpoint': await runTransportCauseway(chatId, lang); return true;
     case 'hidden':    await runSurpriseCommand(chatId, lang); return true;
     case 'privacy':   await runPrivacyCommand(chatId, lang); return true;
     case 'legal':     await runLegalCommand(chatId); return true;
@@ -2795,11 +2799,11 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
     if (!all.length) {
       lines.push('', t('transport.incidents.none', lang));
     } else if (cachedLoc) {
-      // v0.60.72 — radius 10 km → 20 km per Human Lead 2026-05-10.
-      // Wider window catches incidents on the operator's typical
-      // commute (Telok Blangah ⟷ Raffles ⟷ Changi corridors are
-      // 12–18 km). Cap stays at 8 to avoid wall-of-text deliveries.
-      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, 20000, 8);
+      // v0.60.103 — operator 2026-05-11: drop the 8-incident cap.
+      // Sort nearest-first and render every island-wide incident.
+      // v0.60.72's 20 km radius previously hid distant accidents the
+      // operator still wanted to see ("expand to include all").
+      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, Number.POSITIVE_INFINITY, all.length);
       if (near.length) {
         lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
         for (const inc of near) {
@@ -2812,12 +2816,14 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
         lines.push('', tn('transport.incidents.noNear', lang, { total: all.length }));
       }
     } else {
+      // v0.60.103 — no-location path: also show every incident, not
+      // the first 5. Map pool widens to the full list too.
       lines.push('', tn('transport.incidents.noLoc', lang, { total: all.length }));
-      for (const inc of all.slice(0, 5)) {
+      for (const inc of all) {
         lines.push('', tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist: '' }));
         lines.push(`  ${inc.message}`);
       }
-      mapPool = all.slice(0, 8);
+      mapPool = all;
     }
     // v0.59.3: one-map button.
     let mapRow = [];
@@ -2841,10 +2847,36 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
         if (mapUrl) mapRow = [[{ text: t('transport.map.incidentsBtn', lang), web_app: { url: mapUrl } }]];
       } catch (err) { console.warn('[Transport] incidents map build failed:', err.message); }
     }
-    await safeSend(chatId, lines.join('\n'), {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [...mapRow, [{ text: t('button.back', lang), callback_data: 'transport:menu' }]] }
-    });
+    // v0.60.103 — uncapped incident list can exceed Telegram's
+    // 4096-char message limit on bad-weather days. Split on newline
+    // boundaries into ≤3500-char chunks; only the LAST chunk carries
+    // the inline keyboard (map + Back) so the buttons aren't lost
+    // mid-thread but also don't repeat per chunk.
+    const fullText = lines.join('\n');
+    const replyMarkup = { inline_keyboard: [...mapRow, [{ text: t('button.back', lang), callback_data: 'transport:menu' }]] };
+    const CHUNK_LIMIT = 3500;
+    if (fullText.length <= CHUNK_LIMIT) {
+      await safeSend(chatId, fullText, { parse_mode: 'Markdown', reply_markup: replyMarkup });
+    } else {
+      const chunks = [];
+      let current = '';
+      for (const line of lines) {
+        if (current && current.length + 1 + line.length > CHUNK_LIMIT) {
+          chunks.push(current);
+          current = line;
+        } else {
+          current = current ? `${current}\n${line}` : line;
+        }
+      }
+      if (current) chunks.push(current);
+      for (let i = 0; i < chunks.length; i++) {
+        const isLast = i === chunks.length - 1;
+        await safeSend(chatId, chunks[i], {
+          parse_mode: 'Markdown',
+          ...(isLast ? { reply_markup: replyMarkup } : {})
+        });
+      }
+    }
   } catch (err) {
     console.error('[Error] transport traffic incidents failed:', err.message);
     await safeSend(chatId, t('transport.incidents.unreachable', lang));
@@ -2856,6 +2888,39 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
 // + outbound + 2nd Link inbound + outbound). The image is short-
 // lived (LTA refreshes the URLs every ~1 min) so the bot uploads
 // the URL directly and Telegram caches it.
+// v0.60.104 — turn an ICA scrape result into an italic Telegram-
+// markdown block. Returns '' when the input is null/empty so callers
+// can just append unconditionally. Telegram chat HTML has no font-size
+// control; italic (_x_) is the smallest "subtle" treatment available.
+function formatIcaQueueLine(ica, lang = 'en') {
+  if (!ica || (!ica.woodlands && !ica.tuas)) return '';
+  const isFr = lang === 'fr';
+  const labels = {
+    title:     isFr ? 'Estimation file d’attente' : 'Queue estimate',
+    source:    isFr ? 'source : ICA · scraping non officiel'
+                    : 'source: ICA · unofficial scrape',
+    woodlands: isFr ? 'Woodlands' : 'Woodlands',
+    tuas:      isFr ? 'Tuas 2nd Link' : 'Tuas 2nd Link',
+    departing: isFr ? 'sortie' : 'depart',
+    arriving:  isFr ? 'entrée' : 'arrive',
+    overall:   isFr ? 'global'   : 'overall'
+  };
+  const fmtSection = (obj) => {
+    if (!obj) return null;
+    if (obj.overall) return `${labels.overall} ${obj.overall}`;
+    const parts = [];
+    if (obj.departing) parts.push(`${labels.departing} ${obj.departing}`);
+    if (obj.arriving)  parts.push(`${labels.arriving} ${obj.arriving}`);
+    return parts.length ? parts.join(' · ') : null;
+  };
+  const lines = [`_${labels.title} (${labels.source}):_`];
+  const w = fmtSection(ica.woodlands);
+  if (w) lines.push(`_  ${labels.woodlands}: ${w}_`);
+  const t = fmtSection(ica.tuas);
+  if (t) lines.push(`_  ${labels.tuas}: ${t}_`);
+  return lines.length > 1 ? lines.join('\n') : '';
+}
+
 async function runTransportCauseway(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -2870,9 +2935,31 @@ async function runTransportCauseway(chatId, lang = 'en') {
     }
     const sgNow = new Date(Date.now() + 8 * 60 * 60 * 1000)
       .toISOString().replace('T', ' ').slice(0, 16) + ' SGT';
-    await safeSend(chatId,
-      `${t('transport.causeway.heading', lang)}\n${tn('transport.causeway.refreshed', lang, { at: sgNow })}`,
-      { parse_mode: 'Markdown' });
+    // v0.60.103 — surface the live camera count + per-checkpoint
+    // breakdown so the operator can see how many views LTA exposes
+    // right now (varies as LTA enables / disables individual feeds).
+    const byLabel = cameras.reduce((acc, c) => { acc[c.label] = (acc[c.label] || 0) + 1; return acc; }, {});
+    const breakdown = Object.entries(byLabel)
+      .map(([lbl, n]) => `${lbl}: ${n}`)
+      .join(' · ');
+    // v0.60.104 — best-effort ICA queue scrape. Fragile by design (no
+    // open JSON API); silently skipped if parse fails. Rendered as a
+    // small italic block under the camera count, explicitly attributed
+    // to ICA and labelled "estimate" so the user knows the caveats.
+    let icaLine = '';
+    try {
+      const ica = await transport.fetchIcaCheckpointStatus();
+      icaLine = formatIcaQueueLine(ica, lang);
+    } catch (err) {
+      console.warn('[Transport] ICA queue render failed:', err.message);
+    }
+    const header = [
+      t('transport.causeway.heading', lang),
+      tn('transport.causeway.refreshed', lang, { at: sgNow }),
+      tn('transport.causeway.count', lang, { n: cameras.length, breakdown })
+    ];
+    if (icaLine) header.push(icaLine);
+    await safeSend(chatId, header.join('\n'), { parse_mode: 'Markdown' });
     for (const cam of cameras) {
       try {
         await bot.sendPhoto(chatId, cam.imageUrl, {
