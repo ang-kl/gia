@@ -19,21 +19,20 @@ export default function BackFab({ inline = false }) {
       w.close();
     }
   };
-  const positionClasses = inline
-    ? 'pointer-events-auto'
-    : 'fixed bottom-4 left-4 z-30';
-  // v0.60.83 — aqua (#7FDBDB) for all three cuisine TMA FABs (Back/
-  // End, ↑ top, 🔍 Search) per operator 2026-05-10: "use aqua colour
-  // background for all three". Replaces v0.60.82's ice-blue. Dark text
-  // (#1c1c1f) stays for contrast against the pale aqua across both
-  // Telegram light + dark themes.
+  // v0.60.91 — inverse theme colors per operator 2026-05-11: "grey
+  // on white text when day time and when toggle to dark mode, change
+  // to white background". Use var(--tg-text) as background and
+  // var(--tg-bg) as icon — day: dark FAB + light icon (high contrast
+  // against white result cards), night: light FAB + dark icon
+  // (visible against dark page). Bumped z-50 so the FAB sits above
+  // any embedded map controls that previously caught the tap.
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'Close'}
-      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className={`${positionClasses} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
+      style={{ backgroundColor: 'var(--tg-text)', color: 'var(--tg-bg)' }}
+      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
     </button>

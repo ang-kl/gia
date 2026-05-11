@@ -877,11 +877,13 @@ export default function App() {
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label={t('btn.backToTop', lang)}
-              // v0.60.83 — aqua (#7FDBDB) — same hex as BackFab + Search,
-              // unified per operator 2026-05-10 ("use aqua colour
-              // background for all three"). Replaces v0.60.82 ice-blue.
-              style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
+              // v0.60.90 — revert to theme-aware bg-tg-card per operator
+              // 2026-05-11. Same revert as BackFab — aqua had poor
+              // contrast against the white result cards on light
+              // theme. Search FAB below KEEPS its aqua (operator: "but
+              // not the search icon") so it stays distinctive as the
+              // primary action.
+              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] bg-tg-card text-tg-text border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
             >{t('btn.topShort', lang)}</button>
           )}
           {/* v0.60.83 — Search FAB now also on aqua (#7FDBDB) so all
