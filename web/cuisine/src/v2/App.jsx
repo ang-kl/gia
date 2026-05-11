@@ -386,7 +386,7 @@ export default function App() {
     };
   }, []);
 
-  async function runSearch(snap = state, anchor = null) {
+  async function runSearch(snap = state, anchor = null, opts = {}) {
     if (!userLoc) return;
     const center = anchor || searchCenter || userLoc;
     // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}. Server
@@ -404,7 +404,8 @@ export default function App() {
         lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG',
-        lang                                              // v0.59.0
+        lang,                                             // v0.59.0
+        resetSeen: opts?.resetSeen === true               // v0.60.117 — ↺ Start over
       });
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
@@ -831,12 +832,13 @@ export default function App() {
           onLastPageNext={() => runSearch(state)}
           exhausted={exhaustedNote}
         />
-        {/* v0.60.115 — terminal "that's all N" note when the server
-            returns exhausted=true. The dedup pool is no longer reset
-            on exhaustion (re-tapping 🔍 just re-serves the same list),
-            so this line tells the user the exact pool size and that
-            they need to change a criterion / use 💬 Tell me to find
-            more. Cleared on the next non-exhausted search. */}
+        {/* v0.60.115/117 — terminal note when the server returns
+            exhausted=true: the user has now seen everything across all
+            ~4 query phrasings for these criteria. Tells them the exact
+            count and offers a one-tap ↺ Start over (re-fires the search
+            with resetSeen so the server wipes the exclusion + variant
+            index and the first ~60 come back). Cleared on the next
+            non-exhausted search. */}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {poolCount > 1
@@ -844,6 +846,13 @@ export default function App() {
               : poolCount === 1
                 ? t('result.exhaustedOne', lang)
                 : t('result.exhaustedNoCount', lang)}
+            <button
+              type="button"
+              onClick={() => runSearch(state, null, { resetSeen: true })}
+              className="ml-1 not-italic underline text-tg-link"
+            >
+              {t('result.startOver', lang)}
+            </button>
           </div>
         )}
       </div>

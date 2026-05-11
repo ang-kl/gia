@@ -885,7 +885,7 @@ function priceLevelToInt(p) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1 }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -970,7 +970,14 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         'X-Goog-FieldMask': `${DISCOVER_FIELD_MASK},nextPageToken`
       };
       const textBody = {
-        textQuery: `${cuisineQuery} cuisine restaurant`,
+        // v0.60.117 — when the caller passes a queryOverride (the
+        // Cuisine TMA escalates to alternate phrasings like
+        // "best Italian restaurant Singapore" once the default
+        // "Italian cuisine restaurant" pool is exhausted), use it
+        // verbatim; otherwise the v0.57.15 default phrasing.
+        textQuery: (typeof queryOverride === 'string' && queryOverride.trim())
+          ? queryOverride.trim()
+          : `${cuisineQuery} cuisine restaurant`,
         includedType: 'restaurant',
         strictTypeFiltering: false,
         regionCode,
