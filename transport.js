@@ -133,13 +133,30 @@ async function busArrivals(busStopCode) {
     });
     const services = data?.Services ?? [];
     const now = Date.now();
-    return services.map((s) => ({
+    const mapped = services.map((s) => ({
       service: s.ServiceNo,
       operator: s.Operator,
       next: arrivalToObject(s.NextBus, now),
       next2: arrivalToObject(s.NextBus2, now),
       next3: arrivalToObject(s.NextBus3, now)
     }));
+    // v0.60.121 — sort by next-bus ETA so services arriving at a
+    // similar time group together (LTA returns them in service-number
+    // order, which scattered the "≤5 min" rows in the /app/map
+    // bus-stop InfoWindow). Services with no live next reading sink to
+    // the bottom; ties broken by service number (numeric where
+    // possible). The chat-side formatBusArrivalsHtml already re-sorts,
+    // so this is harmless there and fixes the map popup ordering.
+    mapped.sort((a, b) => {
+      const am = Number.isFinite(a.next?.minutes) ? a.next.minutes : Infinity;
+      const bm = Number.isFinite(b.next?.minutes) ? b.next.minutes : Infinity;
+      if (am !== bm) return am - bm;
+      const an = parseInt(a.service, 10);
+      const bn = parseInt(b.service, 10);
+      if (Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+      return String(a.service || '').localeCompare(String(b.service || ''));
+    });
+    return mapped;
   } catch (err) {
     console.error(`[Transport] BusArrivalv2 ${busStopCode} failed:`, err.message);
     return [];
