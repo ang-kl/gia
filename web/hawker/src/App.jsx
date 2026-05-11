@@ -268,8 +268,8 @@ export default function App() {
         })}
         aria-label={scrolledPastHero ? 'Back to top' : 'Scroll down'}
         style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-        className="fixed bottom-4 right-4 w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95 z-50"
-      ><span aria-hidden="true">{scrolledPastHero ? '↑' : '↓'}</span></button>
+        className="fixed bottom-4 right-4 px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+      >{scrolledPastHero ? '⇡ top' : '⇣ down'}</button>
     </div>
   );
 }

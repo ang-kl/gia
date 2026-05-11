@@ -57,19 +57,24 @@
        the visual signature is identical across TMAs. Dark text
        (#1c1c1f) keeps the icon legible against the pale aqua in
        both light and dark Telegram themes. z-50 keeps the FAB
-       above Google Map overlay controls. */
+       above Google Map overlay controls.
+       v0.60.95 — text label ('back' / 'end') standardised across
+       TMAs. Width grows from 32 px square to ~60 px pill via
+       padding + gap. */
     #gia-back-fab {
       position: fixed; bottom: 16px; left: 16px;
-      width: 32px; height: 32px;
+      min-width: 32px; height: 32px;
       background: #7FDBDB;
       color: #1c1c1f;
       border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 50%;
+      border-radius: 8px 8px 16px 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; line-height: 1;
+      gap: 4px;
+      font-size: 11px; font-weight: 600;
+      line-height: 1;
+      padding: 0 8px;
       cursor: pointer; z-index: 50;
-      padding: 0;
     }
     #gia-back-fab:active { transform: scale(0.95); }
   </style>
@@ -83,8 +88,9 @@
       var hasHist = window.history && window.history.length > 1;
       var fab = document.getElementById('gia-back-fab');
       if (!fab) return;
-      fab.textContent = hasHist ? '⬅' : '🔚';
-      fab.setAttribute('aria-label', hasHist ? 'Back' : 'Close');
+      // v0.60.95 — text label 'back' / 'end' standardised across TMAs.
+      fab.textContent = hasHist ? '⬅ back' : '🔚 end';
+      fab.setAttribute('aria-label', hasHist ? 'Back' : 'End');
       fab.addEventListener('click', function () {
         var w = window.Telegram && window.Telegram.WebApp;
         if (window.history && window.history.length > 1) window.history.back();

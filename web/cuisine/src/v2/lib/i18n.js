@@ -79,6 +79,8 @@ const STRINGS = {
   // v0.60.58 — short-form label for the FAB ("⇡ top" / "⇡ haut").
   // The long-form key above stays as the aria-label for screen readers.
   'btn.topShort':              { en: '⇡ top', fr: '⇡ haut' },
+  // v0.60.95 — operator standardised down/top/end labels across TMAs.
+  'btn.downShort':             { en: '⇣ down', fr: '⇣ bas' },
   'btn.showLocation':          { en: 'Show your location', fr: 'Afficher votre position' },
   'btn.searchHere':            { en: 'Search this area', fr: 'Rechercher dans cette zone' },
 

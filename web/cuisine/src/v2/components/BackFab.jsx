@@ -27,14 +27,20 @@ export default function BackFab({ inline = false }) {
   // (visible against dark page). Bumped z-50 so the FAB sits above
   // any embedded map controls that previously caught the tap.
   return (
+    // v0.60.95 — text label per operator: "Navigation 'down' 'top'
+    // 'end' should be standard for all TMA". BackFab renders glyph
+    // + text ('⬅ back' or '🔚 end'). Width grows with content via
+    // `px-2 min-w-8`; height stays 32 px so the bottom row aligns
+    // with the scroll + search FABs in the cuisine TMA.
     <button
       type="button"
       onClick={onClick}
-      aria-label={hasHistory ? 'Back' : 'Close'}
+      aria-label={hasHistory ? 'Back' : 'End'}
       style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
+      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
+      <span>{hasHistory ? 'back' : 'end'}</span>
     </button>
   );
 }
