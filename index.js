@@ -7550,6 +7550,34 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.60.120 — persist a location the user picked in the Cuisine
+    // TMA (Search-criteria location field) to the bot's Redis cache, so
+    // it becomes their /location: it sticks across TMA sessions and is
+    // honoured by chat commands (/eat, /weather, /transport, …). Only
+    // the LocationField place-pick calls this — a "× clear" or a map
+    // "Search this area" pan does not, so casual map exploration
+    // doesn't overwrite the saved pin.
+    app.post('/api/cuisine/set-location', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const lat = Number(req.body?.lat);
+        const lng = Number(req.body?.lng);
+        const valid = Number.isFinite(lat) && Number.isFinite(lng)
+          && Math.abs(lat) > 0.001 && Math.abs(lng) > 0.001
+          && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+        if (!valid) return res.status(400).json({ error: 'invalid lat/lng' });
+        await setUserLocation(redis, String(userId), lat, lng);
+        console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)}`);
+        res.json({ ok: true });
+      } catch (err) {
+        console.error('[set-location] 500', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.58.10: copy-syntax — emit a re-runnable /cuisine command
     // built from the current TMA state. Mirrors /api/cuisine/copy-all
     // (auth via initData → sends to the user's chat). The recipient

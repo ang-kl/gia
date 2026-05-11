@@ -153,3 +153,11 @@ export async function fetchUserLocation() {
     return null;
   }
 }
+
+// v0.60.120: persist a location the user picked in the TMA to the
+// bot's Redis cache (loc:{chatId}) — so it becomes the user's /location
+// and is honoured across sessions + by chat commands. Fire-and-forget;
+// callers ignore the result.
+export async function saveUserLocation({ lat, lng }) {
+  return postJson('/api/cuisine/set-location', { lat, lng });
+}

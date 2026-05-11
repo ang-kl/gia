@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -124,16 +124,24 @@ export default function App() {
   // free).
   const [locationName, setLocationName] = useState('');
   useEffect(() => {
-    if (!userLoc?.lat || !userLoc?.lng) {
-      setLocationName('');
-      return;
-    }
+    // v0.60.120 — the banner label tracks the *active search location*:
+    // the place the user locked in via the Search-criteria builder /
+    // map "Search this area" (locationAnchor) when one is set, else the
+    // device / cached pin (userLoc). Before this it always reverse-
+    // geocoded userLoc, so the banner kept saying e.g. "Yishun" even
+    // after the user picked "Alexandra Retail Centre". When the anchor
+    // already carries a name (from the place-resolve), use it verbatim;
+    // otherwise reverse-geocode the anchor's coords.
+    const anchorActive = !!(locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng));
+    const eff = anchorActive ? locationAnchor : userLoc;
+    if (!eff?.lat || !eff?.lng) { setLocationName(''); return; }
+    if (anchorActive && (locationAnchor.name || '').trim()) { setLocationName(locationAnchor.name.trim()); return; }
     let cancelled = false;
-    reverseGeocode({ lat: userLoc.lat, lng: userLoc.lng })
+    reverseGeocode({ lat: eff.lat, lng: eff.lng })
       .then((r) => { if (!cancelled) setLocationName(r?.name || ''); })
       .catch(() => { /* leave empty; banner shows generic line */ });
     return () => { cancelled = true; };
-  }, [userLoc?.lat, userLoc?.lng]);
+  }, [locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name, userLoc?.lat, userLoc?.lng]);
   useEffect(() => {
     // v0.60.96 — operator: "flip to Top when I am at the bottom of
     // the screen". Replace the previous `scrollY > 320` heuristic
@@ -775,6 +783,11 @@ export default function App() {
                 onSelect={(p) => {
                   if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
                     runSearchAt(p.lat, p.lng, p.label || '');
+                    // v0.60.120 — an explicit place pick (not a "× clear",
+                    // which sends an empty label) also updates the bot's
+                    // /location cache so the new location sticks across
+                    // sessions and in chat (/location, /eat, /weather, …).
+                    if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
                   } else {
                     setLocationAnchor(null);
                   }
