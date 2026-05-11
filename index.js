@@ -6217,22 +6217,30 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
           const nameH = stripD(v?.name);
           const otherH = stripD([v?.area, v?.primaryType, v?.googleSummary?.overview,
             Array.isArray(v?.reviews) ? v.reviews.map((r) => r?.text || '').join(' ') : ''].join(' '));
-          let strong = 0; let weak = 0;
-          for (const k of strongKw) { if (!k) continue; if (nameH.includes(k)) strong += 2; else if (otherH.includes(k)) strong += 1; }
-          if (cuisineRestType && v?.primaryType === cuisineRestType) strong += 2;
-          for (const k of weakKw) { if (!k) continue; if (nameH.includes(k)) weak += 2; else if (otherH.includes(k)) weak += 1; }
-          return { strong, weak };
+          // ABOVE the line ("exact") only when the venue NAME carries a
+          // strong keyword (it calls itself German / Slavic / Hospoda /
+          // Schnitzel / …) or its primaryType is a cuisine-restaurant
+          // type — i.e. the place self-identifies as that cuisine. A
+          // strong word that only shows up in a review is a soft signal
+          // (used to order the below tier), not a self-identification.
+          // Operator 2026-05-11: keep the line "earlier" — fewer above.
+          let exact = false;
+          for (const k of strongKw) { if (k && nameH.includes(k)) { exact = true; break; } }
+          if (!exact && cuisineRestType && v?.primaryType === cuisineRestType) exact = true;
+          let soft = 0;
+          for (const k of strongKw) { if (k && otherH.includes(k)) soft += 1; }
+          for (const k of weakKw) { if (!k) continue; if (nameH.includes(k)) soft += 2; else if (otherH.includes(k)) soft += 1; }
+          return { exact, soft };
         };
         const scored = venues.map((v) => ({ v, ...scoreOf(v) }));
-        const above = scored.filter((x) => x.strong > 0)
-          .sort((a, b) => (b.strong - a.strong) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
-        const below = scored.filter((x) => x.strong === 0)
-          .sort((a, b) => (b.weak - a.weak) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const above = scored.filter((x) => x.exact)
+          .sort((a, b) => (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const below = scored.filter((x) => !x.exact)
+          .sort((a, b) => (b.soft - a.soft) || (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
-          const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
-          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
+          dividerText = trBot('freetext.divider', ftLang);
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
