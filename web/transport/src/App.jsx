@@ -146,7 +146,7 @@ export default function App() {
           behavior: 'smooth'
         })}
         aria-label={scrolledPastHero ? 'Back to top' : 'Scroll down'}
-        style={{ backgroundColor: 'var(--tg-text)', color: 'var(--tg-bg)' }}
+        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
         className="fixed bottom-4 right-4 w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95 z-50"
       ><span aria-hidden="true">{scrolledPastHero ? '↑' : '↓'}</span></button>
     </div>

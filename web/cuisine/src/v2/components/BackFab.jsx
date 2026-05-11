@@ -31,7 +31,7 @@ export default function BackFab({ inline = false }) {
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'Close'}
-      style={{ backgroundColor: 'var(--tg-text)', color: 'var(--tg-bg)' }}
+      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
       className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
