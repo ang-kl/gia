@@ -459,6 +459,98 @@ async function fetchCheckpointTraffic() {
   return out;
 }
 
+// v0.60.104 — ICA checkpoint queue scrape. Operator 2026-05-11 accepted
+// the fragility: LTA's dedicated WoodlandsTraffic / 2ndLinkTraffic
+// endpoints (which used to carry CarsWaiting / MotorcyclesWaiting) are
+// 404'd, and ICA doesn't publish an open JSON API for queue status. We
+// scrape the public trafficupdates page heuristically:
+//   1. Pull the HTML with a real-browser User-Agent
+//   2. Look for "Woodlands" / "Tuas" headings near status words
+//      (Heavy / Moderate / Light / Smooth / Healthy)
+//   3. Distinguish "Departing" vs "Arriving" if both appear
+//   4. Return a structured object, or null if the page shape changed
+//
+// All chat-side rendering is gated on a non-null return so a scrape
+// failure degrades gracefully (camera-only view, no queue line).
+const ICA_TRAFFIC_URL = 'https://www.ica.gov.sg/enter-depart/checkpoints/trafficupdates';
+const ICA_CACHE_TTL_MS = 60 * 1000;            // 60 s — page refreshes ~every minute
+let icaCache = { at: 0, value: null };
+
+const ICA_STATUS_WORDS = /\b(Smooth|Healthy|Light|Moderate|Heavy|Congested|Closed)\b/gi;
+
+function fetchIcaCheckpointStatus() {
+  // Module-level promise dedupe to avoid stampeding ICA when multiple
+  // /checkpoint commands fire in the same second.
+  const now = Date.now();
+  if (icaCache.value && (now - icaCache.at) < ICA_CACHE_TTL_MS) {
+    return Promise.resolve(icaCache.value);
+  }
+  return scrapeIca()
+    .then((v) => { icaCache = { at: Date.now(), value: v }; return v; })
+    .catch((err) => {
+      console.warn('[Transport] ICA scrape failed:', err.message);
+      return null;
+    });
+}
+
+async function scrapeIca() {
+  const cheerio = require('cheerio');
+  const { data } = await axios.get(ICA_TRAFFIC_URL, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9'
+    },
+    timeout: 8000,
+    responseType: 'text',
+    transformResponse: [(d) => d]                // keep raw HTML for cheerio
+  });
+  if (typeof data !== 'string' || !data.length) return null;
+  const $ = cheerio.load(data);
+  // Strategy: walk the rendered text, find Woodlands + Tuas sections,
+  // and within each section capture (Departing|Arriving|To Singapore|
+  // From Singapore) + first status word.
+  const text = $('body').text().replace(/\s+/g, ' ').trim();
+  if (!text.length) return null;
+  const result = {
+    source: 'ICA',
+    fetchedAt: new Date().toISOString(),
+    woodlands: extractCheckpointSection(text, 'Woodlands'),
+    tuas: extractCheckpointSection(text, 'Tuas')
+  };
+  // Reject if neither section parsed any status — page shape likely
+  // changed; degrade to no-queue-line.
+  if (!result.woodlands && !result.tuas) return null;
+  return result;
+}
+
+function extractCheckpointSection(fullText, checkpointName) {
+  // Find the slice of text that mentions this checkpoint and at least
+  // one status word. Limit slice to 800 chars to avoid picking up
+  // unrelated mentions of the same word further down the page.
+  const idx = fullText.toLowerCase().indexOf(checkpointName.toLowerCase());
+  if (idx < 0) return null;
+  const slice = fullText.slice(idx, idx + 800);
+  // Look for direction-tagged status pairs: "Departing ... Heavy",
+  // "Arriving ... Moderate", or just one overall status.
+  const directionPattern = /\b(Departing|Arriving|To\s+Singapore|From\s+Singapore|Departure|Arrival|Inbound|Outbound)\b[^A-Za-z]{0,80}?\b(Smooth|Healthy|Light|Moderate|Heavy|Congested|Closed)\b/gi;
+  const directions = {};
+  let m;
+  while ((m = directionPattern.exec(slice)) !== null) {
+    const dirRaw = m[1].toLowerCase();
+    const status = m[2];
+    const key = /(depart|outbound|to\s+sg|to\s+singapore)/i.test(dirRaw) ? 'departing'
+              : /(arriv|inbound|from\s+sg|from\s+singapore)/i.test(dirRaw) ? 'arriving'
+              : null;
+    if (key && !directions[key]) directions[key] = status;
+  }
+  if (Object.keys(directions).length) return directions;
+  // Fallback: no direction tags found — capture the first status word
+  // anywhere in the slice as an overall indicator.
+  ICA_STATUS_WORDS.lastIndex = 0;
+  const single = ICA_STATUS_WORDS.exec(slice);
+  return single ? { overall: single[1] } : null;
+}
+
 async function fetchTrafficIncidents() {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
   try {
@@ -519,6 +611,7 @@ module.exports = {
   networkCrowdSummary,
   fetchTrafficIncidents,
   fetchCheckpointTraffic,
+  fetchIcaCheckpointStatus,
   nearestIncidents,
   CROWD_LABEL,
   STOPS_GEO,

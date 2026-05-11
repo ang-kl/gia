@@ -2888,6 +2888,39 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
 // + outbound + 2nd Link inbound + outbound). The image is short-
 // lived (LTA refreshes the URLs every ~1 min) so the bot uploads
 // the URL directly and Telegram caches it.
+// v0.60.104 — turn an ICA scrape result into an italic Telegram-
+// markdown block. Returns '' when the input is null/empty so callers
+// can just append unconditionally. Telegram chat HTML has no font-size
+// control; italic (_x_) is the smallest "subtle" treatment available.
+function formatIcaQueueLine(ica, lang = 'en') {
+  if (!ica || (!ica.woodlands && !ica.tuas)) return '';
+  const isFr = lang === 'fr';
+  const labels = {
+    title:     isFr ? 'Estimation file d’attente' : 'Queue estimate',
+    source:    isFr ? 'source : ICA · scraping non officiel'
+                    : 'source: ICA · unofficial scrape',
+    woodlands: isFr ? 'Woodlands' : 'Woodlands',
+    tuas:      isFr ? 'Tuas 2nd Link' : 'Tuas 2nd Link',
+    departing: isFr ? 'sortie' : 'depart',
+    arriving:  isFr ? 'entrée' : 'arrive',
+    overall:   isFr ? 'global'   : 'overall'
+  };
+  const fmtSection = (obj) => {
+    if (!obj) return null;
+    if (obj.overall) return `${labels.overall} ${obj.overall}`;
+    const parts = [];
+    if (obj.departing) parts.push(`${labels.departing} ${obj.departing}`);
+    if (obj.arriving)  parts.push(`${labels.arriving} ${obj.arriving}`);
+    return parts.length ? parts.join(' · ') : null;
+  };
+  const lines = [`_${labels.title} (${labels.source}):_`];
+  const w = fmtSection(ica.woodlands);
+  if (w) lines.push(`_  ${labels.woodlands}: ${w}_`);
+  const t = fmtSection(ica.tuas);
+  if (t) lines.push(`_  ${labels.tuas}: ${t}_`);
+  return lines.length > 1 ? lines.join('\n') : '';
+}
+
 async function runTransportCauseway(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
@@ -2909,9 +2942,24 @@ async function runTransportCauseway(chatId, lang = 'en') {
     const breakdown = Object.entries(byLabel)
       .map(([lbl, n]) => `${lbl}: ${n}`)
       .join(' · ');
-    await safeSend(chatId,
-      `${t('transport.causeway.heading', lang)}\n${tn('transport.causeway.refreshed', lang, { at: sgNow })}\n${tn('transport.causeway.count', lang, { n: cameras.length, breakdown })}`,
-      { parse_mode: 'Markdown' });
+    // v0.60.104 — best-effort ICA queue scrape. Fragile by design (no
+    // open JSON API); silently skipped if parse fails. Rendered as a
+    // small italic block under the camera count, explicitly attributed
+    // to ICA and labelled "estimate" so the user knows the caveats.
+    let icaLine = '';
+    try {
+      const ica = await transport.fetchIcaCheckpointStatus();
+      icaLine = formatIcaQueueLine(ica, lang);
+    } catch (err) {
+      console.warn('[Transport] ICA queue render failed:', err.message);
+    }
+    const header = [
+      t('transport.causeway.heading', lang),
+      tn('transport.causeway.refreshed', lang, { at: sgNow }),
+      tn('transport.causeway.count', lang, { n: cameras.length, breakdown })
+    ];
+    if (icaLine) header.push(icaLine);
+    await safeSend(chatId, header.join('\n'), { parse_mode: 'Markdown' });
     for (const cam of cameras) {
       try {
         await bot.sendPhoto(chatId, cam.imageUrl, {
