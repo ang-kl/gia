@@ -89,7 +89,7 @@
       var fab = document.getElementById('gia-back-fab');
       if (!fab) return;
       // v0.60.95 — text label 'back' / 'end' standardised across TMAs.
-      fab.textContent = hasHist ? '⬅ back' : '🔚 end';
+      fab.textContent = hasHist ? '⇠ back' : '🔚 end';
       fab.setAttribute('aria-label', hasHist ? 'Back' : 'End');
       fab.addEventListener('click', function () {
         var w = window.Telegram && window.Telegram.WebApp;

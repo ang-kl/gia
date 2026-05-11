@@ -29,16 +29,17 @@ export default function App() {
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
   const [mapView, setMapView] = useState('png');
-  // v0.60.93 — scroll FAB state machine mirroring the cuisine TMA's
-  // `scrolledPastHero` pattern. Bottom-right FAB shows ↓ when the
-  // user is at the top (map below the fold), flips to ↑ once the
-  // user has scrolled past the hero. Same threshold heuristic
-  // (240 px) as the Cuisine TMA modulo the smaller hero height
-  // here — covers status banner + view toggle row.
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  // v0.60.96 — operator: "flip to Top when I am at the bottom of the
+  // screen". atBottom = within 50 px of the document's full height.
+  const [atBottom, setAtBottom] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolledPastHero(window.scrollY > 240);
+    const onScroll = () => {
+      const reached = window.scrollY + window.innerHeight;
+      const fullH = document.documentElement.scrollHeight;
+      setAtBottom(reached >= fullH - 50);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -142,13 +143,13 @@ export default function App() {
       <button
         type="button"
         onClick={() => window.scrollTo({
-          top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+          top: atBottom ? 0 : window.scrollY + window.innerHeight,
           behavior: 'smooth'
         })}
-        aria-label={scrolledPastHero ? 'Back to top' : 'Scroll down'}
+        aria-label={atBottom ? 'Back to top' : 'Scroll down'}
         style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
         className="fixed bottom-4 right-4 px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
-      >{scrolledPastHero ? '⇡ top' : '⇣ down'}</button>
+      >{atBottom ? '⇡ top' : '⇣ down'}</button>
     </div>
   );
 }

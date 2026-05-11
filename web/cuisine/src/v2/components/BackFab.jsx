@@ -39,7 +39,7 @@ export default function BackFab({ inline = false }) {
       style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
       className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
     >
-      <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
+      <span aria-hidden="true">{hasHistory ? '⇠' : '🔚'}</span>
       <span>{hasHistory ? 'back' : 'end'}</span>
     </button>
   );
