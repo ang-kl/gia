@@ -51,7 +51,7 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-export default function MrtMapPanel() {
+export default function MrtMapPanel({ focusedCode = null, onResetFocus }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -132,11 +132,12 @@ export default function MrtMapPanel() {
     };
   }, []);
 
-  // Re-render pins whenever stations OR map become ready.
+  // Re-render pins whenever stations, map readiness, OR focused line
+  // change. v0.60.88 — focused line filters the visible pins.
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, mapsKeyState]);
+  }, [stations, mapsKeyState, focusedCode]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -166,9 +167,14 @@ export default function MrtMapPanel() {
     // Tear down old.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    // v0.60.88 — filter to the focused line when set. Pin colour
+    // logic stays the same; only the visible set changes.
+    const visibleList = focusedCode
+      ? list.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode))
+      : list;
     const bounds = new window.google.maps.LatLngBounds();
     let boundedCount = 0;
-    for (const s of list) {
+    for (const s of visibleList) {
       if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
       const isFuture = s.status === 'future';
       const primary = s.lines?.[0];
@@ -231,8 +237,28 @@ export default function MrtMapPanel() {
   const opsCount = (stations || []).filter((s) => s.status !== 'future').length;
   const futureCount = (stations || []).filter((s) => s.status === 'future').length;
 
+  // v0.60.88 — filtered subset when a line is focused via the
+  // AffectedTicker tap (App.jsx threads focusedCode through). Shows
+  // an Overview reset button so users can return to the full map.
+  const filteredCount = focusedCode && stations
+    ? stations.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode)).length
+    : 0;
+
   return (
     <div className="rounded-2xl overflow-hidden border border-tg-border">
+      {focusedCode && (
+        <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
+          <span className="text-tg-text">
+            Showing <strong>{focusedCode}</strong> · {filteredCount} stations
+          </span>
+          <button
+            type="button"
+            onClick={() => onResetFocus?.()}
+            className="px-2 py-0.5 rounded-md bg-tg-accent text-tg-accent-text text-[11px] font-semibold active:scale-95 transition"
+            aria-label="Overview"
+          >Overview ↺</button>
+        </div>
+      )}
       <div
         ref={containerRef}
         style={{ height: '480px', width: '100%' }}

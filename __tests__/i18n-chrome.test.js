@@ -107,9 +107,12 @@ describe('v0.59.1 chrome — interpolation sanity', () => {
     expect(tn('carpark.row', 'fr', { i: 1, name: 'OUE', lots: 25, dist: '320m' }))
       .toBe('1. OUE  ·  25 places  ·  320m');
   });
-  it('transport.train.network.low interpolates {pct} and {total}', () => {
-    expect(tn('transport.train.network.low', 'fr', { pct: 80, total: 162 }))
-      .toBe('🟢 Réseau peu chargé — 80 % des 162 quais à faible densité.');
+  it('transport.train.network.low interpolates {total}', () => {
+    // v0.60.88 — message inverted to surface crowded counts; the
+    // low-density variant now just says "0 above low density"
+    // (no {pct} placeholder anymore).
+    expect(tn('transport.train.network.low', 'fr', { total: 162 }))
+      .toBe('🟢 Réseau peu chargé — 0 quai sur 162 au-dessus de la faible densité.');
   });
   it('forgetme.eraseHeader vs eraseHeaderMany pick by count', () => {
     expect(tn('forgetme.eraseHeader', 'fr', { n: 1 })).toBe('✅ 1 entrée Redis effacée pour votre conversation.');

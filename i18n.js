@@ -110,15 +110,24 @@ const STRINGS = {
   'transport.train.crowd.h':        { en: '🔴 high', fr: '🔴 élevé' },
   'transport.train.nearestHeader':  { en: '🚇 Nearest 3 stations · est. wait {min}–{max} min ({label})', fr: '🚇 3 stations les plus proches · attente est. {min}–{max} min ({label})' },
   'transport.train.noLocation':     { en: '🚇 Share your location once and Gia will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Gia listera aussi les stations MRT les plus proches.' },
-  'transport.train.network.low':    { en: '🟢 Network is uncrowded — {pct}% of {total} platforms at low density.', fr: '🟢 Réseau peu chargé — {pct} % des {total} quais à faible densité.' },
-  'transport.train.network.medium': { en: '🟡 Network is moderate — {medium} of {total} platforms at medium density, {high} high.', fr: '🟡 Réseau modéré — {medium} sur {total} quais à densité moyenne, {high} élevée.' },
-  'transport.train.network.high':   { en: '🔴 Network is busy — {high} of {total} platforms at high density.', fr: '🔴 Réseau chargé — {high} sur {total} quais à forte densité.' },
+  // v0.60.88 — operator 2026-05-11: invert the message — surface
+  // CROWDED counts (medium + high) instead of uncrowded, and name
+  // the lines those platforms sit on. `lines` placeholder is filled
+  // by index.js from summary.crowdedLines when present.
+  'transport.train.network.low':    { en: '🟢 Network is uncrowded — 0 of {total} platforms above low density.',
+                                      fr: '🟢 Réseau peu chargé — 0 quai sur {total} au-dessus de la faible densité.' },
+  'transport.train.network.medium': { en: '🟡 {medium} moderate · {high} high (of {total}) — Lines: {lines}',
+                                      fr: '🟡 {medium} modéré · {high} élevé (sur {total}) — Lignes : {lines}' },
+  'transport.train.network.high':   { en: '🔴 {high} high · {medium} moderate (of {total}) — Lines: {lines}',
+                                      fr: '🔴 {high} élevé · {medium} modéré (sur {total}) — Lignes : {lines}' },
   'transport.train.affectedLines':  { en: '⚠️ Affected lines:', fr: '⚠️ Lignes affectées :' },
   // v0.60.75 — static MRT network frequency footer (LTA published).
   // Stand-in for per-train arrival times (LTA DataMall doesn't expose
   // them) — gives users a calibration of when to expect the next train.
-  'transport.train.headway':        { en: '🚇 Frequency: {peakMin}–{peakMax} min peak · {offMin}–{offMax} min off-peak (LTA published)',
-                                      fr: '🚇 Fréquence : {peakMin}–{peakMax} min en heure de pointe · {offMin}–{offMax} min hors pointe (LTA publié)' },
+  // v0.60.88 — operator 2026-05-11: swap 🚇 → ⏱️ since the line is
+  // about timing, not trains.
+  'transport.train.headway':        { en: '⏱️ Frequency: {peakMin}–{peakMax} min peak · {offMin}–{offMax} min off-peak (LTA published)',
+                                      fr: '⏱️ Fréquence : {peakMin}–{peakMax} min en heure de pointe · {offMin}–{offMax} min hors pointe (LTA publié)' },
   'transport.train.engineering':    { en: '🔧 Upcoming engineering (next 7 d):', fr: '🔧 Travaux à venir (sous 7 j) :' },
   'transport.train.openMapBtn':     { en: '🗺 Open MRT map', fr: '🗺 Ouvrir la carte MRT' },
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." },

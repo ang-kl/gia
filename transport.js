@@ -228,16 +228,29 @@ async function fetchLineCrowd(trainLine) {
 // short station code (e.g. NS1, EW24); we key on that and on a derived
 // human-readable variant if available.
 async function fetchPlatformCrowdAll() {
-  const results = await Promise.all(MRT_LINES.map(fetchLineCrowd));
+  // v0.60.88 — also retain per-line counts so the chat reply can
+  // surface WHICH lines have crowded platforms (operator 2026-05-11:
+  // "show # of 141 platform is crowded or mild instead of 'low' and
+  // which line"). Per-line attribution is available at fetch-time
+  // because each fetchLineCrowd call is for one specific TrainLine;
+  // we just hadn't kept it.
   const byCode = new Map();
-  for (const arr of results) {
+  const byLine = new Map();   // lineCode → { l, m, h }
+  await Promise.all(MRT_LINES.map(async (line) => {
+    const arr = await fetchLineCrowd(line);
+    const counts = { l: 0, m: 0, h: 0 };
     for (const row of arr) {
       const code = (row.Station || '').toUpperCase().trim();
       if (!code) continue;
       const level = (row.CrowdLevel || '').toLowerCase();
       if (!byCode.has(code)) byCode.set(code, level);
+      if (counts[level] !== undefined) counts[level]++;
     }
-  }
+    byLine.set(line, counts);
+  }));
+  // Attach byLine as a property on the Map — backwards-compatible
+  // with existing callers that iterate byCode.values().
+  byCode.byLine = byLine;
   return byCode;
 }
 
@@ -356,11 +369,22 @@ function networkCrowdSummary(crowdByCode) {
   }
   const total = counts.l + counts.m + counts.h;
   if (!total) return null;
+  // v0.60.88 — surface lines with ANY non-low platforms so the chat
+  // reply can call them out ("Lines: NSL, CCL"). Reads the byLine
+  // property attached by fetchPlatformCrowdAll.
+  const crowdedLines = [];
+  const byLine = crowdByCode?.byLine;
+  if (byLine instanceof Map) {
+    for (const [line, c] of byLine.entries()) {
+      if ((c.m || 0) + (c.h || 0) > 0) crowdedLines.push(line);
+    }
+  }
   return {
     total,
     low: counts.l,
     medium: counts.m,
     high: counts.h,
+    crowdedLines,
     overall: counts.h > total * 0.2 ? 'high' : counts.m > total * 0.4 ? 'medium' : 'low'
   };
 }
