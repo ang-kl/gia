@@ -40,6 +40,12 @@ export default function App() {
   // !matched, ResultPanel renders the "No exact cuisine combination
   // found" banner above the first result card.
   const [comboInfo, setComboInfo] = useState(null);
+  // v0.60.128 — "misrepresented dish" note. When the "Tell me" free-text
+  // box names a dish from the curated table (server-side data/
+  // Misrepresented Dish Dessert Drink.MD), the search response carries
+  // { name, note } and we render it as a small info banner above the
+  // result list. null when there's no match.
+  const [misrepNote, setMisrepNote] = useState(null);
   // v0.60.28 — current page slice surfaced by ResultPanel. The map
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
@@ -431,6 +437,9 @@ export default function App() {
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
       setComboInfo(r.comboInfo || null);
+      // v0.60.128 — "misrepresented dish" note (null unless the Tell-me
+      // text named a dish from the curated table)
+      setMisrepNote(r.misrepresentation && r.misrepresentation.name ? r.misrepresentation : null);
       setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
@@ -467,7 +476,7 @@ export default function App() {
         });
       }
     } catch (err) {
-      setError(err.message); setVenues([]);
+      setError(err.message); setVenues([]); setMisrepNote(null);
     } finally { setLoading(false); }
   }
 
@@ -840,6 +849,15 @@ export default function App() {
           ⏳ {lang === 'fr'
             ? 'Veuillez patienter pendant le chargement de la liste…'
             : 'Please wait while loading list…'}
+        </div>
+      )}
+
+      {/* v0.60.128 — "misrepresented dish" note: when the Tell-me box
+          named a dish from the curated table, show the "often assumed X,
+          but actually Y" context above the results. */}
+      {misrepNote && !loading && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
+          ℹ️ <span className="font-semibold">{misrepNote.name}</span> — {misrepNote.note}
         </div>
       )}
 
