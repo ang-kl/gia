@@ -388,7 +388,14 @@ export default function App() {
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
     if (!userLoc) return;
-    const center = anchor || searchCenter || userLoc;
+    // v0.60.119 — locationAnchor (the location the user explicitly
+    // picked in the Search-criteria builder, or a /cuisine deep-link)
+    // wins over the device / cached /location pin. Without it, a
+    // searchCenter that got nulled (e.g. on a TMA background/restore)
+    // silently fell back to userLoc, so the user's chosen location
+    // "reset" itself. Now an explicit pick sticks until the user
+    // clears it or picks another.
+    const center = anchor || searchCenter || locationAnchor || userLoc;
     // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}. Server
     // now 400s on zero-coord but the user would see a confusing error;
     // surfacing a clearer message client-side is friendlier.
@@ -451,8 +458,16 @@ export default function App() {
   }
 
   // v0.58.2: re-anchor the search at an explicit lat/lng (the map's
-  // viewport centre when the user taps "Search this area").
-  function runSearchAt(lat, lng) {
+  // viewport centre when the user taps "Search this area", or a place
+  // picked in the LocationField).
+  // v0.60.119: also record it as locationAnchor so it persists as the
+  // search location across criteria-card collapses, FAB taps, and TMA
+  // background/restore — i.e. it "locks in" rather than reverting to
+  // the device / cached pin on the next search.
+  function runSearchAt(lat, lng, name = '') {
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      setLocationAnchor({ lat, lng, name: name || '' });
+    }
     runSearch(state, { lat, lng });
   }
 
@@ -756,11 +771,10 @@ export default function App() {
           <div className="flex flex-col gap-2 px-3 pb-3">
             <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
             {userLoc && (
-              <LocationField userLoc={userLoc} region={state.region}
+              <LocationField userLoc={userLoc} region={state.region} anchor={locationAnchor}
                 onSelect={(p) => {
                   if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-                    setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
-                    runSearchAt(p.lat, p.lng);
+                    runSearchAt(p.lat, p.lng, p.label || '');
                   } else {
                     setLocationAnchor(null);
                   }

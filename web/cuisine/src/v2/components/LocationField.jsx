@@ -14,7 +14,14 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 //   • Suggestions biased to a 50 km circle around userLoc.
 //   • Mouse-down preventDefault on suggestion buttons so the input
 //     doesn't blur before the click registers.
-export default function LocationField({ userLoc, region, onSelect }) {
+// v0.60.119: `anchor` (the parent's locationAnchor — {lat, lng, name})
+// is the location the user has explicitly locked in. It lets the field
+// keep showing the picked place after the criteria card collapses and
+// re-opens (the component unmounts/remounts and loses its internal
+// pickedLabel), and after a TMA background/restore. Without it, the
+// field re-showed the device / cached-pin neighbourhood even though
+// searches were still running at the locked-in location.
+export default function LocationField({ userLoc, region, onSelect, anchor = null }) {
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -114,12 +121,24 @@ export default function LocationField({ userLoc, region, onSelect }) {
     setSuggestions([]);
     setSuggestionsQuery('');
     if (userLoc?.lat && userLoc?.lng) {
+      // Clearing snaps the search anchor back to the device / cached
+      // pin. The parent re-runs the search there and resets
+      // locationAnchor accordingly.
       onSelect?.({ lat: userLoc.lat, lng: userLoc.lng, label: '' });
     }
   }
 
-  // Resting label: pickedLabel > currentLabel > i18n('Search location').
-  const resting = pickedLabel || currentLabel || tr('loc.searchLocation', lang);
+  // v0.60.119: is the locked-in anchor actually a *different* place
+  // from the device / cached pin? (After a "clear", the parent sets
+  // locationAnchor ≈ userLoc, so we don't want the field to still look
+  // like an override is active.)
+  const anchorDiffers = !!(anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)
+    && (!userLoc || Math.abs(anchor.lat - userLoc.lat) > 1e-5 || Math.abs(anchor.lng - userLoc.lng) > 1e-5));
+  const anchorLabel = anchorDiffers ? (anchor.name || '').trim() : '';
+  // Resting label: just-picked label > locked-in anchor name >
+  // device-pin neighbourhood > i18n('Search location').
+  const resting = pickedLabel || anchorLabel || currentLabel || tr('loc.searchLocation', lang);
+  const showClear = !!(pickedLabel || anchorDiffers);
 
   return (
     <div className="relative">
@@ -152,7 +171,7 @@ export default function LocationField({ userLoc, region, onSelect }) {
           </button>
         )}
         {loading && <span className="text-tg-hint text-xs">…</span>}
-        {pickedLabel && !open && (
+        {showClear && !open && (
           <button
             type="button"
             onClick={handleClear}
