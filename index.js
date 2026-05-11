@@ -791,27 +791,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
       : '';
     const body = t1Body ? (t1Body + openingDateLine + googleLine) : null;
 
+    // v0.60.113 — the per-card "👥 Connect (N other diners)" decoration
+    // (v0.31.0 Buddy Level 2) is retired per operator 2026-05-11. The
+    // buttons array stays declared (other features may add rows later);
+    // for now it's left empty on every card.
     const buttons = [];
-    if (pid) {
-      // v0.31.0 Buddy Level 2 only — Maps URL already in the T1 body,
-      // so we drop the redundant "📍 Google Maps" inline button.
-      try {
-        const buddy = require('./buddy-match');
-        if (await buddy.isOptedIn(redis, chatId)) {
-          await buddy.registerIntent(redis, chatId, pid);
-          const others = await buddy.findCounterparts(redis, chatId, pid);
-          if (others.length) {
-            const counterpartId = others[0];
-            buttons.push({
-              text: `👥 Connect (${others.length} other diner${others.length > 1 ? 's' : ''})`,
-              callback_data: `buddy:init:${pid}:${counterpartId}`
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('[Buddy] match-button decoration failed:', err.message);
-      }
-    }
     // v0.59.4: nearby-carparks map button on the result card. Conditional
     // on LTA_ACCOUNT_KEY (carpark lookup) + webhookDomain (TMA leaflet map)
     // + venue having lat/lng. Skips silently otherwise so EN-card behaviour
@@ -880,18 +864,16 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   } catch (err) {
     console.warn('[Stale-Location] reminder failed:', err.message);
   }
-  // v0.34.1: buddy state footer. Ambient indicator so the user knows
-  // whether 👥 Connect buttons can appear on these picks. Fire-and-forget.
-  try {
-    await safeSend(chatId, await formatBuddyFooter(chatId));
-  } catch (err) {
-    console.warn('[Buddy] footer render failed:', err.message);
-  }
+  // v0.60.113 — the "👥 Buddy: …" state footer (v0.34.1) is retired
+  // per operator 2026-05-11. formatBuddyFooter() kept defined below
+  // (dead) for re-enable.
 }
 
 // v0.34.1: render a single-line buddy state footer. Reads opt-in flag
 // + today's connection count from buddy-match. Returns a formatted
 // Markdown string ready for safeSend.
+// v0.60.113 — no longer called (buddy retired as a user-facing feature);
+// retained for easy re-enable alongside buddy-match.js.
 async function formatBuddyFooter(chatId) {
   const buddy = require('./buddy-match');
   try {
@@ -1639,6 +1621,12 @@ bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
 // v0.26.2; surfaces buddy-share as an explicit on-demand action.
 // v0.31.0: /buddy on|off|status|block|report — Buddy Level 2 controls.
 // Opt-in only. See prompt-templates/buddy-level-2-policy.md.
+// v0.60.113 — /buddy retired as a user-facing feature per operator
+// 2026-05-11. The handler below is preserved (commented) for easy
+// re-enable; buddy-match.js + the buddy.* i18n keys + handleBuddyCallback
+// + formatBuddyFooter all stay intact. A user who types /buddy now hits
+// the message-handler's `text.startsWith('/')` early-return → no-op.
+/*
 bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const { t, tn } = require('./i18n');
@@ -1690,6 +1678,7 @@ bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i
     await safeSend(msg.chat.id, t('buddy.error', lang));
   }
 });
+*/
 
 // v0.47.0: /picks — consolidated copy-friendly list of today's picks
 // across /cuisine, /surprise, /eat, /drink, /groceries, NL chat. Reads
@@ -1933,10 +1922,16 @@ bot.on('callback_query', async (q) => {
     // both /hawker buttons now open the TMA directly with ?tab= query
     // param. No intermediate dispatch needed.
     // v0.31.0 Buddy Level 2 callback dispatch.
+    // v0.60.113 — /buddy retired per operator 2026-05-11. Dispatch
+    // disabled (handleBuddyCallback kept defined for re-enable). Stale
+    // "👥 Connect" buttons in old chat history fall through to a
+    // no-op (answerCallbackQuery already fired above → no stuck spinner).
+    /*
     if (data.startsWith('buddy:')) {
       await handleBuddyCallback(data, chatId, q);
       return;
     }
+    */
     // v0.59.44: /clip inline-keyboard callbacks.
     if (data.startsWith('clip:')) {
       const { getClip, clearClips } = require('./clip-store');
@@ -2296,20 +2291,8 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
     // command uses, so the hub stays the single source of truth
     // for "what can this bot do" without duplicating logic.
     case 'search':    await runSearchCommand(chatId, '', lang); return true;
-    case 'buddy': {
-      const { t: tBuddy, tn: tnBuddy } = require('./i18n');
-      try {
-        const buddy = require('./buddy-match');
-        const on = await buddy.isOptedIn(redis, chatId);
-        const cnt = await buddy.dailyCount(redis, chatId);
-        const state = on ? tBuddy('buddy.status.on', lang) : tBuddy('buddy.status.off', lang);
-        await safeSend(chatId, tnBuddy('buddy.status', lang, { state, n: cnt, cap: buddy.DAILY_CAP }));
-      } catch (err) {
-        console.error('[routeMenuCommand] buddy failed:', err.message);
-        await safeSend(chatId, tBuddy('buddy.error', lang));
-      }
-      return true;
-    }
+    // v0.60.113 — 'buddy' case removed (buddy retired; the Menu hub
+    // tile that dispatched cmd:'buddy' was already dropped in v0.60.67).
     case 'language': {
       // runLanguageCommand reads msg.chat.id + msg.from.language_code.
       // For TMA tile dispatch we synthesise a minimal msg using the
@@ -4037,34 +4020,15 @@ async function deliverSurprise(chatId, v) {
   } catch (err) {
     await bot.sendMessage(chatId, text, { reply_markup });
   }
-  // v0.34.1: buddy state footer (same as deliverPicks).
-  try {
-    await safeSend(chatId, await formatBuddyFooter(chatId));
-  } catch (err) {
-    console.warn('[Buddy] footer render failed:', err.message);
-  }
+  // v0.60.113 — "👥 Buddy: …" state footer retired per operator 2026-05-11.
 }
 
 async function runVerCommand(chatId) {
   try {
     await safeSend(chatId, '🩺 Running health check…');
     const report = await runHealthCheck(bot, redis);
-    // v0.34.1: append per-chat buddy state below the deploy line so the
-    // user can see at a glance whether buddy mode is on, how many
-    // connections are left today, and (later) when their opt-in expires.
-    let buddyLine = '';
-    try {
-      const buddy = require('./buddy-match');
-      const on = await buddy.isOptedIn(redis, chatId);
-      if (on) {
-        const cnt = await buddy.dailyCount(redis, chatId);
-        buddyLine = `\nBuddy: ON · ${cnt}/${buddy.DAILY_CAP} connections used today`;
-      } else {
-        buddyLine = '\nBuddy: OFF (use /buddy on to enable)';
-      }
-    } catch (err) {
-      buddyLine = '\nBuddy: state unknown';
-    }
+    // v0.60.113 — per-chat "Buddy: …" line in /ver retired per operator
+    // 2026-05-11 (buddy is no longer a user-facing feature).
     // v0.37.0: footfall A/B telemetry row. Reads the Redis counters that
     // pipeline-task#refineIfPossible bumps when FOOTFALL_PROXY_ENABLED=on.
     // Only surfaces the row when the flag is on; stays quiet otherwise.
@@ -4084,7 +4048,7 @@ async function runVerCommand(chatId) {
         footfallLine = '\nFootfall (A/B on): counters unavailable';
       }
     }
-    const reportWithExtras = report + buddyLine + footfallLine;
+    const reportWithExtras = report + footfallLine;
     const escaped = reportWithExtras.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' }).catch(async () => { await safeSend(chatId, reportWithExtras); });
   } catch (err) {
@@ -6191,7 +6155,7 @@ async function registerCommandsMenu() {
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
       { command: 'carpark',    description: 'Nearest 5 with available lots' },
-      { command: 'buddy',      description: 'Live solo-dining match' },
+      // v0.60.113 — /buddy removed from the command menu (feature retired).
       // v0.60.37 — /search (alias /s), the conversational dish /
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
@@ -6209,7 +6173,7 @@ async function registerCommandsMenu() {
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
-      { command: 'buddy',      description: 'Match solo en direct' },
+      // v0.60.113 — /buddy retiré du menu (fonctionnalité supprimée).
       { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
