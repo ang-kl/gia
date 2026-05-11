@@ -878,7 +878,10 @@ export default function App() {
           construction. Bowl shape (rounded-t-md rounded-b-[16px])
           across all three FABs per Human Lead 2026-05-09 — replaces
           the prior rounded-full circles. */}
-      <div className="fixed bottom-2 left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3">
+      <div
+        className="fixed left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3"
+        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <BackFab inline />
         <div className="flex flex-col gap-2 items-end pointer-events-none">
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
