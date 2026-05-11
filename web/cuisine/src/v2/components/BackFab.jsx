@@ -19,20 +19,20 @@ export default function BackFab({ inline = false }) {
       w.close();
     }
   };
-  const positionClasses = inline
-    ? 'pointer-events-auto'
-    : 'fixed bottom-4 left-4 z-30';
-  // v0.60.90 — revert to theme-aware system colors per operator
-  // 2026-05-11. Aqua hex was hard to read against the white result
-  // cards on light theme; theme tokens (bg-tg-card text-tg-text)
-  // adapt to both light + dark Telegram themes and match the BackFab
-  // styling already used by the hawker / menu / transport TMAs.
+  // v0.60.91 — inverse theme colors per operator 2026-05-11: "grey
+  // on white text when day time and when toggle to dark mode, change
+  // to white background". Use var(--tg-text) as background and
+  // var(--tg-bg) as icon — day: dark FAB + light icon (high contrast
+  // against white result cards), night: light FAB + dark icon
+  // (visible against dark page). Bumped z-50 so the FAB sits above
+  // any embedded map controls that previously caught the tap.
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? 'Back' : 'Close'}
-      className={`${positionClasses} w-8 h-8 rounded-t-md rounded-b-[16px] bg-tg-card text-tg-text border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
+      style={{ backgroundColor: 'var(--tg-text)', color: 'var(--tg-bg)' }}
+      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-4 left-4 z-50'} w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-base flex items-center justify-center active:scale-95`}
     >
       <span aria-hidden="true">{hasHistory ? '⬅' : '🔚'}</span>
     </button>

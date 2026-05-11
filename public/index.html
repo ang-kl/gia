@@ -52,16 +52,21 @@
     /* v0.60.55 — bottom-left FAB. Smart-detects whether to act as
        Back (pop history) or Close (close the WebApp). One affordance,
        two meanings — icon switches at mount based on history depth. */
+    /* v0.60.91 — inverse theme colors per operator: day → dark FAB
+       + light icon, night → light FAB + dark icon. z-index 50 so
+       the FAB sits above embedded Google Map controls that
+       previously caught the tap and made it appear unresponsive. */
     #gia-back-fab {
       position: fixed; bottom: 16px; left: 16px;
       width: 32px; height: 32px;
-      background: #fff; color: #222;
+      background: var(--tg-theme-text-color, #1c1c1f);
+      color: var(--tg-theme-bg-color, #fff);
       border: 1px solid rgba(0,0,0,0.12);
       border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       display: flex; align-items: center; justify-content: center;
       font-size: 16px; line-height: 1;
-      cursor: pointer; z-index: 30;
+      cursor: pointer; z-index: 50;
       padding: 0;
     }
     #gia-back-fab:active { transform: scale(0.95); }
