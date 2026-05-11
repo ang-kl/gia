@@ -4280,17 +4280,15 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
     return;
   }
   // Empty arg with no active conversation → prompt the user for input.
-  // v0.60.109 — operator 2026-05-11: the prompt didn't make clear you
-  // can type the query *directly after* the command (`/s goulash
-  // dumpling`), and didn't mention `/search` is the same command.
-  // Spell out concrete examples in the operator's requested form.
+  // v0.60.110 — operator 2026-05-11 supplied this copy word-for-word
+  // (EN + FR). Sent as plain text (no parse_mode) so it renders
+  // exactly as written — no Markdown escaping surprises.
   let conv = await sc.getConversation(redis, chatId);
   if (!arg && !conv) {
     await sc.startConversation(redis, chatId);
     await safeSend(chatId, lang === 'fr'
-      ? '🔎 *Recherche culinaire — discutez avec moi*\n\nTapez votre requête juste après la commande, par ex. :\n• `/s goulash quenelles`\n• `/s braisage français`\n• `/s en croûte`\n• `/s agemono japonais`\n• `/s asado`\n• `/s pâte phyllo`\n\n…ou envoyez simplement `/s` et précisez dans le message suivant. `/search` fonctionne exactement comme `/s`.\n\nJe trouverai des restaurants à Singapour qui correspondent et je vous expliquerai pourquoi.\n\n_Tapez `/s end` pour terminer, ou n\'importe quelle commande `/...` pour passer à autre chose._'
-      : '🔎 *Search a dish, ingredient or cooking technique — chat with me*\n\nType your query right after the command, e.g.:\n• `/s goulash dumpling`\n• `/s Braisage french`\n• `/s En Croute`\n• `/s Agemono Japanese`\n• `/s Asado`\n• `/s Phyllo baking`\n\n…or just send `/s` on its own and tell me in the next message. `/search` works exactly like `/s`.\n\nI\'ll find Singapore restaurants that match and tell you why.\n\n_Type `/s end` to finish, or any `/...` command to switch._',
-      { parse_mode: 'Markdown' });
+      ? '🔎 /s ou /search - Recherche par plat, ingrédient, ustensile de cuisine ou méthode de cuisson\n\nTapez ce que vous voulez explorer - par ex. goulash quenelles, tandoor, binchotan, braisage français, en croûte, agemono japonais, asado, pâte phyllo.\n\nJe trouverai des établissements à Singapour qui correspondent et j\'expliquerai pourquoi ils conviennent.\n\nNote : « goulash quenelles » peut désigner le gulyás hongrois - ragoût de bœuf au paprika, généralement façon soupe - ou le guláš tchèque avec des quenelles de pain.\n\nEssayez :\n/s goulash quenelles\n/s braisage français\n/s en croûte\n/s agemono japonais\n/s asado\n/s pâte phyllo\n\nTapez /s end pour terminer, ou n\'importe quelle commande /... pour passer à autre chose.'
+      : '🔎 /s or /search - Search by dish, ingredient, kitchen tool, or cooking method\n\nType what you want to explore - e.g. goulash dumpling, tandoor, binchotan, Braisage french, En Croute, Agemono Japanese, Asado, Phyllo baking.\n\nI\'ll find matching Singapore eateries and explain why they fit.\n\nNote: "goulash dumpling" may mean Hungarian gulyás - paprika beef stew, usually soup-like - or Czech guláš with bread dumplings.\n\nTry:\n/s goulash dumpling\n/s Braisage french\n/s En Croute\n/s Agemono Japanese\n/s Asado\n/s Phyllo baking\n\nType /s end to finish, or any /... command to switch.');
     return;
   }
   // Empty arg with an active conversation → re-prompt continuation.
