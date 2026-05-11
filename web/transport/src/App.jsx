@@ -113,17 +113,30 @@ export default function App() {
         </div>
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
-          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} />}
+          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} statusByLine={statusByLine} />}
       </div>
 
       {focusedLine && (
         <LineStatusPanel line={focusedLine} status={focusedStatus} />
       )}
 
+      {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT)
+          in the default scroll, not just heavy rail. When no lines
+          are affected, show every operating line including LRTs. */}
       <AffectedTicker
-        affectedCodes={affectedCodes.length ? affectedCodes : LINES.slice(0, 7).map((l) => l.code)}
+        affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
         focusedCode={focusedCode}
-        onFocus={setFocusedCode}
+        onFocus={(code) => {
+          setFocusedCode(code);
+          // v0.60.99 — auto-switch to Google Map ONLY when a specific
+          // line is selected (code !== null). The "All Lines" reset
+          // (code === null) preserves the current view so users can
+          // clear focus without being thrown back to the Google Map.
+          if (code) {
+            setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+          }
+        }}
+        statusByLine={statusByLine}
       />
 
       <LocationCard address={data.address} nearest={data.nearestMrt} />
