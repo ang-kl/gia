@@ -74,7 +74,7 @@ export default function App() {
     >
       <header className="flex items-baseline justify-between">
         <div>
-          <h1 className="text-lg font-bold leading-tight">🚇 SG MRT</h1>
+          <h1 className="text-base sm:text-lg font-bold leading-tight">🇸🇬 Singapore Train Map and Status</h1>
           <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>
         </div>
         <div className="text-[11px] text-tg-hint">
