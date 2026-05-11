@@ -6240,7 +6240,8 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
-          dividerText = trBot('freetext.divider', ftLang);
+          const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
+          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
