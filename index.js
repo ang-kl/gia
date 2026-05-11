@@ -4280,12 +4280,16 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
     return;
   }
   // Empty arg with no active conversation → prompt the user for input.
+  // v0.60.109 — operator 2026-05-11: the prompt didn't make clear you
+  // can type the query *directly after* the command (`/s goulash
+  // dumpling`), and didn't mention `/search` is the same command.
+  // Spell out concrete examples in the operator's requested form.
   let conv = await sc.getConversation(redis, chatId);
   if (!arg && !conv) {
     await sc.startConversation(redis, chatId);
     await safeSend(chatId, lang === 'fr'
-      ? '🔎 *Recherche culinaire — discutez avec moi*\n\nTapez le nom d\'un plat, d\'un ingrédient ou d\'une technique de cuisson — par ex. "goulash aux quenelles", "tandoor", "binchotan".\n\nJe trouverai des restaurants à Singapour qui correspondent et je vous expliquerai pourquoi.\n\n_Tapez `/s end` pour terminer, ou n\'importe quelle commande `/...` pour passer à autre chose._'
-      : '🔎 *Search a dish, ingredient or kitchen tool — chat with me*\n\nType a dish name, ingredient, or cooking technique — e.g. "goulash with dumpling", "tandoor", "binchotan".\n\nI\'ll find Singapore restaurants that match and tell you why.\n\n_Type `/s end` to finish, or any `/...` command to switch._',
+      ? '🔎 *Recherche culinaire — discutez avec moi*\n\nTapez votre requête juste après la commande, par ex. :\n• `/s goulash quenelles`\n• `/s braisage français`\n• `/s en croûte`\n• `/s agemono japonais`\n• `/s asado`\n• `/s pâte phyllo`\n\n…ou envoyez simplement `/s` et précisez dans le message suivant. `/search` fonctionne exactement comme `/s`.\n\nJe trouverai des restaurants à Singapour qui correspondent et je vous expliquerai pourquoi.\n\n_Tapez `/s end` pour terminer, ou n\'importe quelle commande `/...` pour passer à autre chose._'
+      : '🔎 *Search a dish, ingredient or cooking technique — chat with me*\n\nType your query right after the command, e.g.:\n• `/s goulash dumpling`\n• `/s Braisage french`\n• `/s En Croute`\n• `/s Agemono Japanese`\n• `/s Asado`\n• `/s Phyllo baking`\n\n…or just send `/s` on its own and tell me in the next message. `/search` works exactly like `/s`.\n\nI\'ll find Singapore restaurants that match and tell you why.\n\n_Type `/s end` to finish, or any `/...` command to switch._',
       { parse_mode: 'Markdown' });
     return;
   }
@@ -6173,7 +6177,7 @@ async function registerCommandsMenu() {
       // v0.60.37 — /search (alias /s), the conversational dish /
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
-      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational (or /s)' },
+      { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase stored data' }
@@ -6188,7 +6192,7 @@ async function registerCommandsMenu() {
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       { command: 'buddy',      description: 'Match solo en direct' },
-      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel (ou /s)' },
+      { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
