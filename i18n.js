@@ -49,6 +49,10 @@ const STRINGS = {
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
                                  fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
+  // v0.60.123 — divider between the "actually serves it" tier and the
+  // looser Google text-matches in a free-text dish search reply.
+  'freetext.divider':          { en: '— — —   ↓ broader matches for "{dish}" (may not serve it)   — — —',
+                                 fr: '— — —   ↓ résultats plus larges pour « {dish} » (sans garantie)   — — —' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },

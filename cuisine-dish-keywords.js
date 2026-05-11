@@ -38,6 +38,25 @@ const CUISINE_DISH_KEYWORDS = {
   'south african': ['bobotie', 'biltong', 'boerewors', 'malva', 'bunny chow', 'chakalaka', 'pap', 'potjiekos'],
 
   // ─── European ──────────────────────────────────────────────────
+  // v0.60.123 — 'European' is the broad-category cuisine the free-text
+  // dish disambiguation assigns to Central/Germanic-European dishes
+  // (goulash → "Czech guláš with bread dumplings", schnitzel, …). Its
+  // keyword set is those dishes + the relevant nationality / region
+  // demonyms, so a place like "Kapitan | Authentic Slavic Cuisine" or
+  // "Bohemia Restaurant" lands ABOVE the relevance line for such a
+  // query even though its name carries no specific dish word. (The
+  // free-text scorer accent-strips both sides, so plain forms suffice;
+  // a few accented variants kept anyway to match this file's style.)
+  european:       ['european', 'central european', 'eastern european', 'continental european', 'modern european',
+                   'czech', 'czechia', 'bohemian', 'bohemia', 'moravian', 'slovak', 'slovakia', 'slovakian',
+                   'hungarian', 'hungary', 'magyar', 'austrian', 'austria', 'german', 'germany', 'bavarian', 'bavaria',
+                   'polish', 'poland', 'slavic', 'balkan', 'balkans', 'croatian', 'serbian', 'romanian', 'bulgarian',
+                   'goulash', 'goulasch', 'gulas', 'gulyas', 'guláš', 'gulyás', 'goulash soup', 'beef goulash', 'paprikash',
+                   'knedlik', 'knedliky', 'knedlík', 'knedlíky', 'bread dumpling', 'bread dumplings', 'potato dumpling',
+                   'svickova', 'svíčková', 'trdelnik', 'trdelník', 'kolache', 'langos', 'lángos', 'palacinky',
+                   'schnitzel', 'wiener schnitzel', 'spaetzle', 'spätzle', 'pierogi', 'pierogies', 'kielbasa',
+                   'bratwurst', 'sauerkraut', 'sauerbraten', 'pretzel', 'currywurst', 'rouladen', 'bigos', 'pelmeni',
+                   'apfelstrudel', 'strudel', 'sachertorte', 'tafelspitz', 'wiener'],
   italian:        ['pizza', 'pasta', 'lasagna', 'lasagne', 'risotto', 'gnocchi', 'carbonara', 'tiramisu', 'prosciutto', 'bruschetta', 'focaccia', 'parmesan', 'parmigiana', 'osso buco', 'cacio e pepe', 'arancini', 'tagliatelle', 'pappardelle', 'bolognese', 'ravioli'],
   spanish:        ['paella', 'tapas', 'gazpacho', 'sangria', 'jamón', 'jamon', 'churros', 'tortilla', 'pintxos', 'patatas bravas', 'croquetas', 'pulpo'],
   greek:          ['gyros', 'souvlaki', 'moussaka', 'tzatziki', 'baklava', 'feta', 'dolmades', 'spanakopita', 'horiatiki', 'pastitsio'],
