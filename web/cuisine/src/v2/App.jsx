@@ -46,6 +46,13 @@ export default function App() {
   // { name, note } and we render it as a small info banner above the
   // result list. null when there's no match.
   const [misrepNote, setMisrepNote] = useState(null);
+  // v0.60.129 — "Did you mean a cooking method?" pivot. When the Tell-me
+  // box names a method from cooking-methods.js + the data/cooking method
+  // reference by cuisine.md merge, the server returns { query, matches:
+  // [{ slug, cuisine, method }] } and we render a small banner with
+  // cuisine chips above the result list. Tapping a chip prefills that
+  // cuisine into the criteria and re-runs the search.
+  const [cookMethodPivot, setCookMethodPivot] = useState(null);
   // v0.60.28 — current page slice surfaced by ResultPanel. The map
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
@@ -440,6 +447,7 @@ export default function App() {
       // v0.60.128 — "misrepresented dish" note (null unless the Tell-me
       // text named a dish from the curated table)
       setMisrepNote(r.misrepresentation && r.misrepresentation.name ? r.misrepresentation : null);
+      setCookMethodPivot(r.cookingMethod && Array.isArray(r.cookingMethod.matches) && r.cookingMethod.matches.length ? r.cookingMethod : null);
       setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
@@ -476,7 +484,7 @@ export default function App() {
         });
       }
     } catch (err) {
-      setError(err.message); setVenues([]); setMisrepNote(null);
+      setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null);
     } finally { setLoading(false); }
   }
 
@@ -858,6 +866,35 @@ export default function App() {
       {misrepNote && !loading && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
           ℹ️ <span className="font-semibold">{misrepNote.name}</span> — {misrepNote.note}
+        </div>
+      )}
+
+      {/* v0.60.129 — "Did you mean a cooking method?" pivot: tap a
+          cuisine chip to re-run the search constrained to that cuisine. */}
+      {cookMethodPivot && !loading && cookMethodPivot.matches.length > 0 && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
+          <div className="mb-1.5">🤔 <span className="italic">
+            {lang === 'fr'
+              ? `Voulez-vous dire une méthode de cuisson « ${cookMethodPivot.query} » ?`
+              : `Did you mean a cooking method "${cookMethodPivot.query}"?`}
+          </span></div>
+          <div className="flex flex-wrap gap-1.5">
+            {cookMethodPivot.matches.map((m) => (
+              <button
+                key={m.slug}
+                type="button"
+                onClick={() => {
+                  const next = { ...state, cuisines: [m.slug] };
+                  setState(next);
+                  setCookMethodPivot(null);
+                  runSearch(next);
+                }}
+                className="px-2 py-0.5 rounded-full border border-tg-border text-[11px] text-tg-text hover:bg-tg-border/30"
+              >
+                {m.cuisine}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

@@ -1011,16 +1011,25 @@ function isOrderedPrefix(userTokens, termTokens) {
 }
 
 function findCookingMethod(text, opts = {}) {
-  if (!text) return null;
-  // Reject very short inputs (< 3 chars) that would falsely match
-  // term-leading particles like "a" / "al" / "om".
-  if (String(text).trim().length < 3) return null;
+  return findCookingMethodMatches(text, opts)[0] || null;
+}
+
+// v0.60.129 — multi-match variant. Same matching rules as
+// findCookingMethod, but returns ALL plausible cuisine hits (one entry
+// per cuisine slug, in scan order). Powers the "Did you mean a cooking
+// method?" pivot on chat free-text / Cuisine TMA / /s when the typed
+// term appears in multiple cuisines' method lists (e.g. "tadka" →
+// south-indian + north-indian + pakistani; "wok hei" → singaporean +
+// cantonese + hong-kong + sichuanese + hunan + ...).
+function findCookingMethodMatches(text, opts = {}) {
+  if (!text) return [];
+  if (String(text).trim().length < 3) return [];
   const userTokens = tokenize(text);
-  if (!userTokens.length) return null;
+  if (!userTokens.length) return [];
   const userSet = new Set(userTokens);
   const userLower = stripDiacritics(text).toLowerCase();
 
-  const matchInCuisine = (slug, methods) => {
+  const firstMatchInCuisine = (slug, methods) => {
     for (const term of methods) {
       const termTokens = tokenize(term);
       if (termTokens.length === 0) continue;
@@ -1040,20 +1049,19 @@ function findCookingMethod(text, opts = {}) {
     return null;
   };
 
-  // v0.60.21 — sticky-cuisine bias. When the prior turn locked a
-  // cuisine, prefer it on ambiguous method matches.
   const stickySlug = opts.stickyCuisine ? String(opts.stickyCuisine).toLowerCase() : null;
+  const out = [];
+  const seen = new Set();
   if (stickySlug && COOKING_METHODS[stickySlug]) {
-    const hit = matchInCuisine(stickySlug, COOKING_METHODS[stickySlug]);
-    if (hit) return { ...hit, sticky: true };
+    const hit = firstMatchInCuisine(stickySlug, COOKING_METHODS[stickySlug]);
+    if (hit) { out.push({ ...hit, sticky: true }); seen.add(stickySlug); }
   }
-
   for (const [slug, methods] of Object.entries(COOKING_METHODS)) {
-    if (stickySlug && slug === stickySlug) continue;
-    const hit = matchInCuisine(slug, methods);
-    if (hit) return hit;
+    if (seen.has(slug)) continue;
+    const hit = firstMatchInCuisine(slug, methods);
+    if (hit) { out.push(hit); seen.add(slug); }
   }
-  return null;
+  return out;
 }
 
 // Pretty-print a slug as "Cuisine Label" (e.g. "south-indian" → "South Indian",
@@ -1075,13 +1083,133 @@ function getCuisineSlugs() {
   return Object.keys(COOKING_METHODS);
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// v0.60.129 — operator-authored vocabulary merge
+// ─────────────────────────────────────────────────────────────────────
+// `data/cooking method reference by cuisine.md` is a second, more
+// verbatim curation (traditional terms: agemono, tadka, wok hei, dum,
+// nimono, hongshao …) keyed by cuisine label. At module load we parse
+// it once and UNION its per-cuisine lists into COOKING_METHODS so the
+// matcher recognises both vocabularies — the chef-English compounds
+// already in this file and the operator's verbatim terms. Cuisines in
+// the .md that aren't yet in COOKING_METHODS (Hokkien, Teochew,
+// Hainanese, Hakka, Shanghainese, Hunan, NE/NW Chinese, Hong Kong,
+// Macau, Taiwanese, Bengali, Gujarati, Jordanian, Uzbek, Eurasian,
+// Dessert, Fusion, European, Mediterranean, Australasia, African
+// umbrella) become new entries.
+
+const MD_LABEL_TO_SLUG = {
+  'Singaporean': 'singaporean', 'Peranakan': 'peranakan',
+  'South Indian': 'south-indian', 'North Indian': 'north-indian',
+  'Malaysian': 'malaysian', 'Indonesian': 'indonesian',
+  'Japanese': 'japanese', 'Chinese': 'chinese', 'Korean': 'korean',
+  'Taiwanese': 'taiwanese', 'Thai': 'thai', 'Vietnamese': 'vietnamese',
+  'Filipino': 'filipino',
+  'Sichuan': 'sichuanese', 'Cantonese': 'cantonese', 'Hokkien': 'hokkien',
+  'Teochew': 'teochew', 'Hainanese': 'hainanese', 'Hakka': 'hakka',
+  'Shanghainese': 'shanghainese', 'Hunan': 'hunan',
+  'Northeastern Chinese': 'northeastern-chinese',
+  'Northwestern Chinese': 'northwestern-chinese',
+  'Hong Kong': 'hong-kong', 'Macau': 'macau',
+  'Bengali': 'bengali', 'Gujarati': 'gujarati', 'Nepalese': 'nepalese',
+  'Sri Lankan': 'sri-lankan', 'Pakistani': 'pakistani',
+  'Italian': 'italian', 'Spanish': 'spanish', 'Greek': 'greek',
+  'French': 'french', 'British': 'british', 'German': 'german',
+  'Austrian': 'austrian', 'Swiss': 'swiss', 'Portuguese': 'portuguese',
+  'Russian': 'russian', 'Ukrainian': 'ukrainian', 'Polish': 'polish',
+  'Scandinavian': 'scandinavian',
+  'Lebanese': 'lebanese', 'Turkish': 'turkish', 'Persian': 'persian',
+  'Moroccan': 'moroccan', 'Egyptian': 'egyptian', 'Jordanian': 'jordanian',
+  'Israeli': 'israeli', 'Uzbek': 'uzbek', 'Georgian': 'georgian',
+  'Argentinian': 'argentinian',
+  'African': 'african', 'South African': 'south-african',
+  'American': 'american', 'Mexican': 'mexican', 'Brazilian': 'brazilian',
+  'Australian': 'australian', 'New Zealand': 'new-zealand',
+  'Australasia': 'australasia',
+  'Burmese': 'burmese',
+  'European': 'european', 'Mediterranean': 'mediterranean',
+  'Eurasian': 'eurasian',
+  'Dessert': 'dessert', 'Fusion': 'fusion'
+};
+
+function parseCookingMethodsMd() {
+  const fs = require('fs');
+  const path = require('path');
+  const file = path.join(__dirname, 'data', 'cooking method reference by cuisine.md');
+  let text;
+  try { text = fs.readFileSync(file, 'utf8'); }
+  catch (err) { console.warn('[cooking-methods] data file not readable:', err.message); return {}; }
+  const out = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const m = line.match(/^([A-Z][A-Za-z' \-]{2,30}?)\s+—\s+(.+)$/);
+    if (!m) continue;
+    const label = m[1].trim();
+    const list = m[2].trim().replace(/\.+\s*$/, '');
+    const methods = list.split(',').map((s) => s.trim()).filter(Boolean);
+    if (!methods.length) continue;
+    out[label] = methods;
+  }
+  return out;
+}
+
+// Bare single-token English cooking verbs that the .md file uses across
+// many cuisines (e.g. "smoking", "steaming", "pickling"). If we let them
+// through the merge they'd false-match any user input containing the
+// word — the matcher's single-token rule is `userLower.includes(token)`,
+// so a bare "smoking" turns "jerk smoking" into a sichuanese hit instead
+// of caribbean. Multi-token compounds like "tea-smoking" / "deep-frying"
+// are unaffected (they tokenize to 2+ tokens and require all to appear).
+const MD_BARE_VERB_STOPLIST = new Set([
+  'steaming', 'frying', 'simmering', 'searing', 'boiling', 'grilling',
+  'roasting', 'braising', 'poaching', 'baking', 'smoking', 'pickling',
+  'fermenting', 'fermentation', 'tempering', 'marinating', 'marination',
+  'griddling', 'glazing', 'melting', 'whipping', 'folding', 'pounding',
+  'clarifying', 'straining', 'culturing', 'drying', 'curing', 'brewing',
+  'blending', 'scraping', 'skewering', 'charring', 'toasting', 'dipping',
+  'layering', 'mixing', 'rolling', 'wrapping', 'stuffing', 'soaking',
+  'infusing', 'infusion', 'salting', 'kneading', 'rendering', 'churning',
+  'distilling', 'proofing', 'tossing', 'rinsing', 'blanching', 'frosting',
+  'caramelising', 'caramelizing', 'reducing', 'reduction'
+]);
+
+(function mergeMdCookingMethods() {
+  const parsed = parseCookingMethodsMd();
+  const dropped = [];
+  for (const [label, mdMethods] of Object.entries(parsed)) {
+    const slug = MD_LABEL_TO_SLUG[label];
+    if (!slug) { dropped.push(label); continue; }
+    const existing = COOKING_METHODS[slug] || [];
+    const seen = new Set(existing.map((m) => stripDiacritics(String(m)).toLowerCase().trim()));
+    const merged = [...existing];
+    for (const m of mdMethods) {
+      const key = stripDiacritics(String(m)).toLowerCase().trim();
+      if (!key || seen.has(key)) continue;
+      // Drop bare common-verb tokens (one-token term in the stoplist) —
+      // they'd false-match any user input containing the verb.
+      const toks = tokenize(m);
+      if (toks.length === 1 && MD_BARE_VERB_STOPLIST.has(toks[0])) continue;
+      seen.add(key);
+      merged.push(m);
+    }
+    COOKING_METHODS[slug] = merged;
+  }
+  if (dropped.length) {
+    console.warn(`[cooking-methods] dropped .md sections without a slug mapping: ${dropped.join(', ')}`);
+  }
+})();
+
 module.exports = {
   COOKING_METHODS,
   findCookingMethod,
+  findCookingMethodMatches,
   getMethodsForCuisine,
   getCuisineSlugs,
   slugToLabel,
   // Internal helpers exported for test reuse
   _stripDiacritics: stripDiacritics,
-  _tokenize: tokenize
+  _tokenize: tokenize,
+  _MD_LABEL_TO_SLUG: MD_LABEL_TO_SLUG,
+  _parseCookingMethodsMd: parseCookingMethodsMd
 };

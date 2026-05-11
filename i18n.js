@@ -63,6 +63,16 @@ const STRINGS = {
   // English-only). Caller HTML-escapes {name} / {note}.
   'misrep.note':               { en: 'ℹ️ <b>{name}</b> — {note}',
                                  fr: 'ℹ️ <b>{name}</b> — {note}' },
+  // v0.60.129 — "Did you mean a cooking method?" pivot prompt. Fired
+  // on the free-text dish-search paths (chat + Cuisine TMA + /s) when
+  // the typed term names one or more cooking methods from
+  // data/cooking method reference by cuisine.md (+ the baseline
+  // cooking-methods.js dict). Source data is English; FR users get a
+  // localised framing with English method names.
+  'cookmethod.didYouMean':     { en: '🤔 <i>Did you mean a cooking method?</i> Tap a cuisine, or search literally.',
+                                 fr: '🤔 <i>Voulez-vous dire une méthode de cuisson ?</i> Touchez une cuisine, ou cherchez tel quel.' },
+  'cookmethod.literalBtn':     { en: '🔍 Search literally',
+                                 fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
