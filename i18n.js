@@ -130,7 +130,9 @@ const STRINGS = {
                                       fr: '⏱️ Fréquence : {peakMin}–{peakMax} min en heure de pointe · {offMin}–{offMax} min hors pointe (LTA publié)' },
   // v0.60.97 — operator: spell "d" as "days" / "jours".
   'transport.train.engineering':    { en: '🔧 Upcoming engineering (next 7 days):', fr: '🔧 Travaux à venir (sous 7 jours) :' },
-  'transport.train.openMapBtn':     { en: '🗺 Open MRT map', fr: '🗺 Ouvrir la carte MRT' },
+  // v0.60.98 — operator: rename to '🇸🇬 Train Map and Status' so
+  // the chat CTA reads as a destination, not an action verb.
+  'transport.train.openMapBtn':     { en: '🇸🇬 Train Map and Status', fr: '🇸🇬 Carte et état des trains' },
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." },
 
   // /transport bus
@@ -229,7 +231,10 @@ const STRINGS = {
   // implied by the button context).
   'transport.map.busStopsBtn':      { en: '🚏 View bus stops', fr: '🚏 Voir les arrêts de bus' },
   'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' },
-  'transport.map.stationsBtn':      { en: '🗺 View stations on map', fr: '🗺 Voir les stations' },
+  // v0.60.98 — operator: show the actual nearest-count instead of
+  // "stations on map". Call site (index.js runTransportTrain)
+  // interpolates {n} from the slim list length.
+  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} stations', fr: '🗺 Voir les {n} stations les plus proches' },
 
   // Distance row addition for MRT stations (was previously bare).
   // v0.60.72 — per-station row carries an HTML <a> wrapping the

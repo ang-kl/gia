@@ -2549,7 +2549,10 @@ async function runTransportTrain(chatId, lang = 'en') {
         if (webhookDomain) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
           if (mapUrl) {
-            stationsMapRow = [[{ text: t('transport.map.stationsBtn', lang), web_app: { url: mapUrl } }]];
+            // v0.60.98 — interpolate the actual station count into the
+            // button label ("View nearest 3 stations") instead of the
+            // generic "View stations on map".
+            stationsMapRow = [[{ text: tn('transport.map.stationsBtn', lang, { n: slim.length }), web_app: { url: mapUrl } }]];
           }
         }
         // v0.59.13: Google Maps multi-stop directions URL — opens the
@@ -2992,7 +2995,20 @@ async function runCarparkCommand(chatId, lang = 'en') {
     const list = await carpark.nearest(cached.lat, cached.lng, 5);
     if (!list.length) { await safeSend(chatId, t('carpark.none', lang)); return; }
     const lines = [t('carpark.header', lang)];
-    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: c.development, lots: c.availableLots, dist: formatDistance(c.distanceM) })));
+    // v0.60.98 — operator: LTA's carpark feed returns some entries
+    // in ALL CAPS ("BLK 231 BRAS BASAH BASEMENT CAR PARK"). Convert
+    // to Title Case for legibility; preserve already-mixed-case
+    // names (e.g. "Raffles City", "National Gallery") untouched.
+    // "BLK" abbreviation stays uppercase since it's a recognised
+    // SG carpark prefix.
+    const toCarparkTitleCase = (s) => {
+      if (!s || /[a-z]/.test(s)) return s;   // already mixed-case
+      return s
+        .toLowerCase()
+        .replace(/\b([a-z])([a-z]*)/g, (_, head, tail) => head.toUpperCase() + tail)
+        .replace(/\bBlk\b/gi, 'BLK');
+    };
+    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: toCarparkTitleCase(c.development), lots: c.availableLots, dist: formatDistance(c.distanceM) })));
     await safeSend(chatId, lines.join('\n'));
     // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
     // Falls back to legacy directions URL when webhookDomain unavailable.

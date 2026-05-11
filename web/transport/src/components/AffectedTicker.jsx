@@ -14,15 +14,15 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus }) 
   }
   return (
     // v0.60.97 — match Cuisine TMA's "Search criteria" panel
-    // background (tinted card mixed with 12% accent) so the line-
-    // picker reads as a peer to the search header in cuisine. Same
-    // color-mix recipe as web/cuisine/src/v2/App.jsx (the criteria
-    // card at line 691).
+    // background. v0.60.98 — adds the operator-requested title
+    // above the scroll list ("Scroll to view another train line").
     <div
-      className="overflow-x-auto whitespace-nowrap py-2 px-2 rounded-lg border border-tg-accent/40"
+      className="rounded-lg border border-tg-accent/40 px-2 py-2 flex flex-col gap-1.5"
       style={{ backgroundColor: 'color-mix(in srgb, var(--tg-card) 88%, var(--tg-accent) 12%)' }}
     >
-      <div className="inline-flex gap-2 min-w-full">
+      <div className="text-xs font-semibold text-tg-text px-1">Scroll to view another train line</div>
+      <div className="overflow-x-auto whitespace-nowrap">
+        <div className="inline-flex gap-2 min-w-full">
         {affectedCodes.map((code) => {
           const line = LINES_BY_CODE[code];
           if (!line) return null;
@@ -38,6 +38,7 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus }) 
             </button>
           );
         })}
+        </div>
       </div>
     </div>
   );
