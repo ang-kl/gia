@@ -8566,7 +8566,44 @@ async function cacheBotUsername() {
       }
     });
 
-    // v0.30.9: surface whether MAP_ID is registered or running on the
+    // v0.60.85 — Interactive MRT/LRT map TMA needs lat/lng for all
+    // ~177 operational + ~29 future stations. Read data/mrt-coords.json
+    // once at boot, cache in memory, serve as a public catalogue
+    // endpoint (same shape as /maps-key — no PII). Keeps the
+    // transport TMA's Google Maps view self-contained.
+    let mrtCoordsCache = null;
+    function loadMrtCoords() {
+      if (mrtCoordsCache) return mrtCoordsCache;
+      try {
+        const raw = require('fs').readFileSync(__dirname + '/data/mrt-coords.json', 'utf8');
+        const obj = JSON.parse(raw);
+        mrtCoordsCache = Object.entries(obj)
+          .filter(([name]) => !name.startsWith('_'))   // skip _meta
+          .map(([name, v]) => ({
+            name,
+            lat: Number(v.lat),
+            lng: Number(v.lng),
+            codes: Array.isArray(v.codes) ? v.codes : [],
+            lines: Array.isArray(v.lines) ? v.lines : [],
+            status: v.status === 'future' ? 'future' : 'operational',
+            opensYear: Number.isFinite(v.opensYear) ? v.opensYear : null
+          }))
+          .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng));
+      } catch (err) {
+        console.error('[mrt-coords] load failed:', err.message);
+        mrtCoordsCache = [];
+      }
+      return mrtCoordsCache;
+    }
+    app.get('/api/transport/stations', (_req, res) => {
+      try {
+        res.json({ stations: loadMrtCoords() });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
     // a fatal error but worth flagging so users know to register one
