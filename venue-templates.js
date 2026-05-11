@@ -188,6 +188,11 @@ function formatVenueBlock(p, opts = {}) {
   // Skipped silently when no BestTime signal is attached.
   const footfallLine = formatFootfallLine(p, lang);
   if (footfallLine) lines.push(footfallLine);
+  // v0.60.118 — rain caveat for open-air picks (hawker / market /
+  // al-fresco / waterfront). Pre-computed in index.js (deliverPicks /
+  // deliverSurprise) via weather.attachRainAlerts; absent on indoor
+  // picks and whenever the 2h outlook is fair, so it never spams.
+  if (typeof p.rainAlert === 'string' && p.rainAlert.trim()) lines.push(p.rainAlert.trim());
   // v0.58.52: travel-time row immediately above Maps URL — applies to
   // ALL three variants (T1/T2/T3) per Human Lead. Skipped silently
   // when Routes API didn't populate either transitMinutes or
