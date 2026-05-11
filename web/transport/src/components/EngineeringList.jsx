@@ -15,7 +15,7 @@ export default function EngineeringList({ closures }) {
   );
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="text-xs font-semibold text-tg-text px-1">Upcoming engineering (next 7 d)</div>
+      <div className="text-xs font-semibold text-tg-text px-1">Upcoming engineering (next 7 days)</div>
       {closures.map((c, i) => {
         const line = LINES_BY_CODE[c.line];
         return (

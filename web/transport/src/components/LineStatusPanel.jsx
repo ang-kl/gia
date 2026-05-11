@@ -33,7 +33,12 @@ export default function LineStatusPanel({ line, status }) {
   const s = status?.status || 'normal';
   const colour = STATUS_COLOR[s];
   return (
-    <div className="rounded-lg border border-tg-border bg-tg-card p-3 sm:p-4 flex flex-col gap-2.5 min-h-[200px]">
+    // v0.60.97 — shrunk by half (operator 2026-05-11). Was
+    // p-3 sm:p-4 + min-h-[200px]; now p-2 + no min-height so the
+    // card sizes to its actual content. "Normal service" lines
+    // (no cause / direction / time) fit in ~100 px instead of
+    // forcing 200.
+    <div className="rounded-lg border border-tg-border bg-tg-card p-2 sm:p-3 flex flex-col gap-1.5">
       <div className="flex items-start gap-3">
         <LineBadge code={line.code} hex={line.hex} size="lg" />
         <div className="min-w-0 flex-1">
@@ -42,7 +47,7 @@ export default function LineStatusPanel({ line, status }) {
           <div className="text-xs text-tg-hint truncate">{line.endpoints?.[0]} ↔ {line.endpoints?.[1]}</div>
         </div>
       </div>
-      <div className="border-t border-tg-border pt-2.5 flex items-start gap-2">
+      <div className="border-t border-tg-border pt-1.5 flex items-start gap-2">
         <span className="text-xl leading-none" style={{ color: colour }}>{STATUS_ICON[s]}</span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold" style={{ color: colour }}>status: {STATUS_LABEL[s]}</div>
