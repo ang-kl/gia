@@ -89,6 +89,11 @@ export default function App() {
   // /cuisine command can deep-link the recipient back to the same
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
+  // v0.60.126 — the free-text "Tell me" box value, lifted out of
+  // TellMePanel so the Search-criteria 🔍 search passes it to the
+  // server as a `freeText` qualifier (it was being silently dropped —
+  // selecting a cuisine ignored whatever was typed in the box).
+  const [nlText, setNlText] = useState((initialOverrides && initialOverrides.freeText) || '');
   const initialSearchDone = useRef(false);
   // v0.58.14: ref the FlipPanel wrapper so we can scroll the result
   // list into view after a successful 🔍 Search press. Users were
@@ -420,7 +425,8 @@ export default function App() {
         cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
-        resetSeen: opts?.resetSeen === true               // v0.60.117 — ↺ Start over
+        resetSeen: opts?.resetSeen === true,              // v0.60.117 — ↺ Start over
+        freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined  // v0.60.126 — Tell-me box as a qualifier
       });
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
@@ -710,6 +716,8 @@ export default function App() {
           visible — single-line composer, expands the conversation
           inline. Replaces the v0.57.30 FlipPanel back-face. */}
       <TellMePanel
+        value={nlText}
+        onChange={setNlText}
         onSubmit={handleNLSubmit}
         onReplace={handleNLReplace}
         lastPrompt={lastPrompt}

@@ -6240,7 +6240,8 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
-          dividerText = trBot('freetext.divider', ftLang);
+          const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
+          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
@@ -7989,6 +7990,20 @@ async function cacheBotUsername() {
               'home-based meals'
             ];
           }
+        }
+        // v0.60.126 — fold the TMA's "Tell me" free-text box content
+        // into the actual Places query as a qualifier, so selecting a
+        // cuisine no longer silently drops what the user typed. e.g.
+        // cuisine=Portuguese + freeText="goulash dumplings" → query
+        // "Portuguese goulash dumplings"; with no cuisine selected the
+        // free text becomes the whole query. (It already feeds the
+        // criteria hash + the R.E.D disambig probe — this makes it
+        // actually steer the Places search too.)
+        const ftQualifier = String(req.body?.freeText || '').trim().slice(0, 80);
+        if (ftQualifier) {
+          cuisineQueries = (Array.isArray(cuisineQueries) && cuisineQueries.length)
+            ? cuisineQueries.map((q) => `${q} ${ftQualifier}`.replace(/\s+/g, ' ').trim())
+            : [ftQualifier];
         }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.

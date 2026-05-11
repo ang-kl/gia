@@ -7,10 +7,16 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // a card. Internally still calls handleNLSubmit (route /api/cuisine/
 // nl-query) — server-side guardrails from v0.58.19 (verifyInitData,
 // 60/hr rate limit, 120 km anchor cap) are unchanged.
-export default function TellMePanel({ onSubmit, onReplace, lastPrompt, loading }) {
+//
+// v0.60.126: controlled input — the parent owns the text (`value` /
+// `onChange`) so the Search-criteria 🔍 search can pick it up as a
+// `freeText` qualifier instead of silently dropping it. Also: Enter no
+// longer fires a search — only the → button here or the 🔍 Search
+// buttons / FAB do (operator 2026-05-11).
+export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading }) {
   const [lang] = useLocale();
-  const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const text = typeof value === 'string' ? value : '';
 
   async function submit() {
     const t = text.trim();
@@ -18,15 +24,8 @@ export default function TellMePanel({ onSubmit, onReplace, lastPrompt, loading }
     setSubmitting(true);
     try {
       await onSubmit?.(t);
-      setText('');
+      onChange?.('');
     } finally { setSubmitting(false); }
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      submit();
-    }
   }
 
   return (
@@ -36,8 +35,7 @@ export default function TellMePanel({ onSubmit, onReplace, lastPrompt, loading }
         <input
           type="text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={onKeyDown}
+          onChange={(e) => onChange?.(e.target.value)}
           disabled={submitting || loading}
           placeholder={tr('tellme.placeholder', lang)}
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"

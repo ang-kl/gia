@@ -37,8 +37,12 @@ export async function fetchCatalogue() {
 // v0.60.117: resetSeen wipes this chat's accumulating exclusion +
 // query-variant index server-side ("↺ Start over" on the terminal note)
 // so the next results begin fresh from the first ~60 again.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen }) {
-  return postJson('/api/cuisine/search', { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true });
+// v0.60.126: freeText — the "Tell me" box content, passed through as a
+// search qualifier so it isn't dropped when a cuisine chip is selected.
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText }) {
+  const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
+  if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
+  return postJson('/api/cuisine/search', body);
 }
 
 export async function nlQuery({ text, lat, lng, filters, lang }) {
