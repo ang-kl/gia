@@ -65,6 +65,8 @@ export function applyTelegramTheme() {
   // from the Menu tile, so window.history has a /app/menu entry
   // to go back to. When opened directly (deep link or no
   // history), fall back to closing the WebApp entirely.
+  // v0.60.92 — defensively unregister prior handler before adding
+  // a new one (see web/hawker/src/tg.js for full rationale).
   safe('back-button', () => {
     if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
     w.BackButton.show();
@@ -75,6 +77,15 @@ export function applyTelegramTheme() {
         w.close();
       }
     };
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
     if (typeof w.onEvent === 'function') {
       w.onEvent('backButtonClicked', handler);
     } else if (typeof w.BackButton.onClick === 'function') {
