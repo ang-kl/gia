@@ -111,6 +111,10 @@ export default function App() {
   // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.60.115 — how many distinct venues the server has shown for the
+  // current criteria-hash. Surfaced in the "that's all N" terminal note
+  // when exhausted, so the user knows the pool size and stops re-tapping.
+  const [poolCount, setPoolCount] = useState(0);
   const tipFirstShownRef = useRef(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
@@ -431,6 +435,7 @@ export default function App() {
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
+      setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -826,15 +831,19 @@ export default function App() {
           onLastPageNext={() => runSearch(state)}
           exhausted={exhaustedNote}
         />
-        {/* v0.60.18 — end-of-list note when the server returns
-            exhausted=true. The seen-set is reset for the next search
-            so the user can keep clicking; the line just signals that
-            the next click will recycle. */}
+        {/* v0.60.115 — terminal "that's all N" note when the server
+            returns exhausted=true. The dedup pool is no longer reset
+            on exhaustion (re-tapping 🔍 just re-serves the same list),
+            so this line tells the user the exact pool size and that
+            they need to change a criterion / use 💬 Tell me to find
+            more. Cleared on the next non-exhausted search. */}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
-            {lang === 'fr'
-              ? `— Fin de la liste pour ces critères. Réappuyez sur 🔍 pour la relancer, ou ajoutez un critère / texte libre. —`
-              : `— End of list for these criteria. Tap 🔍 again to recycle, or add a new criterion / free-text. —`}
+            {poolCount > 1
+              ? tn('result.exhausted', lang, { n: poolCount })
+              : poolCount === 1
+                ? t('result.exhaustedOne', lang)
+                : t('result.exhaustedNoCount', lang)}
           </div>
         )}
       </div>

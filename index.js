@@ -8209,11 +8209,20 @@ async function cacheBotUsername() {
         // the user see the full list again. Adding new criteria /
         // free-text changes the hash so dedup resets implicitly.
         let dedupedTop = top;
-        // v0.60.18 — exhausted flag drives TMA tip-bubble subtlety
-        // (show only at first search + on dedup reset) + end-of-list
-        // hint. Set true when fresh pool was empty (forced reset) OR
-        // result count fell below 3 after dedup.
+        // v0.60.18 — exhausted flag drives TMA tip-bubble subtlety +
+        // end-of-list hint. v0.60.115 (operator 2026-05-11) — the old
+        // behaviour reset the seen-set and reshuffled `top` on
+        // exhaustion, so consecutive taps after the pool was used up
+        // just re-served the same venues in a new order — the user saw
+        // "repeated results" with no clear end. Now: once `fresh` is
+        // empty we DON'T reset; we return the pool in its natural order
+        // with `exhausted: true` and `poolCount` (how many distinct
+        // venues we've shown for this criteria-hash) so the client can
+        // say "that's all N — change a criterion to find more." A
+        // criteria change still resets the dedup (different hash → empty
+        // seen-set), and the 1 h TTL eventually expires it too.
         let dedupExhausted = false;
+        let poolCount = 0;
         try {
           const dedupHash = computeCriteriaHash({
             cuisines, filters, prices: req.body?.prices || [],
@@ -8229,30 +8238,17 @@ async function cacheBotUsername() {
             const seenList = top.filter((v) => v.placeId && seen.has(v.placeId));
             dedupedTop = [...fresh, ...seenList];
           } else {
-            // Everything seen — reset and serve a SHUFFLED top so
-            // consecutive taps after exhaustion still surface the
-            // pool in different order.
-            // v0.60.25 — Fisher-Yates shuffle on reset. Without this
-            // the recycle path returned the same distance-sorted
-            // list every tap and the user perceived "the 3 search
-            // buttons stopped refreshing" once the pool was small
-            // enough (e.g. 8 American venues). Order matters more
-            // than novelty here — ratings, distance, and footfall
-            // are still authentic; only the lineup rotates.
-            await resetSeenSet(csChatId, dedupHash);
-            const shuffled = [...top];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            dedupedTop = shuffled;
+            // Everything seen — DON'T reset. Return the pool in its
+            // natural (distance/rating-sorted) order and flag exhausted
+            // so the client shows the terminal "that's all N" message.
+            dedupedTop = top;
+            dedupExhausted = true;
           }
           const newIds = dedupedTop.map((v) => v.placeId).filter(Boolean);
           await appendSeenSet(csChatId, dedupHash, newIds);
-          // v0.60.18 — set exhausted flag for the TMA tip-bubble +
-          // end-of-list signal. Trigger when dedup forced a reset
-          // (everything seen, full list re-served) OR fresh pool < 3.
-          dedupExhausted = (fresh.length === 0) || (dedupedTop.length < 3 && top.length >= 3);
+          poolCount = new Set([...seen, ...newIds]).size;
+          // v0.60.115 — exhausted iff no fresh venue came back this turn.
+          if (!dedupExhausted) dedupExhausted = (fresh.length === 0);
         } catch (err) {
           console.warn('[Cuisine-Search] dedup pass failed (using raw top):', err.message);
         }
@@ -8272,8 +8268,8 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, disambig: chipDisambig, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
-        console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client`);
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client (poolCount=${poolCount} exhausted=${dedupExhausted})`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
         // returning fresh results 30+ s later. Singaporean still skips
