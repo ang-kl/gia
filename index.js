@@ -4280,13 +4280,15 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
     return;
   }
   // Empty arg with no active conversation → prompt the user for input.
+  // v0.60.110 — operator 2026-05-11 supplied this copy word-for-word
+  // (EN + FR). Sent as plain text (no parse_mode) so it renders
+  // exactly as written — no Markdown escaping surprises.
   let conv = await sc.getConversation(redis, chatId);
   if (!arg && !conv) {
     await sc.startConversation(redis, chatId);
     await safeSend(chatId, lang === 'fr'
-      ? '🔎 *Recherche culinaire — discutez avec moi*\n\nTapez le nom d\'un plat, d\'un ingrédient ou d\'une technique de cuisson — par ex. "goulash aux quenelles", "tandoor", "binchotan".\n\nJe trouverai des restaurants à Singapour qui correspondent et je vous expliquerai pourquoi.\n\n_Tapez `/s end` pour terminer, ou n\'importe quelle commande `/...` pour passer à autre chose._'
-      : '🔎 *Search a dish, ingredient or kitchen tool — chat with me*\n\nType a dish name, ingredient, or cooking technique — e.g. "goulash with dumpling", "tandoor", "binchotan".\n\nI\'ll find Singapore restaurants that match and tell you why.\n\n_Type `/s end` to finish, or any `/...` command to switch._',
-      { parse_mode: 'Markdown' });
+      ? '🔎 /s ou /search - Recherche par plat, ingrédient, ustensile de cuisine ou méthode de cuisson\n\nTapez ce que vous voulez explorer - par ex. goulash quenelles, tandoor, binchotan, braisage français, en croûte, agemono japonais, asado, pâte phyllo.\n\nJe trouverai des établissements à Singapour qui correspondent et j\'expliquerai pourquoi ils conviennent.\n\nNote : « goulash quenelles » peut désigner le gulyás hongrois - ragoût de bœuf au paprika, généralement façon soupe - ou le guláš tchèque avec des quenelles de pain.\n\nEssayez :\n/s goulash quenelles\n/s braisage français\n/s en croûte\n/s agemono japonais\n/s asado\n/s pâte phyllo\n\nTapez /s end pour terminer, ou n\'importe quelle commande /... pour passer à autre chose.'
+      : '🔎 /s or /search - Search by dish, ingredient, kitchen tool, or cooking method\n\nType what you want to explore - e.g. goulash dumpling, tandoor, binchotan, Braisage french, En Croute, Agemono Japanese, Asado, Phyllo baking.\n\nI\'ll find matching Singapore eateries and explain why they fit.\n\nNote: "goulash dumpling" may mean Hungarian gulyás - paprika beef stew, usually soup-like - or Czech guláš with bread dumplings.\n\nTry:\n/s goulash dumpling\n/s Braisage french\n/s En Croute\n/s Agemono Japanese\n/s Asado\n/s Phyllo baking\n\nType /s end to finish, or any /... command to switch.');
     return;
   }
   // Empty arg with an active conversation → re-prompt continuation.
@@ -6173,7 +6175,7 @@ async function registerCommandsMenu() {
       // v0.60.37 — /search (alias /s), the conversational dish /
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
-      { command: 'search',     description: 'Find dishes, ingredients, kitchen tools · conversational (or /s)' },
+      { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase stored data' }
@@ -6188,7 +6190,7 @@ async function registerCommandsMenu() {
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       { command: 'buddy',      description: 'Match solo en direct' },
-      { command: 'search',     description: 'Trouver plats, ingrédients, ustensiles · conversationnel (ou /s)' },
+      { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
