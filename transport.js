@@ -403,17 +403,30 @@ const TRAFFIC_INCIDENTS_URL = `${LTA_BASE}/TrafficIncidents`;
 // from the dedicated /WoodlandsTraffic + /2ndLinkTraffic endpoints
 // (which 404'd in production — likely deprecated by LTA's revamp,
 // per Human Lead 2026-05-10) to /Traffic-Imagesv2 + a camera-ID
-// allow-list. Traffic-Imagesv2 returns ~80 cameras across SG; we
-// keep only the four checkpoint ones (Woodlands inbound + outbound,
-// Tuas 2nd Link inbound + outbound).
+// allow-list. Traffic-Imagesv2 returns ~80 cameras across SG.
+// v0.60.103 — replaced the 4-camera allow-list (2701, 2702, 4709,
+// 4710) with two lat/lng bounding boxes covering Woodlands Checkpoint
+// + Tuas Second Link plus their approach roads (BKE, AYE, Woodlands
+// Rd, Tuas Rd). Any camera LTA places inside either bbox is included
+// so the operator sees every available view, not just the 4 hardcoded
+// ones. Per Human Lead 2026-05-11.
 const TRAFFIC_IMAGES_URL = `${LTA_BASE}/Traffic-Imagesv2`;
 
-const CHECKPOINT_CAMERAS = {
-  '2701': 'Woodlands Causeway',
-  '2702': 'Woodlands Causeway',
-  '4709': 'Tuas 2nd Link',
-  '4710': 'Tuas 2nd Link'
-};
+// Bounding boxes drawn ~3 km around each checkpoint to capture the
+// approach roads (queue forms ~1-2 km out at peak). Woodlands centre
+// ≈ 1.4471, 103.7682; Tuas Second Link centre ≈ 1.3454, 103.6356.
+const CHECKPOINT_BBOXES = [
+  { label: 'Woodlands Checkpoint', minLat: 1.420, maxLat: 1.470, minLng: 103.740, maxLng: 103.790 },
+  { label: 'Tuas 2nd Link',        minLat: 1.330, maxLat: 1.360, minLng: 103.610, maxLng: 103.660 }
+];
+
+function checkpointLabelFor(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  for (const b of CHECKPOINT_BBOXES) {
+    if (lat >= b.minLat && lat <= b.maxLat && lng >= b.minLng && lng <= b.maxLng) return b.label;
+  }
+  return null;
+}
 
 async function fetchCheckpointTraffic() {
   if (!process.env.LTA_ACCOUNT_KEY) return [];
@@ -425,17 +438,21 @@ async function fetchCheckpointTraffic() {
     });
     const rows = data?.value ?? [];
     for (const r of rows) {
-      const id = String(r.CameraID || '');
-      const label = CHECKPOINT_CAMERAS[id];
+      const lat = Number(r.Latitude);
+      const lng = Number(r.Longitude);
+      const label = checkpointLabelFor(lat, lng);
       if (!label || !r.ImageLink) continue;
       out.push({
         label,
-        cameraId: id,
+        cameraId: String(r.CameraID || ''),
         imageUrl: String(r.ImageLink),
-        lat: Number(r.Latitude),
-        lng: Number(r.Longitude)
+        lat,
+        lng
       });
     }
+    // Stable order: Woodlands cameras first (alphabetical bbox order),
+    // then Tuas — matches the geography from north-east to south-west.
+    out.sort((a, b) => a.label.localeCompare(b.label) || a.cameraId.localeCompare(b.cameraId));
   } catch (err) {
     console.error('[Transport] Traffic-Imagesv2 fetch failed:', err.message);
   }
