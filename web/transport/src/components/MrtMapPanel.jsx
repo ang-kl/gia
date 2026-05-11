@@ -57,6 +57,12 @@ export default function MrtMapPanel() {
   const markersRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
+  // v0.60.87 — capture the registered Map ID from /maps-key so the
+  // Map constructor uses the operator's MAP_ID env var when set
+  // (custom vector styling + branding), falling back to Google's
+  // public DEMO_MAP_ID only when MAP_ID is unset or the server
+  // returned the 'GIA_SANCTUARY' placeholder.
+  const mapIdRef = useRef('DEMO_MAP_ID');
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
   const [stations, setStations] = useState(null);
   const [err, setErr] = useState(null);
@@ -84,6 +90,14 @@ export default function MrtMapPanel() {
     fetch('/maps-key').then((r) => r.json()).then((d) => {
       if (cancelled) return;
       if (!d?.key) { setMapsKeyState('nokey'); return; }
+      // v0.60.87 — use operator's registered Map ID when env-sourced.
+      // 'GIA_SANCTUARY' is the placeholder /maps-key returns when
+      // MAP_ID env is unset; treat that as no-mapid and fall back
+      // to Google's public DEMO_MAP_ID so AdvancedMarkerElement
+      // still renders.
+      if (d.mapIdSource === 'env:MAP_ID' && d.mapId) {
+        mapIdRef.current = d.mapId;
+      }
       const existing = document.querySelector('script[data-gmaps]');
       if (existing) {
         if (window.google?.maps) { setMapsKeyState('ready'); initMap(); }
@@ -129,12 +143,12 @@ export default function MrtMapPanel() {
     mapRef.current = new window.google.maps.Map(containerRef.current, {
       center: SG_CENTROID,
       zoom: SG_DEFAULT_ZOOM,
-      // v0.60.86 — mapId required by AdvancedMarkerElement since 2024.
-      // Without it Google throws the "This page can't load Google
-      // Maps correctly" auth overlay (operator screenshot 2026-05-11)
-      // instead of falling back to legacy markers. Mirrors the value
-      // used in web/hawker/src/components/HawkerMapPanel.jsx:115.
-      mapId: 'DEMO_MAP_ID',
+      // v0.60.87 — mapId from /maps-key (env-sourced when MAP_ID is
+      // set on Railway), falling back to Google's public DEMO_MAP_ID
+      // for AdvancedMarkerElement support. Without ANY mapId the
+      // map throws the "This page can't load Google Maps correctly"
+      // auth overlay (operator screenshot 2026-05-11).
+      mapId: mapIdRef.current,
       disableDefaultUI: false,
       clickableIcons: false,
       gestureHandling: 'greedy',
