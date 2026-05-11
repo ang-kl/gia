@@ -2409,12 +2409,20 @@ async function sendBusMenu(chatId, lang = 'en') {
   // v0.56.0: removed "Arrivals" + "Crowd / load" per Human Lead.
   // Both depend on per-stop user-side selection that the chat-side
   // flow couldn't make ergonomic.
+  // v0.60.121 — "Plan a route" is now a direct Google Maps deep link
+  // (transit mode, origin = the device's current location in Maps)
+  // rather than a callback that posts a follow-up "Open Google Maps"
+  // message. Per operator 2026-05-11: it should just open Maps. The
+  // `transport:bus:route` callback / `/transport busroute` text path
+  // still exists (runTransportBus 'route') for anyone hitting it
+  // directly.
+  const transitDirUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=transit';
   await safeSend(chatId, t('transport.bus.menu.title', lang), {
     reply_markup: {
       inline_keyboard: [
         [
           { text: t('transport.bus.menu.btn.nearest', lang), callback_data: 'transport:bus:nearest' },
-          { text: t('transport.bus.menu.btn.route', lang),   callback_data: 'transport:bus:route' }
+          { text: t('transport.bus.menu.btn.route', lang),   url: transitDirUrl }
         ],
         [
           { text: t('button.back', lang), callback_data: 'transport:menu' }

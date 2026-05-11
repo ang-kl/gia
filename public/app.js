@@ -179,26 +179,38 @@
             return `${m.e} <strong>${escapeHtml(m.n)}</strong>`;
           }).join(' · ')
         : '';
-      // v0.60.61 — when the venue carries `arrivals` (bus-stop
-      // payload from /transport bus nearest), render them inside
-      // the popup using the same template the chat reply uses:
-      //   № 174 — ≤5 min · seats
-      // The band logic mirrors busArrivalBand() server-side.
-      const arrivalsHtml = (Array.isArray(v.arrivals) && v.arrivals.length)
-        ? '<br>' + v.arrivals.map((a) => {
-            const m = Number.isFinite(a.minutes) ? a.minutes : null;
-            let band = '—';
-            if (m != null) {
-              if (m <= 5) band = '≤5 min';
-              else if (m <= 10) band = '≤10 min';
-              else if (m <= 15) band = '≤15 min';
-              else if (m <= 20) band = '≤20 min';
-              else band = '>20 min';
-            }
-            const load = a.loadLabel ? ' · ' + escapeHtml(a.loadLabel) : '';
-            return `№ ${escapeHtml(String(a.service))} — <strong>${band}</strong>${load}`;
-          }).join('<br>')
-        : '';
+      // v0.60.61 / v0.60.121 — when the venue carries `arrivals`
+      // (bus-stop payload from /transport bus nearest), render them
+      // inside the popup grouped by ETA band, the same way the chat
+      // reply does ("№ 145, 273, 120 — ≤5 min"). transport.busArrivals
+      // already returns them sorted by next-bus minute, so insertion
+      // order into each band is "earliest first". Band logic mirrors
+      // busArrivalBand() server-side.
+      let arrivalsHtml = '';
+      if (Array.isArray(v.arrivals) && v.arrivals.length) {
+        const bandFor = (m) => {
+          if (!Number.isFinite(m)) return '—';
+          if (m <= 5) return '≤5 min';
+          if (m <= 10) return '≤10 min';
+          if (m <= 15) return '≤15 min';
+          if (m <= 20) return '≤20 min';
+          return '>20 min';
+        };
+        const byBand = new Map();
+        for (const a of v.arrivals) {
+          const svc = String(a.service || '').trim();
+          if (!svc) continue;
+          const key = bandFor(Number.isFinite(a.minutes) ? a.minutes : null);
+          if (!byBand.has(key)) byBand.set(key, []);
+          byBand.get(key).push(svc);
+        }
+        const rows = [...byBand.entries()].map(([band, svcs]) => {
+          const list = svcs.map((s) => escapeHtml(s)).join(', ');
+          const bandStr = band === '—' ? '<em>—</em>' : `<strong>${band}</strong>`;
+          return `№ ${list} — ${bandStr}`;
+        });
+        if (rows.length) arrivalsHtml = '<br>' + rows.join('<br>');
+      }
       const info = new google.maps.InfoWindow({
         content: `<div style="max-width:260px;font-size:12px;line-height:1.45"><strong>${escapeHtml(v.name)}</strong><br>${escapeHtml(v.area || '')}${v.vibe ? '<br><em>' + escapeHtml(v.vibe) + '</em>' : ''}${linesHtml}${arrivalsHtml}${linkHtml}</div>`
       });
