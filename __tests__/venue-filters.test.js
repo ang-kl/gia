@@ -10,6 +10,7 @@ import { describe, it, expect } from 'vitest';
 import {
   isBuildingItself,
   passesVenueFilter,
+  isRainSensitiveVenue,
   NON_FOOD_TYPES,
   BUILDING_NAME_PATTERNS
 } from '../venue-filters.js';
@@ -187,6 +188,29 @@ describe('NON_FOOD_TYPES set sanity', () => {
     expect(NON_FOOD_TYPES.has('lodging')).toBe(true);
     expect(NON_FOOD_TYPES.has('shopping_mall')).toBe(true);
     expect(NON_FOOD_TYPES.has('point_of_interest')).toBe(true);
+  });
+});
+
+describe('isRainSensitiveVenue — v0.60.118 rain-caveat gate', () => {
+  it('flags open-air / hawker / market / al-fresco venues', () => {
+    expect(isRainSensitiveVenue({ name: 'Tian Tian @ Maxwell Food Centre' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Some Stall', area: 'Old Airport Road Hawker Centre' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Riverside Al Fresco Bar' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Boat Quay Seafood', area: '60 Boat Quay' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Tekka Wet Market Stall' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Ah Hock Kopitiam' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Esplanade Outdoor Stage Cafe' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Generic Place', primaryType: 'food_court' })).toBe(true);
+    expect(isRainSensitiveVenue({ name: 'Generic', types: ['restaurant', 'market'] })).toBe(true);
+  });
+
+  it('does NOT flag ordinary (likely indoor) restaurants', () => {
+    expect(isRainSensitiveVenue({ name: 'Sushi Tei VivoCity', primaryType: 'restaurant' })).toBe(false);
+    expect(isRainSensitiveVenue({ name: 'Din Tai Fung', area: '290 Orchard Road, Paragon' })).toBe(false);
+    expect(isRainSensitiveVenue({ name: 'Some Bistro', area: '1 Raffles Place' })).toBe(false);
+    expect(isRainSensitiveVenue({ name: '', area: '' })).toBe(false);
+    expect(isRainSensitiveVenue(null)).toBe(false);
+    expect(isRainSensitiveVenue({})).toBe(false);
   });
 });
 

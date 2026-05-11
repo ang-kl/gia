@@ -69,6 +69,17 @@ const STRINGS = {
   'weather.forecastNext2h':    { en: 'Next 2h in {area}: {desc}{valid}', fr: 'Prochaines 2 h à {area} : {desc}{valid}' },
   'weather.forecastUntil':     { en: ' (until {time})', fr: ' (jusqu’à {time})' },
   'weather.unreachable':       { en: "Sorry, I can't reach the NEA weather feed right now.", fr: "Désolé, le flux météo NEA est inaccessible pour le moment." },
+  // v0.60.118 — /weather expansion
+  'weather.areaUnknown':       { en: "I don't know that area — try a town name like Tampines, or just /weather to use your shared pin.", fr: "Je ne connais pas cette zone — essayez un nom de quartier comme Tampines, ou simplement /weather pour utiliser votre position partagée." },
+  'weather.forArea':           { en: '— for {area} —', fr: '— pour {area} —' },
+  'weather.headOutRaining':    { en: "☔ Raining around {area} right now — hold ~20–30 min or pick somewhere covered.", fr: "☔ Il pleut autour de {area} en ce moment — patientez ~20–30 min ou choisissez un endroit couvert." },
+  'weather.headOutShowery':    { en: "🌦️ Dry now, but {area}'s 2h outlook is {desc} — head out soon if you're going somewhere open-air.", fr: "🌦️ Sec pour l’instant, mais les prévisions 2 h à {area} sont : {desc} — sortez bientôt si vous allez en plein air." },
+  'weather.headOutGood':       { en: "✅ Good window — {area} looks dry for the next 2h.", fr: "✅ Bon créneau — {area} devrait rester au sec pendant 2 h." },
+  'weather.hotNudge':          { en: "🥵 Feels hot out — an air-conditioned spot might be nicer.", fr: "🥵 Il fait chaud dehors — un endroit climatisé serait peut-être plus agréable." },
+  'weather.tonight':           { en: "🌙 Tonight in the {zone}: {desc}.", fr: "🌙 Ce soir dans le {zone} : {desc}." },
+  // per-pick rain caveat (rendered on open-air venue cards)
+  'weather.rainNowNear':       { en: "🌧️ Raining around {area} right now — covered seating helps.", fr: "🌧️ Il pleut autour de {area} en ce moment — un coin couvert est préférable." },
+  'weather.rainSoonNear':      { en: "🌧️ {desc} in {area}'s 2h outlook — covered seating helps.", fr: "🌧️ Prévisions 2 h à {area} : {desc} — un coin couvert est préférable." },
 
   // /carpark
   'carpark.offline':           { en: 'Carpark lookup is offline (LTA key not configured).', fr: 'Recherche de parking hors-ligne (clé LTA non configurée).' },

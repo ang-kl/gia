@@ -82,9 +82,32 @@ function passesVenueFilter(v) {
   return true;
 }
 
+// v0.60.118 — "is this a place where rain actually matters?" Used to
+// decide whether a venue pick gets a 🌧️ rain caveat (open-air hawker /
+// market / al-fresco / kopitiam-style — yes; air-conditioned mall
+// restaurant — no, a rain line there is just noise). Best-effort
+// heuristic on primaryType + name/address text; false negatives are
+// fine (we simply skip the caveat).
+const RAIN_SENSITIVE_TYPES = new Set([
+  'food_court', 'market', 'farmers_market'
+]);
+// Words that signal open-air / shophouse-row / waterfront seating.
+const RAIN_SENSITIVE_TEXT_RE = /\b(hawker(?:\s+centre)?|food\s+centre|food\s+court|wet\s+market|market(?:\s*&\s*food\s+centre)?|kopitiam|coffee\s?shop|kopi\s?tiam|al[\s-]?fresco|alfresco|outdoor|open[\s-]?air|rooftop|riverside|river\s+walk|riverwalk|waterfront|quay|esplanade|boardwalk|pasar\s+malam|night\s+market|street\s+food|garden|park\s+connector)\b/i;
+
+function isRainSensitiveVenue(v) {
+  if (!v) return false;
+  if (v.primaryType && RAIN_SENSITIVE_TYPES.has(v.primaryType)) return true;
+  if (Array.isArray(v.types) && v.types.some((t) => RAIN_SENSITIVE_TYPES.has(t))) return true;
+  const hay = `${v.name || ''} ${v.area || v.address || ''}`;
+  return RAIN_SENSITIVE_TEXT_RE.test(hay);
+}
+
 module.exports = {
   NON_FOOD_TYPES,
   BUILDING_NAME_PATTERNS,
+  RAIN_SENSITIVE_TYPES,
+  RAIN_SENSITIVE_TEXT_RE,
   isBuildingItself,
-  passesVenueFilter
+  passesVenueFilter,
+  isRainSensitiveVenue
 };

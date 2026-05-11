@@ -193,4 +193,202 @@ async function summary(lat, lng) {
   };
 }
 
-module.exports = { summary, fetchV2Realtime, fetchV1Realtime, fetchRealtime, fetchTwoHourForecast };
+// ─────────────────────────────────────────────────────────────────────
+// v0.60.118 — /weather expansion: rain-near-a-venue caveats, /weather
+// <area> "head-out window" answers, and a 24-hour "tonight" line.
+//
+// All powered by NEA feeds already known to weather.js (2-hour nowcast,
+// 5-min rainfall) plus the 24-hour forecast. Each feed is Redis-cached
+// so however many picks/searches fire, NEA is hit at most ~once per
+// cache window: nowcast 5 min, rainfall 60 s, 24-hour forecast 30 min.
+// ─────────────────────────────────────────────────────────────────────
+
+const V1_FORECAST_24HR = `${V1_BASE}/24-hour-weather-forecast`;
+
+// Approx centroids of NEA's 5 forecast zones — used to (a) resolve
+// `/weather west` etc. to a lat/lng and (b) map an arbitrary lat/lng to
+// the zone whose 24-hour forecast applies. Rough on purpose; the zones
+// are large.
+const WEATHER_ZONE_CENTROIDS = {
+  west:    { lat: 1.3500, lng: 103.7000, label: 'West' },
+  north:   { lat: 1.4200, lng: 103.8200, label: 'North' },
+  central: { lat: 1.3100, lng: 103.8400, label: 'Central' },
+  south:   { lat: 1.2700, lng: 103.8200, label: 'South' },
+  east:    { lat: 1.3500, lng: 103.9400, label: 'East' }
+};
+
+// Singapore-only bounds — NEA data doesn't cover Johor; skip rain
+// caveats for venues outside this box (the Cuisine search radius can
+// reach JB).
+function inSgBounds(lat, lng) {
+  // North bound 1.48 keeps all of mainland SG (Sungei Buloh ≈1.446,
+  // Woodlands ≈1.44) but excludes JB CBD (≈1.493) so JB picks from the
+  // Cuisine search's wide radius don't get NEA caveats.
+  return Number.isFinite(lat) && Number.isFinite(lng)
+    && lat >= 1.15 && lat <= 1.48 && lng >= 103.55 && lng <= 104.10;
+}
+
+const WET_RE = /(shower|thundery|thunder|rain|squall|wet|drizzle)/i;
+
+async function getCached(redis, key, ttlS, fetchFn) {
+  if (redis && redis.isOpen) {
+    try {
+      const hit = await redis.get(key);
+      if (hit) return JSON.parse(hit);
+    } catch (err) { console.warn(`[Weather] cache read ${key} failed: ${err.message}`); }
+  }
+  const fresh = await fetchFn();
+  if (fresh && redis && redis.isOpen) {
+    try { await redis.setEx(key, ttlS, JSON.stringify(fresh)); } catch (err) { console.warn(`[Weather] cache write ${key} failed: ${err.message}`); }
+  }
+  return fresh;
+}
+
+const getNowcastCached  = (redis) => getCached(redis, 'nea:2h-nowcast', 300,  fetchTwoHourForecast);
+const getRainfallCached = (redis) => getCached(redis, 'nea:rainfall',   60,   () => fetchRealtime('/rainfall', 'rainfall'));
+const get24hCached      = (redis) => getCached(redis, 'nea:24h-forecast', 1800, fetch24hForecast);
+
+async function fetch24hForecast() {
+  try {
+    const { data } = await axios.get(V1_FORECAST_24HR, { timeout: 6000, headers: authHeaders() });
+    const item = data?.items?.[0];
+    if (!item) return null;
+    const periods = (item.periods ?? []).map((p) => ({
+      startIso: p.time?.start ?? null,
+      endIso: p.time?.end ?? null,
+      // regions: { west, east, central, north, south } → forecast strings
+      regions: p.regions || {}
+    }));
+    return {
+      updatedAt: item.update_timestamp ?? item.timestamp ?? null,
+      general: item.general?.forecast ?? null,
+      periods
+    };
+  } catch (err) {
+    console.error('[Weather] 24-hour forecast failed:', err.message);
+    return null;
+  }
+}
+
+// nearest of the 5 zone centroids to a point → its key ('west' | …).
+function zoneKeyFor(lat, lng) {
+  let best = null;
+  for (const [key, c] of Object.entries(WEATHER_ZONE_CENTROIDS)) {
+    const d = haversineKm({ lat, lng }, c);
+    if (!best || d < best.d) best = { key, d };
+  }
+  return best ? best.key : 'central';
+}
+
+// Resolve a free-text area argument from `/weather <area>` to a
+// { name, lat, lng } anchor. Tries the ~47 nowcast area names first
+// (exact, then substring), then the 5 broad zones.
+function resolveArea(nowcast, areaArg) {
+  const q = String(areaArg || '').trim().toLowerCase();
+  if (!q) return null;
+  const forecasts = nowcast?.forecasts || [];
+  // exact area name
+  let hit = forecasts.find((f) => f.area && f.area.toLowerCase() === q && f.location);
+  // substring either way (e.g. "tampines" ⊂ "Tampines"; "amk" won't match — that's fine)
+  if (!hit) hit = forecasts.find((f) => f.area && f.location && (f.area.toLowerCase().includes(q) || q.includes(f.area.toLowerCase())));
+  if (hit && Number.isFinite(hit.location.latitude) && Number.isFinite(hit.location.longitude)) {
+    return { name: hit.area, lat: hit.location.latitude, lng: hit.location.longitude };
+  }
+  // broad zones (accept a few synonyms)
+  const zoneAliases = { centre: 'central', 'central area': 'central', 'cbd': 'central', downtown: 'central', 'east coast': 'east', 'far east': 'east', 'far west': 'west' };
+  const zk = WEATHER_ZONE_CENTROIDS[q] ? q : (zoneAliases[q] || (q.includes('west') ? 'west' : q.includes('north') ? 'north' : q.includes('south') ? 'south' : q.includes('east') ? 'east' : (q.includes('central') || q.includes('centre')) ? 'central' : null));
+  if (zk && WEATHER_ZONE_CENTROIDS[zk]) {
+    const c = WEATHER_ZONE_CENTROIDS[zk];
+    return { name: c.label, lat: c.lat, lng: c.lng };
+  }
+  return null;
+}
+
+// Per-venue rain caveat string (for open-air picks) — null when the
+// outlook is fair. `tnFn` is the i18n tn(key, lang, vars) function;
+// pass it in so weather.js stays UI-framework-agnostic.
+function rainAlertFor(nowcast, rainfall, lat, lng, lang, tnFn) {
+  if (!inSgBounds(lat, lng) || typeof tnFn !== 'function') return null;
+  const rainNow = nearestStation(rainfall?.stations, lat, lng);
+  const fc = nowcast ? nearestForecast(nowcast.forecasts, lat, lng) : null;
+  const areaName = fc?.area || zoneLabelFor(lat, lng);
+  if (rainNow && Number.isFinite(Number(rainNow.value)) && Number(rainNow.value) > 0.2) {
+    return tnFn('weather.rainNowNear', lang, { area: areaName });
+  }
+  if (fc && WET_RE.test(String(fc.forecast || ''))) {
+    return tnFn('weather.rainSoonNear', lang, { area: areaName, desc: fc.forecast });
+  }
+  return null;
+}
+
+function zoneLabelFor(lat, lng) {
+  const k = zoneKeyFor(lat, lng);
+  return WEATHER_ZONE_CENTROIDS[k]?.label || 'Singapore';
+}
+
+// "Good window to head out?" lead line for the /weather reply. tFn =
+// i18n t(key, lang); tnFn = tn(key, lang, vars).
+function headOutLine(nowcast, rainfall, lat, lng, lang, tnFn) {
+  if (typeof tnFn !== 'function') return null;
+  const rainNow = nearestStation(rainfall?.stations, lat, lng);
+  const fc = nowcast ? nearestForecast(nowcast.forecasts, lat, lng) : null;
+  const areaName = fc?.area || zoneLabelFor(lat, lng);
+  if (rainNow && Number.isFinite(Number(rainNow.value)) && Number(rainNow.value) > 0.2) {
+    return tnFn('weather.headOutRaining', lang, { area: areaName });
+  }
+  if (fc && WET_RE.test(String(fc.forecast || ''))) {
+    return tnFn('weather.headOutShowery', lang, { area: areaName, desc: fc.forecast });
+  }
+  if (fc) return tnFn('weather.headOutGood', lang, { area: areaName });
+  return null;
+}
+
+// One-line "tonight in the {zone}: {forecast}" from the 24-hour
+// forecast. Picks the period that covers this evening (SGT 17:00–23:59
+// start) when available; else the latest period; else the general
+// forecast. Returns null if nothing usable.
+function tonightOutlookFor(fc24h, lat, lng, lang, tnFn) {
+  if (typeof tnFn !== 'function' || !fc24h) return null;
+  const zk = zoneKeyFor(lat, lng);
+  const label = WEATHER_ZONE_CENTROIDS[zk]?.label || 'Singapore';
+  const periods = Array.isArray(fc24h.periods) ? fc24h.periods : [];
+  const sgHour = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return Number(new Intl.DateTimeFormat('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', hour12: false }).format(d));
+  };
+  let chosen = periods.find((p) => { const h = sgHour(p.startIso); return h != null && h >= 17 && h <= 23; });
+  if (!chosen && periods.length) chosen = periods[periods.length - 1];
+  const desc = chosen?.regions?.[zk] || fc24h.general || null;
+  if (!desc) return null;
+  return tnFn('weather.tonight', lang, { zone: label, desc });
+}
+
+// Best-effort: attach `v.rainAlert` to each rain-sensitive venue in
+// `venues` (mutates). `isRainSensitive` is the predicate from
+// venue-filters; `tnFn` the i18n tn(). Any failure → no alerts, callers
+// proceed normally.
+async function attachRainAlerts(redis, venues, lang, isRainSensitive, tnFn) {
+  try {
+    if (!Array.isArray(venues) || !venues.length || typeof isRainSensitive !== 'function') return;
+    const candidates = venues.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng) && inSgBounds(v.lat, v.lng) && isRainSensitive(v));
+    if (!candidates.length) return;
+    const [nowcast, rainfall] = await Promise.all([getNowcastCached(redis), getRainfallCached(redis)]);
+    if (!nowcast && !rainfall) return;
+    for (const v of candidates) {
+      const line = rainAlertFor(nowcast, rainfall, v.lat, v.lng, lang, tnFn);
+      if (line) v.rainAlert = line;
+    }
+  } catch (err) {
+    console.warn('[Weather] attachRainAlerts failed:', err.message);
+  }
+}
+
+module.exports = {
+  summary, fetchV2Realtime, fetchV1Realtime, fetchRealtime, fetchTwoHourForecast,
+  // v0.60.118
+  fetch24hForecast, getNowcastCached, getRainfallCached, get24hCached,
+  WEATHER_ZONE_CENTROIDS, inSgBounds, zoneKeyFor, zoneLabelFor,
+  resolveArea, rainAlertFor, headOutLine, tonightOutlookFor, attachRainAlerts
+};

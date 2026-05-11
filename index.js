@@ -678,6 +678,14 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // doesn't specify — preserves prior behaviour for paths that don't
   // yet know the user's language preference.
   const dpLang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
+  // v0.60.118 — best-effort rain caveat on open-air picks (hawker /
+  // market / al-fresco / waterfront). No-op on indoor picks and when
+  // the 2h outlook is fair; never blocks delivery.
+  try {
+    const { isRainSensitiveVenue } = require('./venue-filters');
+    const { tn } = require('./i18n');
+    await weather.attachRainAlerts(redis, picks, dpLang, isRainSensitiveVenue, tn);
+  } catch (err) { console.warn('[Picks] rain-alert attach failed:', err.message); }
   const { formatVenueBlock } = require('./venue-templates');
   const { googleMapsUrl } = require('./maps-url');
   const t3Blocks = picks.map((p, i) => formatVenueBlock(p, {
@@ -1186,10 +1194,14 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // below. Prior to v0.20.1 these handlers carried inline copies that drifted
 // behind /menu tile routing — /weather emitted the v0.18.0 "Now: X°C at Y"
 // line instead of the full humidity / rain / wind block.
-bot.onText(/^\/(?:weather|w)(?:@\w+)?$/, async (msg) => {
+// v0.60.118 — /weather now accepts an optional area: `/weather` uses
+// the user's shared pin (or SG centroid); `/weather tampines` /
+// `/weather east` resolves to that area's lat/lng so a user can ask
+// "good window to head out over there?" before leaving.
+bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
-  await runWeatherCommand(msg.chat.id, lang);
+  await runWeatherCommand(msg.chat.id, lang, (match && match[1]) ? match[1].trim() : null);
 });
 
 bot.onText(/^\/(?:transport|t)(?:@\w+)?$/, async (msg) => {
@@ -2306,17 +2318,35 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
   }
 }
 
-async function runWeatherCommand(chatId, lang = 'en') {
+async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
   const { t, tn } = require('./i18n');
   try {
-    const cached = await getUserLocation(redis, chatId);
-    const lat = cached?.lat ?? 1.2839;
-    const lng = cached?.lng ?? 103.8517;
-    const w = await weather.summary(lat, lng);
+    // v0.60.118 — nowcast doubles as the area-name lookup table for
+    // `/weather <area>`, so fetch it (Redis-cached) up front.
+    const nowcast = await weather.getNowcastCached(redis).catch(() => null);
+    let lat, lng, areaLabel = null;
+    if (areaArg) {
+      const resolved = weather.resolveArea(nowcast, areaArg);
+      if (!resolved) { await safeSend(chatId, t('weather.areaUnknown', lang)); return; }
+      lat = resolved.lat; lng = resolved.lng; areaLabel = resolved.name;
+    } else {
+      const cached = await getUserLocation(redis, chatId);
+      lat = cached?.lat ?? 1.2839;
+      lng = cached?.lng ?? 103.8517;
+    }
+    const [w, rainfall, fc24] = await Promise.all([
+      weather.summary(lat, lng),
+      weather.getRainfallCached(redis).catch(() => null),
+      weather.get24hCached(redis).catch(() => null)
+    ]);
     const hasAny = Number.isFinite(w?.tempC) || Number.isFinite(w?.humidityPct) ||
       Number.isFinite(w?.rainMm) || w?.forecast;
     if (!hasAny) { await safeSend(chatId, t('weather.unreachable', lang)); return; }
     const lines = [t('weather.title', lang)];
+    if (areaLabel) lines.push(tn('weather.forArea', lang, { area: areaLabel }));
+    // "Good window to head out?" — the interpreted lead line.
+    const headOut = weather.headOutLine(nowcast, rainfall, lat, lng, lang, tn);
+    if (headOut) lines.push(headOut);
     if (Number.isFinite(w.tempC)) lines.push(tn('weather.temp', lang, { c: w.tempC.toFixed(1), at: w.tempStationName }));
     if (Number.isFinite(w.humidityPct)) lines.push(tn('weather.humidity', lang, { pct: w.humidityPct.toFixed(0), at: w.humidityStationName }));
     if (Number.isFinite(w.rainMm) && w.rainMm > 0) lines.push(tn('weather.rain', lang, { mm: w.rainMm, at: w.rainStationName }));
@@ -2330,6 +2360,11 @@ async function runWeatherCommand(chatId, lang = 'en') {
         : '';
       lines.push(tn('weather.forecastNext2h', lang, { area: w.forecastArea, desc: w.forecast, valid }));
     }
+    // 24-hour "tonight in the {zone}: …" line.
+    const tonight = weather.tonightOutlookFor(fc24, lat, lng, lang, tn);
+    if (tonight) lines.push(tonight);
+    // Cheap heat nudge — tilt toward air-con when it's genuinely hot.
+    if (Number.isFinite(w.tempC) && w.tempC >= 33) lines.push(t('weather.hotNudge', lang));
     await safeSend(chatId, lines.join('\n'));
   } catch (err) {
     console.error('[Error] weather command failed:', err.message);
@@ -3981,6 +4016,12 @@ async function deliverSurprise(chatId, v) {
     const { addRecent } = require('./recent-picks');
     addRecent(redis, chatId, { ...v, kind: 'surprise', signatureDish: v.dishes?.[0] || '' }).catch(() => {});
   } catch { /* optional */ }
+  // v0.60.118 — rain caveat if this surprise is somewhere open-air.
+  try {
+    const { isRainSensitiveVenue } = require('./venue-filters');
+    const { tn } = require('./i18n');
+    await weather.attachRainAlerts(redis, [v], 'en', isRainSensitiveVenue, tn);
+  } catch (err) { console.warn('[Surprise] rain-alert attach failed:', err.message); }
   const km = (v.distanceM / 1000).toFixed(2);
   // v0.59.28: rating only, no review count (counts were inaccurate
   // per Human Lead 2026-05-07; same reason v0.59.24 stripped them
@@ -4002,11 +4043,12 @@ async function deliverSurprise(chatId, v) {
   const fallbackNote = v.isFallback
     ? '\n\n💡 _Best match in your annulus — no fresh review this week, but rating + price profile fits._'
     : '';
+  const rainCaveat = (typeof v.rainAlert === 'string' && v.rainAlert.trim()) ? `\n${v.rainAlert.trim()}` : '';
   const text = [
     `🎲 *${v.name}*`,
     `${v.area}`,
     `${rating}${open ? ' · ' + open : ''} · ${km} km away`,
-    dishes + why + booking + travel + shelter + fallbackNote
+    dishes + why + booking + travel + shelter + rainCaveat + fallbackNote
   ].join('\n');
 
   // v0.26.2 per Human Lead: single 📍 Google Maps link per surprise card.
