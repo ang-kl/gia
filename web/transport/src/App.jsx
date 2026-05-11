@@ -3,6 +3,7 @@ import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { initData } from './tg.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
+import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
@@ -20,6 +21,14 @@ export default function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [focusedCode, setFocusedCode] = useState(null);
+  // v0.60.85 — view toggle between the static PNG schematic
+  // (SystemMap) and the interactive Google Map (MrtMapPanel,
+  // ~177 ops + ~29 future pins). Operator 2026-05-10: "if the SG
+  // Map is first loaded still show the PNG map of Singapore MRT
+  // system network and suggest to user to toggle to see Google
+  // Map as 184 pins in the map of singapore will be very cramp and
+  // ugly." Default = 'png'; user opts into 'gmap' via toggle.
+  const [mapView, setMapView] = useState('png');
 
   useEffect(() => {
     fetch('/api/transport/status?initData=' + encodeURIComponent(initData()))
@@ -62,7 +71,37 @@ export default function App() {
         </div>
       </header>
 
-      <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
+      {/* v0.60.85 — view toggle. PNG (default, clean schematic) vs
+          Google Map (~177 pins, opt-in because the pin density is
+          high in central SG). Hint line above the toggle nudges
+          first-time users toward the interactive view when they
+          want to look up a specific station. */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-[11px] text-tg-hint italic flex-1 min-w-0">
+            {mapView === 'png'
+              ? 'Tap "Google Map" to explore each station →'
+              : 'Tip: zoom in to read the pins (central SG is dense)'}
+          </div>
+          <div className="inline-flex rounded-md border border-tg-border overflow-hidden text-[11px] font-medium flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setMapView('png')}
+              aria-pressed={mapView === 'png'}
+              className={`px-2.5 py-1 ${mapView === 'png' ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card text-tg-text'}`}
+            >🗺 Schematic</button>
+            <button
+              type="button"
+              onClick={() => setMapView('gmap')}
+              aria-pressed={mapView === 'gmap'}
+              className={`px-2.5 py-1 ${mapView === 'gmap' ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card text-tg-text'}`}
+            >📍 Google Map</button>
+          </div>
+        </div>
+        {mapView === 'png'
+          ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
+          : <MrtMapPanel />}
+      </div>
 
       {focusedLine && (
         <LineStatusPanel line={focusedLine} status={focusedStatus} />
