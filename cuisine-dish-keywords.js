@@ -56,7 +56,13 @@ const CUISINE_DISH_KEYWORDS = {
                    'svickova', 'svíčková', 'trdelnik', 'trdelník', 'kolache', 'langos', 'lángos', 'palacinky',
                    'schnitzel', 'wiener schnitzel', 'spaetzle', 'spätzle', 'pierogi', 'pierogies', 'kielbasa',
                    'bratwurst', 'sauerkraut', 'sauerbraten', 'pretzel', 'currywurst', 'rouladen', 'bigos', 'pelmeni',
-                   'apfelstrudel', 'strudel', 'sachertorte', 'tafelspitz', 'wiener'],
+                   'apfelstrudel', 'strudel', 'sachertorte', 'tafelspitz', 'wiener',
+                   // v0.60.125 — distinctively Central/Germanic-European
+                   // *eatery* name-words, so brands like "Hospoda
+                   // Microbrewery" / "Brotzeit" / "Gasthaus …" land above
+                   // the relevance line even though they carry no dish word.
+                   'hospoda', 'pivnice', 'pivovar', 'brotzeit', 'gasthaus', 'gasthof', 'bierhaus',
+                   'brauhaus', 'biergarten', 'ratskeller', 'csarda', 'czarda', 'bierstube'],
   italian:        ['pizza', 'pasta', 'lasagna', 'lasagne', 'risotto', 'gnocchi', 'carbonara', 'tiramisu', 'prosciutto', 'bruschetta', 'focaccia', 'parmesan', 'parmigiana', 'osso buco', 'cacio e pepe', 'arancini', 'tagliatelle', 'pappardelle', 'bolognese', 'ravioli'],
   spanish:        ['paella', 'tapas', 'gazpacho', 'sangria', 'jamón', 'jamon', 'churros', 'tortilla', 'pintxos', 'patatas bravas', 'croquetas', 'pulpo'],
   greek:          ['gyros', 'souvlaki', 'moussaka', 'tzatziki', 'baklava', 'feta', 'dolmades', 'spanakopita', 'horiatiki', 'pastitsio'],

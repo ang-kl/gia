@@ -49,12 +49,13 @@ const STRINGS = {
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
                                  fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
-  // v0.60.123/124 — divider in a free-text dish search reply: above =
-  // the actual cuisine / dish matches; below = results that matched
-  // your words but not necessarily the meaning (e.g. a 灌汤包 place for
-  // "bread dumplings").
-  'freetext.divider':          { en: '— — —   ↓ matched your words, not necessarily "{dish}"   — — —',
-                                 fr: '— — —   ↓ correspond aux mots, pas forcément à « {dish} »   — — —' },
+  // v0.60.123/125 — divider in a free-text dish search reply: above =
+  // the venues that self-identify as the cuisine/dish; below = results
+  // that matched the queried words but not necessarily the meaning
+  // (e.g. a 灌汤包 place for "bread dumplings"). Kept short so it sits
+  // on one line on a phone — the dish name is already in the header.
+  'freetext.divider':          { en: '── word matches, not the dish ──',
+                                 fr: '── mots trouvés, pas le plat ──' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
