@@ -722,9 +722,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     : t3Annotated.join(blockSep);
   // v0.60.108 — operator 2026-05-11: header must read "Soleat", never
   // "Gia's" (the persona name was retired in the rebrand).
+  // v0.60.130 — operator: drop "sanctuary picks" from the result-template
+  // header; just "Soleat's <label> picks".
   const headerLine = dpLang === 'fr'
-    ? `Sélections sanctuaire de Soleat · ${mealLabel}`
-    : `Soleat's ${mealLabel} sanctuary picks`;
+    ? `Sélections de Soleat · ${mealLabel}`
+    : `Soleat's ${mealLabel} picks`;
   await safeSend(chatId, `${headerLine}\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true

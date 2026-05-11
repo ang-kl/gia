@@ -873,10 +873,10 @@ export default function App() {
           cuisine chip to re-run the search constrained to that cuisine. */}
       {cookMethodPivot && !loading && cookMethodPivot.matches.length > 0 && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
-          <div className="mb-1.5">🤔 <span className="italic">
+          <div className="mb-1.5">🙂 <span className="italic">
             {lang === 'fr'
-              ? `Voulez-vous dire une méthode de cuisson « ${cookMethodPivot.query} » ?`
-              : `Did you mean a cooking method "${cookMethodPivot.query}"?`}
+              ? `Cherchiez-vous peut-être une méthode de cuisson — « ${cookMethodPivot.query} » ?`
+              : `Were you perhaps after a cooking method — "${cookMethodPivot.query}"?`}
           </span></div>
           <div className="flex flex-wrap gap-1.5">
             {cookMethodPivot.matches.map((m) => (
