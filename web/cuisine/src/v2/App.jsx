@@ -878,7 +878,7 @@ export default function App() {
           construction. Bowl shape (rounded-t-md rounded-b-[16px])
           across all three FABs per Human Lead 2026-05-09 — replaces
           the prior rounded-full circles. */}
-      <div className="fixed bottom-4 left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3">
+      <div className="fixed bottom-2 left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3">
         <BackFab inline />
         <div className="flex flex-col gap-2 items-end pointer-events-none">
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
@@ -891,7 +891,7 @@ export default function App() {
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
             style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-            className={`pointer-events-auto w-8 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-xs font-semibold flex items-center justify-center active:scale-95 transition-all ${
+            className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
               loading ? 'opacity-60'
               : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
               : ''
@@ -905,7 +905,7 @@ export default function App() {
             })}
             aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
             style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-            className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
+            className="pointer-events-auto px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
           >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
         </div>
       </div>
