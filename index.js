@@ -4279,23 +4279,22 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
       : '✅ /search conversation ended. See you next time.');
     return;
   }
-  // Empty arg with no active conversation → prompt the user for input.
-  // v0.60.110 — operator 2026-05-11 supplied this copy word-for-word
-  // (EN + FR). Sent as plain text (no parse_mode) so it renders
-  // exactly as written — no Markdown escaping surprises.
+  // Empty arg → show the full instruction prompt. v0.60.111 — operator
+  // 2026-05-11 reported the v0.60.110 copy "not taking effect": the
+  // prior code only showed the full prompt when there was NO active
+  // /search conversation, so typing `/s` again within the 30-min
+  // conversation TTL hit a short "Go on, continue…" re-prompt instead.
+  // Now `/s` / `/search` with no argument ALWAYS shows the full
+  // instruction. A fresh conversation is started only if none is
+  // active (so mid-flow history isn't wiped by re-reading the help).
+  // v0.60.110 — operator-supplied copy verbatim (EN + FR). Plain text
+  // (no parse_mode) so it renders exactly as written.
   let conv = await sc.getConversation(redis, chatId);
-  if (!arg && !conv) {
-    await sc.startConversation(redis, chatId);
+  if (!arg) {
+    if (!conv) await sc.startConversation(redis, chatId);
     await safeSend(chatId, lang === 'fr'
       ? '🔎 /s ou /search - Recherche par plat, ingrédient, ustensile de cuisine ou méthode de cuisson\n\nTapez ce que vous voulez explorer - par ex. goulash quenelles, tandoor, binchotan, braisage français, en croûte, agemono japonais, asado, pâte phyllo.\n\nJe trouverai des établissements à Singapour qui correspondent et j\'expliquerai pourquoi ils conviennent.\n\nNote : « goulash quenelles » peut désigner le gulyás hongrois - ragoût de bœuf au paprika, généralement façon soupe - ou le guláš tchèque avec des quenelles de pain.\n\nEssayez :\n/s goulash quenelles\n/s braisage français\n/s en croûte\n/s agemono japonais\n/s asado\n/s pâte phyllo\n\nTapez /s end pour terminer, ou n\'importe quelle commande /... pour passer à autre chose.'
       : '🔎 /s or /search - Search by dish, ingredient, kitchen tool, or cooking method\n\nType what you want to explore - e.g. goulash dumpling, tandoor, binchotan, Braisage french, En Croute, Agemono Japanese, Asado, Phyllo baking.\n\nI\'ll find matching Singapore eateries and explain why they fit.\n\nNote: "goulash dumpling" may mean Hungarian gulyás - paprika beef stew, usually soup-like - or Czech guláš with bread dumplings.\n\nTry:\n/s goulash dumpling\n/s Braisage french\n/s En Croute\n/s Agemono Japanese\n/s Asado\n/s Phyllo baking\n\nType /s end to finish, or any /... command to switch.');
-    return;
-  }
-  // Empty arg with an active conversation → re-prompt continuation.
-  if (!arg && conv) {
-    await safeSend(chatId, lang === 'fr'
-      ? '🔎 Continuez : tapez le plat, l\'ingrédient ou la technique qui vous intéresse.'
-      : '🔎 Go on — type the dish, ingredient, or technique you\'re curious about.');
     return;
   }
   // Real query — classify intent and dispatch.
