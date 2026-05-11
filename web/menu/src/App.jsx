@@ -59,6 +59,19 @@ const FOOTER_CHIPS = [
 
 export default function App() {
   const lang = useLocale();
+  // v0.60.60 — track at-bottom for the scroll FAB navigation
+  // standardised across all four TMAs.
+  const [atBottom, setAtBottom] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      const reached = (window.scrollY || 0) + window.innerHeight;
+      const fullH = document.documentElement.scrollHeight;
+      setAtBottom(reached >= fullH - 50);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   // v0.60.54 / v0.60.55 — fetch cached LTA train status once on
   // mount. Endpoint reads Redis only, so no extra LTA roundtrip.
   const [live, setLive] = useState({ code: null, updatedAt: null });
@@ -198,6 +211,20 @@ export default function App() {
       </div>
 
       <BackFab />
+
+      {/* v0.60.96 — scroll FAB. Standardised across all four TMAs
+          per operator: bottom-right, aqua, text label "⇣ down" /
+          "⇡ top" toggled by atBottom state. */}
+      <button
+        type="button"
+        onClick={() => window.scrollTo({
+          top: atBottom ? 0 : window.scrollY + window.innerHeight,
+          behavior: 'smooth'
+        })}
+        aria-label={atBottom ? 'Back to top' : 'Scroll down'}
+        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+        className="fixed bottom-4 right-4 px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+      >{atBottom ? '⇡ top' : '⇣ down'}</button>
     </div>
   );
 }

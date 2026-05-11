@@ -47,6 +47,22 @@ export default function App() {
   const [err, setErr] = useState(null);
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
+  // v0.60.96 — operator: "flip to Top when I am at the bottom of the
+  // screen". Detect when user has scrolled to (or near) the bottom of
+  // the document, not just past the hero. Threshold 50 px to absorb
+  // momentum-overshoot on iOS. FAB labels "⇣ down" while there's more
+  // to scroll; "⇡ top" when there isn't.
+  const [atBottom, setAtBottom] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      const reached = window.scrollY + window.innerHeight;
+      const fullH = document.documentElement.scrollHeight;
+      setAtBottom(reached >= fullH - 50);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // v0.60.53 — POST /api/hawker/save-pick. Server validates initData,
   // looks up the centre in the vault, and sends a formatted chat card
@@ -246,6 +262,21 @@ export default function App() {
           </>
         )}
       </div>
+
+      {/* v0.60.94 — bottom-right scroll FAB. Same aqua treatment as
+          BackFab so the bottom-left + bottom-right pair reads as a
+          matched set. ↓ scrolls one viewport when at the top; ↑
+          scrolls back to top once past the hero threshold. */}
+      <button
+        type="button"
+        onClick={() => window.scrollTo({
+          top: atBottom ? 0 : window.scrollY + window.innerHeight,
+          behavior: 'smooth'
+        })}
+        aria-label={atBottom ? 'Back to top' : 'Scroll down'}
+        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+        className="fixed bottom-4 right-4 px-2 h-8 rounded-t-md rounded-b-[16px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+      >{atBottom ? '⇡ top' : '⇣ down'}</button>
     </div>
   );
 }
