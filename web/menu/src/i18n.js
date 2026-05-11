@@ -33,8 +33,10 @@ const STRINGS = {
   // ----- Eat tiles -----
   // v0.60.55 — single-word labels per Human Lead 2026-05-09
   // ("half the size"). 3-column grid drops sub-text entirely.
+  // v0.60.122 — 'Hawker' → 'Hawker Centre, Food Centre' per operator
+  // 2026-05-11 (the only multi-word exception to the v0.60.55 rule).
   'tile.cuisine.label':    { en: 'Cuisine',     fr: 'Cuisine' },
-  'tile.hawker.label':     { en: 'Hawker',      fr: 'Hawker' },
+  'tile.hawker.label':     { en: 'Hawker Centre, Food Centre', fr: 'Hawker Centre, Food Centre' },
   'tile.recognised.label': { en: 'Recognised',  fr: 'Reconnus' },
 
   // ----- Discover tiles -----
