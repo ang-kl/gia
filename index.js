@@ -428,7 +428,7 @@ async function sendGoogleMapsContainer(chatId, items = [], opts = {}) {
 async function handleNoResults(chatId, mealLabel) {
   await safeSend(
     chatId,
-    `Gia couldn't find a ${mealLabel} sanctuary within 200m of you right now. ` +
+    `Soleat couldn't find a ${mealLabel} sanctuary within 200m of you right now. ` +
     `Try sharing a different location or typing a place name.`
   );
 }
@@ -701,9 +701,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // Skipped entirely when picks.length === 1 — the single block is
   // already its own message.
   }).join(picks.length > 1 ? '\n\n\n' : '\n\n');
+  // v0.60.108 — operator 2026-05-11: header must read "Soleat", never
+  // "Gia's" (the persona name was retired in the rebrand).
   const headerLine = dpLang === 'fr'
-    ? `Sélections sanctuaire de Gia · ${mealLabel}`
-    : `Gia's ${mealLabel} sanctuary picks`;
+    ? `Sélections sanctuaire de Soleat · ${mealLabel}`
+    : `Soleat's ${mealLabel} sanctuary picks`;
   await safeSend(chatId, `${headerLine}\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true
@@ -735,7 +737,20 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     console.warn('[Picks] map button render failed:', err.message);
   }
 
-  for (const p of picks) {
+  // v0.60.108 — operator 2026-05-11: for multi-pick deliveries the
+  // numbered T3 list above + the "🗺 Open N on map" button already
+  // give the user everything; the per-pick native location pins +
+  // T1 sanctuary-read detail cards + "nearby carparks on map"
+  // buttons were redundant clutter. Skip the per-pick loop when
+  // picks.length > 1. Single-pick deliveries (/eat with one vault
+  // hit, /hidden, shared pick, single cuisine pick) keep the full
+  // location-pin + sanctuary-read card. Trade-off accepted: buddy
+  // intent registration + vibe-summary pre-warm only happen on the
+  // single-pick path now; multi-pick buddy matching is rare in
+  // practice (opt-in feature) and still fires on subsequent
+  // single-pick deliveries for the same venue.
+  const renderPerPickCards = picks.length === 1;
+  for (const p of (renderPerPickCards ? picks : [])) {
     if (p.lat != null && p.lng != null) {
       const placeId = p.placeId ?? p.id;
       const venueOpts = placeId
@@ -2206,7 +2221,7 @@ async function routeMenuCommand(chatId, raw, payload = null, lang = 'en') {
         });
         const venues = (result?.venues || []).slice(0, 5);
         if (!venues.length) {
-          await safeSend(chatId, "Gia couldn't find sanctuary picks for those filters. Open /cuisine and try a wider radius or different cuisine.");
+          await safeSend(chatId, "Soleat couldn't find sanctuary picks for those filters. Open /cuisine and try a wider radius or different cuisine.");
           return true;
         }
         const label = result?.meal?.label || 'cuisine';
@@ -6107,7 +6122,7 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
         ? '⚠ No venues to deliver. Likely cause: Reason returned no candidates OR Places-validate filtered all (check GOOGLE_MAPS_API_KEY 403). Inspect Railway logs for [Cuisine-Diag] D610/D611/D502.'
         : 'Delivering now…'));
     if (!venues.length) {
-      await safeSend(chatId, "Gia couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /hidden for a hidden gem.");
+      await safeSend(chatId, "Soleat couldn't find sanctuary picks matching that. Try /cuisine for the full picker, or /hidden for a hidden gem.");
       return;
     }
     const label = result?.meal?.label || intent;
