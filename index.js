@@ -2460,14 +2460,21 @@ async function runTransportTrain(chatId, lang = 'en') {
     if (crowdMap) {
       const summary = transport.networkCrowdSummary(crowdMap);
       if (summary) {
-        const pct = summary.total > 0 ? Math.round((summary.low / summary.total) * 100) : 0;
+        // v0.60.88 — surface CROWDED counts + which lines (instead of
+        // the previous "% at low density"). When no line is crowded
+        // (overall=low) the low-density message stays.
+        const linesStr = (summary.crowdedLines || []).join(', ') || '—';
         let networkLine;
         if (summary.overall === 'low') {
-          networkLine = tn('transport.train.network.low', lang, { pct, total: summary.total });
+          networkLine = tn('transport.train.network.low', lang, { total: summary.total });
         } else if (summary.overall === 'medium') {
-          networkLine = tn('transport.train.network.medium', lang, { medium: summary.medium, total: summary.total, high: summary.high });
+          networkLine = tn('transport.train.network.medium', lang, {
+            medium: summary.medium, total: summary.total, high: summary.high, lines: linesStr
+          });
         } else {
-          networkLine = tn('transport.train.network.high', lang, { high: summary.high, total: summary.total });
+          networkLine = tn('transport.train.network.high', lang, {
+            high: summary.high, total: summary.total, medium: summary.medium, lines: linesStr
+          });
         }
         lines.push('', networkLine);
       }

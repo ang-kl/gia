@@ -100,7 +100,7 @@ export default function App() {
         </div>
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
-          : <MrtMapPanel />}
+          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} />}
       </div>
 
       {focusedLine && (
