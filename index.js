@@ -4752,6 +4752,60 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   return lines.join('\n');
 }
 
+// v0.60.112 — kind progressive "please wait" status for slow searches.
+// Operator 2026-05-11 (after `/s asado` errored on the cooking-method
+// fan-out): "you should have a 'Please wait while searching for
+// eateries…' EN/FR (kind, polite, short) and every 15 seconds update…
+// after 1 minute, ask them if they meant something else."
+//
+// Owns a single Telegram message:
+//   t=0   →  "🔎 One moment — searching for eateries for X…"
+//   +15s  →  rotating reassurance ("Still searching…", "Almost there…")
+//   +60s  →  "This is taking longer than usual — did you mean
+//             something else? …" (search keeps running underneath)
+// Also keeps a typing-indicator ticker alive. finish() clears the
+// timers + deletes the message.
+function createWaitStatus(chatId, lang, queryLabel = '') {
+  const isFr = lang === 'fr';
+  const escW = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const q = escW(queryLabel);
+  const initial = isFr
+    ? `🔎 <i>Un instant — je cherche des établissements${q ? ` pour <b>${q}</b>` : ''}…</i>`
+    : `🔎 <i>One moment — searching for eateries${q ? ` for <b>${q}</b>` : ''}…</i>`;
+  const reassure = isFr
+    ? ['🔎 <i>Toujours en recherche, merci de patienter…</i>', '🔎 <i>J\'y suis presque…</i>', '🔎 <i>Encore un petit instant…</i>']
+    : ['🔎 <i>Still searching — thanks for your patience…</i>', '🔎 <i>Almost there…</i>', '🔎 <i>Just a moment more…</i>'];
+  const nudge = isFr
+    ? `🕰️ <i>Cela prend plus de temps que d\'habitude.</i>\nVouliez-vous dire autre chose ?${q ? ` Reformulez (par ex. <code>/s ${q} …</code>)` : ''} — ou tapez une autre requête. Je continue la recherche en attendant.`
+    : `🕰️ <i>This is taking longer than usual.</i>\nDid you mean something else?${q ? ` Try rewording (e.g. <code>/s ${q} …</code>)` : ''} — or type another query. I'll keep searching in the meantime.`;
+  let msgId = null;
+  let timer = null;
+  let typingTimer = null;
+  let ticks = 0;
+  bot.sendMessage(chatId, initial, { parse_mode: 'HTML' })
+    .then((m) => {
+      msgId = m?.message_id || null;
+      if (!msgId) return;
+      const typingTick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
+      typingTick();
+      typingTimer = setInterval(typingTick, 4000);
+      timer = setInterval(() => {
+        ticks++;
+        const elapsedS = ticks * 15;
+        const text = elapsedS >= 60 ? nudge : reassure[(ticks - 1) % reassure.length];
+        bot.editMessageText(text, { chat_id: chatId, message_id: msgId, parse_mode: 'HTML' }).catch(() => {});
+      }, 15000);
+    })
+    .catch((err) => { console.warn('[WaitStatus] initial send failed:', err.message); });
+  return {
+    finish: async () => {
+      if (timer) { clearInterval(timer); timer = null; }
+      if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
+      if (msgId) { try { await bot.deleteMessage(chatId, msgId); } catch { /* non-fatal */ } msgId = null; }
+    }
+  };
+}
+
 async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc }) {
   const gc = require('./gemini-client');
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -4984,42 +5038,20 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     : 'hawker OR restaurant';
   const textQuery = `"${hit.dish}" Singapore ${venueType}`;
 
-  // Progressive feedback (mirrors runTechniqueFanOut UX).
-  let typingTimer = null;
-  const startTyping = () => {
-    const tick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
-    tick();
-    typingTimer = setInterval(tick, 4000);
-  };
-  const stopTyping = () => { if (typingTimer) { clearInterval(typingTimer); typingTimer = null; } };
-  startTyping();
-
-  let statusMsgId = null;
+  // v0.60.112 — kind progressive "please wait" status (15 s reassurance
+  // rotation + 60 s "did you mean something else?" nudge).
   const cuisineLabel = hit.slug.charAt(0).toUpperCase() + hit.slug.slice(1);
-  const initialStatus = lang === 'fr'
-    ? `🔍 <i>Recherche de <b>${esc(hit.dish)}</b> à Singapour…</i>`
-    : `🔍 <i>Searching for <b>${esc(hit.dish)}</b> in Singapore…</i>`;
-  try {
-    const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
-    statusMsgId = sent?.message_id || null;
-  } catch (err) {
-    console.warn('[Nation-Iconic] status send failed:', err.message);
-  }
-  const deleteStatus = async () => {
-    if (!statusMsgId) return;
-    try { await bot.deleteMessage(chatId, statusMsgId); } catch { /* non-fatal */ }
-    statusMsgId = null;
-  };
+  const wait = createWaitStatus(chatId, lang, hit.dish);
 
   try {
     const venues = await searchVenuesByDish(textQuery, cuisineLabel, {
       lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
     });
     if (!venues.length) {
-      await deleteStatus();
+      await wait.finish();
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b> à Singapour.`
-        : `Sorry, no Singapore venues found for <b>${esc(hit.dish)}</b>.`,
+        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b> à Singapour. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
+        : `Sorry, no Singapore venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -5068,24 +5100,22 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     lines.push(cards.join('\n\n\n'));
 
     const reply = lines.join('\n');
-    const updated = sc
-      ? await sc.appendExchange(redis, chatId, userText, reply, 'nation-iconic')
-      : null;
+    let updated = null;
+    try { updated = sc ? await sc.appendExchange(redis, chatId, userText, reply, 'nation-iconic') : null; }
+    catch (err) { console.warn('[Nation-Iconic] appendExchange failed:', err.message); }
     const rawSuffix = (sc && updated && sc.shouldNudgeEnd(updated)) ? sc.endNudge(lang) : '';
     const suffix = rawSuffix
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/_([^_]+)_/g, '<i>$1</i>');
-    await deleteStatus();
+    await wait.finish();
     await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
   } catch (err) {
     console.error('[Nation-Iconic] fatal:', err.stack || err.message);
-    await deleteStatus();
+    await wait.finish();
     await safeSend(chatId, lang === 'fr'
-      ? `Désolé, erreur lors de la recherche de <b>${esc(hit.dish)}</b>.`
-      : `Sorry, something went wrong searching for <b>${esc(hit.dish)}</b>.`,
+      ? `Désolé, la recherche de <b>${esc(hit.dish)}</b> a échoué. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots, ou tapez une autre requête.`
+      : `Sorry, the search for <b>${esc(hit.dish)}</b> failed. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words, or type another query.`,
       { parse_mode: 'HTML' });
-  } finally {
-    stopTyping();
   }
 }
 
@@ -5100,30 +5130,10 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  let typingTimer = null;
-  const startTyping = () => {
-    const tick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
-    tick();
-    typingTimer = setInterval(tick, 4000);
-  };
-  const stopTyping = () => { if (typingTimer) { clearInterval(typingTimer); typingTimer = null; } };
-  startTyping();
-
-  let statusMsgId = null;
-  const initialStatus = lang === 'fr'
-    ? `🔍 <i>Recherche de <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)} à Singapour…</i>`
-    : `🔍 <i>Searching for <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)} in Singapore…</i>`;
-  try {
-    const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
-    statusMsgId = sent?.message_id || null;
-  } catch (err) {
-    console.warn('[Cooking-Method] status send failed:', err.message);
-  }
-  const deleteStatus = async () => {
-    if (!statusMsgId) return;
-    try { await bot.deleteMessage(chatId, statusMsgId); } catch { /* non-fatal */ }
-    statusMsgId = null;
-  };
+  // v0.60.112 — kind progressive "please wait" status (15 s reassurance
+  // rotation + 60 s "did you mean something else?" nudge). Replaces the
+  // ad-hoc typing-ticker + static status message.
+  const wait = createWaitStatus(chatId, lang, `${hit.cuisineLabel} · ${hit.term}`);
 
   try {
     const textQuery = `"${hit.term}" ${hit.cuisineLabel} Singapore restaurant`;
@@ -5131,10 +5141,10 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
       lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
     });
     if (!venues.length) {
-      await deleteStatus();
+      await wait.finish();
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé à Singapour pour <b>${esc(hit.term)}</b>.`
-        : `Sorry, no Singapore <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>.`,
+        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé à Singapour pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
+        : `Sorry, no Singapore <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -5155,34 +5165,45 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
     const lines = [];
     lines.push(`🔧 <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)}`);
     lines.push('');
-    const cards = venues.slice(0, 5).map((venue, i) => formatTechniqueVenueBlock(venue, {
-      number: i + 1,
-      lang,
-      googleMapsUrlFn: googleMapsUrl,
-      dishPhrase: hit.term,
-      orderTip: ''
-    }));
+    // v0.60.112 — render each card defensively: a single malformed
+    // venue must not throw the whole reply into the "erreur" path.
+    const cards = venues.slice(0, 5).map((venue, i) => {
+      try {
+        return formatTechniqueVenueBlock(venue, {
+          number: i + 1, lang, googleMapsUrlFn: googleMapsUrl, dishPhrase: hit.term, orderTip: ''
+        });
+      } catch (err) {
+        console.warn('[Cooking-Method] card render failed for', venue?.name, '-', err.message);
+        return `${i + 1}. <b>${esc(venue?.name || 'Unnamed')}</b>${venue?.area ? `\n📇 ${esc(venue.area)}` : ''}`;
+      }
+    }).filter(Boolean);
+    if (!cards.length) {
+      await wait.finish();
+      await safeSend(chatId, lang === 'fr'
+        ? `Désolé, je n\'ai pas pu présenter les résultats pour <b>${esc(hit.term)}</b>. Réessayez dans un instant.`
+        : `Sorry, I couldn't format the results for <b>${esc(hit.term)}</b>. Try again in a moment.`,
+        { parse_mode: 'HTML' });
+      return;
+    }
     lines.push(cards.join('\n\n\n'));
 
     const reply = lines.join('\n');
-    const updated = sc
-      ? await sc.appendExchange(redis, chatId, userText, reply, 'cooking-method')
-      : null;
+    let updated = null;
+    try { updated = sc ? await sc.appendExchange(redis, chatId, userText, reply, 'cooking-method') : null; }
+    catch (err) { console.warn('[Cooking-Method] appendExchange failed:', err.message); }
     const rawSuffix = (sc && updated && sc.shouldNudgeEnd(updated)) ? sc.endNudge(lang) : '';
     const suffix = rawSuffix
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/_([^_]+)_/g, '<i>$1</i>');
-    await deleteStatus();
+    await wait.finish();
     await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
   } catch (err) {
     console.error('[Cooking-Method] fatal:', err.stack || err.message);
-    await deleteStatus();
+    await wait.finish();
     await safeSend(chatId, lang === 'fr'
-      ? `Désolé, erreur lors de la recherche de <b>${esc(hit.term)}</b>.`
-      : `Sorry, something went wrong searching for <b>${esc(hit.term)}</b>.`,
+      ? `Désolé, la recherche de <b>${esc(hit.term)}</b> a échoué. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots, ou tapez une autre requête.`
+      : `Sorry, the search for <b>${esc(hit.term)}</b> failed. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words, or type another query.`,
       { parse_mode: 'HTML' });
-  } finally {
-    stopTyping();
   }
 }
 
