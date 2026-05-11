@@ -722,9 +722,11 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     : t3Annotated.join(blockSep);
   // v0.60.108 — operator 2026-05-11: header must read "Soleat", never
   // "Gia's" (the persona name was retired in the rebrand).
+  // v0.60.130 — operator: drop "sanctuary picks" from the result-template
+  // header; just "Soleat's <label> picks".
   const headerLine = dpLang === 'fr'
-    ? `Sélections sanctuaire de Soleat · ${mealLabel}`
-    : `Soleat's ${mealLabel} sanctuary picks`;
+    ? `Sélections de Soleat · ${mealLabel}`
+    : `Soleat's ${mealLabel} picks`;
   await safeSend(chatId, `${headerLine}\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true
@@ -1880,6 +1882,51 @@ bot.on('callback_query', async (q) => {
       const { setUserLang } = require('./user-prefs');
       await setUserLang(redis, chatId, target);
       await safeSend(chatId, t(target === 'fr' ? 'bot.lang.set.fr' : 'bot.lang.set.en', target));
+      return;
+    }
+
+    // v0.60.129 — cooking-method "did you mean" pivot. Buttons carry
+    // `cookm:<idx>:<encoded-text>` (idx = position in the recomputed
+    // match list) or `cookm:L:<encoded-text>` (skip the pivot, search
+    // the raw text literally). On a cuisine pick we re-enter the
+    // rich-card fan-out; on L we drop through to the free-text search.
+    if (data.startsWith('cookm:')) {
+      const m = data.match(/^cookm:([0-9L]):(.*)$/s);
+      let cookText = '';
+      let pick = 'L';
+      if (m) {
+        pick = m[1];
+        try { cookText = m[2] ? decodeURIComponent(m[2]) : ''; }
+        catch { cookText = m[2] || ''; }
+      }
+      if (!cookText) {
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+        return;
+      }
+      if (pick === 'L') {
+        await runFreeTextSearch(chatId, cookText, { lang: cbLang });
+        return;
+      }
+      try {
+        const cookm = require('./cooking-methods');
+        const matches = cookm.findCookingMethodMatches(cookText);
+        const hit = matches[Number(pick)] || matches[0] || null;
+        if (!hit) {
+          await runFreeTextSearch(chatId, cookText, { lang: cbLang });
+          return;
+        }
+        const { getUserLocation } = require('./location-cache');
+        const loc = await getUserLocation(redis, chatId).catch(() => null);
+        const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+        const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+        const sc = require('./search-conversation');
+        try { await sc.setLastCuisine(redis, chatId, 'cooking-method', hit.slug, hit.term); }
+        catch (err) { console.warn('[cookm] setLastCuisine failed:', err.message); }
+        await runCookingMethodFanOut({ chatId, userText: cookText, hit, lang: cbLang, center, sc });
+      } catch (err) {
+        console.warn('[cookm] callback failed:', err.message);
+        await runFreeTextSearch(chatId, cookText, { lang: cbLang });
+      }
       return;
     }
 
@@ -4478,12 +4525,33 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // "/s pörkölt" → Hungarian). Routes through a single-cuisine
   // rich-card fan-out using the same formatTechniqueVenueBlock
   // template used everywhere else.
+  // v0.60.129 — when the typed term names a cooking method, check
+  // with the user before fanning out (operator: "Better to check with
+  // user if he/her meant this"). Unambiguous single-cuisine hits AND
+  // the term-verbatim case (e.g. the user typed the exact chef compound
+  // "mirepoix sweating") still fan out directly — that path is the
+  // pre-v0.60.129 behaviour for power users. Otherwise emit the same
+  // tap-to-pivot keyboard used by the chat free-text handler.
   const cookingMethods = require('./cooking-methods');
-  const cmHit = cookingMethods.findCookingMethod(userText, { stickyCuisine: stickyCuisineSlug });
-  if (cmHit) {
-    try { await sc.setLastCuisine(redis, chatId, 'cooking-method', cmHit.slug, cmHit.term); }
-    catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
-    return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc });
+  const cmMatches = cookingMethods.findCookingMethodMatches(userText, { stickyCuisine: stickyCuisineSlug });
+  if (cmMatches && cmMatches.length) {
+    const userTokensJoined = cookingMethods._tokenize(userText).join(' ');
+    const termTokensJoined = cookingMethods._tokenize(cmMatches[0].term).join(' ');
+    const verbatim = cmMatches.length === 1 && userTokensJoined === termTokensJoined;
+    if (verbatim) {
+      const cmHit = cmMatches[0];
+      try { await sc.setLastCuisine(redis, chatId, 'cooking-method', cmHit.slug, cmHit.term); }
+      catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
+      return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc });
+    }
+    // ambiguous or non-verbatim → pivot prompt
+    const { tn: trnCm } = require('./i18n');
+    await safeSend(chatId, trnCm('cookmethod.didYouMean', lang), {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: { inline_keyboard: buildCookMethodKeyboard(userText, cmMatches, lang) }
+    });
+    return;
   }
   // ---- Single-query path (dish / ingredient / cuisine-tagged tool) ----
   // v0.60.9 (Human Lead 2026-05-08): unified rich-card template across
@@ -5144,13 +5212,37 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
   }
 }
 
+// v0.60.129 — build the "Did you mean a cooking method?" inline
+// keyboard. Buttons carry `cookm:<idx>:<encoded-text>` where idx is
+// the position in `matches` (0–4) or 'L' for "search literally". The
+// raw text is capped to 40 chars before encoding (cooking-method
+// inputs are short Latin phrases, so the URL-encoded form stays well
+// under Telegram's 64-byte callback_data limit); the handler
+// re-derives the match list from the text.
+function buildCookMethodKeyboard(text, matches, lang) {
+  const { t } = require('./i18n');
+  const enc = encodeURIComponent(String(text || '').slice(0, 40));
+  const top = (matches || []).slice(0, 5);
+  const rows = [];
+  for (let i = 0; i < top.length; i += 2) {
+    rows.push(top.slice(i, i + 2).map((m, j) => ({
+      text: m.cuisineLabel,
+      callback_data: `cookm:${i + j}:${enc}`
+    })));
+  }
+  rows.push([{ text: t('cookmethod.literalBtn', lang), callback_data: `cookm:L:${enc}` }]);
+  return rows;
+}
+
 // v0.60.12 — Cooking-method fan-out. Mirrors runNationIconicFanOut
 // shape but anchored to a per-cuisine method dictionary (cooking-
-// methods.js, 70 cuisines × 30 methods). Used when user types a
-// method-phrase term like "tadka tempering" or "mohinga" alone.
-// The cuisine label is pulled from the method-dict slug; the Places
-// query combines the term + cuisine label + Singapore for tight
-// targeting (e.g. "tadka tempering Indian Singapore restaurant").
+// methods.js — chef-English baseline + the data/cooking method
+// reference by cuisine.md merge). Used when user picks a cuisine from
+// the "Did you mean a cooking method?" pivot, or (for /s) when the
+// typed term is a verbatim single-cuisine method. The cuisine label is
+// pulled from the method-dict slug; the Places query combines the term
+// + cuisine label + Singapore for tight targeting (e.g. "tadka
+// tempering Indian Singapore restaurant").
 async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc }) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -6104,6 +6196,30 @@ bot.on('message', async (msg) => {
         }
       } catch (err) {
         console.warn('[free-text] misrepresented-dish note failed (continuing):', err.message);
+      }
+    }
+    // v0.60.129 — "Did you mean a cooking method?" pivot. If the typed
+    // term names one or more cooking methods from cooking-methods.js
+    // (merged with data/cooking method reference by cuisine.md — e.g.
+    // "tadka", "wok hei", "agemono", "dum"), check with the user before
+    // running a literal Places search. Operator's instruction: "Better
+    // to check with user if he/her meant this." Skipped when R.E.D
+    // already produced a disclosure (no double pivot).
+    if (!disambigDisclosureFT) {
+      try {
+        const cookm = require('./cooking-methods');
+        const matches = cookm.findCookingMethodMatches(text);
+        if (matches && matches.length) {
+          const { t: tCm, tn: trnCm } = require('./i18n');
+          await safeSend(msg.chat.id, trnCm('cookmethod.didYouMean', userLang), {
+            parse_mode: 'HTML',
+            disable_web_page_preview: true,
+            reply_markup: { inline_keyboard: buildCookMethodKeyboard(text, matches, userLang) }
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn('[free-text] cooking-method pivot failed (continuing):', err.message);
       }
     }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
@@ -7947,6 +8063,28 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] misrepresented-dish lookup failed (continuing):', err.message);
         }
+        // v0.60.129 — cooking-method "did you mean" probe. When the
+        // Tell-me free-text box names one or more cooking methods (from
+        // cooking-methods.js + the data/cooking method reference by
+        // cuisine.md merge), forward the matches so the TMA can render a
+        // "Did you mean … ?" banner with cuisine chips above the result
+        // list. Distinct from R.E.D's chipDisambig and from misrepNote.
+        let cookMethodMatches = null;
+        try {
+          const ftRaw = String(req.body?.freeText || '').trim();
+          if (ftRaw && !chipDisambig) {
+            const cookm = require('./cooking-methods');
+            const hits = cookm.findCookingMethodMatches(ftRaw);
+            if (hits && hits.length) {
+              cookMethodMatches = {
+                query: ftRaw,
+                matches: hits.slice(0, 6).map((h) => ({ slug: h.slug, cuisine: h.cuisineLabel, method: h.term }))
+              };
+            }
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] cooking-method lookup failed (continuing):', err.message);
+        }
         // v0.59.49 — search-query tightening for cuisines whose
         // chip-label has weak food-name signal in Places. The chip
         // shows the user's chosen label (e.g. "New Zealand"), but the
@@ -8630,7 +8768,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client (poolCount=${poolCount} exhausted=${dedupExhausted})`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still

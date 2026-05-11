@@ -49,13 +49,13 @@ const STRINGS = {
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
                                  fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
-  // v0.60.123/127 — two-line divider in a free-text dish search reply:
-  // above = venues that self-identify as the cuisine/dish; below =
-  // similar dishes/cuisines (e.g. a 灌汤包 place for "bread dumplings").
-  // The dish name sits on its own (second) line so the first line
-  // doesn't wrap. Operator-specified copy 2026-05-11.
-  'freetext.divider':          { en: '⇩── Eatery matches below; similar dishes/cuisines ── ⇩\n⇩── not exact [{dish}] ── ⇩',
-                                 fr: '⇩── Établissements proches ci-dessous (plats/cuisines voisins) ── ⇩\n⇩── pas exactement [{dish}] ── ⇩' },
+  // v0.60.123/127/130 — two-line divider in a free-text dish search
+  // reply: above = venues that self-identify as the cuisine/dish;
+  // below = eateries with similar dishes or cuisine (e.g. a 灌汤包 place
+  // for "bread dumplings"). The dish name sits on its own (second) line
+  // so the first line doesn't wrap. Operator-specified copy 2026-05-11.
+  'freetext.divider':          { en: '⇩── Eateries with similar dishes or cuisine ── ⇩\n⇩── not exactly {dish} ── ⇩',
+                                 fr: '⇩── Établissements aux plats ou cuisine similaires ── ⇩\n⇩── pas exactement {dish} ── ⇩' },
   // v0.60.128 — "misrepresented dish" note. Surfaced on the free-text
   // dish-search paths (chat + Cuisine TMA "Tell me" box) when the typed
   // term names a dish from data/Misrepresented Dish Dessert Drink.MD.
@@ -63,6 +63,16 @@ const STRINGS = {
   // English-only). Caller HTML-escapes {name} / {note}.
   'misrep.note':               { en: 'ℹ️ <b>{name}</b> — {note}',
                                  fr: 'ℹ️ <b>{name}</b> — {note}' },
+  // v0.60.129 — "Did you mean a cooking method?" pivot prompt. Fired
+  // on the free-text dish-search paths (chat + Cuisine TMA + /s) when
+  // the typed term names one or more cooking methods from
+  // data/cooking method reference by cuisine.md (+ the baseline
+  // cooking-methods.js dict). Source data is English; FR users get a
+  // localised framing with English method names.
+  'cookmethod.didYouMean':     { en: '🙂 <i>Were you perhaps after a cooking method?</i> Tap a cuisine below, or search literally.',
+                                 fr: '🙂 <i>Cherchiez-vous peut-être une méthode de cuisson ?</i> Touchez une cuisine ci-dessous, ou cherchez tel quel.' },
+  'cookmethod.literalBtn':     { en: '🔍 Search literally',
+                                 fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
