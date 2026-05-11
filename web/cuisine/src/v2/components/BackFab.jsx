@@ -38,8 +38,8 @@ export default function BackFab({ inline = false }) {
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className={`${inline ? 'pointer-events-auto' : 'fixed bottom-2 left-4 z-50'} px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
+      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', ...(inline ? {} : { bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }) }}
+      className={`${inline ? 'pointer-events-auto' : 'fixed left-4 z-50'} px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap`}
     >
       <span aria-hidden="true">{hasHistory ? '⇠' : '🔚'}</span>
       <span>{hasHistory ? t('btn.fabBack', lang) : t('btn.fabEnd', lang)}</span>

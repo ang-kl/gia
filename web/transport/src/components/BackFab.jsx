@@ -23,8 +23,8 @@ export default function BackFab() {
       type="button"
       onClick={onClick}
       aria-label={hasHistory ? t('fab.backAria', lang) : t('fab.endAria', lang)}
-      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-      className="fixed bottom-2 left-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+      style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      className="fixed left-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
     >
       <span aria-hidden="true">{hasHistory ? '⇠' : '🔚'}</span>
       <span>{hasHistory ? t('fab.back', lang) : t('fab.end', lang)}</span>

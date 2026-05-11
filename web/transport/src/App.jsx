@@ -170,8 +170,8 @@ export default function App() {
           behavior: 'smooth'
         })}
         aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
-        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-        className="fixed bottom-2 right-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
+        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed right-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
       >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
     </div>
   );
