@@ -843,6 +843,13 @@ const DISCOVER_FIELD_MASK = [
   'places.priceLevel',
   'places.businessStatus',
   'places.primaryType',
+  // v0.60.101 — request the full types array (not just primaryType)
+  // so the combo-cuisine path can tag each venue with which cuisine
+  // it actually serves (e.g. ['italian_restaurant', 'restaurant',
+  // 'food']). Operator 2026-05-11: combo-fallback result cards
+  // should badge "Japanese" / "Italian" per eatery so the user can
+  // see why each one was returned.
+  'places.types',
   'places.googleMapsUri',
   'places.googleMapsLinks',
   'places.currentOpeningHours.openNow',
@@ -1047,6 +1054,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           websiteUri: p.websiteUri || '',
           phone: p.nationalPhoneNumber || '',
           primaryType: p.primaryType || 'restaurant',
+          types: Array.isArray(p.types) ? p.types : [],
           url: googleMapsUrl(p) ?? '',
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',
           reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
