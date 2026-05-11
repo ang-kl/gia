@@ -98,6 +98,14 @@ const STRINGS = {
   // glyph used at the start of the dish line.
   'card.whatToOrder':          { en: 'Try', fr: 'Essayez' },
 
+  // ----- End-of-list / dedup exhaustion (v0.60.115) -----
+  'result.exhausted':          { en: '— That’s all {n} places matching these criteria. Add or change a cuisine / filter, or use 💬 Tell me, to find more. Re-tapping 🔍 just re-shows this list. —',
+                                 fr: '— C’est tout : {n} établissements pour ces critères. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour en trouver d’autres. Réappuyer sur 🔍 réaffiche simplement cette liste. —' },
+  'result.exhaustedOne':       { en: '— That’s the only place matching these criteria. Add or change a cuisine / filter, or use 💬 Tell me, to find more. —',
+                                 fr: '— C’est le seul établissement pour ces critères. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour en trouver d’autres. —' },
+  'result.exhaustedNoCount':   { en: '— That’s everything matching these criteria. Add or change a cuisine / filter, or use 💬 Tell me, to find more. Re-tapping 🔍 just re-shows this list. —',
+                                 fr: '— C’est tout pour ces critères. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour en trouver d’autres. Réappuyer sur 🔍 réaffiche simplement cette liste. —' },
+
   // ----- Tell me panel -----
   'tellme.placeholder':        { en: 'What are you craving? e.g. spicy thai', fr: 'Quelle est votre envie ? ex. thaï épicé' },
   'tellme.aria':               { en: 'Tell me what you’re craving', fr: 'Dites-moi ce dont vous avez envie' },

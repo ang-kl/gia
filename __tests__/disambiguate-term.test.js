@@ -132,6 +132,24 @@ describe('disambiguateTerm — low confidence (show both)', () => {
     // (indonesian sate). LOW confidence means show all alternatives.
     expect(['medium', 'low']).toContain(r.confidence);
   });
+  // v0.60.114 — "asado" is interactive: neither Argentinian nor Filipino
+  // asado defaults in SG, so a bare "/s asado" must ask the user.
+  it('"asado" + locale=SG → LOW (Argentinian vs Filipino, no SG default)', () => {
+    const r = gc.disambiguateTerm({ text: 'asado', ctx: { locale: 'SG', lang: 'en' } });
+    expect(r.kind).toBe('ambiguous-dish');
+    expect(r.confidence).toBe('low');
+    expect(r.alternatives.length).toBeGreaterThanOrEqual(1);
+  });
+  it('"asado argentinian" → HIGH (signal resolves to Argentinian)', () => {
+    const r = gc.disambiguateTerm({ text: 'asado argentinian', ctx: { locale: 'SG' } });
+    expect(r.confidence).toBe('high');
+    expect(r.chosen.id).toBe('argentinian-asado');
+  });
+  it('"asado filipino" → HIGH (signal resolves to Filipino)', () => {
+    const r = gc.disambiguateTerm({ text: 'asado filipino', ctx: { locale: 'SG' } });
+    expect(r.confidence).toBe('high');
+    expect(r.chosen.id).toBe('filipino-asado');
+  });
 });
 
 describe('disambiguateTerm — conversation sticky', () => {
