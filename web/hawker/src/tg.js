@@ -46,6 +46,14 @@ export function applyTelegramTheme() {
   // is in fullscreen mode because Telegram's chrome — which
   // normally provides the swipe-down-to-close affordance — is
   // hidden in fullscreen.
+  // v0.60.92 — defensively unregister any previous handler before
+  // adding a new one. Operator 2026-05-11: after multiple navigations
+  // out to /app/map + back, Telegram's BackButton would stop working
+  // because handlers stacked across mounts (Telegram's WebApp object
+  // persists handlers across same-origin page navigations within a
+  // single WebApp session). One tap then fired N stacked handlers,
+  // each calling window.history.back(), so the user appeared to be
+  // sent back too far or to a corrupted state.
   safe('back-button', () => {
     if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
     w.BackButton.show();
@@ -56,6 +64,16 @@ export function applyTelegramTheme() {
         w.close();
       }
     };
+    // Clear any prior handlers (best-effort — APIs vary by client version).
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
     if (typeof w.onEvent === 'function') {
       w.onEvent('backButtonClicked', handler);
     } else if (typeof w.BackButton.onClick === 'function') {
