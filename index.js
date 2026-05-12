@@ -4592,6 +4592,10 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // "name + ★ + raw maps URL" line per venue. Now the same rich card
   // is used everywhere: address, hours, website, phone, rating + footfall,
   // 🚊 / 🚘 travel times, "Try X" line, maps URL.
+  // v0.60.139 — immediate "please wait" + 15 s / 60 s updates (same
+  // createWaitStatus the technique / cooking-method / nation-iconic
+  // fan-outs use; auto-cleans after 4 min if a throw skips finish()).
+  const stWait = createWaitStatus(chatId, lang, userText);
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   let venues = [];
   if (!mapsApiKey) {
@@ -4721,6 +4725,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   const suffix = rawSuffix
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/_([^_]+)_/g, '<i>$1</i>');
+  await stWait.finish().catch(() => {});
   await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
 }
 
@@ -4942,10 +4947,22 @@ function createWaitStatus(chatId, lang, queryLabel = '') {
   let msgId = null;
   let timer = null;
   let typingTimer = null;
+  let autoTimer = null;
   let ticks = 0;
+  let done = false;                     // finish() called before the initial send resolved?
+  const finish = async () => {
+    done = true;
+    if (timer) { clearInterval(timer); timer = null; }
+    if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    if (msgId) { try { await bot.deleteMessage(chatId, msgId); } catch { /* non-fatal */ } msgId = null; }
+  };
   bot.sendMessage(chatId, initial, { parse_mode: 'HTML' })
     .then((m) => {
       msgId = m?.message_id || null;
+      // The search finished faster than this "please wait" message
+      // round-tripped — just delete it and don't arm any timers.
+      if (done) { if (msgId) bot.deleteMessage(chatId, msgId).catch(() => {}); msgId = null; return; }
       if (!msgId) return;
       const typingTick = () => bot.sendChatAction(chatId, 'typing').catch(() => {});
       typingTick();
@@ -4956,15 +4973,13 @@ function createWaitStatus(chatId, lang, queryLabel = '') {
         const text = elapsedS >= 60 ? nudge : reassure[(ticks - 1) % reassure.length];
         bot.editMessageText(text, { chat_id: chatId, message_id: msgId, parse_mode: 'HTML' }).catch(() => {});
       }, 15000);
+      // v0.60.139 — self-clean if a caller throws before calling finish()
+      // (no search legitimately runs > 4 min; this stops a leaked
+      // setInterval from editing a ghost "please wait" message forever).
+      autoTimer = setTimeout(() => { finish().catch(() => {}); }, 4 * 60 * 1000);
     })
     .catch((err) => { console.warn('[WaitStatus] initial send failed:', err.message); });
-  return {
-    finish: async () => {
-      if (timer) { clearInterval(timer); timer = null; }
-      if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
-      if (msgId) { try { await bot.deleteMessage(chatId, msgId); } catch { /* non-fatal */ } msgId = null; }
-    }
-  };
+  return { finish };
 }
 
 async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc }) {
@@ -6391,7 +6406,14 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       return;
     }
     await setProcessing(redis, chatId);
+    // v0.60.139 — immediate "🔎 One moment — searching for eateries…"
+    // + 15 s reassurance / 60 s "did you mean something else?" nudge
+    // (the same createWaitStatus the /s fan-outs use). The free-text
+    // chat dish search runs a Places call + travel/footfall enrichment
+    // (~3-6 s typical) — without this the user just stares at silence.
+    let wait = null;
     try {
+      wait = createWaitStatus(chatId, ftLang, ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text);
       const pipeline = require('./pipeline');
       const { filterFreeTextResults } = require('./free-text-search');
       // v0.60.123 — when a R.E.D disambiguation resolved this query,
@@ -6426,6 +6448,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       });
       let venues = filterFreeTextResults(candidates, cached, { limit: 20 });
       if (!venues.length) {
+        if (wait) { await wait.finish().catch(() => {}); wait = null; }
         await safeSend(chatId, trnBot('bot.noresults', ftLang, { q: ftDishLabel || text }));
         return;
       }
@@ -6545,8 +6568,10 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       const headerLabel = ftLang === 'fr'
         ? `🔎 Résultats pour "${headerDishEsc}"`
         : `🔎 Results for "${headerDishEsc}"`;
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
       await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
     } finally {
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
       await clearProcessing(redis, chatId).catch(() => {});
     }
   } catch (err) {
