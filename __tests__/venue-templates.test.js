@@ -200,3 +200,36 @@ describe('formatTravelLine — v0.58.52', () => {
     expect(mapsIdx).toBeGreaterThan(travelIdx);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────
+// v0.60.133 — `escapeHtmlForTelegram` export.
+//
+// Regression: formatTechniqueVenueBlock (index.js) and a couple of other
+// call sites reference `require('./venue-templates').escapeHtmlForTelegram`.
+// When the module only exported `escapeHtml`, every formatTechniqueVenueBlock
+// call threw on its first line → /s + free-text rich cards collapsed to the
+// name-only fallback (and the paths without a per-card catch went silent).
+// ─────────────────────────────────────────────────────────────────────
+
+import { escapeHtmlForTelegram, escapeHtml } from '../venue-templates.js';
+
+describe('escapeHtmlForTelegram', () => {
+  it('is exported as a function', () => {
+    expect(typeof escapeHtmlForTelegram).toBe('function');
+  });
+
+  it('escapes & < > for Telegram parse_mode="HTML"', () => {
+    expect(escapeHtmlForTelegram('Tom & Jerry <b> "x" >')).toBe('Tom &amp; Jerry &lt;b&gt; "x" &gt;');
+  });
+
+  it('handles null / undefined / numbers gracefully', () => {
+    expect(escapeHtmlForTelegram(null)).toBe('');
+    expect(escapeHtmlForTelegram(undefined)).toBe('');
+    expect(escapeHtmlForTelegram(42)).toBe('42');
+  });
+
+  it('is the same escape as escapeHtml (alias)', () => {
+    const s = 'a & b < c > d';
+    expect(escapeHtmlForTelegram(s)).toBe(escapeHtml(s));
+  });
+});
