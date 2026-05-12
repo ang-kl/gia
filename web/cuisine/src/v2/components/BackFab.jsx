@@ -10,15 +10,29 @@ import { t, useLocale } from '../lib/i18n.js';
 // shared bottom-row container alongside the right-stack FABs (back
 // + search were drifting in vertical alignment as separate fixed
 // elements; a shared row makes alignment by construction).
-export default function BackFab({ inline = false }) {
+// v0.60.141 — `closeOnly`: for SPA-style TMAs that never pushState
+// (the Cuisine TMA only ever replaceState's the URL hash), the
+// `history.length > 1` heuristic is wrong — the >1 comes from the
+// `/app/cuisine` → v2-app redirect on entry, not from in-app
+// navigation — so a tap the user means as "end" did `history.back()`
+// (pop the redirect entry / spin in place) and never closed the Mini
+// App. With `closeOnly` the FAB always calls Telegram WebApp.close()
+// (twice — `close()` is itself a bit flaky on Telegram Desktop/macOS;
+// the second call is a harmless no-op if the webview already shut).
+export default function BackFab({ inline = false, closeOnly = false }) {
   const lang = useLocale();
-  const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
+  const hasHistory = !closeOnly && typeof window !== 'undefined' && window.history.length > 1;
   const onClick = () => {
     const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-    if (typeof window !== 'undefined' && window.history.length > 1) {
+    if (hasHistory) {
       window.history.back();
-    } else if (w && typeof w.close === 'function') {
-      w.close();
+      return;
+    }
+    if (w && typeof w.close === 'function') {
+      try { w.close(); } catch { /* webview tearing down */ }
+      setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();   // not inside Telegram → at least leave the page
     }
   };
   // v0.60.91 — inverse theme colors per operator 2026-05-11: "grey
