@@ -119,3 +119,37 @@ describe('distinctiveDishWords / familyDemonyms', () => {
     expect(cf.familyDemonyms('made-up')).toEqual([]);
   });
 });
+
+describe('venuePlausiblyServes — bakery / café dishes are cuisine-agnostic (v0.60.138)', () => {
+  it('"/s quiche lorraine" (French): a bakery / café is plausible; a hawker food court / market is not', () => {
+    const p = (name, primaryType) => cf.venuePlausiblyServes({ name, primaryType }, { cuisineName: 'French', dishPhrase: 'quiche lorraine' });
+    expect(p('Choupinette', 'french_restaurant')).toBe(true);   // same family
+    expect(p('Choupinette', 'cafe')).toBe(true);                // bakery/café type
+    expect(p('Tiong Bahru Bakery', 'bakery')).toBe(true);       // bakery type
+    expect(p('Tiong Bahru Bakery', 'restaurant')).toBe(true);   // "bakery" in the name
+    expect(p("Hawkers' Street @ ION", 'food_court')).toBe(false);
+    expect(p("Hawkers' Street @ ION", 'restaurant')).toBe(false);
+    expect(p('Lau Pa Sat', 'market')).toBe(false);
+    expect(p('Lau Pa Sat', 'food_court')).toBe(false);
+  });
+  it('does not over-promote a generic "Cafe …" name of another cuisine', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Cafe Iguana', primaryType: 'mexican_restaurant' }, { cuisineName: 'French', dishPhrase: 'quiche lorraine' })).toBe(false);
+    expect(cf.venuePlausiblyServes({ name: 'Cafe Iguana', primaryType: 'restaurant' }, { cuisineName: 'French', dishPhrase: 'quiche lorraine' })).toBe(false);
+  });
+  it('the bakery rule only fires for bakery/café dishes', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Tiong Bahru Bakery', primaryType: 'bakery' }, { cuisineName: 'Japanese', dishPhrase: 'ramen' })).toBe(false);
+    expect(cf.venuePlausiblyServes({ name: 'Some Bakery', primaryType: 'bakery' }, { cuisineName: 'Italian', dishPhrase: 'spaghetti carbonara' })).toBe(false);
+  });
+  it('works for non-European bakery dishes too', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Tong Heng', primaryType: 'bakery' }, { cuisineName: 'Cantonese', dishPhrase: 'egg tart' })).toBe(true);
+    expect(cf.venuePlausiblyServes({ name: 'Some Place', primaryType: 'cafe' }, { cuisineName: 'French', dishPhrase: 'croissant' })).toBe(true);
+  });
+  it('looksLikeBakeryCafeDish', () => {
+    expect(cf.looksLikeBakeryCafeDish('quiche lorraine')).toBe(true);
+    expect(cf.looksLikeBakeryCafeDish('egg tart')).toBe(true);
+    expect(cf.looksLikeBakeryCafeDish('almond croissant')).toBe(true);
+    expect(cf.looksLikeBakeryCafeDish('ramen')).toBe(false);
+    expect(cf.looksLikeBakeryCafeDish('chicken rice')).toBe(false);
+    expect(cf.looksLikeBakeryCafeDish('')).toBe(false);
+  });
+});
