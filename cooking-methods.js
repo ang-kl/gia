@@ -1010,6 +1010,65 @@ function isOrderedPrefix(userTokens, termTokens) {
   return true;
 }
 
+// v0.60.131 — common dish-component / state words that the v0.60.129
+// `data/cooking method reference by cuisine.md` merge dropped in front
+// of unrelated method compounds ("ramen reduction", "pizza stone-
+// baking", "chicken-fat rice cooking", "beef noodle simmering", "fish
+// steaming", "rice steaming", "soup blanching", "curry simmering",
+// "egg-tart custard baking", "noodle pulling", "tofu frying", …). The
+// ordered-prefix shortcut (so "/s mohinga" → "mohinga broth-building")
+// was firing on these, hijacking nearly every common "/s <dish>" query
+// into the cooking-method pivot. So: an entry whose FIRST token is in
+// this list does NOT qualify via the single-token-substring rule or
+// the ordered-prefix rule — it still matches if the user supplies ALL
+// of its tokens ("/s curry paste pounding"). Distinctive method words
+// (mohinga, tahdig, schnitzel, agemono, tadka, flambage, satay, …) are
+// untouched.
+const COMMON_DISH_LEADING_BLOCKLIST = new Set([
+  // proteins / mains
+  'chicken', 'beef', 'pork', 'lamb', 'mutton', 'goat', 'duck', 'fish', 'fishball', 'fishcake',
+  'prawn', 'prawns', 'shrimp', 'crab', 'lobster', 'squid', 'octopus', 'oyster', 'mussel', 'clam',
+  'seafood', 'meat', 'egg', 'eggs', 'tofu', 'beancurd', 'paneer',
+  // veg / starch / bakes
+  'vegetable', 'vegetables', 'veggie', 'veggies', 'mushroom', 'mushrooms', 'potato', 'taro', 'yam',
+  'rice', 'noodle', 'noodles', 'mee', 'beehoon', 'vermicelli', 'congee', 'porridge', 'pasta',
+  'bread', 'toast', 'bun', 'buns', 'cake', 'cakes', 'pie', 'pies', 'tart', 'cookie', 'cookies',
+  'biscuit', 'pancake', 'pancakes', 'waffle', 'waffles', 'dumpling', 'dumplings', 'roti', 'naan', 'paratha',
+  // liquids / bases
+  'soup', 'broth', 'stock', 'curry', 'gravy', 'sauce', 'stew', 'dip', 'salad',
+  // pantry / aromatics
+  'salt', 'sugar', 'butter', 'milk', 'cream', 'cheese', 'oil', 'ghee', 'lard', 'garlic', 'ginger',
+  'onion', 'scallion', 'chilli', 'chili', 'pepper', 'peppercorn', 'spice', 'spices', 'herb', 'herbs',
+  'coconut', 'palm', 'peanut', 'sesame', 'soy', 'soya', 'nut', 'nuts', 'flour', 'dough', 'batter',
+  // cooking-state adjectives
+  'sweet', 'sour', 'spicy', 'salty', 'savoury', 'savory', 'dry', 'wet', 'fresh', 'frozen', 'iced',
+  'hot', 'cold', 'warm', 'crispy', 'fried', 'grilled', 'roasted', 'steamed', 'boiled', 'braised',
+  // more proteins
+  'bacon', 'ham', 'sausage', 'veal', 'venison', 'rabbit', 'turkey', 'goose', 'salmon', 'tuna',
+  'cod', 'haddock', 'herring', 'mackerel', 'anchovy', 'sardine', 'sardines', 'eel', 'carp', 'tilapia',
+  'snapper', 'grouper', 'pomfret', 'catfish', 'whitebait', 'ikan', 'ayam', 'babi',
+  // more veg
+  'bean', 'beans', 'lentil', 'lentils', 'pea', 'peas', 'spinach', 'cabbage', 'eggplant', 'brinjal',
+  'aubergine', 'okra', 'radish', 'leek', 'leeks', 'carrot', 'carrots', 'beet', 'beetroot', 'turnip',
+  'pumpkin', 'squash', 'cucumber', 'corn', 'sweetcorn', 'lettuce', 'kale', 'broccoli', 'cauliflower',
+  'asparagus', 'celery', 'celeriac', 'fennel', 'kangkong', 'kailan', 'sayur',
+  // fruit
+  'apple', 'apples', 'banana', 'bananas', 'mango', 'mangoes', 'lemon', 'lemons', 'lime', 'limes',
+  'orange', 'oranges', 'pineapple', 'papaya', 'watermelon', 'melon', 'grape', 'grapes', 'strawberry',
+  'strawberries', 'blueberry', 'peach', 'pear', 'plum', 'apricot', 'cherry', 'cherries', 'durian',
+  'jackfruit', 'pomegranate', 'fig', 'figs', 'date', 'dates', 'raisin', 'raisins', 'berry', 'berries',
+  'lychee', 'longan', 'rambutan', 'mangosteen', 'guava', 'avocado',
+  // drinks / staples
+  'tea', 'coffee', 'juice', 'soda', 'beer', 'wine', 'sake', 'soju', 'whisky', 'whiskey', 'rum',
+  'vodka', 'gin', 'lassi', 'milkshake', 'smoothie', 'cordial', 'syrup', 'oat', 'oats', 'oatmeal',
+  'barley', 'wheat', 'millet', 'quinoa', 'buckwheat', 'semolina', 'pastry', 'crust', 'jam', 'jelly',
+  'custard', 'pudding', 'honey', 'jaggery', 'molasses', 'cracker', 'crackers', 'wrap', 'wraps',
+  // common (mostly Western) dish names that just happen to lead an
+  // unrelated method compound ("ramen reduction", "pizza stone-baking")
+  'ramen', 'pizza', 'sushi', 'burger', 'sandwich', 'wrap', 'taco', 'tacos', 'burrito', 'fries',
+  'spaghetti', 'fettuccine', 'lasagna', 'lasagne', 'risotto', 'gnocchi',
+]);
+
 function findCookingMethod(text, opts = {}) {
   return findCookingMethodMatches(text, opts)[0] || null;
 }
@@ -1033,15 +1092,20 @@ function findCookingMethodMatches(text, opts = {}) {
     for (const term of methods) {
       const termTokens = tokenize(term);
       if (termTokens.length === 0) continue;
+      // v0.60.131 — an entry whose first token is a common dish-
+      // component / state word never matches via the loose rules
+      // (single-token substring, or ordered-prefix). It can still
+      // match if the user supplies ALL its tokens.
+      const blockedLead = COMMON_DISH_LEADING_BLOCKLIST.has(termTokens[0]);
       if (termTokens.length === 1) {
-        if (userLower.includes(termTokens[0])) {
+        if (!blockedLead && userLower.includes(termTokens[0])) {
           return { slug, cuisineLabel: slugToLabel(slug), term };
         }
       } else {
         if (termTokens.every((t) => userSet.has(t))) {
           return { slug, cuisineLabel: slugToLabel(slug), term };
         }
-        if (isOrderedPrefix(userTokens, termTokens)) {
+        if (!blockedLead && isOrderedPrefix(userTokens, termTokens)) {
           return { slug, cuisineLabel: slugToLabel(slug), term };
         }
       }
