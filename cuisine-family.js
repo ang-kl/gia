@@ -206,12 +206,58 @@ function distinctiveDishWords(dishPhrase) {
     .filter((w) => w.length >= 3 && !GENERIC_DISH_WORDS.has(w));
 }
 
+// ── v0.60.138 — bakery / café dishes are cuisine-agnostic ───────────
+// A "quiche lorraine" is French, but a bakery / café / patisserie (of
+// any cuisine) plausibly serves quiche; likewise tart / pie / croissant
+// / scone / éclair / cake / pancake / waffle / sandwich / bagel / … So
+// when the dish phrase names a bakery-or-café item, a venue whose
+// primaryType is a bakery/café type — or whose NAME carries a bakery /
+// patisserie word — counts as "plausible" even though its cuisine family
+// differs from the dish's. (Stops "/s quiche lorraine" demoting Tiong
+// Bahru Bakery / a neighbourhood café below the divider.)
+const BAKERY_CAFE_DISH_WORDS = new Set([
+  'quiche', 'quiches', 'tart', 'tarts', 'tartlet', 'tartlets', 'pie', 'pies', 'galette',
+  'pastry', 'pastries', 'viennoiserie', 'croissant', 'croissants', 'cruffin', 'cruffins',
+  'danish', 'kouign', 'amann', 'canele', 'cannele', 'caneles', 'madeleine', 'madeleines',
+  'financier', 'financiers', 'palmier', 'palmiers', 'scone', 'scones', 'eclair', 'eclairs',
+  'profiterole', 'profiteroles', 'choux', 'macaron', 'macarons', 'macaroon', 'macaroons',
+  'cake', 'cakes', 'cupcake', 'cupcakes', 'cheesecake', 'cheesecakes', 'gateau', 'gateaux',
+  'mille', 'feuille', 'millefeuille', 'opera', 'tiramisu', 'pavlova', 'cookie', 'cookies',
+  'biscuit', 'biscuits', 'biscotti', 'brownie', 'brownies', 'blondie', 'blondies', 'muffin',
+  'muffins', 'scroll', 'scrolls', 'slice', 'slices', 'loaf', 'bread', 'sourdough', 'baguette',
+  'brioche', 'focaccia', 'ciabatta', 'bagel', 'bagels', 'bun', 'buns', 'roll', 'rolls',
+  'toast', 'sandwich', 'sandwiches', 'panini', 'paninis', 'wrap', 'wraps', 'crepe', 'crepes',
+  'pancake', 'pancakes', 'waffle', 'waffles', 'donut', 'donuts', 'doughnut', 'doughnuts',
+  'pretzel', 'pretzels', 'custard', 'flan', 'pudding', 'puddings', 'crumble', 'cobbler',
+  'strudel', 'turnover', 'turnovers', 'puff', 'puffs', 'roti', 'kaya', 'pretzels',
+]);
+const BAKERY_CAFE_VENUE_TYPES = new Set([
+  'bakery', 'cafe', 'coffee_shop', 'dessert_shop', 'dessert_restaurant', 'donut_shop',
+  'chocolate_shop', 'candy_store', 'confectionery', 'ice_cream_shop', 'tea_house',
+  'sandwich_shop', 'bagel_shop', 'breakfast_restaurant', 'brunch_restaurant', 'cat_cafe',
+]);
+// strong "this place is a bakery / patisserie" name fragments (NOT
+// "cafe"/"coffee"/"bistro" — too generic; the type set covers those).
+const BAKERY_CAFE_NAME_WORDS = [
+  'bakery', 'bakeshop', 'bake shop', 'bakehouse', 'patisserie', 'boulangerie', 'konditorei',
+  'pasteleria', 'confectionery', 'confiserie', 'pastry', 'cakery', 'cake shop', 'creamery',
+];
+
+function looksLikeBakeryCafeDish(dishPhrase) {
+  for (const w of norm(dishPhrase).split(/[^a-z0-9]+/)) {
+    if (w && BAKERY_CAFE_DISH_WORDS.has(w)) return true;
+  }
+  return false;
+}
+
 // Does `venue` carry any positive signal that it plausibly serves the
 // dish? Conservative: when the dish's cuisine has no known family (an
 // umbrella like "Fusion"/null) we can't confidently demote anything, so
 // returns true. Otherwise true iff the venue NAME contains the cuisine
 // name, a distinctive dish word, or a demonym of the dish's cuisine
-// family — OR the venue's Google primaryType is in that same family.
+// family; OR the venue's Google primaryType is in that same family; OR
+// (v0.60.138) the dish is a bakery/café item and the venue is a
+// bakery/café (by type or by a bakery/patisserie name word).
 function venuePlausiblyServes(venue, { cuisineName, dishPhrase } = {}) {
   const fam = cuisineFamily(cuisineName);
   if (!fam) return true;                                  // umbrella / unknown dish cuisine → don't demote
@@ -221,6 +267,11 @@ function venuePlausiblyServes(venue, { cuisineName, dishPhrase } = {}) {
   for (const w of distinctiveDishWords(dishPhrase || '')) { if (name.includes(w)) return true; }
   if (restaurantFamily(venue && venue.primaryType) === fam) return true;
   for (const d of familyDemonyms(fam)) { if (d.length >= 4 && name.includes(d)) return true; }
+  if (looksLikeBakeryCafeDish(dishPhrase)) {
+    const pt = String((venue && venue.primaryType) || '').toLowerCase().trim();
+    if (BAKERY_CAFE_VENUE_TYPES.has(pt)) return true;
+    for (const w of BAKERY_CAFE_NAME_WORDS) { if (name.includes(w)) return true; }
+  }
   return false;
 }
 
@@ -231,6 +282,7 @@ module.exports = {
   isLikelyMismatch,
   familyDemonyms,
   distinctiveDishWords,
+  looksLikeBakeryCafeDish,
   venuePlausiblyServes,
   _norm: norm,
   _GENERIC_DISH_WORDS: GENERIC_DISH_WORDS,
