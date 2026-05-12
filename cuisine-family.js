@@ -148,10 +148,90 @@ function isLikelyMismatch(primaryType, cuisineName) {
   return a !== b;
 }
 
+// ── v0.60.136 — "does this venue plausibly serve the dish?" ──────────
+// `isLikelyMismatch` only fires on a CONFIDENT cuisine-type contradiction,
+// so it misses the common case where Google tags an obviously off-cuisine
+// place with a generic `restaurant`/`food` primaryType — e.g. "Hua Jie
+// Dumpling" / "Dumpling Darlings" surfaced for "Czech guláš with bread
+// dumplings" (they matched the generic word "dumpling"). So below we
+// use a POSITIVE-signal test on the venue *name*: a venue is "above the
+// line" only if its name carries some evidence it serves the dish.
+
+// generic food / prep / boilerplate words — a venue name matching ONE
+// of these alone (because the search phrase contains it) is NOT evidence
+// it serves the specific dish. Distinctive words ("czech", "guláš",
+// "schnitzel", "laksa", "rendang", …) are everything else, ≥ 3 chars.
+const GENERIC_DISH_WORDS = new Set([
+  // generic food nouns
+  'bread', 'dumpling', 'dumplings', 'rice', 'noodle', 'noodles', 'soup', 'stew',
+  'salad', 'cake', 'cakes', 'pie', 'pies', 'tart', 'tarts', 'bun', 'buns', 'roll',
+  'rolls', 'toast', 'sandwich', 'wrap', 'wraps', 'pasta', 'pizza', 'curry', 'porridge',
+  'congee', 'egg', 'eggs', 'meat', 'fish', 'beef', 'pork', 'chicken', 'duck', 'lamb',
+  'tofu', 'sauce', 'gravy', 'broth', 'stock', 'pancake', 'pancakes', 'waffle', 'waffles',
+  // generic prep / method words
+  'frying', 'fried', 'grilling', 'grilled', 'steaming', 'steamed', 'braising', 'braised',
+  'baking', 'baked', 'roasting', 'roasted', 'stewing', 'simmering', 'simmered', 'cooking',
+  'smoking', 'smoked', 'boiling', 'boiled', 'poaching', 'poached', 'sauteing', 'searing',
+  'reduction', 'glazing', 'crusting', 'tempering', 'building', 'emulsifying', 'pounding',
+  'tossing', 'wokking', 'crackling', 'softening', 'layering', 'curing', 'skewering',
+  // search boilerplate
+  'with', 'and', 'the', 'for', 'near', 'best', 'authentic', 'style', 'styled', 'dish',
+  'food', 'restaurant', 'singapore', 'cuisine', 'eatery', 'place', 'house', 'kitchen',
+  'cafe', 'bar', 'bistro', 'shop', 'stall', 'corner', 'traditional', 'classic', 'home',
+  'cooked', 'fresh', 'real', 'original', 'famous', 'good', 'great', 'special',
+]);
+
+// demonym / regional words per family, derived from CUISINE_FAMILY_RULES
+// (≥ 4 chars, dropping the "american (new)" parenthetical entries).
+const FAMILY_DEMONYMS = (() => {
+  const out = {};
+  for (const fam of Object.values(FAMILIES)) out[fam] = [];
+  for (const [needles, fam] of CUISINE_FAMILY_RULES) {
+    for (const n of needles) {
+      if (n.length >= 4 && !n.includes('(')) out[fam].push(n);
+    }
+  }
+  return out;
+})();
+
+function familyDemonyms(family) {
+  return FAMILY_DEMONYMS[family] || [];
+}
+
+// distinctive (non-generic) tokens from a dish phrase — normalised,
+// ≥ 3 chars, not in GENERIC_DISH_WORDS.
+function distinctiveDishWords(dishPhrase) {
+  return norm(dishPhrase)
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 3 && !GENERIC_DISH_WORDS.has(w));
+}
+
+// Does `venue` carry any positive signal that it plausibly serves the
+// dish? Conservative: when the dish's cuisine has no known family (an
+// umbrella like "Fusion"/null) we can't confidently demote anything, so
+// returns true. Otherwise true iff the venue NAME contains the cuisine
+// name, a distinctive dish word, or a demonym of the dish's cuisine
+// family — OR the venue's Google primaryType is in that same family.
+function venuePlausiblyServes(venue, { cuisineName, dishPhrase } = {}) {
+  const fam = cuisineFamily(cuisineName);
+  if (!fam) return true;                                  // umbrella / unknown dish cuisine → don't demote
+  const name = norm(venue && venue.name);
+  const cn = norm(cuisineName);
+  if (cn && cn.length >= 4 && name.includes(cn)) return true;
+  for (const w of distinctiveDishWords(dishPhrase || '')) { if (name.includes(w)) return true; }
+  if (restaurantFamily(venue && venue.primaryType) === fam) return true;
+  for (const d of familyDemonyms(fam)) { if (d.length >= 4 && name.includes(d)) return true; }
+  return false;
+}
+
 module.exports = {
   FAMILIES,
   restaurantFamily,
   cuisineFamily,
   isLikelyMismatch,
+  familyDemonyms,
+  distinctiveDishWords,
+  venuePlausiblyServes,
   _norm: norm,
+  _GENERIC_DISH_WORDS: GENERIC_DISH_WORDS,
 };
