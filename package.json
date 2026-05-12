@@ -1,16 +1,17 @@
 {
   "name": "soleat",
-  "version": "0.60.141",
+  "version": "0.60.142",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker && npm run build:transport",
+    "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker && npm run build:transport && npm run build:oversight",
     "build:cuisine": "cd web/cuisine && npm install --no-audit --no-fund && npm run build",
     "build:menu": "cd web/menu && npm install --no-audit --no-fund && npm run build",
     "build:hawker": "cd web/hawker && npm install --no-audit --no-fund && npm run build",
     "build:transport": "cd web/transport && npm install --no-audit --no-fund && npm run build",
+    "build:oversight": "cd web/oversight && npm install --no-audit --no-fund && npm run build",
     "postinstall": "npm run build"
   },
   "engines": {

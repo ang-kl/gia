@@ -13,3 +13,5 @@ public/menu/
 public/hawker/
 # Vite build output for the Transport TMA (v0.51.0). Source: web/transport/.
 public/transport/
+# Vite build output for the Oversight admin TMA (v0.60.142). Source: web/oversight/.
+public/oversight/

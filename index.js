@@ -36,6 +36,7 @@ const {
   clearProcessing
 } = require('./location-cache');
 const { requireInitData, verifyInitData } = require('./twa-auth');
+const usageLog = require('./usage-log');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
@@ -923,6 +924,8 @@ async function runFlow(chatId, lat, lng, category) {
     return;
   }
   await setProcessing(redis, chatId);
+  // v0.60.142 — usage tracking (Oversight): an /eat-style flow search.
+  try { usageLog.recordSearch(redis, chatId, { src: 'eat' }).catch(() => {}); } catch { /* noop */ }
   try {
     // Vault-first (v0.9.0) for /eat and /drink:
     if (category === 'food' || category === 'drink') {
@@ -2193,6 +2196,26 @@ bot.onText(/^\/ftlog(?:@\w+)?(?:\s+(\d{1,3}))?$/, async (msg, match) => {
   }
 });
 
+// v0.60.142 — /oversight — hidden owner-only launcher for the Oversight
+// admin TMA (/app/oversight). Silent no-op for non-owners (and open when
+// TELEGRAM_OWNER_CHAT_ID is unset, like /ver / /ftlog). Not registered in
+// setMyCommands — it stays hidden.
+bot.onText(/^\/oversight(?:@\w+)?$/, async (msg) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/oversight] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
+  try {
+    if (!webhookDomain) { await safeSend(msg.chat.id, 'ℹ️ Oversight needs a public webhook domain (none configured).'); return; }
+    const url = `https://${webhookDomain}/app/oversight`;
+    await bot.sendMessage(msg.chat.id, '🛡 Soleat — Oversight', {
+      reply_markup: { inline_keyboard: [[{ text: '📊 Open Oversight', web_app: { url } }]] }
+    }).catch(async () => { await safeSend(msg.chat.id, `🛡 Oversight: ${url}`); });
+  } catch (err) {
+    console.error('[Error] /oversight handler failed:', err.message);
+  }
+});
+
 // /start handler — greets the user, optionally accepts a deep-link param
 // (e.g. /start eat from a t.me/<bot>?start=eat link) to immediately route
 // to a flow.
@@ -3328,6 +3351,8 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       return;
     }
     await setProcessing(redis, chatId);
+    // v0.60.142 — usage tracking (Oversight): a /hidden (surprise) search.
+    try { usageLog.recordSearch(redis, chatId, { freeText, src: 'surprise' }).catch(() => {}); } catch { /* noop */ }
 
     if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
       await safeSend(chatId, t('hidden.huntingLegacy', lang));
@@ -3498,6 +3523,8 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     const cached = await ensureFreshLocationOrPrompt(chatId, '/hidden', lang, { maxAgeMin: 15 });
     if (!cached) return;
     await setProcessing(redis, chatId);
+    // v0.60.142 — usage tracking (Oversight): a /hidden (surprise) search.
+    try { usageLog.recordSearch(redis, chatId, { src: 'surprise' }).catch(() => {}); } catch { /* noop */ }
 
     if (process.env.PIPELINE_TASKS_ENABLED === 'false') {
       await safeSend(chatId, t('hidden.huntingLegacy', lang));
@@ -4404,6 +4431,8 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   // cooking-method / single-query); a throw in any of them used to
   // propagate out of the bot.onText callback with no user-facing
   // message (node just logged an unhandled rejection).
+  // v0.60.142 — usage tracking (Oversight): a /s dish search.
+  try { usageLog.recordSearch(redis, chatId, { freeText: arg, src: 's' }).catch(() => {}); } catch { /* noop */ }
   try {
     await handleSearchTurn(chatId, arg, lang);
   } catch (err) {
@@ -6073,6 +6102,9 @@ bot.on('message', async (msg) => {
       const { touchActivity } = require('./user-data');
       await touchActivity(redis, msg.chat.id);
     } catch { /* best-effort */ }
+    // v0.60.142 — usage tracking (Oversight dashboard): record this chat
+    // as a "user seen" + daily-active. sha256 hashes only; never throws.
+    try { usageLog.recordUser(redis, msg.chat.id).catch(() => {}); } catch { /* noop */ }
 
     // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
     if (msg.web_app_data?.data) {
@@ -6336,6 +6368,8 @@ bot.on('message', async (msg) => {
       }
     }
     try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: disambigDisclosureFT ? 'red' : null, resultCount: null }); } catch { /* best-effort */ }
+    // v0.60.142 — usage tracking (Oversight): a chat free-text dish search.
+    try { usageLog.recordSearch(redis, msg.chat.id, { freeText: text, src: 'chat-freetext' }).catch(() => {}); } catch { /* noop */ }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
@@ -8105,6 +8139,20 @@ async function cacheBotUsername() {
             }
           } catch { /* best-effort */ }
         }
+        // v0.60.142 — usage tracking (Oversight): a Cuisine-TMA search
+        // (past the lat/lng + question-decline guards — a real query).
+        if (csChatId) {
+          try {
+            usageLog.recordSearch(redis, csChatId, {
+              cuisines: Array.isArray(cuisines) ? cuisines : [],
+              filters: filters && typeof filters === 'object' ? filters : {},
+              prices: Array.isArray(req.body?.prices) ? req.body.prices : [],
+              region,
+              freeText: ftRawIn,
+              src: 'cuisine-tma'
+            }).catch(() => {});
+          } catch { /* noop */ }
+        }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
@@ -9337,6 +9385,28 @@ async function cacheBotUsername() {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'transport', 'index.html'));
     });
+    // v0.60.142: Oversight admin TMA — hidden owner-only usage dashboard.
+    // The static bundle is public (like every TMA bundle) but useless
+    // without the owner-gated /api/oversight/stats below — it just shows
+    // "Not authorised". Launched via the hidden /oversight chat command.
+    app.use('/app/oversight', express.static(path.join(__dirname, 'public', 'oversight')));
+    app.get('/app/oversight', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'oversight', 'index.html'));
+    });
+    app.get('/api/oversight/stats', requireInitData, async (req, res) => {
+      try {
+        if (!isOwnerChat(req.tg?.user?.id)) return res.status(403).json({ error: 'forbidden' });
+        const date = /^\d{4}-\d{2}-\d{2}$/.test(String(req.query.date || '')) ? String(req.query.date) : null;
+        const days = Math.max(1, Math.min(90, Number(req.query.days) || 7));
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        return res.json(await usageLog.getStats(redis, { date, days }));
+      } catch (err) {
+        console.error('[Error] /api/oversight/stats failed:', err.message);
+        return res.status(500).json({ error: 'internal' });
+      }
+    });
+
     // v0.57.11: SVG endpoint dropped; mrt-system-map.png is served as
     // a Vite-emitted static asset from web/transport/public/.
     // Per-line status feed for the Transport TMA.
