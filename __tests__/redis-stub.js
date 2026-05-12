@@ -2,8 +2,8 @@
 //
 // Surface-area: only what we use across the codebase.
 // get / set (with EX) / del / incr / incrBy / hSet / hGet / hGetAll /
-// hDel / expire / exists / sAdd / sMembers / sRem / sIsMember / ping /
-// connect / quit / isOpen.
+// hDel / hIncrBy / expire / exists / sAdd / sMembers / sRem / sIsMember /
+// sCard / ping / connect / quit / isOpen.
 
 export class RedisStub {
   constructor() {
@@ -98,6 +98,14 @@ export class RedisStub {
     return n;
   }
 
+  async hIncrBy(key, field, n) {
+    let h = this.hashes.get(key);
+    if (!h) { h = new Map(); this.hashes.set(key, h); }
+    const next = Number(h.get(field) || 0) + Number(n);
+    h.set(field, String(next));
+    return next;
+  }
+
   async sAdd(key, ...values) {
     let s = this.sets.get(key);
     if (!s) { s = new Set(); this.sets.set(key, s); }
@@ -122,6 +130,10 @@ export class RedisStub {
 
   async sIsMember(key, value) {
     return (this.sets.get(key)?.has(String(value)) ? 1 : 0);
+  }
+
+  async sCard(key) {
+    return this.sets.get(key)?.size || 0;
   }
 
   _reset() {

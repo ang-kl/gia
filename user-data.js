@@ -15,9 +15,19 @@
 //   recent-picks:<chatId>          24 h  (recent-picks)
 //   clip:<chatId>                  30 d  (clip-store, v0.59.44)
 //
+// Aggregate-usage SETs that hold this user's sha256 hash as a member
+// (no per-user value attached — only de-dup membership; usage-log.js):
+//   usage:users                    persistent (one SREM)
+//   usage:dau:<YMD>                90 d  (SCAN + SREM the hash)
+//   usage:search:<YMD>             90 d  (SCAN + SREM)
+//   usage:searchmulti:<YMD>        90 d  (SCAN + SREM)
+// (usage:cuisine / usage:criteria HASHes carry no per-user attribution
+// → nothing to erase there.)
+//
 // `loc:`, `loc:pending:`, `proc:` are hashed (sha256, 16-hex) per
-// location-cache.js. The buddy + recent-picks + clip keys use the
-// plain chatId. `forgetUserData` covers both encodings.
+// location-cache.js — the same `hashChatId` the `usage:*` SETs store.
+// The buddy + recent-picks + clip keys use the plain chatId.
+// `forgetUserData` covers all encodings.
 
 const { hashChatId } = require('./location-cache');
 
@@ -60,6 +70,41 @@ async function scanDailyKeys(redis, chatId) {
   return matched;
 }
 
+// scanKeys — SCAN every key matching `pattern` (node-redis v4/v5 safe).
+async function scanKeys(redis, pattern) {
+  const matched = [];
+  try {
+    const iter = redis.scanIterator({ MATCH: pattern, COUNT: 200 });
+    for await (const key of iter) {
+      if (typeof key === 'string') matched.push(key);
+      else if (key && Array.isArray(key.keys)) matched.push(...key.keys);
+    }
+  } catch { /* SCAN failed — return what we have */ }
+  return matched;
+}
+
+// removeUsageMembership — strip this user's sha256 hash from the
+// aggregate-usage SETs (usage:users + every usage:dau/search/searchmulti
+// day-set). These hold only de-dup membership, no per-user value, so
+// nothing else needs touching. Best-effort; returns the # of SREMs that
+// reported a removal.
+async function removeUsageMembership(redis, chatId) {
+  let removed = 0;
+  try {
+    const h = hashChatId(chatId);
+    try { removed += Number(await redis.sRem('usage:users', h)) || 0; } catch { /* best-effort */ }
+    const dayKeys = [
+      ...(await scanKeys(redis, 'usage:dau:*')),
+      ...(await scanKeys(redis, 'usage:search:*')),
+      ...(await scanKeys(redis, 'usage:searchmulti:*'))
+    ];
+    for (const k of dayKeys) {
+      try { removed += Number(await redis.sRem(k, h)) || 0; } catch { /* per-key best-effort */ }
+    }
+  } catch { /* best-effort */ }
+  return removed;
+}
+
 // forgetUserData — wipes every chatId-keyed entry from Redis.
 // Returns `{ deleted: number, keys: string[] }` for caller to
 // surface back to the user. Idempotent — re-running on an already-
@@ -67,6 +112,10 @@ async function scanDailyKeys(redis, chatId) {
 async function forgetUserData(redis, chatId) {
   if (!redis || !chatId) return { deleted: 0, keys: [] };
   if (!redis.isOpen) await redis.connect();
+  // Strip aggregate-usage membership first (best-effort; counted into
+  // `deleted` so the user sees a non-zero result even if all their
+  // own keys had already expired).
+  const usageRemoved = await removeUsageMembership(redis, chatId);
   const candidates = [
     ...plainKeys(chatId),
     ...hashedKeys(chatId),
@@ -81,7 +130,7 @@ async function forgetUserData(redis, chatId) {
       if (await redis.exists(k)) existing.push(k);
     } catch { /* per-key best-effort */ }
   }
-  if (!existing.length) return { deleted: 0, keys: [] };
+  if (!existing.length) return { deleted: usageRemoved, keys: [] };
   try {
     await redis.del(existing);
   } catch (err) {
@@ -90,7 +139,7 @@ async function forgetUserData(redis, chatId) {
       try { await redis.del(k); } catch { /* ignore */ }
     }
   }
-  return { deleted: existing.length, keys: existing };
+  return { deleted: existing.length + usageRemoved, keys: existing };
 }
 
 // touchActivity — refresh the 90-day TTL on `buddy-blocks:<chatId>`,
@@ -112,5 +161,6 @@ module.exports = {
   plainKeys,
   hashedKeys,
   scanDailyKeys,
+  removeUsageMembership,
   ACTIVITY_TTL_S
 };
