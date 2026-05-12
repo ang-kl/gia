@@ -75,6 +75,24 @@ describe('disambiguateTerm — high confidence (modifier wins)', () => {
     expect(r.chosen.id).toBe('cz-with-dumplings');
     expect(r.confidence).toBe('high');
   });
+  // v0.60.134 — "/s goulash dumpling" (no "with"): handleSearchTurn now
+  // runs R.E.D before Gemini / the technique short-circuit / the
+  // cooking-method pivot, so this must resolve to a usable searchPhrase.
+  it('"goulash dumpling" (no "with") → Czech (HIGH/MED) with a searchPhrase', () => {
+    const r = gc.disambiguateTerm({ text: 'goulash dumpling', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('ambiguous-dish');
+    expect(r.chosen.id).toBe('cz-with-dumplings');
+    expect(['high', 'medium']).toContain(r.confidence);
+    expect(typeof r.searchSpec?.searchPhrase).toBe('string');
+    expect(r.searchSpec.searchPhrase.length).toBeGreaterThan(0);
+  });
+  it('bare "goulash" (SG locale) → LOW with ≥ 2 one-tap alternatives (the picker)', () => {
+    const r = gc.disambiguateTerm({ text: 'goulash', ctx: { locale: 'SG' } });
+    expect(r.kind).toBe('ambiguous-dish');
+    expect(r.confidence).toBe('low');
+    expect(Array.isArray(r.alternatives)).toBe(true);
+    expect(r.alternatives.length).toBeGreaterThanOrEqual(2);
+  });
   it('"Hungarian goulash" → Hungarian (HIGH, Hungarian signal)', () => {
     const r = gc.disambiguateTerm({ text: 'Hungarian goulash', ctx: { locale: 'SG' } });
     expect(r.chosen.id).toBe('hu-stew');
