@@ -58,6 +58,11 @@ const STRINGS = {
   // the doubled box-drawing dashes wrapped/looked ugly).
   'freetext.divider':          { en: '⇩─ Eateries with similar dishes or cuisine ─ ⇩\n⇩─ not exactly {dish} ─ ⇩',
                                  fr: '⇩─ Établissements aux plats ou cuisine similaires ─ ⇩\n⇩─ pas exactement {dish} ─ ⇩' },
+  // v0.60.135 — shown above a free-text / /s dish-search result list
+  // when EVERY returned venue is an obvious cuisine mismatch (Google
+  // text-matched the words but nothing actually serves the dish).
+  'freetext.allBelow':         { en: '⚠️ <i>No Singapore eateries clearly serve {dish} — these just matched your search words:</i>',
+                                 fr: '⚠️ <i>Aucun établissement à Singapour ne sert clairement {dish} — voici ceux qui correspondent juste à vos mots-clés :</i>' },
   // v0.60.128 — "misrepresented dish" note. Surfaced on the free-text
   // dish-search paths (chat + Cuisine TMA "Tell me" box) when the typed
   // term names a dish from data/Misrepresented Dish Dessert Drink.MD.
