@@ -74,3 +74,48 @@ describe('isLikelyMismatch', () => {
     expect(cf.isLikelyMismatch(null, 'European')).toBe(false);
   });
 });
+
+describe('venuePlausiblyServes (v0.60.136)', () => {
+  const goulash = 'Czech guláš with bread dumplings';
+  it('the "/s goulash dumpling" screenshot: only the Slavic place is plausible; the dumpling shops / microbrewery are not', () => {
+    const above = (name, primaryType = 'restaurant') => cf.venuePlausiblyServes({ name, primaryType }, { cuisineName: 'European', dishPhrase: goulash });
+    expect(above('Kapitan Restaurant | Authentic Slavic Cuisine - Maxwell Chambers')).toBe(true);
+    expect(above('Hua Jie Dumpling')).toBe(false);
+    expect(above('JIA HE XING Dumplings')).toBe(false);
+    expect(above('Dumpling Darlings (Circular Rd)')).toBe(false);
+    expect(above('Dumpling Darlings (Limay Street)')).toBe(false);
+    expect(above('Hoappoda Microbrewery', 'bar')).toBe(false);
+  });
+  it('a confidently off-cuisine type is not plausible even if the name is bland', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Golden Court', primaryType: 'chinese_restaurant' }, { cuisineName: 'European', dishPhrase: goulash })).toBe(false);
+  });
+  it('a same-family Google type IS plausible (no name signal needed)', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Ippudo', primaryType: 'japanese_restaurant' }, { cuisineName: 'Japanese', dishPhrase: 'ramen' })).toBe(true);
+    expect(cf.venuePlausiblyServes({ name: 'Brotzeit Stanley', primaryType: 'german_restaurant' }, { cuisineName: 'Austrian', dishPhrase: 'schnitzel soufflé-frying' })).toBe(true);
+  });
+  it('a name carrying a distinctive dish word IS plausible', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Ramen Keisuke Lobster King', primaryType: 'restaurant' }, { cuisineName: 'Japanese', dishPhrase: 'ramen' })).toBe(true);
+    expect(cf.venuePlausiblyServes({ name: 'Schnitzel Haus Wolfgang Ranner', primaryType: 'restaurant' }, { cuisineName: 'Austrian', dishPhrase: 'schnitzel soufflé-frying' })).toBe(true);
+  });
+  it('matching only a generic word (dumpling / bread / fried / restaurant) is NOT a signal', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Best Dumpling Restaurant', primaryType: 'restaurant' }, { cuisineName: 'European', dishPhrase: goulash })).toBe(false);
+  });
+  it('umbrella / unknown dish cuisine → never demotes (returns true)', () => {
+    expect(cf.venuePlausiblyServes({ name: 'Anything', primaryType: 'chinese_restaurant' }, { cuisineName: 'Fusion', dishPhrase: 'x' })).toBe(true);
+    expect(cf.venuePlausiblyServes({ name: 'Anything', primaryType: 'chinese_restaurant' }, { cuisineName: null, dishPhrase: 'x' })).toBe(true);
+  });
+});
+
+describe('distinctiveDishWords / familyDemonyms', () => {
+  it('strips generic food / prep / boilerplate words', () => {
+    expect(cf.distinctiveDishWords('Czech guláš with bread dumplings')).toEqual(['czech', 'gulas']);
+    expect(cf.distinctiveDishWords('schnitzel soufflé-frying')).toEqual(['schnitzel', 'souffle']);
+    expect(cf.distinctiveDishWords('best fried rice restaurant Singapore')).toEqual([]);
+  });
+  it('exposes per-family demonym lists', () => {
+    expect(cf.familyDemonyms('european')).toContain('slavic');
+    expect(cf.familyDemonyms('european')).toContain('czech');
+    expect(cf.familyDemonyms('east-asian')).toContain('japanese');
+    expect(cf.familyDemonyms('made-up')).toEqual([]);
+  });
+});

@@ -4631,29 +4631,23 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     .replace(/\s+/g, ' ')
     .trim();
   const dishPhraseForCard = cleanDishPhrase(intent.searchTerm || userText) || userText;
-  // v0.60.135 — split into "above the line" (places that plausibly serve
-  // the dish) and "below the line" (places that just text-matched the
-  // search words — e.g. a Chinese dumpling house surfaced for "Czech
-  // guláš with bread dumplings"). A venue is BELOW only on a confident
-  // cuisine-family contradiction (cuisine-family.js); the venue name
-  // mentioning the dish / cuisine overrides it back to above. The
-  // "🍽️ Try X" card line is then shown ONLY above the line, so it never
-  // implies a text-match-only venue serves the dish.
-  const { isLikelyMismatch: ftMismatch } = require('./cuisine-family');
+  // v0.60.135 / v0.60.136 — split into "above the line" (places that
+  // plausibly serve the dish) and "below the line" (places that just
+  // text-matched the search words — e.g. "Dumpling Darlings" / "Hua Jie
+  // Dumpling" surfaced for "Czech guláš with bread dumplings" because
+  // they matched the generic word "dumpling"). "Above" = the venue NAME
+  // carries a positive signal — the cuisine name, a distinctive dish
+  // word, or a demonym of the dish's cuisine family — OR its Google
+  // primaryType is in that family. v0.60.136: was `isLikelyMismatch`,
+  // which only fired on a confident type contradiction and so missed
+  // generically-tagged off-cuisine places (every result came up "above"
+  // → no divider). The "🍽️ Try X" card line is shown ONLY above the
+  // line, so it never implies a text-match-only venue serves the dish.
+  const { venuePlausiblyServes: ftPlausible } = require('./cuisine-family');
   const cuisineForFamily = intent.cuisine || null;
-  const stripD135 = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const dishWords135 = new Set(stripD135(dishPhraseForCard).split(/[^a-z0-9]+/).filter((w) => w.length >= 4));
-  const cuisineN135 = stripD135(cuisineForFamily);
-  const nameMentionsDish135 = (v) => {
-    const n = stripD135(v?.name);
-    if (!n) return false;
-    if (cuisineN135 && cuisineN135.length >= 4 && n.includes(cuisineN135)) return true;
-    for (const w of dishWords135) { if (n.includes(w)) return true; }
-    return false;
-  };
-  const isBelow135 = (v) => !nameMentionsDish135(v) && ftMismatch(v?.primaryType, cuisineForFamily);
-  const aboveVenues = venues.filter((v) => !isBelow135(v));
-  const belowVenues = venues.filter((v) => isBelow135(v));
+  const plausible135 = (v) => ftPlausible(v, { cuisineName: cuisineForFamily, dishPhrase: dishPhraseForCard });
+  const aboveVenues = venues.filter(plausible135);
+  const belowVenues = venues.filter((v) => !plausible135(v));
   const ordered135 = [...aboveVenues, ...belowVenues].slice(0, 6);
   const aboveShown = Math.min(aboveVenues.length, ordered135.length);
   const belowShown = ordered135.length - aboveShown;
@@ -5353,20 +5347,20 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
     }
 
     const { googleMapsUrl } = require('./maps-url');
-    const { isLikelyMismatch: cmMismatch } = require('./cuisine-family');
+    const { venuePlausiblyServes: cmPlausible } = require('./cuisine-family');
     const lines = [];
     lines.push(`🔧 <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)}`);
     lines.push('');
     // v0.60.112 — render each card defensively: a single malformed
     // venue must not throw the whole reply into the "erreur" path.
-    // v0.60.135 — drop the "🍽️ Try <method>" line on a venue whose
-    // Places cuisine family contradicts hit.cuisineLabel (a Chinese
-    // restaurant that text-matched "schnitzel" doesn't serve schnitzel).
+    // v0.60.135/136 — drop the "🍽️ Try <method>" line on a venue whose
+    // NAME / Places cuisine family gives no sign it does this cuisine (a
+    // Chinese place that text-matched "schnitzel" doesn't serve it).
     const cards = venues.slice(0, 5).map((venue, i) => {
       try {
         return formatTechniqueVenueBlock(venue, {
           number: i + 1, lang, googleMapsUrlFn: googleMapsUrl,
-          dishPhrase: cmMismatch(venue?.primaryType, hit.cuisineLabel) ? '' : hit.term,
+          dishPhrase: cmPlausible(venue, { cuisineName: hit.cuisineLabel, dishPhrase: hit.term }) ? hit.term : '',
           orderTip: ''
         });
       } catch (err) {
