@@ -4622,7 +4622,41 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     }
   }
   // Build the reply in HTML mode.
-  const top = venues.slice(0, 3);
+  // v0.60.21 — strip Places-search boilerplate from the dish phrase
+  // before it's used in the "🍽️ Try X" line / divider.
+  const cleanDishPhrase = (s) => String(s || '')
+    .replace(/\s+restaurant\s+singapore\s*$/i, '')
+    .replace(/\s+singapore\s*$/i, '')
+    .replace(/\s+restaurant\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const dishPhraseForCard = cleanDishPhrase(intent.searchTerm || userText) || userText;
+  // v0.60.135 — split into "above the line" (places that plausibly serve
+  // the dish) and "below the line" (places that just text-matched the
+  // search words — e.g. a Chinese dumpling house surfaced for "Czech
+  // guláš with bread dumplings"). A venue is BELOW only on a confident
+  // cuisine-family contradiction (cuisine-family.js); the venue name
+  // mentioning the dish / cuisine overrides it back to above. The
+  // "🍽️ Try X" card line is then shown ONLY above the line, so it never
+  // implies a text-match-only venue serves the dish.
+  const { isLikelyMismatch: ftMismatch } = require('./cuisine-family');
+  const cuisineForFamily = intent.cuisine || null;
+  const stripD135 = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const dishWords135 = new Set(stripD135(dishPhraseForCard).split(/[^a-z0-9]+/).filter((w) => w.length >= 4));
+  const cuisineN135 = stripD135(cuisineForFamily);
+  const nameMentionsDish135 = (v) => {
+    const n = stripD135(v?.name);
+    if (!n) return false;
+    if (cuisineN135 && cuisineN135.length >= 4 && n.includes(cuisineN135)) return true;
+    for (const w of dishWords135) { if (n.includes(w)) return true; }
+    return false;
+  };
+  const isBelow135 = (v) => !nameMentionsDish135(v) && ftMismatch(v?.primaryType, cuisineForFamily);
+  const aboveVenues = venues.filter((v) => !isBelow135(v));
+  const belowVenues = venues.filter((v) => isBelow135(v));
+  const ordered135 = [...aboveVenues, ...belowVenues].slice(0, 6);
+  const aboveShown = Math.min(aboveVenues.length, ordered135.length);
+  const belowShown = ordered135.length - aboveShown;
   const lines = [];
   // v0.60.4 — prepend disambiguation disclosure if R.E.D pre-step resolved an ambiguous term.
   if (disambigDisclosure) {
@@ -4646,44 +4680,44 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } else if (intent.why) {
     lines.push(`🍽 ${esc(intent.why)}`);
   }
-  if (!top.length) {
+  if (!ordered135.length) {
     lines.push(lang === 'fr'
       ? `Désolé, aucun lieu correspondant trouvé près de Singapour pour cette requête. Essayez un autre plat ou ingrédient.`
       : `Sorry, no matching venues found in Singapore for that query. Try another dish or ingredient.`);
   } else {
     lines.push('');
     const { googleMapsUrl } = require('./maps-url');
-    // v0.60.21 (Human Lead 2026-05-08) — strip Places-search boilerplate
-    // from the dish phrase before rendering the "🍽️ Try X" line.
-    // classifySearchIntent returns searchTerm with " restaurant
-    // Singapore" / " Singapore" appended for Places ranking, but the
-    // user-facing card should say "Try steamed sea bream", not
-    // "Try steamed sea bream restaurant Singapore".
-    const cleanDishPhrase = (s) => String(s || '')
-      .replace(/\s+restaurant\s+singapore\s*$/i, '')
-      .replace(/\s+singapore\s*$/i, '')
-      .replace(/\s+restaurant\s*$/i, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const dishPhraseForCard = cleanDishPhrase(intent.searchTerm || userText) || userText;
+    const { tn: trnSearch } = require('./i18n');
+    // When NOTHING is above the line (Google only returned obviously
+    // off-cuisine text-matches), say so plainly instead of pretending.
+    if (aboveShown === 0 && belowShown > 0) {
+      lines.push(trnSearch('freetext.allBelow', lang, { dish: esc(dishPhraseForCard) }));
+      lines.push('');
+    }
     // v0.60.133 — render each card defensively (mirrors
     // runCookingMethodFanOut): a single malformed venue / template
     // helper must not throw the whole /s reply into silence.
-    const venueCards = top.map((venue, i) => {
+    const renderCard = (venue, i, isAbove) => {
       try {
         return formatTechniqueVenueBlock(venue, {
           number: i + 1,
           lang,
           googleMapsUrlFn: googleMapsUrl,
-          dishPhrase: dishPhraseForCard,
+          dishPhrase: isAbove ? dishPhraseForCard : '',   // "🍽️ Try X" only above the line
           orderTip: ''
         });
       } catch (err) {
         console.warn('[Search] card render failed for', venue?.name, '-', err.message);
         return `${i + 1}. <b>${esc(venue?.name || 'Unnamed')}</b>${venue?.area ? `\n📇 ${esc(venue.area)}` : ''}`;
       }
-    }).filter(Boolean);
-    lines.push(venueCards.join('\n\n\n'));
+    };
+    const cards = ordered135.map((venue, i) => renderCard(venue, i, i < aboveShown)).filter(Boolean);
+    if (aboveShown > 0 && belowShown > 0) {
+      const dividerText = trnSearch('freetext.divider', lang, { dish: esc(dishPhraseForCard) });
+      lines.push([...cards.slice(0, aboveShown), dividerText, ...cards.slice(aboveShown)].join('\n\n\n'));
+    } else {
+      lines.push(cards.join('\n\n\n'));
+    }
   }
   const reply = lines.join('\n');
   const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
@@ -5319,15 +5353,21 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
     }
 
     const { googleMapsUrl } = require('./maps-url');
+    const { isLikelyMismatch: cmMismatch } = require('./cuisine-family');
     const lines = [];
     lines.push(`🔧 <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)}`);
     lines.push('');
     // v0.60.112 — render each card defensively: a single malformed
     // venue must not throw the whole reply into the "erreur" path.
+    // v0.60.135 — drop the "🍽️ Try <method>" line on a venue whose
+    // Places cuisine family contradicts hit.cuisineLabel (a Chinese
+    // restaurant that text-matched "schnitzel" doesn't serve schnitzel).
     const cards = venues.slice(0, 5).map((venue, i) => {
       try {
         return formatTechniqueVenueBlock(venue, {
-          number: i + 1, lang, googleMapsUrlFn: googleMapsUrl, dishPhrase: hit.term, orderTip: ''
+          number: i + 1, lang, googleMapsUrlFn: googleMapsUrl,
+          dishPhrase: cmMismatch(venue?.primaryType, hit.cuisineLabel) ? '' : hit.term,
+          orderTip: ''
         });
       } catch (err) {
         console.warn('[Cooking-Method] card render failed for', venue?.name, '-', err.message);
@@ -6455,7 +6495,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
           const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
-          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
+          dividerText = trnBot('freetext.divider', ftLang, { dish: escapeHtmlForTelegram(cleanDish) });
         }
       } else if (dessertHit) {
         // v0.60.131 — dessert / drink query: a venue is "above the
@@ -6483,7 +6523,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
-          dividerText = trnBot('freetext.divider', ftLang, { dish: dessertHit.term });
+          dividerText = trnBot('freetext.divider', ftLang, { dish: escapeHtmlForTelegram(dessertHit.term) });
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
@@ -6507,9 +6547,10 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         console.warn('[free-text] footfall enrichment failed:', err.message);
       }
       const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
+      const headerDishEsc = escapeHtmlForTelegram(headerDish);
       const headerLabel = ftLang === 'fr'
-        ? `🔎 Résultats pour "${headerDish}"`
-        : `🔎 Results for "${headerDish}"`;
+        ? `🔎 Résultats pour "${headerDishEsc}"`
+        : `🔎 Results for "${headerDishEsc}"`;
       await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
     } finally {
       await clearProcessing(redis, chatId).catch(() => {});
