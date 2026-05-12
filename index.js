@@ -4713,7 +4713,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     };
     const cards = ordered135.map((venue, i) => renderCard(venue, i, i < aboveShown)).filter(Boolean);
     if (aboveShown > 0 && belowShown > 0) {
-      const dividerText = trnSearch('freetext.divider', lang, { dish: dishPhraseForCard });
+      const dividerText = trnSearch('freetext.divider', lang, { dish: esc(dishPhraseForCard) });
       lines.push([...cards.slice(0, aboveShown), dividerText, ...cards.slice(aboveShown)].join('\n\n\n'));
     } else {
       lines.push(cards.join('\n\n\n'));
@@ -6495,7 +6495,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
           const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
-          dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
+          dividerText = trnBot('freetext.divider', ftLang, { dish: escapeHtmlForTelegram(cleanDish) });
         }
       } else if (dessertHit) {
         // v0.60.131 — dessert / drink query: a venue is "above the
@@ -6523,7 +6523,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         venues = [...above, ...below].slice(0, 8);
         if (above.length > 0 && above.length < venues.length) {
           dividerAfter = above.length;
-          dividerText = trnBot('freetext.divider', ftLang, { dish: dessertHit.term });
+          dividerText = trnBot('freetext.divider', ftLang, { dish: escapeHtmlForTelegram(dessertHit.term) });
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
@@ -6547,9 +6547,10 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         console.warn('[free-text] footfall enrichment failed:', err.message);
       }
       const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
+      const headerDishEsc = escapeHtmlForTelegram(headerDish);
       const headerLabel = ftLang === 'fr'
-        ? `🔎 Résultats pour "${headerDish}"`
-        : `🔎 Results for "${headerDish}"`;
+        ? `🔎 Résultats pour "${headerDishEsc}"`
+        : `🔎 Results for "${headerDishEsc}"`;
       await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
     } finally {
       await clearProcessing(redis, chatId).catch(() => {});
