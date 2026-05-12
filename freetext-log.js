@@ -13,7 +13,7 @@
 //
 // Storage: a global capped list `freetext:log` (LPUSH + LTRIM to the
 // last LOG_CAP entries) for the quick /ftlog dump, plus a per-day list
-// `freetext:log:YYYY-MM-DD` (RPUSH, 30-day TTL) for time-bucketed
+// `freetext:log:YYYY-MM-DD` (RPUSH, 90-day TTL) for time-bucketed
 // review. Both writes are fire-and-forget — any failure is swallowed
 // (the search must never be blocked by logging).
 
@@ -21,7 +21,7 @@
 
 const GLOBAL_KEY = 'freetext:log';
 const LOG_CAP = 5000;
-const DAY_TTL_S = 30 * 24 * 60 * 60;
+const DAY_TTL_S = 90 * 24 * 60 * 60;   // v0.60.132 — aligned with the 90-day inactivity-retention promise in /privacy
 
 function dayKey(d = new Date()) {
   const iso = d.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -43,9 +43,12 @@ function logFreeTextQuery(redis, text, meta = {}) {
       m: typeof meta.matchedKnownTerm === 'string' ? meta.matchedKnownTerm : null,
       n: Number.isFinite(meta.resultCount) ? meta.resultCount : null,
     });
-    // global capped list
+    // global capped list — also given the 90-day TTL (refreshed on
+    // each write) so it self-clears after 90 days of inactivity, in
+    // line with the /privacy retention promise.
     redis.lPush(GLOBAL_KEY, entry)
       .then(() => redis.lTrim(GLOBAL_KEY, 0, LOG_CAP - 1))
+      .then(() => redis.expire(GLOBAL_KEY, DAY_TTL_S))
       .catch(() => {});
     // per-day list with TTL
     const dk = dayKey();
