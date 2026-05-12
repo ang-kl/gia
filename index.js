@@ -8917,6 +8917,21 @@ async function cacheBotUsername() {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayString(v.regularPeriods);
           }
+          // v0.60.140 — restore the TMA result-card detail lines the
+          // LLM-free /api/cuisine/search path was dropping: the cuisine
+          // descriptor ("Thai" / "Sushi" / …, from Places'
+          // primaryTypeDisplayName — humaniseRestaurantType falls back to
+          // the primaryType enum when the display label is absent) and a
+          // recent-review snippet (from the reviews we already fetch and
+          // then discard below). Michelin-derived restaurantType (if the
+          // Michelin cross-ref set it) wins.
+          if (!v.restaurantType) {
+            v.restaurantType = humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';
+          }
+          if (!v.recentReview && Array.isArray(v.reviews) && v.reviews[0] && v.reviews[0].text) {
+            v.recentReview = String(v.reviews[0].text).replace(/\s+/g, ' ').trim().slice(0, 160);
+          }
+          delete v.primaryTypeDisplayName;
           delete v.regularPeriods;
           delete v.reviews;
         }

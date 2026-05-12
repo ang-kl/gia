@@ -861,6 +861,10 @@ const DISCOVER_FIELD_MASK = [
   'places.websiteUri',
   'places.nationalPhoneNumber',
   'places.generativeSummary',
+  // v0.60.140 — localized cuisine descriptor ("Thai" / "Sushi" / …) so
+  // the Cuisine TMA's ResultCard restaurantType line renders for plain
+  // (non-Michelin) venues from the LLM-free /api/cuisine/search path.
+  'places.primaryTypeDisplayName',
   'places.reviews'
 ].join(',');
 
@@ -1076,6 +1080,10 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           websiteUri: p.websiteUri || '',
           phone: p.nationalPhoneNumber || '',
           primaryType: p.primaryType || 'restaurant',
+          // v0.60.140 — Places' localized "Thai restaurant" / "Sushi
+          // restaurant" label; humanised + mapped to `restaurantType`
+          // downstream (index.js humaniseRestaurantType).
+          primaryTypeDisplayName: p.primaryTypeDisplayName?.text || '',
           url: googleMapsUrl(p) ?? '',
           directionsUri: p.googleMapsLinks?.directionsUri ?? '',
           reviewsUri: p.googleMapsLinks?.reviewsUri ?? '',
