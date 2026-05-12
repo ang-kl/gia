@@ -4399,7 +4399,19 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
     return;
   }
   // Real query — classify intent and dispatch.
-  await handleSearchTurn(chatId, arg, lang);
+  // v0.60.133 — never let a /s turn go silent. handleSearchTurn fans
+  // out through several render paths (technique / nation-iconic /
+  // cooking-method / single-query); a throw in any of them used to
+  // propagate out of the bot.onText callback with no user-facing
+  // message (node just logged an unhandled rejection).
+  try {
+    await handleSearchTurn(chatId, arg, lang);
+  } catch (err) {
+    console.error('[Search] handleSearchTurn fatal:', err.stack || err.message);
+    await safeSend(chatId, lang === 'fr'
+      ? `Désolé, la recherche pour « ${arg} » a échoué. Réessayez dans un instant, ou reformulez avec un nom de plat / d'ingrédient.`
+      : `Sorry, the search for "${arg}" failed. Try again in a moment, or reword it with a dish / ingredient name.`);
+  }
 }
 
 // One round-trip: take user text, ask Gemini to classify intent, then
@@ -4665,13 +4677,23 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       .replace(/\s+/g, ' ')
       .trim();
     const dishPhraseForCard = cleanDishPhrase(intent.searchTerm || userText) || userText;
-    const venueCards = top.map((venue, i) => formatTechniqueVenueBlock(venue, {
-      number: i + 1,
-      lang,
-      googleMapsUrlFn: googleMapsUrl,
-      dishPhrase: dishPhraseForCard,
-      orderTip: ''
-    }));
+    // v0.60.133 — render each card defensively (mirrors
+    // runCookingMethodFanOut): a single malformed venue / template
+    // helper must not throw the whole /s reply into silence.
+    const venueCards = top.map((venue, i) => {
+      try {
+        return formatTechniqueVenueBlock(venue, {
+          number: i + 1,
+          lang,
+          googleMapsUrlFn: googleMapsUrl,
+          dishPhrase: dishPhraseForCard,
+          orderTip: ''
+        });
+      } catch (err) {
+        console.warn('[Search] card render failed for', venue?.name, '-', err.message);
+        return `${i + 1}. <b>${esc(venue?.name || 'Unnamed')}</b>${venue?.area ? `\n📇 ${esc(venue.area)}` : ''}`;
+      }
+    }).filter(Boolean);
     lines.push(venueCards.join('\n\n\n'));
   }
   const reply = lines.join('\n');

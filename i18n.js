@@ -54,8 +54,10 @@ const STRINGS = {
   // below = eateries with similar dishes or cuisine (e.g. a 灌汤包 place
   // for "bread dumplings"). The dish name sits on its own (second) line
   // so the first line doesn't wrap. Operator-specified copy 2026-05-11.
-  'freetext.divider':          { en: '⇩── Eateries with similar dishes or cuisine ── ⇩\n⇩── not exactly {dish} ── ⇩',
-                                 fr: '⇩── Établissements aux plats ou cuisine similaires ── ⇩\n⇩── pas exactement {dish} ── ⇩' },
+  // v0.60.133 — dash runs trimmed from `──` to `─` each side (operator:
+  // the doubled box-drawing dashes wrapped/looked ugly).
+  'freetext.divider':          { en: '⇩─ Eateries with similar dishes or cuisine ─ ⇩\n⇩─ not exactly {dish} ─ ⇩',
+                                 fr: '⇩─ Établissements aux plats ou cuisine similaires ─ ⇩\n⇩─ pas exactement {dish} ─ ⇩' },
   // v0.60.128 — "misrepresented dish" note. Surfaced on the free-text
   // dish-search paths (chat + Cuisine TMA "Tell me" box) when the typed
   // term names a dish from data/Misrepresented Dish Dessert Drink.MD.

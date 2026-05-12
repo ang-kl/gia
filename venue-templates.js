@@ -213,6 +213,13 @@ module.exports = {
   formatTravelLine,
   formatFootfallLine,
   escapeHtml,
+  // v0.60.133 — alias. formatTechniqueVenueBlock (index.js) and a few
+  // other call sites reference `escapeHtmlForTelegram` on this module;
+  // it's the same `& < >` escape as `escapeHtml`. Without the alias
+  // every formatTechniqueVenueBlock call threw on its first line,
+  // collapsing /s + free-text rich cards to the name-only fallback
+  // (and going fully silent on the paths that lack a per-card catch).
+  escapeHtmlForTelegram: escapeHtml,
   PRICE_LABEL,
   CROWD_LABEL
 };
