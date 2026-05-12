@@ -53,6 +53,9 @@ export default function App() {
   // cuisine chips above the result list. Tapping a chip prefills that
   // cuisine into the criteria and re-runs the search.
   const [cookMethodPivot, setCookMethodPivot] = useState(null);
+  // v0.60.131 — server declined a "Tell me" text that read like a
+  // question/instruction rather than a dish/cuisine name.
+  const [questionDeclined, setQuestionDeclined] = useState(false);
   // v0.60.28 — current page slice surfaced by ResultPanel. The map
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
@@ -441,6 +444,15 @@ export default function App() {
         resetSeen: opts?.resetSeen === true,              // v0.60.117 — ↺ Start over
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined  // v0.60.126 — Tell-me box as a qualifier
       });
+      // v0.60.131 — server says the "Tell me" text was a question, not a
+      // dish/cuisine: show the decline note, no result list.
+      if (r && r.questionDeclined === true) {
+        setQuestionDeclined(true);
+        setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setComboInfo(null);
+        setFirstLoadPending(false);
+        return;
+      }
+      setQuestionDeclined(false);
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
       setComboInfo(r.comboInfo || null);
@@ -484,7 +496,7 @@ export default function App() {
         });
       }
     } catch (err) {
-      setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null);
+      setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setQuestionDeclined(false);
     } finally { setLoading(false); }
   }
 
@@ -857,6 +869,16 @@ export default function App() {
           ⏳ {lang === 'fr'
             ? 'Veuillez patienter pendant le chargement de la liste…'
             : 'Please wait while loading list…'}
+        </div>
+      )}
+
+      {/* v0.60.131 — "Tell me" text read as a question/instruction:
+          decline note, no result list. */}
+      {questionDeclined && !loading && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
+          🙂 <span className="italic">{lang === 'fr'
+            ? 'Je ne réponds pas encore aux questions dans la case « Tell me ». Tapez un plat ou une cuisine (ex. chiffon cake, laksa, ramen), ou choisissez une cuisine ci-dessous.'
+            : "I can't answer questions in the “Tell me” box yet. Type a dish or cuisine (e.g. chiffon cake, laksa, ramen), or pick a cuisine below."}</span>
         </div>
       )}
 

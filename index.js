@@ -2164,6 +2164,35 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   }
 });
 
+// v0.60.131 — /ftlog [N] — owner-only dump of the recent free-text
+// query log (identity-free; see freetext-log.js). Silent no-op for
+// non-owners (and when TELEGRAM_OWNER_CHAT_ID is unset it's open, like
+// /ver). Default N=40, max 200.
+bot.onText(/^\/ftlog(?:@\w+)?(?:\s+(\d{1,3}))?$/, async (msg, match) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/ftlog] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
+  try {
+    const n = Math.max(1, Math.min(200, Number(match?.[1]) || 40));
+    const { dumpFreeTextLog } = require('./freetext-log');
+    const rows = await dumpFreeTextLog(redis, n);
+    if (!rows.length) { await safeSend(msg.chat.id, 'ℹ️ Free-text log is empty.'); return; }
+    const fmt = (e) => {
+      const when = Number.isFinite(e.ts) ? new Date(e.ts).toISOString().replace('T', ' ').slice(0, 16) : '?';
+      const meta = [e.src || '?', e.chip ? 'chip' : '', e.m || '', (e.n != null ? `n=${e.n}` : '')].filter(Boolean).join(' ');
+      return `${when}  ${String(e.q || '').slice(0, 60)}${meta ? `  [${meta}]` : ''}`;
+    };
+    const body = rows.map(fmt).join('\n').slice(0, 3800);
+    const escaped = body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    await bot.sendMessage(msg.chat.id, `📋 <b>Free-text log</b> (last ${rows.length})\n<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
+      .catch(async () => { await safeSend(msg.chat.id, `Free-text log (last ${rows.length}):\n${body}`); });
+  } catch (err) {
+    console.error('[Error] /ftlog handler failed:', err.message);
+    await safeSend(msg.chat.id, "Sorry, I couldn't read the free-text log.");
+  }
+});
+
 // /start handler — greets the user, optionally accepts a deep-link param
 // (e.g. /start eat from a t.me/<bot>?start=eat link) to immediately route
 // to a flow.
@@ -6087,6 +6116,28 @@ bot.on('message', async (msg) => {
       console.log(`[free-text] noise-guard skipped: "${text.slice(0, 40)}"`);
       return;
     }
+    // v0.60.131 — "looks like a question / instruction, not a dish or
+    // place" guard. The free-text path just hands text to Google
+    // Places searchText; a query like "does Beach Road curry rice sell
+    // chiffon cake" returns a misleading generic restaurant list. When
+    // it reads like a question we decline politely and point at the
+    // picker — and log the term (identity-free) so the operator sees
+    // these. Runs BEFORE nation-overlay / R.E.D / misrep / cooking-
+    // method so we don't waste those probes on a sentence.
+    {
+      const { looksLikeQuestion } = require('./freetext-classify');
+      if (looksLikeQuestion(text)) {
+        const { resolveLang: rlQ } = require('./user-prefs');
+        const qLang = await rlQ(redis, msg.chat.id, msg).catch(() => 'en');
+        const { t: tQ } = require('./i18n');
+        try {
+          const { logFreeTextQuery } = require('./freetext-log');
+          logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'question-declined', resultCount: 0 });
+        } catch { /* best-effort */ }
+        await safeSend(msg.chat.id, tQ('freetext.questionDeclined', qLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+        return;
+      }
+    }
     // v0.57.27: free-text search is now LLM-free. Per Human Lead, all
     // chat-text queries route directly to Google Places searchText
     // (via pipeline.discover) with no NL classification, no off-topic
@@ -6156,6 +6207,7 @@ bot.on('message', async (msg) => {
             try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
             catch (err) { console.warn('[free-text] setLastDisambig failed:', err.message); }
           }
+          try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'red-ambiguous', resultCount: 0 }); } catch { /* best-effort */ }
           await safeSend(msg.chat.id, reply, { parse_mode: 'HTML', disable_web_page_preview: true });
           return;
         }
@@ -6211,6 +6263,7 @@ bot.on('message', async (msg) => {
         const matches = cookm.findCookingMethodMatches(text);
         if (matches && matches.length) {
           const { t: tCm, tn: trnCm } = require('./i18n');
+          try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'cooking-method', resultCount: 0 }); } catch { /* best-effort */ }
           await safeSend(msg.chat.id, trnCm('cookmethod.didYouMean', userLang), {
             parse_mode: 'HTML',
             disable_web_page_preview: true,
@@ -6222,6 +6275,7 @@ bot.on('message', async (msg) => {
         console.warn('[free-text] cooking-method pivot failed (continuing):', err.message);
       }
     }
+    try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: disambigDisclosureFT ? 'red' : null, resultCount: null }); } catch { /* best-effort */ }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
@@ -6301,6 +6355,16 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       // via queryOverride instead of letting discover() append
       // " cuisine restaurant" on top of it.
       const disambiguated = !!(ftCuisine || ftDishLabel);
+      // v0.60.131 — when the plain query names a dessert / drink
+      // (chiffon cake, ondeh ondeh, milo dinosaur, kopi, …), steer
+      // Places at bakeries / cafés / dessert shops / kopitiams instead
+      // of letting it return a generic by-rating restaurant list.
+      let dessertHit = null;
+      if (!disambiguated) {
+        try { dessertHit = require('./dessert-drink-keywords').looksLikeDessertOrDrink(text); }
+        catch { dessertHit = null; }
+      }
+      const dessertQuery = dessertHit ? require('./dessert-drink-keywords').dessertDrinkQuery(dessertHit, null) : null;
       const candidates = await pipeline.discover({
         lat: cached.lat,
         lng: cached.lng,
@@ -6313,7 +6377,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         // typically a dish name; capping at 2 per dish-tail would
         // drop nearly every match. Disable for free-text only.
         applyDishTailThrottle: false,
-        queryOverride: disambiguated ? text : undefined    // v0.60.123
+        queryOverride: disambiguated ? text : (dessertQuery || undefined)  // v0.60.123 / v0.60.131
       });
       let venues = filterFreeTextResults(candidates, cached, { limit: 20 });
       if (!venues.length) {
@@ -6381,6 +6445,34 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
           dividerAfter = above.length;
           const cleanDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
           dividerText = trnBot('freetext.divider', ftLang, { dish: cleanDish });
+        }
+      } else if (dessertHit) {
+        // v0.60.131 — dessert / drink query: a venue is "above the
+        // line" when it self-identifies as the right *kind* of place —
+        // its Places primaryType is a bakery / café / dessert_shop /
+        // ice_cream_shop / etc., OR its name carries a bakery /
+        // patisserie / kueh / dessert / kopitiam-ish word, OR its name
+        // contains the dish term itself. The rest fall below.
+        const termN = stripD(dessertHit.term);
+        const venueKw = (dessertHit.venueKeywords || []).map(stripD).filter(Boolean);
+        const ptypes = new Set((dessertHit.primaryTypes || []).map((p) => String(p).toLowerCase()));
+        const isRightKind = (v) => {
+          const pt = String(v?.primaryType || '').toLowerCase();
+          if (pt && ptypes.has(pt)) return true;
+          const nameH = stripD(v?.name);
+          for (const k of venueKw) { if (k && nameH.includes(k)) return true; }
+          if (termN && nameH.includes(termN)) return true;
+          return false;
+        };
+        const scored = venues.map((v) => ({ v, exact: isRightKind(v) }));
+        const above = scored.filter((x) => x.exact)
+          .sort((a, b) => (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        const below = scored.filter((x) => !x.exact)
+          .sort((a, b) => (rOf(b.v) - rOf(a.v)) || (dOf(a.v) - dOf(b.v))).map((x) => x.v);
+        venues = [...above, ...below].slice(0, 8);
+        if (above.length > 0 && above.length < venues.length) {
+          dividerAfter = above.length;
+          dividerText = trnBot('freetext.divider', ftLang, { dish: dessertHit.term });
         }
       } else {
         // Plain free text (no disambiguation): no relevance signal —
@@ -7927,6 +8019,21 @@ async function cacheBotUsername() {
         if (Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001) {
           return res.status(400).json({ error: 'invalid lat/lng (zero)' });
         }
+        // v0.60.131 — "looks like a question / instruction, not a dish"
+        // guard for the "Tell me" free-text box. e.g. "does Beach Road
+        // curry rice sell chiffon cake" — decline + log (identity-free)
+        // instead of returning a misleading generic restaurant list.
+        const ftRawIn = String(req.body?.freeText || '').trim();
+        const hadCuisineChip = Array.isArray(cuisines) && cuisines.length > 0;
+        if (ftRawIn) {
+          try {
+            const { looksLikeQuestion } = require('./freetext-classify');
+            if (looksLikeQuestion(ftRawIn)) {
+              try { require('./freetext-log').logFreeTextQuery(redis, ftRawIn, { src: 'cuisine-tma', chip: hadCuisineChip, matchedKnownTerm: 'question-declined', resultCount: 0 }); } catch { /* best-effort */ }
+              return res.json({ venues: [], questionDeclined: true });
+            }
+          } catch { /* best-effort */ }
+        }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
@@ -8176,11 +8283,29 @@ async function cacheBotUsername() {
         // free text becomes the whole query. (It already feeds the
         // criteria hash + the R.E.D disambig probe — this makes it
         // actually steer the Places search too.)
-        const ftQualifier = String(req.body?.freeText || '').trim().slice(0, 80);
+        // v0.60.131 — when the typed text names a dessert / drink,
+        // REPLACE the query with a bakery/café/dessert-shop-steered one
+        // (optionally prefixed by the selected cuisine), so it stops
+        // returning a generic by-rating restaurant list. Otherwise keep
+        // the v0.60.126 qualifier-fold.
+        const ftQualifier = ftRawIn.slice(0, 80);
+        let dessertTmaHit = null;
         if (ftQualifier) {
-          cuisineQueries = (Array.isArray(cuisineQueries) && cuisineQueries.length)
-            ? cuisineQueries.map((q) => `${q} ${ftQualifier}`.replace(/\s+/g, ' ').trim())
-            : [ftQualifier];
+          try {
+            const ddk = require('./dessert-drink-keywords');
+            const hit = ddk.looksLikeDessertOrDrink(ftQualifier);
+            if (hit) {
+              dessertTmaHit = { term: hit.term, kind: hit.kind };
+              const cuisineLabel = (Array.isArray(cuisineMetas) && cuisineMetas.length === 1) ? cuisineMetas[0].name : '';
+              const dq = ddk.dessertDrinkQuery(hit, cuisineLabel);
+              if (dq) cuisineQueries = [dq];
+            }
+          } catch { dessertTmaHit = null; }
+          if (!dessertTmaHit) {
+            cuisineQueries = (Array.isArray(cuisineQueries) && cuisineQueries.length)
+              ? cuisineQueries.map((q) => `${q} ${ftQualifier}`.replace(/\s+/g, ' ').trim())
+              : [ftQualifier];
+          }
         }
         // v0.57.6: response cache keyed by selection state (rounded
         // location to ~110m so neighbours share the cache). 30-min TTL.
@@ -8768,7 +8893,17 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        if (ftRawIn) {
+          try {
+            require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {
+              src: 'cuisine-tma',
+              chip: hadCuisineChip,
+              matchedKnownTerm: chipDisambig ? 'red' : (misrepNote ? 'misrep' : (cookMethodMatches ? 'cooking-method' : (dessertTmaHit ? 'dessert-drink' : null))),
+              resultCount: dedupedTop.length,
+            });
+          } catch { /* best-effort */ }
+        }
         console.log(`[Cuisine-Search] D704 returning ${dedupedTop.length} venues to client (poolCount=${poolCount} exhausted=${dedupExhausted})`);
         // v0.57.6 / v0.59.35: write to cache for 30 SECONDS (was 30 min).
         // Short TTL keeps rapid double/triple clicks fast while still
