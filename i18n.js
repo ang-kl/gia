@@ -71,6 +71,11 @@ const STRINGS = {
   // localised framing with English method names.
   'cookmethod.didYouMean':     { en: '🙂 <i>Were you perhaps after a cooking method?</i> Tap a cuisine below, or search literally.',
                                  fr: '🙂 <i>Cherchiez-vous peut-être une méthode de cuisson ?</i> Touchez une cuisine ci-dessous, ou cherchez tel quel.' },
+  // v0.60.131 — free-text "looks like a question" decline. Shown when
+  // someone types a sentence ("does Beach Road curry rice sell chiffon
+  // cake") instead of a dish / cuisine name. Distinct from /s.
+  'freetext.questionDeclined': { en: "🙂 <i>I can't answer questions in free text yet.</i> Type a dish or cuisine name (e.g. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), or use /cuisine to pick from a list.",
+                                 fr: "🙂 <i>Je ne réponds pas encore aux questions en texte libre.</i> Tapez un plat ou une cuisine (ex. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), ou utilisez /cuisine pour choisir dans une liste." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
@@ -329,6 +334,7 @@ const STRINGS = {
       '• Location — used when you send a location pin or call /cuisine, /hidden, /carpark, /transport. Cached for up to 24 hours so subsequent commands don\'t have to re-prompt; you can refresh anytime via /transport\'s 📍 Refresh location button, or wipe it immediately via /forgetme.',
       '• Telegram chat identifier — used so Soleat can reply in the right chat.',
       '• Recent picks — the last few venues you saw, kept for /share and /picks. 24-hour TTL.',
+      '• Search terms — the food / dish / cuisine words you type in free text (or in the Cuisine "Tell me" box) are kept *not linked to you* so Soleat can improve results. No chat identifier is stored with them; 30-day TTL.',
       '',
       '*What Soleat does not do:*',
       '• No third-party trackers.',
@@ -350,6 +356,7 @@ const STRINGS = {
       '• Position — utilisée lorsque vous envoyez une épingle ou utilisez /cuisine, /hidden, /carpark, /transport. Conservée jusqu’à 24 heures pour éviter de redemander à chaque commande ; vous pouvez l’actualiser à tout moment via le bouton 📍 Actualiser la position de /transport, ou la supprimer immédiatement via /forgetme.',
       '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat.',
       '• Choix récents — les derniers lieux que vous avez vus, conservés pour /share et /picks. TTL de 24 heures.',
+      '• Termes de recherche — les mots de plat / cuisine tapés en texte libre (ou dans la case « Tell me » de Cuisine) sont conservés *sans lien avec vous* pour améliorer les résultats. Aucun identifiant de chat n’est conservé avec eux ; TTL de 30 jours.',
       '',
       '*Ce que Soleat ne fait pas :*',
       '• Aucun traceur tiers.',

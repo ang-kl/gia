@@ -331,3 +331,39 @@ describe('findCookingMethodMatches — multi-cuisine pivot', () => {
     expect(single?.slug).toBe(matches[0]?.slug);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────
+// v0.60.131 — common-dish-word leading blocklist
+// (regression: the v0.60.129 .md merge made "/s ramen", "/s pizza",
+//  "/s chicken", … all hijack into the cooking-method pivot because the
+//  ordered-prefix shortcut fired on "ramen reduction" / "pizza stone-
+//  baking" / "chicken-fat rice cooking" / …)
+// ─────────────────────────────────────────────────────────────────────
+
+describe('findCookingMethodMatches — common dish words are NOT cooking-method matches', () => {
+  it('bare common dish / component words return no match (→ normal Places search)', () => {
+    for (const q of ['ramen', 'pizza', 'chicken', 'beef', 'fish', 'rice', 'noodle', 'noodles', 'soup',
+                     'curry', 'egg', 'tofu', 'seafood', 'sushi', 'burger', 'chicken rice',
+                     'beef noodle', 'egg tart', 'lor mee', 'fish ball']) {
+      expect(cm.findCookingMethodMatches(q), `"${q}" should NOT match a cooking method`).toEqual([]);
+      expect(cm.findCookingMethod(q)).toBeNull();
+    }
+  });
+
+  it('genuine method / dish-method terms still match', () => {
+    expect(cm.findCookingMethod('mohinga')?.slug).toBe('burmese');
+    expect(cm.findCookingMethod('tahdig')?.slug).toBe('persian');
+    expect(cm.findCookingMethod('flambage')?.slug).toBe('french');
+    expect(cm.findCookingMethod('agemono')?.slug).toBe('japanese');
+    expect(cm.findCookingMethodMatches('schnitzel').length).toBeGreaterThanOrEqual(1);
+    expect(cm.findCookingMethodMatches('tadka').map((m) => m.slug)).toContain('south-indian');
+    expect(cm.findCookingMethodMatches('dum').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('an explicit all-tokens method query still matches even when the lead token is blocklisted', () => {
+    // "/s curry-leaf crackling" — "curry" is blocklisted as a *lead*,
+    // but supplying ALL of the term's tokens still resolves it.
+    expect(cm.findCookingMethod('curry-leaf crackling')?.slug).toBe('south-indian');
+    expect(cm.findCookingMethod('dim sum basket-steaming')?.slug).toBe('cantonese');
+  });
+});
