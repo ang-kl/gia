@@ -1826,7 +1826,9 @@ function resolvePending(pending) {
 //   /clip Italian       → filter to Italian cuisines
 //   /clip 7             → resend clip #7 immediately
 //   /clip clear         → wipe history (asks confirm)
-bot.onText(/^\/(?:clip|cl)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+// v0.60.148 — added `clipboard` as a third alias; some users typed
+// `/clipboard` expecting it to work (it's the natural spelling).
+bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
