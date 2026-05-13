@@ -91,11 +91,57 @@ async function clearClips(redis, chatId) {
   }
 }
 
+// v0.60.151 — removeClip: delete one entry by its list index. Uses the
+// idiomatic Redis "LSET-then-LREM" pattern (atomic-as-Redis-gets): mark
+// the slot with a sentinel value, then LREM removes the only entry that
+// matches it. Returns true if a clip was removed.
+const REMOVE_SENTINEL = '__deleted__';
+async function removeClip(redis, chatId, index) {
+  if (!redis || !chatId || !Number.isFinite(index) || index < 0) return false;
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const key = `${KEY_PREFIX}${chatId}`;
+    const raw = await redis.lIndex(key, index);
+    if (!raw) return false;
+    await redis.lSet(key, index, REMOVE_SENTINEL);
+    await redis.lRem(key, 1, REMOVE_SENTINEL);
+    return true;
+  } catch (err) {
+    console.warn('[Clip-Store] removeClip failed:', err.message);
+    return false;
+  }
+}
+
+// v0.60.151 — renameClip: stamp a user-supplied display name onto the
+// clip's record JSON. Stored as the new `name` field; listClips and the
+// /clipboard header prefer it over the auto-cuisines label. Trimmed,
+// capped at 60 chars, non-empty required. Returns the saved name or null.
+async function renameClip(redis, chatId, index, rawName) {
+  if (!redis || !chatId || !Number.isFinite(index) || index < 0) return null;
+  const name = String(rawName || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 60);
+  if (!name) return null;
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const key = `${KEY_PREFIX}${chatId}`;
+    const raw = await redis.lIndex(key, index);
+    if (!raw) return null;
+    let rec; try { rec = JSON.parse(raw); } catch { return null; }
+    rec.name = name;
+    await redis.lSet(key, index, JSON.stringify(rec));
+    return name;
+  } catch (err) {
+    console.warn('[Clip-Store] renameClip failed:', err.message);
+    return null;
+  }
+}
+
 module.exports = {
   pushClip,
   listClips,
   getClip,
   clearClips,
+  removeClip,
+  renameClip,
   KEY_PREFIX,
   MAX_CLIPS,
   TTL_S
