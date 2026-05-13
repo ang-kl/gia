@@ -179,3 +179,10 @@ export async function backOnePage() {
   try { return await postJson('/api/cuisine/session/back', {}); }
   catch { return { ok: false }; }
 }
+// v0.60.149 — Recycle: wipe the per-session clipboard (seen + pages +
+// meta) so the next /api/cuisine/search starts fresh from list #1.
+// Surfaced by the ↻ Recycle button on the post-80-cap terminal.
+export async function recycleSession() {
+  try { return await postJson('/api/cuisine/session/recycle', {}); }
+  catch { return { ok: false }; }
+}

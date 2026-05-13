@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, startSession, backOnePage } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, startSession, backOnePage, recycleSession } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -986,20 +986,44 @@ export default function App() {
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {sessionFull
               ? (lang === 'fr'
-                  ? 'Vous avez vu le maximum de 80 lieux pour cette session. Fermez et ré-ouvrez Cuisine pour une nouvelle session.'
-                  : 'You\'ve seen the 80 maximum for this session. Close and re-open Cuisine for a fresh session.')
+                  ? 'Vous avez vu le maximum de 80 lieux pour cette session. Touchez ↻ Recycler pour redémarrer (liste n°1 à nouveau), ou fermez et ré-ouvrez Cuisine.'
+                  : 'You\'ve seen the 80 maximum for this session. Tap ↻ Recycle to start a fresh session (list #1 again), or close and re-open Cuisine.')
               : (poolCount > 1
                   ? tn('result.exhausted', lang, { n: poolCount })
                   : poolCount === 1
                     ? t('result.exhaustedOne', lang)
                     : t('result.exhaustedNoCount', lang))}
-            <button
-              type="button"
-              onClick={() => runSearch(state, null, { resetSeen: true })}
-              className="ml-1 not-italic underline text-tg-link"
-            >
-              {t('result.startOver', lang)}
-            </button>
+            {/* v0.60.149 — when sessionFull, the ↺ Start over button is
+                replaced by a ↻ Recycle button that wipes the per-session
+                clipboard (seen + pages + meta) and re-fires the same
+                search, returning list #1 again. The existing ↺ Start
+                over only resets the per-criteria seen-set, which doesn't
+                clear the 80-cap. */}
+            {sessionFull ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  await recycleSession();
+                  setVenues([]);
+                  setSessionFull(false);
+                  setExhaustedNote(false);
+                  setPageStackDepth(0);
+                  runSearch(state);
+                }}
+                className="ml-1 not-italic underline text-tg-link"
+                aria-label={lang === 'fr' ? 'Recycler cette session' : 'Recycle this session'}
+              >
+                {lang === 'fr' ? '↻ Recycler' : '↻ Recycle'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => runSearch(state, null, { resetSeen: true })}
+                className="ml-1 not-italic underline text-tg-link"
+              >
+                {t('result.startOver', lang)}
+              </button>
+            )}
           </div>
         )}
       </div>
