@@ -1137,6 +1137,79 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
   }
 }
 
+// v0.60.147 — narrateMichelinVenues — narrate-only variant of
+// rankAndNarrate for the Michelin path. The Michelin handler already
+// filters/sorts its curated list (3★ → 2★ → 1★ → Bib Gourmand, with
+// the per-criteria seen-set drained); we don't want re-ranking, just
+// per-venue narration (vibe / dishes / signature_dish) to match the
+// cuisine-chip cards. The prompt explicitly says "DO NOT drop any
+// venues; narrate ALL of them". Returns a placeId-keyed map { placeId:
+// { vibe, signatureDish, dishes } } that the caller merges into its
+// venue array. LLM failure / parse-failure → returns {} so the caller
+// ships un-narrated curated Michelin cards (graceful degradation).
+async function narrateMichelinVenues({ candidates, lang = 'en' }) {
+  const out = {};
+  if (!Array.isArray(candidates) || !candidates.length || !llm.isReady()) return out;
+  try {
+    const lines = candidates.map((c, i) => {
+      const cat = c.michelinCategory || '';
+      const cuisineLbl = c.michelinCuisineLabel || c.restaurantType || '';
+      const reviewBlurb = (c.recentReview || '').slice(0, 240);
+      return `${i + 1}. [${c.placeId || ('mch-' + i)}] ${c.name} — ${c.area || ''} — Michelin: ${cat}${cuisineLbl ? ' (' + cuisineLbl + ')' : ''}${reviewBlurb ? ' — recent review: "' + reviewBlurb + '"' : ''}`;
+    }).join('\n');
+    const langBlock = lang === 'fr'
+      ? '\nLOCALISATION: rédigez "vibe", "dishes" et "signature_dish" en FRANÇAIS. Conservez les noms de plats iconiques de Singapour dans leur forme ORIGINALE (laksa, char kway teow, kaya toast, hokkien mee, satay, rojak, prata).\n'
+      : '';
+    const prompt = `You are Gia, a Singapore food concierge. Below are ${candidates.length} REAL Michelin-recognised venues in Singapore (3-star / 2-star / 1-star / Bib Gourmand from the Michelin Guide 2025). Add narration to EVERY one — DO NOT drop any. Reference the Michelin recognition correctly (no hallucination).
+${langBlock}
+VENUES (each line: index. [placeId] name — area — Michelin tier — recent review snippet if any):
+${lines}
+
+Return EXACTLY a JSON array of ${candidates.length} entries — one per venue, IN THE SAME ORDER. Each entry:
+
+[
+  {
+    "placeId": "<exact placeId from input>",
+    "vibe": "<one short phrase, max ~20 words, about why a solo Singapore diner would go here — mention the Michelin recognition naturally where it fits>",
+    "signature_dish": "<one specific dish the venue is known for>",
+    "dishes": ["<1-3 specific dish names — be specific, not categorical>"]
+  },
+  ...
+]
+
+Rules:
+- Use the recent-review snippet (when present) as evidence — do not invent dishes.
+- For Bib Gourmand stalls, mention if it's a hawker stall.
+- For 3-/2-/1-star, you may mention the star count if natural.
+- Return ONLY the JSON array — no preamble, no markdown fence.`;
+    const result = await withRetry(
+      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
+      { label: 'Michelin-Narrate' }
+    );
+    const rawText = result.response.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(extractJsonArray(rawText));
+    } catch { return out; }
+    if (!Array.isArray(parsed)) return out;
+    const knownIds = new Set(candidates.map((c) => c.placeId).filter(Boolean));
+    for (const r of parsed) {
+      if (!r || typeof r !== 'object') continue;
+      const pid = r.placeId;
+      if (!pid || !knownIds.has(pid)) continue;   // defensive — drop hallucinated placeIds
+      out[pid] = {
+        vibe: typeof r.vibe === 'string' ? r.vibe : '',
+        signatureDish: r.signature_dish || (Array.isArray(r.dishes) ? r.dishes[0] : '') || '',
+        dishes: Array.isArray(r.dishes) ? r.dishes.slice(0, 3).filter((d) => typeof d === 'string' && d.trim()) : []
+      };
+    }
+    return out;
+  } catch (err) {
+    try { logger.warn({ err: { message: err.message } }, 'narrateMichelinVenues failed'); } catch { /* noop */ }
+    return out;
+  }
+}
+
 // rankAndNarrate() — Claude picks top-N from real Places candidates and
 // adds vibe/dishes/cost narration. The model NEVER invents venues —
 // every output references a placeId that came in via the input list.
@@ -1722,6 +1795,7 @@ module.exports = {
   reasonExecute,
   discover,
   rankAndNarrate,
+  narrateMichelinVenues,
   fetchContext,
   refine,
   runPipeline,
