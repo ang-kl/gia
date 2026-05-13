@@ -64,6 +64,25 @@ is the same data as `{ generated, count, records:[…] }` — feed it to `jq`, D
 (`read_json_auto`), pandas, or a spreadsheet. The canonical tab-separated copy is
 `records.tsv` in this folder.
 
+### Access gate (`VIBE_JOURNAL_KEY`)
+
+`/doc` and `/doc/*` honour an optional shared key, the Railway service variable
+**`VIBE_JOURNAL_KEY`**:
+
+- **Unset** → the page is public (the default-open convention used by the other
+  gates in this repo).
+- **Set** → callers must supply the key via `?key=<value>` in the URL (a correct
+  `?key=` also drops a 30-day `httpOnly` cookie scoped to `/doc`, so the in-page
+  JSON link and the `/doc` redirect keep working without re-typing it), or the
+  `X-Vibe-Key: <value>` request header (handy for `curl`). A missing/wrong key
+  returns `401` with a tiny "enter the access code" form.
+
+The key lives **only** in the Railway variable — it is never committed. The
+served HTML embeds the full dataset, so the gate protects the *document*, not
+individual fields; rotate the key by changing the variable (it takes effect on
+the next deploy / restart). Implementation: the `/doc` routes in `index.js`
+(search `VIBE_JOURNAL_KEY`).
+
 > **Note on "reduce the PRs".** The intent behind this page is to make the *rework
 > loops* visible — feature areas that took many PRs to settle, fixes that closely
 > follow the PR that introduced the bug, same-day production iteration — so the

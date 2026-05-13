@@ -7223,9 +7223,60 @@ async function cacheBotUsername() {
     // a self-contained, queryable HTML view of the Vibe-Coding Record
     // (every PR, sliceable by category / feature area / TMA / impact, with
     // a rework/churn-insights panel). Built by doc/VibeCodingRecord/generate.mjs
-    // into public/doc/. Public, read-only, no app data.
-    app.use('/doc', express.static(path.join(__dirname, 'public', 'doc')));
-    app.get('/doc', (_req, res) => res.redirect('/doc/vibe-journal.html'));
+    // into public/doc/. Read-only, no app data.
+    //
+    // v0.60.144 — optional shared-key gate. When the Railway service
+    // variable VIBE_JOURNAL_KEY is set, /doc and /doc/* require the key
+    // via ?key=<it> (a correct ?key= also drops a 30-day httpOnly cookie
+    // scoped to /doc so the JSON link and re-navigation work without
+    // re-typing), or the `X-Vibe-Key` header. When the var is unset the
+    // page is public (same default-open convention as the other gates) —
+    // set the variable to lock it.
+    const VIBE_DOC_FILES = {
+      'vibe-journal.html': 'text/html; charset=utf-8',
+      'vibe-journal.json': 'application/json; charset=utf-8'
+    };
+    function vibeJournalKeyFromReq(req) {
+      const fromQuery = req.query && typeof req.query.key === 'string' ? req.query.key : '';
+      if (fromQuery) return fromQuery;
+      const hdr = req.get('x-vibe-key');
+      if (hdr) return String(hdr);
+      const raw = req.headers && req.headers.cookie ? String(req.headers.cookie) : '';
+      const m = raw.split(';').map((s) => s.trim()).find((s) => s.startsWith('vibe_key='));
+      return m ? decodeURIComponent(m.slice('vibe_key='.length)) : '';
+    }
+    function vibeJournalAllowed(req) {
+      const want = process.env.VIBE_JOURNAL_KEY;
+      if (!want) return true; // unset → public
+      return vibeJournalKeyFromReq(req) === want;
+    }
+    function vibeJournalDeny(res) {
+      res.status(401).set('Content-Type', 'text/html; charset=utf-8').set('Cache-Control', 'no-store').send(
+        '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vibe Journal — locked</title>'
+        + '<style>body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;max-width:560px;margin:3em auto;padding:0 1em;color:#1a1a1a;background:#fafafa}input,button{font:inherit;padding:.5em .6em;border:1px solid #ccc;border-radius:8px}button{cursor:pointer;background:#fff}@media(prefers-color-scheme:dark){body{color:#e6e6e6;background:#161616}input,button{background:#1f1f1f;border-color:#444;color:inherit}}</style>'
+        + '</head><body><h1>🔒 Vibe Journal</h1><p>This document needs an access code.</p>'
+        + '<form method="get"><input name="key" type="password" placeholder="access code" autofocus> <button type="submit">Open</button></form>'
+        + '<p style="color:#888;font-size:.9em">Or append <code>?key=…</code> to the URL.</p></body></html>'
+      );
+    }
+    app.get('/doc', (req, res) => {
+      if (!vibeJournalAllowed(req)) return vibeJournalDeny(res);
+      const k = req.query && typeof req.query.key === 'string' && req.query.key ? `?key=${encodeURIComponent(req.query.key)}` : '';
+      res.redirect(`/doc/vibe-journal.html${k}`);
+    });
+    app.get('/doc/:file', (req, res) => {
+      const ct = VIBE_DOC_FILES[req.params.file];
+      if (!ct) return res.status(404).send('not found');
+      if (!vibeJournalAllowed(req)) return vibeJournalDeny(res);
+      // a correct ?key= → remember it (cookie scoped to /doc) so links inside
+      // the page (the JSON download, the /doc redirect) don't need it re-typed.
+      if (process.env.VIBE_JOURNAL_KEY && req.query && req.query.key === process.env.VIBE_JOURNAL_KEY) {
+        res.cookie('vibe_key', req.query.key, { httpOnly: true, sameSite: 'Lax', maxAge: 30 * 24 * 3600 * 1000, path: '/doc' });
+      }
+      res.set('Content-Type', ct);
+      res.set('Cache-Control', process.env.VIBE_JOURNAL_KEY ? 'no-store' : 'public, max-age=300');
+      res.sendFile(path.join(__dirname, 'public', 'doc', req.params.file));
+    });
 
     // v0.59.30 — content-verifying health endpoint for the
     // webhook-domain auto-fallback probe. Per Codex review #235 P1:
