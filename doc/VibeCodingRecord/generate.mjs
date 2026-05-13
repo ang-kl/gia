@@ -435,9 +435,14 @@ details>summary{cursor:pointer;font-weight:600;padding:.5em 0}
 .count{color:var(--mut);font-size:.85em;margin:.5em 0}
 table{border-collapse:collapse;width:100%;font-size:.83em}
 th,td{text-align:left;padding:.4em .5em;border-bottom:1px solid var(--bd);vertical-align:top}
-th{position:sticky;top:46px;background:var(--bg);cursor:pointer;white-space:nowrap;user-select:none}
-th.sorted::after{content:" ▾";color:var(--mut)}
-th.sorted.asc::after{content:" ▴"}
+#tbl thead th{position:sticky;top:46px;background:var(--bg);cursor:pointer;white-space:nowrap;user-select:none;z-index:2}
+#tbl th.sorted::after{content:" ▾";color:var(--mut)}
+#tbl th.sorted.asc::after{content:" ▴"}
+.scrollbox{max-height:340px;overflow:auto;border:1px solid var(--bd);border-radius:8px;margin:.4em 0 .8em}
+.scrollbox table{font-size:.82em}
+.scrollbox thead th{position:sticky;top:0;background:var(--card);box-shadow:inset 0 -1px 0 var(--bd);white-space:nowrap;z-index:1}
+table.mini td,table.mini th{padding:.3em .45em}
+.miss{color:var(--warn)}
 tr.row:hover{background:#f0f6fd}
 td.pr{font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{display:inline-block;padding:0 .35em;border-radius:4px;background:#eef2f7;color:#334;font-size:.92em;margin:0 .15em .15em 0;white-space:nowrap}
@@ -449,9 +454,9 @@ a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 @media(prefers-color-scheme:dark){
 :root{--bg:#161616;--fg:#e6e6e6;--mut:#9a9a9a;--card:#1f1f1f;--bd:#333;--accent:#5ab1ff;--bar:#2c4a66}
-tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#283039;color:#cdd}.tag.cat{background:#1d2c44;color:#9cf}.tag.rew{background:#3a2a1c;color:#f6b27a}.tag.tma{background:#1f2f24;color:#8fd6a5}th.sorted::after,.barrow .v,.note,.sub,.kpi .l{color:var(--mut)}
+tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#283039;color:#cdd}.tag.cat{background:#1d2c44;color:#9cf}.tag.rew{background:#3a2a1c;color:#f6b27a}.tag.tma{background:#1f2f24;color:#8fd6a5}#tbl th.sorted::after,.barrow .v,.note,.sub,.kpi .l{color:var(--mut)}
 }
-@media(max-width:760px){.barrow{grid-template-columns:120px 1fr 38px}th{position:static}.controls{position:static}}
+@media(max-width:760px){.barrow{grid-template-columns:120px 1fr 38px}#tbl thead th{position:static}.controls{position:static}}
 </style>
 </head>
 <body>
@@ -470,6 +475,11 @@ tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#2
 <details><summary>Churn by code area / module</summary><div class="note">Which files keep coming back. (Only PRs with a squash-commit file list ≈ #78 onward.)</div><div class="barlist" id="churnMod"></div></details>
 <details><summary>PRs per release (MAJOR.MINOR)</summary><div class="note">A minor line with many PRs = lots of follow-up patches after the first cut.</div><div class="barlist" id="perMinor"></div></details>
 <details><summary>Category mix &amp; same-day clusters</summary><div class="barlist" id="catMix"></div><div class="note" id="clusterNote"></div></details>
+<details><summary>📈 PRs over time — by day &amp; by week</summary><div class="note">When the work happened — a tall spike is a high-iteration session.</div><div class="note">By ISO week:</div><div class="barlist" id="perWeek"></div><div class="note">By day (every day with at least one PR):</div><div class="barlist" id="perDay"></div></details>
+<details><summary>🪶 Small / low-effort PRs — batching candidates</summary><div class="note" id="smallNote"></div><div class="barlist" id="smallByArea"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Cat</th><th>Area</th><th>Title</th></tr></thead><tbody id="smallList"></tbody></table></div></details>
+<details><summary>🔁 Indecision — reverts, re-enables, flip-flops</summary><div class="note" id="indecNote"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Area</th><th>Title</th><th>Signal</th></tr></thead><tbody id="indecList"></tbody></table></div></details>
+<details><summary>🧠 Behavioural patterns</summary><div class="kpis" id="behav"></div><div class="note" id="behavNote"></div></details>
+<details><summary>🧩 Hard parts &amp; recurring failure modes</summary><div class="note">Fix-density per area — the share of an area's PRs that are <code>fix</code>; high = the tricky bits (areas with ≥3 PRs).</div><div class="barlist" id="fixDensity"></div><div class="note">PRs whose title / intent / approach matches a known failure mode (keyword heuristic, from the lessons below):</div><div class="barlist" id="failModes"></div><div class="scrollbox" id="failBox" style="display:none"><table class="mini"><thead><tr><th>Mode</th><th>PR</th><th>Title</th></tr></thead><tbody id="failList"></tbody></table></div></details>
 
 <h2>Lessons to reduce rework <span class="note">(distilled from <code>.claude/skills/gia-preflight/SKILL.md</code>)</span></h2>
 <ol class="lessons">
@@ -524,13 +534,84 @@ barList($('#catMix'), tallyBy(r=>r.category));
 
 // rework list
 const rew = RECORDS.filter(r=>r.reworkOf).sort((a,b)=>a.pr-b.pr);
-$('#rework').innerHTML = '<div class="note">'+rew.length+' PR'+(rew.length===1?'':'s')+' flagged.</div>' + '<div style="max-height:340px;overflow:auto"><table style="font-size:.82em"><thead><tr><th>PR</th><th>Area</th><th>Looks like a follow-up of</th><th>Title</th></tr></thead><tbody>'+
+$('#rework').innerHTML = '<div class="note">'+rew.length+' PR'+(rew.length===1?'':'s')+' flagged.</div>' + '<div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Area</th><th>Looks like a follow-up of</th><th>Title</th></tr></thead><tbody>'+
  rew.map(r=>'<tr><td class="pr">#'+r.pr+'</td><td>'+esc(r.area)+'</td><td class="pr">#'+r.reworkOf+'</td><td>'+esc(r.title)+'</td></tr>').join('')+'</tbody></table></div>';
 
 // same-day clusters
 const byDay = new Map(); for(const r of RECORDS){ if(!r.day)continue; (byDay.get(r.day)||byDay.set(r.day,[]).get(r.day)).push(r.pr); }
 const heavy = [...byDay.entries()].filter(([d,ps])=>ps.length>=4).sort((a,b)=>b[1].length-a[1].length);
 $('#clusterNote').innerHTML = heavy.length ? ('Days with ≥4 PRs (iterating fast / in production): '+heavy.slice(0,12).map(([d,ps])=>d+' ('+ps.length+')').join(', ')+(heavy.length>12?', …':'')+'.') : 'No day had ≥4 PRs.';
+
+// ── extra instruments ─────────────────────────────────────────────────────
+const fmtPct = (n)=>Math.round(n*100)+'%';
+function weekKey(day){ if(!day)return ''; const d=new Date(day+'T00:00:00Z'); const dow=(d.getUTCDay()+6)%7; d.setUTCDate(d.getUTCDate()-dow); return d.toISOString().slice(0,10); }
+function chronoTally(fn){ const m=new Map(); for(const r of RECORDS){ const k=fn(r); if(!k)continue; m.set(k,(m.get(k)||0)+1);} return [...m.entries()].sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0); }
+const perDayT = chronoTally(r=>r.day);
+const perWeekT = chronoTally(r=>weekKey(r.day));
+barList($('#perWeek'), perWeekT.map(([k,v])=>['wk of '+k, v]), Math.max(1,...perWeekT.map(p=>p[1])));
+barList($('#perDay'), perDayT.map(([k,v])=>[k, v]), Math.max(1,...perDayT.map(p=>p[1])));
+
+// small / low-effort PRs
+const SMALL_CATS = new Set(['copy','prompt-tune','test']);
+function isSmall(r){ return (r.nFiles!=null && r.nFiles<=2) || SMALL_CATS.has(r.category); }
+const smalls = RECORDS.filter(isSmall);
+$('#smallNote').innerHTML = smalls.length+' of '+RECORDS.length+' PRs ('+fmtPct(smalls.length/RECORDS.length)+') were small — ≤2 files changed, or category copy / prompt-tune / test. Each is a candidate that might have been folded into a sibling PR.';
+barList($('#smallByArea'), (()=>{const m=new Map();for(const r of smalls){m.set(r.area,(m.get(r.area)||0)+1);}return [...m.entries()].sort((a,b)=>b[1]-a[1]);})());
+$('#smallList').innerHTML = smalls.map(r=>'<tr><td class="pr"><a href="https://github.com/ang-kl/gia/pull/'+r.pr+'" target="_blank" rel="noopener">#'+r.pr+'</a></td><td class="pr">'+esc(r.version||'')+'</td><td>'+esc(r.category)+'</td><td>'+esc(r.area)+'</td><td>'+esc(r.title)+(r.nFiles!=null?' <span class="note">('+r.nFiles+'f)</span>':'')+'</td></tr>').join('');
+
+// indecision — revert / re-enable / "actually" cues in the title or intent
+const INDEC = [['revert',/\brevert(s|ed|ing)?\b/i],['rollback',/\broll[\s-]?back\b/i],['undo',/\bundo\b/i],['re-enable',/\bre[\s-]?(enable|activat)|turn (it )?back on\b/i],['re-add / restore',/\bre[\s-]?add|readd|restore[ds]?\b/i],['"actually"',/\bactually\b/i],['"not taking effect"',/not taking effect|did(n'?t| not) take|no effect\b/i],['"again"',/\bagain\b/i],['take 2 / round 2',/\btake (2|two)\b|\bround (2|two)\b|2nd attempt|second attempt/i],['"finally" / "for real"',/\bfinally\b|for real\b|\btruly\b/i]];
+function indecSignal(r){ const t=(r.title+' '+r.intent).toLowerCase(); for(const [label,re] of INDEC){ if(re.test(t))return label; } return null; }
+const indecs = RECORDS.map(r=>({r, sig:indecSignal(r)})).filter(x=>x.sig).sort((a,b)=>a.r.pr-b.r.pr);
+$('#indecNote').innerHTML = indecs.length+' PR'+(indecs.length===1?'':'s')+' carry a revert / re-enable / "actually" / "not taking effect" / "again" cue — each is a decision that did not stick the first time. Watch for ping-pong within one MAJOR.MINOR line.';
+$('#indecList').innerHTML = indecs.map(({r,sig})=>'<tr><td class="pr"><a href="https://github.com/ang-kl/gia/pull/'+r.pr+'" target="_blank" rel="noopener">#'+r.pr+'</a></td><td class="pr">'+esc(r.version||'')+'</td><td>'+esc(r.area)+'</td><td>'+esc(r.title)+'</td><td><span class="tag rew">'+esc(sig)+'</span></td></tr>').join('');
+
+// behavioural patterns
+(function(){
+ const activeDays = perDayT.length, total = RECORDS.length;
+ const maxDay = perDayT.reduce((a,b)=>b[1]>a[1]?b:a, ['',0]);
+ const fixN = RECORDS.filter(r=>r.category==='fix').length, featN = RECORDS.filter(r=>r.category==='feature').length;
+ const eligibleRework = RECORDS.filter(r=>!['Core / misc','Docs / vault','Infra / setup'].includes(r.area)).length;
+ let bestRun=0,bestArea='',cur=0,curArea=null;
+ for(const r of RECORDS){ if(r.area===curArea)cur++; else{curArea=r.area;cur=1;} if(cur>bestRun){bestRun=cur;bestArea=curArea;} }
+ const fc=RECORDS.map(r=>r.nFiles).filter(n=>n!=null).sort((a,b)=>a-b);
+ const medFiles = fc.length ? (fc.length%2 ? fc[(fc.length-1)/2] : Math.round((fc[fc.length/2-1]+fc[fc.length/2])/2)) : '—';
+ const modT = tallyBy(r=>r.modules||[]); const topMod = modT.length ? modT[0] : ['—',0];
+ const kpis = [
+  ['PRs / active day', activeDays?(total/activeDays).toFixed(1):'—', activeDays+' active days'],
+  ['Busiest day', maxDay[1]+' PRs', maxDay[0]],
+  ['fix : feature', featN?(fixN/featN).toFixed(2)+' : 1':'—', fixN+' fix · '+featN+' feature'],
+  ['Rework rate', eligibleRework?fmtPct(META.rework/eligibleRework):'—', META.rework+' / '+eligibleRework+' eligible'],
+  ['Longest same-area streak', bestRun+' PRs', bestArea],
+  ['Median files / PR', String(medFiles), fc.length+' PRs w/ a file list'],
+  ['Most-edited code area', topMod[1]+'×', topMod[0]],
+  ['Small-PR share', fmtPct(smalls.length/total)],
+ ];
+ $('#behav').innerHTML = kpis.map(([l,n,h])=>'<div class="kpi"><div class="n">'+esc(String(n))+'</div><div class="l">'+esc(l)+(h?' · '+esc(h):'')+'</div></div>').join('');
+ $('#behavNote').innerHTML = 'Read together: a high fix:feature ratio + a high rework rate + long same-area streaks ⇒ scoping &amp; verification (the gia-preflight gates) are where the leverage is. Lots of small PRs ⇒ consider batching sibling tweaks into one PR.';
+})();
+
+// hard parts: fix-density by area + recurring failure modes
+(function(){
+ const byArea=new Map();
+ for(const r of RECORDS){ const a=byArea.get(r.area)||{t:0,f:0}; a.t++; if(r.category==='fix')a.f++; byArea.set(r.area,a); }
+ const dens=[...byArea.entries()].filter(([a,o])=>o.t>=3).map(([a,o])=>[a+' ('+o.f+'/'+o.t+')', Math.round(o.f/o.t*100)]).sort((x,y)=>y[1]-x[1]);
+ barList($('#fixDensity'), dens, 100);
+ const MODES=[
+  ['silent handler / thin cards', /\bsilent\b|thin card|went silent|stopped (responding|working)|no(t| longer) respond|doesn'?t respond/i],
+  ['missing module export', /is not a function|not exported|missing export|undefined export/i],
+  ['HTML escaping / parse_mode', /html[\s-]?escap|unescaped|parse_mode|html entit/i],
+  ['fuzzy matcher over-match', /over[\s-]?match|hijack|common[\s-]?(word|dish)|blocklist|matched too/i],
+  ['resolver ordering', /resolver order|runs? first|pre[\s-]?empt|disambig.* order|short[\s-]?circuit order/i],
+  ['cache / stale bundle', /stale bundle|no[\s-]?cache|cache[\s-]?control|redeploy(ed)? but|pin(ned)? .*stale/i],
+  ['regression after a refactor / merge', /regress|broke after|re[\s-]?broke|after the .* (merge|refactor)/i],
+ ];
+ const counts=new Map(), hits=[];
+ for(const r of RECORDS){ const t=(r.title+' '+r.intent+' '+r.approach).toLowerCase(); for(const [label,re] of MODES){ if(re.test(t)){ counts.set(label,(counts.get(label)||0)+1); hits.push([label,r]); } } }
+ const fm=[...counts.entries()].sort((a,b)=>b[1]-a[1]);
+ if(fm.length){ barList($('#failModes'), fm, Math.max(1,...fm.map(p=>p[1]))); $('#failBox').style.display=''; $('#failList').innerHTML = hits.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:a[1].pr-b[1].pr).map(([label,r])=>'<tr><td><span class="tag rew">'+esc(label)+'</span></td><td class="pr"><a href="https://github.com/ang-kl/gia/pull/'+r.pr+'" target="_blank" rel="noopener">#'+r.pr+'</a></td><td>'+esc(r.title)+'</td></tr>').join(''); }
+ else { $('#failModes').innerHTML='<div class="note">No PR title/intent/approach matched the failure-mode keywords (those signals live mostly in PR bodies / the journal, which this view does not index).</div>'; }
+})();
 
 // filters
 function uniq(fn){ const s=new Set(); for(const r of RECORDS){ for(const v of [].concat(fn(r))){ if(v!=null&&v!=='')s.add(v);} } return [...s].sort(); }
