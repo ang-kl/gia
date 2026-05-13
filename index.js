@@ -6078,6 +6078,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     pageStackDepth: michelinPageDepth,
     michelinSummary: {
       total: allEntries.length,
+      // v0.60.149 — how many curated Michelin entries are still
+      // un-shown for this chat under the current criteria; lets the
+      // TMA surface "X more curated Michelin places — tap ▶ to load
+      // the next batch" so the user understands the walk-through.
+      shown: seen.size + filteredVenues.length,
+      remaining: Math.max(0, allEntries.length - seen.size - filteredVenues.length),
       threeStar: michelin.STARS_THREE.length,
       twoStar: michelin.STARS_TWO.length,
       oneStar: michelin.STARS_ONE.length,
@@ -7689,6 +7695,29 @@ async function cacheBotUsername() {
         res.json({ ok: true, page: prev, pageStackDepth: depth });
       } catch (err) {
         console.warn('[Cuisine-Session] back failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+    // v0.60.149 — POST /api/cuisine/session/recycle — fires from the
+    // terminal ↻ Recycle button when the per-session 80-cap has been
+    // reached. Wipes the session-seen SET + page-history LIST + meta
+    // HASH (same as session/start), then the next /api/cuisine/search
+    // for the same criteria returns "list #1 of the new session". Counts
+    // as a `cuisine-tma-recycle` search event in Oversight. Per-criteria
+    // seen-set (cuisine:seen:<chatId>:<hash>) is intentionally left
+    // alone — the ↺ Start over button (existing v0.60.117 path) covers
+    // that; users may want a fresh SESSION without losing per-criteria
+    // dedup for unrelated cuisine searches.
+    app.post('/api/cuisine/session/recycle', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        await cuisineSession.startSession(redis, verified.user.id);
+        try { usageLog.recordSearch(redis, verified.user.id, { src: 'cuisine-tma-recycle' }).catch(() => {}); } catch { /* noop */ }
+        res.json({ ok: true });
+      } catch (err) {
+        console.warn('[Cuisine-Session] recycle failed:', err.message);
         res.json({ ok: false });
       }
     });

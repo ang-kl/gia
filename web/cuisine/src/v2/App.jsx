@@ -138,6 +138,13 @@ export default function App() {
   // enabled).
   const [sessionFull, setSessionFull] = useState(false);
   const [pageStackDepth, setPageStackDepth] = useState(0);
+  // v0.60.149 — Michelin walk-through indicator. When the server's
+  // Michelin response carries michelinSummary.remaining > 0, we surface
+  // "X more curated Michelin places — tap ▶ for the next 12" above the
+  // result list so the user understands the per-call batch (12 venues)
+  // is only a slice of the full ~130 curated list. Cleared on the next
+  // non-Michelin search.
+  const [michelinRemaining, setMichelinRemaining] = useState(null);  // null | { shown, remaining, total }
   // v0.60.115 — how many distinct venues the server has shown for the
   // current criteria-hash. Surfaced in the "that's all N" terminal note
   // when exhausted, so the user knows the pool size and stops re-tapping.
@@ -503,6 +510,16 @@ export default function App() {
       // /api/cuisine/search response.
       setSessionFull(r?.sessionFull === true);
       setPageStackDepth(Number.isFinite(r?.pageStackDepth) ? r.pageStackDepth : 0);
+      // v0.60.149 — Michelin remaining-count indicator.
+      if (r?.michelinSummary && Number.isFinite(r.michelinSummary.remaining)) {
+        setMichelinRemaining({
+          shown: r.michelinSummary.shown || 0,
+          remaining: r.michelinSummary.remaining,
+          total: r.michelinSummary.total || 0
+        });
+      } else {
+        setMichelinRemaining(null);
+      }
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -937,6 +954,17 @@ export default function App() {
       )}
 
       <div ref={resultPanelRef}>
+        {/* v0.60.149 — Michelin walk-through indicator. Reduces user
+            surprise that each ▶ tap loads 12 of ~130 curated venues
+            rather than the whole curated list in one shot (which timed
+            out at 40 in v0.60.147 — see journal-0_60_149). */}
+        {michelinRemaining && michelinRemaining.remaining > 0 && !loading && (
+          <div className="text-[11px] text-tg-hint italic text-center mb-1 px-2">
+            {lang === 'fr'
+              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez ▶ pour le prochain groupe de 12.`
+              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap ▶ for the next batch of 12.`}
+          </div>
+        )}
         <ResultPanel
           venues={venues}
           loading={loading}
