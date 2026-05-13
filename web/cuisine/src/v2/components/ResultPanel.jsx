@@ -50,7 +50,12 @@ export default function ResultPanel({
   // list the user saw before tapping ▶). `sessionFull` is true once
   // 80 unique venues have been served this session — the terminal
   // copy below replaces the per-criteria "↺ Start over" note.
-  pageStackDepth = 0, sessionFull = false, onBackOnePage
+  pageStackDepth = 0, sessionFull = false, onBackOnePage,
+  // v0.60.153 — optional context-specific "please wait" copy that
+  // replaces the generic "Loading…" while the server runs a slow
+  // pipeline (currently: Michelin's review-extract + LLM narrate +
+  // enrichment-cache fill, which can take 5–10 s on a cold catalogue).
+  loadingHint = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -200,7 +205,9 @@ export default function ResultPanel({
         </div>
       )}
       {loading ? (
-        <div className="text-xs text-tg-hint px-2 py-4">Loading…</div>
+        <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
+          {loadingHint || 'Loading…'}
+        </div>
       ) : !venues?.length ? (
         <div className="text-xs text-tg-hint px-2 py-4">No matches yet — pick a cuisine or use 💬 Tell me above.</div>
       ) : (

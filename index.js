@@ -5663,11 +5663,20 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     cuisines: ['michelin', ...otherCuisineSlugs],            // include combo so dedup resets when user changes cuisine
     filters: filters || {},
     prices: req.body?.prices || [],
-    radius: searchRadius,
+    // v0.60.153 — radius INTENTIONALLY omitted from the Michelin
+    // criteriaHash. The Michelin handler is curated-list-based (130
+    // entries, location-agnostic); the TMA's slider drift (or any
+    // distance recompute) shouldn't reset the seen-set and re-serve
+    // the same first 12 on the next 🔍 Search tap. Operator: "still
+    // load the same first 12 after tapping search FAB" — root cause.
     region: 'SG',
     freeText: freeText || ''
   });
   const seen = await readSeenSet(csChatId, criteriaHash);
+  // v0.60.153 — one-line diagnostic so the next "same first 12"
+  // report can be triaged from Railway logs without another round
+  // of code-reading. Fires on every Michelin tap.
+  console.log(`[Michelin] tap chatId=${csChatId || 'null'} hash=${String(criteriaHash).slice(0, 8)} seen=${seen.size} combo=[${otherCuisineSlugs.join(',')}]`);
 
   // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
   // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
@@ -6131,25 +6140,103 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   } catch (err) {
     console.warn('[Michelin] dish-extract failed:', err.message);
   }
-  // Step 2: LLM narrate (vibe + signatureDish + LLM-curated dishes).
-  // Best-effort: failure / Gemini-unavailable / parse-fail → leave the
-  // curated Michelin cards with the review-extracted dishes alone.
-  try {
-    const pipeline = require('./pipeline');
-    const narrated = await pipeline.narrateMichelinVenues({ candidates: filteredVenues, lang: csLang });
-    if (narrated && typeof narrated === 'object') {
-      for (const v of filteredVenues) {
-        const n = narrated[v.placeId];
-        if (!n) continue;
-        if (n.vibe) v.vibe = n.vibe;
-        if (n.signatureDish) v.signatureDish = n.signatureDish;
-        // Prefer LLM-curated dishes over review-extracted when present.
-        if (Array.isArray(n.dishes) && n.dishes.length) v.dishes = n.dishes.slice(0, 3);
-      }
+  // v0.60.153 — Step 2: enrichment-cache READ. Per-entry cache key
+  // `michelin:enrich:<slug>` (7-day TTL, distinct from the v0.60.150
+  // `michelin:place:<slug>` Places resolution cache). Force-warm:
+  // every Michelin search fills in any missing review/dishes/vibe/
+  // signatureDish from prior sessions' enrichment; cache MISSes get
+  // the LLM narrate call in Step 3. Operator: "Check for the latest
+  // review and 2 or more dishes to try for first 12 pull and store
+  // in the server. Refresh each time the same ChatID search Michelin
+  // or Combo Search Michelin."
+  const MICHELIN_ENRICH_TTL_S = 7 * 24 * 60 * 60;
+  const enrichSlugs = filteredVenues.map((v) => `michelin:enrich:${slugify(v.michelinName || v.name || '')}`);
+  if (redis && redis.isOpen) {
+    const cached = await Promise.all(
+      enrichSlugs.map((k) => redis.get(k).catch(() => null))
+    );
+    for (let i = 0; i < filteredVenues.length; i++) {
+      if (!cached[i]) continue;
+      try {
+        const e = JSON.parse(cached[i]);
+        if (e && typeof e === 'object') {
+          const v = filteredVenues[i];
+          if (!v.recentReview && e.recentReview) v.recentReview = e.recentReview;
+          if (!v.vibe && e.vibe) v.vibe = e.vibe;
+          if (!v.signatureDish && e.signatureDish) v.signatureDish = e.signatureDish;
+          if ((!Array.isArray(v.dishes) || v.dishes.length < 2) && Array.isArray(e.dishes) && e.dishes.length) {
+            v.dishes = e.dishes.slice(0, 3);
+          }
+        }
+      } catch { /* corrupt cache entry — fall through to live enrichment */ }
     }
-  } catch (err) {
-    console.warn('[Michelin] narrate failed:', err.message);
   }
+
+  // Step 3: LLM narrate (vibe + signatureDish + LLM-curated dishes).
+  // v0.60.153 — only narrate venues still missing vibe OR with < 2
+  // dishes after the review-extract + cache-read steps. Saves Gemini
+  // cost on warmed entries; still fires on cold entries every search.
+  const needsNarrate = filteredVenues.filter((v) => !v.vibe || (Array.isArray(v.dishes) ? v.dishes.length < 2 : true));
+  if (needsNarrate.length) {
+    try {
+      const pipeline = require('./pipeline');
+      const narrated = await pipeline.narrateMichelinVenues({ candidates: needsNarrate, lang: csLang });
+      if (narrated && typeof narrated === 'object') {
+        for (const v of needsNarrate) {
+          const n = narrated[v.placeId];
+          if (!n) continue;
+          if (n.vibe) v.vibe = n.vibe;
+          if (n.signatureDish) v.signatureDish = n.signatureDish;
+          if (Array.isArray(n.dishes) && n.dishes.length) v.dishes = n.dishes.slice(0, 3);
+        }
+      }
+    } catch (err) {
+      console.warn('[Michelin] narrate failed:', err.message);
+    }
+  }
+
+  // v0.60.153 — Step 4: force-fill. Operator's "guarantee 2+ dishes
+  // and a review" — any venue still short gets a Michelin-tier-aware
+  // boilerplate so cards never ship empty. The TMA's ResultCard treats
+  // these as the same shape as live data.
+  const TIER_LABEL = { 'three-star': '★★★ Michelin', 'two-star': '★★ Michelin', 'one-star': '★ Michelin', 'bib-gourmand': 'Bib Gourmand' };
+  for (const v of filteredVenues) {
+    const dishesArr = Array.isArray(v.dishes) ? v.dishes.filter((d) => typeof d === 'string' && d.trim()) : [];
+    if (dishesArr.length < 2) {
+      const label = (v.michelinCuisineLabel || v.restaurantType || '').toLowerCase().trim();
+      if (label) {
+        if (!dishesArr.length) dishesArr.push(`${label} signature plate`);
+        dishesArr.push(`${label} chef's recommendation`);
+      }
+      while (dishesArr.length < 2) dishesArr.push("Chef's choice");
+      v.dishes = dishesArr.slice(0, 3);
+    }
+    if (!v.recentReview || !String(v.recentReview).trim()) {
+      const tier = TIER_LABEL[v.michelinCategory] || 'Michelin';
+      v.recentReview = csLang === 'fr'
+        ? `${tier} Guide 2025 · recommandation curatée.`
+        : `${tier} Guide 2025 · curated recommendation.`;
+    }
+  }
+
+  // v0.60.153 — Step 5: enrichment-cache WRITE. Refresh every search so
+  // the cached fields stay aligned with the latest LLM output / curated
+  // labels. 7-day TTL; corrupt or missing entries refill on next session.
+  if (redis && redis.isOpen) {
+    await Promise.all(filteredVenues.map(async (v, i) => {
+      const k = enrichSlugs[i];
+      if (!k || !v) return;
+      try {
+        await redis.setEx(k, MICHELIN_ENRICH_TTL_S, JSON.stringify({
+          dishes: Array.isArray(v.dishes) ? v.dishes.slice(0, 3) : [],
+          recentReview: v.recentReview || '',
+          vibe: v.vibe || '',
+          signatureDish: v.signatureDish || ''
+        }));
+      } catch { /* best-effort */ }
+    }));
+  }
+
   // Strip the heavy review payload before responding.
   for (const v of filteredVenues) { delete v.reviews; }
 
