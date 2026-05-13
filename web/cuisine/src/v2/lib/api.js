@@ -165,3 +165,17 @@ export async function fetchUserLocation() {
 export async function saveUserLocation({ lat, lng }) {
   return postJson('/api/cuisine/set-location', { lat, lng });
 }
+
+// v0.60.146 — Cuisine TMA per-session clipboard. startSession wipes the
+// session-seen + page-history Redis keys on mount; backOnePage returns
+// the previous result list (the one shown before the most recent
+// /api/cuisine/search). Each successful back also counts as a
+// `cuisine-tma-back` search event in the Oversight stats.
+export async function startSession() {
+  try { return await postJson('/api/cuisine/session/start', {}); }
+  catch { return { ok: false }; }
+}
+export async function backOnePage() {
+  try { return await postJson('/api/cuisine/session/back', {}); }
+  catch { return { ok: false }; }
+}

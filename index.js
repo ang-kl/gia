@@ -37,6 +37,7 @@ const {
 } = require('./location-cache');
 const { requireInitData, verifyInitData } = require('./twa-auth');
 const usageLog = require('./usage-log');
+const cuisineSession = require('./cuisine-session');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
@@ -5484,9 +5485,19 @@ const POOL_CACHE_TTL_S = 20 * 60;     // 20 min
 // each. When variant N's pool is fully seen, the endpoint escalates to
 // N+1 (see the single-cuisine path). ~4 variants ≈ 100-130 distinct
 // venues before the genuinely-terminal "↺ Start over" state.
-function cuisineSearchVariants(cuisineName) {
-  const name = String(cuisineName || '').trim();
-  if (!name) return [{ idx: 0, queryOverride: null }];
+function cuisineSearchVariants(cuisineNameOrList) {
+  // v0.60.146 — accept either a single cuisine name OR an array of
+  // cuisine names. Multi-cuisine now also gets a 4-variant escalation
+  // ("Japanese + Korean" → variant 1 "good Japanese + Korean restaurant
+  // Singapore" → variant 2 "best …" → variant 3 "authentic …") so the
+  // pool deepens on consecutive ▶ taps instead of topping out after the
+  // first ~60 candidates (operator's "stuck on the same list after
+  // 3–4 clicks" report on Japanese + Korean).
+  const list = Array.isArray(cuisineNameOrList)
+    ? cuisineNameOrList.map((c) => String(c || '').trim()).filter(Boolean)
+    : (() => { const s = String(cuisineNameOrList || '').trim(); return s ? [s] : []; })();
+  if (!list.length) return [{ idx: 0, queryOverride: null }];
+  const name = list.join(' + ');
   return [
     { idx: 0, queryOverride: null },
     { idx: 1, queryOverride: `${name} restaurant Singapore` },
@@ -5928,19 +5939,44 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // the cuisine constraint creates a fresh hash and a fresh set.
   await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
 
+  // v0.60.146 — Michelin path joins the per-session clipboard too
+  // (operator's "sensitive with Michelin criteria" note). The 80-cap
+  // applies across cuisine-chip + Michelin + freetext within one
+  // session; closing & re-opening Cuisine resets it.
+  let michelinSessionFull = false;
+  let michelinPageDepth = 0;
+  if (csChatId && filteredVenues.length) {
+    try {
+      const sessOut = await cuisineSession.recordPage(redis, csChatId, {
+        ts: Date.now(),
+        criteriaHash,
+        venues: filteredVenues.map((v) => ({
+          placeId: v.placeId, name: v.name, lat: v.lat, lng: v.lng,
+          rating: v.rating, priceLevel: v.priceLevel, address: v.address, area: v.area
+        })),
+        meta: { region: 'SG', michelin: true }
+      });
+      michelinSessionFull = !!sessOut?.capped;
+      michelinPageDepth = sessOut?.depth || 0;
+    } catch { /* best-effort */ }
+  }
+
   // v0.60.18 — emit `exhausted` so the TMA (a) shows the
   // Google-limit tip ONLY at first-search-of-session and at the
   // moment of exhaustion (not every click), and (b) renders an
   // explicit end-of-list note ("All N matching Michelin venues
   // shown — restart to see again"). Exhausted = the seen-set was
   // just reset for this criteria-hash, OR the filtered pool size
-  // dropped below 3.
-  const exhausted = didReset || filteredVenues.length < 3;
+  // dropped below 3, OR (v0.60.146) the 80-cap session clipboard
+  // is full.
+  const exhausted = didReset || filteredVenues.length < 3 || michelinSessionFull;
   return res.json({
     venues: filteredVenues,
     cached: false,
     seed: 'michelin',
     exhausted,
+    sessionFull: michelinSessionFull,
+    pageStackDepth: michelinPageDepth,
     michelinSummary: {
       total: allEntries.length,
       threeStar: michelin.STARS_THREE.length,
@@ -7491,6 +7527,52 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.60.146 — Cuisine TMA per-session clipboard endpoints.
+    // session/start: wipe the session-seen SET + the page-history LIST
+    //   + the session-meta HASH. Called by the TMA on mount.
+    // session/back: LPOP the most-recent page payload (the previous
+    //   list-of-12 the user saw) and return it to the client; counts
+    //   as a "search" event in usage-log for Oversight tracking.
+    app.post('/api/cuisine/session/start', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        await cuisineSession.startSession(redis, verified.user.id);
+        res.json({ ok: true });
+      } catch (err) {
+        console.warn('[Cuisine-Session] start failed:', err.message);
+        res.json({ ok: false });   // never block the TMA on a session-start hiccup
+      }
+    });
+    app.post('/api/cuisine/session/back', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const chatId = verified.user.id;
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        // The current page sits at LIST index 0 (newest LPUSH first).
+        // "Back" means show the page BEFORE this one — so pop the head
+        // (the current page) and return what's now at the head.
+        await cuisineSession.popPage(redis, chatId);
+        const prev = await cuisineSession.popPage(redis, chatId);
+        if (!prev) {
+          // No prior page — re-push the current if we popped it (so
+          // the client can recover) and report atStart.
+          return res.json({ ok: false, atStart: true });
+        }
+        // Re-push the prior page so depth stays consistent and a
+        // second back-tap can pop the one BEFORE it.
+        try { await redis.lPush(`cuisine:session-pages:${chatId}`, JSON.stringify(prev)); } catch { /* best-effort */ }
+        try { usageLog.recordSearch(redis, chatId, { src: 'cuisine-tma-back' }).catch(() => {}); } catch { /* noop */ }
+        const depth = await cuisineSession.depth(redis, chatId);
+        res.json({ ok: true, page: prev, pageStackDepth: depth });
+      } catch (err) {
+        console.warn('[Cuisine-Session] back failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+
     // v0.58.50: per-card "📋 Copy" button — TMA POSTs ONE venue, the
     // server builds a T1 detail-with-sanctuary block (full address +
     // hours + website + phone + sanctuary read + stats + order + URL)
@@ -8692,8 +8774,12 @@ async function cacheBotUsername() {
             // don't re-pay 3 Google calls. Skipped (variants=[idx0]) for
             // the no-cuisine warm-start path and any expansion that
             // yields >1 query string.
-            const cuisineDisplayName = (Array.isArray(cuisinesForDiscover) && cuisinesForDiscover.length === 1)
-              ? String(cuisinesForDiscover[0] || '').trim()
+            // v0.60.146 — multi-cuisine now also escalates through the
+            // 4 query variants (operator's "stuck on the same list"
+            // report). Single cuisine string stays for the variant
+            // prompt; multi-cuisine is joined with " + " by the helper.
+            const cuisineDisplayName = (Array.isArray(cuisinesForDiscover) && cuisinesForDiscover.length >= 1)
+              ? cuisinesForDiscover
               : '';
             const variants = cuisineSearchVariants(cuisineDisplayName);
             cuisineVariantCount = variants.length;
@@ -8933,10 +9019,22 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
         }
-        const unseenVenues = venues.filter((v) => v.placeId && !seen.has(v.placeId));
+        // v0.60.146 — session-clipboard 80-cap (per-TMA-launch) is the
+        // OUTER gate. Reset on /api/cuisine/session/start (called by the
+        // TMA on mount); independent of the per-criteria seen-set
+        // (cuisine:seen:<chatId>:<hash>) which is the INNER dedup.
+        const sessionSeen = await cuisineSession.getSeen(redis, csChatId);
+        const sessionFull = csChatId ? (sessionSeen.size >= cuisineSession._SEEN_CAP) : false;
+        const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
+        const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
         const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
-        const dedupExhausted = venues.length > 0 && unseenVenues.length === 0 && atLastVariant;
-        const top = (unseenVenues.length ? unseenVenues : venues).slice(0, 12);
+        const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
+        // v0.60.146 — never silently return already-seen venues (the
+        // "stuck on the same list" bug). If there's nothing fresh, the
+        // response is `{ venues: [], exhausted: true }` and the client
+        // surfaces the terminal "↺ Start over" / "you've seen the 80
+        // maximum" copy.
+        const top = trulyUnseen.slice(0, 12);
         const poolCount = new Set([...seen, ...top.map((v) => v.placeId).filter(Boolean)]).size;
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
@@ -9094,6 +9192,24 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] seen-set append failed:', err.message);
         }
+        // v0.60.146 — push this batch into the per-session clipboard
+        // (80-cap) + the page-history list (cap 10) for the back-FAB.
+        // Fire-and-forget; never blocks the response.
+        let sessionPageDepth = 0;
+        if (csChatId && dedupedTop.length) {
+          try {
+            const sessOut = await cuisineSession.recordPage(redis, csChatId, {
+              ts: Date.now(),
+              criteriaHash: dedupHash,
+              venues: dedupedTop.map((v) => ({
+                placeId: v.placeId, name: v.name, lat: v.lat, lng: v.lng,
+                rating: v.rating, priceLevel: v.priceLevel, address: v.address, area: v.area
+              })),
+              meta: { region, cuisines, filters }
+            });
+            sessionPageDepth = sessOut?.depth || 0;
+          } catch { /* best-effort */ }
+        }
         // v0.60.16 — annotate every venue with Michelin / Bib Gourmand
         // category if it cross-refs to the curated Singapore Michelin
         // Guide 2025 list. The TMA's VenueCard renders the annotation
@@ -9110,7 +9226,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         if (ftRawIn) {
           try {
             require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {

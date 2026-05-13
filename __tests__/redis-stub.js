@@ -3,13 +3,15 @@
 // Surface-area: only what we use across the codebase.
 // get / set (with EX) / del / incr / incrBy / hSet / hGet / hGetAll /
 // hDel / hIncrBy / expire / exists / sAdd / sMembers / sRem / sIsMember /
-// sCard / ping / connect / quit / isOpen.
+// sCard / lPush / lPop / lRange / lLen / lTrim / ping / connect / quit /
+// isOpen.
 
 export class RedisStub {
   constructor() {
     this.store = new Map();
     this.hashes = new Map();
     this.sets = new Map();
+    this.lists = new Map();
     this.isOpen = true;
   }
 
@@ -45,12 +47,13 @@ export class RedisStub {
       if (this.store.delete(key)) n++;
       if (this.hashes.delete(key)) n++;
       if (this.sets.delete(key)) n++;
+      if (this.lists.delete(key)) n++;
     }
     return n;
   }
 
   async exists(key) {
-    return (this.store.has(key) || this.hashes.has(key) || this.sets.has(key)) ? 1 : 0;
+    return (this.store.has(key) || this.hashes.has(key) || this.sets.has(key) || this.lists.has(key)) ? 1 : 0;
   }
 
   async expire(key, seconds) {
@@ -136,10 +139,45 @@ export class RedisStub {
     return this.sets.get(key)?.size || 0;
   }
 
+  async lPush(key, ...values) {
+    let l = this.lists.get(key);
+    if (!l) { l = []; this.lists.set(key, l); }
+    for (const v of values.flat()) l.unshift(String(v));
+    return l.length;
+  }
+
+  async lPop(key) {
+    const l = this.lists.get(key);
+    if (!l || !l.length) return null;
+    return l.shift();
+  }
+
+  async lRange(key, start, stop) {
+    const l = this.lists.get(key) || [];
+    // node-redis returns the slice inclusive of `stop`. -1 = end of list.
+    const s = start < 0 ? Math.max(0, l.length + start) : start;
+    const e = stop < 0 ? l.length + stop : stop;
+    return l.slice(s, e + 1);
+  }
+
+  async lLen(key) {
+    return (this.lists.get(key) || []).length;
+  }
+
+  async lTrim(key, start, stop) {
+    const l = this.lists.get(key);
+    if (!l) return 'OK';
+    const s = start < 0 ? Math.max(0, l.length + start) : start;
+    const e = stop < 0 ? l.length + stop : stop;
+    this.lists.set(key, l.slice(s, e + 1));
+    return 'OK';
+  }
+
   _reset() {
     this.store.clear();
     this.hashes.clear();
     this.sets.clear();
+    this.lists.clear();
   }
 }
 

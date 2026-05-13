@@ -43,7 +43,14 @@ export default function ResultPanel({
   // matched (multi-cuisine search where no Google result combined the
   // cuisines), render a banner above the result list explaining the
   // fallback. { attempted: bool, matched: bool } or null.
-  comboInfo
+  comboInfo,
+  // v0.60.146 — per-session clipboard. `pageStackDepth` ≥ 1 enables
+  // the ⇠ Prev FAB; tapping it asks the server to pop the most-recent
+  // page off the history list and return the one before it (the result
+  // list the user saw before tapping ▶). `sessionFull` is true once
+  // 80 unique venues have been served this session — the terminal
+  // copy below replaces the per-criteria "↺ Start over" note.
+  pageStackDepth = 0, sessionFull = false, onBackOnePage
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -223,6 +230,19 @@ export default function ResultPanel({
               language. */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-1.5 pt-1.5">
+              {/* v0.60.146 — ⇠ Prev FAB walks the per-session page history
+                  (server-side Redis list). Enabled only when the server
+                  reports pageStackDepth ≥ 1, i.e. the user has at least
+                  one prior /api/cuisine/search response to go back to. */}
+              {pageStackDepth > 0 && typeof onBackOnePage === 'function' && (
+                <button
+                  type="button"
+                  onClick={() => onBackOnePage()}
+                  aria-label={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
+                  title={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
+                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center active:scale-95"
+                >⇠</button>
+              )}
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
