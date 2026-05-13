@@ -18,6 +18,10 @@ const STRINGS = {
   'pick.header.one':           { en: '📋 1 place', fr: '📋 1 lieu' },
   'pick.header.many':          { en: '📋 {n} places', fr: '📋 {n} lieux' },
   'pick.results.for':          { en: '🔎 Results for', fr: '🔎 Résultats pour' },
+  // v0.60.145 — surfaced when /api/cuisine/copy-all has venues that
+  // all lack coordinates (so buildMapHashUrl returns null); the body
+  // still sends, just without the inline map button.
+  'pick.mapUnavailable':       { en: '📍 Map unavailable for this set.', fr: '📍 Carte indisponible pour cette sélection.' },
 
   // venue-templates.js — formatHoursLine
   'hours.openNow':             { en: 'Open now', fr: 'Ouvert maintenant' },
