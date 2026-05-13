@@ -1,13 +1,13 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 381 pull requests (#1–#381).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 382 pull requests (#1–#382).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 381 total — 376 merged, 5 closed without merge.
+- **PRs:** 382 total — 377 merged, 5 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #381 · 2026-05-13 00:39:41 · _v0.60.144 — Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY)_
+- **Latest:** #382 · 2026-05-13 00:57:04 · _docs(v0.60.144): Journal catch-up (#379–#381) + standing per-PR Journal rule_
 
 ### By category
 
@@ -17,8 +17,8 @@
 | fix | 53 |
 | prompt-tune | 25 |
 | copy | 23 |
+| docs | 12 |
 | refactor | 11 |
-| docs | 11 |
 | infra | 4 |
 | test | 4 |
 
@@ -36,7 +36,7 @@
 | Pipeline / discovery | 14 |
 | Infra / setup | 13 |
 | Recognised lists | 13 |
-| Docs / vault | 10 |
+| Docs / vault | 11 |
 | Weather | 7 |
 | Language / i18n | 7 |
 | Privacy / legal | 6 |
@@ -433,6 +433,7 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 379 | merged | 2026-05-12 23:34:12 | 0.60.142 | feature | Oversight / usage stats | Add: hidden owner-only "Oversight" admin TMA + usage-tracking layer | A hidden, owner-only **Oversight** admin Telegram Mini App — a single-screen usage dashboard — plus the small Redis-only usage-tracking layer it reads. | 18 files — index.js, i18n.js, usage-log.js, user-data.js, TMA:oversight, tests, package, config | oversight | Redis/state; privacy; tests |
 | 380 | merged | 2026-05-13 00:22:33 |  | docs | Docs / vault | Update docs: Vibe-Coding Record — regenerable cross-section of all PRs (#1–#379) | Adds doc/VibeCodingRecord/ — a standalone, regenerable ledger of every pull request (#1–#379), separate from the eight doc/ AU templates: a Markdown view, a TSV source of truth, a pure generator (generate.mjs), and committed data… | 10 files — index.js, doc, package, public/ | — | doc/vault |
 | 381 | merged | 2026-05-13 00:39:41 | 0.60.144 | docs | Docs / vault | Update docs: Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY) | Gates the hosted Vibe Journal behind an optional shared key, the Railway service variable VIBE_JOURNAL_KEY. | 3 files — index.js, doc, package | — | doc/vault |
+| 382 | merged | 2026-05-13 00:57:04 | 0.60.144 | docs | Docs / vault | Journal catch-up (#379–#381) + standing per-PR Journal rule | Catches the build Journal up to current (journal-0_60_144 entry #109 covering PRs #379–#381) and adds a repo-root CLAUDE.md codifying the operator's standing rule: after opening a PR and after it merges, record it in doc/Journal/, bump… | 10 files — doc, root-docs, public/ | — | doc/vault |
 
 ---
 

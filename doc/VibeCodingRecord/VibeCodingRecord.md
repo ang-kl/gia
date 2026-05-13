@@ -49,6 +49,11 @@ self-contained HTML file (the whole dataset is embedded; works offline / over
   - *PRs per release (MAJOR.MINOR)* — a minor line with many PRs = lots of
     follow-up patches after the first cut.
   - *Category mix* and *same-day clusters* (days with ≥4 PRs ≈ iterating fast).
+  - *📈 PRs over time* — PRs per ISO week and per day (tall spikes = high-iteration sessions).
+  - *🪶 Small / low-effort PRs* — PRs touching ≤ 2 files (or category copy / prompt-tune / test); the headline % + a per-area breakdown + the list — "could any of these have been folded into a sibling PR?"
+  - *🔁 Indecision* — PRs whose title/intent carries a revert / rollback / re-enable / re-add / "actually" / "not taking effect" / "again" / "take 2" / "finally" cue, with the matched signal — decisions that did not stick the first time.
+  - *🧠 Behavioural patterns* — a KPI grid: PRs/active-day, busiest day, fix : feature ratio, rework rate, longest consecutive same-area streak, median files/PR, most-edited code area, small-PR share.
+  - *🧩 Hard parts & recurring failure modes* — fix-density per feature area (share of an area's PRs that are `fix`), and PRs whose title/intent/approach matches a known failure mode (silent handler / missing module export / HTML escaping / fuzzy over-match / resolver ordering / stale bundle / post-refactor regression) drawn from the lessons list.
 - **Lessons to reduce rework** — the practical checklist distilled from
   `.claude/skills/gia-preflight/SKILL.md` (run the gates, verify `require()`
   exports, escape user text in HTML messages, handler return paths, fuzzy-matcher

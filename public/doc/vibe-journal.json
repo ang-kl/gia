@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-13",
-  "count": 381,
+  "count": 382,
   "records": [
     {
       "pr": 1,
@@ -10354,6 +10354,33 @@
         "doc/vault"
       ],
       "title": "v0.60.144 — Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 382,
+      "status": "merged",
+      "merged": "2026-05-13 00:57:04",
+      "day": "2026-05-13",
+      "version": "0.60.144",
+      "minor": "0.60",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Journal catch-up (#379–#381) + standing per-PR Journal rule",
+      "approach": "Catches the build Journal up to current (journal-0_60_144 entry #109 covering PRs #379–#381) and adds a repo-root CLAUDE.md codifying the operator's standing rule: after opening a PR and after it merges, record it in doc/Journal/, bump…",
+      "codeImpact": "10 files — doc, root-docs, public/",
+      "modules": [
+        "root-docs",
+        "doc",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs(v0.60.144): Journal catch-up (#379–#381) + standing per-PR Journal rule",
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
