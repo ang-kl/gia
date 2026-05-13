@@ -8,9 +8,13 @@
 //                        to a commit on main tagged "(#NNN)" (≈ PR #78 onward;
 //                        earlier PRs predate that convention → no file list).
 //
-// Outputs (overwritten on each run, both committed):
-//   records.tsv             — the source-of-truth ledger, one row per PR, TSV.
-//   vibe-coding-record.md   — the human-readable Markdown view of the same data.
+// Outputs (overwritten on each run, all committed):
+//   records.tsv                    — source-of-truth ledger, one row per PR, TSV.
+//   vibe-coding-record.md          — human-readable Markdown view of the same data.
+//   ../../public/doc/vibe-journal.json — flat JSON array of records (for jq/DuckDB/…).
+//   ../../public/doc/vibe-journal.html — self-contained, queryable HTML page, served
+//                                    at /doc/vibe-journal.html (filter / sort / search
+//                                    + a rework & churn insights panel + lessons).
 //
 // Run:  node doc/VibeCodingRecord/generate.mjs
 //
@@ -18,12 +22,12 @@
 // squash-commit file lists to data/pr-files.tsv — `git log --name-only origin/main`
 // has them), then re-run. See VibeCodingRecord.md for the schema + column legend.
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-05-12';   // bump when you regenerate against a fresh snapshot
+const GEN_DATE = '2026-05-13';   // bump when you regenerate against a fresh snapshot
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -157,6 +161,27 @@ function dataPrivacyLegalTestOf(files, title, body) {
   return tags.length ? tags.join('; ') : '—';
 }
 
+// structured version of the code-impact buckets (for client-side analytics)
+function codeBucketsOf(files, title, body) {
+  if (!files || !files.length) return [];
+  const out = new Set();
+  for (const f of files) {
+    if (f === 'index.js') out.add('index.js');
+    else if (f.startsWith('web/')) { for (const [dir, name] of Object.entries(TMA_DIRS)) if (f.startsWith(dir + '/')) out.add(`TMA:${name}`); }
+    else if (f.startsWith('__tests__/')) out.add('tests');
+    else if (f.startsWith('doc/')) out.add('doc');
+    else if (f.startsWith('vault/')) out.add('vault');
+    else if (f.startsWith('.github/')) out.add('ci');
+    else if (f.startsWith('data/') || f.startsWith('seed/')) out.add('data');
+    else if (f === 'package.json' || f === 'package-lock.json') out.add('package');
+    else if (/\.js$/.test(f) && !f.includes('/')) out.add(f);
+    else if (/\.md$/.test(f) && !f.includes('/')) out.add('root-docs');
+    else if (!f.includes('/')) out.add(f === '.gitignore' || f.startsWith('.env') || f === '.npmrc' || f === 'vitest.config.js' ? 'config' : f);
+    else out.add(f.split('/')[0] + '/');
+  }
+  return [...out];
+}
+
 function aiApproachOf(body, title) {
   let b = clean(body);
   // drop a leading "## Summary" / "Summary" header
@@ -204,28 +229,84 @@ for (const line of readFileSync(join(HERE, 'data', 'pr-files.tsv'), 'utf8').spli
 
 const COLS = ['PR', 'Status', 'Merged (UTC)', 'Version', 'Category', 'Feature & UX area', 'Triggering intent (paraphrased from PR title)', 'AI approach / solution (from PR description)', 'Code / module / TMA impact', 'TMAs', 'Data / privacy / legal / test impact', 'Title'];
 
-const rows = prs.map((p) => {
+// minor (MAJOR.MINOR) of a version string, e.g. "0.60.142" -> "0.60"
+const minorOf = (v) => { const m = String(v).match(/^(\d+\.\d+)/); return m ? m[1] : ''; };
+
+// follow-up / rework cue words in a PR title (suggest "we shipped, then iterated")
+const REWORK_CUES = ['follow-up', 'followup', 'follow up', 'again', 'still ', 'redo', 're-add', 'readd', 'restore', 'actually', 'properly', 'take 2', 'take two', 'round 2', 'round two', 'revert', 'rollback', 'roll back', 're-enable', 're-do', 'not taking effect', 'didn\'t take', 'doesn\'t take', 'second attempt', 'one more', 'truly', 'finally', 'for real'];
+
+const records = prs.map((p) => {
   const title = clean(p.title);
-  const body = clean(p.body || '');
+  const bodyRaw = clean(p.body || '');
   const merged = p.merged ? p.merged.replace('T', ' ').replace('Z', '') : '';
   const status = p.merged ? 'merged' : (p.state === 'closed' ? 'closed (unmerged)' : p.state);
   const files = fileMap.get(p.n) || null;
-  const category = categoryOf(title, body);
+  const category = categoryOf(title, bodyRaw);
+  const area = featureAreaOf(title, bodyRaw);
+  const impactStr = dataPrivacyLegalTestOf(files, title, bodyRaw);
   return {
-    PR: p.n,
-    Status: status,
-    'Merged (UTC)': merged,
-    Version: versionOf(title),
-    Category: category,
-    'Feature & UX area': featureAreaOf(title, body),
-    'Triggering intent (paraphrased from PR title)': triggerIntentOf(title, category),
-    'AI approach / solution (from PR description)': aiApproachOf(body, title),
-    'Code / module / TMA impact': codeImpactOf(files, title, body),
-    TMAs: tmasTouched(files, title, body),
-    'Data / privacy / legal / test impact': dataPrivacyLegalTestOf(files, title, body),
-    Title: title,
+    pr: p.n,
+    status,
+    merged,
+    day: merged ? merged.slice(0, 10) : '',
+    version: versionOf(title),
+    minor: minorOf(versionOf(title)),
+    category,
+    area,
+    intent: triggerIntentOf(title, category),
+    approach: aiApproachOf(bodyRaw, title),
+    codeImpact: codeImpactOf(files, title, bodyRaw),
+    modules: codeBucketsOf(files, title, bodyRaw),
+    nFiles: files ? files.length : null,
+    tmas: tmasTouched(files, title, bodyRaw) === '—' ? [] : tmasTouched(files, title, bodyRaw).split('+'),
+    impactTags: impactStr === '—' ? [] : impactStr.split('; '),
+    title,
   };
 });
+
+// ── rework / churn analysis ─────────────────────────────────────────────────
+//
+// Heuristic "this looped" signal: for each PR, look back over the previous
+// LOOKBACK PRs; if it's a `fix` (or its title carries a follow-up cue) AND an
+// earlier PR in that window shares the same feature area, flag it as rework of
+// the most-recent such PR. Also flag "bursts": ≥3 PRs in the same area within
+// any window of LOOKBACK. None of this is exact — it's a prompt to go look.
+const LOOKBACK = 8;
+for (let i = 0; i < records.length; i++) {
+  const r = records[i];
+  const titleLc = r.title.toLowerCase();
+  const hasCue = REWORK_CUES.some((c) => titleLc.includes(c));
+  r.reworkCue = hasCue;
+  r.reworkOf = null;
+  if (r.area === 'Core / misc' || r.area === 'Docs / vault' || r.area === 'Infra / setup') {
+    // these buckets are catch-alls / housekeeping — skip the rework flag
+  } else if (r.category === 'fix' || hasCue) {
+    for (let j = i - 1; j >= Math.max(0, i - LOOKBACK); j--) {
+      if (records[j].area === r.area) { r.reworkOf = records[j].pr; break; }
+    }
+  }
+  // burst membership
+  const windowStart = Math.max(0, i - LOOKBACK + 1);
+  let sameArea = 0;
+  for (let j = windowStart; j <= i; j++) if (records[j].area === r.area) sameArea++;
+  r.burst = sameArea >= 3 && r.area !== 'Core / misc';
+}
+
+// keep the old `rows` shape (capitalised keys) for the TSV + MD writers
+const rows = records.map((r) => ({
+  PR: r.pr,
+  Status: r.status,
+  'Merged (UTC)': r.merged,
+  Version: r.version,
+  Category: r.category,
+  'Feature & UX area': r.area,
+  'Triggering intent (paraphrased from PR title)': r.intent,
+  'AI approach / solution (from PR description)': r.approach,
+  'Code / module / TMA impact': r.codeImpact,
+  TMAs: r.tmas.join('+') || '—',
+  'Data / privacy / legal / test impact': r.impactTags.join('; ') || '—',
+  Title: r.title,
+}));
 
 // ── write records.tsv ───────────────────────────────────────────────────────
 
@@ -286,5 +367,225 @@ md.push('_Generated from `data/prs.ndjson` (GitHub PR metadata) + `data/pr-files
 md.push('');
 writeFileSync(join(HERE, 'vibe-coding-record.md'), md.join('\n'));
 
-console.log(`Vibe-Coding Record: wrote records.tsv (${rows.length} rows) and vibe-coding-record.md`);
-console.log('Categories:', catTally.map(([k, v]) => `${k}=${v}`).join('  '));
+// ── write the hosted HTML query page (+ raw JSON) ───────────────────────────
+//   public/doc/vibe-journal.html  — self-contained, served at /doc/vibe-journal.html
+//   public/doc/vibe-journal.json  — the same records as a flat JSON array
+
+const PUBLIC_DOC = join(HERE, '..', '..', 'public', 'doc');
+mkdirSync(PUBLIC_DOC, { recursive: true });
+writeFileSync(join(PUBLIC_DOC, 'vibe-journal.json'), JSON.stringify({ generated: GEN_DATE, count: records.length, records }, null, 2) + '\n');
+
+const reworkCount = records.filter((r) => r.reworkOf).length;
+const cueCount = records.filter((r) => r.reworkCue).length;
+const minorCount = new Set(records.map((r) => r.minor).filter(Boolean)).size;
+const HTML_META = { generated: GEN_DATE, count: records.length, merged: mergedCount, unmerged: unmergedCount, minors: minorCount, rework: reworkCount, cues: cueCount };
+
+const htmlEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const jsonForScript = (o) => JSON.stringify(o)
+  .replace(/</g, "\u003c")
+  .replace(new RegExp("\u003c/script","gi"), "\u003c/scr"+"ipt")
+  .replace(new RegExp("\u2028","g"), "\u2028")
+  .replace(new RegExp("\u2029","g"), "\u2029");
+// lessons distilled from .claude/skills/gia-preflight/SKILL.md — kept short here.
+const LESSONS = [
+  ['Run the gates before every PR', 'node --check on each changed .js, npm test 100% green, and (if web/ changed) the TMA build — non-negotiable. Most repeat fixes were caught later than they should have been.'],
+  ['Verify module exports when you add a require()', 'A require(\'./x\').y() where y isn\'t exported throws on first call; with a per-item catch it shows a thin fallback, without one the whole handler goes silent. node -e "Object.keys(require(\'./x\'))" settles it.'],
+  ['Escape user text in parse_mode:"HTML" messages', 'Any {placeholder} that holds user input / a Places field / external text must be HTML-escaped. Plain-text sends need no escaping — don\'t over-escape those either.'],
+  ['Every handler return path must send or be a documented no-op', 'Trace each return in bot.onText / callback handlers / the search fan-outs. Top-level handlers get a try/catch that still sends a friendly fallback; per-card .map() renders get a per-item catch.'],
+  ['Smoke-test fuzzy matchers after bulk-adding entries', 'A leading-prefix matcher fed a big list will hijack common queries (ramen, pizza, chicken…). Assert the "must NOT match" set and pin it with a regression test.'],
+  ['Deterministic, most-specific resolvers run first; the LLM runs last', 'A confident R.E.D / technique / nation-overlay resolution must pre-empt the looser fallbacks (gate them), not the other way round.'],
+  ['Never reset --hard / checkout . / clean -fd / force-push a shared branch with uncommitted work you care about', 'git stash first (recoverable), or just git log / git status to inspect. One reset --hard wiped an in-progress restructure.'],
+  ['You can\'t run the bot here — trace the render path end to end before "fixing" a UI report', 'Search for the literal strings/emoji in the screenshot to find which function produced that exact output; don\'t theorise a fix against the wrong code path.'],
+  ['Bump package.json version (PATCH for fix/copy/prompt) and re-read long functions you edited start to finish', 'The handleSearchTurn restructures slipped bugs precisely because the diff looked fine in isolation.'],
+];
+
+const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soleat — Vibe Journal</title>
+<style>
+:root{--bg:#fafafa;--fg:#1a1a1a;--mut:#666;--card:#fff;--bd:#e3e3e3;--accent:#0078e7;--bar:#bcd9f7;--warn:#b54708;--ok:#067647}
+*{box-sizing:border-box}
+body{font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;margin:0;color:var(--fg);background:var(--bg)}
+.wrap{max-width:1280px;margin:0 auto;padding:1.2em 1em 4em}
+h1{font-size:1.5em;margin:.2em 0 .1em}
+h2{font-size:1.05em;margin:1.6em 0 .5em;border-top:1px solid var(--bd);padding-top:1em}
+.sub{color:var(--mut);margin:.1em 0 1em}
+.kpis{display:flex;flex-wrap:wrap;gap:.6em}
+.kpi{flex:1;min-width:120px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:.6em .8em}
+.kpi .n{font-size:1.6em;font-weight:700;line-height:1.1}
+.kpi .l{color:var(--mut);font-size:.82em}
+details{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin:.6em 0;padding:.2em .8em}
+details>summary{cursor:pointer;font-weight:600;padding:.5em 0}
+.barlist{display:flex;flex-direction:column;gap:3px;margin:.4em 0 .8em}
+.barrow{display:grid;grid-template-columns:170px 1fr 44px;align-items:center;gap:.5em;font-size:.85em}
+.barrow .b{height:14px;background:var(--bar);border-radius:3px;min-width:2px}
+.barrow .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--mut)}
+.barrow .k{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{color:var(--mut);font-size:.85em;margin:.3em 0 .6em}
+.lessons li{margin:.45em 0}
+.lessons b{color:var(--fg)}
+.controls{position:sticky;top:0;background:var(--bg);padding:.6em 0;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:.5em;align-items:center;z-index:5}
+.controls input[type=search]{flex:1;min-width:220px;padding:.45em .6em;border:1px solid var(--bd);border-radius:8px;font:inherit}
+.controls select{padding:.4em;border:1px solid var(--bd);border-radius:8px;font:inherit;max-width:180px}
+.controls label{font-size:.85em;color:var(--mut);display:flex;align-items:center;gap:.3em}
+.controls button{padding:.4em .7em;border:1px solid var(--bd);border-radius:8px;background:var(--card);font:inherit;cursor:pointer}
+.count{color:var(--mut);font-size:.85em;margin:.5em 0}
+table{border-collapse:collapse;width:100%;font-size:.83em}
+th,td{text-align:left;padding:.4em .5em;border-bottom:1px solid var(--bd);vertical-align:top}
+th{position:sticky;top:46px;background:var(--bg);cursor:pointer;white-space:nowrap;user-select:none}
+th.sorted::after{content:" ▾";color:var(--mut)}
+th.sorted.asc::after{content:" ▴"}
+tr.row:hover{background:#f0f6fd}
+td.pr{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;padding:0 .35em;border-radius:4px;background:#eef2f7;color:#334;font-size:.92em;margin:0 .15em .15em 0;white-space:nowrap}
+.tag.cat{background:#e7f0ff;color:#1b4}
+.tag.rew{background:#fff1e6;color:var(--warn)}
+.tag.tma{background:#eaf7ee;color:var(--ok)}
+.detrow td{background:#f7fafe;font-size:.92em;color:#333}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+@media(prefers-color-scheme:dark){
+:root{--bg:#161616;--fg:#e6e6e6;--mut:#9a9a9a;--card:#1f1f1f;--bd:#333;--accent:#5ab1ff;--bar:#2c4a66}
+tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#283039;color:#cdd}.tag.cat{background:#1d2c44;color:#9cf}.tag.rew{background:#3a2a1c;color:#f6b27a}.tag.tma{background:#1f2f24;color:#8fd6a5}th.sorted::after,.barrow .v,.note,.sub,.kpi .l{color:var(--mut)}
+}
+@media(max-width:760px){.barrow{grid-template-columns:120px 1fr 38px}th{position:static}.controls{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Soleat — Vibe Journal</h1>
+<p class="sub">A queryable record of every pull request (#1–#${records.length}) in <code>ang-kl/gia</code>, built to learn from each interaction and cut the rework. Auto-generated ${GEN_DATE}. &nbsp;<a href="/doc/vibe-journal.json">raw JSON</a></p>
+
+<div class="kpis" id="kpis"></div>
+
+<h2>Insights — where the loops are</h2>
+<details open><summary>Likely rework / "we shipped, then iterated" (heuristic)</summary>
+<p class="note">A PR is flagged when it's a <code>fix</code> (or its title carries a follow-up cue: "again", "actually", "restore", "follow-up", "not taking effect", …) <em>and</em> an earlier PR within the previous ${LOOKBACK} PRs touched the same feature area. Heuristic — go read the linked pair to judge. <code>Core/misc</code>, <code>Docs/vault</code>, <code>Infra/setup</code> are excluded.</p>
+<div id="rework"></div>
+</details>
+<details><summary>Churn by feature / UX area</summary><div class="note">More PRs in an area ≈ the design took longer to settle. Click an area in the filter below to see them.</div><div class="barlist" id="churnArea"></div></details>
+<details><summary>Churn by code area / module</summary><div class="note">Which files keep coming back. (Only PRs with a squash-commit file list ≈ #78 onward.)</div><div class="barlist" id="churnMod"></div></details>
+<details><summary>PRs per release (MAJOR.MINOR)</summary><div class="note">A minor line with many PRs = lots of follow-up patches after the first cut.</div><div class="barlist" id="perMinor"></div></details>
+<details><summary>Category mix &amp; same-day clusters</summary><div class="barlist" id="catMix"></div><div class="note" id="clusterNote"></div></details>
+
+<h2>Lessons to reduce rework <span class="note">(distilled from <code>.claude/skills/gia-preflight/SKILL.md</code>)</span></h2>
+<ol class="lessons">
+${LESSONS.map(([t, d]) => `<li><b>${htmlEsc(t)}.</b> ${htmlEsc(d)}</li>`).join('\n')}
+</ol>
+
+<h2>The ledger — query it</h2>
+<div class="controls">
+  <input type="search" id="q" placeholder="search PR #, title, intent, approach, module…">
+  <select id="fCat"><option value="">all categories</option></select>
+  <select id="fArea"><option value="">all areas</option></select>
+  <select id="fTma"><option value="">any TMA</option></select>
+  <select id="fImpact"><option value="">any impact tag</option></select>
+  <select id="fMinor"><option value="">all releases</option></select>
+  <label><input type="checkbox" id="fRework"> rework only</label>
+  <button id="reset">reset</button>
+</div>
+<div class="count" id="count"></div>
+<table id="tbl"><thead><tr>
+<th data-k="pr">PR</th><th data-k="merged">Merged</th><th data-k="version">Ver</th><th data-k="category">Category</th><th data-k="area">Feature / UX area</th><th data-k="intent">Triggering intent (paraphrased)</th><th data-k="approach">AI approach / solution</th><th data-k="codeImpact">Code / module / TMA impact</th><th data-k="tmasStr">TMAs</th><th data-k="impactStr">Data / privacy / legal / test</th>
+</tr></thead><tbody id="tb"></tbody></table>
+<p class="note">Want to query it elsewhere? <code><a href="/doc/vibe-journal.json">vibe-journal.json</a></code> is one object per PR under <code>.records</code> — load it with DuckDB / pandas / <code>jq</code> / a spreadsheet. The canonical tab-separated copy is <code>doc/VibeCodingRecord/records.tsv</code> in the repo.</p>
+</div>
+
+<script>
+const META = ${jsonForScript(HTML_META)};
+const RECORDS = ${jsonForScript(records)};
+for (const r of RECORDS){ r.tmasStr = (r.tmas||[]).join('+'); r.impactStr = (r.impactTags||[]).join('; '); }
+const $ = (s)=>document.querySelector(s);
+const esc = (s)=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// KPIs
+$('#kpis').innerHTML = [
+ ['PRs total', META.count],
+ ['Merged', META.merged],
+ ['Closed unmerged', META.unmerged],
+ ['Releases (minor lines)', META.minors],
+ ['Flagged rework', META.rework],
+ ['Follow-up-cue titles', META.cues],
+].map(([l,n])=>'<div class="kpi"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>').join('');
+
+// generic bar list
+function barList(el, pairs, max){ max = max || Math.max(1,...pairs.map(p=>p[1]));
+ el.innerHTML = pairs.map(([k,v])=>'<div class="barrow"><span class="k" title="'+esc(k)+'">'+esc(k)+'</span><span class="b" style="width:'+Math.max(2,Math.round(v/max*100))+'%"></span><span class="v">'+v+'</span></div>').join(''); }
+function tallyBy(fn){ const m=new Map(); for(const r of RECORDS){ for(const k of [].concat(fn(r))){ if(k==null||k==='')continue; m.set(k,(m.get(k)||0)+1);} } return [...m.entries()].sort((a,b)=>b[1]-a[1]); }
+
+barList($('#churnArea'), tallyBy(r=>r.area));
+barList($('#churnMod'), tallyBy(r=>r.modules||[]).slice(0,30));
+const perMinor = tallyBy(r=>r.minor).sort((a,b)=>{const pa=a[0].split('.').map(Number),pb=b[0].split('.').map(Number);return pa[0]-pb[0]||pa[1]-pb[1];});
+barList($('#perMinor'), perMinor, Math.max(1,...perMinor.map(p=>p[1])));
+barList($('#catMix'), tallyBy(r=>r.category));
+
+// rework list
+const rew = RECORDS.filter(r=>r.reworkOf).sort((a,b)=>a.pr-b.pr);
+$('#rework').innerHTML = '<div class="note">'+rew.length+' PR'+(rew.length===1?'':'s')+' flagged.</div>' + '<div style="max-height:340px;overflow:auto"><table style="font-size:.82em"><thead><tr><th>PR</th><th>Area</th><th>Looks like a follow-up of</th><th>Title</th></tr></thead><tbody>'+
+ rew.map(r=>'<tr><td class="pr">#'+r.pr+'</td><td>'+esc(r.area)+'</td><td class="pr">#'+r.reworkOf+'</td><td>'+esc(r.title)+'</td></tr>').join('')+'</tbody></table></div>';
+
+// same-day clusters
+const byDay = new Map(); for(const r of RECORDS){ if(!r.day)continue; (byDay.get(r.day)||byDay.set(r.day,[]).get(r.day)).push(r.pr); }
+const heavy = [...byDay.entries()].filter(([d,ps])=>ps.length>=4).sort((a,b)=>b[1].length-a[1].length);
+$('#clusterNote').innerHTML = heavy.length ? ('Days with ≥4 PRs (iterating fast / in production): '+heavy.slice(0,12).map(([d,ps])=>d+' ('+ps.length+')').join(', ')+(heavy.length>12?', …':'')+'.') : 'No day had ≥4 PRs.';
+
+// filters
+function uniq(fn){ const s=new Set(); for(const r of RECORDS){ for(const v of [].concat(fn(r))){ if(v!=null&&v!=='')s.add(v);} } return [...s].sort(); }
+function fill(sel, vals){ for(const v of vals){ const o=document.createElement('option'); o.value=v;o.textContent=v; $(sel).appendChild(o);} }
+fill('#fCat', tallyBy(r=>r.category).map(p=>p[0]));
+fill('#fArea', tallyBy(r=>r.area).map(p=>p[0]));
+fill('#fTma', uniq(r=>r.tmas||[]));
+fill('#fImpact', uniq(r=>r.impactTags||[]));
+fill('#fMinor', perMinor.map(p=>p[0]));
+
+let sortK='pr', sortAsc=true;
+const COLS=['pr','merged','version','category','area','intent','approach','codeImpact','tmasStr','impactStr'];
+function tagHtml(r){ const t=[]; t.push('<span class="tag cat">'+esc(r.category)+'</span>'); if(r.reworkOf) t.push('<span class="tag rew" title="follow-up of #'+r.reworkOf+'">↻ #'+r.reworkOf+'</span>'); return t.join(''); }
+function render(){
+ const q=$('#q').value.trim().toLowerCase(), fc=$('#fCat').value, fa=$('#fArea').value, ft=$('#fTma').value, fi=$('#fImpact').value, fm=$('#fMinor').value, fr=$('#fRework').checked;
+ let rows = RECORDS.filter(r=>{
+  if(fc&&r.category!==fc)return false; if(fa&&r.area!==fa)return false;
+  if(ft&&!(r.tmas||[]).includes(ft))return false; if(fi&&!(r.impactTags||[]).includes(fi))return false;
+  if(fm&&r.minor!==fm)return false; if(fr&&!r.reworkOf)return false;
+  if(q){ const hay=(r.pr+' '+r.title+' '+r.intent+' '+r.approach+' '+r.codeImpact+' '+(r.modules||[]).join(' ')+' '+r.area+' '+r.category).toLowerCase(); if(!hay.includes(q))return false; }
+  return true;
+ });
+ rows.sort((a,b)=>{ let x=a[sortK],y=b[sortK]; if(sortK==='pr'){x=+x;y=+y;} if(x<y)return sortAsc?-1:1; if(x>y)return sortAsc?1:-1; return a.pr-b.pr; });
+ $('#count').textContent = rows.length+' of '+RECORDS.length+' PRs';
+ const tb=$('#tb'); tb.innerHTML='';
+ for(const r of rows){
+  const tr=document.createElement('tr'); tr.className='row';
+  tr.innerHTML='<td class="pr"><a href="https://github.com/ang-kl/gia/pull/'+r.pr+'" target="_blank" rel="noopener">#'+r.pr+'</a></td>'
+   +'<td>'+esc(r.merged||'')+(r.status!=='merged'?' <span class="tag">'+esc(r.status)+'</span>':'')+'</td>'
+   +'<td class="pr">'+esc(r.version||'')+'</td>'
+   +'<td>'+tagHtml(r)+'</td>'
+   +'<td>'+esc(r.area)+'</td>'
+   +'<td>'+esc(r.intent)+'</td>'
+   +'<td>'+esc(r.approach)+'</td>'
+   +'<td>'+esc(r.codeImpact)+'</td>'
+   +'<td>'+(r.tmas||[]).map(t=>'<span class="tag tma">'+esc(t)+'</span>').join('')+'</td>'
+   +'<td>'+(r.impactTags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</td>';
+  tr.onclick=()=>{ const nx=tr.nextElementSibling; if(nx&&nx.classList.contains('detrow')){nx.remove();return;}
+   const d=document.createElement('tr'); d.className='detrow';
+   d.innerHTML='<td colspan="10"><b>#'+r.pr+'</b> — '+esc(r.title)+'<br><b>Modules:</b> '+esc((r.modules||[]).join(', ')||'(pre-squash — not tracked)')+(r.nFiles!=null?' &nbsp;('+r.nFiles+' file'+(r.nFiles===1?'':'s')+')':'')+(r.burst?' &nbsp;<span class="tag rew">part of a burst in '+esc(r.area)+'</span>':'')+'</td>';
+   tr.after(d); };
+  tb.appendChild(tr);
+ }
+}
+document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(sortK===k)sortAsc=!sortAsc; else{sortK=k;sortAsc=true;}
+ document.querySelectorAll('#tbl th').forEach(x=>x.classList.remove('sorted','asc')); th.classList.add('sorted'); if(sortAsc)th.classList.add('asc'); render(); });
+['q','fCat','fArea','fTma','fImpact','fMinor'].forEach(id=>$('#'+id).addEventListener('input',render));
+$('#fRework').addEventListener('change',render);
+$('#reset').onclick=()=>{ $('#q').value=''; ['fCat','fArea','fTma','fImpact','fMinor'].forEach(id=>$('#'+id).value=''); $('#fRework').checked=false; sortK='pr';sortAsc=true; document.querySelectorAll('#tbl th').forEach(x=>x.classList.remove('sorted','asc')); render(); };
+render();
+</script>
+</body>
+</html>
+`;
+writeFileSync(join(PUBLIC_DOC, 'vibe-journal.html'), html);
+
+console.log(`Vibe-Coding Record: wrote records.tsv (${rows.length} rows), vibe-coding-record.md, public/doc/vibe-journal.html, public/doc/vibe-journal.json`);
+console.log('Categories:', catTally.map(([k, v]) => `${k}=${v}`).join('  '), `| rework-flagged=${reworkCount}`);

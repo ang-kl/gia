@@ -1,6 +1,6 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-12 from a snapshot of all 379 pull requests (#1–#379).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 379 pull requests (#1–#379).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance

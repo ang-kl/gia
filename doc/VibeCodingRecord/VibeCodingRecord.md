@@ -22,9 +22,54 @@ privacy, the Legal docs, or tests.
 | `VibeCodingRecord.md` | **This file** — the schema, column legend, category taxonomy, and how to refresh. |
 | `vibe-coding-record.md` | **The ledger, rendered as Markdown** — summary tallies + one table row per PR (#1 → latest). Auto-generated; do not hand-edit. |
 | `records.tsv` | The **source-of-truth ledger as TSV** — the same rows, machine-readable (one header line + one line per PR), plus the raw `Title` column. Diff-friendly; easy to `awk`/`cut`/import. Auto-generated. |
-| `generate.mjs` | The generator. Reads `data/`, writes `records.tsv` + `vibe-coding-record.md`. Run: `node doc/VibeCodingRecord/generate.mjs`. |
+| `generate.mjs` | The generator. Reads `data/`, writes `records.tsv`, `vibe-coding-record.md`, and the two `public/doc/vibe-journal.*` files. Pure (no network / no repo I/O outside this folder and `public/doc/`). Run: `node doc/VibeCodingRecord/generate.mjs`. |
 | `data/prs.ndjson` | Committed snapshot of GitHub PR metadata — one JSON object per line: `{ n, title, state, merged, body }` where `body` is the first ~360 chars of the PR description. |
 | `data/pr-files.tsv` | Committed snapshot of `git log origin/main` — `<PR#>\t<comma-separated files>` for every PR that squash-merged to a `(#NNN)`-tagged commit on `main` (≈ PR #78 onward; earlier PRs predate that convention, so they have no file list and the *Code impact* column says so). |
+| `../../public/doc/vibe-journal.html` | **Hosted query page** — a self-contained HTML dashboard (no external deps; embeds the full dataset). Served by the bot at **`/doc/vibe-journal.html`** (e.g. `https://soleat.net/doc/vibe-journal.html`). Filter / sort / full-text-search the ledger; an *Insights* panel computes likely-rework pairs, churn by feature area & by module, PRs-per-release, the category mix, and same-day clusters; plus a "lessons to reduce rework" list distilled from `.claude/skills/gia-preflight/SKILL.md`. Auto-generated. |
+| `../../public/doc/vibe-journal.json` | The same records as a flat JSON array (`{ generated, count, records:[…] }`) for `jq` / DuckDB / pandas / spreadsheets. Served at `/doc/vibe-journal.json`. Auto-generated. |
+
+---
+
+## The hosted query page (`/doc/vibe-journal.html`)
+
+The "database to query and learn from" is `public/doc/vibe-journal.html` — a single
+self-contained HTML file (the whole dataset is embedded; works offline / over
+`file://` too). The bot serves it at **`/doc/vibe-journal.html`** via a tiny
+`express.static('/doc', …)` route in `index.js` (alongside `/privacy`). It has:
+
+- **KPIs** — PR count, merged / closed-unmerged, number of release lines, count of
+  PRs flagged as rework, count of titles with a follow-up cue.
+- **Insights — "where the loops are":**
+  - *Likely rework / "we shipped, then iterated"* — every PR that is a `fix` (or
+    whose title carries a follow-up cue: "again", "actually", "restore",
+    "follow-up", "not taking effect", …) **and** has an earlier PR within the
+    previous 8 PRs in the same feature area, linked to that earlier PR.
+  - *Churn by feature / UX area* and *by code area / module* — bar lists; high
+    churn ≈ the design took a while to settle / those files keep coming back.
+  - *PRs per release (MAJOR.MINOR)* — a minor line with many PRs = lots of
+    follow-up patches after the first cut.
+  - *Category mix* and *same-day clusters* (days with ≥4 PRs ≈ iterating fast).
+- **Lessons to reduce rework** — the practical checklist distilled from
+  `.claude/skills/gia-preflight/SKILL.md` (run the gates, verify `require()`
+  exports, escape user text in HTML messages, handler return paths, fuzzy-matcher
+  smoke tests, resolver ordering, no destructive git ops, trace UI render paths,
+  bump the version & re-read long functions).
+- **The ledger — query it** — full-text search (PR #, title, intent, approach,
+  module names, area, category) + dropdown filters (category, feature area, TMA,
+  impact tag, release) + a "rework only" toggle + sortable columns; each row links
+  to the GitHub PR and expands to show modules / file count / burst membership.
+
+For querying outside the browser, `public/doc/vibe-journal.json` (`/doc/vibe-journal.json`)
+is the same data as `{ generated, count, records:[…] }` — feed it to `jq`, DuckDB
+(`read_json_auto`), pandas, or a spreadsheet. The canonical tab-separated copy is
+`records.tsv` in this folder.
+
+> **Note on "reduce the PRs".** The intent behind this page is to make the *rework
+> loops* visible — feature areas that took many PRs to settle, fixes that closely
+> follow the PR that introduced the bug, same-day production iteration — so the
+> next change is scoped, gated (`gia-preflight`), and verified well enough to land
+> in one PR instead of three. The heuristics are coarse; treat a flag as "go read
+> that pair", not a verdict.
 
 ---
 
@@ -89,8 +134,8 @@ When new PRs land:
    `380<TAB>fileA,fileB,…` — get it from
    `git log origin/main --name-only --pretty='@@@%s'` (find the commit whose subject ends `(#380)`; its file lines are the value).
 3. **Bump `GEN_DATE`** at the top of `generate.mjs` to the refresh date.
-4. **Regenerate:** `node doc/VibeCodingRecord/generate.mjs`
-5. Commit `data/prs.ndjson`, `data/pr-files.tsv`, `records.tsv`, `vibe-coding-record.md` (and `generate.mjs` if you changed it).
+4. **Regenerate:** `node doc/VibeCodingRecord/generate.mjs` — rewrites `records.tsv`, `vibe-coding-record.md`, `public/doc/vibe-journal.html`, and `public/doc/vibe-journal.json`.
+5. Commit `data/prs.ndjson`, `data/pr-files.tsv`, `records.tsv`, `vibe-coding-record.md`, `public/doc/vibe-journal.html`, `public/doc/vibe-journal.json` (and `generate.mjs` if you changed it). The page is then live at `/doc/vibe-journal.html` on the next deploy.
 
 The generator is pure (no network, no repo I/O beyond this folder), so step 4 is
 deterministic and safe to run any time. To re-derive *everything* from scratch,
