@@ -7219,6 +7219,14 @@ async function cacheBotUsername() {
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
 
+    // v0.60.143 — hosted docs surface. Currently just the Vibe Journal:
+    // a self-contained, queryable HTML view of the Vibe-Coding Record
+    // (every PR, sliceable by category / feature area / TMA / impact, with
+    // a rework/churn-insights panel). Built by doc/VibeCodingRecord/generate.mjs
+    // into public/doc/. Public, read-only, no app data.
+    app.use('/doc', express.static(path.join(__dirname, 'public', 'doc')));
+    app.get('/doc', (_req, res) => res.redirect('/doc/vibe-journal.html'));
+
     // v0.59.30 — content-verifying health endpoint for the
     // webhook-domain auto-fallback probe. Per Codex review #235 P1:
     // a 2xx/3xx/4xx response from a parking server (NameCheap returns
