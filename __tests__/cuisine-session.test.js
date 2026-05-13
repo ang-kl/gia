@@ -118,3 +118,41 @@ describe('isExhausted', () => {
     expect(await sess.isExhausted(r, 8)).toBe(true);
   });
 });
+
+describe('recordPage opts.skipCap (v0.60.149 — Michelin)', () => {
+  let r;
+  beforeEach(() => { r = createStub(); });
+
+  it('never reports capped=true even when serving > SEEN_CAP venues', async () => {
+    // 12 batches of 12 venues = 144 unique placeIds across two cuisine-
+    // sized chunks; cap is 80. With skipCap=true, capped must stay false.
+    let last;
+    for (let i = 0; i < 12; i++) {
+      const ids = Array.from({ length: 12 }, (_, j) => `pg${i}-${j}`);
+      last = await sess.recordPage(r, 10, makePage(ids), { skipCap: true });
+    }
+    expect(last.capped).toBe(false);
+    expect(await sess.isExhausted(r, 10)).toBe(false);   // session-seen stayed empty
+    expect(await sess.depth(r, 10)).toBe(10);            // page list still trimmed to 10
+  });
+
+  it('does not contribute to the session-seen SET', async () => {
+    await sess.recordPage(r, 11, makePage(['m1', 'm2', 'm3']), { skipCap: true });
+    expect(await sess.seenCount(r, 11)).toBe(0);
+  });
+
+  it('still LPUSHes the page payload so the back-FAB can walk it', async () => {
+    await sess.recordPage(r, 12, makePage(['m1', 'm2']), { skipCap: true });
+    expect(await sess.depth(r, 12)).toBe(1);
+    const popped = await sess.popPage(r, 12);
+    expect(popped.venues.map((v) => v.placeId)).toEqual(['m1', 'm2']);
+  });
+
+  it('skipCap and non-skipCap pages can coexist on the same session', async () => {
+    // Cuisine-chip page (counts toward cap) + Michelin page (does not)
+    await sess.recordPage(r, 13, makePage(['c1', 'c2']));   // default: cap-counted
+    await sess.recordPage(r, 13, makePage(['m1', 'm2']), { skipCap: true });
+    expect(await sess.seenCount(r, 13)).toBe(2);            // only c1, c2 counted
+    expect(await sess.depth(r, 13)).toBe(2);                // both pages in history
+  });
+});

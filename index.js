@@ -5677,16 +5677,20 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // headroom and per-click cost.
   // v0.60.37 — pure Michelin uncapped (full 130-entry curated SG Guide).
   // v0.60.39 — combo path also uncapped (sliceCap = pool.length).
-  // v0.60.42 (Human Lead 2026-05-08): sliceCap = 40 across both pure
-  // and combo paths. The pool.length cap meant pure Michelin loaded
-  // 130 Places searchText calls in series → ~3-min wait. 40 caps
-  // each click at ~10–15 s. The existing v0.60.25 dedup-shuffle already
-  // rotates the pool across consecutive 🔍 Search taps, so users
-  // reach all 130 entries in ~4 taps. After exhaustion the existing
-  // didReset path + `exhausted: true` flag drives the TMA's
-  // end-of-list note + recycle-on-next-tap behaviour. Per-click cost
-  // drops by 70 %, browse latency by similar margin.
-  const sliceCap = Math.min(pool.length, 40);
+  // v0.60.42 (Human Lead 2026-05-08): sliceCap originally 40 across
+  // both pure and combo paths — capped browse latency to ~10–15 s.
+  // v0.60.147 added the LLM narrate step on top, which pushed 40-venue
+  // calls past Telegram's ~30 s webhook ceiling and timed the first
+  // tap out. v0.60.149 (Human Lead 2026-05-13): sliceCap 40 → 12.
+  // Matches the cuisine-chip PAGE_SIZE; the LLM narrate prompt now
+  // operates on 12 venues (well inside Gemini's retry budget + Telegram's
+  // window). The seen-set dedup rotation already pages the user through
+  // all ~130 curated entries in ~11 ▶ taps; after exhaustion the
+  // didReset path + `exhausted: true` flag drives the TMA's end-of-list
+  // note + recycle-on-next-tap behaviour. Michelin venues are also
+  // recorded into the per-session clipboard with skipCap=true so the
+  // global 80-cap never terminates a Michelin walk early.
+  const sliceCap = Math.min(pool.length, 12);
   const slice = [...stars, ...bib].slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
@@ -6031,7 +6035,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // (operator's "sensitive with Michelin criteria" note). The 80-cap
   // applies across cuisine-chip + Michelin + freetext within one
   // session; closing & re-opening Cuisine resets it.
-  let michelinSessionFull = false;
+  // v0.60.149 — Michelin pages join the page-history LIST (so the
+  // ⇠ Prev FAB works) but skipCap=true so Michelin venues do NOT
+  // count toward the global 80-cap session SET. The Michelin curated
+  // list has ~130 entries; the 80-cap would otherwise terminate a
+  // Michelin walk before the user could see all of them. The per-
+  // criteria seen-set (cuisine:seen:<chatId>:<hash>) still drives
+  // Michelin's own end-of-walk reset (didReset above).
   let michelinPageDepth = 0;
   if (csChatId && filteredVenues.length) {
     try {
@@ -6043,8 +6053,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           rating: v.rating, priceLevel: v.priceLevel, address: v.address, area: v.area
         })),
         meta: { region: 'SG', michelin: true }
-      });
-      michelinSessionFull = !!sessOut?.capped;
+      }, { skipCap: true });
       michelinPageDepth = sessOut?.depth || 0;
     } catch { /* best-effort */ }
   }
@@ -6057,13 +6066,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // just reset for this criteria-hash, OR the filtered pool size
   // dropped below 3, OR (v0.60.146) the 80-cap session clipboard
   // is full.
-  const exhausted = didReset || filteredVenues.length < 3 || michelinSessionFull;
+  // v0.60.149 — Michelin response never sets sessionFull (its per-
+  // session cap is its own curated-list size, not the 80-cap).
+  const exhausted = didReset || filteredVenues.length < 3;
   return res.json({
     venues: filteredVenues,
     cached: false,
     seed: 'michelin',
     exhausted,
-    sessionFull: michelinSessionFull,
+    sessionFull: false,
     pageStackDepth: michelinPageDepth,
     michelinSummary: {
       total: allEntries.length,
@@ -6826,6 +6837,7 @@ async function registerCommandsMenu() {
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
       { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
+      { command: 'clipboard',  description: '📋 Saved cuisine clips · latest from /cuisine Copy-all / per-card Copy (or /clip)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
       { command: 'forgetme',   description: 'Erase stored data' }
@@ -6841,6 +6853,7 @@ async function registerCommandsMenu() {
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       // v0.60.113 — /buddy retiré du menu (fonctionnalité supprimée).
       { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
+      { command: 'clipboard',  description: '📋 Clips de cuisine enregistrés · les plus récents depuis /cuisine (ou /clip)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
       { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
@@ -7631,6 +7644,25 @@ async function cacheBotUsername() {
       } catch (err) {
         console.warn('[Cuisine-Session] start failed:', err.message);
         res.json({ ok: false });   // never block the TMA on a session-start hiccup
+      }
+    });
+    // v0.60.149 — recycle: explicit "↻ Recycle this session" button on
+    // the post-80-cap terminal. Same effect as closing & re-opening the
+    // TMA — wipes the session-clipboard (seen + pages + meta) — but the
+    // user stays in-app and the next /api/cuisine/search returns list
+    // #1 again. Logged in usage-log for Oversight tracking.
+    app.post('/api/cuisine/session/recycle', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const chatId = verified.user.id;
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        await cuisineSession.startSession(redis, chatId);
+        try { usageLog.recordSearch(redis, chatId, { src: 'cuisine-tma-recycle' }).catch(() => {}); } catch { /* noop */ }
+        res.json({ ok: true });
+      } catch (err) {
+        console.warn('[Cuisine-Session] recycle failed:', err.message);
+        res.json({ ok: false });
       }
     });
     app.post('/api/cuisine/session/back', async (req, res) => {

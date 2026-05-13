@@ -81,7 +81,13 @@ async function isExhausted(redis, chatId, cap = SEEN_CAP) {
 // where `capped` is true when this batch pushed the SET past SEEN_CAP
 // (the caller should set exhausted/sessionFull in that case) and
 // `depth` is the page-history length after the LPUSH.
-async function recordPage(redis, chatId, payload) {
+// v0.60.149 — opts.skipCap: when true, page placeIds are NOT added to
+// the session-seen SET (so they don't count toward the 80-cap) but
+// the page IS still LPUSH'd onto the history list so the ⇠ Prev FAB
+// works. Used by the Michelin path, whose curated list (~130 entries)
+// needs a longer walk than the cuisine-chip 80-cap allows.
+async function recordPage(redis, chatId, payload, opts = {}) {
+  const skipCap = opts && opts.skipCap === true;
   const out = { seenCount: 0, capped: false, depth: 0 };
   if (!ok(redis) || !chatId || !payload) return out;
   const k = keys(chatId);
@@ -90,12 +96,12 @@ async function recordPage(redis, chatId, payload) {
       ? payload.venues.map((v) => v && v.placeId).filter(Boolean)
       : [];
     const before = await seenCount(redis, chatId);
-    if (ids.length) {
+    if (ids.length && !skipCap) {
       try { await redis.sAdd(k.seen, ids); await redis.expire(k.seen, SESSION_TTL_S); } catch { /* best-effort */ }
     }
-    const after = await seenCount(redis, chatId);
+    const after = skipCap ? before : await seenCount(redis, chatId);
     out.seenCount = after;
-    out.capped = after >= SEEN_CAP;
+    out.capped = skipCap ? false : (after >= SEEN_CAP);
     // page history — slim JSON, capped at PAGES_CAP entries (newest at
     // index 0). Skipped on the empty-batch case (exhausted responses).
     if (ids.length && typeof redis.lPush === 'function') {
@@ -116,7 +122,6 @@ async function recordPage(redis, chatId, payload) {
       if (typeof redis.lLen === 'function') out.depth = Number(await redis.lLen(k.pages)) || 0;
       else if (typeof redis.lRange === 'function') { const all = await redis.lRange(k.pages, 0, -1); out.depth = Array.isArray(all) ? all.length : 0; }
     } catch { /* best-effort */ }
-    // suppress unused-var noise: `before` retained for diagnostic clarity
     void before;
   } catch { /* best-effort */ }
   return out;
