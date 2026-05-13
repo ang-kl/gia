@@ -5711,16 +5711,43 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     'places.reviews', 'places.editorialSummary'
   ].join(',');
   const axios = require('axios');
-  const venues = [];
-  const newDedupKeys = [];
-  for (const entry of slice) {
-    const textQuery = michelin.buildPlacesQuery(entry);
-    let placesData;
+  // v0.60.150 — Places resolution: parallel + per-entry Redis cache.
+  // Operator: "Later Michelin List — HTTP 502". The serial 12 × 6 s
+  // worst-case fan-in (`for (const entry of slice) await axios.post(...)`)
+  // breached Telegram's 30 s webhook ceiling once Bib-Gourmand entries
+  // (less indexed in Places) joined the slice. Three coupled changes:
+  // (1) `Promise.allSettled(slice.map(...))` — worst case 72 s → 4 s.
+  // (2) `michelin:place:<slug>` 24-h Redis cache — once warm, ~1 ms
+  //     reads, never re-hits Places for the same curated entry.
+  // (3) per-call axios timeout 6 s → 4 s — fail-fast; the curated
+  //     fallback payload ships either way.
+  // Plus a `[Michelin] handler ms=…` warn log on slow runs so a future
+  // regression is visible in Railway logs without another investigation.
+  const handlerStart = Date.now();
+  let cacheHits = 0, cacheMisses = 0;
+  const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  const MICHELIN_PLACE_TTL_S = 24 * 60 * 60;
+  async function resolveEntryPlace(entry) {
+    const cacheKey = `michelin:place:${slugify(entry.name)}`;
+    if (redis && redis.isOpen) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+          cacheHits++;
+          const parsed = JSON.parse(cached);
+          // Negative-cache marker — Places returned null for this entry;
+          // don't re-hit for the next 24 h.
+          return (parsed && parsed.__null) ? null : parsed;
+        }
+      } catch { /* fall through to live fetch */ }
+    }
+    cacheMisses++;
+    let placesData = null;
     try {
       const { data } = await axios.post(
         PLACES_URL,
         {
-          textQuery,
+          textQuery: michelin.buildPlacesQuery(entry),
           regionCode: 'SG',
           languageCode: csLang === 'fr' ? 'fr' : 'en',
           maxResultCount: 1
@@ -5731,13 +5758,32 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             'X-Goog-Api-Key': apiKey,
             'X-Goog-FieldMask': FIELD_MASK
           },
-          timeout: 6000
+          timeout: 4000   // v0.60.150 — was 6 s; fail-fast
         }
       );
       placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
     }
+    if (redis && redis.isOpen) {
+      try {
+        const toCache = placesData || { __null: true };
+        await redis.setEx(cacheKey, MICHELIN_PLACE_TTL_S, JSON.stringify(toCache));
+      } catch { /* best-effort */ }
+    }
+    return placesData;
+  }
+  const resolved = await Promise.allSettled(
+    slice.map(async (entry) => ({ entry, placesData: await resolveEntryPlace(entry) }))
+  );
+  const venues = [];
+  const newDedupKeys = [];
+  for (const result of resolved) {
+    if (result.status !== 'fulfilled') {
+      console.warn('[Michelin] resolveEntryPlace rejected:', result.reason?.message || result.reason);
+      continue;
+    }
+    const { entry, placesData } = result.value;
     const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
     const venue = placesData ? {
       placeId: placesData?.id || '',
@@ -6069,6 +6115,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.149 — Michelin response never sets sessionFull (its per-
   // session cap is its own curated-list size, not the 80-cap).
   const exhausted = didReset || filteredVenues.length < 3;
+  // v0.60.150 — slow-handler warning so future Places / Gemini latency
+  // regressions are visible in Railway logs (the 502 saga was opaque
+  // before this).
+  const handlerMs = Date.now() - handlerStart;
+  if (handlerMs > 10000) {
+    console.warn(`[Michelin] handler ms=${handlerMs} cacheHits=${cacheHits} cacheMisses=${cacheMisses} venues=${filteredVenues.length}`);
+  }
   return res.json({
     venues: filteredVenues,
     cached: false,
