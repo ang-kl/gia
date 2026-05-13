@@ -2008,9 +2008,11 @@ bot.on('callback_query', async (q) => {
       return;
     }
     */
-    // v0.59.44: /clip inline-keyboard callbacks.
+    // v0.59.44: /clip inline-keyboard callbacks. v0.60.151 extends with
+    // per-clip copy (plain text), rename (force-reply prompt), remove
+    // (one-tap with confirm).
     if (data.startsWith('clip:')) {
-      const { getClip, clearClips } = require('./clip-store');
+      const { getClip, clearClips, removeClip } = require('./clip-store');
       if (data.startsWith('clip:resend:')) {
         const idx = Number(data.slice('clip:resend:'.length));
         if (Number.isFinite(idx)) {
@@ -2018,6 +2020,72 @@ bot.on('callback_query', async (q) => {
           if (clip) {
             await bot.sendMessage(chatId, clip.body, { parse_mode: 'HTML', disable_web_page_preview: true });
           }
+        }
+        return;
+      }
+      // v0.60.151 — Copy as PLAIN TEXT (no <b>/</b>, entities unescaped,
+      // no parse_mode, no map button). Telegram preserves the message so
+      // the user can tap-hold → Copy and paste cleanly into other apps.
+      if (data.startsWith('clip:copy:')) {
+        const idx = Number(data.slice('clip:copy:'.length));
+        if (Number.isFinite(idx)) {
+          const clip = await getClip(redis, chatId, idx);
+          if (clip) {
+            const plain = String(clip.body || '')
+              .replace(/<\/?b>/g, '')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>');
+            await bot.sendMessage(chatId, plain, { disable_web_page_preview: true });
+          }
+        }
+        return;
+      }
+      // v0.60.151 — Rename: ask the user (via Telegram force_reply) for
+      // a name, set an ephemeral Redis pending state so the message
+      // handler knows to apply the next reply as the rename.
+      if (data.startsWith('clip:rename:')) {
+        const idx = Number(data.slice('clip:rename:'.length));
+        if (Number.isFinite(idx)) {
+          try {
+            if (redis.isOpen) await redis.setEx(`clip:rename-pending:${chatId}`, 300, String(idx));
+          } catch { /* best-effort */ }
+          await bot.sendMessage(chatId,
+            cbLang === 'fr'
+              ? `✏️ Quel nom pour le clip ${idx + 1} ? (Répondez à ce message — 60 caractères max.)`
+              : `✏️ What name for clip ${idx + 1}? (Reply to this message — 60 chars max.)`,
+            { reply_markup: { force_reply: true, selective: true } }
+          );
+        }
+        return;
+      }
+      // v0.60.151 — Remove one clip with a confirm gate.
+      if (data.startsWith('clip:remove:')) {
+        const rest = data.slice('clip:remove:'.length);   // "<idx>:ask" | "<idx>:yes" | "<idx>:no"
+        const [idxStr, action] = rest.split(':');
+        const idx = Number(idxStr);
+        if (!Number.isFinite(idx)) return;
+        if (action === 'ask') {
+          await bot.sendMessage(chatId,
+            cbLang === 'fr'
+              ? `🗑 Supprimer le clip ${idx + 1} ?`
+              : `🗑 Remove clip ${idx + 1}?`,
+            { reply_markup: { inline_keyboard: [[
+              { text: cbLang === 'fr' ? 'Oui, supprimer' : 'Yes, remove', callback_data: `clip:remove:${idx}:yes` },
+              { text: cbLang === 'fr' ? 'Annuler' : 'Cancel', callback_data: `clip:remove:${idx}:no` }
+            ]] } });
+          return;
+        }
+        if (action === 'yes') {
+          const ok = await removeClip(redis, chatId, idx);
+          await bot.sendMessage(chatId, ok
+            ? (cbLang === 'fr' ? `✅ Clip ${idx + 1} supprimé.` : `✅ Clip ${idx + 1} removed.`)
+            : (cbLang === 'fr' ? `❌ Échec — le clip n'existe peut-être plus.` : `❌ Couldn't remove — the clip may no longer exist.`));
+          return;
+        }
+        if (action === 'no') {
+          await bot.sendMessage(chatId, cbLang === 'fr' ? 'Annulé.' : 'Cancelled.');
+          return;
         }
         return;
       }
@@ -4353,13 +4421,17 @@ async function runClipCommand(chatId, arg, lang = 'en') {
     : (lang === 'fr' ? '📋 Vos derniers clips' : '📋 Your last clips');
   const lines = [header, ''];
   items.forEach((c, i) => {
-    const cuisinesLabel = (c.cuisines && c.cuisines.length) ? c.cuisines.join(', ') : (lang === 'fr' ? '— pas de cuisine —' : '— no cuisine —');
+    // v0.60.151 — prefer a user-supplied name when present; fall back
+    // to the auto-cuisines label so legacy clips still read fine.
+    const labelMain = (typeof c.name === 'string' && c.name.trim())
+      ? escapeHtmlForTelegram(c.name.trim())
+      : ((c.cuisines && c.cuisines.length) ? escapeHtmlForTelegram(c.cuisines.join(', ')) : (lang === 'fr' ? '— pas de cuisine —' : '— no cuisine —'));
     const ago = formatTimeAgo(Date.now() - c.ts, lang);
     const venuesWord = c.venueCount === 1
       ? (lang === 'fr' ? 'lieu' : 'venue')
       : (lang === 'fr' ? 'lieux' : 'venues');
-    lines.push(`<b>${i + 1}.</b> 🍽 ${cuisinesLabel} · ${c.venueCount} ${venuesWord} · ${ago}`);
-    if (c.preview) lines.push(`   <i>${c.preview.slice(0, 80)}</i>`);
+    lines.push(`<b>${i + 1}.</b> 🍽 ${labelMain} · ${c.venueCount} ${venuesWord} · ${ago}`);
+    if (c.preview) lines.push(`   <i>${escapeHtmlForTelegram(c.preview.slice(0, 80))}</i>`);
   });
   if (total > items.length) {
     lines.push('');
@@ -4367,12 +4439,16 @@ async function runClipCommand(chatId, arg, lang = 'en') {
       ? `Voir plus : ${total} clips au total.`
       : `${total} total · showing first ${items.length}.`);
   }
-  // Inline keyboard: Resend buttons (one per item) + Clear button.
-  const resendRow = items.map((c, i) => ({
-    text: `📤 ${i + 1}`,
-    callback_data: `clip:resend:${c.index}`
-  }));
-  const keyboardRows = [resendRow];
+  // v0.60.151 — per-clip action row: Resend (rich) · Copy (plain text) ·
+  // Rename (force-reply prompt) · Remove (one-tap delete with confirm).
+  // One row per clip prefixed by the index → tap-targets stay legible
+  // even on narrow Telegram clients.
+  const keyboardRows = items.map((c, i) => [
+    { text: `${i + 1}: 📤`, callback_data: `clip:resend:${c.index}` },
+    { text: '📋', callback_data: `clip:copy:${c.index}` },
+    { text: '✏️', callback_data: `clip:rename:${c.index}` },
+    { text: '🗑', callback_data: `clip:remove:${c.index}:ask` }
+  ]);
   keyboardRows.push([{
     text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
     callback_data: 'clip:clear:ask'
@@ -6299,6 +6375,35 @@ bot.on('message', async (msg) => {
     // v0.60.142 — usage tracking (Oversight dashboard): record this chat
     // as a "user seen" + daily-active. sha256 hashes only; never throws.
     try { usageLog.recordUser(redis, msg.chat.id).catch(() => {}); } catch { /* noop */ }
+
+    // v0.60.151 — /clipboard rename: if the user is replying to the
+    // force_reply prompt and a pending rename index is set in Redis,
+    // apply the reply text as the clip's name. Done before other text
+    // routing so the typed name isn't fed to free-text search.
+    if (msg.text && msg.reply_to_message && /What name for clip|Quel nom pour le clip/i.test(msg.reply_to_message.text || '')) {
+      try {
+        const pendingKey = `clip:rename-pending:${msg.chat.id}`;
+        const pendingIdxStr = (redis && redis.isOpen) ? await redis.get(pendingKey) : null;
+        const pendingIdx = pendingIdxStr != null ? Number(pendingIdxStr) : NaN;
+        if (Number.isFinite(pendingIdx)) {
+          const { renameClip } = require('./clip-store');
+          const { resolveLang } = require('./user-prefs');
+          const rnLang = await resolveLang(redis, msg.chat.id, msg);
+          const saved = await renameClip(redis, msg.chat.id, pendingIdx, msg.text);
+          try { if (redis.isOpen) await redis.del(pendingKey); } catch { /* best-effort */ }
+          if (saved) {
+            await safeSend(msg.chat.id, rnLang === 'fr'
+              ? `✅ Clip ${pendingIdx + 1} renommé : « ${saved} ». Tapez /clipboard pour voir la liste mise à jour.`
+              : `✅ Clip ${pendingIdx + 1} renamed to "${saved}". Type /clipboard to see the updated list.`);
+          } else {
+            await safeSend(msg.chat.id, rnLang === 'fr'
+              ? `❌ Renommage impossible — le clip n'existe peut-être plus.`
+              : `❌ Couldn't rename — the clip may no longer exist.`);
+          }
+          return;
+        }
+      } catch { /* fall through to normal message handling */ }
+    }
 
     // (1) Menu tile tap — TMA called tg.sendData(JSON.stringify({cmd, type})).
     if (msg.web_app_data?.data) {

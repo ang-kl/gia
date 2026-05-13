@@ -173,6 +173,51 @@ export class RedisStub {
     return 'OK';
   }
 
+  async lIndex(key, index) {
+    const l = this.lists.get(key) || [];
+    const i = index < 0 ? l.length + index : index;
+    if (i < 0 || i >= l.length) return null;
+    return l[i];
+  }
+
+  async lSet(key, index, value) {
+    const l = this.lists.get(key);
+    if (!l) throw new Error('ERR no such key');
+    const i = index < 0 ? l.length + index : index;
+    if (i < 0 || i >= l.length) throw new Error('ERR index out of range');
+    l[i] = String(value);
+    return 'OK';
+  }
+
+  async lRem(key, count, value) {
+    const l = this.lists.get(key);
+    if (!l) return 0;
+    const target = String(value);
+    let removed = 0;
+    const next = [];
+    let toRemove = count;
+    if (count === 0) {
+      // remove all matching
+      for (const v of l) { if (v === target) { removed++; } else { next.push(v); } }
+    } else if (count > 0) {
+      for (const v of l) {
+        if (v === target && toRemove > 0) { removed++; toRemove--; }
+        else { next.push(v); }
+      }
+    } else {
+      // count < 0 — remove from tail. The current callers always pass count > 0; keep behavior simple.
+      const reversed = [...l].reverse();
+      const acc = [];
+      for (const v of reversed) {
+        if (v === target && toRemove < 0) { removed++; toRemove++; }
+        else { acc.push(v); }
+      }
+      next.push(...acc.reverse());
+    }
+    this.lists.set(key, next);
+    return removed;
+  }
+
   _reset() {
     this.store.clear();
     this.hashes.clear();

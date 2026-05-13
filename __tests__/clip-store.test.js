@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { pushClip, listClips, getClip, clearClips, KEY_PREFIX, MAX_CLIPS, TTL_S } = require('../clip-store.js');
+const { pushClip, listClips, getClip, clearClips, removeClip, renameClip, KEY_PREFIX, MAX_CLIPS, TTL_S } = require('../clip-store.js');
 
 function makeFakeRedis() {
   const store = new Map();
@@ -34,6 +34,28 @@ function makeFakeRedis() {
     async lIndex(key, index) {
       const arr = store.get(key) || [];
       return arr[index] || null;
+    },
+    // v0.60.151 — list-mutation ops used by removeClip / renameClip.
+    async lSet(key, index, value) {
+      const arr = store.get(key);
+      if (!arr || index < 0 || index >= arr.length) throw new Error('ERR no such key or index out of range');
+      arr[index] = String(value);
+      return 'OK';
+    },
+    async lRem(key, count, value) {
+      const arr = store.get(key);
+      if (!arr) return 0;
+      const target = String(value);
+      let removed = 0;
+      const next = [];
+      let budget = count;
+      for (const v of arr) {
+        if (v === target && (count === 0 || budget > 0)) {
+          removed++; if (count > 0) budget--;
+        } else { next.push(v); }
+      }
+      store.set(key, next);
+      return removed;
     },
     async del(key) {
       store.delete(key);
@@ -181,11 +203,81 @@ describe('clearClips', () => {
   });
 });
 
+describe('removeClip (v0.60.151)', () => {
+  let redis;
+  beforeEach(async () => {
+    redis = makeFakeRedis();
+    await pushClip(redis, 'c', { body: 'a', cuisines: ['A'] });
+    await pushClip(redis, 'c', { body: 'b', cuisines: ['B'] });
+    await pushClip(redis, 'c', { body: 'c-body', cuisines: ['C'] });
+  });
+
+  it('removes the clip at the given index and compacts the list', async () => {
+    expect(redis._store.get('clip:c')).toHaveLength(3);
+    const ok = await removeClip(redis, 'c', 1);   // remove "b" (index 1 in LPUSH order = middle)
+    expect(ok).toBe(true);
+    const left = redis._store.get('clip:c');
+    expect(left).toHaveLength(2);
+    expect(left.map((r) => JSON.parse(r).body)).toEqual(['c-body', 'a']);
+  });
+
+  it('returns false on out-of-range / invalid index', async () => {
+    expect(await removeClip(redis, 'c', 99)).toBe(false);
+    expect(await removeClip(redis, 'c', -1)).toBe(false);
+    expect(await removeClip(redis, 'c', NaN)).toBe(false);
+    expect(redis._store.get('clip:c')).toHaveLength(3);   // unchanged
+  });
+
+  it('returns false on missing redis / chatId', async () => {
+    expect(await removeClip(null, 'c', 0)).toBe(false);
+    expect(await removeClip(redis, null, 0)).toBe(false);
+  });
+});
+
+describe('renameClip (v0.60.151)', () => {
+  let redis;
+  beforeEach(async () => {
+    redis = makeFakeRedis();
+    await pushClip(redis, 'c', { body: 'a', cuisines: ['Italian'] });
+    await pushClip(redis, 'c', { body: 'b', cuisines: ['Japanese'] });
+  });
+
+  it('stamps a name onto the record at the given index', async () => {
+    const saved = await renameClip(redis, 'c', 0, 'Saturday lunch');
+    expect(saved).toBe('Saturday lunch');
+    const updated = JSON.parse(redis._store.get('clip:c')[0]);
+    expect(updated.name).toBe('Saturday lunch');
+    expect(updated.body).toBe('b');   // body untouched
+  });
+
+  it('trims + collapses newlines + caps at 60 chars', async () => {
+    const long = '  Spaces\nnewlines\t\there ' + 'X'.repeat(200);
+    const saved = await renameClip(redis, 'c', 0, long);
+    expect(saved.length).toBeLessThanOrEqual(60);
+    expect(saved).not.toMatch(/[\r\n]/);
+  });
+
+  it('rejects empty / whitespace-only names', async () => {
+    expect(await renameClip(redis, 'c', 0, '')).toBeNull();
+    expect(await renameClip(redis, 'c', 0, '   \n  ')).toBeNull();
+    expect(await renameClip(redis, 'c', 0, null)).toBeNull();
+  });
+
+  it('returns null for out-of-range / missing clip', async () => {
+    expect(await renameClip(redis, 'c', 99, 'name')).toBeNull();
+    expect(await renameClip(redis, 'never-clipped', 0, 'name')).toBeNull();
+  });
+});
+
 describe('module surface', () => {
   it('exports KEY_PREFIX = "clip:"', () => {
     expect(KEY_PREFIX).toBe('clip:');
   });
   it('exports MAX_CLIPS = 50', () => {
     expect(MAX_CLIPS).toBe(50);
+  });
+  it('exports removeClip + renameClip (v0.60.151)', () => {
+    expect(typeof removeClip).toBe('function');
+    expect(typeof renameClip).toBe('function');
   });
 });
