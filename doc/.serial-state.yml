@@ -1,8 +1,8 @@
 counters:
-  commit: 119
+  commit: 120
   build: 0
   documents:
-    journal: 116
+    journal: 117
     builder: 0
     persona: 0
     feature: 33
@@ -11,9 +11,9 @@ counters:
     register: 109
 sessions:
   current_chat_id: 2026-05-14
-  current_chat_counter: 1
-last_anchor_time: 14-05 '26 00:00 SGT
-last_anchor_source: claude_clipboard_per_clip_controls_v0_60_151
+  current_chat_counter: 2
+last_anchor_time: 14-05 '26 00:30 SGT
+last_anchor_source: claude_pr125_distance_gate_80_to_120km_v0_60_152
 last_anchor_iso8601: 2026-05-13T21:00:00+08:00
 last_anchor_utc: 2026-05-13T13:00:00Z
 # v0.60.142→144 docs catch-up: anchored from the GitHub PR merge timestamps

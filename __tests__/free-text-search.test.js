@@ -49,10 +49,19 @@ describe('filterFreeTextResults', () => {
     expect(typeof out[0].walkMinutes).toBe('number');
   });
 
-  it('drops venues farther than 80 km from the user', () => {
-    // ~120 km away
-    const c = [venueAt('Far Away', 2.5, 105.0)];
+  it('drops venues farther than 120 km from the user (v0.60.152 bump from 80 km)', () => {
+    // ~290 km away — well past the 120 km gate
+    const c = [venueAt('Far Away', 4.0, 105.5)];
     expect(fts.filterFreeTextResults(c, USER)).toEqual([]);
+  });
+
+  it('keeps venues between 80–120 km (v0.60.152 widened reach)', () => {
+    // ~100 km — would have been dropped at the old 80 km gate, kept now
+    const c = [venueAt('JB Outskirts', 2.10, 104.10)];
+    const out = fts.filterFreeTextResults(c, USER);
+    expect(out).toHaveLength(1);
+    expect(out[0].distanceM).toBeGreaterThan(80000);
+    expect(out[0].distanceM).toBeLessThanOrEqual(120000);
   });
 
   it('keeps SG-mentioning venues even without coords', () => {

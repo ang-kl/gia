@@ -3,16 +3,20 @@
 // Pure helpers for the LLM-free chat-text search path. The user's
 // verbatim text goes to Google Places searchText (via
 // pipeline.discover); the candidates this returns are then filtered
-// in-memory to Singapore venues within 80 km of the user, sorted by
+// in-memory to Singapore venues within 120 km of the user, sorted by
 // haversine distance, and capped at 5.
 //
 // Extracted from index.js so the filter is unit-testable without
 // spinning up the bot or mocking Telegram + Redis. The handler in
 // index.js (runFreeTextSearch) imports `filterFreeTextResults`
 // after calling pipeline.discover.
+//
+// v0.60.152 — MAX_DISTANCE_M bumped 80 → 120 km to match the same-
+// session bump on /api/cuisine/search (PR #125's original 80 km gate;
+// see index.js's "120 km hard gate from user location" comment).
 
 const SG_CENTRE = { lat: 1.3521, lng: 103.8198 };
-const MAX_DISTANCE_M = 80000;
+const MAX_DISTANCE_M = 120000;
 const SG_PROXIMITY_M = 30000;
 const DEFAULT_LIMIT = 5;
 

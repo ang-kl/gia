@@ -9219,12 +9219,14 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.57.8: 80 km hard gate from user location (covers SG +
-        // adjacent JB even if user is in south SG). Plus, when JB is
-        // selected, require formattedAddress to mention "Johor Bahru"
-        // so we don't bleed into Iskandar / Kulai / KL hits that
-        // regionCode 'MY' might rank.
-        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 80000);
+        // v0.57.8 (PR #125): 80 km hard gate from user location.
+        // v0.60.152 (Human Lead 2026-05-14): bumped 80 km → 120 km.
+        // Original 80 km covered SG + adjacent JB even from south SG;
+        // 120 km gives more headroom for JB-side venues + a sliver of
+        // Iskandar / Kulai when the user has explicitly opted into
+        // region:'JB' (the formattedAddress filter below still pins
+        // JB-mode results to "Johor Bahru" so we don't bleed into KL).
+        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
         if (isJB) {
           venues = venues.filter((v) => /johor bahru/i.test(`${v.area || ''} ${v.name || ''}`));
         } else {
