@@ -52,7 +52,7 @@ function stripVersionPrefix(title) {
   let t = title;
   t = t.replace(/^docs?\s*\(?\s*v?\d+\.\d+(?:\.\d+)?\)?\s*[:—–-]\s*/i, '');
   t = t.replace(/^v?\d+\.\d+(?:\.\d+)?\s*[:—–-]\s*/i, '');
-  t = t.replace(/^(feat|fix|chore|docs|refactor|perf|test|build|ci|style)\s*(\([^)]*\))?\s*:\s*/i, '');
+  t = t.replace(/^(feat|fix|chore|docs?|refactor|perf|test|build|ci|style)\s*(\([^)]*\))?\s*:\s*/i, '');
   return t.trim();
 }
 function versionOf(title) {
@@ -68,7 +68,7 @@ function categoryOf(title, body) {
   const tl = title.toLowerCase();
   const bl = body.toLowerCase();
   const stripped = stripVersionPrefix(title).toLowerCase();
-  if (/^docs?\s*\(/i.test(title) || /^docs:/i.test(title) || has(tl, 'journal/feature/technical', 'doc/ + vault', 'vault snapshot', 'doc catch-up', 'doc/ catch-up', 'register catch-up') || (has(tl, 'doc', 'journal', 'vault') && !has(tl, 'document ') && stripped.startsWith('journal'))) return 'docs';
+  if (/^docs?\s*[:(]/i.test(title) || has(tl, 'journal/feature/technical', 'doc/ + vault', 'vault snapshot', 'doc catch-up', 'doc/ catch-up', 'register catch-up', 'vibe-coding record', 'vibe journal', 'vibe-journal') || (has(tl, 'doc', 'journal', 'vault') && !has(tl, 'document ') && stripped.startsWith('journal'))) return 'docs';
   if (/^(ci|build|chore)\s*[:(]/i.test(title) || has(stripped, 'ci ', 'workflow', 'github action', 'gitignore', 'dependency', 'dependencies', 'package.json bump', 'bump version', 'deploy', 'railway', 'node version', 'eslint', 'lint config')) return 'infra';
   if (/^fix\s*[:(]/i.test(title) || /^hotfix/i.test(stripped) || /^fix /i.test(stripped) || /\bfixes? #\d+/i.test(bl) || (has(stripped, 'fix', 'bug', 'regression', 'broken', "doesn't", 'no longer', 'stopped working', 'crash', 'throws', 'silent') && !has(stripped, 'add ', 'new '))) return 'fix';
   if (has(stripped, 'refactor', 'rename', 'restructure', 'consolidat', 'extract ', 'split ', 'de-dup', 'dedup', 'tidy', 'cleanup', 'clean up', 'reorganis', 'reorganiz')) return 'refactor';

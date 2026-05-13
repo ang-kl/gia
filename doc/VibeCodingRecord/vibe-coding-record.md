@@ -1,13 +1,13 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 379 pull requests (#1–#379).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 381 pull requests (#1–#381).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 379 total — 374 merged, 5 closed without merge.
+- **PRs:** 381 total — 376 merged, 5 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #379 · 2026-05-12 23:34:12 · _v0.60.142 — hidden owner-only "Oversight" admin TMA + usage-tracking layer_
+- **Latest:** #381 · 2026-05-13 00:39:41 · _v0.60.144 — Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY)_
 
 ### By category
 
@@ -18,7 +18,7 @@
 | prompt-tune | 25 |
 | copy | 23 |
 | refactor | 11 |
-| docs | 9 |
+| docs | 11 |
 | infra | 4 |
 | test | 4 |
 
@@ -36,7 +36,7 @@
 | Pipeline / discovery | 14 |
 | Infra / setup | 13 |
 | Recognised lists | 13 |
-| Docs / vault | 8 |
+| Docs / vault | 10 |
 | Weather | 7 |
 | Language / i18n | 7 |
 | Privacy / legal | 6 |
@@ -431,6 +431,8 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 377 | merged | 2026-05-12 10:08:32 | 0.60.141 | feature | Cuisine Picker | Add: Cuisine TMA: "end" FAB actually closes the Mini App (closeOnly) | Answering the question first:** it's *partly* a Telegram platform quirk and *mostly* a bug on our side. `WebApp.close()` itself is genuinely not 100% reliable on some Telegram clients (Desktop/macOS especially) and depends on the launch… | 3 files — TMA:cuisine, package | cuisine | — |
 | 378 | merged | 2026-05-12 21:23:37 | 0.60.141 | docs | Docs / vault | journal/feature/technical/register catch-up (v0.60.131→141) + vault snapshot | Documentation catch-up for the v0.60.131 → v0.60.141 arc (PRs #367–#377) + the frozen vault snapshot at v0.60.141. | 534 files — doc, vault | — | legal; doc/vault |
 | 379 | merged | 2026-05-12 23:34:12 | 0.60.142 | feature | Oversight / usage stats | Add: hidden owner-only "Oversight" admin TMA + usage-tracking layer | A hidden, owner-only **Oversight** admin Telegram Mini App — a single-screen usage dashboard — plus the small Redis-only usage-tracking layer it reads. | 18 files — index.js, i18n.js, usage-log.js, user-data.js, TMA:oversight, tests, package, config | oversight | Redis/state; privacy; tests |
+| 380 | merged | 2026-05-13 00:22:33 |  | docs | Docs / vault | Update docs: Vibe-Coding Record — regenerable cross-section of all PRs (#1–#379) | Adds doc/VibeCodingRecord/ — a standalone, regenerable ledger of every pull request (#1–#379), separate from the eight doc/ AU templates: a Markdown view, a TSV source of truth, a pure generator (generate.mjs), and committed data… | 10 files — index.js, doc, package, public/ | — | doc/vault |
+| 381 | merged | 2026-05-13 00:39:41 | 0.60.144 | docs | Docs / vault | Update docs: Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY) | Gates the hosted Vibe Journal behind an optional shared key, the Railway service variable VIBE_JOURNAL_KEY. | 3 files — index.js, doc, package | — | doc/vault |
 
 ---
 
