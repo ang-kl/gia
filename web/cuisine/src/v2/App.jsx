@@ -968,6 +968,18 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          // v0.60.153 — Michelin-specific "please wait" copy. The
+          // handler runs review-extract + LLM narrate + per-venue
+          // enrichment-cache fill; cold catalogue takes 5–10 s.
+          // Operator: "UI: Asking user to be patience, to curate the
+          // list with review."
+          loadingHint={
+            (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin')
+              ? (lang === 'fr'
+                  ? '🎩 Curation de la liste Michelin — récupération des avis récents et plats signatures. Patience…'
+                  : '🎩 Curating the Michelin list — fetching the latest reviews and signature dishes. Hang on…')
+              : null
+          }
           focusedPlaceId={focusedPlaceId}
           onCardTap={setFocusedPlaceId}
           warmStartSeed={warmStartSeed}
