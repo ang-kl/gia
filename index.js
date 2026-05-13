@@ -7420,27 +7420,51 @@ async function cacheBotUsername() {
         // v0.58.51: two blank lines between picks for breathing room;
         // collapse to one when only a single venue is in the clip.
         const blockSep = blocks.length > 1 ? '\n\n\n' : '\n\n';
-        const body = `${header}\n\n${blocks.join(blockSep)}`;
-        if (slim.length === 1) {
-          await bot.sendMessage(chatId, body, {
-            parse_mode: 'HTML',
-            disable_web_page_preview: true
-          });
-        } else {
-          // Multi-pin: keep the inline-keyboard map buttons for the
-          // multi-marker TMA view (separate from the inline URLs in body).
-          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-          if (!mapUrl) return res.status(500).json({ error: 'could not build map URL' });
-          await bot.sendMessage(chatId, body, {
-            parse_mode: 'HTML',
-            disable_web_page_preview: true,
-            reply_markup: {
-              inline_keyboard: [
-                [{ text: '🗺️ View all on map', web_app: { url: mapUrl } }],
-                [{ text: '🔗 Open in browser', url: mapUrl }]
-              ]
-            }
-          });
+        let body = `${header}\n\n${blocks.join(blockSep)}`;
+        // v0.60.145 — multi-pin: if buildMapHashUrl returns null (every
+        // venue lacked lat/lng so buildSlim returned []), drop the inline
+        // map button and append a one-line "map unavailable" footer
+        // instead of 500ing the whole copy. 12 venues with one bad-lat
+        // outlier shouldn't take the message down with them.
+        let mapUrl = null;
+        if (slim.length > 1) {
+          mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          if (!mapUrl) {
+            console.warn('[Cuisine] copy-all buildMapHashUrl returned null; sending without map button');
+            body += `\n\n${trn('pick.mapUnavailable', reqLang)}`;
+          }
+        }
+        const sendOpts = (slim.length === 1 || !mapUrl)
+          ? { parse_mode: 'HTML', disable_web_page_preview: true }
+          : {
+              parse_mode: 'HTML',
+              disable_web_page_preview: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🗺️ View all on map', web_app: { url: mapUrl } }],
+                  [{ text: '🔗 Open in browser', url: mapUrl }]
+                ]
+              }
+            };
+        // v0.60.145 — wrap the send. On a Telegram parse-mode rejection
+        // (a stray `&` in a venue name, an unmatched <b>, …) the request
+        // would 500 → the TMA showed "Couldn't send to chat". Retry once
+        // in plain text (strip <b>/</b> + unescape & < >) so the user
+        // still gets the picks. If the retry also fails, 500 with a
+        // structured Railway log line.
+        try {
+          await bot.sendMessage(chatId, body, sendOpts);
+        } catch (err) {
+          console.warn('[Cuisine] copy-all sendMessage failed (HTML mode):', err?.response?.body?.description || err.message);
+          const plain = body.replace(/<\/?b>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+          const plainOpts = { disable_web_page_preview: true };
+          if (sendOpts.reply_markup) plainOpts.reply_markup = sendOpts.reply_markup;
+          try {
+            await bot.sendMessage(chatId, plain, plainOpts);
+          } catch (err2) {
+            console.error('[Cuisine] copy-all sendMessage retry failed (plain):', err2?.response?.body?.description || err2.message);
+            return res.status(500).json({ error: 'send_failed' });
+          }
         }
         // v0.59.44: snapshot the clip so /clip can list + filter past
         // copies by cuisine. Telegram's chat history preserves the
