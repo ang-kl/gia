@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-13",
-  "count": 379,
+  "count": 381,
   "records": [
     {
       "pr": 1,
@@ -10302,6 +10302,61 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 380,
+      "status": "merged",
+      "merged": "2026-05-13 00:22:33",
+      "day": "2026-05-13",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: Vibe-Coding Record — regenerable cross-section of all PRs (#1–#379)",
+      "approach": "Adds doc/VibeCodingRecord/ — a standalone, regenerable ledger of every pull request (#1–#379), separate from the eight doc/ AU templates: a Markdown view, a TSV source of truth, a pure generator (generate.mjs), and committed data…",
+      "codeImpact": "10 files — index.js, doc, package, public/",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "doc: Vibe-Coding Record — regenerable cross-section of all PRs (#1–#379)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 381,
+      "status": "merged",
+      "merged": "2026-05-13 00:39:41",
+      "day": "2026-05-13",
+      "version": "0.60.144",
+      "minor": "0.60",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY)",
+      "approach": "Gates the hosted Vibe Journal behind an optional shared key, the Railway service variable VIBE_JOURNAL_KEY.",
+      "codeImpact": "3 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.60.144 — Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
