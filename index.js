@@ -5692,12 +5692,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const PLACES_URL = 'https://places.googleapis.com/v1/places:searchText';
   // v0.60.45 — added places.primaryTypeDisplayName so non-Michelin-
   // labelled entries fall through to the Places-derived restaurantType.
+  // v0.60.147 — added places.reviews + places.editorialSummary so the
+  // Michelin path can extract dish keywords + a recentReview snippet
+  // (matching the cuisine-chip path's PR #376 fix) and feed the LLM
+  // narrate call with grounded evidence.
   const FIELD_MASK = [
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
     'places.regularOpeningHours.weekdayDescriptions',
-    'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
+    'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel',
+    'places.reviews', 'places.editorialSummary'
   ].join(',');
   const axios = require('axios');
   const venues = [];
@@ -5745,6 +5750,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       priceLevel: PRICE_NUM[placesData?.priceLevel] || null,
       primaryType: placesData?.primaryType || '',
       url: placesData?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
+      // v0.60.147 — review payload kept until the dish-extract +
+      // narrate steps below so Michelin cards match cuisine-chip cards.
+      // Deleted from the response before sending to the TMA.
+      reviews: Array.isArray(placesData?.reviews) ? placesData.reviews : null,
+      googleSummary: placesData?.editorialSummary?.text
+        ? { overview: String(placesData.editorialSummary.text).slice(0, 320) }
+        : null,
       // Michelin annotations attached for the TMA card render.
       michelinCategory: entry.category,
       michelinName: entry.name,
@@ -5938,6 +5950,80 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // attempted-batch (including post-filter drops) is safe: removing
   // the cuisine constraint creates a fresh hash and a fresh set.
   await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
+
+  // v0.60.147 — Michelin full LLM-narrate parity (operator: "the
+  // presented result with Michelin criteria is different from normal
+  // search results"). The cuisine-chip path's PR #376 restored
+  // restaurantType + recentReview; PR #380's review-derived dish
+  // extraction adds the "🍴 What to order" line; this PR additionally
+  // calls pipeline.narrateMichelinVenues for `vibe` + `signatureDish`
+  // + `dishes`. Curated Michelin badge is preserved on every card —
+  // narration is purely additive.
+  // Step 1: review-derived dish keywords + recentReview snippet
+  // (mirrors index.js:8927-8990 — slimmed inline for Michelin).
+  try {
+    const MICH_FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
+    const michNow = Date.now();
+    const MICH_TRAIL_STOP = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there)$/i;
+    const MICH_CATEGORY_BLOCK = /^(restaurant|place|food|service|staff|menu|location|chef|table|drink|drinks|dessert|desserts|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials)$/i;
+    const MICH_DISH_RES = [
+      /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
+      /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
+    ];
+    for (const v of filteredVenues) {
+      if (!Array.isArray(v.reviews) || !v.reviews.length) continue;
+      const recent = v.reviews
+        .filter((r) => r?.text)
+        .filter((r) => {
+          if (!r.publishTime) return true;
+          const t = new Date(r.publishTime).getTime();
+          return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
+        })
+        .slice(0, 3);
+      if (!recent.length) continue;
+      const allText = recent.map((r) => r.text || '').join(' . ');
+      const dishes = new Set();
+      for (const re of MICH_DISH_RES) {
+        let m;
+        while ((m = re.exec(allText)) !== null && dishes.size < 5) {
+          const cand = (m[1] || '').trim();
+          if (cand.length < 3 || cand.length > 40) continue;
+          if (MICH_CATEGORY_BLOCK.test(cand)) continue;
+          if (MICH_TRAIL_STOP.test(cand)) continue;
+          const tokens = cand.split(/\s+/);
+          const capd = tokens.some((t) => /^[A-Z][a-z]+/.test(t));
+          if (!capd && tokens.length > 1) continue;
+          dishes.add(cand);
+        }
+      }
+      const dishList = [...dishes].slice(0, 3);
+      if (dishList.length) v.dishes = dishList;
+      if (!v.recentReview) v.recentReview = String(recent[0].text || '').slice(0, 200).trim();
+    }
+  } catch (err) {
+    console.warn('[Michelin] dish-extract failed:', err.message);
+  }
+  // Step 2: LLM narrate (vibe + signatureDish + LLM-curated dishes).
+  // Best-effort: failure / Gemini-unavailable / parse-fail → leave the
+  // curated Michelin cards with the review-extracted dishes alone.
+  try {
+    const pipeline = require('./pipeline');
+    const narrated = await pipeline.narrateMichelinVenues({ candidates: filteredVenues, lang: csLang });
+    if (narrated && typeof narrated === 'object') {
+      for (const v of filteredVenues) {
+        const n = narrated[v.placeId];
+        if (!n) continue;
+        if (n.vibe) v.vibe = n.vibe;
+        if (n.signatureDish) v.signatureDish = n.signatureDish;
+        // Prefer LLM-curated dishes over review-extracted when present.
+        if (Array.isArray(n.dishes) && n.dishes.length) v.dishes = n.dishes.slice(0, 3);
+      }
+    }
+  } catch (err) {
+    console.warn('[Michelin] narrate failed:', err.message);
+  }
+  // Strip the heavy review payload before responding.
+  for (const v of filteredVenues) { delete v.reviews; }
 
   // v0.60.146 — Michelin path joins the per-session clipboard too
   // (operator's "sensitive with Michelin criteria" note). The 80-cap
