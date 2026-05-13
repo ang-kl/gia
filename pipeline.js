@@ -1171,8 +1171,8 @@ Return EXACTLY a JSON array of ${candidates.length} entries — one per venue, I
   {
     "placeId": "<exact placeId from input>",
     "vibe": "<one short phrase, max ~20 words, about why a solo Singapore diner would go here — mention the Michelin recognition naturally where it fits>",
-    "signature_dish": "<one specific dish the venue is known for>",
-    "dishes": ["<1-3 specific dish names — be specific, not categorical>"]
+    "signature_dish": "<one specific dish the venue is known for — the DISH NAME ONLY, e.g. \"Bak chor mee\" or \"Beef marmalade brioche\". Never a sentence; never a verb-prefixed phrase like \"Order the…\" / \"Try the…\" / \"Have the…\". The label \"🍴 Try ·\" is added by the UI.>",
+    "dishes": ["<1-3 specific dish names — dish names ONLY (no verbs, no articles like \"the\"), e.g. [\"Hainanese chicken rice\", \"Char kway teow\"]. Be specific, not categorical.>"]
   },
   ...
 ]
@@ -1181,6 +1181,7 @@ Rules:
 - Use the recent-review snippet (when present) as evidence — do not invent dishes.
 - For Bib Gourmand stalls, mention if it's a hawker stall.
 - For 3-/2-/1-star, you may mention the star count if natural.
+- Dish fields are NAMES ONLY — never sentences, never "Order this …", never "Try the …", never "Have the …". The UI prepends "🍴 Try ·" / "🍴 Essayez ·" automatically.
 - Return ONLY the JSON array — no preamble, no markdown fence.`;
     const result = await withRetry(
       () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
@@ -1192,15 +1193,25 @@ Rules:
       parsed = JSON.parse(extractJsonArray(rawText));
     } catch { return out; }
     if (!Array.isArray(parsed)) return out;
+    // v0.60.149 — defensive strip of verb prefixes the LLM occasionally
+    // adds despite the prompt ("Order the …" / "Try the …" / "Have the …").
+    // The UI renders the value after the literal "🍴 Try ·" label, so a
+    // verb-prefixed value would read as "🍴 Try · Order this dish".
+    const stripDishVerbs = (s) => String(s || '')
+      .replace(/^\s*(?:order|try|have|get|grab|enjoy|recommend|sample|taste|sip|pick(?: up)?)\s+(?:the|their|some|a|an)?\s+/i, '')
+      .replace(/^\s*the\s+/i, '')
+      .trim();
     const knownIds = new Set(candidates.map((c) => c.placeId).filter(Boolean));
     for (const r of parsed) {
       if (!r || typeof r !== 'object') continue;
       const pid = r.placeId;
       if (!pid || !knownIds.has(pid)) continue;   // defensive — drop hallucinated placeIds
+      const rawSig = r.signature_dish || (Array.isArray(r.dishes) ? r.dishes[0] : '') || '';
+      const rawDishes = Array.isArray(r.dishes) ? r.dishes.slice(0, 3).filter((d) => typeof d === 'string' && d.trim()) : [];
       out[pid] = {
         vibe: typeof r.vibe === 'string' ? r.vibe : '',
-        signatureDish: r.signature_dish || (Array.isArray(r.dishes) ? r.dishes[0] : '') || '',
-        dishes: Array.isArray(r.dishes) ? r.dishes.slice(0, 3).filter((d) => typeof d === 'string' && d.trim()) : []
+        signatureDish: stripDishVerbs(rawSig),
+        dishes: rawDishes.map(stripDishVerbs).filter(Boolean)
       };
     }
     return out;
