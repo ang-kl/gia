@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, startSession, backOnePage } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
@@ -132,6 +132,12 @@ export default function App() {
   // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.60.146 — per-session clipboard. `sessionFull` flips when the
+  // server reports the 80-cap is reached; `pageStackDepth` is the
+  // length of the back-page history (≥1 means the ⇠ Prev FAB is
+  // enabled).
+  const [sessionFull, setSessionFull] = useState(false);
+  const [pageStackDepth, setPageStackDepth] = useState(0);
   // v0.60.115 — how many distinct venues the server has shown for the
   // current criteria-hash. Surfaced in the "that's all N" terminal note
   // when exhausted, so the user knows the pool size and stops re-tapping.
@@ -200,6 +206,12 @@ export default function App() {
     fetchCatalogue()
       .then((d) => setCatalogue(d.categories || []))
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
+    // v0.60.146 — wipe the per-Cuisine-TMA session clipboard (the
+    // 80-cap session-seen SET + the page-history LIST) on every TMA
+    // launch. Reset is explicit so the user gets a fresh list every
+    // time they re-open Cuisine, regardless of the per-criteria
+    // long-lived dedup (cuisine:seen:<chatId>:<hash>).
+    startSession().catch((err) => console.warn('[Cuisine-TMA-v2] session start failed:', err));
   }, []);
 
   // v0.58.20: bounded geolocation resolution.
@@ -487,6 +499,10 @@ export default function App() {
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
       setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
+      // v0.60.146 — per-session clipboard signal carried by every
+      // /api/cuisine/search response.
+      setSessionFull(r?.sessionFull === true);
+      setPageStackDepth(Number.isFinite(r?.pageStackDepth) ? r.pageStackDepth : 0);
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -943,6 +959,21 @@ export default function App() {
           // the centered indicator's wrap-to-1 recycle UX takes over.
           onLastPageNext={() => runSearch(state)}
           exhausted={exhaustedNote}
+          // v0.60.146 — per-session clipboard. `pageStackDepth` ≥ 1
+          // enables the ⇠ Prev FAB in the strip; tapping it asks the
+          // server to pop the most-recent page off the history list
+          // and return the one before it.
+          pageStackDepth={pageStackDepth}
+          sessionFull={sessionFull}
+          onBackOnePage={async () => {
+            const r = await backOnePage();
+            if (r && r.ok && r.page && Array.isArray(r.page.venues)) {
+              setVenues(r.page.venues);
+              setPageStackDepth(Number.isFinite(r.pageStackDepth) ? r.pageStackDepth : 0);
+              setExhaustedNote(false);
+              setSessionFull(false);
+            }
+          }}
         />
         {/* v0.60.115/117 — terminal note when the server returns
             exhausted=true: the user has now seen everything across all
@@ -953,11 +984,15 @@ export default function App() {
             non-exhausted search. */}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
-            {poolCount > 1
-              ? tn('result.exhausted', lang, { n: poolCount })
-              : poolCount === 1
-                ? t('result.exhaustedOne', lang)
-                : t('result.exhaustedNoCount', lang)}
+            {sessionFull
+              ? (lang === 'fr'
+                  ? 'Vous avez vu le maximum de 80 lieux pour cette session. Fermez et ré-ouvrez Cuisine pour une nouvelle session.'
+                  : 'You\'ve seen the 80 maximum for this session. Close and re-open Cuisine for a fresh session.')
+              : (poolCount > 1
+                  ? tn('result.exhausted', lang, { n: poolCount })
+                  : poolCount === 1
+                    ? t('result.exhaustedOne', lang)
+                    : t('result.exhaustedNoCount', lang))}
             <button
               type="button"
               onClick={() => runSearch(state, null, { resetSeen: true })}
