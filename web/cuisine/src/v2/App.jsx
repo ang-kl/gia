@@ -1049,6 +1049,35 @@ export default function App() {
       >
         <BackFab inline closeOnly />
         <div className="flex flex-col gap-2 items-end pointer-events-none">
+          {/* v0.60.148 — ⇠ Prev FAB. Walks the per-session page history
+              (Redis list capped at 10), enabled when the server's most
+              recent /api/cuisine/search response reports pageStackDepth
+              ≥ 1. Tap → /api/cuisine/session/back → replace the result
+              list with the previous one (usageLog tracks the back tap
+              as `src:cuisine-tma-back`). Lives ABOVE 🔍 Search in the
+              FAB column so the operator's primary navigation cue is in
+              the same visual cluster as the forward search.
+              Moved here from the in-strip pagination row (v0.60.146)
+              where it was hidden behind the `totalPages > 1` guard — a
+              single-12-venue response never tripped it. */}
+          {pageStackDepth > 0 && (
+            <button
+              type="button"
+              onClick={async () => {
+                const r = await backOnePage();
+                if (r && r.ok && r.page && Array.isArray(r.page.venues)) {
+                  setVenues(r.page.venues);
+                  setPageStackDepth(Number.isFinite(r.pageStackDepth) ? r.pageStackDepth : 0);
+                  setExhaustedNote(false);
+                  setSessionFull(false);
+                }
+              }}
+              aria-label={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
+              title={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
+              style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+              className="pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[12px] font-semibold flex items-center justify-center active:scale-95"
+            >⇠</button>
+          )}
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
               and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
               'down'." Search FAB now renders FIRST (top of column);

@@ -230,19 +230,12 @@ export default function ResultPanel({
               language. */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-1.5 pt-1.5">
-              {/* v0.60.146 — ⇠ Prev FAB walks the per-session page history
-                  (server-side Redis list). Enabled only when the server
-                  reports pageStackDepth ≥ 1, i.e. the user has at least
-                  one prior /api/cuisine/search response to go back to. */}
-              {pageStackDepth > 0 && typeof onBackOnePage === 'function' && (
-                <button
-                  type="button"
-                  onClick={() => onBackOnePage()}
-                  aria-label={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
-                  title={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
-                  className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center active:scale-95"
-                >⇠</button>
-              )}
+              {/* v0.60.146/.148 — the ⇠ Prev (per-session page history)
+                  used to live here but the surrounding strip only renders
+                  when totalPages > 1 (the in-response page nav for the
+                  current 12-venue chunk), so it was effectively invisible
+                  for every standard search. Moved to the floating FAB
+                  column in App.jsx, visible whenever pageStackDepth ≥ 1. */}
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
