@@ -41,21 +41,28 @@ describe('renderPrivacyHtml', () => {
     expect(html).not.toMatch(/<p>\s*<\/p>/);
   });
 
+  // v0.60.172 — assertions updated for the tighter 3-paragraph privacy
+  // body (operator copy rewrite). The prior assertions targeted the
+  // bulleted multi-section structure that shipped from v0.60.142 →
+  // v0.60.171 (subheadings like "What Soleat collects" + `<li>` items).
+  // The new copy is a flat narrative; assertions track that shape.
+  // Renderer behaviour itself is unchanged (still bold/escape/paragraphs).
   it('renders the actual EN privacy.body through end-to-end', () => {
     const body = tn('privacy.body', 'en', { operator: '' });
     const html = renderPrivacyHtml(body, 'en');
-    expect(html).toContain('<strong>Privacy &amp; data handling</strong>'.replace('&amp;', '&'));
-    expect(html).toContain('<strong>What Soleat collects</strong>');
-    expect(html).toContain('<li>Telegram chat identifier');
-    expect(html).toContain('<li>Recent picks');
+    expect(html).toContain('<strong>Privacy &amp; Data Handling</strong>'.replace('&amp;', '&'));
+    expect(html).toContain('<p>Soleat only collects what is needed');
+    expect(html).toContain('third-party trackers');
+    expect(html).toContain('/forgetme');
   });
 
   it('renders the actual FR privacy.body through end-to-end', () => {
     const body = tn('privacy.body', 'fr', { operator: '' });
     const html = renderPrivacyHtml(body, 'fr');
     expect(html).toContain('<strong>Confidentialité et gestion des données</strong>');
-    expect(html).toContain('<strong>Ce que Soleat collecte</strong>');
-    expect(html).toContain('<li>Identifiant de chat Telegram');
+    expect(html).toContain('<p>Soleat ne collecte que ce qui est nécessaire');
+    expect(html).toContain('traceurs tiers');
+    expect(html).toContain('/forgetme');
   });
 });
 
