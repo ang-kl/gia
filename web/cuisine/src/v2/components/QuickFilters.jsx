@@ -16,10 +16,14 @@ const PRIMARY = [
   { key: 'newlyOpened', i18n: 'filter.newlyOpened', icon: '🆕' },
   { key: 'halal',       i18n: 'filter.halal',       icon: '🕌' }
 ];
+// v0.60.165 — `petFriendly` (🐾 Pet-allow) chip added per operator.
+// Strict mode server-side: venue.allowsDogs===true filter; text-query
+// fallback ("pet friendly …") when strict yields < 3 venues.
 const OVERFLOW = [
-  { key: 'openNow',    i18n: 'filter.openNow',    icon: '🟢' },
-  { key: 'vegetarian', i18n: 'filter.vegetarian', icon: '🥗' },
-  { key: 'homeBased',  i18n: 'filter.homeBased',  icon: '🏠' }
+  { key: 'openNow',     i18n: 'filter.openNow',     icon: '🟢' },
+  { key: 'vegetarian',  i18n: 'filter.vegetarian',  icon: '🥗' },
+  { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' },
+  { key: 'petFriendly', i18n: 'filter.petFriendly', icon: '🐾' }
 ];
 const PRICES = ['$', '$$', '$$$'];
 

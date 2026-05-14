@@ -8333,8 +8333,38 @@ async function cacheBotUsername() {
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
-        const searchCenter = isJB ? JB_CBD : { lat, lng };
-        const searchRadius = isJB ? 18000 : 50000;
+        // v0.60.164 — honour an explicit non-SG location pick. When
+        // region=JB but the supplied lat/lng is inside the Singapore
+        // bounding box, the user toggled JB while their GPS still
+        // reports SG (haven't picked a JB location yet) — fall back to
+        // JB CBD. When lat/lng is OUTSIDE SG bbox (Pontian, Desaru,
+        // Kulai, Mersing, …), the user has explicitly picked a Johor
+        // location via the LocationField — trust it and run the
+        // discovery centred there. Operator 2026-05-14: "Can I set the
+        // location at Pontian or Desaru? Apparently, jump to the
+        // central area in Johor as set location."
+        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
+        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
+        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
+          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
+          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
+        // v0.60.165 — JB default radius widened 18 km → 30 km per
+        // operator request. Tight 18 km only covered JB city proper;
+        // 30 km reaches Iskandar Puteri + Pasir Gudang + parts of Senai
+        // + Kulai (edge) which is the operator's mental model for
+        // "Johor Bahru area" by default. Far-Johor picks (Pontian,
+        // Desaru, Muar, Mersing) still need an explicit LocationField
+        // pick — v0.60.164's pick-respect plus the slider's 100 km cap
+        // covers those scenarios.
+        // v0.60.165 — SG default tightened 50 km → 20 km per operator
+        // correction in the review pass. SG is dense — 20 km from any
+        // pin covers ~half the island, which matches the "near me"
+        // mental model. Tuas (~25 km W) and Changi (~22 km E) are
+        // outside this default; users can dial the slider up to 100 km
+        // for cross-island reach. JB default stays 30 km (covers JB
+        // City + Iskandar Puteri + Pasir Gudang + edges of Senai/Kulai).
+        const searchRadius = isJB ? 30000 : 20000;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
@@ -9043,14 +9073,28 @@ async function cacheBotUsername() {
         }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.
+        // v0.60.164 — same SG-bbox fallback as /warm-start: when the
+        // supplied lat/lng sits inside SG, JB region toggle means "I
+        // toggled to JB but haven't picked a JB location yet" → use
+        // JB CBD. When lat/lng is OUTSIDE SG bbox (Pontian, Desaru,
+        // Kulai, …), the user has explicitly picked a Johor location
+        // — trust it and centre the search there.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         const isJB = region === 'JB';
-        const searchCenter = isJB ? JB_CBD : { lat, lng };
+        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
+        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
+        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
+          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
+          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.58.8: client supplies a `radius` in metres from the
         // vertical slider on the map. Bounded 1000–100000. When
         // missing or out of range, fall back to the legacy region
         // defaults (50 km SG / 18 km JB).
-        const DEFAULT_RADIUS = isJB ? 18000 : 50000;
+        // v0.60.165 — JB default 18 km → 30 km (see warm-start above).
+        // v0.60.165 — SG default 50 km → 20 km (same correction as
+        // /warm-start above). JB 30 km unchanged.
+        const DEFAULT_RADIUS = isJB ? 30000 : 20000;
         const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
           ? Math.round(clientRadius)
           : DEFAULT_RADIUS;
@@ -9245,6 +9289,13 @@ async function cacheBotUsername() {
         if (filters.newlyOpened) modifiers.push('newly opened');
         if (filters.halal) modifiers.push('halal');
         if (filters.vegetarian) modifiers.push('vegetarian');
+        // v0.60.165 — petFriendly modifier biases the Places text query
+        // toward venues with "pet friendly" in name/reviews. Combined
+        // with the strict post-filter on `v.allowsDogs === true` below,
+        // strict mode cherry-picks Google-tagged places; if strict
+        // yields < 3, we keep the text-query bias (allowsDogs unknown
+        // but reviews hint pet-friendly) per operator's fallback.
+        if (filters.petFriendly) modifiers.push('pet friendly');
         let cuisineQueries;
         if (modifiers.length && cuisineNames.length) {
           cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
@@ -9322,7 +9373,10 @@ async function cacheBotUsername() {
         // v0.59.0: lang dimension added to the cache key — `:l${csLang}`.
         const cacheKey = `cuisine:search:v3:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:r${searchRadius}:` +
           `${cuisineQueries.join('|')}:` +
-          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
+          // v0.60.165 — petFriendly bit `p` added to the filter slug so
+          // pet-friendly searches don't share a cached pool with the
+          // same cuisine + non-pet-friendly variant.
+          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : '', filters.petFriendly ? 'p' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}:l${csLang}`;
         // Codex review #224: when Singaporean is in the cuisines list,
         // skip the cache so each call re-runs discover() and rotates
@@ -9658,7 +9712,13 @@ async function cacheBotUsername() {
         // JB-mode results to "Johor Bahru" so we don't bleed into KL).
         venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
         if (isJB) {
-          venues = venues.filter((v) => /johor bahru/i.test(`${v.area || ''} ${v.name || ''}`));
+          // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
+          // JB region toggle covers ALL of Johor state (Pontian, Desaru,
+          // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
+          // Puteri, …), not only the city named "Johor Bahru". KL +
+          // Selangor + Pahang addresses don't mention "Johor" so the
+          // word-boundary filter still keeps non-Johor MY venues out.
+          venues = venues.filter((v) => /\bjohor\b/i.test(`${v.area || ''} ${v.name || ''}`));
         } else {
           // SG only: post-filter by Singapore mention OR proximity
           // (some hawker centres' formattedAddress lacks "Singapore").
@@ -9707,6 +9767,24 @@ async function cacheBotUsername() {
         // recency signal via the "newly opened" modifier.
         if (filters.newlyOpened) {
           venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
+        }
+        // v0.60.165 — petFriendly strict post-filter with text-query
+        // fallback. Places' `allowsDogs` attribute is well-populated in
+        // SG but sparser in JB / Malaysia. Strict: keep only venues
+        // tagged `allowsDogs === true`. If strict yields < 3, drop the
+        // strict filter and use the text-query-biased pool (the
+        // "pet friendly" modifier already biased the Places search
+        // upstream). Operator: "Strict Mode: only show venues with
+        // allow dogs=true. Fallback: text-query 'pet friendly' when
+        // strict zeros."
+        if (filters.petFriendly && venues.length > 0) {
+          const strictPet = venues.filter((v) => v.allowsDogs === true);
+          if (strictPet.length >= 3) {
+            console.log(`[Cuisine-Search] petFriendly strict: ${strictPet.length}/${venues.length} venues tagged allowsDogs=true`);
+            venues = strictPet;
+          } else {
+            console.log(`[Cuisine-Search] petFriendly strict yielded ${strictPet.length}/3 — falling back to text-query bias (${venues.length} venues)`);
+          }
         }
         // Sort by walking distance ASC (closer first) so top venues are most reachable.
         // v0.59.29: cap reverted 16 → 12 per Human Lead 2026-05-07.

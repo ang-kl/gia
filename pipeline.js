@@ -865,7 +865,16 @@ const DISCOVER_FIELD_MASK = [
   // the Cuisine TMA's ResultCard restaurantType line renders for plain
   // (non-Michelin) venues from the LLM-free /api/cuisine/search path.
   'places.primaryTypeDisplayName',
-  'places.reviews'
+  'places.reviews',
+  // v0.60.165 — pet-friendly support. Places New API exposes
+  // `allowsDogs` as a boolean attribute when Google has the data
+  // (well-populated in SG, sparser in JB). The Cuisine TMA's new
+  // 🐾 Pet-allow filter chip drives a post-filter on this field;
+  // when the strict filter yields < 3 venues, a text-query fallback
+  // ("pet friendly <cuisine> restaurant") fires server-side. The
+  // field is requested unconditionally so even non-pet-filtered
+  // queries can surface it as a future per-card badge.
+  'places.allowsDogs'
 ].join(',');
 
 function priceLevelToInt(p) {
@@ -1095,7 +1104,12 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
             text: r?.text?.text || r?.originalText?.text || '',
             rating: r?.rating ?? null,
             publishTime: r?.publishTime || r?.relativePublishTimeDescription || null
-          })).filter((r) => r.text) : []
+          })).filter((r) => r.text) : [],
+          // v0.60.165 — pet-friendly attribute pass-through. Places
+          // returns true / false / undefined; treat undefined as
+          // "unknown" (downstream strict filter rejects, fallback
+          // text-query mode accepts via fuzzy match).
+          allowsDogs: p.allowsDogs === true
         };
       })
       .filter((v) => v.placeId && v.name);
