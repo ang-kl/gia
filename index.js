@@ -5693,6 +5693,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     region: 'SG',
     freeText: freeText || ''
   });
+  // v0.60.162 — honor the client-side resetSeen flag (v0.60.157's
+  // zero-results auto-retry mechanism). The outer /api/cuisine/search
+  // handler already resets the cuisine-chip path's seen-set when this
+  // flag is true, but the Michelin handler reads its own
+  // `cuisine:seen:<chatId>:<criteriaHash>` independently — so without
+  // this branch the retry never reached the Michelin dedup state.
+  // Operator 2026-05-14: combo=[european] → 0 venues → v0.60.157 retry
+  // fired resetSeen=true → Michelin handler still saw seen=24, still
+  // returned 0.
+  if (req.body?.resetSeen === true && csChatId) {
+    await resetSeenSet(csChatId, criteriaHash);
+    console.log(`[Michelin] resetSeen honoured chatId=${csChatId} hash=${String(criteriaHash).slice(0, 8)}`);
+  }
   const seen = await readSeenSet(csChatId, criteriaHash);
   // v0.60.153 — one-line diagnostic so the next "same first 12"
   // report can be triaged from Railway logs without another round
@@ -5900,7 +5913,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     slice.map(async (entry) => ({ entry, placesData: await resolveEntryPlace(entry) }))
   );
   const venues = [];
-  const newDedupKeys = [];
+  // v0.60.162 — dedup keys now travel on each venue object as
+  // `venue.michelinDedupKey` (set inside the loop below) so the seen-set
+  // append at the bottom can use only the venues that survived the
+  // cuisine/veg/halal/price post-filters. The earlier parallel
+  // `newDedupKeys` array marked post-filter drops as "seen", which
+  // prematurely exhausted combo searches.
   for (const result of resolved) {
     if (result.status !== 'fulfilled') {
       console.warn('[Michelin] resolveEntryPlace rejected:', result.reason?.message || result.reason);
@@ -5972,11 +5990,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // has no curated label.
       restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true
+      michelinHalal: entry.halal === true,
+      // v0.60.162 — attach the dedup key to the venue object itself so
+      // the seen-set append at the bottom of the handler can derive
+      // keys from `filteredVenues` (post cuisine/veg/halal/price
+      // filtering) instead of the pre-filter slice. The earlier
+      // approach (parallel `newDedupKeys` array populated here) marked
+      // post-filter drops as "seen", which prematurely exhausted combo
+      // searches like Michelin + European after the first tap. Removed
+      // before the response leaves the handler.
+      michelinDedupKey: `${entry.name}|${entry.address || ''}`.toLowerCase()
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
-      newDedupKeys.push(`${entry.name}|${entry.address || ''}`.toLowerCase());
     }
   }
 
@@ -6120,11 +6146,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // which usually differs from `entry.address` enough that
   // `seen.has(\`${e.name}|${e.address}\`.toLowerCase())` at line 4844
   // returned false on the next click — same Michelin entries kept
-  // resurfacing instead of the next 40. The criteriaHash already
-  // partitions seen-sets by cuisine combo, so appending the full
-  // attempted-batch (including post-filter drops) is safe: removing
-  // the cuisine constraint creates a fresh hash and a fresh set.
-  await appendSeenSet(csChatId, criteriaHash, newDedupKeys);
+  // resurfacing instead of the next 40.
+  // v0.60.162 — narrow the append to ONLY venues that survived the
+  // cuisine / vegetarian / halal / price post-filters above. The prior
+  // "append the full attempted-batch (including post-filter drops)"
+  // assumption only held when post-filter drops were rare; for
+  // Michelin + European (and similar combo searches) the strict
+  // primaryType post-filter drops most candidates, so the inflated
+  // seen-set prematurely exhausted subsequent slices. Operator
+  // 2026-05-14 Railway evidence: combo=[european] tap 1 returned 11
+  // venues but next tap showed seen=12 → 0 venues → exhausted.
+  const postFilterDedupKeys = filteredVenues
+    .map((v) => v.michelinDedupKey)
+    .filter(Boolean);
+  await appendSeenSet(csChatId, criteriaHash, postFilterDedupKeys);
+  // Scrub the internal-only dedup key off venues before the response
+  // leaves the handler — clients don't need it.
+  for (const v of filteredVenues) { delete v.michelinDedupKey; }
 
   // v0.60.147 — Michelin full LLM-narrate parity (operator: "the
   // presented result with Michelin criteria is different from normal
