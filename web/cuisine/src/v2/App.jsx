@@ -1146,10 +1146,13 @@ export default function App() {
             // v0.60.154 — operator copy + glyph (🎩 → ✳️). Shorter
             // "please wait" framing replaces the longer "curating … hang
             // on" hint that landed in v0.60.153.
+            // v0.60.158 — further compressed per operator: "Fetching the
+            // latest Michelin information" → "Fetching Michelin Info" so
+            // the hint stays on a single mobile line.
             (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin')
               ? (lang === 'fr'
-                  ? '✳️ Récupération des dernières informations Michelin. Un instant…'
-                  : '✳️ Fetching the latest Michelin information. Please wait a moment.')
+                  ? '✳️ Récupération des infos Michelin. Un instant…'
+                  : '✳️ Fetching Michelin Info. Please wait a moment.')
               : null
           }
           focusedPlaceId={focusedPlaceId}
