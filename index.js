@@ -8357,7 +8357,14 @@ async function cacheBotUsername() {
         // Desaru, Muar, Mersing) still need an explicit LocationField
         // pick — v0.60.164's pick-respect plus the slider's 100 km cap
         // covers those scenarios.
-        const searchRadius = isJB ? 30000 : 50000;
+        // v0.60.165 — SG default tightened 50 km → 20 km per operator
+        // correction in the review pass. SG is dense — 20 km from any
+        // pin covers ~half the island, which matches the "near me"
+        // mental model. Tuas (~25 km W) and Changi (~22 km E) are
+        // outside this default; users can dial the slider up to 100 km
+        // for cross-island reach. JB default stays 30 km (covers JB
+        // City + Iskandar Puteri + Pasir Gudang + edges of Senai/Kulai).
+        const searchRadius = isJB ? 30000 : 20000;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
@@ -9085,7 +9092,9 @@ async function cacheBotUsername() {
         // missing or out of range, fall back to the legacy region
         // defaults (50 km SG / 18 km JB).
         // v0.60.165 — JB default 18 km → 30 km (see warm-start above).
-        const DEFAULT_RADIUS = isJB ? 30000 : 50000;
+        // v0.60.165 — SG default 50 km → 20 km (same correction as
+        // /warm-start above). JB 30 km unchanged.
+        const DEFAULT_RADIUS = isJB ? 30000 : 20000;
         const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
           ? Math.round(clientRadius)
           : DEFAULT_RADIUS;
