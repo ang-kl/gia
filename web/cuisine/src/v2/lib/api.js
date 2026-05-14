@@ -1,14 +1,34 @@
 // v2/lib/api.js — TMA → backend client.
 import { initData } from '../../api/tg.js';
+// v0.60.161 — client-side verbose-log telemetry. Each fetch is wrapped
+// with timing; when the server tags a response with `_vlog: true` the
+// shim flips on and starts reporting subsequent fetch timings + window
+// errors to /api/vlog (Railway logs as `[VLOG-CLIENT <chatId>] …`).
+import * as vlog from './vlog.js';
 
 async function postJson(url, body) {
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...body, initData: initData() })
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
+  const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...body, initData: initData() })
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const json = await r.json();
+    vlog.noteServerHint(json);
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'POST', url, ms, ok: true });
+    }
+    return json;
+  } catch (err) {
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'POST', url, ms, ok: false, error: err && (err.message || String(err)) });
+    }
+    throw err;
+  }
 }
 
 // v0.58.7: GET helper now forwards initData via the X-Telegram-Init-
@@ -16,14 +36,29 @@ async function postJson(url, body) {
 // /api/reverse-geocode) can authenticate identically to the POST
 // endpoints that pass initData in the body.
 async function getJson(url) {
-  const r = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'X-Telegram-Init-Data': initData() || ''
+  const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  try {
+    const r = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        'X-Telegram-Init-Data': initData() || ''
+      }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const json = await r.json();
+    vlog.noteServerHint(json);
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'GET', url, ms, ok: true });
     }
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
+    return json;
+  } catch (err) {
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'GET', url, ms, ok: false, error: err && (err.message || String(err)) });
+    }
+    throw err;
+  }
 }
 
 export async function fetchCatalogue() {

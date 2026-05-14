@@ -1619,6 +1619,14 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
 // v0.30.4: /log on|off|status — per-chat verbose-mode toggle. When on,
 // every step of the NL pipeline emits a "🔍 step …" message to the
 // chat for real-time debugging. Auto-clears after 24 h.
+// v0.60.161 — same toggle now ALSO drives:
+//   - server-side Railway logs prefixed `[VLOG <chatId>] {…}` covering
+//     /api/cuisine/search + /copy-one + /copy-all + handleMichelinSearch
+//     request/response, timing, Redis key TTLs, outbound HTTP cache
+//     headers (Places + Gemini), error stacks
+//   - Cuisine TMA client-side telemetry (`fetch` timing, window errors)
+//     POSTed to /api/vlog and surfaced as `[VLOG-CLIENT <chatId>] {…}`
+// One Redis key (`verbose:<chatId>`, 24-h TTL) drives all three surfaces.
 bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
   try {
     const verbose = require('./verbose-log');
@@ -1626,19 +1634,24 @@ bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
     if (action === 'on') {
       await verbose.enable(redis, msg.chat.id);
       await safeSend(msg.chat.id,
-        '🔍 *Verbose mode ON.* Every step of the NL pipeline will be ' +
-        'mirrored back to this chat for the next 24 h. Send `/log off` ' +
-        'to disable, `/log status` to check.'
+        '🔍 *Verbose mode ON* (24 h auto-off).\n\n' +
+        '• `🔍 step …` chat messages for NL pipeline runs\n' +
+        '• `[VLOG <chatId>] …` Railway logs for /api/cuisine/* + Michelin handler (timing, Redis TTLs, HTTP cache)\n' +
+        '• `[VLOG-CLIENT <chatId>] …` Railway logs for Cuisine TMA fetch timing + window errors\n\n' +
+        'Send `/log off` to disable, `/log status` to check TTL remaining.'
       );
       return;
     }
     if (action === 'off') {
       await verbose.disable(redis, msg.chat.id);
-      await safeSend(msg.chat.id, '🔍 Verbose mode OFF.');
+      await safeSend(msg.chat.id, '🔍 Verbose mode OFF (chat traces + Railway logs + TMA telemetry).');
       return;
     }
-    const on = await verbose.isEnabled(redis, msg.chat.id);
-    await safeSend(msg.chat.id, `🔍 Verbose mode is currently *${on ? 'ON' : 'OFF'}*. Use \`/log on\` or \`/log off\` to toggle.`);
+    const s = await verbose.status(redis, msg.chat.id);
+    const remaining = s.on && Number.isFinite(s.ttlSeconds) && s.ttlSeconds > 0
+      ? ` · ${Math.round(s.ttlSeconds / 60)} min remaining`
+      : '';
+    await safeSend(msg.chat.id, `🔍 Verbose mode is currently *${s.on ? 'ON' : 'OFF'}*${remaining}. Use \`/log on\` or \`/log off\` to toggle.`);
   } catch (err) {
     console.error('[Error] /log handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, /log hit an error.");
@@ -5651,7 +5664,15 @@ async function setVariantIdx(chatId, criteriaHash, idx) {
 // reset+full-list when every venue has been seen.
 async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [] }) {
   if (isJB) {
-    return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
+    // v0.60.161 — tag _vlog so the TMA can opportunistically learn the
+    // toggle state even on this early-exit path.
+    try {
+      const vlogEarly = require('./verbose-log');
+      const _on = await vlogEarly.isOn(redis, csChatId);
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', _vlog: _on || undefined });
+    } catch {
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
+    }
   }
   const michelin = require('./michelin-2025');
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -5677,6 +5698,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // report can be triaged from Railway logs without another round
   // of code-reading. Fires on every Michelin tap.
   console.log(`[Michelin] tap chatId=${csChatId || 'null'} hash=${String(criteriaHash).slice(0, 8)} seen=${seen.size} combo=[${otherCuisineSlugs.join(',')}]`);
+  // v0.60.161 — verbose-log full incoming snapshot + Redis TTL on the
+  // seen-set so the operator can see how long the dedup state will
+  // persist before auto-clearing.
+  const vlogMichelin = require('./verbose-log');
+  const vlogMichelinStart = Date.now();
+  await vlogMichelin.vlogIf(redis, csChatId, {
+    kind: 'michelin-incoming',
+    hash: String(criteriaHash).slice(0, 8),
+    seen: seen.size,
+    combo: otherCuisineSlugs,
+    isJB,
+    freeTextLen: (freeText || '').length,
+    radius: searchRadius
+  });
+  if (csChatId) {
+    await vlogMichelin.vlogTtl(redis, csChatId, `cuisine:seen:${csChatId}:${criteriaHash}`);
+  }
 
   // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
   // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
@@ -6314,6 +6352,24 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   if (handlerMs > 10000) {
     console.warn(`[Michelin] handler ms=${handlerMs} cacheHits=${cacheHits} cacheMisses=${cacheMisses} venues=${filteredVenues.length}`);
   }
+  // v0.60.161 — verbose-log exit. cacheHits/cacheMisses are the Places
+  // resolver's per-entry cache (24-h michelin:place:<slug>) hits;
+  // narrate-enrich cache (7-d michelin:enrich:<slug>) hit/miss isn't
+  // tracked separately yet — could be a follow-up if needed.
+  const vlogMichelinOn = await vlogMichelin.isOn(redis, csChatId);
+  if (vlogMichelinOn) {
+    vlogMichelin.vlog(csChatId, {
+      kind: 'michelin-exit',
+      ms: Date.now() - vlogMichelinStart,
+      handlerMs,
+      cacheHits,
+      cacheMisses,
+      venues: filteredVenues.length,
+      exhausted,
+      reset: didReset,
+      remaining: Math.max(0, allEntries.length - seen.size - filteredVenues.length)
+    });
+  }
   return res.json({
     venues: filteredVenues,
     cached: false,
@@ -6321,6 +6377,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     exhausted,
     sessionFull: false,
     pageStackDepth: michelinPageDepth,
+    _vlog: vlogMichelinOn || undefined,
     michelinSummary: {
       total: allEntries.length,
       // v0.60.149 — how many curated Michelin entries are still
@@ -7798,6 +7855,7 @@ async function cacheBotUsername() {
     // For the 1-venue case we still use a direct Google Maps place
     // link (instant, native experience).
     app.post('/api/cuisine/copy-all', async (req, res) => {
+      const copyAllStart = Date.now();
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         if (!verified?.user?.id) {
@@ -7805,6 +7863,13 @@ async function cacheBotUsername() {
         }
         const chatId = verified.user.id;
         const incoming = Array.isArray(req.body?.venues) ? req.body.venues : [];
+        // v0.60.161 — verbose-log incoming.
+        const vlogCopyAll = require('./verbose-log');
+        await vlogCopyAll.vlogIf(redis, chatId, {
+          kind: 'copy-all-incoming',
+          venues: incoming.length,
+          lang: req.body?.lang || null
+        });
         // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle is
         // freshest), fall back to the Redis /language pref, then 'en'.
         const { resolveLang } = require('./user-prefs');
@@ -7901,9 +7966,20 @@ async function cacheBotUsername() {
             lang: reqLang
           });
         } catch (err) { console.warn('[Cuisine] pushClip (copy-all) failed:', err.message); }
+        // v0.60.161 — verbose-log exit.
+        try {
+          const vlogExitAll = require('./verbose-log');
+          await vlogExitAll.vlogIf(redis, chatId, { kind: 'copy-all-exit', ms: Date.now() - copyAllStart, ok: true, count: slim.length });
+        } catch { /* best-effort */ }
         res.json({ ok: true, count: slim.length });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-all failed:', err.message);
+        try {
+          const verified2 = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          const chatId2 = verified2?.user?.id;
+          const vlogExitAll = require('./verbose-log');
+          await vlogExitAll.vlogIf(redis, chatId2, { kind: 'copy-all-error', ms: Date.now() - copyAllStart, error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
+        } catch { /* best-effort */ }
         res.status(500).json({ error: err.message });
       }
     });
@@ -8015,6 +8091,38 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.60.161 — /api/vlog: TMA-side telemetry sink. Cuisine TMA POSTs
+    // batched fetch-timing + window-error payloads here when verbose mode
+    // is on for the chat (`/log on`). Emits `[VLOG-CLIENT <chatId>] {…}`
+    // to Railway logs alongside the server-side `[VLOG <chatId>] {…}`
+    // lines so the operator gets both legs of the round-trip in one
+    // log stream.
+    //
+    // Gates: valid initData → chatId resolved → verbose flag ON for that
+    // chatId. Anything else: 200 ok:false (silent reject — the client
+    // shouldn't behave differently based on whether the operator has
+    // verbose on or off).
+    app.post('/api/vlog', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.json({ ok: false });
+        const chatId = verified.user.id;
+        if (!redis.isOpen) await redis.connect().catch(() => {});
+        const verbose = require('./verbose-log');
+        if (!(await verbose.isOn(redis, chatId))) return res.json({ ok: false });
+        const payload = req.body?.payload || {};
+        // Cap the payload size so a runaway client can't flood Railway logs.
+        const body = (typeof payload === 'string') ? payload : JSON.stringify(payload);
+        const capped = body.length > 4096 ? body.slice(0, 4096) + '…[truncated]' : body;
+        console.log(`[VLOG-CLIENT ${chatId}] ${capped}`);
+        res.json({ ok: true });
+      } catch (err) {
+        // Never propagate — telemetry is best-effort.
+        try { console.warn('[VLog] /api/vlog failed:', err.message); } catch { /* noop */ }
+        res.json({ ok: false });
+      }
+    });
+
     // v0.58.50: per-card "📋 Copy" button — TMA POSTs ONE venue, the
     // server builds a T1 detail-with-sanctuary block (full address +
     // hours + website + phone + sanctuary read + stats + order + URL)
@@ -8022,6 +8130,7 @@ async function cacheBotUsername() {
     // text reply format so the recipient gets the same depth of
     // detail as a chat-text search result.
     app.post('/api/cuisine/copy-one', async (req, res) => {
+      const copyOneStart = Date.now();
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
@@ -8030,6 +8139,13 @@ async function cacheBotUsername() {
         if (!venue || (!venue.placeId && !venue.name)) {
           return res.status(400).json({ error: 'missing venue' });
         }
+        // v0.60.161 — verbose-log incoming.
+        const vlogCopyOne = require('./verbose-log');
+        await vlogCopyOne.vlogIf(redis, chatId, {
+          kind: 'copy-one-incoming',
+          placeId: venue.placeId, nameLen: (venue.name || '').length,
+          lang: venue.lang || null
+        });
         // v0.58.55 / v0.59.0: prefer the body's venue.lang (TMA toggle),
         // fall back to the Redis /language pref, then 'en'.
         const { resolveLang } = require('./user-prefs');
@@ -8083,9 +8199,22 @@ async function cacheBotUsername() {
             lang: oneLang
           });
         } catch (err) { console.warn('[Cuisine] pushClip (copy-one) failed:', err.message); }
+        // v0.60.161 — verbose-log exit.
+        try {
+          const verified2 = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          const chatId2 = verified2?.user?.id;
+          const vlogExit = require('./verbose-log');
+          await vlogExit.vlogIf(redis, chatId2, { kind: 'copy-one-exit', ms: Date.now() - copyOneStart, ok: true });
+        } catch { /* best-effort */ }
         res.json({ ok: true });
       } catch (err) {
         console.error('[Error] /api/cuisine/copy-one failed:', err.message);
+        try {
+          const verified2 = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          const chatId2 = verified2?.user?.id;
+          const vlogExit = require('./verbose-log');
+          await vlogExit.vlogIf(redis, chatId2, { kind: 'copy-one-error', ms: Date.now() - copyOneStart, error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
+        } catch { /* best-effort */ }
         res.status(500).json({ error: err.message });
       }
     });
@@ -8737,6 +8866,22 @@ async function cacheBotUsername() {
         const { resolveLang: resolveLangSearch } = require('./user-prefs');
         const csBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
+        // v0.60.161 — verbose-log instrumentation. Capture request start
+        // time + incoming payload shape. The vlogIf gate is in-process-
+        // cached so this adds ~zero latency when verbose is off.
+        const vlog = require('./verbose-log');
+        const vlogStart = Date.now();
+        await vlog.vlogIf(redis, csChatId, {
+          kind: 'cuisine-search-incoming',
+          lat, lng,
+          cuisines: Array.isArray(cuisines) ? cuisines : [],
+          filters: filters && typeof filters === 'object' ? filters : {},
+          prices: Array.isArray(req.body?.prices) ? req.body.prices : [],
+          region, radiusIn: clientRadius,
+          freeTextLen: (req.body?.freeText || '').length,
+          resetSeen: req.body?.resetSeen === true,
+          lang: csLang
+        });
         // v0.58.26: reject {lat:0, lng:0} — the TMA had been firing
         // searches with uninitialised coords (Railway log evidence:
         // "center=0.0000,0.0000 radius=50000 → 0 candidates"). Zero
@@ -9772,9 +9917,29 @@ async function cacheBotUsername() {
             await redis.setEx(cacheKey, SEARCH_CACHE_TTL_S, JSON.stringify(payload));
           }
         } catch (err) { console.warn('[Cuisine-Search] cache write failed:', err.message); }
-        res.json({ ...payload, cached: false });
+        // v0.60.161 — verbose-log exit + tag _vlog on response so the
+        // TMA knows to start (or continue) reporting client telemetry.
+        const vlogOn = await vlog.isOn(redis, csChatId);
+        if (vlogOn) {
+          await vlog.vlogTtl(redis, csChatId, `cuisine:session-meta:${csChatId}`);
+          if (csChatId) await vlog.vlogTtl(redis, csChatId, `cuisine:session-seen:${csChatId}`);
+          vlog.vlog(csChatId, {
+            kind: 'cuisine-search-exit',
+            ms: Date.now() - vlogStart,
+            venues: (payload?.venues || []).length,
+            exhausted: payload?.exhausted === true,
+            sessionFull: payload?.sessionFull === true,
+            pageStackDepth: payload?.pageStackDepth || 0,
+            cached: false
+          });
+        }
+        res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
+        try {
+          const vlog = require('./verbose-log');
+          await vlog.vlogIf(redis, csChatId, { kind: 'cuisine-search-error', error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
+        } catch { /* best-effort */ }
         res.status(500).json({ error: err.message });
       }
     });
