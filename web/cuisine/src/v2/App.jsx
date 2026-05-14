@@ -1059,6 +1059,23 @@ export default function App() {
                     // tap fires the search at the freshly-committed
                     // anchor.
                     setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+                    // v0.60.170 — also setSearchCenter on pick. Operator
+                    // bug report (Vivocity → pick Takashimaya → Map
+                    // still shows Vivocity, /api/cuisine/search payload
+                    // logged `center=1.2647,103.8232` — the original
+                    // GPS coords, NOT the picked place). Root cause:
+                    // v0.60.166's "commit anchor only" fix dropped the
+                    // implicit setSearchCenter side-effect that
+                    // runSearchAt used to perform, so the map kept
+                    // rendering from the stale warm-start searchCenter
+                    // AND the criteria-card Search button (which calls
+                    // `runSearch(state)` without an explicit anchor)
+                    // fell back to searchCenter for the search payload
+                    // — both wrong. Re-adding setSearchCenter here
+                    // keeps the v0.60.166 no-auto-fire contract intact
+                    // (no runSearch call) while restoring the
+                    // pick-updates-the-map behaviour.
+                    setSearchCenter({ lat: p.lat, lng: p.lng });
                     // An explicit place pick (not a "× clear", which
                     // sends an empty label) also updates the bot's
                     // /location cache so the new location sticks across
