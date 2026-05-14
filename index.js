@@ -6118,7 +6118,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         })
         .slice(0, 3);
       if (!recent.length) continue;
-      const allText = recent.map((r) => r.text || '').join(' . ');
+      // v0.60.156 — Places v1 returns each review's `text` as a nested
+      // object `{ text: '...', languageCode: 'en' }`, NOT a bare string.
+      // The previous reads (`r.text`, `recent[0].text`) String-coerced
+      // that object to the literal "[object Object]" — which then passed
+      // every typeof guard added in v0.60.154/.155 because "[object
+      // Object]" IS a string. Unwrap nested .text.text first; fall back
+      // to the bare value for any legacy/edge response shape.
+      const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
+        ? (typeof r.text.text === 'string' ? r.text.text : '')
+        : (typeof r?.text === 'string' ? r.text : '');
+      const allText = recent.map((r) => reviewText(r)).join(' . ');
       const dishes = new Set();
       for (const re of MICH_DISH_RES) {
         let m;
@@ -6135,7 +6145,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
       const dishList = [...dishes].slice(0, 3);
       if (dishList.length) v.dishes = dishList;
-      if (!v.recentReview) v.recentReview = String(recent[0].text || '').slice(0, 200).trim();
+      if (!v.recentReview) v.recentReview = reviewText(recent[0]).slice(0, 200).trim();
     }
   } catch (err) {
     console.warn('[Michelin] dish-extract failed:', err.message);
@@ -8040,10 +8050,24 @@ async function cacheBotUsername() {
           lang: oneLang
         });
         if (!body) return res.status(500).json({ error: 'could not format venue block' });
-        await bot.sendMessage(chatId, body, {
-          parse_mode: 'HTML',
-          disable_web_page_preview: true
-        });
+        // v0.60.156 — mirror the copy-all hardening (v0.60.145). The
+        // per-card 📋 Copy was 500'ing on Telegram parse-mode rejections
+        // (stray `&`, unmatched `<b>`, etc.), surfacing as "Couldn't
+        // send to chat — try again." in the TMA. Retry once in plain
+        // text on HTML failure so the user still gets the venue card.
+        const htmlOpts = { parse_mode: 'HTML', disable_web_page_preview: true };
+        try {
+          await bot.sendMessage(chatId, body, htmlOpts);
+        } catch (err) {
+          console.warn('[Cuisine] copy-one sendMessage failed (HTML mode):', err?.response?.body?.description || err.message);
+          const plain = body.replace(/<\/?b>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+          try {
+            await bot.sendMessage(chatId, plain, { disable_web_page_preview: true });
+          } catch (err2) {
+            console.error('[Cuisine] copy-one sendMessage retry failed (plain):', err2?.response?.body?.description || err2.message);
+            return res.status(500).json({ error: 'send_failed' });
+          }
+        }
         // v0.59.44: clip history snapshot.
         try {
           const { pushClip } = require('./clip-store');
@@ -9488,9 +9512,17 @@ async function cacheBotUsername() {
         // venue (e.g. Atmosphere SKU disabled).
         const FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
         const now = Date.now();
+        // v0.60.156 — Places v1 wraps each review's text in a nested
+        // object `{ text, languageCode }`. Bare-string access here
+        // String-coerced the object to "[object Object]" which then
+        // surfaced on the TMA card as the visible review. Same fix as
+        // the Michelin path in Step 1.
+        const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
+          ? (typeof r.text.text === 'string' ? r.text.text : '')
+          : (typeof r?.text === 'string' ? r.text : '');
         function extractDishes(reviews) {
           const recent = (reviews || [])
-            .filter((r) => r?.text)
+            .filter((r) => reviewText(r))
             .filter((r) => {
               if (!r.publishTime) return true; // keep undated
               const t = new Date(r.publishTime).getTime();
@@ -9498,7 +9530,7 @@ async function cacheBotUsername() {
             })
             .slice(0, 3);
           if (!recent.length) return { dishes: [], snippet: null };
-          const allText = recent.map((r) => r.text || '').join(' . ');
+          const allText = recent.map((r) => reviewText(r)).join(' . ');
           const patterns = [
             /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
             /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
@@ -9532,7 +9564,7 @@ async function cacheBotUsername() {
               dishes.add(candidate);
             }
           }
-          return { dishes: [...dishes].slice(0, 3), snippet: String(recent[0].text).slice(0, 200).trim() };
+          return { dishes: [...dishes].slice(0, 3), snippet: reviewText(recent[0]).slice(0, 200).trim() };
         }
         // v0.59.24: drinks filter for "🍴 Try ·" — per Human Lead
         // 2026-05-07. Skip for Dessert/Fusion cuisines (drinks are
@@ -9591,8 +9623,10 @@ async function cacheBotUsername() {
           if (!v.restaurantType) {
             v.restaurantType = humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';
           }
-          if (!v.recentReview && Array.isArray(v.reviews) && v.reviews[0] && v.reviews[0].text) {
-            v.recentReview = String(v.reviews[0].text).replace(/\s+/g, ' ').trim().slice(0, 160);
+          if (!v.recentReview && Array.isArray(v.reviews) && v.reviews[0]) {
+            // v0.60.156 — same Places v1 .text.text unwrap as extractDishes above.
+            const txt = reviewText(v.reviews[0]);
+            if (txt) v.recentReview = txt.replace(/\s+/g, ' ').trim().slice(0, 160);
           }
           delete v.primaryTypeDisplayName;
           delete v.regularPeriods;
