@@ -213,3 +213,13 @@
 380	doc/VibeCodingRecord/VibeCodingRecord.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,index.js,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
 381	doc/VibeCodingRecord/VibeCodingRecord.md,index.js,package.json
 382	CLAUDE.md,doc/.serial-state.yml,doc/Journal/journal-0_60_144-13_05_26-0900.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+384	__tests__/copy-all-html.test.js,doc/.serial-state.yml,doc/Journal/journal-0_60_145-13_05_26-1100.md,i18n.js,index.js,package.json
+385	__tests__/cuisine-session.test.js,__tests__/redis-stub.js,cuisine-session.js,doc/.serial-state.yml,doc/Journal/journal-0_60_146-13_05_26-1400.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ResultPanel.jsx,web/cuisine/src/v2/lib/api.js
+386	__tests__/michelin-narrate.test.js,doc/.serial-state.yml,doc/Journal/journal-0_60_147-13_05_26-1700.md,index.js,package.json,pipeline.js
+387	doc/.serial-state.yml,doc/Journal/journal-0_60_148-13_05_26-1900.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ResultPanel.jsx
+388	__tests__/cuisine-session.test.js,cuisine-session.js,doc/.serial-state.yml,doc/Journal/journal-0_60_149-13_05_26-2100.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/api.js
+389	index.js,pipeline.js,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/api.js
+390	__tests__/michelin-cache.test.js,doc/.serial-state.yml,doc/Feature/feature-0_60_149-13_05_26-2300.md,doc/Journal/journal-0_60_150-13_05_26-2330.md,index.js,package.json
+391	__tests__/clip-store.test.js,__tests__/redis-stub.js,clip-store.js,doc/.serial-state.yml,doc/Journal/journal-0_60_151-14_05_26-0000.md,index.js,package.json
+392	__tests__/free-text-search.test.js,doc/.serial-state.yml,doc/Journal/journal-0_60_152-14_05_26-0030.md,free-text-search.js,index.js,package.json
+393	doc/.serial-state.yml,doc/Journal/journal-0_60_153-14_05_26-0100.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ResultPanel.jsx
