@@ -35,7 +35,7 @@ const {
   setProcessing,
   clearProcessing
 } = require('./location-cache');
-const { requireInitData, verifyInitData } = require('./twa-auth');
+const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const usageLog = require('./usage-log');
 const cuisineSession = require('./cuisine-session');
 const { gatekeep } = require('./gatekeeper');
@@ -7835,6 +7835,22 @@ async function cacheBotUsername() {
 
     // v0.53.0: cuisine catalogue + map-first search endpoints for the
     // new v2 TMA. Catalogue is read-once from the in-repo MD file.
+    //
+    // v0.60.167 — single chokepoint Telegram-WebApp auth on the entire
+    // /api/cuisine/* namespace. Previously every POST handler called
+    // `verifyInitData(req.body?.initData, …)` inline (19 call sites
+    // across 17 routes) which left the GET endpoints
+    // (`/api/cuisine/catalogue`, `/api/cuisine/user-language`)
+    // unauthenticated AND meant any new route had to remember to
+    // re-add the gate. Now `app.use('/api/cuisine', …)` enforces it
+    // once. The middleware reads from either `X-Telegram-Init-Data`
+    // header (v2 TMA getJson + the older /api/cuisine-search style)
+    // OR `req.body.initData` (v2 TMA postJson) so existing inline
+    // calls keep working as defense in depth. Dev bypass via
+    // `SKIP_INIT_DATA_AUTH=true` for Railway preview deploys + local
+    // dev — never set in prod.
+    app.use('/api/cuisine', requireInitDataFromBodyOrHeader);
+
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');
