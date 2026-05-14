@@ -1026,9 +1026,23 @@ export default function App() {
               <LocationField userLoc={userLoc} region={state.region} anchor={locationAnchor}
                 onSelect={(p) => {
                   if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-                    runSearchAt(p.lat, p.lng, p.label || '');
-                    // v0.60.120 — an explicit place pick (not a "× clear",
-                    // which sends an empty label) also updates the bot's
+                    // v0.60.166 — operator: picking a location should
+                    // ONLY commit the anchor, NOT auto-fire a search.
+                    // Previously this called runSearchAt(...) which set
+                    // the anchor AND ran the search in the same tick;
+                    // the user expected to compose the rest of the
+                    // criteria (cuisines / filters / region) and then
+                    // tap the 🔍 Search FAB themselves. The auto-fire
+                    // also raced the React state update so the search
+                    // sometimes ran with the *previous* locationAnchor
+                    // — making the new pick appear "ignored". Now the
+                    // field just locks in the anchor + persists to the
+                    // bot /location cache; the user's explicit Search
+                    // tap fires the search at the freshly-committed
+                    // anchor.
+                    setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+                    // An explicit place pick (not a "× clear", which
+                    // sends an empty label) also updates the bot's
                     // /location cache so the new location sticks across
                     // sessions and in chat (/location, /eat, /weather, …).
                     if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
@@ -1071,11 +1085,28 @@ export default function App() {
         )}
       </div>
 
+      {/* v0.60.166 — operator: on first TMA load, grey-off all
+          selections (Edit-search pill, Search-criteria dropdown,
+          everything) so the user doesn't interfere with the warm-start
+          fetch. The previous in-flow "Please wait…" banner just sat
+          inside the layout — interactive elements around it stayed
+          tappable. This `fixed inset-0` overlay covers the full
+          viewport, gives the page a greyed appearance, captures all
+          pointer events (the page underneath is un-clickable), and
+          centres the loading card so the state is obvious. Disappears
+          the instant warm-start (or the deep-linked first search)
+          settles `firstLoadPending=false` AND `loading=false`. */}
       {firstLoadPending && loading && (
-        <div className="rounded-2xl border border-tg-border bg-tg-card p-3 text-xs text-tg-text">
-          ⏳ {lang === 'fr'
-            ? 'Veuillez patienter pendant le chargement de la liste…'
-            : 'Please wait while loading list…'}
+        <div
+          aria-busy="true"
+          className="fixed inset-0 z-50 bg-tg-bg/60 flex items-center justify-center cursor-wait"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg">
+            ⏳ {lang === 'fr'
+              ? 'Veuillez patienter pendant le chargement de la liste…'
+              : 'Please wait while loading list…'}
+          </div>
         </div>
       )}
 
