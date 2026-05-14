@@ -160,9 +160,30 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
             // — same dish duplicated. Filter out any rest-list entry that
             // matches `primaryDish` (case-insensitive trim) before slicing.
             // Operator screenshot 2026-05-14: Cheok Kee + Hong Kong Yummy Soup.
+            // v0.60.163 — exact-match wasn't enough. The substring case
+            // also leaks: "Wanton mee" (primary) vs "Char siew wanton mee"
+            // (rest) reads as a duplicate. Operator 2026-05-14 screenshot:
+            // Chef Kang's Noodle House — `Try · Wanton mee` followed by
+            // `Char siew wanton mee · Dumpling noodle`. Tighten the filter
+            // to drop any rest entry where the primary is a substring of
+            // the rest OR vice versa. Also dedupe within the rest list
+            // itself so two LLM-narrated names that normalise the same
+            // (e.g. "Pork rib soup" + "Pork rib soup ") only render once.
             const norm = (s) => String(s || '').trim().toLowerCase();
+            const primaryNorm = norm(primaryDish);
+            const seen = new Set();
             const restDishes = Array.isArray(venue.dishes)
-              ? venue.dishes.filter((d) => norm(d) && norm(d) !== norm(primaryDish)).slice(0, 3)
+              ? venue.dishes.filter((d) => {
+                  const n = norm(d);
+                  if (!n) return false;
+                  if (seen.has(n)) return false;
+                  if (primaryNorm) {
+                    if (n === primaryNorm) return false;
+                    if (n.includes(primaryNorm) || primaryNorm.includes(n)) return false;
+                  }
+                  seen.add(n);
+                  return true;
+                }).slice(0, 3)
               : [];
             return (
               <>
