@@ -56,6 +56,21 @@ export class RedisStub {
     return (this.store.has(key) || this.hashes.has(key) || this.sets.has(key) || this.lists.has(key)) ? 1 : 0;
   }
 
+  // v0.60.155 — minimal glob KEYS support (supports the `*` wildcard only,
+  // matching the production redis client's signature). Used by the
+  // session-start handler to wipe all `cuisine:seen:<chatId>:*` entries on
+  // TMA mount so each Cuisine TMA launch starts from list #1.
+  async keys(pattern) {
+    const escape = (s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    const rx = new RegExp('^' + pattern.split('*').map(escape).join('.*') + '$');
+    const out = [];
+    for (const k of this.store.keys()) if (rx.test(k)) out.push(k);
+    for (const k of this.hashes.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    for (const k of this.sets.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    for (const k of this.lists.keys()) if (rx.test(k) && !out.includes(k)) out.push(k);
+    return out;
+  }
+
   async expire(key, seconds) {
     const e = this.store.get(key);
     if (e) { e.expiresAt = Date.now() + seconds * 1000; return 1; }

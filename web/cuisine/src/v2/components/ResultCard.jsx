@@ -172,9 +172,10 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
             );
           })()}
           {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
-          {venue.recentReview && (
-            <div className="text-[11px] text-tg-hint mt-1 leading-snug italic">
-              💬 "{venue.recentReview}"
+          {typeof venue.recentReview === 'string' && venue.recentReview.trim() && (
+            <div className="flex items-start gap-1 text-[11px] text-tg-hint mt-1 leading-snug italic">
+              <span aria-hidden="true">💬</span>
+              <span>"{venue.recentReview}"</span>
             </div>
           )}
         </div>

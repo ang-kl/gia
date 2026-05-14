@@ -6216,7 +6216,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       while (dishesArr.length < 2) dishesArr.push("Chef's choice");
       v.dishes = dishesArr.slice(0, 3);
     }
-    if (!v.recentReview || !String(v.recentReview).trim()) {
+    // v0.60.155 — also force-fill when v.recentReview is a non-string
+    // (e.g. an object leaked from an upstream path); without the typeof
+    // guard, an object value passes `!v.recentReview` (truthy) AND
+    // `String({}).trim() === "[object Object]"` (truthy), so neither
+    // branch fires and the bad value flows to the TMA. The previous
+    // v0.60.154 cache-READ guard only protected against READ leaks;
+    // this protects against any in-process producer too.
+    if (typeof v.recentReview !== 'string' || !v.recentReview.trim()) {
       const tier = TIER_LABEL[v.michelinCategory] || 'Michelin';
       v.recentReview = csLang === 'fr'
         ? `${tier} Guide 2025 · recommandation curatée.`
@@ -6232,11 +6239,18 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       const k = enrichSlugs[i];
       if (!k || !v) return;
       try {
+        // v0.60.155 — sanitize at WRITE: every text field must be a
+        // string before going into Redis. Without this, a non-string
+        // `v.recentReview` (object/array) gets JSON-stringified
+        // verbatim and poisons the 7-day cache for every subsequent
+        // tap. The v0.60.154 READ guard already drops corrupt entries,
+        // but stopping the WRITE prevents the corruption from being
+        // recorded in the first place.
         await redis.setEx(k, MICHELIN_ENRICH_TTL_S, JSON.stringify({
-          dishes: Array.isArray(v.dishes) ? v.dishes.slice(0, 3) : [],
-          recentReview: v.recentReview || '',
-          vibe: v.vibe || '',
-          signatureDish: v.signatureDish || ''
+          dishes: Array.isArray(v.dishes) ? v.dishes.filter((d) => typeof d === 'string').slice(0, 3) : [],
+          recentReview: typeof v.recentReview === 'string' ? v.recentReview : '',
+          vibe: typeof v.vibe === 'string' ? v.vibe : '',
+          signatureDish: typeof v.signatureDish === 'string' ? v.signatureDish : ''
         }));
       } catch { /* best-effort */ }
     }));
@@ -7895,7 +7909,26 @@ async function cacheBotUsername() {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
         if (!redis.isOpen) await redis.connect().catch(() => {});
-        await cuisineSession.startSession(redis, verified.user.id);
+        const chatId = verified.user.id;
+        await cuisineSession.startSession(redis, chatId);
+        // v0.60.155 — also wipe every long-lived `cuisine:seen:<chatId>:*`
+        // entry so the next search (including Michelin) starts from list
+        // #1 of the catalogue. Operator: "doesn't start from the first
+        // in the list. investigate." Root cause was the per-criteria
+        // dedup SET persisting for 30 days across TMA sessions, so the
+        // "first 12" Michelin entries the user saw last session were
+        // silently skipped this session. Resetting on TMA mount matches
+        // the operator's mental model of "fresh TMA = fresh list" while
+        // keeping the per-session SET + LIST (cuisine-session.js)
+        // intact for in-session pagination.
+        try {
+          const seenKeys = await redis.keys(`cuisine:seen:${chatId}:*`);
+          if (seenKeys && seenKeys.length) {
+            await redis.del(...seenKeys);
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Session] seen-set wipe failed (non-fatal):', err.message);
+        }
         res.json({ ok: true });
       } catch (err) {
         console.warn('[Cuisine-Session] start failed:', err.message);
