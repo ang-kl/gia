@@ -337,52 +337,41 @@ const STRINGS = {
   // (the platform), polite tone, softened buddy-ChatID phrasing per
   // Human Lead 2026-05-06. {operator} is the optional OPERATOR_LINKEDIN
   // credit appended by the caller.
+  // v0.60.172 — full /privacy body rewrite. Operator supplied the new
+  // EN copy verbatim ("Here is a tighter version for /privacy, please
+  // replace with text below"). Three-paragraph compact form (was a
+  // multi-section bulleted list since v0.60.142). Substance is
+  // preserved: 24h location cache, 90d search/usage retention, hashed
+  // aggregate counters, no trackers / no marketers / no cross-bot
+  // profiles, /forgetme erasure on demand. The bulleted data-source
+  // inventory ("Google Places / LTA / NEA / data.gov.sg") is
+  // collapsed into "live external data sources, including search and
+  // Singapore public data services" — the formal Legal record §3
+  // ('legal-0_60_172-…md') remains the source of truth for the
+  // technical specifics (Redis keys, hash scheme, exact retention
+  // TTLs). Drops the trailing `{operator}` interpolation (mirrors the
+  // v0.60.171 /legal change — argument is still passed by
+  // runPrivacyCommand but ignored). FR is a fresh translation
+  // tracking the EN structure paragraph-for-paragraph (formal "vous"
+  // form).
   'privacy.body': {
     en: [
-      '🔒 *Privacy & data handling*',
+      '🔒 *Privacy & Data Handling*',
       '',
-      '*What Soleat collects* (only when relevant):',
-      '• Location — used when you send a location pin or call /cuisine, /hidden, /carpark, /transport. Cached for up to 24 hours so subsequent commands don\'t have to re-prompt; you can refresh anytime via /transport\'s 📍 Refresh location button, or wipe it immediately via /forgetme.',
-      '• Telegram chat identifier — used so Soleat can reply in the right chat.',
-      '• Recent picks — the last few venues you saw, kept for /share and /picks. 24-hour TTL.',
-      '• Search and Selection are kept and expire after 90 days.',
-      '• Usage counts — how many people use Soleat, daily-active counts, and which cuisines / filters / search terms are popular — are kept only as aggregate numbers. The per-user entries are one-way sha256 hashes used solely to de-duplicate those counts (nothing else is attached to them); they\'re removed on /forgetme and expire after 90 days.',
+      'Soleat only collects what is needed to run the bot. When you share your location or use location-based commands, your location may be cached for up to 24 hours, so you do not need to repeat it. Your Telegram chat ID is used only to reply to the correct chat. Recent picks are kept briefly for features like /share and /picks. Search, selection, and usage records may be retained for up to 90 days; usage counts are kept mainly in aggregate, with per-user entries hashed only to avoid double-counting.',
       '',
-      '*What Soleat does not do:*',
-      '• No third-party trackers.',
-      '• No sharing with marketers.',
-      '• No cross-bot profiling.',
+      'Soleat does not use third-party trackers, share or build cross-bot profiles. It may query live external data sources, including search and Singapore public data services, to provide results.',
       '',
-      '*Live data sources Soleat queries* (no personal data sent):',
-      '• Google Places — venue search',
-      '• LTA DataMall — transport, traffic, carparks',
-      '• NEA — weather',
-      '• data.gov.sg — hawker centres, holidays',
-      '',
-      '*Retention:* stored data expires automatically after 90 days of inactivity. A manual erasure is available at any time — please type /forgetme.{operator}'
+      'Stored data expires automatically after inactivity. You can erase your data at any time by typing /forgetme.'
     ].join('\n'),
     fr: [
       '🔒 *Confidentialité et gestion des données*',
       '',
-      '*Ce que Soleat collecte* (uniquement quand pertinent) :',
-      '• Position — utilisée lorsque vous envoyez une épingle ou utilisez /cuisine, /hidden, /carpark, /transport. Conservée jusqu’à 24 heures pour éviter de redemander à chaque commande ; vous pouvez l’actualiser à tout moment via le bouton 📍 Actualiser la position de /transport, ou la supprimer immédiatement via /forgetme.',
-      '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat.',
-      '• Choix récents — les derniers lieux que vous avez vus, conservés pour /share et /picks. TTL de 24 heures.',
-      '• Recherche et sélection sont conservées et expirent après 90 jours.',
-      '• Statistiques d’usage — combien de personnes utilisent Soleat, le nombre d’actifs par jour, et quelles cuisines / quels filtres / quels termes de recherche sont populaires — sont conservées uniquement sous forme de nombres agrégés. Les entrées par utilisateur sont des empreintes sha256 à sens unique, utilisées seulement pour dédupliquer ces compteurs (rien d’autre n’y est attaché) ; elles sont supprimées via /forgetme et expirent après 90 jours.',
+      'Soleat ne collecte que ce qui est nécessaire au fonctionnement du bot. Lorsque vous partagez votre position ou utilisez des commandes basées sur la localisation, votre position peut être mise en cache jusqu’à 24 heures pour vous éviter de la répéter. Votre identifiant de chat Telegram est utilisé uniquement pour répondre dans le bon chat. Vos choix récents sont conservés brièvement pour des fonctionnalités comme /share et /picks. Les enregistrements de recherche, de sélection et d’usage peuvent être conservés jusqu’à 90 jours ; les statistiques d’usage sont conservées principalement sous forme agrégée, les entrées par utilisateur étant hachées uniquement pour éviter le double comptage.',
       '',
-      '*Ce que Soleat ne fait pas :*',
-      '• Aucun traceur tiers.',
-      '• Aucun partage avec des annonceurs.',
-      '• Aucun profilage inter-bots.',
+      'Soleat n’utilise pas de traceurs tiers, ne partage rien et ne construit pas de profils inter-bots. Il peut interroger des sources de données externes en direct, notamment la recherche et les services publics de données de Singapour, pour fournir des résultats.',
       '',
-      '*Sources de données interrogées par Soleat* (aucune donnée personnelle envoyée) :',
-      '• Google Places — recherche de lieux',
-      '• LTA DataMall — transports, trafic, parkings',
-      '• NEA — météo',
-      '• data.gov.sg — hawker centres, jours fériés',
-      '',
-      '*Conservation :* les données expirent automatiquement après 90 jours d’inactivité. Une suppression manuelle est disponible à tout moment — veuillez taper /forgetme.{operator}'
+      'Les données stockées expirent automatiquement après une période d’inactivité. Vous pouvez effacer vos données à tout moment en tapant /forgetme.'
     ].join('\n')
   },
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
