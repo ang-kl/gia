@@ -8774,6 +8774,40 @@ async function cacheBotUsername() {
             }).catch(() => {});
           } catch { /* noop */ }
         }
+        // v0.60.159 — lazy session-meta + seen-set wipe. The v0.60.155
+        // mount-time wipe (`POST /api/cuisine/session/start`) is gated on
+        // valid initData; on a cold TMA launch the Telegram WebApp's
+        // `initData` may not be populated yet, the POST 401s, and the
+        // wipe silently skips — so the next search reads the stale
+        // per-criteria seen-set and starts mid-catalogue. Operator
+        // 2026-05-14 Railway evidence:
+        //   `[Michelin] tap chatId=313940231 hash=2f55465e seen=84 combo=[]`
+        // on what should have been a fresh mount.
+        // Fix: at every search call (now that initData IS valid),
+        // detect a missing `cuisine:session-meta:<chatId>:started_at` —
+        // proof that the mount-time wipe never ran — and perform the
+        // wipe + startSession() inline before any seen-set read. Once
+        // the meta hash exists, subsequent searches in the same session
+        // skip the wipe (idempotent + cheap: one HGET per search).
+        if (csChatId && redis?.isOpen) {
+          try {
+            const startedAt = await redis.hGet(`cuisine:session-meta:${csChatId}`, 'started_at');
+            if (!startedAt) {
+              console.log(`[Cuisine-Session] lazy start for chatId=${csChatId} (mount POST missed initData); wiping seen-set`);
+              await cuisineSession.startSession(redis, csChatId);
+              try {
+                const seenKeys = await redis.keys(`cuisine:seen:${csChatId}:*`);
+                if (seenKeys && seenKeys.length) {
+                  await redis.del(...seenKeys);
+                }
+              } catch (err) {
+                console.warn('[Cuisine-Session] lazy seen-set wipe failed:', err.message);
+              }
+            }
+          } catch (err) {
+            console.warn('[Cuisine-Session] lazy session-meta check failed (non-fatal):', err.message);
+          }
+        }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
