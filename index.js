@@ -8333,7 +8333,22 @@ async function cacheBotUsername() {
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
-        const searchCenter = isJB ? JB_CBD : { lat, lng };
+        // v0.60.164 — honour an explicit non-SG location pick. When
+        // region=JB but the supplied lat/lng is inside the Singapore
+        // bounding box, the user toggled JB while their GPS still
+        // reports SG (haven't picked a JB location yet) — fall back to
+        // JB CBD. When lat/lng is OUTSIDE SG bbox (Pontian, Desaru,
+        // Kulai, Mersing, …), the user has explicitly picked a Johor
+        // location via the LocationField — trust it and run the
+        // discovery centred there. Operator 2026-05-14: "Can I set the
+        // location at Pontian or Desaru? Apparently, jump to the
+        // central area in Johor as set location."
+        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
+        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
+        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
+          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
+          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         const searchRadius = isJB ? 18000 : 50000;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
@@ -9043,9 +9058,20 @@ async function cacheBotUsername() {
         }
         // JB CBD centroid for the JB search; user's lat/lng still used
         // for distance ranking on the result side.
+        // v0.60.164 — same SG-bbox fallback as /warm-start: when the
+        // supplied lat/lng sits inside SG, JB region toggle means "I
+        // toggled to JB but haven't picked a JB location yet" → use
+        // JB CBD. When lat/lng is OUTSIDE SG bbox (Pontian, Desaru,
+        // Kulai, …), the user has explicitly picked a Johor location
+        // — trust it and centre the search there.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         const isJB = region === 'JB';
-        const searchCenter = isJB ? JB_CBD : { lat, lng };
+        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
+        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
+        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
+          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
+          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.58.8: client supplies a `radius` in metres from the
         // vertical slider on the map. Bounded 1000–100000. When
         // missing or out of range, fall back to the legacy region
@@ -9658,7 +9684,13 @@ async function cacheBotUsername() {
         // JB-mode results to "Johor Bahru" so we don't bleed into KL).
         venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
         if (isJB) {
-          venues = venues.filter((v) => /johor bahru/i.test(`${v.area || ''} ${v.name || ''}`));
+          // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
+          // JB region toggle covers ALL of Johor state (Pontian, Desaru,
+          // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
+          // Puteri, …), not only the city named "Johor Bahru". KL +
+          // Selangor + Pahang addresses don't mention "Johor" so the
+          // word-boundary filter still keeps non-Johor MY venues out.
+          venues = venues.filter((v) => /\bjohor\b/i.test(`${v.area || ''} ${v.name || ''}`));
         } else {
           // SG only: post-filter by Singapore mention OR proximity
           // (some hawker centres' formattedAddress lacks "Singapore").
