@@ -7972,15 +7972,65 @@ async function cacheBotUsername() {
         // in plain text (strip <b>/</b> + unescape & < >) so the user
         // still gets the picks. If the retry also fails, 500 with a
         // structured Railway log line.
+        // v0.60.163 — also handle "Bad Request: message is too long".
+        // Telegram caps single messages at 4096 chars; the v0.59.29 cap
+        // of 12 venues is no longer enough now that Michelin enrichment
+        // (dishes + recentReview lines) makes each block ~300-400 chars
+        // (12 × 350 + header ≈ 4250 chars, over the limit). Operator
+        // 2026-05-14 Railway evidence:
+        //   `[Cuisine] copy-all sendMessage failed (HTML mode): Bad Request: message is too long`
+        //   `[Cuisine] copy-all sendMessage retry failed (plain): Bad Request: message is too long`
+        // Fix: when the combined body exceeds MAX_CHARS, pack the
+        // venue blocks into N chunks (greedy by length), each labelled
+        // `Picks (i/N)`. Map button rides on the LAST chunk so it
+        // visually lands at the bottom of the stack.
+        const MAX_CHARS = 3800;  // 4096 with safety margin
+        function packBlocksIntoChunks(blockArr) {
+          const chunks = [];
+          let current = [];
+          let currentLen = 0;
+          for (const block of blockArr) {
+            const addLen = (current.length === 0 ? 0 : blockSep.length) + block.length;
+            if (currentLen + addLen > MAX_CHARS - 200 && current.length > 0) {
+              chunks.push(current);
+              current = [];
+              currentLen = 0;
+            }
+            current.push(block);
+            currentLen += (current.length === 1 ? block.length : addLen);
+          }
+          if (current.length > 0) chunks.push(current);
+          return chunks;
+        }
+        async function sendBodyOrChunks(htmlBody, htmlOpts, blockArr, headerText) {
+          if (htmlBody.length <= MAX_CHARS) {
+            await bot.sendMessage(chatId, htmlBody, htmlOpts);
+            return;
+          }
+          const chunkBlocks = packBlocksIntoChunks(blockArr);
+          const totalChunks = chunkBlocks.length;
+          for (let i = 0; i < totalChunks; i++) {
+            const chunkHeader = totalChunks === 1 ? headerText : `${headerText} (${i + 1}/${totalChunks})`;
+            const chunkBody = `${chunkHeader}\n\n${chunkBlocks[i].join(blockSep)}`;
+            const isLast = i === totalChunks - 1;
+            const chunkOpts = isLast
+              ? htmlOpts
+              : { parse_mode: 'HTML', disable_web_page_preview: true };
+            await bot.sendMessage(chatId, chunkBody, chunkOpts);
+          }
+        }
         try {
-          await bot.sendMessage(chatId, body, sendOpts);
+          await sendBodyOrChunks(body, sendOpts, blocks, header);
         } catch (err) {
           console.warn('[Cuisine] copy-all sendMessage failed (HTML mode):', err?.response?.body?.description || err.message);
-          const plain = body.replace(/<\/?b>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+          const stripHtml = (s) => s.replace(/<\/?b>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+          const plain = stripHtml(body);
+          const plainBlocks = blocks.map(stripHtml);
+          const plainHeader = stripHtml(header);
           const plainOpts = { disable_web_page_preview: true };
           if (sendOpts.reply_markup) plainOpts.reply_markup = sendOpts.reply_markup;
           try {
-            await bot.sendMessage(chatId, plain, plainOpts);
+            await sendBodyOrChunks(plain, plainOpts, plainBlocks, plainHeader);
           } catch (err2) {
             console.error('[Cuisine] copy-all sendMessage retry failed (plain):', err2?.response?.body?.description || err2.message);
             return res.status(500).json({ error: 'send_failed' });
