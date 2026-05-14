@@ -263,6 +263,12 @@ export default function App() {
         halal: !!s.filters?.halal,
         vegetarian: !!s.filters?.vegetarian,
         homeBased: !!s.filters?.homeBased,
+        // v0.60.166 — v0.60.165 added petFriendly to state but forgot
+        // to extend the signature: toggling 🐾 didn't dirty the snap,
+        // so the Search-button ring never lit + the page cache wasn't
+        // invalidated. Included here alongside the other quick-filter
+        // flags so the dirty-detection treats Pet-allowed identically.
+        petFriendly: !!s.filters?.petFriendly,
         prices: [...(s.filters?.prices || [])].sort()
       },
       region: s.region || 'SG'
@@ -813,9 +819,16 @@ export default function App() {
   }
 
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
+  // v0.60.166 — v0.60.165 added petFriendly to QUICK_FILTERS + state
+  // but forgot to extend `filterCount`: toggling only 🐾 left
+  // filterCount=0 → canClear=false → Clear button didn't render at
+  // all, so the chip couldn't be cleared via the standard control
+  // (operator: "'Pet allowed' doesn't wire to invokes the Clear
+  // button"). Tallied here like every other quick-filter flag.
   const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
     + (state.filters.halal ? 1 : 0)
     + (state.filters.vegetarian ? 1 : 0) + (state.filters.homeBased ? 1 : 0)
+    + (state.filters.petFriendly ? 1 : 0)
     + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
@@ -834,6 +847,11 @@ export default function App() {
     if (state.filters?.vegetarian)  items.push(t('filter.vegetarian', lang));
     if (state.filters?.homeBased)   items.push(t('filter.homeBased', lang));
     if (state.filters?.newlyOpened) items.push(t('filter.newlyOpened', lang));
+    // v0.60.166 — petFriendly missing from the v0.60.165 criteria
+    // preview list. Tallied + labelled alongside the other quick
+    // filters so the header's "Search criteria · X • Y" line includes
+    // "Pet allowed" when the 🐾 chip is on.
+    if (state.filters?.petFriendly) items.push(t('filter.petFriendly', lang));
     for (const p of state.filters?.prices || []) items.push(p);
     return items;
   })();
