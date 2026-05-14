@@ -153,8 +153,16 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {(() => {
             const primaryDish = venue.signatureDish
               || (Array.isArray(venue.dishes) && venue.dishes.length ? venue.dishes[0] : '');
+            // v0.60.159 — when `signatureDish` is set, the prior logic
+            // (`venue.dishes.slice(0, 3)`) ALSO included `dishes[0]`, which
+            // for Michelin/Bib-Gourmand entries equals `signatureDish` after
+            // the v0.60.153 force-fill pass. Result: "🍴 Try · X" + "X · Y · Z"
+            // — same dish duplicated. Filter out any rest-list entry that
+            // matches `primaryDish` (case-insensitive trim) before slicing.
+            // Operator screenshot 2026-05-14: Cheok Kee + Hong Kong Yummy Soup.
+            const norm = (s) => String(s || '').trim().toLowerCase();
             const restDishes = Array.isArray(venue.dishes)
-              ? (venue.signatureDish ? venue.dishes.slice(0, 3) : venue.dishes.slice(1, 4))
+              ? venue.dishes.filter((d) => norm(d) && norm(d) !== norm(primaryDish)).slice(0, 3)
               : [];
             return (
               <>
@@ -164,7 +172,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
                   </div>
                 )}
                 {restDishes.length > 0 && (
-                  <div className="text-[11px] text-tg-hint mt-0.5 leading-snug">
+                  // v0.60.159 — font size bumped 11px → 12px to match the
+                  // "🍴 Try" line above, per operator: "font size different".
+                  // Color kept as text-tg-hint so the line still reads as
+                  // a secondary "more from the menu" annotation.
+                  <div className="text-[12px] text-tg-hint mt-0.5 leading-snug">
                     {restDishes.join(' · ')}
                   </div>
                 )}
