@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-13 from a snapshot of all 382 pull requests (#1–#382).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-14 from a snapshot of all 392 pull requests (#1–#392).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 382 total — 377 merged, 5 closed without merge.
+- **PRs:** 392 total — 387 merged, 5 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #382 · 2026-05-13 00:57:04 · _docs(v0.60.144): Journal catch-up (#379–#381) + standing per-PR Journal rule_
+- **Latest:** #393 · 2026-05-14 07:49:26+08:00 · _v0.60.153 — Michelin: dedup fix (drop radius from criteriaHash) + force-warm enrichment cache + 'Curating' UI copy_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 250 |
-| fix | 53 |
-| prompt-tune | 25 |
-| copy | 23 |
+| feature | 253 |
+| fix | 56 |
+| prompt-tune | 27 |
+| copy | 24 |
+| refactor | 12 |
 | docs | 12 |
-| refactor | 11 |
 | infra | 4 |
 | test | 4 |
 
@@ -26,23 +26,23 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 118 |
+| Cuisine Picker | 125 |
 | Core / misc | 38 |
 | /hidden surprise | 34 |
 | Search / free-text | 34 |
 | Transport / carpark | 26 |
 | Hawker NEA | 24 |
 | /eat /drink flow | 18 |
+| Recognised lists | 15 |
 | Pipeline / discovery | 14 |
 | Infra / setup | 13 |
-| Recognised lists | 13 |
 | Docs / vault | 11 |
 | Weather | 7 |
 | Language / i18n | 7 |
 | Privacy / legal | 6 |
 | Commands / chat UX | 5 |
+| Buddy / sharing | 5 |
 | Menu hub | 5 |
-| Buddy / sharing | 4 |
 | Maps / geo / location | 4 |
 | Oversight / usage stats | 1 |
 
@@ -434,6 +434,16 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 380 | merged | 2026-05-13 00:22:33 |  | docs | Docs / vault | Update docs: Vibe-Coding Record — regenerable cross-section of all PRs (#1–#379) | Adds doc/VibeCodingRecord/ — a standalone, regenerable ledger of every pull request (#1–#379), separate from the eight doc/ AU templates: a Markdown view, a TSV source of truth, a pure generator (generate.mjs), and committed data… | 10 files — index.js, doc, package, public/ | — | doc/vault |
 | 381 | merged | 2026-05-13 00:39:41 | 0.60.144 | docs | Docs / vault | Update docs: Vibe Journal: optional shared-key gate (VIBE_JOURNAL_KEY) | Gates the hosted Vibe Journal behind an optional shared key, the Railway service variable VIBE_JOURNAL_KEY. | 3 files — index.js, doc, package | — | doc/vault |
 | 382 | merged | 2026-05-13 00:57:04 | 0.60.144 | docs | Docs / vault | Journal catch-up (#379–#381) + standing per-PR Journal rule | Catches the build Journal up to current (journal-0_60_144 entry #109 covering PRs #379–#381) and adds a repo-root CLAUDE.md codifying the operator's standing rule: after opening a PR and after it merges, record it in doc/Journal/, bump… | 10 files — doc, root-docs, public/ | — | doc/vault |
+| 384 | merged | 2026-05-14 05:27:44+08:00 | 0.60.145 | copy | Cuisine Picker | Reword: Cuisine TMA: /api/cuisine/copy-all bot.sendMessage try/catch + plain-text retry; tolerate null mapUrl | — PR-A of 3 (Cuisine TMA hardening arc) First of three sequenced PRs. | 6 files — index.js, i18n.js, tests, doc, package | — | privacy; tests; doc/vault |
+| 385 | merged | 2026-05-14 05:39:14+08:00 | 0.60.146 | feature | Cuisine Picker | Add: Cuisine TMA: 80-cap session clipboard + ⇠ Prev FAB + multi-cuisine variant escalation (PR-B of 3) | — PR-B of 3. | 10 files — index.js, cuisine-session.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 386 | merged | 2026-05-14 05:48:18+08:00 | 0.60.147 | prompt-tune | Cuisine Picker | Add: Cuisine TMA: Michelin full LLM-narrate parity (vibe + whatToOrder) (PR-C of 3) | — PR-C of 3. | 6 files — index.js, pipeline.js, tests, doc, package | — | Redis/state; tests; doc/vault |
+| 387 | merged | 2026-05-14 06:16:15+08:00 | 0.60.148 | fix | Cuisine Picker | Fix: Cuisine TMA: ⇠ Prev FAB visibility fix + /clipboard alias | . ⇠ Prev FAB was nested inside the in-strip pagination row (gated totalPages > 1 — never true for 12-venue responses) → effectively invisible. | 6 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 388 | merged | 2026-05-13 22:30:18 | 0.60.149 | feature | Cuisine Picker | Add: Cuisine TMA: Michelin batch 40→12 + /clipboard menu entry + post-80 ↻ Recycle button | . sliceCap 40→12 fixes the first-Michelin-tap timeout. | 8 files — index.js, cuisine-session.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 389 | merged | 2026-05-14 06:55:29+08:00 | 0.60.149 | prompt-tune | Recognised lists | Add: v0.60.149 follow-up — Michelin remaining-count indicator + LLM dish-name guard rail | . Two refinements on top of #388. | 4 files — index.js, pipeline.js, TMA:cuisine | cuisine | — |
+| 390 | merged | 2026-05-14 07:12:52+08:00 | 0.60.150 | fix | Cuisine Picker | Fix: Cuisine TMA: parallelize Michelin Places lookups + 24-h Redis cache + axios 6s→4s (the 'later Michelin' HTTP 502 fix) | . Later Michelin ▶ taps returned HTTP 502 from Railway. | 6 files — index.js, tests, doc, package | — | Redis/state; tests; doc/vault |
+| 391 | merged | 2026-05-14 07:23:00+08:00 | 0.60.151 | refactor | Buddy / sharing | Refactor: /clipboard per-clip controls: 📋 Copy (plain text) + ✏️ Rename + 🗑 Remove | . Each /clipboard row now has 4 actions: 📤 Resend (existing), 📋 Copy as plain text, ✏️ Rename (Telegram force_reply prompt), 🗑 Remove (confirm gate + Redis LSET sentinel + LREM 1 sentinel). | 7 files — index.js, clip-store.js, tests, doc, package | — | Redis/state; tests; doc/vault |
+| 392 | merged | 2026-05-14 07:40:04+08:00 | 0.60.152 | feature | Cuisine Picker | Add: distance gate: PR #125's 80 km → 120 km (cuisine TMA + chat free-text) | . Two coupled constant bumps so /cuisine and /s agree on reach. | 6 files — index.js, free-text-search.js, tests, doc, package | — | tests; doc/vault |
+| 393 | merged | 2026-05-14 07:49:26+08:00 | 0.60.153 | fix | Recognised lists | Fix: Michelin: dedup fix (drop radius from criteriaHash) + force-warm enrichment cache + 'Curating' UI copy | . Three coupled Michelin fixes. | 6 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; privacy; doc/vault |
 
 ---
 

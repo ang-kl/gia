@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-13",
-  "count": 382,
+  "generated": "2026-05-14",
+  "count": 392,
   "records": [
     {
       "pr": 1,
@@ -10384,6 +10384,314 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 384,
+      "status": "merged",
+      "merged": "2026-05-14 05:27:44+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.145",
+      "minor": "0.60",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: Cuisine TMA: /api/cuisine/copy-all bot.sendMessage try/catch + plain-text retry; tolerate null mapUrl",
+      "approach": "— PR-A of 3 (Cuisine TMA hardening arc) First of three sequenced PRs.",
+      "codeImpact": "6 files — index.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.145 — Cuisine TMA: /api/cuisine/copy-all bot.sendMessage try/catch + plain-text retry; tolerate null mapUrl",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 385,
+      "status": "merged",
+      "merged": "2026-05-14 05:39:14+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.146",
+      "minor": "0.60",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: 80-cap session clipboard + ⇠ Prev FAB + multi-cuisine variant escalation (PR-B of 3)",
+      "approach": "— PR-B of 3.",
+      "codeImpact": "10 files — index.js, cuisine-session.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-session.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.146 — Cuisine TMA: 80-cap session clipboard + ⇠ Prev FAB + multi-cuisine variant escalation (PR-B of 3)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 386,
+      "status": "merged",
+      "merged": "2026-05-14 05:48:18+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.147",
+      "minor": "0.60",
+      "category": "prompt-tune",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: Michelin full LLM-narrate parity (vibe + whatToOrder) (PR-C of 3)",
+      "approach": "— PR-C of 3.",
+      "codeImpact": "6 files — index.js, pipeline.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "pipeline.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.147 — Cuisine TMA: Michelin full LLM-narrate parity (vibe + whatToOrder) (PR-C of 3)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 387,
+      "status": "merged",
+      "merged": "2026-05-14 06:16:15+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.148",
+      "minor": "0.60",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA: ⇠ Prev FAB visibility fix + /clipboard alias",
+      "approach": ". ⇠ Prev FAB was nested inside the in-strip pagination row (gated totalPages > 1 — never true for 12-venue responses) → effectively invisible.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.60.148 — Cuisine TMA: ⇠ Prev FAB visibility fix + /clipboard alias",
+      "reworkCue": false,
+      "reworkOf": 386,
+      "burst": true
+    },
+    {
+      "pr": 388,
+      "status": "merged",
+      "merged": "2026-05-13 22:30:18",
+      "day": "2026-05-13",
+      "version": "0.60.149",
+      "minor": "0.60",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: Michelin batch 40→12 + /clipboard menu entry + post-80 ↻ Recycle button",
+      "approach": ". sliceCap 40→12 fixes the first-Michelin-tap timeout.",
+      "codeImpact": "8 files — index.js, cuisine-session.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-session.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.149 — Cuisine TMA: Michelin batch 40→12 + /clipboard menu entry + post-80 ↻ Recycle button",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 389,
+      "status": "merged",
+      "merged": "2026-05-14 06:55:29+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.149",
+      "minor": "0.60",
+      "category": "prompt-tune",
+      "area": "Recognised lists",
+      "intent": "Add: v0.60.149 follow-up — Michelin remaining-count indicator + LLM dish-name guard rail",
+      "approach": ". Two refinements on top of #388.",
+      "codeImpact": "4 files — index.js, pipeline.js, TMA:cuisine",
+      "modules": [
+        "index.js",
+        "pipeline.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.60.149 follow-up — Michelin remaining-count indicator + LLM dish-name guard rail",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 390,
+      "status": "merged",
+      "merged": "2026-05-14 07:12:52+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.150",
+      "minor": "0.60",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA: parallelize Michelin Places lookups + 24-h Redis cache + axios 6s→4s (the 'later Michelin' HTTP 502 fix)",
+      "approach": ". Later Michelin ▶ taps returned HTTP 502 from Railway.",
+      "codeImpact": "6 files — index.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.150 — Cuisine TMA: parallelize Michelin Places lookups + 24-h Redis cache + axios 6s→4s (the 'later Michelin' HTTP 502 fix)",
+      "reworkCue": false,
+      "reworkOf": 388,
+      "burst": true
+    },
+    {
+      "pr": 391,
+      "status": "merged",
+      "merged": "2026-05-14 07:23:00+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.151",
+      "minor": "0.60",
+      "category": "refactor",
+      "area": "Buddy / sharing",
+      "intent": "Refactor: /clipboard per-clip controls: 📋 Copy (plain text) + ✏️ Rename + 🗑 Remove",
+      "approach": ". Each /clipboard row now has 4 actions: 📤 Resend (existing), 📋 Copy as plain text, ✏️ Rename (Telegram force_reply prompt), 🗑 Remove (confirm gate + Redis LSET sentinel + LREM 1 sentinel).",
+      "codeImpact": "7 files — index.js, clip-store.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "clip-store.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.151 — /clipboard per-clip controls: 📋 Copy (plain text) + ✏️ Rename + 🗑 Remove",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 392,
+      "status": "merged",
+      "merged": "2026-05-14 07:40:04+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.152",
+      "minor": "0.60",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: distance gate: PR #125's 80 km → 120 km (cuisine TMA + chat free-text)",
+      "approach": ". Two coupled constant bumps so /cuisine and /s agree on reach.",
+      "codeImpact": "6 files — index.js, free-text-search.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "free-text-search.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.60.152 — distance gate: PR #125's 80 km → 120 km (cuisine TMA + chat free-text)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 393,
+      "status": "merged",
+      "merged": "2026-05-14 07:49:26+08:00",
+      "day": "2026-05-14",
+      "version": "0.60.153",
+      "minor": "0.60",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: Michelin: dedup fix (drop radius from criteriaHash) + force-warm enrichment cache + 'Curating' UI copy",
+      "approach": ". Three coupled Michelin fixes.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.60.153 — Michelin: dedup fix (drop radius from criteriaHash) + force-warm enrichment cache + 'Curating' UI copy",
+      "reworkCue": false,
+      "reworkOf": 389,
+      "burst": false
     }
   ]
 }
