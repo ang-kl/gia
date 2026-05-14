@@ -270,6 +270,11 @@ export default function App() {
   }
 
   useEffect(() => {
+    // v0.60.161 — install window error handlers (no-op when verbose is
+    // off; auto-reports to /api/vlog when the server's first response
+    // tags `_vlog: true`). Idempotent — multiple mounts won't double-
+    // attach.
+    import('./lib/vlog.js').then((vlog) => vlog.installGlobalHandlers()).catch(() => {});
     fetchCatalogue()
       .then((d) => setCatalogue(d.categories || []))
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
