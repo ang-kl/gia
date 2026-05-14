@@ -401,38 +401,61 @@ const STRINGS = {
   //      search from JB-City only to the full state of Johor; users
   //      should know SG-default vs. JB-scope-on-toggle so they
   //      understand cross-border data quality is Google's.
+  //
+  // v0.60.171 — full body rewrite. Operator supplied the new EN copy
+  // verbatim ("Change the text in /legal to this text below"). Adds
+  // three new paragraphs vs v0.60.169: transport disclaimer (train /
+  // bus / SG-to-MY), takedown contact (LinkedIn), and a fullest-
+  // extent-of-law no-liability clause. Drops the trailing
+  // "Built by … {operator}" line since the new copy carries the
+  // LinkedIn inline in the takedown paragraph (the `{ operator }`
+  // interpolation argument still passes through from runLegalCommand
+  // but is now an unused placeholder — kept for backward compat with
+  // anyone who scripted around the env var). FR is a fresh translation
+  // tracking the EN structure paragraph-for-paragraph; chip labels
+  // continue to match the existing `filter.*` FR strings.
   'legal.body': {
     en: [
       '🔖 *Legal & disclaimer*',
       '',
-      'Results are sourced from public APIs and authorised APIs and may be inaccurate or outdated. They do not constitute professional advice. The builder accepts no liability for decisions made based on these outputs.',
+      'This bot is provided "as is" for general convenience. It may use automated tools, AI, and third-party services.',
       '',
-      '*Filter accuracy.* Filters and indicators in the Cuisine Picker — including 🆕 Newly opened, 🟢 Open now, 🕌 Halal, 🥗 Vegetarian, 🏠 Home-based, and 🐾 Pet allowed (v0.60.165) — reflect what Google Places reports for each venue. These signals can be incomplete, stale, or wrong. Please verify directly with the venue before relying on them — especially pet-friendliness and dietary certification (halal, vegetarian).',
+      'While care is taken, information may be inaccurate, incomplete, delayed, or unintentionally similar to existing content. Search Quick Filters in Cuisine Picker, such as 🆕 Newly opened, 🟢 Open now, 🕌 Halal, 🥗 Vegetarian, 🏠 Home-based, and 🐾 Pet allowed, are based on Google Places reports. Results may be inaccurate, outdated, or incorrect. Please verify details directly with venues, especially regarding pet-friendliness and dietary certifications.',
       '',
-      '*Geographic coverage.* Singapore by default. When the "Johor Bahru" region is selected, the search radius extends across the state of Johor, Malaysia (v0.60.164). Cross-border data quality is subject to Google Places\' own coverage outside Singapore.',
+      'Information on train lines, buses, nearby bus stops, and transportation within Singapore or to Malaysia is provided with estimated timings and updated frequently.',
       '',
-      'Singapore — governed by Singapore law. Aligns with IMDA Model AI Governance Framework. See /privacy for data handling.',
+      'The default coverage area is Singapore. If "Johor Bahru" is selected, the search includes Johor, Malaysia. Data quality outside Singapore relies on Google Places.',
       '',
-      'No automated decisions made about individuals.',
+      'Please note that results from public or authorised data may be inaccurate or outdated. These outputs do not replace professional advice. The builder accepts no liability for decisions made based on this information.',
       '',
-      'Built by Adrian K. L. Ang · [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
-      'May 2026{operator}'
+      'This is governed by Singapore law. The IMDA Model AI Governance Framework is followed. For information on data handling, see /privacy.',
+      '',
+      'The builder does not intend to infringe any rights. For concerns or takedown requests, kindly contact [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      '',
+      'By using this bot, you accept responsibility for your use of its outputs. The builder is not liable for losses, claims, interruptions, or reliance arising from use, to the fullest extent allowed by law.',
+      '',
+      'May 2026'
     ].join('\n'),
     fr: [
       '🔖 *Mentions légales et avertissement*',
       '',
-      'Les résultats proviennent d’API publiques et autorisées et peuvent être inexacts ou obsolètes. Ils ne constituent pas un conseil professionnel. Le créateur décline toute responsabilité quant aux décisions prises sur la base de ces résultats.',
+      'Ce bot est fourni « tel quel » à titre de commodité générale. Il peut utiliser des outils automatisés, l’IA et des services tiers.',
       '',
-      '*Précision des filtres.* Les filtres et indicateurs du Sélecteur Cuisine — y compris 🆕 Récemment ouvert, 🟢 Ouvert maintenant, 🕌 Halal, 🥗 Végétarien, 🏠 À domicile, et 🐾 Animaux autorisés (v0.60.165) — reflètent ce que Google Places signale pour chaque établissement. Ces informations peuvent être incomplètes, obsolètes ou erronées. Veuillez vérifier directement auprès de l’établissement avant de vous y fier — en particulier pour la politique sur les animaux et les certifications alimentaires (halal, végétarien).',
+      'Malgré tout le soin apporté, les informations peuvent être inexactes, incomplètes, retardées ou involontairement similaires à du contenu existant. Les Filtres rapides du Sélecteur Cuisine — notamment 🆕 Récemment ouvert, 🟢 Ouvert maintenant, 🕌 Halal, 🥗 Végétarien, 🏠 À domicile et 🐾 Animaux autorisés — s’appuient sur les données de Google Places. Les résultats peuvent être inexacts, obsolètes ou erronés. Veuillez vérifier les détails directement auprès des établissements, en particulier la politique sur les animaux et les certifications alimentaires.',
       '',
-      '*Couverture géographique.* Singapour par défaut. Lorsque la région « Johor Bahru » est sélectionnée, le rayon de recherche s’étend à l’ensemble de l’État de Johor, en Malaisie (v0.60.164). La qualité des données transfrontalières dépend de la couverture propre à Google Places en dehors de Singapour.',
+      'Les informations sur les lignes de train, les bus, les arrêts proches et les transports à Singapour ou vers la Malaisie sont fournies avec des horaires estimés et mises à jour fréquemment.',
       '',
-      'Singapour — soumis au droit singapourien. Conforme au cadre IMDA de gouvernance des IA. Voir /privacy pour la gestion des données.',
+      'La zone de couverture par défaut est Singapour. Si « Johor Bahru » est sélectionné, la recherche s’étend à Johor, en Malaisie. La qualité des données en dehors de Singapour dépend de Google Places.',
       '',
-      'Aucune décision automatisée n’est prise concernant des personnes.',
+      'Veuillez noter que les résultats issus de données publiques ou autorisées peuvent être inexacts ou obsolètes. Ces résultats ne remplacent pas un conseil professionnel. Le créateur décline toute responsabilité quant aux décisions prises sur la base de ces informations.',
       '',
-      'Conçu par Adrian K. L. Ang · [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
-      'Mai 2026{operator}'
+      'Soumis au droit singapourien. Le cadre IMDA de gouvernance des IA est respecté. Pour la gestion des données, voir /privacy.',
+      '',
+      'Le créateur n’a pas l’intention de violer un quelconque droit. Pour toute préoccupation ou demande de retrait, veuillez contacter [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      '',
+      'En utilisant ce bot, vous acceptez la responsabilité de l’usage que vous en faites. Le créateur ne saurait être tenu pour responsable des pertes, réclamations, interruptions ou dépendances découlant de l’usage, dans toute la mesure permise par la loi.',
+      '',
+      'Mai 2026'
     ].join('\n')
   },
   'legal.error':                  { en: 'Sorry, /legal hit an error. Try again in a moment.',
