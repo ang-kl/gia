@@ -177,6 +177,25 @@ export default function App() {
     setMichelinRemaining(p.michelinRemaining || null);
     setExhaustedNote(!!p.exhausted);
     setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
+    // v0.60.154 — also restore the criteria, free-text and search
+    // anchor that produced this page (Codex review on PR #395:
+    // otherwise the chips, ✳️ Michelin loading hint, copy-all heading,
+    // and the next 🔍 still describe whatever state the user typed
+    // after navigating away — so users would copy or rerun the wrong
+    // search). `state` / `nlText` / `locationAnchor` are persisted on
+    // every page push and re-applied here.
+    if (p.criteriaState && typeof p.criteriaState === 'object') {
+      setState(p.criteriaState);
+    }
+    if (typeof p.freeText === 'string') {
+      setNlText(p.freeText);
+    }
+    if (p.locationAnchor !== undefined) {
+      setLocationAnchor(p.locationAnchor || null);
+    }
+    if (p.searchCenter !== undefined) {
+      setSearchCenter(p.searchCenter || null);
+    }
   }, [cursor]);  // intentionally only on cursor change; pages mutates monotonically
   const tipFirstShownRef = useRef(false);
   // v0.58.23: explicit location-resolution status. Banner above the
@@ -411,6 +430,13 @@ export default function App() {
             exhausted: false,
             poolCount: 0,
             criteriaSnap: stateSig(state),
+            // v0.60.154 — match the runSearch push: snapshot the current
+            // state / freeText / anchor so Back to the warm-start page
+            // also restores the criteria builder, not just the venues.
+            criteriaState: state ? JSON.parse(JSON.stringify(state)) : null,
+            freeText: (typeof nlText === 'string') ? nlText : '',
+            locationAnchor: locationAnchor ? { ...locationAnchor } : null,
+            searchCenter: { lat: userLoc.lat, lng: userLoc.lng },
             isMichelin: false
           }]);
           setCursor(0);
@@ -594,6 +620,15 @@ export default function App() {
         exhausted: r?.exhausted === true,
         poolCount: Number.isFinite(r?.poolCount) ? r.poolCount : 0,
         criteriaSnap: stateSig(snap),
+        // v0.60.154 — full criteria/freeText/location snapshot so Back
+        // restores the chips, ✳️ Michelin loading-hint trigger, copy-all
+        // heading, and the next 🔍 round-trip to match the venues being
+        // shown (Codex review on PR #395). `snap` is the JSON state at
+        // search time; `center` is what the request actually used.
+        criteriaState: snap ? JSON.parse(JSON.stringify(snap)) : null,
+        freeText: (typeof nlText === 'string') ? nlText : '',
+        locationAnchor: locationAnchor ? { ...locationAnchor } : null,
+        searchCenter: center ? { lat: center.lat, lng: center.lng } : null,
         isMichelin: isMichelinPush
       };
       setPages((prev) => {
@@ -1140,6 +1175,14 @@ export default function App() {
                   setSessionFull(false);
                   setExhaustedNote(false);
                   setPageStackDepth(0);
+                  // v0.60.154 — also wipe the client-side page-history
+                  // cache (Codex review on PR #395). Without this, ↻
+                  // Recycle wipes the server-side seen/history but the
+                  // fresh "list #1 again" is appended to the pre-recycle
+                  // stack, so ⇠ Back walks back into stale results and
+                  // those pages still count against the 11/17 cap.
+                  setPages([]);
+                  setCursor(0);
                   runSearch(state);
                 }}
                 className="ml-1 not-italic underline text-tg-link"
