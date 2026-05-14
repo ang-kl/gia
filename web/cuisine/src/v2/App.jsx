@@ -1121,8 +1121,13 @@ export default function App() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg">
+            {/* v0.60.168 — FR tightened: was 'Veuillez patienter pendant
+                le chargement de la liste…' (53 chars, twice as long as
+                the EN). New 'Chargement de la liste…' (24 chars) matches
+                the EN's brevity while preserving the "loading list"
+                meaning per operator review. */}
             ⏳ {lang === 'fr'
-              ? 'Veuillez patienter pendant le chargement de la liste…'
+              ? 'Chargement de la liste…'
               : 'Please wait while loading list…'}
           </div>
         </div>

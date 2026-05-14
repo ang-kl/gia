@@ -48,7 +48,10 @@ const STRINGS = {
   // tagged `allowsDogs=true`; text-query fallback when strict yields
   // < 3 venues. v0.60.166: capital P per operator second-pass review
   // ("Pet allowed", was "pet allowed").
-  'filter.petFriendly':        { en: 'Pet allowed', fr: 'Animaux acceptés' },
+  // v0.60.168: FR tightened from 'Animaux acceptés' (literally
+  // "accepted") to 'Animaux autorisés' (literally "allowed") so it
+  // tracks the EN "Pet allowed" semantically per operator review.
+  'filter.petFriendly':        { en: 'Pet allowed', fr: 'Animaux autorisés' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },

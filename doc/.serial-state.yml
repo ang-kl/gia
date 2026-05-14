@@ -1,8 +1,8 @@
 counters:
-  commit: 140
+  commit: 141
   build: 0
   documents:
-    journal: 133
+    journal: 134
     builder: 0
     persona: 1
     feature: 35
@@ -11,11 +11,11 @@ counters:
     register: 111
 sessions:
   current_chat_id: 2026-05-14
-  current_chat_counter: 21
-last_anchor_time: 14-05 '26 20:55 SGT
-last_anchor_source: claude_v0_60_167_cuisine_api_initdata_auth_middleware_chokepoint
-last_anchor_iso8601: 2026-05-14T20:55:00+08:00
-last_anchor_utc: 2026-05-14T12:55:00Z
+  current_chat_counter: 22
+last_anchor_time: 14-05 '26 21:50 SGT
+last_anchor_source: claude_v0_60_168_fr_copy_tweaks_pet_allowed_plus_overlay
+last_anchor_iso8601: 2026-05-14T21:50:00+08:00
+last_anchor_utc: 2026-05-14T13:50:00Z
 # The v0.60.165 vault snapshot PR #408 was closed without merging
 # because v0.60.166 (PR #409) merged into main while #408 was still
 # draft, leaving the captured state one version behind. Operator:
