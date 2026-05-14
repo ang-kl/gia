@@ -1,8 +1,8 @@
 counters:
-  commit: 136
+  commit: 138
   build: 0
   documents:
-    journal: 131
+    journal: 132
     builder: 0
     persona: 1
     feature: 35
@@ -11,11 +11,16 @@ counters:
     register: 111
 sessions:
   current_chat_id: 2026-05-14
-  current_chat_counter: 17
-last_anchor_time: 14-05 '26 19:35 SGT
-last_anchor_source: claude_v0_60_165_jb_radius_30km_plus_pet_allow_filter_chip
-last_anchor_iso8601: 2026-05-14T19:35:00+08:00
-last_anchor_utc: 2026-05-14T11:35:00Z
+  current_chat_counter: 19
+last_anchor_time: 14-05 '26 20:10 SGT
+last_anchor_source: claude_v0_60_166_locationfield_no_autofire_plus_first_load_overlay_plus_pet_allowed_caps
+last_anchor_iso8601: 2026-05-14T20:10:00+08:00
+last_anchor_utc: 2026-05-14T12:10:00Z
+# Commit/journal counters jump 136→138 / 131→132 to account for the
+# in-flight vault snapshot PR #408 (v0.60.165 vault catch-up) which
+# bumped 136→137 / 131→131 on its own branch — when it merges its
+# counter values will be 137/131, and this v0.60.166 PR's 138/132 are
+# the next free slots. No drift; just two parallel branches converging.
 # v0.60.142→144 docs catch-up: anchored from the GitHub PR merge timestamps
 # for #379–#381 (#379 2026-05-12T23:34Z, #380 ~same, #381 2026-05-13T00:33Z) +
 # this session's continuation; normal re-anchor, not a TF-7 drift correction.

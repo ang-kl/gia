@@ -44,12 +44,11 @@ const STRINGS = {
   'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
   'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
   'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
-  // v0.60.165 — 🐾 pet allowed chip. Strict mode shows only Places
+  // v0.60.165 — 🐾 Pet allowed chip. Strict mode shows only Places
   // tagged `allowsDogs=true`; text-query fallback when strict yields
-  // < 3 venues. Lowercase + past-participle label per operator
-  // correction in the v0.60.165 review pass ("pet allowed" not
-  // "Pet-allow").
-  'filter.petFriendly':        { en: 'pet allowed', fr: 'animaux acceptés' },
+  // < 3 venues. v0.60.166: capital P per operator second-pass review
+  // ("Pet allowed", was "pet allowed").
+  'filter.petFriendly':        { en: 'Pet allowed', fr: 'Animaux acceptés' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },
