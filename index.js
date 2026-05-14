@@ -8349,7 +8349,15 @@ async function cacheBotUsername() {
           && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
           && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
         const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
-        const searchRadius = isJB ? 18000 : 50000;
+        // v0.60.165 — JB default radius widened 18 km → 30 km per
+        // operator request. Tight 18 km only covered JB city proper;
+        // 30 km reaches Iskandar Puteri + Pasir Gudang + parts of Senai
+        // + Kulai (edge) which is the operator's mental model for
+        // "Johor Bahru area" by default. Far-Johor picks (Pontian,
+        // Desaru, Muar, Mersing) still need an explicit LocationField
+        // pick — v0.60.164's pick-respect plus the slider's 100 km cap
+        // covers those scenarios.
+        const searchRadius = isJB ? 30000 : 50000;
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
@@ -9076,7 +9084,8 @@ async function cacheBotUsername() {
         // vertical slider on the map. Bounded 1000–100000. When
         // missing or out of range, fall back to the legacy region
         // defaults (50 km SG / 18 km JB).
-        const DEFAULT_RADIUS = isJB ? 18000 : 50000;
+        // v0.60.165 — JB default 18 km → 30 km (see warm-start above).
+        const DEFAULT_RADIUS = isJB ? 30000 : 50000;
         const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
           ? Math.round(clientRadius)
           : DEFAULT_RADIUS;
@@ -9271,6 +9280,13 @@ async function cacheBotUsername() {
         if (filters.newlyOpened) modifiers.push('newly opened');
         if (filters.halal) modifiers.push('halal');
         if (filters.vegetarian) modifiers.push('vegetarian');
+        // v0.60.165 — petFriendly modifier biases the Places text query
+        // toward venues with "pet friendly" in name/reviews. Combined
+        // with the strict post-filter on `v.allowsDogs === true` below,
+        // strict mode cherry-picks Google-tagged places; if strict
+        // yields < 3, we keep the text-query bias (allowsDogs unknown
+        // but reviews hint pet-friendly) per operator's fallback.
+        if (filters.petFriendly) modifiers.push('pet friendly');
         let cuisineQueries;
         if (modifiers.length && cuisineNames.length) {
           cuisineQueries = cuisineNames.map((n) => `${modifiers.join(' ')} ${n}`);
@@ -9348,7 +9364,10 @@ async function cacheBotUsername() {
         // v0.59.0: lang dimension added to the cache key — `:l${csLang}`.
         const cacheKey = `cuisine:search:v3:${region}:${lat.toFixed(3)}:${lng.toFixed(3)}:r${searchRadius}:` +
           `${cuisineQueries.join('|')}:` +
-          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : ''].join('')}:` +
+          // v0.60.165 — petFriendly bit `p` added to the filter slug so
+          // pet-friendly searches don't share a cached pool with the
+          // same cuisine + non-pet-friendly variant.
+          `${[filters.newlyOpened ? 'n' : '', filters.openNow ? 'o' : '', filters.halal ? 'h' : '', filters.vegetarian ? 'v' : '', filters.homeBased ? 'b' : '', filters.petFriendly ? 'p' : ''].join('')}:` +
           `${(filters.prices || []).join(',')}:l${csLang}`;
         // Codex review #224: when Singaporean is in the cuisines list,
         // skip the cache so each call re-runs discover() and rotates
@@ -9739,6 +9758,24 @@ async function cacheBotUsername() {
         // recency signal via the "newly opened" modifier.
         if (filters.newlyOpened) {
           venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
+        }
+        // v0.60.165 — petFriendly strict post-filter with text-query
+        // fallback. Places' `allowsDogs` attribute is well-populated in
+        // SG but sparser in JB / Malaysia. Strict: keep only venues
+        // tagged `allowsDogs === true`. If strict yields < 3, drop the
+        // strict filter and use the text-query-biased pool (the
+        // "pet friendly" modifier already biased the Places search
+        // upstream). Operator: "Strict Mode: only show venues with
+        // allow dogs=true. Fallback: text-query 'pet friendly' when
+        // strict zeros."
+        if (filters.petFriendly && venues.length > 0) {
+          const strictPet = venues.filter((v) => v.allowsDogs === true);
+          if (strictPet.length >= 3) {
+            console.log(`[Cuisine-Search] petFriendly strict: ${strictPet.length}/${venues.length} venues tagged allowsDogs=true`);
+            venues = strictPet;
+          } else {
+            console.log(`[Cuisine-Search] petFriendly strict yielded ${strictPet.length}/3 — falling back to text-query bias (${venues.length} venues)`);
+          }
         }
         // Sort by walking distance ASC (closer first) so top venues are most reachable.
         // v0.59.29: cap reverted 16 → 12 per Human Lead 2026-05-07.

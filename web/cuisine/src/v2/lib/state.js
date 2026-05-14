@@ -10,7 +10,12 @@
 // inverted URL contract — every filter uses the standard `?key=1`
 // to enable.
 
-const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased'];
+// v0.60.165 — `petFriendly` (🐾 Pet-allow) chip added in the OVERFLOW
+// row of the Filters card. Strict mode (server-side): only show venues
+// where Places returned `allowsDogs === true`. Text-query fallback
+// when the strict filter yields < 3 venues — appends "pet friendly"
+// to the cuisine search query so Places fuzzy-matches review mentions.
+const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
 const REGIONS = ['SG', 'JB'];
 
@@ -23,6 +28,7 @@ export function defaultState() {
       halal: false,
       vegetarian: false,
       homeBased: false,
+      petFriendly: false,
       prices: []
     },
     region: 'SG',
@@ -41,6 +47,7 @@ export function clearedFilters() {
     halal: false,
     vegetarian: false,
     homeBased: false,
+    petFriendly: false,
     prices: []
   };
 }

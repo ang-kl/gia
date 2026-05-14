@@ -12,7 +12,8 @@ const FILTER_KEYS = {
   openNow:     { icon: '🟢', i18n: 'filter.openNow' },
   halal:       { icon: '🕌', i18n: 'filter.halal' },
   vegetarian:  { icon: '🥗', i18n: 'filter.vegetarian' },
-  homeBased:   { icon: '🏠', i18n: 'filter.homeBased' }
+  homeBased:   { icon: '🏠', i18n: 'filter.homeBased' },
+  petFriendly: { icon: '🐾', i18n: 'filter.petFriendly' }   // v0.60.165
 };
 
 function ChipReadOnly({ children, onRemove, removeLabel }) {

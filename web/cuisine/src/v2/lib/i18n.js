@@ -44,6 +44,10 @@ const STRINGS = {
   'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
   'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
   'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
+  // v0.60.165 — 🐾 Pet-allow chip. Strict mode shows only Places
+  // tagged `allowsDogs=true`; text-query fallback when strict yields
+  // < 3 venues.
+  'filter.petFriendly':        { en: 'Pet-allow', fr: 'Animaux acceptés' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },
