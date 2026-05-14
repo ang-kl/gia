@@ -107,6 +107,11 @@ const STRINGS = {
                                  fr: '— Vous avez tout vu pour ces critères, sur plusieurs recherches. Ajoutez ou modifiez une cuisine / un filtre, ou utilisez 💬 Dites-moi, pour élargir — ou ' },
   'result.startOver':          { en: '↺ start over.', fr: '↺ recommencer.' },
 
+  // ----- Zero-results auto-retry CTA (v0.60.157) -----
+  'result.noMatchAfterRetry':  { en: 'No matches even after a fresh search. Try widening your criteria above, or tap below to reset filters and try again.',
+                                 fr: 'Aucun résultat même après une nouvelle recherche. Essayez d’élargir vos critères ci-dessus, ou touchez ci-dessous pour réinitialiser les filtres et réessayer.' },
+  'btn.resetFiltersRetry':     { en: '🔄 Reset filters & retry', fr: '🔄 Réinitialiser et réessayer' },
+
   // ----- Tell me panel -----
   'tellme.placeholder':        { en: 'What are you craving? e.g. spicy thai', fr: 'Quelle est votre envie ? ex. thaï épicé' },
   'tellme.aria':               { en: 'Tell me what you’re craving', fr: 'Dites-moi ce dont vous avez envie' },

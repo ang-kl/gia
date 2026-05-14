@@ -132,6 +132,18 @@ export default function App() {
   // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.60.157 — zero-results auto-retry guard + CTA flag. When a search
+  // returns `venues.length === 0`, runSearch fires exactly one silent
+  // retry with `resetSeen: true` (covers the common case where the
+  // long-lived per-criteria seen-set over-filtered legitimate matches).
+  // If the retry also returns zero, `zeroRetried` flips on and the
+  // empty-state renders a prominent 🔄 Reset filters & retry panel
+  // (mirroring the exhausted-note pattern). `lastZeroRetrySnapRef` is
+  // keyed by `stateSig(snap)` so the guard scopes per-criteria — the
+  // same signature can never auto-retry twice; changing any criteria
+  // implicitly arms a fresh budget.
+  const lastZeroRetrySnapRef = useRef(null);
+  const [zeroRetried, setZeroRetried] = useState(false);
   // v0.60.146 — per-session clipboard. `sessionFull` flips when the
   // server reports the 80-cap is reached; `pageStackDepth` is the
   // length of the back-page history (≥1 means the ⇠ Prev FAB is
@@ -551,6 +563,39 @@ export default function App() {
         return;
       }
       setQuestionDeclined(false);
+      // v0.60.157 — zero-results auto-retry. If the response is empty
+      // AND this isn't already the retry attempt AND we haven't already
+      // retried for this exact criteria signature, fire a single silent
+      // re-search with `resetSeen: true`. The most common cause of a
+      // zero list is the per-criteria seen-set having accumulated past
+      // the dedup pool over a long session — resetting it on the
+      // server unblocks the first ~60 again. The retry itself sets
+      // `opts.resetSeen=true`, so the recursion can't loop. If THIS
+      // call IS the retry (i.e. opts.resetSeen === true and venues are
+      // still zero), arm the CTA panel below the result list and pop
+      // the criteria builder open so the user can adjust without
+      // scrolling.
+      const isRetryCall = opts?.resetSeen === true;
+      const isZeroResult = Array.isArray(r.venues) && r.venues.length === 0;
+      const currentSig = stateSig(snap);
+      if (isZeroResult && !isRetryCall && lastZeroRetrySnapRef.current !== currentSig) {
+        lastZeroRetrySnapRef.current = currentSig;
+        // Schedule the retry in a microtask so the current `finally`
+        // (setLoading(false)) runs first, then the retry's setLoading(true)
+        // re-fires the spinner. Without this the spinner appears to skip.
+        Promise.resolve().then(() => runSearch(snap, anchor, { resetSeen: true }));
+        // Fall through to the regular zero-result setters below; the
+        // retry will overwrite them on success.
+      } else if (isZeroResult && isRetryCall) {
+        // The retry came back zero too — show the CTA + open criteria.
+        setZeroRetried(true);
+        setCriteriaOpen(true);
+      } else if (!isZeroResult) {
+        // Non-zero result clears the flag + ref so a future criteria
+        // signature that returns zero can get its own retry budget.
+        setZeroRetried(false);
+        lastZeroRetrySnapRef.current = null;
+      }
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
       setComboInfo(r.comboInfo || null);
@@ -1199,6 +1244,32 @@ export default function App() {
                 {t('result.startOver', lang)}
               </button>
             )}
+          </div>
+        )}
+        {/* v0.60.157 — zero-results CTA. After a search returns 0 venues
+            AND the silent auto-retry (with resetSeen) ALSO returns 0,
+            this panel renders a prominent "🔄 Reset filters & retry"
+            button + a hint to widen the criteria. The criteria builder
+            is already opened by runSearch in this branch so the user
+            sees their chips immediately above. Tapping the button
+            re-fires resetSeen=true; if the response is still zero, the
+            panel persists (no flicker). Cleared as soon as the next
+            search returns ≥1 venue OR the user changes any criteria. */}
+        {zeroRetried && !loading && venues.length === 0 && (
+          <div className="text-[12px] text-tg-hint text-center mt-2 px-2 py-3 rounded-lg bg-tg-card border border-tg-hint/20">
+            <div className="leading-snug">{t('result.noMatchAfterRetry', lang)}</div>
+            <button
+              type="button"
+              onClick={() => {
+                setCriteriaOpen(true);
+                setZeroRetried(false);
+                lastZeroRetrySnapRef.current = null;
+                runSearch(state, null, { resetSeen: true });
+              }}
+              className="mt-2 inline-block px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text text-[12px] font-medium"
+            >
+              {t('btn.resetFiltersRetry', lang)}
+            </button>
           </div>
         )}
       </div>
