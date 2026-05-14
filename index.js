@@ -6161,9 +6161,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         const e = JSON.parse(cached[i]);
         if (e && typeof e === 'object') {
           const v = filteredVenues[i];
-          if (!v.recentReview && e.recentReview) v.recentReview = e.recentReview;
-          if (!v.vibe && e.vibe) v.vibe = e.vibe;
-          if (!v.signatureDish && e.signatureDish) v.signatureDish = e.signatureDish;
+          // v0.60.154 — typeof === 'string' guards. Without them, a corrupt
+          // prior cache entry (e.g. {recentReview:{nested:'x'}}) flowed to
+          // the TMA and React stringified it as `[object Object]` on the
+          // venue card. Step 5 cache WRITE refills with valid strings on
+          // this same handler call, so no separate invalidation is needed.
+          if (!v.recentReview && typeof e.recentReview === 'string' && e.recentReview.trim()) v.recentReview = e.recentReview;
+          if (!v.vibe && typeof e.vibe === 'string' && e.vibe.trim()) v.vibe = e.vibe;
+          if (!v.signatureDish && typeof e.signatureDish === 'string' && e.signatureDish.trim()) v.signatureDish = e.signatureDish;
           if ((!Array.isArray(v.dishes) || v.dishes.length < 2) && Array.isArray(e.dishes) && e.dishes.length) {
             v.dishes = e.dishes.slice(0, 3);
           }
