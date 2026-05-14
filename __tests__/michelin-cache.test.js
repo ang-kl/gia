@@ -83,3 +83,67 @@ describe('Michelin negative-cache marker shape', () => {
     expect(effective).toEqual(live);
   });
 });
+
+describe('Michelin enrich-cache read — type guards (v0.60.154)', () => {
+  // Mirrors the inline cache-merge block in index.js:6160-6172. The
+  // `[object Object]` bug surfaced when a corrupt prior cache entry
+  // (recentReview / vibe / signatureDish written as a non-string) was
+  // assigned to the venue object as-is and React stringified it on the
+  // result card. The fix tightens the merge to typeof === 'string' &&
+  // .trim() so any non-string flows past the guard untouched. Step 5
+  // cache WRITE refills with valid strings on the same handler call.
+  function mergeCachedEnrichment(v, e) {
+    if (!e || typeof e !== 'object') return v;
+    if (!v.recentReview && typeof e.recentReview === 'string' && e.recentReview.trim()) v.recentReview = e.recentReview;
+    if (!v.vibe && typeof e.vibe === 'string' && e.vibe.trim()) v.vibe = e.vibe;
+    if (!v.signatureDish && typeof e.signatureDish === 'string' && e.signatureDish.trim()) v.signatureDish = e.signatureDish;
+    if ((!Array.isArray(v.dishes) || v.dishes.length < 2) && Array.isArray(e.dishes) && e.dishes.length) {
+      v.dishes = e.dishes.slice(0, 3);
+    }
+    return v;
+  }
+
+  it('drops a nested-object recentReview (the [object Object] bug)', () => {
+    const v = {};
+    mergeCachedEnrichment(v, { recentReview: { nested: 'x' } });
+    expect(v.recentReview).toBeUndefined();
+  });
+
+  it('drops an array vibe', () => {
+    const v = {};
+    mergeCachedEnrichment(v, { vibe: ['casual', 'lively'] });
+    expect(v.vibe).toBeUndefined();
+  });
+
+  it('drops a null signatureDish', () => {
+    const v = {};
+    mergeCachedEnrichment(v, { signatureDish: null });
+    expect(v.signatureDish).toBeUndefined();
+  });
+
+  it('accepts well-formed strings', () => {
+    const v = {};
+    mergeCachedEnrichment(v, {
+      recentReview: 'Lovely tasting menu',
+      vibe: 'refined',
+      signatureDish: 'Cod brandade'
+    });
+    expect(v.recentReview).toBe('Lovely tasting menu');
+    expect(v.vibe).toBe('refined');
+    expect(v.signatureDish).toBe('Cod brandade');
+  });
+
+  it('does not overwrite an existing field value', () => {
+    const v = { vibe: 'already set' };
+    mergeCachedEnrichment(v, { vibe: 'cache value' });
+    expect(v.vibe).toBe('already set');
+  });
+
+  it('rejects empty / whitespace-only strings', () => {
+    const v = {};
+    mergeCachedEnrichment(v, { recentReview: '   ', vibe: '', signatureDish: '\t\n' });
+    expect(v.recentReview).toBeUndefined();
+    expect(v.vibe).toBeUndefined();
+    expect(v.signatureDish).toBeUndefined();
+  });
+});

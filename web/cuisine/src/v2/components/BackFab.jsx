@@ -19,15 +19,29 @@ import { t, useLocale } from '../lib/i18n.js';
 // App. With `closeOnly` the FAB always calls Telegram WebApp.close()
 // (twice — `close()` is itself a bit flaky on Telegram Desktop/macOS;
 // the second call is a harmless no-op if the webview already shut).
-export default function BackFab({ inline = false, closeOnly = false }) {
+// v0.60.154 — explicit `mode` prop + `onBack` callback. The Cuisine TMA
+// now drives this FAB by client-side page-history state (App.jsx pages
+// + cursor): when there's prior pages cached locally, it passes
+// mode='back' + onBack=stepCursor; otherwise mode='close'. This bypasses
+// the unreliable window.history heuristic for SPA-style mounts and keeps
+// the same visual semantics (⇠ back vs 🔚 end). `closeOnly` is retained
+// for backwards compatibility with any other caller.
+export default function BackFab({ inline = false, closeOnly = false, mode = null, onBack = null }) {
   const lang = useLocale();
-  const hasHistory = !closeOnly && typeof window !== 'undefined' && window.history.length > 1;
+  const effectiveMode = mode
+    || (closeOnly ? 'close'
+        : (typeof window !== 'undefined' && window.history.length > 1 ? 'back' : 'close'));
+  const hasHistory = effectiveMode === 'back';
   const onClick = () => {
-    const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
     if (hasHistory) {
+      if (typeof onBack === 'function') {
+        onBack();
+        return;
+      }
       window.history.back();
       return;
     }
+    const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
     if (w && typeof w.close === 'function') {
       try { w.close(); } catch { /* webview tearing down */ }
       setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);

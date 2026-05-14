@@ -149,6 +149,35 @@ export default function App() {
   // current criteria-hash. Surfaced in the "that's all N" terminal note
   // when exhausted, so the user knows the pool size and stops re-tapping.
   const [poolCount, setPoolCount] = useState(0);
+  // v0.60.154 — client-side page history. Each successful search pushes
+  // a Page onto `pages`; the floating ⇠ Back / ⇢ Next FABs walk the
+  // array by moving `cursor` (no server round-trip). Caps: 17 normal
+  // (~200 venues at 12/page) / 11 Michelin (~130 entries). Oldest page
+  // is shifted off on overflow so the cap is honored. The page payload
+  // mirrors every per-field state setter that runSearch updates, so the
+  // useEffect below can re-render the cached page on cursor change.
+  // Operator: "client-side storing of ~130 Michelin … and 200 listing
+  // of search Criteria and/or free-text within Cuisine TMA."
+  const [pages, setPages] = useState([]);
+  const [cursor, setCursor] = useState(0);
+  // v0.60.154 — re-apply per-field setters when the user steps back/forward
+  // through the cached pages. The first push (after runSearch) lands at the
+  // tail, where this effect is a no-op (the setters already ran inline);
+  // back/forward taps fire it to swap ResultPanel's inputs to the cached
+  // page without a network call.
+  useEffect(() => {
+    const p = pages[cursor];
+    if (!p) return;
+    setVenues(p.venues || []);
+    setComboInfo(p.comboInfo || null);
+    setMisrepNote(p.misrepNote || null);
+    setCookMethodPivot(p.cookMethodPivot || null);
+    setSessionFull(!!p.sessionFull);
+    setPageStackDepth(Number.isFinite(p.pageStackDepth) ? p.pageStackDepth : 0);
+    setMichelinRemaining(p.michelinRemaining || null);
+    setExhaustedNote(!!p.exhausted);
+    setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
+  }, [cursor]);  // intentionally only on cursor change; pages mutates monotonically
   const tipFirstShownRef = useRef(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
@@ -219,6 +248,11 @@ export default function App() {
     // time they re-open Cuisine, regardless of the per-criteria
     // long-lived dedup (cuisine:seen:<chatId>:<hash>).
     startSession().catch((err) => console.warn('[Cuisine-TMA-v2] session start failed:', err));
+    // v0.60.154 — also reset the client-side page-history cache so the
+    // ⇠ Back / ⇢ Next FABs start with a fresh empty stack on every
+    // TMA launch (parallel to the server-side wipe above).
+    setPages([]);
+    setCursor(0);
   }, []);
 
   // v0.58.20: bounded geolocation resolution.
@@ -361,6 +395,25 @@ export default function App() {
           setFirstLoadPending(false);
           setWarmStartSeed(r.seed || null);
           setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+          // v0.60.154 — warm-start populates the first entry of the
+          // client-side history cache so a subsequent ⇠ Back can land
+          // on it. Without this, the user's first explicit search
+          // would write the only cached page and ⇠ Back would never
+          // light up against the warm-start view.
+          setPages([{
+            venues: r.venues,
+            comboInfo: null,
+            misrepNote: null,
+            cookMethodPivot: null,
+            sessionFull: false,
+            pageStackDepth: 0,
+            michelinRemaining: null,
+            exhausted: false,
+            poolCount: 0,
+            criteriaSnap: stateSig(state),
+            isMichelin: false
+          }]);
+          setCursor(0);
           // v0.59.18 (Codex review #223): seed lastRunSnap with the
           // current state signature so the dirty ring lights up the
           // moment the user toggles a filter / cuisine / region after
@@ -520,6 +573,42 @@ export default function App() {
       } else {
         setMichelinRemaining(null);
       }
+      // v0.60.154 — push the new page onto the client-side history
+      // cache and advance the cursor. If the user had stepped back
+      // before triggering this search, the forward branch is truncated
+      // (so a search-after-back does not orphan stale future pages).
+      // Cap at 17 (normal) / 11 (Michelin) — operator's ~200 / ~130
+      // venue targets at 12-per-page slicing.
+      const isMichelinPush = (snap.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin');
+      const cap = isMichelinPush ? 11 : 17;
+      const newPage = {
+        venues: r.venues || [],
+        comboInfo: r.comboInfo || null,
+        misrepNote: (r.misrepresentation && r.misrepresentation.name) ? r.misrepresentation : null,
+        cookMethodPivot: (r.cookingMethod && Array.isArray(r.cookingMethod.matches) && r.cookingMethod.matches.length) ? r.cookingMethod : null,
+        sessionFull: r?.sessionFull === true,
+        pageStackDepth: Number.isFinite(r?.pageStackDepth) ? r.pageStackDepth : 0,
+        michelinRemaining: (r?.michelinSummary && Number.isFinite(r.michelinSummary.remaining))
+          ? { shown: r.michelinSummary.shown || 0, remaining: r.michelinSummary.remaining, total: r.michelinSummary.total || 0 }
+          : null,
+        exhausted: r?.exhausted === true,
+        poolCount: Number.isFinite(r?.poolCount) ? r.poolCount : 0,
+        criteriaSnap: stateSig(snap),
+        isMichelin: isMichelinPush
+      };
+      setPages((prev) => {
+        const truncated = prev.slice(0, cursor + 1);
+        const next = [...truncated, newPage];
+        return next.length > cap ? next.slice(next.length - cap) : next;
+      });
+      setCursor((prev) => {
+        const after = Math.min(prev + 1, cap - 1);
+        // If the previous list was empty (first push of session), cursor
+        // was 0 and stays 0; the array length goes from 0 → 1 so cursor
+        // 0 is correctly the new tail. The `+1` advance handles every
+        // subsequent push.
+        return (pages.length === 0 && prev === 0) ? 0 : after;
+      });
       // v0.58.14: scroll the result list into view so users don't
       // miss it. Wrapped in a microtask so the new venues render
       // first; smooth scroll keeps the motion gentle.
@@ -974,10 +1063,13 @@ export default function App() {
           // Operator: "UI: Asking user to be patience, to curate the
           // list with review."
           loadingHint={
+            // v0.60.154 — operator copy + glyph (🎩 → ✳️). Shorter
+            // "please wait" framing replaces the longer "curating … hang
+            // on" hint that landed in v0.60.153.
             (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin')
               ? (lang === 'fr'
-                  ? '🎩 Curation de la liste Michelin — récupération des avis récents et plats signatures. Patience…'
-                  : '🎩 Curating the Michelin list — fetching the latest reviews and signature dishes. Hang on…')
+                  ? '✳️ Récupération des dernières informations Michelin. Un instant…'
+                  : '✳️ Fetching the latest Michelin information. Please wait a moment.')
               : null
           }
           focusedPlaceId={focusedPlaceId}
@@ -1111,37 +1203,35 @@ export default function App() {
         className="fixed left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3"
         style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        <BackFab inline closeOnly />
-        <div className="flex flex-col gap-2 items-end pointer-events-none">
-          {/* v0.60.148 — ⇠ Prev FAB. Walks the per-session page history
-              (Redis list capped at 10), enabled when the server's most
-              recent /api/cuisine/search response reports pageStackDepth
-              ≥ 1. Tap → /api/cuisine/session/back → replace the result
-              list with the previous one (usageLog tracks the back tap
-              as `src:cuisine-tma-back`). Lives ABOVE 🔍 Search in the
-              FAB column so the operator's primary navigation cue is in
-              the same visual cluster as the forward search.
-              Moved here from the in-strip pagination row (v0.60.146)
-              where it was hidden behind the `totalPages > 1` guard — a
-              single-12-venue response never tripped it. */}
-          {pageStackDepth > 0 && (
+        {/* v0.60.154 — left cluster: End / ⇠ Back / ⇢ Next. The Back FAB
+            replaces the v0.60.148 right-column ⇠ button (now removed)
+            and reverts to the original "End" position the operator
+            preferred; it walks the client-side page-history cache
+            (`pages` + `cursor`) instead of round-tripping
+            /api/cuisine/session/back, so navigation is instant and no
+            re-curation happens. The ⇢ Next button only renders when
+            the user has stepped back and there is forward history. */}
+        <div className="flex items-end gap-2 pointer-events-none">
+          <BackFab
+            inline
+            mode={cursor > 0 ? 'back' : 'close'}
+            onBack={() => setCursor((c) => Math.max(0, c - 1))}
+          />
+          {cursor < pages.length - 1 && (
             <button
               type="button"
-              onClick={async () => {
-                const r = await backOnePage();
-                if (r && r.ok && r.page && Array.isArray(r.page.venues)) {
-                  setVenues(r.page.venues);
-                  setPageStackDepth(Number.isFinite(r.pageStackDepth) ? r.pageStackDepth : 0);
-                  setExhaustedNote(false);
-                  setSessionFull(false);
-                }
-              }}
-              aria-label={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
-              title={lang === 'fr' ? 'Liste précédente' : 'Previous list'}
+              onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
+              aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+              title={lang === 'fr' ? 'Liste suivante' : 'Next list'}
               style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
-              className="pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[12px] font-semibold flex items-center justify-center active:scale-95"
-            >⇠</button>
+              className="pointer-events-auto px-2 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap"
+            >
+              <span aria-hidden="true">⇢</span>
+              <span>{lang === 'fr' ? 'Suivant' : 'next'}</span>
+            </button>
           )}
+        </div>
+        <div className="flex flex-col gap-2 items-end pointer-events-none">
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
               and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
               'down'." Search FAB now renders FIRST (top of column);
