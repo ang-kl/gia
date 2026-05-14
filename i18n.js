@@ -388,6 +388,56 @@ const STRINGS = {
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
                                     fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' },
 
+  // v0.60.169 — /legal body migrated from a hard-coded English string
+  // in index.js runLegalCommand to a localised i18n key (EN + FR),
+  // matching the privacy.body pattern. New clauses added:
+  //   1. Google-sourced filter / indicator accuracy disclaimer —
+  //      covers the new 🐾 Pet allowed toggle (v0.60.165), the
+  //      pre-existing halal / vegetarian / open-now filters, and the
+  //      venue ratings + opening hours generally. Operator review:
+  //      "As results are determined by Google" — make the disclaimer
+  //      explicit for the filters users now make travel decisions on.
+  //   2. Geographic-scope note — v0.60.164 widened the JB-region
+  //      search from JB-City only to the full state of Johor; users
+  //      should know SG-default vs. JB-scope-on-toggle so they
+  //      understand cross-border data quality is Google's.
+  'legal.body': {
+    en: [
+      '🔖 *Legal & disclaimer*',
+      '',
+      'Results are sourced from public APIs and authorised APIs and may be inaccurate or outdated. They do not constitute professional advice. The builder accepts no liability for decisions made based on these outputs.',
+      '',
+      '*Filter accuracy.* Filters and indicators in the Cuisine Picker — including 🆕 Newly opened, 🟢 Open now, 🕌 Halal, 🥗 Vegetarian, 🏠 Home-based, and 🐾 Pet allowed (v0.60.165) — reflect what Google Places reports for each venue. These signals can be incomplete, stale, or wrong. Please verify directly with the venue before relying on them — especially pet-friendliness and dietary certification (halal, vegetarian).',
+      '',
+      '*Geographic coverage.* Singapore by default. When the "Johor Bahru" region is selected, the search radius extends across the state of Johor, Malaysia (v0.60.164). Cross-border data quality is subject to Google Places\' own coverage outside Singapore.',
+      '',
+      'Singapore — governed by Singapore law. Aligns with IMDA Model AI Governance Framework. See /privacy for data handling.',
+      '',
+      'No automated decisions made about individuals.',
+      '',
+      'Built by Adrian K. L. Ang · [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      'May 2026{operator}'
+    ].join('\n'),
+    fr: [
+      '🔖 *Mentions légales et avertissement*',
+      '',
+      'Les résultats proviennent d’API publiques et autorisées et peuvent être inexacts ou obsolètes. Ils ne constituent pas un conseil professionnel. Le créateur décline toute responsabilité quant aux décisions prises sur la base de ces résultats.',
+      '',
+      '*Précision des filtres.* Les filtres et indicateurs du Sélecteur Cuisine — y compris 🆕 Récemment ouvert, 🟢 Ouvert maintenant, 🕌 Halal, 🥗 Végétarien, 🏠 À domicile, et 🐾 Animaux autorisés (v0.60.165) — reflètent ce que Google Places signale pour chaque établissement. Ces informations peuvent être incomplètes, obsolètes ou erronées. Veuillez vérifier directement auprès de l’établissement avant de vous y fier — en particulier pour la politique sur les animaux et les certifications alimentaires (halal, végétarien).',
+      '',
+      '*Couverture géographique.* Singapour par défaut. Lorsque la région « Johor Bahru » est sélectionnée, le rayon de recherche s’étend à l’ensemble de l’État de Johor, en Malaisie (v0.60.164). La qualité des données transfrontalières dépend de la couverture propre à Google Places en dehors de Singapour.',
+      '',
+      'Singapour — soumis au droit singapourien. Conforme au cadre IMDA de gouvernance des IA. Voir /privacy pour la gestion des données.',
+      '',
+      'Aucune décision automatisée n’est prise concernant des personnes.',
+      '',
+      'Conçu par Adrian K. L. Ang · [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      'Mai 2026{operator}'
+    ].join('\n')
+  },
+  'legal.error':                  { en: 'Sorry, /legal hit an error. Try again in a moment.',
+                                    fr: 'Désolé, /legal a rencontré une erreur. Veuillez réessayer dans un instant.' },
+
   // v0.59.13 — /recognised localisation
   'recognised.heading':           { en: '🏆 *Singapore — recognised dining*', fr: '🏆 *Singapour — restaurants reconnus*' },
   'recognised.tap':               { en: 'Tap a list to open the source page:', fr: 'Touchez une liste pour ouvrir la page source :' },
