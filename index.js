@@ -6063,6 +6063,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }
   }
   const michelin = require('./michelin-2025');
+  const michelinWalk = require('./michelin-walk');
+  // v0.60.198 — surface req.body.prices early so the walk-hash can
+  // include it (otherwise toggling a price tier wouldn't reset the walk).
+  const requestedPricesForWalk = Array.isArray(req.body?.prices) ? req.body.prices : [];
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
@@ -6076,7 +6080,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // re-pays ~12 Places searchText calls (cache also removed; see
   // resolveEntryPlace below). Combo filtering (Michelin + cuisine
   // chip) still applies via cuisineTagMatches; just no dedup.
-  console.log(`[Michelin] tap chatId=${csChatId || 'null'} combo=[${otherCuisineSlugs.join(',')}] mode=top12-fresh`);
+  console.log(`[Michelin] tap chatId=${csChatId || 'null'} combo=[${otherCuisineSlugs.join(',')}]`);
   const vlogMichelin = require('./verbose-log');
   const vlogMichelinStart = Date.now();
   await vlogMichelin.vlogIf(redis, csChatId, {
@@ -6164,16 +6168,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.147 added the LLM narrate step on top, which pushed 40-venue
   // calls past Telegram's ~30 s webhook ceiling and timed the first
   // tap out. v0.60.149 (Human Lead 2026-05-13): sliceCap 40 → 12.
-  // Matches the cuisine-chip PAGE_SIZE; the LLM narrate prompt now
-  // operates on 12 venues (well inside Gemini's retry budget + Telegram's
-  // window). The seen-set dedup rotation already pages the user through
-  // all ~130 curated entries in ~11 ▶ taps; after exhaustion the
-  // didReset path + `exhausted: true` flag drives the TMA's end-of-list
-  // note + recycle-on-next-tap behaviour. Michelin venues are also
-  // recorded into the per-session clipboard with skipCap=true so the
-  // global 80-cap never terminates a Michelin walk early.
-  const sliceCap = Math.min(pool.length, 12);
-  const slice = [...stars, ...bib].slice(0, sliceCap);
+  // v0.60.195 dropped seen-set pagination ("always top 12 fresh") — but
+  // five rapid taps then returned identical results (verified in
+  // Depoly_2053_15-May.MD). v0.60.198 restores walk-through pagination:
+  // each tap advances through the curated pool 12 at a time, the seen
+  // set is scoped to a criteriaHash (combo / filter / price / radius /
+  // isJB / freeText), and the seen set auto-resets after 1h of
+  // inactivity. Places-cache stays dropped (v0.60.195a) — only the
+  // pagination half is restored. See michelin-walk.js for the helper.
+  const ordered = [...stars, ...bib];
+  const walkHash = michelinWalk.computeCriteriaHash({
+    otherCuisineSlugs,
+    filters,
+    prices: requestedPricesForWalk,
+    radius: searchRadius,
+    isJB,
+    freeText
+  });
+  const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
+  const unseen = walkState.seen.size
+    ? ordered.filter((e) => !walkState.seen.has(e.slug))
+    : ordered;
+  const sliceCap = Math.min(unseen.length, 12);
+  const slice = unseen.slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
   // entry's curated metadata if Places fails.
@@ -6527,7 +6544,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.195 — diagnostics retained (without criteriaHash/seenBefore/
   // appendKeys, those don't exist in the no-walk-through mode).
   // appendSeenSet call dropped: nothing to remember between taps.
-  console.log(`[Michelin] page chatId=${csChatId || 'null'} pool=${pool.length} candidatesFiltered=${filteredVenues.length} mode=top12-fresh`);
+  console.log(`[Michelin] page chatId=${csChatId || 'null'} pool=${pool.length} candidatesFiltered=${filteredVenues.length} walkSeen=${walkState.seen.size} walkReset=${walkState.reset}`);
   // Scrub the legacy michelinDedupKey field (still attached by the
   // venue-construction loop above — v0.60.187 DF-80 carry-forward —
   // even though it's no longer consumed).
@@ -6789,11 +6806,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // is full.
   // v0.60.149 — Michelin response never sets sessionFull (its per-
   // session cap is its own curated-list size, not the 80-cap).
-  // v0.60.195 — no-walk-through mode: exhausted is meaningful only when
-  // the filtered pool is genuinely thin (e.g. Michelin + Korean returned
-  // < 3 starred entries). The < 3 trigger still surfaces the existing
-  // TMA "no results" copy; the prior `didReset` branch is dead.
-  const exhausted = filteredVenues.length < 3;
+  // v0.60.195 — no-walk-through mode: exhausted = filtered pool < 3.
+  // v0.60.198 — walk-through restored: exhausted = (a) Places resolved
+  // < 3 venues, OR (b) the just-served slugs + previously-seen slugs
+  // cover the entire ordered pool. (b) is the explicit "you've now
+  // seen all ~130 entries" signal the TMA renders an end-of-list note
+  // for. The next tap continues to return exhausted=true with whatever
+  // tail venues remain (often empty), until the seen-set is reset by
+  // a combo/filter change or 1h idle TTL.
+  const newSlugs = slice.map((e) => e && e.slug).filter(Boolean);
+  await michelinWalk.recordWalk(redis, csChatId, walkHash, newSlugs);
+  const totalServedThisWalk = walkState.seen.size + newSlugs.length;
+  const walkExhausted = totalServedThisWalk >= ordered.length;
+  const exhausted = filteredVenues.length < 3 || walkExhausted;
   const handlerMs = Date.now() - handlerStart;
   if (handlerMs > 10000) {
     console.warn(`[Michelin] handler ms=${handlerMs} venues=${filteredVenues.length}`);
@@ -6806,7 +6831,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       handlerMs,
       venues: filteredVenues.length,
       exhausted,
-      mode: 'top12-fresh'
+      mode: walkState.reset ? 'walk-reset' : 'walk-continue',
+      walkSeenBefore: walkState.seen.size,
+      walkServedNow: newSlugs.length,
+      walkTotal: ordered.length,
+      walkHash
     });
   }
   return res.json({
