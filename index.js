@@ -2310,8 +2310,8 @@ bot.on('location', async (msg) => {
         }
       } catch { /* non-fatal — keep coord placeLine */ }
       const body = locLang === 'fr'
-        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /hidden, /s, /carpark, /transport._`
-        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /hidden, /s, /carpark, /transport._`;
+        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /s, /carpark, /transport._`
+        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /s, /carpark, /transport._`;
       try {
         await bot.sendMessage(msg.chat.id, body, {
           parse_mode: 'Markdown',
