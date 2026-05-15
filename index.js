@@ -286,6 +286,27 @@ async function enrichPriceRangeDisplay(chatId, venues) {
   }));
 }
 
+// v0.60.197 — DF-87: populate `sanctuaryRead` on every search-response
+// venue (was previously only filled by /api/cuisine/copy-one, so the
+// T1 "detail-with-sanctuary" Copy-All emitted the 🌿 block sparsely).
+// Reuses the existing `getOrCacheSummary` helper from vibe-summary.js
+// (7-day Redis cache key per `placeId`), so warm venues are ~1 ms and
+// cold venues cost one Gemini call. Best-effort + parallel: per-venue
+// failure leaves `sanctuaryRead` empty, card just omits the block.
+// Skips venues missing placeId or already populated by an upstream
+// path (cuisine-chip + Michelin handlers share this helper).
+async function enrichSanctuaryRead(venues, lang = 'en') {
+  if (!Array.isArray(venues) || !venues.length) return;
+  if (!redis || !redis.isOpen) return;     // cache layer required; no-op without it
+  await Promise.allSettled(venues.map(async (v) => {
+    if (!v || !v.placeId || (typeof v.sanctuaryRead === 'string' && v.sanctuaryRead.trim())) return;
+    try {
+      const text = await getOrCacheSummary(redis, v.placeId, lang);
+      if (text && typeof text === 'string' && text.trim()) v.sanctuaryRead = text;
+    } catch { /* per-venue failure is non-fatal */ }
+  }));
+}
+
 // v0.59.31 — forward geocode + validation for /hidden free-text mode.
 // Per Human Lead 2026-05-07: when user types `/hidden Tanjong Pagar
 // MRT`, we need to validate the text resolves to a real
@@ -5095,6 +5116,9 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
       console.warn('[Search] enrichPriceRangeDisplay failed:', err.message);
     }
+    try { await enrichSanctuaryRead(venues, lang); } catch (err) {
+      console.warn('[Search] enrichSanctuaryRead failed:', err.message);
+    }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
       await attachFootfallSignals(redis, venues);
@@ -5592,6 +5616,9 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
       try { await enrichPriceRangeDisplay(chatId, finalVenues); } catch (err) {
         console.warn('[Search-FanOut] enrichPriceRangeDisplay failed:', err.message);
       }
+      try { await enrichSanctuaryRead(finalVenues, lang); } catch (err) {
+        console.warn('[Search-FanOut] enrichSanctuaryRead failed:', err.message);
+      }
       try {
         const { attachFootfallSignals } = require('./footfall-signal');
         await attachFootfallSignals(redis, finalVenues);
@@ -5711,6 +5738,9 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
       console.warn('[Nation-Iconic] enrichPriceRangeDisplay failed:', err.message);
     }
+    try { await enrichSanctuaryRead(venues, lang); } catch (err) {
+      console.warn('[Nation-Iconic] enrichSanctuaryRead failed:', err.message);
+    }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
       await attachFootfallSignals(redis, venues);
@@ -5829,6 +5859,9 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
     }
     try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
       console.warn('[Cooking-Method] enrichPriceRangeDisplay failed:', err.message);
+    }
+    try { await enrichSanctuaryRead(venues, lang); } catch (err) {
+      console.warn('[Cooking-Method] enrichSanctuaryRead failed:', err.message);
     }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
@@ -6507,6 +6540,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // the rest of the response.
   try { await enrichPriceRangeDisplay(csChatId, filteredVenues); } catch (err) {
     console.warn('[Michelin] enrichPriceRangeDisplay failed:', err.message);
+  }
+  try { await enrichSanctuaryRead(filteredVenues, csLang); } catch (err) {
+    console.warn('[Michelin] enrichSanctuaryRead failed:', err.message);
   }
 
   // v0.60.147 — Michelin full LLM-narrate parity (operator: "the
@@ -10475,6 +10511,9 @@ async function cacheBotUsername() {
         // v0.60.183 — venue-card price-range pre-resolution.
         try { await enrichPriceRangeDisplay(csChatId, top); } catch (err) {
           console.warn('[Cuisine-Search] enrichPriceRangeDisplay failed:', err.message);
+        }
+        try { await enrichSanctuaryRead(top, csLang); } catch (err) {
+          console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
         }
         // v0.59.0: footfall enrichment (BestTime). Dormant without key.
         try {
