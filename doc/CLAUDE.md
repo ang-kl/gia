@@ -280,3 +280,13 @@ fallback_pointer: CLAUDE-FULL.md (v0.0.3, same folder)
 ```
 
 > **For Human Readers:** This is the lean version. If you want to understand WHY any rule exists, or read the worked example of how time anchor triangulation went wrong and was corrected, open `CLAUDE-FULL.md` in this folder. It is the same content this file points to, but with full reasoning, decision trees, and the §15 case study preserved.
+
+---
+
+## 13. Supplementary surfaces (v0.0.4) — see `CLAUDE-FULL.md` §§16–18
+
+Added in contract v0.0.4 (codifications discovered during the soleat v0.59 → v0.60 arc):
+
+- **§16 Supplementary folders** — `vault/<v>/` snapshot protocol (§16.1), `doc/third-party.yaml` manifest (§16.2), `.vibe-journal/` framework (§16.3).
+- **§17 Operational patterns** — seven rules of practice: reproduce-by-reference (§17.1), operator-supplied-copy paste convention (§17.2), doc-system catch-up cadence (§17.3), admin-merge for CI-infra failures (§17.4), cross-team onboarding sequence (§17.5), standing-rules registry (§17.6), vault-prior-known-good (§17.7).
+- **§18 Vibe Journal framework** — 5-row tab spec (§18.1), per-tab data sources (§18.2), multi-file + bundled output modes (§18.3), Soleat reference deployment (§18.4), adoption checklist for new projects (§18.5).
