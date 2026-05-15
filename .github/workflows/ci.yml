@@ -48,6 +48,12 @@ jobs:
               fails=$((fails+1))
               fail_list="$fail_list $f"
             fi
+          # NOTE: We prune ./public/*/assets (per-TMA Vite output —
+          # hashed bundles that round-trip through Vite, not source),
+          # but NOT ./public itself — `public/app.js` is hand-written
+          # runtime code for the v0.4.0 sanctuary map TMA (served at
+          # /static/app.js by the express mount at index.js:8118).
+          # Thanks Codex (PR #456 review) for catching this.
           done < <(find . \
             \( \
               -path './node_modules' -o \
@@ -55,7 +61,7 @@ jobs:
               -path './web/*/dist' -o \
               -path './__tests__' -o \
               -path './vault' -o \
-              -path './public' -o \
+              -path './public/*/assets' -o \
               -path './dist' -o \
               -path './.vibe-journal/node_modules' -o \
               -path './.git' \
