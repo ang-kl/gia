@@ -50,7 +50,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
     }
   }
   const livenessChip = footfallChip || crowd;
-  const meta = [rating, price, open, livenessChip, dist || walk].filter(Boolean).join(' · ');
+  // v0.60.201 — operator: move Crowd / footfall chip from the top
+  // meta row down to the cost-range row. Top row now drops the
+  // livenessChip; the priceRange row below picks it up alongside
+  // the new ♿️ accessibility marker.
+  const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
@@ -154,11 +158,19 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
               "S$25–40 (US$18.50–29.60)" string; allowsDogs is the
               Places New API boolean attribute. Either-or; line
               suppressed when neither is set. */}
-          {(venue.priceRangeDisplay || venue.allowsDogs === true) && (
+          {/* v0.60.201 — cost-range row now also carries the ♿️
+              accessibility marker (when Places confirms accessible
+              entrance) and the Crowd / footfall chip (moved here
+              from the top meta row). Operator request: "Include
+              · ♿️ if eatery included in Google Search. Next to
+              cost-range. Move Crowd to same row as cost-range." */}
+          {(venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
             <div className="text-[11px] text-tg-text/80 truncate mt-0.5">
               {[
                 venue.priceRangeDisplay,
-                venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed')
+                venue.wheelchairAccessible === true && '♿️',
+                venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed'),
+                livenessChip
               ].filter(Boolean).join(' · ')}
             </div>
           )}

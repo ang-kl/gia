@@ -883,7 +883,12 @@ const DISCOVER_FIELD_MASK = [
   // the venue's ISO-3166 country code so the currency prefix
   // (S$ / M$ / US$ / ¥ / …) can be picked correctly.
   'places.priceRange',
-  'places.addressComponents'
+  'places.addressComponents',
+  // v0.60.201 — wheelchair accessibility marker (♿️). Operator: show
+  // when Google's data says accessible; blank otherwise. Surfaced on
+  // venue.wheelchairAccessible as a boolean; rendered next to the
+  // cost-range line in the Cuisine TMA ResultCard.
+  'places.accessibilityOptions.wheelchairAccessibleEntrance'
 ].join(',');
 
 function priceLevelToInt(p) {
@@ -1160,6 +1165,10 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           // "unknown" (downstream strict filter rejects, fallback
           // text-query mode accepts via fuzzy match).
           allowsDogs: p.allowsDogs === true,
+          // v0.60.201 — wheelchair accessibility marker. true only when
+          // Google's data explicitly says the entrance is accessible;
+          // undefined / false collapse to false (no marker shown).
+          wheelchairAccessible: p.accessibilityOptions?.wheelchairAccessibleEntrance === true,
           // v0.60.183 — numeric price range + ISO country code so the
           // venue-card price line can render "S$25–40 (US$18.50–29.60)"
           // (parens only when user country ≠ venue country).

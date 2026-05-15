@@ -1351,8 +1351,8 @@ export default function App() {
         {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {lang === 'fr'
-              ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir les résultats avec les mêmes critères.`
-              : `${venues.length} result${venues.length === 1 ? '' : 's'} for these criteria. Tap 🔍 to refresh results with same criteria.`}
+              ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir.`
+              : `${venues.length} result${venues.length === 1 ? '' : 's'} for these criteria. Tap 🔍 to refresh.`}
           </div>
         )}
         {exhaustedNote && !loading && venues.length > 0 && (

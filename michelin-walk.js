@@ -25,6 +25,19 @@ const TTL_SECONDS = 60 * 60;     // 1h — operator-set
 const KEY_SET  = (chatId) => `michelin:walk:seen:${chatId}`;
 const KEY_META = (chatId) => `michelin:walk:meta:${chatId}`;
 
+// v0.60.201 — derive a stable dedup key from a Michelin curated
+// entry. The dataset schema is `{ name, address, postal?, category, ... }`
+// with NO slug field; v0.60.198's `e.slug` reference was always
+// undefined, so the seen-set never grew and every tap returned the
+// same 12 venues. Use the same `name|address` format the legacy
+// michelinDedupKey used (stripped in v0.60.200) — those entries
+// have unique (name, address) tuples across the curated SG 2025
+// dataset.
+function entryKey(entry) {
+  if (!entry || !entry.name) return '';
+  return `${entry.name}|${entry.address || ''}`.toLowerCase();
+}
+
 // SHA256 over the normalised filter set. Stable across object-key order,
 // case folds free-text, drops falsy filter flags so `{ halal: false }`
 // hashes identically to `{}`.
@@ -91,4 +104,4 @@ async function recordWalk(redis, chatId, currentHash, newSlugs) {
   } catch { /* best-effort — next tap will just resume from same cursor */ }
 }
 
-module.exports = { computeCriteriaHash, readWalkState, recordWalk, TTL_SECONDS };
+module.exports = { computeCriteriaHash, readWalkState, recordWalk, entryKey, TTL_SECONDS };

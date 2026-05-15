@@ -180,3 +180,26 @@ describe('walk-through integration shape', () => {
     expect(walk.seen.size).toBe(0);
   });
 });
+
+describe('entryKey', () => {
+  it('joins name + address, lowercase', () => {
+    expect(mw.entryKey({ name: 'Les Amis', address: '1 Scotts Road' })).toBe('les amis|1 scotts road');
+  });
+  it('handles missing address', () => {
+    expect(mw.entryKey({ name: 'Odette' })).toBe('odette|');
+  });
+  it('returns empty for missing entry / name', () => {
+    expect(mw.entryKey(null)).toBe('');
+    expect(mw.entryKey({})).toBe('');
+  });
+  it('round-trips through walk state', async () => {
+    const r = makeRedis();
+    const hash = mw.computeCriteriaHash({});
+    const e1 = { name: 'Les Amis', address: '1 Scotts Road' };
+    const e2 = { name: 'Odette', address: '1 St Andrew Road' };
+    await mw.recordWalk(r, '42', hash, [mw.entryKey(e1), mw.entryKey(e2)]);
+    const { seen } = await mw.readWalkState(r, '42', hash);
+    expect(seen.has(mw.entryKey(e1))).toBe(true);
+    expect(seen.has(mw.entryKey(e2))).toBe(true);
+  });
+});

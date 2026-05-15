@@ -6186,7 +6186,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   });
   const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
   const unseen = walkState.seen.size
-    ? ordered.filter((e) => !walkState.seen.has(e.slug))
+    ? ordered.filter((e) => !walkState.seen.has(michelinWalk.entryKey(e)))
     : ordered;
   const sliceCap = Math.min(unseen.length, 12);
   const slice = unseen.slice(0, sliceCap);
@@ -6213,7 +6213,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // surface "S$25–40 (US$18.50–29.60) · 🐾 Pet allowed" the same as
     // cuisine-chip search results. Marginal Places New API cost per
     // call (paid fields).
-    'places.priceRange', 'places.addressComponents', 'places.allowsDogs'
+    'places.priceRange', 'places.addressComponents', 'places.allowsDogs',
+    // v0.60.201 — wheelchair accessibility marker (♿️). Operator: show
+    // when Google's data says accessible; blank otherwise.
+    'places.accessibilityOptions.wheelchairAccessibleEntrance'
   ].join(',');
   const axios = require('axios');
   // v0.60.150 — Places resolution: parallel + per-entry Redis cache.
@@ -6330,7 +6333,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // priceRangeDisplay using these.
       priceRange: require('./pipeline').normalisePriceRange(placesData?.priceRange),
       country: require('./pipeline').extractCountryCode(placesData?.addressComponents),
-      allowsDogs: placesData?.allowsDogs === true
+      allowsDogs: placesData?.allowsDogs === true,
+      // v0.60.201 — see FIELD_MASK note above.
+      wheelchairAccessible: placesData?.accessibilityOptions?.wheelchairAccessibleEntrance === true
     } : {
       // Places lookup failed — return curated entry only.
       placeId: '',
@@ -6757,9 +6762,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // for. The next tap continues to return exhausted=true with whatever
   // tail venues remain (often empty), until the seen-set is reset by
   // a combo/filter change or 1h idle TTL.
-  const newSlugs = slice.map((e) => e && e.slug).filter(Boolean);
-  await michelinWalk.recordWalk(redis, csChatId, walkHash, newSlugs);
-  const totalServedThisWalk = walkState.seen.size + newSlugs.length;
+  // v0.60.201 — Michelin entries don't carry a `slug` field; use the
+  // name|address dedup key (same format the legacy michelinDedupKey
+  // used before v0.60.200's strip). This is the fix for the
+  // operator-reported "Michelin List stuck at one when tap search":
+  // v0.60.198's seen-set walk-through was reading undefined every
+  // tap, so the set never grew and every tap returned the same 12.
+  const newKeys = slice.map((e) => michelinWalk.entryKey(e)).filter(Boolean);
+  await michelinWalk.recordWalk(redis, csChatId, walkHash, newKeys);
+  const totalServedThisWalk = walkState.seen.size + newKeys.length;
   const walkExhausted = totalServedThisWalk >= ordered.length;
   const exhausted = filteredVenues.length < 3 || walkExhausted;
   const handlerMs = Date.now() - handlerStart;
@@ -6776,7 +6787,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       exhausted,
       mode: walkState.reset ? 'walk-reset' : 'walk-continue',
       walkSeenBefore: walkState.seen.size,
-      walkServedNow: newSlugs.length,
+      walkServedNow: newKeys.length,
       walkTotal: ordered.length,
       walkHash
     });
@@ -8244,7 +8255,7 @@ async function cacheBotUsername() {
         const michelin = require('./michelin-2025');
         categories.push({
           id: 'michelin',
-          label: '🇸🇬 Michelin List',
+          label: '🇸🇬 Michelin, Bib Gourmand',
           emoji: '✳️',
           defaultOpen: false,
           // v0.60.199 — SG-only marker: the curated dataset is the
@@ -8253,7 +8264,7 @@ async function cacheBotUsername() {
           regionScope: 'SG',
           cuisines: [{
             categoryId: 'michelin',
-            categoryLabel: '🇸🇬 Michelin List',
+            categoryLabel: '🇸🇬 Michelin, Bib Gourmand',
             categoryEmoji: '✳️',
             defaultOpen: false,
             name: 'Michelin Singapore 2025',
