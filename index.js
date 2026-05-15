@@ -9843,14 +9843,34 @@ async function cacheBotUsername() {
         // upstream). Operator: "Strict Mode: only show venues with
         // allow dogs=true. Fallback: text-query 'pet friendly' when
         // strict zeros."
+        //
+        // v0.60.179 — operator bug report: the text-query fallback
+        // surfaced random cafes / bistros whose only link to "pet
+        // friendly" was a review-side mention or generic cafe vibes.
+        // Tightening:
+        //   • Drop the `< 3 → keep all` fallback entirely.
+        //   • Accept `allowsDogs === true` OR an explicit pet-friendly
+        //     **name signal** (e.g. "Pet-Friendly", "Dog-Friendly",
+        //     "Dogs Welcome"). Names like "CALI Rochester Park —
+        //     Pet-Friendly Restaurant & Bar" still surface even when
+        //     Google's allowsDogs field is null.
+        //   • If zero verified venues, the v0.60.157 zero-results CTA
+        //     surfaces in the TMA — better than showing wrong results.
+        //
+        // The upstream "pet friendly" modifier in the cuisine query
+        // stays (helps Places' fuzzy text ranking surface candidate
+        // venues), but only allowsDogs=true OR name-signal venues
+        // pass this post-filter.
         if (filters.petFriendly && venues.length > 0) {
-          const strictPet = venues.filter((v) => v.allowsDogs === true);
-          if (strictPet.length >= 3) {
-            console.log(`[Cuisine-Search] petFriendly strict: ${strictPet.length}/${venues.length} venues tagged allowsDogs=true`);
-            venues = strictPet;
-          } else {
-            console.log(`[Cuisine-Search] petFriendly strict yielded ${strictPet.length}/3 — falling back to text-query bias (${venues.length} venues)`);
-          }
+          const PET_NAME_RX = /\bpet[-\s]?friendly\b|\bdog[-\s]?friendly\b|\bpet[-\s]?allowed\b|\bpets?\s+welcome\b|\bdogs?\s+welcome\b/i;
+          const before = venues.length;
+          venues = venues.filter((v) =>
+            v.allowsDogs === true ||
+            PET_NAME_RX.test(v.name || '')
+          );
+          const flagged = venues.filter((v) => v.allowsDogs === true).length;
+          const named = venues.length - flagged;
+          console.log(`[Cuisine-Search] petFriendly strict (v0.60.179): kept ${venues.length}/${before} (allowsDogs=true: ${flagged}, pet-friendly-named: ${named})`);
         }
         // Sort by walking distance ASC (closer first) so top venues are most reachable.
         // v0.59.29: cap reverted 16 → 12 per Human Lead 2026-05-07.
