@@ -1,8 +1,26 @@
-// Client-side controller: load manifest + ndjson, render the 5-row
+// Client-side controller: load manifest + records, render the 5-row
 // tab nav, swap panels on tab click. No framework — vanilla.
+//
+// Two data-loading modes (auto-detected):
+//   1. Bundled — when `window.__VJ_JSON_URL__` is set (by the inlined
+//      script that the render.mjs bundled mode emits), fetch ONE JSON
+//      blob `{ manifest, data: { <type>: [...] } }`. All tabs are
+//      pre-loaded in a single round-trip. Suits the soleat.net
+//      `/doc/vibe-journal.html` + `/doc/vibe-journal.json` deployment.
+//   2. Multi-file — when `__VJ_JSON_URL__` is unset, fetch
+//      `data/manifest.json` + `data/<type>.ndjson` per tab on demand.
+//      Suits the local `vibe-journal serve` preview.
 
 (async function () {
-  const manifest = await fetchJSON('data/manifest.json');
+  let bundledData = null;
+  let manifest;
+  if (typeof window !== 'undefined' && typeof window.__VJ_JSON_URL__ === 'string') {
+    const blob = await fetchJSON(window.__VJ_JSON_URL__);
+    manifest = blob.manifest;
+    bundledData = blob.data || {};
+  } else {
+    manifest = await fetchJSON('data/manifest.json');
+  }
   document.getElementById('vj-project').textContent = manifest.project?.name || '';
   document.getElementById('vj-generated').textContent = 'generated ' + new Date(manifest.generated_at).toLocaleString();
   if (manifest.project?.name) document.title = `${manifest.project.name} · Vibe Journal`;
@@ -37,6 +55,10 @@
   const cache = {};
   async function load(key) {
     if (cache[key]) return cache[key];
+    if (bundledData) {
+      cache[key] = Array.isArray(bundledData[key]) ? bundledData[key] : [];
+      return cache[key];
+    }
     const txt = await fetch(`data/${key}.ndjson`).then((r) => r.ok ? r.text() : '');
     cache[key] = txt.split('\n').filter(Boolean).map((line) => { try { return JSON.parse(line); } catch { return null; } }).filter(Boolean);
     return cache[key];

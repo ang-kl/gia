@@ -1,4 +1,25 @@
 // Orchestrator — load config, run all parsers, emit ndjson + static HTML.
+//
+// Two output modes:
+//
+//   1. multi-file (default) — writes:
+//        <output>/index.html
+//        <output>/style.css
+//        <output>/app.js
+//        <output>/data/<type>.ndjson         (10 files)
+//        <output>/data/manifest.json
+//      Client fetches each ndjson on tab activation. Suits local dev
+//      previews via `vibe-journal serve`.
+//
+//   2. bundled-single-page — config keys:
+//        bundled_html: <abs/rel path of the HTML output file>
+//        bundled_json: <abs/rel path of the JSON output file>
+//      Writes ONE self-contained HTML (CSS + JS inlined) plus ONE
+//      JSON blob carrying { manifest, data: { <type>: [...] } }.
+//      Suits a tightly-controlled Express whitelist where only two
+//      files are served (e.g. soleat.net's `/doc/vibe-journal.html`
+//      + `/doc/vibe-journal.json` route in `index.js:7753`).
+
 import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync } from 'node:fs';
 import { resolve, dirname, basename } from 'node:path';
 import yaml from 'js-yaml';
@@ -33,10 +54,17 @@ const TAB_LABELS = {
 export async function regen(cfgPath, pkgRoot) {
   const cfg = yaml.load(readFileSync(cfgPath, 'utf8'));
   const projectRoot = dirname(cfgPath);
-  const outDir = resolve(projectRoot, cfg.output || 'dist/vibe-journal/');
-  mkdirSync(resolve(outDir, 'data'), { recursive: true });
+  const bundledHtmlPath = cfg.bundled_html ? resolve(projectRoot, cfg.bundled_html) : null;
+  const bundledJsonPath = cfg.bundled_json ? resolve(projectRoot, cfg.bundled_json) : null;
+  const bundled = !!(bundledHtmlPath && bundledJsonPath);
+  const outDir = bundled
+    ? dirname(bundledHtmlPath)
+    : resolve(projectRoot, cfg.output || 'dist/vibe-journal/');
+  if (!bundled) mkdirSync(resolve(outDir, 'data'), { recursive: true });
+  else mkdirSync(outDir, { recursive: true });
 
   console.log(`[vibe-journal] project: ${cfg.project?.name || projectRoot}`);
+  console.log(`[vibe-journal] mode:    ${bundled ? 'bundled (1 HTML + 1 JSON)' : 'multi-file'}`);
   console.log(`[vibe-journal] output:  ${outDir}`);
 
   const sources = cfg.sources || {};
@@ -64,13 +92,7 @@ export async function regen(cfgPath, pkgRoot) {
     persona: parseSectionDoc('persona', { projectRoot, source: sources.persona })
   };
 
-  for (const [key, list] of Object.entries(records)) {
-    const ndjson = list.map((r) => JSON.stringify(r)).join('\n');
-    writeFileSync(resolve(outDir, 'data', `${key}.ndjson`), ndjson);
-    console.log(`[vibe-journal] data/${key}.ndjson — ${list.length} record(s)`);
-  }
-
-  // Manifest so the client can know which tabs have data + the counts.
+  // Manifest — shared by both output modes.
   const manifest = {
     project: cfg.project || {},
     generated_at: new Date().toISOString(),
@@ -80,11 +102,34 @@ export async function regen(cfgPath, pkgRoot) {
       count: records[key]?.length || 0
     })))
   };
-  writeFileSync(resolve(outDir, 'data', 'manifest.json'), JSON.stringify(manifest, null, 2));
 
-  // Copy the static shell.
-  for (const f of ['index.html', 'style.css', 'app.js']) {
-    cpSync(resolve(pkgRoot, 'templates', f), resolve(outDir, f));
+  if (bundled) {
+    // Single-JSON: { manifest, data: { <type>: [...] } }
+    const blob = { manifest, data: records };
+    writeFileSync(bundledJsonPath, JSON.stringify(blob));
+    console.log(`[vibe-journal] wrote ${bundledJsonPath} — ${Object.values(records).reduce((n, l) => n + l.length, 0)} total records`);
+
+    // Single-HTML: inline CSS + JS into the shell.
+    const html = readFileSync(resolve(pkgRoot, 'templates', 'index.html'), 'utf8');
+    const css = readFileSync(resolve(pkgRoot, 'templates', 'style.css'), 'utf8');
+    const js = readFileSync(resolve(pkgRoot, 'templates', 'app.js'), 'utf8');
+    const jsonHref = cfg.bundled_json_url || basename(bundledJsonPath);
+    const inlined = html
+      .replace(/<link rel="stylesheet" href="style\.css"[^>]*>/, `<style>${css}</style>`)
+      .replace(/<script src="app\.js"[^>]*><\/script>/, `<script>window.__VJ_JSON_URL__ = ${JSON.stringify(jsonHref)};\n${js}</script>`);
+    writeFileSync(bundledHtmlPath, inlined);
+    console.log(`[vibe-journal] wrote ${bundledHtmlPath} — self-contained single-page bundle (inlined CSS + JS)`);
+  } else {
+    // Multi-file: one ndjson per type + manifest.json + static shell.
+    for (const [key, list] of Object.entries(records)) {
+      const ndjson = list.map((r) => JSON.stringify(r)).join('\n');
+      writeFileSync(resolve(outDir, 'data', `${key}.ndjson`), ndjson);
+      console.log(`[vibe-journal] data/${key}.ndjson — ${list.length} record(s)`);
+    }
+    writeFileSync(resolve(outDir, 'data', 'manifest.json'), JSON.stringify(manifest, null, 2));
+    for (const f of ['index.html', 'style.css', 'app.js']) {
+      cpSync(resolve(pkgRoot, 'templates', f), resolve(outDir, f));
+    }
+    console.log(`[vibe-journal] wrote ${outDir}/index.html — open it in a browser or run \`vibe-journal serve\`.`);
   }
-  console.log(`[vibe-journal] wrote ${outDir}/index.html — open it in a browser or run \`vibe-journal serve\`.`);
 }
