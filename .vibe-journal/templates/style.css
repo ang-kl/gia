@@ -1,0 +1,128 @@
+/* vibe-journal — minimal, system-font, monospace data tables.
+   The visual focus is the 5-row tab nav per operator spec. */
+:root {
+  --bg: #fdfbf7;
+  --fg: #1a1a1a;
+  --hint: #6a6a6a;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --border: #d4d4d4;
+  --card: #ffffff;
+  --code-bg: #f5f5f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1116;
+    --fg: #e6e6e6;
+    --hint: #9aa0a6;
+    --accent: #60a5fa;
+    --accent-soft: #1e293b;
+    --border: #2a3038;
+    --card: #161a20;
+    --code-bg: #1a1f26;
+  }
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--fg);
+  font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+a { color: var(--accent); }
+
+.vj-header {
+  padding: 18px 24px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.vj-header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+.vj-meta { font-size: 12px; color: var(--hint); }
+.vj-sep { margin: 0 6px; }
+
+.vj-tabs {
+  padding: 12px 24px;
+  display: flex; flex-direction: column; gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.vj-tabs-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.vj-tab {
+  font: inherit;
+  background: transparent; color: var(--fg);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 4px 12px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.vj-tab:hover { border-color: var(--accent); }
+.vj-tab.is-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.vj-tab .vj-count {
+  font-size: 11px; color: var(--hint);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0 6px;
+}
+.vj-tab.is-active .vj-count { background: var(--card); color: var(--accent); border-color: var(--accent); }
+.vj-tabs-sep {
+  color: var(--hint); font-weight: 300;
+  font-size: 18px; line-height: 1;
+  margin: 0 2px;
+  user-select: none;
+}
+
+.vj-panel { padding: 16px 24px 64px; max-width: 1100px; }
+.vj-loading { color: var(--hint); }
+
+.vj-empty {
+  border: 1px dashed var(--border); border-radius: 8px;
+  padding: 24px; text-align: center; color: var(--hint);
+}
+
+/* Card layout (Journal HDR blocks, Vault snapshots, doc-section files). */
+.vj-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; margin: 0 0 10px;
+}
+.vj-card-head {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 12px; color: var(--hint);
+}
+.vj-card-title { font-size: 15px; color: var(--fg); font-weight: 600; margin: 4px 0 6px; }
+.vj-card-body { font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+.vj-card-body code, .vj-card pre {
+  background: var(--code-bg); border-radius: 4px; padding: 1px 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+}
+.vj-card pre { padding: 8px 10px; overflow-x: auto; }
+.vj-card-section {
+  border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;
+}
+.vj-card-section-head { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.vj-version-badge {
+  background: var(--accent-soft); color: var(--accent);
+  border-radius: 4px; padding: 1px 6px; font-size: 11px; font-family: ui-monospace, monospace;
+}
+
+/* Table layout (PR, Register, 3rd Party). */
+.vj-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; margin: 0 0 16px;
+}
+.vj-table th, .vj-table td {
+  border-bottom: 1px solid var(--border);
+  text-align: left; padding: 8px 10px; vertical-align: top;
+}
+.vj-table th { font-weight: 600; background: var(--card); position: sticky; top: 0; }
+.vj-table tr:hover td { background: var(--card); }
+.vj-status {
+  display: inline-block; border-radius: 4px; padding: 0 6px; font-size: 11px;
+  border: 1px solid var(--border); color: var(--hint);
+}
+.vj-status[data-status="OPEN"], .vj-status[data-status="open"] { color: #15803d; border-color: #15803d; }
+.vj-status[data-status="CLOSED"], .vj-status[data-status="closed"] { color: var(--hint); }
+.vj-status[data-status="MERGED"], .vj-status[data-status="merged"] { color: #7c3aed; border-color: #7c3aed; }
+.vj-status[data-status="active"] { color: #15803d; border-color: #15803d; }
+.vj-status[data-status="deprecated"], .vj-status[data-status="removed"] { color: #dc2626; border-color: #dc2626; }
+
+.vj-footer {
+  padding: 16px 24px 32px;
+  font-size: 11px; color: var(--hint);
+  border-top: 1px solid var(--border);
+}
