@@ -25,32 +25,67 @@
   document.getElementById('vj-generated').textContent = 'generated ' + new Date(manifest.generated_at).toLocaleString();
   if (manifest.project?.name) document.title = `${manifest.project.name} · Vibe Journal`;
 
-  const nav = document.querySelector('.vj-tabs');
+  // ---- Sidebar nav (one section per row of the manifest tab layout) ----
+  const nav = document.getElementById('vj-nav');
   nav.innerHTML = '';
   const rows = manifest.tabs;
-  let activeTab = rows[0]?.[0]?.key || null;
+  const tabs = rows.flat();
+  const initialFromHash = (typeof location !== 'undefined' ? location.hash.replace(/^#/, '') : '');
+  let activeTab = tabs.find((t) => t.key === initialFromHash)?.key || tabs[0]?.key || null;
 
   for (const row of rows) {
-    const rowEl = document.createElement('div');
-    rowEl.className = 'vj-tabs-row';
-    row.forEach((tab, i) => {
-      if (i > 0) {
-        const sep = document.createElement('span');
-        sep.className = 'vj-tabs-sep';
-        sep.textContent = '|';
-        sep.setAttribute('aria-hidden', 'true');
-        rowEl.appendChild(sep);
-      }
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'vj-nav-section';
+    row.forEach((tab) => {
       const btn = document.createElement('button');
-      btn.className = 'vj-tab';
+      btn.className = 'vj-nav-item';
       btn.type = 'button';
       btn.dataset.tab = tab.key;
-      btn.innerHTML = `${escapeHtml(tab.label)} <span class="vj-count">${tab.count}</span>`;
-      btn.addEventListener('click', () => activate(tab.key));
-      rowEl.appendChild(btn);
+      btn.innerHTML = `<span class="vj-nav-label">${escapeHtml(tab.label)}</span><span class="vj-nav-count">${tab.count}</span>`;
+      btn.addEventListener('click', () => {
+        activate(tab.key);
+        if (typeof history !== 'undefined' && history.replaceState) {
+          history.replaceState(null, '', '#' + tab.key);
+        }
+        closeDrawerIfMobile();
+      });
+      sectionEl.appendChild(btn);
     });
-    nav.appendChild(rowEl);
+    nav.appendChild(sectionEl);
   }
+
+  // ---- Mobile drawer ----
+  const sidebar = document.getElementById('vj-sidebar');
+  const backdrop = document.querySelector('.vj-backdrop');
+  const hamburger = document.querySelector('.vj-hamburger');
+  function openDrawer() {
+    sidebar.classList.add('is-open');
+    backdrop.classList.add('is-open');
+    backdrop.hidden = false;
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
+  function closeDrawer() {
+    sidebar.classList.remove('is-open');
+    backdrop.classList.remove('is-open');
+    backdrop.hidden = true;
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+  function isMobileViewport() { return window.matchMedia('(max-width: 768px)').matches; }
+  function closeDrawerIfMobile() { if (isMobileViewport()) closeDrawer(); }
+  hamburger.addEventListener('click', () => {
+    if (sidebar.classList.contains('is-open')) closeDrawer(); else openDrawer();
+  });
+  backdrop.addEventListener('click', closeDrawer);
+  // Esc closes the drawer.
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+  // Crossing the breakpoint while the drawer is open should reset state.
+  window.matchMedia('(max-width: 768px)').addEventListener('change', closeDrawer);
+
+  // Hash-change navigation (so back/forward buttons work).
+  window.addEventListener('hashchange', () => {
+    const k = location.hash.replace(/^#/, '');
+    if (k && tabs.some((t) => t.key === k) && k !== activeTab) activate(k);
+  });
 
   const cache = {};
   async function load(key) {
@@ -66,7 +101,7 @@
 
   async function activate(key) {
     activeTab = key;
-    document.querySelectorAll('.vj-tab').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === key));
+    document.querySelectorAll('.vj-nav-item').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === key));
     const panel = document.getElementById('vj-panel');
     panel.innerHTML = '<p class="vj-loading">Loading…</p>';
     const records = await load(key);
