@@ -152,7 +152,7 @@ export default function App() {
   const [pageStackDepth, setPageStackDepth] = useState(0);
   // v0.60.149 — Michelin walk-through indicator. When the server's
   // Michelin response carries michelinSummary.remaining > 0, we surface
-  // "X more curated Michelin places — tap ▶ for the next 12" above the
+  // "X more curated Michelin places — tap 🔍 for the next 12" above the
   // result list so the user understands the per-call batch (12 venues)
   // is only a slice of the full ~130 curated list. Cleared on the next
   // non-Michelin search.
@@ -1200,14 +1200,17 @@ export default function App() {
 
       <div ref={resultPanelRef}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
-            surprise that each ▶ tap loads 12 of ~130 curated venues
+            surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
-            out at 40 in v0.60.147 — see journal-0_60_149). */}
+            out at 40 in v0.60.147 — see journal-0_60_149).
+            v0.60.185 — glyph ▶ → 🔍 to match the actual Search button
+            the user is tapping. The ▶ metaphor was confusing because
+            no ▶ button exists on the TMA. */}
         {michelinRemaining && michelinRemaining.remaining > 0 && !loading && (
           <div className="text-[11px] text-tg-hint italic text-center mb-1 px-2">
             {lang === 'fr'
-              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez ▶ pour le prochain groupe de 12.`
-              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap ▶ for the next batch of 12.`}
+              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
+              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap 🔍 for the next batch of 12.`}
           </div>
         )}
         <ResultPanel

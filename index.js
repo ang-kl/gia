@@ -6501,6 +6501,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const postFilterDedupKeys = filteredVenues
     .map((v) => v.michelinDedupKey)
     .filter(Boolean);
+  // v0.60.185 — pagination diagnostics. Operator 2026-05-15 reported
+  // "Michelin listing cannot refresh next 12 again" without enough
+  // reproduction detail to pin a root cause. Log the seen-set delta
+  // for every Michelin tap so the next reproduction has a Railway
+  // timeline (criteriaHash, seen-before, candidates-pool, filtered,
+  // didReset, exhausted, dedup-keys appended).
+  console.log(`[Michelin] page chatId=${csChatId || 'null'} hash=${String(criteriaHash).slice(0, 8)} seenBefore=${seen.size} pool=${pool.length} candidatesFiltered=${filteredVenues.length} appendKeys=${postFilterDedupKeys.length} didReset=${didReset}`);
   await appendSeenSet(csChatId, criteriaHash, postFilterDedupKeys);
   // Scrub the internal-only dedup key off venues before the response
   // leaves the handler — clients don't need it.
