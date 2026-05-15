@@ -36,6 +36,7 @@ const {
   clearProcessing
 } = require('./location-cache');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
+const { makeRateLimiter } = require('./rate-limit');
 const usageLog = require('./usage-log');
 const cuisineSession = require('./cuisine-session');
 const { gatekeep } = require('./gatekeeper');
@@ -7913,7 +7914,11 @@ async function cacheBotUsername() {
     // multi-marker TMA that renders all pins instantly, no routing.
     // For the 1-venue case we still use a direct Google Maps place
     // link (instant, native experience).
-    app.post('/api/cuisine/copy-all', async (req, res) => {
+    app.post('/api/cuisine/copy-all',
+      // v0.60.173 — DF-54 rate limit: anti-spam (a Telegram message
+      // dump per call). 30/hr/chat is generous for normal use.
+      makeRateLimiter(redis, { endpoint: 'copy-all', cap: 30 }),
+      async (req, res) => {
       const copyAllStart = Date.now();
       try {
         const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -8338,7 +8343,12 @@ async function cacheBotUsername() {
     // rerank, no crowd signals, no dish extraction. The result list
     // is "here's something to look at while you decide" — clicking the
     // main 🔍 Search button runs the full enrichment pipeline.
-    app.post('/api/cuisine/warm-start', async (req, res) => {
+    app.post('/api/cuisine/warm-start',
+      // v0.60.173 — DF-54 rate limit: warm-start should fire once per
+      // TMA-open; 30/hr/chat covers "open the TMA every 2 min" cases.
+      // Caps Google Places spend from runaway-mount bugs.
+      makeRateLimiter(redis, { endpoint: 'warm-start', cap: 30 }),
+      async (req, res) => {
       try {
         const { lat, lng, region = 'SG', lang: langIn } = req.body || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -8531,7 +8541,13 @@ async function cacheBotUsername() {
     //   • includedRegionCodes: SG-only (or MY when region=JB).
     //   • Redis-cache 5 min per (input prefix, region, gridded
     //     lat/lng) to keep the per-keystroke calls cheap.
-    app.post('/api/cuisine/place-autocomplete', async (req, res) => {
+    app.post('/api/cuisine/place-autocomplete',
+      // v0.60.173 — DF-54 rate limit: 200/hr/chat. Higher cap because
+      // user typing fires many calls per location pick (debounced 250 ms
+      // in the TMA). 200 covers heavy explore sessions while still
+      // bounding Places-Autocomplete spend on compromised accounts.
+      makeRateLimiter(redis, { endpoint: 'place-autocomplete', cap: 200 }),
+      async (req, res) => {
       try {
         const { input, lat, lng, region = 'SG' } = req.body || {};
         if (!input || typeof input !== 'string' || input.trim().length < 2) {
@@ -8600,7 +8616,10 @@ async function cacheBotUsername() {
     // Calls Google Place Details (New) for the placeId and returns
     // the coords + display name + formatted address. Cached 24 h
     // because place coordinates don't move.
-    app.post('/api/cuisine/place-resolve', async (req, res) => {
+    app.post('/api/cuisine/place-resolve',
+      // v0.60.173 — DF-54 rate limit: 100/hr/chat. One per pick × bursts.
+      makeRateLimiter(redis, { endpoint: 'place-resolve', cap: 100 }),
+      async (req, res) => {
       try {
         const { placeId } = req.body || {};
         if (!placeId || typeof placeId !== 'string' || placeId.length > 200) {
@@ -8988,7 +9007,12 @@ async function cacheBotUsername() {
       }
     });
 
-    app.post('/api/cuisine/search', async (req, res) => {
+    app.post('/api/cuisine/search',
+      // v0.60.173 — DF-54 rate limit: 60/hr/chat. 1 search/min average;
+      // bursts of 10 in 5 min still fit. The primary money-burner
+      // endpoint (Places searchText + Place Details + travel-times).
+      makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 60 }),
+      async (req, res) => {
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
         // city only, not the whole state of Johor or Malaysia). For JB
