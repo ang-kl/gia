@@ -8301,12 +8301,16 @@ async function cacheBotUsername() {
         const michelin = require('./michelin-2025');
         categories.push({
           id: 'michelin',
-          label: 'Michelin List',
+          label: '🇸🇬 Michelin List',
           emoji: '✳️',
           defaultOpen: false,
+          // v0.60.199 — SG-only marker: the curated dataset is the
+          // Singapore Michelin Guide 2025. The TMA disables this chip
+          // when region=JB (no equivalent JB list ships today).
+          regionScope: 'SG',
           cuisines: [{
             categoryId: 'michelin',
-            categoryLabel: 'Michelin List',
+            categoryLabel: '🇸🇬 Michelin List',
             categoryEmoji: '✳️',
             defaultOpen: false,
             name: 'Michelin Singapore 2025',
