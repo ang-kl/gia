@@ -1958,6 +1958,35 @@ bot.on('callback_query', async (q) => {
       await runTransportTrain(chatId, cbLang); // legacy refresh button on bus stop list — point at train view
       return;
     }
+    // v0.60.181 /s assist sub-menu dispatch (operator-driven assistance
+    // flow modelled on /transport). Stateless via callback_data:
+    //   s:menu                    → top-level 3-button menu
+    //   s:methods                 → cooking-methods cuisine picker
+    //   s:methods:<slug>          → list of cooking methods for that cuisine
+    //   s:dishes                  → authentic-dishes cuisine picker
+    //   s:dishes:<slug>           → iconic dishes for that cuisine (default sort: nationality)
+    //   s:dishes:<slug>:type      → same list, sorted by dish-type (meat/fish/vege/…)
+    //   s:others                  → free-text-search prompt + back button
+    if (data === 's:menu') { await sendSearchAssistMenu(chatId, cbLang); return; }
+    if (data === 's:methods') { await sendSearchMethodsPicker(chatId, cbLang); return; }
+    if (data.startsWith('s:methods:')) {
+      const slug = data.slice('s:methods:'.length);
+      await sendSearchMethodsFor(chatId, slug, cbLang); return;
+    }
+    if (data === 's:dishes') { await sendSearchDishesPicker(chatId, cbLang); return; }
+    if (data.startsWith('s:dishes:')) {
+      const rest = data.slice('s:dishes:'.length);
+      const sortIdx = rest.lastIndexOf(':');
+      let slug = rest, sort = 'nationality';
+      if (sortIdx > 0 && /^(nationality|type)$/.test(rest.slice(sortIdx + 1))) {
+        slug = rest.slice(0, sortIdx);
+        sort = rest.slice(sortIdx + 1);
+      }
+      await sendSearchDishesFor(chatId, slug, sort, cbLang); return;
+    }
+    if (data === 's:others') { await sendSearchOthersPrompt(chatId, cbLang); return; }
+    if (data === 's:noop') { return; }   // category-header label — answerCallbackQuery already fired
+
     // v0.31.1 transport sub-menu dispatch:
     //   transport:menu              → top-level menu
     //   transport:train             → MRT status + crowd + nearest stations
@@ -4495,6 +4524,187 @@ function formatTimeAgo(deltaMs, lang) {
 //   arg = ''         → start a conversation; prompt for the user's query
 //   arg = 'e'/'end'  → end the conversation (clears Redis state)
 //   arg = '<text>'   → start (if no active conv) or continue with that query
+// v0.60.181 — /s assistance sub-menu (operator: "Enhance the /s command
+// with assistance like /transport"). Bare `/s` now shows a 3-button
+// inline keyboard. Cooking Methods + Authentic Dishes each drill into a
+// cuisine picker that mirrors the Cuisine TMA's regional grouping
+// (Common in SG / Southeast Asian / East Asian / South Asian / Middle
+// Eastern / European / Slavic / Americas / Australasia / African /
+// Dessert / Fusion). Tapping a cuisine shows methods (from
+// cooking-methods.COOKING_METHODS) OR iconic dishes (from
+// nation-overlay.NATION_OVERLAY) with dish-type tags from dish-types.js
+// (heuristic dictionary; curate-as-you-go per v0.60.181 design rule).
+async function sendSearchAssistMenu(chatId, lang = 'en') {
+  const text = lang === 'fr'
+    ? '🔎 *Assistance recherche*\n\nQue voulez-vous explorer ?'
+    : '🔎 *Search Assistance*\n\nWhat would you like to explore?';
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: lang === 'fr' ? '🥘 Méthodes de cuisson' : '🥘 Cooking Methods', callback_data: 's:methods' }],
+        [{ text: lang === 'fr' ? '🍛 Plats authentiques' : '🍛 Authentic Dishes', callback_data: 's:dishes' }],
+        [{ text: lang === 'fr' ? '💡 Autres (texte libre)' : '💡 Others (free text)',   callback_data: 's:others' }]
+      ]
+    }
+  });
+}
+
+// Picker shared by Cooking Methods + Authentic Dishes branches. Lists
+// cuisines that have data in the requested source, grouped by category
+// (cuisines-vault.js's categoryId). 2 buttons per row keeps the menu
+// scannable on phones.
+function _buildCuisinePicker(source /* 'methods' | 'dishes' */, lang) {
+  const cv = require('./cuisines-vault');
+  const cookingMethods = require('./cooking-methods');
+  const nationOverlay = require('./nation-overlay');
+  const all = cv.getAllCuisines();
+  const hasData = (slug) => source === 'methods'
+    ? !!(cookingMethods.COOKING_METHODS && cookingMethods.COOKING_METHODS[slug])
+    : !!(nationOverlay.NATION_OVERLAY && nationOverlay.NATION_OVERLAY[slug]
+         && Array.isArray(nationOverlay.NATION_OVERLAY[slug].iconicDishes)
+         && nationOverlay.NATION_OVERLAY[slug].iconicDishes.length);
+  const grouped = {};
+  for (const c of all) {
+    if (!hasData(c.slug)) continue;
+    const cat = c.categoryLabel || c.categoryId || 'Other';
+    (grouped[cat] = grouped[cat] || []).push(c);
+  }
+  const rows = [];
+  const cbKey = source === 'methods' ? 's:methods' : 's:dishes';
+  for (const [cat, list] of Object.entries(grouped)) {
+    // Category header as a single "label" button (no-op callback).
+    rows.push([{ text: `── ${cat} ──`, callback_data: 's:noop' }]);
+    for (let i = 0; i < list.length; i += 2) {
+      const pair = list.slice(i, i + 2);
+      rows.push(pair.map((c) => ({
+        text: `${nationOverlay.NATION_OVERLAY?.[c.slug]?.flag || ''} ${c.name}`.trim(),
+        callback_data: `${cbKey}:${c.slug}`
+      })));
+    }
+  }
+  rows.push([{ text: lang === 'fr' ? '↩ Retour' : '↩ Back', callback_data: 's:menu' }]);
+  return rows;
+}
+
+async function sendSearchMethodsPicker(chatId, lang = 'en') {
+  const text = lang === 'fr'
+    ? '🥘 *Méthodes de cuisson*\n\nChoisissez une cuisine :'
+    : '🥘 *Cooking Methods*\n\nPick a cuisine:';
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    reply_markup: { inline_keyboard: _buildCuisinePicker('methods', lang) }
+  });
+}
+
+async function sendSearchDishesPicker(chatId, lang = 'en') {
+  const text = lang === 'fr'
+    ? '🍛 *Plats authentiques*\n\nChoisissez une cuisine :'
+    : '🍛 *Authentic Dishes*\n\nPick a cuisine:';
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    reply_markup: { inline_keyboard: _buildCuisinePicker('dishes', lang) }
+  });
+}
+
+async function sendSearchMethodsFor(chatId, slug, lang = 'en') {
+  const cookingMethods = require('./cooking-methods');
+  const cv = require('./cuisines-vault');
+  const nationOverlay = require('./nation-overlay');
+  const c = cv.findBySlug(slug);
+  const flag = nationOverlay.NATION_OVERLAY?.[slug]?.flag || '';
+  const methods = (cookingMethods.COOKING_METHODS && cookingMethods.COOKING_METHODS[slug]) || [];
+  if (!c || !methods.length) {
+    await safeSend(chatId, lang === 'fr' ? '❌ Cuisine inconnue ou aucune méthode listée.' : '❌ Unknown cuisine or no methods listed.');
+    return;
+  }
+  const header = lang === 'fr'
+    ? `🥘 *${flag} ${c.name} — méthodes de cuisson*\n\n${methods.length} techniques répertoriées. Tapez \`/s <méthode>\` pour rechercher des établissements à Singapour qui en utilisent une.\n`
+    : `🥘 *${flag} ${c.name} — cooking methods*\n\n${methods.length} techniques listed. Type \`/s <method>\` to find Singapore eateries that use one.\n`;
+  // Display methods as a compact bulleted list, 3-column-ish layout
+  // using plain text (Markdown). Operator can add explainers later.
+  const body = methods.map((m) => `• \`${m}\``).join('\n');
+  await safeSend(chatId, header + '\n' + body, {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+    reply_markup: { inline_keyboard: [[
+      { text: lang === 'fr' ? '↩ Choisir une autre cuisine' : '↩ Pick another cuisine', callback_data: 's:methods' },
+      { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+    ]] }
+  });
+}
+
+async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'en') {
+  const nationOverlay = require('./nation-overlay');
+  const cv = require('./cuisines-vault');
+  const dishTypes = require('./dish-types');
+  const c = cv.findBySlug(slug);
+  const overlay = nationOverlay.NATION_OVERLAY?.[slug];
+  if (!c || !overlay || !Array.isArray(overlay.iconicDishes)) {
+    await safeSend(chatId, lang === 'fr' ? '❌ Cuisine inconnue ou aucun plat répertorié.' : '❌ Unknown cuisine or no dishes listed.');
+    return;
+  }
+  const flag = overlay.flag || '';
+  // Decorate each iconic dish with its dish-type tag set + sharedWith.
+  const decorated = overlay.iconicDishes.map((d) => {
+    const tags = dishTypes.classifyDishType(d.name, slug).tags;
+    return { name: d.name, kind: d.kind, sharedWith: d.sharedWith || [], tags };
+  });
+  // Sort: 'nationality' → solo-cuisine first, then shared; 'type' →
+  // group by primary dish-type tag (meat / fish / vege / dessert / drink / starter / main / side).
+  if (sort === 'type') {
+    const order = ['🥩 meat', '🐟 fish', '🥕 vege', '🥟 starter', '🍛 main', '🥗 side', '🍰 dessert', '🥤 drink', ''];
+    decorated.sort((a, b) => {
+      const ai = order.indexOf(a.tags[0] || '');
+      const bi = order.indexOf(b.tags[0] || '');
+      return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+    });
+  } else {
+    decorated.sort((a, b) => (a.sharedWith.length === 0 ? -1 : 1) - (b.sharedWith.length === 0 ? -1 : 1));
+  }
+  const sortLabel = sort === 'type'
+    ? (lang === 'fr' ? 'par type de plat' : 'by dish type')
+    : (lang === 'fr' ? 'par nationalité' : 'by nationality');
+  const header = lang === 'fr'
+    ? `🍛 *${flag} ${c.name} — plats authentiques*\n_Tri : ${sortLabel}_\n`
+    : `🍛 *${flag} ${c.name} — authentic dishes*\n_Sort: ${sortLabel}_\n`;
+  const body = decorated.map((d) => {
+    const tags = d.tags.length ? ' · ' + d.tags.join(' · ') : '';
+    const shared = d.sharedWith.length ? ` _(also ${d.sharedWith.join(', ')})_` : '';
+    return `• *${d.name}*${tags}${shared}`;
+  }).join('\n');
+  const otherSort = sort === 'type' ? 'nationality' : 'type';
+  const otherSortText = lang === 'fr'
+    ? (otherSort === 'type' ? '🔀 Trier par type' : '🔀 Trier par nationalité')
+    : (otherSort === 'type' ? '🔀 Sort by dish type' : '🔀 Sort by nationality');
+  await safeSend(chatId, header + '\n' + body, {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+    reply_markup: { inline_keyboard: [
+      [{ text: otherSortText, callback_data: `s:dishes:${slug}:${otherSort}` }],
+      [
+        { text: lang === 'fr' ? '↩ Choisir une autre cuisine' : '↩ Pick another cuisine', callback_data: 's:dishes' },
+        { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+      ]
+    ] }
+  });
+}
+
+async function sendSearchOthersPrompt(chatId, lang = 'en') {
+  // Keeps the original v0.60.110/111 instruction text accessible — the
+  // free-text /s flow lives here.
+  const text = lang === 'fr'
+    ? '💡 *Recherche en texte libre*\n\nTapez `/s <texte>` pour explorer par plat, ingrédient, ustensile, méthode, ou autre.\n\nExemples :\n• `/s goulash quenelles`\n• `/s braisage français`\n• `/s en croûte`\n• `/s agemono japonais`\n\nTapez `/s end` pour terminer la conversation.'
+    : '💡 *Free-text search*\n\nType `/s <text>` to explore by dish, ingredient, kitchen tool, cooking method, or anything else.\n\nExamples:\n• `/s goulash dumpling`\n• `/s Braisage french`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nType `/s end` to close the conversation.';
+  await safeSend(chatId, text, {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+    reply_markup: { inline_keyboard: [[
+      { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+    ]] }
+  });
+}
+
 async function runSearchCommand(chatId, arg, lang = 'en') {
   const sc = require('./search-conversation');
   // End signal — explicit.
@@ -4517,10 +4727,13 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   // (no parse_mode) so it renders exactly as written.
   let conv = await sc.getConversation(redis, chatId);
   if (!arg) {
+    // v0.60.181 — operator: bare /s now shows an assistance sub-menu
+    // (3 buttons: Cooking Methods / Authentic Dishes / Others) modelled
+    // on /transport. The text-prompt help from v0.60.110/111 stays
+    // accessible inside the "Others" branch which keeps the
+    // search-conversation flow.
     if (!conv) await sc.startConversation(redis, chatId);
-    await safeSend(chatId, lang === 'fr'
-      ? '🔎 /s ou /search - Recherche par plat, ingrédient, ustensile de cuisine ou méthode de cuisson\n\nTapez ce que vous voulez explorer - par ex. goulash quenelles, tandoor, binchotan, braisage français, en croûte, agemono japonais, asado, pâte phyllo.\n\nJe trouverai des établissements à Singapour qui correspondent et j\'expliquerai pourquoi ils conviennent.\n\nNote : « goulash quenelles » peut désigner le gulyás hongrois - ragoût de bœuf au paprika, généralement façon soupe - ou le guláš tchèque avec des quenelles de pain.\n\nEssayez :\n/s goulash quenelles\n/s braisage français\n/s en croûte\n/s agemono japonais\n/s asado\n/s pâte phyllo\n\nTapez /s end pour terminer, ou n\'importe quelle commande /... pour passer à autre chose.'
-      : '🔎 /s or /search - Search by dish, ingredient, kitchen tool, or cooking method\n\nType what you want to explore - e.g. goulash dumpling, tandoor, binchotan, Braisage french, En Croute, Agemono Japanese, Asado, Phyllo baking.\n\nI\'ll find matching Singapore eateries and explain why they fit.\n\nNote: "goulash dumpling" may mean Hungarian gulyás - paprika beef stew, usually soup-like - or Czech guláš with bread dumplings.\n\nTry:\n/s goulash dumpling\n/s Braisage french\n/s En Croute\n/s Agemono Japanese\n/s Asado\n/s Phyllo baking\n\nType /s end to finish, or any /... command to switch.');
+    await sendSearchAssistMenu(chatId, lang);
     return;
   }
   // Real query — classify intent and dispatch.
