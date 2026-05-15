@@ -10,6 +10,25 @@ import { tg } from '../../api/tg.js';
 // panTo on a focused pin) — only user-initiated drift triggers it.
 const PAN_THRESHOLD_METERS = 300;
 
+// v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
+// "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
+// for Dessert or ✳️ for curated Michelin list". Priority order
+// (first match wins):
+//   1. michelinCategory → ✳️
+//   2. allowsDogs       → 🐾
+//   3. restaurantType matches a dessert-ish keyword → 🍮
+//   4. default          → null  (caller skips the glyph; plain
+//                                 coloured circle, matching legacy
+//                                 v0.58.51 → v0.60.183 appearance).
+const DESSERT_RX = /dessert|patisserie|p[âa]tisserie|bakery|cafe|caf[ée]|ice ?cream|gelato|sweet|confection/i;
+function pinGlyphFor(venue) {
+  if (!venue) return null;
+  if (venue.michelinCategory) return '✳️';
+  if (venue.allowsDogs === true) return '🐾';
+  if (typeof venue.restaurantType === 'string' && DESSERT_RX.test(venue.restaurantType)) return '🍮';
+  return null;
+}
+
 // v0.58.51: build the canonical Google Maps URL for a venue. Mirrors
 // the server's maps-url.js choice: prefer place_id-explicit deep-link
 // so iOS Universal Links resolve to the Google Maps app (not Apple
@@ -242,9 +261,19 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     for (const v of venues || []) {
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
       const focused = v.placeId === focusedPlaceId;
+      // v0.60.184 — emoji-coded glyph (operator: "replace boring pins
+      // with specifics like 🐾 / 🍮 / ✳️"). Priority: Michelin
+      // (✳️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
+      // default (no glyph, falls back to the plain coloured circle).
+      // Scale bumped slightly for emoji glyphs so the symbol stays
+      // legible against the coloured circle on small screens.
+      const glyph = pinGlyphFor(v);
       const pin = new PinElement({
         background: focused ? '#FF9500' : '#34C759',
-        borderColor: '#1c1c1f', glyphColor: '#fff', scale: focused ? 1.3 : 1
+        borderColor: '#1c1c1f',
+        glyph: glyph || undefined,
+        glyphColor: '#fff',
+        scale: focused ? 1.3 : (glyph ? 1.15 : 1)
       });
       const pinNode = pin.element;
       const marker = new AdvancedMarkerElement({

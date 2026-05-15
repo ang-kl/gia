@@ -3016,6 +3016,9 @@ async function runTransportBus(chatId, sub, lang = 'en') {
             lat: stop.lat,
             lng: stop.lng,
             area: stop.roadName || '',
+            // v0.60.184 — pin-glyph hint. Survives maps-url.buildSlim
+            // and is read by public/app.js pinGlyphFor() → 🚏 glyph.
+            kind: 'busStop',
             // v0.60.61 — bake arrivals into the URL hash so the
             // /app/map TMA's InfoWindow renders the same template.
             // Trimmed to the top 6 services to stay within the
@@ -3459,7 +3462,8 @@ async function runCarparkCommand(chatId, lang = 'en') {
     // ergonomic for them.
     try {
       const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
-      const carparksWithName = list.map((c) => ({ ...c, name: c.development, placeId: '' }));
+      // v0.60.184 — kind: 'carPark' so public/app.js pinGlyphFor() picks 🅿️.
+      const carparksWithName = list.map((c) => ({ ...c, name: c.development, placeId: '', kind: 'carPark' }));
       const mapUrl = webhookDomain ? buildMapHashUrl(carparksWithName, { webhookDomain }) : null;
       const gmapsUrl = googleMapsContainerUrl(list, {
         travelmode: 'driving',

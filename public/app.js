@@ -96,12 +96,31 @@
       .replace(/'/g, '&#39;');
   }
 
-  function makePinContent(num, name, isUser) {
+  // v0.60.184 — emoji-coded glyph priority. Operator: ✳️ Michelin /
+  // 🐾 Pet / 🍮 Dessert override the default numeric pin. Bus-stop /
+  // car-park overlays use the venue.kind field set server-side
+  // (transport map payload).
+  const DESSERT_RX = /dessert|patisserie|p[âa]tisserie|bakery|cafe|caf[ée]|ice ?cream|gelato|sweet|confection/i;
+  function pinGlyphFor(venue) {
+    if (!venue) return null;
+    if (venue.michelinCategory) return '✳️';
+    if (venue.allowsDogs === true) return '🐾';
+    if (typeof venue.restaurantType === 'string' && DESSERT_RX.test(venue.restaurantType)) return '🍮';
+    if (venue.kind === 'busStop' || venue.kind === 'bus_stop') return '🚏';
+    if (venue.kind === 'carPark' || venue.kind === 'car_park' || venue.kind === 'carpark') return '🅿️';
+    return null;
+  }
+
+  function makePinContent(num, name, isUser, venue) {
     const div = document.createElement('div');
     div.className = isUser ? 'gia-pin user' : 'gia-pin';
     const n = document.createElement('span');
     n.className = 'num';
-    n.textContent = String(num);
+    // v0.60.184 — emoji glyph overrides the numeric default when the
+    // venue has a category attribute. The plain number still drives
+    // the legacy 1/2/3/… display for ordinary picks.
+    const glyph = isUser ? null : pinGlyphFor(venue);
+    n.textContent = glyph || String(num);
     const t = document.createElement('span');
     t.className = 'name';
     t.textContent = name;
@@ -140,7 +159,7 @@
     const bounds = new google.maps.LatLngBounds();
     list.forEach((v, i) => {
       const pos = { lat: v.lat, lng: v.lng };
-      const content = makePinContent(i + 1, v.name, false);
+      const content = makePinContent(i + 1, v.name, false, v);
       const marker = new AdvancedMarkerElement({
         map,
         position: pos,
