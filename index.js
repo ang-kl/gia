@@ -7915,9 +7915,12 @@ async function cacheBotUsername() {
     // For the 1-venue case we still use a direct Google Maps place
     // link (instant, native experience).
     app.post('/api/cuisine/copy-all',
-      // v0.60.173 — DF-54 rate limit: anti-spam (a Telegram message
-      // dump per call). 30/hr/chat is generous for normal use.
-      makeRateLimiter(redis, { endpoint: 'copy-all', cap: 30 }),
+      // v0.60.173 — DF-54 rate limit on /copy-all. v0.60.174 — operator
+      // raised cap from 30 → 500/hr/chat. Rationale: legitimate power
+      // users browse + copy frequently; per-endpoint limits should
+      // bound machine-speed abuse, not friction normal use. Worst-case
+      // abuse (Telegram message-flood spam) is still caught at 500/hr.
+      makeRateLimiter(redis, { endpoint: 'copy-all', cap: 500 }),
       async (req, res) => {
       const copyAllStart = Date.now();
       try {
@@ -8344,10 +8347,13 @@ async function cacheBotUsername() {
     // is "here's something to look at while you decide" — clicking the
     // main 🔍 Search button runs the full enrichment pipeline.
     app.post('/api/cuisine/warm-start',
-      // v0.60.173 — DF-54 rate limit: warm-start should fire once per
-      // TMA-open; 30/hr/chat covers "open the TMA every 2 min" cases.
-      // Caps Google Places spend from runaway-mount bugs.
-      makeRateLimiter(redis, { endpoint: 'warm-start', cap: 30 }),
+      // v0.60.173 — DF-54 rate limit on warm-start. v0.60.174 —
+      // operator raised cap 30 → 80/hr/chat. warm-start fires once per
+      // TMA-open; 80 covers "open the TMA every 45 s" cases. Caps
+      // Places spend from runaway-mount bugs at 80 / hr × ~5 internal
+      // Place-Details calls = ~400 Places SKUs / hr / compromised chat
+      // — DF-55 cloud-console budget cap is the catch-all.
+      makeRateLimiter(redis, { endpoint: 'warm-start', cap: 80 }),
       async (req, res) => {
       try {
         const { lat, lng, region = 'SG', lang: langIn } = req.body || {};
@@ -8542,11 +8548,12 @@ async function cacheBotUsername() {
     //   • Redis-cache 5 min per (input prefix, region, gridded
     //     lat/lng) to keep the per-keystroke calls cheap.
     app.post('/api/cuisine/place-autocomplete',
-      // v0.60.173 — DF-54 rate limit: 200/hr/chat. Higher cap because
-      // user typing fires many calls per location pick (debounced 250 ms
-      // in the TMA). 200 covers heavy explore sessions while still
-      // bounding Places-Autocomplete spend on compromised accounts.
-      makeRateLimiter(redis, { endpoint: 'place-autocomplete', cap: 200 }),
+      // v0.60.173 — DF-54 rate limit. v0.60.174 — operator raised
+      // cap 200 → 500/hr/chat. User typing fires many calls per pick
+      // (debounced 250 ms client-side). 500 supports heavy
+      // multi-location-edit sessions; runaway-loop bugs caught well
+      // before they hit the daily Places-Autocomplete quota.
+      makeRateLimiter(redis, { endpoint: 'place-autocomplete', cap: 500 }),
       async (req, res) => {
       try {
         const { input, lat, lng, region = 'SG' } = req.body || {};
@@ -8617,8 +8624,11 @@ async function cacheBotUsername() {
     // the coords + display name + formatted address. Cached 24 h
     // because place coordinates don't move.
     app.post('/api/cuisine/place-resolve',
-      // v0.60.173 — DF-54 rate limit: 100/hr/chat. One per pick × bursts.
-      makeRateLimiter(redis, { endpoint: 'place-resolve', cap: 100 }),
+      // v0.60.173 — DF-54 rate limit. v0.60.174 — operator raised
+      // cap 100 → 500/hr/chat for parity with the other Places-API
+      // endpoints; place-resolve is one Place-Details call per req so
+      // 500/hr is a 500-SKU/hr ceiling.
+      makeRateLimiter(redis, { endpoint: 'place-resolve', cap: 500 }),
       async (req, res) => {
       try {
         const { placeId } = req.body || {};
@@ -9008,10 +9018,15 @@ async function cacheBotUsername() {
     });
 
     app.post('/api/cuisine/search',
-      // v0.60.173 — DF-54 rate limit: 60/hr/chat. 1 search/min average;
-      // bursts of 10 in 5 min still fit. The primary money-burner
-      // endpoint (Places searchText + Place Details + travel-times).
-      makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 60 }),
+      // v0.60.173 — DF-54 rate limit. v0.60.174 — operator raised
+      // cap 60 → 500/hr/chat. Each /search internally fires ~1
+      // searchText + ~5 Place Details + 1 Routes-Matrix call (Place
+      // Details largely cache-served via `place-reviews:*` 24 h
+      // cache + `cuisine:search:*` 30-min pool cache), so 500/hr
+      // ≈ 3,000 Places SKU calls / hr / compromised chat in the
+      // worst case. DF-55 cloud-console daily quotas are the
+      // catch-all; this layer kills machine-speed amplification.
+      makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 500 }),
       async (req, res) => {
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
