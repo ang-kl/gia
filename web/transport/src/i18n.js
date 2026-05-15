@@ -15,7 +15,7 @@ const SUPPORTED_LOCALES = ['en', 'fr'];
 
 const STRINGS = {
   // Header banner
-  'header.title':              { en: '🇸🇬 Singapore Train Map and Status', fr: '🇸🇬 Carte et état du métro de Singapour' },
+  'header.title':              { en: '🇸🇬 Train Map & Status', fr: '🇸🇬 Carte et état du métro' },
   'header.allNormal':          { en: '✓ All lines normal',     fr: '✓ Toutes les lignes normales' },
   'header.linesAffected':      { en: '⚠️ {n} line affected',   fr: '⚠️ {n} ligne touchée' },
   'header.linesAffectedPlural':{ en: '⚠️ {n} lines affected',  fr: '⚠️ {n} lignes touchées' },

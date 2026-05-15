@@ -26,7 +26,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
-import { t, useLocale } from '../i18n.js';
+import { t, tn, useLocale } from '../i18n.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -155,12 +155,23 @@ export default function HawkerMapPanel({ centres, region }) {
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
-      const cta = `<button type="button" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(t('map.openInGoogleMaps', lang))}</button>`;
+      // v0.60.207 — operator: the standalone blue "Open on Google Maps"
+      // button was clipped / hard to see inside the InfoWindow bubble.
+      // Dropped the button; the address line is now itself the
+      // hyperlink (calls the same __giaHawkerOpenMap deep-link handler).
+      // Also: surface the stall count (5b), and pin a dark text colour
+      // on the root so the popup is legible in Telegram dark mode.
+      const stallsLine = Number.isFinite(c.stalls) && c.stalls > 0
+        ? `<div style="font-size:11px;color:#666;margin-top:3px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`
+        : '';
+      const addrLink = c.address
+        ? `<div style="font-size:11px;margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:#1a73e8;text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`
+        : '';
       const html =
-        `<div style="min-width:160px;max-width:260px;padding:2px 4px;">
-           <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>
-           ${c.address ? `<div style="font-size:11px;color:#666;margin-top:2px;">📇 ${escapeHtml(c.address)}</div>` : ''}
-           ${cta}
+        `<div style="min-width:160px;max-width:260px;padding:2px 4px;color:#1c1c1f;">
+           <div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>
+           ${stallsLine}
+           ${addrLink}
          </div>`;
       marker.addListener('click', () => {
         if (infoWindowRef.current) {
