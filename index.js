@@ -6186,7 +6186,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // immediately (no more DF-90 0–24h rollover window); (b) per-tap
   // cost rises by ~12 Places searchText calls; (c) cacheHits /
   // cacheMisses counters retained at 0 for the legacy log shape.
+  // v0.60.196 — `slugify` helper restored (was deleted with the
+  // Places cache in v0.60.195, but the LATER `michelin:enrich:<slug>`
+  // 7-day enrichment cache at line ~6576 still depends on it).
+  // Removing both left the enrichment-cache key builder calling an
+  // undefined function → ReferenceError → /api/cuisine/search 500
+  // on every Michelin tap (operator-reported screenshot 15-05-26).
+  // Slug shape unchanged: lowercase, non-alnum → '-', trimmed, ≤80 ch.
   let cacheHits = 0, cacheMisses = 0;
+  const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
   async function resolveEntryPlace(entry) {
     cacheMisses++;
     let placesData = null;
@@ -6509,13 +6517,22 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // calls pipeline.narrateMichelinVenues for `vibe` + `signatureDish`
   // + `dishes`. Curated Michelin badge is preserved on every card —
   // narration is purely additive.
+  // v0.60.196 — denylist extended to cover generic ingredients +
+  // beverage categories. Operator screenshot (15-05-26): Cumi Bali
+  // Bib Gourmand surfaced "🍴 Try · meat" with secondary "gravy";
+  // Saint Pierre 2-star surfaced "🍴 Try · chocolates". All three
+  // are generic ingredient/category words, not dishes, but slipped
+  // past the original v0.60.147 denylist (which only listed
+  // structural meal categories — restaurant/place/food/etc.).
+  // Hoisted to handler scope so both the review-regex extract (Step 1)
+  // and the LLM-narrate output filter (Step 3) can share it.
+  const MICH_CATEGORY_BLOCK = /^(restaurant|place|food|service|staff|menu|location|chef|table|drink|drinks|dessert|desserts|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|meat|meats|gravy|gravies|sauce|sauces|chocolate|chocolates|bread|breads|wine|wines|cocktail|cocktails|beer|beers|appetizer|appetizers|entree|entrees|portion|portions|serving|servings|flavor|flavors|flavour|flavours|taste|tastes|texture|textures|ingredient|ingredients)$/i;
   // Step 1: review-derived dish keywords + recentReview snippet
   // (mirrors index.js:8927-8990 — slimmed inline for Michelin).
   try {
     const MICH_FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
     const michNow = Date.now();
     const MICH_TRAIL_STOP = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there)$/i;
-    const MICH_CATEGORY_BLOCK = /^(restaurant|place|food|service|staff|menu|location|chef|table|drink|drinks|dessert|desserts|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials)$/i;
     const MICH_DISH_RES = [
       /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
       /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
@@ -6610,12 +6627,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       const pipeline = require('./pipeline');
       const narrated = await pipeline.narrateMichelinVenues({ candidates: needsNarrate, lang: csLang });
       if (narrated && typeof narrated === 'object') {
+        // v0.60.196 — apply the same MICH_CATEGORY_BLOCK denylist to
+        // LLM-narrated outputs. Gemini occasionally returns generic
+        // ingredient nouns ("meat", "gravy", "chocolates") as
+        // signature_dish — especially when the thin review snippet
+        // it was given lists multiple proper dishes (Beef Rendang,
+        // Ayam Sate, Sayur Lodeh) and the model picks the lowest-
+        // common-denominator noun. Without this guard those words
+        // hit the TMA's "🍴 Try · meat" line on the ResultCard.
+        const isUsableDish = (s) => {
+          if (typeof s !== 'string') return false;
+          const t = s.trim();
+          if (t.length < 3 || t.length > 40) return false;
+          return !MICH_CATEGORY_BLOCK.test(t);
+        };
         for (const v of needsNarrate) {
           const n = narrated[v.placeId];
           if (!n) continue;
           if (n.vibe) v.vibe = n.vibe;
-          if (n.signatureDish) v.signatureDish = n.signatureDish;
-          if (Array.isArray(n.dishes) && n.dishes.length) v.dishes = n.dishes.slice(0, 3);
+          if (isUsableDish(n.signatureDish)) v.signatureDish = n.signatureDish;
+          if (Array.isArray(n.dishes) && n.dishes.length) {
+            const cleaned = n.dishes.filter(isUsableDish).slice(0, 3);
+            if (cleaned.length) v.dishes = cleaned;
+          }
         }
       }
     } catch (err) {
