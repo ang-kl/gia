@@ -6144,7 +6144,6 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // tier-ordered top-12 pool. Cuisine filter still applies for combo
   // chip searches (e.g. Michelin + Japanese).
   const pool = allEntries.filter(cuisineTagMatches);
-  const didReset = false;       // retained for legacy log fields below
 
   // Sort star tiers explicitly; shuffle bib gourmand so each click
   // surfaces a different slice without re-paying the full Places bill.
@@ -6276,12 +6275,6 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     slice.map(async (entry) => ({ entry, placesData: await resolveEntryPlace(entry) }))
   );
   const venues = [];
-  // v0.60.162 — dedup keys now travel on each venue object as
-  // `venue.michelinDedupKey` (set inside the loop below) so the seen-set
-  // append at the bottom can use only the venues that survived the
-  // cuisine/veg/halal/price post-filters. The earlier parallel
-  // `newDedupKeys` array marked post-filter drops as "seen", which
-  // prematurely exhausted combo searches.
   for (const result of resolved) {
     if (result.status !== 'fulfilled') {
       console.warn('[Michelin] resolveEntryPlace rejected:', result.reason?.message || result.reason);
@@ -6337,17 +6330,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // priceRangeDisplay using these.
       priceRange: require('./pipeline').normalisePriceRange(placesData?.priceRange),
       country: require('./pipeline').extractCountryCode(placesData?.addressComponents),
-      allowsDogs: placesData?.allowsDogs === true,
-      // v0.60.187 — same dedup-key as the fallback branch below. The
-      // v0.60.162 patch attached this to the FALLBACK (placesData ===
-      // falsy) branch only; the HAPPY path was missing it, so
-      // `postFilterDedupKeys.filter(Boolean)` at the bottom of the
-      // handler dropped every successfully-resolved venue → seen-set
-      // never grew → consecutive 🔍 taps returned the same first 12
-      // forever (operator-reported "Michelin listing cannot refresh
-      // next 12 again", DF-80). Format must mirror the candidate
-      // filter at line ~6125 so set membership lines up.
-      michelinDedupKey: `${entry.name}|${entry.address || ''}`.toLowerCase()
+      allowsDogs: placesData?.allowsDogs === true
     } : {
       // Places lookup failed — return curated entry only.
       placeId: '',
@@ -6372,16 +6355,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // has no curated label.
       restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true,
-      // v0.60.162 — attach the dedup key to the venue object itself so
-      // the seen-set append at the bottom of the handler can derive
-      // keys from `filteredVenues` (post cuisine/veg/halal/price
-      // filtering) instead of the pre-filter slice. The earlier
-      // approach (parallel `newDedupKeys` array populated here) marked
-      // post-filter drops as "seen", which prematurely exhausted combo
-      // searches like Michelin + European after the first tap. Removed
-      // before the response leaves the handler.
-      michelinDedupKey: `${entry.name}|${entry.address || ''}`.toLowerCase()
+      michelinHalal: entry.halal === true
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -6522,33 +6496,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     } catch (err) { console.warn('[Michelin] footfall failed:', err.message); }
   }
 
-  // v0.60.44 — append entry-derived dedup keys (name|entry.address)
-  // built during the Places loop above. The previous returnedKeys
-  // construction used `v.address` (= placesData.formattedAddress),
-  // which usually differs from `entry.address` enough that
-  // `seen.has(\`${e.name}|${e.address}\`.toLowerCase())` at line 4844
-  // returned false on the next click — same Michelin entries kept
-  // resurfacing instead of the next 40.
-  // v0.60.162 — narrow the append to ONLY venues that survived the
-  // cuisine / vegetarian / halal / price post-filters above. The prior
-  // "append the full attempted-batch (including post-filter drops)"
-  // assumption only held when post-filter drops were rare; for
-  // Michelin + European (and similar combo searches) the strict
-  // primaryType post-filter drops most candidates, so the inflated
-  // seen-set prematurely exhausted subsequent slices. Operator
-  // 2026-05-14 Railway evidence: combo=[european] tap 1 returned 11
-  // venues but next tap showed seen=12 → 0 venues → exhausted.
-  const postFilterDedupKeys = filteredVenues
-    .map((v) => v.michelinDedupKey)
-    .filter(Boolean);
-  // v0.60.195 — diagnostics retained (without criteriaHash/seenBefore/
-  // appendKeys, those don't exist in the no-walk-through mode).
-  // appendSeenSet call dropped: nothing to remember between taps.
   console.log(`[Michelin] page chatId=${csChatId || 'null'} pool=${pool.length} candidatesFiltered=${filteredVenues.length} walkSeen=${walkState.seen.size} walkReset=${walkState.reset}`);
-  // Scrub the legacy michelinDedupKey field (still attached by the
-  // venue-construction loop above — v0.60.187 DF-80 carry-forward —
-  // even though it's no longer consumed).
-  for (const v of filteredVenues) { delete v.michelinDedupKey; }
   // v0.60.192 — populate priceRangeDisplay on Michelin venues so the
   // v0.60.183 formatPriceAndPetLine emits the "S$25–40 · 🐾 Pet
   // allowed" row in Copy-All output. Mirrors the cuisine-chip
@@ -6769,30 +6717,25 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Strip the heavy review payload before responding.
   for (const v of filteredVenues) { delete v.reviews; }
 
-  // v0.60.146 — Michelin path joins the per-session clipboard too
-  // (operator's "sensitive with Michelin criteria" note). The 80-cap
-  // applies across cuisine-chip + Michelin + freetext within one
-  // session; closing & re-opening Cuisine resets it.
-  // v0.60.149 — Michelin pages join the page-history LIST (so the
-  // ⇠ Prev FAB works) but skipCap=true so Michelin venues do NOT
-  // count toward the global 80-cap session SET. The Michelin curated
-  // list has ~130 entries; the 80-cap would otherwise terminate a
-  // Michelin walk before the user could see all of them. The per-
-  // criteria seen-set (cuisine:seen:<chatId>:<hash>) still drives
-  // Michelin's own end-of-walk reset (didReset above).
-  let michelinPageDepth = 0;
+  // v0.60.146 — Michelin path joins the per-session clipboard so the
+  // ⇠ Prev FAB navigation works across Michelin taps. skipCap=true
+  // keeps Michelin out of the global 80-cap (the curated list has
+  // ~130 entries; the 80-cap would otherwise terminate the walk).
+  // v0.60.200 — was previously referencing an out-of-scope `criteriaHash`
+  // (removed in v0.60.195), silently failing inside the try/catch since
+  // then. Now uses `walkHash` from v0.60.198's michelin-walk helper so
+  // the recordPage call actually fires for Michelin venues again.
   if (csChatId && filteredVenues.length) {
     try {
-      const sessOut = await cuisineSession.recordPage(redis, csChatId, {
+      await cuisineSession.recordPage(redis, csChatId, {
         ts: Date.now(),
-        criteriaHash,
+        criteriaHash: walkHash,
         venues: filteredVenues.map((v) => ({
           placeId: v.placeId, name: v.name, lat: v.lat, lng: v.lng,
           rating: v.rating, priceLevel: v.priceLevel, address: v.address, area: v.area
         })),
         meta: { region: 'SG', michelin: true }
       }, { skipCap: true });
-      michelinPageDepth = sessOut?.depth || 0;
     } catch { /* best-effort */ }
   }
 
