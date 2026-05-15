@@ -186,6 +186,13 @@ function buildMapHashUrl(venues, opts = {}) {
       // blank and MRT popups had no line indicator.
       if (Array.isArray(v.arrivals) && v.arrivals.length) slim.arrivals = v.arrivals;
       if (Array.isArray(v.lines) && v.lines.length)       slim.lines    = v.lines;
+      // v0.60.184 — preserve pin-glyph attributes so public/app.js's
+      // pinGlyphFor() can substitute ✳️ Michelin / 🐾 Pet / 🍮 Dessert /
+      // 🚏 bus-stop / 🅿️ carpark for the default numeric pin.
+      if (v.michelinCategory)              slim.michelinCategory = v.michelinCategory;
+      if (v.allowsDogs === true)           slim.allowsDogs       = true;
+      if (typeof v.restaurantType === 'string' && v.restaurantType) slim.restaurantType = v.restaurantType;
+      if (v.kind && typeof v.kind === 'string') slim.kind = v.kind;
       return slim;
     });
   const encode = (slim) => Buffer.from(JSON.stringify(slim), 'utf8')
