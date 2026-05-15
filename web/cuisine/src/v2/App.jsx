@@ -947,7 +947,16 @@ export default function App() {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
-                onClick={() => setState((s) => ({ ...s, region: r.id }))}
+                onClick={() => setState((s) => {
+                  // v0.60.199 — ✳️ Michelin list is SG-only; when the
+                  // user toggles to JB, drop a previously-selected
+                  // 'michelin' chip so the search request doesn't
+                  // carry an unsupported cuisine.
+                  const nextCuisines = r.id === 'JB'
+                    ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                    : s.cuisines;
+                  return { ...s, region: r.id, cuisines: nextCuisines };
+                })}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
                 {r.flag.endsWith('.png')
@@ -1131,6 +1140,7 @@ export default function App() {
                 }} />
             )}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
+              region={state.region}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
