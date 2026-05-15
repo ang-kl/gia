@@ -33,7 +33,14 @@
 //   const rlSearch = makeRateLimiter(redis, { endpoint: 'search', cap: 60 });
 //   app.post('/api/cuisine/search', rlSearch, async (req, res) => { … });
 
-function makeRateLimiter(redis, { endpoint, cap, windowSec = 3600 }) {
+// v0.60.175 — windowSec default lowered 3600 → 900 (15 minutes) per
+// operator: "TTL Should reset by 15 minutes". The rate-limit Redis key
+// now expires after 900 s and the bucket index advances at every
+// 15-min epoch boundary (00:00, 00:15, 00:30, …). Per-endpoint caps
+// (set at the call sites in index.js) are unchanged, so the effective
+// hourly ceiling per chatId rises ~4× — money defence shifts further
+// onto DF-55 (cloud-console daily quotas + budget caps).
+function makeRateLimiter(redis, { endpoint, cap, windowSec = 900 }) {
   if (!endpoint) throw new Error('rate-limit: endpoint label is required');
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('rate-limit: cap must be a positive integer');
 
