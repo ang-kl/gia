@@ -6213,7 +6213,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel',
-    'places.reviews', 'places.editorialSummary'
+    'places.reviews', 'places.editorialSummary',
+    // v0.60.192 — operator: Michelin Copy-All cards were missing the
+    // v0.60.183 price+pet line because the Michelin FIELD_MASK never
+    // requested these fields. Adding them now so Michelin venues
+    // surface "S$25–40 (US$18.50–29.60) · 🐾 Pet allowed" the same as
+    // cuisine-chip search results. Marginal Places New API cost per
+    // call (paid fields).
+    'places.priceRange', 'places.addressComponents', 'places.allowsDogs'
   ].join(',');
   const axios = require('axios');
   // v0.60.150 — Places resolution: parallel + per-entry Redis cache.
@@ -6335,6 +6342,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType),
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true,
+      // v0.60.192 — pass-through the three new Places fields the v0.60.183
+      // formatPriceAndPetLine reads. priceRange and addressComponents are
+      // normalised via the helpers re-exported from pipeline.js (same
+      // formula as the cuisine-chip search path); allowsDogs is a direct
+      // boolean. enrichPriceRangeDisplay (called below) then resolves
+      // priceRangeDisplay using these.
+      priceRange: require('./pipeline').normalisePriceRange(placesData?.priceRange),
+      country: require('./pipeline').extractCountryCode(placesData?.addressComponents),
+      allowsDogs: placesData?.allowsDogs === true,
       // v0.60.187 — same dedup-key as the fallback branch below. The
       // v0.60.162 patch attached this to the FALLBACK (placesData ===
       // falsy) branch only; the HAPPY path was missing it, so
@@ -6549,6 +6565,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Scrub the internal-only dedup key off venues before the response
   // leaves the handler — clients don't need it.
   for (const v of filteredVenues) { delete v.michelinDedupKey; }
+  // v0.60.192 — populate priceRangeDisplay on Michelin venues so the
+  // v0.60.183 formatPriceAndPetLine emits the "S$25–40 · 🐾 Pet
+  // allowed" row in Copy-All output. Mirrors the cuisine-chip
+  // search-result enrichment site (line ~10467). Best-effort — a
+  // failure here strips the price line silently but doesn't break
+  // the rest of the response.
+  try { await enrichPriceRangeDisplay(csChatId, filteredVenues); } catch (err) {
+    console.warn('[Michelin] enrichPriceRangeDisplay failed:', err.message);
+  }
 
   // v0.60.147 — Michelin full LLM-narrate parity (operator: "the
   // presented result with Michelin criteria is different from normal
@@ -8341,8 +8366,15 @@ async function cacheBotUsername() {
         // v0.58.50: T2 detail template per venue — name bold / address /
         // hours / website / phone / stats with distance / order / Maps URL.
         // v0.58.55: pass lang so static labels render FR for FR users.
+        // v0.60.192 — operator: revert Cuisine TMA Copy-All to the T1
+        // "detail-with-sanctuary" template per the screenshots (Les Amis
+        // / Punggol Settlement). Sanctuary block renders only when
+        // `venue.sanctuaryRead` is set (currently sparse — populated
+        // by /api/cuisine/copy-one only; future DF-87 will populate it
+        // on /api/cuisine/search responses too). When absent the T1
+        // output matches T2 plus the v0.60.183 price+pet line.
         const blocks = slim.map((v) => formatVenueBlock(v, {
-          variant: 'detail',
+          variant: 'detail-with-sanctuary',
           googleMapsUrl,
           lang: reqLang
         })).filter(Boolean);
