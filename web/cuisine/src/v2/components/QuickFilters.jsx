@@ -12,18 +12,18 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // PRIMARY and OVERFLOW. New is now on the primary row beside Halal;
 // Open now moved into the [⚙ Filters] panel.
 // v0.58.55: chip labels resolve through i18n.t() per active locale.
+// v0.60.182 — operator: swap 💲 Price out of the primary row, replace
+// with 🐾 Pet (shortened from "Pet allowed"). Price chip + its $/$$/$$$
+// tier picker move into the [⚙ Filters] overflow popover.
 const PRIMARY = [
   { key: 'newlyOpened', i18n: 'filter.newlyOpened', icon: '🆕' },
-  { key: 'halal',       i18n: 'filter.halal',       icon: '🕌' }
+  { key: 'halal',       i18n: 'filter.halal',       icon: '🕌' },
+  { key: 'petFriendly', i18n: 'filter.petFriendly', icon: '🐾' }
 ];
-// v0.60.165 — `petFriendly` (🐾 Pet-allow) chip added per operator.
-// Strict mode server-side: venue.allowsDogs===true filter; text-query
-// fallback ("pet friendly …") when strict yields < 3 venues.
 const OVERFLOW = [
   { key: 'openNow',     i18n: 'filter.openNow',     icon: '🟢' },
   { key: 'vegetarian',  i18n: 'filter.vegetarian',  icon: '🥗' },
-  { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' },
-  { key: 'petFriendly', i18n: 'filter.petFriendly', icon: '🐾' }
+  { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' }
 ];
 const PRICES = ['$', '$$', '$$$'];
 
@@ -70,35 +70,37 @@ export default function QuickFilters({ filters, onChange }) {
             <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
           </Chip>
         ))}
-        <Chip active={selectedPrices.length > 0 || priceOpen} onClick={openPrice}
-          ariaLabel={priceOpen ? tr('filter.closePrice', lang) : tr('filter.openPrice', lang)}>
-          <span className="mr-0.5" aria-hidden>💲</span>{priceLabel}
-          <span className="ml-1" aria-hidden>{priceOpen ? '▴' : '▾'}</span>
-        </Chip>
         <Chip active={moreOpen} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
           <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
-          {overflowActiveCount > 0 && (
-            <span className="ml-1" aria-label={`${overflowActiveCount} more active`}>·{overflowActiveCount}</span>
+          {(overflowActiveCount + selectedPrices.length) > 0 && (
+            <span className="ml-1" aria-label={`${overflowActiveCount + selectedPrices.length} more active`}>·{overflowActiveCount + selectedPrices.length}</span>
           )}
         </Chip>
       </div>
-      {priceOpen && (
-        <div className="flex flex-wrap gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
-          {PRICES.map((p) => (
-            <Chip key={p} active={selectedPrices.includes(p)} onClick={() => togglePrice(p)}
-              ariaLabel={`${tr('filter.price', lang)} ${p}`}>{p}</Chip>
-          ))}
-        </div>
-      )}
       {moreOpen && (
-        <div className="flex flex-wrap gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
-          {OVERFLOW.map((f) => (
-            <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
-              ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-              <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
+        <div className="flex flex-col gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
+          <div className="flex flex-wrap gap-1.5 items-center">
+            {OVERFLOW.map((f) => (
+              <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
+                ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
+                <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
+              </Chip>
+            ))}
+            <Chip active={selectedPrices.length > 0 || priceOpen} onClick={openPrice}
+              ariaLabel={priceOpen ? tr('filter.closePrice', lang) : tr('filter.openPrice', lang)}>
+              <span className="mr-0.5" aria-hidden>💲</span>{priceLabel}
+              <span className="ml-1" aria-hidden>{priceOpen ? '▴' : '▾'}</span>
             </Chip>
-          ))}
+          </div>
+          {priceOpen && (
+            <div className="flex flex-wrap gap-1.5">
+              {PRICES.map((p) => (
+                <Chip key={p} active={selectedPrices.includes(p)} onClick={() => togglePrice(p)}
+                  ariaLabel={`${tr('filter.price', lang)} ${p}`}>{p}</Chip>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
