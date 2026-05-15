@@ -8199,9 +8199,32 @@ async function cacheBotUsername() {
       res.set('Expires', '0');
     }
 
+    // v0.60.204 — DF-105 close. The five /app/<tma> static mounts
+    // serve Vite-built bundles whose filenames are content-hashed
+    // (e.g. `index-DqeRTlrw.js` → the hash changes whenever the
+    // bundle content changes). Cache them aggressively. HTML entry
+    // points (`*.html`) are served either by explicit `app.get`
+    // handlers via noCacheHtml (preferred) OR by this static middleware
+    // when hit directly (e.g. /app/cuisine/index.html) — the setHeaders
+    // callback below downgrades cache on those to no-cache so a new
+    // deploy is picked up on the next TMA open.
+    //
+    // Before: no Cache-Control header → browsers revalidate every TMA
+    // open (300-800 ms 304 round-trip on cellular).
+    // After: warm opens skip the network entirely for assets/*.
+    const STATIC_OPTS = {
+      maxAge: '1y',
+      immutable: true,
+      setHeaders(res, filePath) {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+      }
+    };
+
     // Menu TMA — Vite-built React app since v0.28.0 (replaces the
     // hand-rolled public/menu.html + menu.js).
-    app.use('/app/menu', express.static(path.join(__dirname, 'public', 'menu')));
+    app.use('/app/menu', express.static(path.join(__dirname, 'public', 'menu'), STATIC_OPTS));
     app.get(['/app', '/app/menu'], (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html'));
@@ -8213,7 +8236,7 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
     // Cuisine Picker TMA (v0.22.0). Vite-built React+Tailwind app.
-    app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine')));
+    app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine'), STATIC_OPTS));
     app.get('/app/cuisine', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
@@ -10925,14 +10948,14 @@ async function cacheBotUsername() {
     });
 
     // v0.38.0: Hawker NEA TMA — scraped Closures + R&R works.
-    app.use('/app/hawker', express.static(path.join(__dirname, 'public', 'hawker')));
+    app.use('/app/hawker', express.static(path.join(__dirname, 'public', 'hawker'), STATIC_OPTS));
     app.get('/app/hawker', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'hawker', 'index.html'));
     });
 
     // v0.51.0: Transport TMA — Hitachi-style MRT system map + per-line cards.
-    app.use('/app/transport', express.static(path.join(__dirname, 'public', 'transport')));
+    app.use('/app/transport', express.static(path.join(__dirname, 'public', 'transport'), STATIC_OPTS));
     app.get('/app/transport', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'transport', 'index.html'));
@@ -10941,7 +10964,7 @@ async function cacheBotUsername() {
     // The static bundle is public (like every TMA bundle) but useless
     // without the owner-gated /api/oversight/stats below — it just shows
     // "Not authorised". Launched via the hidden /oversight chat command.
-    app.use('/app/oversight', express.static(path.join(__dirname, 'public', 'oversight')));
+    app.use('/app/oversight', express.static(path.join(__dirname, 'public', 'oversight'), STATIC_OPTS));
     app.get('/app/oversight', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'oversight', 'index.html'));
