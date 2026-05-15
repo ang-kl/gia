@@ -210,6 +210,87 @@ a { color: var(--accent); }
 .vj-status[data-status="deprecated"], .vj-status[data-status="removed"] { color: #dc2626; border-color: #dc2626; }
 .vj-status[data-status="dormant"] { color: #d97706; border-color: #d97706; }
 
+/* ---- v0.60.180 — PR tab rich cards + search ---- */
+.vj-pr-toolbar {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 14px;
+  position: sticky; top: 49px; z-index: 5;
+  background: var(--bg);
+  padding: 8px 0;
+}
+.vj-pr-search {
+  flex: 1 1 auto;
+  font: inherit;
+  padding: 7px 12px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card); color: var(--fg);
+  outline: none;
+}
+.vj-pr-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.vj-pr-stats { font-size: 12px; color: var(--hint); font-variant-numeric: tabular-nums; }
+.vj-pr-list { display: flex; flex-direction: column; gap: 6px; }
+.vj-pr-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0;
+}
+.vj-pr-card > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  border-radius: 6px;
+}
+.vj-pr-card > summary::-webkit-details-marker { display: none; }
+.vj-pr-card[open] > summary { border-bottom: 1px solid var(--border); border-radius: 6px 6px 0 0; background: var(--row-hover); }
+.vj-pr-num {
+  font-family: ui-monospace, monospace; font-size: 12px;
+  color: var(--hint); min-width: 50px;
+}
+.vj-pr-merged {
+  font-size: 11px; color: var(--hint); font-family: ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.vj-pr-title { flex: 1 1 auto; min-width: 0; font-size: 13px; }
+.vj-pr-body { padding: 10px 14px 12px; font-size: 13px; }
+.vj-pr-body p { margin: 6px 0; }
+.vj-pr-files { margin: 8px 0; }
+.vj-pr-files > summary {
+  cursor: pointer; font-size: 12px; color: var(--hint); padding: 4px 0;
+}
+.vj-pr-files ul {
+  margin: 4px 0 0 0; padding: 4px 0 4px 18px;
+  list-style: disc; font-family: ui-monospace, monospace; font-size: 11.5px;
+  color: var(--fg);
+}
+.vj-pr-files li { padding: 1px 0; }
+.vj-pr-link { font-size: 12px; margin-top: 10px; }
+
+/* ---- v0.60.180 — Markdown tables in section docs (Register / Technical / Feature / Vault) ---- */
+.vj-md-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px; margin: 10px 0;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: 6px;
+  overflow: hidden;
+}
+.vj-md-table th, .vj-md-table td {
+  border-bottom: 1px solid var(--border);
+  text-align: left; padding: 6px 10px; vertical-align: top;
+}
+.vj-md-table th {
+  background: var(--row-hover);
+  font-weight: 600; color: var(--fg);
+}
+.vj-md-table tr:last-child td { border-bottom: none; }
+.vj-md-table tr:hover td { background: var(--row-hover); }
+.vj-md-table code {
+  background: var(--code-bg); border-radius: 3px;
+  padding: 1px 4px; font-family: ui-monospace, monospace; font-size: 11.5px;
+}
+.vj-md-table { display: block; overflow-x: auto; }   /* horizontal scroll for wide tables on mobile */
+
 /* ---- Mobile breakpoint ---- */
 @media (max-width: 768px) {
   .vj-hamburger { display: inline-flex; align-items: center; justify-content: center; }
