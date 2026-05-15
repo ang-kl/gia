@@ -4644,16 +4644,43 @@ async function sendSearchAssistMenu(chatId, lang = 'en') {
 // cuisines that have data in the requested source, grouped by category
 // (cuisines-vault.js's categoryId). 2 buttons per row keeps the menu
 // scannable on phones.
+//
+// v0.60.189 — operator: the picker MUST be curated to cuisines for
+// which the lookup table actually has substantive data. Two layers of
+// filtering now apply:
+//
+//   (1) UMBRELLA_SLUGS — catch-all entries in cuisines-vault that exist
+//       as a category-level aggregator rather than a real country /
+//       region cuisine. The lookup tables happen to have entries
+//       under these keys (e.g. "European" has 21 generic European
+//       cooking methods) but a picker shouldn't surface them — a user
+//       wanting French / Italian / Greek doesn't want to land on a
+//       generic "European" intermediate step. Detected as
+//       `slug === categoryId` (the entry is its own category) PLUS
+//       the explicit 'mediterranean' exclusion (a region inside
+//       'european' category, not a country).
+//
+//   (2) MIN_ITEMS threshold — a thin lookup (≤2 entries) means the
+//       category exists in the table but isn't really filled in.
+//       Hide it until the table is properly populated.
+const UMBRELLA_SLUGS = new Set([
+  'australasia', 'european', 'mediterranean', 'african', 'dessert', 'fusion'
+]);
+const MIN_PICKER_ITEMS = 3;
 function _buildCuisinePicker(source /* 'methods' | 'dishes' */, lang) {
   const cv = require('./cuisines-vault');
   const cookingMethods = require('./cooking-methods');
   const nationOverlay = require('./nation-overlay');
   const all = cv.getAllCuisines();
-  const hasData = (slug) => source === 'methods'
-    ? !!(cookingMethods.COOKING_METHODS && cookingMethods.COOKING_METHODS[slug])
-    : !!(nationOverlay.NATION_OVERLAY && nationOverlay.NATION_OVERLAY[slug]
-         && Array.isArray(nationOverlay.NATION_OVERLAY[slug].iconicDishes)
-         && nationOverlay.NATION_OVERLAY[slug].iconicDishes.length);
+  const hasData = (slug) => {
+    if (UMBRELLA_SLUGS.has(slug)) return false;
+    if (source === 'methods') {
+      const list = cookingMethods.COOKING_METHODS && cookingMethods.COOKING_METHODS[slug];
+      return Array.isArray(list) && list.length >= MIN_PICKER_ITEMS;
+    }
+    const overlay = nationOverlay.NATION_OVERLAY && nationOverlay.NATION_OVERLAY[slug];
+    return overlay && Array.isArray(overlay.iconicDishes) && overlay.iconicDishes.length >= MIN_PICKER_ITEMS;
+  };
   const grouped = {};
   for (const c of all) {
     if (!hasData(c.slug)) continue;
