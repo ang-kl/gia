@@ -326,3 +326,31 @@ a { color: var(--accent); }
   .vj-topbar, .vj-sidebar, .vj-hamburger, .vj-backdrop { display: none; }
   .vj-panel { padding: 0; max-width: 100%; }
 }
+
+/* ---- Dashboard tab (v0.60.186) ---- */
+.vj-dash { padding: 0 0 2em; }
+.vj-dash-h2 { font-size: 1.05rem; margin: 1.4em 0 .5em; border-top: 1px solid var(--vj-border); padding-top: 1em; }
+.vj-dash-h2:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.vj-kpis { display: flex; flex-wrap: wrap; gap: .6em; margin: .4em 0 1em; }
+.vj-kpi { flex: 1; min-width: 130px; background: var(--vj-card); border: 1px solid var(--vj-border); border-radius: 10px; padding: .55em .8em; }
+.vj-kpi-n { font-size: 1.5rem; font-weight: 700; line-height: 1.1; color: var(--vj-fg); }
+.vj-kpi-l { color: var(--vj-muted); font-size: .82rem; margin-top: .2em; }
+.vj-dash-panel { background: var(--vj-card); border: 1px solid var(--vj-border); border-radius: 10px; margin: .6em 0; padding: .2em .8em; }
+.vj-dash-panel > summary { cursor: pointer; font-weight: 600; padding: .55em 0; user-select: none; }
+.vj-dash-note { color: var(--vj-muted); font-size: .85rem; margin: .3em 0 .6em; }
+.vj-barlist { display: flex; flex-direction: column; gap: 3px; margin: .4em 0 .8em; }
+.vj-barrow { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: .5em; font-size: .85rem; }
+.vj-bark { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vj-barb { height: 12px; background: var(--vj-accent-soft, #bcd9f7); border-radius: 3px; min-width: 2px; }
+.vj-barv { text-align: right; font-variant-numeric: tabular-nums; color: var(--vj-muted); }
+.vj-scrollbox { max-height: 340px; overflow: auto; border: 1px solid var(--vj-border); border-radius: 8px; margin: .4em 0 .8em; background: var(--vj-bg); }
+.vj-scrollbox table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.vj-scrollbox thead th { position: sticky; top: 0; background: var(--vj-card); box-shadow: inset 0 -1px 0 var(--vj-border); white-space: nowrap; z-index: 1; text-align: left; padding: .35em .5em; }
+.vj-mini td, .vj-mini th { padding: .3em .45em; border-bottom: 1px solid var(--vj-border); vertical-align: top; }
+.vj-pr-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vj-dash-tag { display: inline-block; padding: 0 .35em; border-radius: 4px; background: var(--vj-accent-soft, #fff1e6); color: var(--vj-warn, #b54708); font-size: .92rem; white-space: nowrap; }
+.vj-lessons li { margin: .45em 0; }
+.vj-lessons b { color: var(--vj-fg); }
+@media (max-width: 760px) {
+  .vj-barrow { grid-template-columns: 120px 1fr 38px; }
+}

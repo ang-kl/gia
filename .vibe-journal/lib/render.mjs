@@ -30,8 +30,14 @@ import { parsePR } from './parsers/pr.mjs';
 import { parseThirdParty } from './parsers/third-party.mjs';
 import { parseVault } from './parsers/vault.mjs';
 
+// v0.60.186 — `dashboard` tab restored. Renders the 10 insight panels
+// (rework / churn / over-time / small PRs / indecision / behavioural /
+// hard parts) + Lessons distilled from `doc/VibeCodingRecord/generate.mjs`'s
+// HTML output. Receives the same PR records as the `pr` tab — the
+// renderer enriches each with category / area / version / day / module
+// buckets client-side via ported helpers from generate.mjs.
 const TAB_LAYOUT = [
-  ['pr', 'register', 'third-party'],
+  ['dashboard', 'pr', 'register', 'third-party'],
   ['technical', 'feature'],
   ['legal', 'vault'],
   ['journal'],
@@ -39,6 +45,7 @@ const TAB_LAYOUT = [
 ];
 
 const TAB_LABELS = {
+  dashboard: '📊 Dashboard',
   pr: 'PR',
   register: 'Register',
   'third-party': '3rd Party',
@@ -91,6 +98,12 @@ export async function regen(cfgPath, pkgRoot) {
     builder: parseSectionDoc('builder', { projectRoot, source: sources.builder }),
     persona: parseSectionDoc('persona', { projectRoot, source: sources.persona })
   };
+
+  // v0.60.186 — dashboard tab shares the PR record set; the client-side
+  // renderer enriches each row with category / area / version / day /
+  // module buckets before computing the 10 insight panels. Same array
+  // reference (not a deep copy) — read-only consumers.
+  records.dashboard = records.pr;
 
   // Manifest — shared by both output modes.
   const manifest = {
