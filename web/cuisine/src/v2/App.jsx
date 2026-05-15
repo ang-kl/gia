@@ -584,9 +584,20 @@ export default function App() {
     // 12 otherwise. The follow-up batch flips firstBatch=false on
     // arrival, restoring the original v0.60.188 behaviour.
     const lowCountThreshold = firstBatch ? 6 : 12;
+    // v0.60.194 — Michelin pagination exception. handleMichelinSearch
+    // has its own deterministic 130-venue pool + its own walk-through
+    // indicator (michelinSummary.remaining surfaced as
+    // `michelinRemaining` state). The autoReset semantic doesn't apply
+    // mid-Michelin: tap 11 returning the natural 10-venue tail would
+    // otherwise arm resetSeen → tap 12 wipes the seen-set → server
+    // returns the first 12 again silently, destroying pagination
+    // state. Suppress when michelinRemaining is truthy; rely on the
+    // exhausted=true "↺ Start over" CTA at the natural end of the
+    // walk-through instead.
     const autoResetOnLowCount = (opts?.resetSeen !== true)
       && Array.isArray(venues) && venues.length > 0 && venues.length < lowCountThreshold
-      && !exhaustedNote;
+      && !exhaustedNote
+      && !michelinRemaining;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
@@ -1319,8 +1330,15 @@ export default function App() {
             v0.60.191 — Codex fix: the threshold follows the server's
             intended slice (6 on a firstBatch response, 12 otherwise)
             so the planned 6-venue first batch doesn't trigger this
-            hint (and the matching auto-reset). See runSearch comment. */}
-        {!exhaustedNote && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
+            hint (and the matching auto-reset). See runSearch comment.
+            v0.60.194 — also gated by !michelinRemaining: the Michelin
+            walk-through has its own indicator + natural exhaustion
+            CTA at the end of the 130-venue pool, so the generic <12
+            hint MUST NOT appear on its tail page (would otherwise
+            read as "10 results for these criteria. Tap 🔍 to refresh…"
+            which is misleading — that's just the natural Michelin
+            tail, not a thin result set). */}
+        {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {lang === 'fr'
               ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir les résultats avec les mêmes critères.`

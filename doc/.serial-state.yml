@@ -1,21 +1,21 @@
 counters:
-  commit: 167
+  commit: 168
   build: 0
   documents:
-    journal: 160
+    journal: 161
     builder: 0
     persona: 1
     feature: 44
-    technical: 42
+    technical: 43
     legal: 6
     register: 112
 sessions:
   current_chat_id: 2026-05-15
-  current_chat_counter: 25
-last_anchor_time: 15-05 '26 16:45 SGT
-last_anchor_source: claude_v0_60_193_s_menu_prune_michelin_helper_vj_regen
-last_anchor_iso8601: 2026-05-15T16:45:00+08:00
-last_anchor_utc: 2026-05-15T08:45:00Z
+  current_chat_counter: 26
+last_anchor_time: 15-05 '26 17:20 SGT
+last_anchor_source: claude_v0_60_194_michelin_autoreset_suppress
+last_anchor_iso8601: 2026-05-15T17:20:00+08:00
+last_anchor_utc: 2026-05-15T09:20:00Z
 # The v0.60.165 vault snapshot PR #408 was closed without merging
 # because v0.60.166 (PR #409) merged into main while #408 was still
 # draft, leaving the captured state one version behind. Operator:
