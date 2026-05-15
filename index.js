@@ -4849,8 +4849,8 @@ async function sendSearchOthersPrompt(chatId, lang = 'en') {
   // Keeps the original v0.60.110/111 instruction text accessible — the
   // free-text /s flow lives here.
   const text = lang === 'fr'
-    ? '💡 *Recherche en texte libre*\n\nTapez `/s <texte>` pour explorer par plat, ingrédient, ustensile, méthode, ou autre.\n\nExemples :\n• `/s goulash quenelles`\n• `/s braisage français`\n• `/s en croûte`\n• `/s agemono japonais`\n\nTapez `/s end` pour terminer la conversation.'
-    : '💡 *Free-text search*\n\nType `/s <text>` to explore by dish, ingredient, kitchen tool, cooking method, or anything else.\n\nExamples:\n• `/s goulash dumpling`\n• `/s Braisage french`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nType `/s end` to close the conversation.';
+    ? '💡 *Recherche en texte libre*\n\nUtilisez `/s <texte>` pour rechercher des établissements par plat, ingrédient, style de cuisine, méthode de cuisson ou mots liés à la nourriture.\n\nExemples\n• `/s Goulash dumpling`\n• `/s Braisage French`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nNote : les résultats peuvent varier et ne sont pas toujours exacts. Veuillez appeler l\'établissement ou ouvrir son lien Google Maps pour confirmer avant de vous déplacer.'
+    : '💡 *Free-text search*\n\nUse `/s <text>` to search for eateries by food, ingredient, cooking style, cooking method, or food-related words.\n\nExamples\n• `/s Goulash dumpling`\n• `/s Braisage French`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nNote: Search results may vary and may not always be exact. Please call the eatery or open its Google Maps link to confirm before going.';
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
@@ -4899,6 +4899,13 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   // message (node just logged an unhandled rejection).
   // v0.60.142 — usage tracking (Oversight): a /s dish search.
   try { usageLog.recordSearch(redis, chatId, { freeText: arg, src: 's' }).catch(() => {}); } catch { /* noop */ }
+  // v0.60.206 — operator: acknowledge the query immediately, before the
+  // multi-second intent-classify + Places + Gemini pipeline runs, so
+  // the user sees the bot received their search. Plain text (no
+  // parse_mode) so a query containing _ * [ ` ~ can't break rendering.
+  await safeSend(chatId, lang === 'fr'
+    ? `Recherche d'établissements liés à « ${arg} ». Patientez un instant.`
+    : `Searching for eateries related to ${arg}. Please wait a moment.`);
   try {
     await handleSearchTurn(chatId, arg, lang);
   } catch (err) {
@@ -5539,8 +5546,8 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     const allCandidates = variantResults.flat().concat(fusionResults).filter((v) => v.placeId);
 
     await editStatus(lang === 'fr'
-      ? `✓ <i>${allCandidates.length} candidats trouvés à travers ${variants.length} cuisines · validation de l'authenticité…</i>`
-      : `✓ <i>Found ${allCandidates.length} candidates across ${variants.length} cuisines · validating authenticity…</i>`);
+      ? `✓ <i>${allCandidates.length} établissements possibles trouvés à travers ${variants.length} cuisines · validation de l'authenticité…</i>`
+      : `✓ <i>Found ${allCandidates.length} possible eateries across ${variants.length} cuisines · validating authenticity…</i>`);
 
     // Phase 2 — Gemini grounded validation (single batched call).
     let scores = {};
@@ -7056,6 +7063,13 @@ bot.on('message', async (msg) => {
       if (activeConv) {
         const { resolveLang } = require('./user-prefs');
         const scLang = await resolveLang(redis, msg.chat.id, msg);
+        // v0.60.206 — same immediate acknowledgment as the /s-command
+        // path: a free-text reply inside an active /s conversation is
+        // functionally a /s query, so it gets the same instant ack
+        // before the multi-second pipeline runs.
+        await safeSend(msg.chat.id, scLang === 'fr'
+          ? `Recherche d'établissements liés à « ${text} ». Patientez un instant.`
+          : `Searching for eateries related to ${text}. Please wait a moment.`);
         await handleSearchTurn(msg.chat.id, text, scLang);
         return;
       }
