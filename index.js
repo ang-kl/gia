@@ -4628,11 +4628,17 @@ async function sendSearchAssistMenu(chatId, lang = 'en') {
   const text = lang === 'fr'
     ? '🔎 *Assistance recherche*\n\nQue voulez-vous explorer ?'
     : '🔎 *Search Assistance*\n\nWhat would you like to explore?';
+  // v0.60.193 — operator: remove the [🥘 Cooking Methods] button from
+  // the bare /s sub-menu. Cooking-method lookup remains accessible via
+  // free-text /s (e.g. `/s tandoor`, `/s braisage français`) and via
+  // the underlying server-side technique fan-out. The `s:methods` /
+  // `s:methods:<slug>` callbacks are kept wired for deep-links or
+  // future re-introduction — they're just no longer reachable from
+  // the menu surface.
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
-        [{ text: lang === 'fr' ? '🥘 Méthodes de cuisson' : '🥘 Cooking Methods', callback_data: 's:methods' }],
         [{ text: lang === 'fr' ? '🍛 Plats authentiques' : '🍛 Authentic Dishes', callback_data: 's:dishes' }],
         [{ text: lang === 'fr' ? '💡 Autres (texte libre)' : '💡 Others (free text)',   callback_data: 's:others' }]
       ]
@@ -5372,30 +5378,10 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
   if (maps) lines.push(maps);
   // v0.60.16 — Michelin / Bib Gourmand annotation row appended after
-  // the maps URL (per Human Lead 2026-05-08). When the venue is on
-  // the curated Singapore Michelin Guide 2025 list (michelin-2025.js),
-  // append "✳️ Michelin · ⭐⭐⭐ · 2025" or "✳️ Bib Gourmand · 2025".
-  // Cross-reference is name-first then postal-augmented (so
-  // "Imperial Treasure Fine Teochew Cuisine (Orchard)" matches but
-  // other Imperial Treasure outlets don't), then token-overlap fuzzy
-  // for minor name drift. If the upstream handler already set
-  // venue.michelinCategory (e.g. handleMichelinSearch from v0.60.14),
-  // we skip the lookup and use that directly.
-  try {
-    const michelin = require('./michelin-2025');
-    let entry = null;
-    if (venue.michelinCategory) {
-      entry = { category: venue.michelinCategory, name: venue.michelinName || venue.name };
-    } else {
-      entry = michelin.findMichelinMatch(venue.name, venue.area || venue.address || '');
-    }
-    if (entry) {
-      const line = michelin.formatMichelinLine(entry);
-      if (line) lines.push(line);
-    }
-  } catch (err) {
-    console.warn('[Michelin-Annotate] formatTechniqueVenueBlock cross-ref failed:', err.message);
-  }
+  // the maps URL. v0.60.193 — DF-91: cross-ref logic factored into
+  // michelin-2025's appendMichelinAnnotation helper. Shared with
+  // formatVenueBlock + /api/cuisine/search post-loop annotation.
+  require('./michelin-2025').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
   return lines.join('\n');
 }
 
@@ -10564,18 +10550,12 @@ async function cacheBotUsername() {
         // category if it cross-refs to the curated Singapore Michelin
         // Guide 2025 list. The TMA's VenueCard renders the annotation
         // below the maps URL (matching the chat rich-card row format).
-        try {
-          const michelin = require('./michelin-2025');
-          for (const v of dedupedTop) {
-            if (v.michelinCategory) continue;        // already annotated by handleMichelinSearch
-            const e = michelin.findMichelinMatch(v.name, v.area || v.address || '');
-            if (e) {
-              v.michelinCategory = e.category;
-              v.michelinName = e.name;
-              v.michelinYear = 2025;
-            }
-          }
-        } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
+        // v0.60.193 — DF-91: cross-ref logic factored into michelin-2025's
+        // annotateVenueObject helper (sibling to appendMichelinAnnotation
+        // which pushes a chat-message line; this site mutates the venue
+        // object instead so the React TMA card consumer can render it).
+        const michelinObjAnnotator = require('./michelin-2025').annotateVenueObject;
+        for (const v of dedupedTop) michelinObjAnnotator(v, 'Cuisine-Search');
         const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         if (ftRawIn) {
           try {
