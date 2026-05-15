@@ -6035,54 +6035,24 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
   }
 
-  const criteriaHash = computeCriteriaHash({
-    cuisines: ['michelin', ...otherCuisineSlugs],            // include combo so dedup resets when user changes cuisine
-    filters: filters || {},
-    prices: req.body?.prices || [],
-    // v0.60.153 — radius INTENTIONALLY omitted from the Michelin
-    // criteriaHash. The Michelin handler is curated-list-based (130
-    // entries, location-agnostic); the TMA's slider drift (or any
-    // distance recompute) shouldn't reset the seen-set and re-serve
-    // the same first 12 on the next 🔍 Search tap. Operator: "still
-    // load the same first 12 after tapping search FAB" — root cause.
-    region: 'SG',
-    freeText: freeText || ''
-  });
-  // v0.60.162 — honor the client-side resetSeen flag (v0.60.157's
-  // zero-results auto-retry mechanism). The outer /api/cuisine/search
-  // handler already resets the cuisine-chip path's seen-set when this
-  // flag is true, but the Michelin handler reads its own
-  // `cuisine:seen:<chatId>:<criteriaHash>` independently — so without
-  // this branch the retry never reached the Michelin dedup state.
-  // Operator 2026-05-14: combo=[european] → 0 venues → v0.60.157 retry
-  // fired resetSeen=true → Michelin handler still saw seen=24, still
-  // returned 0.
-  if (req.body?.resetSeen === true && csChatId) {
-    await resetSeenSet(csChatId, criteriaHash);
-    console.log(`[Michelin] resetSeen honoured chatId=${csChatId} hash=${String(criteriaHash).slice(0, 8)}`);
-  }
-  const seen = await readSeenSet(csChatId, criteriaHash);
-  // v0.60.153 — one-line diagnostic so the next "same first 12"
-  // report can be triaged from Railway logs without another round
-  // of code-reading. Fires on every Michelin tap.
-  console.log(`[Michelin] tap chatId=${csChatId || 'null'} hash=${String(criteriaHash).slice(0, 8)} seen=${seen.size} combo=[${otherCuisineSlugs.join(',')}]`);
-  // v0.60.161 — verbose-log full incoming snapshot + Redis TTL on the
-  // seen-set so the operator can see how long the dedup state will
-  // persist before auto-clearing.
+  // v0.60.195 — operator: drop the seen-set pagination. Michelin always
+  // returns the SAME top-12 from venue 1 of the tier-ordered pool
+  // (3-star → 2-star → 1-star → bib-gourmand). No walk-through, no
+  // criteriaHash, no `cuisine:seen:<chatId>:<criteriaHash>` read/write,
+  // no resetSeen honoring — every tap is independent. Cost: each tap
+  // re-pays ~12 Places searchText calls (cache also removed; see
+  // resolveEntryPlace below). Combo filtering (Michelin + cuisine
+  // chip) still applies via cuisineTagMatches; just no dedup.
+  console.log(`[Michelin] tap chatId=${csChatId || 'null'} combo=[${otherCuisineSlugs.join(',')}] mode=top12-fresh`);
   const vlogMichelin = require('./verbose-log');
   const vlogMichelinStart = Date.now();
   await vlogMichelin.vlogIf(redis, csChatId, {
     kind: 'michelin-incoming',
-    hash: String(criteriaHash).slice(0, 8),
-    seen: seen.size,
     combo: otherCuisineSlugs,
     isJB,
     freeTextLen: (freeText || '').length,
     radius: searchRadius
   });
-  if (csChatId) {
-    await vlogMichelin.vlogTtl(redis, csChatId, `cuisine:seen:${csChatId}:${criteriaHash}`);
-  }
 
   // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
   // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
@@ -6133,23 +6103,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     if (!e.cuisine) return true;                                 // untagged entries (Bib Gourmand) — keep, post-filter via primaryType
     return cuisineSlugSet.has(String(e.cuisine).toLowerCase());
   };
-  const candidates = allEntries.filter((e) => {
-    if (!cuisineTagMatches(e)) return false;
-    const dedupKey = `${e.name}|${e.address || ''}`.toLowerCase();
-    return !seen.has(dedupKey);
-  });
-
-  // If everything has been seen, reset + return the top tier again.
-  // v0.60.18 — when reset triggered, still apply the cuisine pre-
-  // filter so we don't surface non-matching cuisines after exhausting
-  // the dedup pool.
-  let pool = candidates;
-  let didReset = false;
-  if (pool.length === 0) {
-    await resetSeenSet(csChatId, criteriaHash);
-    pool = allEntries.filter(cuisineTagMatches);
-    didReset = true;
-  }
+  // v0.60.195 — no seen-set: every Michelin tap rebuilds the same
+  // tier-ordered top-12 pool. Cuisine filter still applies for combo
+  // chip searches (e.g. Michelin + Japanese).
+  const pool = allEntries.filter(cuisineTagMatches);
+  const didReset = false;       // retained for legacy log fields below
 
   // Sort star tiers explicitly; shuffle bib gourmand so each click
   // surfaces a different slice without re-paying the full Places bill.
@@ -6222,23 +6180,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Plus a `[Michelin] handler ms=…` warn log on slow runs so a future
   // regression is visible in Railway logs without another investigation.
   const handlerStart = Date.now();
+  // v0.60.195 — operator: drop the `michelin:place:<slug>` 24-h Redis
+  // cache. Every Michelin tap now resolves each curated entry fresh
+  // from Places. Side effects: (a) FIELD_MASK additions land
+  // immediately (no more DF-90 0–24h rollover window); (b) per-tap
+  // cost rises by ~12 Places searchText calls; (c) cacheHits /
+  // cacheMisses counters retained at 0 for the legacy log shape.
   let cacheHits = 0, cacheMisses = 0;
-  const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
-  const MICHELIN_PLACE_TTL_S = 24 * 60 * 60;
   async function resolveEntryPlace(entry) {
-    const cacheKey = `michelin:place:${slugify(entry.name)}`;
-    if (redis && redis.isOpen) {
-      try {
-        const cached = await redis.get(cacheKey);
-        if (cached) {
-          cacheHits++;
-          const parsed = JSON.parse(cached);
-          // Negative-cache marker — Places returned null for this entry;
-          // don't re-hit for the next 24 h.
-          return (parsed && parsed.__null) ? null : parsed;
-        }
-      } catch { /* fall through to live fetch */ }
-    }
     cacheMisses++;
     let placesData = null;
     try {
@@ -6256,18 +6205,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             'X-Goog-Api-Key': apiKey,
             'X-Goog-FieldMask': FIELD_MASK
           },
-          timeout: 4000   // v0.60.150 — was 6 s; fail-fast
+          timeout: 4000
         }
       );
       placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
-    }
-    if (redis && redis.isOpen) {
-      try {
-        const toCache = placesData || { __null: true };
-        await redis.setEx(cacheKey, MICHELIN_PLACE_TTL_S, JSON.stringify(toCache));
-      } catch { /* best-effort */ }
     }
     return placesData;
   }
@@ -6540,16 +6483,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const postFilterDedupKeys = filteredVenues
     .map((v) => v.michelinDedupKey)
     .filter(Boolean);
-  // v0.60.185 — pagination diagnostics. Operator 2026-05-15 reported
-  // "Michelin listing cannot refresh next 12 again" without enough
-  // reproduction detail to pin a root cause. Log the seen-set delta
-  // for every Michelin tap so the next reproduction has a Railway
-  // timeline (criteriaHash, seen-before, candidates-pool, filtered,
-  // didReset, exhausted, dedup-keys appended).
-  console.log(`[Michelin] page chatId=${csChatId || 'null'} hash=${String(criteriaHash).slice(0, 8)} seenBefore=${seen.size} pool=${pool.length} candidatesFiltered=${filteredVenues.length} appendKeys=${postFilterDedupKeys.length} didReset=${didReset}`);
-  await appendSeenSet(csChatId, criteriaHash, postFilterDedupKeys);
-  // Scrub the internal-only dedup key off venues before the response
-  // leaves the handler — clients don't need it.
+  // v0.60.195 — diagnostics retained (without criteriaHash/seenBefore/
+  // appendKeys, those don't exist in the no-walk-through mode).
+  // appendSeenSet call dropped: nothing to remember between taps.
+  console.log(`[Michelin] page chatId=${csChatId || 'null'} pool=${pool.length} candidatesFiltered=${filteredVenues.length} mode=top12-fresh`);
+  // Scrub the legacy michelinDedupKey field (still attached by the
+  // venue-construction loop above — v0.60.187 DF-80 carry-forward —
+  // even though it's no longer consumed).
   for (const v of filteredVenues) { delete v.michelinDedupKey; }
   // v0.60.192 — populate priceRangeDisplay on Michelin venues so the
   // v0.60.183 formatPriceAndPetLine emits the "S$25–40 · 🐾 Pet
@@ -6779,30 +6719,24 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // is full.
   // v0.60.149 — Michelin response never sets sessionFull (its per-
   // session cap is its own curated-list size, not the 80-cap).
-  const exhausted = didReset || filteredVenues.length < 3;
-  // v0.60.150 — slow-handler warning so future Places / Gemini latency
-  // regressions are visible in Railway logs (the 502 saga was opaque
-  // before this).
+  // v0.60.195 — no-walk-through mode: exhausted is meaningful only when
+  // the filtered pool is genuinely thin (e.g. Michelin + Korean returned
+  // < 3 starred entries). The < 3 trigger still surfaces the existing
+  // TMA "no results" copy; the prior `didReset` branch is dead.
+  const exhausted = filteredVenues.length < 3;
   const handlerMs = Date.now() - handlerStart;
   if (handlerMs > 10000) {
-    console.warn(`[Michelin] handler ms=${handlerMs} cacheHits=${cacheHits} cacheMisses=${cacheMisses} venues=${filteredVenues.length}`);
+    console.warn(`[Michelin] handler ms=${handlerMs} venues=${filteredVenues.length}`);
   }
-  // v0.60.161 — verbose-log exit. cacheHits/cacheMisses are the Places
-  // resolver's per-entry cache (24-h michelin:place:<slug>) hits;
-  // narrate-enrich cache (7-d michelin:enrich:<slug>) hit/miss isn't
-  // tracked separately yet — could be a follow-up if needed.
   const vlogMichelinOn = await vlogMichelin.isOn(redis, csChatId);
   if (vlogMichelinOn) {
     vlogMichelin.vlog(csChatId, {
       kind: 'michelin-exit',
       ms: Date.now() - vlogMichelinStart,
       handlerMs,
-      cacheHits,
-      cacheMisses,
       venues: filteredVenues.length,
       exhausted,
-      reset: didReset,
-      remaining: Math.max(0, allEntries.length - seen.size - filteredVenues.length)
+      mode: 'top12-fresh'
     });
   }
   return res.json({
@@ -6811,21 +6745,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     seed: 'michelin',
     exhausted,
     sessionFull: false,
-    pageStackDepth: michelinPageDepth,
     _vlog: vlogMichelinOn || undefined,
+    // v0.60.195 — michelinSummary shipped with remaining=0 so:
+    //   1. TMA's `michelinRemaining` state goes truthy (non-null) →
+    //      v0.60.194's `&& !michelinRemaining` gate continues to
+    //      suppress the <12 autoReset + visible hint for combo
+    //      searches that legitimately return fewer than 12 venues
+    //      (Michelin + Korean might yield 4 starred entries; without
+    //      this gate the TMA would loop the hint forever).
+    //   2. The "📚 N more to explore — Tap 🔍 for next batch of 12"
+    //      indicator auto-hides because `remaining > 0` is false.
     michelinSummary: {
       total: allEntries.length,
-      // v0.60.149 — how many curated Michelin entries are still
-      // un-shown for this chat under the current criteria; lets the
-      // TMA surface "X more curated Michelin places — tap ▶ to load
-      // the next batch" so the user understands the walk-through.
-      shown: seen.size + filteredVenues.length,
-      remaining: Math.max(0, allEntries.length - seen.size - filteredVenues.length),
+      remaining: 0,                  // walk-through disabled in v0.60.195
       threeStar: michelin.STARS_THREE.length,
       twoStar: michelin.STARS_TWO.length,
       oneStar: michelin.STARS_ONE.length,
-      bibGourmand: michelin.BIB_GOURMAND.length,
-      reset: didReset
+      bibGourmand: michelin.BIB_GOURMAND.length
     }
   });
 }
