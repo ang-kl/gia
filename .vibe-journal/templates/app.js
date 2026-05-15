@@ -131,26 +131,67 @@
     persona: renderSectionDoc
   };
 
+  // v0.60.180 — PR tab restored to the rich per-PR layout (legacy view
+  // operator wants for "search and check how to improve"). Each PR is a
+  // <details> card: summary line (#N · state · merged · title) + body
+  // excerpt + file list. Search input at the top filters the list by
+  // title / body / file-path substring (case-insensitive).
   function renderPRTable(panel, records) {
-    const t = document.createElement('table');
-    t.className = 'vj-table';
-    t.innerHTML = `
-      <thead><tr>
-        <th>#</th><th>Title</th><th>State</th><th>Author</th><th>Merged / Updated</th><th>Files</th>
-      </tr></thead><tbody></tbody>`;
-    const tbody = t.querySelector('tbody');
-    for (const r of records) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${r.url ? `<a href="${escapeAttr(r.url)}" target="_blank">${r.number ?? '—'}</a>` : (r.number ?? '—')}</td>
-        <td>${escapeHtml(r.title || '')}</td>
-        <td><span class="vj-status" data-status="${escapeAttr(r.state || '')}">${escapeHtml(r.state || '')}</span></td>
-        <td>${escapeHtml(r.author || '—')}</td>
-        <td>${escapeHtml(formatDate(r.merged_at) || '—')}</td>
-        <td>${r.files_changed ?? '—'}</td>`;
-      tbody.appendChild(tr);
+    // Sort newest first by merged_at (records may arrive in legacy order).
+    const sorted = [...records].sort((a, b) => {
+      const ta = new Date(a.merged_at || 0).getTime();
+      const tb = new Date(b.merged_at || 0).getTime();
+      return tb - ta;
+    });
+
+    panel.innerHTML = `
+      <div class="vj-pr-toolbar">
+        <input type="search" class="vj-pr-search" placeholder="Search PRs by title, body, or file path…" aria-label="Search PRs">
+        <span class="vj-pr-stats"></span>
+      </div>
+      <div class="vj-pr-list"></div>
+    `;
+    const list = panel.querySelector('.vj-pr-list');
+    const stats = panel.querySelector('.vj-pr-stats');
+    const input = panel.querySelector('.vj-pr-search');
+
+    function render(filter = '') {
+      const q = filter.trim().toLowerCase();
+      list.innerHTML = '';
+      let shown = 0;
+      for (const r of sorted) {
+        if (q) {
+          const hay = (r.title + ' ' + (r.body || '') + ' ' + (r.files || []).join(' ')).toLowerCase();
+          if (!hay.includes(q)) continue;
+        }
+        shown++;
+        const det = document.createElement('details');
+        det.className = 'vj-pr-card';
+        const num = r.number != null ? `#${r.number}` : '—';
+        const merged = formatDate(r.merged_at) || '—';
+        const state = (r.state || '').toLowerCase();
+        det.innerHTML = `
+          <summary>
+            <span class="vj-pr-num">${escapeHtml(num)}</span>
+            <span class="vj-status" data-status="${escapeAttr(r.state || '')}">${escapeHtml(r.state || '—')}</span>
+            <span class="vj-pr-merged">${escapeHtml(merged)}</span>
+            <span class="vj-pr-title">${escapeHtml(r.title || '')}</span>
+          </summary>
+          <div class="vj-pr-body">
+            ${r.body ? `<p>${renderMarkdownLite(r.body)}</p>` : ''}
+            ${r.files && r.files.length ? `
+              <details class="vj-pr-files"><summary>${r.files.length} file${r.files.length === 1 ? '' : 's'} changed</summary>
+                <ul>${r.files.map((f) => `<li><code>${escapeHtml(f)}</code></li>`).join('')}</ul>
+              </details>` : ''}
+            ${r.url ? `<p class="vj-pr-link"><a href="${escapeAttr(r.url)}" target="_blank" rel="noopener">Open on GitHub →</a></p>` : ''}
+          </div>
+        `;
+        list.appendChild(det);
+      }
+      stats.textContent = q ? `${shown} of ${sorted.length} match` : `${sorted.length} PRs`;
     }
-    panel.appendChild(t);
+    input.addEventListener('input', (e) => render(e.target.value));
+    render('');
   }
 
   function renderRegister(panel, records) {
@@ -291,18 +332,71 @@
   // Tiny Markdown renderer — enough for headings, bold, italic, inline code,
   // fenced code, bullet lists, hyperlinks. Anything fancier is shown as
   // escaped plain text.
+  // v0.60.180 — GFM table support added per operator: "Register,
+  // technical, feature, vault are not properly structure and style to
+  // be readable, the tables". The Soleat doc-system uses Markdown
+  // tables heavily (Removed Features / Deprecated Decisions / §7
+  // Amendments tables); previously rendered as escaped pipes.
   function renderMarkdownLite(md) {
-    let s = escapeHtml(md);
+    // 1) Tables FIRST (placeholder-substitute so subsequent inline rules
+    //    don't mangle the `|` separators or trip on the `---` row).
+    const tablePlaceholders = [];
+    md = md.replace(
+      /(^|\n)((?:\|[^\n]*\|[^\n]*\n)\s*(?:\|[\s:|-]+\|\s*\n)(?:\|[^\n]*\|[^\n]*(?:\n|$))*)/g,
+      (_m, lead, block) => {
+        const lines = block.trim().split('\n').filter((l) => l.trim().startsWith('|'));
+        if (lines.length < 2) return _m;
+        const splitRow = (row) => row.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+        const header = splitRow(lines[0]);
+        const body = lines.slice(2).map(splitRow);
+        let html = '<table class="vj-md-table"><thead><tr>';
+        for (const h of header) html += `<th>${inlineMd(h)}</th>`;
+        html += '</tr></thead><tbody>';
+        for (const row of body) {
+          html += '<tr>';
+          for (let i = 0; i < header.length; i++) html += `<td>${inlineMd(row[i] || '')}</td>`;
+          html += '</tr>';
+        }
+        html += '</tbody></table>';
+        const idx = tablePlaceholders.push(html) - 1;
+        return `${lead} TABLE_${idx} `;
+      }
+    );
+
+    // 2) Inline rules — escape first, then apply inline Markdown.
+    let s = inlineMd(md);
+
+    // 3) Bullet lists (`- item` runs → <ul><li>…).
+    s = s.replace(/((?:^|\n)\s*-\s+.+(?:\n\s*-\s+.+)*)/g, (block) => {
+      const items = block.trim().split(/\n\s*-\s+/).filter(Boolean).map((it) => `<li>${it.trim()}</li>`).join('');
+      return `\n<ul>${items}</ul>`;
+    });
+
+    // 4) Paragraphs — convert blank-line-separated blocks to <p> wrappers
+    //    so the renderer doesn't dump a wall of text.
+    s = s.split(/\n\n+/).map((blk) => {
+      const t = blk.trim();
+      if (!t) return '';
+      if (/^<(ul|ol|table|pre|h\d|blockquote|details)/i.test(t)) return t;
+      if (t.startsWith(' TABLE_')) return t;
+      return `<p>${t}</p>`;
+    }).join('\n');
+
+    // 5) Re-insert the table HTML.
+    s = s.replace(/ TABLE_(\d+) /g, (_, n) => tablePlaceholders[Number(n)] || '');
+
+    return s;
+  }
+
+  // Inline Markdown only — used both for the top-level renderer and
+  // inside table cells.
+  function inlineMd(raw) {
+    let s = (typeof raw === 'string' && raw.startsWith('<')) ? raw : escapeHtml(raw);
     s = s.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c}</code></pre>`);
     s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
     s = s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
-    // Bullet list — convert sequences of `- ` lines to <ul>.
-    s = s.replace(/((?:^|\n)\s*-\s+.+(?:\n\s*-\s+.+)*)/g, (block) => {
-      const items = block.trim().split(/\n\s*-\s+/).filter(Boolean).map((it) => `<li>${it.trim()}</li>`).join('');
-      return `\n<ul>${items}</ul>`;
-    });
     return s;
   }
 })();
