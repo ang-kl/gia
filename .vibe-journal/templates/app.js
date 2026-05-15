@@ -1,0 +1,251 @@
+// Client-side controller: load manifest + ndjson, render the 5-row
+// tab nav, swap panels on tab click. No framework — vanilla.
+
+(async function () {
+  const manifest = await fetchJSON('data/manifest.json');
+  document.getElementById('vj-project').textContent = manifest.project?.name || '';
+  document.getElementById('vj-generated').textContent = 'generated ' + new Date(manifest.generated_at).toLocaleString();
+  if (manifest.project?.name) document.title = `${manifest.project.name} · Vibe Journal`;
+
+  const nav = document.querySelector('.vj-tabs');
+  nav.innerHTML = '';
+  const rows = manifest.tabs;
+  let activeTab = rows[0]?.[0]?.key || null;
+
+  for (const row of rows) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'vj-tabs-row';
+    row.forEach((tab, i) => {
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'vj-tabs-sep';
+        sep.textContent = '|';
+        sep.setAttribute('aria-hidden', 'true');
+        rowEl.appendChild(sep);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'vj-tab';
+      btn.type = 'button';
+      btn.dataset.tab = tab.key;
+      btn.innerHTML = `${escapeHtml(tab.label)} <span class="vj-count">${tab.count}</span>`;
+      btn.addEventListener('click', () => activate(tab.key));
+      rowEl.appendChild(btn);
+    });
+    nav.appendChild(rowEl);
+  }
+
+  const cache = {};
+  async function load(key) {
+    if (cache[key]) return cache[key];
+    const txt = await fetch(`data/${key}.ndjson`).then((r) => r.ok ? r.text() : '');
+    cache[key] = txt.split('\n').filter(Boolean).map((line) => { try { return JSON.parse(line); } catch { return null; } }).filter(Boolean);
+    return cache[key];
+  }
+
+  async function activate(key) {
+    activeTab = key;
+    document.querySelectorAll('.vj-tab').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === key));
+    const panel = document.getElementById('vj-panel');
+    panel.innerHTML = '<p class="vj-loading">Loading…</p>';
+    const records = await load(key);
+    panel.innerHTML = '';
+    if (records.length === 0) {
+      panel.innerHTML = '<div class="vj-empty">No records for this tab. Check that the source path in <code>vibe-journal.config.yaml</code> matches your project.</div>';
+      return;
+    }
+    const r = RENDERERS[key] || renderGenericCards;
+    r(panel, records);
+  }
+
+  if (activeTab) activate(activeTab);
+
+  // ---- Renderers ----
+
+  const RENDERERS = {
+    pr: renderPRTable,
+    register: renderRegister,
+    'third-party': renderThirdParty,
+    technical: renderSectionDoc,
+    feature: renderSectionDoc,
+    legal: renderSectionDoc,
+    vault: renderVault,
+    journal: renderJournal,
+    builder: renderSectionDoc,
+    persona: renderSectionDoc
+  };
+
+  function renderPRTable(panel, records) {
+    const t = document.createElement('table');
+    t.className = 'vj-table';
+    t.innerHTML = `
+      <thead><tr>
+        <th>#</th><th>Title</th><th>State</th><th>Author</th><th>Merged / Updated</th><th>Files</th>
+      </tr></thead><tbody></tbody>`;
+    const tbody = t.querySelector('tbody');
+    for (const r of records) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.url ? `<a href="${escapeAttr(r.url)}" target="_blank">${r.number ?? '—'}</a>` : (r.number ?? '—')}</td>
+        <td>${escapeHtml(r.title || '')}</td>
+        <td><span class="vj-status" data-status="${escapeAttr(r.state || '')}">${escapeHtml(r.state || '')}</span></td>
+        <td>${escapeHtml(r.author || '—')}</td>
+        <td>${escapeHtml(formatDate(r.merged_at) || '—')}</td>
+        <td>${r.files_changed ?? '—'}</td>`;
+      tbody.appendChild(tr);
+    }
+    panel.appendChild(t);
+  }
+
+  function renderRegister(panel, records) {
+    if (!records.length) return;
+    // Use the newest register file only (records are version-sorted).
+    const latest = records[0];
+    const versionBadge = `<span class="vj-version-badge">v${latest.version || '—'}</span>`;
+    panel.innerHTML = `<p class="vj-meta">Showing latest Register: ${escapeHtml(latest.file)} ${versionBadge}</p>`;
+    for (const sec of latest.sections) {
+      const card = document.createElement('section');
+      card.className = 'vj-card';
+      card.innerHTML = `<h2 class="vj-card-title">${escapeHtml(sec.heading)}</h2>` +
+        `<div class="vj-card-body">${renderMarkdownLite(sec.body)}</div>`;
+      panel.appendChild(card);
+    }
+  }
+
+  function renderThirdParty(panel, records) {
+    const apis = records.filter((r) => r.kind === 'api');
+    const ints = records.filter((r) => r.kind === 'integration');
+    const issues = records.filter((r) => r.kind === 'issue');
+    if (apis.length) panel.appendChild(thirdPartyTable('APIs / Services', apis));
+    if (ints.length) panel.appendChild(thirdPartyTable('Integrations', ints));
+    if (issues.length) panel.appendChild(issuesTable('GitHub Issues', issues));
+  }
+  function thirdPartyTable(title, list) {
+    const wrap = document.createElement('section');
+    wrap.innerHTML = `<h2 class="vj-card-title">${escapeHtml(title)}</h2>`;
+    const t = document.createElement('table');
+    t.className = 'vj-table';
+    t.innerHTML = `<thead><tr><th>Name</th><th>Vendor</th><th>Status</th><th>Purpose</th><th>Docs</th></tr></thead><tbody></tbody>`;
+    const tb = t.querySelector('tbody');
+    for (const r of list) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.vendor || '')}</td>
+        <td><span class="vj-status" data-status="${escapeAttr(r.status || '')}">${escapeHtml(r.status || '')}</span></td>
+        <td>${escapeHtml(r.details?.purpose || r.details?.notes || '')}</td>
+        <td>${r.url ? `<a href="${escapeAttr(r.url)}" target="_blank">docs</a>` : '—'}</td>`;
+      tb.appendChild(tr);
+    }
+    wrap.appendChild(t);
+    return wrap;
+  }
+  function issuesTable(title, list) {
+    const wrap = document.createElement('section');
+    wrap.innerHTML = `<h2 class="vj-card-title">${escapeHtml(title)}</h2>`;
+    const t = document.createElement('table');
+    t.className = 'vj-table';
+    t.innerHTML = `<thead><tr><th>Issue</th><th>State</th><th>Author</th><th>Labels</th></tr></thead><tbody></tbody>`;
+    const tb = t.querySelector('tbody');
+    for (const r of list) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.url ? `<a href="${escapeAttr(r.url)}" target="_blank">${escapeHtml(r.name)}</a>` : escapeHtml(r.name)}</td>
+        <td><span class="vj-status" data-status="${escapeAttr(r.status || '')}">${escapeHtml(r.status || '')}</span></td>
+        <td>${escapeHtml(r.details?.author || '—')}</td>
+        <td>${escapeHtml((r.details?.labels || []).join(', '))}</td>`;
+      tb.appendChild(tr);
+    }
+    wrap.appendChild(t);
+    return wrap;
+  }
+
+  function renderSectionDoc(panel, records) {
+    if (!records.length) return;
+    const latest = records[0];
+    const versionBadge = `<span class="vj-version-badge">v${latest.version || '—'}</span>`;
+    panel.innerHTML = `<p class="vj-meta">Showing latest: ${escapeHtml(latest.file)} ${versionBadge} (${records.length} version(s) on disk)</p>`;
+    if (latest.preamble) {
+      const pre = document.createElement('section');
+      pre.className = 'vj-card';
+      pre.innerHTML = `<div class="vj-card-body">${renderMarkdownLite(latest.preamble)}</div>`;
+      panel.appendChild(pre);
+    }
+    for (const sec of latest.sections) {
+      const card = document.createElement('section');
+      card.className = 'vj-card';
+      card.innerHTML = `<h2 class="vj-card-title">${escapeHtml(sec.heading)}</h2>` +
+        `<div class="vj-card-body">${renderMarkdownLite(sec.body)}</div>`;
+      panel.appendChild(card);
+    }
+  }
+
+  function renderVault(panel, records) {
+    for (const r of records) {
+      const card = document.createElement('section');
+      card.className = 'vj-card';
+      const counts = r.counts ? ` · ${r.counts.files} files / ${r.counts.size}` : '';
+      const captured = r.captured ? ` · captured ${escapeHtml(r.captured)}` : '';
+      card.innerHTML = `
+        <div class="vj-card-head"><span class="vj-version-badge">v${escapeHtml(r.version)}</span><span>${escapeHtml(r.file)}${counts}${captured}</span></div>
+        ${r.headline ? `<div class="vj-card-body">${renderMarkdownLite(r.headline)}</div>` : ''}
+        ${r.arc ? `<div class="vj-card-section"><div class="vj-card-section-head">Arc since prior vault</div><div class="vj-card-body">${renderMarkdownLite(r.arc)}</div></div>` : ''}
+        ${r.boot ? `<div class="vj-card-section"><div class="vj-card-section-head">Boot instructions</div><div class="vj-card-body">${renderMarkdownLite(r.boot)}</div></div>` : ''}
+      `;
+      panel.appendChild(card);
+    }
+  }
+
+  function renderJournal(panel, records) {
+    for (const r of records) {
+      const card = document.createElement('section');
+      card.className = 'vj-card';
+      card.innerHTML = `
+        <div class="vj-card-head"><span class="vj-version-badge">v${escapeHtml(r.version || '—')}</span><span>${escapeHtml(r.file)}${r.is_hdr ? ' · HDR #' + r.hdr_index : ''}</span></div>
+        <div class="vj-card-title">${escapeHtml(r.title || '')}</div>
+        <div class="vj-card-body">${renderMarkdownLite(r.body || '')}</div>`;
+      panel.appendChild(card);
+    }
+  }
+
+  function renderGenericCards(panel, records) {
+    for (const r of records) {
+      const card = document.createElement('section');
+      card.className = 'vj-card';
+      card.innerHTML = `<pre>${escapeHtml(JSON.stringify(r, null, 2))}</pre>`;
+      panel.appendChild(card);
+    }
+  }
+
+  // ---- Helpers ----
+
+  async function fetchJSON(path) {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error(`fetch ${path} → ${r.status}`);
+    return r.json();
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+  function formatDate(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toISOString().slice(0, 16).replace('T', ' ');
+  }
+  // Tiny Markdown renderer — enough for headings, bold, italic, inline code,
+  // fenced code, bullet lists, hyperlinks. Anything fancier is shown as
+  // escaped plain text.
+  function renderMarkdownLite(md) {
+    let s = escapeHtml(md);
+    s = s.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c}</code></pre>`);
+    s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    s = s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    // Bullet list — convert sequences of `- ` lines to <ul>.
+    s = s.replace(/((?:^|\n)\s*-\s+.+(?:\n\s*-\s+.+)*)/g, (block) => {
+      const items = block.trim().split(/\n\s*-\s+/).filter(Boolean).map((it) => `<li>${it.trim()}</li>`).join('');
+      return `\n<ul>${items}</ul>`;
+    });
+    return s;
+  }
+})();
