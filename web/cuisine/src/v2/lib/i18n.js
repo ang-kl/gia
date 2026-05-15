@@ -51,7 +51,10 @@ const STRINGS = {
   // v0.60.168: FR tightened from 'Animaux acceptés' (literally
   // "accepted") to 'Animaux autorisés' (literally "allowed") so it
   // tracks the EN "Pet allowed" semantically per operator review.
-  'filter.petFriendly':        { en: 'Pet allowed', fr: 'Animaux autorisés' },
+  // v0.60.182: shortened to "Pet" / "Animaux" (was "Pet allowed" /
+  // "Animaux autorisés") — chip promoted to PRIMARY row beside Halal,
+  // so the longer copy ate too much horizontal space on phones.
+  'filter.petFriendly':        { en: 'Pet', fr: 'Animaux' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },

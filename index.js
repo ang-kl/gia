@@ -2211,13 +2211,44 @@ bot.on('location', async (msg) => {
     const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
     const locLang = await resolveLang(redis, msg.chat.id, msg);
+    pending = await consumePendingMeal(redis, msg.chat.id);
+    // v0.60.182 — when there's no pending meal (bare /l → share location
+    // path), the prior "📍 Got your location." was too sparse: operator
+    // reported the share felt like it had failed because nothing
+    // confirmed the address was registered. Now reverse-geocode and
+    // emit a richer confirmation listing the commands unblocked. When
+    // a pending meal IS queued we keep the short generic ack so the
+    // subsequent flow message (ACK_SENSING_VIBE / sub-menu) lands fast.
+    if (!pending) {
+      let placeLine = (Number.isFinite(lat) && Number.isFinite(lng))
+        ? `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        : '';
+      try {
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          const geo = await reverseGeocodeAddress(lat, lng);
+          if (geo?.formatted) {
+            placeLine = geo.name && !geo.formatted.startsWith(geo.name)
+              ? `${geo.name} — ${geo.formatted}`
+              : geo.formatted;
+          }
+        }
+      } catch { /* non-fatal — keep coord placeLine */ }
+      const body = locLang === 'fr'
+        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /hidden, /s, /carpark, /transport._`
+        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /hidden, /s, /carpark, /transport._`;
+      try {
+        await bot.sendMessage(msg.chat.id, body, {
+          parse_mode: 'Markdown',
+          reply_markup: { remove_keyboard: true }
+        });
+      } catch (err) { /* non-fatal */ }
+      return; // location stored; nothing to auto-resume
+    }
     try {
       await bot.sendMessage(msg.chat.id, t('location.got', locLang), {
         reply_markup: { remove_keyboard: true }
       });
     } catch (err) { /* non-fatal */ }
-    pending = await consumePendingMeal(redis, msg.chat.id);
-    if (!pending) return; // location stored; nothing to auto-resume
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       throw new Error('coordinates missing or malformed');
     }
@@ -4624,7 +4655,14 @@ async function sendSearchMethodsFor(chatId, slug, lang = 'en') {
   // Display methods as a compact bulleted list, 3-column-ish layout
   // using plain text (Markdown). Operator can add explainers later.
   const body = methods.map((m) => `• \`${m}\``).join('\n');
-  await safeSend(chatId, header + '\n' + body, {
+  // v0.60.182 footer hint — operator: after a sub-menu pick, encourage
+  // the user to compose richer free-text queries combining a dish + a
+  // cooking method + anything else. Mirrors the help in sendSearchOthersPrompt
+  // but stays inline so the next move is obvious.
+  const footer = lang === 'fr'
+    ? '\n\n💡 _Astuce — combinez pour des recherches plus riches : tapez_ `/s <plat> <méthode> <autre>`'
+    : '\n\n💡 _Tip — combine for richer searches: type_ `/s <dish> <cooking method> <anything>`';
+  await safeSend(chatId, header + '\n' + body + footer, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [[
@@ -4677,7 +4715,11 @@ async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'e
   const otherSortText = lang === 'fr'
     ? (otherSort === 'type' ? '🔀 Trier par type' : '🔀 Trier par nationalité')
     : (otherSort === 'type' ? '🔀 Sort by dish type' : '🔀 Sort by nationality');
-  await safeSend(chatId, header + '\n' + body, {
+  // v0.60.182 footer hint — same composition pointer as the methods drill-down.
+  const footer = lang === 'fr'
+    ? '\n\n💡 _Astuce — combinez pour des recherches plus riches : tapez_ `/s <plat> <méthode> <autre>`'
+    : '\n\n💡 _Tip — combine for richer searches: type_ `/s <dish> <cooking method> <anything>`';
+  await safeSend(chatId, header + '\n' + body + footer, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [
