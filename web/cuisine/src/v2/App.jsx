@@ -555,6 +555,19 @@ export default function App() {
       setError('Location not yet resolved — share a pin via /location and reopen.');
       return;
     }
+    // v0.60.188 — operator: when the previous search returned fewer
+    // than 12 venues, the dedup seen-set has eaten into the next
+    // batch's headroom. Auto-arm `resetSeen: true` on the next 🔍 tap
+    // so the user gets a fresh batch with the same criteria (matches
+    // the "Tap 🔍 to refresh results with same criteria" hint shown
+    // below the result list). Skips when the caller already requested
+    // resetSeen explicitly, or when the result set was zero (the
+    // existing v0.60.157 auto-retry handles that branch), or when the
+    // exhausted-note path is already armed (its ↺ Start-over button
+    // is the user's affordance there).
+    const autoResetOnLowCount = (opts?.resetSeen !== true)
+      && Array.isArray(venues) && venues.length > 0 && venues.length < 12
+      && !exhaustedNote;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
@@ -562,7 +575,7 @@ export default function App() {
         cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
-        resetSeen: opts?.resetSeen === true,              // v0.60.117 — ↺ Start over
+        resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined  // v0.60.126 — Tell-me box as a qualifier
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
@@ -1276,6 +1289,20 @@ export default function App() {
             with resetSeen so the server wipes the exclusion + variant
             index and the first ~60 come back). Cleared on the next
             non-exhausted search. */}
+        {/* v0.60.188 — low-result refresh hint. When the result list
+            has venues but fewer than 12, the seen-set is close to
+            exhaustion for this criteria; tell the user that the next
+            🔍 tap will refresh the batch with the same criteria.
+            runSearch detects the same condition and auto-arms
+            resetSeen on the next call. Suppressed when exhaustedNote
+            (≤2 venues) is already showing its own ↺ Start-over CTA. */}
+        {!exhaustedNote && !loading && venues.length > 0 && venues.length < 12 && (
+          <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
+            {lang === 'fr'
+              ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir les résultats avec les mêmes critères.`
+              : `${venues.length} result${venues.length === 1 ? '' : 's'} for these criteria. Tap 🔍 to refresh results with same criteria.`}
+          </div>
+        )}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {sessionFull
