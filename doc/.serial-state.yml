@@ -1,8 +1,8 @@
 counters:
-  commit: 152
+  commit: 153
   build: 0
   documents:
-    journal: 145
+    journal: 146
     builder: 0
     persona: 1
     feature: 36
@@ -11,11 +11,11 @@ counters:
     register: 112
 sessions:
   current_chat_id: 2026-05-15
-  current_chat_counter: 10
-last_anchor_time: 15-05 '26 09:35 SGT
-last_anchor_source: claude_v0_60_178_vibe_journal_sidebar_nav_plus_mobile_drawer
-last_anchor_iso8601: 2026-05-15T09:35:00+08:00
-last_anchor_utc: 2026-05-15T01:35:00Z
+  current_chat_counter: 11
+last_anchor_time: 15-05 '26 10:05 SGT
+last_anchor_source: claude_v0_60_179_petfriendly_strict_no_text_fallback
+last_anchor_iso8601: 2026-05-15T10:05:00+08:00
+last_anchor_utc: 2026-05-15T02:05:00Z
 # The v0.60.165 vault snapshot PR #408 was closed without merging
 # because v0.60.166 (PR #409) merged into main while #408 was still
 # draft, leaving the captured state one version behind. Operator:
