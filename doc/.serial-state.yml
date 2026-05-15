@@ -1,21 +1,21 @@
 counters:
-  commit: 161
+  commit: 162
   build: 0
   documents:
-    journal: 154
+    journal: 155
     builder: 0
     persona: 1
-    feature: 41
+    feature: 42
     technical: 38
     legal: 6
     register: 112
 sessions:
   current_chat_id: 2026-05-15
-  current_chat_counter: 19
-last_anchor_time: 15-05 '26 13:05 SGT
-last_anchor_source: claude_v0_60_187_michelin_dedup_key_on_happy_path
-last_anchor_iso8601: 2026-05-15T13:05:00+08:00
-last_anchor_utc: 2026-05-15T05:05:00Z
+  current_chat_counter: 20
+last_anchor_time: 15-05 '26 13:30 SGT
+last_anchor_source: claude_v0_60_188_pricerow_chips_and_lt12_refresh_hint
+last_anchor_iso8601: 2026-05-15T13:30:00+08:00
+last_anchor_utc: 2026-05-15T05:30:00Z
 # The v0.60.165 vault snapshot PR #408 was closed without merging
 # because v0.60.166 (PR #409) merged into main while #408 was still
 # draft, leaving the captured state one version behind. Operator:

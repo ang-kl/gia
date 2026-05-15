@@ -38,7 +38,6 @@ function Chip({ active, onClick, children, ariaLabel }) {
 
 export default function QuickFilters({ filters, onChange }) {
   const [lang] = useLocale();
-  const [priceOpen, setPriceOpen] = useState(false);
   const [moreOpen, setFiltersOpen] = useState(false);
 
   function toggle(key) { onChange({ ...filters, [key]: !filters[key] }); }
@@ -47,15 +46,15 @@ export default function QuickFilters({ filters, onChange }) {
     onChange({ ...filters, prices: has ? filters.prices.filter((x) => x !== p) : [...(filters.prices || []), p] });
   }
 
-  function openPrice() { setPriceOpen((o) => !o); setFiltersOpen(false); }
-  function openFilters()  { setFiltersOpen((o) => !o);  setPriceOpen(false); }
+  function openFilters()  { setFiltersOpen((o) => !o); }
 
   const overflowActiveCount = OVERFLOW.filter((f) => !!filters[f.key]).length;
   const selectedPrices = filters.prices || [];
-  const priceLabel = selectedPrices.length ? selectedPrices.join(' ') : tr('filter.price', lang);
-  // 'New' as a heading-style label gets a short form; the i18n table's
-  // 'filter.newlyOpened' is "Newly opened" / "Récemment ouvert" — too
-  // wide for a chip. We special-case "New" / "Nouv." inline here.
+  // v0.60.182 → v0.60.188 — chip labels resolve through i18n.t() per
+  // active locale. 'New' as a heading-style label gets a short form;
+  // the i18n table's 'filter.newlyOpened' is "Newly opened" /
+  // "Récemment ouvert" — too wide for a chip. We special-case "New" /
+  // "Nouv." inline here.
   const labelFor = (key, fallbackI18nKey) => {
     if (key === 'newlyOpened') return lang === 'fr' ? 'Nouv.' : 'New';
     return tr(fallbackI18nKey, lang);
@@ -79,28 +78,24 @@ export default function QuickFilters({ filters, onChange }) {
         </Chip>
       </div>
       {moreOpen && (
-        <div className="flex flex-col gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
-          <div className="flex flex-wrap gap-1.5 items-center">
-            {OVERFLOW.map((f) => (
-              <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
-                ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-                <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
-              </Chip>
-            ))}
-            <Chip active={selectedPrices.length > 0 || priceOpen} onClick={openPrice}
-              ariaLabel={priceOpen ? tr('filter.closePrice', lang) : tr('filter.openPrice', lang)}>
-              <span className="mr-0.5" aria-hidden>💲</span>{priceLabel}
-              <span className="ml-1" aria-hidden>{priceOpen ? '▴' : '▾'}</span>
+        // v0.60.188 — operator: the previous "💲 Price ▾" dropdown
+        // (v0.60.182) was unclickable inside the overflow popover
+        // because `openPrice()` invoked `setFiltersOpen(false)`, which
+        // closed the parent container that held the chip. Replaced
+        // with three direct `$`, `$$`, `$$$` toggle chips inline with
+        // the other overflow filters — no popover-in-popover, each
+        // tier toggles immediately on tap.
+        <div className="flex flex-wrap gap-1.5 items-center px-2 py-2 rounded-md border border-tg-border bg-tg-card">
+          {OVERFLOW.map((f) => (
+            <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
+              ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
+              <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
             </Chip>
-          </div>
-          {priceOpen && (
-            <div className="flex flex-wrap gap-1.5">
-              {PRICES.map((p) => (
-                <Chip key={p} active={selectedPrices.includes(p)} onClick={() => togglePrice(p)}
-                  ariaLabel={`${tr('filter.price', lang)} ${p}`}>{p}</Chip>
-              ))}
-            </div>
-          )}
+          ))}
+          {PRICES.map((p) => (
+            <Chip key={p} active={selectedPrices.includes(p)} onClick={() => togglePrice(p)}
+              ariaLabel={`${tr('filter.price', lang)} ${p}`}>{p}</Chip>
+          ))}
         </div>
       )}
     </div>
