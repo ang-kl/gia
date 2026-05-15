@@ -6307,7 +6307,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         ? humaniseRestaurantType(entry.michelinCuisineLabel, '')
         : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType),
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true
+      michelinHalal: entry.halal === true,
+      // v0.60.187 — same dedup-key as the fallback branch below. The
+      // v0.60.162 patch attached this to the FALLBACK (placesData ===
+      // falsy) branch only; the HAPPY path was missing it, so
+      // `postFilterDedupKeys.filter(Boolean)` at the bottom of the
+      // handler dropped every successfully-resolved venue → seen-set
+      // never grew → consecutive 🔍 taps returned the same first 12
+      // forever (operator-reported "Michelin listing cannot refresh
+      // next 12 again", DF-80). Format must mirror the candidate
+      // filter at line ~6125 so set membership lines up.
+      michelinDedupKey: `${entry.name}|${entry.address || ''}`.toLowerCase()
     } : {
       // Places lookup failed — return curated entry only.
       placeId: '',
