@@ -211,8 +211,13 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
           const emoji = LINE_EMOJI[ln] || '⬜';
           return `${emoji} ${escapeHtml(c)}`;
         }).join(' · ');
-        const futureLine = isFuture && s.opensYear
-          ? `<br><em style="color:#9CA3AF">Opens ${escapeHtml(String(s.opensYear))}</em>`
+        // v0.60.207 — prefer an exact opening date when the station
+        // record carries one (CCL6 stage: Keppel / Cantonment / Prince
+        // Edward Road → "12 July 2026"); else fall back to the bare
+        // year. The popup is English-only by existing panel design.
+        const opensWhen = s.opensDate || (s.opensYear != null ? String(s.opensYear) : '');
+        const futureLine = isFuture && opensWhen
+          ? `<br><em style="color:#9CA3AF">Opens ${escapeHtml(opensWhen)}</em>`
           : '';
         // v0.60.99 — per-station train status block. For each line
         // the station serves, look up statusByLine (from /api/
@@ -230,7 +235,12 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
             }).join('<br>')
           : '';
         const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">Open 📍 in a map ↗</a>`;
-        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
+        // v0.60.207 — explicit dark text colour. The Google Maps
+        // InfoWindow bubble is always white, but Telegram's dark-mode
+        // theme can cascade a light body colour into it, rendering the
+        // text near-invisible (operator screenshot). Pin #1c1c1f so the
+        // popup is legible in both light and dark Telegram themes.
+        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
         infoWindowRef.current?.setContent(html);
         infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
       });

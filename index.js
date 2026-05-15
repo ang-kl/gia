@@ -11059,7 +11059,13 @@ async function cacheBotUsername() {
             codes: Array.isArray(v.codes) ? v.codes : [],
             lines: Array.isArray(v.lines) ? v.lines : [],
             status: v.status === 'future' ? 'future' : 'operational',
-            opensYear: Number.isFinite(v.opensYear) ? v.opensYear : null
+            opensYear: Number.isFinite(v.opensYear) ? v.opensYear : null,
+            // v0.60.207 — optional exact opening date (per locale) for
+            // stations with a confirmed date (e.g. CCL6 stage: Keppel /
+            // Cantonment / Prince Edward Road, 12 July 2026). When
+            // absent the TMA popup falls back to the bare opensYear.
+            opensDate: typeof v.opensDate === 'string' ? v.opensDate : null,
+            opensDateFr: typeof v.opensDateFr === 'string' ? v.opensDateFr : null
           }))
           .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng));
       } catch (err) {
