@@ -41,7 +41,11 @@ describe('formatVenueBlock — T1 detail-with-sanctuary', () => {
     expect(out).toContain('📞 +65 6555 1234');
     expect(out).toContain('🌿 Sanctuary read for Lazy Lizard');
     expect(out).toContain('• Quiet: yes');
-    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet');
+    // v0.60.183 — priceLevel ($$) moved out of the stats row onto a
+    // dedicated price-pet line (renders empty in this fixture because
+    // priceRangeDisplay isn't pre-resolved). Stats row is now
+    // rating · crowd · [distance].
+    expect(out).toContain('🌟4.5 • 🟢 quiet');
     expect(out).not.toContain('km');     // T1 omits distance
     expect(out).not.toContain('1240');
     expect(out).toContain('🧾 Truffle Risotto · Carbonara · Tiramisu');
@@ -58,7 +62,8 @@ describe('formatVenueBlock — T2 detail (no sanctuary, with distance)', () => {
     expect(out).toContain('🌐 https://lazylizard.sg');
     expect(out).toContain('📞 +65 6555 1234');
     expect(out).not.toContain('🌿 Sanctuary read');
-    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet • 1.24 km');
+    // v0.60.183 — priceLevel removed from stats row (see T1 note).
+    expect(out).toContain('🌟4.5 • 🟢 quiet • 1.24 km');
     expect(out).toContain('🧾');
     expect(out).toContain('📍');
   });
@@ -84,7 +89,8 @@ describe('formatVenueBlock — T3 compact', () => {
     expect(out).not.toContain('📞');
     expect(out).not.toContain('🌿');
     expect(out).not.toContain('🧾');
-    expect(out).toContain('🌟4.5 • $$ • 🟢 quiet • 1.24 km');
+    // v0.60.183 — priceLevel removed from stats row.
+    expect(out).toContain('🌟4.5 • 🟢 quiet • 1.24 km');
     expect(out).toContain('📍');
   });
 });

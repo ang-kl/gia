@@ -94,7 +94,23 @@ export default function ResultPanel({
         distanceM: v.distanceM,
         transitMinutes: v.transitMinutes,
         driveMinutes: v.driveMinutes,
-        url: v.url
+        url: v.url,
+        // v0.60.183 — fields needed for the new venue-card lines:
+        //   restaurantType        → 🍽️ row under venue name (was being
+        //                            dropped from Copy-All, hence the
+        //                            cuisine-nationality label missing
+        //                            from pasted output despite being
+        //                            visible on the TMA card itself).
+        //   allowsDogs            → 🐾 segment on the new price-pet line.
+        //   priceRangeDisplay     → pre-resolved "S$25–40 (US$18.50–29.60)"
+        //                            string from the search response.
+        //   michelinCategory / Name → preserved through to the Michelin
+        //                            annotation row in formatVenueBlock.
+        restaurantType: v.restaurantType,
+        allowsDogs: v.allowsDogs,
+        priceRangeDisplay: v.priceRangeDisplay,
+        michelinCategory: v.michelinCategory,
+        michelinName: v.michelinName
       }));
       // v0.58.55: pass active TMA locale so the server's
       // formatVenueBlock can render French static labels.
