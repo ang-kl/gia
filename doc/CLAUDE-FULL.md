@@ -980,19 +980,22 @@ When a refactor is risky (mass file rename, framework migration, security gate a
 ### 18.1 Tab layout (canonical 5-row spec)
 
 ```
-Row 1:  PR        | Register   | 3rd Party
-Row 2:  Technical | Feature
-Row 3:  Legal     | Vault
+Row 1:  📊 Dashboard | PR        | Register   | 3rd Party
+Row 2:  Technical    | Feature
+Row 3:  Legal        | Vault
 Row 4:  Journal
-Row 5:  Builder   | Persona
+Row 5:  Builder      | Persona
 ```
 
 The `|` separators are visible in the rendered nav (per operator request). Each tab badges its record count alongside the label.
+
+**v0.0.4 amendment (Soleat v0.60.186, PR #435).** The original layout (above, before this amendment) was a 5-row / 9-tab spec; **📊 Dashboard** was added as the FIRST chip in row 1 to restore the 10 insight panels + Lessons block from the legacy `doc/VibeCodingRecord/generate.mjs` output without losing the v0.60.180 rich PR cards. Dashboard re-uses the PR record set (no separate parser); the renderer enriches each row client-side with category / area / version / day / module-buckets / rework-of and renders the panels described in §18.2 below.
 
 ### 18.2 Data source per tab
 
 | Tab | Source | Renderer behaviour |
 |---|---|---|
+| 📊 Dashboard | re-uses the PR record set (no separate parser); enriched client-side with category / area / version / day / module-buckets / rework-of | 6 KPI cards + 10 `<details>` insight panels (Likely rework · Churn by feature · Churn by module · PRs per release · Category mix · 📈 PRs over time · 🪶 Small/low-effort · 🔁 Indecision · 🧠 Behavioural patterns · 🧩 Hard parts) + 9-entry 📚 Lessons list distilled from `.claude/skills/gia-preflight/SKILL.md` |
 | PR | `doc/VibeCodingRecord/data/prs.ndjson` → `gh` CLI → `git log` (priority order) | table: # / title / state / author / merged-or-updated / files |
 | Register | latest `doc/Register/register-*.md` | latest only; each `##` section as a card |
 | 3rd Party | `doc/third-party.yaml` (§16.2) + optional GitHub issues via `gh` | tables: APIs / Integrations / Issues |
