@@ -76,8 +76,10 @@ function formatStatsLine(p, opts = {}) {
   if (Number.isFinite(p.rating)) {
     parts.push(`🌟${p.rating.toFixed(1)}`); // rating only, no count
   }
-  const price = PRICE_LABEL[p.priceLevel];
-  if (price) parts.push(price);
+  // v0.60.183 — priceLevel ($/$$/$$$/$$$$) removed from the stats row.
+  // It now lives on its own line via formatPriceAndPetLine (which also
+  // carries the numeric price range and the 🐾 Pet-allowed flag) just
+  // above the 🚊/🚘 travel row.
   // v0.58.55: localised crowd label via crowdLabel(level, lang).
   const crowd = crowdLabel(p.crowdLevel, lang);
   if (crowd) parts.push(crowd);
@@ -89,6 +91,33 @@ function formatStatsLine(p, opts = {}) {
   // v0.59.28: dropped the leading ✨ (it duplicated ⭐ visually). The
   // rating glyph itself acts as the "stats" cue.
   return parts.length ? parts.join(' • ') : '';
+}
+
+// v0.60.183 — price-range + pet-allowed line inserted BEFORE the
+// travel-time row. Renders the venue-currency numeric range with the
+// operator-specified country prefix ("S$25–40" / "M$50–80" / "¥1500–2500"
+// / …) and appends a user-currency conversion in parens when the
+// venue's country differs from the user's. The 🐾 segment shows when
+// the venue's allowsDogs attribute is true.
+//
+// Inputs read from the venue object:
+//   p.priceRangeDisplay  — pre-resolved string from currency-format
+//                          (e.g. "S$25–40" or "S$25–40 (US$18.50–29.60)").
+//                          Pre-resolution keeps formatVenueBlock sync.
+//                          When absent, the price segment is omitted.
+//   p.allowsDogs         — boolean from pipeline (v0.60.165).
+//
+// Returns the formatted line ('S$25–40 · 🐾 Pet allowed' / FR equiv.)
+// or null when neither segment contributes. The caller decides whether
+// to push.
+function formatPriceAndPetLine(p, opts = {}) {
+  const { lang = 'en' } = opts;
+  const segments = [];
+  if (p && p.priceRangeDisplay) segments.push(p.priceRangeDisplay);
+  if (p && p.allowsDogs === true) {
+    segments.push(lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed');
+  }
+  return segments.length ? segments.join(' · ') : null;
 }
 
 // Format the 🧾 order line — top dishes (capped at 3).
@@ -193,6 +222,13 @@ function formatVenueBlock(p, opts = {}) {
   // deliverSurprise) via weather.attachRainAlerts; absent on indoor
   // picks and whenever the 2h outlook is fair, so it never spams.
   if (typeof p.rainAlert === 'string' && p.rainAlert.trim()) lines.push(p.rainAlert.trim());
+  // v0.60.183 — price-range + 🐾 Pet line above travel-time. Sits
+  // between the stats row and the 🚊/🚘 row so the user sees cost +
+  // pet-policy before "how do I get there". Skipped silently when
+  // neither field is set on the venue (most Places-API results in JB
+  // / non-SG lack priceRange; pet flag is sparse).
+  const ppLine = formatPriceAndPetLine(p, { lang });
+  if (ppLine) lines.push(ppLine);
   // v0.58.52: travel-time row immediately above Maps URL — applies to
   // ALL three variants (T1/T2/T3) per Human Lead. Skipped silently
   // when Routes API didn't populate either transitMinutes or
@@ -208,6 +244,7 @@ module.exports = {
   formatVenueBlock,
   formatHoursLine,
   formatStatsLine,
+  formatPriceAndPetLine,
   formatOrderLine,
   formatMapsLine,
   formatTravelLine,

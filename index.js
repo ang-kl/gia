@@ -231,6 +231,61 @@ async function reverseGeocodeAddress(lat, lng) {
   }
 }
 
+// v0.60.183 — resolve the user's ISO-3166 country code, cached for 30
+// days at `user:<chatId>:country`. Drives the venue-card price-range
+// conversion-in-parens (only emitted when user country ≠ venue country
+// per operator spec). On cache miss, reverse-geocodes the user's
+// cached share-pin location with result_type=country to find the home
+// country; defaults to 'SG' when no signal is available (matches the
+// app's home market).
+async function resolveUserCountry(chatId) {
+  if (!chatId) return 'SG';
+  const key = `user:${chatId}:country`;
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(key);
+      if (cached && /^[A-Z]{2}$/.test(cached)) return cached;
+    }
+  } catch { /* cache miss is non-fatal */ }
+  try {
+    const loc = await getUserLocation(redis, chatId);
+    if (loc?.lat && loc?.lng) {
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (apiKey) {
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&result_type=country&key=${apiKey}`;
+        const { data } = await axios.get(url, { timeout: 5000 });
+        const r = data?.results?.[0];
+        const comp = r?.address_components?.find((c) => c.types?.includes('country'));
+        const code = comp?.short_name;
+        if (code && /^[A-Z]{2}$/.test(code)) {
+          try { if (redis.isOpen) await redis.set(key, code, { EX: 30 * 24 * 60 * 60 }); } catch { /* noop */ }
+          return code;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[resolveUserCountry] reverse-geocode failed:', err.message);
+  }
+  return 'SG';
+}
+
+// v0.60.183 — venue-card price-range display pre-resolver. Computes
+// venue.priceRangeDisplay = "S$25–40" or "S$25–40 (US$18.50–29.60)"
+// per the operator spec. Called at every search-path enrichment site
+// (alongside enrichTravelTimes) so formatVenueBlock + formatTechniqueVenueBlock
+// stay synchronous downstream.
+async function enrichPriceRangeDisplay(chatId, venues) {
+  if (!Array.isArray(venues) || !venues.length) return;
+  const cf = require('./currency-format');
+  const userCountry = await resolveUserCountry(chatId);
+  await Promise.all(venues.map(async (v) => {
+    try {
+      const display = await cf.formatPriceRangeForVenue(v.priceRange, v.country, userCountry, redis);
+      if (display) v.priceRangeDisplay = display;
+    } catch { /* per-venue failure is non-fatal — card just omits the line */ }
+  }));
+}
+
 // v0.59.31 — forward geocode + validation for /hidden free-text mode.
 // Per Human Lead 2026-05-07: when user types `/hidden Tanjong Pagar
 // MRT`, we need to validate the text resolves to a real
@@ -5000,6 +5055,9 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     } catch (err) {
       console.warn('[Search] enrichTravelTimes failed:', err.message);
     }
+    try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
+      console.warn('[Search] enrichPriceRangeDisplay failed:', err.message);
+    }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
       await attachFootfallSignals(redis, venues);
@@ -5251,6 +5309,11 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   const vt = require('./venue-templates');
   const lines = [];
   lines.push(`${number}. <b>${vt.escapeHtmlForTelegram(venue.name)}</b>`);
+  // v0.60.183 — restaurant-type label below the bold name. Mirrors
+  // formatVenueBlock at venue-templates.js:191 (the gap that caused /s
+  // results to omit the cuisine-nation chip even though the field was
+  // present on the venue object).
+  if (venue.restaurantType) lines.push(`🍽️ ${vt.escapeHtmlForTelegram(venue.restaurantType)}`);
   if (venue.area) lines.push(`📇 ${vt.escapeHtmlForTelegram(venue.area)}`);
   const hours = vt.formatHoursLine(venue, lang);
   if (hours) lines.push(hours);
@@ -5261,6 +5324,11 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   if (stats) lines.push(stats);
   const footfall = vt.formatFootfallLine(venue, lang);
   if (footfall) lines.push(footfall);
+  // v0.60.183 — price-range + 🐾 Pet line above travel-time. Same
+  // helper as formatVenueBlock; relies on pre-resolved
+  // venue.priceRangeDisplay + venue.allowsDogs.
+  const pp = vt.formatPriceAndPetLine(venue, { lang });
+  if (pp) lines.push(pp);
   // 🚊 / 🚘 row populated by enrichTravelTimes.
   const travel = vt.formatTravelLine(venue);
   if (travel) lines.push(travel);
@@ -5504,6 +5572,9 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
       } catch (err) {
         console.warn('[Search-FanOut] enrichTravelTimes failed (continuing without):', err.message);
       }
+      try { await enrichPriceRangeDisplay(chatId, finalVenues); } catch (err) {
+        console.warn('[Search-FanOut] enrichPriceRangeDisplay failed:', err.message);
+      }
       try {
         const { attachFootfallSignals } = require('./footfall-signal');
         await attachFootfallSignals(redis, finalVenues);
@@ -5620,6 +5691,9 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     } catch (err) {
       console.warn('[Nation-Iconic] enrichTravelTimes failed:', err.message);
     }
+    try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
+      console.warn('[Nation-Iconic] enrichPriceRangeDisplay failed:', err.message);
+    }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
       await attachFootfallSignals(redis, venues);
@@ -5735,6 +5809,9 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
       await enrichTravelTimes(center.lat, center.lng, venues);
     } catch (err) {
       console.warn('[Cooking-Method] enrichTravelTimes failed:', err.message);
+    }
+    try { await enrichPriceRangeDisplay(chatId, venues); } catch (err) {
+      console.warn('[Cooking-Method] enrichPriceRangeDisplay failed:', err.message);
     }
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
@@ -10338,6 +10415,10 @@ async function cacheBotUsername() {
           const { enrichTravelTimes } = require('./travel-times');
           await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
         } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
+        // v0.60.183 — venue-card price-range pre-resolution.
+        try { await enrichPriceRangeDisplay(csChatId, top); } catch (err) {
+          console.warn('[Cuisine-Search] enrichPriceRangeDisplay failed:', err.message);
+        }
         // v0.59.0: footfall enrichment (BestTime). Dormant without key.
         try {
           const { attachFootfallSignals } = require('./footfall-signal');
