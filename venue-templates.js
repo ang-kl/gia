@@ -237,6 +237,29 @@ function formatVenueBlock(p, opts = {}) {
   if (travelLine) lines.push(travelLine);
   const mapsLine = formatMapsLine(p, mapsFn);
   if (mapsLine) lines.push(mapsLine);
+  // v0.60.192 — Michelin / Bib Gourmand annotation row appended after
+  // the maps URL. Mirrors the formatTechniqueVenueBlock cross-ref at
+  // index.js:5251 so /eat / /drink / Cuisine TMA Copy-All cards carry
+  // the same "✳️ Michelin · ⭐⭐⭐ · 2025" badge that /s and the chat
+  // /cuisine flow already render. Cross-ref is name-first (then
+  // postal-augmented + token-overlap fuzzy via michelin-2025.js).
+  // When upstream already set venue.michelinCategory (handleMichelinSearch
+  // does), we skip the lookup and use that directly.
+  try {
+    const michelin = require('./michelin-2025');
+    let entry = null;
+    if (p.michelinCategory) {
+      entry = { category: p.michelinCategory, name: p.michelinName || p.name };
+    } else {
+      entry = michelin.findMichelinMatch(p.name, p.area || p.address || '');
+    }
+    if (entry) {
+      const line = michelin.formatMichelinLine(entry);
+      if (line) lines.push(line);
+    }
+  } catch (err) {
+    console.warn('[formatVenueBlock] michelin cross-ref failed:', err.message);
+  }
   return lines.join('\n');
 }
 

@@ -1908,5 +1908,10 @@ module.exports = {
   filterOutDrinks,
   shouldFilterDrinks,
   // v0.59.26 — per-chatId Singaporean dish memory.
-  pickSingaporeanDishesForChat
+  pickSingaporeanDishesForChat,
+  // v0.60.192 — exported for reuse by index.js Michelin path so the
+  // v0.60.183 priceRangeDisplay + country fields populate on Michelin
+  // venues too (Michelin has its own FIELD_MASK + venue construction).
+  normalisePriceRange,
+  extractCountryCode
 };
