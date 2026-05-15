@@ -8347,13 +8347,19 @@ async function cacheBotUsername() {
     // is "here's something to look at while you decide" — clicking the
     // main 🔍 Search button runs the full enrichment pipeline.
     app.post('/api/cuisine/warm-start',
-      // v0.60.173 — DF-54 rate limit on warm-start. v0.60.174 —
-      // operator raised cap 30 → 80/hr/chat. warm-start fires once per
-      // TMA-open; 80 covers "open the TMA every 45 s" cases. Caps
-      // Places spend from runaway-mount bugs at 80 / hr × ~5 internal
-      // Place-Details calls = ~400 Places SKUs / hr / compromised chat
-      // — DF-55 cloud-console budget cap is the catch-all.
-      makeRateLimiter(redis, { endpoint: 'warm-start', cap: 80 }),
+      // v0.60.173/4/5/6 — DF-54 rate limit on warm-start. Cap evolution:
+      //   v0.60.173: 30/hr     (estimated)
+      //   v0.60.174: 80/hr     (operator-supplied)
+      //   v0.60.175: 80/15min  (window shrank 1 hr → 15 min)
+      //   v0.60.176: 200/15min (operator-supplied — closer parity with
+      //                        the other Places endpoints at 500/15min,
+      //                        warm-start kept tighter because each
+      //                        fires ~5 internal Place-Details +
+      //                        Routes-Matrix calls per request).
+      //                        Theoretical per-hr max per chat: 800.
+      //                        DF-55 cloud-console daily quota is the
+      //                        money catch-all.
+      makeRateLimiter(redis, { endpoint: 'warm-start', cap: 200 }),
       async (req, res) => {
       try {
         const { lat, lng, region = 'SG', lang: langIn } = req.body || {};
