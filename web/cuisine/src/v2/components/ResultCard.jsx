@@ -144,6 +144,24 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
+          {/* v0.60.190 — price-range + 🐾 Pet line on the in-app card.
+              Mirrors the v0.60.183 formatPriceAndPetLine in
+              venue-templates.js (Copy-All / /s server-side render).
+              Operator: "Where are the pet-friendly and cost range in
+              the results template in (a) Cuisine TMA results …" — they
+              shipped in the response payload but the React card never
+              rendered them. priceRangeDisplay is the pre-resolved
+              "S$25–40 (US$18.50–29.60)" string; allowsDogs is the
+              Places New API boolean attribute. Either-or; line
+              suppressed when neither is set. */}
+          {(venue.priceRangeDisplay || venue.allowsDogs === true) && (
+            <div className="text-[11px] text-tg-text/80 truncate mt-0.5">
+              {[
+                venue.priceRangeDisplay,
+                venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed')
+              ].filter(Boolean).join(' · ')}
+            </div>
+          )}
           {/* v0.59.23: primary "What to order" line — LLM-picked
               signature dish if present (rankAndNarrate path), else
               fall back to the first reviewer-extracted dish from

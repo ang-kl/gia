@@ -132,6 +132,14 @@ export default function App() {
   // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.60.191 — sticky flag: did the last server response come back
+  // as the planned 6-venue first batch? Used to suppress the v0.60.188
+  // <12 auto-reset (which would otherwise loop 6 venues forever — see
+  // Codex review on PR #440). The flag flips to false on the first
+  // 12-venue follow-up; ↺ Start over wipes the seen-set server-side,
+  // which makes the next response firstBatch=true again, so this
+  // resets to true via the normal setFirstBatch(p.firstBatch) call.
+  const [firstBatch, setFirstBatch] = useState(false);
   // v0.60.157 — zero-results auto-retry guard + CTA flag. When a search
   // returns `venues.length === 0`, runSearch fires exactly one silent
   // retry with `resetSeen: true` (covers the common case where the
@@ -188,6 +196,7 @@ export default function App() {
     setPageStackDepth(Number.isFinite(p.pageStackDepth) ? p.pageStackDepth : 0);
     setMichelinRemaining(p.michelinRemaining || null);
     setExhaustedNote(!!p.exhausted);
+    setFirstBatch(!!p.firstBatch);              // v0.60.191
     setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
     // v0.60.154 — also restore the criteria, free-text and search
     // anchor that produced this page (Codex review on PR #395:
@@ -565,8 +574,18 @@ export default function App() {
     // existing v0.60.157 auto-retry handles that branch), or when the
     // exhausted-note path is already armed (its ↺ Start-over button
     // is the user's affordance there).
+    //
+    // v0.60.191 — Codex interaction fix: the threshold must follow the
+    // server's intended slice size, NOT a hardcoded 12. When the prior
+    // response was a planned 6-venue first batch (`firstBatch: true`),
+    // hitting "venues.length < 12" would loop: tap 2 fires
+    // resetSeen=true → server wipes seen → next slice is firstBatch=6
+    // again → loop. Use 6 as the threshold while firstBatch is sticky,
+    // 12 otherwise. The follow-up batch flips firstBatch=false on
+    // arrival, restoring the original v0.60.188 behaviour.
+    const lowCountThreshold = firstBatch ? 6 : 12;
     const autoResetOnLowCount = (opts?.resetSeen !== true)
-      && Array.isArray(venues) && venues.length > 0 && venues.length < 12
+      && Array.isArray(venues) && venues.length > 0 && venues.length < lowCountThreshold
       && !exhaustedNote;
     setLoading(true); setError(null);
     try {
@@ -653,6 +672,7 @@ export default function App() {
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
+      setFirstBatch(r?.firstBatch === true);    // v0.60.191
       setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
       // v0.60.146 — per-session clipboard signal carried by every
       // /api/cuisine/search response.
@@ -1295,8 +1315,12 @@ export default function App() {
             🔍 tap will refresh the batch with the same criteria.
             runSearch detects the same condition and auto-arms
             resetSeen on the next call. Suppressed when exhaustedNote
-            (≤2 venues) is already showing its own ↺ Start-over CTA. */}
-        {!exhaustedNote && !loading && venues.length > 0 && venues.length < 12 && (
+            (≤2 venues) is already showing its own ↺ Start-over CTA.
+            v0.60.191 — Codex fix: the threshold follows the server's
+            intended slice (6 on a firstBatch response, 12 otherwise)
+            so the planned 6-venue first batch doesn't trigger this
+            hint (and the matching auto-reset). See runSearch comment. */}
+        {!exhaustedNote && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {lang === 'fr'
               ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir les résultats avec les mêmes critères.`

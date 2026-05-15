@@ -10317,7 +10317,28 @@ async function cacheBotUsername() {
         // response is `{ venues: [], exhausted: true }` and the client
         // surfaces the terminal "↺ Start over" / "you've seen the 80
         // maximum" copy.
-        const top = trulyUnseen.slice(0, 12);
+        // v0.60.191 — operator: the first 🔍 tap loads 6 venues, not
+        // 12, to halve travel-times + footfall enrichment latency on
+        // initial render. "First tap" = empty seen-set for this chat ×
+        // criteriaHash pair. Subsequent taps (or post-resetSeen retap)
+        // restore the 12-cap so the per-criteria walk-through still
+        // hits the full pool in ~11 pages.
+        //
+        // v0.60.191 — Codex interaction fix: the v0.60.188 client-side
+        // autoResetOnLowCount (`venues.length < 12 && !exhaustedNote`
+        // → next tap fires resetSeen=true) would loop a 6-venue first
+        // batch forever — after tap 1 the TMA sees 6 < 12, arms
+        // resetSeen, sends it on tap 2, server wipes seen back to 0 →
+        // sliceCap=6 again. The response now ships `firstBatch: bool`
+        // so the TMA can suppress the auto-reset (and the matching
+        // visible hint) when the previous response was a planned
+        // 6-venue first batch.
+        const FIRST_TAP_SLICE = 6;
+        const FOLLOW_UP_SLICE = 12;
+        const isFirstBatch = (seen.size === 0);
+        const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
+        const top = trulyUnseen.slice(0, sliceCap);
+        console.log(`[Cuisine-Search] sliceCap=${sliceCap} firstBatch=${isFirstBatch} seenBefore=${seen.size} hash=${String(dedupHash || '').slice(0, 8)}`);
         const poolCount = new Set([...seen, ...top.map((v) => v.placeId).filter(Boolean)]).size;
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
@@ -10523,7 +10544,7 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-Search] michelin annotation failed:', err.message); }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         if (ftRawIn) {
           try {
             require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {
