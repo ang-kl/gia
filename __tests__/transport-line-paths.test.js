@@ -6,7 +6,7 @@
 // root (node-environment) Vitest can exercise it directly.
 
 import { describe, it, expect } from 'vitest';
-import { buildLinePaths } from '../web/transport/src/data/line-paths.js';
+import { buildLinePaths, resolveLinePaths } from '../web/transport/src/data/line-paths.js';
 
 const STATIONS = [
   { name: 'Jurong East',    lat: 1.3329, lng: 103.7421, codes: ['NS1', 'EW24'], lines: ['NSL', 'EWL'], status: 'operational' },
@@ -88,5 +88,37 @@ describe('buildLinePaths — future lines & edge cases', () => {
       { name: 'Ok2', lat: 1.30, lng: 103.30, codes: ['NS3'] }
     ]);
     expect(paths.NSL[0]).toHaveLength(2);
+  });
+});
+
+describe('resolveLinePaths — fetched-vs-derived selection (Build E 5e)', () => {
+  const FETCHED = {
+    _meta: { source: 'data.gov.sg' },
+    NSL: [[{ lat: 1.1, lng: 103.1 }, { lat: 1.2, lng: 103.2 }]]
+  };
+
+  it('uses the fetched LTA geometry when present and well-formed', () => {
+    const paths = resolveLinePaths(FETCHED, STATIONS);
+    expect(paths.NSL).toEqual(FETCHED.NSL);
+    expect(paths._meta).toBeUndefined();   // _meta is stripped
+  });
+
+  it('falls back to buildLinePaths when fetched is null', () => {
+    expect(resolveLinePaths(null, STATIONS)).toEqual(buildLinePaths(STATIONS));
+  });
+
+  it('falls back when fetched has no usable segments', () => {
+    const empty = { _meta: {}, NSL: [], EWL: [[{ lat: 1, lng: 103 }]] };  // too-short seg
+    expect(resolveLinePaths(empty, STATIONS)).toEqual(buildLinePaths(STATIONS));
+  });
+
+  it('drops malformed segments but keeps valid lines', () => {
+    const mixed = {
+      NSL: [[{ lat: 1.1, lng: 103.1 }, { lat: 1.2, lng: 103.2 }]],
+      EWL: [[{ lat: NaN, lng: 103.1 }, { lat: 1.2, lng: 103.2 }]]   // non-finite point
+    };
+    const paths = resolveLinePaths(mixed, STATIONS);
+    expect(paths.NSL).toHaveLength(1);
+    expect(paths.EWL).toBeUndefined();
   });
 });

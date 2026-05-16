@@ -29,7 +29,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
-import { buildLinePaths } from '../data/line-paths.js';
+import { resolveLinePaths } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -92,6 +92,9 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
+  // v0.60.232 (Build E 5e) — real LTA route geometry from
+  // /api/transport/line-paths; null until fetched / when no data file.
+  const linePathsRef = useRef(null);
   // v0.60.87 — capture the registered Map ID from /maps-key so the
   // Map constructor uses the operator's MAP_ID env var when set
   // (custom vector styling + branding), falling back to Google's
@@ -100,6 +103,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   const mapIdRef = useRef('DEMO_MAP_ID');
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
   const [stations, setStations] = useState(null);
+  const [linePaths, setLinePaths] = useState(null);
   const [err, setErr] = useState(null);
 
   // Fetch stations once.
@@ -112,6 +116,23 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         setStations(Array.isArray(d?.stations) ? d.stations : []);
       })
       .catch((e) => { if (!cancelled) setErr(e.message); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // v0.60.232 — fetch the real LTA route geometry once. Best-effort:
+  // any failure leaves linePaths null and renderPolylines falls back
+  // to the station-code-derived polylines (buildLinePaths).
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/transport/line-paths')
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((d) => {
+        if (cancelled) return;
+        const paths = d && typeof d.paths === 'object' ? d.paths : null;
+        linePathsRef.current = paths;
+        setLinePaths(paths);
+      })
+      .catch(() => { /* fallback geometry is used */ });
     return () => { cancelled = true; };
   }, []);
 
@@ -174,7 +195,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, mapsKeyState, focusedCode, lang]);
+  }, [stations, linePaths, mapsKeyState, focusedCode, lang]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -199,15 +220,16 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   }
 
   // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
-  // beneath the station dots. Geometry comes from buildLinePaths,
-  // which orders stations by their codes. When a line is focused
-  // only that line's polyline is drawn (heavier weight); tapping any
-  // polyline focuses that line via onLineSelect.
+  // beneath the station dots. v0.60.232 (Build E 5e) — geometry is the
+  // real LTA route shape from /api/transport/line-paths when available,
+  // else the station-code-derived polylines (resolveLinePaths picks).
+  // When a line is focused only that line's polyline is drawn (heavier
+  // weight); tapping any polyline focuses that line via onLineSelect.
   function renderPolylines(list) {
     if (!window.google?.maps?.Polyline) return;
     for (const p of polylinesRef.current) p.setMap(null);
     polylinesRef.current = [];
-    const paths = buildLinePaths(list);
+    const paths = resolveLinePaths(linePathsRef.current, list);
     for (const [lineCode, segments] of Object.entries(paths)) {
       if (focusedCode && lineCode !== focusedCode) continue;
       const meta = LINES_BY_CODE[lineCode];
