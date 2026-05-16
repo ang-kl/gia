@@ -43,6 +43,10 @@ const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
 const { findHiddenSanctuary } = require('./consultant');
 const { runHealthCheck } = require('./ver');
+// v0.60.209 — shared dish-name guard. Single source of truth for the
+// "is this a real dish/dessert name?" criteria behind every "Try"
+// line (Cuisine TMA, Copy, Copy to, /s, free-text).
+const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE } = require('./dish-name');
 const weather = require('./weather');
 const carpark = require('./carpark');
 const transport = require('./transport');
@@ -5422,7 +5426,9 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   const travel = vt.formatTravelLine(venue);
   if (travel) lines.push(travel);
   // 🍽️ Try the [dish] — [orderTip from Gemini grounded].
-  if (dishPhrase) {
+  // v0.60.209 — only render the Try line when dishPhrase is a genuine
+  // dish/dessert name, never a bare category word ("dishes", "food").
+  if (dishPhrase && isDishName(dishPhrase)) {
     const tip = orderTip ? ` — ${vt.escapeHtmlForTelegram(orderTip)}` : '';
     lines.push(`🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
   }
@@ -6577,16 +6583,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // calls pipeline.narrateMichelinVenues for `vibe` + `signatureDish`
   // + `dishes`. Curated Michelin badge is preserved on every card —
   // narration is purely additive.
-  // v0.60.196 — denylist extended to cover generic ingredients +
-  // beverage categories. Operator screenshot (15-05-26): Cumi Bali
-  // Bib Gourmand surfaced "🍴 Try · meat" with secondary "gravy";
-  // Saint Pierre 2-star surfaced "🍴 Try · chocolates". All three
-  // are generic ingredient/category words, not dishes, but slipped
-  // past the original v0.60.147 denylist (which only listed
-  // structural meal categories — restaurant/place/food/etc.).
-  // Hoisted to handler scope so both the review-regex extract (Step 1)
-  // and the LLM-narrate output filter (Step 3) can share it.
-  const MICH_CATEGORY_BLOCK = /^(restaurant|place|food|service|staff|menu|location|chef|table|drink|drinks|dessert|desserts|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|meat|meats|gravy|gravies|sauce|sauces|chocolate|chocolates|bread|breads|wine|wines|cocktail|cocktails|beer|beers|appetizer|appetizers|entree|entrees|portion|portions|serving|servings|flavor|flavors|flavour|flavours|taste|tastes|texture|textures|ingredient|ingredients)$/i;
+  // v0.60.209 — denylist unified into the shared dish-name.js module
+  // (CATEGORY_RE). Single source of truth across the Michelin path,
+  // the cuisine-search path, and every render site. The shared list
+  // adds `dish`/`dishes` — the bare category words the operator saw
+  // leak as "🧾 dishes" / "🍴 Try · dishes".
+  const MICH_CATEGORY_BLOCK = DISH_CATEGORY_RE;
   // Step 1: review-derived dish keywords + recentReview snippet
   // (mirrors index.js:8927-8990 — slimmed inline for Michelin).
   try {
@@ -6668,9 +6670,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           // this same handler call, so no separate invalidation is needed.
           if (!v.recentReview && typeof e.recentReview === 'string' && e.recentReview.trim()) v.recentReview = e.recentReview;
           if (!v.vibe && typeof e.vibe === 'string' && e.vibe.trim()) v.vibe = e.vibe;
-          if (!v.signatureDish && typeof e.signatureDish === 'string' && e.signatureDish.trim()) v.signatureDish = e.signatureDish;
-          if ((!Array.isArray(v.dishes) || v.dishes.length < 2) && Array.isArray(e.dishes) && e.dishes.length) {
-            v.dishes = e.dishes.slice(0, 3);
+          // v0.60.209 — dish-name guard on the cache READ. A stale
+          // pre-fix enrich entry can hold a bare category word
+          // ("dishes") as signatureDish; isDishName / filterDishNames
+          // reject it so it never reaches the TMA "🍴 try the …" line.
+          if (!v.signatureDish && isDishName(e.signatureDish)) v.signatureDish = e.signatureDish;
+          if (!Array.isArray(v.dishes) || v.dishes.length < 2) {
+            const cleanedCached = filterDishNames(e.dishes);
+            if (cleanedCached.length) v.dishes = cleanedCached.slice(0, 3);
           }
         }
       } catch { /* corrupt cache entry — fall through to live enrichment */ }
@@ -10488,7 +10495,9 @@ async function cacheBotUsername() {
           // "Special Fried Rice" / "Dessert Platter" / "Combo Set" etc.
           // are valid menu items and should pass; only bare "specials"
           // / "desserts" / "combos" alone are categorical and rejected.
-          const CATEGORY_BLOCK_RX = /^(restaurant|place|food|foods|service|staff|ambien|ambience|ambiance|atmosphere|experience|time|price|portion|menu|location|owner|chef|hostess|table|seat|drink|drinks|night|lunch|dinner|breakfast|dessert|desserts|appetiser|appetizer|appetisers|appetizers|starter|starters|main|mains|side|sides|combo|combos|set|sets|special|specials|deal|deals|recommendation|recommendations)$/i;
+          // v0.60.209 — unified into the shared dish-name.js CATEGORY_RE
+          // (now also blocks bare "dish"/"dishes").
+          const CATEGORY_BLOCK_RX = DISH_CATEGORY_RE;
           const dishes = new Set();
           for (const re of patterns) {
             let m;

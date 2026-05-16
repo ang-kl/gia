@@ -121,8 +121,14 @@ function formatPriceAndPetLine(p, opts = {}) {
 }
 
 // Format the 🧾 order line — top dishes (capped at 3).
+// v0.60.209 — render-time guard: every entry must be a genuine
+// dish/dessert name. The shared dish-name.js filter is the single
+// chokepoint for ALL Telegram dish rendering (Copy, Copy to, cards),
+// so a bare category word ("dishes", "food") can never reach a card
+// even if an upstream extraction path lets one through.
 function formatOrderLine(p) {
-  const dishes = Array.isArray(p.dishes) ? p.dishes.slice(0, 3) : [];
+  const { filterDishNames } = require('./dish-name');
+  const dishes = filterDishNames(p.dishes).slice(0, 3);
   if (!dishes.length) return '';
   return `🧾 ${escapeHtml(dishes.join(' · '))}`;
 }
@@ -165,7 +171,7 @@ function formatFootfallLine(p, lang = 'en') {
 // opts:
 //   variant: 'compact' | 'detail' | 'detail-with-sanctuary'
 //   number:  optional integer to prefix the heading with "N. "
-//   sanctuaryRead: full vibe-summary block (`• Quiet:` etc.) for T1
+//   sanctuaryRead: 2-line vibe-summary block (`🌿 Quiet:` / `🌿 Seating:`) for T1
 //   googleMapsUrl: function (place) → URL  (injected to avoid require cycles)
 function formatVenueBlock(p, opts = {}) {
   if (!p || !p.name) return '';
@@ -198,8 +204,9 @@ function formatVenueBlock(p, opts = {}) {
   }
   if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
     lines.push('');                                    // blank line
-    lines.push(`🌿 ${lang === 'fr' ? 'Lecture sanctuaire pour' : 'Sanctuary read for'} ${escapeHtml(p.name)}`);
-    // Sanctuary read already carries `• Quiet: …` etc. lines.
+    // v0.60.209 — operator: drop the "🌿 Sanctuary read for <name>"
+    // header. The block is now just the two 🌿-prefixed fields
+    // (`🌿 Quiet: …` / `🌿 Seating: …`) carried verbatim in sanctuaryRead.
     lines.push(escapeHtml(sanctuaryRead.trim()));
   }
   const stats = formatStatsLine(p, { includeDistance, lang });
