@@ -28,6 +28,10 @@ const STRINGS = {
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
+  // v0.60.213 — two-line footer.
+  'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
+                                 fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
+  'footer.experimental':       { en: 'Experimental', fr: 'Expérimental' },
 
   // ----- Banners (above map) -----
   'banner.locating':           { en: 'Searching nearby', fr: 'Recherche à proximité' },

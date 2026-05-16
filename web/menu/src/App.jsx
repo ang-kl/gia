@@ -206,8 +206,11 @@ export default function App() {
         ))}
       </div>
 
-      <div className="text-center text-[9px] text-tg-hint pb-2">
-        {t('footer.brand', lang)} {BUILD_VERSION} · 2026
+      {/* v0.60.213 — standardised "Experimental · Singapore · v<build>"
+          tag line added below the brand line. */}
+      <div className="text-center text-[9px] text-tg-hint pb-2 leading-tight">
+        <div>{t('footer.brand', lang)} {BUILD_VERSION} · 2026</div>
+        <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </div>
 
       <BackFab />
