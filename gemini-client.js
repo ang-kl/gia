@@ -1879,7 +1879,8 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     '- "dish": user named a specific dish (e.g. "goulash with dumpling", "pad thai", "khao soi", "carbonara").',
     '- "ingredient": user named an ingredient (e.g. "burrata", "uni", "wagyu", "cold-pressed coconut milk").',
     '- "tool": user named a kitchen tool / cooking technique / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide", "braising", "braisage" (FR), "rôtisserie" (FR), "sauter" (FR), "tandoor", "smoking", "flambé", "omakase", "teppanyaki", "char siu method", "wok hei"). Even SINGLE-WORD foreign-language technique names belong here — do NOT mark them ambiguous. ALWAYS populate `why` with a one-sentence plain-English explanation of what the technique does.',
-    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language.',
+    '- "venue": user named a specific F&B venue — a restaurant, café, bar, bakery, kopitiam, hawker centre, or food court (e.g. "Burnt Ends", "Newton Food Centre", "Tiong Bahru Bakery", "PS Cafe", "Lau Pa Sat", "Wok Hey"). Use this for proper-noun place names of eateries even when they contain NO dish word. Prefer "venue" over "ambiguous" whenever the text plausibly names an eating place.',
+    '- "ambiguous": the query is too short, contradictory, off-topic, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language, nor for plausible venue names.',
     '',
     'WHEN A DISH IS NAMED:',
     '- Identify the dish\'s most likely culinary origin even if other-cuisine modifiers are present. "Goulash with dumpling" → Hungarian (NOT Chinese — goulash is the dish, dumpling is the side). "Pad Thai with shrimp" → Thai.',
@@ -1889,8 +1890,11 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     'WHEN AMBIGUOUS:',
     '- Suggest the most likely interpretation politely. Example: user typed "cold drink" → "Could you tell me a bit more? Are you thinking iced tea, kopi peng, smoothies, or something stronger like a cocktail?"',
     '',
+    'WHEN A VENUE IS NAMED:',
+    '- searchTerm is the venue name plus "Singapore" (e.g. "Burnt Ends Singapore", "Newton Food Centre Singapore"). cuisine is the catalogue cuisine if obvious from the name, else null. why is a short note that it is an F&B venue.',
+    '',
     'OUTPUT JSON SHAPE (single line, no markdown):',
-    '{"intent":"dish|ingredient|tool|ambiguous","cuisine":"<catalogue name OR null>","searchTerm":"<Places textQuery suitable for searchText: \'goulash restaurant Singapore\', \'tandoor indian restaurant Singapore\', etc. — or empty string when ambiguous>","why":"<one sentence explaining the cooking method, ingredient origin, or dish backstory — or empty string when ambiguous>","clarify":"<polite clarifying question — empty string when not ambiguous>"}',
+    '{"intent":"dish|ingredient|tool|venue|ambiguous","cuisine":"<catalogue name OR null>","searchTerm":"<Places textQuery suitable for searchText: \'goulash restaurant Singapore\', \'tandoor indian restaurant Singapore\', \'Burnt Ends Singapore\', etc. — or empty string when ambiguous>","why":"<one sentence explaining the cooking method, ingredient origin, dish backstory, or that it is an F&B venue — or empty string when ambiguous>","clarify":"<polite clarifying question — empty string when not ambiguous>"}',
     '',
     'IMPORTANT:',
     '- Plain JSON only. No markdown fences. No backticks. No prose outside the JSON.',
@@ -1997,7 +2001,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     };
   }
   return {
-    intent: ['dish', 'ingredient', 'tool', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
+    intent: ['dish', 'ingredient', 'tool', 'venue', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
     cuisine: typeof parsed.cuisine === 'string' && parsed.cuisine.length ? parsed.cuisine : null,
     searchTerm: String(parsed.searchTerm || '').slice(0, 200),
     why: String(parsed.why || '').slice(0, 400),

@@ -12,6 +12,7 @@ import {
   generateGroundedHiddenGems,
   searchToolForModel,
   describeCookingMethod,
+  classifySearchIntent,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
 
@@ -586,5 +587,43 @@ describe('describeCookingMethod', () => {
     });
     expect(r.explainer).toContain('Prep organisation');
     expect(r.exampleDish).toBe('');
+  });
+});
+
+// v0.60.216 — `venue` intent. classifySearchIntent must recognise a
+// named F&B venue (no dish word) so the free-text food-relatedness
+// gate does not decline a restaurant-name search as "ambiguous".
+describe('classifySearchIntent — venue intent', () => {
+  const stubFactory = (text) => () => ({
+    getGenerativeModel: () => ({
+      async generateContent() { return { response: { text: () => text } }; }
+    })
+  });
+
+  it('preserves a "venue" intent from the model', async () => {
+    const r = await classifySearchIntent({
+      text: 'Newton Food Centre',
+      _genAIFactory: stubFactory('{"intent":"venue","cuisine":null,"searchTerm":"Newton Food Centre Singapore","why":"A Singapore hawker centre.","clarify":""}')
+    });
+    expect(r.intent).toBe('venue');
+    expect(r.searchTerm).toBe('Newton Food Centre Singapore');
+  });
+
+  it('still coerces an unknown intent to "ambiguous"', async () => {
+    const r = await classifySearchIntent({
+      text: 'whatever',
+      _genAIFactory: stubFactory('{"intent":"banana","cuisine":null,"searchTerm":"","why":"","clarify":"Hmm?"}')
+    });
+    expect(r.intent).toBe('ambiguous');
+  });
+
+  it('keeps the dish / ingredient / tool intents intact', async () => {
+    for (const intent of ['dish', 'ingredient', 'tool']) {
+      const r = await classifySearchIntent({
+        text: 'x',
+        _genAIFactory: stubFactory(`{"intent":"${intent}","cuisine":null,"searchTerm":"x Singapore","why":"y","clarify":""}`)
+      });
+      expect(r.intent).toBe(intent);
+    }
   });
 });
