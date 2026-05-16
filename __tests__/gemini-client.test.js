@@ -11,6 +11,7 @@ import {
   todaySGT,
   generateGroundedHiddenGems,
   searchToolForModel,
+  describeCookingMethod,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
 
@@ -521,5 +522,69 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Try ·');
     // v0.59.24: 🍴 Order this renamed → 🍴 Try; old wording removed.
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('🍴 Order this');
+  });
+});
+
+// v0.60.208 — describeCookingMethod: the /s cooking-method fan-out
+// explainer + representative-dish helper.
+describe('describeCookingMethod', () => {
+  const stubFactory = (text) => () => ({
+    getGenerativeModel: () => ({
+      async generateContent() { return { response: { text: () => text } }; }
+    })
+  });
+
+  it('parses explainer + exampleDish from a clean JSON response', async () => {
+    const r = await describeCookingMethod({
+      term: 'en croute', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('{"explainer":"En croûte is the French technique of baking in pastry, as in Beef Wellington.","exampleDish":"Beef Wellington"}')
+    });
+    expect(r.explainer).toContain('En croûte');
+    expect(r.exampleDish).toBe('Beef Wellington');
+  });
+
+  it('strips ```json fences', async () => {
+    const r = await describeCookingMethod({
+      term: 'tandoor', cuisineLabel: 'North Indian',
+      _genAIFactory: stubFactory('```json\n{"explainer":"Clay-oven roasting.","exampleDish":"Tandoori Chicken"}\n```')
+    });
+    expect(r.exampleDish).toBe('Tandoori Chicken');
+  });
+
+  it('returns empty strings when the model yields non-JSON', async () => {
+    const r = await describeCookingMethod({
+      term: 'sous vide', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('sorry, I cannot help with that')
+    });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+  });
+
+  it('returns empty strings when every model throws', async () => {
+    const throwingFactory = () => ({
+      getGenerativeModel: () => ({
+        async generateContent() { throw new Error('all models down'); }
+      })
+    });
+    const r = await describeCookingMethod({
+      term: 'braising', cuisineLabel: 'French', _genAIFactory: throwingFactory
+    });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+  });
+
+  it('returns empty strings on a blank term without calling the model', async () => {
+    let called = false;
+    const factory = () => ({ getGenerativeModel: () => { called = true; return {}; } });
+    const r = await describeCookingMethod({ term: '  ', cuisineLabel: 'French', _genAIFactory: factory });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+    expect(called).toBe(false);
+  });
+
+  it('honours an empty exampleDish (method with no signature dish)', async () => {
+    const r = await describeCookingMethod({
+      term: 'mise en place', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('{"explainer":"Prep organisation, not a dish.","exampleDish":""}')
+    });
+    expect(r.explainer).toContain('Prep organisation');
+    expect(r.exampleDish).toBe('');
   });
 });

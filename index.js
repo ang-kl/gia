@@ -5270,11 +5270,32 @@ const CUISINE_TYPE_DENY = {
   'Argentinian':  ['chinese_restaurant', 'japanese_restaurant', 'korean_restaurant', 'thai_restaurant', 'vietnamese_restaurant', 'indian_restaurant']
 };
 
+// v0.60.208 — widened from 14 → ~60 entries so the /s cooking-method
+// fan-out card title can show a real country flag (was a generic 🔧
+// glyph). Keyed by the cuisine label slugToLabel() produces. Long-tail
+// cuisines still fall through to the 🍽 default in flagFor().
 const CUISINE_FLAG = {
-  'French': '🇫🇷', 'Italian': '🇮🇹', 'Cantonese': '🇨🇳', 'Teochew': '🇨🇳',
+  'French': '🇫🇷', 'Italian': '🇮🇹', 'Spanish': '🇪🇸', 'Portuguese': '🇵🇹',
+  'Greek': '🇬🇷', 'British': '🇬🇧', 'Irish': '🇮🇪', 'German': '🇩🇪',
+  'Austrian': '🇦🇹', 'Swiss': '🇨🇭', 'Belgian': '🇧🇪', 'Dutch': '🇳🇱',
+  'Russian': '🇷🇺', 'Polish': '🇵🇱', 'Hungarian': '🇭🇺', 'Czech': '🇨🇿',
+  'Ukrainian': '🇺🇦', 'Scandinavian': '🇸🇪', 'Nordic': '🇫🇮', 'Finnish': '🇫🇮',
+  'European': '🇪🇺', 'Mediterranean': '🇪🇺',
+  'Chinese': '🇨🇳', 'Cantonese': '🇨🇳', 'Sichuanese': '🇨🇳', 'Shanghainese': '🇨🇳',
+  'Hunan': '🇨🇳', 'Hokkien': '🇨🇳', 'Hainanese': '🇨🇳', 'Hakka': '🇨🇳',
+  'Teochew': '🇨🇳', 'Hong Kong': '🇭🇰', 'Macau': '🇲🇴', 'Taiwanese': '🇹🇼',
   'Japanese': '🇯🇵', 'Korean': '🇰🇷', 'Thai': '🇹🇭', 'Vietnamese': '🇻🇳',
-  'North Indian': '🇮🇳', 'Pakistani': '🇵🇰', 'Turkish': '🇹🇷',
-  'European': '🇪🇺', 'American': '🇺🇸', 'Argentinian': '🇦🇷'
+  'Malaysian': '🇲🇾', 'Singaporean': '🇸🇬', 'Peranakan': '🇸🇬', 'Indonesian': '🇮🇩',
+  'Filipino': '🇵🇭', 'Burmese': '🇲🇲', 'Cambodian': '🇰🇭', 'Laotian': '🇱🇦',
+  'Indian': '🇮🇳', 'North Indian': '🇮🇳', 'South Indian': '🇮🇳',
+  'Bengali': '🇮🇳', 'Gujarati': '🇮🇳', 'Pakistani': '🇵🇰', 'Bangladeshi': '🇧🇩',
+  'Sri Lankan': '🇱🇰', 'Nepalese': '🇳🇵',
+  'Turkish': '🇹🇷', 'Lebanese': '🇱🇧', 'Persian': '🇮🇷', 'Israeli': '🇮🇱',
+  'Moroccan': '🇲🇦', 'Egyptian': '🇪🇬', 'Georgian': '🇬🇪', 'Armenian': '🇦🇲',
+  'Ethiopian': '🇪🇹', 'Nigerian': '🇳🇬', 'South African': '🇿🇦',
+  'Mexican': '🇲🇽', 'Peruvian': '🇵🇪', 'Brazilian': '🇧🇷', 'Argentinian': '🇦🇷',
+  'Cuban': '🇨🇺', 'Jamaican': '🇯🇲', 'American': '🇺🇸', 'Hawaiian': '🇺🇸',
+  'Australian': '🇦🇺', 'New Zealand': '🇳🇿'
 };
 
 function flagFor(cuisine) {
@@ -5847,9 +5868,20 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
 
   try {
     const textQuery = `"${hit.term}" ${hit.cuisineLabel} Singapore restaurant`;
-    const venues = await searchVenuesByDish(textQuery, hit.cuisineLabel, {
-      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
-    });
+    // v0.60.208 — fire the method-describe Gemini call in parallel with
+    // the Places search (Places is the long pole, so this adds ~no
+    // wall-clock). It yields the one-line explainer for the card header
+    // + a representative dish for the per-venue "Try" line. Best-effort:
+    // a failure returns empty strings → header skips the explainer and
+    // the Try line is omitted.
+    const gcDescribe = require('./gemini-client');
+    const [venues, methodDesc] = await Promise.all([
+      searchVenuesByDish(textQuery, hit.cuisineLabel, {
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+      }),
+      gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
+        .catch(() => ({ explainer: '', exampleDish: '' }))
+    ]);
     if (!venues.length) {
       await wait.finish();
       await safeSend(chatId, lang === 'fr'
@@ -5880,18 +5912,33 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
     const { googleMapsUrl } = require('./maps-url');
     const { venuePlausiblyServes: cmPlausible } = require('./cuisine-family');
     const lines = [];
-    lines.push(`🔧 <b>${esc(hit.cuisineLabel)}</b> · ${esc(hit.term)}`);
+    // v0.60.208 — operator: the title was "🔧 French · En Croute" and
+    // the per-venue line read "Try En Croute" — but En Croute is a
+    // cooking method, not a dish. New header: "<flag> · <method>",
+    // then the Gemini explainer (what the method is + an example dish
+    // + the cuisine), then a verify caveat. The "Try" line now only
+    // ever carries a real dish name (methodDesc.exampleDish); when
+    // none is known it is omitted entirely.
+    lines.push(`${flagFor(hit.cuisineLabel)} · <b>${esc(hit.term)}</b>`);
+    if (methodDesc.explainer) lines.push(esc(methodDesc.explainer));
+    lines.push(lang === 'fr'
+      ? '<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>'
+      : '<i>These places may have it. Please verify.</i>');
     lines.push('');
     // v0.60.112 — render each card defensively: a single malformed
     // venue must not throw the whole reply into the "erreur" path.
-    // v0.60.135/136 — drop the "🍽️ Try <method>" line on a venue whose
-    // NAME / Places cuisine family gives no sign it does this cuisine (a
+    // v0.60.135/136 — drop the "🍽️ Try" line on a venue whose NAME /
+    // Places cuisine family gives no sign it does this cuisine (a
     // Chinese place that text-matched "schnitzel" doesn't serve it).
+    // v0.60.208 — the line shows methodDesc.exampleDish (a real dish),
+    // never the method name; omitted when no example dish is known.
     const cards = venues.slice(0, 5).map((venue, i) => {
       try {
+        const showDish = methodDesc.exampleDish
+          && cmPlausible(venue, { cuisineName: hit.cuisineLabel, dishPhrase: hit.term });
         return formatTechniqueVenueBlock(venue, {
           number: i + 1, lang, googleMapsUrlFn: googleMapsUrl,
-          dishPhrase: cmPlausible(venue, { cuisineName: hit.cuisineLabel, dishPhrase: hit.term }) ? hit.term : '',
+          dishPhrase: showDish ? methodDesc.exampleDish : '',
           orderTip: ''
         });
       } catch (err) {
