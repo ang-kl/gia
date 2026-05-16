@@ -120,17 +120,31 @@ function formatPriceAndPetLine(p, opts = {}) {
   return segments.length ? segments.join(' · ') : null;
 }
 
-// Format the 🧾 order line — top dishes (capped at 3).
+// Format the order line — top dishes (capped at 3).
 // v0.60.209 — render-time guard: every entry must be a genuine
 // dish/dessert name. The shared dish-name.js filter is the single
 // chokepoint for ALL Telegram dish rendering (Copy, Copy to, cards),
 // so a bare category word ("dishes", "food") can never reach a card
 // even if an upstream extraction path lets one through.
-function formatOrderLine(p) {
+// v0.60.222 — operator: the glyph is the "Try ·" line (matching the
+// /s formatTechniqueVenueBlock line), not "🧾". Plus a venue-name
+// guard: a review-regex capture sometimes leaks the venue's own name
+// onto the dish list ("Restaurant Fiz and what") — drop any entry
+// that contains, or is contained by, the venue name.
+// v0.60.222a — operator: standardise the Try glyph to 🍲 across /s,
+// /hidden and Copy (was 🍽️ / 🍴).
+function formatOrderLine(p, lang = 'en') {
   const { filterDishNames } = require('./dish-name');
-  const dishes = filterDishNames(p.dishes).slice(0, 3);
+  const venueName = String((p && p.name) || '').trim().toLowerCase();
+  const dishes = filterDishNames(p && p.dishes)
+    .filter((d) => {
+      if (!venueName) return true;
+      const dn = String(d).trim().toLowerCase();
+      return !(dn.includes(venueName) || venueName.includes(dn));
+    })
+    .slice(0, 3);
   if (!dishes.length) return '';
-  return `🧾 ${escapeHtml(dishes.join(' · '))}`;
+  return `🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · ${escapeHtml(dishes.join(' · '))}`;
 }
 
 // Format the 📍 Maps URL line. Prefers the canonical googleMapsUrl(p)
@@ -217,7 +231,7 @@ function formatVenueBlock(p, opts = {}) {
   // The separator BETWEEN picks lives at the join site, not here.
   if (stats) lines.push(stats);
   if (includeOrder) {
-    const orderLine = formatOrderLine(p);
+    const orderLine = formatOrderLine(p, lang);
     if (orderLine) lines.push(orderLine);
   }
   // v0.59.0: footfall row sits ABOVE travel-time, so a user reading

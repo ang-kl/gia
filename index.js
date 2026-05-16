@@ -4424,7 +4424,7 @@ async function deliverSurprise(chatId, v) {
   const rating = v.rating ? `🌟${v.rating.toFixed(1)}` : '';
   const open = v.openNow === true ? 'Open now' : v.openNow === false ? 'Opens soon' : '';
   const dishes = v.dishes?.length
-    ? '\n\n🍴 *Try the:*\n' + v.dishes.map((d) => `  • ${d}`).join('\n')
+    ? '\n\n🍲 *Try the:*\n' + v.dishes.map((d) => `  • ${d}`).join('\n')
     : '';
   const why = v.whyOrdered ? `\n\n_${v.whyOrdered}_` : '';
   const booking = v.bookingRequired
@@ -5472,12 +5472,13 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // 🚊 / 🚘 row populated by enrichTravelTimes.
   const travel = vt.formatTravelLine(venue);
   if (travel) lines.push(travel);
-  // 🍽️ Try the [dish] — [orderTip from Gemini grounded].
+  // 🍲 Try · [dish] — [orderTip from Gemini grounded].
   // v0.60.209 — only render the Try line when dishPhrase is a genuine
   // dish/dessert name, never a bare category word ("dishes", "food").
+  // v0.60.222a — operator: standardised glyph 🍽️ → 🍲, "·" separator.
   if (dishPhrase && isDishName(dishPhrase)) {
     const tip = orderTip ? ` — ${vt.escapeHtmlForTelegram(orderTip)}` : '';
-    lines.push(`🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
+    lines.push(`🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
   }
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);

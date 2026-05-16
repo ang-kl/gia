@@ -251,7 +251,9 @@ function parseBlocks(text) {
 // comma-separated list through the shared dish-name guard; when
 // nothing survives, drop the whole line (return null → filtered out).
 function filterTryLine(line) {
-  const m = /^(🍴\s*(?:Try|Essayez)\s*·\s*)(.+)$/u.exec(line);
+  // v0.60.222a — operator standardised the Try glyph to 🍲; accept the
+  // legacy 🍴 too so a cached pre-change Gemini response still filters.
+  const m = /^([🍲🍴]\s*(?:Try|Essayez)\s*·\s*)(.+)$/u.exec(line);
   if (!m) return line;
   const kept = filterDishNames(m[2].split(/\s*,\s*/));
   return kept.length ? `${m[1]}${kept.join(', ')}` : null;

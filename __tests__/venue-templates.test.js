@@ -51,7 +51,7 @@ describe('formatVenueBlock — T1 detail-with-sanctuary', () => {
     expect(out).toContain('🌟4.5 • 🟢 quiet');
     expect(out).not.toContain('km');     // T1 omits distance
     expect(out).not.toContain('1240');
-    expect(out).toContain('🧾 Truffle Risotto · Carbonara · Tiramisu');
+    expect(out).toContain('🍲 Try · Truffle Risotto · Carbonara · Tiramisu');
     expect(out).toContain('📍 https://maps.app.goo.gl/lazylizard');
   });
 });
@@ -67,7 +67,7 @@ describe('formatVenueBlock — T2 detail (no sanctuary, with distance)', () => {
     expect(out).not.toContain('🌿 Sanctuary read');
     // v0.60.183 — priceLevel removed from stats row (see T1 note).
     expect(out).toContain('🌟4.5 • 🟢 quiet • 1.24 km');
-    expect(out).toContain('🧾');
+    expect(out).toContain('🍲 Try ·');
     expect(out).toContain('📍');
   });
 
@@ -91,7 +91,7 @@ describe('formatVenueBlock — T3 compact', () => {
     expect(out).not.toContain('🌐');
     expect(out).not.toContain('📞');
     expect(out).not.toContain('🌿');
-    expect(out).not.toContain('🧾');
+    expect(out).not.toContain('🍲 Try');
     // v0.60.183 — priceLevel removed from stats row.
     expect(out).toContain('🌟4.5 • 🟢 quiet • 1.24 km');
     expect(out).toContain('📍');
@@ -107,10 +107,10 @@ describe('formatVenueBlock — gracefully omits missing fields', () => {
     expect(out).toContain('📇');
   });
 
-  it('skips 🧾 line when no dishes', () => {
+  it('skips the 🍲 Try line when no dishes', () => {
     const v = { ...SAMPLE_VENUE, dishes: [] };
     const out = formatVenueBlock(v, { variant: 'detail' });
-    expect(out).not.toContain('🧾');
+    expect(out).not.toContain('🍲 Try');
   });
 
   it('returns empty string for null/no-name input', () => {
