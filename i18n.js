@@ -87,6 +87,10 @@ const STRINGS = {
   // cake") instead of a dish / cuisine name. Distinct from /s.
   'freetext.questionDeclined': { en: "🍛 Please try a dish name, cooking method, or food term - e.g. Mee Soto, char kway teow, or goulash dumpling",
                                  fr: "🍛 Essayez un nom de plat, une méthode de cuisson ou un terme culinaire - par ex. Mee Soto, char kway teow ou goulash dumpling" },
+  // v0.60.228 — transport queries (MRT / bus / "how to get to X")
+  // aren't food searches; point the user at the /transport tool.
+  'freetext.transportRedirect': { en: "🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.",
+                                  fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
