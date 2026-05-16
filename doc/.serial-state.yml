@@ -1,8 +1,8 @@
 counters:
-  commit: 203
-  build: 11
+  commit: 204
+  build: 12
   documents:
-    journal: 196
+    journal: 197
     builder: 1
     persona: 2
     feature: 45
@@ -11,11 +11,11 @@ counters:
     register: 113
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 22
-last_anchor_time: 16-05 '26 19:55 SGT
-last_anchor_source: claude_v0_60_228_freetext_transport
-last_anchor_iso8601: 2026-05-16T19:55:00+08:00
-last_anchor_utc: 2026-05-16T11:55:00Z
+  current_chat_counter: 23
+last_anchor_time: 16-05 '26 21:00 SGT
+last_anchor_source: claude_v0_60_229_map_pins_directory
+last_anchor_iso8601: 2026-05-16T21:00:00+08:00
+last_anchor_utc: 2026-05-16T13:00:00Z
 # v0.60.228 counters (commit 203 / journal 196 / build 11) are
 # sequenced AFTER the concurrent v0.60.227 PR #479 (which uses
 # commit 202 / journal 195 / build 11) so the two in-flight PRs
