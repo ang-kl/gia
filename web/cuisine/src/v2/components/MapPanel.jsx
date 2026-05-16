@@ -29,27 +29,26 @@ function pinGlyphFor(venue) {
   return null;
 }
 
-// v0.60.229 — operator: "reduce the pins to dot (18px)". Replaces the
-// Google PinElement teardrop with an 18px round dot built like the
-// Hawker TMA's hawkerPinNode. Michelin/Pet/dessert venues render the
-// emoji glyph centred INSIDE the circle (white background so the multi-
-// colour emoji reads clearly); plain venues are a flat coloured dot.
-// The focused venue keeps the v0.60.224 treatment — orange fill/border
-// + a size bump — rather than an orange teardrop.
-function cuisinePinNode(glyph, focused) {
-  const size = focused ? 24 : 18;
-  const bg = glyph ? '#ffffff' : (focused ? '#FF9500' : '#34C759');
-  const border = focused ? '#FF9500' : '#1c1c1f';
+// v0.60.229 → v0.60.234 — round-dot pin. Operator (v0.60.234): the
+// 18px dot was hard to tap → 22px; the selected pin no longer changes
+// colour or size (the InfoWindow popup is the selection cue); and the
+// Michelin/Pet/dessert glyph is drawn as a solid WHITE silhouette on
+// the coloured dot instead of a multi-colour emoji on a white circle.
+function cuisinePinNode(glyph) {
+  const size = 22;
   const el = document.createElement('div');
   el.style.cssText =
     'display:flex;align-items:center;justify-content:center;' +
     `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
-    `border:2px solid ${border};box-shadow:0 1px 3px rgba(0,0,0,0.4);` +
-    `background:${bg};`;
+    'border:2px solid #1c1c1f;box-shadow:0 1px 3px rgba(0,0,0,0.4);' +
+    'background:#34C759;';
   if (glyph) {
-    el.textContent = glyph;
-    el.style.fontSize = `${focused ? 13 : 10}px`;
-    el.style.lineHeight = '1';
+    const ic = document.createElement('span');
+    ic.textContent = glyph;
+    // brightness(0) invert(1): render the multi-colour emoji as a
+    // solid white silhouette so the icon reads on the coloured dot.
+    ic.style.cssText = 'font-size:13px;line-height:1;filter:brightness(0) invert(1);';
+    el.appendChild(ic);
   }
   return el;
 }
@@ -285,15 +284,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     }
     for (const v of venues || []) {
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
-      const focused = v.placeId === focusedPlaceId;
       // v0.60.184 — emoji-coded glyph (operator: "replace boring pins
       // with specifics like 🐾 / 🍮 / ✳️"). Priority: Michelin
       // (✳️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
       // default (no glyph, falls back to the plain coloured circle).
       const glyph = pinGlyphFor(v);
-      // v0.60.229 — 18px round dot (cuisinePinNode); michelin/pet/
-      // dessert glyphs render centred inside the circle.
-      const pinNode = cuisinePinNode(glyph, focused);
+      // v0.60.234 — 22px round dot (cuisinePinNode); michelin/pet/
+      // dessert glyphs render as a white silhouette inside the circle.
+      // The pin is identical whether or not it's the focused venue.
+      const pinNode = cuisinePinNode(glyph);
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: v.lat, lng: v.lng },
