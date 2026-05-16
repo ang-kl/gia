@@ -11219,6 +11219,36 @@ async function cacheBotUsername() {
       });
     });
 
+    // v0.60.219 — TMA-facing weather summary. Public (no PII — same
+    // posture as /maps-key) so any Mini App can show a live Singapore
+    // weather emoji. SG centroid (TMAs want an island-wide read, not
+    // per-user precision); Redis-cached 5 min to spare the NEA feeds.
+    app.get('/api/weather/summary', async (_req, res) => {
+      const CACHE_KEY = 'weather:tma-summary';
+      try {
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const { forecastEmoji, toFahrenheit } = require('./weather-emoji');
+        const w = await weather.summary(1.3521, 103.8198);
+        const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
+        const payload = {
+          ok: true,
+          tempC,
+          tempF: tempC != null ? Math.round(toFahrenheit(tempC) * 10) / 10 : null,
+          humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
+          condition: w?.forecast || null,
+          emoji: forecastEmoji(w?.forecast)
+        };
+        if (redis.isOpen) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
+        res.json(payload);
+      } catch (err) {
+        console.error('[Error] /api/weather/summary failed:', err.message);
+        res.json({ ok: false });
+      }
+    });
+
     // v0.34.2: reverse-geocode endpoint. Turns raw lat/lng into a
     // human-readable neighbourhood/place name for the TMA Header so the
     // user sees "📍 Telok Blangah" instead of "📍 1.2722, 103.8112".
