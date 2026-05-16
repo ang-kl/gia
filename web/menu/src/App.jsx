@@ -207,10 +207,10 @@ export default function App() {
       </div>
 
       {/* v0.60.213 — standardised "Experimental · Singapore · v<build>"
-          tag line added below the brand line.
-          v0.60.217 — no border; font +1pt. */}
+          tag line. v0.60.217 — no border; font +1pt.
+          v0.60.222 — operator: dropped the "Soleat <v> · 2026" brand
+          line; the tag line is the whole footer now. */}
       <div className="mx-2 mb-2 mt-1 px-3 py-2 text-center text-[9px] text-tg-hint leading-tight">
-        <div>{t('footer.brand', lang)} {BUILD_VERSION} · 2026</div>
         <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </div>
 

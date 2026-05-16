@@ -31,6 +31,10 @@ describe('isDishName — rejects fragments and bad input', () => {
   it('rejects a trailing-stop-word fragment', () => {
     expect(isDishName('desserts which')).toBe(false);
     expect(isDishName('the chicken was')).toBe(false);
+    // v0.60.222 — interrogatives: a review-regex capture leaked
+    // "<venue name> and what" onto a Try line.
+    expect(isDishName('Restaurant Fiz and what')).toBe(false);
+    expect(isDishName('the noodles how')).toBe(false);
   });
   it('rejects too-short / too-long strings', () => {
     expect(isDishName('ab')).toBe(false);

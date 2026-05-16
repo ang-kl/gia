@@ -40,9 +40,11 @@ const CATEGORY_WORDS = [
 const CATEGORY_RE = new RegExp(`^(?:${CATEGORY_WORDS.join('|')})$`, 'i');
 
 // A candidate whose LAST token is a connector / stop-word is a
-// captured sentence fragment ("desserts which", "the chicken was"),
-// not a dish name.
-const TRAILING_STOPWORD_RE = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there|the|a|an)$/i;
+// captured sentence fragment ("desserts which", "the chicken was",
+// "Restaurant Fiz and what"), not a dish name. v0.60.222 — added the
+// interrogatives (what / why / how / who / …) after a review-regex
+// capture leaked "<venue name> and what" onto a Try line.
+const TRAILING_STOPWORD_RE = /\b(which|that|what|whats|why|how|who|whom|whose|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there|the|a|an)$/i;
 
 // True when `s` is a plausible dish / dessert NAME fit for a "Try"
 // line. Length-bounded (3–40 chars), not a bare category word, not a
