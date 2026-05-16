@@ -70,8 +70,8 @@ const STRINGS = {
   'mrt.aria.map':              { en: 'Map of MRT and LRT stations in Singapore',
                                  fr: 'Carte des stations MRT et LRT de Singapour' },
 
-  // v0.60.213 — standardised footer tag line (v0.60.215 — shortened)
-  'footer.tag':                { en: 'experimental', fr: 'expérimental' }
+  // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
+  'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
 };
 
 export function t(key, lang) {

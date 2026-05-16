@@ -156,8 +156,8 @@ export default function App() {
 
       <EngineeringList closures={data.engineering || []} />
 
-      {/* v0.60.215 — footer framed in a bordered box for clearer UI. */}
-      <footer className="mx-2 mb-2 mt-2 border border-tg-border rounded-lg px-3 py-2 text-[8px] text-tg-hint text-center leading-tight">
+      {/* v0.60.217 — footer: no border; font +1pt. */}
+      <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
         <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
         <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </footer>
