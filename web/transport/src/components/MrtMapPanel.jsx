@@ -1,4 +1,4 @@
-// web/transport/src/components/MrtMapPanel.jsx — v0.60.85
+// web/transport/src/components/MrtMapPanel.jsx — v0.60.230
 //
 // Interactive Google Map alternative to the static SystemMap PNG.
 // Pins every station from /api/transport/stations (~177 operational
@@ -12,16 +12,25 @@
 // So this is the OPT-IN view — App.jsx defaults to the PNG and the
 // user must explicitly tap a toggle to render this component.
 //
-// Pin colour: PinElement.background = LINES_BY_CODE[primary].hex
-// (canonical LTA palette). Multi-line interchanges use the first
-// line's colour; the InfoWindow lists every line + code. Future
-// stations render desaturated grey with "Opens 20XX" in the popup.
+// v0.60.230 (Build E 5a-5d) — colour-coded line POLYLINES under the
+// station markers (geometry from buildLinePaths, deriving order from
+// the station codes); the markers themselves are now tiny coloured
+// DOTS (stationDotNode) instead of PinElement teardrops; tapping a
+// polyline focuses that line (onLineSelect), and tapping a dot still
+// opens the station InfoWindow.
+//
+// Pin colour: dot background = LINES_BY_CODE[primary].hex (canonical
+// LTA palette). Multi-line interchanges use the first line's colour;
+// the InfoWindow lists every line + code. Future stations render
+// desaturated grey + smaller, with "Opens 20XX" in the popup.
 //
 // Loading: reuses /maps-key + the __giaMapsReady global from the
 // hawker / cuisine TMAs so the Maps JS bundle deduplicates.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { buildLinePaths } from '../data/line-paths.js';
+import { t, tn } from '../i18n.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -35,8 +44,31 @@ function openExternal(url) {
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 11;
 const FUTURE_BG = '#9CA3AF';
-const FUTURE_BORDER = '#6B7280';
 const DEFAULT_BG = '#888888';
+
+// v0.60.230 (Build E 5b/5d) — tiny station dots + line polyline
+// styling. Future stations/lines render smaller and fainter.
+const DOT_SIZE = 11;
+const DOT_SIZE_FUTURE = 8;
+const LINE_WEIGHT = 4;
+const LINE_WEIGHT_FOCUSED = 6;
+const LINE_OPACITY = 0.85;
+const FUTURE_LINE_OPACITY = 0.4;
+
+// v0.60.230 — a station marker is now a small round dot DOM node
+// (replacing the PinElement teardrop), modeled on the Hawker TMA's
+// hawkerPinNode. White ring so the dot reads against its line
+// polyline; future stations are smaller + translucent.
+function stationDotNode(bg, isFuture) {
+  const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
+  const el = document.createElement('div');
+  el.style.cssText =
+    `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
+    `background:${bg};border:1.5px solid #fff;` +
+    'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
+    (isFuture ? 'opacity:0.75;' : '');
+  return el;
+}
 
 // Square line emoji — mirrors mrt-lines.js LINES table (v0.60.83).
 const LINE_EMOJI = {
@@ -51,10 +83,13 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusByLine = null }) {
+// v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
+// InfoWindow popup + the panel chrome localise (was English-only).
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
   // v0.60.87 — capture the registered Map ID from /maps-key so the
@@ -132,12 +167,14 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     };
   }, []);
 
-  // Re-render pins whenever stations, map readiness, OR focused line
-  // change. v0.60.88 — focused line filters the visible pins.
+  // Re-render pins whenever stations, map readiness, focused line, OR
+  // locale change. v0.60.88 — focused line filters the visible pins.
+  // v0.60.210 — `lang` added so a locale flip rebuilds the markers and
+  // their click handlers close over the current language.
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, mapsKeyState, focusedCode]);
+  }, [stations, mapsKeyState, focusedCode, lang]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -161,12 +198,46 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     if (stations) renderPins(stations);
   }
 
+  // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
+  // beneath the station dots. Geometry comes from buildLinePaths,
+  // which orders stations by their codes. When a line is focused
+  // only that line's polyline is drawn (heavier weight); tapping any
+  // polyline focuses that line via onLineSelect.
+  function renderPolylines(list) {
+    if (!window.google?.maps?.Polyline) return;
+    for (const p of polylinesRef.current) p.setMap(null);
+    polylinesRef.current = [];
+    const paths = buildLinePaths(list);
+    for (const [lineCode, segments] of Object.entries(paths)) {
+      if (focusedCode && lineCode !== focusedCode) continue;
+      const meta = LINES_BY_CODE[lineCode];
+      const hex = meta?.hex || DEFAULT_BG;
+      const isFutureLine = !!meta?.future;
+      for (const seg of segments) {
+        if (!Array.isArray(seg) || seg.length < 2) continue;
+        const pl = new window.google.maps.Polyline({
+          path: seg,
+          map: mapRef.current,
+          strokeColor: hex,
+          strokeOpacity: isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY,
+          strokeWeight: focusedCode === lineCode ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
+          clickable: true,
+          zIndex: 1
+        });
+        pl.addListener('click', () => onLineSelect?.(lineCode));
+        polylinesRef.current.push(pl);
+      }
+    }
+  }
+
   function renderPins(list) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
-    const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
+    const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    // v0.60.230 — line polylines first so the station dots layer on top.
+    renderPolylines(list);
     // v0.60.88 — filter to the focused line when set. Pin colour
     // logic stays the same; only the visible set changes.
     const visibleList = focusedCode
@@ -179,20 +250,12 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
       const isFuture = s.status === 'future';
       const primary = s.lines?.[0];
       const bg = isFuture ? FUTURE_BG : (LINES_BY_CODE[primary]?.hex || DEFAULT_BG);
-      const borderColor = isFuture ? FUTURE_BORDER : bg;
-      const pin = new PinElement({
-        background: bg,
-        borderColor,
-        glyphColor: '#fff',
-        scale: isFuture ? 0.8 : 1.0
-      });
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: pin.element
+        content: stationDotNode(bg, isFuture)
       });
-      if (isFuture && marker.element?.style) marker.element.style.opacity = '0.7';
       marker.addListener('click', () => {
         const codes = (s.codes || []).map((c) => {
           const lineCode = c.replace(/\d+$/, '');
@@ -211,26 +274,42 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
           const emoji = LINE_EMOJI[ln] || '⬜';
           return `${emoji} ${escapeHtml(c)}`;
         }).join(' · ');
-        const futureLine = isFuture && s.opensYear
-          ? `<br><em style="color:#9CA3AF">Opens ${escapeHtml(String(s.opensYear))}</em>`
+        // v0.60.207 — prefer an exact opening date when the station
+        // record carries one (CCL6 stage: Keppel / Cantonment / Prince
+        // Edward Road → "12 July 2026"); else fall back to the bare
+        // year. v0.60.210 (DF-109) — use the FR opening date when the
+        // locale is French and the record carries one.
+        const opensWhen = (lang === 'fr' && s.opensDateFr)
+          ? s.opensDateFr
+          : (s.opensDate || (s.opensYear != null ? String(s.opensYear) : ''));
+        const futureLine = isFuture && opensWhen
+          ? `<br><em style="color:#9CA3AF">${tn('mrt.opens', lang, { when: escapeHtml(opensWhen) })}</em>`
           : '';
         // v0.60.99 — per-station train status block. For each line
         // the station serves, look up statusByLine (from /api/
         // transport/status) and render "🔴 NSL · status: Normal
         // service" or the matching disruption label. Hidden for
         // future stations.
-        const STATUS_LABEL = { delay: 'Delay', disrupted: 'Service disrupted', closure: 'Closure', normal: 'Normal service', unknown: 'Unknown' };
+        // v0.60.210 (DF-109) — status labels localised via i18n. The
+        // five known statuses have keys; an unrecognised value from
+        // /api/transport/status falls through to its raw string.
+        const STATUS_KEYS = ['delay', 'disrupted', 'closure', 'normal', 'unknown'];
         const statusHtml = (!isFuture && statusByLine && Array.isArray(s.lines) && s.lines.length)
           ? '<br>' + s.lines.map((ln) => {
               const emoji = LINE_EMOJI[ln] || '⬜';
               const st = statusByLine[ln]?.status || 'normal';
-              const label = STATUS_LABEL[st] || st;
+              const label = STATUS_KEYS.includes(st) ? t(`mrt.status.${st}`, lang) : st;
               const color = st === 'normal' ? '#34C759' : (st === 'delay' ? '#FF9500' : '#FF3B30');
               return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
             }).join('<br>')
           : '';
-        const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">Open 📍 in a map ↗</a>`;
-        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
+        const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
+        // v0.60.207 — explicit dark text colour. The Google Maps
+        // InfoWindow bubble is always white, but Telegram's dark-mode
+        // theme can cascade a light body colour into it, rendering the
+        // text near-invisible (operator screenshot). Pin #1c1c1f so the
+        // popup is legible in both light and dark Telegram themes.
+        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
         infoWindowRef.current?.setContent(html);
         infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
       });
@@ -245,9 +324,9 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     if (boundedCount > 1) mapRef.current.fitBounds(bounds, 60);
   }
 
-  if (err) return <div className="text-xs text-red-500 p-3">⚠ Could not load stations: {err}</div>;
-  if (mapsKeyState === 'nokey') return <div className="text-xs text-tg-hint p-3">Map unavailable (key not configured).</div>;
-  if (mapsKeyState === 'error') return <div className="text-xs text-red-500 p-3">⚠ Map failed to load.</div>;
+  if (err) return <div className="text-xs text-red-500 p-3">{t('mrt.err.stations', lang)} {err}</div>;
+  if (mapsKeyState === 'nokey') return <div className="text-xs text-tg-hint p-3">{t('mrt.err.nokey', lang)}</div>;
+  if (mapsKeyState === 'error') return <div className="text-xs text-red-500 p-3">{t('mrt.err.mapfail', lang)}</div>;
 
   const opsCount = (stations || []).filter((s) => s.status !== 'future').length;
   const futureCount = (stations || []).filter((s) => s.status === 'future').length;
@@ -264,14 +343,14 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
       {focusedCode && (
         <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
           <span className="text-tg-text">
-            Showing <strong>{focusedCode}</strong> · {filteredCount} stations
+            {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
           </span>
           <button
             type="button"
             onClick={() => onResetFocus?.()}
             className="px-2 py-0.5 rounded-md bg-tg-accent text-tg-accent-text text-[11px] font-semibold active:scale-95 transition"
-            aria-label="Overview"
-          >Overview ↺</button>
+            aria-label={t('mrt.overview', lang)}
+          >{t('mrt.overview', lang)}</button>
         </div>
       )}
       <div
@@ -281,11 +360,11 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. No tablet bump yet — defer until needed.
         style={{ height: 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
-        aria-label="Map of MRT and LRT stations in Singapore"
+        aria-label={t('mrt.aria.map', lang)}
       />
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
-          🚇 {opsCount} operational · ⬜ {futureCount} future (greyed)
+          {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
         </div>
       )}
     </div>

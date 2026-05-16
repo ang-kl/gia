@@ -110,7 +110,10 @@ const STRINGS = {
   'stalls.status.existing_replacement':  { en: 'Replaced',           fr: 'Reconstruit' },
   'stalls.status.interim_centre':        { en: 'Interim',            fr: 'Centre temporaire' },
   'stalls.status.under_construction':    { en: 'Under construction', fr: 'En construction' },
-  'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' }
+  'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' },
+
+  // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
+  'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
 };
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }

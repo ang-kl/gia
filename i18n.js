@@ -85,8 +85,12 @@ const STRINGS = {
   // v0.60.131 — free-text "looks like a question" decline. Shown when
   // someone types a sentence ("does Beach Road curry rice sell chiffon
   // cake") instead of a dish / cuisine name. Distinct from /s.
-  'freetext.questionDeclined': { en: "🙂 <i>I can't answer questions in free text yet.</i> Type a dish or cuisine name (e.g. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), or use /cuisine to pick from a list.",
-                                 fr: "🙂 <i>Je ne réponds pas encore aux questions en texte libre.</i> Tapez un plat ou une cuisine (ex. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), ou utilisez /cuisine pour choisir dans une liste." },
+  'freetext.questionDeclined': { en: "🍛 Please try a dish name, cooking method, or food term - e.g. Mee Soto, char kway teow, or goulash dumpling",
+                                 fr: "🍛 Essayez un nom de plat, une méthode de cuisson ou un terme culinaire - par ex. Mee Soto, char kway teow ou goulash dumpling" },
+  // v0.60.228 — transport queries (MRT / bus / "how to get to X")
+  // aren't food searches; point the user at the /transport tool.
+  'freetext.transportRedirect': { en: "🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.",
+                                  fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
@@ -102,24 +106,24 @@ const STRINGS = {
 
   // /weather
   'weather.title':             { en: '☀️ Singapore weather', fr: '☀️ Météo de Singapour' },
-  'weather.temp':              { en: 'Temp: {c}°C @ {at}', fr: 'Temp. : {c} °C @ {at}' },
-  'weather.humidity':          { en: 'Humidity: {pct}% @ {at}', fr: 'Humidité : {pct} % @ {at}' },
+  'weather.temp':              { en: 'Temperature: {c}°C · {f}°F', fr: 'Température : {c} °C · {f} °F' },
+  'weather.humidity':          { en: 'Humidity: {pct}%', fr: 'Humidité : {pct} %' },
   'weather.rain':              { en: 'Rain: {mm} mm @ {at}', fr: 'Pluie : {mm} mm @ {at}' },
   'weather.wind':              { en: 'Wind: {kt} kt{dir}', fr: 'Vent : {kt} kt{dir}' },
-  'weather.forecastNext2h':    { en: 'Next 2h in {area}: {desc}{valid}', fr: 'Prochaines 2 h à {area} : {desc}{valid}' },
+  'weather.forecastNext2h':    { en: 'Next 2 hours in {area}: {desc}{valid}', fr: 'Prochaines 2 h à {area} : {desc}{valid}' },
   'weather.forecastUntil':     { en: ' (until {time})', fr: ' (jusqu’à {time})' },
   'weather.unreachable':       { en: "Sorry, I can't reach the NEA weather feed right now.", fr: "Désolé, le flux météo NEA est inaccessible pour le moment." },
   // v0.60.118 — /weather expansion
   'weather.areaUnknown':       { en: "I don't know that area — try a town name like Tampines, or just /weather to use your shared pin.", fr: "Je ne connais pas cette zone — essayez un nom de quartier comme Tampines, ou simplement /weather pour utiliser votre position partagée." },
   'weather.forArea':           { en: '— for {area} —', fr: '— pour {area} —' },
   'weather.headOutRaining':    { en: "☔ Raining around {area} right now — hold ~20–30 min or pick somewhere covered.", fr: "☔ Il pleut autour de {area} en ce moment — patientez ~20–30 min ou choisissez un endroit couvert." },
-  'weather.headOutShowery':    { en: "🌦️ Dry now, but {area}'s 2h outlook is {desc} — head out soon if you're going somewhere open-air.", fr: "🌦️ Sec pour l’instant, mais les prévisions 2 h à {area} sont : {desc} — sortez bientôt si vous allez en plein air." },
-  'weather.headOutGood':       { en: "✅ Good window — {area} looks dry for the next 2h.", fr: "✅ Bon créneau — {area} devrait rester au sec pendant 2 h." },
+  'weather.headOutShowery':    { en: "🌦️ Dry now, but {area}'s 2-hour outlook is {desc} — head out soon if you're going somewhere open-air.", fr: "🌦️ Sec pour l’instant, mais les prévisions 2 h à {area} sont : {desc} — sortez bientôt si vous allez en plein air." },
+  'weather.headOutGood':       { en: "✅ Good window — {area} looks dry for the next 2 hours.", fr: "✅ Bon créneau — {area} devrait rester au sec pendant 2 h." },
   'weather.hotNudge':          { en: "🥵 Feels hot out — an air-conditioned spot might be nicer.", fr: "🥵 Il fait chaud dehors — un endroit climatisé serait peut-être plus agréable." },
   'weather.tonight':           { en: "🌙 Tonight in the {zone}: {desc}.", fr: "🌙 Ce soir dans le {zone} : {desc}." },
   // per-pick rain caveat (rendered on open-air venue cards)
   'weather.rainNowNear':       { en: "🌧️ Raining around {area} right now — covered seating helps.", fr: "🌧️ Il pleut autour de {area} en ce moment — un coin couvert est préférable." },
-  'weather.rainSoonNear':      { en: "🌧️ {desc} in {area}'s 2h outlook — covered seating helps.", fr: "🌧️ Prévisions 2 h à {area} : {desc} — un coin couvert est préférable." },
+  'weather.rainSoonNear':      { en: "🌧️ {desc} in {area}'s 2-hour outlook — covered seating helps.", fr: "🌧️ Prévisions 2 h à {area} : {desc} — un coin couvert est préférable." },
 
   // /carpark
   'carpark.offline':           { en: 'Carpark lookup is offline (LTA key not configured).', fr: 'Recherche de parking hors-ligne (clé LTA non configurée).' },
@@ -263,8 +267,8 @@ const STRINGS = {
   // /start listing per Human Lead 2026-05-10. All three handlers
   // stay live for power users; they just don't surface in the
   // slash-command tour.
-  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s 50+ cuisine melting pot, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over 55 cuisines, SG + Johor Bahru, 6 quick filters)\n/hawker    — >100 hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
+                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de 50 cuisines à Singapour, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de 55 cuisines, SG + Johor Bahru, 6 filtres rapides)\n/hawker    — plus de 100 centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
@@ -289,7 +293,7 @@ const STRINGS = {
   // v0.60.98 — operator: show the actual nearest-count instead of
   // "stations on map". Call site (index.js runTransportTrain)
   // interpolates {n} from the slim list length.
-  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} stations', fr: '🗺 Voir les {n} stations les plus proches' },
+  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} train stations', fr: '🗺 Voir les {n} stations de train les plus proches' },
 
   // Distance row addition for MRT stations (was previously bare).
   // v0.60.72 — per-station row carries an HTML <a> wrapping the
@@ -337,56 +341,118 @@ const STRINGS = {
   // (the platform), polite tone, softened buddy-ChatID phrasing per
   // Human Lead 2026-05-06. {operator} is the optional OPERATOR_LINKEDIN
   // credit appended by the caller.
+  // v0.60.172 — full /privacy body rewrite. Operator supplied the new
+  // EN copy verbatim ("Here is a tighter version for /privacy, please
+  // replace with text below"). Three-paragraph compact form (was a
+  // multi-section bulleted list since v0.60.142). Substance is
+  // preserved: 24h location cache, 90d search/usage retention, hashed
+  // aggregate counters, no trackers / no marketers / no cross-bot
+  // profiles, /forgetme erasure on demand. The bulleted data-source
+  // inventory ("Google Places / LTA / NEA / data.gov.sg") is
+  // collapsed into "live external data sources, including search and
+  // Singapore public data services" — the formal Legal record §3
+  // ('legal-0_60_172-…md') remains the source of truth for the
+  // technical specifics (Redis keys, hash scheme, exact retention
+  // TTLs). Drops the trailing `{operator}` interpolation (mirrors the
+  // v0.60.171 /legal change — argument is still passed by
+  // runPrivacyCommand but ignored). FR is a fresh translation
+  // tracking the EN structure paragraph-for-paragraph (formal "vous"
+  // form).
   'privacy.body': {
     en: [
-      '🔒 *Privacy & data handling*',
+      '🔒 *Privacy & Data Handling*',
       '',
-      '*What Soleat collects* (only when relevant):',
-      '• Location — used when you send a location pin or call /cuisine, /hidden, /carpark, /transport. Cached for up to 24 hours so subsequent commands don\'t have to re-prompt; you can refresh anytime via /transport\'s 📍 Refresh location button, or wipe it immediately via /forgetme.',
-      '• Telegram chat identifier — used so Soleat can reply in the right chat.',
-      '• Recent picks — the last few venues you saw, kept for /share and /picks. 24-hour TTL.',
-      '• Search and Selection are kept and expire after 90 days.',
-      '• Usage counts — how many people use Soleat, daily-active counts, and which cuisines / filters / search terms are popular — are kept only as aggregate numbers. The per-user entries are one-way sha256 hashes used solely to de-duplicate those counts (nothing else is attached to them); they\'re removed on /forgetme and expire after 90 days.',
+      'Soleat only collects what is needed to run the bot. When you share your location or use location-based commands, your location may be cached for up to 24 hours, so you do not need to repeat it. Your Telegram chat ID is used only to reply to the correct chat. Recent picks are kept briefly for features like /share and /picks. Search, selection, and usage records may be retained for up to 90 days; usage counts are kept mainly in aggregate, with per-user entries hashed only to avoid double-counting.',
       '',
-      '*What Soleat does not do:*',
-      '• No third-party trackers.',
-      '• No sharing with marketers.',
-      '• No cross-bot profiling.',
+      'Soleat does not use third-party trackers, share or build cross-bot profiles. It may query live external data sources, including search and Singapore public data services, to provide results.',
       '',
-      '*Live data sources Soleat queries* (no personal data sent):',
-      '• Google Places — venue search',
-      '• LTA DataMall — transport, traffic, carparks',
-      '• NEA — weather',
-      '• data.gov.sg — hawker centres, holidays',
-      '',
-      '*Retention:* stored data expires automatically after 90 days of inactivity. A manual erasure is available at any time — please type /forgetme.{operator}'
+      'Stored data expires automatically after inactivity. You can erase your data at any time by typing /forgetme.'
     ].join('\n'),
     fr: [
       '🔒 *Confidentialité et gestion des données*',
       '',
-      '*Ce que Soleat collecte* (uniquement quand pertinent) :',
-      '• Position — utilisée lorsque vous envoyez une épingle ou utilisez /cuisine, /hidden, /carpark, /transport. Conservée jusqu’à 24 heures pour éviter de redemander à chaque commande ; vous pouvez l’actualiser à tout moment via le bouton 📍 Actualiser la position de /transport, ou la supprimer immédiatement via /forgetme.',
-      '• Identifiant de chat Telegram — utilisé pour que Soleat puisse répondre dans le bon chat.',
-      '• Choix récents — les derniers lieux que vous avez vus, conservés pour /share et /picks. TTL de 24 heures.',
-      '• Recherche et sélection sont conservées et expirent après 90 jours.',
-      '• Statistiques d’usage — combien de personnes utilisent Soleat, le nombre d’actifs par jour, et quelles cuisines / quels filtres / quels termes de recherche sont populaires — sont conservées uniquement sous forme de nombres agrégés. Les entrées par utilisateur sont des empreintes sha256 à sens unique, utilisées seulement pour dédupliquer ces compteurs (rien d’autre n’y est attaché) ; elles sont supprimées via /forgetme et expirent après 90 jours.',
+      'Soleat ne collecte que ce qui est nécessaire au fonctionnement du bot. Lorsque vous partagez votre position ou utilisez des commandes basées sur la localisation, votre position peut être mise en cache jusqu’à 24 heures pour vous éviter de la répéter. Votre identifiant de chat Telegram est utilisé uniquement pour répondre dans le bon chat. Vos choix récents sont conservés brièvement pour des fonctionnalités comme /share et /picks. Les enregistrements de recherche, de sélection et d’usage peuvent être conservés jusqu’à 90 jours ; les statistiques d’usage sont conservées principalement sous forme agrégée, les entrées par utilisateur étant hachées uniquement pour éviter le double comptage.',
       '',
-      '*Ce que Soleat ne fait pas :*',
-      '• Aucun traceur tiers.',
-      '• Aucun partage avec des annonceurs.',
-      '• Aucun profilage inter-bots.',
+      'Soleat n’utilise pas de traceurs tiers, ne partage rien et ne construit pas de profils inter-bots. Il peut interroger des sources de données externes en direct, notamment la recherche et les services publics de données de Singapour, pour fournir des résultats.',
       '',
-      '*Sources de données interrogées par Soleat* (aucune donnée personnelle envoyée) :',
-      '• Google Places — recherche de lieux',
-      '• LTA DataMall — transports, trafic, parkings',
-      '• NEA — météo',
-      '• data.gov.sg — hawker centres, jours fériés',
-      '',
-      '*Conservation :* les données expirent automatiquement après 90 jours d’inactivité. Une suppression manuelle est disponible à tout moment — veuillez taper /forgetme.{operator}'
+      'Les données stockées expirent automatiquement après une période d’inactivité. Vous pouvez effacer vos données à tout moment en tapant /forgetme.'
     ].join('\n')
   },
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
                                     fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' },
+
+  // v0.60.169 — /legal body migrated from a hard-coded English string
+  // in index.js runLegalCommand to a localised i18n key (EN + FR),
+  // matching the privacy.body pattern. New clauses added:
+  //   1. Google-sourced filter / indicator accuracy disclaimer —
+  //      covers the new 🐾 Pet allowed toggle (v0.60.165), the
+  //      pre-existing halal / vegetarian / open-now filters, and the
+  //      venue ratings + opening hours generally. Operator review:
+  //      "As results are determined by Google" — make the disclaimer
+  //      explicit for the filters users now make travel decisions on.
+  //   2. Geographic-scope note — v0.60.164 widened the JB-region
+  //      search from JB-City only to the full state of Johor; users
+  //      should know SG-default vs. JB-scope-on-toggle so they
+  //      understand cross-border data quality is Google's.
+  //
+  // v0.60.171 — full body rewrite. Operator supplied the new EN copy
+  // verbatim ("Change the text in /legal to this text below"). Adds
+  // three new paragraphs vs v0.60.169: transport disclaimer (train /
+  // bus / SG-to-MY), takedown contact (LinkedIn), and a fullest-
+  // extent-of-law no-liability clause. Drops the trailing
+  // "Built by … {operator}" line since the new copy carries the
+  // LinkedIn inline in the takedown paragraph (the `{ operator }`
+  // interpolation argument still passes through from runLegalCommand
+  // but is now an unused placeholder — kept for backward compat with
+  // anyone who scripted around the env var). FR is a fresh translation
+  // tracking the EN structure paragraph-for-paragraph; chip labels
+  // continue to match the existing `filter.*` FR strings.
+  'legal.body': {
+    en: [
+      '🔖 *Legal & disclaimer*',
+      '',
+      'This bot is provided "as is" for general convenience. It may use automated tools, AI, and third-party services.',
+      '',
+      'While care is taken, information may be inaccurate, incomplete, delayed, or unintentionally similar to existing content. Search Quick Filters in Cuisine Picker, such as 🆕 Newly opened, 🟢 Open now, 🕌 Halal, 🥗 Vegetarian, 🏠 Home-based, and 🐾 Pet allowed, are based on Google Places reports. Results may be inaccurate, outdated, or incorrect. Please verify details directly with venues, especially regarding pet-friendliness and dietary certifications.',
+      '',
+      'Information on train lines, buses, nearby bus stops, and transportation within Singapore or to Malaysia is provided with estimated timings and updated frequently.',
+      '',
+      'The default coverage area is Singapore. If "Johor Bahru" is selected, the search includes Johor, Malaysia. Data quality outside Singapore relies on Google Places.',
+      '',
+      'Please note that results from public or authorised data may be inaccurate or outdated. These outputs do not replace professional advice. The builder accepts no liability for decisions made based on this information.',
+      '',
+      'This is governed by Singapore law. The IMDA Model AI Governance Framework is followed. For information on data handling, see /privacy.',
+      '',
+      'The builder does not intend to infringe any rights. For concerns or takedown requests, kindly contact [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      '',
+      'By using this bot, you accept responsibility for your use of its outputs. The builder is not liable for losses, claims, interruptions, or reliance arising from use, to the fullest extent allowed by law.',
+      '',
+      'May 2026'
+    ].join('\n'),
+    fr: [
+      '🔖 *Mentions légales et avertissement*',
+      '',
+      'Ce bot est fourni « tel quel » à titre de commodité générale. Il peut utiliser des outils automatisés, l’IA et des services tiers.',
+      '',
+      'Malgré tout le soin apporté, les informations peuvent être inexactes, incomplètes, retardées ou involontairement similaires à du contenu existant. Les Filtres rapides du Sélecteur Cuisine — notamment 🆕 Récemment ouvert, 🟢 Ouvert maintenant, 🕌 Halal, 🥗 Végétarien, 🏠 À domicile et 🐾 Animaux autorisés — s’appuient sur les données de Google Places. Les résultats peuvent être inexacts, obsolètes ou erronés. Veuillez vérifier les détails directement auprès des établissements, en particulier la politique sur les animaux et les certifications alimentaires.',
+      '',
+      'Les informations sur les lignes de train, les bus, les arrêts proches et les transports à Singapour ou vers la Malaisie sont fournies avec des horaires estimés et mises à jour fréquemment.',
+      '',
+      'La zone de couverture par défaut est Singapour. Si « Johor Bahru » est sélectionné, la recherche s’étend à Johor, en Malaisie. La qualité des données en dehors de Singapour dépend de Google Places.',
+      '',
+      'Veuillez noter que les résultats issus de données publiques ou autorisées peuvent être inexacts ou obsolètes. Ces résultats ne remplacent pas un conseil professionnel. Le créateur décline toute responsabilité quant aux décisions prises sur la base de ces informations.',
+      '',
+      'Soumis au droit singapourien. Le cadre IMDA de gouvernance des IA est respecté. Pour la gestion des données, voir /privacy.',
+      '',
+      'Le créateur n’a pas l’intention de violer un quelconque droit. Pour toute préoccupation ou demande de retrait, veuillez contacter [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      '',
+      'En utilisant ce bot, vous acceptez la responsabilité de l’usage que vous en faites. Le créateur ne saurait être tenu pour responsable des pertes, réclamations, interruptions ou dépendances découlant de l’usage, dans toute la mesure permise par la loi.',
+      '',
+      'Mai 2026'
+    ].join('\n')
+  },
+  'legal.error':                  { en: 'Sorry, /legal hit an error. Try again in a moment.',
+                                    fr: 'Désolé, /legal a rencontré une erreur. Veuillez réessayer dans un instant.' },
 
   // v0.59.13 — /recognised localisation
   'recognised.heading':           { en: '🏆 *Singapore — recognised dining*', fr: '🏆 *Singapour — restaurants reconnus*' },

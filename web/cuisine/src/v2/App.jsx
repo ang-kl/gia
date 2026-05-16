@@ -10,8 +10,12 @@ import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
+import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
+
+// v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 
 // v0.57.3: Singapore-wide search (no radius constraint).
 // v0.58.1: layout — filter strip below map, active-filter chips below
@@ -132,6 +136,14 @@ export default function App() {
   // refresh once acknowledged.
   const [searchTipShow, setSearchTipShow] = useState(false);
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.60.191 — sticky flag: did the last server response come back
+  // as the planned 6-venue first batch? Used to suppress the v0.60.188
+  // <12 auto-reset (which would otherwise loop 6 venues forever — see
+  // Codex review on PR #440). The flag flips to false on the first
+  // 12-venue follow-up; ↺ Start over wipes the seen-set server-side,
+  // which makes the next response firstBatch=true again, so this
+  // resets to true via the normal setFirstBatch(p.firstBatch) call.
+  const [firstBatch, setFirstBatch] = useState(false);
   // v0.60.157 — zero-results auto-retry guard + CTA flag. When a search
   // returns `venues.length === 0`, runSearch fires exactly one silent
   // retry with `resetSeen: true` (covers the common case where the
@@ -152,7 +164,7 @@ export default function App() {
   const [pageStackDepth, setPageStackDepth] = useState(0);
   // v0.60.149 — Michelin walk-through indicator. When the server's
   // Michelin response carries michelinSummary.remaining > 0, we surface
-  // "X more curated Michelin places — tap ▶ for the next 12" above the
+  // "X more curated Michelin places — tap 🔍 for the next 12" above the
   // result list so the user understands the per-call batch (12 venues)
   // is only a slice of the full ~130 curated list. Cleared on the next
   // non-Michelin search.
@@ -188,6 +200,7 @@ export default function App() {
     setPageStackDepth(Number.isFinite(p.pageStackDepth) ? p.pageStackDepth : 0);
     setMichelinRemaining(p.michelinRemaining || null);
     setExhaustedNote(!!p.exhausted);
+    setFirstBatch(!!p.firstBatch);              // v0.60.191
     setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
     // v0.60.154 — also restore the criteria, free-text and search
     // anchor that produced this page (Codex review on PR #395:
@@ -263,6 +276,12 @@ export default function App() {
         halal: !!s.filters?.halal,
         vegetarian: !!s.filters?.vegetarian,
         homeBased: !!s.filters?.homeBased,
+        // v0.60.166 — v0.60.165 added petFriendly to state but forgot
+        // to extend the signature: toggling 🐾 didn't dirty the snap,
+        // so the Search-button ring never lit + the page cache wasn't
+        // invalidated. Included here alongside the other quick-filter
+        // flags so the dirty-detection treats Pet-allowed identically.
+        petFriendly: !!s.filters?.petFriendly,
         prices: [...(s.filters?.prices || [])].sort()
       },
       region: s.region || 'SG'
@@ -270,6 +289,11 @@ export default function App() {
   }
 
   useEffect(() => {
+    // v0.60.161 — install window error handlers (no-op when verbose is
+    // off; auto-reports to /api/vlog when the server's first response
+    // tags `_vlog: true`). Idempotent — multiple mounts won't double-
+    // attach.
+    import('./lib/vlog.js').then((vlog) => vlog.installGlobalHandlers()).catch(() => {});
     fetchCatalogue()
       .then((d) => setCatalogue(d.categories || []))
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
@@ -544,6 +568,40 @@ export default function App() {
       setError('Location not yet resolved — share a pin via /location and reopen.');
       return;
     }
+    // v0.60.188 — operator: when the previous search returned fewer
+    // than 12 venues, the dedup seen-set has eaten into the next
+    // batch's headroom. Auto-arm `resetSeen: true` on the next 🔍 tap
+    // so the user gets a fresh batch with the same criteria (matches
+    // the "Tap 🔍 to refresh results with same criteria" hint shown
+    // below the result list). Skips when the caller already requested
+    // resetSeen explicitly, or when the result set was zero (the
+    // existing v0.60.157 auto-retry handles that branch), or when the
+    // exhausted-note path is already armed (its ↺ Start-over button
+    // is the user's affordance there).
+    //
+    // v0.60.191 — Codex interaction fix: the threshold must follow the
+    // server's intended slice size, NOT a hardcoded 12. When the prior
+    // response was a planned 6-venue first batch (`firstBatch: true`),
+    // hitting "venues.length < 12" would loop: tap 2 fires
+    // resetSeen=true → server wipes seen → next slice is firstBatch=6
+    // again → loop. Use 6 as the threshold while firstBatch is sticky,
+    // 12 otherwise. The follow-up batch flips firstBatch=false on
+    // arrival, restoring the original v0.60.188 behaviour.
+    const lowCountThreshold = firstBatch ? 6 : 12;
+    // v0.60.194 — Michelin pagination exception. handleMichelinSearch
+    // has its own deterministic 130-venue pool + its own walk-through
+    // indicator (michelinSummary.remaining surfaced as
+    // `michelinRemaining` state). The autoReset semantic doesn't apply
+    // mid-Michelin: tap 11 returning the natural 10-venue tail would
+    // otherwise arm resetSeen → tap 12 wipes the seen-set → server
+    // returns the first 12 again silently, destroying pagination
+    // state. Suppress when michelinRemaining is truthy; rely on the
+    // exhausted=true "↺ Start over" CTA at the natural end of the
+    // walk-through instead.
+    const autoResetOnLowCount = (opts?.resetSeen !== true)
+      && Array.isArray(venues) && venues.length > 0 && venues.length < lowCountThreshold
+      && !exhaustedNote
+      && !michelinRemaining;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
@@ -551,7 +609,7 @@ export default function App() {
         cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
-        resetSeen: opts?.resetSeen === true,              // v0.60.117 — ↺ Start over
+        resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined  // v0.60.126 — Tell-me box as a qualifier
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
@@ -629,6 +687,7 @@ export default function App() {
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
+      setFirstBatch(r?.firstBatch === true);    // v0.60.191
       setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
       // v0.60.146 — per-session clipboard signal carried by every
       // /api/cuisine/search response.
@@ -808,9 +867,16 @@ export default function App() {
   }
 
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
+  // v0.60.166 — v0.60.165 added petFriendly to QUICK_FILTERS + state
+  // but forgot to extend `filterCount`: toggling only 🐾 left
+  // filterCount=0 → canClear=false → Clear button didn't render at
+  // all, so the chip couldn't be cleared via the standard control
+  // (operator: "'Pet allowed' doesn't wire to invokes the Clear
+  // button"). Tallied here like every other quick-filter flag.
   const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
     + (state.filters.halal ? 1 : 0)
     + (state.filters.vegetarian ? 1 : 0) + (state.filters.homeBased ? 1 : 0)
+    + (state.filters.petFriendly ? 1 : 0)
     + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
 
@@ -829,6 +895,11 @@ export default function App() {
     if (state.filters?.vegetarian)  items.push(t('filter.vegetarian', lang));
     if (state.filters?.homeBased)   items.push(t('filter.homeBased', lang));
     if (state.filters?.newlyOpened) items.push(t('filter.newlyOpened', lang));
+    // v0.60.166 — petFriendly missing from the v0.60.165 criteria
+    // preview list. Tallied + labelled alongside the other quick
+    // filters so the header's "Search criteria · X • Y" line includes
+    // "Pet allowed" when the 🐾 chip is on.
+    if (state.filters?.petFriendly) items.push(t('filter.petFriendly', lang));
     for (const p of state.filters?.prices || []) items.push(p);
     return items;
   })();
@@ -863,9 +934,10 @@ export default function App() {
               Human Lead. Slim flag-pair to the left of the count badge. */}
           <div className="flex items-center gap-3 shrink-0">
             <LocaleToggle />
-            <div className="text-[11px] text-tg-hint">
-              {state.cuisines.length}c · {filterCount}f
-            </div>
+            {/* v0.60.219 — operator: drop the "Nc · Nf" count badge,
+                show a live Singapore weather emoji beside the locale
+                toggle instead. */}
+            <WeatherBadge className="text-[11px] text-tg-hint" />
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.
@@ -880,7 +952,16 @@ export default function App() {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
-                onClick={() => setState((s) => ({ ...s, region: r.id }))}
+                onClick={() => setState((s) => {
+                  // v0.60.199 — ✳️ Michelin list is SG-only; when the
+                  // user toggles to JB, drop a previously-selected
+                  // 'michelin' chip so the search request doesn't
+                  // carry an unsupported cuisine.
+                  const nextCuisines = r.id === 'JB'
+                    ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                    : s.cuisines;
+                  return { ...s, region: r.id, cuisines: nextCuisines };
+                })}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
                 {r.flag.endsWith('.png')
@@ -1021,9 +1102,40 @@ export default function App() {
               <LocationField userLoc={userLoc} region={state.region} anchor={locationAnchor}
                 onSelect={(p) => {
                   if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-                    runSearchAt(p.lat, p.lng, p.label || '');
-                    // v0.60.120 — an explicit place pick (not a "× clear",
-                    // which sends an empty label) also updates the bot's
+                    // v0.60.166 — operator: picking a location should
+                    // ONLY commit the anchor, NOT auto-fire a search.
+                    // Previously this called runSearchAt(...) which set
+                    // the anchor AND ran the search in the same tick;
+                    // the user expected to compose the rest of the
+                    // criteria (cuisines / filters / region) and then
+                    // tap the 🔍 Search FAB themselves. The auto-fire
+                    // also raced the React state update so the search
+                    // sometimes ran with the *previous* locationAnchor
+                    // — making the new pick appear "ignored". Now the
+                    // field just locks in the anchor + persists to the
+                    // bot /location cache; the user's explicit Search
+                    // tap fires the search at the freshly-committed
+                    // anchor.
+                    setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+                    // v0.60.170 — also setSearchCenter on pick. Operator
+                    // bug report (Vivocity → pick Takashimaya → Map
+                    // still shows Vivocity, /api/cuisine/search payload
+                    // logged `center=1.2647,103.8232` — the original
+                    // GPS coords, NOT the picked place). Root cause:
+                    // v0.60.166's "commit anchor only" fix dropped the
+                    // implicit setSearchCenter side-effect that
+                    // runSearchAt used to perform, so the map kept
+                    // rendering from the stale warm-start searchCenter
+                    // AND the criteria-card Search button (which calls
+                    // `runSearch(state)` without an explicit anchor)
+                    // fell back to searchCenter for the search payload
+                    // — both wrong. Re-adding setSearchCenter here
+                    // keeps the v0.60.166 no-auto-fire contract intact
+                    // (no runSearch call) while restoring the
+                    // pick-updates-the-map behaviour.
+                    setSearchCenter({ lat: p.lat, lng: p.lng });
+                    // An explicit place pick (not a "× clear", which
+                    // sends an empty label) also updates the bot's
                     // /location cache so the new location sticks across
                     // sessions and in chat (/location, /eat, /weather, …).
                     if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
@@ -1033,6 +1145,7 @@ export default function App() {
                 }} />
             )}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
+              region={state.region}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
@@ -1066,11 +1179,33 @@ export default function App() {
         )}
       </div>
 
+      {/* v0.60.166 — operator: on first TMA load, grey-off all
+          selections (Edit-search pill, Search-criteria dropdown,
+          everything) so the user doesn't interfere with the warm-start
+          fetch. The previous in-flow "Please wait…" banner just sat
+          inside the layout — interactive elements around it stayed
+          tappable. This `fixed inset-0` overlay covers the full
+          viewport, gives the page a greyed appearance, captures all
+          pointer events (the page underneath is un-clickable), and
+          centres the loading card so the state is obvious. Disappears
+          the instant warm-start (or the deep-linked first search)
+          settles `firstLoadPending=false` AND `loading=false`. */}
       {firstLoadPending && loading && (
-        <div className="rounded-2xl border border-tg-border bg-tg-card p-3 text-xs text-tg-text">
-          ⏳ {lang === 'fr'
-            ? 'Veuillez patienter pendant le chargement de la liste…'
-            : 'Please wait while loading list…'}
+        <div
+          aria-busy="true"
+          className="fixed inset-0 z-50 bg-tg-bg/60 flex items-center justify-center cursor-wait"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg">
+            {/* v0.60.168 — FR tightened: was 'Veuillez patienter pendant
+                le chargement de la liste…' (53 chars, twice as long as
+                the EN). New 'Chargement de la liste…' (24 chars) matches
+                the EN's brevity while preserving the "loading list"
+                meaning per operator review. */}
+            ⏳ {lang === 'fr'
+              ? 'Chargement de la liste…'
+              : 'Please wait while loading list…'}
+          </div>
         </div>
       )}
 
@@ -1124,14 +1259,17 @@ export default function App() {
 
       <div ref={resultPanelRef}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
-            surprise that each ▶ tap loads 12 of ~130 curated venues
+            surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
-            out at 40 in v0.60.147 — see journal-0_60_149). */}
+            out at 40 in v0.60.147 — see journal-0_60_149).
+            v0.60.185 — glyph ▶ → 🔍 to match the actual Search button
+            the user is tapping. The ▶ metaphor was confusing because
+            no ▶ button exists on the TMA. */}
         {michelinRemaining && michelinRemaining.remaining > 0 && !loading && (
           <div className="text-[11px] text-tg-hint italic text-center mb-1 px-2">
             {lang === 'fr'
-              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez ▶ pour le prochain groupe de 12.`
-              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap ▶ for the next batch of 12.`}
+              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
+              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap 🔍 for the next batch of 12.`}
           </div>
         )}
         <ResultPanel
@@ -1146,10 +1284,13 @@ export default function App() {
             // v0.60.154 — operator copy + glyph (🎩 → ✳️). Shorter
             // "please wait" framing replaces the longer "curating … hang
             // on" hint that landed in v0.60.153.
+            // v0.60.158 — further compressed per operator: "Fetching the
+            // latest Michelin information" → "Fetching Michelin Info" so
+            // the hint stays on a single mobile line.
             (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin')
               ? (lang === 'fr'
-                  ? '✳️ Récupération des dernières informations Michelin. Un instant…'
-                  : '✳️ Fetching the latest Michelin information. Please wait a moment.')
+                  ? '✳️ Récupération des infos Michelin. Un instant…'
+                  : '✳️ Fetching Michelin Info. Please wait a moment.')
               : null
           }
           focusedPlaceId={focusedPlaceId}
@@ -1194,6 +1335,31 @@ export default function App() {
             with resetSeen so the server wipes the exclusion + variant
             index and the first ~60 come back). Cleared on the next
             non-exhausted search. */}
+        {/* v0.60.188 — low-result refresh hint. When the result list
+            has venues but fewer than 12, the seen-set is close to
+            exhaustion for this criteria; tell the user that the next
+            🔍 tap will refresh the batch with the same criteria.
+            runSearch detects the same condition and auto-arms
+            resetSeen on the next call. Suppressed when exhaustedNote
+            (≤2 venues) is already showing its own ↺ Start-over CTA.
+            v0.60.191 — Codex fix: the threshold follows the server's
+            intended slice (6 on a firstBatch response, 12 otherwise)
+            so the planned 6-venue first batch doesn't trigger this
+            hint (and the matching auto-reset). See runSearch comment.
+            v0.60.194 — also gated by !michelinRemaining: the Michelin
+            walk-through has its own indicator + natural exhaustion
+            CTA at the end of the 130-venue pool, so the generic <12
+            hint MUST NOT appear on its tail page (would otherwise
+            read as "10 results for these criteria. Tap 🔍 to refresh…"
+            which is misleading — that's just the natural Michelin
+            tail, not a thin result set). */}
+        {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
+          <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
+            {lang === 'fr'
+              ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir.`
+              : `${venues.length} result${venues.length === 1 ? '' : 's'} for these criteria. Tap 🔍 to refresh.`}
+          </div>
+        )}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {sessionFull
@@ -1276,8 +1442,12 @@ export default function App() {
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
-      <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.60.4 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+      {/* v0.60.213 — two-line footer: a how-to line + an
+          "Experimental · <region> · v<build>" tag line.
+          v0.60.217 — no border; font +1pt; region restored. */}
+      <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
+        <div>{t('footer.howto', lang)}</div>
+        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

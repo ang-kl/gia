@@ -50,7 +50,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
     }
   }
   const livenessChip = footfallChip || crowd;
-  const meta = [rating, price, open, livenessChip, dist || walk].filter(Boolean).join(' · ');
+  // v0.60.201 — operator: move Crowd / footfall chip from the top
+  // meta row down to the cost-range row. Top row now drops the
+  // livenessChip; the priceRange row below picks it up alongside
+  // the new ♿️ accessibility marker.
+  const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
@@ -102,6 +106,21 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
         phone: venue.phone,
         dishes: venue.dishes,
         distanceM: venue.distanceM,
+        // v0.60.223 — operator: the copy-one card was missing the
+        // 🍽️ type, the price/♿️/🐾 row, the 🍲 Try dish, the vibe /
+        // review lines and the ✳️ Michelin badge because copy() never
+        // forwarded these fields. /api/cuisine/copy-one passes the
+        // whole venue body straight to formatVenueBlock, so forwarding
+        // them here is all that's needed.
+        restaurantType: venue.restaurantType,
+        priceRangeDisplay: venue.priceRangeDisplay,
+        allowsDogs: venue.allowsDogs,
+        wheelchairAccessible: venue.wheelchairAccessible,
+        signatureDish: venue.signatureDish,
+        vibe: venue.vibe,
+        recentReview: venue.recentReview,
+        michelinCategory: venue.michelinCategory,
+        michelinYear: venue.michelinYear,
         // v0.58.53: include the v0.58.52 travel-time fields so the
         // per-card 📋 Copy clip carries the 🚊/🚘 row.
         transitMinutes: venue.transitMinutes,
@@ -144,6 +163,32 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
+          {/* v0.60.190 — price-range + 🐾 Pet line on the in-app card.
+              Mirrors the v0.60.183 formatPriceAndPetLine in
+              venue-templates.js (Copy-All / /s server-side render).
+              Operator: "Where are the pet-friendly and cost range in
+              the results template in (a) Cuisine TMA results …" — they
+              shipped in the response payload but the React card never
+              rendered them. priceRangeDisplay is the pre-resolved
+              "S$25–40 (US$18.50–29.60)" string; allowsDogs is the
+              Places New API boolean attribute. Either-or; line
+              suppressed when neither is set. */}
+          {/* v0.60.201 — cost-range row now also carries the ♿️
+              accessibility marker (when Places confirms accessible
+              entrance) and the Crowd / footfall chip (moved here
+              from the top meta row). Operator request: "Include
+              · ♿️ if eatery included in Google Search. Next to
+              cost-range. Move Crowd to same row as cost-range." */}
+          {(venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
+            <div className="text-[11px] text-tg-text/80 truncate mt-0.5">
+              {[
+                venue.priceRangeDisplay,
+                venue.wheelchairAccessible === true && '♿️',
+                venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed'),
+                livenessChip
+              ].filter(Boolean).join(' · ')}
+            </div>
+          )}
           {/* v0.59.23: primary "What to order" line — LLM-picked
               signature dish if present (rankAndNarrate path), else
               fall back to the first reviewer-extracted dish from
@@ -153,18 +198,51 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {(() => {
             const primaryDish = venue.signatureDish
               || (Array.isArray(venue.dishes) && venue.dishes.length ? venue.dishes[0] : '');
+            // v0.60.159 — when `signatureDish` is set, the prior logic
+            // (`venue.dishes.slice(0, 3)`) ALSO included `dishes[0]`, which
+            // for Michelin/Bib-Gourmand entries equals `signatureDish` after
+            // the v0.60.153 force-fill pass. Result: "🍴 Try · X" + "X · Y · Z"
+            // — same dish duplicated. Filter out any rest-list entry that
+            // matches `primaryDish` (case-insensitive trim) before slicing.
+            // Operator screenshot 2026-05-14: Cheok Kee + Hong Kong Yummy Soup.
+            // v0.60.163 — exact-match wasn't enough. The substring case
+            // also leaks: "Wanton mee" (primary) vs "Char siew wanton mee"
+            // (rest) reads as a duplicate. Operator 2026-05-14 screenshot:
+            // Chef Kang's Noodle House — `Try · Wanton mee` followed by
+            // `Char siew wanton mee · Dumpling noodle`. Tighten the filter
+            // to drop any rest entry where the primary is a substring of
+            // the rest OR vice versa. Also dedupe within the rest list
+            // itself so two LLM-narrated names that normalise the same
+            // (e.g. "Pork rib soup" + "Pork rib soup ") only render once.
+            const norm = (s) => String(s || '').trim().toLowerCase();
+            const primaryNorm = norm(primaryDish);
+            const seen = new Set();
             const restDishes = Array.isArray(venue.dishes)
-              ? (venue.signatureDish ? venue.dishes.slice(0, 3) : venue.dishes.slice(1, 4))
+              ? venue.dishes.filter((d) => {
+                  const n = norm(d);
+                  if (!n) return false;
+                  if (seen.has(n)) return false;
+                  if (primaryNorm) {
+                    if (n === primaryNorm) return false;
+                    if (n.includes(primaryNorm) || primaryNorm.includes(n)) return false;
+                  }
+                  seen.add(n);
+                  return true;
+                }).slice(0, 3)
               : [];
             return (
               <>
                 {primaryDish && (
                   <div className="text-[12px] text-tg-text mt-1 leading-snug">
-                    🍴 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
+                    🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
                   </div>
                 )}
                 {restDishes.length > 0 && (
-                  <div className="text-[11px] text-tg-hint mt-0.5 leading-snug">
+                  // v0.60.159 — font size bumped 11px → 12px to match the
+                  // "🍴 Try" line above, per operator: "font size different".
+                  // Color kept as text-tg-hint so the line still reads as
+                  // a secondary "more from the menu" annotation.
+                  <div className="text-[12px] text-tg-hint mt-0.5 leading-snug">
                     {restDishes.join(' · ')}
                   </div>
                 )}

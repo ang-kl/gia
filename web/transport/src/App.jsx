@@ -9,6 +9,10 @@ import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import BackFab from './components/BackFab.jsx';
+import WeatherBadge from './components/WeatherBadge.jsx';
+
+// v0.60.213 — build version for the footer tag line.
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
@@ -84,7 +88,11 @@ export default function App() {
       <header className="flex items-baseline justify-between">
         <div>
           <h1 className="text-base sm:text-lg font-bold leading-tight">{t('header.title', lang)}</h1>
-          <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>
+          {/* v0.60.219 — live Singapore weather emoji beside the timestamp. */}
+          <div className="text-[11px] text-tg-hint flex items-center gap-1.5">
+            <span>{data.timestampSGT || ''}</span>
+            <WeatherBadge />
+          </div>
         </div>
         <div className="text-[11px] text-tg-hint">
           {affectedCodes.length === 0
@@ -120,7 +128,13 @@ export default function App() {
         </div>
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
-          : <MrtMapPanel focusedCode={focusedCode} onResetFocus={() => setFocusedCode(null)} statusByLine={statusByLine} />}
+          : <MrtMapPanel
+              focusedCode={focusedCode}
+              onResetFocus={() => setFocusedCode(null)}
+              onLineSelect={(code) => setFocusedCode(code)}
+              statusByLine={statusByLine}
+              lang={lang}
+            />}
       </div>
 
       {focusedLine && (
@@ -153,8 +167,10 @@ export default function App() {
 
       <EngineeringList closures={data.engineering || []} />
 
-      <footer className="text-[10px] text-tg-hint text-center pt-2">
-        Source: LTA TrainServiceAlerts (live) + curated engineering schedule
+      {/* v0.60.217 — footer: no border; font +1pt. */}
+      <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
+        <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
+        <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
       <BackFab />

@@ -865,7 +865,30 @@ const DISCOVER_FIELD_MASK = [
   // the Cuisine TMA's ResultCard restaurantType line renders for plain
   // (non-Michelin) venues from the LLM-free /api/cuisine/search path.
   'places.primaryTypeDisplayName',
-  'places.reviews'
+  'places.reviews',
+  // v0.60.165 — pet-friendly support. Places New API exposes
+  // `allowsDogs` as a boolean attribute when Google has the data
+  // (well-populated in SG, sparser in JB). The Cuisine TMA's new
+  // 🐾 Pet-allow filter chip drives a post-filter on this field;
+  // when the strict filter yields < 3 venues, a text-query fallback
+  // ("pet friendly <cuisine> restaurant") fires server-side. The
+  // field is requested unconditionally so even non-pet-filtered
+  // queries can surface it as a future per-card badge.
+  'places.allowsDogs',
+  // v0.60.183 — numeric price range (Places New API) for the new
+  // venue-card line "S$25–40 (US$18.50–29.60) · 🐾 Pet allowed"
+  // landing above the travel-time row. Shape: { startPrice:{
+  // currencyCode,units,nanos }, endPrice:{…} }. Marginal per-request
+  // cost (paid field). Also requesting addressComponents to derive
+  // the venue's ISO-3166 country code so the currency prefix
+  // (S$ / M$ / US$ / ¥ / …) can be picked correctly.
+  'places.priceRange',
+  'places.addressComponents',
+  // v0.60.201 — wheelchair accessibility marker (♿️). Operator: show
+  // when Google's data says accessible; blank otherwise. Surfaced on
+  // venue.wheelchairAccessible as a boolean; rendered next to the
+  // cost-range line in the Cuisine TMA ResultCard.
+  'places.accessibilityOptions.wheelchairAccessibleEntrance'
 ].join(',');
 
 function priceLevelToInt(p) {
@@ -878,6 +901,47 @@ function priceLevelToInt(p) {
     PRICE_LEVEL_VERY_EXPENSIVE: 4
   };
   return map[p] ?? null;
+}
+
+// v0.60.183 — Places New API priceRange normaliser. Input shape
+//   { startPrice:{ currencyCode:'SGD', units:'25', nanos:0 },
+//     endPrice:{   currencyCode:'SGD', units:'40', nanos:0 } }
+// (units is a STRING per Money proto). Output:
+//   { currencyCode:'SGD', start:25, end:40 }
+// Returns null when both bounds missing or currencyCodes disagree.
+function normalisePriceRange(pr) {
+  if (!pr || typeof pr !== 'object') return null;
+  const toNumber = (m) => {
+    if (!m) return null;
+    const units = m.units != null ? Number(m.units) : null;
+    const nanos = m.nanos != null ? Number(m.nanos) : 0;
+    if (!Number.isFinite(units)) return null;
+    return units + (Number.isFinite(nanos) ? nanos / 1e9 : 0);
+  };
+  const start = toNumber(pr.startPrice);
+  const end = toNumber(pr.endPrice);
+  if (start == null && end == null) return null;
+  const cc = pr.startPrice?.currencyCode || pr.endPrice?.currencyCode || null;
+  if (!cc) return null;
+  // Guard against split-currency edge case (shouldn't happen but be safe).
+  if (pr.startPrice?.currencyCode && pr.endPrice?.currencyCode
+      && pr.startPrice.currencyCode !== pr.endPrice.currencyCode) return null;
+  return { currencyCode: cc, start, end };
+}
+
+// v0.60.183 — extract ISO-3166-1 alpha-2 country code from Places'
+// addressComponents[] (the component whose types[] contains 'country').
+// Used to pick the venue-currency prefix (S$ for SG, M$ for MY, …) and
+// to decide whether to append an FX conversion when the user's country
+// differs.
+function extractCountryCode(addressComponents) {
+  if (!Array.isArray(addressComponents)) return null;
+  for (const c of addressComponents) {
+    if (Array.isArray(c?.types) && c.types.includes('country')) {
+      return c.shortText || c.short_name || null;
+    }
+  }
+  return null;
 }
 
 // discover() — Google Places-first venue retrieval. When cuisines are
@@ -1095,7 +1159,21 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
             text: r?.text?.text || r?.originalText?.text || '',
             rating: r?.rating ?? null,
             publishTime: r?.publishTime || r?.relativePublishTimeDescription || null
-          })).filter((r) => r.text) : []
+          })).filter((r) => r.text) : [],
+          // v0.60.165 — pet-friendly attribute pass-through. Places
+          // returns true / false / undefined; treat undefined as
+          // "unknown" (downstream strict filter rejects, fallback
+          // text-query mode accepts via fuzzy match).
+          allowsDogs: p.allowsDogs === true,
+          // v0.60.201 — wheelchair accessibility marker. true only when
+          // Google's data explicitly says the entrance is accessible;
+          // undefined / false collapse to false (no marker shown).
+          wheelchairAccessible: p.accessibilityOptions?.wheelchairAccessibleEntrance === true,
+          // v0.60.183 — numeric price range + ISO country code so the
+          // venue-card price line can render "S$25–40 (US$18.50–29.60)"
+          // (parens only when user country ≠ venue country).
+          priceRange: normalisePriceRange(p.priceRange),
+          country: extractCountryCode(p.addressComponents)
         };
       })
       .filter((v) => v.placeId && v.name);
@@ -1839,5 +1917,10 @@ module.exports = {
   filterOutDrinks,
   shouldFilterDrinks,
   // v0.59.26 — per-chatId Singaporean dish memory.
-  pickSingaporeanDishesForChat
+  pickSingaporeanDishesForChat,
+  // v0.60.192 — exported for reuse by index.js Michelin path so the
+  // v0.60.183 priceRangeDisplay + country fields populate on Michelin
+  // venues too (Michelin has its own FIELD_MASK + venue construction).
+  normalisePriceRange,
+  extractCountryCode
 };

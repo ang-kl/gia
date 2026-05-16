@@ -30,7 +30,14 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
 
   return (
     <div className="flex flex-col gap-1 px-0.5">
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl border border-tg-border bg-tg-card">
+      {/* v0.60.207 — operator: in Telegram dark mode the default
+          `tg-border` (≈#2a2a2e) is near-invisible against `tg-card`
+          (≈#1c1c1f), so the free-text box had no perceptible edge.
+          Switched to a `tg-hint`-based border at 60% opacity — a
+          medium-contrast colour the Telegram theme adapts for both
+          light and dark — and bumped to a 2px width so the input
+          reads as a distinct, tappable field. */}
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl border-2 border-tg-hint/60 bg-tg-card">
         <span aria-hidden className="text-tg-hint flex-shrink-0">💬</span>
         <input
           type="text"

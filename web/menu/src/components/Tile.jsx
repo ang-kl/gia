@@ -26,7 +26,12 @@ import React, { useState } from 'react';
 // 56 → 64 px, icon w-6/h-6 → w-8/h-8 (24 → 32 px), emoji text-base
 // → text-lg (16 → 18 px), label text-[11px] → text-[13px] (+2 pt),
 // padding p-1 → p-1.5. Hub still fits the compact sheet.
-const TILE_STYLE = { height: '64px', minHeight: 0 };
+// v0.60.203 — operator: bump 64 → 80 px so the 2-line "Hawker Centre,
+// Food Centre" label has breathing room and the row doesn't visibly
+// crowd against the icon. The 32 px icon + 2×13 px label + 4 px gap
+// totalled ~62 px in the prior 64-px box; 80 px gives ~14 px of
+// vertical headroom which reads cleanly on the half-screen sheet.
+const TILE_STYLE = { height: '80px', minHeight: 0 };
 
 export default function Tile({ icon, iconImage, label, onClick }) {
   const [imgFailed, setImgFailed] = useState(false);

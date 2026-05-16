@@ -55,11 +55,9 @@ async function summarizeVibe(reviews, lang = 'en') {
   const prompt = lang === 'fr'
     ? `Lisez ces avis Google d’un restaurant au CBD de Singapour. Le lecteur dîne seul et cherche un "Sanctuaire" — calme, places confortables, ambiance accueillante. Voix : polie, utile, ancrée.
 
-Renvoyez EXACTEMENT quatre puces courtes, sans préambule ni conclusion :
-• Calme : <une phrase courte>
-• Places : <une phrase courte sur le bar/places solo/communales>
-• Ambiance : <une phrase courte sur le personnel et le ressenti pour dîner seul>
-• Accès : <indice de navigation niveau-bâtiment si mentionné — entrée, étage, ruelle, planqué-derrière, etc. Sinon, le seul mot : "—">
+Renvoyez EXACTEMENT deux lignes courtes, sans préambule ni conclusion :
+🌿 Calme : <une phrase courte>
+🌿 Places : <une phrase courte sur le bar/places solo/communales>
 
 IMPORTANT : conservez les noms de plats SG iconiques tels quels ${SG_ICONIC_DISHES} ; ne les traduisez pas en français.
 
@@ -67,11 +65,9 @@ Avis :
 ${reviews}`
     : `Read these Google reviews of a restaurant in Singapore's CBD. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
 
-Return EXACTLY four short bullets, no preamble, no closing line:
-• Quiet: <one short phrase>
-• Seating: <one short phrase about bar/single/communal options>
-• Vibe: <one short phrase about staff and overall feel for solo dining>
-• Approach: <building-level navigation cue if reviewers mention one — entrance, floor, alley, tucked-behind, etc. Otherwise the single word: "—">
+Return EXACTLY two short lines, no preamble, no closing line:
+🌿 Quiet: <one short phrase>
+🌿 Seating: <one short phrase about bar/single/communal options>
 
 Reviews:
 ${reviews}`;
@@ -92,7 +88,11 @@ async function getOrCacheSummary(redis, placeId, lang = 'en') {
   // v0.59.0: lang dimension on the cache key. EN and FR sanctuary
   // reads coexist for the same venue.
   const safeLang = lang === 'fr' ? 'fr' : 'en';
-  const cacheKey = `vibe:summary:${placeId}:${safeLang}`;
+  // v0.60.209 — `v2` key namespace: the prompt changed from the
+  // 4-bullet `• Quiet/Seating/Vibe/Approach` shape to the 2-line
+  // `🌿 Quiet/Seating` shape. Bumping the key avoids serving stale
+  // 4-bullet summaries from the 7-day cache after this deploy.
+  const cacheKey = `vibe:summary:v2:${placeId}:${safeLang}`;
   if (!redis.isOpen) await redis.connect();
   const cached = await redis.get(cacheKey);
   if (cached) return cached;

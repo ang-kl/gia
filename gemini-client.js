@@ -123,7 +123,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '💎 Why a gem · one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
   // v0.59.24: rename "Order this" → "Try"; drinks BANNED; 5/3 dishes
   // based on Google review distinct-dish count.
-  '🍴 Try · top FOOD dishes only — never drinks. If Google reviews mention 4+ distinct dishes, list 5; otherwise list 3. Comma-separated. EXCLUDE all drinks: kopi, teh, teh tarik, milo, bandung, coffee, latte, cappuccino, espresso, mocha, americano, flat white, cold brew, iced tea, bubble tea, boba, milk tea, smoothies, juices, lemonade, soda, beer, wine, cocktails, whisky, sake, soju, mojito, margarita, etc.',
+  '🍲 Try · top FOOD dishes only — never drinks. If Google reviews mention 4+ distinct dishes, list 5; otherwise list 3. Comma-separated. EXCLUDE all drinks: kopi, teh, teh tarik, milo, bandung, coffee, latte, cappuccino, espresso, mocha, americano, flat white, cold brew, iced tea, bubble tea, boba, milk tea, smoothies, juices, lemonade, soda, beer, wine, cocktails, whisky, sake, soju, mojito, margarita, etc.',
   '📍 <raw full Google Maps URL — emoji prefix only, no "Google Map URL:" label>.',
   // v0.58.37: removed Criteria-met / Confidence / Sources lines per
   // Human Lead. The criteria gate is still enforced internally — you
@@ -172,7 +172,7 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   'Render the entire user-facing output in French, with these rules:',
   // v0.59.24: labels updated to match the new EN OUTPUT FORMAT
   // (rating-only, 📝 prefix, middot separators, "🍴 Essayez").
-  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "🌟 Google rating ·" → "🌟 Note Google ·", "📝 Latest rating/review ·" → "📝 Dernier avis ·", "💎 Why a gem ·" → "💎 Pourquoi un trésor ·", "🍴 Try ·" → "🍴 Essayez ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
+  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "🌟 Google rating ·" → "🌟 Note Google ·", "📝 Latest rating/review ·" → "📝 Dernier avis ·", "💎 Why a gem ·" → "💎 Pourquoi un trésor ·", "🍲 Try ·" → "🍲 Essayez ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
   '- Keep iconic Singapore dish names in their original form (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate the surrounding prose (e.g. "stall réputée pour son laksa onctueux").',
   '- Keep proper nouns (venue names, neighbourhoods, MRT stations) untranslated.',
   '- Keep URLs verbatim — do not translate or modify the Google Maps URL.',
@@ -1879,7 +1879,8 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     '- "dish": user named a specific dish (e.g. "goulash with dumpling", "pad thai", "khao soi", "carbonara").',
     '- "ingredient": user named an ingredient (e.g. "burrata", "uni", "wagyu", "cold-pressed coconut milk").',
     '- "tool": user named a kitchen tool / cooking technique / cooking method (e.g. "wood-fired oven", "robata grill", "sous vide", "braising", "braisage" (FR), "rôtisserie" (FR), "sauter" (FR), "tandoor", "smoking", "flambé", "omakase", "teppanyaki", "char siu method", "wok hei"). Even SINGLE-WORD foreign-language technique names belong here — do NOT mark them ambiguous. ALWAYS populate `why` with a one-sentence plain-English explanation of what the technique does.',
-    '- "ambiguous": the query is too short, contradictory, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language.',
+    '- "venue": user named a specific F&B venue — a restaurant, café, bar, bakery, kopitiam, hawker centre, or food court (e.g. "Burnt Ends", "Newton Food Centre", "Tiong Bahru Bakery", "PS Cafe", "Lau Pa Sat", "Wok Hey"). Use this for proper-noun place names of eateries even when they contain NO dish word. Prefer "venue" over "ambiguous" whenever the text plausibly names an eating place.',
+    '- "ambiguous": the query is too short, contradictory, off-topic, or could mean multiple things; you cannot confidently classify. NEVER use this for known cooking techniques in any language, nor for plausible venue names.',
     '',
     'WHEN A DISH IS NAMED:',
     '- Identify the dish\'s most likely culinary origin even if other-cuisine modifiers are present. "Goulash with dumpling" → Hungarian (NOT Chinese — goulash is the dish, dumpling is the side). "Pad Thai with shrimp" → Thai.',
@@ -1889,8 +1890,11 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     'WHEN AMBIGUOUS:',
     '- Suggest the most likely interpretation politely. Example: user typed "cold drink" → "Could you tell me a bit more? Are you thinking iced tea, kopi peng, smoothies, or something stronger like a cocktail?"',
     '',
+    'WHEN A VENUE IS NAMED:',
+    '- searchTerm is the venue name plus "Singapore" (e.g. "Burnt Ends Singapore", "Newton Food Centre Singapore"). cuisine is the catalogue cuisine if obvious from the name, else null. why is a short note that it is an F&B venue.',
+    '',
     'OUTPUT JSON SHAPE (single line, no markdown):',
-    '{"intent":"dish|ingredient|tool|ambiguous","cuisine":"<catalogue name OR null>","searchTerm":"<Places textQuery suitable for searchText: \'goulash restaurant Singapore\', \'tandoor indian restaurant Singapore\', etc. — or empty string when ambiguous>","why":"<one sentence explaining the cooking method, ingredient origin, or dish backstory — or empty string when ambiguous>","clarify":"<polite clarifying question — empty string when not ambiguous>"}',
+    '{"intent":"dish|ingredient|tool|venue|ambiguous","cuisine":"<catalogue name OR null>","searchTerm":"<Places textQuery suitable for searchText: \'goulash restaurant Singapore\', \'tandoor indian restaurant Singapore\', \'Burnt Ends Singapore\', etc. — or empty string when ambiguous>","why":"<one sentence explaining the cooking method, ingredient origin, dish backstory, or that it is an F&B venue — or empty string when ambiguous>","clarify":"<polite clarifying question — empty string when not ambiguous>"}',
     '',
     'IMPORTANT:',
     '- Plain JSON only. No markdown fences. No backticks. No prose outside the JSON.',
@@ -1997,7 +2001,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     };
   }
   return {
-    intent: ['dish', 'ingredient', 'tool', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
+    intent: ['dish', 'ingredient', 'tool', 'venue', 'ambiguous'].includes(parsed.intent) ? parsed.intent : 'ambiguous',
     cuisine: typeof parsed.cuisine === 'string' && parsed.cuisine.length ? parsed.cuisine : null,
     searchTerm: String(parsed.searchTerm || '').slice(0, 200),
     why: String(parsed.why || '').slice(0, 400),
@@ -2005,10 +2009,175 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
   };
 }
 
+// v0.60.208 — describe a cooking method / food category for the /s
+// cooking-method fan-out card. The COOKING_METHODS dictionary in
+// cooking-methods.js only stores bare method-name strings (no
+// description, no example dish), so the fan-out header used to read
+// "🔧 French · En Croute" and the per-venue "Try" line echoed the
+// method name itself ("Try En Croute") — operator-flagged as wrong
+// (a method is not a dish).
+//
+// Returns: { explainer, exampleDish }
+//   explainer  — one sentence: what the method is + an example + the
+//                cuisine it belongs to. Empty string on any failure.
+//   exampleDish — a single well-known dish made with this method
+//                 (e.g. "Beef Wellington" for en croute). Empty
+//                 string when the method has no signature dish or on
+//                 failure — the caller then omits the "Try" line.
+//
+// Best-effort: never throws. Every failure path returns empty strings
+// so the card still renders (just without the explainer / Try line).
+async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 'gemini-flash-latest', _genAIFactory } = {}) {
+  const empty = { explainer: '', exampleDish: '' };
+  const cleanTerm = String(term || '').trim();
+  if (!cleanTerm) return empty;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) return empty;
+  const langInstruction = lang === 'fr'
+    ? 'Write the "explainer" in French. Keep the dish name in "exampleDish" in its common English / original form.'
+    : 'Write the "explainer" in English.';
+  const prompt = [
+    'You are a Singapore F&B research assistant. The user searched for a cooking method / cooking technique / food category.',
+    `METHOD: "${cleanTerm}"`,
+    `ASSOCIATED CUISINE: ${cuisineLabel || 'unspecified'}`,
+    '',
+    'Return a single-line JSON object:',
+    '{"explainer":"<one plain sentence: what the method is, one example dish, and which cuisine it belongs to>","exampleDish":"<one well-known dish made with this method, or empty string if the method has no single signature dish>"}',
+    '',
+    'RULES:',
+    '- "explainer" is ONE sentence. Mention a concrete example dish and the cuisine. E.g. for "en croute": "En croûte is the French technique of baking meat or fish wrapped in pastry, as in Beef Wellington."',
+    '- "exampleDish" must be an actual dish or dessert name — never the method name itself. If no single dish is emblematic, return "".',
+    '- Plain JSON only. No markdown fences. No prose outside the JSON. Double quotes throughout.',
+    '- ' + langInstruction
+  ].join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  let genAI;
+  try { genAI = factory(); } catch { return empty; }
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  for (const candidate of candidates) {
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await m.generateContent(prompt);
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; } catch { continue; }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) continue;
+      const parsed = JSON.parse(cleaned);
+      return {
+        explainer: String(parsed.explainer || '').slice(0, 300),
+        exampleDish: String(parsed.exampleDish || '').slice(0, 80)
+      };
+    } catch (err) {
+      console.warn(`[Describe-Method] ${candidate} failed: ${err.message}`);
+      continue;
+    }
+  }
+  return empty;
+}
+
+// v0.60.225 — batched dish/dessert extraction for the Cuisine TMA
+// `🍲 Try ·` line. Operator: the line must carry a genuine dish or
+// dessert name drawn from the venue's higher-rated Google reviews
+// (4–5★, "5 stars rotated down to 3.5 minimum"). One batched call
+// per search — every result venue in a single prompt — keeps the
+// cost/latency of the otherwise LLM-free /api/cuisine/search path
+// to a single Gemini Flash request. The caller (index.js) falls
+// back to the review-text regex when this returns nothing for a
+// venue, and hides the row when both are empty.
+//
+// Returns a Map<venueId, string[]> — only venues with at least one
+// extracted dish appear in the Map.
+async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-latest', _genAIFactory } = {}) {
+  const out = new Map();
+  const usable = (Array.isArray(venues) ? venues : [])
+    .filter((v) => v && typeof v.id === 'string' && Array.isArray(v.reviews) && v.reviews.length);
+  if (!usable.length) return out;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) return out;
+  const blocks = usable.map((v, i) => {
+    const reviews = v.reviews
+      .slice()
+      .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0))
+      .slice(0, 6)
+      .map((r) => `  - (${Number(r.rating) || '?'}★) ${String(r.text || '').replace(/\s+/g, ' ').trim().slice(0, 400)}`)
+      .join('\n');
+    return `VENUE ${i} | id="${v.id}" | name="${String(v.name || '').slice(0, 80)}"\n${reviews}`;
+  }).join('\n\n');
+  const prompt = [
+    'You are a Singapore F&B research assistant. Below are restaurants, each with recent 4–5 star Google reviews.',
+    'For each venue, extract up to 3 specific dish or dessert NAMES that reviewers actually praised or recommended.',
+    '',
+    blocks,
+    '',
+    'Return a single-line JSON array, one object per venue:',
+    '[{"id":"<venue id>","dishes":["<dish name>", ...]}]',
+    '',
+    'RULES:',
+    '- Each "dishes" entry must be a real, specific dish or dessert name (e.g. "Chilli Crab", "Durian Souffle") — never a category word ("desserts", "mains", "food"), never the restaurant name, never a sentence fragment.',
+    '- Only include dishes the reviews genuinely mention. If a venue has no dish worth naming, return an empty "dishes" array for it.',
+    '- Up to 3 dishes per venue, most-praised first.',
+    '- Plain JSON only. No markdown fences. No prose outside the JSON. Double quotes throughout.'
+  ].join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  let genAI;
+  try { genAI = factory(); } catch { return out; }
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  // v0.60.226 — latency guard for the Cuisine TMA search path. A
+  // timeout means Gemini itself is slow, not that the model is bad,
+  // so a timeout STOPS the chain rather than retrying the next model
+  // (which would just stack another timeout — the old 8s × 3 chain
+  // could block a search for ~24s). Other errors (model-not-found,
+  // parse failure) still fall through to the next model. DEADLINE
+  // bounds the total even across that fall-through path.
+  const PER_ATTEMPT_MS = 6000;
+  const DEADLINE = Date.now() + 12_000;
+  for (const candidate of candidates) {
+    if (Date.now() > DEADLINE) break;
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await Promise.race([
+        m.generateContent(prompt),
+        new Promise((_, reject) => setTimeout(() => {
+          const e = new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`);
+          e.isTimeout = true;
+          reject(e);
+        }, PER_ATTEMPT_MS))
+      ]);
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; } catch { continue; }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) continue;
+      const parsed = JSON.parse(cleaned);
+      if (!Array.isArray(parsed)) continue;
+      for (const row of parsed) {
+        if (!row || typeof row.id !== 'string') continue;
+        const dishes = Array.isArray(row.dishes)
+          ? row.dishes.map((d) => String(d || '').trim()).filter(Boolean).slice(0, 3)
+          : [];
+        if (dishes.length) out.set(row.id, dishes);
+      }
+      return out;
+    } catch (err) {
+      console.warn(`[Extract-Dishes] ${candidate} failed: ${err.message}`);
+      if (err && err.isTimeout) break;
+      continue;
+    }
+  }
+  return out;
+}
+
 module.exports = {
   generateGroundedHiddenGems,
   generateGroundedHiddenGemsClaude,
   classifySearchIntent,
+  describeCookingMethod,
+  extractDishesFromReviews,
   dishFallback,
   techniqueFallback,
   lookupTechnique,

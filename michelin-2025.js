@@ -364,6 +364,57 @@ const _CATEGORY_LABEL = {
   'bib-gourmand': '✳️ Bib Gourmand'
 };
 
+// v0.60.193 — DF-91. Single helper that wraps the cross-ref +
+// formatMichelinLine call previously duplicated in three sites:
+//   - venue-templates.js formatVenueBlock (v0.60.192)
+//   - index.js formatTechniqueVenueBlock (v0.60.16)
+//   - index.js /api/cuisine/search post-loop annotation (v0.60.16)
+//
+// Mutates `lines[]` in place by appending the "✳️ Michelin · ⭐⭐⭐ ·
+// 2025" row when the venue matches a curated entry. Uses
+// venue.michelinCategory directly when upstream-set (the Michelin
+// handler does this); falls back to name + area cross-ref. Logs a
+// single warn on failure with the supplied `logTag` so the three
+// call sites stay differentiable in Railway logs.
+function appendMichelinAnnotation(lines, venue, logTag = 'michelin-annotate') {
+  if (!venue || !Array.isArray(lines)) return;
+  try {
+    let entry = null;
+    if (venue.michelinCategory) {
+      entry = { category: venue.michelinCategory, name: venue.michelinName || venue.name };
+    } else {
+      entry = findMichelinMatch(venue.name, venue.area || venue.address || '');
+    }
+    if (entry) {
+      const line = formatMichelinLine(entry);
+      if (line) lines.push(line);
+    }
+  } catch (err) {
+    console.warn(`[${logTag}] cross-ref failed:`, err.message);
+  }
+}
+
+// v0.60.193 — DF-91 sibling. The /api/cuisine/search post-loop sets
+// michelinCategory / michelinName / michelinYear on the venue OBJECT
+// (so the React TMA card's `venue.michelinCategory` consumer renders
+// the badge); it does NOT push a chat-message line. Same cross-ref
+// logic, different sink. Idempotent — skips venues that already have
+// michelinCategory set (handleMichelinSearch populates it upstream).
+function annotateVenueObject(venue, logTag = 'michelin-annotate-obj') {
+  if (!venue) return;
+  if (venue.michelinCategory) return;
+  try {
+    const e = findMichelinMatch(venue.name, venue.area || venue.address || '');
+    if (e) {
+      venue.michelinCategory = e.category;
+      venue.michelinName = e.name;
+      venue.michelinYear = 2025;
+    }
+  } catch (err) {
+    console.warn(`[${logTag}] cross-ref failed:`, err.message);
+  }
+}
+
 function formatMichelinLine(entry, year = 2025) {
   if (!entry || !entry.category) return '';
   const prefix = _CATEGORY_LABEL[entry.category] || '✳️ Michelin';
@@ -387,5 +438,7 @@ module.exports = {
   findByName,
   buildPlacesQuery,
   findMichelinMatch,
-  formatMichelinLine
+  formatMichelinLine,
+  appendMichelinAnnotation,
+  annotateVenueObject
 };

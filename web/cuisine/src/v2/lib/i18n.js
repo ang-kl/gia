@@ -28,6 +28,10 @@ const STRINGS = {
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
+  // v0.60.213 — two-line footer.
+  'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
+                                 fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
+  'footer.experimental':       { en: 'Experimental', fr: 'Expérimental' },
 
   // ----- Banners (above map) -----
   'banner.locating':           { en: 'Searching nearby', fr: 'Recherche à proximité' },
@@ -44,6 +48,17 @@ const STRINGS = {
   'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
   'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
   'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
+  // v0.60.165 — 🐾 Pet allowed chip. Strict mode shows only Places
+  // tagged `allowsDogs=true`; text-query fallback when strict yields
+  // < 3 venues. v0.60.166: capital P per operator second-pass review
+  // ("Pet allowed", was "pet allowed").
+  // v0.60.168: FR tightened from 'Animaux acceptés' (literally
+  // "accepted") to 'Animaux autorisés' (literally "allowed") so it
+  // tracks the EN "Pet allowed" semantically per operator review.
+  // v0.60.182: shortened to "Pet" / "Animaux" (was "Pet allowed" /
+  // "Animaux autorisés") — chip promoted to PRIMARY row beside Halal,
+  // so the longer copy ate too much horizontal space on phones.
+  'filter.petFriendly':        { en: 'Pet', fr: 'Animaux' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },

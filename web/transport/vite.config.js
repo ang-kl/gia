@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import pkg from './package.json' with { type: 'json' };
+import rootPkg from '../../package.json' with { type: 'json' };
 
 // v0.51.0 — fourth TMA: Hitachi-style MRT system map + per-line cards.
 // Mirrors web/cuisine, web/menu, web/hawker pattern. Build output to
 // public/transport/ (regenerated on each deploy).
+// v0.60.215: version sourced from the ROOT package.json (was the stale
+// local one — see web/cuisine/vite.config.js).
 export default defineConfig({
   plugins: [react()],
   base: '/app/transport/',
@@ -15,7 +17,7 @@ export default defineConfig({
     sourcemap: false
   },
   define: {
-    __BUILD_VERSION__: JSON.stringify(pkg.version),
+    __BUILD_VERSION__: JSON.stringify(rootPkg.version),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString())
   }
 });

@@ -11,9 +11,9 @@
 // global as the cuisine TMA so the script loads once across both
 // TMAs when a user opens both in succession.
 //
-// Pins: AdvancedMarkerElement + PinElement. Standard red for
-// established centres; gold + 🆕 glyph for the 16 entries marked
-// `isNew` in data/list-of-hawker-centres.md.
+// Pins: AdvancedMarkerElement with a custom tiny-dot DOM node
+// (v0.60.224). Gold for the 16 `isNew` entries in
+// data/list-of-hawker-centres.md, red for established centres.
 //
 // InfoWindow: tap a pin → name + address + "Open on Google Maps ↗"
 // link to c.mapsUrl. No travel time, no rating, no footfall —
@@ -26,7 +26,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
-import { t, useLocale } from '../i18n.js';
+import { t, tn, useLocale } from '../i18n.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -34,6 +34,33 @@ function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// v0.60.227 — operator: the v0.60.224 13px dots were too tiny and
+// their colour didn't read against the map. New centres carry a "NEW"
+// badge so they pop. Gold = new centre, red = established (same palette
+// as the prior PinElement pins); the 🆕 distinction still surfaces in
+// the InfoWindow too.
+// v0.60.229 — operator: pins reduced 25px → 18px to match the Cuisine
+// TMA dot size. The "NEW" badge is absolutely positioned off the
+// marker's top edge, so it re-anchors at any pin size.
+function hawkerPinNode(isNew) {
+  const el = document.createElement('div');
+  el.style.cssText =
+    'position:relative;width:18px;height:18px;border-radius:50%;cursor:pointer;' +
+    'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
+    `background:${isNew ? '#f5a623' : '#e53935'};`;
+  if (isNew) {
+    const badge = document.createElement('div');
+    badge.textContent = 'NEW';
+    badge.style.cssText =
+      'position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);' +
+      'background:#f5a623;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
+      'letter-spacing:0.5px;padding:3px 5px;border-radius:4px;white-space:nowrap;' +
+      'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
+    el.appendChild(badge);
+  }
+  return el;
 }
 
 export default function HawkerMapPanel({ centres, region }) {
@@ -126,7 +153,7 @@ export default function HawkerMapPanel({ centres, region }) {
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
-    const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
+    const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old markers + InfoWindow content.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
@@ -141,26 +168,31 @@ export default function HawkerMapPanel({ centres, region }) {
     let plotted = 0;
     for (const c of (centres || [])) {
       if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
-      // Gold for new centres, red for established. Same colour palette
-      // as the cuisine MapPanel anchor pin family so the visual reads
-      // consistently across TMAs.
-      const pin = c.isNew
-        ? new PinElement({ background: '#f5a623', borderColor: '#7a4f00', glyph: '🆕', glyphColor: '#fff', scale: 1 })
-        : new PinElement({ background: '#e53935', borderColor: '#5d0d0a', glyph: '🍚', glyphColor: '#fff', scale: 1 });
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: pin.element,
+        content: hawkerPinNode(c.isNew),
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
-      const cta = `<button type="button" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(t('map.openInGoogleMaps', lang))}</button>`;
+      // v0.60.207 — operator: the standalone blue "Open on Google Maps"
+      // button was clipped / hard to see inside the InfoWindow bubble.
+      // Dropped the button; the address line is now itself the
+      // hyperlink (calls the same __giaHawkerOpenMap deep-link handler).
+      // Also: surface the stall count (5b), and pin a dark text colour
+      // on the root so the popup is legible in Telegram dark mode.
+      const stallsLine = Number.isFinite(c.stalls) && c.stalls > 0
+        ? `<div style="font-size:11px;color:#666;margin-top:3px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`
+        : '';
+      const addrLink = c.address
+        ? `<div style="font-size:11px;margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:#1a73e8;text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`
+        : '';
       const html =
-        `<div style="min-width:160px;max-width:260px;padding:2px 4px;">
-           <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>
-           ${c.address ? `<div style="font-size:11px;color:#666;margin-top:2px;">📇 ${escapeHtml(c.address)}</div>` : ''}
-           ${cta}
+        `<div style="min-width:160px;max-width:260px;padding:2px 4px;color:#1c1c1f;">
+           <div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>
+           ${stallsLine}
+           ${addrLink}
          </div>`;
       marker.addListener('click', () => {
         if (infoWindowRef.current) {

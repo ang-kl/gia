@@ -11,6 +11,8 @@ import {
   todaySGT,
   generateGroundedHiddenGems,
   searchToolForModel,
+  describeCookingMethod,
+  classifySearchIntent,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
 
@@ -472,12 +474,12 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🌟 Google rating');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📝 Latest rating/review');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('💎 Why a gem');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍴 Try ·');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍲 Try ·');
     // v0.59.24: 📍 line drops the "Google Map URL:" label — emoji + raw URL only.
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/📍 <raw full Google Maps URL/);
   });
 
-  it('v0.59.24: drinks BANNED in the 🍴 Try · line', () => {
+  it('v0.59.24: drinks BANNED in the 🍲 Try · line', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/never drinks/i);
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/EXCLUDE all drinks/);
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/kopi.*teh.*coffee/);
@@ -487,7 +489,7 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/🌟 Google rating · rating only \(no review count\)/);
   });
 
-  it('v0.59.24: 🍴 Try line specifies 5/3 dish count rule', () => {
+  it('v0.59.24: 🍲 Try line specifies 5/3 dish count rule', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/4\+ distinct dishes, list 5; otherwise list 3/);
   });
 
@@ -519,7 +521,109 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     // v0.59.24: middot-separated label form ("· …" replaces ": …").
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Why a gem ·');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Try ·');
-    // v0.59.24: 🍴 Order this renamed → 🍴 Try; old wording removed.
+    // v0.59.24: 🍴 Order this renamed → 🍲 Try; old wording removed.
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('🍴 Order this');
+  });
+});
+
+// v0.60.208 — describeCookingMethod: the /s cooking-method fan-out
+// explainer + representative-dish helper.
+describe('describeCookingMethod', () => {
+  const stubFactory = (text) => () => ({
+    getGenerativeModel: () => ({
+      async generateContent() { return { response: { text: () => text } }; }
+    })
+  });
+
+  it('parses explainer + exampleDish from a clean JSON response', async () => {
+    const r = await describeCookingMethod({
+      term: 'en croute', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('{"explainer":"En croûte is the French technique of baking in pastry, as in Beef Wellington.","exampleDish":"Beef Wellington"}')
+    });
+    expect(r.explainer).toContain('En croûte');
+    expect(r.exampleDish).toBe('Beef Wellington');
+  });
+
+  it('strips ```json fences', async () => {
+    const r = await describeCookingMethod({
+      term: 'tandoor', cuisineLabel: 'North Indian',
+      _genAIFactory: stubFactory('```json\n{"explainer":"Clay-oven roasting.","exampleDish":"Tandoori Chicken"}\n```')
+    });
+    expect(r.exampleDish).toBe('Tandoori Chicken');
+  });
+
+  it('returns empty strings when the model yields non-JSON', async () => {
+    const r = await describeCookingMethod({
+      term: 'sous vide', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('sorry, I cannot help with that')
+    });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+  });
+
+  it('returns empty strings when every model throws', async () => {
+    const throwingFactory = () => ({
+      getGenerativeModel: () => ({
+        async generateContent() { throw new Error('all models down'); }
+      })
+    });
+    const r = await describeCookingMethod({
+      term: 'braising', cuisineLabel: 'French', _genAIFactory: throwingFactory
+    });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+  });
+
+  it('returns empty strings on a blank term without calling the model', async () => {
+    let called = false;
+    const factory = () => ({ getGenerativeModel: () => { called = true; return {}; } });
+    const r = await describeCookingMethod({ term: '  ', cuisineLabel: 'French', _genAIFactory: factory });
+    expect(r).toEqual({ explainer: '', exampleDish: '' });
+    expect(called).toBe(false);
+  });
+
+  it('honours an empty exampleDish (method with no signature dish)', async () => {
+    const r = await describeCookingMethod({
+      term: 'mise en place', cuisineLabel: 'French',
+      _genAIFactory: stubFactory('{"explainer":"Prep organisation, not a dish.","exampleDish":""}')
+    });
+    expect(r.explainer).toContain('Prep organisation');
+    expect(r.exampleDish).toBe('');
+  });
+});
+
+// v0.60.216 — `venue` intent. classifySearchIntent must recognise a
+// named F&B venue (no dish word) so the free-text food-relatedness
+// gate does not decline a restaurant-name search as "ambiguous".
+describe('classifySearchIntent — venue intent', () => {
+  const stubFactory = (text) => () => ({
+    getGenerativeModel: () => ({
+      async generateContent() { return { response: { text: () => text } }; }
+    })
+  });
+
+  it('preserves a "venue" intent from the model', async () => {
+    const r = await classifySearchIntent({
+      text: 'Newton Food Centre',
+      _genAIFactory: stubFactory('{"intent":"venue","cuisine":null,"searchTerm":"Newton Food Centre Singapore","why":"A Singapore hawker centre.","clarify":""}')
+    });
+    expect(r.intent).toBe('venue');
+    expect(r.searchTerm).toBe('Newton Food Centre Singapore');
+  });
+
+  it('still coerces an unknown intent to "ambiguous"', async () => {
+    const r = await classifySearchIntent({
+      text: 'whatever',
+      _genAIFactory: stubFactory('{"intent":"banana","cuisine":null,"searchTerm":"","why":"","clarify":"Hmm?"}')
+    });
+    expect(r.intent).toBe('ambiguous');
+  });
+
+  it('keeps the dish / ingredient / tool intents intact', async () => {
+    for (const intent of ['dish', 'ingredient', 'tool']) {
+      const r = await classifySearchIntent({
+        text: 'x',
+        _genAIFactory: stubFactory(`{"intent":"${intent}","cuisine":null,"searchTerm":"x Singapore","why":"y","clarify":""}`)
+      });
+      expect(r.intent).toBe(intent);
+    }
   });
 });

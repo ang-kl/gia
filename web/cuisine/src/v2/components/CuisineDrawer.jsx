@@ -35,7 +35,7 @@ const CATEGORY_LABEL_KEY = {
 // drawer closes. App.jsx uses it to nudge a 3 s pulse on the 🔍
 // Search FAB so the user sees the next-step CTA right after picking
 // a cuisine.
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   const [lang] = useLocale();
 
@@ -66,10 +66,21 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
     const isSingle = cat.cuisines.length === 1;
     const onlySlug = isSingle ? cat.cuisines[0].slug : null;
     const isOnlySelected = isSingle && selected.includes(onlySlug);
+    // v0.60.199 — region-scoped chips. The synthetic ✳️ 🇸🇬 Michelin
+    // List category ships with regionScope:'SG' (the curated dataset
+    // is Singapore-only). When the user toggles to JB the chip greys
+    // out and ignores taps. App.jsx also strips 'michelin' from
+    // state.cuisines on JB toggle so a previously-selected chip
+    // doesn't linger.
+    const regionDisabled =
+      cat.regionScope && region && cat.regionScope.toUpperCase() !== String(region).toUpperCase();
     return (
       <button
         type="button"
+        disabled={regionDisabled}
+        aria-disabled={regionDisabled || undefined}
         onClick={() => {
+          if (regionDisabled) return;
           if (isSingle) {
             toggle(onlySlug);
             // Mirror the drawer-close FAB pulse so the user sees the
@@ -79,8 +90,10 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
             setOpenCategoryId(cat.id);
           }
         }}
-        title={label}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-left hover:border-tg-accent transition-colors"
+        title={regionDisabled
+          ? `${label} — ${lang === 'fr' ? 'Singapour uniquement' : 'Singapore only'}`
+          : label}
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-tg-accent'}`}
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
         <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{label}</span>

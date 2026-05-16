@@ -12,13 +12,13 @@
 
 ```yaml
 contract:
-  version: 0.0.3
+  version: 0.0.4
   owner: <human-lead-name>
   reader_primary: claude-code
   reader_secondary: human-lead
   template_neutral: true
-  last_updated: 27-04 '26 07:29 SGT
-  last_anchor_source: user_stated_device_clock_after_data_gov_sg_date_triangulation
+  last_updated: 15-05 '26 09:15 SGT
+  last_anchor_source: claude_v0_60_177_claudefull_codify_supplementary_folders_plus_seven_patterns
   enforcement: strict
   changelog:
     - version: 0.0.1
@@ -40,6 +40,13 @@ contract:
         - A7_added_NEA_data_gov_sg_endpoints_as_named_primary_for_SG_projects
         - A8_added_section_15_triangulation_worked_example
         - A9_added_rule_TF_10_sensor_cache_lag_aware_API_consumption
+    - version: 0.0.4
+      date: 15-05 '26 09:15 SGT
+      changes:
+        - A10_added_section_16_supplementary_folders_codified_during_soleat_v0_60_arc
+        - A11_added_section_17_operational_patterns_seven_codifications_from_the_arc
+        - A12_added_section_18_vibe_journal_framework_convention
+      prior_archived_at: doc/Archive/CLAUDE-FULL-0.0.3-15_05_26.md
 ```
 
 **Strict enforcement means:** Claude Code MUST refuse to proceed when a rule below is violated, and MUST surface the violation to the Human Lead before continuing.
@@ -669,8 +676,8 @@ amendment:
 ## 14. END OF CONTRACT
 
 ```yaml
-file_end_marker: CLAUDE_MD_v0_0_3_END
-checksum_required: false_for_v0_0_3
+file_end_marker: CLAUDE_MD_v0_0_4_END
+checksum_required: false_for_v0_0_4
 ```
 
 ---
@@ -780,3 +787,253 @@ on_first_response_of_session:
 ---
 
 > **For Human Readers:** This file is intentionally written for machine parsing first. The structure is rigid because Claude Code reads it on every session start and must produce deterministic behaviour. If you find a rule unclear or unhelpful, propose an amendment via §13. Rules exist to protect the build trail, not to slow you down. §15 is included specifically because experiencing a drift cascade once is informative; experiencing it twice is failure to learn.
+
+---
+
+## 16. SUPPLEMENTARY FOLDERS — codified during the soleat v0.60 arc
+
+> **Status:** Added in contract v0.0.4 (15-05 '26). The eight folder templates in §1 remain canonical for any project adopting the convention. The three folders below are project-discovered patterns that proved their value across the soleat v0.59 → v0.60 arc and are codified here so other projects can inherit them with the same structural guarantees.
+
+### 16.1 `vault/<version>/` — frozen reproducible snapshots
+
+```yaml
+vault_protocol:
+  purpose: rollback_safety + reproducibility + audit_trail
+  cadence: every_8_to_12_versions OR on_milestone OR on_operator_request
+  layout:
+    vault/v<MAJOR>.<MINOR>.<PATCH>/
+      VAULT_README.md           # required — headline + arc + boot instructions
+      <full mirror of repo>     # all source + docs + tests
+  exclusions:                   # strict — never include
+    - node_modules/             # root + every nested
+    - .git/                     # history lives in parent repo
+    - vault/                    # nested vaults forbidden (recursion)
+    - public/<tma>/assets/      # regenerable build artefacts; index.html + images kept
+    - .claude/settings.local.json # local session state
+    - .env, *.log               # secrets + transient logs (.env.example IS kept)
+    - tmp/                      # transient working scratch
+    - migration_audit.log       # per-run audit, not source-of-truth
+  vault_readme_required_sections:
+    - headline_blurb            # "Frozen reproducible snapshot of <project> at vN.N.N — …"
+    - captured_timestamp
+    - exclusion_list            # verbatim per above
+    - file_count_and_size       # "~610 files at ~38 MB"
+    - boot_instructions         # `cp -a vault/<v> /tmp/<project>-<v> && cd … && npm install`
+    - arc_table                 # version → headline → PR for every version in the arc since the prior vault
+```
+
+**Rule V-1:** Vault snapshots are append-only — a prior vault is never deleted or rewritten.
+
+**Rule V-2:** The `[KNOWN GAPS]` block of any Journal entry that creates a new vault MUST log whether the prior vault is being superseded (if so, link to the closure rationale) or kept (if so, why both exist).
+
+**Rule V-3:** A vault snapshot's filesystem state may legitimately omit a self-referential journal addendum entry that documents the vault itself — the snapshot can't reasonably contain the meta-entry that describes its own existence. The omission MUST be recorded in the vault's commit message + the journal addendum's `[KNOWN GAPS]`.
+
+### 16.2 `doc/third-party.yaml` — external dependency manifest
+
+```yaml
+third_party_yaml:
+  purpose: surface_external_APIs_and_integrations_for_team_visibility
+  consumers:
+    - vibe-journal `3rd Party` tab (see §18)
+    - legal §2 "Data Sources & Attribution" table cross-reference
+    - operator-side budget-cap planning (DF-55 style)
+  schema:
+    apis:
+      - name: string            # e.g. "Places API (New) v1"
+        vendor: string          # e.g. "Google"
+        purpose: string         # short prose
+        key_env_var: string     # e.g. "GOOGLE_MAPS_API_KEY"
+        docs_url: string
+        status: active | dormant | deprecated
+        daily_cap: integer | null
+        notes: string
+    integrations:
+      - name: string
+        kind: string             # messaging | data-store | hosting | …
+        purpose: string
+        docs_url: string
+        status: active | …
+        notes: string
+```
+
+**Rule T-1:** A project that uses any paid third-party API SHOULD maintain `doc/third-party.yaml`. If a manifest exists, the formal Legal §2 "Data Sources & Attribution" table SHOULD be derivable from it (or cross-reference it).
+
+### 16.3 `.vibe-journal/` — the project-agnostic Vibe Journal framework
+
+```yaml
+vibe_journal_framework:
+  location: <repo-root>/.vibe-journal/
+  purpose: emit_a_static_multi-tab_HTML_knowledge_surface_for_team_visibility
+  scope: project-agnostic; works on any repo following the §1 eight-folder convention + §16.1 vault + §16.2 third-party manifest
+  CLI:
+    init: vibe-journal init           # scaffold vibe-journal.config.yaml
+    regen: vibe-journal regen         # parse doc/ + vault/ + third-party.yaml → emit static site
+    serve: vibe-journal serve         # local preview on port 5478
+  output_modes:
+    multi-file:
+      destination: dist/vibe-journal/
+      structure: index.html + style.css + app.js + data/<type>.ndjson × 10 + data/manifest.json
+      suits: local dev / `vibe-journal serve`
+    bundled:                          # config keys `bundled_html` + `bundled_json`
+      destination: project-specific (e.g. public/doc/ for soleat)
+      structure: 1 self-contained HTML (CSS + JS inlined) + 1 JSON blob ({ manifest, data })
+      suits: tightly-controlled Express whitelist serving (e.g. soleat.net /doc/vibe-journal.html)
+  see_section: 18                     # full design + tab layout
+```
+
+---
+
+## 17. OPERATIONAL PATTERNS — seven codifications from the soleat v0.59 → v0.60 arc
+
+> **Status:** Added in contract v0.0.4. These patterns proved their value across ~150 PRs and are codified so other projects inherit them with the same expectations.
+
+### 17.1 Reproduce-by-reference (the doc-system scalability pattern)
+
+When an AU-1 / AU-3 doc (Feature / Technical / Register / Legal / Builder / Persona) reaches its 5th-or-later versioned file, **reproducing prior content verbatim by inlining** balloons every new file to thousands of lines. The pattern that proved viable across soleat's v0.60.157 / v0.60.169 / v0.60.171 / v0.60.172 catch-ups:
+
+```markdown
+> _(reproduced verbatim from `<prior-versioned-file>.md` — every section
+> below the marker is unchanged unless §7 Amendments says otherwise.)_
+```
+
+**Rule R-1:** "Reproduce-by-reference" is AU-1 / AU-3 compliant *only if* the prior file is preserved in the same `doc/<Folder>/` directory (so the reference resolves). If the prior file is archived to `doc/Archive/`, the reference MUST point at the archive path.
+
+**Rule R-2:** The new file MUST still contain its own §7 Amendments table with any new amendments for the current version.
+
+### 17.2 Operator-supplied-copy paste convention
+
+When the operator pastes user-facing copy verbatim into chat (e.g. for `/legal` or `/privacy`):
+
+1. The new copy lands in `i18n.js` (or equivalent) **exactly as pasted** — no agent rewording.
+2. Every supported locale is translated paragraph-for-paragraph (chip labels track existing `filter.*` strings; tone matches the prior translation's register).
+3. The prior copy is preserved **as superseded** in the same versioned Legal record file per AU-7.
+4. Deprecated env-var placeholders (e.g. `{operator}`) are dropped from the i18n string but recorded as L-Notes in the Legal record so future maintainers don't waste time chasing why the env var no longer takes effect.
+
+### 17.3 Doc-system catch-up cadence
+
+Journal updates are per-PR (already a Standing Rule). Feature / Technical / Register / Persona files batch:
+
+| Cadence | Trigger |
+|---|---|
+| **Per arc milestone** | Every ~10-15 versions OR at the close of a coherent arc (e.g. "the Cuisine TMA v2 page-history arc"). |
+| **At session wrap** | Operator says "Officially we can stop here" / "Append documents" — sweep cross-cutting doc-types so they don't drift past the Journal. |
+
+**Rule C-1:** No code-touching version should land without the Journal entry. Feature / Technical / Register may lag up to one arc milestone behind without violation.
+
+### 17.4 Admin-merge pattern for CI infrastructure failures
+
+When CI fails systematically (every job returns failure in < 5 s with no execution, all jobs in the same run, the workflow file is unchanged, and local preflight is clean):
+
+1. Diagnose first via an **empty-content PR off main** (zero file changes). If that also fails, the failure is GitHub-side; if it passes, the failure is on the original branch.
+2. If GitHub-side, admin-merge the original PR with the failure context recorded in the commit message — *"CI infra failing in 3-4 s with no execution per PR #<diagnostic> diagnostic; local preflight clean."*
+3. Surface in PR #<merge>'s body so reviewers see the diagnostic chain.
+
+**Rule M-1:** Admin-merge is permitted only when (a) local preflight is clean AND (b) diagnostic PR confirms infrastructure failure. Never as a routine shortcut.
+
+### 17.5 Cross-team onboarding sequence
+
+A new team member adopting the convention reads in order:
+
+1. Repo-root `CLAUDE.md` — standing rules + project orchestration.
+2. `doc/CLAUDE.md` — lean orchestrator + folder template index.
+3. `doc/CLAUDE-FULL.md` (this file) — full contract.
+4. Latest `doc/Builder/builder-…md` — patterns the project has discovered.
+5. Latest `doc/Persona/persona-…md` — operator's capability profile + working style.
+6. `doc/.serial-state.yml` — current counters + last anchor.
+7. Most-recent `doc/Journal/journal-…md` — what just shipped + status.
+8. `doc/Register/register-…md` — Open / Deferred / Decisions sections.
+
+**Rule O-1:** A bootstrap session (per §12) MUST surface this sequence in the welcome message so new joiners onboard the same way every time.
+
+### 17.6 Standing-rules registry
+
+Operator-set rules that bind future sessions live in the repo-root `CLAUDE.md` (NOT scattered across journals). The pattern: each rule has a one-liner header, an operator quote attributing the source, and a journal back-reference for full context.
+
+**Example** (Soleat's per-PR Journal rule, lifted verbatim into `CLAUDE.md`):
+
+```markdown
+## Standing rule — keep `doc/Journal/` current per-PR
+
+After opening any PR, and after a PR merges, record it in the Journal.
+[ … full rule body … ]
+
+This rule was set by the operator: *"Update the Journal every time a
+new PR is created and done."* (Recorded as decision-gate G3 in
+`journal-0_60_144-13_05_26-0900.md`.)
+```
+
+**Rule SR-1:** New standing rules require operator approval (per G3). They MUST quote the operator's words verbatim + reference the journal entry that captured the decision.
+
+### 17.7 Version-aware vault-prior-known-good
+
+When a refactor is risky (mass file rename, framework migration, security gate addition), the most recent `vault/v<N>/` snapshot is the rollback target. Two-step pattern:
+
+1. **Before the refactor**, take a fresh vault snapshot (§16.1) if the prior snapshot is more than ~5 versions stale.
+2. **In the refactor PR's body**, name the vault that's the rollback target. If something post-merge breaks production, the operator can `cp -a vault/v<N>/ /tmp/rollback-<N> && cd … && npm install && railway up` to get back to known-good in minutes.
+
+---
+
+## 18. THE VIBE JOURNAL FRAMEWORK — 5-row tabbed knowledge surface
+
+> **Status:** Added in contract v0.0.4. Codifies the project-agnostic Vibe Journal framework lifted from Soleat (v0.60.173 / PR #420) so other projects can adopt the same tab layout, parser conventions, and bundled-output deployment pattern.
+
+### 18.1 Tab layout (canonical 5-row spec)
+
+```
+Row 1:  📊 Dashboard | PR        | Register   | 3rd Party
+Row 2:  Technical    | Feature
+Row 3:  Legal        | Vault
+Row 4:  Journal
+Row 5:  Builder      | Persona
+```
+
+The `|` separators are visible in the rendered nav (per operator request). Each tab badges its record count alongside the label.
+
+**v0.0.4 amendment (Soleat v0.60.186, PR #435).** The original layout (above, before this amendment) was a 5-row / 9-tab spec; **📊 Dashboard** was added as the FIRST chip in row 1 to restore the 10 insight panels + Lessons block from the legacy `doc/VibeCodingRecord/generate.mjs` output without losing the v0.60.180 rich PR cards. Dashboard re-uses the PR record set (no separate parser); the renderer enriches each row client-side with category / area / version / day / module-buckets / rework-of and renders the panels described in §18.2 below.
+
+### 18.2 Data source per tab
+
+| Tab | Source | Renderer behaviour |
+|---|---|---|
+| 📊 Dashboard | re-uses the PR record set (no separate parser); enriched client-side with category / area / version / day / module-buckets / rework-of | 6 KPI cards + 10 `<details>` insight panels (Likely rework · Churn by feature · Churn by module · PRs per release · Category mix · 📈 PRs over time · 🪶 Small/low-effort · 🔁 Indecision · 🧠 Behavioural patterns · 🧩 Hard parts) + 9-entry 📚 Lessons list distilled from `.claude/skills/gia-preflight/SKILL.md` |
+| PR | `doc/VibeCodingRecord/data/prs.ndjson` → `gh` CLI → `git log` (priority order) | table: # / title / state / author / merged-or-updated / files |
+| Register | latest `doc/Register/register-*.md` | latest only; each `##` section as a card |
+| 3rd Party | `doc/third-party.yaml` (§16.2) + optional GitHub issues via `gh` | tables: APIs / Integrations / Issues |
+| Technical | latest `doc/Technical/technical-*.md` | section cards |
+| Feature | latest `doc/Feature/feature-*.md` | section cards |
+| Legal | latest `doc/Legal/legal-*.md` | section cards |
+| Vault | every `vault/v*/VAULT_README.md` (§16.1) | newest first; headline + arc table + boot block |
+| Journal | every `doc/Journal/journal-*.md`, split by `[HDR]` blocks | one card per HDR block, newest first |
+| Builder | latest `doc/Builder/builder-*.md` | section cards |
+| Persona | latest `doc/Persona/persona-*.md` | section cards |
+
+### 18.3 Output modes
+
+```yaml
+multi_file_mode:
+  destination: dist/vibe-journal/
+  emits: index.html + style.css + app.js + data/<type>.ndjson × 10 + data/manifest.json
+  suits: local dev preview (`vibe-journal serve`)
+
+bundled_mode:
+  config_keys: [bundled_html, bundled_json, bundled_json_url]
+  destination: project-specific
+  emits: 1 self-contained HTML (inlined CSS + JS) + 1 JSON blob
+        ({ manifest, data: { <type>: [...] } })
+  suits: tightly-controlled Express whitelist serving
+```
+
+### 18.4 Soleat reference deployment
+
+Soleat serves the bundled HTML + JSON from `public/doc/` at `/doc/vibe-journal.html` (Express whitelist at `index.js:7753` + `VIBE_JOURNAL_KEY` gate at line 7767). Regen flow: `cd .vibe-journal && node bin/vibe-journal.mjs regen --config examples/soleat-deploy/config.yaml`. Output overwrites the prior `public/doc/vibe-journal.html` + `public/doc/vibe-journal.json` from the legacy `doc/VibeCodingRecord/` single-page generator.
+
+### 18.5 Adoption checklist for a new project
+
+1. Copy `.vibe-journal/` from a reference project (e.g. soleat).
+2. `cd .vibe-journal && npm install` (one-time).
+3. `node bin/vibe-journal.mjs init` → scaffold `vibe-journal.config.yaml`.
+4. Edit the config: point at your `doc/`, `vault/`, `doc/third-party.yaml` paths.
+5. `node bin/vibe-journal.mjs regen` → emit static site.
+6. Deploy: copy `dist/vibe-journal/` to any static host OR configure bundled mode for an in-app route.
+
+**Rule VJ-1:** A project that adopts `.vibe-journal/` MUST regen on every push to `main` (manually, via postinstall hook, or via CI). Stale data is worse than no data — it suggests the surface is reliable when it isn't.
