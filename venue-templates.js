@@ -126,11 +126,13 @@ function formatPriceAndPetLine(p, opts = {}) {
 // chokepoint for ALL Telegram dish rendering (Copy, Copy to, cards),
 // so a bare category word ("dishes", "food") can never reach a card
 // even if an upstream extraction path lets one through.
-// v0.60.222 — operator: the glyph is "🍽️ Try ·" (matching the /s
-// formatTechniqueVenueBlock line), not "🧾". Plus a venue-name guard:
-// a review-regex capture sometimes leaks the venue's own name onto
-// the dish list ("Restaurant Fiz and what") — drop any entry that
-// contains, or is contained by, the venue name.
+// v0.60.222 — operator: the glyph is the "Try ·" line (matching the
+// /s formatTechniqueVenueBlock line), not "🧾". Plus a venue-name
+// guard: a review-regex capture sometimes leaks the venue's own name
+// onto the dish list ("Restaurant Fiz and what") — drop any entry
+// that contains, or is contained by, the venue name.
+// v0.60.222a — operator: standardise the Try glyph to 🍲 across /s,
+// /hidden and Copy (was 🍽️ / 🍴).
 function formatOrderLine(p, lang = 'en') {
   const { filterDishNames } = require('./dish-name');
   const venueName = String((p && p.name) || '').trim().toLowerCase();
@@ -142,7 +144,7 @@ function formatOrderLine(p, lang = 'en') {
     })
     .slice(0, 3);
   if (!dishes.length) return '';
-  return `🍽️ ${lang === 'fr' ? 'Essayez' : 'Try'} · ${escapeHtml(dishes.join(' · '))}`;
+  return `🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · ${escapeHtml(dishes.join(' · '))}`;
 }
 
 // Format the 📍 Maps URL line. Prefers the canonical googleMapsUrl(p)

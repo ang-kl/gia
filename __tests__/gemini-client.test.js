@@ -474,12 +474,12 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🌟 Google rating');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('📝 Latest rating/review');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('💎 Why a gem');
-    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍴 Try ·');
+    expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('🍲 Try ·');
     // v0.59.24: 📍 line drops the "Google Map URL:" label — emoji + raw URL only.
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/📍 <raw full Google Maps URL/);
   });
 
-  it('v0.59.24: drinks BANNED in the 🍴 Try · line', () => {
+  it('v0.59.24: drinks BANNED in the 🍲 Try · line', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/never drinks/i);
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/EXCLUDE all drinks/);
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/kopi.*teh.*coffee/);
@@ -489,7 +489,7 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/🌟 Google rating · rating only \(no review count\)/);
   });
 
-  it('v0.59.24: 🍴 Try line specifies 5/3 dish count rule', () => {
+  it('v0.59.24: 🍲 Try line specifies 5/3 dish count rule', () => {
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toMatch(/4\+ distinct dishes, list 5; otherwise list 3/);
   });
 
@@ -521,7 +521,7 @@ describe('HIDDEN_GEMS_PROMPT_TEMPLATE', () => {
     // v0.59.24: middot-separated label form ("· …" replaces ": …").
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Why a gem ·');
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).toContain('Try ·');
-    // v0.59.24: 🍴 Order this renamed → 🍴 Try; old wording removed.
+    // v0.59.24: 🍴 Order this renamed → 🍲 Try; old wording removed.
     expect(HIDDEN_GEMS_PROMPT_TEMPLATE).not.toContain('🍴 Order this');
   });
 });

@@ -123,7 +123,7 @@ const HIDDEN_GEMS_PROMPT_TEMPLATE = [
   '💎 Why a gem · one concrete sentence citing a specific signal, such as review pattern, blog detail, dish detail, opening signal, or social-buzz signal.',
   // v0.59.24: rename "Order this" → "Try"; drinks BANNED; 5/3 dishes
   // based on Google review distinct-dish count.
-  '🍴 Try · top FOOD dishes only — never drinks. If Google reviews mention 4+ distinct dishes, list 5; otherwise list 3. Comma-separated. EXCLUDE all drinks: kopi, teh, teh tarik, milo, bandung, coffee, latte, cappuccino, espresso, mocha, americano, flat white, cold brew, iced tea, bubble tea, boba, milk tea, smoothies, juices, lemonade, soda, beer, wine, cocktails, whisky, sake, soju, mojito, margarita, etc.',
+  '🍲 Try · top FOOD dishes only — never drinks. If Google reviews mention 4+ distinct dishes, list 5; otherwise list 3. Comma-separated. EXCLUDE all drinks: kopi, teh, teh tarik, milo, bandung, coffee, latte, cappuccino, espresso, mocha, americano, flat white, cold brew, iced tea, bubble tea, boba, milk tea, smoothies, juices, lemonade, soda, beer, wine, cocktails, whisky, sake, soju, mojito, margarita, etc.',
   '📍 <raw full Google Maps URL — emoji prefix only, no "Google Map URL:" label>.',
   // v0.58.37: removed Criteria-met / Confidence / Sources lines per
   // Human Lead. The criteria gate is still enforced internally — you
@@ -172,7 +172,7 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   'Render the entire user-facing output in French, with these rules:',
   // v0.59.24: labels updated to match the new EN OUTPUT FORMAT
   // (rating-only, 📝 prefix, middot separators, "🍴 Essayez").
-  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "🌟 Google rating ·" → "🌟 Note Google ·", "📝 Latest rating/review ·" → "📝 Dernier avis ·", "💎 Why a gem ·" → "💎 Pourquoi un trésor ·", "🍴 Try ·" → "🍴 Essayez ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
+  '- Translate the fixed labels: "Address" → "Adresse", "🕒 Opening hours" → "🕒 Horaires", "🌟 Google rating ·" → "🌟 Note Google ·", "📝 Latest rating/review ·" → "📝 Dernier avis ·", "💎 Why a gem ·" → "💎 Pourquoi un trésor ·", "🍲 Try ·" → "🍲 Essayez ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
   '- Keep iconic Singapore dish names in their original form (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate the surrounding prose (e.g. "stall réputée pour son laksa onctueux").',
   '- Keep proper nouns (venue names, neighbourhoods, MRT stations) untranslated.',
   '- Keep URLs verbatim — do not translate or modify the Google Maps URL.',
