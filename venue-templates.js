@@ -114,6 +114,9 @@ function formatPriceAndPetLine(p, opts = {}) {
   const { lang = 'en' } = opts;
   const segments = [];
   if (p && p.priceRangeDisplay) segments.push(p.priceRangeDisplay);
+  // v0.60.223 — operator: the price row also carries ♿️ when Places
+  // confirms an accessible entrance (parity with the TMA ResultCard).
+  if (p && p.wheelchairAccessible === true) segments.push('♿️');
   if (p && p.allowsDogs === true) {
     segments.push(lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed');
   }
@@ -216,41 +219,31 @@ function formatVenueBlock(p, opts = {}) {
     if (p.websiteUri) lines.push(`🌐 ${p.websiteUri}`);
     if (p.phone)      lines.push(`📞 ${p.phone}`);
   }
-  if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
-    // v0.60.209 — operator: drop the "🌿 Sanctuary read for <name>"
-    // header. The block is now just the two 🌿-prefixed fields
-    // (`🌿 Quiet: …` / `🌿 Seating: …`) carried verbatim in sanctuaryRead.
-    // v0.60.221 — operator: drop the blank line above the 🌿 block so
-    // it sits flush with the row above (no one-line gap).
-    lines.push(escapeHtml(sanctuaryRead.trim()));
-  }
+  // v0.60.223 — operator's recreated copy template fixed the row
+  // order: name → 🍽️ type → 📇 address → 🕰️ hours → 🌐/📞 contact →
+  // 🌟 stats → price/♿️/🐾 → 🍲 Try → 🌿 Quiet/Seating → 🚊/🚘 → 📍
+  // → ✳️. Stats first, then the price/pet row, then the Try line,
+  // then the Sanctuary block flush beneath it.
   const stats = formatStatsLine(p, { includeDistance, lang });
-  // v0.58.51: per Human Lead — drop the blank line before the stats
-  // row. The ✨ row should sit flush against the preceding row (or
-  // the sanctuary read block) for compactness within a single pick.
-  // The separator BETWEEN picks lives at the join site, not here.
   if (stats) lines.push(stats);
+  const ppLine = formatPriceAndPetLine(p, { lang });
+  if (ppLine) lines.push(ppLine);
   if (includeOrder) {
     const orderLine = formatOrderLine(p, lang);
     if (orderLine) lines.push(orderLine);
   }
-  // v0.59.0: footfall row sits ABOVE travel-time, so a user reading
-  // top-to-bottom sees "should I go now?" before "how do I get there?"
-  // Skipped silently when no BestTime signal is attached.
+  if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
+    // v0.60.209 — drop the "🌿 Sanctuary read for <name>" header; the
+    // block is the two 🌿-prefixed fields (🌿 Quiet / 🌿 Seating).
+    // v0.60.221 — no blank line above it. v0.60.223 — moved below the
+    // 🍲 Try line per the operator's recreated copy template.
+    lines.push(escapeHtml(sanctuaryRead.trim()));
+  }
+  // v0.59.0 — footfall + v0.60.118 rain caveat: sparse rows, kept
+  // above the travel row.
   const footfallLine = formatFootfallLine(p, lang);
   if (footfallLine) lines.push(footfallLine);
-  // v0.60.118 — rain caveat for open-air picks (hawker / market /
-  // al-fresco / waterfront). Pre-computed in index.js (deliverPicks /
-  // deliverSurprise) via weather.attachRainAlerts; absent on indoor
-  // picks and whenever the 2h outlook is fair, so it never spams.
   if (typeof p.rainAlert === 'string' && p.rainAlert.trim()) lines.push(p.rainAlert.trim());
-  // v0.60.183 — price-range + 🐾 Pet line above travel-time. Sits
-  // between the stats row and the 🚊/🚘 row so the user sees cost +
-  // pet-policy before "how do I get there". Skipped silently when
-  // neither field is set on the venue (most Places-API results in JB
-  // / non-SG lack priceRange; pet flag is sparse).
-  const ppLine = formatPriceAndPetLine(p, { lang });
-  if (ppLine) lines.push(ppLine);
   // v0.58.52: travel-time row immediately above Maps URL — applies to
   // ALL three variants (T1/T2/T3) per Human Lead. Skipped silently
   // when Routes API didn't populate either transitMinutes or
