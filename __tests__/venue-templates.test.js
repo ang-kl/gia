@@ -29,7 +29,9 @@ const SAMPLE_VENUE = {
 
 describe('formatVenueBlock — T1 detail-with-sanctuary', () => {
   it('renders all rows including sanctuary read, no distance', () => {
-    const sanctuary = '• Quiet: yes\n• Seating: cozy nooks\n• Vibe: candlelit\n• Approach: walk-up';
+    // v0.60.209 — sanctuary read is now two 🌿-prefixed lines, and
+    // the "🌿 Sanctuary read for <name>" header is dropped.
+    const sanctuary = '🌿 Quiet: yes\n🌿 Seating: cozy nooks';
     const out = formatVenueBlock(SAMPLE_VENUE, {
       variant: 'detail-with-sanctuary',
       sanctuaryRead: sanctuary
@@ -39,8 +41,9 @@ describe('formatVenueBlock — T1 detail-with-sanctuary', () => {
     expect(out).toContain('🕰️');
     expect(out).toContain('🌐 https://lazylizard.sg');
     expect(out).toContain('📞 +65 6555 1234');
-    expect(out).toContain('🌿 Sanctuary read for Lazy Lizard');
-    expect(out).toContain('• Quiet: yes');
+    expect(out).not.toContain('Sanctuary read for');
+    expect(out).toContain('🌿 Quiet: yes');
+    expect(out).toContain('🌿 Seating: cozy nooks');
     // v0.60.183 — priceLevel ($$) moved out of the stats row onto a
     // dedicated price-pet line (renders empty in this fixture because
     // priceRangeDisplay isn't pre-resolved). Stats row is now
