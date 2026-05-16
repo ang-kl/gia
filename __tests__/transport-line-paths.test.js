@@ -1,4 +1,4 @@
-// __tests__/transport-line-paths.test.js — v0.60.230
+// __tests__/transport-line-paths.test.js — v0.60.233
 //
 // Unit tests for buildLinePaths (Build E 5a) — the pure helper that
 // derives MRT/LRT polyline geometry from the station list. Lives in
@@ -24,6 +24,48 @@ const STATIONS = [
   { name: 'JRL Stn B',      lat: 1.3800, lng: 103.7400, codes: ['JS2'],         lines: ['JRL'],        status: 'future' }
 ];
 
+// v0.60.233 — LRT loop + Circle Line fixture. Drawn from explicit
+// operator-verified sequences (BPL/PLRT) or with a connected CE spur.
+const LRT_CCL_STATIONS = [
+  // Bukit Panjang LRT — BP1..BP13.
+  { name: 'Choa Chu Kang', lat: 1.3854, lng: 103.7443, codes: ['BP1'],  lines: ['BPL'], status: 'operational' },
+  { name: 'South View',    lat: 1.3805, lng: 103.7453, codes: ['BP2'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Keat Hong',     lat: 1.3858, lng: 103.7491, codes: ['BP3'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Teck Whye',     lat: 1.3897, lng: 103.7503, codes: ['BP4'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Phoenix',       lat: 1.3858, lng: 103.7544, codes: ['BP5'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Bukit Panjang', lat: 1.3789, lng: 103.7616, codes: ['BP6'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Petir',         lat: 1.3779, lng: 103.7700, codes: ['BP7'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Pending',       lat: 1.3756, lng: 103.7715, codes: ['BP8'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Bangkit',       lat: 1.3787, lng: 103.7733, codes: ['BP9'],  lines: ['BPL'], status: 'operational' },
+  { name: 'Fajar',         lat: 1.3838, lng: 103.7706, codes: ['BP10'], lines: ['BPL'], status: 'operational' },
+  { name: 'Segar',         lat: 1.3877, lng: 103.7697, codes: ['BP11'], lines: ['BPL'], status: 'operational' },
+  { name: 'Jelapang',      lat: 1.3866, lng: 103.7642, codes: ['BP12'], lines: ['BPL'], status: 'operational' },
+  { name: 'Senja',         lat: 1.3826, lng: 103.7624, codes: ['BP13'], lines: ['BPL'], status: 'operational' },
+  // Punggol LRT — hub PTC + PW1..PW7 + PE1..PE7. Teck Lee is PW7.
+  { name: 'Punggol',       lat: 1.4053, lng: 103.9023, codes: ['PTC'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Sam Kee',       lat: 1.4078, lng: 103.9024, codes: ['PW1'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Punggol Point', lat: 1.4128, lng: 103.9047, codes: ['PW2'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Samudera',      lat: 1.4148, lng: 103.9027, codes: ['PW3'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Nibong',        lat: 1.4119, lng: 103.9003, codes: ['PW4'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Sumang',        lat: 1.4085, lng: 103.8985, codes: ['PW5'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Soo Teck',      lat: 1.4053, lng: 103.8966, codes: ['PW6'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Teck Lee',      lat: 1.4115, lng: 103.9089, codes: ['PW7'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Cove',          lat: 1.3993, lng: 103.9059, codes: ['PE1'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Meridian',      lat: 1.3970, lng: 103.9095, codes: ['PE2'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Coral Edge',    lat: 1.3939, lng: 103.9123, codes: ['PE3'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Riviera',       lat: 1.3940, lng: 103.9165, codes: ['PE4'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Kadaloor',      lat: 1.3994, lng: 103.9162, codes: ['PE5'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Oasis',         lat: 1.4023, lng: 103.9131, codes: ['PE6'], lines: ['PLRT'], status: 'operational' },
+  { name: 'Damai',         lat: 1.4053, lng: 103.9085, codes: ['PE7'], lines: ['PLRT'], status: 'operational' },
+  // Circle Line — a slice of the CC arc + the CE spur.
+  { name: 'Esplanade',      lat: 1.2934, lng: 103.8555, codes: ['CC3'], lines: ['CCL'], status: 'operational' },
+  { name: 'Promenade',      lat: 1.2935, lng: 103.8612, codes: ['CC4'], lines: ['CCL'], status: 'operational' },
+  { name: 'Nicoll Highway', lat: 1.2997, lng: 103.8636, codes: ['CC5'], lines: ['CCL'], status: 'operational' },
+  { name: 'Bayfront',       lat: 1.2823, lng: 103.8590, codes: ['CE1'], lines: ['CCL'], status: 'operational' },
+  { name: 'Marina Bay',     lat: 1.2761, lng: 103.8546, codes: ['CE2'], lines: ['CCL'], status: 'operational' }
+];
+const ALL_STATIONS = [...STATIONS, ...LRT_CCL_STATIONS];
+
 describe('buildLinePaths — ordering', () => {
   it('orders NSL stations by their NS code suffix', () => {
     const paths = buildLinePaths(STATIONS);
@@ -42,13 +84,58 @@ describe('buildLinePaths — ordering', () => {
 });
 
 describe('buildLinePaths — LRT loop branches', () => {
-  it('splits SLRT into two branch segments, each prepended with the STC hub', () => {
+  it('closes each SLRT branch into a loop wrapped by the STC hub', () => {
     const paths = buildLinePaths(STATIONS);
     expect(paths.SLRT).toHaveLength(2);
+    const hub = { lat: 1.3916, lng: 103.8954 };   // Sengkang
     for (const seg of paths.SLRT) {
-      expect(seg[0]).toEqual({ lat: 1.3916, lng: 103.8954 });   // Sengkang hub
-      expect(seg.length).toBe(3);                                // hub + 2 branch stops
+      expect(seg).toHaveLength(4);                 // hub + 2 branch stops + hub
+      expect(seg[0]).toEqual(hub);
+      expect(seg[seg.length - 1]).toEqual(hub);
     }
+  });
+});
+
+describe('buildLinePaths — LRT closed loops (v0.60.233)', () => {
+  it('draws BPL as one segment that closes back to Bukit Panjang', () => {
+    const paths = buildLinePaths(ALL_STATIONS);
+    expect(paths.BPL).toHaveLength(1);
+    const seg = paths.BPL[0];
+    expect(seg).toHaveLength(14);                              // 13 stations + loop close
+    expect(seg[0]).toEqual({ lat: 1.3854, lng: 103.7443 });    // Choa Chu Kang
+    expect(seg[5]).toEqual({ lat: 1.3789, lng: 103.7616 });    // Bukit Panjang
+    expect(seg[seg.length - 1]).toEqual(seg[5]);               // loop closes on Bukit Panjang
+  });
+
+  it('draws PLRT as two loops, each closing on Punggol', () => {
+    const paths = buildLinePaths(ALL_STATIONS);
+    expect(paths.PLRT).toHaveLength(2);
+    const punggol = { lat: 1.4053, lng: 103.9023 };
+    for (const seg of paths.PLRT) {
+      expect(seg[0]).toEqual(punggol);
+      expect(seg[seg.length - 1]).toEqual(punggol);
+    }
+  });
+
+  it('orders the Punggol West loop by running order, not code number (Teck Lee mid-loop)', () => {
+    const paths = buildLinePaths(ALL_STATIONS);
+    const west = paths.PLRT.find((seg) => seg.some((p) => p.lat === 1.4115 && p.lng === 103.9089));
+    expect(west).toBeTruthy();
+    expect(west[1]).toEqual({ lat: 1.4078, lng: 103.9024 });   // Sam Kee (PW1)
+    expect(west[2]).toEqual({ lat: 1.4115, lng: 103.9089 });   // Teck Lee (PW7) — between PW1 and PW2
+    expect(west[3]).toEqual({ lat: 1.4128, lng: 103.9047 });   // Punggol Point (PW2)
+  });
+});
+
+describe('buildLinePaths — Circle Line connection (v0.60.233)', () => {
+  it('prepends Promenade to the CE spur so Bayfront connects to the loop', () => {
+    const paths = buildLinePaths(ALL_STATIONS);
+    const promenade = { lat: 1.2935, lng: 103.8612 };
+    const ceSeg = paths.CCL.find((seg) => seg[0].lat === promenade.lat && seg[0].lng === promenade.lng);
+    expect(ceSeg).toBeTruthy();
+    expect(ceSeg[0]).toEqual(promenade);                       // Promenade (CC4)
+    expect(ceSeg[1]).toEqual({ lat: 1.2823, lng: 103.8590 });  // Bayfront (CE1)
+    expect(ceSeg[2]).toEqual({ lat: 1.2761, lng: 103.8546 });  // Marina Bay (CE2)
   });
 });
 
