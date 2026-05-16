@@ -9,6 +9,7 @@ import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import BackFab from './components/BackFab.jsx';
+import WeatherBadge from './components/WeatherBadge.jsx';
 
 // v0.60.213 — build version for the footer tag line.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -87,7 +88,11 @@ export default function App() {
       <header className="flex items-baseline justify-between">
         <div>
           <h1 className="text-base sm:text-lg font-bold leading-tight">{t('header.title', lang)}</h1>
-          <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>
+          {/* v0.60.219 — live Singapore weather emoji beside the timestamp. */}
+          <div className="text-[11px] text-tg-hint flex items-center gap-1.5">
+            <span>{data.timestampSGT || ''}</span>
+            <WeatherBadge />
+          </div>
         </div>
         <div className="text-[11px] text-tg-hint">
           {affectedCodes.length === 0

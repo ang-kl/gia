@@ -10,6 +10,7 @@ import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
+import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
 
@@ -933,9 +934,10 @@ export default function App() {
               Human Lead. Slim flag-pair to the left of the count badge. */}
           <div className="flex items-center gap-3 shrink-0">
             <LocaleToggle />
-            <div className="text-[11px] text-tg-hint">
-              {state.cuisines.length}c · {filterCount}f
-            </div>
+            {/* v0.60.219 — operator: drop the "Nc · Nf" count badge,
+                show a live Singapore weather emoji beside the locale
+                toggle instead. */}
+            <WeatherBadge className="text-[11px] text-tg-hint" />
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.

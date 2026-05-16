@@ -3,6 +3,7 @@ import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BackFab from './components/BackFab.jsx';
+import WeatherBadge from './components/WeatherBadge.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
 // Opérationnel" when stall count and/or status are known. Replaces
@@ -146,10 +147,10 @@ export default function App() {
         <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
-          <p className="text-[10px] text-tg-hint font-mono leading-tight">
-            {data?.totalCount
-              ? tn('header.versionCount', lang, { v: BUILD_VERSION, n: data.totalCount })
-              : tn('header.versionOnly', lang, { v: BUILD_VERSION })}
+          {/* v0.60.219 — operator: replace the build-version line with
+              a live Singapore weather emoji. */}
+          <p className="text-[10px] text-tg-hint leading-tight">
+            <WeatherBadge />
           </p>
         </div>
         <button onClick={() => openLink(NEA_HOME)} className="text-xs px-2.5 py-1.5 rounded-full border border-tg-border bg-tg-card">
