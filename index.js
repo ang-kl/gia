@@ -10551,7 +10551,7 @@ async function cacheBotUsername() {
         const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
           ? (typeof r.text.text === 'string' ? r.text.text : '')
           : (typeof r?.text === 'string' ? r.text : '');
-        function extractDishes(reviews) {
+        function extractDishes(reviews, venueName) {
           const recent = (reviews || [])
             .filter((r) => reviewText(r))
             .filter((r) => {
@@ -10566,29 +10566,29 @@ async function cacheBotUsername() {
             /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
             /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
           ];
-          // v0.59.32 — tighter dish-quality filter. Per Human Lead
-          // 2026-05-07 screenshot: "🍴 Try · desserts which" was
-          // garbage from a review like "the desserts which were…".
-          // The capture grabbed "desserts which" as a noun phrase.
-          // Reject candidates whose LAST token is a stop-word/connector,
-          // and prefix-block more nouny non-dish words.
-          const TRAILING_STOPWORDS = /\b(which|that|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there)$/i;
-          // v0.59.32 / Codex review #237 P2: anchor with $ (not \b) so
-          // we only block when the WHOLE candidate is a category word.
-          // "Special Fried Rice" / "Dessert Platter" / "Combo Set" etc.
-          // are valid menu items and should pass; only bare "specials"
-          // / "desserts" / "combos" alone are categorical and rejected.
-          // v0.60.209 — unified into the shared dish-name.js CATEGORY_RE
-          // (now also blocks bare "dish"/"dishes").
-          const CATEGORY_BLOCK_RX = DISH_CATEGORY_RE;
+          // v0.60.225 — the dish-quality gate is now the shared
+          // dish-name.js isDishName(): it bounds the length (3–40),
+          // rejects bare category words ("desserts", "mains") and
+          // rejects trailing-stop-word / interrogative fragments
+          // ("…the desserts which", "…Restaurant Fiz and what"). The
+          // old local TRAILING_STOPWORDS list predated the v0.60.222
+          // interrogative additions and so let "…and what" through.
+          const venueLc = String(venueName || '').trim().toLowerCase();
           const dishes = new Set();
           for (const re of patterns) {
             let m;
             while ((m = re.exec(allText)) !== null && dishes.size < 5) {
               const candidate = (m[1] || '').trim();
-              if (candidate.length < 3 || candidate.length > 40) continue;
-              if (CATEGORY_BLOCK_RX.test(candidate)) continue;
-              if (TRAILING_STOPWORDS.test(candidate)) continue;
+              if (!isDishName(candidate)) continue;
+              // v0.60.225 — venue-name guard. A capture that contains
+              // the venue's own name (or vice-versa) is a leaked
+              // sentence fragment, not a dish — operator screenshot:
+              // "🍲 Try · Restaurant Fiz and what". Mirrors the
+              // formatOrderLine guard added in v0.60.223.
+              if (venueLc) {
+                const dn = candidate.toLowerCase();
+                if (dn.includes(venueLc) || venueLc.includes(dn)) continue;
+              }
               // Require at least one capitalised internal token (proper-noun-ish)
               // OR the whole candidate to be a single recognisable word ≥4 chars.
               const tokens = candidate.split(/\s+/);
@@ -10606,7 +10606,7 @@ async function cacheBotUsername() {
         const dropDrinks = pipelineMod.shouldFilterDrinks(cuisineQueries);
         for (const v of top) {
           if (Array.isArray(v.reviews) && v.reviews.length) {
-            const { dishes, snippet } = extractDishes(v.reviews);
+            const { dishes, snippet } = extractDishes(v.reviews, v.name);
             const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
             if (filtered.length) v.dishes = filtered;
             if (snippet) v.recentReview = snippet;
@@ -10622,7 +10622,7 @@ async function cacheBotUsername() {
                 const raw = await redis.get(`place-reviews:${v.placeId}`);
                 if (!raw) return;
                 const reviews = JSON.parse(raw);
-                const { dishes, snippet } = extractDishes(reviews);
+                const { dishes, snippet } = extractDishes(reviews, v.name);
                 // v0.59.24 (Codex #229 P2): same drinks filter as the
                 // inline-review path above. Without this, cached reviews
                 // mentioning "kopi"/"teh tarik"/cocktails could still
