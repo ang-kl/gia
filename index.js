@@ -2686,8 +2686,13 @@ async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
     // "Good window to head out?" — the interpreted lead line.
     const headOut = weather.headOutLine(nowcast, rainfall, lat, lng, lang, tn);
     if (headOut) lines.push(headOut);
-    if (Number.isFinite(w.tempC)) lines.push(tn('weather.temp', lang, { c: w.tempC.toFixed(1), at: w.tempStationName }));
-    if (Number.isFinite(w.humidityPct)) lines.push(tn('weather.humidity', lang, { pct: w.humidityPct.toFixed(0), at: w.humidityStationName }));
+    // v0.60.218 — operator: show °C AND °F; drop the "@ <station>"
+    // suffix on the temperature + humidity lines; "Temp" → "Temperature".
+    if (Number.isFinite(w.tempC)) {
+      const { toFahrenheit } = require('./weather-emoji');
+      lines.push(tn('weather.temp', lang, { c: w.tempC.toFixed(1), f: toFahrenheit(w.tempC).toFixed(1) }));
+    }
+    if (Number.isFinite(w.humidityPct)) lines.push(tn('weather.humidity', lang, { pct: w.humidityPct.toFixed(0) }));
     if (Number.isFinite(w.rainMm) && w.rainMm > 0) lines.push(tn('weather.rain', lang, { mm: w.rainMm, at: w.rainStationName }));
     if (Number.isFinite(w.windSpdKt)) {
       const dir = Number.isFinite(w.windDirDeg) ? `, ${Math.round(w.windDirDeg)}°` : '';
@@ -2697,7 +2702,9 @@ async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
       const valid = w.forecastValidTo
         ? tn('weather.forecastUntil', lang, { time: new Date(w.forecastValidTo).toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' }) })
         : '';
-      lines.push(tn('weather.forecastNext2h', lang, { area: w.forecastArea, desc: w.forecast, valid }));
+      // v0.60.218 — prefix the live condition with its weather emoji.
+      const fcEmoji = require('./weather-emoji').forecastEmoji(w.forecast);
+      lines.push(tn('weather.forecastNext2h', lang, { area: w.forecastArea, desc: `${fcEmoji} ${w.forecast}`, valid }));
     }
     // 24-hour "tonight in the {zone}: …" line.
     const tonight = weather.tonightOutlookFor(fc24, lat, lng, lang, tn);
