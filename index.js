@@ -10636,6 +10636,48 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
         }
+        // v0.60.225 — Gemini is the PRIMARY source for the TMA
+        // `🍲 Try ·` line; the review-text regex above is the
+        // fallback. Operator: extract dish/dessert names via Gemini
+        // from the venue's 4–5★ reviews ("5 stars rotated down to
+        // 3.5 minimum" — Google reviews are integer-starred, so the
+        // 3.5 floor admits 4★ and 5★). One batched call per search.
+        // When Gemini returns dishes for a venue they replace the
+        // regex result; when it returns nothing the regex result
+        // stands; when both are empty `v.dishes` is unset and the
+        // card row hides itself.
+        try {
+          const venuesForLlm = top
+            .filter((v) => v.placeId && Array.isArray(v.reviews) && v.reviews.length)
+            .map((v) => ({
+              id: v.placeId,
+              name: v.name,
+              reviews: v.reviews
+                .filter((r) => (Number(r && r.rating) || 0) >= 4)
+                .map((r) => ({ rating: Number(r.rating) || 0, text: reviewText(r) }))
+                .filter((r) => r.text)
+            }))
+            .filter((v) => v.reviews.length);
+          if (venuesForLlm.length) {
+            const geminiMod = require('./gemini-client');
+            const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
+            for (const v of top) {
+              if (!v.placeId) continue;
+              const picked = llmDishes.get(v.placeId);
+              if (!Array.isArray(picked) || !picked.length) continue;
+              const venueLc = String(v.name || '').trim().toLowerCase();
+              const cleaned = filterDishNames(picked).filter((d) => {
+                if (!venueLc) return true;
+                const dn = d.toLowerCase();
+                return !(dn.includes(venueLc) || venueLc.includes(dn));
+              });
+              const filtered = dropDrinks ? pipelineMod.filterOutDrinks(cleaned) : cleaned;
+              if (filtered.length) v.dishes = filtered;
+            }
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] Gemini dish extraction failed:', err.message);
+        }
         // v0.57.20: attach "Closed today · Opens tomorrow 11:00 AM" label
         // for venues that are currently closed. Uses regularPeriods from
         // the Places field mask. nextOpenString returns null when periods
