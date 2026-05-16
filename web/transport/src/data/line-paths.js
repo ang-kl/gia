@@ -77,3 +77,24 @@ export function buildLinePaths(stations) {
   }
   return paths;
 }
+
+// v0.60.232 (Build E 5e) — pick the real LTA route geometry served by
+// /api/transport/line-paths when it's present and well-formed, else
+// fall back to the station-code-derived polylines from buildLinePaths.
+// `fetched` has the same shape buildLinePaths returns:
+//   { [lineCode]: Array<Array<{lat,lng}>> }
+export function resolveLinePaths(fetched, stations) {
+  if (fetched && typeof fetched === 'object') {
+    const valid = {};
+    for (const [code, segments] of Object.entries(fetched)) {
+      if (code.startsWith('_')) continue;   // skip _meta
+      const good = (Array.isArray(segments) ? segments : []).filter(
+        (seg) => Array.isArray(seg) && seg.length >= 2
+          && seg.every((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng)),
+      );
+      if (good.length) valid[code] = good;
+    }
+    if (Object.keys(valid).length) return valid;
+  }
+  return buildLinePaths(stations);
+}

@@ -11363,6 +11363,37 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.60.232 (Build E 5e) — real LTA MRT/LRT route geometry. Read
+    // data/mrt-line-paths.json (produced by scripts/fetch-mrt-lines.js
+    // from data.gov.sg) once at boot, cache, serve as { paths }. When
+    // the file is absent the endpoint returns { paths: null } and the
+    // transport TMA falls back to its station-code-derived polylines.
+    let mrtLinePathsCache;   // undefined = not loaded, null = no file
+    function loadMrtLinePaths() {
+      if (mrtLinePathsCache !== undefined) return mrtLinePathsCache;
+      try {
+        const raw = require('fs').readFileSync(__dirname + '/data/mrt-line-paths.json', 'utf8');
+        const obj = JSON.parse(raw);
+        const paths = {};
+        for (const [code, segments] of Object.entries(obj)) {
+          if (code.startsWith('_')) continue;   // skip _meta
+          if (Array.isArray(segments)) paths[code] = segments;
+        }
+        mrtLinePathsCache = Object.keys(paths).length ? paths : null;
+      } catch (err) {
+        if (err.code !== 'ENOENT') console.error('[mrt-line-paths] load failed:', err.message);
+        mrtLinePathsCache = null;
+      }
+      return mrtLinePathsCache;
+    }
+    app.get('/api/transport/line-paths', (_req, res) => {
+      try {
+        res.json({ paths: loadMrtLinePaths() });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
 
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
