@@ -10636,43 +10636,96 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
         }
-        // v0.60.225 — Gemini is the PRIMARY source for the TMA
-        // `🍲 Try ·` line; the review-text regex above is the
-        // fallback. Operator: extract dish/dessert names via Gemini
-        // from the venue's 4–5★ reviews ("5 stars rotated down to
-        // 3.5 minimum" — Google reviews are integer-starred, so the
-        // 3.5 floor admits 4★ and 5★). One batched call per search.
-        // When Gemini returns dishes for a venue they replace the
-        // regex result; when it returns nothing the regex result
-        // stands; when both are empty `v.dishes` is unset and the
-        // card row hides itself.
+        // v0.60.226 — regex-first dish sourcing for the TMA
+        // `🍲 Try ·` line, with a cached Gemini fallback. v0.60.225
+        // ran a blocking Gemini call on every search, which made the
+        // Cuisine TMA slow. Now the review-text regex (passes 1–2
+        // above) is PRIMARY; Gemini runs ONLY for the venues regex
+        // left empty, and each Gemini result is cached per-venue in
+        // Redis (`cuisine-dishes:v1:<placeId>`) so repeat searches
+        // make zero Gemini calls. A negative result (Gemini found no
+        // dish) is cached too, so a dishless venue isn't re-queried
+        // every search. A venue with neither a regex dish nor a
+        // Gemini dish keeps `v.dishes` unset → the card row hides.
         try {
-          const venuesForLlm = top
-            .filter((v) => v.placeId && Array.isArray(v.reviews) && v.reviews.length)
-            .map((v) => ({
+          const DISH_CACHE_PREFIX = 'cuisine-dishes:v1:';
+          const DISH_CACHE_TTL_HIT_S = 7 * 24 * 60 * 60;
+          const DISH_CACHE_TTL_MISS_S = 24 * 60 * 60;
+          // The cache stores RAW Gemini output; the per-request
+          // cleaning (category gate + venue-name guard + drinks
+          // filter) is re-applied on read, so a drink cached on a
+          // Fusion search is still dropped when read on an Italian
+          // search.
+          const cleanDishes = (raw, venueName) => {
+            const venueLc = String(venueName || '').trim().toLowerCase();
+            const cleaned = filterDishNames(Array.isArray(raw) ? raw : []).filter((d) => {
+              if (!venueLc) return true;
+              const dn = d.toLowerCase();
+              return !(dn.includes(venueLc) || venueLc.includes(dn));
+            });
+            return dropDrinks ? pipelineMod.filterOutDrinks(cleaned) : cleaned;
+          };
+          // Gap venues: regex (passes 1–2) found nothing AND the
+          // venue still has inline 4–5★ reviews Gemini could use.
+          const gapVenues = top.filter((v) =>
+            v.placeId &&
+            !(Array.isArray(v.dishes) && v.dishes.length) &&
+            Array.isArray(v.reviews) && v.reviews.length
+          );
+          const needGemini = [];
+          if (gapVenues.length) {
+            // Cache read — a hit (positive OR a negative empty
+            // array) removes the venue from the Gemini batch.
+            await Promise.all(gapVenues.map(async (v) => {
+              let cached = null;
+              if (redis.isOpen) {
+                try {
+                  const raw = await redis.get(DISH_CACHE_PREFIX + v.placeId);
+                  if (raw) cached = JSON.parse(raw);
+                } catch { /* treat as uncached */ }
+              }
+              if (cached && Array.isArray(cached.dishes)) {
+                const filtered = cleanDishes(cached.dishes, v.name);
+                if (filtered.length) v.dishes = filtered;
+                return; // cache hit — skip Gemini for this venue
+              }
+              needGemini.push(v);
+            }));
+          }
+          if (needGemini.length) {
+            const geminiMod = require('./gemini-client');
+            const venuesForLlm = needGemini.map((v) => ({
               id: v.placeId,
               name: v.name,
               reviews: v.reviews
                 .filter((r) => (Number(r && r.rating) || 0) >= 4)
                 .map((r) => ({ rating: Number(r.rating) || 0, text: reviewText(r) }))
                 .filter((r) => r.text)
-            }))
-            .filter((v) => v.reviews.length);
-          if (venuesForLlm.length) {
-            const geminiMod = require('./gemini-client');
-            const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
-            for (const v of top) {
-              if (!v.placeId) continue;
-              const picked = llmDishes.get(v.placeId);
-              if (!Array.isArray(picked) || !picked.length) continue;
-              const venueLc = String(v.name || '').trim().toLowerCase();
-              const cleaned = filterDishNames(picked).filter((d) => {
-                if (!venueLc) return true;
-                const dn = d.toLowerCase();
-                return !(dn.includes(venueLc) || venueLc.includes(dn));
-              });
-              const filtered = dropDrinks ? pipelineMod.filterOutDrinks(cleaned) : cleaned;
-              if (filtered.length) v.dishes = filtered;
+            })).filter((v) => v.reviews.length);
+            if (venuesForLlm.length) {
+              const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
+              const batchIds = new Set(venuesForLlm.map((v) => v.id));
+              for (const v of needGemini) {
+                if (!batchIds.has(v.placeId)) continue;
+                const picked = llmDishes.get(v.placeId);
+                const rawDishes = Array.isArray(picked) ? picked : [];
+                if (rawDishes.length) {
+                  const filtered = cleanDishes(rawDishes, v.name);
+                  if (filtered.length) v.dishes = filtered;
+                }
+                // Cache the raw Gemini result. An empty array is the
+                // negative cache — held for a shorter TTL so a venue
+                // that later accrues review content isn't suppressed
+                // for a full week.
+                if (redis.isOpen) {
+                  const ttl = rawDishes.length ? DISH_CACHE_TTL_HIT_S : DISH_CACHE_TTL_MISS_S;
+                  redis.setEx(
+                    DISH_CACHE_PREFIX + v.placeId,
+                    ttl,
+                    JSON.stringify({ dishes: rawDishes, at: Date.now() })
+                  ).catch(() => { /* best-effort */ });
+                }
+              }
             }
           }
         } catch (err) {
