@@ -2128,13 +2128,26 @@ async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-lat
   let genAI;
   try { genAI = factory(); } catch { return out; }
   const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
-  const PER_ATTEMPT_MS = 8000;
+  // v0.60.226 — latency guard for the Cuisine TMA search path. A
+  // timeout means Gemini itself is slow, not that the model is bad,
+  // so a timeout STOPS the chain rather than retrying the next model
+  // (which would just stack another timeout — the old 8s × 3 chain
+  // could block a search for ~24s). Other errors (model-not-found,
+  // parse failure) still fall through to the next model. DEADLINE
+  // bounds the total even across that fall-through path.
+  const PER_ATTEMPT_MS = 6000;
+  const DEADLINE = Date.now() + 12_000;
   for (const candidate of candidates) {
+    if (Date.now() > DEADLINE) break;
     try {
       const m = genAI.getGenerativeModel({ model: candidate });
       const r = await Promise.race([
         m.generateContent(prompt),
-        new Promise((_, reject) => setTimeout(() => reject(new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`)), PER_ATTEMPT_MS))
+        new Promise((_, reject) => setTimeout(() => {
+          const e = new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`);
+          e.isTimeout = true;
+          reject(e);
+        }, PER_ATTEMPT_MS))
       ]);
       let raw = '';
       try { raw = r?.response?.text?.() || ''; } catch { continue; }
@@ -2152,6 +2165,7 @@ async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-lat
       return out;
     } catch (err) {
       console.warn(`[Extract-Dishes] ${candidate} failed: ${err.message}`);
+      if (err && err.isTimeout) break;
       continue;
     }
   }
