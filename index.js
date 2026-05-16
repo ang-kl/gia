@@ -7177,6 +7177,17 @@ bot.on('message', async (msg) => {
     // — they're 3+ alpha chars and not on the denylist.
     if (!looksLikePlaceQuery(text)) {
       console.log(`[free-text] noise-guard skipped: "${text.slice(0, 40)}"`);
+      // v0.60.216 — a real chat-noise WORD ("hi", "thanks", "menu")
+      // now gets the polite food nudge instead of silence; truly
+      // degenerate input (emoji / punctuation / <3 chars / digits)
+      // stays silent — no point replying to "👍".
+      const lowNoise = text.trim().toLowerCase().replace(/[\s\W]+$/u, '');
+      if (FREE_TEXT_NOISE.has(lowNoise)) {
+        const { resolveLang: rlN } = require('./user-prefs');
+        const nLang = await rlN(redis, msg.chat.id, msg).catch(() => 'en');
+        const { t: tN } = require('./i18n');
+        await safeSend(msg.chat.id, tN('freetext.questionDeclined', nLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+      }
       return;
     }
     // v0.60.131 — "looks like a question / instruction, not a dish or
@@ -7336,6 +7347,30 @@ bot.on('message', async (msg) => {
         }
       } catch (err) {
         console.warn('[free-text] cooking-method pivot failed (continuing):', err.message);
+      }
+    }
+    // v0.60.216 — food-relatedness gate (operator-directed, Option A).
+    // The free-text chat path otherwise hands any unrecognised text to
+    // Google Places searchText, so off-topic input ("tell me a joke",
+    // "weather in Tokyo") returns a misleading restaurant list. When
+    // the deterministic detectors above (nation-overlay / R.E.D /
+    // cooking-method) did NOT recognise the text, classify it once via
+    // classifySearchIntent (Gemini Flash — no Haiku, no cache). A
+    // non-food / ambiguous verdict gets the polite "type a dish name…"
+    // nudge instead of a search. Fail-open: a classifier error
+    // proceeds to the search, so a Gemini outage never blocks a real
+    // food query. R.E.D-resolved queries skip the gate (already food).
+    if (!disambigDisclosureFT) {
+      try {
+        const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+        if (cls && cls.intent === 'ambiguous') {
+          try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
+          const { t: tGate } = require('./i18n');
+          await safeSend(msg.chat.id, tGate('freetext.questionDeclined', userLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+          return;
+        }
+      } catch (err) {
+        console.warn('[free-text] food-relatedness gate failed (continuing to search):', err.message);
       }
     }
     try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: disambigDisclosureFT ? 'red' : null, resultCount: null }); } catch { /* best-effort */ }
