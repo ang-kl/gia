@@ -198,6 +198,46 @@ describe('applyVerified — FR (French locale)', () => {
   });
 });
 
+// v0.60.210 (DF-111) — the "🍴 Try ·" line must carry only genuine
+// dish names; category words ("dishes", "food") are filtered out and
+// the line is dropped when nothing real survives.
+describe('applyVerified — "🍴 Try ·" dish-name guard (DF-111)', () => {
+  const blockWith = (tryLine) => ({
+    number: 1, name: 'TEST',
+    lines: ['1. TEST - cafe', '🌟 Google rating · 4.5', tryLine, '📍 https://example.com/']
+  });
+
+  it('drops a bare category word but keeps real dishes', () => {
+    const out = applyVerified(blockWith('🍴 Try · Carbonara, dishes, Tiramisu'), null);
+    const tryLine = out.find((l) => l.startsWith('🍴 Try'));
+    expect(tryLine).toBe('🍴 Try · Carbonara, Tiramisu');
+  });
+
+  it('removes the whole Try line when no real dish survives', () => {
+    const out = applyVerified(blockWith('🍴 Try · dishes, food'), null);
+    expect(out.some((l) => l.startsWith('🍴 Try'))).toBe(false);
+    // the rest of the block is untouched
+    expect(out.some((l) => l.startsWith('📍'))).toBe(true);
+  });
+
+  it('filters the FR "🍴 Essayez ·" label too', () => {
+    const out = applyVerified(blockWith('🍴 Essayez · desserts, Tiramisu'), null);
+    const tryLine = out.find((l) => l.startsWith('🍴 Essayez'));
+    expect(tryLine).toBe('🍴 Essayez · Tiramisu');
+  });
+
+  it('runs even when rating verification succeeds', () => {
+    const out = applyVerified(blockWith('🍴 Try · food, Beef Wellington'), { rating: 4.6, userRatingCount: 200 });
+    expect(out.find((l) => l.startsWith('🍴 Try'))).toBe('🍴 Try · Beef Wellington');
+    expect(out.find((l) => /🌟/.test(l))).toBe('🌟 Google rating · 4.6');
+  });
+
+  it('leaves a clean Try line untouched', () => {
+    const out = applyVerified(blockWith('🍴 Try · Laksa, Char Kway Teow'), null);
+    expect(out.find((l) => l.startsWith('🍴 Try'))).toBe('🍴 Try · Laksa, Char Kway Teow');
+  });
+});
+
 // v0.59.7: businessStatus drop. Closes the gap where Gemini's grounded
 // search misses a closed venue but Places already knows it's closed.
 describe('verifyHiddenGemsOutput — businessStatus drop (v0.59.7)', () => {
