@@ -7069,6 +7069,11 @@ bot.on('voice', async (msg) => {
 });
 
 bot.on('message', async (msg) => {
+  // v0.60.228 — once the free-text food-search path is entered, an
+  // unexpected throw must not leave the user in silence (operator:
+  // "the response isn't shown"). The outer catch sends a visible
+  // error nudge when this flag is set.
+  let committedToFreeText = false;
   try {
     // v0.57.25: refresh the 90-day TTL on persistent buddy-blocks
     // entry (the only per-chat key that doesn't otherwise expire).
@@ -7231,6 +7236,24 @@ bot.on('message', async (msg) => {
       }
       return;
     }
+    // v0.60.228 — transport queries (MRT / bus / "how to get to X")
+    // aren't food searches. Recognise them and point the user at the
+    // /transport tool, rather than running a misleading Places search
+    // or showing the food-nudge decline. Runs BEFORE looksLikeQuestion
+    // because "how to get to …" also reads as a question.
+    {
+      const { looksLikeTransport } = require('./freetext-classify');
+      if (looksLikeTransport(text)) {
+        const { resolveLang: rlT } = require('./user-prefs');
+        const trLang = await rlT(redis, msg.chat.id, msg).catch(() => 'en');
+        const { t: tT } = require('./i18n');
+        try {
+          require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'transport-redirect', resultCount: 0 });
+        } catch { /* best-effort */ }
+        await safeSend(msg.chat.id, tT('freetext.transportRedirect', trLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+        return;
+      }
+    }
     // v0.60.131 — "looks like a question / instruction, not a dish or
     // place" guard. The free-text path just hands text to Google
     // Places searchText; a query like "does Beach Road curry rice sell
@@ -7253,6 +7276,9 @@ bot.on('message', async (msg) => {
         return;
       }
     }
+    // v0.60.228 — past every non-search gate above: we are now
+    // committed to a free-text food search. Arm the silence guard.
+    committedToFreeText = true;
     // v0.57.27: free-text search is now LLM-free. Per Human Lead, all
     // chat-text queries route directly to Google Places searchText
     // (via pipeline.discover) with no NL classification, no off-topic
@@ -7420,6 +7446,17 @@ bot.on('message', async (msg) => {
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
+    // v0.60.228 — never end the free-text path in silence. If we had
+    // committed to a food search and something threw before
+    // runFreeTextSearch (which surfaces its own errors), send a
+    // visible error nudge instead of leaving the user with nothing.
+    if (committedToFreeText) {
+      try {
+        const { t: tErr } = require('./i18n');
+        const efLang = await require('./user-prefs').resolveLang(redis, msg.chat.id, msg).catch(() => 'en');
+        await safeSend(msg.chat.id, tErr('bot.error.freetext', efLang));
+      } catch { /* best-effort — never re-throw from the catch */ }
+    }
   }
 });
 

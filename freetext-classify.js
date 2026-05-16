@@ -1,4 +1,4 @@
-// freetext-classify.js — v0.60.131
+// freetext-classify.js — v0.60.228
 //
 // Lightweight, deterministic guard for the free-text dish-search paths
 // (chat free text + the Cuisine TMA "Tell me" box). It answers ONE
@@ -44,6 +44,34 @@ const ASKING_VERBS = new Set([
   'make', 'makes', 'making'
 ]);
 
+// v0.60.228 — transport-query detector. The free-text chat path is a
+// food search; a transport query ("how to get to Changi", "MRT to
+// Bugis", "bus 174") otherwise reaches classifySearchIntent and gets
+// the food-nudge decline. When this fires the chat handler points the
+// user at the /transport tool instead. Conservative: only whole-word
+// transport nouns and explicit "how to get to"-style phrases trip it.
+const TRANSPORT_WORDS = new Set([
+  'mrt', 'lrt', 'train', 'trains', 'subway', 'metro',
+  'bus', 'buses', 'taxi', 'cab', 'checkpoint', 'causeway'
+]);
+const TRANSPORT_PHRASES = [
+  'how to get to', 'how do i get to', 'how do i get',
+  'how to go to', 'how to reach', 'directions to',
+  'route to', 'fastest way to', 'fare to', 'fares to'
+];
+function looksLikeTransport(text) {
+  const raw = String(text || '').trim().toLowerCase();
+  if (!raw) return false;
+  for (const p of TRANSPORT_PHRASES) {
+    if (raw.includes(p)) return true;
+  }
+  const words = tokenize(raw);
+  for (const w of words) {
+    if (TRANSPORT_WORDS.has(w)) return true;
+  }
+  return false;
+}
+
 function tokenize(text) {
   return String(text || '')
     .toLowerCase()
@@ -73,4 +101,4 @@ function looksLikeQuestion(text) {
   return false;
 }
 
-module.exports = { looksLikeQuestion, _tokenize: tokenize };
+module.exports = { looksLikeQuestion, looksLikeTransport, _tokenize: tokenize };
