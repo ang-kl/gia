@@ -203,10 +203,11 @@ function formatVenueBlock(p, opts = {}) {
     if (p.phone)      lines.push(`📞 ${p.phone}`);
   }
   if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
-    lines.push('');                                    // blank line
     // v0.60.209 — operator: drop the "🌿 Sanctuary read for <name>"
     // header. The block is now just the two 🌿-prefixed fields
     // (`🌿 Quiet: …` / `🌿 Seating: …`) carried verbatim in sanctuaryRead.
+    // v0.60.221 — operator: drop the blank line above the 🌿 block so
+    // it sits flush with the row above (no one-line gap).
     lines.push(escapeHtml(sanctuaryRead.trim()));
   }
   const stats = formatStatsLine(p, { includeDistance, lang });
