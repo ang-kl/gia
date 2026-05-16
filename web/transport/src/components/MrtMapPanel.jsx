@@ -22,6 +22,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { t, tn } from '../i18n.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -51,7 +52,9 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusByLine = null }) {
+// v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
+// InfoWindow popup + the panel chrome localise (was English-only).
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusByLine = null, lang = 'en' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -132,12 +135,14 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     };
   }, []);
 
-  // Re-render pins whenever stations, map readiness, OR focused line
-  // change. v0.60.88 — focused line filters the visible pins.
+  // Re-render pins whenever stations, map readiness, focused line, OR
+  // locale change. v0.60.88 — focused line filters the visible pins.
+  // v0.60.210 — `lang` added so a locale flip rebuilds the markers and
+  // their click handlers close over the current language.
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, mapsKeyState, focusedCode]);
+  }, [stations, mapsKeyState, focusedCode, lang]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -214,27 +219,33 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
         // v0.60.207 — prefer an exact opening date when the station
         // record carries one (CCL6 stage: Keppel / Cantonment / Prince
         // Edward Road → "12 July 2026"); else fall back to the bare
-        // year. The popup is English-only by existing panel design.
-        const opensWhen = s.opensDate || (s.opensYear != null ? String(s.opensYear) : '');
+        // year. v0.60.210 (DF-109) — use the FR opening date when the
+        // locale is French and the record carries one.
+        const opensWhen = (lang === 'fr' && s.opensDateFr)
+          ? s.opensDateFr
+          : (s.opensDate || (s.opensYear != null ? String(s.opensYear) : ''));
         const futureLine = isFuture && opensWhen
-          ? `<br><em style="color:#9CA3AF">Opens ${escapeHtml(opensWhen)}</em>`
+          ? `<br><em style="color:#9CA3AF">${tn('mrt.opens', lang, { when: escapeHtml(opensWhen) })}</em>`
           : '';
         // v0.60.99 — per-station train status block. For each line
         // the station serves, look up statusByLine (from /api/
         // transport/status) and render "🔴 NSL · status: Normal
         // service" or the matching disruption label. Hidden for
         // future stations.
-        const STATUS_LABEL = { delay: 'Delay', disrupted: 'Service disrupted', closure: 'Closure', normal: 'Normal service', unknown: 'Unknown' };
+        // v0.60.210 (DF-109) — status labels localised via i18n. The
+        // five known statuses have keys; an unrecognised value from
+        // /api/transport/status falls through to its raw string.
+        const STATUS_KEYS = ['delay', 'disrupted', 'closure', 'normal', 'unknown'];
         const statusHtml = (!isFuture && statusByLine && Array.isArray(s.lines) && s.lines.length)
           ? '<br>' + s.lines.map((ln) => {
               const emoji = LINE_EMOJI[ln] || '⬜';
               const st = statusByLine[ln]?.status || 'normal';
-              const label = STATUS_LABEL[st] || st;
+              const label = STATUS_KEYS.includes(st) ? t(`mrt.status.${st}`, lang) : st;
               const color = st === 'normal' ? '#34C759' : (st === 'delay' ? '#FF9500' : '#FF3B30');
               return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
             }).join('<br>')
           : '';
-        const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">Open 📍 in a map ↗</a>`;
+        const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
         // v0.60.207 — explicit dark text colour. The Google Maps
         // InfoWindow bubble is always white, but Telegram's dark-mode
         // theme can cascade a light body colour into it, rendering the
@@ -255,9 +266,9 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     if (boundedCount > 1) mapRef.current.fitBounds(bounds, 60);
   }
 
-  if (err) return <div className="text-xs text-red-500 p-3">⚠ Could not load stations: {err}</div>;
-  if (mapsKeyState === 'nokey') return <div className="text-xs text-tg-hint p-3">Map unavailable (key not configured).</div>;
-  if (mapsKeyState === 'error') return <div className="text-xs text-red-500 p-3">⚠ Map failed to load.</div>;
+  if (err) return <div className="text-xs text-red-500 p-3">{t('mrt.err.stations', lang)} {err}</div>;
+  if (mapsKeyState === 'nokey') return <div className="text-xs text-tg-hint p-3">{t('mrt.err.nokey', lang)}</div>;
+  if (mapsKeyState === 'error') return <div className="text-xs text-red-500 p-3">{t('mrt.err.mapfail', lang)}</div>;
 
   const opsCount = (stations || []).filter((s) => s.status !== 'future').length;
   const futureCount = (stations || []).filter((s) => s.status === 'future').length;
@@ -274,14 +285,14 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
       {focusedCode && (
         <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
           <span className="text-tg-text">
-            Showing <strong>{focusedCode}</strong> · {filteredCount} stations
+            {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
           </span>
           <button
             type="button"
             onClick={() => onResetFocus?.()}
             className="px-2 py-0.5 rounded-md bg-tg-accent text-tg-accent-text text-[11px] font-semibold active:scale-95 transition"
-            aria-label="Overview"
-          >Overview ↺</button>
+            aria-label={t('mrt.overview', lang)}
+          >{t('mrt.overview', lang)}</button>
         </div>
       )}
       <div
@@ -291,11 +302,11 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. No tablet bump yet — defer until needed.
         style={{ height: 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
-        aria-label="Map of MRT and LRT stations in Singapore"
+        aria-label={t('mrt.aria.map', lang)}
       />
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
-          🚇 {opsCount} operational · ⬜ {futureCount} future (greyed)
+          {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
         </div>
       )}
     </div>

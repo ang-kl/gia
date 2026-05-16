@@ -29,6 +29,8 @@
 // expensive for the surface area of the bug.
 
 const axios = require('axios');
+// v0.60.210 (DF-111) — shared dish-name guard for the "🍴 Try ·" line.
+const { filterDishNames } = require('./dish-name');
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
 const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus';
@@ -242,16 +244,33 @@ function parseBlocks(text) {
   return { prefix, blocks };
 }
 
-// Rewrite a block's lines using verified rating + count. Locale-aware.
+// v0.60.210 (DF-111) — the "🍴 Try · …" line must carry only genuine
+// dish / dessert names. The /hidden Gemini prompt says "top FOOD
+// dishes only" but nothing enforced it, so a category word
+// ("dishes", "desserts") could slip onto the card. Filter the
+// comma-separated list through the shared dish-name guard; when
+// nothing survives, drop the whole line (return null → filtered out).
+function filterTryLine(line) {
+  const m = /^(🍴\s*(?:Try|Essayez)\s*·\s*)(.+)$/u.exec(line);
+  if (!m) return line;
+  const kept = filterDishNames(m[2].split(/\s*,\s*/));
+  return kept.length ? `${m[1]}${kept.join(', ')}` : null;
+}
+
+// Rewrite a block's lines using verified rating + count, then
+// dish-validate the Try line. Locale-aware. The Try-line filter runs
+// whether or not the rating lookup succeeded.
 function applyVerified(block, verified) {
-  if (!verified || !Number.isFinite(verified.rating) || !Number.isFinite(verified.userRatingCount)) {
-    return block.lines;
-  }
+  const ratingOk = verified
+    && Number.isFinite(verified.rating)
+    && Number.isFinite(verified.userRatingCount);
+  let lines = block.lines;
+  if (ratingOk) {
   const useFr = block.lines.some((l) => /\bavis\b/i.test(l) || /Note Google/i.test(l));
   const ratingText = useFr
     ? verified.rating.toFixed(1).replace('.', ',')
     : verified.rating.toFixed(1);
-  return block.lines.map((line) => {
+  lines = block.lines.map((line) => {
     // v0.59.24: new format "🌟 Google rating · 4.5" (rating only, no
     // count). Match label + middot + numeric → rewrite with verified
     // rating; counts are no longer printed per Human Lead 2026-05-07.
@@ -280,6 +299,10 @@ function applyVerified(block, verified) {
     );
     return proseLine;
   });
+  }
+  // DF-111 — dish-validate the "🍴 Try ·" line; drop it if no real
+  // dish name survives.
+  return lines.map(filterTryLine).filter((l) => l !== null);
 }
 
 // Top-level: takes a Gemini response and returns

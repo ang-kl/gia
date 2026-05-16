@@ -45,7 +45,30 @@ const STRINGS = {
   'fab.top':                   { en: '⇡ top',  fr: '⇡ haut' },
   'fab.down':                  { en: '⇣ down', fr: '⇣ bas' },
   'fab.topAria':               { en: 'Back to top', fr: 'Retour en haut' },
-  'fab.downAria':              { en: 'Scroll down', fr: 'Défiler vers le bas' }
+  'fab.downAria':              { en: 'Scroll down', fr: 'Défiler vers le bas' },
+
+  // v0.60.210 (DF-109) — Google-Map panel (MrtMapPanel): the station
+  // InfoWindow popup + the panel chrome. Previously hardcoded English.
+  'mrt.opens':                 { en: 'Opens {when}', fr: 'Ouverture {when}' },
+  'mrt.openInMap':             { en: 'Open 📍 in a map ↗', fr: 'Ouvrir 📍 dans une carte ↗' },
+  'mrt.status.delay':          { en: 'Delay',             fr: 'Retard' },
+  'mrt.status.disrupted':      { en: 'Service disrupted', fr: 'Service perturbé' },
+  'mrt.status.closure':        { en: 'Closure',           fr: 'Fermeture' },
+  'mrt.status.normal':         { en: 'Normal service',    fr: 'Service normal' },
+  'mrt.status.unknown':        { en: 'Unknown',           fr: 'Inconnu' },
+  'mrt.showing':               { en: 'Showing {code} · {n} stations',
+                                 fr: 'Affichage : {code} · {n} stations' },
+  'mrt.overview':              { en: 'Overview ↺',        fr: 'Vue d’ensemble ↺' },
+  'mrt.counts':                { en: '🚇 {ops} operational · ⬜ {future} future (greyed)',
+                                 fr: '🚇 {ops} en service · ⬜ {future} à venir (grisées)' },
+  'mrt.err.stations':          { en: '⚠ Could not load stations:',
+                                 fr: '⚠ Impossible de charger les stations :' },
+  'mrt.err.nokey':             { en: 'Map unavailable (key not configured).',
+                                 fr: 'Carte indisponible (clé non configurée).' },
+  'mrt.err.mapfail':           { en: '⚠ Map failed to load.',
+                                 fr: '⚠ Échec du chargement de la carte.' },
+  'mrt.aria.map':              { en: 'Map of MRT and LRT stations in Singapore',
+                                 fr: 'Carte des stations MRT et LRT de Singapour' }
 };
 
 export function t(key, lang) {
