@@ -11,9 +11,9 @@
 // global as the cuisine TMA so the script loads once across both
 // TMAs when a user opens both in succession.
 //
-// Pins: AdvancedMarkerElement + PinElement. Standard red for
-// established centres; gold + 🆕 glyph for the 16 entries marked
-// `isNew` in data/list-of-hawker-centres.md.
+// Pins: AdvancedMarkerElement with a custom tiny-dot DOM node
+// (v0.60.224). Gold for the 16 `isNew` entries in
+// data/list-of-hawker-centres.md, red for established centres.
 //
 // InfoWindow: tap a pin → name + address + "Open on Google Maps ↗"
 // link to c.mapsUrl. No travel time, no rating, no footfall —
@@ -34,6 +34,20 @@ function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// v0.60.224 — custom tiny map pin. The 123-row hawker dataset crowds
+// the map with the default Google teardrop markers; a small dot keeps
+// dense regions readable. Gold = new centre, red = established (same
+// palette as the prior PinElement pins); the 🆕 distinction still
+// surfaces in the InfoWindow.
+function tinyPinNode(isNew) {
+  const el = document.createElement('div');
+  el.style.cssText =
+    'width:13px;height:13px;border-radius:50%;cursor:pointer;' +
+    'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
+    `background:${isNew ? '#f5a623' : '#e53935'};`;
+  return el;
 }
 
 export default function HawkerMapPanel({ centres, region }) {
@@ -126,7 +140,7 @@ export default function HawkerMapPanel({ centres, region }) {
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
-    const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
+    const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old markers + InfoWindow content.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
@@ -141,17 +155,11 @@ export default function HawkerMapPanel({ centres, region }) {
     let plotted = 0;
     for (const c of (centres || [])) {
       if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
-      // Gold for new centres, red for established. Same colour palette
-      // as the cuisine MapPanel anchor pin family so the visual reads
-      // consistently across TMAs.
-      const pin = c.isNew
-        ? new PinElement({ background: '#f5a623', borderColor: '#7a4f00', glyph: '🆕', glyphColor: '#fff', scale: 1 })
-        : new PinElement({ background: '#e53935', borderColor: '#5d0d0a', glyph: '🍚', glyphColor: '#fff', scale: 1 });
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: pin.element,
+        content: tinyPinNode(c.isNew),
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
