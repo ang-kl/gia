@@ -98,9 +98,10 @@ describe('v0.59.1 chrome keys — every new key resolves to EN and FR', () => {
 });
 
 describe('v0.59.1 chrome — interpolation sanity', () => {
-  it('weather.temp interpolates {c} and {at}', () => {
-    expect(tn('weather.temp', 'en', { c: '28.5', at: 'Marina' })).toBe('Temp: 28.5°C @ Marina');
-    expect(tn('weather.temp', 'fr', { c: '28.5', at: 'Marina' })).toBe('Temp. : 28.5 °C @ Marina');
+  it('weather.temp interpolates {c} and {f}', () => {
+    // v0.60.218 — operator: show °C and °F, drop the "@ <station>" suffix.
+    expect(tn('weather.temp', 'en', { c: '28.5', f: '83.3' })).toBe('Temperature: 28.5°C · 83.3°F');
+    expect(tn('weather.temp', 'fr', { c: '28.5', f: '83.3' })).toBe('Température : 28.5 °C · 83.3 °F');
   });
   it('carpark.row interpolates {i} {name} {lots} {dist} (dist already formatted)', () => {
     // v0.59.3: {dist} now includes the unit (caller formats via formatDistance).

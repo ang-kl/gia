@@ -102,8 +102,8 @@ const STRINGS = {
 
   // /weather
   'weather.title':             { en: '☀️ Singapore weather', fr: '☀️ Météo de Singapour' },
-  'weather.temp':              { en: 'Temp: {c}°C @ {at}', fr: 'Temp. : {c} °C @ {at}' },
-  'weather.humidity':          { en: 'Humidity: {pct}% @ {at}', fr: 'Humidité : {pct} % @ {at}' },
+  'weather.temp':              { en: 'Temperature: {c}°C · {f}°F', fr: 'Température : {c} °C · {f} °F' },
+  'weather.humidity':          { en: 'Humidity: {pct}%', fr: 'Humidité : {pct} %' },
   'weather.rain':              { en: 'Rain: {mm} mm @ {at}', fr: 'Pluie : {mm} mm @ {at}' },
   'weather.wind':              { en: 'Wind: {kt} kt{dir}', fr: 'Vent : {kt} kt{dir}' },
   'weather.forecastNext2h':    { en: 'Next 2 hours in {area}: {desc}{valid}', fr: 'Prochaines 2 h à {area} : {desc}{valid}' },
