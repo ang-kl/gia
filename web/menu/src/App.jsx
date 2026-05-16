@@ -209,7 +209,7 @@ export default function App() {
       {/* v0.60.213 — standardised "Experimental · Singapore · v<build>"
           tag line added below the brand line.
           v0.60.215 — framed in a bordered box for clearer UI. */}
-      <div className="mx-2 mb-2 mt-1 border border-tg-border rounded-lg px-3 py-2 text-center text-[9px] text-tg-hint leading-tight">
+      <div className="mx-2 mb-2 mt-1 border border-tg-border rounded-lg px-3 py-2 text-center text-[8px] text-tg-hint leading-tight">
         <div>{t('footer.brand', lang)} {BUILD_VERSION} · 2026</div>
         <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </div>
