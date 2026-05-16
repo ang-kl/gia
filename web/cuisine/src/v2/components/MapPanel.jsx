@@ -29,6 +29,31 @@ function pinGlyphFor(venue) {
   return null;
 }
 
+// v0.60.229 — operator: "reduce the pins to dot (18px)". Replaces the
+// Google PinElement teardrop with an 18px round dot built like the
+// Hawker TMA's hawkerPinNode. Michelin/Pet/dessert venues render the
+// emoji glyph centred INSIDE the circle (white background so the multi-
+// colour emoji reads clearly); plain venues are a flat coloured dot.
+// The focused venue keeps the v0.60.224 treatment — orange fill/border
+// + a size bump — rather than an orange teardrop.
+function cuisinePinNode(glyph, focused) {
+  const size = focused ? 24 : 18;
+  const bg = glyph ? '#ffffff' : (focused ? '#FF9500' : '#34C759');
+  const border = focused ? '#FF9500' : '#1c1c1f';
+  const el = document.createElement('div');
+  el.style.cssText =
+    'display:flex;align-items:center;justify-content:center;' +
+    `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
+    `border:2px solid ${border};box-shadow:0 1px 3px rgba(0,0,0,0.4);` +
+    `background:${bg};`;
+  if (glyph) {
+    el.textContent = glyph;
+    el.style.fontSize = `${focused ? 13 : 10}px`;
+    el.style.lineHeight = '1';
+  }
+  return el;
+}
+
 // v0.58.51: build the canonical Google Maps URL for a venue. Mirrors
 // the server's maps-url.js choice: prefer place_id-explicit deep-link
 // so iOS Universal Links resolve to the Google Maps app (not Apple
@@ -265,23 +290,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // with specifics like 🐾 / 🍮 / ✳️"). Priority: Michelin
       // (✳️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
       // default (no glyph, falls back to the plain coloured circle).
-      // Scale bumped slightly for emoji glyphs so the symbol stays
-      // legible against the coloured circle on small screens.
       const glyph = pinGlyphFor(v);
-      // v0.60.224 — glyph pins get a white background so the multi-
-      // colour emoji (✳️ Michelin / 🐾 pet / 🍮 dessert) reads clearly.
-      // glyphColor has no effect on emoji, so on the green circle the
-      // symbol was washed out. Focus is now signalled by an orange
-      // border + scale bump rather than an orange fill, so a focused
-      // glyph pin still shows its emoji.
-      const pin = new PinElement({
-        background: glyph ? '#ffffff' : (focused ? '#FF9500' : '#34C759'),
-        borderColor: focused ? '#FF9500' : '#1c1c1f',
-        glyph: glyph || undefined,
-        glyphColor: glyph ? '#1c1c1f' : '#fff',
-        scale: focused ? 1.3 : (glyph ? 1.15 : 1)
-      });
-      const pinNode = pin.element;
+      // v0.60.229 — 18px round dot (cuisinePinNode); michelin/pet/
+      // dessert glyphs render centred inside the circle.
+      const pinNode = cuisinePinNode(glyph, focused);
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: v.lat, lng: v.lng },

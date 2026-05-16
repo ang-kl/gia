@@ -37,14 +37,17 @@ function escapeHtml(s) {
 }
 
 // v0.60.227 — operator: the v0.60.224 13px dots were too tiny and
-// their colour didn't read against the map. Pins are now 25px, and
-// new centres carry a "NEW" badge so they pop. Gold = new centre,
-// red = established (same palette as the prior PinElement pins);
-// the 🆕 distinction still surfaces in the InfoWindow too.
+// their colour didn't read against the map. New centres carry a "NEW"
+// badge so they pop. Gold = new centre, red = established (same palette
+// as the prior PinElement pins); the 🆕 distinction still surfaces in
+// the InfoWindow too.
+// v0.60.229 — operator: pins reduced 25px → 18px to match the Cuisine
+// TMA dot size. The "NEW" badge is absolutely positioned off the
+// marker's top edge, so it re-anchors at any pin size.
 function hawkerPinNode(isNew) {
   const el = document.createElement('div');
   el.style.cssText =
-    'position:relative;width:25px;height:25px;border-radius:50%;cursor:pointer;' +
+    'position:relative;width:18px;height:18px;border-radius:50%;cursor:pointer;' +
     'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
     `background:${isNew ? '#f5a623' : '#e53935'};`;
   if (isNew) {
