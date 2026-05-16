@@ -268,11 +268,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // Scale bumped slightly for emoji glyphs so the symbol stays
       // legible against the coloured circle on small screens.
       const glyph = pinGlyphFor(v);
+      // v0.60.224 — glyph pins get a white background so the multi-
+      // colour emoji (✳️ Michelin / 🐾 pet / 🍮 dessert) reads clearly.
+      // glyphColor has no effect on emoji, so on the green circle the
+      // symbol was washed out. Focus is now signalled by an orange
+      // border + scale bump rather than an orange fill, so a focused
+      // glyph pin still shows its emoji.
       const pin = new PinElement({
-        background: focused ? '#FF9500' : '#34C759',
-        borderColor: '#1c1c1f',
+        background: glyph ? '#ffffff' : (focused ? '#FF9500' : '#34C759'),
+        borderColor: focused ? '#FF9500' : '#1c1c1f',
         glyph: glyph || undefined,
-        glyphColor: '#fff',
+        glyphColor: glyph ? '#1c1c1f' : '#fff',
         scale: focused ? 1.3 : (glyph ? 1.15 : 1)
       });
       const pinNode = pin.element;
