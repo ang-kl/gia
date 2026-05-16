@@ -11,7 +11,11 @@ export const LINES = [
   { code: 'TEL',  name: 'Thomson-East Coast',     hex: '#9D5B25', endpoints: ['Woodlands North', 'Bayshore'] },
   { code: 'BPL',  name: 'Bukit Panjang LRT',      hex: '#718472', endpoints: ['Choa Chu Kang', 'Bukit Panjang'] },
   { code: 'SLRT', name: 'Sengkang LRT',           hex: '#718472', endpoints: ['Sengkang', '(loop)'] },
-  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', endpoints: ['Punggol', '(loop)'] }
+  { code: 'PLRT', name: 'Punggol LRT',            hex: '#718472', endpoints: ['Punggol', '(loop)'] },
+  // v0.60.230 — future lines, added so Build E 5a polylines can colour
+  // the JRL / CRL station geometry already present in mrt-coords.json.
+  { code: 'JRL',  name: 'Jurong Region Line',     hex: '#0099AA', endpoints: ['Choa Chu Kang', 'Pandan Reservoir'], future: true },
+  { code: 'CRL',  name: 'Cross Island Line',      hex: '#97C616', endpoints: ['Aviation Park', 'Bright Hill'], future: true }
 ];
 
 export const LINES_BY_CODE = LINES.reduce((m, l) => { m[l.code] = l; return m; }, {});
