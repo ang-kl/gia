@@ -1,4 +1,4 @@
-// web/transport/src/components/MrtMapPanel.jsx — v0.60.85
+// web/transport/src/components/MrtMapPanel.jsx — v0.60.230
 //
 // Interactive Google Map alternative to the static SystemMap PNG.
 // Pins every station from /api/transport/stations (~177 operational
@@ -12,16 +12,24 @@
 // So this is the OPT-IN view — App.jsx defaults to the PNG and the
 // user must explicitly tap a toggle to render this component.
 //
-// Pin colour: PinElement.background = LINES_BY_CODE[primary].hex
-// (canonical LTA palette). Multi-line interchanges use the first
-// line's colour; the InfoWindow lists every line + code. Future
-// stations render desaturated grey with "Opens 20XX" in the popup.
+// v0.60.230 (Build E 5a-5d) — colour-coded line POLYLINES under the
+// station markers (geometry from buildLinePaths, deriving order from
+// the station codes); the markers themselves are now tiny coloured
+// DOTS (stationDotNode) instead of PinElement teardrops; tapping a
+// polyline focuses that line (onLineSelect), and tapping a dot still
+// opens the station InfoWindow.
+//
+// Pin colour: dot background = LINES_BY_CODE[primary].hex (canonical
+// LTA palette). Multi-line interchanges use the first line's colour;
+// the InfoWindow lists every line + code. Future stations render
+// desaturated grey + smaller, with "Opens 20XX" in the popup.
 //
 // Loading: reuses /maps-key + the __giaMapsReady global from the
 // hawker / cuisine TMAs so the Maps JS bundle deduplicates.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { buildLinePaths } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -36,8 +44,31 @@ function openExternal(url) {
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 11;
 const FUTURE_BG = '#9CA3AF';
-const FUTURE_BORDER = '#6B7280';
 const DEFAULT_BG = '#888888';
+
+// v0.60.230 (Build E 5b/5d) — tiny station dots + line polyline
+// styling. Future stations/lines render smaller and fainter.
+const DOT_SIZE = 11;
+const DOT_SIZE_FUTURE = 8;
+const LINE_WEIGHT = 4;
+const LINE_WEIGHT_FOCUSED = 6;
+const LINE_OPACITY = 0.85;
+const FUTURE_LINE_OPACITY = 0.4;
+
+// v0.60.230 — a station marker is now a small round dot DOM node
+// (replacing the PinElement teardrop), modeled on the Hawker TMA's
+// hawkerPinNode. White ring so the dot reads against its line
+// polyline; future stations are smaller + translucent.
+function stationDotNode(bg, isFuture) {
+  const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
+  const el = document.createElement('div');
+  el.style.cssText =
+    `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
+    `background:${bg};border:1.5px solid #fff;` +
+    'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
+    (isFuture ? 'opacity:0.75;' : '');
+  return el;
+}
 
 // Square line emoji — mirrors mrt-lines.js LINES table (v0.60.83).
 const LINE_EMOJI = {
@@ -54,10 +85,11 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusByLine = null, lang = 'en' }) {
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
   // v0.60.87 — capture the registered Map ID from /maps-key so the
@@ -166,12 +198,46 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
     if (stations) renderPins(stations);
   }
 
+  // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
+  // beneath the station dots. Geometry comes from buildLinePaths,
+  // which orders stations by their codes. When a line is focused
+  // only that line's polyline is drawn (heavier weight); tapping any
+  // polyline focuses that line via onLineSelect.
+  function renderPolylines(list) {
+    if (!window.google?.maps?.Polyline) return;
+    for (const p of polylinesRef.current) p.setMap(null);
+    polylinesRef.current = [];
+    const paths = buildLinePaths(list);
+    for (const [lineCode, segments] of Object.entries(paths)) {
+      if (focusedCode && lineCode !== focusedCode) continue;
+      const meta = LINES_BY_CODE[lineCode];
+      const hex = meta?.hex || DEFAULT_BG;
+      const isFutureLine = !!meta?.future;
+      for (const seg of segments) {
+        if (!Array.isArray(seg) || seg.length < 2) continue;
+        const pl = new window.google.maps.Polyline({
+          path: seg,
+          map: mapRef.current,
+          strokeColor: hex,
+          strokeOpacity: isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY,
+          strokeWeight: focusedCode === lineCode ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
+          clickable: true,
+          zIndex: 1
+        });
+        pl.addListener('click', () => onLineSelect?.(lineCode));
+        polylinesRef.current.push(pl);
+      }
+    }
+  }
+
   function renderPins(list) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
-    const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
+    const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    // v0.60.230 — line polylines first so the station dots layer on top.
+    renderPolylines(list);
     // v0.60.88 — filter to the focused line when set. Pin colour
     // logic stays the same; only the visible set changes.
     const visibleList = focusedCode
@@ -184,20 +250,12 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, statusBy
       const isFuture = s.status === 'future';
       const primary = s.lines?.[0];
       const bg = isFuture ? FUTURE_BG : (LINES_BY_CODE[primary]?.hex || DEFAULT_BG);
-      const borderColor = isFuture ? FUTURE_BORDER : bg;
-      const pin = new PinElement({
-        background: bg,
-        borderColor,
-        glyphColor: '#fff',
-        scale: isFuture ? 0.8 : 1.0
-      });
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: pin.element
+        content: stationDotNode(bg, isFuture)
       });
-      if (isFuture && marker.element?.style) marker.element.style.opacity = '0.7';
       marker.addListener('click', () => {
         const codes = (s.codes || []).map((c) => {
           const lineCode = c.replace(/\d+$/, '');
