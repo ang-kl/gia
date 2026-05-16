@@ -5411,7 +5411,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
     );
     const denyTypes = cuisine && CUISINE_TYPE_DENY[cuisine] ? CUISINE_TYPE_DENY[cuisine] : [];
     const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
-    return (Array.isArray(data?.places) ? data.places : [])
+    const mapped = (Array.isArray(data?.places) ? data.places : [])
       .filter((p) => p?.businessStatus !== 'CLOSED_PERMANENTLY')
       .filter((p) => !denyTypes.includes(String(p?.primaryType || '')))
       .map((p) => ({
@@ -5435,6 +5435,16 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType),
         url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
       }));
+    // v0.60.229 — close the /s filter gap: the technique/dish fan-out
+    // never applied passesVenueFilter, so directory buildings (Lau Pa
+    // Sat, Old Airport Road Food Centre, food courts) leaked into /s
+    // results. Cuisine TMA + free-text already filter; this aligns /s.
+    const { passesVenueFilter } = require('./venue-filters');
+    const kept = mapped.filter(passesVenueFilter);
+    if (kept.length !== mapped.length) {
+      console.log(`[Search-FanOut] venue-filter dropped ${mapped.length - kept.length} directory/non-food result(s) for "${String(textQuery).slice(0, 40)}"`);
+    }
+    return kept;
   } catch (err) {
     console.warn(`[Search-FanOut] Places searchText "${String(textQuery).slice(0, 60)}" failed:`, err.message);
     return [];

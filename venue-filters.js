@@ -1,4 +1,4 @@
-// venue-filters.js — v0.58.31
+// venue-filters.js — v0.60.229
 //
 // Single source of truth for "this place isn't a specific eatery"
 // filtering. Replaces three duplicate inline NON_FOOD_TYPES Sets in
@@ -59,6 +59,41 @@ const BUILDING_NAME_PATTERNS = [
   /^(plaza\s+singapura|vivocity|ion\s+orchard|takashimaya|jewel\s+changi|funan|raffles\s+city|paragon|wisma\s+atria|ngee\s+ann\s+city|nex\s+mall|the\s+shoppes\s+at\s+marina\s+bay\s+sands)$/i
 ];
 
+// v0.60.229 — curated multi-tenant "directory" buildings (food halls,
+// food courts, markets that escape BUILDING_NAME_PATTERNS). Operator
+// rule: never return the building/food-hall itself when Google Maps
+// lists many separate eateries inside it. Google's Places API has no
+// directory flag, so the list is curated in data/directory-buildings.json.
+// A specific stall inside still passes — its name does not START with a
+// curated building name.
+const DIRECTORY_BUILDINGS = (() => {
+  try {
+    const raw = require('./data/directory-buildings.json');
+    const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.names) ? raw.names : []);
+    return new Set(
+      list.map((n) => String(n || '').toLowerCase().replace(/\s+/g, ' ').trim()).filter(Boolean)
+    );
+  } catch {
+    return new Set();
+  }
+})();
+
+// `cleaned` is the building-name candidate already stripped of a
+// trailing "(...)" / ", Singapore <postcode>". Match it exactly against
+// the curated set, or as a start-anchored building name followed by a
+// location qualifier ("Food Opera @ ION Orchard", "Food Republic -
+// Wisma Atria"). A real stall ("Tian Tian @ Maxwell") never matches —
+// it doesn't START with a curated name.
+function isDirectoryBuilding(cleaned) {
+  if (!DIRECTORY_BUILDINGS.size || !cleaned) return false;
+  const norm = cleaned.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (DIRECTORY_BUILDINGS.has(norm)) return true;
+  for (const name of DIRECTORY_BUILDINGS) {
+    if (norm.startsWith(name) && /^[\s@,/–—-]/.test(norm.slice(name.length))) return true;
+  }
+  return false;
+}
+
 function isBuildingItself(rawName) {
   if (!rawName || typeof rawName !== 'string') return false;
   // Strip a trailing "(...)" / ", Singapore <postcode>" / " Singapore"
@@ -70,6 +105,7 @@ function isBuildingItself(rawName) {
     .replace(/\s+singapore(\s*\d+)?\s*$/i, '')            // " Singapore 048542"
     .trim();
   if (!cleaned) return false;
+  if (isDirectoryBuilding(cleaned)) return true;
   return BUILDING_NAME_PATTERNS.some((re) => re.test(cleaned));
 }
 
@@ -105,8 +141,10 @@ function isRainSensitiveVenue(v) {
 module.exports = {
   NON_FOOD_TYPES,
   BUILDING_NAME_PATTERNS,
+  DIRECTORY_BUILDINGS,
   RAIN_SENSITIVE_TYPES,
   RAIN_SENSITIVE_TEXT_RE,
+  isDirectoryBuilding,
   isBuildingItself,
   passesVenueFilter,
   isRainSensitiveVenue

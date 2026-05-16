@@ -9,10 +9,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   isBuildingItself,
+  isDirectoryBuilding,
   passesVenueFilter,
   isRainSensitiveVenue,
   NON_FOOD_TYPES,
-  BUILDING_NAME_PATTERNS
+  BUILDING_NAME_PATTERNS,
+  DIRECTORY_BUILDINGS
 } from '../venue-filters.js';
 
 describe('isBuildingItself — building names (user wants these EXCLUDED)', () => {
@@ -211,6 +213,53 @@ describe('isRainSensitiveVenue — v0.60.118 rain-caveat gate', () => {
     expect(isRainSensitiveVenue({ name: '', area: '' })).toBe(false);
     expect(isRainSensitiveVenue(null)).toBe(false);
     expect(isRainSensitiveVenue({})).toBe(false);
+  });
+});
+
+describe('curated directory-buildings list (v0.60.229)', () => {
+  it('exposes a populated DIRECTORY_BUILDINGS set', () => {
+    expect(DIRECTORY_BUILDINGS instanceof Set).toBe(true);
+    expect(DIRECTORY_BUILDINGS.size).toBeGreaterThan(5);
+  });
+
+  it('rejects food-court chains the regex misses', () => {
+    expect(isBuildingItself('Food Opera')).toBe(true);
+    expect(isBuildingItself('Food Republic')).toBe(true);
+    expect(isBuildingItself('Koufu')).toBe(true);
+    expect(isBuildingItself('Kopitiam')).toBe(true);
+  });
+
+  it('rejects food halls with a trailing location qualifier', () => {
+    expect(isBuildingItself('Food Opera @ ION Orchard')).toBe(true);
+    expect(isBuildingItself('Food Republic - Wisma Atria')).toBe(true);
+    expect(isBuildingItself('Food Junction, VivoCity')).toBe(true);
+  });
+
+  it('rejects the operator-named directory buildings', () => {
+    expect(isBuildingItself('Old Airport Road Food Centre')).toBe(true);
+    expect(isBuildingItself('Lau Pa Sat')).toBe(true);
+    expect(isBuildingItself('Telok Ayer Market')).toBe(true);
+  });
+
+  it('is case-insensitive and tolerates ", Singapore <postcode>"', () => {
+    expect(isBuildingItself('FOOD OPERA')).toBe(true);
+    expect(isBuildingItself('Food Republic, Singapore 238884')).toBe(true);
+  });
+
+  it('still keeps a specific stall inside such a building', () => {
+    // A stall named after itself, not starting with the food-hall name.
+    expect(isBuildingItself('Ramen Champion @ Food Republic')).toBe(false);
+    expect(isBuildingItself('Tian Tian Hainanese Chicken Rice')).toBe(false);
+  });
+
+  it('isDirectoryBuilding handles empty input', () => {
+    expect(isDirectoryBuilding('')).toBe(false);
+    expect(isDirectoryBuilding(null)).toBe(false);
+  });
+
+  it('passesVenueFilter rejects directory buildings end-to-end', () => {
+    expect(passesVenueFilter({ name: 'Food Opera', primaryType: 'restaurant' })).toBe(false);
+    expect(passesVenueFilter({ name: 'Food Republic - Wisma Atria', primaryType: 'restaurant' })).toBe(false);
   });
 });
 
