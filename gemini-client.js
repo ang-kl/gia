@@ -2005,10 +2005,80 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
   };
 }
 
+// v0.60.208 — describe a cooking method / food category for the /s
+// cooking-method fan-out card. The COOKING_METHODS dictionary in
+// cooking-methods.js only stores bare method-name strings (no
+// description, no example dish), so the fan-out header used to read
+// "🔧 French · En Croute" and the per-venue "Try" line echoed the
+// method name itself ("Try En Croute") — operator-flagged as wrong
+// (a method is not a dish).
+//
+// Returns: { explainer, exampleDish }
+//   explainer  — one sentence: what the method is + an example + the
+//                cuisine it belongs to. Empty string on any failure.
+//   exampleDish — a single well-known dish made with this method
+//                 (e.g. "Beef Wellington" for en croute). Empty
+//                 string when the method has no signature dish or on
+//                 failure — the caller then omits the "Try" line.
+//
+// Best-effort: never throws. Every failure path returns empty strings
+// so the card still renders (just without the explainer / Try line).
+async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 'gemini-flash-latest', _genAIFactory } = {}) {
+  const empty = { explainer: '', exampleDish: '' };
+  const cleanTerm = String(term || '').trim();
+  if (!cleanTerm) return empty;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) return empty;
+  const langInstruction = lang === 'fr'
+    ? 'Write the "explainer" in French. Keep the dish name in "exampleDish" in its common English / original form.'
+    : 'Write the "explainer" in English.';
+  const prompt = [
+    'You are a Singapore F&B research assistant. The user searched for a cooking method / cooking technique / food category.',
+    `METHOD: "${cleanTerm}"`,
+    `ASSOCIATED CUISINE: ${cuisineLabel || 'unspecified'}`,
+    '',
+    'Return a single-line JSON object:',
+    '{"explainer":"<one plain sentence: what the method is, one example dish, and which cuisine it belongs to>","exampleDish":"<one well-known dish made with this method, or empty string if the method has no single signature dish>"}',
+    '',
+    'RULES:',
+    '- "explainer" is ONE sentence. Mention a concrete example dish and the cuisine. E.g. for "en croute": "En croûte is the French technique of baking meat or fish wrapped in pastry, as in Beef Wellington."',
+    '- "exampleDish" must be an actual dish or dessert name — never the method name itself. If no single dish is emblematic, return "".',
+    '- Plain JSON only. No markdown fences. No prose outside the JSON. Double quotes throughout.',
+    '- ' + langInstruction
+  ].join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  let genAI;
+  try { genAI = factory(); } catch { return empty; }
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  for (const candidate of candidates) {
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await m.generateContent(prompt);
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; } catch { continue; }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) continue;
+      const parsed = JSON.parse(cleaned);
+      return {
+        explainer: String(parsed.explainer || '').slice(0, 300),
+        exampleDish: String(parsed.exampleDish || '').slice(0, 80)
+      };
+    } catch (err) {
+      console.warn(`[Describe-Method] ${candidate} failed: ${err.message}`);
+      continue;
+    }
+  }
+  return empty;
+}
+
 module.exports = {
   generateGroundedHiddenGems,
   generateGroundedHiddenGemsClaude,
   classifySearchIntent,
+  describeCookingMethod,
   dishFallback,
   techniqueFallback,
   lookupTechnique,
