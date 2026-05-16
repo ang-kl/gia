@@ -289,7 +289,7 @@ const STRINGS = {
   // v0.60.98 — operator: show the actual nearest-count instead of
   // "stations on map". Call site (index.js runTransportTrain)
   // interpolates {n} from the slim list length.
-  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} stations', fr: '🗺 Voir les {n} stations les plus proches' },
+  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} train stations', fr: '🗺 Voir les {n} stations de train les plus proches' },
 
   // Distance row addition for MRT stations (was previously bare).
   // v0.60.72 — per-station row carries an HTML <a> wrapping the

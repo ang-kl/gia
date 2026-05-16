@@ -2718,6 +2718,33 @@ async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
   }
 }
 
+// v0.60.220 — a compact weather footer line for the transport /
+// carpark chat flows (operator item 3d). Reuses the 5-min-cached
+// /api/weather/summary payload when present; computes from the NEA
+// feeds otherwise. Best-effort — returns '' on any failure so a
+// weather hiccup never blocks or delays the transport reply.
+async function weatherChatFooter() {
+  try {
+    let p = null;
+    if (redis.isOpen) {
+      const c = await redis.get('weather:tma-summary').catch(() => null);
+      if (c) { try { p = JSON.parse(c); } catch { p = null; } }
+    }
+    if (!p) {
+      const { forecastEmoji } = require('./weather-emoji');
+      const w = await weather.summary(1.3521, 103.8198);
+      p = {
+        emoji: forecastEmoji(w?.forecast),
+        condition: w?.forecast || null,
+        tempC: Number.isFinite(w?.tempC) ? Math.round(w.tempC) : null
+      };
+    }
+    const bits = [p.condition, p.tempC != null ? `${Math.round(p.tempC)}°C` : '']
+      .filter(Boolean).join(' · ');
+    return bits ? `${p.emoji || ''} ${bits}`.trim() : '';
+  } catch { return ''; }
+}
+
 // v0.31.1: /transport is now a 4-button sub-menu (Train, Bus, Taxi/PHD,
 // Drive). Bus opens its own sub-sub-menu (nearest stops, arrivals, crowd,
 // route). The original "everything-in-one-message" runTransportCommand is
@@ -2975,6 +3002,8 @@ async function runTransportTrain(chatId, lang = 'en') {
     // engineering closures, etc.) are operator/data-controlled
     // strings safe for HTML; user-supplied station names go through
     // escapeHtmlForTelegram() at row-build time above.
+    // v0.60.220 — weather footer (item 3d).
+    { const wxFoot = await weatherChatFooter(); if (wxFoot) lines.push('', wxFoot); }
     await safeSend(chatId, lines.join('\n'), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
@@ -3078,6 +3107,8 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         });
         if (gmapsUrl) gmapsRow = [[{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]];
       } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
+      // v0.60.220 — weather footer (item 3d).
+      { const wxFoot = await weatherChatFooter(); if (wxFoot) lines.push('', wxFoot); }
       await safeSend(chatId, lines.join('\n'), {
         parse_mode: 'HTML',
         disable_web_page_preview: true,
@@ -3486,6 +3517,8 @@ async function runCarparkCommand(chatId, lang = 'en') {
         .replace(/\bBlk\b/gi, 'BLK');
     };
     list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: toCarparkTitleCase(c.development), lots: c.availableLots, dist: formatDistance(c.distanceM) })));
+    // v0.60.220 — weather footer (item 3d).
+    { const wxFoot = await weatherChatFooter(); if (wxFoot) lines.push('', wxFoot); }
     await safeSend(chatId, lines.join('\n'));
     // v0.53.0: 5 carparks on one map (TMA leaflet view), same pattern as /surprise.
     // Falls back to legacy directions URL when webhookDomain unavailable.
