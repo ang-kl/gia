@@ -106,6 +106,21 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
         phone: venue.phone,
         dishes: venue.dishes,
         distanceM: venue.distanceM,
+        // v0.60.223 — operator: the copy-one card was missing the
+        // 🍽️ type, the price/♿️/🐾 row, the 🍲 Try dish, the vibe /
+        // review lines and the ✳️ Michelin badge because copy() never
+        // forwarded these fields. /api/cuisine/copy-one passes the
+        // whole venue body straight to formatVenueBlock, so forwarding
+        // them here is all that's needed.
+        restaurantType: venue.restaurantType,
+        priceRangeDisplay: venue.priceRangeDisplay,
+        allowsDogs: venue.allowsDogs,
+        wheelchairAccessible: venue.wheelchairAccessible,
+        signatureDish: venue.signatureDish,
+        vibe: venue.vibe,
+        recentReview: venue.recentReview,
+        michelinCategory: venue.michelinCategory,
+        michelinYear: venue.michelinYear,
         // v0.58.53: include the v0.58.52 travel-time fields so the
         // per-card 📋 Copy clip carries the 🚊/🚘 row.
         transitMinutes: venue.transitMinutes,
