@@ -5175,15 +5175,22 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   }
   if (intent.intent === 'tool') {
     // Cooking technique / kitchen tool — lead with the explainer.
+    // v0.60.211 (DF-110) — was a 🔧 glyph + a misleading "Searching
+    // for restaurants…" italic (the message is already finished, the
+    // cards render right below). Now matches the v0.60.208 cooking-
+    // method fan-out: a country flag (flagFor(cuisine), 🍽 fallback)
+    // and the same "verify" caveat.
     const explainer = intent.why || (lang === 'fr' ? 'technique de cuisson.' : 'cooking technique.');
     lines.push(lang === 'fr'
-      ? `🔧 <b>${esc(explainer)}</b>\n\n<i>Recherche de restaurants à Singapour qui utilisent cette technique…</i>`
-      : `🔧 <b>${esc(explainer)}</b>\n\n<i>Searching for Singapore restaurants that use this technique…</i>`);
+      ? `${flagFor(intent.cuisine)} <b>${esc(explainer)}</b>\n\n<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>`
+      : `${flagFor(intent.cuisine)} <b>${esc(explainer)}</b>\n\n<i>These places may have it. Please verify.</i>`);
   } else if (intent.intent === 'ingredient') {
+    // v0.60.211 (DF-110) — same misleading-italic fix as the tool
+    // branch; the 🌿 glyph stays (apt for an ingredient).
     const explainer = intent.why || (lang === 'fr' ? 'ingrédient.' : 'ingredient.');
     lines.push(lang === 'fr'
-      ? `🌿 <b>${esc(explainer)}</b>\n\n<i>Recherche de restaurants à Singapour qui le mettent en valeur…</i>`
-      : `🌿 <b>${esc(explainer)}</b>\n\n<i>Searching for Singapore restaurants that feature it…</i>`);
+      ? `🌿 <b>${esc(explainer)}</b>\n\n<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>`
+      : `🌿 <b>${esc(explainer)}</b>\n\n<i>These places may have it. Please verify.</i>`);
   } else if (intent.cuisine) {
     const why = intent.why || (lang === 'fr' ? 'recherche en cours.' : 'searching.');
     lines.push(`🍽 <b>${esc(intent.cuisine)}</b> — ${esc(why)}`);
