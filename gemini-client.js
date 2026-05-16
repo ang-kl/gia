@@ -2078,11 +2078,92 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
   return empty;
 }
 
+// v0.60.225 — batched dish/dessert extraction for the Cuisine TMA
+// `🍲 Try ·` line. Operator: the line must carry a genuine dish or
+// dessert name drawn from the venue's higher-rated Google reviews
+// (4–5★, "5 stars rotated down to 3.5 minimum"). One batched call
+// per search — every result venue in a single prompt — keeps the
+// cost/latency of the otherwise LLM-free /api/cuisine/search path
+// to a single Gemini Flash request. The caller (index.js) falls
+// back to the review-text regex when this returns nothing for a
+// venue, and hides the row when both are empty.
+//
+// Returns a Map<venueId, string[]> — only venues with at least one
+// extracted dish appear in the Map.
+async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-latest', _genAIFactory } = {}) {
+  const out = new Map();
+  const usable = (Array.isArray(venues) ? venues : [])
+    .filter((v) => v && typeof v.id === 'string' && Array.isArray(v.reviews) && v.reviews.length);
+  if (!usable.length) return out;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && !_genAIFactory) return out;
+  const blocks = usable.map((v, i) => {
+    const reviews = v.reviews
+      .slice()
+      .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0))
+      .slice(0, 6)
+      .map((r) => `  - (${Number(r.rating) || '?'}★) ${String(r.text || '').replace(/\s+/g, ' ').trim().slice(0, 400)}`)
+      .join('\n');
+    return `VENUE ${i} | id="${v.id}" | name="${String(v.name || '').slice(0, 80)}"\n${reviews}`;
+  }).join('\n\n');
+  const prompt = [
+    'You are a Singapore F&B research assistant. Below are restaurants, each with recent 4–5 star Google reviews.',
+    'For each venue, extract up to 3 specific dish or dessert NAMES that reviewers actually praised or recommended.',
+    '',
+    blocks,
+    '',
+    'Return a single-line JSON array, one object per venue:',
+    '[{"id":"<venue id>","dishes":["<dish name>", ...]}]',
+    '',
+    'RULES:',
+    '- Each "dishes" entry must be a real, specific dish or dessert name (e.g. "Chilli Crab", "Durian Souffle") — never a category word ("desserts", "mains", "food"), never the restaurant name, never a sentence fragment.',
+    '- Only include dishes the reviews genuinely mention. If a venue has no dish worth naming, return an empty "dishes" array for it.',
+    '- Up to 3 dishes per venue, most-praised first.',
+    '- Plain JSON only. No markdown fences. No prose outside the JSON. Double quotes throughout.'
+  ].join('\n');
+  const factory = _genAIFactory || (() => {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    return new GoogleGenerativeAI(apiKey);
+  });
+  let genAI;
+  try { genAI = factory(); } catch { return out; }
+  const candidates = [model, ...SEARCH_INTENT_MODEL_CHAIN].filter((v, i, a) => a.indexOf(v) === i);
+  const PER_ATTEMPT_MS = 8000;
+  for (const candidate of candidates) {
+    try {
+      const m = genAI.getGenerativeModel({ model: candidate });
+      const r = await Promise.race([
+        m.generateContent(prompt),
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`)), PER_ATTEMPT_MS))
+      ]);
+      let raw = '';
+      try { raw = r?.response?.text?.() || ''; } catch { continue; }
+      const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
+      if (!cleaned) continue;
+      const parsed = JSON.parse(cleaned);
+      if (!Array.isArray(parsed)) continue;
+      for (const row of parsed) {
+        if (!row || typeof row.id !== 'string') continue;
+        const dishes = Array.isArray(row.dishes)
+          ? row.dishes.map((d) => String(d || '').trim()).filter(Boolean).slice(0, 3)
+          : [];
+        if (dishes.length) out.set(row.id, dishes);
+      }
+      return out;
+    } catch (err) {
+      console.warn(`[Extract-Dishes] ${candidate} failed: ${err.message}`);
+      continue;
+    }
+  }
+  return out;
+}
+
 module.exports = {
   generateGroundedHiddenGems,
   generateGroundedHiddenGemsClaude,
   classifySearchIntent,
   describeCookingMethod,
+  extractDishesFromReviews,
   dishFallback,
   techniqueFallback,
   lookupTechnique,
