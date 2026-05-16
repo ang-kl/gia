@@ -85,8 +85,8 @@ const STRINGS = {
   // v0.60.131 — free-text "looks like a question" decline. Shown when
   // someone types a sentence ("does Beach Road curry rice sell chiffon
   // cake") instead of a dish / cuisine name. Distinct from /s.
-  'freetext.questionDeclined': { en: "🙂 <i>I can't answer questions in free text yet.</i> Type a dish or cuisine name (e.g. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), or use /cuisine to pick from a list.",
-                                 fr: "🙂 <i>Je ne réponds pas encore aux questions en texte libre.</i> Tapez un plat ou une cuisine (ex. <i>chiffon cake</i>, <i>laksa</i>, <i>ramen</i>), ou utilisez /cuisine pour choisir dans une liste." },
+  'freetext.questionDeclined': { en: "🍛 Please try a dish name, cooking method, or food term - e.g. Mee Soto, char kway teow, or goulash dumpling",
+                                 fr: "🍛 Essayez un nom de plat, une méthode de cuisson ou un terme culinaire - par ex. Mee Soto, char kway teow ou goulash dumpling" },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",

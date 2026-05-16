@@ -31,7 +31,7 @@ const STRINGS = {
   // v0.60.213 — two-line footer.
   'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
                                  fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
-  'footer.experimental':       { en: 'Experimental', fr: 'Expérimental' },
+  'footer.experimental':       { en: 'experimental', fr: 'expérimental' },
 
   // ----- Banners (above map) -----
   'banner.locating':           { en: 'Searching nearby', fr: 'Recherche à proximité' },

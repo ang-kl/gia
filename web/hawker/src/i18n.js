@@ -112,8 +112,8 @@ const STRINGS = {
   'stalls.status.under_construction':    { en: 'Under construction', fr: 'En construction' },
   'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' },
 
-  // v0.60.213 — standardised footer tag line
-  'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
+  // v0.60.213 — standardised footer tag line (v0.60.215 — shortened)
+  'footer.tag':                          { en: 'experimental', fr: 'expérimental' }
 };
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }

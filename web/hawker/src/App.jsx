@@ -261,8 +261,9 @@ export default function App() {
             )}
           </>
         )}
-        {/* v0.60.213 — standardised footer tag line. */}
-        <footer className="text-[10px] text-tg-hint text-center pt-2">
+        {/* v0.60.213 — standardised footer tag line.
+            v0.60.215 — framed in a bordered box for clearer UI. */}
+        <footer className="mx-2 mb-2 mt-2 border border-tg-border rounded-lg px-3 py-2 text-[8px] text-tg-hint text-center">
           {t('footer.tag', lang)} · v{BUILD_VERSION}
         </footer>
       </div>
