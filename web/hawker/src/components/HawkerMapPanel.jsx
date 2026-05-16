@@ -36,17 +36,27 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// v0.60.224 — custom tiny map pin. The 123-row hawker dataset crowds
-// the map with the default Google teardrop markers; a small dot keeps
-// dense regions readable. Gold = new centre, red = established (same
-// palette as the prior PinElement pins); the 🆕 distinction still
-// surfaces in the InfoWindow.
-function tinyPinNode(isNew) {
+// v0.60.227 — operator: the v0.60.224 13px dots were too tiny and
+// their colour didn't read against the map. Pins are now 25px, and
+// new centres carry a "NEW" badge so they pop. Gold = new centre,
+// red = established (same palette as the prior PinElement pins);
+// the 🆕 distinction still surfaces in the InfoWindow too.
+function hawkerPinNode(isNew) {
   const el = document.createElement('div');
   el.style.cssText =
-    'width:13px;height:13px;border-radius:50%;cursor:pointer;' +
+    'position:relative;width:25px;height:25px;border-radius:50%;cursor:pointer;' +
     'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
     `background:${isNew ? '#f5a623' : '#e53935'};`;
+  if (isNew) {
+    const badge = document.createElement('div');
+    badge.textContent = 'NEW';
+    badge.style.cssText =
+      'position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);' +
+      'background:#f5a623;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
+      'letter-spacing:0.5px;padding:3px 5px;border-radius:4px;white-space:nowrap;' +
+      'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
+    el.appendChild(badge);
+  }
   return el;
 }
 
@@ -159,7 +169,7 @@ export default function HawkerMapPanel({ centres, region }) {
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: tinyPinNode(c.isNew),
+        content: hawkerPinNode(c.isNew),
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
