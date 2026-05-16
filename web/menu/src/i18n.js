@@ -72,6 +72,8 @@ const STRINGS = {
 
   // ----- Footer brand line -----
   'footer.brand':          { en: 'Soleat',    fr: 'Soleat' },
+  // v0.60.213 — standardised footer tag line
+  'footer.tag':            { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' },
 
   // ----- FAB labels (v0.60.106 — operator FR audit 2026-05-11) -----
   'btn.fabBack':           { en: 'back',  fr: 'retour' },

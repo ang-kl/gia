@@ -13,6 +13,9 @@ import BackFab from './components/BackFab.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
 
+// v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
+
 // v0.57.3: Singapore-wide search (no radius constraint).
 // v0.58.1: layout — filter strip below map, active-filter chips below
 //   Search/Clear, walking filter dropped, Halal default ON (later
@@ -1437,8 +1440,11 @@ export default function App() {
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
-      <footer className="text-[10px] text-tg-hint text-center pt-2">
-        v0.60.4 · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · {t('header.tagline', lang)}
+      {/* v0.60.213 — two-line footer: a how-to line + an
+          "Experimental · <region> · v<build>" tag line. */}
+      <footer className="text-[10px] text-tg-hint text-center pt-2 leading-tight">
+        <div>{t('footer.howto', lang)}</div>
+        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

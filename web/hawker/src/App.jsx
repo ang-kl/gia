@@ -261,6 +261,10 @@ export default function App() {
             )}
           </>
         )}
+        {/* v0.60.213 — standardised footer tag line. */}
+        <footer className="text-[10px] text-tg-hint text-center pt-2">
+          {t('footer.tag', lang)} · v{BUILD_VERSION}
+        </footer>
       </div>
 
       {/* v0.60.94 — bottom-right scroll FAB. Same aqua treatment as

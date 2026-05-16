@@ -10,6 +10,9 @@ import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import BackFab from './components/BackFab.jsx';
 
+// v0.60.213 — build version for the footer tag line.
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
+
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
 //   1. Header: title + timestamp
@@ -153,8 +156,9 @@ export default function App() {
 
       <EngineeringList closures={data.engineering || []} />
 
-      <footer className="text-[10px] text-tg-hint text-center pt-2">
-        Source: LTA TrainServiceAlerts (live) + curated engineering schedule
+      <footer className="text-[10px] text-tg-hint text-center pt-2 leading-tight">
+        <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
+        <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
       <BackFab />

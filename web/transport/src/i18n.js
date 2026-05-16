@@ -68,7 +68,10 @@ const STRINGS = {
   'mrt.err.mapfail':           { en: '⚠ Map failed to load.',
                                  fr: '⚠ Échec du chargement de la carte.' },
   'mrt.aria.map':              { en: 'Map of MRT and LRT stations in Singapore',
-                                 fr: 'Carte des stations MRT et LRT de Singapour' }
+                                 fr: 'Carte des stations MRT et LRT de Singapour' },
+
+  // v0.60.213 — standardised footer tag line
+  'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
 };
 
 export function t(key, lang) {
