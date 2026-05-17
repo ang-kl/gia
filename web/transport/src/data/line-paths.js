@@ -101,6 +101,43 @@ export function lineStations(stations, lineCode) {
   return rows.map(({ code, name }) => ({ code, name }));
 }
 
+// v0.61.14 — richer per-line station list for the focused-line panel's
+// station picker. One row per station record carrying a code on
+// `lineCode`; ordered by that line's running order (operational before
+// future on a tie). Each row keeps the full station record fields the
+// map + status detail need.
+//   focusCode — the station's code on the focused line (e.g. EW16)
+//   codes     — all the station's codes, focus-line code first
+export function lineStationsFull(stations, lineCode) {
+  if (!Array.isArray(stations) || !lineCode) return [];
+  const rows = [];
+  for (const s of stations) {
+    const codes = Array.isArray(s.codes) ? s.codes : [];
+    let focus = null;
+    for (const code of codes) {
+      const pc = parseCode(code);
+      if (!pc || PREFIX_TO_LINE[pc.prefix] !== lineCode) continue;
+      if (!focus || pc.num < focus.num) focus = { num: pc.num, code };
+    }
+    if (!focus) continue;
+    const future = s.status === 'future';
+    const ordered = [focus.code, ...codes.filter((c) => c !== focus.code)];
+    rows.push({
+      name: s.name,
+      lat: s.lat,
+      lng: s.lng,
+      status: s.status,
+      future,
+      lines: Array.isArray(s.lines) ? s.lines : [],
+      focusCode: focus.code,
+      codes: ordered,
+      num: focus.num
+    });
+  }
+  rows.sort((a, b) => (a.num - b.num) || ((a.future ? 1 : 0) - (b.future ? 1 : 0)));
+  return rows.map(({ num, ...rest }) => rest);
+}
+
 export function buildLinePaths(stations) {
   if (!Array.isArray(stations)) return {};
   const byPrefix = {};      // prefix → [{ num, lat, lng }]
