@@ -1036,9 +1036,6 @@ export default function App() {
         attractionsMode={attractionsMode}
       />
 
-      {/* v0.61.0 — parks / attractions / taxi-stop overlay toggles. */}
-      <MapLayerChips layers={overlayLayers} onChange={setOverlayLayers} />
-
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
           operator 2026-05-10. The pills now live inside the Search
           criteria header below the title (visible only when collapsed)

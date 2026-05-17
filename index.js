@@ -11615,40 +11615,6 @@ async function cacheBotUsername() {
       }
     });
 
-    // v0.61.0 — map overlay layers (parks / tourist attractions / taxi
-    // stops) for the Cuisine + Hawker TMAs. Read the three slim
-    // data/geo-*.json files (produced by scripts/build-geo-overlays.js
-    // from the geoloc/ datasets) once at boot, cache, serve combined.
-    // Missing files degrade to empty arrays — the overlay chips just
-    // toggle nothing. Public, same posture as /maps-key (gov open data).
-    let geoOverlaysCache;   // undefined = not loaded
-    function loadGeoOverlays() {
-      if (geoOverlaysCache !== undefined) return geoOverlaysCache;
-      const fs = require('fs');
-      const readFeatures = (file) => {
-        try {
-          const obj = JSON.parse(fs.readFileSync(__dirname + '/data/' + file, 'utf8'));
-          return Array.isArray(obj.features) ? obj.features : [];
-        } catch (err) {
-          if (err.code !== 'ENOENT') console.error('[geo-overlays] ' + file + ':', err.message);
-          return [];
-        }
-      };
-      geoOverlaysCache = {
-        parks: readFeatures('geo-parks.json'),
-        attractions: readFeatures('geo-attractions.json'),
-        taxis: readFeatures('geo-taxis.json')
-      };
-      return geoOverlaysCache;
-    }
-    app.get('/api/geo/overlays', (_req, res) => {
-      try {
-        res.json(loadGeoOverlays());
-      } catch (err) {
-        res.status(500).json({ error: err.message });
-      }
-    });
-
 
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
