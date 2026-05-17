@@ -70,17 +70,50 @@ function ensureBlinkStyle() {
 // the marker reads against its line polyline; future stations are
 // smaller + translucent. v0.61.9 — station markers are SQUARE.
 // v0.61.10 — crowded stations (realtime PCD level 'h') blink.
-function stationDotNode(bg, isFuture, crowded) {
-  const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
+// v0.61.14 — `faded` dims stations beyond the 6 km station-focus ring;
+// `centre` is the selected station (larger, dark ring).
+function stationDotNode(bg, isFuture, crowded, faded, centre) {
+  const size = centre ? 18 : (isFuture ? DOT_SIZE_FUTURE : DOT_SIZE);
   const el = document.createElement('div');
-  el.style.cssText =
-    `width:${size}px;height:${size}px;cursor:pointer;` +
-    `background:${bg};border:1.5px solid #fff;` +
-    'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
-    (isFuture ? 'opacity:0.75;' : '') +
-    (crowded ? 'animation:giaMrtBlink 1s ease-in-out infinite;box-shadow:0 0 4px 2px rgba(255,59,48,0.7);' : '');
+  let css = `width:${size}px;height:${size}px;cursor:pointer;background:${bg};`;
+  css += centre
+    ? 'border:2.5px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,0.6);'
+    : 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);';
+  const op = faded ? 0.4 : (isFuture ? 0.75 : 1);
+  if (op !== 1) css += `opacity:${op};`;
+  if (crowded && !faded) css += 'animation:giaMrtBlink 1s ease-in-out infinite;';
+  el.style.cssText = css;
   return el;
 }
+
+// v0.61.14 — planar metres between two lat/lng (fine at city scale).
+function metresBetween(aLat, aLng, bLat, bLng) {
+  const dy = (bLat - aLat) * 110574;
+  const dx = (bLng - aLng) * 111320 * Math.cos(aLat * Math.PI / 180);
+  return Math.hypot(dx, dy);
+}
+
+// v0.61.14 — split a polyline path into contiguous near / far runs by
+// distance to `centre`. Consecutive runs share their boundary point so
+// the drawn segments stay visually continuous.
+function splitByRadius(path, centre, radiusM) {
+  if (!Array.isArray(path) || path.length < 2) return [];
+  const near = path.map((p) => metresBetween(centre.lat, centre.lng, p.lat, p.lng) <= radiusM);
+  const runs = [];
+  let cur = null;
+  for (let i = 0; i < path.length - 1; i++) {
+    const edgeNear = near[i] || near[i + 1];
+    if (!cur || cur.near !== edgeNear) {
+      cur = { near: edgeNear, path: [path[i]] };
+      runs.push(cur);
+    }
+    cur.path.push(path[i + 1]);
+  }
+  return runs;
+}
+
+// 6 km station-focus radius (operator request).
+const STATION_FOCUS_M = 6000;
 
 // Square line emoji — mirrors mrt-lines.js LINES table (v0.60.83).
 const LINE_EMOJI = {
@@ -110,7 +143,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, attractionsMode = 'nearby' }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, attractionsMode = 'nearby' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -246,7 +279,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, linePaths, mapsKeyState, focusedCode, lang, crowd]);
+  }, [stations, linePaths, mapsKeyState, focusedCode, focusedStation, lang, crowd]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -294,35 +327,52 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
+  // v0.61.14 — the active 6 km station-focus anchor, or null.
+  function activeStationFocus() {
+    return (focusedStation && Number.isFinite(focusedStation.lat) && Number.isFinite(focusedStation.lng))
+      ? focusedStation : null;
+  }
+
   // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
   // beneath the station dots. v0.60.232 (Build E 5e) — geometry is the
   // real LTA route shape from /api/transport/line-paths when available,
   // else the station-code-derived polylines (resolveLinePaths picks).
   // When a line is focused only that line's polyline is drawn (heavier
   // weight); tapping any polyline focuses that line via onLineSelect.
+  // v0.61.14 — in station-focus mode every line is drawn, split by the
+  // 6 km ring: within → full opacity, beyond → 60 % transparent.
   function renderPolylines(list) {
     if (!window.google?.maps?.Polyline) return;
     for (const p of polylinesRef.current) p.setMap(null);
     polylinesRef.current = [];
     const paths = resolveLinePaths(linePathsRef.current, list);
+    const sf = activeStationFocus();
     for (const [lineCode, segments] of Object.entries(paths)) {
-      if (focusedCode && lineCode !== focusedCode) continue;
+      // Station-focus shows every line; line-focus filters to one.
+      if (!sf && focusedCode && lineCode !== focusedCode) continue;
       const meta = LINES_BY_CODE[lineCode];
       const hex = meta?.hex || DEFAULT_BG;
       const isFutureLine = !!meta?.future;
+      const baseOpacity = isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY;
       for (const seg of segments) {
         if (!Array.isArray(seg) || seg.length < 2) continue;
-        const pl = new window.google.maps.Polyline({
-          path: seg,
-          map: mapRef.current,
-          strokeColor: hex,
-          strokeOpacity: isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY,
-          strokeWeight: focusedCode === lineCode ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
-          clickable: true,
-          zIndex: 1
-        });
-        pl.addListener('click', () => onLineSelect?.(lineCode));
-        polylinesRef.current.push(pl);
+        const runs = sf
+          ? splitByRadius(seg, sf, STATION_FOCUS_M)
+          : [{ near: true, path: seg }];
+        for (const run of runs) {
+          if (!Array.isArray(run.path) || run.path.length < 2) continue;
+          const pl = new window.google.maps.Polyline({
+            path: run.path,
+            map: mapRef.current,
+            strokeColor: hex,
+            strokeOpacity: run.near ? baseOpacity : 0.4,
+            strokeWeight: (!sf && focusedCode === lineCode) ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
+            clickable: true,
+            zIndex: 1
+          });
+          pl.addListener('click', () => onLineSelect?.(lineCode));
+          polylinesRef.current.push(pl);
+        }
       }
     }
   }
@@ -336,9 +386,10 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
     markersRef.current = [];
     // v0.60.230 — line polylines first so the station dots layer on top.
     renderPolylines(list);
-    // v0.60.88 — filter to the focused line when set. Pin colour
-    // logic stays the same; only the visible set changes.
-    const visibleList = focusedCode
+    // v0.60.88 — filter to the focused line when set. v0.61.14 — in
+    // station-focus mode show every line; the 6 km ring drives opacity.
+    const sf = activeStationFocus();
+    const visibleList = (focusedCode && !sf)
       ? list.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode))
       : list;
     const bounds = new window.google.maps.LatLngBounds();
@@ -349,11 +400,16 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       const primary = s.lines?.[0];
       const bg = isFuture ? FUTURE_BG : (LINES_BY_CODE[primary]?.hex || DEFAULT_BG);
       const crowdLevel = isFuture ? null : crowdLevelFor(crowdRef.current, s.codes);
+      // v0.61.14 — station-focus: dim stations beyond the 6 km ring;
+      // the selected station is the larger centre pin.
+      const isCentre = !!sf && s.name === focusedStation.name;
+      const faded = !!sf && !isCentre
+        && metresBetween(sf.lat, sf.lng, s.lat, s.lng) > STATION_FOCUS_M;
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: stationDotNode(bg, isFuture, crowdLevel === 'h')
+        content: stationDotNode(bg, isFuture, crowdLevel === 'h', faded, isCentre)
       });
       marker.addListener('click', () => {
         const codes = (s.codes || []).map((c) => {
@@ -460,7 +516,18 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         boundedCount++;
       }
     }
-    if (boundedCount > 1) mapRef.current.fitBounds(bounds, 60);
+    // v0.61.14 — station-focus: frame a ~6 km box around the selected
+    // station instead of the whole-line bounds.
+    if (sf) {
+      const dLat = STATION_FOCUS_M / 110574;
+      const dLng = STATION_FOCUS_M / (111320 * Math.cos(sf.lat * Math.PI / 180));
+      const box = new window.google.maps.LatLngBounds();
+      box.extend({ lat: sf.lat - dLat, lng: sf.lng - dLng });
+      box.extend({ lat: sf.lat + dLat, lng: sf.lng + dLng });
+      mapRef.current.fitBounds(box, 20);
+    } else if (boundedCount > 1) {
+      mapRef.current.fitBounds(bounds, 60);
+    }
   }
 
   if (err) return <div className="text-xs text-red-500 p-3">{t('mrt.err.stations', lang)} {err}</div>;
