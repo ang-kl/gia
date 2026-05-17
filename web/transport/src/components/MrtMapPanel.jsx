@@ -359,7 +359,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   function computeDetail(list) {
     const fs = focusedStation;
     if (overview || !fs || !Number.isFinite(fs.lat) || !Number.isFinite(fs.lng)) return null;
-    const line = focusedCode || (Array.isArray(fs.lines) ? fs.lines[0] : null);
+    // Honour the focused line only when the selected station actually
+    // serves it; a station tapped from Overview (or any pin on a
+    // different line) falls back to its own primary line, so the
+    // prev/next neighbours come from a line that contains it.
+    const fsLines = Array.isArray(fs.lines) ? fs.lines : [];
+    const line = (focusedCode && fsLines.includes(focusedCode))
+      ? focusedCode
+      : (fsLines[0] || null);
     let prev = null;
     let next = null;
     if (line) {
