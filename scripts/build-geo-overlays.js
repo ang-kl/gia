@@ -29,7 +29,21 @@ const CONFIG = [
   { name: 'attractions', file: 'TouristAttractions.geojson',           kind: 'point',
     out: 'geo-attractions.json', authority: 'STB' },
   { name: 'taxis',       file: 'LTATaxiStopGEOJSON.geojson',           kind: 'point',
-    out: 'geo-taxis.json',       authority: 'LTA' }
+    out: 'geo-taxis.json',       authority: 'LTA' },
+  // v0.64.0 — MRT/LRT station exits overlay layer.
+  { name: 'exits',       file: 'LTAMRTStationExitGEOJSON.geojson',     kind: 'point',
+    out: 'geo-exits.json',       authority: 'LTA' },
+  // v0.62.0 — server-side matching datasets (NOT map overlay layers,
+  // so these are not served by /api/geo/overlays):
+  //  - healthier: HPB Healthier Dining partners, matched to venues.
+  //  - buildings: large building footprints (>= minSqm), used for the
+  //    "inside a building complex" point-in-polygon flag. Small
+  //    shophouse/landed footprints are dropped — only buildings big
+  //    enough to plausibly hold several eateries are kept.
+  { name: 'healthier',   file: 'HealthierEateries.geojson',            kind: 'point',
+    out: 'healthier-eateries.json', authority: 'HPB' },
+  { name: 'buildings',   file: 'AmendmenttoMP2014Building.geojson',    kind: 'building',
+    out: 'buildings.json',          authority: 'URA', minSqm: 2000 }
 ];
 
 function round(n, dp) {
@@ -113,8 +127,121 @@ function pointName(props, kind) {
   if (kind === 'attractions') {
     return String(props.PAGETITLE || props.NAME || 'Attraction').trim();
   }
+  if (kind === 'healthier') {
+    return String(props.NAME || 'Eatery').trim();
+  }
+  if (kind === 'exits') {
+    const stn = titleCase(String(props.STATION_NA || '').replace(/\s+(MRT|LRT)\s+STATION$/i, ''));
+    return (stn ? stn + ' · ' : '') + (String(props.EXIT_CODE || 'Exit').trim());
+  }
   // taxis — no name field; label by stand type.
   return titleCase(props.TYPE_CD_DE) || 'Taxi stop';
+}
+
+function stripHtml(s) {
+  return String(s || '')
+    .replace(/<[^>]+>/g, ' ')
+    // upstream STB data is double-encoded in places — repair the
+    // common mojibake (en-dash, curly apostrophe) before display.
+    .replace(/â€“|â€”/g, '–')
+    .replace(/â€™/g, '’')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Operational MRT/LRT stations from data/mrt-coords.json, for the
+// attraction "nearest station" enrichment.
+let _stations = null;
+function loadStations() {
+  if (_stations) return _stations;
+  _stations = [];
+  try {
+    const obj = JSON.parse(fs.readFileSync(path.join(DATA, 'mrt-coords.json'), 'utf8'));
+    for (const [name, s] of Object.entries(obj)) {
+      if (name === '_meta' || !s || s.status !== 'operational') continue;
+      if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      _stations.push({ name, codes: Array.isArray(s.codes) ? s.codes : [], lat: s.lat, lng: s.lng });
+    }
+  } catch (err) {
+    console.error('[build-geo-overlays] mrt-coords load failed:', err.message);
+  }
+  return _stations;
+}
+
+// v0.61.10 — station → exits index, grouped from the LTA MRT exit
+// dataset. Keyed by the same normalised station name the `exits`
+// overlay layer uses. Each value is [{ exit, lat, lng }]. EXIT_CODE is
+// stored verbatim (letter codes "A/B/C" on older stations, number
+// codes "1/2/3" on TEL & newer ones — never rewritten).
+function normaliseStationName(raw) {
+  return titleCase(String(raw || '').replace(/\s+(MRT|LRT)\s+STATION$/i, ''));
+}
+
+let _stationExits = null;
+function loadStationExits() {
+  if (_stationExits) return _stationExits;
+  _stationExits = {};
+  try {
+    const geo = JSON.parse(fs.readFileSync(path.join(GEOLOC, 'LTAMRTStationExitGEOJSON.geojson'), 'utf8'));
+    for (const feat of geo.features || []) {
+      const g = feat.geometry;
+      if (!g || g.type !== 'Point') continue;
+      const [lng, lat] = g.coordinates || [];
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+      const props = feat.properties || {};
+      const station = normaliseStationName(props.STATION_NA);
+      if (!station) continue;
+      const exit = String(props.EXIT_CODE || '').trim();
+      (_stationExits[station] || (_stationExits[station] = []))
+        .push({ exit, lat: round(lat, 6), lng: round(lng, 6) });
+    }
+  } catch (err) {
+    console.error('[build-geo-overlays] MRT-exit load failed:', err.message);
+  }
+  return _stationExits;
+}
+
+// Case-insensitive station-name lookup against the exit index.
+function exitsForStation(name) {
+  const idx = loadStationExits();
+  if (idx[name]) return idx[name];
+  const key = String(name || '').toLowerCase();
+  for (const [k, v] of Object.entries(idx)) {
+    if (k.toLowerCase() === key) return v;
+  }
+  return null;
+}
+
+// Nearest operational station to a point → { name, codes } or null.
+function nearestStation(lat, lng) {
+  let best = null;
+  let bestD = Infinity;
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  for (const s of loadStations()) {
+    const dx = (s.lng - lng) * cosLat;
+    const dy = s.lat - lat;
+    const d = dx * dx + dy * dy;
+    if (d < bestD) { bestD = d; best = s; }
+  }
+  return best ? { name: best.name, codes: best.codes } : null;
+}
+
+// Large building footprints, kept only above an area threshold (sqm).
+// Output: { sqm, rings:[[[lng,lat],...]] } — server-side point-in-polygon.
+function convertBuilding(features, minSqm) {
+  const out = [];
+  for (const feat of features) {
+    const area = Number((feat.properties || {})['SHAPE_1.AREA']);
+    if (!Number.isFinite(area) || area < minSqm) continue;
+    const rings = [];
+    for (const ring of buildRings(feat.geometry)) {
+      const simplified = simplify(ring, DP_EPSILON)
+        .map(([x, y]) => [round(x, POINT_DP), round(y, POINT_DP)]);
+      if (simplified.length >= 4) rings.push(simplified);
+    }
+    if (rings.length) out.push({ sqm: Math.round(area), rings });
+  }
+  return out;
 }
 
 function convertPoint(features, name) {
@@ -124,11 +251,29 @@ function convertPoint(features, name) {
     if (!g || g.type !== 'Point') continue;
     const [lng, lat] = g.coordinates || [];
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    out.push({
-      name: pointName(feat.properties || {}, name),
+    const props = feat.properties || {};
+    const rec = {
+      name: pointName(props, name),
       lat: round(lat, 6),
       lng: round(lng, 6)
-    });
+    };
+    // v0.64.0 — attractions carry address / website / hours and the
+    // nearest MRT station, surfaced in the overlay InfoWindow.
+    if (name === 'attractions') {
+      const addr = stripHtml(props.ADDRESS).slice(0, 160);
+      const web = String(props.EXTERNAL_LINK || '').trim();
+      const hrs = stripHtml(props.OPENING_HOURS).slice(0, 200);
+      if (addr) rec.address = addr;
+      if (web) rec.website = web;
+      if (hrs) rec.hours = hrs;
+      const st = nearestStation(lat, lng);
+      if (st) {
+        const ex = exitsForStation(st.name);
+        if (ex && ex.length) st.exits = ex.map((e) => e.exit).filter(Boolean);
+        rec.station = st;
+      }
+    }
+    out.push(rec);
   }
   return out;
 }
@@ -148,7 +293,9 @@ function main() {
     const geo = JSON.parse(fs.readFileSync(src, 'utf8'));
     const features = cfg.kind === 'polygon'
       ? convertPolygon(geo.features || [])
-      : convertPoint(geo.features || [], cfg.name);
+      : cfg.kind === 'building'
+        ? convertBuilding(geo.features || [], cfg.minSqm)
+        : convertPoint(geo.features || [], cfg.name);
     const payload = {
       _meta: {
         comment: `Generated by scripts/build-geo-overlays.js from geoloc/${cfg.file}`,
@@ -162,6 +309,26 @@ function main() {
     fs.writeFileSync(outPath, JSON.stringify(payload));
     const kb = (fs.statSync(outPath).size / 1024).toFixed(1);
     console.log(`  ${cfg.name}: ${features.length} features -> data/${cfg.out} (${kb} KB)`);
+  }
+
+  // v0.61.10 — station → exits index (data/station-exits.json), keyed
+  // by station name. Consumed by /api/hawker/centre-transit and the
+  // transport-map station InfoWindow to list each station's exits.
+  const stationExits = loadStationExits();
+  const stationCount = Object.keys(stationExits).length;
+  if (stationCount) {
+    const seoPath = path.join(DATA, 'station-exits.json');
+    fs.writeFileSync(seoPath, JSON.stringify({
+      _meta: {
+        comment: 'Generated by scripts/build-geo-overlays.js from geoloc/LTAMRTStationExitGEOJSON.geojson',
+        source: 'LTA (data.gov.sg)',
+        lastUpdated: today,
+        stationCount
+      },
+      stations: stationExits
+    }));
+    const kb = (fs.statSync(seoPath).size / 1024).toFixed(1);
+    console.log(`  station-exits: ${stationCount} stations -> data/station-exits.json (${kb} KB)`);
   }
 }
 

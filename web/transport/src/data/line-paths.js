@@ -1,4 +1,4 @@
-// web/transport/src/data/line-paths.js — v0.60.233
+// web/transport/src/data/line-paths.js — v0.61.1
 //
 // Build E 5a — derive MRT/LRT line polyline geometry from the station
 // list served by /api/transport/stations. No precomputed path file and
@@ -12,14 +12,15 @@
 //
 // Edge cases handled:
 //   - CGL: "CG" (Tanah Merah) parses as ordinal 0, then CG1/CG2.
-//   - CCL: "CC" arc + a "CE" spur segment; the spur is prepended with
-//     Promenade so Bayfront connects to the main loop.
+//   - CCL: drawn from an explicit closed-loop sequence (LINE_SEQUENCES)
+//     running through the CCL6 stations (Keppel / Cantonment / Prince
+//     Edward Road) and back to Promenade, so the Circle Line draws as
+//     one full closed ring rather than an open arc plus a CE spur.
 //   - SLRT: each "SE/SW" branch is wrapped with the STC hub at both
 //     ends so the branch draws as a closed loop.
 //   - BPL / PLRT: drawn from explicit operator-verified station-name
-//     sequences (LINE_SEQUENCES), not numeric code order — Punggol's
-//     Teck Lee (PW7) sits mid-loop so code numbers misorder it; both
-//     LRTs close their loops.
+//     sequences (LINE_SEQUENCES), not numeric code order, so both LRTs
+//     close their loops.
 //   - JRL: "JS" spine + "JE" branch as two segments (future line).
 //   - Duplicate codes (EW1/EW27 appear twice): de-duped by ordinal.
 //   - Gaps (CC18, DT4, TE10/21 never built): the polyline simply
@@ -38,12 +39,11 @@ const PREFIX_TO_LINE = {
 const HUB_CODE = { SLRT: 'STC' };
 const BRANCH_PREFIXES = new Set(['SE', 'SW']);
 
-// Lines drawn from an explicit operator-verified station-name sequence
-// rather than numeric code order. Needed where code numbers don't match
-// running order — Punggol's Teck Lee (PW7) sits mid-loop between Sam Kee
-// (PW1) and Punggol Point (PW2) — and where the loop must visibly close
-// (a repeated first/last name closes it). Each entry is an array of
-// segments; a segment is an ordered list of station names.
+// Lines drawn from an explicit station-name sequence rather than numeric
+// code order. Needed where the loop must visibly close (a repeated
+// first/last name closes it) — both LRT loop lines and the Circle Line.
+// Each entry is an array of segments; a segment is an ordered list of
+// station names.
 const LINE_SEQUENCES = {
   BPL: [[
     'Choa Chu Kang', 'South View', 'Keat Hong', 'Teck Whye', 'Phoenix',
@@ -56,16 +56,86 @@ const LINE_SEQUENCES = {
     ['Punggol', 'Cove', 'Meridian', 'Coral Edge', 'Riviera', 'Kadaloor',
       'Oasis', 'Damai', 'Punggol'],
   ],
+  // Circle Line as one full closed ring: the CC arc continues through
+  // the CCL6 stations (Keppel / Cantonment / Prince Edward Road) and the
+  // CE stations (Marina Bay / Bayfront) back to Promenade, which also
+  // sits between Esplanade and Nicoll Highway — so the ring closes.
+  CCL: [[
+    'Dhoby Ghaut', 'Bras Basah', 'Esplanade', 'Promenade', 'Nicoll Highway',
+    'Stadium', 'Mountbatten', 'Dakota', 'Paya Lebar', 'MacPherson',
+    'Tai Seng', 'Bartley', 'Serangoon', 'Lorong Chuan', 'Bishan',
+    'Marymount', 'Caldecott', 'Botanic Gardens', 'Farrer Road',
+    'Holland Village', 'Buona Vista', 'one-north', 'Kent Ridge',
+    'Haw Par Villa', 'Pasir Panjang', 'Labrador Park', 'Telok Blangah',
+    'HarbourFront', 'Keppel', 'Cantonment', 'Prince Edward Road',
+    'Marina Bay', 'Bayfront', 'Promenade',
+  ]],
 };
 
-// Prefix → a station name prepended to that prefix's segment so a spur
-// visually connects to its parent line. CCL's CE spur joins at Promenade.
-const PREFIX_HEAD = { CE: 'Promenade' };
-
-function parseCode(code) {
+export function parseCode(code) {
   const m = String(code == null ? '' : code).match(/^([A-Za-z]+)(\d*)$/);
   if (!m) return null;
   return { prefix: m[1].toUpperCase(), num: m[2] === '' ? 0 : parseInt(m[2], 10) };
+}
+
+// v0.61.9 — station-code prefix → line code, exported for the
+// focused-line station dropdown (LineStatusPanel).
+export { PREFIX_TO_LINE };
+
+// Ordered [{ code, name }] for one line, sorted by running order
+// (the numeric suffix of the matching code). Interchange stations
+// surface their code for the requested line, not their primary code.
+export function lineStations(stations, lineCode) {
+  if (!Array.isArray(stations) || !lineCode) return [];
+  const rows = [];
+  for (const s of stations) {
+    let best = null;
+    for (const code of (Array.isArray(s.codes) ? s.codes : [])) {
+      const pc = parseCode(code);
+      if (!pc || PREFIX_TO_LINE[pc.prefix] !== lineCode) continue;
+      if (!best || pc.num < best.num) best = { num: pc.num, code };
+    }
+    if (best) rows.push({ code: best.code, name: s.name, num: best.num });
+  }
+  rows.sort((a, b) => a.num - b.num);
+  return rows.map(({ code, name }) => ({ code, name }));
+}
+
+// v0.61.14 — richer per-line station list for the focused-line panel's
+// station picker. One row per station record carrying a code on
+// `lineCode`; ordered by that line's running order (operational before
+// future on a tie). Each row keeps the full station record fields the
+// map + status detail need.
+//   focusCode — the station's code on the focused line (e.g. EW16)
+//   codes     — all the station's codes, focus-line code first
+export function lineStationsFull(stations, lineCode) {
+  if (!Array.isArray(stations) || !lineCode) return [];
+  const rows = [];
+  for (const s of stations) {
+    const codes = Array.isArray(s.codes) ? s.codes : [];
+    let focus = null;
+    for (const code of codes) {
+      const pc = parseCode(code);
+      if (!pc || PREFIX_TO_LINE[pc.prefix] !== lineCode) continue;
+      if (!focus || pc.num < focus.num) focus = { num: pc.num, code };
+    }
+    if (!focus) continue;
+    const future = s.status === 'future';
+    const ordered = [focus.code, ...codes.filter((c) => c !== focus.code)];
+    rows.push({
+      name: s.name,
+      lat: s.lat,
+      lng: s.lng,
+      status: s.status,
+      future,
+      lines: Array.isArray(s.lines) ? s.lines : [],
+      focusCode: focus.code,
+      codes: ordered,
+      num: focus.num
+    });
+  }
+  rows.sort((a, b) => (a.num - b.num) || ((a.future ? 1 : 0) - (b.future ? 1 : 0)));
+  return rows.map(({ num, ...rest }) => rest);
 }
 
 export function buildLinePaths(stations) {
@@ -105,11 +175,6 @@ export function buildLinePaths(stations) {
     if (hub && hubPoint[hub] && BRANCH_PREFIXES.has(prefix)) {
       segment = [hubPoint[hub], ...ordered, hubPoint[hub]];
     }
-    // A spur (CCL's CE) is prepended with its parent-line junction.
-    const head = PREFIX_HEAD[prefix];
-    if (head && pointByName[head]) {
-      segment = [pointByName[head], ...segment];
-    }
     if (segment.length < 2) continue;
     (paths[line] || (paths[line] = [])).push(segment);
   }
@@ -126,6 +191,59 @@ export function buildLinePaths(stations) {
     }
   }
   return paths;
+}
+
+// v0.66.0 — Chaikin corner-cutting. The station-code-derived polylines
+// connect stations with hard straight segments; smoothing rounds those
+// corners so the fallback geometry reads as a curve rather than a
+// zig-zag. Real LTA route geometry (data/mrt-line-paths.json) is
+// already curved and is NOT smoothed — only the derived fallback is.
+
+function _samePoint(a, b) {
+  return a && b && Math.abs(a.lat - b.lat) < 1e-9 && Math.abs(a.lng - b.lng) < 1e-9;
+}
+
+function _round6(n) {
+  return Math.round(n * 1e6) / 1e6;
+}
+
+// One Chaikin pass. `closed` rings cut every corner (including the
+// join); open paths preserve their two endpoints.
+function _chaikinOnce(pts, closed) {
+  const n = pts.length;
+  const out = [];
+  if (!closed) out.push(pts[0]);
+  const segs = closed ? n : n - 1;
+  for (let i = 0; i < segs; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    out.push({ lat: a.lat * 0.75 + b.lat * 0.25, lng: a.lng * 0.75 + b.lng * 0.25 });
+    out.push({ lat: a.lat * 0.25 + b.lat * 0.75, lng: a.lng * 0.25 + b.lng * 0.75 });
+  }
+  if (!closed) out.push(pts[n - 1]);
+  return out;
+}
+
+// Smooth one polyline segment. A segment whose first and last point
+// coincide is treated as a closed loop and stays closed.
+export function smoothSegment(seg, iterations = 2) {
+  if (!Array.isArray(seg) || seg.length < 3) return seg;
+  const closed = _samePoint(seg[0], seg[seg.length - 1]);
+  let pts = closed ? seg.slice(0, -1) : seg.slice();
+  for (let i = 0; i < iterations; i++) pts = _chaikinOnce(pts, closed);
+  pts = pts.map((p) => ({ lat: _round6(p.lat), lng: _round6(p.lng) }));
+  if (closed) pts.push({ ...pts[0] });
+  return pts;
+}
+
+// Smooth every segment of a { lineCode: segments[] } map.
+export function smoothLinePaths(paths) {
+  const out = {};
+  for (const [code, segs] of Object.entries(paths || {})) {
+    if (code.startsWith('_')) { out[code] = segs; continue; }
+    out[code] = (Array.isArray(segs) ? segs : []).map((seg) => smoothSegment(seg, 2));
+  }
+  return out;
 }
 
 // v0.60.232 (Build E 5e) — pick the real LTA route geometry served by
@@ -146,5 +264,6 @@ export function resolveLinePaths(fetched, stations) {
     }
     if (Object.keys(valid).length) return valid;
   }
-  return buildLinePaths(stations);
+  // Derived fallback — smoothed (real LTA geometry above is left as-is).
+  return smoothLinePaths(buildLinePaths(stations));
 }

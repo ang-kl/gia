@@ -5,6 +5,7 @@ import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
+import MapLayerChips from './components/MapLayerChips.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
@@ -27,6 +28,10 @@ export default function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [focusedCode, setFocusedCode] = useState(null);
+  // v0.61.14 — a station selected from the focused-line panel's
+  // station picker. Drives the map's 6 km station-focus mode and the
+  // selected-station status detail.
+  const [focusedStation, setFocusedStation] = useState(null);
   // v0.60.85 — view toggle between the static PNG schematic
   // (SystemMap) and the interactive Google Map (MrtMapPanel,
   // ~177 ops + ~29 future pins). Operator 2026-05-10: "if the SG
@@ -35,6 +40,10 @@ export default function App() {
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
   const [mapView, setMapView] = useState('png');
+  // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
+  // carpark), shown only on the interactive Google Map view.
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false });
+  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.60.99 — one-shot auto-switch from PNG → Google Map on the
   // first line-chip tap. After that (whether the user stayed on
   // Google Map or toggled back to Schematic), subsequent chip taps
@@ -68,6 +77,11 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // v0.61.14 — a station selection belongs to one focused line; clear
+  // it whenever the focused line changes so the map / detail don't
+  // show a station from the previous line.
+  useEffect(() => { setFocusedStation(null); }, [focusedCode]);
+
   if (error) return <div className="p-4 text-tg-text">{t('error.unreachable', lang)} {error}</div>;
   if (!data) return <div className="p-4 text-tg-hint">{t('loading', lang)}</div>;
 
@@ -75,6 +89,18 @@ export default function App() {
   const statusByLine = data.statusByLine || {};
   const focusedLine = focusedCode ? LINES_BY_CODE[focusedCode] : null;
   const focusedStatus = focusedCode ? statusByLine[focusedCode] : null;
+
+  // v0.61.14 — station picked in the focused-line panel. Selecting a
+  // station surfaces the Google Map (the 6 km station-focus view);
+  // passing null clears the selection.
+  function handleSelectStation(station, code) {
+    if (station) {
+      setFocusedStation({ ...station, tappedCode: code || station.focusCode });
+      setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+    } else {
+      setFocusedStation(null);
+    }
+  }
 
   return (
     <div
@@ -126,19 +152,38 @@ export default function App() {
             >{t('view.btnGoogleMap', lang)}</button>
           </div>
         </div>
+        {/* v0.64.0 — overlay layer chips above the map, Google Map view only. */}
+        {mapView === 'gmap' && (
+          <MapLayerChips
+            layers={overlayLayers}
+            onChange={setOverlayLayers}
+            attractionsMode={attractionsMode}
+            onAttractionsModeChange={setAttractionsMode}
+          />
+        )}
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
           : <MrtMapPanel
               focusedCode={focusedCode}
-              onResetFocus={() => setFocusedCode(null)}
+              focusedStation={focusedStation}
+              onResetFocus={() => { setFocusedCode(null); setFocusedStation(null); }}
               onLineSelect={(code) => setFocusedCode(code)}
               statusByLine={statusByLine}
               lang={lang}
+              overlayLayers={overlayLayers}
+              attractionsMode={attractionsMode}
             />}
       </div>
 
       {focusedLine && (
-        <LineStatusPanel line={focusedLine} status={focusedStatus} />
+        <LineStatusPanel
+          line={focusedLine}
+          status={focusedStatus}
+          statusByLine={statusByLine}
+          selectedStation={focusedStation}
+          onSelectStation={handleSelectStation}
+          lang={lang}
+        />
       )}
 
       {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT)

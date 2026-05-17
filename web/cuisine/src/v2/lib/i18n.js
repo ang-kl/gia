@@ -69,6 +69,11 @@ const STRINGS = {
   'layer.parks':               { en: 'Parks', fr: 'Parcs' },
   'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
+  'layer.exits':               { en: 'Exits', fr: 'Sorties' },
+  'layer.train':               { en: 'Train', fr: 'Métro' },
+  'layer.nearby':              { en: 'Nearby', fr: 'À proximité' },
+  'layer.all':                 { en: 'All', fr: 'Tout' },
 
   // ----- Cuisine drawer -----
   'cuisine.drawerTitle':       { en: 'Cuisines', fr: 'Cuisines' },
@@ -117,6 +122,8 @@ const STRINGS = {
   // 2026-05-07: label trimmed to a tight "Try ·" form, same emoji
   // glyph used at the start of the dish line.
   'card.whatToOrder':          { en: 'Try', fr: 'Essayez' },
+  'card.healthierChoice':      { en: 'Healthier Choice', fr: 'Choix santé' },
+  'card.insideBuilding':       { en: 'Inside a building complex', fr: 'Dans un complexe immobilier' },
 
   // ----- End-of-list / dedup exhaustion (v0.60.115/117) -----
   'result.exhausted':          { en: '— You’ve now seen all {n} places I can find for these criteria, across several searches. Add or change a cuisine / filter, or use 💬 Tell me, to widen things — or ',
@@ -142,6 +149,10 @@ const STRINGS = {
   'loc.clear':                 { en: 'Clear location', fr: 'Effacer le lieu' },
 
   // ----- MapPanel InfoWindow -----
+  'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
+  'map.zoomIn':                { en: 'Zoom in', fr: 'Zoom avant' },
+  'map.zoomOut':               { en: 'Zoom out', fr: 'Zoom arrière' },
   'map.youAreHere':            { en: 'You are here', fr: 'Vous êtes ici' },
   'map.yourAnchor':            { en: 'your search anchor', fr: 'votre point d’ancrage' },
   'map.tapPin':                { en: 'Tap pin → Google Maps', fr: 'Touchez l’épingle → Google Maps' },

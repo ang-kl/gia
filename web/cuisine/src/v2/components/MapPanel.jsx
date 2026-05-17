@@ -93,7 +93,7 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, attractionsMode = 'nearby', children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -105,6 +105,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
+  // v0.61.10 — ⚠️ traffic-accident markers within 250 m of the search
+  // anchor, shown while cuisine results are on the map.
+  const incidentMarkersRef = useRef([]);
   // v0.58.53: cache the PinElement DOM node for the user-anchor pin
   // so the hover handler can re-bind to it across syncMarkers re-runs
   // without relying on AdvancedMarkerElement's (non-existent) `.element`.
@@ -129,6 +132,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // v0.58.54: tablet-form-factor detection drives the map-height bump.
   // Re-evaluated on resize so rotating an iPad updates the layout.
   const [isTablet, setIsTablet] = useState(false);
+  // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  const [expanded, setExpanded] = useState(false);
   // v0.58.54: cache the current venues array in a ref so the global
   // `window.__giaOpenMap(placeId)` handler (registered once at mount,
   // invoked from inside the InfoWindow's HTML) can resolve back to a
@@ -193,7 +198,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const center = searchCenter || userLoc
       || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
     mapRef.current = new Map(containerRef.current, {
-      center, zoom: 14, disableDefaultUI: true, zoomControl: true,
+      center, zoom: 14, disableDefaultUI: true, zoomControl: false,
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
@@ -209,12 +214,31 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('parks', !!layers.parks);
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
+    ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('train', !!layers.train);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
+  // v0.61.11 — train-overlay result emphasis: while cuisine results are
+  // on the map, bold the line segments near the 3 closest stations and
+  // dim the rest; clear it when there are no results.
+  useEffect(() => {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl?.setTrainEmphasis) return;
+    const anchor = searchCenter || userLoc;
+    if (anchor && (venues?.length)) ctrl.setTrainEmphasis(anchor.lat, anchor.lng);
+    else ctrl.setTrainEmphasis(null);
+  }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
+
   function handleIdle() {
+    // v0.64.0 — feed the map-centre anchor to the overlay controller so
+    // radius-clipped layers re-filter on every pan/zoom.
+    const ctr = mapRef.current?.getCenter?.();
+    if (ctr) overlayControllerRef.current?.setAnchor?.(ctr.lat(), ctr.lng());
     if (programmaticUpdateRef.current) {
       programmaticUpdateRef.current = false;
       return;
@@ -244,6 +268,49 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // userLoc, so the pin stayed at GPS even when the search anchored
   // elsewhere.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, focusedPlaceId]); // eslint-disable-line
+
+  // v0.61.10 — traffic accidents within 250 m of the search anchor,
+  // drawn as ⚠️ markers while results are showing. Best-effort: needs
+  // LTA_ACCOUNT_KEY server-side, else /api/geo/incidents returns [].
+  useEffect(() => {
+    const clear = () => {
+      for (const m of incidentMarkersRef.current) m.map = null;
+      incidentMarkersRef.current = [];
+    };
+    const anchor = searchCenter || userLoc;
+    if (!mapRef.current || !window.google?.maps?.marker || !anchor || !(venues?.length)) {
+      clear();
+      return undefined;
+    }
+    let cancelled = false;
+    fetch(`/api/geo/incidents?lat=${anchor.lat}&lng=${anchor.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        clear();
+        const { AdvancedMarkerElement } = window.google.maps.marker;
+        for (const inc of (d.incidents || [])) {
+          if (!Number.isFinite(inc.lat) || !Number.isFinite(inc.lng)) continue;
+          const el = document.createElement('div');
+          el.textContent = '⚠️';
+          el.style.cssText = 'font-size:20px;line-height:1;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));';
+          const marker = new AdvancedMarkerElement({
+            map: mapRef.current, position: { lat: inc.lat, lng: inc.lng },
+            title: inc.type || 'Incident', content: el, gmpClickable: true
+          });
+          marker.addListener('click', () => {
+            if (!infoWindowRef.current) return;
+            infoWindowRef.current.setContent(
+              `<div style="font-size:12px;max-width:220px;color:#1c1c1f;"><strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}</div>`
+            );
+            infoWindowRef.current.open(mapRef.current, marker);
+          });
+          incidentMarkersRef.current.push(marker);
+        }
+      })
+      .catch(() => { /* no accident layer */ });
+    return () => { cancelled = true; };
+  }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
@@ -362,6 +429,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const ctaHtml = isTouchRef.current
         ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(tr('map.openInMaps', lang))}</button>`
         : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
+      // v0.62.0 — HPB Healthier Choice + inside-building rows.
+      const healthierHtml = v.healthierChoice
+        ? `<div style="font-size:11px;color:#2e7d32;margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
+        : '';
+      const buildingHtml = v.insideBuilding
+        ? `<div style="font-size:11px;color:#888;margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
+        : '';
       const infoHtml =
         `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
@@ -369,6 +443,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
            ${footfallHtml}
            ${travelHtml}
            ${ratingHtml}
+           ${healthierHtml}
+           ${buildingHtml}
            ${ctaHtml}
          </div>`;
       const onMouseOver = () => {
@@ -468,10 +544,35 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         ref={containerRef}
         style={{
           width: '100%',
-          height: isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)',
+          height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
           minHeight: 240
         }}
       />
+      {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
+          expand toggle. v0.61.9 — horizontal row, smaller buttons.
+          Theme-adaptive (tg-card / tg-text flip with the Telegram
+          light/dark theme). Replaces Google's native zoom control. */}
+      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+      </div>
       {showSearchHere && (
         <button
           type="button"

@@ -14,6 +14,20 @@ const LOCALE_EVENT = 'gia:locale';
 const SUPPORTED_LOCALES = ['en', 'fr'];
 
 const STRINGS = {
+  // Map overlay layers (v0.63.0)
+  'layer.parks':               { en: 'Parks', fr: 'Parcs' },
+  'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
+  'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
+  'layer.exits':               { en: 'Exits', fr: 'Sorties' },
+  'layer.train':               { en: 'Train', fr: 'Métro' },
+  'layer.nearby':              { en: 'Nearby', fr: 'À proximité' },
+  'layer.all':                 { en: 'All', fr: 'Tout' },
+  'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
+  'map.zoomIn':                { en: 'Zoom in', fr: 'Zoom avant' },
+  'map.zoomOut':               { en: 'Zoom out', fr: 'Zoom arrière' },
+
   // Header banner
   'header.title':              { en: '🇸🇬 Train Map & Status', fr: '🇸🇬 Carte et état du métro' },
   'header.allNormal':          { en: '✓ All lines normal',     fr: '✓ Toutes les lignes normales' },
@@ -59,6 +73,17 @@ const STRINGS = {
   'mrt.showing':               { en: 'Showing {code} · {n} stations',
                                  fr: 'Affichage : {code} · {n} stations' },
   'mrt.overview':              { en: 'Overview ↺',        fr: 'Vue d’ensemble ↺' },
+  'mrt.allNormal':             { en: 'All normal',        fr: 'Tout normal' },
+  'mrt.stationsCount':         { en: '{n} stations',      fr: '{n} stations' },
+  'mrt.selected':              { en: 'Selected',          fr: 'Sélectionnée' },
+  'mrt.future':                { en: 'future',            fr: 'à venir' },
+  'mrt.crowd.h':               { en: 'Crowded',           fr: 'Bondé' },
+  'mrt.crowd.m':               { en: 'Moderate',          fr: 'Modéré' },
+  'mrt.crowd.l':               { en: 'Not crowded',       fr: 'Peu fréquenté' },
+  'mrt.exits':                 { en: 'Exits',             fr: 'Sorties' },
+  'mrt.busStops':              { en: 'Bus stops',         fr: 'Arrêts de bus' },
+  'mrt.taxiStand':             { en: 'Taxi stand',        fr: 'Station de taxi' },
+  'mrt.taxiPickup':            { en: 'Taxi pick-up / drop-off', fr: 'Dépose-minute taxi' },
   'mrt.counts':                { en: '🚇 {ops} operational · ⬜ {future} future (greyed)',
                                  fr: '🚇 {ops} en service · ⬜ {future} à venir (grisées)' },
   'mrt.err.stations':          { en: '⚠ Could not load stations:',

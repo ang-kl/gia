@@ -31,6 +31,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -55,20 +56,64 @@ const LINE_WEIGHT_FOCUSED = 5;
 const LINE_OPACITY = 0.85;
 const FUTURE_LINE_OPACITY = 0.4;
 
-// v0.60.230 — a station marker is now a small round dot DOM node
-// (replacing the PinElement teardrop), modeled on the Hawker TMA's
-// hawkerPinNode. White ring so the dot reads against its line
-// polyline; future stations are smaller + translucent.
-function stationDotNode(bg, isFuture) {
-  const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
+// v0.61.10 — one-shot blink keyframes for crowded-station markers.
+function ensureBlinkStyle() {
+  if (typeof document === 'undefined' || document.getElementById('gia-mrt-blink')) return;
+  const st = document.createElement('style');
+  st.id = 'gia-mrt-blink';
+  st.textContent = '@keyframes giaMrtBlink{0%,100%{opacity:1}50%{opacity:0.2}}';
+  document.head.appendChild(st);
+}
+
+// v0.60.230 — a station marker DOM node (replacing the PinElement
+// teardrop), modeled on the Hawker TMA's hawkerPinNode. White ring so
+// the marker reads against its line polyline; future stations are
+// smaller + translucent. v0.61.9 — station markers are SQUARE.
+// v0.61.10 — crowded stations (realtime PCD level 'h') blink.
+// v0.61.14 — `faded` dims stations beyond the 6 km station-focus ring;
+// `centre` is the selected station (larger, dark ring).
+function stationDotNode(bg, isFuture, crowded, faded, centre) {
+  const size = centre ? 18 : (isFuture ? DOT_SIZE_FUTURE : DOT_SIZE);
   const el = document.createElement('div');
-  el.style.cssText =
-    `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
-    `background:${bg};border:1.5px solid #fff;` +
-    'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
-    (isFuture ? 'opacity:0.75;' : '');
+  let css = `width:${size}px;height:${size}px;cursor:pointer;background:${bg};`;
+  css += centre
+    ? 'border:2.5px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,0.6);'
+    : 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);';
+  const op = faded ? 0.4 : (isFuture ? 0.75 : 1);
+  if (op !== 1) css += `opacity:${op};`;
+  if (crowded && !faded) css += 'animation:giaMrtBlink 1s ease-in-out infinite;';
+  el.style.cssText = css;
   return el;
 }
+
+// v0.61.14 — planar metres between two lat/lng (fine at city scale).
+function metresBetween(aLat, aLng, bLat, bLng) {
+  const dy = (bLat - aLat) * 110574;
+  const dx = (bLng - aLng) * 111320 * Math.cos(aLat * Math.PI / 180);
+  return Math.hypot(dx, dy);
+}
+
+// v0.61.14 — split a polyline path into contiguous near / far runs by
+// distance to `centre`. Consecutive runs share their boundary point so
+// the drawn segments stay visually continuous.
+function splitByRadius(path, centre, radiusM) {
+  if (!Array.isArray(path) || path.length < 2) return [];
+  const near = path.map((p) => metresBetween(centre.lat, centre.lng, p.lat, p.lng) <= radiusM);
+  const runs = [];
+  let cur = null;
+  for (let i = 0; i < path.length - 1; i++) {
+    const edgeNear = near[i] || near[i + 1];
+    if (!cur || cur.near !== edgeNear) {
+      cur = { near: edgeNear, path: [path[i]] };
+      runs.push(cur);
+    }
+    cur.path.push(path[i + 1]);
+  }
+  return runs;
+}
+
+// 6 km station-focus radius (operator request).
+const STATION_FOCUS_M = 6000;
 
 // Square line emoji — mirrors mrt-lines.js LINES table (v0.60.83).
 const LINE_EMOJI = {
@@ -76,6 +121,19 @@ const LINE_EMOJI = {
   CCL: '🟧', DTL: '🟦', TEL: '🟫', BPL: '⬜',
   SLRT: '⬜', PLRT: '⬜', JRL: '🟦', CRL: '🟩'
 };
+
+// v0.61.10 — worst realtime crowd level across a station's codes.
+const CROWD_RANK = { l: 1, m: 2, h: 3 };
+function crowdLevelFor(crowdMap, codes) {
+  if (!crowdMap || !Array.isArray(codes)) return null;
+  let worst = null;
+  for (const c of codes) {
+    const lv = crowdMap[String(c).toUpperCase()];
+    if (lv && CROWD_RANK[lv] && (!worst || CROWD_RANK[lv] > CROWD_RANK[worst])) worst = lv;
+  }
+  return worst;
+}
+const CROWD_DOT = { l: '🟢', m: '🟡', h: '🔴' };
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -85,13 +143,19 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en' }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, attractionsMode = 'nearby' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
+  // v0.63.0 — parks / attractions / taxi / carpark overlay layers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
+  // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  const [expanded, setExpanded] = useState(false);
   // v0.60.232 (Build E 5e) — real LTA route geometry from
   // /api/transport/line-paths; null until fetched / when no data file.
   const linePathsRef = useRef(null);
@@ -138,6 +202,26 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
 
   // Stable ref for the InfoWindow CTA closure.
   useEffect(() => { stationsRef.current = stations || []; }, [stations]);
+
+  // v0.61.10 — realtime platform-crowd levels ({ "<code>": "l|m|h" }).
+  // Best-effort: an empty/failed fetch leaves every pin unblinking.
+  const crowdRef = useRef({});
+  const [crowd, setCrowd] = useState(null);
+  // v0.61.10 — per-station context (exits / bus stops / taxis), fetched
+  // lazily on first tap and cached by station name.
+  const stationCtxRef = useRef({});
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/transport/crowd')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        crowdRef.current = d.crowd || {};
+        setCrowd(d.crowd || {});
+      })
+      .catch(() => { /* pins simply never blink */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // Load Maps JS once. Reuses __giaMapsReady so concurrent TMAs share.
   useEffect(() => {
@@ -195,7 +279,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, linePaths, mapsKeyState, focusedCode, lang]);
+  }, [stations, linePaths, mapsKeyState, focusedCode, focusedStation, lang, crowd]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -209,6 +293,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       // auth overlay (operator screenshot 2026-05-11).
       mapId: mapIdRef.current,
       disableDefaultUI: false,
+      zoomControl: false,
       clickableIcons: false,
       gestureHandling: 'greedy',
       mapTypeControl: false,
@@ -216,7 +301,36 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       fullscreenControl: false
     });
     infoWindowRef.current = new window.google.maps.InfoWindow();
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
+    // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
+    // layers re-filter on every pan/zoom.
+    mapRef.current.addListener('idle', () => {
+      const c = mapRef.current?.getCenter?.();
+      if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+    });
     if (stations) renderPins(stations);
+  }
+
+  // Push the current layer-toggle state into the overlay controller.
+  // No 'train' layer here — the Transport map already draws line polylines.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+    ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('exits', !!layers.exits);
+  }
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
+
+  // v0.61.14 — the active 6 km station-focus anchor, or null.
+  function activeStationFocus() {
+    return (focusedStation && Number.isFinite(focusedStation.lat) && Number.isFinite(focusedStation.lng))
+      ? focusedStation : null;
   }
 
   // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
@@ -225,44 +339,57 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   // else the station-code-derived polylines (resolveLinePaths picks).
   // When a line is focused only that line's polyline is drawn (heavier
   // weight); tapping any polyline focuses that line via onLineSelect.
+  // v0.61.14 — in station-focus mode every line is drawn, split by the
+  // 6 km ring: within → full opacity, beyond → 60 % transparent.
   function renderPolylines(list) {
     if (!window.google?.maps?.Polyline) return;
     for (const p of polylinesRef.current) p.setMap(null);
     polylinesRef.current = [];
     const paths = resolveLinePaths(linePathsRef.current, list);
+    const sf = activeStationFocus();
     for (const [lineCode, segments] of Object.entries(paths)) {
-      if (focusedCode && lineCode !== focusedCode) continue;
+      // Station-focus shows every line; line-focus filters to one.
+      if (!sf && focusedCode && lineCode !== focusedCode) continue;
       const meta = LINES_BY_CODE[lineCode];
       const hex = meta?.hex || DEFAULT_BG;
       const isFutureLine = !!meta?.future;
+      const baseOpacity = isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY;
       for (const seg of segments) {
         if (!Array.isArray(seg) || seg.length < 2) continue;
-        const pl = new window.google.maps.Polyline({
-          path: seg,
-          map: mapRef.current,
-          strokeColor: hex,
-          strokeOpacity: isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY,
-          strokeWeight: focusedCode === lineCode ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
-          clickable: true,
-          zIndex: 1
-        });
-        pl.addListener('click', () => onLineSelect?.(lineCode));
-        polylinesRef.current.push(pl);
+        const runs = sf
+          ? splitByRadius(seg, sf, STATION_FOCUS_M)
+          : [{ near: true, path: seg }];
+        for (const run of runs) {
+          if (!Array.isArray(run.path) || run.path.length < 2) continue;
+          const pl = new window.google.maps.Polyline({
+            path: run.path,
+            map: mapRef.current,
+            strokeColor: hex,
+            strokeOpacity: run.near ? baseOpacity : 0.4,
+            strokeWeight: (!sf && focusedCode === lineCode) ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
+            clickable: true,
+            zIndex: 1
+          });
+          pl.addListener('click', () => onLineSelect?.(lineCode));
+          polylinesRef.current.push(pl);
+        }
       }
     }
   }
 
   function renderPins(list) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
+    ensureBlinkStyle();
     const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
     // v0.60.230 — line polylines first so the station dots layer on top.
     renderPolylines(list);
-    // v0.60.88 — filter to the focused line when set. Pin colour
-    // logic stays the same; only the visible set changes.
-    const visibleList = focusedCode
+    // v0.60.88 — filter to the focused line when set. v0.61.14 — in
+    // station-focus mode show every line; the 6 km ring drives opacity.
+    const sf = activeStationFocus();
+    const visibleList = (focusedCode && !sf)
       ? list.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode))
       : list;
     const bounds = new window.google.maps.LatLngBounds();
@@ -272,11 +399,17 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       const isFuture = s.status === 'future';
       const primary = s.lines?.[0];
       const bg = isFuture ? FUTURE_BG : (LINES_BY_CODE[primary]?.hex || DEFAULT_BG);
+      const crowdLevel = isFuture ? null : crowdLevelFor(crowdRef.current, s.codes);
+      // v0.61.14 — station-focus: dim stations beyond the 6 km ring;
+      // the selected station is the larger centre pin.
+      const isCentre = !!sf && s.name === focusedStation.name;
+      const faded = !!sf && !isCentre
+        && metresBetween(sf.lat, sf.lng, s.lat, s.lng) > STATION_FOCUS_M;
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: stationDotNode(bg, isFuture)
+        content: stationDotNode(bg, isFuture, crowdLevel === 'h', faded, isCentre)
       });
       marker.addListener('click', () => {
         const codes = (s.codes || []).map((c) => {
@@ -326,14 +459,54 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
             }).join('<br>')
           : '';
         const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
+        // v0.61.10 — realtime crowd line for the tapped station.
+        const crowdHtml = (!isFuture && crowdLevel)
+          ? `<br><span>${CROWD_DOT[crowdLevel]} ${escapeHtml(t(`mrt.crowd.${crowdLevel}`, lang))}</span>`
+          : '';
+        // v0.61.10 — exits / bus stops / taxi stand + pick-up section,
+        // populated from /api/transport/station-context (null until it
+        // resolves; the bubble then refreshes in place).
+        const contextHtml = (ctx) => {
+          if (!ctx || isFuture) return '';
+          let h = '';
+          const exits = Array.isArray(ctx.exits)
+            ? ctx.exits.map((e) => e && e.exit).filter(Boolean) : [];
+          if (exits.length) {
+            h += `<br>🚪 ${escapeHtml(t('mrt.exits', lang))}: ${escapeHtml(exits.join(', '))}`;
+          }
+          const bus = Array.isArray(ctx.busStops)
+            ? ctx.busStops.map((b) => b && b.code).filter(Boolean) : [];
+          if (bus.length) {
+            h += `<br>🚌 ${escapeHtml(t('mrt.busStops', lang))}: ${escapeHtml(bus.join(', '))}`;
+          }
+          const taxis = Array.isArray(ctx.taxis) ? ctx.taxis : [];
+          if (taxis.some((x) => x.kind === 'stand')) {
+            h += `<br>🚕 ${escapeHtml(t('mrt.taxiStand', lang))}`;
+          }
+          if (taxis.some((x) => x.kind === 'pickup')) {
+            h += `<br>🚕 ${escapeHtml(t('mrt.taxiPickup', lang))}`;
+          }
+          return h;
+        };
         // v0.60.207 — explicit dark text colour. The Google Maps
         // InfoWindow bubble is always white, but Telegram's dark-mode
         // theme can cascade a light body colour into it, rendering the
         // text near-invisible (operator screenshot). Pin #1c1c1f so the
         // popup is legible in both light and dark Telegram themes.
-        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
-        infoWindowRef.current?.setContent(html);
+        const compose = (ctx) => `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}</div>`;
+        const cachedCtx = stationCtxRef.current[s.name] || null;
+        infoWindowRef.current?.setContent(compose(cachedCtx));
         infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
+        if (!cachedCtx && !isFuture) {
+          fetch(`/api/transport/station-context?lat=${s.lat}&lng=${s.lng}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((ctx) => {
+              if (!ctx) return;
+              stationCtxRef.current[s.name] = ctx;
+              infoWindowRef.current?.setContent(compose(ctx));
+            })
+            .catch(() => { /* base content stays */ });
+        }
       });
       markersRef.current.push(marker);
       // Only operational stations contribute to the auto-bounds so
@@ -343,7 +516,18 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         boundedCount++;
       }
     }
-    if (boundedCount > 1) mapRef.current.fitBounds(bounds, 60);
+    // v0.61.14 — station-focus: frame a ~6 km box around the selected
+    // station instead of the whole-line bounds.
+    if (sf) {
+      const dLat = STATION_FOCUS_M / 110574;
+      const dLng = STATION_FOCUS_M / (111320 * Math.cos(sf.lat * Math.PI / 180));
+      const box = new window.google.maps.LatLngBounds();
+      box.extend({ lat: sf.lat - dLat, lng: sf.lng - dLng });
+      box.extend({ lat: sf.lat + dLat, lng: sf.lng + dLng });
+      mapRef.current.fitBounds(box, 20);
+    } else if (boundedCount > 1) {
+      mapRef.current.fitBounds(bounds, 60);
+    }
   }
 
   if (err) return <div className="text-xs text-red-500 p-3">{t('mrt.err.stations', lang)} {err}</div>;
@@ -353,37 +537,51 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   const opsCount = (stations || []).filter((s) => s.status !== 'future').length;
   const futureCount = (stations || []).filter((s) => s.status === 'future').length;
 
-  // v0.60.88 — filtered subset when a line is focused via the
-  // AffectedTicker tap (App.jsx threads focusedCode through). Shows
-  // an Overview reset button so users can return to the full map.
-  const filteredCount = focusedCode && stations
-    ? stations.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode)).length
-    : 0;
-
   return (
-    <div className="rounded-2xl overflow-hidden border border-tg-border">
-      {focusedCode && (
-        <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
-          <span className="text-tg-text">
-            {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
-          </span>
-          <button
-            type="button"
-            onClick={() => onResetFocus?.()}
-            className="px-2 py-0.5 rounded-md bg-tg-accent text-tg-accent-text text-[11px] font-semibold active:scale-95 transition"
-            aria-label={t('mrt.overview', lang)}
-          >{t('mrt.overview', lang)}</button>
-        </div>
-      )}
+    <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       <div
         ref={containerRef}
         // v0.60.93 — match Cuisine MapPanel responsive height per
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
-        // viewports. No tablet bump yet — defer until needed.
-        style={{ height: 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
+        // viewports. v0.63.0 — expand toggle grows it to ~90vh.
+        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
+      {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
+          expand toggle. v0.61.9 — horizontal row flush under the map's
+          top border, smaller buttons. Theme-adaptive (tg-card / tg-text). */}
+      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) - 1)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+      </div>
+      {/* v0.63.1 — Overview (reset focus) button, floating bottom-right
+          below the map's native controls; shown only when a line is focused. */}
+      {focusedCode && (
+        <button
+          type="button"
+          onClick={() => onResetFocus?.()}
+          className="absolute bottom-3 right-2 px-2.5 py-1 rounded-full bg-tg-card/80 text-tg-text border border-tg-border shadow-md text-[11px] font-semibold active:scale-95 z-10"
+          aria-label={t('mrt.overview', lang)}
+        >{t('mrt.overview', lang)}</button>
+      )}
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
