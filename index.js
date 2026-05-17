@@ -5498,6 +5498,9 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // michelin-2025's appendMichelinAnnotation helper. Shared with
   // formatVenueBlock + /api/cuisine/search post-loop annotation.
   require('./michelin-2025').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
+  // v0.62.0 — HPB Healthier Choice + "inside a building complex" rows.
+  require('./healthier-eateries').appendHealthierChoiceLine(lines, venue, 'formatTechniqueVenueBlock');
+  require('./buildings').appendBuildingLine(lines, venue, 'formatTechniqueVenueBlock');
   return lines.join('\n');
 }
 
@@ -10869,7 +10872,15 @@ async function cacheBotUsername() {
         // which pushes a chat-message line; this site mutates the venue
         // object instead so the React TMA card consumer can render it).
         const michelinObjAnnotator = require('./michelin-2025').annotateVenueObject;
-        for (const v of dedupedTop) michelinObjAnnotator(v, 'Cuisine-Search');
+        // v0.62.0 — also annotate HPB Healthier Choice + inside-building
+        // so the React TMA card can render the rows from the venue object.
+        const healthierObjAnnotator = require('./healthier-eateries').annotateVenueObject;
+        const buildingObjAnnotator = require('./buildings').annotateVenueObject;
+        for (const v of dedupedTop) {
+          michelinObjAnnotator(v, 'Cuisine-Search');
+          healthierObjAnnotator(v);
+          buildingObjAnnotator(v);
+        }
         const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
         if (ftRawIn) {
           try {
