@@ -27,6 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -65,12 +66,16 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
-export default function HawkerMapPanel({ centres, region }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const infoWindowRef = useRef(null);
+  // v0.61.0 — parks / attractions / taxi-stop overlay layers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
 
@@ -147,8 +152,22 @@ export default function HawkerMapPanel({ centres, region }) {
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
     syncMarkers();
   }
+
+  // Push the current layer-toggle state into the overlay controller.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+  }
+
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line

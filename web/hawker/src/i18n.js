@@ -25,6 +25,11 @@ const STRINGS = {
   // Status
   'status.loading':          { en: 'Loading…', fr: 'Chargement…' },
 
+  // Map overlay layers (v0.61.0)
+  'layer.parks':             { en: 'Parks', fr: 'Parcs' },
+  'layer.attractions':       { en: 'Attractions', fr: 'Attractions' },
+  'layer.taxis':             { en: 'Taxis', fr: 'Taxis' },
+
   // Regions — labels for Central/South/East/North/West (API returns EN
   // names; the chip + heading are localised here at render time).
   'region.Central':          { en: 'Central', fr: 'Centre' },

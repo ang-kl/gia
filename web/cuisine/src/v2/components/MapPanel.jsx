@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 // v0.58.2: "Search this area" floating button. When the user pans
 // the map far enough from the last-searched anchor, surface a
@@ -92,10 +93,16 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  // v0.61.0 — parks / attractions / taxi-stop overlay layers. The
+  // controller is created once the Google Map exists; the chip strip
+  // below the map drives layer visibility via overlayLayers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
   // v0.58.53: cache the PinElement DOM node for the user-anchor pin
@@ -190,8 +197,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
     syncMarkers();
   }
+
+  // Push the current layer-toggle state into the overlay controller.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+  }
+
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
     if (programmaticUpdateRef.current) {

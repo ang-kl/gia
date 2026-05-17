@@ -65,6 +65,11 @@ const STRINGS = {
   'filter.openMore':           { en: 'Open more filters', fr: 'Ouvrir plus de filtres' },
   'filter.closeMore':          { en: 'Close more filters', fr: 'Fermer plus de filtres' },
 
+  // ----- Map overlay layers (v0.61.0) -----
+  'layer.parks':               { en: 'Parks', fr: 'Parcs' },
+  'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
+  'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+
   // ----- Cuisine drawer -----
   'cuisine.drawerTitle':       { en: 'Cuisines', fr: 'Cuisines' },
   'cuisine.back':              { en: 'Back', fr: 'Retour' },

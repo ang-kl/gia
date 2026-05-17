@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.60.234",
+  "version": "0.61.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -12,6 +12,7 @@
     "build:hawker": "cd web/hawker && npm install --no-audit --no-fund && npm run build",
     "build:transport": "cd web/transport && npm install --no-audit --no-fund && npm run build",
     "build:oversight": "cd web/oversight && npm install --no-audit --no-fund && npm run build",
+    "build:geo": "node scripts/build-geo-overlays.js",
     "postinstall": "npm run build"
   },
   "engines": {

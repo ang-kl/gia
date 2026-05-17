@@ -6,6 +6,7 @@ import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
+import MapLayerChips from './components/MapLayerChips.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -75,6 +76,9 @@ export default function App() {
   const [firstLoadPending, setFirstLoadPending] = useState(true);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
+  // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
+  // of `state` so it never enters the search query or a saved snapshot.
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false });
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
@@ -1017,7 +1021,11 @@ export default function App() {
         searchCenter={searchCenter || userLoc}
         onSearchHere={runSearchAt}
         anchorName={locationName}
+        overlayLayers={overlayLayers}
       />
+
+      {/* v0.61.0 — parks / attractions / taxi-stop overlay toggles. */}
+      <MapLayerChips layers={overlayLayers} onChange={setOverlayLayers} />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
           operator 2026-05-10. The pills now live inside the Search

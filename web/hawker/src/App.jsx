@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
+import MapLayerChips from './components/MapLayerChips.jsx';
 import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 
@@ -48,6 +49,8 @@ export default function App() {
   const [err, setErr] = useState(null);
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
+  // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false });
   // v0.60.96 — operator: "flip to Top when I am at the bottom of the
   // screen". Detect when user has scrolled to (or near) the bottom of
   // the document, not just past the hero. Threshold 50 px to absorb
@@ -185,7 +188,9 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                <HawkerMapPanel centres={active.centres} region={activeRegion} />
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} />
+                {/* v0.61.0 — parks / attractions / taxi-stop overlay toggles. */}
+                <MapLayerChips layers={overlayLayers} onChange={setOverlayLayers} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}
