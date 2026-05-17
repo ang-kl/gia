@@ -14,6 +14,14 @@ const LOCALE_EVENT = 'gia:locale';
 const SUPPORTED_LOCALES = ['en', 'fr'];
 
 const STRINGS = {
+  // Map overlay layers (v0.63.0)
+  'layer.parks':               { en: 'Parks', fr: 'Parcs' },
+  'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
+  'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
+  'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
+
   // Header banner
   'header.title':              { en: '🇸🇬 Train Map & Status', fr: '🇸🇬 Carte et état du métro' },
   'header.allNormal':          { en: '✓ All lines normal',     fr: '✓ Toutes les lignes normales' },

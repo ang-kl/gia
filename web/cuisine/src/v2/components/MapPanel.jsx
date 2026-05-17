@@ -129,6 +129,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // v0.58.54: tablet-form-factor detection drives the map-height bump.
   // Re-evaluated on resize so rotating an iPad updates the layout.
   const [isTablet, setIsTablet] = useState(false);
+  // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  const [expanded, setExpanded] = useState(false);
   // v0.58.54: cache the current venues array in a ref so the global
   // `window.__giaOpenMap(placeId)` handler (registered once at mount,
   // invoked from inside the InfoWindow's HTML) can resolve back to a
@@ -209,6 +211,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('parks', !!layers.parks);
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
+    ctrl.setLayer('carpark', !!layers.carpark);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
@@ -468,10 +471,20 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         ref={containerRef}
         style={{
           width: '100%',
-          height: isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)',
+          height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
           minHeight: 240
         }}
       />
+      {/* v0.63.0 — discrete expand / collapse toggle, bottom-right. */}
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="absolute bottom-16 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 hover:bg-gray-50 active:bg-gray-100 z-10"
+        aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+        title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+      >
+        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
+      </button>
       {showSearchHere && (
         <button
           type="button"

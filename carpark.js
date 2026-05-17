@@ -71,4 +71,25 @@ async function nearest(lat, lng, count = 5) {
   return enriched;
 }
 
-module.exports = { nearest, fetchAll };
+// v0.63.0 — all carparks as overlay-layer points (every carpark with a
+// parseable location, regardless of available lots), for the TMA map
+// "🅿 Carpark" layer served by GET /api/geo/carpark.
+async function allPoints() {
+  const all = await fetchAll();
+  return all
+    .map((cp) => {
+      const coord = parseLocation(cp.Location);
+      if (!coord) return null;
+      const lots = Number(cp.AvailableLots);
+      return {
+        name: cp.Development || cp.Area || cp.CarParkID || 'Carpark',
+        lat: coord.lat,
+        lng: coord.lng,
+        availableLots: Number.isFinite(lots) ? lots : null,
+        lotType: cp.LotType || ''
+      };
+    })
+    .filter(Boolean);
+}
+
+module.exports = { nearest, fetchAll, allPoints };

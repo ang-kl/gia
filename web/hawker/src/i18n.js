@@ -29,6 +29,7 @@ const STRINGS = {
   'layer.parks':             { en: 'Parks', fr: 'Parcs' },
   'layer.attractions':       { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':             { en: 'Taxis', fr: 'Taxis' },
+  'layer.carpark':           { en: 'Carpark', fr: 'Parking' },
 
   // Regions — labels for Central/South/East/North/West (API returns EN
   // names; the chip + heading are localised here at render time).
@@ -72,6 +73,8 @@ const STRINGS = {
                                fr: '📍 {mapped}/{total} centres cartographiés' },
 
   // v0.60.41 — embedded HawkerMapPanel strings.
+  'map.expand':              { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':            { en: 'Collapse map', fr: 'Réduire la carte' },
   'map.loading':             { en: 'Loading map…',
                                fr: 'Chargement de la carte…' },
   'map.nokey':               { en: 'Map unavailable (key not configured).',

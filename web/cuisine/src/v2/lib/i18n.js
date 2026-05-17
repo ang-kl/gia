@@ -69,6 +69,7 @@ const STRINGS = {
   'layer.parks':               { en: 'Parks', fr: 'Parcs' },
   'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
 
   // ----- Cuisine drawer -----
   'cuisine.drawerTitle':       { en: 'Cuisines', fr: 'Cuisines' },
@@ -142,6 +143,8 @@ const STRINGS = {
   'loc.clear':                 { en: 'Clear location', fr: 'Effacer le lieu' },
 
   // ----- MapPanel InfoWindow -----
+  'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
+  'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
   'map.youAreHere':            { en: 'You are here', fr: 'Vous êtes ici' },
   'map.yourAnchor':            { en: 'your search anchor', fr: 'votre point d’ancrage' },
   'map.tapPin':                { en: 'Tap pin → Google Maps', fr: 'Touchez l’épingle → Google Maps' },

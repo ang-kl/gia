@@ -1,20 +1,23 @@
-// Map overlay controller — parks / tourist attractions / taxi stops.
+// Map overlay controller — parks / tourist attractions / taxi stops /
+// live carpark availability.
 // Plain framework-agnostic JS; operates on a google.maps.Map instance.
 //
 // KEEP IN SYNC: this file is byte-identical to
 //   web/hawker/src/lib/mapOverlays.js
-// The two TMAs are separate Vite apps with no shared package, so the
-// module is intentionally duplicated. Edit both copies together.
+//   web/transport/src/lib/mapOverlays.js
+// The three TMAs are separate Vite apps with no shared package, so the
+// module is intentionally duplicated. Edit all copies together.
 //
-// Data comes from GET /api/geo/overlays (served by index.js from the
-// data/geo-*.json files built by scripts/build-geo-overlays.js).
+// Data: GET /api/geo/overlays (parks/attractions/taxis, static) and
+// GET /api/geo/carpark (live LTA carpark availability) — both served
+// by index.js.
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Module-level cache so the /api/geo/overlays fetch runs once per page.
+// Module-level caches so each fetch runs once per page.
 let overlaysPromise = null;
 function fetchOverlays() {
   if (!overlaysPromise) {
@@ -23,6 +26,15 @@ function fetchOverlays() {
       .catch(() => ({ parks: [], attractions: [], taxis: [] }));
   }
   return overlaysPromise;
+}
+let carparkPromise = null;
+function fetchCarpark() {
+  if (!carparkPromise) {
+    carparkPromise = fetch('/api/geo/carpark')
+      .then((r) => r.json())
+      .catch(() => ({ carparks: [] }));
+  }
+  return carparkPromise;
 }
 
 // Small coloured dot with an emoji glyph — distinct from the venue and
@@ -58,7 +70,7 @@ export function createOverlayController(map, googleMaps) {
     }));
   }
 
-  function buildMarkers(features, bg, glyph) {
+  function buildMarkers(features, bg, glyph, labelFn) {
     return (features || []).map((f) => {
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
@@ -69,7 +81,7 @@ export function createOverlayController(map, googleMaps) {
       marker.addListener('click', () => {
         info.setContent(
           '<div style="font-size:12px;font-weight:600;padding:2px 4px;max-width:220px;">'
-          + escapeHtml(f.name || '') + '</div>'
+          + escapeHtml(labelFn ? labelFn(f) : (f.name || '')) + '</div>'
         );
         info.open(map, marker);
       });
@@ -77,19 +89,33 @@ export function createOverlayController(map, googleMaps) {
     });
   }
 
+  // Carpark label: "<name> — <n> lots" when availability is known.
+  function carparkLabel(f) {
+    const name = f.name || 'Carpark';
+    return Number.isFinite(f.availableLots)
+      ? name + ' — ' + f.availableLots + ' lots'
+      : name;
+  }
+
   async function ensureLayer(name) {
     if (layers[name]) return layers[name];
-    const data = await fetchOverlays();
-    if (destroyed) return null;
     let entry;
-    if (name === 'parks') {
-      entry = { kind: 'polygon', items: buildParks(data.parks), visible: false };
-    } else if (name === 'attractions') {
-      entry = { kind: 'marker', items: buildMarkers(data.attractions, '#FF8F00', '🎡'), visible: false };
-    } else if (name === 'taxis') {
-      entry = { kind: 'marker', items: buildMarkers(data.taxis, '#FBC02D', '🚕'), visible: false };
+    if (name === 'carpark') {
+      const data = await fetchCarpark();
+      if (destroyed) return null;
+      entry = { kind: 'marker', items: buildMarkers(data.carparks, '#1565C0', '🅿', carparkLabel), visible: false };
     } else {
-      return null;
+      const data = await fetchOverlays();
+      if (destroyed) return null;
+      if (name === 'parks') {
+        entry = { kind: 'polygon', items: buildParks(data.parks), visible: false };
+      } else if (name === 'attractions') {
+        entry = { kind: 'marker', items: buildMarkers(data.attractions, '#FF8F00', '🎡'), visible: false };
+      } else if (name === 'taxis') {
+        entry = { kind: 'marker', items: buildMarkers(data.taxis, '#FBC02D', '🚕'), visible: false };
+      } else {
+        return null;
+      }
     }
     layers[name] = entry;
     return entry;

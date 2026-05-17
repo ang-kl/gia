@@ -8,7 +8,8 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 const LAYERS = [
   { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
   { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
-  { key: 'taxis',       i18n: 'layer.taxis',       icon: '🚕' }
+  { key: 'taxis',       i18n: 'layer.taxis',       icon: '🚕' },
+  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' }
 ];
 
 function Chip({ active, onClick, children, ariaLabel }) {
