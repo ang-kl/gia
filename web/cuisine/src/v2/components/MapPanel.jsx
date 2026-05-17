@@ -491,27 +491,27 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           minHeight: 240
         }}
       />
-      {/* v0.63.1 — custom map-control stack, top-right: zoom +/- and the
-          expand toggle. Semi-transparent, theme-adaptive (tg-card / tg-text
-          flip with the Telegram light/dark theme) so the glyphs stay
-          prominent in either mode. Replaces Google's native zoom control. */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+      {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
+          expand toggle. v0.61.9 — horizontal row, smaller buttons.
+          Theme-adaptive (tg-card / tg-text flip with the Telegram
+          light/dark theme). Replaces Google's native zoom control. */}
+      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={tr('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={tr('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>

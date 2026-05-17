@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import LineBadge from './LineBadge.jsx';
+import { lineStations } from '../data/line-paths.js';
 
 // Hitachi-style left panel — line code badge + name (English),
 // direction, status icon (▲ delay / ⛔ closure / ✕ disrupted),
@@ -29,9 +30,22 @@ const STATUS_COLOR = {
 };
 
 export default function LineStatusPanel({ line, status }) {
+  // v0.61.9 — station list for the focused line, fetched once. Replaces
+  // the old "Showing EWL · 35 stations" banner on the Google Map.
+  const [stations, setStations] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/transport/stations')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setStations(Array.isArray(d.stations) ? d.stations : []); })
+      .catch(() => { /* dropdown simply stays empty */ });
+    return () => { cancelled = true; };
+  }, []);
+
   if (!line) return null;
   const s = status?.status || 'normal';
   const colour = STATUS_COLOR[s];
+  const lineStops = stations ? lineStations(stations, line.code) : [];
   return (
     // v0.60.97 — shrunk by half (operator 2026-05-11). Was
     // p-3 sm:p-4 + min-h-[200px]; now p-2 + no min-height so the
@@ -66,6 +80,19 @@ export default function LineStatusPanel({ line, status }) {
         <details className="text-xs text-tg-hint">
           <summary className="cursor-pointer">LTA notice</summary>
           <p className="mt-1 leading-snug">{status.raw}</p>
+        </details>
+      )}
+      {lineStops.length > 0 && (
+        <details className="text-xs text-tg-hint border-t border-tg-border pt-1.5">
+          <summary className="cursor-pointer">{lineStops.length} stations</summary>
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {lineStops.map((st) => (
+              <li key={st.code} className="flex items-baseline gap-1.5">
+                <code className="text-[10px] font-semibold text-tg-text">{st.code}</code>
+                <span className="truncate">{st.name}</span>
+              </li>
+            ))}
+          </ul>
         </details>
       )}
     </div>
