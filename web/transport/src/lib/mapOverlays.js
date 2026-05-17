@@ -43,6 +43,35 @@ function metresBetween(aLat, aLng, bLat, bLng) {
   return Math.hypot(dx, dy);
 }
 
+// v0.61.12 — extract the sub-path of `pts` within `windowM` arc-length
+// each side of the path vertex closest to (sLat,sLng). Returns [] when
+// the station is further than `maxOffsetM` from the path (i.e. the
+// line doesn't actually serve that station).
+function trackWindow(pts, sLat, sLng, windowM, maxOffsetM) {
+  if (!Array.isArray(pts) || pts.length < 2) return [];
+  let bi = -1;
+  let bd = Infinity;
+  for (let i = 0; i < pts.length; i++) {
+    const d = metresBetween(sLat, sLng, pts[i].lat, pts[i].lng);
+    if (d < bd) { bd = d; bi = i; }
+  }
+  if (bi < 0 || bd > maxOffsetM) return [];
+  const out = [pts[bi]];
+  let acc = 0;
+  for (let i = bi; i < pts.length - 1; i++) {
+    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i + 1].lat, pts[i + 1].lng);
+    out.push(pts[i + 1]);
+    if (acc >= windowM) break;
+  }
+  acc = 0;
+  for (let i = bi; i > 0; i--) {
+    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i - 1].lat, pts[i - 1].lng);
+    out.unshift(pts[i - 1]);
+    if (acc >= windowM) break;
+  }
+  return out;
+}
+
 // Module-level fetch caches — each runs once per page.
 let overlaysPromise = null;
 function fetchOverlays() {
@@ -162,7 +191,7 @@ export function createOverlayController(map, googleMaps) {
           path: pts, strokeColor: hex, strokeOpacity: 0.85, strokeWeight: 4,
           clickable: false, zIndex: 1
         });
-        out.push({ polyline, pts });
+        out.push({ polyline, pts, hex });
       }
     }
     return out;
@@ -231,7 +260,8 @@ export function createOverlayController(map, googleMaps) {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;
       entry = { kind: 'train', radius: TRAIN_RADIUS_M, visible: false,
-        lines: buildTrain(lp.paths), stations: buildTrainStations(st.stations) };
+        lines: buildTrain(lp.paths), stations: buildTrainStations(st.stations),
+        highlights: [] };
     } else {
       const d = await fetchOverlays();
       if (destroyed) return null;
@@ -262,10 +292,14 @@ export function createOverlayController(map, googleMaps) {
       return;
     }
     // v0.61.11 — train layer: radius-clipped polylines + (emphasis-only)
-    // square station markers. In result-emphasis mode the segments near
-    // the 3 stations closest to the anchor stay bold; the rest dim.
+    // square station markers. v0.61.12 — in result-emphasis mode the
+    // whole train line goes semi-transparent; only a ±200 m stretch of
+    // track around each of the 3 stations nearest the anchor is drawn
+    // fully opaque, as a separate bright overlay polyline.
     if (e.kind === 'train') {
       const emph = trainEmphasis;
+      for (const h of (e.highlights || [])) h.setMap(null);
+      e.highlights = [];
       let near3 = [];
       if (emph && e.stations.length) {
         near3 = e.stations
@@ -277,15 +311,18 @@ export function createOverlayController(map, googleMaps) {
       for (const ln of e.lines) {
         const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
         ln.polyline.setMap(e.visible && near ? map : null);
-        if (emph && near3.length) {
-          const hot = ln.pts.some((p) =>
-            near3.some((s) => metresBetween(p.lat, p.lng, s.lat, s.lng) <= 500));
-          ln.polyline.setOptions({
-            strokeOpacity: hot ? 0.9 : 0.4,
-            strokeWeight: hot ? 5 : 3
-          });
-        } else {
-          ln.polyline.setOptions({ strokeOpacity: 0.85, strokeWeight: 4 });
+        ln.polyline.setOptions(emph
+          ? { strokeOpacity: 0.35, strokeWeight: 3 }
+          : { strokeOpacity: 0.85, strokeWeight: 4 });
+        if (e.visible && near && emph && near3.length) {
+          for (const s of near3) {
+            const win = trackWindow(ln.pts, s.lat, s.lng, 200, 130);
+            if (win.length < 2) continue;
+            e.highlights.push(new Polyline({
+              path: win, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
+              clickable: false, zIndex: 3, map
+            }));
+          }
         }
       }
       for (const st of e.stations) {
