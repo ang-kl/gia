@@ -11711,6 +11711,55 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.65.0 — per-hawker-centre transit lookup. Returns the nearest
+    // operational MRT station (offline, from data/mrt-coords.json) and
+    // the 2 nearest bus stops (Redis GEOSEARCH via transport.js).
+    // Carparks near a centre are already surfaced on the map via the
+    // v0.63.0 carpark overlay layer. Redis-cached per rounded coord.
+    function nearestStationTo(lat, lng) {
+      let best = null;
+      let bestD = Infinity;
+      const cosLat = Math.cos(lat * Math.PI / 180);
+      for (const s of loadMrtCoords()) {
+        if (s.status !== 'operational') continue;
+        const dx = (s.lng - lng) * cosLat;
+        const dy = s.lat - lat;
+        const d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = s; }
+      }
+      if (!best) return null;
+      return { name: best.name, codes: best.codes, lines: best.lines, lat: best.lat, lng: best.lng };
+    }
+    app.get('/api/hawker/centre-transit', async (req, res) => {
+      try {
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          res.status(400).json({ error: 'lat/lng required' });
+          return;
+        }
+        const CACHE_KEY = `hawker:transit:${lat.toFixed(4)},${lng.toFixed(4)}`;
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const station = nearestStationTo(lat, lng);
+        let busStops = [];
+        try {
+          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 2);
+        } catch (err) {
+          console.warn('[hawker-transit] bus stops:', err.message);
+        }
+        const payload = { station, busStops };
+        if (redis.isOpen) {
+          redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
+        }
+        res.json(payload);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.57.0: /api/hawker/closures + nea-fetch.js + nea-scrape.js
     // removed entirely. Hawker TMA serves the deterministic
     // /api/hawker/centres-by-region endpoint only (122-centre vault

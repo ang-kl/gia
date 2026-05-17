@@ -52,6 +52,9 @@ export default function App() {
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, train: true });
   const [attractionsMode, setAttractionsMode] = useState('nearby');
+  // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
+  // lazy-fetched per active region from /api/hawker/centre-transit.
+  const [transitByName, setTransitByName] = useState({});
   // v0.60.96 — operator: "flip to Top when I am at the bottom of the
   // screen". Detect when user has scrolled to (or near) the bottom of
   // the document, not just past the hero. Threshold 50 px to absorb
@@ -105,6 +108,33 @@ export default function App() {
 
   const regionList = data?.regions || [];
   const active = regionList.find((r) => r.region === activeRegion);
+
+  // v0.65.0 — fetch transit (nearest station + bus stops) for every
+  // centre of the active region; results merge into transitByName.
+  useEffect(() => {
+    const act = (data?.regions || []).find((r) => r.region === activeRegion);
+    if (!act || !Array.isArray(act.centres)) return undefined;
+    let cancelled = false;
+    const todo = act.centres.filter(
+      (c) => Number.isFinite(c.lat) && Number.isFinite(c.lng) && !transitByName[c.name]
+    );
+    if (!todo.length) return undefined;
+    Promise.all(todo.map((c) =>
+      fetch(`/api/hawker/centre-transit?lat=${c.lat}&lng=${c.lng}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => ({ name: c.name, data: d }))
+        .catch(() => ({ name: c.name, data: null }))
+    )).then((results) => {
+      if (cancelled) return;
+      setTransitByName((prev) => {
+        const next = { ...prev };
+        for (const r of results) if (r.data) next[r.name] = r.data;
+        return next;
+      });
+    });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRegion, data]);
 
   // v0.60.40 — when the active region's centres carry lat/lng (from
   // data/hawker-coords.json populated by scripts/fetch-hawker-coords.js),
@@ -254,6 +284,33 @@ export default function App() {
                           {formatStalls(c, lang)}
                         </div>
                       )}
+                      {/* v0.65.0 — nearest MRT station + 2 bus stops,
+                          each linking to its location in Google Maps. */}
+                      {(() => {
+                        const tr = transitByName[c.name];
+                        if (!tr || (!tr.station && !(tr.busStops || []).length)) return null;
+                        return (
+                          <div className="mt-1 flex flex-col gap-0.5 text-[10px]">
+                            {tr.station && (
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${tr.station.lat},${tr.station.lng}`}
+                                target="_blank" rel="noreferrer"
+                                className="text-[#1a73e8] underline"
+                              >
+                                🚉 {(tr.station.codes || []).join('/')} {tr.station.name}
+                                {(tr.station.lines || []).length ? ` · ${tr.station.lines.join('/')}` : ''}
+                              </a>
+                            )}
+                            {(tr.busStops || []).map((b, j) => (
+                              <a key={j}
+                                href={`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`}
+                                target="_blank" rel="noreferrer"
+                                className="text-[#1a73e8] underline"
+                              >🚌 {b.code} {b.description}</a>
+                            ))}
+                          </div>
+                        );
+                      })()}
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {c.mapsUrl && (
                           <a href={c.mapsUrl} target="_blank" rel="noreferrer"
