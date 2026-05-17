@@ -85,6 +85,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   const centresRef = useRef([]);
   useEffect(() => { centresRef.current = centres || []; }, [centres]);
 
+  // v0.61.10 — per-panel cache of /api/hawker/centre-transit results,
+  // keyed by centre name, so the map-pin InfoWindow fetches transit once.
+  const transitCacheRef = useRef({});
+
   // One-time tablet media-query — same threshold as cuisine MapPanel.
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -184,6 +188,40 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line
 
+  // v0.61.10 — hawker map-pin InfoWindow template: name, operating
+  // status, address, 2 nearby bus stops, nearest station (code + name
+  // + line), and that station's exits. The transit half is null until
+  // /api/hawker/centre-transit resolves, then the bubble refreshes.
+  function buildInfoHtml(c, key, transit) {
+    const gmaps = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    let h = '<div style="min-width:170px;max-width:270px;padding:2px 4px;color:#1c1c1f;font-size:11px;line-height:1.5;">';
+    h += `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
+    if (c.status) {
+      h += `<div style="color:#666;margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
+    } else if (Number.isFinite(c.stalls) && c.stalls > 0) {
+      h += `<div style="color:#666;margin-top:2px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`;
+    }
+    if (c.address) {
+      h += `<div style="margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:#1a73e8;text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`;
+    }
+    const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
+    for (const b of bus.slice(0, 2)) {
+      if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
+      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(b.lat, b.lng))}" target="_blank" rel="noopener" style="color:#1a73e8;">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</a></div>`;
+    }
+    const st = transit && transit.station;
+    if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+      const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
+      const lines = Array.isArray(st.lines) && st.lines.length ? ` · ${st.lines.join('/')}` : '';
+      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(st.lat, st.lng))}" target="_blank" rel="noopener" style="color:#1a73e8;">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
+      const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
+      if (exits.length) {
+        h += `<div style="color:#444;margin-top:2px;">🚪 ${escapeHtml(exits.join(', '))}</div>`;
+      }
+    }
+    return h + '</div>';
+  }
+
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement } = window.google.maps.marker;
@@ -209,28 +247,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
-      // v0.60.207 — operator: the standalone blue "Open on Google Maps"
-      // button was clipped / hard to see inside the InfoWindow bubble.
-      // Dropped the button; the address line is now itself the
-      // hyperlink (calls the same __giaHawkerOpenMap deep-link handler).
-      // Also: surface the stall count (5b), and pin a dark text colour
-      // on the root so the popup is legible in Telegram dark mode.
-      const stallsLine = Number.isFinite(c.stalls) && c.stalls > 0
-        ? `<div style="font-size:11px;color:#666;margin-top:3px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`
-        : '';
-      const addrLink = c.address
-        ? `<div style="font-size:11px;margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:#1a73e8;text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`
-        : '';
-      const html =
-        `<div style="min-width:160px;max-width:260px;padding:2px 4px;color:#1c1c1f;">
-           <div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>
-           ${stallsLine}
-           ${addrLink}
-         </div>`;
       marker.addListener('click', () => {
-        if (infoWindowRef.current) {
-          infoWindowRef.current.setContent(html);
-          infoWindowRef.current.open(mapRef.current, marker);
+        if (!infoWindowRef.current) return;
+        const cached = transitCacheRef.current[c.name];
+        infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
+        infoWindowRef.current.open(mapRef.current, marker);
+        // v0.61.10 — lazy-fetch nearest station + bus stops, then
+        // refresh the open bubble with the transit template.
+        if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+          fetch(`/api/hawker/centre-transit?lat=${c.lat}&lng=${c.lng}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              if (!d) return;
+              transitCacheRef.current[c.name] = d;
+              infoWindowRef.current?.setContent(buildInfoHtml(c, key, d));
+            })
+            .catch(() => { /* base content stays */ });
         }
       });
       markersRef.current.push(marker);

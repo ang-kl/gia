@@ -56,18 +56,29 @@ const LINE_WEIGHT_FOCUSED = 5;
 const LINE_OPACITY = 0.85;
 const FUTURE_LINE_OPACITY = 0.4;
 
+// v0.61.10 — one-shot blink keyframes for crowded-station markers.
+function ensureBlinkStyle() {
+  if (typeof document === 'undefined' || document.getElementById('gia-mrt-blink')) return;
+  const st = document.createElement('style');
+  st.id = 'gia-mrt-blink';
+  st.textContent = '@keyframes giaMrtBlink{0%,100%{opacity:1}50%{opacity:0.2}}';
+  document.head.appendChild(st);
+}
+
 // v0.60.230 — a station marker DOM node (replacing the PinElement
 // teardrop), modeled on the Hawker TMA's hawkerPinNode. White ring so
 // the marker reads against its line polyline; future stations are
 // smaller + translucent. v0.61.9 — station markers are SQUARE.
-function stationDotNode(bg, isFuture) {
+// v0.61.10 — crowded stations (realtime PCD level 'h') blink.
+function stationDotNode(bg, isFuture, crowded) {
   const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
   const el = document.createElement('div');
   el.style.cssText =
     `width:${size}px;height:${size}px;cursor:pointer;` +
     `background:${bg};border:1.5px solid #fff;` +
     'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
-    (isFuture ? 'opacity:0.75;' : '');
+    (isFuture ? 'opacity:0.75;' : '') +
+    (crowded ? 'animation:giaMrtBlink 1s ease-in-out infinite;box-shadow:0 0 4px 2px rgba(255,59,48,0.7);' : '');
   return el;
 }
 
@@ -77,6 +88,19 @@ const LINE_EMOJI = {
   CCL: '🟧', DTL: '🟦', TEL: '🟫', BPL: '⬜',
   SLRT: '⬜', PLRT: '⬜', JRL: '🟦', CRL: '🟩'
 };
+
+// v0.61.10 — worst realtime crowd level across a station's codes.
+const CROWD_RANK = { l: 1, m: 2, h: 3 };
+function crowdLevelFor(crowdMap, codes) {
+  if (!crowdMap || !Array.isArray(codes)) return null;
+  let worst = null;
+  for (const c of codes) {
+    const lv = crowdMap[String(c).toUpperCase()];
+    if (lv && CROWD_RANK[lv] && (!worst || CROWD_RANK[lv] > CROWD_RANK[worst])) worst = lv;
+  }
+  return worst;
+}
+const CROWD_DOT = { l: '🟢', m: '🟡', h: '🔴' };
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -146,6 +170,26 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   // Stable ref for the InfoWindow CTA closure.
   useEffect(() => { stationsRef.current = stations || []; }, [stations]);
 
+  // v0.61.10 — realtime platform-crowd levels ({ "<code>": "l|m|h" }).
+  // Best-effort: an empty/failed fetch leaves every pin unblinking.
+  const crowdRef = useRef({});
+  const [crowd, setCrowd] = useState(null);
+  // v0.61.10 — per-station context (exits / bus stops / taxis), fetched
+  // lazily on first tap and cached by station name.
+  const stationCtxRef = useRef({});
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/transport/crowd')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        crowdRef.current = d.crowd || {};
+        setCrowd(d.crowd || {});
+      })
+      .catch(() => { /* pins simply never blink */ });
+    return () => { cancelled = true; };
+  }, []);
+
   // Load Maps JS once. Reuses __giaMapsReady so concurrent TMAs share.
   useEffect(() => {
     let cancelled = false;
@@ -202,7 +246,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   useEffect(() => {
     if (mapRef.current && stations) renderPins(stations);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stations, linePaths, mapsKeyState, focusedCode, lang]);
+  }, [stations, linePaths, mapsKeyState, focusedCode, lang, crowd]);
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
@@ -285,6 +329,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
 
   function renderPins(list) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
+    ensureBlinkStyle();
     const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old.
     for (const m of markersRef.current) m.map = null;
@@ -303,11 +348,12 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       const isFuture = s.status === 'future';
       const primary = s.lines?.[0];
       const bg = isFuture ? FUTURE_BG : (LINES_BY_CODE[primary]?.hex || DEFAULT_BG);
+      const crowdLevel = isFuture ? null : crowdLevelFor(crowdRef.current, s.codes);
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: stationDotNode(bg, isFuture)
+        content: stationDotNode(bg, isFuture, crowdLevel === 'h')
       });
       marker.addListener('click', () => {
         const codes = (s.codes || []).map((c) => {
@@ -357,14 +403,54 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
             }).join('<br>')
           : '';
         const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
+        // v0.61.10 — realtime crowd line for the tapped station.
+        const crowdHtml = (!isFuture && crowdLevel)
+          ? `<br><span>${CROWD_DOT[crowdLevel]} ${escapeHtml(t(`mrt.crowd.${crowdLevel}`, lang))}</span>`
+          : '';
+        // v0.61.10 — exits / bus stops / taxi stand + pick-up section,
+        // populated from /api/transport/station-context (null until it
+        // resolves; the bubble then refreshes in place).
+        const contextHtml = (ctx) => {
+          if (!ctx || isFuture) return '';
+          let h = '';
+          const exits = Array.isArray(ctx.exits)
+            ? ctx.exits.map((e) => e && e.exit).filter(Boolean) : [];
+          if (exits.length) {
+            h += `<br>🚪 ${escapeHtml(t('mrt.exits', lang))}: ${escapeHtml(exits.join(', '))}`;
+          }
+          const bus = Array.isArray(ctx.busStops)
+            ? ctx.busStops.map((b) => b && b.code).filter(Boolean) : [];
+          if (bus.length) {
+            h += `<br>🚌 ${escapeHtml(t('mrt.busStops', lang))}: ${escapeHtml(bus.join(', '))}`;
+          }
+          const taxis = Array.isArray(ctx.taxis) ? ctx.taxis : [];
+          if (taxis.some((x) => x.kind === 'stand')) {
+            h += `<br>🚕 ${escapeHtml(t('mrt.taxiStand', lang))}`;
+          }
+          if (taxis.some((x) => x.kind === 'pickup')) {
+            h += `<br>🚕 ${escapeHtml(t('mrt.taxiPickup', lang))}`;
+          }
+          return h;
+        };
         // v0.60.207 — explicit dark text colour. The Google Maps
         // InfoWindow bubble is always white, but Telegram's dark-mode
         // theme can cascade a light body colour into it, rendering the
         // text near-invisible (operator screenshot). Pin #1c1c1f so the
         // popup is legible in both light and dark Telegram themes.
-        const html = `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${futureLine}${linkHtml}</div>`;
-        infoWindowRef.current?.setContent(html);
+        const compose = (ctx) => `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}</div>`;
+        const cachedCtx = stationCtxRef.current[s.name] || null;
+        infoWindowRef.current?.setContent(compose(cachedCtx));
         infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
+        if (!cachedCtx && !isFuture) {
+          fetch(`/api/transport/station-context?lat=${s.lat}&lng=${s.lng}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((ctx) => {
+              if (!ctx) return;
+              stationCtxRef.current[s.name] = ctx;
+              infoWindowRef.current?.setContent(compose(ctx));
+            })
+            .catch(() => { /* base content stays */ });
+        }
       });
       markersRef.current.push(marker);
       // Only operational stations contribute to the auto-bounds so
