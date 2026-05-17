@@ -216,6 +216,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       // auth overlay (operator screenshot 2026-05-11).
       mapId: mapIdRef.current,
       disableDefaultUI: false,
+      zoomControl: false,
       clickableIcons: false,
       gestureHandling: 'greedy',
       mapTypeControl: false,
@@ -384,16 +385,8 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   return (
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       {focusedCode && (
-        <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
-          <span className="text-tg-text">
-            {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
-          </span>
-          <button
-            type="button"
-            onClick={() => onResetFocus?.()}
-            className="px-2 py-0.5 rounded-md bg-tg-accent text-tg-accent-text text-[11px] font-semibold active:scale-95 transition"
-            aria-label={t('mrt.overview', lang)}
-          >{t('mrt.overview', lang)}</button>
+        <div className="px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border text-tg-text">
+          {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
         </div>
       )}
       <div
@@ -405,17 +398,39 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
-      {/* v0.63.0 — discrete expand / collapse toggle, top-right (the
-          map's zoom control already occupies the bottom-right). */}
-      <button
-        type="button"
-        onClick={() => setExpanded((e) => !e)}
-        className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 active:scale-95 z-10"
-        aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-      >
-        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
-      </button>
+      {/* v0.63.1 — custom map-control stack, top-right: zoom +/- and the
+          expand toggle. Semi-transparent + theme-adaptive (tg-card / tg-text). */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) - 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base leading-none active:scale-95"
+          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+      </div>
+      {/* v0.63.1 — Overview (reset focus) button, floating bottom-right
+          below the map's native controls; shown only when a line is focused. */}
+      {focusedCode && (
+        <button
+          type="button"
+          onClick={() => onResetFocus?.()}
+          className="absolute bottom-3 right-2 px-2.5 py-1 rounded-full bg-tg-card/80 text-tg-text border border-tg-border shadow-md text-[11px] font-semibold active:scale-95 z-10"
+          aria-label={t('mrt.overview', lang)}
+        >{t('mrt.overview', lang)}</button>
+      )}
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}

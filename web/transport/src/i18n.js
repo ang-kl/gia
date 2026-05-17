@@ -21,6 +21,8 @@ const STRINGS = {
   'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
   'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
   'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
+  'map.zoomIn':                { en: 'Zoom in', fr: 'Zoom avant' },
+  'map.zoomOut':               { en: 'Zoom out', fr: 'Zoom arrière' },
 
   // Header banner
   'header.title':              { en: '🇸🇬 Train Map & Status', fr: '🇸🇬 Carte et état du métro' },

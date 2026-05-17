@@ -195,7 +195,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const center = searchCenter || userLoc
       || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
     mapRef.current = new Map(containerRef.current, {
-      center, zoom: 14, disableDefaultUI: true, zoomControl: true,
+      center, zoom: 14, disableDefaultUI: true, zoomControl: false,
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
@@ -484,16 +484,31 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           minHeight: 240
         }}
       />
-      {/* v0.63.0 — discrete expand / collapse toggle, bottom-right. */}
-      <button
-        type="button"
-        onClick={() => setExpanded((e) => !e)}
-        className="absolute bottom-16 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 hover:bg-gray-50 active:bg-gray-100 z-10"
-        aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-        title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-      >
-        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
-      </button>
+      {/* v0.63.1 — custom map-control stack, top-right: zoom +/- and the
+          expand toggle. Semi-transparent, theme-adaptive (tg-card / tg-text
+          flip with the Telegram light/dark theme) so the glyphs stay
+          prominent in either mode. Replaces Google's native zoom control. */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base leading-none active:scale-95"
+          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+      </div>
       {showSearchHere && (
         <button
           type="button"

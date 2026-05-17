@@ -75,6 +75,8 @@ const STRINGS = {
   // v0.60.41 — embedded HawkerMapPanel strings.
   'map.expand':              { en: 'Expand map', fr: 'Agrandir la carte' },
   'map.collapse':            { en: 'Collapse map', fr: 'Réduire la carte' },
+  'map.zoomIn':              { en: 'Zoom in', fr: 'Zoom avant' },
+  'map.zoomOut':             { en: 'Zoom out', fr: 'Zoom arrière' },
   'map.loading':             { en: 'Loading map…',
                                fr: 'Chargement de la carte…' },
   'map.nokey':               { en: 'Map unavailable (key not configured).',
