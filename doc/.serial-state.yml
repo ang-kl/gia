@@ -1,8 +1,8 @@
 counters:
-  commit: 219
-  build: 26
+  commit: 223
+  build: 30
   documents:
-    journal: 212
+    journal: 215
     builder: 1
     persona: 2
     feature: 45
@@ -12,10 +12,17 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 17-05 '26 16:43 SGT
-last_anchor_source: system_clock_2026-05-17T08:43Z_external_time_apis_blocked
-last_anchor_iso8601: 2026-05-17T16:43:00+08:00
-last_anchor_utc: 2026-05-17T08:43:00Z
+last_anchor_time: 17-05 '26 17:57 SGT
+last_anchor_source: system_clock_2026-05-17T09:57Z_external_time_apis_blocked
+last_anchor_iso8601: 2026-05-17T17:57:00+08:00
+last_anchor_utc: 2026-05-17T09:57:00Z
+# journal #213-215 (commit 220-223 / build 27-30) — v0.61.9-v0.61.12
+# map-refinement arc, 3-PR stack (PRs #495/#496/#497): map polish +
+# per-layer overlay radius; rich pins + realtime crowd/accidents;
+# cuisine result emphasis on the train overlay. Stacked on PR #494.
+# v0.61.12 (commit 223 / build 30) — amendment: train emphasis refined
+# to a ±200 m fully-opaque track window around each of the 3 nearest
+# stations; the rest of the line stays semi-transparent. Ships in #497.
 # journal #212 (commit 219 / build 26) — version-numbering correction:
 # the v0.61.2–v0.61.8 arc was mis-bumped as MINOR (0.62.0…0.66.1) and
 # is renumbered to a single 0.61.x PATCH sequence per operator. No code
