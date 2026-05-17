@@ -105,6 +105,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
+  // v0.61.10 — ⚠️ traffic-accident markers within 250 m of the search
+  // anchor, shown while cuisine results are on the map.
+  const incidentMarkersRef = useRef([]);
   // v0.58.53: cache the PinElement DOM node for the user-anchor pin
   // so the hover handler can re-bind to it across syncMarkers re-runs
   // without relying on AdvancedMarkerElement's (non-existent) `.element`.
@@ -254,6 +257,49 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // userLoc, so the pin stayed at GPS even when the search anchored
   // elsewhere.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, focusedPlaceId]); // eslint-disable-line
+
+  // v0.61.10 — traffic accidents within 250 m of the search anchor,
+  // drawn as ⚠️ markers while results are showing. Best-effort: needs
+  // LTA_ACCOUNT_KEY server-side, else /api/geo/incidents returns [].
+  useEffect(() => {
+    const clear = () => {
+      for (const m of incidentMarkersRef.current) m.map = null;
+      incidentMarkersRef.current = [];
+    };
+    const anchor = searchCenter || userLoc;
+    if (!mapRef.current || !window.google?.maps?.marker || !anchor || !(venues?.length)) {
+      clear();
+      return undefined;
+    }
+    let cancelled = false;
+    fetch(`/api/geo/incidents?lat=${anchor.lat}&lng=${anchor.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        clear();
+        const { AdvancedMarkerElement } = window.google.maps.marker;
+        for (const inc of (d.incidents || [])) {
+          if (!Number.isFinite(inc.lat) || !Number.isFinite(inc.lng)) continue;
+          const el = document.createElement('div');
+          el.textContent = '⚠️';
+          el.style.cssText = 'font-size:20px;line-height:1;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));';
+          const marker = new AdvancedMarkerElement({
+            map: mapRef.current, position: { lat: inc.lat, lng: inc.lng },
+            title: inc.type || 'Incident', content: el, gmpClickable: true
+          });
+          marker.addListener('click', () => {
+            if (!infoWindowRef.current) return;
+            infoWindowRef.current.setContent(
+              `<div style="font-size:12px;max-width:220px;color:#1c1c1f;"><strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}</div>`
+            );
+            infoWindowRef.current.open(mapRef.current, marker);
+          });
+          incidentMarkersRef.current.push(marker);
+        }
+      })
+      .catch(() => { /* no accident layer */ });
+    return () => { cancelled = true; };
+  }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;

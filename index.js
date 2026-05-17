@@ -11453,6 +11453,32 @@ async function cacheBotUsername() {
       };
       return geoOverlaysCache;
     }
+
+    // v0.61.10 — station → exits index (data/station-exits.json, built
+    // by scripts/build-geo-overlays.js). exitsForStation does a
+    // case-insensitive name lookup; a missing file degrades to null.
+    let stationExitsCache;   // undefined = not loaded
+    function loadStationExits() {
+      if (stationExitsCache !== undefined) return stationExitsCache;
+      try {
+        const raw = require('fs').readFileSync(__dirname + '/data/station-exits.json', 'utf8');
+        const obj = JSON.parse(raw);
+        stationExitsCache = (obj && typeof obj.stations === 'object') ? obj.stations : {};
+      } catch (err) {
+        if (err.code !== 'ENOENT') console.error('[station-exits] load failed:', err.message);
+        stationExitsCache = {};
+      }
+      return stationExitsCache;
+    }
+    function exitsForStation(name) {
+      const idx = loadStationExits();
+      if (idx[name]) return idx[name];
+      const key = String(name || '').toLowerCase();
+      for (const k of Object.keys(idx)) {
+        if (k.toLowerCase() === key) return idx[k];
+      }
+      return null;
+    }
     app.get('/api/geo/overlays', (_req, res) => {
       try {
         res.json(loadGeoOverlays());
@@ -11482,6 +11508,110 @@ async function cacheBotUsername() {
       } catch (err) {
         console.error('[geo-carpark]', err.message);
         res.json({ carparks: [] });
+      }
+    });
+
+    // v0.61.10 — realtime platform-crowd levels for the transport map.
+    // Returns { crowd: { "<stationCode>": "l" | "m" | "h" } } from LTA's
+    // PCDRealTime feed (transport.fetchPlatformCrowdAll), Redis-cached
+    // 5 min. Needs LTA_ACCOUNT_KEY; degrades to {} when unset.
+    app.get('/api/transport/crowd', async (_req, res) => {
+      const CACHE_KEY = 'transport:crowd';
+      try {
+        if (!process.env.LTA_ACCOUNT_KEY) { res.json({ crowd: {} }); return; }
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const byCode = await transport.fetchPlatformCrowdAll();
+        const crowd = {};
+        for (const [code, level] of byCode.entries()) {
+          if (code && level) crowd[code] = level;
+        }
+        const payload = { crowd };
+        if (redis.isOpen) {
+          redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 300 }).catch(() => {});
+        }
+        res.json(payload);
+      } catch (err) {
+        console.error('[transport-crowd]', err.message);
+        res.json({ crowd: {} });
+      }
+    });
+
+    // v0.61.10 — traffic incidents within 250 m of a point, for the
+    // Cuisine map's accident markers. Reuses transport.fetchTrafficIncidents
+    // + nearestIncidents; the full incident list is Redis-cached 2 min.
+    // Needs LTA_ACCOUNT_KEY; degrades to an empty list when unset.
+    app.get('/api/geo/incidents', async (req, res) => {
+      const CACHE_KEY = 'geo:incidents';
+      try {
+        if (!process.env.LTA_ACCOUNT_KEY) { res.json({ incidents: [] }); return; }
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        let incidents = null;
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) incidents = JSON.parse(cached);
+        }
+        if (!incidents) {
+          incidents = await transport.fetchTrafficIncidents();
+          if (redis.isOpen) {
+            redis.set(CACHE_KEY, JSON.stringify(incidents), { EX: 120 }).catch(() => {});
+          }
+        }
+        const near = (Number.isFinite(lat) && Number.isFinite(lng))
+          ? transport.nearestIncidents(incidents, lat, lng, 250, 20)
+          : [];
+        res.json({ incidents: near });
+      } catch (err) {
+        console.error('[geo-incidents]', err.message);
+        res.json({ incidents: [] });
+      }
+    });
+
+    // v0.61.10 — context for a tapped transport-map station: its exits,
+    // nearby bus stops and nearby taxi stands / pick-up-drop-off points
+    // (all within 400 m). Powers the station InfoWindow. Redis-cached
+    // 30 min keyed on the rounded coordinate.
+    app.get('/api/transport/station-context', async (req, res) => {
+      try {
+        const lat = Number(req.query.lat);
+        const lng = Number(req.query.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          res.status(400).json({ error: 'lat/lng required' });
+          return;
+        }
+        const CACHE_KEY = `transport:stnctx:${lat.toFixed(4)},${lng.toFixed(4)}`;
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const station = nearestStationTo(lat, lng);
+        const exits = (station && station.name && exitsForStation(station.name)) || [];
+        let busStops = [];
+        try {
+          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 400, 5);
+        } catch (err) {
+          console.warn('[station-context] bus stops:', err.message);
+        }
+        const taxis = [];
+        for (const tx of (loadGeoOverlays().taxis || [])) {
+          if (!Number.isFinite(tx.lat) || !Number.isFinite(tx.lng)) continue;
+          const d = transport.haversineM(lat, lng, tx.lat, tx.lng);
+          if (d > 400) continue;
+          const nm = String(tx.name || '');
+          const kind = /pick ?up/i.test(nm) ? 'pickup' : (/stand/i.test(nm) ? 'stand' : 'stop');
+          taxis.push({ kind, name: nm, lat: tx.lat, lng: tx.lng, distanceM: Math.round(d) });
+        }
+        taxis.sort((a, b) => a.distanceM - b.distanceM);
+        const payload = { station, exits, busStops, taxis: taxis.slice(0, 8) };
+        if (redis.isOpen) {
+          redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
+        }
+        res.json(payload);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
       }
     });
 
@@ -11747,6 +11877,14 @@ async function cacheBotUsername() {
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
         const station = nearestStationTo(lat, lng);
+        // v0.61.10 — attach the nearest station's exits (verbatim
+        // EXIT_CODE values) for the hawker map-pin transit template.
+        if (station && station.name) {
+          const ex = exitsForStation(station.name);
+          if (ex && ex.length) {
+            station.exits = ex.map((e) => e && e.exit).filter(Boolean);
+          }
+        }
         let busStops = [];
         try {
           if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 2);

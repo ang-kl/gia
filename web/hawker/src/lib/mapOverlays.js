@@ -167,6 +167,11 @@ export function createOverlayController(map, googleMaps) {
       const codes = Array.isArray(f.station.codes) ? f.station.codes.join(' / ') : '';
       h += '<div style="color:#444;margin-top:2px;">🚉 ' + escapeHtml(f.station.name)
         + (codes ? ' (' + escapeHtml(codes) + ')' : '') + '</div>';
+      // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
+      const exits = Array.isArray(f.station.exits) ? f.station.exits.filter(Boolean) : [];
+      if (exits.length) {
+        h += '<div style="color:#444;margin-top:2px;">🚪 ' + escapeHtml(exits.join(', ')) + '</div>';
+      }
     }
     if (f.website) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
