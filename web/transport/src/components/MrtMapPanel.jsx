@@ -48,10 +48,10 @@ const DEFAULT_BG = '#888888';
 
 // v0.60.230 (Build E 5b/5d) — tiny station dots + line polyline
 // styling. Future stations/lines render smaller and fainter.
-const DOT_SIZE = 11;
-const DOT_SIZE_FUTURE = 8;
-const LINE_WEIGHT = 4;
-const LINE_WEIGHT_FOCUSED = 6;
+const DOT_SIZE = 12;
+const DOT_SIZE_FUTURE = 9;
+const LINE_WEIGHT = 3;
+const LINE_WEIGHT_FOCUSED = 5;
 const LINE_OPACITY = 0.85;
 const FUTURE_LINE_OPACITY = 0.4;
 

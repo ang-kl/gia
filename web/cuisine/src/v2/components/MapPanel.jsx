@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 // v0.58.2: "Search this area" floating button. When the user pans
 // the map far enough from the last-searched anchor, surface a
@@ -29,27 +30,26 @@ function pinGlyphFor(venue) {
   return null;
 }
 
-// v0.60.229 — operator: "reduce the pins to dot (18px)". Replaces the
-// Google PinElement teardrop with an 18px round dot built like the
-// Hawker TMA's hawkerPinNode. Michelin/Pet/dessert venues render the
-// emoji glyph centred INSIDE the circle (white background so the multi-
-// colour emoji reads clearly); plain venues are a flat coloured dot.
-// The focused venue keeps the v0.60.224 treatment — orange fill/border
-// + a size bump — rather than an orange teardrop.
-function cuisinePinNode(glyph, focused) {
-  const size = focused ? 24 : 18;
-  const bg = glyph ? '#ffffff' : (focused ? '#FF9500' : '#34C759');
-  const border = focused ? '#FF9500' : '#1c1c1f';
+// v0.60.229 → v0.60.234 — round-dot pin. Operator (v0.60.234): the
+// 18px dot was hard to tap → 22px; the selected pin no longer changes
+// colour or size (the InfoWindow popup is the selection cue); and the
+// Michelin/Pet/dessert glyph is drawn as a solid WHITE silhouette on
+// the coloured dot instead of a multi-colour emoji on a white circle.
+function cuisinePinNode(glyph) {
+  const size = 22;
   const el = document.createElement('div');
   el.style.cssText =
     'display:flex;align-items:center;justify-content:center;' +
     `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
-    `border:2px solid ${border};box-shadow:0 1px 3px rgba(0,0,0,0.4);` +
-    `background:${bg};`;
+    'border:2px solid #1c1c1f;box-shadow:0 1px 3px rgba(0,0,0,0.4);' +
+    'background:#34C759;';
   if (glyph) {
-    el.textContent = glyph;
-    el.style.fontSize = `${focused ? 13 : 10}px`;
-    el.style.lineHeight = '1';
+    const ic = document.createElement('span');
+    ic.textContent = glyph;
+    // brightness(0) invert(1): render the multi-colour emoji as a
+    // solid white silhouette so the icon reads on the coloured dot.
+    ic.style.cssText = 'font-size:13px;line-height:1;filter:brightness(0) invert(1);';
+    el.appendChild(ic);
   }
   return el;
 }
@@ -93,10 +93,16 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  // v0.61.0 — parks / attractions / taxi-stop overlay layers. The
+  // controller is created once the Google Map exists; the chip strip
+  // below the map drives layer visibility via overlayLayers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
   const userMarkerRef = useRef(null);
   // v0.58.53: cache the PinElement DOM node for the user-anchor pin
@@ -191,8 +197,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
     syncMarkers();
   }
+
+  // Push the current layer-toggle state into the overlay controller.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+  }
+
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
     if (programmaticUpdateRef.current) {
@@ -285,15 +305,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     }
     for (const v of venues || []) {
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
-      const focused = v.placeId === focusedPlaceId;
       // v0.60.184 — emoji-coded glyph (operator: "replace boring pins
       // with specifics like 🐾 / 🍮 / ✳️"). Priority: Michelin
       // (✳️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
       // default (no glyph, falls back to the plain coloured circle).
       const glyph = pinGlyphFor(v);
-      // v0.60.229 — 18px round dot (cuisinePinNode); michelin/pet/
-      // dessert glyphs render centred inside the circle.
-      const pinNode = cuisinePinNode(glyph, focused);
+      // v0.60.234 — 22px round dot (cuisinePinNode); michelin/pet/
+      // dessert glyphs render as a white silhouette inside the circle.
+      // The pin is identical whether or not it's the focused venue.
+      const pinNode = cuisinePinNode(glyph);
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: v.lat, lng: v.lng },

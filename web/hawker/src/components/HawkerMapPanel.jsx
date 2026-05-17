@@ -27,6 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -38,24 +39,26 @@ function escapeHtml(s) {
 
 // v0.60.227 — operator: the v0.60.224 13px dots were too tiny and
 // their colour didn't read against the map. New centres carry a "NEW"
-// badge so they pop. Gold = new centre, red = established (same palette
-// as the prior PinElement pins); the 🆕 distinction still surfaces in
-// the InfoWindow too.
+// badge so they pop; the 🆕 distinction still surfaces in the
+// InfoWindow too.
 // v0.60.229 — operator: pins reduced 25px → 18px to match the Cuisine
 // TMA dot size. The "NEW" badge is absolutely positioned off the
 // marker's top edge, so it re-anchors at any pin size.
+// v0.60.233 — operator: pins 18px → 17px. New-centre colour changed
+// gold → navy (#1e3a8a); the operator is red/green colour-blind, so
+// navy reads cleanly against the red "established" pin.
 function hawkerPinNode(isNew) {
   const el = document.createElement('div');
   el.style.cssText =
-    'position:relative;width:18px;height:18px;border-radius:50%;cursor:pointer;' +
+    'position:relative;width:17px;height:17px;border-radius:50%;cursor:pointer;' +
     'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
-    `background:${isNew ? '#f5a623' : '#e53935'};`;
+    `background:${isNew ? '#1e3a8a' : '#e53935'};`;
   if (isNew) {
     const badge = document.createElement('div');
     badge.textContent = 'NEW';
     badge.style.cssText =
       'position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);' +
-      'background:#f5a623;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
+      'background:#1e3a8a;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
       'letter-spacing:0.5px;padding:3px 5px;border-radius:4px;white-space:nowrap;' +
       'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
     el.appendChild(badge);
@@ -63,12 +66,16 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
-export default function HawkerMapPanel({ centres, region }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const infoWindowRef = useRef(null);
+  // v0.61.0 — parks / attractions / taxi-stop overlay layers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
 
@@ -145,8 +152,22 @@ export default function HawkerMapPanel({ centres, region }) {
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
     syncMarkers();
   }
+
+  // Push the current layer-toggle state into the overlay controller.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+  }
+
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line
