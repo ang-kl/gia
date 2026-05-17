@@ -14,9 +14,13 @@
 // the map shows nearby places rather than the whole island. Parks
 // (translucent polygons) stay unfiltered. Attractions also have a
 // nearby/all mode (setAttractionsMode).
+//
+// v0.61.9 — per-layer radii: attractions + train reach 800 m; the
+// close-range layers (carpark / bus / taxi / exits) clip to 400 m.
 
-const RADIUS_M = 1000;          // carpark / taxis / attractions / exits
-const TRAIN_RADIUS_M = 1500;    // a train-line segment shows if it passes this near the anchor
+const RADIUS_ATTRACTIONS_M = 800;   // attractions
+const RADIUS_NEAR_M = 400;          // carpark / taxis / exits
+const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes this near the anchor
 
 // Canonical LTA line colours for the train-line overlay (the transport
 // app's LINES_BY_CODE isn't importable across Vite apps).
@@ -177,7 +181,7 @@ export function createOverlayController(map, googleMaps) {
     if (name === 'carpark') {
       const d = await fetchCarpark();
       if (destroyed) return null;
-      entry = { kind: 'marker', radius: RADIUS_M, visible: false,
+      entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
         items: buildMarkers(d.carparks, '#1565C0', '🅿', carparkInfo) };
     } else if (name === 'train') {
       const d = await fetchLinePaths();
@@ -190,13 +194,13 @@ export function createOverlayController(map, googleMaps) {
       if (name === 'parks') {
         entry = { kind: 'polygon', visible: false, items: buildParks(d.parks) };
       } else if (name === 'attractions') {
-        entry = { kind: 'marker', radius: RADIUS_M, visible: false,
+        entry = { kind: 'marker', radius: RADIUS_ATTRACTIONS_M, visible: false,
           items: buildMarkers(d.attractions, '#FF8F00', '🎡', attractionInfo) };
       } else if (name === 'taxis') {
-        entry = { kind: 'marker', radius: RADIUS_M, visible: false,
+        entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
           items: buildMarkers(d.taxis, '#FBC02D', '🚕', nameInfo) };
       } else if (name === 'exits') {
-        entry = { kind: 'marker', radius: RADIUS_M, visible: false,
+        entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
           items: buildMarkers(d.exits, '#5E35B1', '🚆', nameInfo) };
       } else {
         return null;

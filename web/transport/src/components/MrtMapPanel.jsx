@@ -56,15 +56,15 @@ const LINE_WEIGHT_FOCUSED = 5;
 const LINE_OPACITY = 0.85;
 const FUTURE_LINE_OPACITY = 0.4;
 
-// v0.60.230 — a station marker is now a small round dot DOM node
-// (replacing the PinElement teardrop), modeled on the Hawker TMA's
-// hawkerPinNode. White ring so the dot reads against its line
-// polyline; future stations are smaller + translucent.
+// v0.60.230 — a station marker DOM node (replacing the PinElement
+// teardrop), modeled on the Hawker TMA's hawkerPinNode. White ring so
+// the marker reads against its line polyline; future stations are
+// smaller + translucent. v0.61.9 — station markers are SQUARE.
 function stationDotNode(bg, isFuture) {
   const size = isFuture ? DOT_SIZE_FUTURE : DOT_SIZE;
   const el = document.createElement('div');
   el.style.cssText =
-    `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;` +
+    `width:${size}px;height:${size}px;cursor:pointer;` +
     `background:${bg};border:1.5px solid #fff;` +
     'box-shadow:0 0 0 0.5px rgba(0,0,0,0.35);' +
     (isFuture ? 'opacity:0.75;' : '');
@@ -384,20 +384,8 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
   const opsCount = (stations || []).filter((s) => s.status !== 'future').length;
   const futureCount = (stations || []).filter((s) => s.status === 'future').length;
 
-  // v0.60.88 — filtered subset when a line is focused via the
-  // AffectedTicker tap (App.jsx threads focusedCode through). Shows
-  // an Overview reset button so users can return to the full map.
-  const filteredCount = focusedCode && stations
-    ? stations.filter((s) => Array.isArray(s.lines) && s.lines.includes(focusedCode)).length
-    : 0;
-
   return (
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
-      {focusedCode && (
-        <div className="px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border text-tg-text">
-          {tn('mrt.showing', lang, { code: focusedCode, n: filteredCount })}
-        </div>
-      )}
       <div
         ref={containerRef}
         // v0.60.93 — match Cuisine MapPanel responsive height per
@@ -407,25 +395,26 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
-      {/* v0.63.1 — custom map-control stack, top-right: zoom +/- and the
-          expand toggle. Semi-transparent + theme-adaptive (tg-card / tg-text). */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+      {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
+          expand toggle. v0.61.9 — horizontal row flush under the map's
+          top border, smaller buttons. Theme-adaptive (tg-card / tg-text). */}
+      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={t('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) - 1)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={t('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>

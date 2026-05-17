@@ -72,10 +72,33 @@ const LINE_SEQUENCES = {
   ]],
 };
 
-function parseCode(code) {
+export function parseCode(code) {
   const m = String(code == null ? '' : code).match(/^([A-Za-z]+)(\d*)$/);
   if (!m) return null;
   return { prefix: m[1].toUpperCase(), num: m[2] === '' ? 0 : parseInt(m[2], 10) };
+}
+
+// v0.61.9 — station-code prefix → line code, exported for the
+// focused-line station dropdown (LineStatusPanel).
+export { PREFIX_TO_LINE };
+
+// Ordered [{ code, name }] for one line, sorted by running order
+// (the numeric suffix of the matching code). Interchange stations
+// surface their code for the requested line, not their primary code.
+export function lineStations(stations, lineCode) {
+  if (!Array.isArray(stations) || !lineCode) return [];
+  const rows = [];
+  for (const s of stations) {
+    let best = null;
+    for (const code of (Array.isArray(s.codes) ? s.codes : [])) {
+      const pc = parseCode(code);
+      if (!pc || PREFIX_TO_LINE[pc.prefix] !== lineCode) continue;
+      if (!best || pc.num < best.num) best = { num: pc.num, code };
+    }
+    if (best) rows.push({ code: best.code, name: s.name, num: best.num });
+  }
+  rows.sort((a, b) => a.num - b.num);
+  return rows.map(({ code, name }) => ({ code, name }));
 }
 
 export function buildLinePaths(stations) {
