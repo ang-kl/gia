@@ -150,7 +150,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
       // value used in cuisine MapPanel.jsx.
       mapId: 'DEMO_MAP_ID',
       disableDefaultUI: true,
-      zoomControl: true,
+      zoomControl: false,
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
@@ -258,16 +258,29 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
         }}
         aria-label={t('map.aria', lang)}
       />
-      {/* v0.63.0 — discrete expand / collapse toggle, bottom-right. */}
-      <button
-        type="button"
-        onClick={() => setExpanded((e) => !e)}
-        className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 hover:bg-gray-50 active:bg-gray-100 z-10"
-        aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-      >
-        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
-      </button>
+      {/* v0.63.1 — custom map-control stack, top-right: zoom +/- and the
+          expand toggle. Semi-transparent + theme-adaptive (tg-card / tg-text). */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-lg font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-9 h-9 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base leading-none active:scale-95"
+          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+      </div>
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
           {t('map.loading', lang)}
