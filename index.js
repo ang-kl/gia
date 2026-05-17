@@ -11402,15 +11402,18 @@ async function cacheBotUsername() {
     // buildLinePaths, dynamic-imported as an ESM module) so EVERY caller
     // — the Transport map AND the Cuisine/Hawker "Train" overlay — gets
     // usable geometry without the file. Cached after first build.
-    let _buildLinePathsFn;
+    // v0.66.0 — the derived geometry is Chaikin-smoothed so the polylines
+    // read as curves, not station-to-station zig-zags.
+    let _linePathsMod;
     let _derivedLinePathsCache;
     async function deriveLinePaths() {
       if (_derivedLinePathsCache) return _derivedLinePathsCache;
-      if (!_buildLinePathsFn) {
-        const mod = await import('./web/transport/src/data/line-paths.js');
-        _buildLinePathsFn = mod.buildLinePaths;
+      if (!_linePathsMod) {
+        _linePathsMod = await import('./web/transport/src/data/line-paths.js');
       }
-      _derivedLinePathsCache = _buildLinePathsFn(loadMrtCoords());
+      _derivedLinePathsCache = _linePathsMod.smoothLinePaths(
+        _linePathsMod.buildLinePaths(loadMrtCoords())
+      );
       return _derivedLinePathsCache;
     }
     app.get('/api/transport/line-paths', async (_req, res) => {

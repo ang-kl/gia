@@ -6,7 +6,7 @@
 // root (node-environment) Vitest can exercise it directly.
 
 import { describe, it, expect } from 'vitest';
-import { buildLinePaths, resolveLinePaths } from '../web/transport/src/data/line-paths.js';
+import { buildLinePaths, resolveLinePaths, smoothSegment, smoothLinePaths } from '../web/transport/src/data/line-paths.js';
 
 const STATIONS = [
   { name: 'Jurong East',    lat: 1.3329, lng: 103.7421, codes: ['NS1', 'EW24'], lines: ['NSL', 'EWL'], status: 'operational' },
@@ -222,13 +222,13 @@ describe('resolveLinePaths — fetched-vs-derived selection (Build E 5e)', () =>
     expect(paths._meta).toBeUndefined();   // _meta is stripped
   });
 
-  it('falls back to buildLinePaths when fetched is null', () => {
-    expect(resolveLinePaths(null, STATIONS)).toEqual(buildLinePaths(STATIONS));
+  it('falls back to the smoothed derived geometry when fetched is null', () => {
+    expect(resolveLinePaths(null, STATIONS)).toEqual(smoothLinePaths(buildLinePaths(STATIONS)));
   });
 
   it('falls back when fetched has no usable segments', () => {
     const empty = { _meta: {}, NSL: [], EWL: [[{ lat: 1, lng: 103 }]] };  // too-short seg
-    expect(resolveLinePaths(empty, STATIONS)).toEqual(buildLinePaths(STATIONS));
+    expect(resolveLinePaths(empty, STATIONS)).toEqual(smoothLinePaths(buildLinePaths(STATIONS)));
   });
 
   it('drops malformed segments but keeps valid lines', () => {
@@ -239,5 +239,52 @@ describe('resolveLinePaths — fetched-vs-derived selection (Build E 5e)', () =>
     const paths = resolveLinePaths(mixed, STATIONS);
     expect(paths.NSL).toHaveLength(1);
     expect(paths.EWL).toBeUndefined();
+  });
+});
+
+describe('smoothSegment — Chaikin corner-cutting (v0.66.0)', () => {
+  it('keeps the endpoints of an open segment and adds intermediate points', () => {
+    const seg = [
+      { lat: 1.30, lng: 103.80 },
+      { lat: 1.35, lng: 103.85 },
+      { lat: 1.30, lng: 103.90 }
+    ];
+    const out = smoothSegment(seg, 2);
+    expect(out[0]).toEqual(seg[0]);                       // first endpoint preserved
+    expect(out[out.length - 1]).toEqual(seg[2]);          // last endpoint preserved
+    expect(out.length).toBeGreaterThan(seg.length);       // corners cut → more points
+  });
+
+  it('keeps a closed loop closed (first point === last point)', () => {
+    const ring = [
+      { lat: 1.30, lng: 103.80 },
+      { lat: 1.35, lng: 103.85 },
+      { lat: 1.32, lng: 103.90 },
+      { lat: 1.30, lng: 103.80 }   // same as first → closed loop
+    ];
+    const out = smoothSegment(ring, 2);
+    expect(out[0]).toEqual(out[out.length - 1]);          // still closed
+    expect(out.length).toBeGreaterThan(ring.length);
+  });
+
+  it('returns segments shorter than 3 points unchanged', () => {
+    const seg = [{ lat: 1.30, lng: 103.80 }, { lat: 1.31, lng: 103.81 }];
+    expect(smoothSegment(seg, 2)).toBe(seg);
+  });
+});
+
+describe('smoothLinePaths — whole-map smoothing (v0.66.0)', () => {
+  it('smooths every segment and preserves _meta keys', () => {
+    const raw = buildLinePaths(ALL_STATIONS);
+    const smoothed = smoothLinePaths({ _meta: { x: 1 }, ...raw });
+    expect(smoothed._meta).toEqual({ x: 1 });
+    // BPL is a single segment — smoothing should lengthen it.
+    expect(smoothed.BPL[0].length).toBeGreaterThan(raw.BPL[0].length);
+    // every point stays a finite {lat,lng}.
+    for (const seg of smoothed.CCL) {
+      for (const p of seg) {
+        expect(Number.isFinite(p.lat) && Number.isFinite(p.lng)).toBe(true);
+      }
+    }
   });
 });

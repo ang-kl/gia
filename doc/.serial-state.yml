@@ -1,8 +1,8 @@
 counters:
-  commit: 216
-  build: 24
+  commit: 217
+  build: 25
   documents:
-    journal: 209
+    journal: 210
     builder: 1
     persona: 2
     feature: 45
@@ -11,11 +11,14 @@ counters:
     register: 113
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 35
-last_anchor_time: 17-05 '26 15:25 SGT
-last_anchor_source: system_clock_2026-05-17T07:25Z_external_time_apis_blocked
-last_anchor_iso8601: 2026-05-17T15:25:00+08:00
-last_anchor_utc: 2026-05-17T07:25:00Z
+  current_chat_counter: 36
+last_anchor_time: 17-05 '26 15:32 SGT
+last_anchor_source: system_clock_2026-05-17T07:32Z_external_time_apis_blocked
+last_anchor_iso8601: 2026-05-17T15:32:00+08:00
+last_anchor_utc: 2026-05-17T07:32:00Z
+# v0.66.0 counters (commit 217 / journal 210 / build 25) — train-line
+# redraw (Chaikin-smoothed derived geometry); PR 4 (final) of the 4-PR
+# map-UX arc, stacked on PR 3 (v0.65.0).
 # v0.65.0 counters (commit 216 / journal 209 / build 24) — hawker
 # nearby-transit (nearest MRT station + 2 bus stops per centre); PR 3
 # of the 4-PR map-UX arc, stacked on PR 2 (v0.64.0).

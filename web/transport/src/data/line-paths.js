@@ -133,6 +133,59 @@ export function buildLinePaths(stations) {
   return paths;
 }
 
+// v0.66.0 — Chaikin corner-cutting. The station-code-derived polylines
+// connect stations with hard straight segments; smoothing rounds those
+// corners so the fallback geometry reads as a curve rather than a
+// zig-zag. Real LTA route geometry (data/mrt-line-paths.json) is
+// already curved and is NOT smoothed — only the derived fallback is.
+
+function _samePoint(a, b) {
+  return a && b && Math.abs(a.lat - b.lat) < 1e-9 && Math.abs(a.lng - b.lng) < 1e-9;
+}
+
+function _round6(n) {
+  return Math.round(n * 1e6) / 1e6;
+}
+
+// One Chaikin pass. `closed` rings cut every corner (including the
+// join); open paths preserve their two endpoints.
+function _chaikinOnce(pts, closed) {
+  const n = pts.length;
+  const out = [];
+  if (!closed) out.push(pts[0]);
+  const segs = closed ? n : n - 1;
+  for (let i = 0; i < segs; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    out.push({ lat: a.lat * 0.75 + b.lat * 0.25, lng: a.lng * 0.75 + b.lng * 0.25 });
+    out.push({ lat: a.lat * 0.25 + b.lat * 0.75, lng: a.lng * 0.25 + b.lng * 0.75 });
+  }
+  if (!closed) out.push(pts[n - 1]);
+  return out;
+}
+
+// Smooth one polyline segment. A segment whose first and last point
+// coincide is treated as a closed loop and stays closed.
+export function smoothSegment(seg, iterations = 2) {
+  if (!Array.isArray(seg) || seg.length < 3) return seg;
+  const closed = _samePoint(seg[0], seg[seg.length - 1]);
+  let pts = closed ? seg.slice(0, -1) : seg.slice();
+  for (let i = 0; i < iterations; i++) pts = _chaikinOnce(pts, closed);
+  pts = pts.map((p) => ({ lat: _round6(p.lat), lng: _round6(p.lng) }));
+  if (closed) pts.push({ ...pts[0] });
+  return pts;
+}
+
+// Smooth every segment of a { lineCode: segments[] } map.
+export function smoothLinePaths(paths) {
+  const out = {};
+  for (const [code, segs] of Object.entries(paths || {})) {
+    if (code.startsWith('_')) { out[code] = segs; continue; }
+    out[code] = (Array.isArray(segs) ? segs : []).map((seg) => smoothSegment(seg, 2));
+  }
+  return out;
+}
+
 // v0.60.232 (Build E 5e) — pick the real LTA route geometry served by
 // /api/transport/line-paths when it's present and well-formed, else
 // fall back to the station-code-derived polylines from buildLinePaths.
@@ -151,5 +204,6 @@ export function resolveLinePaths(fetched, stations) {
     }
     if (Object.keys(valid).length) return valid;
   }
-  return buildLinePaths(stations);
+  // Derived fallback — smoothed (real LTA geometry above is left as-is).
+  return smoothLinePaths(buildLinePaths(stations));
 }
