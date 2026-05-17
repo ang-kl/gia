@@ -260,6 +260,10 @@ function formatVenueBlock(p, opts = {}) {
   // appendMichelinAnnotation helper; same body shared by all three
   // call sites (venue-templates, formatTechniqueVenueBlock, /api/cuisine/search).
   require('./michelin-2025').appendMichelinAnnotation(lines, p, 'formatVenueBlock');
+  // v0.62.0 — HPB Healthier Choice + "inside a building complex" rows,
+  // appended after the Michelin row (standalone when no Michelin).
+  require('./healthier-eateries').appendHealthierChoiceLine(lines, p, 'formatVenueBlock');
+  require('./buildings').appendBuildingLine(lines, p, 'formatVenueBlock');
   return lines.join('\n');
 }
 

@@ -365,6 +365,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const ctaHtml = isTouchRef.current
         ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(tr('map.openInMaps', lang))}</button>`
         : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
+      // v0.62.0 — HPB Healthier Choice + inside-building rows.
+      const healthierHtml = v.healthierChoice
+        ? `<div style="font-size:11px;color:#2e7d32;margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
+        : '';
+      const buildingHtml = v.insideBuilding
+        ? `<div style="font-size:11px;color:#888;margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
+        : '';
       const infoHtml =
         `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
@@ -372,6 +379,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
            ${footfallHtml}
            ${travelHtml}
            ${ratingHtml}
+           ${healthierHtml}
+           ${buildingHtml}
            ${ctaHtml}
          </div>`;
       const onMouseOver = () => {

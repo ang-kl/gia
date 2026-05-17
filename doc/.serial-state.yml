@@ -21,6 +21,8 @@ last_anchor_utc: 2026-05-17T05:20:00Z
 # 3-PR map-review arc, sequenced after PR A (v0.61.1) and PR B
 # (v0.62.0, commit 212 / journal 205 / build 20). Version 0.63.0
 # skips 0.62.x — that is PR B's concurrent lineage.
+# v0.62.0 counters (commit 212 / journal 205 / build 20) — Healthier
+# Choice + building-awareness eatery rows; PR B of the same arc.
 # v0.61.1 counters (commit 211 / journal 204 / build 19) — LRT station
 # data fix + Circle Line closed loop; PR A of the same arc.
 # v0.61.0 counters (commit 210 / journal 203 / build 18) — geoloc
