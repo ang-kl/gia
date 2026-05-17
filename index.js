@@ -11439,6 +11439,30 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.63.0 — live carpark overlay layer for the TMA maps. Proxies the
+    // LTA DataMall Carpark Availability feed (via carpark.js), Redis-
+    // cached 60 s. Needs LTA_ACCOUNT_KEY; when unset the endpoint just
+    // returns an empty list and the carpark chip toggles nothing.
+    app.get('/api/geo/carpark', async (_req, res) => {
+      const CACHE_KEY = 'geo:carpark';
+      try {
+        if (!process.env.LTA_ACCOUNT_KEY) { res.json({ carparks: [] }); return; }
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const carparks = await require('./carpark').allPoints();
+        const payload = { carparks };
+        if (redis.isOpen) {
+          redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 60 }).catch(() => {});
+        }
+        res.json(payload);
+      } catch (err) {
+        console.error('[geo-carpark]', err.message);
+        res.json({ carparks: [] });
+      }
+    });
+
 
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not

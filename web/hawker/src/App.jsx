@@ -50,7 +50,7 @@ export default function App() {
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
-  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false });
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false });
   // v0.60.96 — operator: "flip to Top when I am at the bottom of the
   // screen". Detect when user has scrolled to (or near) the bottom of
   // the document, not just past the hero. Threshold 50 px to absorb

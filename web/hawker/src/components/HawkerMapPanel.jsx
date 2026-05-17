@@ -78,6 +78,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
+  // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  const [expanded, setExpanded] = useState(false);
 
   // Stable copy for the global InfoWindow CTA closure.
   const centresRef = useRef([]);
@@ -164,6 +166,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
     ctrl.setLayer('parks', !!layers.parks);
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
+    ctrl.setLayer('carpark', !!layers.carpark);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
@@ -250,11 +253,21 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
         ref={containerRef}
         style={{
           width: '100%',
-          height: isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)',
+          height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
           minHeight: 240
         }}
         aria-label={t('map.aria', lang)}
       />
+      {/* v0.63.0 — discrete expand / collapse toggle, bottom-right. */}
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 hover:bg-gray-50 active:bg-gray-100 z-10"
+        aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+      >
+        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
+      </button>
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
           {t('map.loading', lang)}

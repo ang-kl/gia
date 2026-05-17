@@ -31,6 +31,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
+import { createOverlayController } from '../lib/mapOverlays.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -85,13 +86,19 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en' }) {
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
+  // v0.63.0 — parks / attractions / taxi / carpark overlay layers.
+  const overlayControllerRef = useRef(null);
+  const overlayLayersRef = useRef(overlayLayers);
+  useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
+  // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  const [expanded, setExpanded] = useState(false);
   // v0.60.232 (Build E 5e) — real LTA route geometry from
   // /api/transport/line-paths; null until fetched / when no data file.
   const linePathsRef = useRef(null);
@@ -216,8 +223,22 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
       fullscreenControl: false
     });
     infoWindowRef.current = new window.google.maps.InfoWindow();
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    applyOverlayLayers(overlayLayersRef.current);
     if (stations) renderPins(stations);
   }
+
+  // Push the current layer-toggle state into the overlay controller.
+  function applyOverlayLayers(layers) {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl || !layers) return;
+    ctrl.setLayer('parks', !!layers.parks);
+    ctrl.setLayer('attractions', !!layers.attractions);
+    ctrl.setLayer('taxis', !!layers.taxis);
+    ctrl.setLayer('carpark', !!layers.carpark);
+  }
+  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
   // beneath the station dots. v0.60.232 (Build E 5e) — geometry is the
@@ -361,7 +382,7 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
     : 0;
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-tg-border">
+    <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       {focusedCode && (
         <div className="flex items-center justify-between px-2 py-1.5 text-[11px] bg-tg-card border-b border-tg-border">
           <span className="text-tg-text">
@@ -380,10 +401,21 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
         // v0.60.93 — match Cuisine MapPanel responsive height per
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
-        // viewports. No tablet bump yet — defer until needed.
-        style={{ height: 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
+        // viewports. v0.63.0 — expand toggle grows it to ~90vh.
+        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
+      {/* v0.63.0 — discrete expand / collapse toggle, top-right (the
+          map's zoom control already occupies the bottom-right). */}
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base text-gray-900 active:scale-95 z-10"
+        aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+      >
+        <span aria-hidden>{expanded ? '⤡' : '⤢'}</span>
+      </button>
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}

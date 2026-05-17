@@ -78,7 +78,7 @@ export default function App() {
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
-  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false });
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false });
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
