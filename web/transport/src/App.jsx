@@ -166,7 +166,7 @@ export default function App() {
           : <MrtMapPanel
               focusedCode={focusedCode}
               focusedStation={focusedStation}
-              onResetFocus={() => { setFocusedCode(null); setFocusedStation(null); }}
+              onStationSelect={handleSelectStation}
               onLineSelect={(code) => setFocusedCode(code)}
               statusByLine={statusByLine}
               lang={lang}
