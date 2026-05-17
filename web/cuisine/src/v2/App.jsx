@@ -767,20 +767,6 @@ export default function App() {
     } finally { setLoading(false); }
   }
 
-  // v0.58.2: re-anchor the search at an explicit lat/lng (the map's
-  // viewport centre when the user taps "Search this area", or a place
-  // picked in the LocationField).
-  // v0.60.119: also record it as locationAnchor so it persists as the
-  // search location across criteria-card collapses, FAB taps, and TMA
-  // background/restore — i.e. it "locks in" rather than reverting to
-  // the device / cached pin on the next search.
-  function runSearchAt(lat, lng, name = '') {
-    if (Number.isFinite(lat) && Number.isFinite(lng)) {
-      setLocationAnchor({ lat, lng, name: name || '' });
-    }
-    runSearch(state, { lat, lng });
-  }
-
   // v0.58.5: Tell Gia composability.
   //   mode 'merge'   (default) — union cuisines (de-duped, cap 5) and
   //                              OR-on filters; user keeps anything
@@ -1030,7 +1016,6 @@ export default function App() {
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
-        onSearchHere={runSearchAt}
         anchorName={locationName}
         overlayLayers={overlayLayers}
         attractionsMode={attractionsMode}
