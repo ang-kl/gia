@@ -5,6 +5,7 @@ import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
+import MapLayerChips from './components/MapLayerChips.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
@@ -35,6 +36,10 @@ export default function App() {
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
   const [mapView, setMapView] = useState('png');
+  // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
+  // carpark), shown only on the interactive Google Map view.
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false });
+  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.60.99 — one-shot auto-switch from PNG → Google Map on the
   // first line-chip tap. After that (whether the user stayed on
   // Google Map or toggled back to Schematic), subsequent chip taps
@@ -126,6 +131,15 @@ export default function App() {
             >{t('view.btnGoogleMap', lang)}</button>
           </div>
         </div>
+        {/* v0.64.0 — overlay layer chips above the map, Google Map view only. */}
+        {mapView === 'gmap' && (
+          <MapLayerChips
+            layers={overlayLayers}
+            onChange={setOverlayLayers}
+            attractionsMode={attractionsMode}
+            onAttractionsModeChange={setAttractionsMode}
+          />
+        )}
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
           : <MrtMapPanel
@@ -134,6 +148,8 @@ export default function App() {
               onLineSelect={(code) => setFocusedCode(code)}
               statusByLine={statusByLine}
               lang={lang}
+              overlayLayers={overlayLayers}
+              attractionsMode={attractionsMode}
             />}
       </div>
 
