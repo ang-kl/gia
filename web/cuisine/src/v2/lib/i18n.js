@@ -117,6 +117,8 @@ const STRINGS = {
   // 2026-05-07: label trimmed to a tight "Try ·" form, same emoji
   // glyph used at the start of the dish line.
   'card.whatToOrder':          { en: 'Try', fr: 'Essayez' },
+  'card.healthierChoice':      { en: 'Healthier Choice', fr: 'Choix santé' },
+  'card.insideBuilding':       { en: 'Inside a building complex', fr: 'Dans un complexe immobilier' },
 
   // ----- End-of-list / dedup exhaustion (v0.60.115/117) -----
   'result.exhausted':          { en: '— You’ve now seen all {n} places I can find for these criteria, across several searches. Add or change a cuisine / filter, or use 💬 Tell me, to widen things — or ',

@@ -277,6 +277,18 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
         </div>
       )}
+      {/* v0.62.0 — HPB Healthier Choice + inside-building rows, after
+          the Michelin row (server attaches the flags to the payload). */}
+      {venue.healthierChoice && (
+        <div className="text-[11px] text-tg-text mt-1">
+          🥗 {tr('card.healthierChoice', lang)}
+        </div>
+      )}
+      {venue.insideBuilding && (
+        <div className="text-[11px] text-tg-hint mt-1">
+          🏢 {tr('card.insideBuilding', lang)}
+        </div>
+      )}
     </button>
   );
 }
