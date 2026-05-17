@@ -1,4 +1,4 @@
-// web/transport/src/data/line-paths.js — v0.60.233
+// web/transport/src/data/line-paths.js — v0.61.1
 //
 // Build E 5a — derive MRT/LRT line polyline geometry from the station
 // list served by /api/transport/stations. No precomputed path file and
@@ -12,14 +12,15 @@
 //
 // Edge cases handled:
 //   - CGL: "CG" (Tanah Merah) parses as ordinal 0, then CG1/CG2.
-//   - CCL: "CC" arc + a "CE" spur segment; the spur is prepended with
-//     Promenade so Bayfront connects to the main loop.
+//   - CCL: drawn from an explicit closed-loop sequence (LINE_SEQUENCES)
+//     running through the CCL6 stations (Keppel / Cantonment / Prince
+//     Edward Road) and back to Promenade, so the Circle Line draws as
+//     one full closed ring rather than an open arc plus a CE spur.
 //   - SLRT: each "SE/SW" branch is wrapped with the STC hub at both
 //     ends so the branch draws as a closed loop.
 //   - BPL / PLRT: drawn from explicit operator-verified station-name
-//     sequences (LINE_SEQUENCES), not numeric code order — Punggol's
-//     Teck Lee (PW7) sits mid-loop so code numbers misorder it; both
-//     LRTs close their loops.
+//     sequences (LINE_SEQUENCES), not numeric code order, so both LRTs
+//     close their loops.
 //   - JRL: "JS" spine + "JE" branch as two segments (future line).
 //   - Duplicate codes (EW1/EW27 appear twice): de-duped by ordinal.
 //   - Gaps (CC18, DT4, TE10/21 never built): the polyline simply
@@ -38,12 +39,11 @@ const PREFIX_TO_LINE = {
 const HUB_CODE = { SLRT: 'STC' };
 const BRANCH_PREFIXES = new Set(['SE', 'SW']);
 
-// Lines drawn from an explicit operator-verified station-name sequence
-// rather than numeric code order. Needed where code numbers don't match
-// running order — Punggol's Teck Lee (PW7) sits mid-loop between Sam Kee
-// (PW1) and Punggol Point (PW2) — and where the loop must visibly close
-// (a repeated first/last name closes it). Each entry is an array of
-// segments; a segment is an ordered list of station names.
+// Lines drawn from an explicit station-name sequence rather than numeric
+// code order. Needed where the loop must visibly close (a repeated
+// first/last name closes it) — both LRT loop lines and the Circle Line.
+// Each entry is an array of segments; a segment is an ordered list of
+// station names.
 const LINE_SEQUENCES = {
   BPL: [[
     'Choa Chu Kang', 'South View', 'Keat Hong', 'Teck Whye', 'Phoenix',
@@ -56,11 +56,21 @@ const LINE_SEQUENCES = {
     ['Punggol', 'Cove', 'Meridian', 'Coral Edge', 'Riviera', 'Kadaloor',
       'Oasis', 'Damai', 'Punggol'],
   ],
+  // Circle Line as one full closed ring: the CC arc continues through
+  // the CCL6 stations (Keppel / Cantonment / Prince Edward Road) and the
+  // CE stations (Marina Bay / Bayfront) back to Promenade, which also
+  // sits between Esplanade and Nicoll Highway — so the ring closes.
+  CCL: [[
+    'Dhoby Ghaut', 'Bras Basah', 'Esplanade', 'Promenade', 'Nicoll Highway',
+    'Stadium', 'Mountbatten', 'Dakota', 'Paya Lebar', 'MacPherson',
+    'Tai Seng', 'Bartley', 'Serangoon', 'Lorong Chuan', 'Bishan',
+    'Marymount', 'Caldecott', 'Botanic Gardens', 'Farrer Road',
+    'Holland Village', 'Buona Vista', 'one-north', 'Kent Ridge',
+    'Haw Par Villa', 'Pasir Panjang', 'Labrador Park', 'Telok Blangah',
+    'HarbourFront', 'Keppel', 'Cantonment', 'Prince Edward Road',
+    'Marina Bay', 'Bayfront', 'Promenade',
+  ]],
 };
-
-// Prefix → a station name prepended to that prefix's segment so a spur
-// visually connects to its parent line. CCL's CE spur joins at Promenade.
-const PREFIX_HEAD = { CE: 'Promenade' };
 
 function parseCode(code) {
   const m = String(code == null ? '' : code).match(/^([A-Za-z]+)(\d*)$/);
@@ -104,11 +114,6 @@ export function buildLinePaths(stations) {
     const hub = HUB_CODE[line];
     if (hub && hubPoint[hub] && BRANCH_PREFIXES.has(prefix)) {
       segment = [hubPoint[hub], ...ordered, hubPoint[hub]];
-    }
-    // A spur (CCL's CE) is prepended with its parent-line junction.
-    const head = PREFIX_HEAD[prefix];
-    if (head && pointByName[head]) {
-      segment = [pointByName[head], ...segment];
     }
     if (segment.length < 2) continue;
     (paths[line] || (paths[line] = [])).push(segment);
