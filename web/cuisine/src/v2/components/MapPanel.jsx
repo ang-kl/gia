@@ -3,14 +3,6 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController } from '../lib/mapOverlays.js';
 
-// v0.58.2: "Search this area" floating button. When the user pans
-// the map far enough from the last-searched anchor, surface a
-// pill-shaped button (Google-Maps-style) that re-runs the search at
-// the current viewport centre. The button stays hidden when the map
-// is moved programmatically (fitBounds after a fresh result list,
-// panTo on a focused pin) — only user-initiated drift triggers it.
-const PAN_THRESHOLD_METERS = 300;
-
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
 // "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
 // for Dessert or ✳️ for curated Michelin list". Priority order
@@ -87,13 +79,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function metersBetween(a, b) {
-  const dLat = (a.lat - b.lat) * 110600;
-  const dLng = (a.lng - b.lng) * 110600;
-  return Math.sqrt(dLat * dLat + dLng * dLng);
-}
-
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, attractionsMode = 'nearby', children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, attractionsMode = 'nearby', children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -116,13 +102,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // re-used across all markers (Google Maps best practice — keeps DOM
   // light and lets us close-on-mouseout without leaks).
   const infoWindowRef = useRef(null);
-  // Track the last anchored search lat/lng so we can compare against
-  // the live map centre on every idle event.
-  const searchCenterRef = useRef(null);
-  // Set true right before fitBounds/panTo so the next idle event
-  // doesn't mis-attribute the programmatic move to user panning.
-  const programmaticUpdateRef = useRef(false);
-  const [showSearchHere, setShowSearchHere] = useState(false);
   // v0.58.54: detect once at mount whether the active pointer is touch
   // (iPad / iPhone / Android). On touch devices `mouseover` never fires,
   // so we surface the InfoWindow on tap instead and embed an "Open in
@@ -239,28 +218,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // radius-clipped layers re-filter on every pan/zoom.
     const ctr = mapRef.current?.getCenter?.();
     if (ctr) overlayControllerRef.current?.setAnchor?.(ctr.lat(), ctr.lng());
-    if (programmaticUpdateRef.current) {
-      programmaticUpdateRef.current = false;
-      return;
-    }
-    if (!searchCenterRef.current || !mapRef.current) return;
-    const c = mapRef.current.getCenter();
-    if (!c) return;
-    const dist = metersBetween(
-      { lat: c.lat(), lng: c.lng() },
-      searchCenterRef.current
-    );
-    setShowSearchHere(dist > PAN_THRESHOLD_METERS);
   }
-
-  // Anchor changes whenever a new search lands. Reset the visibility
-  // flag so the button doesn't briefly flicker between the result
-  // arriving and fitBounds completing.
-  useEffect(() => {
-    if (!searchCenter) return;
-    searchCenterRef.current = { lat: searchCenter.lat, lng: searchCenter.lng };
-    setShowSearchHere(false);
-  }, [searchCenter?.lat, searchCenter?.lng]);
 
   // v0.60.19 — re-run syncMarkers when searchCenter changes too, so
   // the anchor pin moves to the new anchor immediately after a
@@ -500,23 +458,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // single-block view. setOptions before fitBounds is the
       // documented way to bound the result.
       mapRef.current.setOptions({ maxZoom: 16 });
-      programmaticUpdateRef.current = true;
       mapRef.current.fitBounds(bounds, 60);
     }
     if (focusedPlaceId) {
       const v = (venues || []).find((x) => x.placeId === focusedPlaceId);
       if (v) {
-        programmaticUpdateRef.current = true;
         mapRef.current.panTo({ lat: v.lat, lng: v.lng });
       }
     }
-  }
-
-  function handleSearchHereClick() {
-    if (!mapRef.current || !onSearchHere) return;
-    const c = mapRef.current.getCenter();
-    if (!c) return;
-    onSearchHere(c.lat(), c.lng());
   }
 
   // v0.58.29: "Show your location" recenter affordance. Mirrors the
@@ -525,7 +474,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // hasn't resolved.
   function handleRecenterClick() {
     if (!mapRef.current || !userLoc) return;
-    programmaticUpdateRef.current = true;
     mapRef.current.panTo({ lat: userLoc.lat, lng: userLoc.lng });
     if (mapRef.current.getZoom() < 14) mapRef.current.setZoom(15);
   }
@@ -573,14 +521,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
       </div>
-      {showSearchHere && (
-        <button
-          type="button"
-          onClick={handleSearchHereClick}
-          className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-white text-gray-900 text-xs font-medium shadow-md border border-gray-300 hover:bg-gray-50 active:bg-gray-100 z-10"
-          aria-label={tr('btn.searchHere', lang)}
-        >🔍 {tr('btn.searchHere', lang)}</button>
-      )}
       {/* v0.58.29: "Show your location" recenter button. Bottom-right
           floating like the Google Maps native app. Disabled state
           when userLoc hasn't resolved yet keeps the affordance
