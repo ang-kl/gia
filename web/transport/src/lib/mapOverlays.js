@@ -43,33 +43,81 @@ function metresBetween(aLat, aLng, bLat, bLng) {
   return Math.hypot(dx, dy);
 }
 
-// v0.61.12 — extract the sub-path of `pts` within `windowM` arc-length
-// each side of the path vertex closest to (sLat,sLng). Returns [] when
-// the station is further than `maxOffsetM` from the path (i.e. the
-// line doesn't actually serve that station).
+// Linear interpolation between two {lat,lng} points.
+function lerpPt(a, b, r) {
+  return { lat: a.lat + r * (b.lat - a.lat), lng: a.lng + r * (b.lng - a.lng) };
+}
+
+// v0.61.13 — project the station onto the polyline (nearest point on
+// any EDGE, not just a vertex) and extract the sub-path within
+// `windowM` arc-length each side of that point. The earlier
+// nearest-vertex form silently produced nothing when the smoothed
+// line geometry placed its closest vertex far from the station.
+// Returns [] when the station is further than `maxOffsetM` from the
+// line (i.e. that line does not serve the station).
 function trackWindow(pts, sLat, sLng, windowM, maxOffsetM) {
   if (!Array.isArray(pts) || pts.length < 2) return [];
-  let bi = -1;
-  let bd = Infinity;
-  for (let i = 0; i < pts.length; i++) {
-    const d = metresBetween(sLat, sLng, pts[i].lat, pts[i].lng);
-    if (d < bd) { bd = d; bi = i; }
+  const cos = Math.cos(sLat * Math.PI / 180);
+  // Nearest point on any edge: minimise perpendicular distance.
+  let best = null;   // { dist, edge, point }
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    const ax = 0;
+    const ay = 0;
+    const bx = (b.lng - a.lng) * 111320 * cos;
+    const by = (b.lat - a.lat) * 110574;
+    const sx = (sLng - a.lng) * 111320 * cos;
+    const sy = (sLat - a.lat) * 110574;
+    const len2 = bx * bx + by * by;
+    let t = len2 ? ((sx - ax) * bx + (sy - ay) * by) / len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    const dist = Math.hypot(sx - t * bx, sy - t * by);
+    if (!best || dist < best.dist) best = { dist, edge: i, point: lerpPt(a, b, t) };
   }
-  if (bi < 0 || bd > maxOffsetM) return [];
-  const out = [pts[bi]];
+  if (!best || best.dist > maxOffsetM) return [];
+  const out = [best.point];
+  // Walk forward from the projection point.
   let acc = 0;
-  for (let i = bi; i < pts.length - 1; i++) {
-    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i + 1].lat, pts[i + 1].lng);
-    out.push(pts[i + 1]);
-    if (acc >= windowM) break;
+  let prev = best.point;
+  for (let i = best.edge + 1; i < pts.length; i++) {
+    const d = metresBetween(prev.lat, prev.lng, pts[i].lat, pts[i].lng);
+    if (acc + d >= windowM) { out.push(lerpPt(prev, pts[i], (windowM - acc) / d)); break; }
+    acc += d; out.push(pts[i]); prev = pts[i];
   }
+  // Walk backward from the projection point.
   acc = 0;
-  for (let i = bi; i > 0; i--) {
-    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i - 1].lat, pts[i - 1].lng);
-    out.unshift(pts[i - 1]);
-    if (acc >= windowM) break;
+  prev = best.point;
+  for (let i = best.edge; i >= 0; i--) {
+    const d = metresBetween(prev.lat, prev.lng, pts[i].lat, pts[i].lng);
+    if (acc + d >= windowM) { out.unshift(lerpPt(prev, pts[i], (windowM - acc) / d)); break; }
+    acc += d; out.unshift(pts[i]); prev = pts[i];
   }
   return out;
+}
+
+// v0.61.13 — station-code prefix → line code, for the train-station
+// InfoWindow's line-colour swatches.
+const CODE_PREFIX_TO_LINE = {
+  NS: 'NSL', EW: 'EWL', CG: 'CGL', NE: 'NEL', CC: 'CCL', CE: 'CCL',
+  DT: 'DTL', TE: 'TEL', BP: 'BPL', SE: 'SLRT', SW: 'SLRT', STC: 'SLRT',
+  PE: 'PLRT', PW: 'PLRT', PTC: 'PLRT', JS: 'JRL', JE: 'JRL', CR: 'CRL'
+};
+function codeToLine(code) {
+  const m = String(code || '').match(/^([A-Za-z]+)/);
+  return m ? (CODE_PREFIX_TO_LINE[m[1].toUpperCase()] || m[1].toUpperCase()) : '';
+}
+
+// Worst realtime crowd level ('h' > 'm' > 'l') across a station's codes.
+const CROWD_RANK = { l: 1, m: 2, h: 3 };
+function worstCrowd(crowdMap, codes) {
+  if (!crowdMap || !Array.isArray(codes)) return null;
+  let worst = null;
+  for (const c of codes) {
+    const lv = crowdMap[String(c).toUpperCase()];
+    if (lv && CROWD_RANK[lv] && (!worst || CROWD_RANK[lv] > CROWD_RANK[worst])) worst = lv;
+  }
+  return worst;
 }
 
 // Module-level fetch caches — each runs once per page.
@@ -109,16 +157,75 @@ function fetchStations() {
   }
   return stationsPromise;
 }
+// v0.61.13 — realtime crowd (once per page) + per-station context
+// (exits / bus / taxi), cached by rounded coordinate.
+let crowdPromise = null;
+function fetchCrowd() {
+  if (!crowdPromise) {
+    crowdPromise = fetch('/api/transport/crowd')
+      .then((r) => r.json())
+      .then((d) => (d && d.crowd) || {})
+      .catch(() => ({}));
+  }
+  return crowdPromise;
+}
+const stationCtxCache = new Map();
+function fetchStationContext(lat, lng) {
+  const key = lat.toFixed(4) + ',' + lng.toFixed(4);
+  if (!stationCtxCache.has(key)) {
+    stationCtxCache.set(key, fetch('/api/transport/station-context?lat=' + lat + '&lng=' + lng)
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null));
+  }
+  return stationCtxCache.get(key);
+}
 
 // v0.61.11 — square, half-transparent station marker for the train
-// overlay's result-emphasis mode (Cuisine TMA).
+// overlay's result-emphasis mode (Cuisine TMA). v0.61.13 — 12 px so
+// it is tappable; the marker opens a station InfoWindow.
 function squareStationNode(bg) {
   const el = document.createElement('div');
   el.style.cssText =
-    'width:9px;height:9px;opacity:0.5;cursor:default;' +
+    'width:12px;height:12px;opacity:0.5;cursor:pointer;' +
     'background:' + bg + ';border:1px solid #fff;' +
     'box-shadow:0 0 0 0.5px rgba(0,0,0,0.3);';
   return el;
+}
+
+// v0.61.13 — train-station InfoWindow HTML: line-coloured code chips,
+// realtime crowd, and the station's exits / bus stops / taxi context.
+// `crowd` + `ctx` are null until their fetches resolve.
+function trainStationInfoHtml(s, crowd, ctx) {
+  const codes = Array.isArray(s.codes) ? s.codes : [];
+  let h = '<div style="font-size:12px;line-height:1.5;color:#1c1c1f;max-width:240px;padding:2px 4px;">';
+  h += '<div style="font-weight:600;">' + escapeHtml(s.name || '') + '</div>';
+  if (codes.length) {
+    h += '<div style="margin-top:3px;">' + codes.map((c) => {
+      const hex = LINE_HEX[codeToLine(c)] || '#888888';
+      return '<span style="display:inline-block;width:8px;height:8px;border-radius:2px;'
+        + 'background:' + hex + ';margin-right:3px;"></span>' + escapeHtml(c);
+    }).join('&nbsp;&nbsp;') + '</div>';
+  }
+  if (crowd) {
+    const lv = worstCrowd(crowd, codes);
+    if (lv) {
+      h += '<div style="margin-top:2px;">'
+        + ({ l: '🟢', m: '🟡', h: '🔴' }[lv]) + ' '
+        + ({ l: 'Not crowded', m: 'Moderate', h: 'Crowded' }[lv]) + '</div>';
+    }
+  }
+  if (ctx) {
+    const exits = Array.isArray(ctx.exits) ? ctx.exits.map((e) => e && e.exit).filter(Boolean) : [];
+    if (exits.length) h += '<div style="color:#444;margin-top:2px;">🚪 Exits: ' + escapeHtml(exits.join(', ')) + '</div>';
+    const bus = Array.isArray(ctx.busStops) ? ctx.busStops.map((b) => b && b.code).filter(Boolean) : [];
+    if (bus.length) h += '<div style="color:#444;margin-top:2px;">🚌 Bus stops: ' + escapeHtml(bus.join(', ')) + '</div>';
+    const taxis = Array.isArray(ctx.taxis) ? ctx.taxis : [];
+    if (taxis.some((x) => x.kind === 'stand')) h += '<div style="color:#444;margin-top:2px;">🚕 Taxi stand</div>';
+    if (taxis.some((x) => x.kind === 'pickup')) h += '<div style="color:#444;margin-top:2px;">🚕 Taxi pick-up / drop-off</div>';
+  } else {
+    h += '<div style="color:#999;margin-top:2px;">…</div>';
+  }
+  return h + '</div>';
 }
 
 // Small coloured dot with an emoji glyph.
@@ -199,6 +306,8 @@ export function createOverlayController(map, googleMaps) {
 
   // v0.61.11 — square translucent station markers along the train
   // lines. Shown only while the result-emphasis mode is active.
+  // v0.61.13 — tapping a marker opens the station InfoWindow (code +
+  // line + crowd + exits / bus / taxi), fetched lazily on first tap.
   function buildTrainStations(stations) {
     const out = [];
     for (const s of (Array.isArray(stations) ? stations : [])) {
@@ -208,7 +317,17 @@ export function createOverlayController(map, googleMaps) {
       const marker = new AdvancedMarkerElement({
         position: { lat: s.lat, lng: s.lng },
         content: squareStationNode(hex),
-        title: s.name || ''
+        title: s.name || '',
+        gmpClickable: true
+      });
+      marker.addListener('click', () => {
+        info.setContent(trainStationInfoHtml(s, null, null));
+        info.open(map, marker);
+        Promise.all([fetchCrowd(), fetchStationContext(s.lat, s.lng)])
+          .then(([crowd, ctx]) => {
+            info.setContent(trainStationInfoHtml(s, crowd || {}, ctx));
+          })
+          .catch(() => { /* base content stays */ });
       });
       out.push({ marker, lat: s.lat, lng: s.lng });
     }
@@ -316,7 +435,7 @@ export function createOverlayController(map, googleMaps) {
           : { strokeOpacity: 0.85, strokeWeight: 4 });
         if (e.visible && near && emph && near3.length) {
           for (const s of near3) {
-            const win = trackWindow(ln.pts, s.lat, s.lng, 200, 130);
+            const win = trackWindow(ln.pts, s.lat, s.lng, 200, 160);
             if (win.length < 2) continue;
             e.highlights.push(new Polyline({
               path: win, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
