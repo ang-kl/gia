@@ -1,14 +1,14 @@
 import React from 'react';
 import { t, useLocale } from '../i18n.js';
 
-// v0.61.0 — map overlay layer toggles (parks / tourist attractions /
-// taxi stops). A thin chip strip below the hawker map; all layers off
-// by default. Toggling drives HawkerMapPanel's overlay controller.
+// v0.61.0–v0.64.0 — map overlay layer toggles. A thin chip strip above
+// the map; all layers off by default except Train (Cuisine/Hawker).
 const LAYERS = [
   { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
   { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
   { key: 'taxis',       i18n: 'layer.taxis',       icon: '🚕' },
-  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' }
+  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
+  { key: 'exits',       i18n: 'layer.exits',       icon: '🚆' }
 ];
 
 function Chip({ active, onClick, children, ariaLabel }) {
@@ -20,17 +20,32 @@ function Chip({ active, onClick, children, ariaLabel }) {
   );
 }
 
-export default function MapLayerChips({ layers, onChange }) {
+export default function MapLayerChips({ layers, onChange, attractionsMode = 'nearby', onAttractionsModeChange, showTrain = false }) {
   const lang = useLocale();
   function toggle(key) { onChange({ ...layers, [key]: !layers[key] }); }
   return (
     <div className="flex flex-wrap gap-1 items-center px-1">
       {LAYERS.map((l) => (
-        <Chip key={l.key} active={!!layers[l.key]} onClick={() => toggle(l.key)}
-          ariaLabel={`${t(l.i18n, lang)} ${layers[l.key] ? '(on)' : '(off)'}`}>
-          <span className="mr-0.5">{l.icon}</span>{t(l.i18n, lang)}
-        </Chip>
+        <React.Fragment key={l.key}>
+          <Chip active={!!layers[l.key]} onClick={() => toggle(l.key)}
+            ariaLabel={`${t(l.i18n, lang)} ${layers[l.key] ? '(on)' : '(off)'}`}>
+            <span className="mr-0.5">{l.icon}</span>{t(l.i18n, lang)}
+          </Chip>
+          {l.key === 'attractions' && layers.attractions && onAttractionsModeChange && (
+            <Chip active={attractionsMode === 'all'}
+              onClick={() => onAttractionsModeChange(attractionsMode === 'all' ? 'nearby' : 'all')}
+              ariaLabel={`${t('layer.attractions', lang)} — ${t(attractionsMode === 'all' ? 'layer.all' : 'layer.nearby', lang)}`}>
+              {t(attractionsMode === 'all' ? 'layer.all' : 'layer.nearby', lang)} ▾
+            </Chip>
+          )}
+        </React.Fragment>
       ))}
+      {showTrain && (
+        <Chip active={!!layers.train} onClick={() => toggle('train')}
+          ariaLabel={`${t('layer.train', lang)} ${layers.train ? '(on)' : '(off)'}`}>
+          <span className="mr-0.5">🚇</span>{t('layer.train', lang)}
+        </Chip>
+      )}
     </div>
   );
 }

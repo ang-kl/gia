@@ -11397,9 +11397,27 @@ async function cacheBotUsername() {
       }
       return mrtLinePathsCache;
     }
-    app.get('/api/transport/line-paths', (_req, res) => {
+    // v0.64.0 — when data/mrt-line-paths.json is absent, derive the
+    // station-code geometry server-side (via the transport app's
+    // buildLinePaths, dynamic-imported as an ESM module) so EVERY caller
+    // — the Transport map AND the Cuisine/Hawker "Train" overlay — gets
+    // usable geometry without the file. Cached after first build.
+    let _buildLinePathsFn;
+    let _derivedLinePathsCache;
+    async function deriveLinePaths() {
+      if (_derivedLinePathsCache) return _derivedLinePathsCache;
+      if (!_buildLinePathsFn) {
+        const mod = await import('./web/transport/src/data/line-paths.js');
+        _buildLinePathsFn = mod.buildLinePaths;
+      }
+      _derivedLinePathsCache = _buildLinePathsFn(loadMrtCoords());
+      return _derivedLinePathsCache;
+    }
+    app.get('/api/transport/line-paths', async (_req, res) => {
       try {
-        res.json({ paths: loadMrtLinePaths() });
+        const real = loadMrtLinePaths();
+        if (real) { res.json({ paths: real, source: 'lta' }); return; }
+        res.json({ paths: await deriveLinePaths(), source: 'derived' });
       } catch (err) {
         res.status(500).json({ error: err.message });
       }
@@ -11427,7 +11445,8 @@ async function cacheBotUsername() {
       geoOverlaysCache = {
         parks: readFeatures('geo-parks.json'),
         attractions: readFeatures('geo-attractions.json'),
-        taxis: readFeatures('geo-taxis.json')
+        taxis: readFeatures('geo-taxis.json'),
+        exits: readFeatures('geo-exits.json')
       };
       return geoOverlaysCache;
     }

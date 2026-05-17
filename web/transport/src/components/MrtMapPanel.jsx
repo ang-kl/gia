@@ -86,7 +86,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null }) {
+export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, attractionsMode = 'nearby' }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -226,10 +226,17 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
     infoWindowRef.current = new window.google.maps.InfoWindow();
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
+    // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
+    // layers re-filter on every pan/zoom.
+    mapRef.current.addListener('idle', () => {
+      const c = mapRef.current?.getCenter?.();
+      if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+    });
     if (stations) renderPins(stations);
   }
 
   // Push the current layer-toggle state into the overlay controller.
+  // No 'train' layer here — the Transport map already draws line polylines.
   function applyOverlayLayers(layers) {
     const ctrl = overlayControllerRef.current;
     if (!ctrl || !layers) return;
@@ -237,8 +244,10 @@ export default function MrtMapPanel({ focusedCode = null, onResetFocus, onLineSe
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('exits', !!layers.exits);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // v0.60.230 (Build E 5a) — draw a colour-coded polyline per line
