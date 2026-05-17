@@ -178,6 +178,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
     mapRef.current = new Map(containerRef.current, {
       center, zoom: 14, disableDefaultUI: true, zoomControl: false,
+      // v0.61.18 — suppress Google's native POI/transit info cards so a
+      // station tap hits our overlay marker, not Google's own popup.
+      clickableIcons: false,
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
@@ -259,7 +262,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           marker.addListener('click', () => {
             if (!infoWindowRef.current) return;
             infoWindowRef.current.setContent(
-              `<div style="font-size:12px;max-width:220px;color:#1c1c1f;"><strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}</div>`
+              `<div style="font-size:12px;max-width:220px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;padding:8px 11px;"><strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}</div>`
             );
             infoWindowRef.current.open(mapRef.current, marker);
           });
@@ -313,7 +316,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // so the handler closure picks up the latest `anchorName` on
       // subsequent renders.
       const anchorHtml =
-        `<div style="min-width:120px;max-width:220px;padding:2px 4px;">
+        `<div style="min-width:120px;max-width:220px;padding:8px 11px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;">
            <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || tr('map.youAreHere', lang))}</div>
            <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>
          </div>`;
@@ -395,7 +398,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         ? `<div style="font-size:11px;color:#888;margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
         : '';
       const infoHtml =
-        `<div style="min-width:160px;max-width:280px;padding:2px 4px;">
+        `<div style="min-width:160px;max-width:280px;padding:8px 11px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;">
            <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
            ${addressHtml}
            ${footfallHtml}
@@ -519,7 +522,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.58.29: "Show your location" recenter button. Bottom-right
           floating like the Google Maps native app. Disabled state

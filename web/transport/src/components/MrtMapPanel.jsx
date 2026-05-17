@@ -478,7 +478,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.60.207 — explicit dark text colour. The InfoWindow bubble is
     // always white, but Telegram's dark theme can cascade a light body
     // colour into it; pin #1c1c1f so the popup is legible in both.
-    const compose = (ctx) => `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}</div>`;
+    const compose = (ctx) => `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f;background:#f4f3ef;border-radius:12px;padding:8px 11px"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}</div>`;
     const cachedCtx = stationCtxRef.current[s.name] || null;
     infoWindowRef.current?.setContent(compose(cachedCtx));
     infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
@@ -671,7 +671,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed

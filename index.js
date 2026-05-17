@@ -1302,7 +1302,9 @@ bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
   await runWeatherCommand(msg.chat.id, lang, (match && match[1]) ? match[1].trim() : null);
 });
 
-bot.onText(/^\/(?:transport|t)(?:@\w+)?$/, async (msg) => {
+// v0.61.18 — /train added as an alias for /transport (operator
+// request), so the train status & map TMA has a memorable command.
+bot.onText(/^\/(?:transport|train|t)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendTransportMenu(msg.chat.id, lang);

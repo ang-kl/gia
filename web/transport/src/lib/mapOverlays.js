@@ -163,17 +163,12 @@ function fetchStations() {
 }
 
 // v0.61.11 — square station marker for the train overlay. v0.61.17 —
-// now clickable (cursor:pointer); the `centre` form is the selected
-// station in the station-detail view (larger, opaque, dark ring).
-function squareStationNode(bg, centre) {
+// clickable (cursor:pointer). v0.61.18 — the selected station no
+// longer uses a larger square; it becomes a named amenity-style pill.
+function squareStationNode(bg) {
   const el = document.createElement('div');
-  const size = centre ? 14 : 9;
-  let css = 'width:' + size + 'px;height:' + size + 'px;cursor:pointer;'
-    + 'background:' + bg + ';';
-  css += centre
-    ? 'border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,0.55);'
-    : 'opacity:0.85;border:1px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.3);';
-  el.style.cssText = css;
+  el.style.cssText = 'width:9px;height:9px;cursor:pointer;background:' + bg + ';'
+    + 'opacity:0.85;border:1px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.3);';
   return el;
 }
 
@@ -280,7 +275,7 @@ export function createOverlayController(map, googleMaps) {
       const hex = LINE_HEX[lineCodeOf(s)] || '#888888';
       const marker = new AdvancedMarkerElement({
         position: { lat: s.lat, lng: s.lng },
-        content: squareStationNode(hex, false),
+        content: squareStationNode(hex),
         title: s.name || '',
         gmpClickable: true
       });
@@ -292,15 +287,6 @@ export function createOverlayController(map, googleMaps) {
   }
 
   // --- station-detail view --------------------------------------------
-
-  // v0.61.17 — InfoWindow body for a tapped train station.
-  function stationInfoHtml(s) {
-    const codes = Array.isArray(s.codes) ? s.codes.join(' · ') : '';
-    return '<div style="font-size:12px;padding:2px 4px;max-width:220px;color:#1c1c1f;">'
-      + '<div style="font-weight:600;">🚉 ' + escapeHtml(s.name || '') + '</div>'
-      + (codes ? '<div style="color:#666;margin-top:2px;">' + escapeHtml(codes) + '</div>' : '')
-      + '</div>';
-  }
 
   function clearAmenities() {
     for (const m of detailAmenities) m.map = null;
@@ -362,6 +348,8 @@ export function createOverlayController(map, googleMaps) {
 
   // v0.61.17 — a station marker was tapped. Re-tapping the selected
   // station clears the detail view; tapping another re-targets it.
+  // v0.61.18 — no InfoWindow: the detail view (named centre pill +
+  // labelled amenity pins) identifies everything without an extra tap.
   function handleStationTap(item) {
     const s = item.station;
     if (detailStation && detailStation.name === s.name) {
@@ -372,24 +360,30 @@ export function createOverlayController(map, googleMaps) {
     clearAmenities();
     if (layers.train) applyVisibility('train');
     loadAmenities(s);
-    info.setContent(stationInfoHtml(s));
-    info.open(map, item.marker);
   }
 
   // --- per-feature InfoWindow HTML -------------------------------------
+  // v0.61.18 — wrap InfoWindow content in an off-white rounded card so
+  // it reads in both light and dark Telegram themes (Google's bubble
+  // is plain white; the dark-mode CSS cascade can wash unstyled text
+  // out — pinning bg + colour here keeps every popup legible).
+  function infoCard(inner) {
+    return '<div style="background:#f4f3ef;border-radius:12px;'
+      + 'padding:8px 11px;color:#1c1c1f;font-size:12px;line-height:1.5;'
+      + 'max-width:250px;">' + inner + '</div>';
+  }
+
   const nameInfo = (f) =>
-    '<div style="font-size:12px;font-weight:600;padding:2px 4px;max-width:220px;">'
-    + escapeHtml(f.name || '') + '</div>';
+    infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>');
 
   const carparkInfo = (f) => {
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
-    return '<div style="font-size:12px;font-weight:600;padding:2px 4px;max-width:220px;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>';
+    return infoCard('<div style="font-weight:600;">'
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>');
   };
 
   const attractionInfo = (f) => {
-    let h = '<div style="font-size:12px;padding:2px 4px;max-width:240px;">';
-    h += '<div style="font-weight:600;color:#1c1c1f;">' + escapeHtml(f.name || '') + '</div>';
+    let h = '<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>';
     if (f.address) h += '<div style="color:#666;margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
     if (f.hours) h += '<div style="color:#444;margin-top:2px;">🕰 ' + escapeHtml(f.hours) + '</div>';
     if (f.station && f.station.name) {
@@ -406,7 +400,7 @@ export function createOverlayController(map, googleMaps) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
         + '" target="_blank" rel="noopener" style="color:#1a73e8;">🌐 Website</a></div>';
     }
-    return h + '</div>';
+    return infoCard(h);
   };
 
   async function ensureLayer(name) {
@@ -516,11 +510,13 @@ export function createOverlayController(map, googleMaps) {
       if (newCentre !== centreName) {
         if (centreName) {
           const old = e.stations.find((x) => x.station.name === centreName);
-          if (old) old.marker.content = squareStationNode(old.hex, false);
+          if (old) old.marker.content = squareStationNode(old.hex);
         }
         if (newCentre) {
           const cur = e.stations.find((x) => x.station.name === newCentre);
-          if (cur) cur.marker.content = squareStationNode(cur.hex, true);
+          // v0.61.18 — the selected station becomes a named pill so it
+          // self-identifies without an InfoWindow.
+          if (cur) cur.marker.content = amenityLabelNode('🚉 ' + (cur.station.name || ''), cur.hex, '#fff');
         }
         centreName = newCentre;
       }
