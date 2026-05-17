@@ -71,6 +71,26 @@ function fetchLinePaths() {
   }
   return linePathsPromise;
 }
+let stationsPromise = null;
+function fetchStations() {
+  if (!stationsPromise) {
+    stationsPromise = fetch('/api/transport/stations')
+      .then((r) => r.json())
+      .catch(() => ({ stations: [] }));
+  }
+  return stationsPromise;
+}
+
+// v0.61.11 — square, half-transparent station marker for the train
+// overlay's result-emphasis mode (Cuisine TMA).
+function squareStationNode(bg) {
+  const el = document.createElement('div');
+  el.style.cssText =
+    'width:9px;height:9px;opacity:0.5;cursor:default;' +
+    'background:' + bg + ';border:1px solid #fff;' +
+    'box-shadow:0 0 0 0.5px rgba(0,0,0,0.3);';
+  return el;
+}
 
 // Small coloured dot with an emoji glyph.
 function dotNode(bg, glyph) {
@@ -98,6 +118,7 @@ export function createOverlayController(map, googleMaps) {
   let destroyed = false;
   let anchor = null;                 // { lat, lng } — map viewport centre
   let attractionsMode = 'nearby';    // 'nearby' | 'all'
+  let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -147,6 +168,24 @@ export function createOverlayController(map, googleMaps) {
     return out;
   }
 
+  // v0.61.11 — square translucent station markers along the train
+  // lines. Shown only while the result-emphasis mode is active.
+  function buildTrainStations(stations) {
+    const out = [];
+    for (const s of (Array.isArray(stations) ? stations : [])) {
+      if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      if (s.status === 'future') continue;
+      const hex = LINE_HEX[(Array.isArray(s.lines) ? s.lines[0] : null)] || '#888888';
+      const marker = new AdvancedMarkerElement({
+        position: { lat: s.lat, lng: s.lng },
+        content: squareStationNode(hex),
+        title: s.name || ''
+      });
+      out.push({ marker, lat: s.lat, lng: s.lng });
+    }
+    return out;
+  }
+
   // --- per-feature InfoWindow HTML -------------------------------------
   const nameInfo = (f) =>
     '<div style="font-size:12px;font-weight:600;padding:2px 4px;max-width:220px;">'
@@ -189,10 +228,10 @@ export function createOverlayController(map, googleMaps) {
       entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
         items: buildMarkers(d.carparks, '#1565C0', '🅿', carparkInfo) };
     } else if (name === 'train') {
-      const d = await fetchLinePaths();
+      const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;
-      entry = { kind: 'line', radius: TRAIN_RADIUS_M, visible: false,
-        items: buildTrain(d.paths) };
+      entry = { kind: 'train', radius: TRAIN_RADIUS_M, visible: false,
+        lines: buildTrain(lp.paths), stations: buildTrainStations(st.stations) };
     } else {
       const d = await fetchOverlays();
       if (destroyed) return null;
@@ -222,10 +261,36 @@ export function createOverlayController(map, googleMaps) {
       for (const p of e.items) p.setMap(e.visible ? map : null);
       return;
     }
-    if (e.kind === 'line') {
-      for (const it of e.items) {
-        const near = !e.radius || it.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
-        it.polyline.setMap(e.visible && near ? map : null);
+    // v0.61.11 — train layer: radius-clipped polylines + (emphasis-only)
+    // square station markers. In result-emphasis mode the segments near
+    // the 3 stations closest to the anchor stay bold; the rest dim.
+    if (e.kind === 'train') {
+      const emph = trainEmphasis;
+      let near3 = [];
+      if (emph && e.stations.length) {
+        near3 = e.stations
+          .map((s) => ({ s, d: metresBetween(emph.lat, emph.lng, s.lat, s.lng) }))
+          .sort((a, b) => a.d - b.d)
+          .slice(0, 3)
+          .map((x) => x.s);
+      }
+      for (const ln of e.lines) {
+        const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
+        ln.polyline.setMap(e.visible && near ? map : null);
+        if (emph && near3.length) {
+          const hot = ln.pts.some((p) =>
+            near3.some((s) => metresBetween(p.lat, p.lng, s.lat, s.lng) <= 500));
+          ln.polyline.setOptions({
+            strokeOpacity: hot ? 0.9 : 0.4,
+            strokeWeight: hot ? 5 : 3
+          });
+        } else {
+          ln.polyline.setOptions({ strokeOpacity: 0.85, strokeWeight: 4 });
+        }
+      }
+      for (const st of e.stations) {
+        const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
+        st.marker.map = (e.visible && emph && near) ? map : null;
       }
       return;
     }
@@ -256,6 +321,14 @@ export function createOverlayController(map, googleMaps) {
     setAttractionsMode(mode) {
       attractionsMode = mode === 'all' ? 'all' : 'nearby';
       if (layers.attractions) applyVisibility('attractions');
+    },
+    // v0.61.11 — result-emphasis anchor for the train layer. Pass a
+    // search anchor to bold the nearby segments + draw square station
+    // markers; pass nothing/invalid to clear it.
+    setTrainEmphasis(lat, lng) {
+      trainEmphasis = (Number.isFinite(lat) && Number.isFinite(lng))
+        ? { lat, lng } : null;
+      if (layers.train) applyVisibility('train');
     },
     destroy() {
       destroyed = true;

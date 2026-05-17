@@ -223,6 +223,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
+  // v0.61.11 — train-overlay result emphasis: while cuisine results are
+  // on the map, bold the line segments near the 3 closest stations and
+  // dim the rest; clear it when there are no results.
+  useEffect(() => {
+    const ctrl = overlayControllerRef.current;
+    if (!ctrl?.setTrainEmphasis) return;
+    const anchor = searchCenter || userLoc;
+    if (anchor && (venues?.length)) ctrl.setTrainEmphasis(anchor.lat, anchor.lng);
+    else ctrl.setTrainEmphasis(null);
+  }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
+
   function handleIdle() {
     // v0.64.0 — feed the map-centre anchor to the overlay controller so
     // radius-clipped layers re-filter on every pan/zoom.
