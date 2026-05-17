@@ -66,7 +66,7 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, attractionsMode = 'nearby' }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -156,6 +156,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
     setMapsKeyState('ready');
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
+    // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
+    // layers re-filter on every pan/zoom.
+    mapRef.current.addListener('idle', () => {
+      const c = mapRef.current?.getCenter?.();
+      if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+    });
     syncMarkers();
   }
 
@@ -167,9 +173,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('train', !!layers.train);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // Re-sync markers whenever the centres array or region changes.

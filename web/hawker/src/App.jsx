@@ -50,7 +50,8 @@ export default function App() {
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
-  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false });
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, train: true });
+  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.60.96 — operator: "flip to Top when I am at the bottom of the
   // screen". Detect when user has scrolled to (or near) the bottom of
   // the document, not just past the hero. Threshold 50 px to absorb
@@ -188,9 +189,15 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} />
-                {/* v0.61.0 — parks / attractions / taxi-stop overlay toggles. */}
-                <MapLayerChips layers={overlayLayers} onChange={setOverlayLayers} />
+                {/* v0.64.0 — overlay layer chips, above the map. */}
+                <MapLayerChips
+                  layers={overlayLayers}
+                  onChange={setOverlayLayers}
+                  attractionsMode={attractionsMode}
+                  onAttractionsModeChange={setAttractionsMode}
+                  showTrain
+                />
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} attractionsMode={attractionsMode} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}

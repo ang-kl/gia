@@ -93,7 +93,7 @@ function metersBetween(a, b) {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, onSearchHere, anchorName, overlayLayers, attractionsMode = 'nearby', children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -212,12 +212,19 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('train', !!layers.train);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
+    // v0.64.0 — feed the map-centre anchor to the overlay controller so
+    // radius-clipped layers re-filter on every pan/zoom.
+    const ctr = mapRef.current?.getCenter?.();
+    if (ctr) overlayControllerRef.current?.setAnchor?.(ctr.lat(), ctr.lng());
     if (programmaticUpdateRef.current) {
       programmaticUpdateRef.current = false;
       return;

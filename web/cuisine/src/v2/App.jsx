@@ -78,7 +78,9 @@ export default function App() {
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
-  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false });
+  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, train: true });
+  // v0.64.0 — attractions overlay: 'nearby' (1 km radius) or 'all'.
+  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
@@ -1013,6 +1015,15 @@ export default function App() {
         );
       })()}
 
+      {/* v0.64.0 — overlay layer chips, above the map. */}
+      <MapLayerChips
+        layers={overlayLayers}
+        onChange={setOverlayLayers}
+        attractionsMode={attractionsMode}
+        onAttractionsModeChange={setAttractionsMode}
+        showTrain
+      />
+
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
@@ -1022,10 +1033,8 @@ export default function App() {
         onSearchHere={runSearchAt}
         anchorName={locationName}
         overlayLayers={overlayLayers}
+        attractionsMode={attractionsMode}
       />
-
-      {/* v0.61.0 — parks / attractions / taxi-stop overlay toggles. */}
-      <MapLayerChips layers={overlayLayers} onChange={setOverlayLayers} />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
           operator 2026-05-10. The pills now live inside the Search

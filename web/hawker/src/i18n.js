@@ -30,6 +30,10 @@ const STRINGS = {
   'layer.attractions':       { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':             { en: 'Taxis', fr: 'Taxis' },
   'layer.carpark':           { en: 'Carpark', fr: 'Parking' },
+  'layer.exits':             { en: 'Exits', fr: 'Sorties' },
+  'layer.train':             { en: 'Train', fr: 'Métro' },
+  'layer.nearby':            { en: 'Nearby', fr: 'À proximité' },
+  'layer.all':               { en: 'All', fr: 'Tout' },
 
   // Regions — labels for Central/South/East/North/West (API returns EN
   // names; the chip + heading are localised here at render time).

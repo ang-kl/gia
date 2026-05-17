@@ -30,6 +30,9 @@ const CONFIG = [
     out: 'geo-attractions.json', authority: 'STB' },
   { name: 'taxis',       file: 'LTATaxiStopGEOJSON.geojson',           kind: 'point',
     out: 'geo-taxis.json',       authority: 'LTA' },
+  // v0.64.0 — MRT/LRT station exits overlay layer.
+  { name: 'exits',       file: 'LTAMRTStationExitGEOJSON.geojson',     kind: 'point',
+    out: 'geo-exits.json',       authority: 'LTA' },
   // v0.62.0 — server-side matching datasets (NOT map overlay layers,
   // so these are not served by /api/geo/overlays):
   //  - healthier: HPB Healthier Dining partners, matched to venues.
@@ -127,8 +130,56 @@ function pointName(props, kind) {
   if (kind === 'healthier') {
     return String(props.NAME || 'Eatery').trim();
   }
+  if (kind === 'exits') {
+    const stn = titleCase(String(props.STATION_NA || '').replace(/\s+(MRT|LRT)\s+STATION$/i, ''));
+    return (stn ? stn + ' · ' : '') + (String(props.EXIT_CODE || 'Exit').trim());
+  }
   // taxis — no name field; label by stand type.
   return titleCase(props.TYPE_CD_DE) || 'Taxi stop';
+}
+
+function stripHtml(s) {
+  return String(s || '')
+    .replace(/<[^>]+>/g, ' ')
+    // upstream STB data is double-encoded in places — repair the
+    // common mojibake (en-dash, curly apostrophe) before display.
+    .replace(/â€“|â€”/g, '–')
+    .replace(/â€™/g, '’')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Operational MRT/LRT stations from data/mrt-coords.json, for the
+// attraction "nearest station" enrichment.
+let _stations = null;
+function loadStations() {
+  if (_stations) return _stations;
+  _stations = [];
+  try {
+    const obj = JSON.parse(fs.readFileSync(path.join(DATA, 'mrt-coords.json'), 'utf8'));
+    for (const [name, s] of Object.entries(obj)) {
+      if (name === '_meta' || !s || s.status !== 'operational') continue;
+      if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      _stations.push({ name, codes: Array.isArray(s.codes) ? s.codes : [], lat: s.lat, lng: s.lng });
+    }
+  } catch (err) {
+    console.error('[build-geo-overlays] mrt-coords load failed:', err.message);
+  }
+  return _stations;
+}
+
+// Nearest operational station to a point → { name, codes } or null.
+function nearestStation(lat, lng) {
+  let best = null;
+  let bestD = Infinity;
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  for (const s of loadStations()) {
+    const dx = (s.lng - lng) * cosLat;
+    const dy = s.lat - lat;
+    const d = dx * dx + dy * dy;
+    if (d < bestD) { bestD = d; best = s; }
+  }
+  return best ? { name: best.name, codes: best.codes } : null;
 }
 
 // Large building footprints, kept only above an area threshold (sqm).
@@ -156,11 +207,25 @@ function convertPoint(features, name) {
     if (!g || g.type !== 'Point') continue;
     const [lng, lat] = g.coordinates || [];
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    out.push({
-      name: pointName(feat.properties || {}, name),
+    const props = feat.properties || {};
+    const rec = {
+      name: pointName(props, name),
       lat: round(lat, 6),
       lng: round(lng, 6)
-    });
+    };
+    // v0.64.0 — attractions carry address / website / hours and the
+    // nearest MRT station, surfaced in the overlay InfoWindow.
+    if (name === 'attractions') {
+      const addr = stripHtml(props.ADDRESS).slice(0, 160);
+      const web = String(props.EXTERNAL_LINK || '').trim();
+      const hrs = stripHtml(props.OPENING_HOURS).slice(0, 200);
+      if (addr) rec.address = addr;
+      if (web) rec.website = web;
+      if (hrs) rec.hours = hrs;
+      const st = nearestStation(lat, lng);
+      if (st) rec.station = st;
+    }
+    out.push(rec);
   }
   return out;
 }
