@@ -1716,29 +1716,7 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
 // One Redis key (`verbose:<chatId>`, 24-h TTL) drives all three surfaces.
 bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
   try {
-    const verbose = require('./verbose-log');
-    const action = (match?.[1] || 'status').toLowerCase();
-    if (action === 'on') {
-      await verbose.enable(redis, msg.chat.id);
-      await safeSend(msg.chat.id,
-        '🔍 *Verbose mode ON* (24 h auto-off).\n\n' +
-        '• `🔍 step …` chat messages for NL pipeline runs\n' +
-        '• `[VLOG <chatId>] …` Railway logs for /api/cuisine/* + Michelin handler (timing, Redis TTLs, HTTP cache)\n' +
-        '• `[VLOG-CLIENT <chatId>] …` Railway logs for Cuisine TMA fetch timing + window errors\n\n' +
-        'Send `/log off` to disable, `/log status` to check TTL remaining.'
-      );
-      return;
-    }
-    if (action === 'off') {
-      await verbose.disable(redis, msg.chat.id);
-      await safeSend(msg.chat.id, '🔍 Verbose mode OFF (chat traces + Railway logs + TMA telemetry).');
-      return;
-    }
-    const s = await verbose.status(redis, msg.chat.id);
-    const remaining = s.on && Number.isFinite(s.ttlSeconds) && s.ttlSeconds > 0
-      ? ` · ${Math.round(s.ttlSeconds / 60)} min remaining`
-      : '';
-    await safeSend(msg.chat.id, `🔍 Verbose mode is currently *${s.on ? 'ON' : 'OFF'}*${remaining}. Use \`/log on\` or \`/log off\` to toggle.`);
+    await setVerboseMode(msg.chat.id, (match?.[1] || 'status').toLowerCase());
   } catch (err) {
     console.error('[Error] /log handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, /log hit an error.");
@@ -1981,6 +1959,26 @@ bot.on('callback_query', async (q) => {
     const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
     const cbLang = await resolveLang(redis, chatId, q);
+
+    // v0.61.25 — /v builder-menu buttons. Owner-gated: the menu is only
+    // ever sent to the owner, but re-check in case a callback is replayed.
+    if (data.startsWith('v:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[v:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      try {
+        if (data === 'v:ver') { await ownerHealthCheck(chatId); return; }
+        if (data === 'v:oversight') { await ownerOversightLauncher(chatId); return; }
+        if (data === 'v:ftlog20') { await ownerFtlogDump(chatId, 20); return; }
+        if (data === 'v:logon') { await setVerboseMode(chatId, 'on'); return; }
+        if (data === 'v:logoff') { await setVerboseMode(chatId, 'off'); return; }
+      } catch (err) {
+        console.error('[Error] /v callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that builder action hit an error.');
+      }
+      return;
+    }
 
     // v0.59.0: language toggle from /language inline keyboard.
     if (data === 'language:set:en' || data === 'language:set:fr') {
@@ -2381,17 +2379,73 @@ function isOwnerChat(chatId) {
   return String(chatId) === String(owner);
 }
 
+// v0.61.25 — owner-command action bodies, extracted so the /v builder
+// menu (inline-keyboard buttons) and the typed commands share one
+// implementation. Each runs the same work as its /<cmd> handler.
+async function ownerHealthCheck(chatId) {
+  await safeSend(chatId, '🩺 Running health check…');
+  const report = await runHealthCheck(bot, redis);
+  const escaped = report.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  await bot.sendMessage(chatId, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
+    .catch(async () => { await safeSend(chatId, report); });
+}
+
+async function ownerFtlogDump(chatId, n) {
+  const count = Math.max(1, Math.min(200, Number(n) || 40));
+  const { dumpFreeTextLog } = require('./freetext-log');
+  const rows = await dumpFreeTextLog(redis, count);
+  if (!rows.length) { await safeSend(chatId, 'ℹ️ Free-text log is empty.'); return; }
+  const fmt = (e) => {
+    const when = Number.isFinite(e.ts) ? new Date(e.ts).toISOString().replace('T', ' ').slice(0, 16) : '?';
+    const meta = [e.src || '?', e.chip ? 'chip' : '', e.m || '', (e.n != null ? `n=${e.n}` : '')].filter(Boolean).join(' ');
+    return `${when}  ${String(e.q || '').slice(0, 60)}${meta ? `  [${meta}]` : ''}`;
+  };
+  const body = rows.map(fmt).join('\n').slice(0, 3800);
+  const escaped = body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  await bot.sendMessage(chatId, `📋 <b>Free-text log</b> (last ${rows.length})\n<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
+    .catch(async () => { await safeSend(chatId, `Free-text log (last ${rows.length}):\n${body}`); });
+}
+
+async function ownerOversightLauncher(chatId) {
+  if (!webhookDomain) { await safeSend(chatId, 'ℹ️ Oversight needs a public webhook domain (none configured).'); return; }
+  const url = `https://${webhookDomain}/app/oversight`;
+  await bot.sendMessage(chatId, '🛡 Soleat — Oversight', {
+    reply_markup: { inline_keyboard: [[{ text: '📊 Open Oversight', web_app: { url } }]] }
+  }).catch(async () => { await safeSend(chatId, `🛡 Oversight: ${url}`); });
+}
+
+async function setVerboseMode(chatId, action) {
+  const verbose = require('./verbose-log');
+  if (action === 'on') {
+    await verbose.enable(redis, chatId);
+    await safeSend(chatId,
+      '🔍 *Verbose mode ON* (24 h auto-off).\n\n' +
+      '• `🔍 step …` chat messages for NL pipeline runs\n' +
+      '• `[VLOG <chatId>] …` Railway logs for /api/cuisine/* + Michelin handler (timing, Redis TTLs, HTTP cache)\n' +
+      '• `[VLOG-CLIENT <chatId>] …` Railway logs for Cuisine TMA fetch timing + window errors\n\n' +
+      'Send `/log off` to disable, `/log status` to check TTL remaining.'
+    );
+    return;
+  }
+  if (action === 'off') {
+    await verbose.disable(redis, chatId);
+    await safeSend(chatId, '🔍 Verbose mode OFF (chat traces + Railway logs + TMA telemetry).');
+    return;
+  }
+  const s = await verbose.status(redis, chatId);
+  const remaining = s.on && Number.isFinite(s.ttlSeconds) && s.ttlSeconds > 0
+    ? ` · ${Math.round(s.ttlSeconds / 60)} min remaining`
+    : '';
+  await safeSend(chatId, `🔍 Verbose mode is currently *${s.on ? 'ON' : 'OFF'}*${remaining}. Use \`/log on\` or \`/log off\` to toggle.`);
+}
+
 bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   if (!isOwnerChat(msg.chat.id)) {
     console.log(`[/ver] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
     return;
   }
   try {
-    await safeSend(msg.chat.id, '🩺 Running health check…');
-    const report = await runHealthCheck(bot, redis);
-    const escaped = report.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    await bot.sendMessage(msg.chat.id, `<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
-      .catch(async () => { await safeSend(msg.chat.id, report); });
+    await ownerHealthCheck(msg.chat.id);
   } catch (err) {
     console.error('[Error] /ver handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I couldn't run the health check.");
@@ -2408,19 +2462,7 @@ bot.onText(/^\/ftlog(?:@\w+)?(?:\s+(\d{1,3}))?$/, async (msg, match) => {
     return;
   }
   try {
-    const n = Math.max(1, Math.min(200, Number(match?.[1]) || 40));
-    const { dumpFreeTextLog } = require('./freetext-log');
-    const rows = await dumpFreeTextLog(redis, n);
-    if (!rows.length) { await safeSend(msg.chat.id, 'ℹ️ Free-text log is empty.'); return; }
-    const fmt = (e) => {
-      const when = Number.isFinite(e.ts) ? new Date(e.ts).toISOString().replace('T', ' ').slice(0, 16) : '?';
-      const meta = [e.src || '?', e.chip ? 'chip' : '', e.m || '', (e.n != null ? `n=${e.n}` : '')].filter(Boolean).join(' ');
-      return `${when}  ${String(e.q || '').slice(0, 60)}${meta ? `  [${meta}]` : ''}`;
-    };
-    const body = rows.map(fmt).join('\n').slice(0, 3800);
-    const escaped = body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    await bot.sendMessage(msg.chat.id, `📋 <b>Free-text log</b> (last ${rows.length})\n<pre>${escaped}</pre>`, { parse_mode: 'HTML' })
-      .catch(async () => { await safeSend(msg.chat.id, `Free-text log (last ${rows.length}):\n${body}`); });
+    await ownerFtlogDump(msg.chat.id, match?.[1]);
   } catch (err) {
     console.error('[Error] /ftlog handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I couldn't read the free-text log.");
@@ -2437,13 +2479,35 @@ bot.onText(/^\/oversight(?:@\w+)?$/, async (msg) => {
     return;
   }
   try {
-    if (!webhookDomain) { await safeSend(msg.chat.id, 'ℹ️ Oversight needs a public webhook domain (none configured).'); return; }
-    const url = `https://${webhookDomain}/app/oversight`;
-    await bot.sendMessage(msg.chat.id, '🛡 Soleat — Oversight', {
-      reply_markup: { inline_keyboard: [[{ text: '📊 Open Oversight', web_app: { url } }]] }
-    }).catch(async () => { await safeSend(msg.chat.id, `🛡 Oversight: ${url}`); });
+    await ownerOversightLauncher(msg.chat.id);
   } catch (err) {
     console.error('[Error] /oversight handler failed:', err.message);
+  }
+});
+
+// v0.61.25 — /v — owner-only builder command hub. An inline-keyboard
+// menu that fires the hidden owner commands (/ver, /oversight, /ftlog,
+// /log on|off) without typing them. Hidden (not in setMyCommands);
+// silent no-op for non-owners, like /ver.
+bot.onText(/^\/v(?:@\w+)?$/, async (msg) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/v] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
+  try {
+    await bot.sendMessage(msg.chat.id, '🛠 <b>Soleat — builder menu</b>', {
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: [
+        [{ text: '🩺 Health check (/ver)', callback_data: 'v:ver' }],
+        [{ text: '🛡 Oversight (/oversight)', callback_data: 'v:oversight' }],
+        [{ text: '📋 Free-text log (/ftlog 20)', callback_data: 'v:ftlog20' }],
+        [{ text: '🔍 Verbose ON (/log on)', callback_data: 'v:logon' },
+         { text: '🔍 Verbose OFF (/log off)', callback_data: 'v:logoff' }]
+      ] }
+    });
+  } catch (err) {
+    console.error('[Error] /v handler failed:', err.message);
+    await safeSend(msg.chat.id, 'Sorry, the builder menu hit an error.');
   }
 });
 
