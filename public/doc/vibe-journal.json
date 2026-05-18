@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-17",
-  "count": 491,
+  "generated": "2026-05-18",
+  "count": 506,
   "records": [
     {
       "pr": 1,
@@ -13627,6 +13627,483 @@
         "doc/vault"
       ],
       "title": "v0.61.12 — cuisine result emphasis on the train overlay",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 498,
+      "status": "merged",
+      "merged": "2026-05-17 10:48:18",
+      "day": "2026-05-17",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Core / misc",
+      "intent": "Update docs: regenerate VibeCodingRecord ledger through PR #497",
+      "approach": "docs: regenerate VibeCodingRecord ledger through PR #497",
+      "codeImpact": "7 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: regenerate VibeCodingRecord ledger through PR #497",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 500,
+      "status": "merged",
+      "merged": "2026-05-17 20:16:34",
+      "day": "2026-05-17",
+      "version": "0.61.14",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: transport focused-line panel: station picker + 6 km station-focus map",
+      "approach": "v0.61.14 — transport focused-line panel: station picker + 6 km station-focus map",
+      "codeImpact": "8 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.14 — transport focused-line panel: station picker + 6 km station-focus map",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 501,
+      "status": "merged",
+      "merged": "2026-05-17 22:36:57",
+      "day": "2026-05-17",
+      "version": "0.61.15",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: remove the Cuisine map \"Search this area\" button",
+      "approach": "Drops the pan-to-re-search pill from the Cuisine TMA map, and the code that existed only to drive it: handleSearchHereClick, the showSearchHere state, searchCenterRef / programmaticUpdateRef, PAN_THRESHOLD_METERS, the metersBetween…",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.15 — remove the Cuisine map \"Search this area\" button",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 502,
+      "status": "merged",
+      "merged": "2026-05-17 22:42:59",
+      "day": "2026-05-17",
+      "version": "0.61.16",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: map control buttons + Transport station-detail view",
+      "approach": "(№ 127",
+      "codeImpact": "10 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.16 — map control buttons + Transport station-detail view",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 503,
+      "status": "merged",
+      "merged": "2026-05-17 22:52:42",
+      "day": "2026-05-17",
+      "version": "0.61.17",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine + Hawker train-overlay station-detail view",
+      "approach": "(№ 127",
+      "codeImpact": "7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.17 — Cuisine + Hawker train-overlay station-detail view",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 504,
+      "status": "merged",
+      "merged": "2026-05-18 02:16:21",
+      "day": "2026-05-18",
+      "version": "0.61.19",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: clickable bus-stop arrivals + hawker-centre surrounding amenities",
+      "approach": "New GET /api/transport/bus-arrival?code=<n> endpoint wrapping transport.busArrivals; degrades gracefully without LTA_ACCOUNT_KEY.",
+      "codeImpact": "9 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.19 — clickable bus-stop arrivals + hawker-centre surrounding amenities",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 505,
+      "status": "merged",
+      "merged": "2026-05-18 05:13:09",
+      "day": "2026-05-18",
+      "version": "0.61.20",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: amenity-pin refinements: deeper zoom, declutter, clickable popups",
+      "approach": "Release the maxZoom:16 cap once the auto-fit settles (Hawker + Cuisine maps), so the + button zooms in past level 16.",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.20 — amenity-pin refinements: deeper zoom, declutter, clickable popups",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 506,
+      "status": "merged",
+      "merged": "2026-05-18 09:54:40",
+      "day": "2026-05-18",
+      "version": "0.61.21",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: unify amenity rendering so station-tap pins always appear",
+      "approach": "Tapping a station on the Train and Cuisine TMA maps showed no surrounding amenity pins.",
+      "codeImpact": "8 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.21 — unify amenity rendering so station-tap pins always appear",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 507,
+      "status": "merged",
+      "merged": "2026-05-18 10:42:26",
+      "day": "2026-05-18",
+      "version": "0.61.22",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: theme-aware Google-map popup cards + close affordances",
+      "approach": "Operator: the map popups wash text out in Telegram dark mode, have no clear close button, and don't dismiss on a map tap.",
+      "codeImpact": "10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.22 — theme-aware Google-map popup cards + close affordances",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 508,
+      "status": "merged",
+      "merged": "2026-05-18 10:51:35",
+      "day": "2026-05-18",
+      "version": "0.61.23",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: standardised taxi pins + Nearby↔Details overlay-radius slider",
+      "approach": "The overlay Taxis layer now draws word pins (\"Taxi\" / \"Pick-up\", classified by feature name) instead of a 🚕 emoji dot, matching the station-detail amenity taxi pins.",
+      "codeImpact": "14 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.23 — standardised taxi pins + Nearby↔Details overlay-radius slider",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 509,
+      "status": "merged",
+      "merged": "2026-05-18 14:12:04",
+      "day": "2026-05-18",
+      "version": "0.61.24",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: exit feature Part A: line-coloured exit-code pins + Exit Template",
+      "approach": "build-geo-overlays.js enriches each geo-exits.json feature with the bare exitCode, the station name, and the station's line codes (joined from data/mrt-coords.json). geo-exits.json regenerated (597 exits).",
+      "codeImpact": "10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.24 — exit feature Part A: line-coloured exit-code pins + Exit Template",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 510,
+      "status": "merged",
+      "merged": "2026-05-18 14:22:47",
+      "day": "2026-05-18",
+      "version": "0.61.25",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: /v owner builder-command menu",
+      "approach": "New /v command (owner-gated, hidden like /ver): an inline-keyboard menu firing /ver, /oversight, /ftlog 20, /log on and /log off without typing them.",
+      "codeImpact": "5 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.25 — /v owner builder-command menu",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 511,
+      "status": "merged",
+      "merged": "2026-05-18 14:39:42",
+      "day": "2026-05-18",
+      "version": "0.61.26",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: station-scoped Exits/Taxis chips; remove Nearby↔Details slider",
+      "approach": "Removed the Nearby↔Details slider (it didn't work): the chip overlay layers now share one fixed 550 m radius. Dropped the attractionsMode state, the setAttractionsMode API, the slider UI, and the layer.nearby / layer.details i18n keys…",
+      "codeImpact": "19 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 19,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.26 — station-scoped Exits/Taxis chips; remove Nearby↔Details slider",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 512,
+      "status": "merged",
+      "merged": "2026-05-18 14:52:50",
+      "day": "2026-05-18",
+      "version": "0.61.27",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: /transport train: nearest-stations show the station code",
+      "approach": "New mrt-lines.codedLinesForStation(name): returns [{code,line}] pairs (Newton → NS21/NSL, DT11/DTL) from data/mrt-coords.json, where each station's codes/lines arrays pair index-for-index.",
+      "codeImpact": "7 files — index.js, mrt-lines.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "mrt-lines.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.27 — /transport train: nearest-stations show the station code",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 513,
+      "status": "merged",
+      "merged": "2026-05-18 15:49:45",
+      "day": "2026-05-18",
+      "version": "0.61.28",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Exit Template Part B: nearby attractions",
+      "approach": "build-geo-overlays.js enriches each station-exit feature with a `nearby` array of named STB tourist attractions within 400 m (nearest-first, de-duped, max 3). New loadAttractions / cleanAttractionName (trims the verbose marketing…",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.28 — Exit Template Part B: nearby attractions",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false

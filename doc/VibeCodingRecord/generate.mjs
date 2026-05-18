@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-05-17';   // bump when you regenerate against a fresh snapshot
+const GEN_DATE = '2026-05-18';   // bump when you regenerate against a fresh snapshot
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
