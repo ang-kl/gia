@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -63,26 +63,6 @@ function hawkerPinNode(isNew) {
       'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
     el.appendChild(badge);
   }
-  return el;
-}
-
-// v0.61.19 — amenity-pin palette (mirrors mapOverlays' station-detail
-// colours) for the surrounding exits / bus / taxi / carpark pins drawn
-// around a tapped hawker centre.
-const AMENITY_EXIT_BG = '#5E35B1';
-const AMENITY_BUS_BG = '#1565C0';
-const AMENITY_TAXI_BG = '#FBC02D';
-const AMENITY_CARPARK_BG = '#1565C0';
-const AMENITY_STATION_BG = '#00695C';
-
-// v0.61.19 — a small text-label marker node for a hawker-centre
-// amenity (exit / bus-stop code / "Taxi" / 🅿️ / nearest 🚉 station).
-function amenityNode(label, bg, fg) {
-  const el = document.createElement('div');
-  el.textContent = label;
-  el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
-    + `background:${bg};color:${fg};font-size:10px;font-weight:700;line-height:1.5;`
-    + 'white-space:nowrap;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
   return el;
 }
 
@@ -258,36 +238,19 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
     amenityMarkersRef.current = [];
   }
 
+  // v0.61.20 — clickable amenity pins via the shared attachAmenityPins
+  // helper; trimmed to the nearest 3 bus / 2 carpark / 2 taxi so the
+  // map stays readable around the tapped centre.
   function plotAmenities(ctx) {
-    if (!mapRef.current || !window.google?.maps) return;
-    const { AdvancedMarkerElement } = window.google.maps.marker;
+    if (!mapRef.current || !window.google?.maps || !infoWindowRef.current) return;
     clearAmenities();
-    const place = (lat, lng, node) => {
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      amenityMarkersRef.current.push(new AdvancedMarkerElement({
-        map: mapRef.current, position: { lat, lng }, content: node, zIndex: 6
-      }));
-    };
-    for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
-      const label = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
-      place(ex.lat, ex.lng, amenityNode(label, AMENITY_EXIT_BG, '#fff'));
-    }
-    for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
-      if (!b || !b.code) continue;
-      place(b.lat, b.lng, amenityNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff'));
-    }
-    for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
-      if (!x || x.kind === 'stop') continue;
-      place(x.lat, x.lng, amenityNode(x.kind === 'pickup' ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f'));
-    }
-    for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : [])) {
-      if (!cp) continue;
-      place(cp.lat, cp.lng, amenityNode('🅿️', AMENITY_CARPARK_BG, '#fff'));
-    }
-    const st = ctx.station;
-    if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
-      place(st.lat, st.lng, amenityNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff'));
-    }
+    amenityMarkersRef.current = attachAmenityPins({
+      maps: window.google.maps,
+      map: mapRef.current,
+      infoWindow: infoWindowRef.current,
+      ctx,
+      limits: { bus: 3, carpark: 2, taxi: 2 }
+    });
   }
 
   // v0.61.19 — fetch (cache) the station-context for a tapped hawker
@@ -359,8 +322,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
     }
 
     if (plotted > 0) {
+      // v0.61.20 — cap zoom only for the auto-fit, then release it once
+      // the fit settles so the user can manually zoom in past level 16.
       mapRef.current.setOptions({ maxZoom: 16 });
       mapRef.current.fitBounds(bounds, 60);
+      window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
+        mapRef.current?.setOptions({ maxZoom: null });
+      });
     } else {
       // No coords for this region — recenter on SG.
       mapRef.current.setCenter(SG_CENTROID);
