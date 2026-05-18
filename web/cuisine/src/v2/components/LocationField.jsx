@@ -21,7 +21,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // pickedLabel), and after a TMA background/restore. Without it, the
 // field re-showed the device / cached-pin neighbourhood even though
 // searches were still running at the locked-in location.
-export default function LocationField({ userLoc, region, onSelect, anchor = null }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '' }) {
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -167,6 +167,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
           >
             <span className="truncate">{resting}</span>
+            {suffix && (
+              <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>
+            )}
             <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
           </button>
         )}
