@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -64,12 +64,6 @@ const LINE_WEIGHT = 3;
 const LINE_WEIGHT_FOCUSED = 5;
 const LINE_OPACITY = 0.85;
 const FUTURE_LINE_OPACITY = 0.4;
-
-// v0.61.16 — amenity-pin palette (mirrors the overlay-layer colours).
-const AMENITY_EXIT_BG = '#5E35B1';
-const AMENITY_BUS_BG = '#1565C0';
-const AMENITY_TAXI_BG = '#FBC02D';
-const AMENITY_CARPARK_BG = '#1565C0';
 
 // v0.61.10 — one-shot blink keyframes for crowded-station markers.
 function ensureBlinkStyle() {
@@ -97,17 +91,6 @@ function stationDotNode(bg, isFuture, crowded, centre) {
   if (isFuture) css += 'opacity:0.75;';
   if (crowded) css += 'animation:giaMrtBlink 1s ease-in-out infinite;';
   el.style.cssText = css;
-  return el;
-}
-
-// v0.61.16 — a small text-label marker for a station amenity (an exit
-// letter/number, a bus-stop code, "Taxi" / "Pick-up", or a 🅿️ glyph).
-function amenityPinNode(label, bg, fg) {
-  const el = document.createElement('div');
-  el.textContent = label;
-  el.style.cssText = `display:inline-block;padding:1px 5px;border-radius:8px;`
-    + `background:${bg};color:${fg};font-size:10px;font-weight:700;line-height:1.5;`
-    + `white-space:nowrap;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);`;
   return el;
 }
 
@@ -143,6 +126,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  // v0.61.21 — station-detail amenity pins, kept separate from the
+  // station-dot markers so they survive a dot-only re-render.
+  const amenityMarkersRef = useRef([]);
   const polylinesRef = useRef([]);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
@@ -494,42 +480,23 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     }
   }
 
-  // v0.61.16 — draw the amenity pins (exits / bus / taxi / carparks)
-  // for the detailed station, extending `bounds` to frame them.
+  // v0.61.21 — draw the detailed station's amenity pins via the shared
+  // attachAmenityPins helper (the proven path the Hawker / Cuisine maps
+  // use), so the pins reliably appear and each opens a clickable popup
+  // (live bus arrivals etc.). Kept in amenityMarkersRef; `bounds` is
+  // extended so the detail view frames the pins. The station pill is
+  // skipped — the tapped station already has its centre dot.
   function renderAmenityPins(ctx, bounds) {
-    const { AdvancedMarkerElement } = window.google.maps.marker;
-    const place = (lat, lng, node, title) => {
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const marker = new AdvancedMarkerElement({
-        map: mapRef.current,
-        position: { lat, lng },
-        title: title || '',
-        content: node,
-        zIndex: 5
-      });
-      markersRef.current.push(marker);
-      bounds.extend({ lat, lng });
-    };
-    for (const e of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
-      const label = String(e.exit || '').replace(/^exit\s*/i, '') || 'Exit';
-      place(e.lat, e.lng, amenityPinNode(label, AMENITY_EXIT_BG, '#fff'),
-        `${t('mrt.exits', lang)} ${label}`);
-    }
-    for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
-      if (!b || !b.code) continue;
-      place(b.lat, b.lng, amenityPinNode(`№${b.code}`, AMENITY_BUS_BG, '#fff'),
-        `${t('mrt.busStops', lang)} № ${b.code}`);
-    }
-    for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
-      if (!x || x.kind === 'stop') continue;
-      const label = x.kind === 'pickup' ? t('mrt.taxiPickup', lang) : t('mrt.taxiStand', lang);
-      const short = x.kind === 'pickup' ? 'Pick-up' : 'Taxi';
-      place(x.lat, x.lng, amenityPinNode(short, AMENITY_TAXI_BG, '#1c1c1f'), label);
-    }
-    for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : [])) {
-      if (!cp) continue;
-      place(cp.lat, cp.lng, amenityPinNode('🅿️', AMENITY_CARPARK_BG, '#fff'),
-        `${t('mrt.carparks', lang)}${cp.name ? ' · ' + cp.name : ''}`);
+    amenityMarkersRef.current = attachAmenityPins({
+      maps: window.google.maps,
+      map: mapRef.current,
+      infoWindow: infoWindowRef.current,
+      ctx,
+      limits: { bus: 3, carpark: 2, taxi: 2 },
+      includeStation: false
+    });
+    for (const m of amenityMarkersRef.current) {
+      if (m.position) bounds.extend(m.position);
     }
   }
 
@@ -540,6 +507,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // Tear down old markers (station dots + amenity pins).
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    for (const m of amenityMarkersRef.current) m.map = null;
+    amenityMarkersRef.current = [];
     const detail = computeDetail(list);
     // v0.60.230 — line polylines first so the station dots layer on top.
     renderPolylines(list, detail);
