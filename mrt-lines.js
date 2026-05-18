@@ -337,6 +337,40 @@ function linesForStation(stationName) {
   return STATION_LINES[key] || [];
 }
 
+// v0.61.27 — station-code lookup, sourced from data/mrt-coords.json
+// (where each station's `codes` and `lines` arrays pair index-for-
+// index, e.g. Newton → codes ['NS21','DT11'], lines ['NSL','DTL']).
+// Lets /transport's train reply show the actual station code, not just
+// the line code. Lazily loaded + cached; keyed by normalised name.
+let _stationCodeIndex = null;
+function loadStationCodeIndex() {
+  if (_stationCodeIndex) return _stationCodeIndex;
+  _stationCodeIndex = Object.create(null);
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const obj = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'mrt-coords.json'), 'utf8'));
+    for (const [name, v] of Object.entries(obj)) {
+      if (name.startsWith('_') || !v) continue;
+      const codes = Array.isArray(v.codes) ? v.codes : [];
+      const lines = Array.isArray(v.lines) ? v.lines : [];
+      if (!codes.length) continue;
+      _stationCodeIndex[normaliseStationName(name)] =
+        codes.map((code, i) => ({ code, line: lines[i] || null }));
+    }
+  } catch (err) {
+    console.error('[mrt-lines] mrt-coords load failed:', err.message);
+  }
+  return _stationCodeIndex;
+}
+
+// Public: returns [{ code, line }] pairs for a station name (the
+// station code + the line it belongs to), or [] when the station
+// isn't in data/mrt-coords.json.
+function codedLinesForStation(stationName) {
+  return loadStationCodeIndex()[normaliseStationName(stationName)] || [];
+}
+
 module.exports = {
   LINES,
   LINES_BY_CODE,
@@ -346,5 +380,6 @@ module.exports = {
   parseStatusByLine,
   networkHeadwayRange,
   normaliseStationName,
-  linesForStation
+  linesForStation,
+  codedLinesForStation
 };
