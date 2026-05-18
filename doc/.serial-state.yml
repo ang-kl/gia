@@ -1,21 +1,27 @@
 counters:
-  commit: 237
+  commit: 238
   build: 42
   documents:
-    journal: 230
-    builder: 1
-    persona: 2
-    feature: 45
-    technical: 45
-    legal: 7
-    register: 113
+    journal: 231
+    builder: 2
+    persona: 3
+    feature: 46
+    technical: 46
+    legal: 8
+    register: 114
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 18-05 '26 23:00 SGT
+last_anchor_time: 18-05 '26 23:30 SGT
 last_anchor_source: github_ci_pr512_run_2026-05-18T14:44Z_plus_session_work
-last_anchor_iso8601: 2026-05-18T23:00:00+08:00
-last_anchor_utc: 2026-05-18T15:00:00Z
+last_anchor_iso8601: 2026-05-18T23:30:00+08:00
+last_anchor_utc: 2026-05-18T15:30:00Z
+# journal #231 (commit 238 / build 42) — v0.61.28 docs+vault pass: a
+# fresh non-incremental master set (Builder #2 / Persona #3 / Feature
+# #46 / Technical #46 / Legal #8 / Register #114) + vault/v0.61.28/
+# (~141 MB, 786 files). Operator instruction; no code change, no
+# version bump. AU Recipe overridden for this pass (decision D-1028);
+# prior vault v0.60.172 kept (Rule V-1/V-2).
 # journal #230 (commit 237 / build 42) — v0.61.28 Exit Template Part B
 # (attractions half): exit popups show a 🎡 line of nearby named STB
 # attractions (geo-exits.json `nearby`, ≤400 m). ♿ lift half shelved
