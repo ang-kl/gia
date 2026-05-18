@@ -66,7 +66,7 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, attractionsMode = 'nearby' }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -198,7 +198,6 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // Re-sync markers whenever the centres array or region changes.

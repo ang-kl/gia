@@ -12,25 +12,28 @@
 // train-line layer are clipped to a radius of an anchor point (the map
 // viewport centre, pushed in via setAnchor on the map `idle` event), so
 // the map shows nearby places rather than the whole island. Parks
-// (translucent polygons) stay unfiltered. Attractions also have a
-// nearby/all mode (setAttractionsMode).
-//
-// v0.61.9 — per-layer radii: attractions + train reach 800 m; the
-// close-range layers (carpark / bus / taxi / exits) clip to 400 m.
+// (translucent polygons) stay unfiltered.
 //
 // v0.61.17 — train-overlay station markers are now clickable on every
 // TMA (no longer emphasis-gated): tapping one enters a STATION-DETAIL
 // view that hides every station except the tapped one and its
-// neighbours one stop before / after on the line, and draws amenity
-// pins (exits / bus stops / taxi stand / pick-up / carparks) from
-// /api/transport/station-context. Tapping the selected station again
-// clears it. This mirrors the Transport TMA's station-detail view.
+// neighbours one stop before / after on the line. Tapping the selected
+// station again clears it.
+//
+// v0.61.26 — in the station-detail view the Exits / Taxis chips are
+// scoped to the 3 visible stations: turning on Exits draws those
+// stations' exits, Taxis draws their taxi stands + pick-up points.
+// Replaces the auto-drawn station-context amenity pins (bus stops and
+// carparks are no longer shown in the detail view).
 
-// v0.61.23 — the chip-toggled overlay layers (parks / attractions /
-// taxis / carpark / exits) share one radius, driven by the Nearby↔
-// Details slider: Nearby = 550 m, Details = 7 km. The train layer is
-// NOT slider-governed — it keeps its own radius.
-const OVERLAY_RADIUS = { nearby: 550, details: 7000 };
+// v0.61.26 — the chip-toggled overlay layers (parks / attractions /
+// taxis / carpark / exits) share one fixed radius around the map
+// anchor. The Nearby↔Details slider was removed (it didn't work).
+const OVERLAY_RADIUS_M = 550;
+// v0.61.26 — in the station-detail view the Exits / Taxis chips clip
+// to this radius around each of the 3 visible stations instead of the
+// anchor radius, so they show the amenities of those stations only.
+const STATION_AMENITY_RADIUS_M = 400;
 const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes this near the anchor
 
 // Canonical LTA line colours for the train-line overlay (the transport
@@ -415,15 +418,14 @@ export function createOverlayController(map, googleMaps) {
   const layers = Object.create(null);
   let destroyed = false;
   let anchor = null;                 // { lat, lng } — map viewport centre
-  // v0.61.23 — overlay-radius mode for the chip layers, driven by the
-  // Nearby↔Details slider. Was 'nearby' | 'all' (attractions-only).
-  let attractionsMode = 'nearby';    // 'nearby' | 'details'
   let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
   let centreName = null;             // station whose marker shows the centre node
-  let detailAmenities = [];          // amenity AdvancedMarkerElements
-  const stationCtxCache = Object.create(null);   // name → station-context
+  // v0.61.26 — the 3 stations of the active detail view ({lat,lng} each:
+  // the tapped station + its line-neighbours), used to clip the Exits /
+  // Taxis chips. Empty when no station-detail view is active.
+  let detailStations = [];
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -547,57 +549,30 @@ export function createOverlayController(map, googleMaps) {
 
   // --- station-detail view --------------------------------------------
 
-  function clearAmenities() {
-    for (const m of detailAmenities) m.map = null;
-    detailAmenities = [];
-  }
-
-  // v0.61.17 — draw the amenity pins (exits / bus / taxi / carparks)
-  // for the detailed station from its /api/transport/station-context.
-  // v0.61.21 — routed through the shared attachAmenityPins helper (the
-  // same proven path the Hawker / Cuisine venue taps use) so the pins
-  // reliably appear and every pin is clickable. The station pill is
-  // skipped — the tapped station already has its own centre marker.
-  function drawAmenities(stationName, ctx) {
-    clearAmenities();
-    if (!detailStation || detailStation.name !== stationName) return;
-    detailAmenities = attachAmenityPins({
-      maps: googleMaps, map, infoWindow: info, ctx,
-      limits: { bus: 3, carpark: 2, taxi: 2 }, includeStation: false
-    });
-    // Honour the train layer's visibility — applyVisibility('train')
-    // re-syncs detailAmenities on any later toggle.
-    const e = layers.train;
-    if (!(e && e.visible)) {
-      for (const m of detailAmenities) m.map = null;
+  // v0.61.26 — re-clip the Exits / Taxis chip layers. In a station-
+  // detail view they show only the amenities of the 3 visible stations
+  // (see applyVisibility's marker branch); out of it, the normal
+  // anchor-radius overlay. Called whenever the detail view is entered
+  // or cleared.
+  function syncDetailAmenityLayers() {
+    for (const n of ['exits', 'taxis']) {
+      if (layers[n]) applyVisibility(n);
     }
-  }
-
-  // v0.61.17 — fetch (cache) the station context, then draw amenities.
-  function loadAmenities(s) {
-    const cached = stationCtxCache[s.name];
-    if (cached) { drawAmenities(s.name, cached); return; }
-    fetch('/api/transport/station-context?lat=' + s.lat + '&lng=' + s.lng)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((ctx) => {
-        if (destroyed || !ctx) return;
-        stationCtxCache[s.name] = ctx;
-        drawAmenities(s.name, ctx);
-      })
-      .catch(() => { /* detail view simply shows no amenity pins */ });
   }
 
   function exitStationDetail() {
     detailStation = null;
-    clearAmenities();
     info.close();
     if (layers.train) applyVisibility('train');
+    syncDetailAmenityLayers();
   }
 
   // v0.61.17 — a station marker was tapped. Re-tapping the selected
   // station clears the detail view; tapping another re-targets it.
-  // v0.61.18 — no InfoWindow: the detail view (named centre pill +
-  // labelled amenity pins) identifies everything without an extra tap.
+  // v0.61.18 — no InfoWindow: the detail view (named centre pill) and
+  // the station-scoped Exits / Taxis chips identify everything.
+  // v0.61.26 — amenities are no longer auto-drawn from station-context;
+  // the Exits / Taxis chips draw them, scoped to the 3 visible stations.
   function handleStationTap(item) {
     const s = item.station;
     if (detailStation && detailStation.name === s.name) {
@@ -605,9 +580,8 @@ export function createOverlayController(map, googleMaps) {
       return;
     }
     detailStation = s;
-    clearAmenities();
     if (layers.train) applyVisibility('train');
-    loadAmenities(s);
+    syncDetailAmenityLayers();
   }
 
   // --- per-feature InfoWindow HTML -------------------------------------
@@ -682,17 +656,16 @@ export function createOverlayController(map, googleMaps) {
     return entry;
   }
 
-  // v0.61.23 — the chip overlay layers' radius, per the Nearby↔Details
-  // slider mode.
+  // v0.61.26 — the chip overlay layers all share one fixed radius.
   function currentRadius() {
-    return OVERLAY_RADIUS[attractionsMode] || OVERLAY_RADIUS.nearby;
+    return OVERLAY_RADIUS_M;
   }
 
   function applyVisibility(name) {
     const e = layers[name];
     if (!e) return;
     if (e.kind === 'polygon') {
-      // v0.61.23 — parks are radius-clipped by the slider too.
+      // parks are radius-clipped to the anchor.
       const r = currentRadius();
       for (const it of e.items) {
         const near = !Number.isFinite(it.lat) || inRadius(it.lat, it.lng, r);
@@ -739,13 +712,19 @@ export function createOverlayController(map, googleMaps) {
       }
       // v0.61.17 — station-detail view: only the selected station and
       // its line-neighbours one stop before / after show.
+      // v0.61.26 — detailStations (the 3 kept stations' coordinates) is
+      // refreshed here so the Exits / Taxis chips can clip to them.
       let keep = null;
+      detailStations = [];
       if (detailStation) {
         const ordered = stationsOnLine(e.stations.map((x) => x.station), lineCodeOf(detailStation));
         const idx = ordered.findIndex((x) => x.name === detailStation.name);
         keep = new Set([detailStation.name]);
         if (idx > 0) keep.add(ordered[idx - 1].name);
         if (idx >= 0 && idx < ordered.length - 1) keep.add(ordered[idx + 1].name);
+        detailStations = e.stations
+          .filter((it) => keep.has(it.station.name))
+          .map((it) => ({ lat: it.lat, lng: it.lng }));
       }
       for (const st of e.stations) {
         let show;
@@ -774,13 +753,18 @@ export function createOverlayController(map, googleMaps) {
         }
         centreName = newCentre;
       }
-      for (const m of detailAmenities) m.map = e.visible ? map : null;
       return;
     }
-    // marker — chip overlay layer, radius-clipped by the slider mode.
+    // marker — chip overlay layer. v0.61.26 — in a station-detail view
+    // the Exits / Taxis chips clip to the 3 visible stations (so they
+    // show those stations' amenities); every other case clips to the
+    // anchor radius.
+    const stationScoped = detailStations.length && (name === 'exits' || name === 'taxis');
     const r = currentRadius();
     for (const it of e.items) {
-      const near = inRadius(it.lat, it.lng, r);
+      const near = stationScoped
+        ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
+        : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
     }
   }
@@ -799,25 +783,19 @@ export function createOverlayController(map, googleMaps) {
       // station-detail view.
       if (name === 'train' && !visible && detailStation) {
         detailStation = null;
-        clearAmenities();
+        detailStations = [];
         info.close();
       }
       applyVisibility(name);
+      // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
+      // chips back to the anchor radius.
+      if (name === 'train' && !visible) syncDetailAmenityLayers();
     },
     // Map viewport centre — re-clips every radius-filtered layer.
     setAnchor(lat, lng) {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
       anchor = { lat, lng };
       for (const name of Object.keys(layers)) applyVisibility(name);
-    },
-    // v0.61.23 — Nearby↔Details slider: 'nearby' (550 m) | 'details'
-    // (7 km). Governs the five chip overlay layers' radius — NOT the
-    // train layer, nor any tap-triggered amenity view.
-    setAttractionsMode(mode) {
-      attractionsMode = mode === 'details' ? 'details' : 'nearby';
-      for (const n of ['parks', 'attractions', 'taxis', 'carpark', 'exits']) {
-        if (layers[n]) applyVisibility(n);
-      }
     },
     // v0.61.11 — result-emphasis anchor for the train layer. Pass a
     // search anchor to bold the nearby segments; pass nothing/invalid
@@ -834,7 +812,7 @@ export function createOverlayController(map, googleMaps) {
     destroy() {
       destroyed = true;
       detailStation = null;
-      clearAmenities();
+      detailStations = [];
       for (const name of Object.keys(layers)) {
         layers[name].visible = false;
         applyVisibility(name);

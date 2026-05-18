@@ -122,7 +122,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, attractionsMode = 'nearby' }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -345,7 +345,6 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('exits', !!layers.exits);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // v0.61.16 — resolve the active station-detail view: the selected

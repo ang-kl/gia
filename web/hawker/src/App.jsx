@@ -51,7 +51,6 @@ export default function App() {
   const [savingName, setSavingName] = useState(null);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, train: true });
-  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
   // lazy-fetched per active region from /api/hawker/centre-transit.
   const [transitByName, setTransitByName] = useState({});
@@ -223,11 +222,9 @@ export default function App() {
                 <MapLayerChips
                   layers={overlayLayers}
                   onChange={setOverlayLayers}
-                  attractionsMode={attractionsMode}
-                  onAttractionsModeChange={setAttractionsMode}
                   showTrain
                 />
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} attractionsMode={attractionsMode} />
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}

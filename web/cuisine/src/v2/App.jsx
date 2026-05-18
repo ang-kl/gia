@@ -79,9 +79,6 @@ export default function App() {
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
   const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, train: true });
-  // v0.61.23 — chip-overlay radius mode: 'nearby' (550 m) or 'details'
-  // (7 km), driven by the MapLayerChips Nearby↔Details slider.
-  const [attractionsMode, setAttractionsMode] = useState('nearby');
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
@@ -1006,8 +1003,6 @@ export default function App() {
       <MapLayerChips
         layers={overlayLayers}
         onChange={setOverlayLayers}
-        attractionsMode={attractionsMode}
-        onAttractionsModeChange={setAttractionsMode}
         showTrain
       />
 
@@ -1019,7 +1014,6 @@ export default function App() {
         searchCenter={searchCenter || userLoc}
         anchorName={locationName}
         overlayLayers={overlayLayers}
-        attractionsMode={attractionsMode}
       />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per

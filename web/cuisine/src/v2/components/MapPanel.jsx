@@ -79,7 +79,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, attractionsMode = 'nearby', children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -214,7 +214,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => { overlayControllerRef.current?.setAttractionsMode?.(attractionsMode); }, [attractionsMode]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   // v0.61.11 — train-overlay result emphasis: while cuisine results are
