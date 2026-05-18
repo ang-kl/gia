@@ -282,7 +282,7 @@ function openBusInfo(map, infoWindow, b, marker) {
 // Cuisine TMA maps. `limits` trims bus/carpark/taxi to the nearest few
 // (the endpoint returns them distance-sorted). Returns the marker array
 // for the caller to clear on the next tap / re-render.
-export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
+export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeStation = true }) {
   const out = [];
   if (!maps || !map || !infoWindow || !ctx) return out;
   const { AdvancedMarkerElement } = maps.marker;
@@ -331,8 +331,11 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
           ? '<div style="color:#666;margin-top:2px;">'
             + cp.availableLots + ' lots available</div>' : '')));
   }
+  // v0.61.21 — the station-detail callers (Transport + Cuisine train
+  // overlay) pass includeStation:false; the tapped station already has
+  // its own centre marker, so a 🚉 pill on top of it would just overlap.
   const st = ctx.station;
-  if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+  if (includeStation && st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
     const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
     const lines = Array.isArray(st.lines) && st.lines.length ? ' · ' + st.lines.join('/') : '';
     place(st.lat, st.lng, amenityLabelNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff', true),
@@ -439,38 +442,22 @@ export function createOverlayController(map, googleMaps) {
 
   // v0.61.17 — draw the amenity pins (exits / bus / taxi / carparks)
   // for the detailed station from its /api/transport/station-context.
-  // v0.61.19 — bus pins are clickable: a tap opens live arrivals.
+  // v0.61.21 — routed through the shared attachAmenityPins helper (the
+  // same proven path the Hawker / Cuisine venue taps use) so the pins
+  // reliably appear and every pin is clickable. The station pill is
+  // skipped — the tapped station already has its own centre marker.
   function drawAmenities(stationName, ctx) {
     clearAmenities();
     if (!detailStation || detailStation.name !== stationName) return;
+    detailAmenities = attachAmenityPins({
+      maps: googleMaps, map, infoWindow: info, ctx,
+      limits: { bus: 3, carpark: 2, taxi: 2 }, includeStation: false
+    });
+    // Honour the train layer's visibility — applyVisibility('train')
+    // re-syncs detailAmenities on any later toggle.
     const e = layers.train;
-    const show = !!(e && e.visible);
-    const place = (lat, lng, node, onClick) => {
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const m = new AdvancedMarkerElement({
-        position: { lat, lng }, content: node, zIndex: 6, gmpClickable: !!onClick
-      });
-      if (onClick) m.addListener('click', () => onClick(m));
-      m.map = show ? map : null;
-      detailAmenities.push(m);
-    };
-    for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
-      const label = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
-      place(ex.lat, ex.lng, amenityLabelNode(label, AMENITY_EXIT_BG, '#fff'));
-    }
-    for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
-      if (!b || !b.code) continue;
-      place(b.lat, b.lng, amenityLabelNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff', true),
-        (marker) => openBusInfo(map, info, b, marker));
-    }
-    for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
-      if (!x || x.kind === 'stop') continue;
-      const label = x.kind === 'pickup' ? 'Pick-up' : 'Taxi';
-      place(x.lat, x.lng, amenityLabelNode(label, AMENITY_TAXI_BG, '#1c1c1f'));
-    }
-    for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : [])) {
-      if (!cp) continue;
-      place(cp.lat, cp.lng, amenityLabelNode('🅿️', AMENITY_CARPARK_BG, '#fff'));
+    if (!(e && e.visible)) {
+      for (const m of detailAmenities) m.map = null;
     }
   }
 
