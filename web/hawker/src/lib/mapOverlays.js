@@ -26,8 +26,11 @@
 // /api/transport/station-context. Tapping the selected station again
 // clears it. This mirrors the Transport TMA's station-detail view.
 
-const RADIUS_ATTRACTIONS_M = 800;   // attractions
-const RADIUS_NEAR_M = 400;          // carpark / taxis / exits
+// v0.61.23 — the chip-toggled overlay layers (parks / attractions /
+// taxis / carpark / exits) share one radius, driven by the Nearby↔
+// Details slider: Nearby = 550 m, Details = 7 km. The train layer is
+// NOT slider-governed — it keeps its own radius.
+const OVERLAY_RADIUS = { nearby: 550, details: 7000 };
 const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes this near the anchor
 
 // Canonical LTA line colours for the train-line overlay (the transport
@@ -379,7 +382,9 @@ export function createOverlayController(map, googleMaps) {
   const layers = Object.create(null);
   let destroyed = false;
   let anchor = null;                 // { lat, lng } — map viewport centre
-  let attractionsMode = 'nearby';    // 'nearby' | 'all'
+  // v0.61.23 — overlay-radius mode for the chip layers, driven by the
+  // Nearby↔Details slider. Was 'nearby' | 'all' (attractions-only).
+  let attractionsMode = 'nearby';    // 'nearby' | 'details'
   let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
@@ -392,13 +397,23 @@ export function createOverlayController(map, googleMaps) {
     return metresBetween(anchor.lat, anchor.lng, lat, lng) <= r;
   }
 
+  // v0.61.23 — each park carries a representative point (first ring's
+  // first vertex) so the parks layer can be radius-clipped by the slider.
   function buildParks(features) {
-    return (features || []).map((f) => new Polygon({
-      paths: (f.rings || []).map((ring) => ring.map(([lng, lat]) => ({ lat, lng }))),
-      strokeColor: '#2E7D32', strokeOpacity: 0.6, strokeWeight: 1,
-      fillColor: '#4CAF50', fillOpacity: 0.22,
-      clickable: false
-    }));
+    return (features || []).map((f) => {
+      const rings = (f.rings || []).map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
+      const first = rings[0] && rings[0][0];
+      return {
+        polygon: new Polygon({
+          paths: rings,
+          strokeColor: '#2E7D32', strokeOpacity: 0.6, strokeWeight: 1,
+          fillColor: '#4CAF50', fillOpacity: 0.22,
+          clickable: false
+        }),
+        lat: first ? first.lat : NaN,
+        lng: first ? first.lng : NaN
+      };
+    });
   }
 
   function buildMarkers(features, bg, glyph, infoFn) {
@@ -411,6 +426,26 @@ export function createOverlayController(map, googleMaps) {
       });
       marker.addListener('click', () => {
         info.setContent(infoFn(f));
+        info.open(map, marker);
+      });
+      return { marker, lat: f.lat, lng: f.lng };
+    });
+  }
+
+  // v0.61.23 — taxi overlay pins are word labels ("Taxi" / "Pick-up"),
+  // classified by the feature name, matching the station-detail amenity
+  // taxi pins (no more 🚕 emoji dot).
+  function buildTaxiMarkers(features) {
+    return (features || []).map((f) => {
+      const pickup = /pick ?up/i.test(String(f.name || ''));
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content: amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
+        title: f.name || '',
+        gmpClickable: true
+      });
+      marker.addListener('click', () => {
+        info.setContent(nameInfo(f));
         info.open(map, marker);
       });
       return { marker, lat: f.lat, lng: f.lng };
@@ -559,7 +594,7 @@ export function createOverlayController(map, googleMaps) {
     if (name === 'carpark') {
       const d = await fetchCarpark();
       if (destroyed) return null;
-      entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
+      entry = { kind: 'marker', visible: false,
         items: buildMarkers(d.carparks, '#1565C0', '🅿', carparkInfo) };
     } else if (name === 'train') {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
@@ -573,13 +608,13 @@ export function createOverlayController(map, googleMaps) {
       if (name === 'parks') {
         entry = { kind: 'polygon', visible: false, items: buildParks(d.parks) };
       } else if (name === 'attractions') {
-        entry = { kind: 'marker', radius: RADIUS_ATTRACTIONS_M, visible: false,
+        entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.attractions, '#FF8F00', '🎡', attractionInfo) };
       } else if (name === 'taxis') {
-        entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
-          items: buildMarkers(d.taxis, '#FBC02D', '🚕', nameInfo) };
+        entry = { kind: 'marker', visible: false,
+          items: buildTaxiMarkers(d.taxis) };
       } else if (name === 'exits') {
-        entry = { kind: 'marker', radius: RADIUS_NEAR_M, visible: false,
+        entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.exits, '#5E35B1', '🚆', nameInfo) };
       } else {
         return null;
@@ -589,11 +624,22 @@ export function createOverlayController(map, googleMaps) {
     return entry;
   }
 
+  // v0.61.23 — the chip overlay layers' radius, per the Nearby↔Details
+  // slider mode.
+  function currentRadius() {
+    return OVERLAY_RADIUS[attractionsMode] || OVERLAY_RADIUS.nearby;
+  }
+
   function applyVisibility(name) {
     const e = layers[name];
     if (!e) return;
     if (e.kind === 'polygon') {
-      for (const p of e.items) p.setMap(e.visible ? map : null);
+      // v0.61.23 — parks are radius-clipped by the slider too.
+      const r = currentRadius();
+      for (const it of e.items) {
+        const near = !Number.isFinite(it.lat) || inRadius(it.lat, it.lng, r);
+        it.polygon.setMap(e.visible && near ? map : null);
+      }
       return;
     }
     // v0.61.11 — train layer: radius-clipped polylines + square station
@@ -673,10 +719,10 @@ export function createOverlayController(map, googleMaps) {
       for (const m of detailAmenities) m.map = e.visible ? map : null;
       return;
     }
-    // marker — radius-filtered, except attractions in 'all' mode.
-    const useRadius = !!e.radius && !(name === 'attractions' && attractionsMode === 'all');
+    // marker — chip overlay layer, radius-clipped by the slider mode.
+    const r = currentRadius();
     for (const it of e.items) {
-      const near = !useRadius || inRadius(it.lat, it.lng, e.radius);
+      const near = inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
     }
   }
@@ -706,10 +752,14 @@ export function createOverlayController(map, googleMaps) {
       anchor = { lat, lng };
       for (const name of Object.keys(layers)) applyVisibility(name);
     },
-    // 'nearby' (radius-clipped) | 'all' (island-wide).
+    // v0.61.23 — Nearby↔Details slider: 'nearby' (550 m) | 'details'
+    // (7 km). Governs the five chip overlay layers' radius — NOT the
+    // train layer, nor any tap-triggered amenity view.
     setAttractionsMode(mode) {
-      attractionsMode = mode === 'all' ? 'all' : 'nearby';
-      if (layers.attractions) applyVisibility('attractions');
+      attractionsMode = mode === 'details' ? 'details' : 'nearby';
+      for (const n of ['parks', 'attractions', 'taxis', 'carpark', 'exits']) {
+        if (layers[n]) applyVisibility(n);
+      }
     },
     // v0.61.11 — result-emphasis anchor for the train layer. Pass a
     // search anchor to bold the nearby segments; pass nothing/invalid
