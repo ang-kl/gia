@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -311,7 +311,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       streetViewControl: false,
       fullscreenControl: false
     });
-    infoWindowRef.current = new window.google.maps.InfoWindow();
+    // v0.61.22 — headerDisabled drops Google's white header + ✕ so the
+    // themed infoCard (with its own in-card ✕) is the whole popup.
+    infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
@@ -320,6 +322,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       const c = mapRef.current?.getCenter?.();
       if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
     });
+    // v0.61.22 — close any open popup on a tap of the empty map, and
+    // expose a global the in-card ✕ button calls.
+    const closeInfo = () => {
+      infoWindowRef.current?.close();
+      overlayControllerRef.current?.closeInfo?.();
+    };
+    window.__giaMapInfoClose = closeInfo;
+    mapRef.current.addListener('click', closeInfo);
     if (stations) renderPins(stations);
   }
 
@@ -407,6 +417,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // v0.61.16 — build the station InfoWindow bubble and open it on the
   // tapped marker. Context (exits / bus / taxi) refreshes in place.
   function openStationInfo(s, marker, isFuture, crowdLevel) {
+    const pal = infoPalette();
     const codes = (s.codes || []).map((c) => {
       const mapPrefix = {
         CC: 'CCL', NS: 'NSL', NE: 'NEL', EW: 'EWL', DT: 'DTL',
@@ -435,7 +446,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
         }).join('<br>')
       : '';
-    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
+    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;" style="color:${pal.link}">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
     const crowdHtml = (!isFuture && crowdLevel)
       ? `<br><span>${CROWD_DOT[crowdLevel]} ${escapeHtml(t(`mrt.crowd.${crowdLevel}`, lang))}</span>`
       : '';
@@ -461,10 +472,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       }
       return h;
     };
-    // v0.60.207 — explicit dark text colour. The InfoWindow bubble is
-    // always white, but Telegram's dark theme can cascade a light body
-    // colour into it; pin #1c1c1f so the popup is legible in both.
-    const compose = (ctx) => `<div style="max-width:240px;font-size:12px;line-height:1.45;color:#1c1c1f;background:#f4f3ef;border-radius:12px;padding:8px 11px"><strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}</div>`;
+    // v0.61.22 — themed rounded card (infoCard) with an in-card ✕.
+    const compose = (ctx) => infoCard(`<strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
     const cachedCtx = stationCtxRef.current[s.name] || null;
     infoWindowRef.current?.setContent(compose(cachedCtx));
     infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
