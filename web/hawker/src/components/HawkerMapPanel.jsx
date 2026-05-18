@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 
@@ -174,6 +174,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
       const c = mapRef.current?.getCenter?.();
       if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
     });
+    // v0.61.22 — close any open popup on a tap of the empty map, and
+    // expose a global the in-card ✕ button calls.
+    const closeInfo = () => {
+      infoWindowRef.current?.close();
+      overlayControllerRef.current?.closeInfo?.();
+    };
+    window.__giaMapInfoClose = closeInfo;
+    mapRef.current.addListener('click', closeInfo);
     syncMarkers();
   }
 
@@ -202,34 +210,34 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   // /api/hawker/centre-transit resolves, then the bubble refreshes.
   function buildInfoHtml(c, key, transit) {
     const gmaps = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    // v0.61.18 — off-white rounded card; pins bg + colour so the popup
-    // reads in both light and dark Telegram themes.
-    let h = '<div style="min-width:170px;max-width:270px;padding:8px 11px;color:#1c1c1f;font-size:11px;line-height:1.5;background:#f4f3ef;border-radius:12px;">';
-    h += `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
+    // v0.61.22 — themed rounded card (infoCard) with an in-card ✕;
+    // secondary text uses the theme palette so nothing washes out.
+    const p = infoPalette();
+    let h = `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
     if (c.status) {
-      h += `<div style="color:#666;margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
+      h += `<div style="color:${p.sub};margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
     } else if (Number.isFinite(c.stalls) && c.stalls > 0) {
-      h += `<div style="color:#666;margin-top:2px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`;
+      h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`;
     }
     if (c.address) {
-      h += `<div style="margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:#1a73e8;text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`;
+      h += `<div style="margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`;
     }
     const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
     for (const b of bus.slice(0, 2)) {
       if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
-      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(b.lat, b.lng))}" target="_blank" rel="noopener" style="color:#1a73e8;">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</a></div>`;
+      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(b.lat, b.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</a></div>`;
     }
     const st = transit && transit.station;
     if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
       const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
       const lines = Array.isArray(st.lines) && st.lines.length ? ` · ${st.lines.join('/')}` : '';
-      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(st.lat, st.lng))}" target="_blank" rel="noopener" style="color:#1a73e8;">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
+      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(st.lat, st.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
       const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += `<div style="color:#444;margin-top:2px;">🚪 ${escapeHtml(exits.join(', '))}</div>`;
+        h += `<div style="color:${p.sub};margin-top:2px;">🚪 ${escapeHtml(exits.join(', '))}</div>`;
       }
     }
-    return h + '</div>';
+    return infoCard(h);
   }
 
   // v0.61.19 — surrounding-amenity pins for a tapped hawker centre.
@@ -280,6 +288,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
     if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
       infoWindowRef.current = new window.google.maps.InfoWindow({
         disableAutoPan: false,
+        headerDisabled: true,
         pixelOffset: new window.google.maps.Size(0, -10)
       });
     }

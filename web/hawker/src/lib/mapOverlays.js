@@ -204,15 +204,32 @@ function dotNode(bg, glyph) {
 // v0.61.20 — amenity-pin colour for the nearest-MRT-station pill.
 const AMENITY_STATION_BG = '#00695C';
 
-// v0.61.18 — wrap InfoWindow content in an off-white rounded card so it
-// reads in both light and dark Telegram themes (Google's bubble is
-// plain white; the dark-mode CSS cascade can wash unstyled text out).
-// v0.61.20 — module-level (was nested in createOverlayController) so the
-// shared attachAmenityPins helper can reuse it.
-function infoCard(inner) {
-  return '<div style="background:#f4f3ef;border-radius:12px;'
-    + 'padding:8px 11px;color:#1c1c1f;font-size:12px;line-height:1.5;'
-    + 'max-width:250px;">' + inner + '</div>';
+// v0.61.22 — popup colour palette. Adapts to the Telegram light/dark
+// theme (via WebApp.colorScheme) so popup text never washes out on the
+// always-light Google map. Read fresh on every popup build.
+export function infoPalette() {
+  const dark = typeof window !== 'undefined'
+    && window.Telegram && window.Telegram.WebApp
+    && window.Telegram.WebApp.colorScheme === 'dark';
+  return dark
+    ? { bg: '#2b2b30', fg: '#ededed', sub: '#a8a8a8', link: '#7cb0ff', good: '#7cc47f' }
+    : { bg: '#f4f3ef', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1a73e8', good: '#2e7d32' };
+}
+
+// v0.61.18 — rounded popup card so content reads on the light Google
+// map. v0.61.22 — theme-aware (infoPalette) + an in-card ✕ that calls
+// the host TMA's window.__giaMapInfoClose. Exported so every TMA's
+// popups share one look.
+export function infoCard(inner) {
+  const c = infoPalette();
+  return '<div style="position:relative;background:' + c.bg + ';'
+    + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
+    + 'font-size:12px;line-height:1.5;max-width:248px;">'
+    + '<span onclick="window.__giaMapInfoClose&&window.__giaMapInfoClose()" '
+    + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
+    + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
+    + 'border-radius:50%;font-size:13px;font-weight:700;color:' + c.sub + ';">✕</span>'
+    + inner + '</div>';
 }
 
 // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
@@ -241,6 +258,7 @@ function busArrivalRows(services) {
 
 // v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
 function busInfoHtml(b, services) {
+  const c = infoPalette();
   const gmaps = 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng;
   let h = '<div style="font-weight:600;">🚏 '
     + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
@@ -248,16 +266,16 @@ function busInfoHtml(b, services) {
   if (b.roadName) sub.push(escapeHtml(b.roadName));
   if (Number.isFinite(b.distanceM)) sub.push(b.distanceM + ' m');
   sub.push('№ ' + escapeHtml(b.code));
-  h += '<div style="color:#666;margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
+  h += '<div style="color:' + c.sub + ';margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
   if (services == null) {
-    h += '<div style="color:#888;margin-top:3px;">Loading arrivals…</div>';
+    h += '<div style="color:' + c.sub + ';margin-top:3px;">Loading arrivals…</div>';
   } else if (!services.length) {
-    h += '<div style="color:#888;margin-top:3px;">No live arrivals</div>';
+    h += '<div style="color:' + c.sub + ';margin-top:3px;">No live arrivals</div>';
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
   h += '<div style="margin-top:4px;"><a href="' + escapeHtml(gmaps)
-    + '" target="_blank" rel="noopener" style="color:#1a73e8;">Google Map ↗</a></div>';
+    + '" target="_blank" rel="noopener" style="color:' + c.link + ';">Google Map ↗</a></div>';
   return infoCard(h);
 }
 
@@ -285,6 +303,7 @@ function openBusInfo(map, infoWindow, b, marker) {
 export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeStation = true }) {
   const out = [];
   if (!maps || !map || !infoWindow || !ctx) return out;
+  const c = infoPalette();
   const { AdvancedMarkerElement } = maps.marker;
   const lim = limits || {};
   const place = (lat, lng, node, onClick) => {
@@ -305,7 +324,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     place(ex.lat, ex.lng, amenityLabelNode(code, AMENITY_EXIT_BG, '#fff', true),
       (m) => openCard(m, '<div style="font-weight:600;">🚪 Exit '
         + escapeHtml(code) + '</div>'
-        + (stationName ? '<div style="color:#666;margin-top:2px;">'
+        + (stationName ? '<div style="color:' + c.sub + ';margin-top:2px;">'
           + escapeHtml(stationName) + ' MRT</div>' : '')));
   }
   for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : []).slice(0, lim.bus || 3)) {
@@ -319,7 +338,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     place(x.lat, x.lng, amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
       (m) => openCard(m, '<div style="font-weight:600;">'
         + (pickup ? '🚕 Pick-up point' : '🚕 Taxi stand') + '</div>'
-        + (x.name ? '<div style="color:#666;margin-top:2px;">'
+        + (x.name ? '<div style="color:' + c.sub + ';margin-top:2px;">'
           + escapeHtml(x.name) + '</div>' : '')));
   }
   for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : []).slice(0, lim.carpark || 2)) {
@@ -328,7 +347,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
       (m) => openCard(m, '<div style="font-weight:600;">🅿️ '
         + escapeHtml(cp.name || 'Carpark') + '</div>'
         + (Number.isFinite(cp.availableLots)
-          ? '<div style="color:#666;margin-top:2px;">'
+          ? '<div style="color:' + c.sub + ';margin-top:2px;">'
             + cp.availableLots + ' lots available</div>' : '')));
   }
   // v0.61.21 — the station-detail callers (Transport + Cuisine train
@@ -340,7 +359,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     const lines = Array.isArray(st.lines) && st.lines.length ? ' · ' + st.lines.join('/') : '';
     place(st.lat, st.lng, amenityLabelNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff', true),
       (m) => openCard(m, '<div style="font-weight:600;">🚉 ' + escapeHtml(st.name) + '</div>'
-        + (codes ? '<div style="color:#666;margin-top:2px;">'
+        + (codes ? '<div style="color:' + c.sub + ';margin-top:2px;">'
           + escapeHtml(codes + lines) + '</div>' : '')));
   }
   return out;
@@ -349,7 +368,11 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
 export function createOverlayController(map, googleMaps) {
   const { Polygon, Polyline, InfoWindow } = googleMaps;
   const { AdvancedMarkerElement } = googleMaps.marker;
-  const info = new InfoWindow({ disableAutoPan: true });
+  // v0.61.22 — headerDisabled drops Google's own white header + ✕ so
+  // the themed infoCard (with its own in-card ✕) is the whole popup.
+  const info = new InfoWindow({ disableAutoPan: true, headerDisabled: true });
+  // v0.61.22 — tapping empty map dismisses the overlay popup.
+  map.addListener('click', () => info.close());
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
   //   line   items: { polyline, pts:[{lat,lng}] }
@@ -509,22 +532,23 @@ export function createOverlayController(map, googleMaps) {
   };
 
   const attractionInfo = (f) => {
+    const c = infoPalette();
     let h = '<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>';
-    if (f.address) h += '<div style="color:#666;margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
-    if (f.hours) h += '<div style="color:#444;margin-top:2px;">🕰 ' + escapeHtml(f.hours) + '</div>';
+    if (f.address) h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+    if (f.hours) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(f.hours) + '</div>';
     if (f.station && f.station.name) {
       const codes = Array.isArray(f.station.codes) ? f.station.codes.join(' / ') : '';
-      h += '<div style="color:#444;margin-top:2px;">🚉 ' + escapeHtml(f.station.name)
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(f.station.name)
         + (codes ? ' (' + escapeHtml(codes) + ')' : '') + '</div>';
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
       const exits = Array.isArray(f.station.exits) ? f.station.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += '<div style="color:#444;margin-top:2px;">🚪 ' + escapeHtml(exits.join(', ')) + '</div>';
+        h += '<div style="color:' + c.sub + ';margin-top:2px;">🚪 ' + escapeHtml(exits.join(', ')) + '</div>';
       }
     }
     if (f.website) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
-        + '" target="_blank" rel="noopener" style="color:#1a73e8;">🌐 Website</a></div>';
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 Website</a></div>';
     }
     return infoCard(h);
   };
@@ -658,6 +682,9 @@ export function createOverlayController(map, googleMaps) {
   }
 
   return {
+    // v0.61.22 — let the host TMA close the overlay popup (in-card ✕ /
+    // tap-elsewhere) alongside its own venue/station InfoWindow.
+    closeInfo() { info.close(); },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;

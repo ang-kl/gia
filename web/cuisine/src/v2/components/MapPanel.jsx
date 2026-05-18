@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
 // "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
@@ -190,6 +190,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     mapRef.current.addListener('idle', handleIdle);
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
+    // v0.61.22 — close any open popup on a tap of the empty map, and
+    // expose a global the in-card ✕ button calls.
+    const closeInfo = () => {
+      infoWindowRef.current?.close();
+      overlayControllerRef.current?.closeInfo?.();
+    };
+    window.__giaMapInfoClose = closeInfo;
+    mapRef.current.addListener('click', closeInfo);
     syncMarkers();
   }
 
@@ -265,9 +273,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           });
           marker.addListener('click', () => {
             if (!infoWindowRef.current) return;
-            infoWindowRef.current.setContent(
-              `<div style="font-size:12px;max-width:220px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;padding:8px 11px;"><strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}</div>`
-            );
+            infoWindowRef.current.setContent(infoCard(
+              `<strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}`
+            ));
             infoWindowRef.current.open(mapRef.current, marker);
           });
           incidentMarkersRef.current.push(marker);
@@ -324,6 +332,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
       infoWindowRef.current = new window.google.maps.InfoWindow({
         disableAutoPan: true,
+        headerDisabled: true,
         pixelOffset: new window.google.maps.Size(0, -10)
       });
     }
@@ -355,11 +364,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // v0.58.53: idempotent re-bind to the cached PinElement DOM node
       // so the handler closure picks up the latest `anchorName` on
       // subsequent renders.
-      const anchorHtml =
-        `<div style="min-width:120px;max-width:220px;padding:8px 11px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;">
-           <div style="font-weight:600;font-size:13px;color:#0d47a1;">📍 ${escapeHtml(anchorName || tr('map.youAreHere', lang))}</div>
-           <div style="font-size:10.5px;color:#888;margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>
-         </div>`;
+      const anchorPal = infoPalette();
+      const anchorHtml = infoCard(
+        `<div style="font-weight:600;font-size:13px;color:${anchorPal.link};">📍 ${escapeHtml(anchorName || tr('map.youAreHere', lang))}</div>
+         <div style="font-size:10.5px;color:${anchorPal.sub};margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>`);
       const anchorNode = anchorPinNodeRef.current;
       if (anchorNode && infoWindowRef.current) {
         anchorNode.style.cursor = 'pointer';
@@ -393,17 +401,19 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // Now shows venue name (bold) + 📇 address + 🚊/🚘 travel times
       // per Human Lead. Travel-time fields populated server-side via
       // travel-times.enrichTravelTimes (TRANSIT + DRIVE Routes calls).
+      // v0.61.22 — theme palette so secondary text reads in dark mode.
+      const p = infoPalette();
       const addressHtml = v.area
-        ? `<div style="font-size:11px;color:#666;margin-top:2px;">📇 ${escapeHtml(v.area)}</div>`
+        ? `<div style="font-size:11px;color:${p.sub};margin-top:2px;">📇 ${escapeHtml(v.area)}</div>`
         : '';
       const travelParts = [];
       if (Number.isFinite(v.transitMinutes)) travelParts.push(`🚊 ${v.transitMinutes} min`);
       if (Number.isFinite(v.driveMinutes))   travelParts.push(`🚘 ${v.driveMinutes} min`);
       const travelHtml = travelParts.length
-        ? `<div style="font-size:11px;color:#444;margin-top:3px;">${travelParts.join(' · ')}</div>`
+        ? `<div style="font-size:11px;color:${p.sub};margin-top:3px;">${travelParts.join(' · ')}</div>`
         : '';
       const ratingHtml = Number.isFinite(v.rating)
-        ? `<div style="font-size:11px;color:#666;margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
+        ? `<div style="font-size:11px;color:${p.sub};margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
         : '';
       // v0.59.0: footfall chip (real per-venue busyness from BestTime,
       // populated server-side via footfall-signal.attachFootfallSignals).
@@ -419,7 +429,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           const peak = v.footfall.peakHour
             ? ` · ${lang === 'fr' ? 'pic' : 'peaks'} ${escapeHtml(v.footfall.peakHour)}`
             : '';
-          footfallHtml = `<div style="font-size:11px;color:#444;margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
+          footfallHtml = `<div style="font-size:11px;color:${p.sub};margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
         }
       }
       // v0.58.54: on touch devices, embed an "Open in Google Maps" CTA
@@ -429,25 +439,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // pin click itself opens Maps directly without showing the bubble.
       const ctaHtml = isTouchRef.current
         ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(tr('map.openInMaps', lang))}</button>`
-        : `<div style="font-size:10.5px;color:#888;margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
+        : `<div style="font-size:10.5px;color:${p.sub};margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
       // v0.62.0 — HPB Healthier Choice + inside-building rows.
       const healthierHtml = v.healthierChoice
-        ? `<div style="font-size:11px;color:#2e7d32;margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
+        ? `<div style="font-size:11px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
         : '';
       const buildingHtml = v.insideBuilding
-        ? `<div style="font-size:11px;color:#888;margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
+        ? `<div style="font-size:11px;color:${p.sub};margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
         : '';
-      const infoHtml =
-        `<div style="min-width:160px;max-width:280px;padding:8px 11px;color:#1c1c1f;background:#f4f3ef;border-radius:12px;">
-           <div style="font-weight:600;font-size:13px;color:#1c1c1f;">${escapeHtml(v.name || '')}</div>
-           ${addressHtml}
-           ${footfallHtml}
-           ${travelHtml}
-           ${ratingHtml}
-           ${healthierHtml}
-           ${buildingHtml}
-           ${ctaHtml}
-         </div>`;
+      const infoHtml = infoCard(
+        `<div style="font-weight:600;font-size:13px;">${escapeHtml(v.name || '')}</div>
+         ${addressHtml}${footfallHtml}${travelHtml}${ratingHtml}${healthierHtml}${buildingHtml}${ctaHtml}`);
       const onMouseOver = () => {
         if (!infoWindowRef.current) return;
         infoWindowRef.current.setContent(infoHtml);
