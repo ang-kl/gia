@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { LINES, LINES_BY_CODE, affectedLines, parseStatusByLine } = require('../mrt-lines.js');
+const { LINES, LINES_BY_CODE, affectedLines, parseStatusByLine, codedLinesForStation } = require('../mrt-lines.js');
 
 describe('LINES registry', () => {
   it('exposes all SG MRT + LRT lines', () => {
@@ -94,5 +94,27 @@ describe('parseStatusByLine', () => {
   it('handles null input gracefully', () => {
     const r = parseStatusByLine(null);
     expect(r.EWL.status).toBe('normal');
+  });
+});
+
+describe('codedLinesForStation', () => {
+  it('returns the station codes paired with their lines for an interchange', () => {
+    const r = codedLinesForStation('Newton');
+    expect(r).toEqual([
+      { code: 'NS21', line: 'NSL' },
+      { code: 'DT11', line: 'DTL' }
+    ]);
+  });
+
+  it('returns a single pair for a non-interchange station', () => {
+    expect(codedLinesForStation('Somerset')).toEqual([{ code: 'NS23', line: 'NSL' }]);
+  });
+
+  it('matches regardless of an "MRT Station" suffix or casing', () => {
+    expect(codedLinesForStation('newton mrt station')).toEqual(codedLinesForStation('Newton'));
+  });
+
+  it('returns [] for an unknown station', () => {
+    expect(codedLinesForStation('Nowhere')).toEqual([]);
   });
 });

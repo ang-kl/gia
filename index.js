@@ -2910,6 +2910,10 @@ async function runTransportTrain(chatId, lang = 'en') {
           // list all lines, e.g. "🟣 NEL · 🟠 CCL HarbourFront".
           // Telegram chat HTML doesn't support inline text colors;
           // the emoji prefix is the color signal.
+          // v0.61.27 — show the actual station code (NS21, DT11), not
+          // just the line code, per operator request: each code →
+          // emoji of its line. Falls back to the line code for any
+          // station not in data/mrt-coords.json.
           const mrtLinesMod = require('./mrt-lines');
           for (const s of mrt) {
             const crowd = crowdMap ? transport.lookupCrowdForPlace(crowdMap, s.name) : null;
@@ -2918,15 +2922,26 @@ async function runTransportTrain(chatId, lang = 'en') {
               ? formatDistance(transport.haversineM(cachedLoc.lat, cachedLoc.lng, s.lat, s.lng))
               : '';
             const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`;
-            const linesForStation = mrtLinesMod.linesForStation(s.name);
-            const linePrefix = linesForStation.length
-              ? linesForStation
-                  .map((code) => {
-                    const meta = mrtLinesMod.LINES_BY_CODE[code];
-                    return meta ? `${meta.emoji} ${escapeHtmlForTelegram(code)}` : escapeHtmlForTelegram(code);
-                  })
-                  .join(' · ') + ' '
-              : '';
+            const coded = mrtLinesMod.codedLinesForStation(s.name);
+            let linePrefix = '';
+            if (coded.length) {
+              linePrefix = coded
+                .map(({ code, line }) => {
+                  const meta = line ? mrtLinesMod.LINES_BY_CODE[line] : null;
+                  return (meta ? `${meta.emoji} ` : '') + escapeHtmlForTelegram(code);
+                })
+                .join(' · ') + ' ';
+            } else {
+              const linesForStation = mrtLinesMod.linesForStation(s.name);
+              linePrefix = linesForStation.length
+                ? linesForStation
+                    .map((code) => {
+                      const meta = mrtLinesMod.LINES_BY_CODE[code];
+                      return meta ? `${meta.emoji} ${escapeHtmlForTelegram(code)}` : escapeHtmlForTelegram(code);
+                    })
+                    .join(' · ') + ' '
+                : '';
+            }
             lines.push(tn('transport.train.stationRow', lang, {
               name: linePrefix + escapeHtmlForTelegram(s.name),
               dist,
