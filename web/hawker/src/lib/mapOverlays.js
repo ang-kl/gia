@@ -175,7 +175,8 @@ function squareStationNode(bg) {
 // v0.61.17 — a small text-label marker for a station amenity (an exit
 // letter/number, a bus-stop code, "Taxi" / "Pick-up", or a 🅿️ glyph).
 // v0.61.19 — `clickable` flips the cursor for the tappable bus pins.
-function amenityLabelNode(label, bg, fg, clickable) {
+// v0.61.20 — exported for the shared attachAmenityPins helper.
+export function amenityLabelNode(label, bg, fg, clickable) {
   const el = document.createElement('div');
   el.textContent = label;
   el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
@@ -198,6 +199,148 @@ function dotNode(bg, glyph) {
   ic.style.cssText = 'font-size:11px;line-height:1;';
   el.appendChild(ic);
   return el;
+}
+
+// v0.61.20 — amenity-pin colour for the nearest-MRT-station pill.
+const AMENITY_STATION_BG = '#00695C';
+
+// v0.61.18 — wrap InfoWindow content in an off-white rounded card so it
+// reads in both light and dark Telegram themes (Google's bubble is
+// plain white; the dark-mode CSS cascade can wash unstyled text out).
+// v0.61.20 — module-level (was nested in createOverlayController) so the
+// shared attachAmenityPins helper can reuse it.
+function infoCard(inner) {
+  return '<div style="background:#f4f3ef;border-radius:12px;'
+    + 'padding:8px 11px;color:#1c1c1f;font-size:12px;line-height:1.5;'
+    + 'max-width:250px;">' + inner + '</div>';
+}
+
+// v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
+// render each bucket as a service-number list.
+function busArrivalRows(services) {
+  const buckets = [
+    { max: 5, label: '≤5 min', svcs: [] },
+    { max: 10, label: '≤10 min', svcs: [] },
+    { max: 20, label: '≤20 min', svcs: [] },
+    { max: Infinity, label: '20+ min', svcs: [] }
+  ];
+  for (const s of (Array.isArray(services) ? services : [])) {
+    const m = s && s.next && Number.isFinite(s.next.minutes) ? s.next.minutes : null;
+    if (m == null) continue;
+    const b = buckets.find((x) => m <= x.max);
+    if (b) b.svcs.push(String(s.service || ''));
+  }
+  let h = '';
+  for (const b of buckets) {
+    if (!b.svcs.length) continue;
+    h += '<div style="margin-top:2px;">№ ' + escapeHtml(b.svcs.join(', '))
+      + ' — ' + b.label + '</div>';
+  }
+  return h;
+}
+
+// v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
+function busInfoHtml(b, services) {
+  const gmaps = 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng;
+  let h = '<div style="font-weight:600;">🚏 '
+    + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
+  const sub = [];
+  if (b.roadName) sub.push(escapeHtml(b.roadName));
+  if (Number.isFinite(b.distanceM)) sub.push(b.distanceM + ' m');
+  sub.push('№ ' + escapeHtml(b.code));
+  h += '<div style="color:#666;margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
+  if (services == null) {
+    h += '<div style="color:#888;margin-top:3px;">Loading arrivals…</div>';
+  } else if (!services.length) {
+    h += '<div style="color:#888;margin-top:3px;">No live arrivals</div>';
+  } else {
+    h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
+  }
+  h += '<div style="margin-top:4px;"><a href="' + escapeHtml(gmaps)
+    + '" target="_blank" rel="noopener" style="color:#1a73e8;">Google Map ↗</a></div>';
+  return infoCard(h);
+}
+
+// v0.61.19 — open the bus-stop popup, then fetch live arrivals from
+// /api/transport/bus-arrival and refresh the open bubble. v0.61.20 —
+// module-level; map + infoWindow are passed in (was a closure).
+function openBusInfo(map, infoWindow, b, marker) {
+  infoWindow.setContent(busInfoHtml(b, null));
+  infoWindow.open(map, marker);
+  fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (!d) return;
+      infoWindow.setContent(busInfoHtml(b, Array.isArray(d.services) ? d.services : []));
+    })
+    .catch(() => { infoWindow.setContent(busInfoHtml(b, [])); });
+}
+
+// v0.61.20 — draw clickable amenity pins (station exits / bus stops /
+// taxi stands / carparks / nearest MRT station) around a point, from a
+// /api/transport/station-context payload. Shared by the Hawker and
+// Cuisine TMA maps. `limits` trims bus/carpark/taxi to the nearest few
+// (the endpoint returns them distance-sorted). Returns the marker array
+// for the caller to clear on the next tap / re-render.
+export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
+  const out = [];
+  if (!maps || !map || !infoWindow || !ctx) return out;
+  const { AdvancedMarkerElement } = maps.marker;
+  const lim = limits || {};
+  const place = (lat, lng, node, onClick) => {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const m = new AdvancedMarkerElement({
+      map, position: { lat, lng }, content: node, zIndex: 6, gmpClickable: true
+    });
+    m.addListener('click', () => onClick(m));
+    out.push(m);
+  };
+  const openCard = (marker, html) => {
+    infoWindow.setContent(infoCard(html));
+    infoWindow.open(map, marker);
+  };
+  const stationName = ctx.station && ctx.station.name ? ctx.station.name : '';
+  for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
+    const code = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
+    place(ex.lat, ex.lng, amenityLabelNode(code, AMENITY_EXIT_BG, '#fff', true),
+      (m) => openCard(m, '<div style="font-weight:600;">🚪 Exit '
+        + escapeHtml(code) + '</div>'
+        + (stationName ? '<div style="color:#666;margin-top:2px;">'
+          + escapeHtml(stationName) + ' MRT</div>' : '')));
+  }
+  for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : []).slice(0, lim.bus || 3)) {
+    if (!b || !b.code) continue;
+    place(b.lat, b.lng, amenityLabelNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff', true),
+      (m) => openBusInfo(map, infoWindow, b, m));
+  }
+  for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])
+    .filter((t) => t && t.kind !== 'stop').slice(0, lim.taxi || 2)) {
+    const pickup = x.kind === 'pickup';
+    place(x.lat, x.lng, amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
+      (m) => openCard(m, '<div style="font-weight:600;">'
+        + (pickup ? '🚕 Pick-up point' : '🚕 Taxi stand') + '</div>'
+        + (x.name ? '<div style="color:#666;margin-top:2px;">'
+          + escapeHtml(x.name) + '</div>' : '')));
+  }
+  for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : []).slice(0, lim.carpark || 2)) {
+    if (!cp) continue;
+    place(cp.lat, cp.lng, amenityLabelNode('🅿️', AMENITY_CARPARK_BG, '#fff', true),
+      (m) => openCard(m, '<div style="font-weight:600;">🅿️ '
+        + escapeHtml(cp.name || 'Carpark') + '</div>'
+        + (Number.isFinite(cp.availableLots)
+          ? '<div style="color:#666;margin-top:2px;">'
+            + cp.availableLots + ' lots available</div>' : '')));
+  }
+  const st = ctx.station;
+  if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+    const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
+    const lines = Array.isArray(st.lines) && st.lines.length ? ' · ' + st.lines.join('/') : '';
+    place(st.lat, st.lng, amenityLabelNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff', true),
+      (m) => openCard(m, '<div style="font-weight:600;">🚉 ' + escapeHtml(st.name) + '</div>'
+        + (codes ? '<div style="color:#666;margin-top:2px;">'
+          + escapeHtml(codes + lines) + '</div>' : '')));
+  }
+  return out;
 }
 
 export function createOverlayController(map, googleMaps) {
@@ -294,66 +437,6 @@ export function createOverlayController(map, googleMaps) {
     detailAmenities = [];
   }
 
-  // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min
-  // and render each bucket as a service-number list.
-  function busArrivalRows(services) {
-    const buckets = [
-      { max: 5, label: '≤5 min', svcs: [] },
-      { max: 10, label: '≤10 min', svcs: [] },
-      { max: 20, label: '≤20 min', svcs: [] },
-      { max: Infinity, label: '20+ min', svcs: [] }
-    ];
-    for (const s of (Array.isArray(services) ? services : [])) {
-      const m = s && s.next && Number.isFinite(s.next.minutes) ? s.next.minutes : null;
-      if (m == null) continue;
-      const b = buckets.find((x) => m <= x.max);
-      if (b) b.svcs.push(String(s.service || ''));
-    }
-    let h = '';
-    for (const b of buckets) {
-      if (!b.svcs.length) continue;
-      h += '<div style="margin-top:2px;">№ ' + escapeHtml(b.svcs.join(', '))
-        + ' — ' + b.label + '</div>';
-    }
-    return h;
-  }
-
-  // v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
-  function busInfoHtml(b, services) {
-    const gmaps = 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng;
-    let h = '<div style="font-weight:600;">🚏 '
-      + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
-    const sub = [];
-    if (b.roadName) sub.push(escapeHtml(b.roadName));
-    if (Number.isFinite(b.distanceM)) sub.push(b.distanceM + ' m');
-    sub.push('№ ' + escapeHtml(b.code));
-    h += '<div style="color:#666;margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
-    if (services == null) {
-      h += '<div style="color:#888;margin-top:3px;">Loading arrivals…</div>';
-    } else if (!services.length) {
-      h += '<div style="color:#888;margin-top:3px;">No live arrivals</div>';
-    } else {
-      h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
-    }
-    h += '<div style="margin-top:4px;"><a href="' + escapeHtml(gmaps)
-      + '" target="_blank" rel="noopener" style="color:#1a73e8;">Google Map ↗</a></div>';
-    return infoCard(h);
-  }
-
-  // v0.61.19 — open the bus-stop popup, then fetch live arrivals from
-  // /api/transport/bus-arrival and refresh the open bubble.
-  function openBusInfo(b, marker) {
-    info.setContent(busInfoHtml(b, null));
-    info.open(map, marker);
-    fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (destroyed || !d) return;
-        info.setContent(busInfoHtml(b, Array.isArray(d.services) ? d.services : []));
-      })
-      .catch(() => { info.setContent(busInfoHtml(b, [])); });
-  }
-
   // v0.61.17 — draw the amenity pins (exits / bus / taxi / carparks)
   // for the detailed station from its /api/transport/station-context.
   // v0.61.19 — bus pins are clickable: a tap opens live arrivals.
@@ -378,7 +461,7 @@ export function createOverlayController(map, googleMaps) {
     for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
       if (!b || !b.code) continue;
       place(b.lat, b.lng, amenityLabelNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff', true),
-        (marker) => openBusInfo(b, marker));
+        (marker) => openBusInfo(map, info, b, marker));
     }
     for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
       if (!x || x.kind === 'stop') continue;
@@ -429,16 +512,6 @@ export function createOverlayController(map, googleMaps) {
   }
 
   // --- per-feature InfoWindow HTML -------------------------------------
-  // v0.61.18 — wrap InfoWindow content in an off-white rounded card so
-  // it reads in both light and dark Telegram themes (Google's bubble
-  // is plain white; the dark-mode CSS cascade can wash unstyled text
-  // out — pinning bg + colour here keeps every popup legible).
-  function infoCard(inner) {
-    return '<div style="background:#f4f3ef;border-radius:12px;'
-      + 'padding:8px 11px;color:#1c1c1f;font-size:12px;line-height:1.5;'
-      + 'max-width:250px;">' + inner + '</div>';
-  }
-
   const nameInfo = (f) =>
     infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>');
 

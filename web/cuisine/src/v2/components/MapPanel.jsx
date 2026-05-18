@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins } from '../lib/mapOverlays.js';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
 // "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
@@ -119,6 +119,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // venue object without going through React state.
   const venuesRef = useRef([]);
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
+  // v0.61.20 — surrounding-amenity pins for a tapped venue: the live
+  // markers + a per-venue cache of /api/transport/station-context.
+  const amenityMarkersRef = useRef([]);
+  const amenityCacheRef = useRef({});
 
   useEffect(() => {
     let cancelled = false;
@@ -273,11 +277,47 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     return () => { cancelled = true; };
   }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
+  // v0.61.20 — surrounding-amenity pins for a tapped venue, drawn via
+  // the shared attachAmenityPins helper (trimmed 3 bus / 2 carpark /
+  // 2 taxi). Mirrors the Hawker TMA's hawker-centre amenity pins.
+  function clearAmenities() {
+    for (const m of amenityMarkersRef.current) m.map = null;
+    amenityMarkersRef.current = [];
+  }
+
+  function plotAmenities(ctx) {
+    if (!mapRef.current || !window.google?.maps || !infoWindowRef.current) return;
+    clearAmenities();
+    amenityMarkersRef.current = attachAmenityPins({
+      maps: window.google.maps,
+      map: mapRef.current,
+      infoWindow: infoWindowRef.current,
+      ctx,
+      limits: { bus: 3, carpark: 2, taxi: 2 }
+    });
+  }
+
+  function drawVenueAmenities(v) {
+    if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return;
+    const key = v.placeId || v.name;
+    const cached = amenityCacheRef.current[key];
+    if (cached) { plotAmenities(cached); return; }
+    fetch(`/api/transport/station-context?lat=${v.lat}&lng=${v.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((ctx) => {
+        if (!ctx) return;
+        amenityCacheRef.current[key] = ctx;
+        plotAmenities(ctx);
+      })
+      .catch(() => { /* no amenity pins on failure */ });
+  }
+
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    clearAmenities();
     const bounds = new window.google.maps.LatLngBounds();
     // v0.58.53: hoist InfoWindow init above the userLoc block so the
     // anchor-pin hover wiring sees a populated ref on the first sync.
@@ -436,6 +476,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // Maps' own native mobile pattern.
       marker.addListener('click', () => {
         onPinTap?.(v.placeId);
+        // v0.61.20 — plot the surrounding amenity pins for this venue.
+        drawVenueAmenities(v);
         if (isTouchRef.current) {
           if (infoWindowRef.current) {
             infoWindowRef.current.setContent(infoHtml);
@@ -462,6 +504,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // documented way to bound the result.
       mapRef.current.setOptions({ maxZoom: 16 });
       mapRef.current.fitBounds(bounds, 60);
+      // v0.61.20 — release the cap once the fit settles so the user can
+      // manually zoom in past level 16.
+      window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
+        mapRef.current?.setOptions({ maxZoom: null });
+      });
     }
     if (focusedPlaceId) {
       const v = (venues || []).find((x) => x.placeId === focusedPlaceId);
