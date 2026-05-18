@@ -11637,6 +11637,23 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.19 — live bus arrivals for a single stop, for the
+    // clickable bus-stop amenity pins in the station-detail map.
+    // Wraps transport.busArrivals; degrades to an empty services list
+    // when LTA_ACCOUNT_KEY is unset or the LTA call fails.
+    app.get('/api/transport/bus-arrival', async (req, res) => {
+      try {
+        const code = String(req.query.code || '').trim();
+        if (!/^\d{3,7}$/.test(code)) {
+          res.status(400).json({ error: 'code required' });
+          return;
+        }
+        const services = await transport.busArrivals(code);
+        res.json({ code, services: Array.isArray(services) ? services : [] });
+      } catch (err) {
+        res.json({ code: String(req.query.code || ''), services: [] });
+      }
+    });
 
     // unregistered placeholder. The placeholder ID will cause Google
     // Maps JS to render a default-styled map (no vector mapType) — not
