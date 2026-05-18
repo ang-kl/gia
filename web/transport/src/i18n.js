@@ -23,6 +23,7 @@ const STRINGS = {
   'layer.train':               { en: 'Train', fr: 'Métro' },
   'layer.nearby':              { en: 'Nearby', fr: 'À proximité' },
   'layer.all':                 { en: 'All', fr: 'Tout' },
+  'layer.details':             { en: 'Details', fr: 'Détails' },
   'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },
   'map.collapse':              { en: 'Collapse map', fr: 'Réduire la carte' },
   'map.zoomIn':                { en: 'Zoom in', fr: 'Zoom avant' },
