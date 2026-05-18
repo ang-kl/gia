@@ -101,7 +101,9 @@ function codePill(text, bg, big) {
 // v0.61.24 — the Exit Template popup body: a line-coloured exit-code
 // header, the station name, and a row of colour-coded station codes.
 // The exit-code pill takes the station's primary line colour.
-function exitTemplateHtml({ exitCode, station, codes }) {
+// v0.61.28 — plus a 🎡 line of nearby named attractions, when the
+// exit feature carries them (geo-exits.json `nearby`).
+function exitTemplateHtml({ exitCode, station, codes, nearby }) {
   const list = Array.isArray(codes) ? codes.filter(Boolean) : [];
   const hex = list.length ? codeHex(list[0]) : AMENITY_EXIT_BG;
   let h = '<div>' + codePill('Exit ' + (exitCode || '?'), hex, true) + '</div>';
@@ -111,6 +113,11 @@ function exitTemplateHtml({ exitCode, station, codes }) {
   if (list.length) {
     h += '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">'
       + list.map((cd) => codePill(cd, codeHex(cd), false)).join('') + '</div>';
+  }
+  const near = Array.isArray(nearby) ? nearby.filter(Boolean) : [];
+  if (near.length) {
+    h += '<div style="margin-top:4px;color:' + infoPalette().sub + ';">🎡 '
+      + near.map(escapeHtml).join(' · ') + '</div>';
   }
   return h;
 }
@@ -590,7 +597,7 @@ export function createOverlayController(map, googleMaps) {
 
   // v0.61.24 — the Exit Template for an enriched geo-exits.json feature.
   const exitInfo = (f) =>
-    infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes }));
+    infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes, nearby: f.nearby }));
 
   const carparkInfo = (f) => {
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';

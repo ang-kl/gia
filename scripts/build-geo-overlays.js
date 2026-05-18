@@ -212,6 +212,64 @@ function exitsForStation(name) {
   return null;
 }
 
+// v0.61.28 — the STB PAGETITLE is a verbose marketing string ("Sri
+// Mariamman Temple: Hindu Temple in Singapore", "Orchard Road,
+// Singapore: Asia's Most Famous Shopping Street"). Reduce it to the
+// bare landmark name for the compact Exit Template "nearby" line.
+function cleanAttractionName(raw) {
+  let s = String(raw || '')
+    .replace(/â€™/g, "'")            // mojibake ’
+    .replace(/â€[“”™]/g, '-'); // mojibake – —
+  s = s.split(/[:(,–]/)[0];     // cut at the first  :  (  ,  –
+  s = s.split(/\s*-\s+/)[0];         // cut at the first  " - " / "- "
+  return s.replace(/\s+in\s+singapore$/i, '')
+    .replace(/\s+singapore$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// v0.61.28 — named tourist attractions ({ name, lat, lng }), for the
+// "nearby" enrichment on station-exit features (Exit Template Part B).
+let _attractions = null;
+function loadAttractions() {
+  if (_attractions) return _attractions;
+  _attractions = [];
+  try {
+    const geo = JSON.parse(fs.readFileSync(path.join(GEOLOC, 'TouristAttractions.geojson'), 'utf8'));
+    for (const feat of geo.features || []) {
+      const g = feat.geometry;
+      if (!g || g.type !== 'Point') continue;
+      const [lng, lat] = g.coordinates || [];
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+      const nm = cleanAttractionName((feat.properties || {}).PAGETITLE);
+      if (nm) _attractions.push({ name: nm, lat, lng });
+    }
+  } catch (err) {
+    console.error('[build-geo-overlays] attractions load failed:', err.message);
+  }
+  return _attractions;
+}
+
+// Named attractions within `maxM` metres of a point, nearest first,
+// de-duplicated by name.
+function nearbyAttractions(lat, lng, maxM, limit) {
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  const hits = [];
+  for (const a of loadAttractions()) {
+    const dx = (a.lng - lng) * 111320 * cosLat;
+    const dy = (a.lat - lat) * 110574;
+    const d = Math.hypot(dx, dy);
+    if (d <= maxM) hits.push({ name: a.name, d });
+  }
+  hits.sort((p, q) => p.d - q.d);
+  const out = [];
+  for (const h of hits) {
+    if (!out.includes(h.name)) out.push(h.name);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 // Nearest operational station to a point → { name, codes } or null.
 function nearestStation(lat, lng) {
   let best = null;
@@ -283,6 +341,12 @@ function convertPoint(features, name) {
         rec.station = st.name;
         rec.codes = Array.isArray(st.codes) ? st.codes : [];
       }
+      // v0.61.28 — nearby named attractions (≤400 m), shown on the
+      // Exit Template popup (exit feature Part B, buildings/attractions
+      // half — building footprints carry no names so attractions are
+      // the named-place signal).
+      const near = nearbyAttractions(lat, lng, 400, 3);
+      if (near.length) rec.nearby = near;
     }
     out.push(rec);
   }
