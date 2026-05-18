@@ -894,6 +894,29 @@ export default function App() {
     return items;
   })();
 
+  // v0.61.29 — LocationField pick handler, hoisted to a named callback
+  // so the field can render in the banner slot above the map instead
+  // of inside the collapsed Search-criteria section.
+  function onLocationSelect(p) {
+    if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+      // v0.60.166 — picking a location commits the anchor ONLY; it must
+      // not auto-fire a search (the user composes the rest of the
+      // criteria and taps 🔍 themselves, and auto-firing raced the
+      // React state update so the search ran with the stale anchor).
+      setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+      // v0.60.170 — also setSearchCenter on pick, so the map re-renders
+      // at the picked place and the Search button (runSearch(state),
+      // no explicit anchor) doesn't fall back to the stale searchCenter.
+      setSearchCenter({ lat: p.lat, lng: p.lng });
+      // An explicit pick (not a "× clear", which sends an empty label)
+      // also updates the bot's /location cache so it sticks across
+      // sessions and in chat.
+      if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
+    } else {
+      setLocationAnchor(null);
+    }
+  }
+
   // v0.58.17 (Tier 1 responsive): widened max-w from 640 → 1024 and
   // added breakpoint padding so the TMA stops looking like a narrow
   // column on iPad / Samsung tablet / desktop Telegram. Phone layout
@@ -964,40 +987,33 @@ export default function App() {
         </div>
       </header>
 
-      {/* v0.58.23: explicit location-resolution status banner. Tells
-          users what's happening while userLoc resolves (geolocation
-          5 s timeout → server cache → SG centroid) and confirms the
-          anchor area once known. Disappears after results load. */}
-      {(() => {
-        if (!userLoc) {
-          return (
-            <div className="text-[11px] text-tg-hint italic px-1 py-1">
-              📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
-            </div>
-          );
-        }
-        if (loading) {
-          return (
-            <div className="text-[11px] text-tg-hint px-1 py-1">
-              📍 {locationName || t('banner.locating', lang)} · {t('banner.locating.suffix', lang)}
-            </div>
-          );
-        }
-        if (!venues.length) {
-          return (
-            <div className="text-[11px] text-tg-hint px-1 py-1">
-              📍 {locationName || t('banner.anchor', lang)} · {t('banner.no.match', lang)}
-            </div>
-          );
-        }
-        return (
-          <div className="text-[11px] text-tg-hint px-1 py-1">
-            📍 {locationName || t('banner.showing', lang)} · {venues.length === 1
-              ? t('banner.places.one', lang)
-              : tn('banner.places.many', lang, { n: venues.length })}
-          </div>
-        );
-      })()}
+      {/* v0.61.29 — the editable LocationField sits here, above the map.
+          It replaces the static "📍 <place> · N places nearby" status
+          banner; the field was previously buried in the collapsed
+          Search-criteria section, so the anchor couldn't be changed
+          without expanding it (and the Google map has no text input).
+          The place count / search status now rides as a suffix.
+          The !userLoc branch keeps the v0.58.23 "Locating you…" state
+          shown while geolocation resolves. */}
+      {!userLoc ? (
+        <div className="text-[11px] text-tg-hint italic px-1 py-1">
+          📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
+        </div>
+      ) : (
+        <LocationField
+          userLoc={userLoc}
+          region={state.region}
+          anchor={locationAnchor}
+          suffix={loading
+            ? t('banner.locating.suffix', lang)
+            : (!venues.length
+              ? t('banner.no.match', lang)
+              : (venues.length === 1
+                ? t('banner.places.one', lang)
+                : tn('banner.places.many', lang, { n: venues.length })))}
+          onSelect={onLocationSelect}
+        />
+      )}
 
       {/* v0.64.0 — overlay layer chips, above the map. */}
       <MapLayerChips
@@ -1095,52 +1111,9 @@ export default function App() {
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
             <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
-            {userLoc && (
-              <LocationField userLoc={userLoc} region={state.region} anchor={locationAnchor}
-                onSelect={(p) => {
-                  if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-                    // v0.60.166 — operator: picking a location should
-                    // ONLY commit the anchor, NOT auto-fire a search.
-                    // Previously this called runSearchAt(...) which set
-                    // the anchor AND ran the search in the same tick;
-                    // the user expected to compose the rest of the
-                    // criteria (cuisines / filters / region) and then
-                    // tap the 🔍 Search FAB themselves. The auto-fire
-                    // also raced the React state update so the search
-                    // sometimes ran with the *previous* locationAnchor
-                    // — making the new pick appear "ignored". Now the
-                    // field just locks in the anchor + persists to the
-                    // bot /location cache; the user's explicit Search
-                    // tap fires the search at the freshly-committed
-                    // anchor.
-                    setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
-                    // v0.60.170 — also setSearchCenter on pick. Operator
-                    // bug report (Vivocity → pick Takashimaya → Map
-                    // still shows Vivocity, /api/cuisine/search payload
-                    // logged `center=1.2647,103.8232` — the original
-                    // GPS coords, NOT the picked place). Root cause:
-                    // v0.60.166's "commit anchor only" fix dropped the
-                    // implicit setSearchCenter side-effect that
-                    // runSearchAt used to perform, so the map kept
-                    // rendering from the stale warm-start searchCenter
-                    // AND the criteria-card Search button (which calls
-                    // `runSearch(state)` without an explicit anchor)
-                    // fell back to searchCenter for the search payload
-                    // — both wrong. Re-adding setSearchCenter here
-                    // keeps the v0.60.166 no-auto-fire contract intact
-                    // (no runSearch call) while restoring the
-                    // pick-updates-the-map behaviour.
-                    setSearchCenter({ lat: p.lat, lng: p.lng });
-                    // An explicit place pick (not a "× clear", which
-                    // sends an empty label) also updates the bot's
-                    // /location cache so the new location sticks across
-                    // sessions and in chat (/location, /eat, /weather, …).
-                    if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
-                  } else {
-                    setLocationAnchor(null);
-                  }
-                }} />
-            )}
+            {/* v0.61.29 — LocationField moved out of this collapsed
+                section to the banner slot above the map; see the
+                `!userLoc ? … : <LocationField …>` block near the top. */}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
