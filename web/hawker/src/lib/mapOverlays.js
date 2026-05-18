@@ -174,13 +174,14 @@ function squareStationNode(bg) {
 
 // v0.61.17 — a small text-label marker for a station amenity (an exit
 // letter/number, a bus-stop code, "Taxi" / "Pick-up", or a 🅿️ glyph).
-function amenityLabelNode(label, bg, fg) {
+// v0.61.19 — `clickable` flips the cursor for the tappable bus pins.
+function amenityLabelNode(label, bg, fg, clickable) {
   const el = document.createElement('div');
   el.textContent = label;
   el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
     + 'background:' + bg + ';color:' + fg + ';font-size:10px;font-weight:700;'
     + 'line-height:1.5;white-space:nowrap;border:1.5px solid #fff;'
-    + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:default;';
+    + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:' + (clickable ? 'pointer' : 'default') + ';';
   return el;
 }
 
@@ -293,16 +294,80 @@ export function createOverlayController(map, googleMaps) {
     detailAmenities = [];
   }
 
+  // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min
+  // and render each bucket as a service-number list.
+  function busArrivalRows(services) {
+    const buckets = [
+      { max: 5, label: '≤5 min', svcs: [] },
+      { max: 10, label: '≤10 min', svcs: [] },
+      { max: 20, label: '≤20 min', svcs: [] },
+      { max: Infinity, label: '20+ min', svcs: [] }
+    ];
+    for (const s of (Array.isArray(services) ? services : [])) {
+      const m = s && s.next && Number.isFinite(s.next.minutes) ? s.next.minutes : null;
+      if (m == null) continue;
+      const b = buckets.find((x) => m <= x.max);
+      if (b) b.svcs.push(String(s.service || ''));
+    }
+    let h = '';
+    for (const b of buckets) {
+      if (!b.svcs.length) continue;
+      h += '<div style="margin-top:2px;">№ ' + escapeHtml(b.svcs.join(', '))
+        + ' — ' + b.label + '</div>';
+    }
+    return h;
+  }
+
+  // v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
+  function busInfoHtml(b, services) {
+    const gmaps = 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng;
+    let h = '<div style="font-weight:600;">🚏 '
+      + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
+    const sub = [];
+    if (b.roadName) sub.push(escapeHtml(b.roadName));
+    if (Number.isFinite(b.distanceM)) sub.push(b.distanceM + ' m');
+    sub.push('№ ' + escapeHtml(b.code));
+    h += '<div style="color:#666;margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
+    if (services == null) {
+      h += '<div style="color:#888;margin-top:3px;">Loading arrivals…</div>';
+    } else if (!services.length) {
+      h += '<div style="color:#888;margin-top:3px;">No live arrivals</div>';
+    } else {
+      h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
+    }
+    h += '<div style="margin-top:4px;"><a href="' + escapeHtml(gmaps)
+      + '" target="_blank" rel="noopener" style="color:#1a73e8;">Google Map ↗</a></div>';
+    return infoCard(h);
+  }
+
+  // v0.61.19 — open the bus-stop popup, then fetch live arrivals from
+  // /api/transport/bus-arrival and refresh the open bubble.
+  function openBusInfo(b, marker) {
+    info.setContent(busInfoHtml(b, null));
+    info.open(map, marker);
+    fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (destroyed || !d) return;
+        info.setContent(busInfoHtml(b, Array.isArray(d.services) ? d.services : []));
+      })
+      .catch(() => { info.setContent(busInfoHtml(b, [])); });
+  }
+
   // v0.61.17 — draw the amenity pins (exits / bus / taxi / carparks)
   // for the detailed station from its /api/transport/station-context.
+  // v0.61.19 — bus pins are clickable: a tap opens live arrivals.
   function drawAmenities(stationName, ctx) {
     clearAmenities();
     if (!detailStation || detailStation.name !== stationName) return;
     const e = layers.train;
     const show = !!(e && e.visible);
-    const place = (lat, lng, node) => {
+    const place = (lat, lng, node, onClick) => {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const m = new AdvancedMarkerElement({ position: { lat, lng }, content: node, zIndex: 6 });
+      const m = new AdvancedMarkerElement({
+        position: { lat, lng }, content: node, zIndex: 6, gmpClickable: !!onClick
+      });
+      if (onClick) m.addListener('click', () => onClick(m));
       m.map = show ? map : null;
       detailAmenities.push(m);
     };
@@ -312,7 +377,8 @@ export function createOverlayController(map, googleMaps) {
     }
     for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
       if (!b || !b.code) continue;
-      place(b.lat, b.lng, amenityLabelNode('№' + b.code, AMENITY_BUS_BG, '#fff'));
+      place(b.lat, b.lng, amenityLabelNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff', true),
+        (marker) => openBusInfo(b, marker));
     }
     for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
       if (!x || x.kind === 'stop') continue;

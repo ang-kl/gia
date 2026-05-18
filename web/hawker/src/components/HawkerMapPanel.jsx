@@ -66,6 +66,26 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
+// v0.61.19 — amenity-pin palette (mirrors mapOverlays' station-detail
+// colours) for the surrounding exits / bus / taxi / carpark pins drawn
+// around a tapped hawker centre.
+const AMENITY_EXIT_BG = '#5E35B1';
+const AMENITY_BUS_BG = '#1565C0';
+const AMENITY_TAXI_BG = '#FBC02D';
+const AMENITY_CARPARK_BG = '#1565C0';
+const AMENITY_STATION_BG = '#00695C';
+
+// v0.61.19 — a small text-label marker node for a hawker-centre
+// amenity (exit / bus-stop code / "Taxi" / 🅿️ / nearest 🚉 station).
+function amenityNode(label, bg, fg) {
+  const el = document.createElement('div');
+  el.textContent = label;
+  el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
+    + `background:${bg};color:${fg};font-size:10px;font-weight:700;line-height:1.5;`
+    + 'white-space:nowrap;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
+  return el;
+}
+
 export default function HawkerMapPanel({ centres, region, overlayLayers, attractionsMode = 'nearby' }) {
   const lang = useLocale();
   const containerRef = useRef(null);
@@ -88,6 +108,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   // v0.61.10 — per-panel cache of /api/hawker/centre-transit results,
   // keyed by centre name, so the map-pin InfoWindow fetches transit once.
   const transitCacheRef = useRef({});
+
+  // v0.61.19 — surrounding-amenity pins for the tapped hawker centre:
+  // the live markers, plus a per-name cache of /station-context.
+  const amenityMarkersRef = useRef([]);
+  const amenityCacheRef = useRef({});
 
   // One-time tablet media-query — same threshold as cuisine MapPanel.
   useEffect(() => {
@@ -227,12 +252,68 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
     return h + '</div>';
   }
 
+  // v0.61.19 — surrounding-amenity pins for a tapped hawker centre.
+  function clearAmenities() {
+    for (const m of amenityMarkersRef.current) m.map = null;
+    amenityMarkersRef.current = [];
+  }
+
+  function plotAmenities(ctx) {
+    if (!mapRef.current || !window.google?.maps) return;
+    const { AdvancedMarkerElement } = window.google.maps.marker;
+    clearAmenities();
+    const place = (lat, lng, node) => {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      amenityMarkersRef.current.push(new AdvancedMarkerElement({
+        map: mapRef.current, position: { lat, lng }, content: node, zIndex: 6
+      }));
+    };
+    for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
+      const label = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
+      place(ex.lat, ex.lng, amenityNode(label, AMENITY_EXIT_BG, '#fff'));
+    }
+    for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : [])) {
+      if (!b || !b.code) continue;
+      place(b.lat, b.lng, amenityNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff'));
+    }
+    for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])) {
+      if (!x || x.kind === 'stop') continue;
+      place(x.lat, x.lng, amenityNode(x.kind === 'pickup' ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f'));
+    }
+    for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : [])) {
+      if (!cp) continue;
+      place(cp.lat, cp.lng, amenityNode('🅿️', AMENITY_CARPARK_BG, '#fff'));
+    }
+    const st = ctx.station;
+    if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+      place(st.lat, st.lng, amenityNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff'));
+    }
+  }
+
+  // v0.61.19 — fetch (cache) the station-context for a tapped hawker
+  // centre, then plot the exits / bus / taxi / carpark / nearest-MRT
+  // pins around it.
+  function drawHawkerAmenities(c) {
+    if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) return;
+    const cached = amenityCacheRef.current[c.name];
+    if (cached) { plotAmenities(cached); return; }
+    fetch(`/api/transport/station-context?lat=${c.lat}&lng=${c.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((ctx) => {
+        if (!ctx) return;
+        amenityCacheRef.current[c.name] = ctx;
+        plotAmenities(ctx);
+      })
+      .catch(() => { /* no amenity pins on failure */ });
+  }
+
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old markers + InfoWindow content.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    clearAmenities();
     if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
       infoWindowRef.current = new window.google.maps.InfoWindow({
         disableAutoPan: false,
@@ -254,6 +335,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
       const key = `${c.name}|${c.postal || ''}`;
       marker.addListener('click', () => {
         if (!infoWindowRef.current) return;
+        // v0.61.19 — plot the surrounding amenity pins for this centre.
+        drawHawkerAmenities(c);
         const cached = transitCacheRef.current[c.name];
         infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
         infoWindowRef.current.open(mapRef.current, marker);
