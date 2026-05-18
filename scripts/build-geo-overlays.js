@@ -273,6 +273,17 @@ function convertPoint(features, name) {
         rec.station = st;
       }
     }
+    // v0.61.24 — exits carry the bare exit code (letter/number), the
+    // station name and the station's line codes, for the line-coloured
+    // exit pins + Exit Template popup on the TMA maps.
+    if (name === 'exits') {
+      rec.exitCode = String(props.EXIT_CODE || '').replace(/^exit\s*/i, '').trim();
+      const st = nearestStation(lat, lng);
+      if (st) {
+        rec.station = st.name;
+        rec.codes = Array.isArray(st.codes) ? st.codes : [];
+      }
+    }
     out.push(rec);
   }
   return out;

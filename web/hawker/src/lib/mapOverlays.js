@@ -80,6 +80,38 @@ function lineCodeOf(s) {
   return (s && Array.isArray(s.lines) && s.lines[0]) || null;
 }
 
+// v0.61.24 — line colour for a station code (EW16 → EWL green, …).
+function codeHex(code) {
+  const pc = parseCode(code);
+  return (pc && LINE_HEX[PREFIX_TO_LINE[pc.prefix]]) || '#888888';
+}
+
+// v0.61.24 — a coloured rounded pill for an exit code / station code.
+function codePill(text, bg, big) {
+  return '<span style="display:inline-block;background:' + bg + ';color:#fff;'
+    + 'font-weight:700;white-space:nowrap;border-radius:' + (big ? 7 : 5) + 'px;'
+    + 'padding:' + (big ? '2px 9px' : '1px 6px') + ';'
+    + 'font-size:' + (big ? 15 : 11) + 'px;line-height:1.4;">'
+    + escapeHtml(text) + '</span>';
+}
+
+// v0.61.24 — the Exit Template popup body: a line-coloured exit-code
+// header, the station name, and a row of colour-coded station codes.
+// The exit-code pill takes the station's primary line colour.
+function exitTemplateHtml({ exitCode, station, codes }) {
+  const list = Array.isArray(codes) ? codes.filter(Boolean) : [];
+  const hex = list.length ? codeHex(list[0]) : AMENITY_EXIT_BG;
+  let h = '<div>' + codePill('Exit ' + (exitCode || '?'), hex, true) + '</div>';
+  if (station) {
+    h += '<div style="font-weight:600;margin-top:4px;">' + escapeHtml(station) + '</div>';
+  }
+  if (list.length) {
+    h += '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">'
+      + list.map((cd) => codePill(cd, codeHex(cd), false)).join('') + '</div>';
+  }
+  return h;
+}
+
 // v0.61.17 — station records that serve `lineCode`, ordered by that
 // line's running order (the numeric suffix of the matching code).
 function stationsOnLine(stations, lineCode) {
@@ -322,13 +354,14 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     infoWindow.open(map, marker);
   };
   const stationName = ctx.station && ctx.station.name ? ctx.station.name : '';
+  // v0.61.24 — exit pins are coloured by the station's line and tap
+  // through to the same Exit Template as the overlay exits layer.
+  const stationCodes = (ctx.station && Array.isArray(ctx.station.codes)) ? ctx.station.codes : [];
+  const exitHex = stationCodes.length ? codeHex(stationCodes[0]) : AMENITY_EXIT_BG;
   for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
     const code = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
-    place(ex.lat, ex.lng, amenityLabelNode(code, AMENITY_EXIT_BG, '#fff', true),
-      (m) => openCard(m, '<div style="font-weight:600;">🚪 Exit '
-        + escapeHtml(code) + '</div>'
-        + (stationName ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-          + escapeHtml(stationName) + ' MRT</div>' : '')));
+    place(ex.lat, ex.lng, amenityLabelNode(code, exitHex, '#fff', true),
+      (m) => openCard(m, exitTemplateHtml({ exitCode: code, station: stationName, codes: stationCodes })));
   }
   for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : []).slice(0, lim.bus || 3)) {
     if (!b || !b.code) continue;
@@ -426,6 +459,27 @@ export function createOverlayController(map, googleMaps) {
       });
       marker.addListener('click', () => {
         info.setContent(infoFn(f));
+        info.open(map, marker);
+      });
+      return { marker, lat: f.lat, lng: f.lng };
+    });
+  }
+
+  // v0.61.24 — MRT-exit overlay pins show the exit letter/number as a
+  // pill coloured by the station's line (no more 🚆 emoji dot); a tap
+  // opens the Exit Template popup.
+  function buildExitMarkers(features) {
+    return (features || []).map((f) => {
+      const codes = Array.isArray(f.codes) ? f.codes : [];
+      const hex = codes.length ? codeHex(codes[0]) : AMENITY_EXIT_BG;
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content: amenityLabelNode(f.exitCode || '?', hex, '#fff', true),
+        title: f.name || '',
+        gmpClickable: true
+      });
+      marker.addListener('click', () => {
+        info.setContent(exitInfo(f));
         info.open(map, marker);
       });
       return { marker, lat: f.lat, lng: f.lng };
@@ -560,6 +614,10 @@ export function createOverlayController(map, googleMaps) {
   const nameInfo = (f) =>
     infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>');
 
+  // v0.61.24 — the Exit Template for an enriched geo-exits.json feature.
+  const exitInfo = (f) =>
+    infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes }));
+
   const carparkInfo = (f) => {
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
@@ -615,7 +673,7 @@ export function createOverlayController(map, googleMaps) {
           items: buildTaxiMarkers(d.taxis) };
       } else if (name === 'exits') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.exits, '#5E35B1', '🚆', nameInfo) };
+          items: buildExitMarkers(d.exits) };
       } else {
         return null;
       }
