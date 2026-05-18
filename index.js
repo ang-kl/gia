@@ -1302,7 +1302,9 @@ bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
   await runWeatherCommand(msg.chat.id, lang, (match && match[1]) ? match[1].trim() : null);
 });
 
-bot.onText(/^\/(?:transport|t)(?:@\w+)?$/, async (msg) => {
+// v0.61.18 — /train added as an alias for /transport (operator
+// request), so the train status & map TMA has a memorable command.
+bot.onText(/^\/(?:transport|train|t)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendTransportMenu(msg.chat.id, lang);
@@ -11605,7 +11607,27 @@ async function cacheBotUsername() {
           taxis.push({ kind, name: nm, lat: tx.lat, lng: tx.lng, distanceM: Math.round(d) });
         }
         taxis.sort((a, b) => a.distanceM - b.distanceM);
-        const payload = { station, exits, busStops, taxis: taxis.slice(0, 8) };
+        // v0.61.16 — nearby carparks (within 400 m) for the station-
+        // detail map view's 🅿️ pins. Locations only — the live lot
+        // counts are incidental and the 30-min cache makes them stale.
+        // Degrades to [] when LTA_ACCOUNT_KEY is unset.
+        let carparks = [];
+        try {
+          if (process.env.LTA_ACCOUNT_KEY) {
+            const pts = await require('./carpark').allPoints();
+            for (const cp of (Array.isArray(pts) ? pts : [])) {
+              if (!Number.isFinite(cp.lat) || !Number.isFinite(cp.lng)) continue;
+              const d = transport.haversineM(lat, lng, cp.lat, cp.lng);
+              if (d > 400) continue;
+              carparks.push({ name: cp.name, lat: cp.lat, lng: cp.lng, distanceM: Math.round(d) });
+            }
+            carparks.sort((a, b) => a.distanceM - b.distanceM);
+            carparks = carparks.slice(0, 8);
+          }
+        } catch (err) {
+          console.warn('[station-context] carparks:', err.message);
+        }
+        const payload = { station, exits, busStops, taxis: taxis.slice(0, 8), carparks };
         if (redis.isOpen) {
           redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
         }

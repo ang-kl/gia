@@ -155,6 +155,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
       mapId: 'DEMO_MAP_ID',
       disableDefaultUI: true,
       zoomControl: false,
+      // v0.61.18 — suppress Google's native POI/transit info cards so a
+      // station tap hits our overlay marker, not Google's own popup.
+      clickableIcons: false,
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
@@ -194,7 +197,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
   // /api/hawker/centre-transit resolves, then the bubble refreshes.
   function buildInfoHtml(c, key, transit) {
     const gmaps = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    let h = '<div style="min-width:170px;max-width:270px;padding:2px 4px;color:#1c1c1f;font-size:11px;line-height:1.5;">';
+    // v0.61.18 — off-white rounded card; pins bg + colour so the popup
+    // reads in both light and dark Telegram themes.
+    let h = '<div style="min-width:170px;max-width:270px;padding:8px 11px;color:#1c1c1f;font-size:11px;line-height:1.5;background:#f4f3ef;border-radius:12px;">';
     h += `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
     if (c.status) {
       h += `<div style="color:#666;margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
@@ -306,22 +311,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, attract
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
-          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={t('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
-          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
           aria-label={t('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-tg-card/70 text-tg-text border border-tg-border shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⤡' : '⤢'}</span></button>
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
