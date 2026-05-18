@@ -1,23 +1,23 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-17 from a snapshot of all 491 pull requests (#1–#491).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-18 from a snapshot of all 506 pull requests (#1–#506).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 491 total — 485 merged, 6 closed without merge.
+- **PRs:** 506 total — 500 merged, 6 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #497 · 2026-05-17 10:26:49 · _v0.61.12 — cuisine result emphasis on the train overlay_
+- **Latest:** #513 · 2026-05-18 15:49:45 · _v0.61.28 — Exit Template Part B: nearby attractions_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 305 |
+| feature | 319 |
 | fix | 72 |
 | copy | 34 |
 | prompt-tune | 31 |
-| docs | 22 |
+| docs | 23 |
 | refactor | 16 |
 | test | 6 |
 | infra | 5 |
@@ -26,12 +26,12 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 163 |
-| Core / misc | 49 |
+| Cuisine Picker | 167 |
+| Core / misc | 53 |
 | Search / free-text | 42 |
 | /hidden surprise | 36 |
-| Transport / carpark | 33 |
-| Hawker NEA | 31 |
+| Transport / carpark | 35 |
+| Hawker NEA | 34 |
 | Docs / vault | 23 |
 | Recognised lists | 20 |
 | /eat /drink flow | 18 |
@@ -39,12 +39,12 @@
 | Pipeline / discovery | 15 |
 | Weather | 10 |
 | Privacy / legal | 9 |
-| Language / i18n | 7 |
+| Language / i18n | 8 |
 | Commands / chat UX | 5 |
 | Buddy / sharing | 5 |
 | Menu hub | 5 |
 | Maps / geo / location | 4 |
-| Oversight / usage stats | 1 |
+| Oversight / usage stats | 2 |
 
 ## The ledger
 
@@ -543,6 +543,21 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 495 | merged | 2026-05-17 10:26:22 | 0.61.9 | feature | Hawker NEA | Add: map polish: zoom row, square station pins, per-layer overlay radius | PR 1 of 3 in the v0.61.x map-refinement arc (stacked on #494). | 18 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
 | 496 | merged | 2026-05-17 10:26:38 | 0.61.10 | feature | Core / misc | Add: rich map pins + realtime crowd & accidents | PR 2 of 3 in the v0.61.x map-refinement arc (stacked on #495). | 12 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, data, package, scripts/ | cuisine+hawker+transport | — |
 | 497 | merged | 2026-05-17 10:26:49 | 0.61.12 | feature | Cuisine Picker | Add: cuisine result emphasis on the train overlay | PR 3 of 3 in the v0.61.x map-refinement arc (stacked on #496). | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 498 | merged | 2026-05-17 10:48:18 |  | docs | Core / misc | Update docs: regenerate VibeCodingRecord ledger through PR #497 | docs: regenerate VibeCodingRecord ledger through PR #497 | 7 files — doc, public/ | — | doc/vault |
+| 500 | merged | 2026-05-17 20:16:34 | 0.61.14 | feature | Core / misc | Add: transport focused-line panel: station picker + 6 km station-focus map | v0.61.14 — transport focused-line panel: station picker + 6 km station-focus map | 8 files — TMA:transport, doc, package | transport | doc/vault |
+| 501 | merged | 2026-05-17 22:36:57 | 0.61.15 | feature | Cuisine Picker | Add: remove the Cuisine map "Search this area" button | Drops the pan-to-re-search pill from the Cuisine TMA map, and the code that existed only to drive it: handleSearchHereClick, the showSearchHere state, searchCenterRef / programmaticUpdateRef, PAN_THRESHOLD_METERS, the metersBetween… | 6 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 502 | merged | 2026-05-17 22:42:59 | 0.61.16 | feature | Cuisine Picker | Add: map control buttons + Transport station-detail view | (№ 127 | 10 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 503 | merged | 2026-05-17 22:52:42 | 0.61.17 | feature | Cuisine Picker | Add: Cuisine + Hawker train-overlay station-detail view | (№ 127 | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 504 | merged | 2026-05-18 02:16:21 | 0.61.19 | feature | Hawker NEA | Add: clickable bus-stop arrivals + hawker-centre surrounding amenities | New GET /api/transport/bus-arrival?code=<n> endpoint wrapping transport.busArrivals; degrades gracefully without LTA_ACCOUNT_KEY. | 9 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 505 | merged | 2026-05-18 05:13:09 | 0.61.20 | feature | Hawker NEA | Add: amenity-pin refinements: deeper zoom, declutter, clickable popups | Release the maxZoom:16 cap once the auto-fit settles (Hawker + Cuisine maps), so the + button zooms in past level 16. | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 506 | merged | 2026-05-18 09:54:40 | 0.61.21 | feature | Cuisine Picker | Add: unify amenity rendering so station-tap pins always appear | Tapping a station on the Train and Cuisine TMA maps showed no surrounding amenity pins. | 8 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 507 | merged | 2026-05-18 10:42:26 | 0.61.22 | feature | Core / misc | Add: theme-aware Google-map popup cards + close affordances | Operator: the map popups wash text out in Telegram dark mode, have no clear close button, and don't dismiss on a map tap. | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 508 | merged | 2026-05-18 10:51:35 | 0.61.23 | feature | Hawker NEA | Add: standardised taxi pins + Nearby↔Details overlay-radius slider | The overlay Taxis layer now draws word pins ("Taxi" / "Pick-up", classified by feature name) instead of a 🚕 emoji dot, matching the station-detail amenity taxi pins. | 14 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 509 | merged | 2026-05-18 14:12:04 | 0.61.24 | feature | Core / misc | Add: exit feature Part A: line-coloured exit-code pins + Exit Template | build-geo-overlays.js enriches each geo-exits.json feature with the bare exitCode, the station name, and the station's line codes (joined from data/mrt-coords.json). geo-exits.json regenerated (597 exits). | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
+| 510 | merged | 2026-05-18 14:22:47 | 0.61.25 | feature | Oversight / usage stats | Add: /v owner builder-command menu | New /v command (owner-gated, hidden like /ver): an inline-keyboard menu firing /ver, /oversight, /ftlog 20, /log on and /log off without typing them. | 5 files — index.js, doc, package | — | doc/vault |
+| 511 | merged | 2026-05-18 14:39:42 | 0.61.26 | feature | Language / i18n | Add: station-scoped Exits/Taxis chips; remove Nearby↔Details slider | Removed the Nearby↔Details slider (it didn't work): the chip overlay layers now share one fixed 550 m radius. Dropped the attractionsMode state, the setAttractionsMode API, the slider UI, and the layer.nearby / layer.details i18n keys… | 19 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 512 | merged | 2026-05-18 14:52:50 | 0.61.27 | feature | Transport / carpark | Add: /transport train: nearest-stations show the station code | New mrt-lines.codedLinesForStation(name): returns [{code,line}] pairs (Newton → NS21/NSL, DT11/DTL) from data/mrt-coords.json, where each station's codes/lines arrays pair index-for-index. | 7 files — index.js, mrt-lines.js, tests, doc, package | — | tests; doc/vault |
+| 513 | merged | 2026-05-18 15:49:45 | 0.61.28 | feature | Transport / carpark | Add: Exit Template Part B: nearby attractions | build-geo-overlays.js enriches each station-exit feature with a `nearby` array of named STB tourist attractions within 400 m (nearest-first, de-duped, max 3). New loadAttractions / cleanAttractionName (trims the verbose marketing… | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
 
 ---
 
