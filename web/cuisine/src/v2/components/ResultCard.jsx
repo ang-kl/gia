@@ -5,6 +5,16 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
+// v0.61.30 — normalise an Instagram handle or URL to a profile URL.
+// Accepts "@soleat", "soleat", "instagram.com/soleat", or a full URL.
+function instagramUrl(v) {
+  const s = String(v || '').trim().replace(/^@/, '');
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^(www\.)?instagram\.com\//i.test(s)) return `https://${s.replace(/^www\./i, '')}`;
+  return `https://instagram.com/${s}`;
+}
+
 export default function ResultCard({ venue, focused, onTap, copyContext = {} }) {
   const [lang] = useLocale();
   if (!venue) return null;
@@ -76,6 +86,22 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
     }
   }
 
+  // v0.61.30 — open the venue's Instagram profile. Same tg.openLink
+  // path as openMaps — a plain <a target="_blank"> is unreliable
+  // inside the TMA WebView. Rendered only when venue.instagram is set.
+  function openInstagram(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = instagramUrl(venue.instagram);
+    if (!url) return;
+    const w = tg();
+    if (w && typeof w.openLink === 'function') {
+      w.openLink(url, { try_instant_view: false });
+    } else {
+      window.open(url, '_blank', 'noopener');
+    }
+  }
+
   // v0.58.50: per-card Copy now POSTs to /api/cuisine/copy-one which
   // bot.sendMessages a T1 detail-with-sanctuary block to the user's
   // chat. The previous clipboard-only flow lost the address/hours/
@@ -104,6 +130,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
         weekdayDescriptions: venue.weekdayDescriptions,
         websiteUri: venue.websiteUri,
         phone: venue.phone,
+        instagram: venue.instagram,
         dishes: venue.dishes,
         distanceM: venue.distanceM,
         // v0.60.223 — operator: the copy-one card was missing the
@@ -265,6 +292,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
           {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
         </button>
+        {/* v0.61.30 — Instagram button, shown only for venues that
+            carry an instagram handle/URL (data wired in a later task). */}
+        {venue.instagram && (
+          <button type="button" onClick={openInstagram}
+            className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📷 Instagram</button>
+        )}
       </div>
       {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
           below the Maps + Copy buttons when /api/cuisine/search

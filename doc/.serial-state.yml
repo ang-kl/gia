@@ -1,8 +1,8 @@
 counters:
-  commit: 240
-  build: 43
+  commit: 241
+  build: 44
   documents:
-    journal: 233
+    journal: 234
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,16 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 00:20 SGT
+last_anchor_time: 19-05 '26 01:10 SGT
 last_anchor_source: session_work_after_pr514_anchor_2026-05-18T23:30_SGT
-last_anchor_iso8601: 2026-05-19T00:20:00+08:00
-last_anchor_utc: 2026-05-18T16:20:00Z
+last_anchor_iso8601: 2026-05-19T01:10:00+08:00
+last_anchor_utc: 2026-05-18T17:10:00Z
+# journal #234 (commit 241 / build 44) — v0.61.30 Instagram eatery
+# button: a gated `📷 Instagram` button next to Copy on the Cuisine
+# card + a 📷 line in the bot venue blocks, rendered only when a
+# venue carries an `instagram` field. No data source yet (deferred);
+# button is dormant until wired. Plan workstream A; B (greyscale map)
+# blocked on a Cloud Map ID, ships separately.
 # journal #233 (commit 240 / build 43) — v0.61.29 Cuisine TMA: editable
 # LocationField moved above the map, out of the collapsed Search-criteria
 # section; new `suffix` prop carries the place-count / search status.

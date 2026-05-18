@@ -159,6 +159,16 @@ function formatMapsLine(p, googleMapsUrlFn) {
   return url ? `📍 ${url}` : '';
 }
 
+// v0.61.30 — normalise an Instagram handle or URL to a profile URL.
+// Accepts "@soleat", "soleat", "instagram.com/soleat", or a full URL.
+function instagramUrl(v) {
+  const s = String(v || '').trim().replace(/^@/, '');
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^(www\.)?instagram\.com\//i.test(s)) return `https://${s.replace(/^www\./i, '')}`;
+  return `https://instagram.com/${s}`;
+}
+
 // v0.58.52: travel-time line. Shows BOTH transit and drive when
 // available (per Human Lead's preference). Either field may be
 // missing if Routes API returned no route for that mode (rare for
@@ -218,6 +228,9 @@ function formatVenueBlock(p, opts = {}) {
   if (includeContact) {
     if (p.websiteUri) lines.push(`🌐 ${p.websiteUri}`);
     if (p.phone)      lines.push(`📞 ${p.phone}`);
+    // v0.61.30 — Instagram line, shown only for venues that carry an
+    // instagram handle/URL (data wired in a later task).
+    if (p.instagram)  lines.push(`📷 ${escapeHtml(instagramUrl(p.instagram))}`);
   }
   // v0.60.223 — operator's recreated copy template fixed the row
   // order: name → 🍽️ type → 📇 address → 🕰️ hours → 🌐/📞 contact →
