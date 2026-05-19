@@ -421,7 +421,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
-        ><span aria-hidden>⟲</span></button>
+        ><span aria-hidden>⛶⟲</span></button>
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
