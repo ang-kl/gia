@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import MapControls from './MapControls.jsx';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
 // "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
@@ -79,7 +80,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -529,6 +530,26 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     if (mapRef.current.getZoom() < 14) mapRef.current.setZoom(15);
   }
 
+  // v0.61.36 — in-map control config (shared shape across the 3 TMAs).
+  // Row 1 = always-visible toggle pills; the "⋯/⋮" dropdown = the
+  // checkbox layer list. Bus Stop / 24 hours render disabled (no data
+  // yet); Colour toggles the greyscale map filter.
+  const rowToggles = [
+    { key: 'attractions', icon: '✨', label: tr('layer.attractions', lang) },
+    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: true },
+    { key: 'colour',      icon: '🎨', label: tr('layer.colour', lang) }
+  ];
+  const menuToggles = [
+    { key: 'train',   icon: '🚉', label: tr('layer.train', lang) },
+    { key: 'exits',   icon: '',   label: tr('layer.exits', lang) },
+    { key: 'taxis',   icon: '🚕', label: tr('layer.taxis', lang) },
+    { key: 'parks',   icon: '🌳', label: tr('layer.parks', lang) },
+    { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
+    { key: 'clinics', icon: '⚕️', label: tr('layer.clinics', lang) },
+    { key: 'open24',  icon: '',   label: tr('layer.open24', lang), disabled: true }
+  ];
+
   return (
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       {/* v0.58.17: map height now scales with viewport. Phone keeps
@@ -544,7 +565,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
-          minHeight: 240
+          minHeight: 240,
+          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
         }}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
@@ -571,7 +593,28 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+        {/* v0.61.36 — Reset: recenter to the search anchor / default view. */}
+        <button
+          type="button"
+          onClick={() => {
+            mapRef.current?.setCenter(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 });
+            mapRef.current?.setZoom(14);
+          }}
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={tr('map.reset', lang)}
+          title={tr('map.reset', lang)}
+        ><span aria-hidden>⛶⟲</span></button>
       </div>
+      {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
+      <MapControls
+        layers={overlayLayers || {}}
+        onToggleLayer={(key) => onOverlayChange?.({
+          ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
+        })}
+        rowToggles={rowToggles}
+        menuToggles={menuToggles}
+        menuLabel={tr('map.more', lang)}
+      />
       {/* v0.58.29: "Show your location" recenter button. Bottom-right
           floating like the Google Maps native app. Disabled state
           when userLoc hasn't resolved yet keeps the affordance

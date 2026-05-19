@@ -57,25 +57,6 @@ const SG_DEFAULT_ZOOM = 11;
 const FUTURE_BG = '#9CA3AF';
 const DEFAULT_BG = '#888888';
 
-// v0.61.33 — Phase G in-map controls. Transport's toggle row carries no
-// Train button — the colour-coded line polylines are intrinsic to this
-// map, not an optional overlay. Bus Stop / Colour / 24 hrs render
-// disabled until their layers land in later phases.
-const ROW_TOGGLES = [
-  { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
-  { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
-  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
-  { key: 'exits',       i18n: 'layer.exits',       icon: '🚪' },
-  { key: 'busstop',     i18n: 'layer.busstop',     icon: '🚌', disabled: true },
-  { key: 'colour',      i18n: 'layer.colour',      icon: '🎨', disabled: true }
-];
-const MENU_TOGGLES = [
-  { key: 'taxis',   i18n: 'layer.taxis',   icon: '🚕' },
-  { key: 'clinics', i18n: 'layer.clinics', icon: '✚' },
-  { key: 'police',  i18n: 'layer.police',  icon: '👮' },
-  { key: 'open24',  i18n: 'layer.open24',  icon: '🕛', disabled: true }
-];
-
 // v0.60.230 (Build E 5b/5d) — tiny station dots + line polyline
 // styling. Future stations/lines render smaller and fainter.
 const DOT_SIZE = 12;
@@ -354,7 +335,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   }
 
   // Push the current layer-toggle state into the overlay controller.
-  // No 'train' layer here — the Transport map already draws line polylines.
+  // No 'train' overlay layer here — the Transport map draws its own line
+  // polylines; the Train Line toggle drives those (see the effect below).
   function applyOverlayLayers(layers) {
     const ctrl = overlayControllerRef.current;
     if (!ctrl || !layers) return;
@@ -368,6 +350,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
+
+  // v0.61.36 — Train Line toggle: show / hide the line polylines. The
+  // polylines are this map's own geometry (not an overlay layer), so the
+  // toggle flips their `.map` directly. Default ON (undefined !== false).
+  useEffect(() => {
+    const vis = overlayLayers?.train !== false;
+    for (const p of polylinesRef.current) p.setMap(vis ? mapRef.current : null);
+  }, [overlayLayers?.train]);
 
   // v0.61.16 — resolve the active station-detail view: the selected
   // station, the line it is detailed along, and the stations one stop
@@ -405,6 +395,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     if (!window.google?.maps?.Polyline) return;
     for (const p of polylinesRef.current) p.setMap(null);
     polylinesRef.current = [];
+    // v0.61.36 — Train Line toggle (default ON) gates polyline visibility.
+    const trainVisible = overlayLayersRef.current?.train !== false;
     const paths = resolveLinePaths(linePathsRef.current, list);
     for (const [lineCode, segments] of Object.entries(paths)) {
       if (detail && detail.line) {
@@ -422,7 +414,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         if (!Array.isArray(seg) || seg.length < 2) continue;
         const pl = new window.google.maps.Polyline({
           path: seg,
-          map: mapRef.current,
+          map: trainVisible ? mapRef.current : null,
           strokeColor: hex,
           strokeOpacity: baseOpacity,
           strokeWeight: heavy ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
@@ -636,6 +628,26 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // focused — the default view already shows the whole network.
   const overviewDisabled = !overview && !focusedCode && !focusedStation;
 
+  // v0.61.36 — in-map control config. Row 1 = the always-visible toggle
+  // pills; the "⋯/⋮" dropdown = the checkbox layer list. Bus Stop / 24
+  // hours render disabled (no backing data yet). Colour toggles the
+  // greyscale map filter; Train Line gates the line polylines.
+  const rowToggles = [
+    { key: 'attractions', icon: '✨', label: t('layer.attractions', lang) },
+    { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang), disabled: true },
+    { key: 'colour',      icon: '🎨', label: t('layer.colour', lang) }
+  ];
+  const menuToggles = [
+    { key: 'train',   icon: '🚉', label: t('layer.train', lang) },
+    { key: 'exits',   icon: '',   label: t('layer.exits', lang) },
+    { key: 'taxis',   icon: '🚕', label: t('layer.taxis', lang) },
+    { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
+    { key: 'police',  icon: '👮', label: t('layer.police', lang) },
+    { key: 'clinics', icon: '⚕️', label: t('layer.clinics', lang) },
+    { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
+  ];
+
   return (
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       <div
@@ -644,7 +656,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. v0.63.0 — expand toggle grows it to ~90vh.
-        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
+        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%', filter: overlayLayers?.colour ? 'grayscale(1)' : undefined }}
         aria-label={t('mrt.aria.map', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
@@ -685,13 +697,13 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
-        lang={lang}
         layers={overlayLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         })}
-        rowToggles={ROW_TOGGLES}
-        menuToggles={MENU_TOGGLES}
+        rowToggles={rowToggles}
+        menuToggles={menuToggles}
+        menuLabel={t('map.more', lang)}
       />
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed

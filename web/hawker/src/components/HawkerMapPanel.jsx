@@ -33,25 +33,6 @@ import MapControls from './MapControls.jsx';
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 11;
 
-// v0.61.33 — Phase G in-map controls. Hawker's toggle row carries a
-// Train button (the `train` overlay layer). Bus Stop / Colour / 24 hrs
-// render disabled until their layers land in later phases.
-const ROW_TOGGLES = [
-  { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
-  { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
-  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
-  { key: 'exits',       i18n: 'layer.exits',       icon: '🚪' },
-  { key: 'train',       i18n: 'layer.train',       icon: '🚇' },
-  { key: 'busstop',     i18n: 'layer.busstop',     icon: '🚌', disabled: true },
-  { key: 'colour',      i18n: 'layer.colour',      icon: '🎨', disabled: true }
-];
-const MENU_TOGGLES = [
-  { key: 'taxis',   i18n: 'layer.taxis',   icon: '🚕' },
-  { key: 'clinics', i18n: 'layer.clinics', icon: '✚' },
-  { key: 'police',  i18n: 'layer.police',  icon: '👮' },
-  { key: 'open24',  i18n: 'layer.open24',  icon: '🕛', disabled: true }
-];
-
 function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -377,6 +358,26 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   ).length;
   const showPlaceholder = total > 0 && withCoords === 0;
 
+  // v0.61.36 — in-map control config (shared shape across the 3 TMAs).
+  // Row 1 = always-visible toggle pills; the "⋯/⋮" dropdown = the
+  // checkbox layer list. Bus Stop / 24 hours render disabled (no data
+  // yet); Colour toggles the greyscale map filter.
+  const rowToggles = [
+    { key: 'attractions', icon: '✨', label: t('layer.attractions', lang) },
+    { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang), disabled: true },
+    { key: 'colour',      icon: '🎨', label: t('layer.colour', lang) }
+  ];
+  const menuToggles = [
+    { key: 'train',   icon: '🚉', label: t('layer.train', lang) },
+    { key: 'exits',   icon: '',   label: t('layer.exits', lang) },
+    { key: 'taxis',   icon: '🚕', label: t('layer.taxis', lang) },
+    { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
+    { key: 'police',  icon: '👮', label: t('layer.police', lang) },
+    { key: 'clinics', icon: '⚕️', label: t('layer.clinics', lang) },
+    { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
+  ];
+
   return (
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       <div
@@ -384,7 +385,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
-          minHeight: 240
+          minHeight: 240,
+          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
         }}
         aria-label={t('map.aria', lang)}
       />
@@ -425,13 +427,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
-        lang={lang}
         layers={overlayLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         })}
-        rowToggles={ROW_TOGGLES}
-        menuToggles={MENU_TOGGLES}
+        rowToggles={rowToggles}
+        menuToggles={menuToggles}
+        menuLabel={t('map.more', lang)}
       />
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">

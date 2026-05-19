@@ -1,16 +1,17 @@
-// MapControls.jsx — v0.61.33
+// MapControls.jsx — v0.61.36
 //
-// Floating in-map control surface for the Transport + Hawker maps
-// (map-controls redesign, Phase G). Renders Row 1 — the layer toggle
-// buttons — plus an "⋯/⋮" overflow dropdown holding the less-used
-// layers. The 4-button navigation row (zoom / expand / reset) lives
-// inline in each map panel.
+// Floating in-map control surface for all three TMA maps. A single
+// left-aligned row: the "⋯/⋮" overflow menu button first, then the
+// layer toggle pills (Attractions, Carpark, Bus Stop, Colour). The menu
+// opens a checkbox dropdown of the remaining layers. The 4-button
+// navigation cluster (zoom / expand / reset) is rendered inline by each
+// map panel on the right.
 //
-// Byte-identical across web/transport/src/components and
-// web/hawker/src/components — edit one, copy to the other.
+// Presentational only — no i18n import; each panel passes resolved
+// `label` strings. Byte-identical across web/cuisine, web/transport and
+// web/hawker — edit one, copy to the others.
 
 import React, { useState, useRef, useEffect } from 'react';
-import { t } from '../i18n.js';
 
 // Platform-detected overflow glyph: the horizontal ellipsis is the
 // iOS / iPadOS / macOS "more" affordance, the vertical ellipsis the
@@ -21,9 +22,9 @@ function overflowGlyph() {
   return /iPhone|iPad|iPod|Macintosh|Mac OS/i.test(ua) ? '⋯' : '⋮';
 }
 
-// Shared pill styling. Disabled toggles (layers not yet built) render
-// greyed and inert; active toggles use the Telegram accent colour.
-function btnClass(active, disabled) {
+// Shared pill styling for the menu button + the row toggles. Disabled
+// pills (layers with no backing data yet) render greyed and inert.
+function pillClass(active, disabled) {
   const base = 'flex items-center gap-0.5 px-2 py-1 rounded-full border '
     + 'text-[11px] whitespace-nowrap leading-none shadow-sm';
   if (disabled) return base + ' bg-white/70 text-gray-400 border-gray-200 cursor-default';
@@ -32,7 +33,7 @@ function btnClass(active, disabled) {
 }
 
 export default function MapControls({
-  lang = 'en', layers = {}, onToggleLayer, rowToggles = [], menuToggles = []
+  layers = {}, onToggleLayer, rowToggles = [], menuToggles = [], menuLabel = 'Layers'
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -52,30 +53,11 @@ export default function MapControls({
     };
   }, [menuOpen]);
 
-  const fire = (item) => { if (!item.disabled && onToggleLayer) onToggleLayer(item.key); };
-
-  const renderToggle = (it, extra) => {
-    const lbl = t(it.i18n, lang);
-    return (
-      <button
-        key={it.key}
-        type="button"
-        disabled={it.disabled}
-        onClick={() => fire(it)}
-        aria-pressed={!it.disabled && !!layers[it.key]}
-        aria-label={lbl}
-        title={it.disabled ? lbl + ' — ' + t('layer.soon', lang) : lbl}
-        className={btnClass(!!layers[it.key], it.disabled) + (extra || '')}
-      >
-        <span aria-hidden>{it.icon}</span>{lbl}
-      </button>
-    );
-  };
+  const fire = (it) => { if (!it.disabled && onToggleLayer) onToggleLayer(it.key); };
 
   return (
     <div ref={wrapRef} className="absolute top-2 left-2 right-32 z-10">
       <div className="flex flex-row flex-wrap gap-1 items-start">
-        {rowToggles.map((it) => renderToggle(it))}
         {menuToggles.length > 0 && (
           <div className="relative">
             <button
@@ -83,19 +65,53 @@ export default function MapControls({
               onClick={() => setMenuOpen((o) => !o)}
               aria-haspopup="true"
               aria-expanded={menuOpen}
-              aria-label={t('map.more', lang)}
-              title={t('map.more', lang)}
-              className={btnClass(false, false) + ' font-bold px-2.5'}
+              aria-label={menuLabel}
+              title={menuLabel}
+              className={pillClass(menuOpen, false) + ' font-bold px-2.5'}
             ><span aria-hidden>{overflowGlyph()}</span></button>
             {menuOpen && (
-              <div className="absolute top-full left-0 mt-1 flex flex-col gap-1 p-1
+              <div className="absolute top-full left-0 mt-1 flex flex-col gap-0.5 p-1
                 rounded-xl bg-white border border-gray-300 shadow-lg
-                max-h-60 overflow-y-auto">
-                {menuToggles.map((it) => renderToggle(it, ' justify-start'))}
+                max-h-72 overflow-y-auto min-w-[170px]">
+                {menuToggles.map((it) => {
+                  const on = !it.disabled && !!layers[it.key];
+                  return (
+                    <button
+                      key={it.key}
+                      type="button"
+                      disabled={it.disabled}
+                      onClick={() => fire(it)}
+                      aria-pressed={on}
+                      className={'flex items-center gap-1.5 px-2 py-1.5 rounded-lg '
+                        + 'text-[12px] text-left leading-none '
+                        + (it.disabled
+                          ? 'text-gray-400 cursor-default'
+                          : 'text-gray-900 hover:bg-gray-100 active:scale-[0.98]')}
+                    >
+                      <span aria-hidden>{on ? '☑️' : '☐'}</span>
+                      {it.icon ? <span aria-hidden>{it.icon}</span> : null}
+                      <span>{it.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
         )}
+        {rowToggles.map((it) => (
+          <button
+            key={it.key}
+            type="button"
+            disabled={it.disabled}
+            onClick={() => fire(it)}
+            aria-pressed={!it.disabled && !!layers[it.key]}
+            aria-label={it.label}
+            title={it.label}
+            className={pillClass(!!layers[it.key], it.disabled)}
+          >
+            <span aria-hidden>{it.icon}</span>{it.label}
+          </button>
+        ))}
       </div>
     </div>
   );
