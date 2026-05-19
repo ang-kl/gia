@@ -2446,6 +2446,18 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   }
   try {
     await ownerHealthCheck(msg.chat.id);
+    // v0.61.34 — after the health-check report, surface the other
+    // owner-only commands as tappable choices (same callbacks as the
+    // /v builder menu). "/admin" launches the Oversight admin TMA.
+    await bot.sendMessage(msg.chat.id, '🛠 <b>Admin commands</b>', {
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: [
+        [{ text: '📋 /ftlog', callback_data: 'v:ftlog20' },
+         { text: '🛡 /admin', callback_data: 'v:oversight' }],
+        [{ text: '🔍 /log on', callback_data: 'v:logon' },
+         { text: '🔍 /log off', callback_data: 'v:logoff' }]
+      ] }
+    }).catch(() => { /* the choices keyboard is best-effort */ });
   } catch (err) {
     console.error('[Error] /ver handler failed:', err.message);
     await safeSend(msg.chat.id, "Sorry, I couldn't run the health check.");
