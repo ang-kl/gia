@@ -652,12 +652,36 @@ export function createOverlayController(map, googleMaps) {
     return infoCard(h, f);
   };
 
-  // v0.61.32 — clinic / police POI popup: glyph + name + address.
+  // v0.61.32 — police POI popup: glyph + name + address.
   const poiInfo = (glyph) => (f) => {
     const c = infoPalette();
     let h = '<div style="font-weight:600;">' + glyph + ' ' + escapeHtml(f.name || '') + '</div>';
     if (f.address) {
       h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+    }
+    return infoCard(h, f);
+  };
+
+  // v0.61.39 — CHAS clinic / pharmacy popup template: name, unit number,
+  // building (if any), street, postal, telephone, then the standard
+  // "Google Map ↗" link (appended by infoCard). Opening hours are not
+  // in the CHAS dataset, so that line is omitted.
+  const clinicInfo = (f) => {
+    const c = infoPalette();
+    let h = '<div style="font-weight:600;">💊 ' + escapeHtml(f.name || 'Clinic') + '</div>';
+    const addr = [];
+    if (f.unit) addr.push(escapeHtml(f.unit));
+    if (f.building) addr.push(escapeHtml(f.building));
+    if (f.street) {
+      addr.push(escapeHtml(f.street) + (f.postal ? ', Singapore ' + escapeHtml(f.postal) : ''));
+    } else if (f.postal) {
+      addr.push('Singapore ' + escapeHtml(f.postal));
+    }
+    if (addr.length) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">' + addr.join('<br>') + '</div>';
+    }
+    if (f.tel) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + escapeHtml(f.tel) + '</div>';
     }
     return infoCard(h, f);
   };
@@ -692,7 +716,7 @@ export function createOverlayController(map, googleMaps) {
           items: buildExitMarkers(d.exits) };
       } else if (name === 'clinics') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.clinics, '#C62828', '✚', poiInfo('✚')) };
+          items: buildMarkers(d.clinics, '#C62828', '💊', clinicInfo) };
       } else if (name === 'police') {
         entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.police, '#1A237E', '👮', poiInfo('👮')) };
