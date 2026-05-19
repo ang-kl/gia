@@ -358,24 +358,34 @@ const STRINGS = {
   // runPrivacyCommand but ignored). FR is a fresh translation
   // tracking the EN structure paragraph-for-paragraph (formal "vous"
   // form).
+  // v0.61.35 — /privacy body rewrite. Operator supplied the new EN copy
+  // ("Reassess this privacy message"); applied verbatim per operator
+  // confirmation — the prior 90-day retention disclosure was
+  // intentionally dropped (the formal Legal record still documents the
+  // TTLs). FR is a fresh paragraph-for-paragraph translation (formal
+  // "vous").
   'privacy.body': {
     en: [
-      '🔒 *Privacy & Data Handling*',
+      '🔒 *Privacy & Data*',
       '',
-      'Soleat only collects what is needed to run the bot. When you share your location or use location-based commands, your location may be cached for up to 24 hours, so you do not need to repeat it. Your Telegram chat ID is used only to reply to the correct chat. Recent picks are kept briefly for features like /share and /picks. Search, selection, and usage records may be retained for up to 90 days; usage counts are kept mainly in aggregate, with per-user entries hashed only to avoid double-counting.',
+      'Soleat only keeps what is needed to run the bot.',
       '',
-      'Soleat does not use third-party trackers, share or build cross-bot profiles. It may query live external data sources, including search and Singapore public data services, to provide results.',
+      'Your location may be remembered for up to 24 hours to help with nearby results. A simple clipboard can hold the places and locations you’ve saved, like a small food-travel journal or scrapbook.',
       '',
-      'Stored data expires automatically after inactivity. You can erase your data at any time by typing /forgetme.'
+      'No personal profile is created. Soleat does not use trackers, sell data, or build cross-bot profiles.',
+      '',
+      'You can clear your stored data at any time by typing /forgetme.'
     ].join('\n'),
     fr: [
-      '🔒 *Confidentialité et gestion des données*',
+      '🔒 *Confidentialité et données*',
       '',
-      'Soleat ne collecte que ce qui est nécessaire au fonctionnement du bot. Lorsque vous partagez votre position ou utilisez des commandes basées sur la localisation, votre position peut être mise en cache jusqu’à 24 heures pour vous éviter de la répéter. Votre identifiant de chat Telegram est utilisé uniquement pour répondre dans le bon chat. Vos choix récents sont conservés brièvement pour des fonctionnalités comme /share et /picks. Les enregistrements de recherche, de sélection et d’usage peuvent être conservés jusqu’à 90 jours ; les statistiques d’usage sont conservées principalement sous forme agrégée, les entrées par utilisateur étant hachées uniquement pour éviter le double comptage.',
+      'Soleat ne conserve que ce qui est nécessaire au fonctionnement du bot.',
       '',
-      'Soleat n’utilise pas de traceurs tiers, ne partage rien et ne construit pas de profils inter-bots. Il peut interroger des sources de données externes en direct, notamment la recherche et les services publics de données de Singapour, pour fournir des résultats.',
+      'Votre position peut être mémorisée pendant 24 heures maximum afin d’améliorer les résultats à proximité. Un simple presse-papiers peut conserver les lieux et positions que vous avez enregistrés, comme un petit carnet ou album de voyage gastronomique.',
       '',
-      'Les données stockées expirent automatiquement après une période d’inactivité. Vous pouvez effacer vos données à tout moment en tapant /forgetme.'
+      'Aucun profil personnel n’est créé. Soleat n’utilise pas de traceurs, ne vend pas de données et ne construit pas de profils inter-bots.',
+      '',
+      'Vous pouvez effacer vos données enregistrées à tout moment en tapant /forgetme.'
     ].join('\n')
   },
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
@@ -407,48 +417,45 @@ const STRINGS = {
   // anyone who scripted around the env var). FR is a fresh translation
   // tracking the EN structure paragraph-for-paragraph; chip labels
   // continue to match the existing `filter.*` FR strings.
+  // v0.61.35 — /legal body rewrite. Operator supplied the new EN copy
+  // ("Reassess … Legal"); applied verbatim per operator confirmation —
+  // the prior "IMDA Model AI Governance Framework is followed" line was
+  // intentionally dropped. Emoji spacing normalised (one space after
+  // each glyph). FR tracks the EN paragraph-for-paragraph.
   'legal.body': {
     en: [
-      '🔖 *Legal & disclaimer*',
+      '🔖 *Legal & Disclaimer*',
       '',
-      'This bot is provided "as is" for general convenience. It may use automated tools, AI, and third-party services.',
+      'Soleat is provided "as is" for general convenience and food discovery. It may use AI, automated tools, Google Places, Singapore public data, and other live sources.',
       '',
-      'While care is taken, information may be inaccurate, incomplete, delayed, or unintentionally similar to existing content. Search Quick Filters in Cuisine Picker, such as 🆕 Newly opened, 🟢 Open now, 🕌 Halal, 🥗 Vegetarian, 🏠 Home-based, and 🐾 Pet allowed, are based on Google Places reports. Results may be inaccurate, outdated, or incorrect. Please verify details directly with venues, especially regarding pet-friendliness and dietary certifications.',
+      'Information may be inaccurate, delayed, incomplete, or outdated. Please verify directly with venues, especially for 🟢 opening hours, 🕌 halal status, 🥗 vegetarian options, 🐾 pet access, 🏠 home-based listings, transport timing, and travel to Malaysia.',
       '',
-      'Information on train lines, buses, nearby bus stops, and transportation within Singapore or to Malaysia is provided with estimated timings and updated frequently.',
+      'Soleat mainly covers Singapore. If Johor Bahru is selected, results may include Johor, Malaysia, with data quality depending mainly on available Google Places information.',
       '',
-      'The default coverage area is Singapore. If "Johor Bahru" is selected, the search includes Johor, Malaysia. Data quality outside Singapore relies on Google Places.',
-      '',
-      'Please note that results from public or authorised data may be inaccurate or outdated. These outputs do not replace professional advice. The builder accepts no liability for decisions made based on this information.',
-      '',
-      'This is governed by Singapore law. The IMDA Model AI Governance Framework is followed. For information on data handling, see /privacy.',
+      'Soleat is not professional advice. You are responsible for how you use the results. The builder is not liable for losses, claims, interruptions, or reliance arising from use, to the fullest extent allowed by Singapore law.',
       '',
       'The builder does not intend to infringe any rights. For concerns or takedown requests, kindly contact [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
       '',
-      'By using this bot, you accept responsibility for your use of its outputs. The builder is not liable for losses, claims, interruptions, or reliance arising from use, to the fullest extent allowed by law.',
+      'For data handling, see /privacy.',
       '',
-      'May 2026'
+      '2026'
     ].join('\n'),
     fr: [
       '🔖 *Mentions légales et avertissement*',
       '',
-      'Ce bot est fourni « tel quel » à titre de commodité générale. Il peut utiliser des outils automatisés, l’IA et des services tiers.',
+      'Soleat est fourni « tel quel » à titre de commodité générale et de découverte gastronomique. Il peut utiliser l’IA, des outils automatisés, Google Places, les données publiques de Singapour et d’autres sources en direct.',
       '',
-      'Malgré tout le soin apporté, les informations peuvent être inexactes, incomplètes, retardées ou involontairement similaires à du contenu existant. Les Filtres rapides du Sélecteur Cuisine — notamment 🆕 Récemment ouvert, 🟢 Ouvert maintenant, 🕌 Halal, 🥗 Végétarien, 🏠 À domicile et 🐾 Animaux autorisés — s’appuient sur les données de Google Places. Les résultats peuvent être inexacts, obsolètes ou erronés. Veuillez vérifier les détails directement auprès des établissements, en particulier la politique sur les animaux et les certifications alimentaires.',
+      'Les informations peuvent être inexactes, retardées, incomplètes ou obsolètes. Veuillez vérifier directement auprès des établissements, en particulier pour 🟢 les horaires d’ouverture, 🕌 le statut halal, 🥗 les options végétariennes, 🐾 l’accès aux animaux, 🏠 les établissements à domicile, les horaires de transport et les déplacements vers la Malaisie.',
       '',
-      'Les informations sur les lignes de train, les bus, les arrêts proches et les transports à Singapour ou vers la Malaisie sont fournies avec des horaires estimés et mises à jour fréquemment.',
+      'Soleat couvre principalement Singapour. Si « Johor Bahru » est sélectionné, les résultats peuvent inclure l’État de Johor, en Malaisie, la qualité des données dépendant principalement des informations disponibles sur Google Places.',
       '',
-      'La zone de couverture par défaut est Singapour. Si « Johor Bahru » est sélectionné, la recherche s’étend à Johor, en Malaisie. La qualité des données en dehors de Singapour dépend de Google Places.',
-      '',
-      'Veuillez noter que les résultats issus de données publiques ou autorisées peuvent être inexacts ou obsolètes. Ces résultats ne remplacent pas un conseil professionnel. Le créateur décline toute responsabilité quant aux décisions prises sur la base de ces informations.',
-      '',
-      'Soumis au droit singapourien. Le cadre IMDA de gouvernance des IA est respecté. Pour la gestion des données, voir /privacy.',
+      'Soleat ne constitue pas un avis professionnel. Vous êtes responsable de l’usage que vous faites des résultats. Le créateur n’est pas responsable des pertes, réclamations, interruptions ou de la confiance accordée découlant de l’utilisation, dans toute la mesure permise par le droit singapourien.',
       '',
       'Le créateur n’a pas l’intention de violer un quelconque droit. Pour toute préoccupation ou demande de retrait, veuillez contacter [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
       '',
-      'En utilisant ce bot, vous acceptez la responsabilité de l’usage que vous en faites. Le créateur ne saurait être tenu pour responsable des pertes, réclamations, interruptions ou dépendances découlant de l’usage, dans toute la mesure permise par la loi.',
+      'Pour la gestion des données, voir /privacy.',
       '',
-      'Mai 2026'
+      '2026'
     ].join('\n')
   },
   'legal.error':                  { en: 'Sorry, /legal hit an error. Try again in a moment.',
