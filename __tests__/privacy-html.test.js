@@ -50,18 +50,18 @@ describe('renderPrivacyHtml', () => {
   it('renders the actual EN privacy.body through end-to-end', () => {
     const body = tn('privacy.body', 'en', { operator: '' });
     const html = renderPrivacyHtml(body, 'en');
-    expect(html).toContain('<strong>Privacy &amp; Data Handling</strong>'.replace('&amp;', '&'));
-    expect(html).toContain('<p>Soleat only collects what is needed');
-    expect(html).toContain('third-party trackers');
+    expect(html).toContain('<strong>Privacy &amp; Data</strong>'.replace('&amp;', '&'));
+    expect(html).toContain('<p>Soleat only keeps what is needed');
+    expect(html).toContain('does not use trackers');
     expect(html).toContain('/forgetme');
   });
 
   it('renders the actual FR privacy.body through end-to-end', () => {
     const body = tn('privacy.body', 'fr', { operator: '' });
     const html = renderPrivacyHtml(body, 'fr');
-    expect(html).toContain('<strong>Confidentialité et gestion des données</strong>');
-    expect(html).toContain('<p>Soleat ne collecte que ce qui est nécessaire');
-    expect(html).toContain('traceurs tiers');
+    expect(html).toContain('<strong>Confidentialité et données</strong>');
+    expect(html).toContain('<p>Soleat ne conserve que ce qui est nécessaire');
+    expect(html).toContain('traceurs');
     expect(html).toContain('/forgetme');
   });
 });
