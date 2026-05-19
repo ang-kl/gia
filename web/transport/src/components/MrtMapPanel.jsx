@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -347,6 +347,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
@@ -645,6 +646,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
   ];
 
@@ -652,7 +654,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       <div
         ref={containerRef}
-        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
+        className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
         // v0.60.93 — match Cuisine MapPanel responsive height per
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
@@ -669,9 +671,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         <button
           type="button"
           onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={!!overlayLayers?.colour}
-          className={'w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-lg leading-none active:scale-95 '
-            + (overlayLayers?.colour ? 'bg-tg-accent' : 'bg-white/70')}
+          aria-pressed={overlayLayers?.colour !== false}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none active:scale-95"
+          style={giaToggleStyle(overlayLayers?.colour !== false)}
           aria-label={t('layer.colour', lang)}
           title={t('layer.colour', lang)}
         ><span aria-hidden>🎨</span></button>

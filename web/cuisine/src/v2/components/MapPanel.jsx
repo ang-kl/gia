@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
@@ -213,6 +213,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
@@ -547,6 +548,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     { key: 'parks',   icon: '🌳', label: tr('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: tr('layer.open24', lang), disabled: true }
   ];
 
@@ -562,7 +564,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           1133 px iPad portrait viewport, which felt cramped. */}
       <div
         ref={containerRef}
-        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
+        className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
@@ -578,9 +580,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         <button
           type="button"
           onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={!!overlayLayers?.colour}
-          className={'w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-lg leading-none active:scale-95 '
-            + (overlayLayers?.colour ? 'bg-tg-accent' : 'bg-white/70')}
+          aria-pressed={overlayLayers?.colour !== false}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none active:scale-95"
+          style={giaToggleStyle(overlayLayers?.colour !== false)}
           aria-label={tr('layer.colour', lang)}
           title={tr('layer.colour', lang)}
         ><span aria-hidden>🎨</span></button>

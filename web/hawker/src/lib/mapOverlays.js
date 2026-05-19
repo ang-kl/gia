@@ -175,7 +175,7 @@ function fetchOverlays() {
   if (!overlaysPromise) {
     overlaysPromise = fetch('/api/geo/overlays')
       .then((r) => r.json())
-      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [], clinics: [], police: [] }));
+      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [], clinics: [], police: [], hospitals: [] }));
   }
   return overlaysPromise;
 }
@@ -246,6 +246,32 @@ function dotNode(bg, glyph) {
   return el;
 }
 
+// v0.61.41 — rectangular pin tag: bold white text on a solid-colour
+// rectangle with a white outline (the clinic "+" marker). A square-
+// cornered alternative to the round dotNode.
+function rectPinNode(bg, text) {
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.cssText = 'display:flex;align-items:center;justify-content:center;'
+    + 'min-width:18px;height:18px;padding:0 3px;border-radius:2px;cursor:pointer;'
+    + 'background:' + bg + ';color:#fff;font-weight:700;font-size:13px;'
+    + 'line-height:1;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.4);';
+  return el;
+}
+
+// v0.61.41 — shared palette for the in-map quick-toggle buttons (the
+// MapControls pills + the Colour nav button). Operator-specified;
+// identical in light and dark Telegram themes.
+export function giaToggleStyle(on, disabled) {
+  return {
+    background: on ? '#F59E0B' : '#1F2937',
+    color: on ? '#111827' : '#D1D5DB',
+    border: '1px solid ' + (on ? '#FCD34D' : '#374151'),
+    boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
+    opacity: disabled ? 0.5 : 1
+  };
+}
+
 // v0.61.20 — amenity-pin colour for the nearest-MRT-station pill.
 const AMENITY_STATION_BG = '#00695C';
 
@@ -271,7 +297,7 @@ export function ensureGreyscaleStyle() {
   if (document.getElementById('gia-greyscale-style')) return;
   const st = document.createElement('style');
   st.id = 'gia-greyscale-style';
-  st.textContent = '.gia-greyscale-map canvas{filter:grayscale(1)}';
+  st.textContent = '.gia-greyscale-map canvas{filter:grayscale(1)!important}';
   document.head.appendChild(st);
 }
 
@@ -483,11 +509,11 @@ export function createOverlayController(map, googleMaps) {
     });
   }
 
-  function buildMarkers(features, bg, glyph, infoFn) {
+  function buildMarkers(features, bg, glyph, infoFn, makeNode) {
     return (features || []).map((f) => {
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: dotNode(bg, glyph),
+        content: (makeNode || dotNode)(bg, glyph),
         title: f.name || '',
         gmpClickable: true
       });
@@ -694,6 +720,55 @@ export function createOverlayController(map, googleMaps) {
     return infoCard(h, f);
   };
 
+  // v0.61.40 — Hospital popup template: category / type line, name,
+  // purpose-labelled telephone lines, WhatsApp (if any), website,
+  // building (if any), address, opening hours, then the standard
+  // "Google Map ↗" link (appended by infoCard). Data: geo-hospitals.json
+  // (scripts/fetch-hospitals.js — curated MD + Google Places).
+  const hospitalInfo = (f) => {
+    const c = infoPalette();
+    let h = '';
+    if (f.category) {
+      h += '<div style="color:' + c.sub + ';font-size:11px;text-transform:uppercase;'
+        + 'letter-spacing:.04em;">' + escapeHtml(f.category) + '</div>';
+    }
+    h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || 'Hospital') + '</div>';
+    for (const p of (Array.isArray(f.phones) ? f.phones : [])) {
+      if (!p || !p.number) continue;
+      const label = p.purpose && p.purpose !== 'Main' ? escapeHtml(p.purpose) + ': ' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + label + escapeHtml(p.number) + '</div>';
+    }
+    if (f.whatsapp) {
+      const wh = f.whatsappHours ? ' (' + escapeHtml(f.whatsappHours) + ')' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">💬 WhatsApp ' + escapeHtml(f.whatsapp) + wh + '</div>';
+    }
+    if (f.website) {
+      const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(href)
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 '
+        + escapeHtml(f.website) + '</a></div>';
+    }
+    const addr = [];
+    if (f.building) addr.push(escapeHtml(f.building));
+    if (f.address) {
+      addr.push(escapeHtml(f.address) + (f.postal ? ', Singapore ' + escapeHtml(f.postal) : ''));
+    } else if (f.postal) {
+      addr.push('Singapore ' + escapeHtml(f.postal));
+    }
+    if (addr.length) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">📍 ' + addr.join('<br>') + '</div>';
+    }
+    let hours = f.hoursNote ? escapeHtml(f.hoursNote) : '';
+    if (!hours && Array.isArray(f.hours) && f.hours.length) {
+      const jsDay = new Date().getDay();
+      hours = escapeHtml(f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0]);
+    }
+    if (hours) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + hours + '</div>';
+    }
+    return infoCard(h, f);
+  };
+
   async function ensureLayer(name) {
     if (layers[name]) return layers[name];
     let entry;
@@ -724,10 +799,13 @@ export function createOverlayController(map, googleMaps) {
           items: buildExitMarkers(d.exits) };
       } else if (name === 'clinics') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.clinics, '#C62828', '💊', clinicInfo) };
+          items: buildMarkers(d.clinics, '#C62828', '+', clinicInfo, rectPinNode) };
       } else if (name === 'police') {
         entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.police, '#1A237E', '👮', poiInfo('👮')) };
+      } else if (name === 'hospitals') {
+        entry = { kind: 'marker', visible: false,
+          items: buildMarkers(d.hospitals, '#00897B', '🏥', hospitalInfo) };
       } else {
         return null;
       }

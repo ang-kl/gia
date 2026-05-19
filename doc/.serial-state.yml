@@ -1,8 +1,8 @@
 counters:
-  commit: 250
-  build: 52
+  commit: 252
+  build: 54
   documents:
-    journal: 243
+    journal: 245
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,22 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 19:05 SGT
-last_anchor_source: github_pr_523_merge_timestamp_2026-05-19T11:04:43Z (real evidence — supersedes the prior journal233 claude_estimate; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-19T19:05:00+08:00
-last_anchor_utc: 2026-05-19T11:05:00Z
+last_anchor_time: 19-05 '26 20:30 SGT
+last_anchor_source: claude_estimate_continuation_after_journal244 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-19T20:30:00+08:00
+last_anchor_utc: 2026-05-19T12:30:00Z
+# journal #245 (commit 252 / build 54) — v0.61.41 clinic pin → red "+"
+# rectangle (rectPinNode); map colour toggle now default-ON with
+# corrected semantics (ON = colour, OFF = greyscale) across all 3 TMAs;
+# in-map quick-toggle buttons restyled to the operator palette
+# (giaToggleStyle / MapControls toggleStyle). Rides PR #526 with v0.61.40.
+# journal #244 (commit 251 / build 53) — v0.61.40 🏥 Hospital overlay
+# layer below 💊 Clinic on all 3 TMA maps; new scripts/fetch-hospitals.js
+# builds data/geo-hospitals.json (67 facilities) from the curated
+# Hospital_Sample.MD name list + detail lines merged with Google Places
+# (coords / address / phone / website / opening hours). hospitalInfo
+# popup: type / name / purpose-labelled phones / WhatsApp / website /
+# address / hours / Google Map ↗.
 # journal #243 (commit 250 / build 52) — v0.61.39 clinic/pharmacy 💊
 # map pin + structured clinic popup template (name / unit / building /
 # street / tel / Google Map ↗); CHAS converter emits structured fields.

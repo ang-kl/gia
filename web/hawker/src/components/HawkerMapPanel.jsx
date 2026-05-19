@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -198,6 +198,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
@@ -375,6 +376,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
   ];
 
@@ -382,7 +384,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       <div
         ref={containerRef}
-        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
+        className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
@@ -398,9 +400,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         <button
           type="button"
           onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={!!overlayLayers?.colour}
-          className={'w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-lg leading-none active:scale-95 '
-            + (overlayLayers?.colour ? 'bg-tg-accent' : 'bg-white/70')}
+          aria-pressed={overlayLayers?.colour !== false}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none active:scale-95"
+          style={giaToggleStyle(overlayLayers?.colour !== false)}
           aria-label={t('layer.colour', lang)}
           title={t('layer.colour', lang)}
         ><span aria-hidden>🎨</span></button>
