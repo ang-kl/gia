@@ -379,13 +379,24 @@ function convertPoint(features, name) {
       const near = nearbyAttractions(lat, lng, 400, 3);
       if (near.length) rec.nearby = near;
     }
-    // v0.61.32 — CHAS clinic: name + address parsed from the data.gov.sg
-    // KML-style HTML Description table.
+    // v0.61.39 — CHAS clinic: structured fields for the clinic popup
+    // template (name / unit / building / street / postal / tel), parsed
+    // from the data.gov.sg KML-style HTML Description table. Opening
+    // hours are NOT in the CHAS dataset, so none is emitted.
     if (name === 'clinics') {
       const a = parseKmlDescription(props.Description);
       if (a.HCI_NAME) rec.name = a.HCI_NAME.trim();
-      const addr = joinAddress([a.BLK_HSE_NO, titleCase(a.STREET_NAME)], a.BUILDING_NAME, a.POSTAL_CD);
-      if (addr) rec.address = addr;
+      const floor = String(a.FLOOR_NO || '').trim();
+      const unitNo = String(a.UNIT_NO || '').trim();
+      if (floor && unitNo) rec.unit = '#' + floor + '-' + unitNo;
+      if (a.BUILDING_NAME) rec.building = titleCase(a.BUILDING_NAME);
+      const street = [String(a.BLK_HSE_NO || '').trim(), titleCase(a.STREET_NAME)]
+        .filter(Boolean).join(' ').trim();
+      if (street) rec.street = street;
+      const postal = String(a.POSTAL_CD || '').trim();
+      if (postal) rec.postal = postal;
+      const tel = String(a.HCI_TEL || '').trim();
+      if (tel) rec.tel = tel;
     }
     // v0.61.32 — SPF police establishment: flat properties.
     if (name === 'police') {
