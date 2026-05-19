@@ -1,8 +1,8 @@
 counters:
-  commit: 259
-  build: 59
+  commit: 260
+  build: 60
   documents:
-    journal: 252
+    journal: 253
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,14 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 20-05 '26 00:15 SGT
-last_anchor_source: claude_estimate_continuation_after_journal251 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-20T00:15:00+08:00
-last_anchor_utc: 2026-05-19T16:15:00Z
+last_anchor_time: 20-05 '26 00:30 SGT
+last_anchor_source: claude_estimate_continuation_after_journal252 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-20T00:30:00+08:00
+last_anchor_utc: 2026-05-19T16:30:00Z
+# journal #253 (commit 260 / build 60) — v0.61.49 map-pin tweaks:
+# attractions pin 🎡/orange → 📌/off-white; nearest-station exits line
+# drops the 🚪 door glyph (mapOverlays ×3 + Mrt/Hawker panels);
+# Cuisine Michelin pin glyph ✳️ → ✴️ rendered in native gold colour.
 # journal #252 (commit 259 / build 59) — v0.61.48 clinic-hours
 # coverage tuning: fetch-clinic-hours.js match radius 140→280 m +
 # progressively looser queries; re-run added 42 of the 176 unmatched
