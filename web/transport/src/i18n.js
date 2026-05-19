@@ -18,6 +18,8 @@ const STRINGS = {
   'layer.parks':               { en: 'Parks', fr: 'Parcs' },
   'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.clinics':             { en: 'Clinics', fr: 'Cliniques' },
+  'layer.police':              { en: 'Police', fr: 'Police' },
   'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
   'layer.exits':               { en: 'Exits', fr: 'Sorties' },
   'layer.train':               { en: 'Train', fr: 'Métro' },

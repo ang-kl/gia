@@ -12,7 +12,9 @@ const LAYERS = [
   { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
   { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
   { key: 'exits',       i18n: 'layer.exits',       icon: '🚆' },
-  { key: 'taxis',       i18n: 'layer.taxis',       icon: '🚕' }
+  { key: 'taxis',       i18n: 'layer.taxis',       icon: '🚕' },
+  { key: 'clinics',     i18n: 'layer.clinics',     icon: '✚' },
+  { key: 'police',      i18n: 'layer.police',      icon: '👮' }
 ];
 
 function Chip({ active, onClick, children, ariaLabel }) {
