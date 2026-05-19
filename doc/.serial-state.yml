@@ -1,8 +1,8 @@
 counters:
-  commit: 256
-  build: 57
+  commit: 257
+  build: 58
   documents:
-    journal: 249
+    journal: 250
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,14 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 23:30 SGT
-last_anchor_source: claude_estimate_continuation_after_journal248 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-19T23:30:00+08:00
-last_anchor_utc: 2026-05-19T15:30:00Z
+last_anchor_time: 19-05 '26 23:45 SGT
+last_anchor_source: claude_estimate_continuation_after_journal249 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-19T23:45:00+08:00
+last_anchor_utc: 2026-05-19T15:45:00Z
+# journal #250 (commit 257 / build 58) — v0.61.46 🎨 Colour-button
+# icon: the palette emoji is now a monochrome silhouette (CSS filter
+# brightness(0) / brightness(0) invert(1)) so it contrasts with the
+# amber/dark toggle background instead of washing out. Rides PR #534.
 # journal #249 (commit 256 / build 57) — v0.61.45 greyscale toggle
 # raster-base-map fix: ensureGreyscaleStyle rule now targets both
 # `.gia-greyscale-map canvas` and `.gia-greyscale-map img` so the

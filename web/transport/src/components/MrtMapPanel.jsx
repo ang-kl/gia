@@ -677,7 +677,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           style={giaToggleStyle(overlayLayers?.colour !== false)}
           aria-label={t('layer.colour', lang)}
           title={t('layer.colour', lang)}
-        ><span aria-hidden>🎨</span></button>
+        ><span aria-hidden style={{ filter: overlayLayers?.colour !== false ? 'brightness(0)' : 'brightness(0) invert(1)' }}>🎨</span></button>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
