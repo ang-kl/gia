@@ -33,6 +33,11 @@ const CONFIG = [
   // v0.64.0 — MRT/LRT station exits overlay layer.
   { name: 'exits',       file: 'LTAMRTStationExitGEOJSON.geojson',     kind: 'point',
     out: 'geo-exits.json',       authority: 'LTA' },
+  // v0.61.32 — POI overlay layers (map-controls redesign, Phase A).
+  { name: 'clinics',     file: 'CHASClinics.geojson',                  kind: 'point',
+    out: 'geo-clinics.json',     authority: 'MOH' },
+  { name: 'police',      file: 'SingaporePoliceForceEstablishments.geojson', kind: 'point',
+    out: 'geo-police.json',      authority: 'SPF' },
   // v0.62.0 — server-side matching datasets (NOT map overlay layers,
   // so these are not served by /api/geo/overlays):
   //  - healthier: HPB Healthier Dining partners, matched to venues.
@@ -54,6 +59,30 @@ function round(n, dp) {
 // Title-case an ALL-CAPS name (parks/taxi labels arrive uppercase).
 function titleCase(s) {
   return String(s || '').toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()).trim();
+}
+
+// v0.61.32 — data.gov.sg KML-style Description: an HTML <table> of
+// <th>KEY</th> <td>VALUE</td> rows. Returns a flat key→value object.
+function parseKmlDescription(html) {
+  const out = {};
+  const re = /<th>([^<]+)<\/th>\s*<td>([^<]*)<\/td>/gi;
+  let m;
+  while ((m = re.exec(String(html || '')))) out[m[1].trim()] = m[2].trim();
+  return out;
+}
+
+// v0.61.32 — compose a readable address from block+street parts, an
+// optional building name, and a Singapore postal code.
+function joinAddress(blkStreet, building, postal) {
+  const parts = [];
+  const bs = (blkStreet || []).map((s) => String(s == null ? '' : s).trim())
+    .filter(Boolean).join(' ').trim();
+  if (bs) parts.push(bs);
+  const b = String(building == null ? '' : building).trim();
+  if (b) parts.push(titleCase(b));
+  const pc = String(postal == null ? '' : postal).trim();
+  if (pc) parts.push('Singapore ' + pc);
+  return parts.join(', ');
 }
 
 // Perpendicular distance from point p to the line a-b (planar, lng/lat).
@@ -134,6 +163,8 @@ function pointName(props, kind) {
     const stn = titleCase(String(props.STATION_NA || '').replace(/\s+(MRT|LRT)\s+STATION$/i, ''));
     return (stn ? stn + ' · ' : '') + (String(props.EXIT_CODE || 'Exit').trim());
   }
+  if (kind === 'clinics') return 'Clinic';
+  if (kind === 'police') return String(props.DEPARTMENT || 'Police').trim();
   // taxis — no name field; label by stand type.
   return titleCase(props.TYPE_CD_DE) || 'Taxi stop';
 }
@@ -347,6 +378,19 @@ function convertPoint(features, name) {
       // the named-place signal).
       const near = nearbyAttractions(lat, lng, 400, 3);
       if (near.length) rec.nearby = near;
+    }
+    // v0.61.32 — CHAS clinic: name + address parsed from the data.gov.sg
+    // KML-style HTML Description table.
+    if (name === 'clinics') {
+      const a = parseKmlDescription(props.Description);
+      if (a.HCI_NAME) rec.name = a.HCI_NAME.trim();
+      const addr = joinAddress([a.BLK_HSE_NO, titleCase(a.STREET_NAME)], a.BUILDING_NAME, a.POSTAL_CD);
+      if (addr) rec.address = addr;
+    }
+    // v0.61.32 — SPF police establishment: flat properties.
+    if (name === 'police') {
+      const addr = joinAddress([props.HSE_BLK_NO, props.STREET_NAME], props.BUILDING_NAME, props.POSTAL_CODE);
+      if (addr) rec.address = addr;
     }
     out.push(rec);
   }

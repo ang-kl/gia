@@ -343,6 +343,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('police', !!layers.police);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);

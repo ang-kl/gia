@@ -210,6 +210,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
 

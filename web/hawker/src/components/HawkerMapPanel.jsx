@@ -194,6 +194,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
+    ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
 

@@ -175,7 +175,7 @@ function fetchOverlays() {
   if (!overlaysPromise) {
     overlaysPromise = fetch('/api/geo/overlays')
       .then((r) => r.json())
-      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [] }));
+      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [], clinics: [], police: [] }));
   }
   return overlaysPromise;
 }
@@ -638,6 +638,16 @@ export function createOverlayController(map, googleMaps) {
     return infoCard(h, f);
   };
 
+  // v0.61.32 — clinic / police POI popup: glyph + name + address.
+  const poiInfo = (glyph) => (f) => {
+    const c = infoPalette();
+    let h = '<div style="font-weight:600;">' + glyph + ' ' + escapeHtml(f.name || '') + '</div>';
+    if (f.address) {
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
+    }
+    return infoCard(h, f);
+  };
+
   async function ensureLayer(name) {
     if (layers[name]) return layers[name];
     let entry;
@@ -666,6 +676,12 @@ export function createOverlayController(map, googleMaps) {
       } else if (name === 'exits') {
         entry = { kind: 'marker', visible: false,
           items: buildExitMarkers(d.exits) };
+      } else if (name === 'clinics') {
+        entry = { kind: 'marker', visible: false,
+          items: buildMarkers(d.clinics, '#C62828', '✚', poiInfo('✚')) };
+      } else if (name === 'police') {
+        entry = { kind: 'marker', visible: false,
+          items: buildMarkers(d.police, '#1A237E', '👮', poiInfo('👮')) };
       } else {
         return null;
       }
