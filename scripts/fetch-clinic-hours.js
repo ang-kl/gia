@@ -34,8 +34,11 @@ const axios = require('axios');
 
 const CLINICS = path.join(__dirname, '..', 'data', 'geo-clinics.json');
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
-const MATCH_RADIUS_M = 140;   // accept a Places hit only this near the clinic
-const BIAS_RADIUS_M = 200;    // location-bias circle for the text search
+// v0.61.48 — coverage tuning: the match radius was widened 140 → 280 m
+// (CHAS coordinates drift from the Places pin) and lookupHours now tries
+// progressively looser queries, to lift the hit rate past ~95 %.
+const MATCH_RADIUS_M = 280;   // accept a Places hit within this of the clinic
+const BIAS_RADIUS_M = 350;    // location-bias circle for the text search
 const CALL_DELAY_MS = 120;    // gentle pacing between API calls
 
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
@@ -49,10 +52,9 @@ function metresBetween(aLat, aLng, bLat, bLng) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// One Places searchText for a clinic → its weekdayDescriptions array,
-// or null when no place matches within MATCH_RADIUS_M.
-async function lookupHours(clinic) {
-  const textQuery = [clinic.name, clinic.street, 'Singapore'].filter(Boolean).join(' ');
+// One Places searchText → the nearest result and its distance (m) from
+// the clinic, or { best: null }.
+async function searchNearest(clinic, textQuery) {
   const { data } = await axios.post(
     SEARCH_URL,
     {
@@ -74,19 +76,42 @@ async function lookupHours(clinic) {
       timeout: 10000
     }
   );
-  const places = Array.isArray(data.places) ? data.places : [];
   let best = null;
   let bestD = Infinity;
-  for (const p of places) {
+  for (const p of (Array.isArray(data.places) ? data.places : [])) {
     const lat = p.location && p.location.latitude;
     const lng = p.location && p.location.longitude;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
     const d = metresBetween(clinic.lat, clinic.lng, lat, lng);
     if (d < bestD) { bestD = d; best = p; }
   }
-  if (!best || bestD > MATCH_RADIUS_M) return null;
-  const wd = best.regularOpeningHours && best.regularOpeningHours.weekdayDescriptions;
-  return Array.isArray(wd) && wd.length ? wd : null;
+  return { best, dist: bestD };
+}
+
+// A clinic's weekdayDescriptions array, or null. Tries progressively
+// looser queries — name + street + postal, then name + postal, then
+// name alone — and returns the first match within MATCH_RADIUS_M that
+// carries opening hours.
+async function lookupHours(clinic) {
+  const postal = clinic.postal ? 'Singapore ' + clinic.postal : 'Singapore';
+  const queries = [];
+  for (const q of [
+    [clinic.name, clinic.street, postal],
+    [clinic.name, postal],
+    [clinic.name, 'Singapore']
+  ]) {
+    const s = q.filter(Boolean).join(' ');
+    if (s && !queries.includes(s)) queries.push(s);
+  }
+  for (let i = 0; i < queries.length; i++) {
+    const { best, dist } = await searchNearest(clinic, queries[i]);
+    if (best && dist <= MATCH_RADIUS_M) {
+      const wd = best.regularOpeningHours && best.regularOpeningHours.weekdayDescriptions;
+      if (Array.isArray(wd) && wd.length) return wd;
+    }
+    if (i < queries.length - 1) await sleep(CALL_DELAY_MS);
+  }
+  return null;
 }
 
 async function main() {
