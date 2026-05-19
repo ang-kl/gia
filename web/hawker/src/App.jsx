@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
-import MapLayerChips from './components/MapLayerChips.jsx';
 import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 
@@ -218,13 +217,7 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                {/* v0.64.0 — overlay layer chips, above the map. */}
-                <MapLayerChips
-                  layers={overlayLayers}
-                  onChange={setOverlayLayers}
-                  showTrain
-                />
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} />
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}

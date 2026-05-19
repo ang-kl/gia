@@ -5,7 +5,6 @@ import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
-import MapLayerChips from './components/MapLayerChips.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
@@ -151,13 +150,6 @@ export default function App() {
             >{t('view.btnGoogleMap', lang)}</button>
           </div>
         </div>
-        {/* v0.64.0 — overlay layer chips above the map, Google Map view only. */}
-        {mapView === 'gmap' && (
-          <MapLayerChips
-            layers={overlayLayers}
-            onChange={setOverlayLayers}
-          />
-        )}
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
           : <MrtMapPanel
@@ -168,6 +160,7 @@ export default function App() {
               statusByLine={statusByLine}
               lang={lang}
               overlayLayers={overlayLayers}
+              onOverlayChange={setOverlayLayers}
             />}
       </div>
 
