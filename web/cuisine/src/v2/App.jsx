@@ -65,6 +65,20 @@ export default function App() {
   // keeping the visual context aligned with what the user is reading.
   const [visibleVenues, setVisibleVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  // v0.61.50 — loading-overlay message variant + rotating-title index.
+  // 'initial' (boot) → "loading random eateries…"; 'rotating' (user
+  // search w/ changed criteria) → cycles through 6 titles; 'refresh'
+  // (user search w/ unchanged criteria) → "refreshing same filters…".
+  const [loadingReason, setLoadingReason] = useState('initial');
+  const [rotatingIndex, setRotatingIndex] = useState(0);
+  // v0.61.50 — cycle the 6 rotating loading titles every 1.5 s while a
+  // user-triggered search with changed criteria is in flight.
+  useEffect(() => {
+    if (!loading || loadingReason !== 'rotating') return undefined;
+    setRotatingIndex(0);
+    const id = setInterval(() => setRotatingIndex((i) => (i + 1) % 6), 1500);
+    return () => clearInterval(id);
+  }, [loading, loadingReason]);
   // v0.60.32 — first-load indicator. Set to true on mount, cleared
   // after the first venues array arrives. Drives the "Please wait
   // while loading list…" banner so the user knows the longer initial
@@ -856,6 +870,16 @@ export default function App() {
   }
 
   const dirty = lastRunSnap !== null && stateSig(state) !== lastRunSnap;
+
+  // v0.61.50 — user-initiated search trigger. Picks the loading-overlay
+  // message variant before firing the search: 'refresh' when a prior
+  // search exists and the criteria are unchanged, 'rotating' otherwise.
+  // Wired to the floating 🔍 FAB, the big "🔍 Search · Show me places
+  // to eat" button, and the location-field's own 🔍 button.
+  function triggerSearch() {
+    setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
+    runSearch(state);
+  }
   // v0.60.166 — v0.60.165 added petFriendly to QUICK_FILTERS + state
   // but forgot to extend `filterCount`: toggling only 🐾 left
   // filterCount=0 → canClear=false → Clear button didn't render at
@@ -1011,6 +1035,7 @@ export default function App() {
                 ? t('banner.places.one', lang)
                 : tn('banner.places.many', lang, { n: venues.length })))}
           onSelect={onLocationSelect}
+          onSearch={triggerSearch}
         />
       )}
 
@@ -1119,7 +1144,7 @@ export default function App() {
             <div className="flex gap-1.5 items-center">
               <button
                 type="button"
-                onClick={() => runSearch(state)}
+                onClick={triggerSearch}
                 disabled={loading}
                 className={`flex-1 text-xs font-semibold px-3 py-2 rounded-2xl transition-colors whitespace-nowrap ${
                   loading ? 'bg-tg-card text-tg-hint border border-tg-border'
@@ -1153,21 +1178,28 @@ export default function App() {
           centres the loading card so the state is obvious. Disappears
           the instant warm-start (or the deep-linked first search)
           settles `firstLoadPending=false` AND `loading=false`. */}
-      {firstLoadPending && loading && (
+      {/* v0.61.50 — the loading overlay now appears for every search,
+          not just the first load. The message reflects loadingReason:
+          'initial' → "loading random eateries…"; 'rotating' → "Loading…"
+          + a title cycling through the 6 operator-specified variants;
+          'refresh' → "Refreshing results with the same filters…". */}
+      {loading && (
         <div
           aria-busy="true"
           className="fixed inset-0 z-50 bg-tg-bg/60 flex items-center justify-center cursor-wait"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg">
-            {/* v0.60.168 — FR tightened: was 'Veuillez patienter pendant
-                le chargement de la liste…' (53 chars, twice as long as
-                the EN). New 'Chargement de la liste…' (24 chars) matches
-                the EN's brevity while preserving the "loading list"
-                meaning per operator review. */}
-            ⏳ {lang === 'fr'
-              ? 'Chargement de la liste…'
-              : 'Please wait while loading list…'}
+          <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg text-center max-w-[280px]">
+            {loadingReason === 'rotating' ? (
+              <>
+                <div className="font-semibold">{t('loading.head', lang)}</div>
+                <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
+              </>
+            ) : loadingReason === 'refresh' ? (
+              t('loading.refresh', lang)
+            ) : (
+              t('loading.initial', lang)
+            )}
           </div>
         </div>
       )}
