@@ -261,12 +261,26 @@ export function infoPalette() {
     : { bg: '#f4f3ef', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1a73e8', good: '#2e7d32' };
 }
 
+// v0.61.31 — standard Google-Maps deep link. Every map pin info popup
+// ends with this text hyperlink — a TMA-wide convention, never a button.
+function gmapsUrl(lat, lng) {
+  return 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+}
+function gmapsLinkRow(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '';
+  return '<div style="margin-top:4px;"><a href="' + escapeHtml(gmapsUrl(lat, lng))
+    + '" target="_blank" rel="noopener" style="color:' + infoPalette().link
+    + ';">Google Map ↗</a></div>';
+}
+
 // v0.61.18 — rounded popup card so content reads on the light Google
 // map. v0.61.22 — theme-aware (infoPalette) + an in-card ✕ that calls
 // the host TMA's window.__giaMapInfoClose. Exported so every TMA's
-// popups share one look.
-export function infoCard(inner) {
+// popups share one look. v0.61.31 — pass `gmaps` ({lat,lng}) to append
+// the standard "Google Map ↗" link row.
+export function infoCard(inner, gmaps) {
   const c = infoPalette();
+  const tail = gmaps ? gmapsLinkRow(gmaps.lat, gmaps.lng) : '';
   return '<div style="position:relative;background:' + c.bg + ';'
     + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
     + 'font-size:12px;line-height:1.5;max-width:248px;">'
@@ -274,7 +288,7 @@ export function infoCard(inner) {
     + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
     + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
     + 'border-radius:50%;font-size:13px;font-weight:700;color:' + c.sub + ';">✕</span>'
-    + inner + '</div>';
+    + inner + tail + '</div>';
 }
 
 // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
@@ -304,7 +318,6 @@ function busArrivalRows(services) {
 // v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
 function busInfoHtml(b, services) {
   const c = infoPalette();
-  const gmaps = 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng;
   let h = '<div style="font-weight:600;">🚏 '
     + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
   const sub = [];
@@ -319,9 +332,7 @@ function busInfoHtml(b, services) {
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
-  h += '<div style="margin-top:4px;"><a href="' + escapeHtml(gmaps)
-    + '" target="_blank" rel="noopener" style="color:' + c.link + ';">Google Map ↗</a></div>';
-  return infoCard(h);
+  return infoCard(h, b);
 }
 
 // v0.61.19 — open the bus-stop popup, then fetch live arrivals from
@@ -359,8 +370,8 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     m.addListener('click', () => onClick(m));
     out.push(m);
   };
-  const openCard = (marker, html) => {
-    infoWindow.setContent(infoCard(html));
+  const openCard = (marker, html, lat, lng) => {
+    infoWindow.setContent(infoCard(html, { lat, lng }));
     infoWindow.open(map, marker);
   };
   const stationName = ctx.station && ctx.station.name ? ctx.station.name : '';
@@ -371,7 +382,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
   for (const ex of (Array.isArray(ctx.exits) ? ctx.exits : [])) {
     const code = String(ex.exit || '').replace(/^exit\s*/i, '') || 'Exit';
     place(ex.lat, ex.lng, amenityLabelNode(code, exitHex, '#fff', true),
-      (m) => openCard(m, exitTemplateHtml({ exitCode: code, station: stationName, codes: stationCodes })));
+      (m) => openCard(m, exitTemplateHtml({ exitCode: code, station: stationName, codes: stationCodes }), ex.lat, ex.lng));
   }
   for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : []).slice(0, lim.bus || 3)) {
     if (!b || !b.code) continue;
@@ -385,7 +396,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
       (m) => openCard(m, '<div style="font-weight:600;">'
         + (pickup ? '🚕 Pick-up point' : '🚕 Taxi stand') + '</div>'
         + (x.name ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-          + escapeHtml(x.name) + '</div>' : '')));
+          + escapeHtml(x.name) + '</div>' : ''), x.lat, x.lng));
   }
   for (const cp of (Array.isArray(ctx.carparks) ? ctx.carparks : []).slice(0, lim.carpark || 2)) {
     if (!cp) continue;
@@ -394,7 +405,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
         + escapeHtml(cp.name || 'Carpark') + '</div>'
         + (Number.isFinite(cp.availableLots)
           ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-            + cp.availableLots + ' lots available</div>' : '')));
+            + cp.availableLots + ' lots available</div>' : ''), cp.lat, cp.lng));
   }
   // v0.61.21 — the station-detail callers (Transport + Cuisine train
   // overlay) pass includeStation:false; the tapped station already has
@@ -406,7 +417,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
     place(st.lat, st.lng, amenityLabelNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff', true),
       (m) => openCard(m, '<div style="font-weight:600;">🚉 ' + escapeHtml(st.name) + '</div>'
         + (codes ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-          + escapeHtml(codes + lines) + '</div>' : '')));
+          + escapeHtml(codes + lines) + '</div>' : ''), st.lat, st.lng));
   }
   return out;
 }
@@ -593,16 +604,16 @@ export function createOverlayController(map, googleMaps) {
 
   // --- per-feature InfoWindow HTML -------------------------------------
   const nameInfo = (f) =>
-    infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>');
+    infoCard('<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>', f);
 
   // v0.61.24 — the Exit Template for an enriched geo-exits.json feature.
   const exitInfo = (f) =>
-    infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes, nearby: f.nearby }));
+    infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes, nearby: f.nearby }), f);
 
   const carparkInfo = (f) => {
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>');
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
   };
 
   const attractionInfo = (f) => {
@@ -624,7 +635,7 @@ export function createOverlayController(map, googleMaps) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
         + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 Website</a></div>';
     }
-    return infoCard(h);
+    return infoCard(h, f);
   };
 
   async function ensureLayer(name) {

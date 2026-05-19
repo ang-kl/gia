@@ -273,7 +273,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           marker.addListener('click', () => {
             if (!infoWindowRef.current) return;
             infoWindowRef.current.setContent(infoCard(
-              `<strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}`
+              `<strong>⚠️ ${escapeHtml(inc.type || 'Incident')}</strong><br>${escapeHtml(inc.message || '')}`,
+              { lat: inc.lat, lng: inc.lng }
             ));
             infoWindowRef.current.open(mapRef.current, marker);
           });
@@ -431,14 +432,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           footfallHtml = `<div style="font-size:11px;color:${p.sub};margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
         }
       }
-      // v0.58.54: on touch devices, embed an "Open in Google Maps" CTA
-      // inside the bubble — the global `window.__giaOpenMap(placeId)`
-      // handler (registered at mount) routes through openInGoogleMaps.
-      // On desktop the hint reads "Tap pin → Google Maps" because the
-      // pin click itself opens Maps directly without showing the bubble.
-      const ctaHtml = isTouchRef.current
-        ? `<button onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}')" style="margin-top:8px;width:100%;padding:6px 10px;border:0;border-radius:6px;background:#1a73e8;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${escapeHtml(tr('map.openInMaps', lang))}</button>`
-        : `<div style="font-size:10.5px;color:${p.sub};margin-top:4px;font-style:italic;">${escapeHtml(tr('map.tapPin', lang))}</div>`;
+      // v0.61.31 — every map pin popup ends with the standard
+      // "Google Map ↗" text hyperlink (no blue button). The global
+      // `window.__giaOpenMap(placeId)` handler routes through
+      // openInGoogleMaps for proper Telegram WebApp deep-linking.
+      const ctaHtml = `<div style="margin-top:6px;"><a href="#" onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}'); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
       // v0.62.0 — HPB Healthier Choice + inside-building rows.
       const healthierHtml = v.healthierChoice
         ? `<div style="font-size:11px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`

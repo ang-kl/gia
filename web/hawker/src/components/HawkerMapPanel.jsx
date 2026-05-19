@@ -219,7 +219,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
       h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(tn('stalls.count', lang, { n: c.stalls }))}</div>`;
     }
     if (c.address) {
-      h += `<div style="margin-top:3px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;">📇 ${escapeHtml(c.address)} ↗</a></div>`;
+      h += `<div style="color:${p.sub};margin-top:3px;">📇 ${escapeHtml(c.address)}</div>`;
     }
     const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
     for (const b of bus.slice(0, 2)) {
@@ -236,6 +236,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
         h += `<div style="color:${p.sub};margin-top:2px;">🚪 ${escapeHtml(exits.join(', '))}</div>`;
       }
     }
+    // v0.61.31 — standard trailing "Google Map ↗" hyperlink (every TMA).
+    h += `<div style="margin-top:4px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
     return infoCard(h);
   }
 

@@ -445,7 +445,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
         }).join('<br>')
       : '';
-    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;" style="color:${pal.link}">${escapeHtml(t('mrt.openInMap', lang))}</a>`;
+    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;" style="color:${pal.link}">Google Map ↗</a>`;
     const crowdHtml = (!isFuture && crowdLevel)
       ? `<br><span>${CROWD_DOT[crowdLevel]} ${escapeHtml(t(`mrt.crowd.${crowdLevel}`, lang))}</span>`
       : '';
