@@ -287,16 +287,15 @@ export function giaToggleStyle(on, disabled) {
 // v0.61.20 — amenity-pin colour for the nearest-MRT-station pill.
 const AMENITY_STATION_BG = '#00695C';
 
-// v0.61.22 — popup colour palette. Adapts to the Telegram light/dark
-// theme (via WebApp.colorScheme) so popup text never washes out on the
-// always-light Google map. Read fresh on every popup build.
+// v0.61.22 — popup colour palette.
+// v0.61.47 — fixed, theme-independent palette (operator request). The
+// card used to follow the Telegram light/dark theme, but a dark card
+// washed out in bright sunshine and the hyperlink read poorly. A single
+// high-contrast light scheme — white card, near-black text, a strong
+// underlined blue link — stays legible regardless of light/dark mode or
+// outdoor glare.
 export function infoPalette() {
-  const dark = typeof window !== 'undefined'
-    && window.Telegram && window.Telegram.WebApp
-    && window.Telegram.WebApp.colorScheme === 'dark';
-  return dark
-    ? { bg: '#2b2b30', fg: '#ededed', sub: '#a8a8a8', link: '#7cb0ff', good: '#7cc47f' }
-    : { bg: '#f4f3ef', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1a73e8', good: '#2e7d32' };
+  return { bg: '#ffffff', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1558d6', good: '#2e7d32' };
 }
 
 // v0.61.38 — greyscale the base map, leaving the DOM overlay markers
@@ -328,7 +327,7 @@ function gmapsLinkRow(lat, lng) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '';
   return '<div style="margin-top:4px;"><a href="' + escapeHtml(gmapsUrl(lat, lng))
     + '" target="_blank" rel="noopener" style="color:' + infoPalette().link
-    + ';">Google Map ↗</a></div>';
+    + ';font-weight:600;text-decoration:underline;">Google Map ↗</a></div>';
 }
 
 // v0.61.18 — rounded popup card so content reads on the light Google
@@ -389,7 +388,8 @@ function busInfoHtml(b, services) {
   }
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
     h += '<div style="margin-top:6px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
-      + '" target="_blank" rel="noopener" style="color:' + c.link + ';">'
+      + '" target="_blank" rel="noopener" style="color:' + c.link
+      + ';font-weight:600;text-decoration:underline;">'
       + escapeHtml(road) + ' ↗</a></div>';
   }
   return infoCard(h);
