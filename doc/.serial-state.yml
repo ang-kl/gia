@@ -1,8 +1,8 @@
 counters:
-  commit: 263
-  build: 63
+  commit: 264
+  build: 64
   documents:
-    journal: 256
+    journal: 257
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,16 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 20-05 '26 08:00 SGT
-last_anchor_source: claude_estimate_continuation_after_journal255 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-20T08:00:00+08:00
-last_anchor_utc: 2026-05-20T00:00:00Z
+last_anchor_time: 20-05 '26 09:00 SGT
+last_anchor_source: claude_estimate_continuation_after_journal256 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-20T09:00:00+08:00
+last_anchor_utc: 2026-05-20T01:00:00Z
+# journal #257 (commit 264 / build 64) — v0.61.53 CR5 v1 zoom-aware
+# train layer: at map.getZoom()>=ZOOM_DETAIL_THRESHOLD=15 every visible
+# station becomes a "<code> <name> station" amenityLabelNode pill in
+# its line colour; base polyline opacity 0.85→0.5 below threshold.
+# Unified per-station _mode swap subsumes the centre-only rebuild.
+# Selective prev/current/next polyline emphasis still deferred.
 # journal #256 (commit 263 / build 63) — v0.61.52 CR4 bus-stop
 # de-emphasis: liteBusNode (half-size translucent 🚏 with no № code);
 # stops within BUS_DEEMPH_NEAR_M=150 m of the map anchor render

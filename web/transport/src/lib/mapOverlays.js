@@ -38,6 +38,10 @@ const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes t
 // v0.61.52 — bus-stop de-emphasis: stops within this of the anchor
 // render full-size, the rest of the overlay-radius set render lite.
 const BUS_DEEMPH_NEAR_M = 150;
+// v0.61.53 — zoom level at and above which the train layer expands:
+// every visible station becomes a labelled pill (<code> <name> station),
+// and the base polyline goes opaque. Below: square pins + 50 % polyline.
+const ZOOM_DETAIL_THRESHOLD = 15;
 
 // Canonical LTA line colours for the train-line overlay (the transport
 // app's LINES_BY_CODE isn't importable across Vite apps).
@@ -518,6 +522,10 @@ export function createOverlayController(map, googleMaps) {
   const info = new InfoWindow({ disableAutoPan: true, headerDisabled: true });
   // v0.61.22 — tapping empty map dismisses the overlay popup.
   map.addListener('click', () => info.close());
+  // v0.61.53 — re-apply the train layer on every zoom change so station
+  // markers swap square ↔ labelled-pill at ZOOM_DETAIL_THRESHOLD and the
+  // polyline opacity tracks zoom.
+  map.addListener('zoom_changed', () => { if (layers.train) applyVisibility('train'); });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
   //   line   items: { polyline, pts:[{lat,lng}] }
@@ -914,6 +922,10 @@ export function createOverlayController(map, googleMaps) {
     // neighbours show, with their amenity pins.
     if (e.kind === 'train') {
       const emph = trainEmphasis;
+      // v0.61.53 — zoom-aware train layer (CR5): above the threshold
+      // every visible station becomes a labelled pill and the base
+      // polyline goes more opaque.
+      const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
       for (const h of (e.highlights || [])) h.setMap(null);
       e.highlights = [];
       let near3 = [];
@@ -929,7 +941,7 @@ export function createOverlayController(map, googleMaps) {
         ln.polyline.setMap(e.visible && near ? map : null);
         ln.polyline.setOptions(emph
           ? { strokeOpacity: 0.35, strokeWeight: 3 }
-          : { strokeOpacity: 0.85, strokeWeight: 4 });
+          : { strokeOpacity: zoomedIn ? 0.85 : 0.5, strokeWeight: 4 });
         if (e.visible && near && emph && near3.length) {
           for (const s of near3) {
             const win = trackWindow(ln.pts, s.lat, s.lng, 200, 130);
@@ -957,6 +969,14 @@ export function createOverlayController(map, googleMaps) {
           .filter((it) => keep.has(it.station.name))
           .map((it) => ({ lat: it.lat, lng: it.lng }));
       }
+      // v0.61.53 — unified per-station content swap (subsumes the
+      // earlier centre-only rebuild). At zoom-in every visible station
+      // is a labelled `<code> <name> station` pill in its line colour;
+      // at zoom-out, square pins, except the explicitly-selected centre
+      // which stays a pill so it self-identifies without an InfoWindow.
+      // `_mode` caches the current state to avoid rebuilding on every
+      // pan-driven applyVisibility.
+      const newCentre = detailStation ? detailStation.name : null;
       for (const st of e.stations) {
         let show;
         if (keep) {
@@ -966,24 +986,21 @@ export function createOverlayController(map, googleMaps) {
           show = e.visible && near;
         }
         st.marker.map = show ? map : null;
-      }
-      // v0.61.17 — the selected station gets the larger centre marker;
-      // rebuild marker content only when the selection actually
-      // changes (not on every pan-driven applyVisibility).
-      const newCentre = detailStation ? detailStation.name : null;
-      if (newCentre !== centreName) {
-        if (centreName) {
-          const old = e.stations.find((x) => x.station.name === centreName);
-          if (old) old.marker.content = squareStationNode(old.hex);
+        if (!show) continue;
+        const isCentre = st.station.name === newCentre;
+        const wantMode = (zoomedIn || isCentre) ? 'pill' : 'square';
+        if (st._mode !== wantMode) {
+          if (wantMode === 'pill') {
+            const code = (Array.isArray(st.station.codes) && st.station.codes[0]) || '';
+            const label = (code ? code + ' ' : '') + (st.station.name || '') + ' station';
+            st.marker.content = amenityLabelNode(label, st.hex, '#fff', true);
+          } else {
+            st.marker.content = squareStationNode(st.hex);
+          }
+          st._mode = wantMode;
         }
-        if (newCentre) {
-          const cur = e.stations.find((x) => x.station.name === newCentre);
-          // v0.61.18 — the selected station becomes a named pill so it
-          // self-identifies without an InfoWindow.
-          if (cur) cur.marker.content = amenityLabelNode('🚉 ' + (cur.station.name || ''), cur.hex, '#fff');
-        }
-        centreName = newCentre;
       }
+      centreName = newCentre;
       return;
     }
     // marker — chip overlay layer. v0.61.26 — in a station-detail view
