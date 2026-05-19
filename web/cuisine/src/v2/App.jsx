@@ -6,7 +6,6 @@ import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
 import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
-import MapLayerChips from './components/MapLayerChips.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -78,7 +77,7 @@ export default function App() {
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
-  const [overlayLayers, setOverlayLayers] = useState({ parks: false, attractions: false, taxis: false, carpark: false, exits: false, clinics: false, police: false, train: true });
+  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: false, train: true, exits: true, taxis: true, parks: false, police: false, clinics: false });
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
@@ -1015,13 +1014,6 @@ export default function App() {
         />
       )}
 
-      {/* v0.64.0 — overlay layer chips, above the map. */}
-      <MapLayerChips
-        layers={overlayLayers}
-        onChange={setOverlayLayers}
-        showTrain
-      />
-
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
@@ -1030,6 +1022,7 @@ export default function App() {
         searchCenter={searchCenter || userLoc}
         anchorName={locationName}
         overlayLayers={overlayLayers}
+        onOverlayChange={setOverlayLayers}
       />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per

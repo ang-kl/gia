@@ -66,14 +66,19 @@ const STRINGS = {
   'filter.closeMore':          { en: 'Close more filters', fr: 'Fermer plus de filtres' },
 
   // ----- Map overlay layers (v0.61.0) -----
-  'layer.parks':               { en: 'Parks', fr: 'Parcs' },
+  'layer.parks':               { en: 'Park', fr: 'Parc' },
   'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
-  'layer.taxis':               { en: 'Taxis', fr: 'Taxis' },
+  'layer.taxis':               { en: 'Taxi Stand', fr: 'Station de taxi' },
   'layer.clinics':             { en: 'Clinics', fr: 'Cliniques' },
   'layer.police':              { en: 'Police', fr: 'Police' },
   'layer.carpark':             { en: 'Carpark', fr: 'Parking' },
-  'layer.exits':               { en: 'Exits', fr: 'Sorties' },
-  'layer.train':               { en: 'Train', fr: 'Métro' },
+  'layer.exits':               { en: 'Station Exits', fr: 'Sorties de station' },
+  'layer.train':               { en: 'Train Line', fr: 'Ligne de train' },
+  'layer.busstop':             { en: 'Bus Stop', fr: 'Arrêt de bus' },
+  'layer.colour':              { en: 'Colour', fr: 'Couleur' },
+  'layer.open24':              { en: '24 hours', fr: '24 heures' },
+  'map.reset':                 { en: 'Reset view', fr: 'Réinitialiser' },
+  'map.more':                  { en: 'More layers', fr: 'Plus de couches' },
   'layer.all':                 { en: 'All', fr: 'Tout' },
 
   // ----- Cuisine drawer -----
