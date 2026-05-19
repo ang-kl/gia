@@ -1,8 +1,8 @@
 counters:
-  commit: 248
-  build: 49
+  commit: 249
+  build: 50
   documents:
-    journal: 241
+    journal: 242
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,14 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 08:15 SGT
+last_anchor_time: 19-05 '26 09:30 SGT
 last_anchor_source: claude_estimate_session_work_after_journal233_anchor_0020_SGT (live fetch blocked — host not in allowlist; not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-19T08:15:00+08:00
-last_anchor_utc: 2026-05-19T00:15:00Z
+last_anchor_iso8601: 2026-05-19T09:30:00+08:00
+last_anchor_utc: 2026-05-19T01:30:00Z
+# journal #242 (commit 249 / build 50) — v0.61.38 🎨 Colour moved to a
+# nav button (above Reset); /transport nearest-station link unwrapped
+# (plain name + trailing 🗺️ link) for dark-mode legibility; Clinics
+# dropdown item → 💊 Clinic / Pharmacy.
 # journal #241 (commit 248 / build 49) — v0.61.37 vertical semi-
 # transparent map nav-button column (Reset/+/-/expand) across the 3
 # TMAs; /ver keyboard button relabelled /admin → /oversight.

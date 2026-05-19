@@ -29,7 +29,7 @@ const STRINGS = {
   'layer.parks':             { en: 'Park', fr: 'Parc' },
   'layer.attractions':       { en: 'Attractions', fr: 'Attractions' },
   'layer.taxis':             { en: 'Taxi Stand', fr: 'Station de taxi' },
-  'layer.clinics':           { en: 'Clinics', fr: 'Cliniques' },
+  'layer.clinics':           { en: 'Clinic / Pharmacy', fr: 'Clinique / Pharmacie' },
   'layer.police':            { en: 'Police', fr: 'Police' },
   'layer.busstop':           { en: 'Bus Stop', fr: 'Arrêt de bus' },
   'layer.colour':            { en: 'Colour', fr: 'Couleur' },
