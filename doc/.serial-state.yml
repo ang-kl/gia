@@ -1,8 +1,8 @@
 counters:
-  commit: 254
-  build: 55
+  commit: 255
+  build: 56
   documents:
-    journal: 247
+    journal: 248
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,14 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 22:30 SGT
-last_anchor_source: claude_estimate_continuation_after_journal246 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-19T22:30:00+08:00
-last_anchor_utc: 2026-05-19T14:30:00Z
+last_anchor_time: 19-05 '26 23:00 SGT
+last_anchor_source: claude_estimate_continuation_after_journal247 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-19T23:00:00+08:00
+last_anchor_utc: 2026-05-19T15:00:00Z
+# journal #248 (commit 255 / build 56) — v0.61.44 bus-stop popup
+# redesign: busInfoHtml → 🚏 road name / 🚏 № code / bucketed arrival
+# rows / road-name Google-Maps hyperlink footer (was description +
+# 📍 road·distance·code line + generic Google Map ↗). mapOverlays ×3.
 # journal #247 (commit 254 / build 55) — v0.61.43 sg-address.js
 # expandSgAbbrev: Singapore street/building short-forms (Rd/Ave/Sth/
 # Opp/Blk/St…) expanded at the API boundary (loadGeoOverlays +
