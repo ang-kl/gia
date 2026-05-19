@@ -21,7 +21,16 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // pickedLabel), and after a TMA background/restore. Without it, the
 // field re-showed the device / cached-pin neighbourhood even though
 // searches were still running at the locked-in location.
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '' }) {
+// v0.61.50 — the right-side icon is now context-aware:
+//   • closed (search mode) → 🔍 button that fires `onSearch`;
+//   • open  (edit mode)   → ✏️ visual indicator only.
+// While open, the field auto-closes back to search mode after 2.5 s of
+// keystroke inactivity, so the search 🔍 reappears without the user
+// having to blur the input. Picking a suggestion still commits the
+// anchor only — the actual search runs when the user taps one of the
+// three search controls: the field's own 🔍, the floating 🔍 FAB, or
+// the "🔍 Search · Show me places to eat" button.
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null }) {
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -47,6 +56,15 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
       .catch(() => { /* placeholder stays empty; field still works */ });
     return () => { cancelled = true; };
   }, [userLoc?.lat, userLoc?.lng]);
+
+  // v0.61.50 — while the input is open, auto-close back to search mode
+  // after 2.5 s of keystroke inactivity. Each `query` change re-arms the
+  // timer; on close, the right-side icon flips ✏️ → 🔍.
+  useEffect(() => {
+    if (!open) return undefined;
+    const tid = setTimeout(() => setOpen(false), 2500);
+    return () => clearTimeout(tid);
+  }, [open, query]);
 
   // Debounced autocomplete fetch on every keystroke.
   useEffect(() => {
@@ -182,8 +200,16 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
           >×</button>
         )}
-        {!open && (
+        {open ? (
           <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onSearch?.()}
+            aria-label={tr('loc.searchHere', lang)}
+            title={tr('loc.searchHere', lang)}
+            className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
+          >🔍</button>
         )}
       </div>
       {open && suggestions.length > 0 && (

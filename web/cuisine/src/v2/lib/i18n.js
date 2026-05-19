@@ -152,6 +152,25 @@ const STRINGS = {
 
   // ----- Location field -----
   'loc.searchLocation':        { en: 'Search location', fr: 'Rechercher un lieu' },
+  // v0.61.50 — loading-overlay messages (operator-specified copy).
+  'loading.initial':           { en: '⏳ Please wait while loading random eateries…',
+                                 fr: '⏳ Chargement de restaurants aléatoires…' },
+  'loading.refresh':           { en: '📑 Refreshing results with the same filters…',
+                                 fr: '📑 Actualisation des résultats avec les mêmes filtres…' },
+  'loading.head':              { en: 'Loading…', fr: 'Chargement…' },
+  'loading.rotating.1':        { en: '⏳ Looking for places that match criteria',
+                                 fr: '⏳ Recherche de lieux correspondant aux critères' },
+  'loading.rotating.2':        { en: '🔍 Matching places to your filters…',
+                                 fr: '🔍 Mise en correspondance des lieux avec vos filtres…' },
+  'loading.rotating.3':        { en: '🔎 Checking Google Maps for matching eateries…',
+                                 fr: '🔎 Recherche de restaurants correspondants sur Google Maps…' },
+  'loading.rotating.4':        { en: '📋👀 Searching eateries…',
+                                 fr: '📋👀 Recherche de restaurants…' },
+  'loading.rotating.5':        { en: '🔦 Checking places…',
+                                 fr: '🔦 Vérification des lieux…' },
+  'loading.rotating.6':        { en: '🔍 Searching — this takes more than a few seconds.',
+                                 fr: '🔍 Recherche — cela prend plus de quelques secondes.' },
+  'loc.searchHere':            { en: 'Search at this location', fr: 'Rechercher à cet endroit' },
   'loc.clear':                 { en: 'Clear location', fr: 'Effacer le lieu' },
 
   // ----- MapPanel InfoWindow -----
