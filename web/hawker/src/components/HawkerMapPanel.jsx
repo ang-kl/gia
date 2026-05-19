@@ -240,7 +240,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(st.lat, st.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
       const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += `<div style="color:${p.sub};margin-top:2px;">🚪 ${escapeHtml(exits.join(', '))}</div>`;
+        h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(exits.join(', '))}</div>`;
       }
     }
     // v0.61.31 — standard trailing "Google Map ↗" hyperlink (every TMA).

@@ -8,7 +8,7 @@ import MapControls from './MapControls.jsx';
 // "replace boring pins with specifics like 🐾 for Pet Allowed or 🍮
 // for Dessert or ✳️ for curated Michelin list". Priority order
 // (first match wins):
-//   1. michelinCategory → ✳️
+//   1. michelinCategory → ✴️
 //   2. allowsDogs       → 🐾
 //   3. restaurantType matches a dessert-ish keyword → 🍮
 //   4. default          → null  (caller skips the glyph; plain
@@ -17,7 +17,7 @@ import MapControls from './MapControls.jsx';
 const DESSERT_RX = /dessert|patisserie|p[âa]tisserie|bakery|cafe|caf[ée]|ice ?cream|gelato|sweet|confection/i;
 function pinGlyphFor(venue) {
   if (!venue) return null;
-  if (venue.michelinCategory) return '✳️';
+  if (venue.michelinCategory) return '✴️';
   if (venue.allowsDogs === true) return '🐾';
   if (typeof venue.restaurantType === 'string' && DESSERT_RX.test(venue.restaurantType)) return '🍮';
   return null;
@@ -25,9 +25,10 @@ function pinGlyphFor(venue) {
 
 // v0.60.229 → v0.60.234 — round-dot pin. Operator (v0.60.234): the
 // 18px dot was hard to tap → 22px; the selected pin no longer changes
-// colour or size (the InfoWindow popup is the selection cue); and the
-// Michelin/Pet/dessert glyph is drawn as a solid WHITE silhouette on
-// the coloured dot instead of a multi-colour emoji on a white circle.
+// colour or size (the InfoWindow popup is the selection cue).
+// v0.61.49 — the Michelin ✴️ glyph keeps its native colour (a gold
+// star that stands out); the pet / dessert glyphs stay white
+// silhouettes on the coloured dot.
 function cuisinePinNode(glyph) {
   const size = 22;
   const el = document.createElement('div');
@@ -39,9 +40,8 @@ function cuisinePinNode(glyph) {
   if (glyph) {
     const ic = document.createElement('span');
     ic.textContent = glyph;
-    // brightness(0) invert(1): render the multi-colour emoji as a
-    // solid white silhouette so the icon reads on the coloured dot.
-    ic.style.cssText = 'font-size:13px;line-height:1;filter:brightness(0) invert(1);';
+    ic.style.cssText = 'font-size:13px;line-height:1;'
+      + (glyph === '✴️' ? '' : 'filter:brightness(0) invert(1);');
     el.appendChild(ic);
   }
   return el;
@@ -389,7 +389,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
       // v0.60.184 — emoji-coded glyph (operator: "replace boring pins
       // with specifics like 🐾 / 🍮 / ✳️"). Priority: Michelin
-      // (✳️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
+      // (✴️) > pet-allowed (🐾) > dessert-ish restaurantType (🍮) >
       // default (no glyph, falls back to the plain coloured circle).
       const glyph = pinGlyphFor(v);
       // v0.60.234 — 22px round dot (cuisinePinNode); michelin/pet/

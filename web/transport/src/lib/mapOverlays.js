@@ -704,7 +704,7 @@ export function createOverlayController(map, googleMaps) {
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
       const exits = Array.isArray(f.station.exits) ? f.station.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += '<div style="color:' + c.sub + ';margin-top:2px;">🚪 ' + escapeHtml(exits.join(', ')) + '</div>';
+        h += '<div style="color:' + c.sub + ';margin-top:2px;">' + escapeHtml(exits.join(', ')) + '</div>';
       }
     }
     if (f.website) {
@@ -831,7 +831,7 @@ export function createOverlayController(map, googleMaps) {
         entry = { kind: 'polygon', visible: false, items: buildParks(d.parks) };
       } else if (name === 'attractions') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.attractions, '#FF8F00', '🎡', attractionInfo) };
+          items: buildMarkers(d.attractions, '#f4f3ef', '📌', attractionInfo) };
       } else if (name === 'taxis') {
         entry = { kind: 'marker', visible: false,
           items: buildTaxiMarkers(d.taxis) };

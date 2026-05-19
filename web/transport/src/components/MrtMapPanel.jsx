@@ -472,7 +472,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       const exits = Array.isArray(ctx.exits)
         ? ctx.exits.map((e) => e && e.exit).filter(Boolean) : [];
       if (exits.length) {
-        h += `<br>🚪 ${escapeHtml(t('mrt.exits', lang))}: ${escapeHtml(exits.join(', '))}`;
+        h += `<br>${escapeHtml(t('mrt.exits', lang))}: ${escapeHtml(exits.join(', '))}`;
       }
       const bus = Array.isArray(ctx.busStops)
         ? ctx.busStops.map((b) => b && b.code).filter(Boolean) : [];
