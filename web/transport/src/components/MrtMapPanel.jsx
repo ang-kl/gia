@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -295,6 +295,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
+    ensureGreyscaleStyle();
     mapRef.current = new window.google.maps.Map(containerRef.current, {
       center: SG_CENTROID,
       zoom: SG_DEFAULT_ZOOM,
@@ -652,11 +653,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         // v0.60.93 — match Cuisine MapPanel responsive height per
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. v0.63.0 — expand toggle grows it to ~90vh.
-        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%', filter: overlayLayers?.colour ? 'grayscale(1)' : undefined }}
+        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
@@ -168,6 +168,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
 
   function initMap() {
     if (!containerRef.current || mapRef.current) return;
+    ensureGreyscaleStyle();
     const { Map } = window.google.maps;
     // v0.60.19 — initial map center + zoom prefers the anchored
     // searchCenter (the user's chosen anchor) over the raw userLoc
@@ -562,11 +563,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           1133 px iPad portrait viewport, which felt cramped. */}
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
-          minHeight: 240,
-          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
+          minHeight: 240
         }}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the

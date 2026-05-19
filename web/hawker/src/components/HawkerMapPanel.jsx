@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -150,6 +150,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
 
   function initMap() {
     if (!containerRef.current || mapRef.current) return;
+    ensureGreyscaleStyle();
     const { Map } = window.google.maps;
     mapRef.current = new Map(containerRef.current, {
       center: SG_CENTROID,
@@ -382,11 +383,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
-          minHeight: 240,
-          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
+          minHeight: 240
         }}
         aria-label={t('map.aria', lang)}
       />
