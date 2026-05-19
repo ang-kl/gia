@@ -573,37 +573,37 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text flip with the Telegram
           light/dark theme). Replaces Google's native zoom control. */}
-      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={tr('map.zoomIn', lang)}
-        ><span aria-hidden>＋</span></button>
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={tr('map.zoomOut', lang)}
-        ><span aria-hidden>－</span></button>
-        <button
-          type="button"
-          onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
-          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
-        {/* v0.61.36 — Reset: recenter to the search anchor / default view. */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
           onClick={() => {
             mapRef.current?.setCenter(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 });
             mapRef.current?.setZoom(14);
           }}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={tr('map.reset', lang)}
           title={tr('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls

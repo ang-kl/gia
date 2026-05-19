@@ -56,7 +56,7 @@ export default function MapControls({
   const fire = (it) => { if (!it.disabled && onToggleLayer) onToggleLayer(it.key); };
 
   return (
-    <div ref={wrapRef} className="absolute top-2 left-2 right-32 z-10">
+    <div ref={wrapRef} className="absolute top-2 left-2 right-12 z-10">
       <div className="flex flex-row flex-wrap gap-1 items-start">
         {menuToggles.length > 0 && (
           <div className="relative">
