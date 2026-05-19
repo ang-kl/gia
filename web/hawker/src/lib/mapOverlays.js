@@ -64,6 +64,11 @@ const AMENITY_EXIT_BG = '#5E35B1';
 const AMENITY_BUS_BG = '#1565C0';
 const AMENITY_TAXI_BG = '#FBC02D';
 const AMENITY_CARPARK_BG = '#1565C0';
+// v0.61.54 — CR10: pin backgrounds must not read dark/black against the
+// (now stronger-greyscale) base map. Police was previously #1A237E
+// (Material Indigo 900 — very dark navy); lifted to Indigo 400, still
+// distinctly "police blue" but visibly lighter on white-text labels.
+const AMENITY_POLICE_BG = '#5C6BC0';
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -698,6 +703,7 @@ export function createOverlayController(map, googleMaps) {
     detailStation = null;
     info.close();
     if (layers.train) applyVisibility('train');
+    if (layers.busstop) applyVisibility('busstop');
     syncDetailAmenityLayers();
   }
 
@@ -715,6 +721,7 @@ export function createOverlayController(map, googleMaps) {
     }
     detailStation = s;
     if (layers.train) applyVisibility('train');
+    if (layers.busstop) applyVisibility('busstop');
     syncDetailAmenityLayers();
   }
 
@@ -883,7 +890,7 @@ export function createOverlayController(map, googleMaps) {
           items: buildMarkers(d.clinics, '#C62828', '+', clinicInfo, rectPinNode) };
       } else if (name === 'police') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.police, '#1A237E', '👮', poiInfo('👮')) };
+          items: buildMarkers(d.police, AMENITY_POLICE_BG, '👮', poiInfo('👮')) };
       } else if (name === 'hospitals') {
         entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.hospitals, '#00897B', '🏥', hospitalInfo) };
@@ -1009,17 +1016,32 @@ export function createOverlayController(map, googleMaps) {
     // anchor radius.
     const stationScoped = detailStations.length && (name === 'exits' || name === 'taxis');
     const r = currentRadius();
+    // v0.61.54 — CR4 v2 multi-focus: a bus stop is "near focus" if it
+    // sits within BUS_DEEMPH_NEAR_M of *any* of (a) the viewport anchor,
+    // (b) the result-emphasis anchor (set by Cuisine when a venue is
+    // focused), (c) the tapped active station. Computed once per call.
+    const focusPoints = name === 'busstop' ? (() => {
+      const fp = [];
+      if (anchor) fp.push(anchor);
+      if (trainEmphasis) fp.push(trainEmphasis);
+      if (detailStation && Number.isFinite(detailStation.lat) && Number.isFinite(detailStation.lng)) {
+        fp.push({ lat: detailStation.lat, lng: detailStation.lng });
+      }
+      return fp;
+    })() : null;
     for (const it of e.items) {
       const near = stationScoped
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
       // v0.61.52 — bus-stop de-emphasis (CR4): inside the visible set,
-      // stops within BUS_DEEMPH_NEAR_M of the anchor render primary,
-      // the rest render lite.
+      // stops near focus render primary, the rest render lite.
+      // v0.61.54 — focus = anchor ∪ result ∪ active station (CR4 v2).
       if (it._bus && e.visible && near) {
-        const closeToAnchor = inRadius(it.lat, it.lng, BUS_DEEMPH_NEAR_M);
-        const want = closeToAnchor ? it.primary : it.lite;
+        const closeToFocus = focusPoints.some(
+          (fp) => metresBetween(fp.lat, fp.lng, it.lat, it.lng) <= BUS_DEEMPH_NEAR_M
+        );
+        const want = closeToFocus ? it.primary : it.lite;
         if (it.marker.content !== want) it.marker.content = want;
       }
     }
@@ -1060,6 +1082,9 @@ export function createOverlayController(map, googleMaps) {
       trainEmphasis = (Number.isFinite(lat) && Number.isFinite(lng))
         ? { lat, lng } : null;
       if (layers.train) applyVisibility('train');
+      // v0.61.54 — CR4 v2: the search-result anchor counts as focus for
+      // the bus-stop de-emphasis check.
+      if (layers.busstop) applyVisibility('busstop');
     },
     // v0.61.17 — clear the station-detail view (if any).
     clearStationDetail() {
