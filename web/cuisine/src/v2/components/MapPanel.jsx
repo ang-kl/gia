@@ -586,7 +586,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           style={giaToggleStyle(overlayLayers?.colour !== false)}
           aria-label={tr('layer.colour', lang)}
           title={tr('layer.colour', lang)}
-        ><span aria-hidden>🎨</span></button>
+        ><span aria-hidden style={{ filter: overlayLayers?.colour !== false ? 'brightness(0)' : 'brightness(0) invert(1)' }}>🎨</span></button>
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
