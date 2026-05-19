@@ -196,6 +196,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     ctrl.setLayer('attractions', !!layers.attractions);
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
+    ctrl.setLayer('busstop', !!layers.busstop);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
     ctrl.setLayer('hospitals', !!layers.hospitals);
@@ -367,7 +368,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const rowToggles = [
     { key: 'attractions', icon: '✨', label: t('layer.attractions', lang) },
     { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang), disabled: true }
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) }
   ];
   const menuToggles = [
     { key: 'train',   icon: '🚉', label: t('layer.train', lang) },

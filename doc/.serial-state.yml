@@ -1,8 +1,8 @@
 counters:
-  commit: 252
-  build: 54
+  commit: 253
+  build: 55
   documents:
-    journal: 245
+    journal: 246
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,15 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 19-05 '26 20:30 SGT
-last_anchor_source: claude_estimate_continuation_after_journal244 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-19T20:30:00+08:00
-last_anchor_utc: 2026-05-19T12:30:00Z
+last_anchor_time: 19-05 '26 21:30 SGT
+last_anchor_source: claude_estimate_continuation_after_journal245 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-19T21:30:00+08:00
+last_anchor_utc: 2026-05-19T13:30:00Z
+# journal #246 (commit 253 / build 55) — v0.61.42 Bus Stop overlay
+# layer enabled: transport.allStops + GET /api/geo/bus-stops (Redis-
+# cached 24 h) feed a new busstop ensureLayer branch (fetchBusStops /
+# buildBusMarkers, 🚏 amenity label + openBusInfo live-arrivals popup);
+# the busstop row toggle is no longer disabled across all 3 TMAs.
 # journal #245 (commit 252 / build 54) — v0.61.41 clinic pin → red "+"
 # rectangle (rectPinNode); map colour toggle now default-ON with
 # corrected semantics (ON = colour, OFF = greyscale) across all 3 TMAs;
