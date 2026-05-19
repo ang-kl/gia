@@ -22,14 +22,25 @@ function overflowGlyph() {
   return /iPhone|iPad|iPod|Macintosh|Mac OS/i.test(ua) ? '⋯' : '⋮';
 }
 
-// Shared pill styling for the menu button + the row toggles. Disabled
-// pills (layers with no backing data yet) render greyed and inert.
-function pillClass(active, disabled) {
-  const base = 'flex items-center gap-0.5 px-2 py-1 rounded-full border '
-    + 'text-[11px] whitespace-nowrap leading-none shadow-sm';
-  if (disabled) return base + ' bg-white/70 text-gray-400 border-gray-200 cursor-default';
-  if (active) return base + ' bg-tg-accent text-tg-accent-text border-tg-accent';
-  return base + ' bg-white text-gray-900 border-gray-300 active:scale-95';
+// v0.61.41 — operator-specified quick-toggle palette, applied inline so
+// it does not depend on the host TMA's Tailwind theme tokens. Identical
+// in the light and dark Telegram themes. Disabled pills (layers with no
+// backing data yet) render dimmed and inert.
+function toggleStyle(active, disabled) {
+  return {
+    background: active ? '#F59E0B' : '#1F2937',
+    color: active ? '#111827' : '#D1D5DB',
+    border: '1px solid ' + (active ? '#FCD34D' : '#374151'),
+    boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
+    opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? 'default' : 'pointer'
+  };
+}
+
+// Layout-only pill class; colours come from toggleStyle (inline).
+function pillClass() {
+  return 'flex items-center gap-0.5 px-2 py-1 rounded-full '
+    + 'text-[11px] whitespace-nowrap leading-none active:scale-95';
 }
 
 export default function MapControls({
@@ -67,7 +78,8 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={pillClass(menuOpen, false) + ' font-bold px-2.5'}
+              className={pillClass() + ' font-bold px-2.5'}
+              style={toggleStyle(menuOpen, false)}
             ><span aria-hidden>{overflowGlyph()}</span></button>
             {menuOpen && (
               <div className="absolute top-full left-0 mt-1 flex flex-col gap-0.5 p-1
@@ -107,7 +119,8 @@ export default function MapControls({
             aria-pressed={!it.disabled && !!layers[it.key]}
             aria-label={it.label}
             title={it.label}
-            className={pillClass(!!layers[it.key], it.disabled)}
+            className={pillClass()}
+            style={toggleStyle(!!layers[it.key], it.disabled)}
           >
             <span aria-hidden>{it.icon}</span>{it.label}
           </button>
