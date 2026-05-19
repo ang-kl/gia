@@ -28,8 +28,29 @@ import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+const SG_DEFAULT_ZOOM = 11;
+
+// v0.61.33 — Phase G in-map controls. Hawker's toggle row carries a
+// Train button (the `train` overlay layer). Bus Stop / Colour / 24 hrs
+// render disabled until their layers land in later phases.
+const ROW_TOGGLES = [
+  { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
+  { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
+  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
+  { key: 'exits',       i18n: 'layer.exits',       icon: '🚪' },
+  { key: 'train',       i18n: 'layer.train',       icon: '🚇' },
+  { key: 'busstop',     i18n: 'layer.busstop',     icon: '🚌', disabled: true },
+  { key: 'colour',      i18n: 'layer.colour',      icon: '🎨', disabled: true }
+];
+const MENU_TOGGLES = [
+  { key: 'taxis',   i18n: 'layer.taxis',   icon: '🚕' },
+  { key: 'clinics', i18n: 'layer.clinics', icon: '✚' },
+  { key: 'police',  i18n: 'layer.police',  icon: '👮' },
+  { key: 'open24',  i18n: 'layer.open24',  icon: '🕛', disabled: true }
+];
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -66,7 +87,7 @@ function hawkerPinNode(isNew) {
   return el;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -390,7 +411,28 @@ export default function HawkerMapPanel({ centres, region, overlayLayers }) {
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+        {/* v0.61.33 — Reset: recenter to the Singapore default view. */}
+        <button
+          type="button"
+          onClick={() => {
+            mapRef.current?.setCenter(SG_CENTROID);
+            mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
+          }}
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={t('map.reset', lang)}
+          title={t('map.reset', lang)}
+        ><span aria-hidden>⟲</span></button>
       </div>
+      {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
+      <MapControls
+        lang={lang}
+        layers={overlayLayers || {}}
+        onToggleLayer={(key) => onOverlayChange?.({
+          ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
+        })}
+        rowToggles={ROW_TOGGLES}
+        menuToggles={MENU_TOGGLES}
+      />
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
           {t('map.loading', lang)}

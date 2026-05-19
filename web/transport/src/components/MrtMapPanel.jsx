@@ -41,6 +41,7 @@ import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -55,6 +56,25 @@ const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 11;
 const FUTURE_BG = '#9CA3AF';
 const DEFAULT_BG = '#888888';
+
+// v0.61.33 — Phase G in-map controls. Transport's toggle row carries no
+// Train button — the colour-coded line polylines are intrinsic to this
+// map, not an optional overlay. Bus Stop / Colour / 24 hrs render
+// disabled until their layers land in later phases.
+const ROW_TOGGLES = [
+  { key: 'attractions', i18n: 'layer.attractions', icon: '🎡' },
+  { key: 'parks',       i18n: 'layer.parks',       icon: '🌳' },
+  { key: 'carpark',     i18n: 'layer.carpark',     icon: '🅿' },
+  { key: 'exits',       i18n: 'layer.exits',       icon: '🚪' },
+  { key: 'busstop',     i18n: 'layer.busstop',     icon: '🚌', disabled: true },
+  { key: 'colour',      i18n: 'layer.colour',      icon: '🎨', disabled: true }
+];
+const MENU_TOGGLES = [
+  { key: 'taxis',   i18n: 'layer.taxis',   icon: '🚕' },
+  { key: 'clinics', i18n: 'layer.clinics', icon: '✚' },
+  { key: 'police',  i18n: 'layer.police',  icon: '👮' },
+  { key: 'open24',  i18n: 'layer.open24',  icon: '🕛', disabled: true }
+];
 
 // v0.60.230 (Build E 5b/5d) — tiny station dots + line polyline
 // styling. Future stations/lines render smaller and fainter.
@@ -122,7 +142,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -651,7 +671,28 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+        {/* v0.61.33 — Reset: recenter to the Singapore default view. */}
+        <button
+          type="button"
+          onClick={() => {
+            mapRef.current?.setCenter(SG_CENTROID);
+            mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
+          }}
+          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={t('map.reset', lang)}
+          title={t('map.reset', lang)}
+        ><span aria-hidden>⟲</span></button>
       </div>
+      {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
+      <MapControls
+        lang={lang}
+        layers={overlayLayers || {}}
+        onToggleLayer={(key) => onOverlayChange?.({
+          ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
+        })}
+        rowToggles={ROW_TOGGLES}
+        menuToggles={MENU_TOGGLES}
+      />
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
           when there is no focused line / station to toggle from. */}
