@@ -680,6 +680,14 @@ export function createOverlayController(map, googleMaps) {
     if (addr.length) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">' + addr.join('<br>') + '</div>';
     }
+    // v0.61.39 — opening hours (Google Places weekdayDescriptions, added
+    // by scripts/fetch-clinic-hours.js; absent until that script runs).
+    // Show today's line — the array is Monday-first, JS getDay() Sun=0.
+    if (Array.isArray(f.hours) && f.hours.length) {
+      const jsDay = new Date().getDay();
+      const today = f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0];
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + escapeHtml(today) + '</div>';
+    }
     if (f.tel) {
       h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + escapeHtml(f.tel) + '</div>';
     }
