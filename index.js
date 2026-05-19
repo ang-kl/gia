@@ -2453,7 +2453,7 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: [
         [{ text: '📋 /ftlog', callback_data: 'v:ftlog20' },
-         { text: '🛡 /admin', callback_data: 'v:oversight' }],
+         { text: '🛡 /oversight', callback_data: 'v:oversight' }],
         [{ text: '🔍 /log on', callback_data: 'v:logon' },
          { text: '🔍 /log off', callback_data: 'v:logoff' }]
       ] }

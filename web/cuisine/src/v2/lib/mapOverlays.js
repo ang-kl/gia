@@ -261,6 +261,20 @@ export function infoPalette() {
     : { bg: '#f4f3ef', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1a73e8', good: '#2e7d32' };
 }
 
+// v0.61.38 — greyscale only the base-map <canvas>, leaving the DOM
+// overlay markers (AdvancedMarkerElement pins) in colour. Injects a
+// one-time stylesheet; adding the `.gia-greyscale-map` class to a map
+// container then desaturates its WebGL base layer. The CSS rule
+// re-matches automatically when Google recreates canvases on zoom/pan.
+export function ensureGreyscaleStyle() {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById('gia-greyscale-style')) return;
+  const st = document.createElement('style');
+  st.id = 'gia-greyscale-style';
+  st.textContent = '.gia-greyscale-map canvas{filter:grayscale(1)}';
+  document.head.appendChild(st);
+}
+
 // v0.61.31 — standard Google-Maps deep link. Every map pin info popup
 // ends with this text hyperlink — a TMA-wide convention, never a button.
 function gmapsUrl(lat, lng) {

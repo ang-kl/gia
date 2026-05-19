@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -150,6 +150,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
 
   function initMap() {
     if (!containerRef.current || mapRef.current) return;
+    ensureGreyscaleStyle();
     const { Map } = window.google.maps;
     mapRef.current = new Map(containerRef.current, {
       center: SG_CENTROID,
@@ -382,48 +383,48 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
-          minHeight: 240,
-          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
+          minHeight: 240
         }}
         aria-label={t('map.aria', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text). */}
-      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={t('map.zoomIn', lang)}
-        ><span aria-hidden>＋</span></button>
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={t('map.zoomOut', lang)}
-        ><span aria-hidden>－</span></button>
-        <button
-          type="button"
-          onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
-          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
-        {/* v0.61.33 — Reset: recenter to the Singapore default view. */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
           onClick={() => {
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls

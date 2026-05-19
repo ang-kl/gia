@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -295,6 +295,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   function initMap() {
     if (!containerRef.current || mapRef.current || !window.google?.maps) return;
+    ensureGreyscaleStyle();
     mapRef.current = new window.google.maps.Map(containerRef.current, {
       center: SG_CENTROID,
       zoom: SG_DEFAULT_ZOOM,
@@ -652,48 +653,49 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     <div className="rounded-2xl overflow-hidden border border-tg-border relative">
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         // v0.60.93 — match Cuisine MapPanel responsive height per
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. v0.63.0 — expand toggle grows it to ~90vh.
-        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%', filter: overlayLayers?.colour ? 'grayscale(1)' : undefined }}
+        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.16 — fixed white styling: the Google map
           tiles are always light, so the prior theme-adaptive tg-card
           colours rendered near-invisible in Telegram dark mode. */}
-      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={t('map.zoomIn', lang)}
-        ><span aria-hidden>＋</span></button>
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) - 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={t('map.zoomOut', lang)}
-        ><span aria-hidden>－</span></button>
-        <button
-          type="button"
-          onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
-          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
-        {/* v0.61.33 — Reset: recenter to the Singapore default view. */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
           onClick={() => {
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) - 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={t('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls

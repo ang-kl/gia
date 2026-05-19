@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
@@ -168,6 +168,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
 
   function initMap() {
     if (!containerRef.current || mapRef.current) return;
+    ensureGreyscaleStyle();
     const { Map } = window.google.maps;
     // v0.60.19 — initial map center + zoom prefers the anchored
     // searchCenter (the user's chosen anchor) over the raw userLoc
@@ -562,48 +563,48 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           1133 px iPad portrait viewport, which felt cramped. */}
       <div
         ref={containerRef}
+        className={overlayLayers?.colour ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
           height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
-          minHeight: 240,
-          filter: overlayLayers?.colour ? 'grayscale(1)' : undefined
+          minHeight: 240
         }}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text flip with the Telegram
           light/dark theme). Replaces Google's native zoom control. */}
-      <div className="absolute top-2 right-2 flex flex-row gap-1 z-10">
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={tr('map.zoomIn', lang)}
-        ><span aria-hidden>＋</span></button>
-        <button
-          type="button"
-          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
-          aria-label={tr('map.zoomOut', lang)}
-        ><span aria-hidden>－</span></button>
-        <button
-          type="button"
-          onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
-          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
-        {/* v0.61.36 — Reset: recenter to the search anchor / default view. */}
+      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
           onClick={() => {
             mapRef.current?.setCenter(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 });
             mapRef.current?.setZoom(14);
           }}
-          className="w-7 h-7 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
           aria-label={tr('map.reset', lang)}
           title={tr('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomIn', lang)}
+        ><span aria-hidden>＋</span></button>
+        <button
+          type="button"
+          onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          aria-label={tr('map.zoomOut', lang)}
+        ><span aria-hidden>－</span></button>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
