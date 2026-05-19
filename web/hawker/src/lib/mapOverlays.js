@@ -188,6 +188,18 @@ function fetchCarpark() {
   }
   return carparkPromise;
 }
+
+// v0.61.42 — the full LTA bus-stop catalogue for the Bus Stop overlay
+// layer; fetched once, then radius-clipped to the map anchor.
+let busStopsPromise = null;
+function fetchBusStops() {
+  if (!busStopsPromise) {
+    busStopsPromise = fetch('/api/geo/bus-stops')
+      .then((r) => r.json())
+      .catch(() => ({ busstops: [] }));
+  }
+  return busStopsPromise;
+}
 let linePathsPromise = null;
 function fetchLinePaths() {
   if (!linePathsPromise) {
@@ -525,6 +537,22 @@ export function createOverlayController(map, googleMaps) {
     });
   }
 
+  // v0.61.42 — bus-stop overlay markers: the shared 🚏 amenity label,
+  // and a tap opens the live-arrivals popup (openBusInfo) — the same
+  // popup the station-detail amenity pins use.
+  function buildBusMarkers(features) {
+    return (features || []).map((f) => {
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content: amenityLabelNode('🚏№' + f.code, AMENITY_BUS_BG, '#fff', true),
+        title: f.description || ('Stop ' + f.code),
+        gmpClickable: true
+      });
+      marker.addListener('click', () => openBusInfo(map, info, f, marker));
+      return { marker, lat: f.lat, lng: f.lng };
+    });
+  }
+
   // v0.61.24 — MRT-exit overlay pins show the exit letter/number as a
   // pill coloured by the station's line (no more 🚆 emoji dot); a tap
   // opens the Exit Template popup.
@@ -777,6 +805,11 @@ export function createOverlayController(map, googleMaps) {
       if (destroyed) return null;
       entry = { kind: 'marker', visible: false,
         items: buildMarkers(d.carparks, '#1565C0', '🅿', carparkInfo) };
+    } else if (name === 'busstop') {
+      const d = await fetchBusStops();
+      if (destroyed) return null;
+      entry = { kind: 'marker', visible: false,
+        items: buildBusMarkers(d.busstops) };
     } else if (name === 'train') {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;

@@ -11609,6 +11609,29 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.42 — bus-stop overlay layer for the TMA maps. Serves the
+    // full LTA bus-stop catalogue (~5500) from the Redis cache; the map
+    // overlay controller radius-clips it to the viewport. Redis-cached
+    // 24 h (the catalogue rarely changes). Empty list when Redis is down.
+    app.get('/api/geo/bus-stops', async (_req, res) => {
+      const CACHE_KEY = 'geo:busstops';
+      try {
+        if (redis.isOpen) {
+          const cached = await redis.get(CACHE_KEY).catch(() => null);
+          if (cached) { res.json(JSON.parse(cached)); return; }
+        }
+        const busstops = redis.isOpen ? await transport.allStops(redis) : [];
+        const payload = { busstops };
+        if (redis.isOpen && busstops.length) {
+          redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 86400 }).catch(() => {});
+        }
+        res.json(payload);
+      } catch (err) {
+        console.error('[geo-busstops]', err.message);
+        res.json({ busstops: [] });
+      }
+    });
+
     // v0.61.10 — realtime platform-crowd levels for the transport map.
     // Returns { crowd: { "<stationCode>": "l" | "m" | "h" } } from LTA's
     // PCDRealTime feed (transport.fetchPlatformCrowdAll), Redis-cached

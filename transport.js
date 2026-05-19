@@ -115,6 +115,46 @@ async function nearestStops(redis, lat, lng, radiusM = 800, count = 3) {
   return out;
 }
 
+// v0.61.42 — every cached bus stop (~5500), for the TMA Bus Stop overlay
+// layer. One GEOSEARCH over a Singapore-wide radius, then a batched
+// hash read for each stop's description / road name. The caller caches
+// the result (the bus-stop catalogue rarely changes).
+async function allStops(redis) {
+  if (!redis.isOpen) await redis.connect();
+  let hits;
+  try {
+    hits = await redis.sendCommand([
+      'GEOSEARCH', STOPS_GEO,
+      'FROMLONLAT', '103.8198', '1.3521',
+      'BYRADIUS', '40000', 'm',
+      'ASC', 'WITHCOORD',
+      'COUNT', '8000'
+    ]);
+  } catch (err) {
+    console.error('[Transport] GEOSEARCH all busstops failed:', err.message);
+    return [];
+  }
+  if (!Array.isArray(hits) || !hits.length) return [];
+  const metas = await Promise.all(hits.map((row) =>
+    redis.hGetAll(`${STOPS_HASH_PREFIX}${Array.isArray(row) ? row[0] : row}`).catch(() => ({}))
+  ));
+  const out = [];
+  hits.forEach((row, i) => {
+    const code = Array.isArray(row) ? row[0] : row;
+    const coord = Array.isArray(row) && Array.isArray(row[1]) ? row[1] : null;
+    if (!coord) return;
+    const meta = metas[i] || {};
+    out.push({
+      code,
+      description: meta.description || '',
+      roadName: meta.roadName || '',
+      lat: Number(coord[1]),
+      lng: Number(coord[0])
+    });
+  });
+  return out;
+}
+
 // v0.60.71 — empty Load → no label. Previously the empty-string key
 // mapped to '?' which rendered as a literal "№ 273 — ≤5 min · ?"
 // for unmonitored services / NextBus2 / NextBus3 (LTA frequently
@@ -617,6 +657,7 @@ function nearestIncidents(incidents, lat, lng, radiusM = 5000, count = 3) {
 module.exports = {
   refreshStops,
   nearestStops,
+  allStops,
   busArrivals,
   isCacheFresh,
   nearestMrtStations,
