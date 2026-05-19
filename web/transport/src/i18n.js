@@ -23,6 +23,8 @@ const STRINGS = {
   'layer.police':              { en: 'Police', fr: 'Police' },
   'layer.busstop':             { en: 'Bus Stop', fr: 'Arrêt de bus' },
   'layer.colour':              { en: 'Colour', fr: 'Couleur' },
+  'layer.colour.on':           { en: '🎨 Colour mode', fr: '🎨 Mode couleur' },
+  'layer.colour.off':          { en: '🎨 Greyscale mode', fr: '🎨 Mode niveaux de gris' },
   'layer.open24':              { en: '24 hours', fr: '24 heures' },
   'layer.soon':                { en: 'coming soon', fr: 'bientôt' },
   'map.reset':                 { en: 'Reset view', fr: 'Réinitialiser' },

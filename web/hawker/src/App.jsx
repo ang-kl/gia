@@ -49,7 +49,7 @@ export default function App() {
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: true, parks: false, police: false, clinics: false, hospitals: false });
+  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
   // lazy-fetched per active region from /api/hawker/centre-transit.
   const [transitByName, setTransitByName] = useState({});
