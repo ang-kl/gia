@@ -35,6 +35,9 @@ const OVERLAY_RADIUS_M = 550;
 // anchor radius, so they show the amenities of those stations only.
 const STATION_AMENITY_RADIUS_M = 400;
 const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes this near the anchor
+// v0.61.52 — bus-stop de-emphasis: stops within this of the anchor
+// render full-size, the rest of the overlay-radius set render lite.
+const BUS_DEEMPH_NEAR_M = 150;
 
 // Canonical LTA line colours for the train-line overlay (the transport
 // app's LINES_BY_CODE isn't importable across Vite apps).
@@ -240,6 +243,21 @@ export function amenityLabelNode(label, bg, fg, clickable) {
     + 'background:' + bg + ';color:' + fg + ';font-size:10px;font-weight:700;'
     + 'line-height:1.5;white-space:nowrap;border:1.5px solid #fff;'
     + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:' + (clickable ? 'pointer' : 'default') + ';';
+  return el;
+}
+
+// v0.61.52 — de-emphasised bus-stop pin: about half the primary size,
+// lighter / translucent fill, no code text — just the 🚏 glyph. Used
+// for bus stops that sit inside the overlay radius but far from the
+// map anchor, so the primary search context isn't drowned out.
+function liteBusNode() {
+  const el = document.createElement('div');
+  el.textContent = '🚏';
+  el.style.cssText = 'display:inline-block;padding:0 2px;border-radius:5px;'
+    + 'background:rgba(21,101,192,0.45);color:rgba(255,255,255,0.9);'
+    + 'font-size:7px;font-weight:600;line-height:1.4;white-space:nowrap;'
+    + 'border:1px solid rgba(255,255,255,0.55);'
+    + 'box-shadow:0 0 0 0.3px rgba(0,0,0,0.25);cursor:pointer;';
   return el;
 }
 
@@ -560,14 +578,18 @@ export function createOverlayController(map, googleMaps) {
   // popup the station-detail amenity pins use.
   function buildBusMarkers(features) {
     return (features || []).map((f) => {
+      // v0.61.52 — two content variants per marker; applyVisibility
+      // upgrades to `primary` when the stop is near the map anchor.
+      const primary = amenityLabelNode('🚏 № ' + f.code, AMENITY_BUS_BG, '#fff', true);
+      const lite = liteBusNode();
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: amenityLabelNode('🚏 № ' + f.code, AMENITY_BUS_BG, '#fff', true),
+        content: lite,
         title: f.description || ('Stop ' + f.code),
         gmpClickable: true
       });
       marker.addListener('click', () => openBusInfo(map, info, f, marker));
-      return { marker, lat: f.lat, lng: f.lng };
+      return { marker, lat: f.lat, lng: f.lng, primary, lite, _bus: true };
     });
   }
 
@@ -975,6 +997,14 @@ export function createOverlayController(map, googleMaps) {
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
+      // v0.61.52 — bus-stop de-emphasis (CR4): inside the visible set,
+      // stops within BUS_DEEMPH_NEAR_M of the anchor render primary,
+      // the rest render lite.
+      if (it._bus && e.visible && near) {
+        const closeToAnchor = inRadius(it.lat, it.lng, BUS_DEEMPH_NEAR_M);
+        const want = closeToAnchor ? it.primary : it.lite;
+        if (it.marker.content !== want) it.marker.content = want;
+      }
     }
   }
 
