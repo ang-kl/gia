@@ -213,6 +213,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
@@ -547,6 +548,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     { key: 'parks',   icon: '🌳', label: tr('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: tr('layer.open24', lang), disabled: true }
   ];
 

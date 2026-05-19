@@ -198,6 +198,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
   }
@@ -375,6 +376,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
   ];
 

@@ -175,7 +175,7 @@ function fetchOverlays() {
   if (!overlaysPromise) {
     overlaysPromise = fetch('/api/geo/overlays')
       .then((r) => r.json())
-      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [], clinics: [], police: [] }));
+      .catch(() => ({ parks: [], attractions: [], taxis: [], exits: [], clinics: [], police: [], hospitals: [] }));
   }
   return overlaysPromise;
 }
@@ -694,6 +694,55 @@ export function createOverlayController(map, googleMaps) {
     return infoCard(h, f);
   };
 
+  // v0.61.40 — Hospital popup template: category / type line, name,
+  // purpose-labelled telephone lines, WhatsApp (if any), website,
+  // building (if any), address, opening hours, then the standard
+  // "Google Map ↗" link (appended by infoCard). Data: geo-hospitals.json
+  // (scripts/fetch-hospitals.js — curated MD + Google Places).
+  const hospitalInfo = (f) => {
+    const c = infoPalette();
+    let h = '';
+    if (f.category) {
+      h += '<div style="color:' + c.sub + ';font-size:11px;text-transform:uppercase;'
+        + 'letter-spacing:.04em;">' + escapeHtml(f.category) + '</div>';
+    }
+    h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || 'Hospital') + '</div>';
+    for (const p of (Array.isArray(f.phones) ? f.phones : [])) {
+      if (!p || !p.number) continue;
+      const label = p.purpose && p.purpose !== 'Main' ? escapeHtml(p.purpose) + ': ' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">☎ ' + label + escapeHtml(p.number) + '</div>';
+    }
+    if (f.whatsapp) {
+      const wh = f.whatsappHours ? ' (' + escapeHtml(f.whatsappHours) + ')' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">💬 WhatsApp ' + escapeHtml(f.whatsapp) + wh + '</div>';
+    }
+    if (f.website) {
+      const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(href)
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 '
+        + escapeHtml(f.website) + '</a></div>';
+    }
+    const addr = [];
+    if (f.building) addr.push(escapeHtml(f.building));
+    if (f.address) {
+      addr.push(escapeHtml(f.address) + (f.postal ? ', Singapore ' + escapeHtml(f.postal) : ''));
+    } else if (f.postal) {
+      addr.push('Singapore ' + escapeHtml(f.postal));
+    }
+    if (addr.length) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">📍 ' + addr.join('<br>') + '</div>';
+    }
+    let hours = f.hoursNote ? escapeHtml(f.hoursNote) : '';
+    if (!hours && Array.isArray(f.hours) && f.hours.length) {
+      const jsDay = new Date().getDay();
+      hours = escapeHtml(f.hours[jsDay === 0 ? 6 : jsDay - 1] || f.hours[0]);
+    }
+    if (hours) {
+      h += '<div style="color:' + c.sub + ';margin-top:3px;">🕒 ' + hours + '</div>';
+    }
+    return infoCard(h, f);
+  };
+
   async function ensureLayer(name) {
     if (layers[name]) return layers[name];
     let entry;
@@ -728,6 +777,9 @@ export function createOverlayController(map, googleMaps) {
       } else if (name === 'police') {
         entry = { kind: 'marker', visible: false,
           items: buildMarkers(d.police, '#1A237E', '👮', poiInfo('👮')) };
+      } else if (name === 'hospitals') {
+        entry = { kind: 'marker', visible: false,
+          items: buildMarkers(d.hospitals, '#00897B', '🏥', hospitalInfo) };
       } else {
         return null;
       }

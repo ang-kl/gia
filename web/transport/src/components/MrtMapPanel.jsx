@@ -347,6 +347,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
+    ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
@@ -645,6 +646,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
     { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
   ];
 

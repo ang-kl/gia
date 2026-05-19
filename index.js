@@ -11545,7 +11545,9 @@ async function cacheBotUsername() {
         exits: readFeatures('geo-exits.json'),
         // v0.61.32 — POI overlay layers (map-controls redesign).
         clinics: readFeatures('geo-clinics.json'),
-        police: readFeatures('geo-police.json')
+        police: readFeatures('geo-police.json'),
+        // v0.61.40 — Hospital layer (built by scripts/fetch-hospitals.js).
+        hospitals: readFeatures('geo-hospitals.json')
       };
       return geoOverlaysCache;
     }
