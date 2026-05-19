@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-18 from a snapshot of all 506 pull requests (#1–#506).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-20 from a snapshot of all 533 pull requests (#1–#533).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 506 total — 500 merged, 6 closed without merge.
+- **PRs:** 533 total — 527 merged, 6 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #513 · 2026-05-18 15:49:45 · _v0.61.28 — Exit Template Part B: nearby attractions_
+- **Latest:** #541 · 2026-05-19 22:46:02 · _v0.61.51: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 319 |
-| fix | 72 |
-| copy | 34 |
+| feature | 333 |
+| fix | 74 |
+| copy | 35 |
+| docs | 32 |
 | prompt-tune | 31 |
-| docs | 23 |
-| refactor | 16 |
+| refactor | 17 |
 | test | 6 |
 | infra | 5 |
 
@@ -26,17 +26,17 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 167 |
-| Core / misc | 53 |
+| Cuisine Picker | 170 |
+| Core / misc | 57 |
 | Search / free-text | 42 |
+| Transport / carpark | 38 |
+| Hawker NEA | 37 |
 | /hidden surprise | 36 |
-| Transport / carpark | 35 |
-| Hawker NEA | 34 |
-| Docs / vault | 23 |
+| Docs / vault | 32 |
 | Recognised lists | 20 |
 | /eat /drink flow | 18 |
+| Pipeline / discovery | 18 |
 | Infra / setup | 15 |
-| Pipeline / discovery | 15 |
 | Weather | 10 |
 | Privacy / legal | 9 |
 | Language / i18n | 8 |
@@ -44,7 +44,7 @@
 | Buddy / sharing | 5 |
 | Menu hub | 5 |
 | Maps / geo / location | 4 |
-| Oversight / usage stats | 2 |
+| Oversight / usage stats | 4 |
 
 ## The ledger
 
@@ -558,6 +558,33 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 511 | merged | 2026-05-18 14:39:42 | 0.61.26 | feature | Language / i18n | Add: station-scoped Exits/Taxis chips; remove Nearby↔Details slider | Removed the Nearby↔Details slider (it didn't work): the chip overlay layers now share one fixed 550 m radius. Dropped the attractionsMode state, the setAttractionsMode API, the slider UI, and the layer.nearby / layer.details i18n keys… | 19 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
 | 512 | merged | 2026-05-18 14:52:50 | 0.61.27 | feature | Transport / carpark | Add: /transport train: nearest-stations show the station code | New mrt-lines.codedLinesForStation(name): returns [{code,line}] pairs (Newton → NS21/NSL, DT11/DTL) from data/mrt-coords.json, where each station's codes/lines arrays pair index-for-index. | 7 files — index.js, mrt-lines.js, tests, doc, package | — | tests; doc/vault |
 | 513 | merged | 2026-05-18 15:49:45 | 0.61.28 | feature | Transport / carpark | Add: Exit Template Part B: nearby attractions | build-geo-overlays.js enriches each station-exit feature with a `nearby` array of named STB tourist attractions within 400 m (nearest-first, de-duped, max 3). New loadAttractions / cleanAttractionName (trims the verbose marketing… | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
+| 514 | merged | 2026-05-18 22:21:56 | 0.61.28 | docs | Docs / vault | Update docs: v0.61.28 master-doc + vault refresh and VibeCodingRecord catch-up (#498–#513) | Documentation-only branch — no code change, no version bump. | 802 files — doc, vault, public/ | — | legal; doc/vault |
+| 515 | merged | 2026-05-18 22:25:54 | 0.61.29 | feature | Cuisine Picker | Add: Cuisine TMA: move editable location field above the map | On the Cuisine TMA the editable `LocationField` was rendered inside the **collapsed** *Search criteria* section, so the search anchor could not be changed without expanding that section — and the Google map itself has no text input. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 517 | merged | 2026-05-19 03:40:59 | 0.61.31 | feature | Core / misc | Add: Map-controls redesign — Google Map ↗ standard + Clinics/Police layers (v0.61.31→v0.61.32) | Rolling PR for the approved **7-phase map-controls redesign** (developed on the single work branch `claude/review-gia4lunch-readme-3s798`). | 24 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, geoloc/, scripts/ | cuisine+hawker+transport | doc/vault |
+| 518 | merged | 2026-05-19 04:17:36 | 0.61.33 | feature | Hawker NEA | Add: Phase G — in-map map controls for Transport + Hawker (v0.61.33) | Phase G of the 7-phase map-controls redesign (continues from merged PR #517, which shipped Phases F + A + B). | 13 files — TMA:hawker, TMA:transport, doc, package | hawker+transport | doc/vault |
+| 519 | merged | 2026-05-19 06:38:02 | 0.61.34 | copy | Oversight / usage stats | Reword: /ver admin keyboard + /privacy & /legal copy rewrite (v0.61.34→v0.61.35) | Two changes on this branch (PR #519 is open / unmerged, so both land here). | 7 files — index.js, i18n.js, tests, doc, package | — | privacy; legal; tests; doc/vault |
+| 520 | merged | 2026-05-19 07:59:32 | 0.61.36 | feature | Hawker NEA | Add: Unified in-map controls + working Colour toggle across 3 TMAs (v0.61.36) | Fixes the map control layout and the 🎨 Colour toggle across all three TMAs (Cuisine, Transport, Hawker). | 16 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 521 | merged | 2026-05-19 09:11:26 | 0.61.37 | feature | Oversight / usage stats | Add: Map nav buttons + /oversight label + base-map-only greyscale (v0.61.37) | UI tweaks on the 3 TMA maps (v0.61.37). | 13 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 522 | merged | 2026-05-19 10:02:03 | 0.61.38 | feature | Transport / carpark | Add: Colour nav button + dark-mode /transport link + Clinic/Pharmacy label (v0.61.38) | Three operator fixes. | 10 files — i18n.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 523 | merged | 2026-05-19 11:16:06 | 0.61.39 | feature | Pipeline / discovery | Add: Clinic/Pharmacy 💊 pin + structured popup + Places hours-fetch script (v0.61.39) | Gives the Clinic / Pharmacy overlay layer a **💊 map pin**, a structured tap-popup, and a Google-Places **opening-hours** enrichment path. | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
+| 524 | merged | 2026-05-19 11:21:09 |  | docs | Docs / vault | Update docs: record PR #523 merge in Journal #243 + re-anchor serial state | Standing-rule Journal upkeep after **PR #523** merged. | 2 files — doc | — | doc/vault |
+| 525 | merged | 2026-05-19 11:36:30 | 0.61.39 | feature | Pipeline / discovery | Add: clinic opening hours — Google Places data run (1017/1193) | The operator-step data run for the clinic opening-hours feature shipped in PR #523. | 2 files — doc, data | — | doc/vault |
+| 526 | merged | 2026-05-19 12:12:36 | 0.61.40 | feature | Pipeline / discovery | Add: 🏥 Hospital layer + clinic "+" pin + colour-toggle / quick-toggle restyle (v0.61.40–41) | Two arcs on one branch. | 22 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
+| 527 | merged | 2026-05-19 12:19:18 |  | docs | Docs / vault | Update docs: record PR #526 merge in Journal #244 + #245 | Standing-rule Journal upkeep after **PR #526** merged. | 2 files — doc | — | doc/vault |
+| 528 | merged | 2026-05-19 12:35:01 | 0.61.42 | feature | Transport / carpark | enable the Bus Stop overlay layer | The bus-stop catalogue, arrivals API and popup already existed (the `/transport` flow and station-detail amenity pins use them) — only the dedicated map overlay toggle was hard-disabled. | 11 files — index.js, transport.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | Redis/state; doc/vault |
+| 529 | merged | 2026-05-19 12:37:25 |  | docs | Docs / vault | Update docs: record PR #528 merge in Journal #246 | Standing-rule Journal upkeep after **PR #528** merged. | 1 file — doc | — | doc/vault |
+| 530 | merged | 2026-05-19 13:05:41 | 0.61.43 | feature | Transport / carpark | Add: expand Singapore street/building abbreviations for display | Singapore's open-data GEOJSONs and the LTA bus-stop catalogue store street/building names in short form (`Rd`, `Ave`, `Sth`, `Opp`, `Blk`, `St`…). | 6 files — index.js, sg-address.js, transport.js, doc, package | — | Redis/state; doc/vault |
+| 531 | merged | 2026-05-19 13:11:28 |  | docs | Docs / vault | Update docs: record PR #530 merge in Journal #247 | Standing-rule Journal upkeep after **PR #530** merged. | 1 file — doc | — | doc/vault |
+| 532 | merged | 2026-05-19 13:23:31 | 0.61.44 | feature | Core / misc | Add: redesign the bus-stop map popup | Reworks the bus-stop tap popup (`busInfoHtml`) on all three TMA maps to the operator's template. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 533 | merged | 2026-05-19 13:29:17 |  | docs | Docs / vault | Update docs: record PR #532 merge in Journal #248 | Standing-rule Journal upkeep after **PR #532** merged. | 1 file — doc | — | doc/vault |
+| 534 | merged | 2026-05-19 13:47:55 | 0.61.45 | fix | Cuisine Picker | Fix: Cuisine greyscale fix + 🎨 Colour-button icon contrast (v0.61.45–46) | Two related Colour-toggle fixes on one branch. | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 535 | merged | 2026-05-19 13:50:43 |  | docs | Docs / vault | Update docs: record PR #534 merge in Journal #249 + #250 | Standing-rule Journal upkeep after **PR #534** merged. | 2 files — doc | — | doc/vault |
+| 536 | merged | 2026-05-19 14:13:56 | 0.61.47 | fix | Core / misc | Fixed popup palette + clinic-hours coverage tuning (v0.61.47–48) | Two changes on one branch. | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/ | cuisine+hawker+transport | doc/vault |
+| 537 | merged | 2026-05-19 14:19:11 | 0.61.49 | feature | Hawker NEA | Add: attraction 📌 pin, remove exit door glyph, Michelin ✴️ pin | Three operator-requested map-pin tweaks. | 9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 538 | merged | 2026-05-19 14:21:31 |  | docs | Docs / vault | Update docs: record PR #537 merge in Journal #253 | Standing-rule Journal upkeep after **PR #537** merged. | 1 file — doc | — | doc/vault |
+| 539 | merged | 2026-05-19 22:12:52 | 0.61.50 | feature | Cuisine Picker | Add: Cuisine location-field search trigger + loading overlay rework | ### Cuisine TMA — location-field search trigger - **LocationField** gets a new optional `onSearch` prop. | 6 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 540 | merged | 2026-05-19 22:36:03 |  | docs | Docs / vault | Update docs: record PR #539 merge in Journal #254 | Standing-rule Journal upkeep after **PR #539** merged. | 1 file — doc | — | doc/vault |
+| 541 | merged | 2026-05-19 22:46:02 | 0.61.51 | refactor | Core / misc | Refactor: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9) | Phase A + B of the operator's 9-part map-control change-request batch. | 15 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
 
 ---
 

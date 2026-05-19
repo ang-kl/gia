@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-18",
-  "count": 506,
+  "generated": "2026-05-20",
+  "count": 533,
   "records": [
     {
       "pr": 1,
@@ -14104,6 +14104,823 @@
         "doc/vault"
       ],
       "title": "v0.61.28 — Exit Template Part B: nearby attractions",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 514,
+      "status": "merged",
+      "merged": "2026-05-18 22:21:56",
+      "day": "2026-05-18",
+      "version": "0.61.28",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: v0.61.28 master-doc + vault refresh and VibeCodingRecord catch-up (#498–#513)",
+      "approach": "Documentation-only branch — no code change, no version bump.",
+      "codeImpact": "802 files — doc, vault, public/",
+      "modules": [
+        "doc",
+        "public/",
+        "vault"
+      ],
+      "nFiles": 802,
+      "tmas": [],
+      "impactTags": [
+        "legal",
+        "doc/vault"
+      ],
+      "title": "docs: v0.61.28 master-doc + vault refresh and VibeCodingRecord catch-up (#498–#513)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 515,
+      "status": "merged",
+      "merged": "2026-05-18 22:25:54",
+      "day": "2026-05-18",
+      "version": "0.61.29",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: move editable location field above the map",
+      "approach": "On the Cuisine TMA the editable `LocationField` was rendered inside the **collapsed** *Search criteria* section, so the search anchor could not be changed without expanding that section — and the Google map itself has no text input.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.29 — Cuisine TMA: move editable location field above the map",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 517,
+      "status": "merged",
+      "merged": "2026-05-19 03:40:59",
+      "day": "2026-05-19",
+      "version": "0.61.31",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Map-controls redesign — Google Map ↗ standard + Clinics/Police layers (v0.61.31→v0.61.32)",
+      "approach": "Rolling PR for the approved **7-phase map-controls redesign** (developed on the single work branch `claude/review-gia4lunch-readme-3s798`).",
+      "codeImpact": "24 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, geoloc/, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "geoloc/",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 24,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Map-controls redesign — Google Map ↗ standard + Clinics/Police layers (v0.61.31→v0.61.32)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 518,
+      "status": "merged",
+      "merged": "2026-05-19 04:17:36",
+      "day": "2026-05-19",
+      "version": "0.61.33",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Phase G — in-map map controls for Transport + Hawker (v0.61.33)",
+      "approach": "Phase G of the 7-phase map-controls redesign (continues from merged PR #517, which shipped Phases F + A + B).",
+      "codeImpact": "13 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Phase G — in-map map controls for Transport + Hawker (v0.61.33)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 519,
+      "status": "merged",
+      "merged": "2026-05-19 06:38:02",
+      "day": "2026-05-19",
+      "version": "0.61.34",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Oversight / usage stats",
+      "intent": "Reword: /ver admin keyboard + /privacy & /legal copy rewrite (v0.61.34→v0.61.35)",
+      "approach": "Two changes on this branch (PR #519 is open / unmerged, so both land here).",
+      "codeImpact": "7 files — index.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "/ver admin keyboard + /privacy & /legal copy rewrite (v0.61.34→v0.61.35)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 520,
+      "status": "merged",
+      "merged": "2026-05-19 07:59:32",
+      "day": "2026-05-19",
+      "version": "0.61.36",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Unified in-map controls + working Colour toggle across 3 TMAs (v0.61.36)",
+      "approach": "Fixes the map control layout and the 🎨 Colour toggle across all three TMAs (Cuisine, Transport, Hawker).",
+      "codeImpact": "16 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Unified in-map controls + working Colour toggle across 3 TMAs (v0.61.36)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 521,
+      "status": "merged",
+      "merged": "2026-05-19 09:11:26",
+      "day": "2026-05-19",
+      "version": "0.61.37",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: Map nav buttons + /oversight label + base-map-only greyscale (v0.61.37)",
+      "approach": "UI tweaks on the 3 TMA maps (v0.61.37).",
+      "codeImpact": "13 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Map nav buttons + /oversight label + base-map-only greyscale (v0.61.37)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 522,
+      "status": "merged",
+      "merged": "2026-05-19 10:02:03",
+      "day": "2026-05-19",
+      "version": "0.61.38",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Colour nav button + dark-mode /transport link + Clinic/Pharmacy label (v0.61.38)",
+      "approach": "Three operator fixes.",
+      "codeImpact": "10 files — i18n.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Colour nav button + dark-mode /transport link + Clinic/Pharmacy label (v0.61.38)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 523,
+      "status": "merged",
+      "merged": "2026-05-19 11:16:06",
+      "day": "2026-05-19",
+      "version": "0.61.39",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: Clinic/Pharmacy 💊 pin + structured popup + Places hours-fetch script (v0.61.39)",
+      "approach": "Gives the Clinic / Pharmacy overlay layer a **💊 map pin**, a structured tap-popup, and a Google-Places **opening-hours** enrichment path.",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Clinic/Pharmacy 💊 pin + structured popup + Places hours-fetch script (v0.61.39)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 524,
+      "status": "merged",
+      "merged": "2026-05-19 11:21:09",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #523 merge in Journal #243 + re-anchor serial state",
+      "approach": "Standing-rule Journal upkeep after **PR #523** merged.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #523 merge in Journal #243 + re-anchor serial state",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 525,
+      "status": "merged",
+      "merged": "2026-05-19 11:36:30",
+      "day": "2026-05-19",
+      "version": "0.61.39",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: clinic opening hours — Google Places data run (1017/1193)",
+      "approach": "The operator-step data run for the clinic opening-hours feature shipped in PR #523.",
+      "codeImpact": "2 files — doc, data",
+      "modules": [
+        "data",
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.39: clinic opening hours — Google Places data run (1017/1193)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 526,
+      "status": "merged",
+      "merged": "2026-05-19 12:12:36",
+      "day": "2026-05-19",
+      "version": "0.61.40",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: 🏥 Hospital layer + clinic \"+\" pin + colour-toggle / quick-toggle restyle (v0.61.40–41)",
+      "approach": "Two arcs on one branch.",
+      "codeImpact": "22 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 22,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "🏥 Hospital layer + clinic \"+\" pin + colour-toggle / quick-toggle restyle (v0.61.40–41)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 527,
+      "status": "merged",
+      "merged": "2026-05-19 12:19:18",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #526 merge in Journal #244 + #245",
+      "approach": "Standing-rule Journal upkeep after **PR #526** merged.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #526 merge in Journal #244 + #245",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 528,
+      "status": "merged",
+      "merged": "2026-05-19 12:35:01",
+      "day": "2026-05-19",
+      "version": "0.61.42",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "enable the Bus Stop overlay layer",
+      "approach": "The bus-stop catalogue, arrivals API and popup already existed (the `/transport` flow and station-detail amenity pins use them) — only the dedicated map overlay toggle was hard-disabled.",
+      "codeImpact": "11 files — index.js, transport.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.42: enable the Bus Stop overlay layer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 529,
+      "status": "merged",
+      "merged": "2026-05-19 12:37:25",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #528 merge in Journal #246",
+      "approach": "Standing-rule Journal upkeep after **PR #528** merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #528 merge in Journal #246",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 530,
+      "status": "merged",
+      "merged": "2026-05-19 13:05:41",
+      "day": "2026-05-19",
+      "version": "0.61.43",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: expand Singapore street/building abbreviations for display",
+      "approach": "Singapore's open-data GEOJSONs and the LTA bus-stop catalogue store street/building names in short form (`Rd`, `Ave`, `Sth`, `Opp`, `Blk`, `St`…).",
+      "codeImpact": "6 files — index.js, sg-address.js, transport.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "sg-address.js",
+        "transport.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.43: expand Singapore street/building abbreviations for display",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 531,
+      "status": "merged",
+      "merged": "2026-05-19 13:11:28",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #530 merge in Journal #247",
+      "approach": "Standing-rule Journal upkeep after **PR #530** merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #530 merge in Journal #247",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 532,
+      "status": "merged",
+      "merged": "2026-05-19 13:23:31",
+      "day": "2026-05-19",
+      "version": "0.61.44",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: redesign the bus-stop map popup",
+      "approach": "Reworks the bus-stop tap popup (`busInfoHtml`) on all three TMA maps to the operator's template.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.44: redesign the bus-stop map popup",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 533,
+      "status": "merged",
+      "merged": "2026-05-19 13:29:17",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #532 merge in Journal #248",
+      "approach": "Standing-rule Journal upkeep after **PR #532** merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #532 merge in Journal #248",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 534,
+      "status": "merged",
+      "merged": "2026-05-19 13:47:55",
+      "day": "2026-05-19",
+      "version": "0.61.45",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine greyscale fix + 🎨 Colour-button icon contrast (v0.61.45–46)",
+      "approach": "Two related Colour-toggle fixes on one branch.",
+      "codeImpact": "10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Cuisine greyscale fix + 🎨 Colour-button icon contrast (v0.61.45–46)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 535,
+      "status": "merged",
+      "merged": "2026-05-19 13:50:43",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #534 merge in Journal #249 + #250",
+      "approach": "Standing-rule Journal upkeep after **PR #534** merged.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #534 merge in Journal #249 + #250",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 536,
+      "status": "merged",
+      "merged": "2026-05-19 14:13:56",
+      "day": "2026-05-19",
+      "version": "0.61.47",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fixed popup palette + clinic-hours coverage tuning (v0.61.47–48)",
+      "approach": "Two changes on one branch.",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Fixed popup palette + clinic-hours coverage tuning (v0.61.47–48)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 537,
+      "status": "merged",
+      "merged": "2026-05-19 14:19:11",
+      "day": "2026-05-19",
+      "version": "0.61.49",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: attraction 📌 pin, remove exit door glyph, Michelin ✴️ pin",
+      "approach": "Three operator-requested map-pin tweaks.",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.49: attraction 📌 pin, remove exit door glyph, Michelin ✴️ pin",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 538,
+      "status": "merged",
+      "merged": "2026-05-19 14:21:31",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #537 merge in Journal #253",
+      "approach": "Standing-rule Journal upkeep after **PR #537** merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #537 merge in Journal #253",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 539,
+      "status": "merged",
+      "merged": "2026-05-19 22:12:52",
+      "day": "2026-05-19",
+      "version": "0.61.50",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine location-field search trigger + loading overlay rework",
+      "approach": "### Cuisine TMA — location-field search trigger - **LocationField** gets a new optional `onSearch` prop.",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.50: Cuisine location-field search trigger + loading overlay rework",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 540,
+      "status": "merged",
+      "merged": "2026-05-19 22:36:03",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #539 merge in Journal #254",
+      "approach": "Standing-rule Journal upkeep after **PR #539** merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #539 merge in Journal #254",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 541,
+      "status": "merged",
+      "merged": "2026-05-19 22:46:02",
+      "day": "2026-05-19",
+      "version": "0.61.51",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Core / misc",
+      "intent": "Refactor: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9)",
+      "approach": "Phase A + B of the operator's 9-part map-control change-request batch.",
+      "codeImpact": "15 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.51: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9)",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
