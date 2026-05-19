@@ -299,17 +299,23 @@ export function infoPalette() {
     : { bg: '#f4f3ef', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1a73e8', good: '#2e7d32' };
 }
 
-// v0.61.38 — greyscale only the base-map <canvas>, leaving the DOM
-// overlay markers (AdvancedMarkerElement pins) in colour. Injects a
-// one-time stylesheet; adding the `.gia-greyscale-map` class to a map
-// container then desaturates its WebGL base layer. The CSS rule
-// re-matches automatically when Google recreates canvases on zoom/pan.
+// v0.61.38 — greyscale the base map, leaving the DOM overlay markers
+// (AdvancedMarkerElement pins) in colour. Injects a one-time stylesheet;
+// adding the `.gia-greyscale-map` class to a map container desaturates
+// its base layer. The rule re-matches automatically when Google
+// recreates the base elements on zoom/pan.
+// v0.61.45 — the rule targets both `canvas` (vector / WebGL base map,
+// e.g. the Transport + Hawker TMAs) AND `img` (raster tile base map,
+// e.g. the Cuisine TMA) so it works whichever rendering mode Google
+// hands the map. Marker pins are plain <div>/<span> nodes, so neither
+// selector touches them.
 export function ensureGreyscaleStyle() {
   if (typeof document === 'undefined') return;
   if (document.getElementById('gia-greyscale-style')) return;
   const st = document.createElement('style');
   st.id = 'gia-greyscale-style';
-  st.textContent = '.gia-greyscale-map canvas{filter:grayscale(1)!important}';
+  st.textContent = '.gia-greyscale-map canvas,.gia-greyscale-map img'
+    + '{filter:grayscale(1)!important}';
   document.head.appendChild(st);
 }
 
