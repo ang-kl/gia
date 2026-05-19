@@ -367,16 +367,13 @@ function busArrivalRows(services) {
   return h;
 }
 
-// v0.61.19 — bus-stop amenity popup: identity + distance + arrivals.
+// v0.61.44 — bus-stop popup: road name, stop code, bucketed live
+// arrivals, then a Google-Maps link whose text is the road name.
 function busInfoHtml(b, services) {
   const c = infoPalette();
-  let h = '<div style="font-weight:600;">🚏 '
-    + escapeHtml(b.description || ('Stop ' + b.code)) + '</div>';
-  const sub = [];
-  if (b.roadName) sub.push(escapeHtml(b.roadName));
-  if (Number.isFinite(b.distanceM)) sub.push(b.distanceM + ' m');
-  sub.push('№ ' + escapeHtml(b.code));
-  h += '<div style="color:' + c.sub + ';margin-top:2px;">📍 ' + sub.join(' · ') + '</div>';
+  const road = b.roadName || b.description || ('Stop ' + b.code);
+  let h = '<div style="font-weight:600;">🚏 ' + escapeHtml(road) + '</div>';
+  h += '<div style="color:' + c.sub + ';margin-top:2px;">🚏 № ' + escapeHtml(b.code) + '</div>';
   if (services == null) {
     h += '<div style="color:' + c.sub + ';margin-top:3px;">Loading arrivals…</div>';
   } else if (!services.length) {
@@ -384,7 +381,12 @@ function busInfoHtml(b, services) {
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
-  return infoCard(h, b);
+  if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
+    h += '<div style="margin-top:6px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
+      + '" target="_blank" rel="noopener" style="color:' + c.link + ';">'
+      + escapeHtml(road) + ' ↗</a></div>';
+  }
+  return infoCard(h);
 }
 
 // v0.61.19 — open the bus-stop popup, then fetch live arrivals from
