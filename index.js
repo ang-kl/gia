@@ -11529,10 +11529,22 @@ async function cacheBotUsername() {
     function loadGeoOverlays() {
       if (geoOverlaysCache !== undefined) return geoOverlaysCache;
       const fs = require('fs');
-      const readFeatures = (file) => {
+      // v0.61.43 — expand Singapore street/building abbreviations
+      // (Rd → Road, Sth → South …) on the served features. The source
+      // geo-*.json files keep their short forms; entity NAMES untouched.
+      const { expandSgAbbrev } = require('./sg-address');
+      const readFeatures = (file, addrFields) => {
         try {
           const obj = JSON.parse(fs.readFileSync(__dirname + '/data/' + file, 'utf8'));
-          return Array.isArray(obj.features) ? obj.features : [];
+          const features = Array.isArray(obj.features) ? obj.features : [];
+          if (addrFields) {
+            for (const f of features) {
+              for (const k of addrFields) {
+                if (typeof f[k] === 'string' && f[k]) f[k] = expandSgAbbrev(f[k]);
+              }
+            }
+          }
+          return features;
         } catch (err) {
           if (err.code !== 'ENOENT') console.error('[geo-overlays] ' + file + ':', err.message);
           return [];
@@ -11540,14 +11552,14 @@ async function cacheBotUsername() {
       };
       geoOverlaysCache = {
         parks: readFeatures('geo-parks.json'),
-        attractions: readFeatures('geo-attractions.json'),
+        attractions: readFeatures('geo-attractions.json', ['address']),
         taxis: readFeatures('geo-taxis.json'),
         exits: readFeatures('geo-exits.json'),
         // v0.61.32 — POI overlay layers (map-controls redesign).
-        clinics: readFeatures('geo-clinics.json'),
-        police: readFeatures('geo-police.json'),
+        clinics: readFeatures('geo-clinics.json', ['street', 'building']),
+        police: readFeatures('geo-police.json', ['address']),
         // v0.61.40 — Hospital layer (built by scripts/fetch-hospitals.js).
-        hospitals: readFeatures('geo-hospitals.json')
+        hospitals: readFeatures('geo-hospitals.json', ['address'])
       };
       return geoOverlaysCache;
     }

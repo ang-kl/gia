@@ -7,6 +7,7 @@
 // per key — single-user scale is fine).
 
 const axios = require('axios');
+const { expandSgAbbrev } = require('./sg-address');
 
 // v0.60.68 — LTA DataMall API User Guide v6.8 (21 Apr 2026) renamed
 // BusArrivalv2 → v3/BusArrival. The old URL now returns 404 "The
@@ -105,8 +106,8 @@ async function nearestStops(redis, lat, lng, radiusM = 800, count = 3) {
     const meta = await redis.hGetAll(`${STOPS_HASH_PREFIX}${code}`).catch(() => ({}));
     out.push({
       code,
-      description: meta?.description || '',
-      roadName: meta?.roadName || '',
+      description: expandSgAbbrev(meta?.description || ''),
+      roadName: expandSgAbbrev(meta?.roadName || ''),
       lat: coord ? Number(coord[1]) : null,
       lng: coord ? Number(coord[0]) : null,
       distanceM: Number.isFinite(distance) ? Math.round(distance) : null
@@ -146,8 +147,8 @@ async function allStops(redis) {
     const meta = metas[i] || {};
     out.push({
       code,
-      description: meta.description || '',
-      roadName: meta.roadName || '',
+      description: expandSgAbbrev(meta.description || ''),
+      roadName: expandSgAbbrev(meta.roadName || ''),
       lat: Number(coord[1]),
       lng: Number(coord[0])
     });
