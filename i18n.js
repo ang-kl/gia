@@ -301,7 +301,7 @@ const STRINGS = {
   // (the operator's "incorporate" ask 2026-05-10): tapping it lands
   // on the station's place sheet with live arrival times. The chat
   // send is HTML parse_mode (see runTransportTrain in index.js).
-  'transport.train.stationRow':     { en: '· <a href="{gmapsUrl}">{name}</a> · {dist}{crowd}', fr: '· <a href="{gmapsUrl}">{name}</a> · {dist}{crowd}' },
+  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd} <a href="{gmapsUrl}">🗺️</a>', fr: '· {name} · {dist}{crowd} <a href="{gmapsUrl}">🗺️</a>' },
 
   // v0.59.4 — /hidden chrome localisation.
   'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',

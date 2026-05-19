@@ -366,8 +366,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const rowToggles = [
     { key: 'attractions', icon: '✨', label: t('layer.attractions', lang) },
     { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang), disabled: true },
-    { key: 'colour',      icon: '🎨', label: t('layer.colour', lang) }
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang), disabled: true }
   ];
   const menuToggles = [
     { key: 'train',   icon: '🚉', label: t('layer.train', lang) },
@@ -375,7 +374,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'taxis',   icon: '🚕', label: t('layer.taxis', lang) },
     { key: 'parks',   icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
-    { key: 'clinics', icon: '⚕️', label: t('layer.clinics', lang) },
+    { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
     { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
   ];
 
@@ -395,6 +394,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text). */}
       <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.38 — Colour: toggle base-map greyscale (nav-button form). */}
+        <button
+          type="button"
+          onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
+          aria-pressed={!!overlayLayers?.colour}
+          className={'w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-lg leading-none active:scale-95 '
+            + (overlayLayers?.colour ? 'bg-tg-accent' : 'bg-white/70')}
+          aria-label={t('layer.colour', lang)}
+          title={t('layer.colour', lang)}
+        ><span aria-hidden>🎨</span></button>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"

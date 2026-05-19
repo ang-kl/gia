@@ -538,8 +538,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const rowToggles = [
     { key: 'attractions', icon: '✨', label: tr('layer.attractions', lang) },
     { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: true },
-    { key: 'colour',      icon: '🎨', label: tr('layer.colour', lang) }
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: true }
   ];
   const menuToggles = [
     { key: 'train',   icon: '🚉', label: tr('layer.train', lang) },
@@ -547,7 +546,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     { key: 'taxis',   icon: '🚕', label: tr('layer.taxis', lang) },
     { key: 'parks',   icon: '🌳', label: tr('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
-    { key: 'clinics', icon: '⚕️', label: tr('layer.clinics', lang) },
+    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
     { key: 'open24',  icon: '',   label: tr('layer.open24', lang), disabled: true }
   ];
 
@@ -575,6 +574,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           Theme-adaptive (tg-card / tg-text flip with the Telegram
           light/dark theme). Replaces Google's native zoom control. */}
       <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.38 — Colour: toggle base-map greyscale (nav-button form). */}
+        <button
+          type="button"
+          onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
+          aria-pressed={!!overlayLayers?.colour}
+          className={'w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-lg leading-none active:scale-95 '
+            + (overlayLayers?.colour ? 'bg-tg-accent' : 'bg-white/70')}
+          aria-label={tr('layer.colour', lang)}
+          title={tr('layer.colour', lang)}
+        ><span aria-hidden>🎨</span></button>
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
