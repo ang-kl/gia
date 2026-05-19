@@ -108,7 +108,7 @@ function exitTemplateHtml({ exitCode, station, codes, nearby }) {
   const hex = list.length ? codeHex(list[0]) : AMENITY_EXIT_BG;
   let h = '<div>' + codePill('Exit ' + (exitCode || '?'), hex, true) + '</div>';
   if (station) {
-    h += '<div style="font-weight:600;margin-top:4px;">' + escapeHtml(station) + '</div>';
+    h += '<div style="font-weight:600;margin-top:4px;">' + escapeHtml(station) + ' Station</div>';
   }
   if (list.length) {
     h += '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">'
@@ -272,13 +272,23 @@ function rectPinNode(bg, text) {
 }
 
 // v0.61.41 — shared palette for the in-map quick-toggle buttons (the
-// MapControls pills + the Colour nav button). Operator-specified;
-// identical in light and dark Telegram themes.
+// MapControls pills + the Colour nav button).
+// v0.61.51 — palette is now theme-aware per operator CR7: light /
+// dark variants for ON (amber-bold #D97706 / #F59E0B) and OFF (white /
+// dark slate). Avoids the previous "always-amber" reading poorly
+// against Telegram light vs dark map chrome.
 export function giaToggleStyle(on, disabled) {
+  const dark = typeof window !== 'undefined'
+    && window.Telegram && window.Telegram.WebApp
+    && window.Telegram.WebApp.colorScheme === 'dark';
   return {
-    background: on ? '#F59E0B' : '#1F2937',
-    color: on ? '#111827' : '#D1D5DB',
-    border: '1px solid ' + (on ? '#FCD34D' : '#374151'),
+    background: on
+      ? (dark ? '#F59E0B' : '#D97706')
+      : (dark ? '#1F2937' : '#FFFFFF'),
+    color: on ? '#111827' : (dark ? '#D1D5DB' : '#374151'),
+    border: '1px solid ' + (on
+      ? (dark ? '#FCD34D' : '#B45309')
+      : (dark ? '#374151' : '#E5E7EB')),
     boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
     opacity: disabled ? 0.5 : 1
   };
@@ -314,7 +324,7 @@ export function ensureGreyscaleStyle() {
   const st = document.createElement('style');
   st.id = 'gia-greyscale-style';
   st.textContent = '.gia-greyscale-map canvas,.gia-greyscale-map img'
-    + '{filter:grayscale(1)!important}';
+    + '{filter:grayscale(1) contrast(0.8) brightness(0.96)!important}';
   document.head.appendChild(st);
 }
 
@@ -552,7 +562,7 @@ export function createOverlayController(map, googleMaps) {
     return (features || []).map((f) => {
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: amenityLabelNode('🚏№' + f.code, AMENITY_BUS_BG, '#fff', true),
+        content: amenityLabelNode('🚏 № ' + f.code, AMENITY_BUS_BG, '#fff', true),
         title: f.description || ('Stop ' + f.code),
         gmpClickable: true
       });

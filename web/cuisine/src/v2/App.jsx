@@ -13,6 +13,16 @@ import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
+import { giaToggleStyle } from './lib/mapOverlays.js';
+
+// v0.61.51 — operator CR7: floating FABs must not use green
+// (washed-out against the Google Map). The bg/colour come from the
+// shared giaToggleStyle palette (theme-aware amber-on-white / dark
+// slate). `active` = the "selected" state (Search FAB when dirty).
+function fabBgFg(active) {
+  const s = giaToggleStyle(active);
+  return { backgroundColor: s.background, color: s.color };
+}
 
 // v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -91,7 +101,7 @@ export default function App() {
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: true, parks: false, police: false, clinics: false, hospitals: false });
+  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.59.0: collapsible "Search criteria" section. Default collapsed
   // when a search has already produced results so the user can scan
   // results without scrolling past the builder.
@@ -1502,7 +1512,7 @@ export default function App() {
               onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
               aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
               title={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-              style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+              style={fabBgFg(false)}
               className="pointer-events-auto px-2 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap"
             >
               <span aria-hidden="true">⇢</span>
@@ -1517,10 +1527,10 @@ export default function App() {
               scroll FAB renders SECOND (below). */}
           <button
             type="button"
-            onClick={() => runSearch(state)}
+            onClick={triggerSearch}
             disabled={loading}
             aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+            style={fabBgFg(dirty)}
             className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
               loading ? 'opacity-60'
               : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
@@ -1534,7 +1544,7 @@ export default function App() {
               behavior: 'smooth'
             })}
             aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-            style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f' }}
+            style={fabBgFg(false)}
             className="pointer-events-auto px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
           >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
         </div>

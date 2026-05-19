@@ -41,7 +41,7 @@ export default function App() {
   const [mapView, setMapView] = useState('png');
   // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
   // carpark), shown only on the interactive Google Map view.
-  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: true, parks: false, police: false, clinics: false, hospitals: false });
+  const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: true, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.60.99 — one-shot auto-switch from PNG → Google Map on the
   // first line-chip tap. After that (whether the user stayed on
   // Google Map or toggled back to Schematic), subsequent chip taps

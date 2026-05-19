@@ -537,16 +537,18 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // Row 1 = always-visible toggle pills; the "⋯/⋮" dropdown = the
   // checkbox layer list. Bus Stop / 24 hours render disabled (no data
   // yet); Colour toggles the greyscale map filter.
+  // v0.61.51 — Train Line promoted from the dropdown into the row;
+  // Attractions demoted into the dropdown above Park.
   const rowToggles = [
-    { key: 'attractions', icon: '✨', label: tr('layer.attractions', lang) },
+    { key: 'train',       icon: '🚉', label: tr('layer.train', lang) },
     { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
     { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang) }
   ];
   const menuToggles = [
-    { key: 'train',   icon: '🚉', label: tr('layer.train', lang) },
-    { key: 'exits',   icon: '',   label: tr('layer.exits', lang) },
-    { key: 'taxis',   icon: '🚕', label: tr('layer.taxis', lang) },
-    { key: 'parks',   icon: '🌳', label: tr('layer.parks', lang) },
+    { key: 'exits',       icon: '',   label: tr('layer.exits', lang) },
+    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang) },
+    { key: 'attractions', icon: '✨', label: tr('layer.attractions', lang) },
+    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
     { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang) },
@@ -576,17 +578,20 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text flip with the Telegram
           light/dark theme). Replaces Google's native zoom control. */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
-        {/* v0.61.38 — Colour: toggle base-map greyscale (nav-button form). */}
+      {/* v0.61.51 — nav cluster shifted from top-2 to top-12 so the
+          quick-button row has clean horizontal space. */}
+      <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
+        {/* v0.61.51 — Colour-mode FAB pill: state-in-text, single
+            neutral style (no on/off colour effect). */}
         <button
           type="button"
           onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
           aria-pressed={overlayLayers?.colour !== false}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-lg leading-none active:scale-95"
-          style={giaToggleStyle(overlayLayers?.colour !== false)}
-          aria-label={tr('layer.colour', lang)}
-          title={tr('layer.colour', lang)}
-        ><span aria-hidden style={{ filter: overlayLayers?.colour !== false ? 'brightness(0)' : 'brightness(0) invert(1)' }}>🎨</span></button>
+          className="px-2 py-1 rounded-full text-[11px] font-medium leading-none active:scale-95 whitespace-nowrap"
+          style={giaToggleStyle(false)}
+          aria-label={tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
+          title={tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
+        >{tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}</button>
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
