@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.60.184 — emoji-coded glyph for AdvancedMarker pins. Operator:
@@ -578,20 +578,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text flip with the Telegram
           light/dark theme). Replaces Google's native zoom control. */}
-      {/* v0.61.51 — nav cluster shifted from top-2 to top-12 so the
-          quick-button row has clean horizontal space. */}
+      {/* v0.61.51 — nav cluster shifted to top-12 so the quick-button
+          row has clean horizontal space. v0.61.59 — the Colour-mode
+          pill moved out of this cluster into the quick-toggle row
+          (after Bus Stop); the cluster is now Reset / + / − / expand. */}
       <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
-        {/* v0.61.51 — Colour-mode FAB pill: state-in-text, single
-            neutral style (no on/off colour effect). */}
-        <button
-          type="button"
-          onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={overlayLayers?.colour !== false}
-          className="px-2 py-1 rounded-full text-[11px] font-medium leading-none active:scale-95 whitespace-nowrap"
-          style={giaToggleStyle(false)}
-          aria-label={tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-          title={tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-        >{tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}</button>
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
@@ -632,6 +623,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         rowToggles={rowToggles}
         menuToggles={menuToggles}
         menuLabel={tr('map.more', lang)}
+        colourToggle={{
+          on: overlayLayers?.colour !== false,
+          label: tr(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang),
+          onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
+        }}
       />
       {/* v0.58.29: "Show your location" recenter button. Bottom-right
           floating like the Google Maps native app. Disabled state

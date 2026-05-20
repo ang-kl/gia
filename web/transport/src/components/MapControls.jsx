@@ -1,17 +1,20 @@
-// MapControls.jsx — v0.61.36
+// MapControls.jsx — v0.61.59
 //
 // Floating in-map control surface for all three TMA maps. A single
 // left-aligned row: the "⋯/⋮" overflow menu button first, then the
-// layer toggle pills (Attractions, Carpark, Bus Stop, Colour). The menu
-// opens a checkbox dropdown of the remaining layers. The 4-button
-// navigation cluster (zoom / expand / reset) is rendered inline by each
-// map panel on the right.
+// layer toggle pills (Train Line, Carpark, Bus Stop) and — last — the
+// Colour-mode pill (the optional `colourToggle` prop). The menu opens a
+// checkbox dropdown of the remaining layers. The 4-button navigation
+// cluster (zoom / expand / reset) is rendered inline by each map panel
+// on the right.
 //
-// Presentational only — no i18n import; each panel passes resolved
-// `label` strings. Byte-identical across web/cuisine, web/transport and
-// web/hawker — edit one, copy to the others.
+// Presentational only — each panel passes resolved `label` strings; the
+// one non-React import is `giaToggleStyle` (the shared toggle palette).
+// Byte-identical across web/cuisine, web/transport and web/hawker —
+// edit one, copy to the others.
 
 import React, { useState, useRef, useEffect } from 'react';
+import { giaToggleStyle } from '../lib/mapOverlays.js';
 
 // Platform-detected overflow glyph: the horizontal ellipsis is the
 // iOS / iPadOS / macOS "more" affordance, the vertical ellipsis the
@@ -22,29 +25,15 @@ function overflowGlyph() {
   return /iPhone|iPad|iPod|Macintosh|Mac OS/i.test(ua) ? '⋯' : '⋮';
 }
 
-// v0.61.41 — operator-specified quick-toggle palette, applied inline so
-// it does not depend on the host TMA's Tailwind theme tokens. Identical
-// in the light and dark Telegram themes. Disabled pills (layers with no
-// backing data yet) render dimmed and inert.
-function toggleStyle(active, disabled) {
-  return {
-    background: active ? '#F59E0B' : '#1F2937',
-    color: active ? '#111827' : '#D1D5DB',
-    border: '1px solid ' + (active ? '#FCD34D' : '#374151'),
-    boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
-    opacity: disabled ? 0.5 : 1,
-    cursor: disabled ? 'default' : 'pointer'
-  };
-}
-
-// Layout-only pill class; colours come from toggleStyle (inline).
+// Layout-only pill class; colours come from giaToggleStyle (inline).
 function pillClass() {
   return 'flex items-center gap-0.5 px-2 py-1 rounded-full '
     + 'text-[11px] whitespace-nowrap leading-none active:scale-95';
 }
 
 export default function MapControls({
-  layers = {}, onToggleLayer, rowToggles = [], menuToggles = [], menuLabel = 'Layers'
+  layers = {}, onToggleLayer, rowToggles = [], menuToggles = [],
+  menuLabel = 'Layers', colourToggle = null
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -79,7 +68,7 @@ export default function MapControls({
               aria-label={menuLabel}
               title={menuLabel}
               className={pillClass() + ' font-bold px-2.5'}
-              style={toggleStyle(menuOpen, false)}
+              style={giaToggleStyle(menuOpen, false)}
             ><span aria-hidden>{overflowGlyph()}</span></button>
             {menuOpen && (
               <div className="absolute top-full left-0 mt-1 flex flex-col gap-0.5 p-1
@@ -120,11 +109,25 @@ export default function MapControls({
             aria-label={it.label}
             title={it.label}
             className={pillClass()}
-            style={toggleStyle(!!layers[it.key], it.disabled)}
+            style={giaToggleStyle(!!layers[it.key], it.disabled)}
           >
             <span aria-hidden>{it.icon}</span>{it.label}
           </button>
         ))}
+        {/* v0.61.59 — Colour-mode pill: last in the quick row, after Bus
+            Stop. CR8 — single neutral style (no on/off colour flip);
+            state is conveyed by the label text. */}
+        {colourToggle && (
+          <button
+            type="button"
+            onClick={colourToggle.onToggle}
+            aria-pressed={!!colourToggle.on}
+            aria-label={colourToggle.label}
+            title={colourToggle.label}
+            className={pillClass()}
+            style={giaToggleStyle(false)}
+          >{colourToggle.label}</button>
+        )}
       </div>
     </div>
   );
