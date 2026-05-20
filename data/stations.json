@@ -11,6 +11,7 @@
     "busServicesJoined": true,
     "schemaNotes": [
       "exits[].nearest_bus_stop = nearest bus stop within 80 m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.",
+      "exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.",
       "first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
       "SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping."
@@ -21,6 +22,11 @@
       "station_name": "Jurong East",
       "lat": 1.3329,
       "lng": 103.7421,
+      "exit_centroid": {
+        "lat": 1.333212,
+        "lng": 103.742365,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -71,13 +77,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bukit Batok": {
       "station_name": "Bukit Batok",
       "lat": 1.349,
       "lng": 103.7497,
+      "exit_centroid": {
+        "lat": 1.349219,
+        "lng": 103.749699,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -115,13 +126,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bukit Gombak": {
       "station_name": "Bukit Gombak",
       "lat": 1.3587,
       "lng": 103.7517,
+      "exit_centroid": {
+        "lat": 1.359032,
+        "lng": 103.751962,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -179,13 +195,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Choa Chu Kang": {
       "station_name": "Choa Chu Kang",
       "lat": 1.3854,
       "lng": 103.7443,
+      "exit_centroid": {
+        "lat": 1.385328,
+        "lng": 103.744458,
+        "exit_count": 9
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -286,13 +307,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Yew Tee": {
       "station_name": "Yew Tee",
       "lat": 1.3974,
       "lng": 103.7474,
+      "exit_centroid": {
+        "lat": 1.397499,
+        "lng": 103.747267,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -350,13 +376,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Kranji": {
       "station_name": "Kranji",
       "lat": 1.4253,
       "lng": 103.7619,
+      "exit_centroid": {
+        "lat": 1.424961,
+        "lng": 103.762053,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -409,13 +440,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marsiling": {
       "station_name": "Marsiling",
       "lat": 1.4326,
       "lng": 103.7741,
+      "exit_centroid": {
+        "lat": 1.432694,
+        "lng": 103.77411,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -473,13 +509,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Woodlands": {
       "station_name": "Woodlands",
       "lat": 1.4369,
       "lng": 103.7866,
+      "exit_centroid": {
+        "lat": 1.436187,
+        "lng": 103.787627,
+        "exit_count": 7
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -558,13 +599,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Admiralty": {
       "station_name": "Admiralty",
       "lat": 1.4407,
       "lng": 103.8009,
+      "exit_centroid": {
+        "lat": 1.440407,
+        "lng": 103.800858,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -617,13 +663,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Sembawang": {
       "station_name": "Sembawang",
       "lat": 1.449,
       "lng": 103.82,
+      "exit_centroid": {
+        "lat": 1.448922,
+        "lng": 103.820015,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -676,13 +727,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Canberra": {
       "station_name": "Canberra",
       "lat": 1.443,
       "lng": 103.8295,
+      "exit_centroid": {
+        "lat": 1.443227,
+        "lng": 103.829712,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -741,13 +797,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Yishun": {
       "station_name": "Yishun",
       "lat": 1.4294,
       "lng": 103.835,
+      "exit_centroid": {
+        "lat": 1.429385,
+        "lng": 103.83505,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -816,13 +877,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Khatib": {
       "station_name": "Khatib",
       "lat": 1.4172,
       "lng": 103.8329,
+      "exit_centroid": {
+        "lat": 1.417404,
+        "lng": 103.832937,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -870,13 +936,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Yio Chu Kang": {
       "station_name": "Yio Chu Kang",
       "lat": 1.3819,
       "lng": 103.8449,
+      "exit_centroid": {
+        "lat": 1.381715,
+        "lng": 103.844809,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -908,13 +979,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Ang Mo Kio": {
       "station_name": "Ang Mo Kio",
       "lat": 1.37,
       "lng": 103.8495,
+      "exit_centroid": {
+        "lat": 1.369618,
+        "lng": 103.849676,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -952,13 +1028,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bishan": {
       "station_name": "Bishan",
       "lat": 1.3509,
       "lng": 103.8485,
+      "exit_centroid": {
+        "lat": 1.350863,
+        "lng": 103.848692,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1035,13 +1116,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Braddell": {
       "station_name": "Braddell",
       "lat": 1.3404,
       "lng": 103.8467,
+      "exit_centroid": {
+        "lat": 1.340828,
+        "lng": 103.846759,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1078,13 +1164,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Toa Payoh": {
       "station_name": "Toa Payoh",
       "lat": 1.3327,
       "lng": 103.8475,
+      "exit_centroid": {
+        "lat": 1.332741,
+        "lng": 103.847285,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1142,13 +1233,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Novena": {
       "station_name": "Novena",
       "lat": 1.3204,
       "lng": 103.8438,
+      "exit_centroid": {
+        "lat": 1.320495,
+        "lng": 103.843865,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1179,13 +1275,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Newton": {
       "station_name": "Newton",
       "lat": 1.3128,
       "lng": 103.8385,
+      "exit_centroid": {
+        "lat": 1.312763,
+        "lng": 103.838114,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1240,7 +1341,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1249,6 +1350,11 @@
       "station_name": "Orchard",
       "lat": 1.3041,
       "lng": 103.832,
+      "exit_centroid": {
+        "lat": 1.303789,
+        "lng": 103.83186,
+        "exit_count": 13
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1398,13 +1504,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Somerset": {
       "station_name": "Somerset",
       "lat": 1.3006,
       "lng": 103.8385,
+      "exit_centroid": {
+        "lat": 1.300368,
+        "lng": 103.83884,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1457,13 +1568,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Dhoby Ghaut": {
       "station_name": "Dhoby Ghaut",
       "lat": 1.2989,
       "lng": 103.8456,
+      "exit_centroid": {
+        "lat": 1.299411,
+        "lng": 103.845502,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1559,7 +1675,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1568,6 +1684,11 @@
       "station_name": "City Hall",
       "lat": 1.2929,
       "lng": 103.8526,
+      "exit_centroid": {
+        "lat": 1.293206,
+        "lng": 103.852441,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1623,13 +1744,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Raffles Place": {
       "station_name": "Raffles Place",
       "lat": 1.284,
       "lng": 103.8514,
+      "exit_centroid": {
+        "lat": 1.283704,
+        "lng": 103.851415,
+        "exit_count": 10
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1732,13 +1858,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marina Bay": {
       "station_name": "Marina Bay",
       "lat": 1.2761,
       "lng": 103.8546,
+      "exit_centroid": {
+        "lat": 1.275451,
+        "lng": 103.855131,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1798,13 +1929,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marina South Pier": {
       "station_name": "Marina South Pier",
       "lat": 1.271,
       "lng": 103.8634,
+      "exit_centroid": {
+        "lat": 1.270984,
+        "lng": 103.862955,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1835,13 +1971,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Pasir Ris": {
       "station_name": "Pasir Ris",
       "lat": 1.3729,
       "lng": 103.9492,
+      "exit_centroid": {
+        "lat": 1.372864,
+        "lng": 103.949235,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1867,13 +2008,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tampines": {
       "station_name": "Tampines",
       "lat": 1.3534,
       "lng": 103.9454,
+      "exit_centroid": {
+        "lat": 1.354316,
+        "lng": 103.943782,
+        "exit_count": 7
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1944,7 +2090,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1953,6 +2099,11 @@
       "station_name": "Simei",
       "lat": 1.3434,
       "lng": 103.9534,
+      "exit_centroid": {
+        "lat": 1.342662,
+        "lng": 103.953819,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -1977,13 +2128,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tanah Merah": {
       "station_name": "Tanah Merah",
       "lat": 1.3274,
       "lng": 103.9464,
+      "exit_centroid": {
+        "lat": 1.32696,
+        "lng": 103.945759,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2027,13 +2183,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bedok": {
       "station_name": "Bedok",
       "lat": 1.324,
       "lng": 103.9301,
+      "exit_centroid": {
+        "lat": 1.323971,
+        "lng": 103.929411,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2075,13 +2236,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Kembangan": {
       "station_name": "Kembangan",
       "lat": 1.321,
       "lng": 103.9128,
+      "exit_centroid": {
+        "lat": 1.321038,
+        "lng": 103.91292,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2117,13 +2283,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Eunos": {
       "station_name": "Eunos",
       "lat": 1.3199,
       "lng": 103.903,
+      "exit_centroid": {
+        "lat": 1.319537,
+        "lng": 103.902897,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2155,13 +2326,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Paya Lebar": {
       "station_name": "Paya Lebar",
       "lat": 1.318,
       "lng": 103.8928,
+      "exit_centroid": {
+        "lat": 1.317825,
+        "lng": 103.892201,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2227,13 +2403,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Aljunied": {
       "station_name": "Aljunied",
       "lat": 1.3164,
       "lng": 103.8829,
+      "exit_centroid": {
+        "lat": 1.316363,
+        "lng": 103.882485,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2269,13 +2450,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Kallang": {
       "station_name": "Kallang",
       "lat": 1.3115,
       "lng": 103.8714,
+      "exit_centroid": {
+        "lat": 1.311661,
+        "lng": 103.871659,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2311,13 +2497,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Lavender": {
       "station_name": "Lavender",
       "lat": 1.3074,
       "lng": 103.8629,
+      "exit_centroid": {
+        "lat": 1.307394,
+        "lng": 103.862847,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2353,13 +2544,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bugis": {
       "station_name": "Bugis",
       "lat": 1.3005,
       "lng": 103.8559,
+      "exit_centroid": {
+        "lat": 1.300268,
+        "lng": 103.85621,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2425,7 +2621,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2434,6 +2630,11 @@
       "station_name": "Tanjong Pagar",
       "lat": 1.2766,
       "lng": 103.8458,
+      "exit_centroid": {
+        "lat": 1.276506,
+        "lng": 103.846433,
+        "exit_count": 9
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2516,13 +2717,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Outram Park": {
       "station_name": "Outram Park",
       "lat": 1.2806,
       "lng": 103.8395,
+      "exit_centroid": {
+        "lat": 1.280728,
+        "lng": 103.839076,
+        "exit_count": 8
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2625,7 +2831,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2634,6 +2840,11 @@
       "station_name": "Tiong Bahru",
       "lat": 1.2858,
       "lng": 103.827,
+      "exit_centroid": {
+        "lat": 1.286061,
+        "lng": 103.827244,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2669,13 +2880,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Redhill": {
       "station_name": "Redhill",
       "lat": 1.2896,
       "lng": 103.8169,
+      "exit_centroid": {
+        "lat": 1.289429,
+        "lng": 103.817122,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2711,13 +2927,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Queenstown": {
       "station_name": "Queenstown",
       "lat": 1.2949,
       "lng": 103.806,
+      "exit_centroid": {
+        "lat": 1.294852,
+        "lng": 103.805893,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2775,13 +2996,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Commonwealth": {
       "station_name": "Commonwealth",
       "lat": 1.3026,
       "lng": 103.7984,
+      "exit_centroid": {
+        "lat": 1.302373,
+        "lng": 103.798379,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2834,13 +3060,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Buona Vista": {
       "station_name": "Buona Vista",
       "lat": 1.3071,
       "lng": 103.7902,
+      "exit_centroid": {
+        "lat": 1.306929,
+        "lng": 103.790659,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2901,13 +3132,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Dover": {
       "station_name": "Dover",
       "lat": 1.3115,
       "lng": 103.7785,
+      "exit_centroid": {
+        "lat": 1.311554,
+        "lng": 103.778385,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2943,13 +3179,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Clementi": {
       "station_name": "Clementi",
       "lat": 1.3151,
       "lng": 103.7649,
+      "exit_centroid": {
+        "lat": 1.314771,
+        "lng": 103.765372,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -2997,13 +3238,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Chinese Garden": {
       "station_name": "Chinese Garden",
       "lat": 1.3422,
       "lng": 103.7325,
+      "exit_centroid": {
+        "lat": 1.341996,
+        "lng": 103.732785,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3045,13 +3291,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Lakeside": {
       "station_name": "Lakeside",
       "lat": 1.3444,
       "lng": 103.7211,
+      "exit_centroid": {
+        "lat": 1.344123,
+        "lng": 103.721079,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3088,13 +3339,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Boon Lay": {
       "station_name": "Boon Lay",
       "lat": 1.3387,
       "lng": 103.706,
+      "exit_centroid": {
+        "lat": 1.338476,
+        "lng": 103.705718,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3149,13 +3405,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Pioneer": {
       "station_name": "Pioneer",
       "lat": 1.3375,
       "lng": 103.6973,
+      "exit_centroid": {
+        "lat": 1.337588,
+        "lng": 103.697142,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3191,13 +3452,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Joo Koon": {
       "station_name": "Joo Koon",
       "lat": 1.3279,
       "lng": 103.6786,
+      "exit_centroid": {
+        "lat": 1.327729,
+        "lng": 103.678583,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3228,13 +3494,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Gul Circle": {
       "station_name": "Gul Circle",
       "lat": 1.3196,
       "lng": 103.6605,
+      "exit_centroid": {
+        "lat": 1.318935,
+        "lng": 103.65994,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3270,13 +3541,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tuas Crescent": {
       "station_name": "Tuas Crescent",
       "lat": 1.321,
       "lng": 103.6493,
+      "exit_centroid": {
+        "lat": 1.321004,
+        "lng": 103.649123,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3312,13 +3588,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tuas West Road": {
       "station_name": "Tuas West Road",
       "lat": 1.33,
       "lng": 103.6398,
+      "exit_centroid": {
+        "lat": 1.330027,
+        "lng": 103.639538,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3354,13 +3635,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tuas Link": {
       "station_name": "Tuas Link",
       "lat": 1.3404,
       "lng": 103.6367,
+      "exit_centroid": {
+        "lat": 1.340684,
+        "lng": 103.637044,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3386,13 +3672,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Expo": {
       "station_name": "Expo",
       "lat": 1.3354,
       "lng": 103.9618,
+      "exit_centroid": {
+        "lat": 1.33518,
+        "lng": 103.962394,
+        "exit_count": 8
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3467,7 +3758,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3476,6 +3767,11 @@
       "station_name": "Changi Airport",
       "lat": 1.3573,
       "lng": 103.9885,
+      "exit_centroid": {
+        "lat": 1.356781,
+        "lng": 103.988291,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -3501,13 +3797,14 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "HarbourFront": {
       "station_name": "HarbourFront",
       "lat": 1.2655,
       "lng": 103.8221,
+      "exit_centroid": null,
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3528,7 +3825,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -3538,6 +3835,11 @@
       "station_name": "Chinatown",
       "lat": 1.2848,
       "lng": 103.8439,
+      "exit_centroid": {
+        "lat": 1.284642,
+        "lng": 103.844073,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3615,7 +3917,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3624,6 +3926,11 @@
       "station_name": "Clarke Quay",
       "lat": 1.2885,
       "lng": 103.8467,
+      "exit_centroid": {
+        "lat": 1.288616,
+        "lng": 103.846565,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3698,7 +4005,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3707,6 +4014,11 @@
       "station_name": "Little India",
       "lat": 1.3066,
       "lng": 103.8492,
+      "exit_centroid": {
+        "lat": 1.306748,
+        "lng": 103.849279,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3784,7 +4096,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3793,6 +4105,11 @@
       "station_name": "Farrer Park",
       "lat": 1.3124,
       "lng": 103.8541,
+      "exit_centroid": {
+        "lat": 1.312161,
+        "lng": 103.854337,
+        "exit_count": 9
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3880,7 +4197,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3889,6 +4206,11 @@
       "station_name": "Boon Keng",
       "lat": 1.3194,
       "lng": 103.8617,
+      "exit_centroid": {
+        "lat": 1.319086,
+        "lng": 103.861371,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3930,7 +4252,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3939,6 +4261,11 @@
       "station_name": "Potong Pasir",
       "lat": 1.3312,
       "lng": 103.8689,
+      "exit_centroid": {
+        "lat": 1.331672,
+        "lng": 103.869001,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -3985,7 +4312,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3994,6 +4321,11 @@
       "station_name": "Woodleigh",
       "lat": 1.3392,
       "lng": 103.8709,
+      "exit_centroid": {
+        "lat": 1.338987,
+        "lng": 103.870834,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4035,7 +4367,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4044,6 +4376,11 @@
       "station_name": "Serangoon",
       "lat": 1.3499,
       "lng": 103.8732,
+      "exit_centroid": {
+        "lat": 1.350262,
+        "lng": 103.873297,
+        "exit_count": 8
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4138,7 +4475,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4147,6 +4484,11 @@
       "station_name": "Kovan",
       "lat": 1.3601,
       "lng": 103.8851,
+      "exit_centroid": {
+        "lat": 1.359981,
+        "lng": 103.884827,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4188,7 +4530,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4197,6 +4539,11 @@
       "station_name": "Hougang",
       "lat": 1.3713,
       "lng": 103.8924,
+      "exit_centroid": {
+        "lat": 1.371432,
+        "lng": 103.892464,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4228,7 +4575,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4237,6 +4584,11 @@
       "station_name": "Buangkok",
       "lat": 1.3829,
       "lng": 103.8929,
+      "exit_centroid": {
+        "lat": 1.38303,
+        "lng": 103.893173,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4272,7 +4624,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4281,6 +4633,11 @@
       "station_name": "Sengkang",
       "lat": 1.3917,
       "lng": 103.8952,
+      "exit_centroid": {
+        "lat": 1.391719,
+        "lng": 103.895489,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4336,7 +4693,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4345,6 +4702,11 @@
       "station_name": "Punggol",
       "lat": 1.4053,
       "lng": 103.9023,
+      "exit_centroid": {
+        "lat": 1.404816,
+        "lng": 103.902205,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4410,7 +4772,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4419,6 +4781,7 @@
       "station_name": "Punggol Coast",
       "lat": 1.4159,
       "lng": 103.9067,
+      "exit_centroid": null,
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4431,7 +4794,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -4441,6 +4804,11 @@
       "station_name": "Bras Basah",
       "lat": 1.297,
       "lng": 103.8503,
+      "exit_centroid": {
+        "lat": 1.297001,
+        "lng": 103.850526,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4494,13 +4862,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Esplanade": {
       "station_name": "Esplanade",
       "lat": 1.2934,
       "lng": 103.8555,
+      "exit_centroid": {
+        "lat": 1.293194,
+        "lng": 103.855681,
+        "exit_count": 7
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4566,13 +4939,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Promenade": {
       "station_name": "Promenade",
       "lat": 1.2935,
       "lng": 103.8612,
+      "exit_centroid": {
+        "lat": 1.293226,
+        "lng": 103.860349,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4612,7 +4990,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4621,6 +4999,11 @@
       "station_name": "Nicoll Highway",
       "lat": 1.2997,
       "lng": 103.8636,
+      "exit_centroid": {
+        "lat": 1.299916,
+        "lng": 103.863829,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4653,13 +5036,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Stadium": {
       "station_name": "Stadium",
       "lat": 1.3028,
       "lng": 103.8753,
+      "exit_centroid": {
+        "lat": 1.302941,
+        "lng": 103.875313,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4685,13 +5073,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Mountbatten": {
       "station_name": "Mountbatten",
       "lat": 1.3061,
       "lng": 103.8826,
+      "exit_centroid": {
+        "lat": 1.3064,
+        "lng": 103.882923,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4717,13 +5110,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Dakota": {
       "station_name": "Dakota",
       "lat": 1.3083,
       "lng": 103.8884,
+      "exit_centroid": {
+        "lat": 1.308456,
+        "lng": 103.888643,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4756,13 +5154,14 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "MacPherson": {
       "station_name": "MacPherson",
       "lat": 1.3266,
       "lng": 103.8898,
+      "exit_centroid": null,
       "lines": [
         {
           "operator": "SMRT",
@@ -4783,7 +5182,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -4793,6 +5192,11 @@
       "station_name": "Tai Seng",
       "lat": 1.3358,
       "lng": 103.8881,
+      "exit_centroid": {
+        "lat": 1.335268,
+        "lng": 103.887921,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4828,13 +5232,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bartley": {
       "station_name": "Bartley",
       "lat": 1.3427,
       "lng": 103.8797,
+      "exit_centroid": {
+        "lat": 1.342875,
+        "lng": 103.879583,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4870,13 +5279,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Lorong Chuan": {
       "station_name": "Lorong Chuan",
       "lat": 1.3517,
       "lng": 103.8642,
+      "exit_centroid": {
+        "lat": 1.351589,
+        "lng": 103.863926,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4912,13 +5326,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marymount": {
       "station_name": "Marymount",
       "lat": 1.3492,
       "lng": 103.8395,
+      "exit_centroid": {
+        "lat": 1.348423,
+        "lng": 103.839574,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -4944,13 +5363,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Caldecott": {
       "station_name": "Caldecott",
       "lat": 1.3375,
       "lng": 103.8395,
+      "exit_centroid": {
+        "lat": 1.337487,
+        "lng": 103.840035,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5006,13 +5430,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Botanic Gardens": {
       "station_name": "Botanic Gardens",
       "lat": 1.3225,
       "lng": 103.8155,
+      "exit_centroid": {
+        "lat": 1.32261,
+        "lng": 103.815446,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5051,7 +5480,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5060,6 +5489,11 @@
       "station_name": "Farrer Road",
       "lat": 1.3173,
       "lng": 103.8071,
+      "exit_centroid": {
+        "lat": 1.317523,
+        "lng": 103.807677,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5095,13 +5529,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Holland Village": {
       "station_name": "Holland Village",
       "lat": 1.312,
       "lng": 103.796,
+      "exit_centroid": {
+        "lat": 1.311,
+        "lng": 103.795887,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5148,13 +5587,14 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "one-north": {
       "station_name": "one-north",
       "lat": 1.2992,
       "lng": 103.7873,
+      "exit_centroid": null,
       "lines": [
         {
           "operator": "SMRT",
@@ -5167,7 +5607,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -5176,6 +5616,11 @@
       "station_name": "Kent Ridge",
       "lat": 1.2935,
       "lng": 103.7843,
+      "exit_centroid": {
+        "lat": 1.293487,
+        "lng": 103.784575,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5228,13 +5673,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Haw Par Villa": {
       "station_name": "Haw Par Villa",
       "lat": 1.2832,
       "lng": 103.7822,
+      "exit_centroid": {
+        "lat": 1.283055,
+        "lng": 103.782006,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5261,13 +5711,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Pasir Panjang": {
       "station_name": "Pasir Panjang",
       "lat": 1.2761,
       "lng": 103.7916,
+      "exit_centroid": {
+        "lat": 1.276003,
+        "lng": 103.79203,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5294,13 +5749,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Labrador Park": {
       "station_name": "Labrador Park",
       "lat": 1.2722,
       "lng": 103.8027,
+      "exit_centroid": {
+        "lat": 1.272107,
+        "lng": 103.802356,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5325,13 +5785,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Telok Blangah": {
       "station_name": "Telok Blangah",
       "lat": 1.2706,
       "lng": 103.8094,
+      "exit_centroid": {
+        "lat": 1.270721,
+        "lng": 103.809884,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5358,13 +5823,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bayfront": {
       "station_name": "Bayfront",
       "lat": 1.2823,
       "lng": 103.859,
+      "exit_centroid": {
+        "lat": 1.282089,
+        "lng": 103.859205,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -5441,7 +5911,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5450,6 +5920,11 @@
       "station_name": "Bukit Panjang",
       "lat": 1.3789,
       "lng": 103.7616,
+      "exit_centroid": {
+        "lat": 1.378622,
+        "lng": 103.762143,
+        "exit_count": 8
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5554,7 +6029,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5563,6 +6038,11 @@
       "station_name": "Cashew",
       "lat": 1.3691,
       "lng": 103.7644,
+      "exit_centroid": {
+        "lat": 1.369833,
+        "lng": 103.764234,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5587,7 +6067,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5596,6 +6076,11 @@
       "station_name": "Hillview",
       "lat": 1.3624,
       "lng": 103.7675,
+      "exit_centroid": {
+        "lat": 1.362279,
+        "lng": 103.767398,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5631,7 +6116,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5640,6 +6125,11 @@
       "station_name": "Beauty World",
       "lat": 1.3413,
       "lng": 103.7758,
+      "exit_centroid": {
+        "lat": 1.341087,
+        "lng": 103.775732,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5686,7 +6176,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5695,6 +6185,11 @@
       "station_name": "King Albert Park",
       "lat": 1.3357,
       "lng": 103.7836,
+      "exit_centroid": {
+        "lat": 1.335757,
+        "lng": 103.783796,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5730,7 +6225,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5739,6 +6234,11 @@
       "station_name": "Sixth Avenue",
       "lat": 1.3308,
       "lng": 103.7969,
+      "exit_centroid": {
+        "lat": 1.331151,
+        "lng": 103.796707,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5774,7 +6274,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5783,6 +6283,11 @@
       "station_name": "Tan Kah Kee",
       "lat": 1.3261,
       "lng": 103.8074,
+      "exit_centroid": {
+        "lat": 1.32574,
+        "lng": 103.8078,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5813,7 +6318,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5822,6 +6327,11 @@
       "station_name": "Stevens",
       "lat": 1.3201,
       "lng": 103.8262,
+      "exit_centroid": {
+        "lat": 1.320142,
+        "lng": 103.825788,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5888,7 +6398,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5897,6 +6407,11 @@
       "station_name": "Rochor",
       "lat": 1.3037,
       "lng": 103.8525,
+      "exit_centroid": {
+        "lat": 1.303809,
+        "lng": 103.85274,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -5927,7 +6442,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5936,6 +6451,11 @@
       "station_name": "Downtown",
       "lat": 1.2796,
       "lng": 103.8528,
+      "exit_centroid": {
+        "lat": 1.279553,
+        "lng": 103.852771,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6015,7 +6535,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6024,6 +6544,11 @@
       "station_name": "Telok Ayer",
       "lat": 1.2823,
       "lng": 103.8484,
+      "exit_centroid": {
+        "lat": 1.282212,
+        "lng": 103.848707,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6070,7 +6595,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6079,6 +6604,11 @@
       "station_name": "Fort Canning",
       "lat": 1.2916,
       "lng": 103.8442,
+      "exit_centroid": {
+        "lat": 1.292618,
+        "lng": 103.844298,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6114,7 +6644,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6123,6 +6653,11 @@
       "station_name": "Bencoolen",
       "lat": 1.2987,
       "lng": 103.8499,
+      "exit_centroid": {
+        "lat": 1.298364,
+        "lng": 103.849892,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6169,7 +6704,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6178,6 +6713,11 @@
       "station_name": "Jalan Besar",
       "lat": 1.3057,
       "lng": 103.8554,
+      "exit_centroid": {
+        "lat": 1.305179,
+        "lng": 103.85527,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6208,7 +6748,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6217,6 +6757,11 @@
       "station_name": "Bendemeer",
       "lat": 1.3138,
       "lng": 103.8634,
+      "exit_centroid": {
+        "lat": 1.313667,
+        "lng": 103.863147,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6252,7 +6797,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6261,6 +6806,11 @@
       "station_name": "Geylang Bahru",
       "lat": 1.3215,
       "lng": 103.8714,
+      "exit_centroid": {
+        "lat": 1.321336,
+        "lng": 103.871675,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6286,7 +6836,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6295,6 +6845,11 @@
       "station_name": "Mattar",
       "lat": 1.327,
       "lng": 103.8829,
+      "exit_centroid": {
+        "lat": 1.326858,
+        "lng": 103.88324,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6330,7 +6885,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6339,6 +6894,11 @@
       "station_name": "Ubi",
       "lat": 1.3299,
       "lng": 103.899,
+      "exit_centroid": {
+        "lat": 1.329891,
+        "lng": 103.899232,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6374,7 +6934,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6383,6 +6943,11 @@
       "station_name": "Kaki Bukit",
       "lat": 1.3349,
       "lng": 103.9087,
+      "exit_centroid": {
+        "lat": 1.335116,
+        "lng": 103.909276,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6413,7 +6978,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6422,6 +6987,11 @@
       "station_name": "Bedok North",
       "lat": 1.3349,
       "lng": 103.9181,
+      "exit_centroid": {
+        "lat": 1.334522,
+        "lng": 103.918514,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6464,7 +7034,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6473,6 +7043,11 @@
       "station_name": "Bedok Reservoir",
       "lat": 1.3367,
       "lng": 103.9326,
+      "exit_centroid": {
+        "lat": 1.336452,
+        "lng": 103.933187,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6508,7 +7083,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6517,6 +7092,11 @@
       "station_name": "Tampines West",
       "lat": 1.3455,
       "lng": 103.9385,
+      "exit_centroid": {
+        "lat": 1.345315,
+        "lng": 103.938573,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6542,7 +7122,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6551,6 +7131,11 @@
       "station_name": "Tampines East",
       "lat": 1.3563,
       "lng": 103.9543,
+      "exit_centroid": {
+        "lat": 1.356143,
+        "lng": 103.955283,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6608,7 +7193,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6617,6 +7202,11 @@
       "station_name": "Upper Changi",
       "lat": 1.3416,
       "lng": 103.9613,
+      "exit_centroid": {
+        "lat": 1.341548,
+        "lng": 103.961285,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -6685,7 +7275,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6694,6 +7284,11 @@
       "station_name": "Woodlands North",
       "lat": 1.4476,
       "lng": 103.7858,
+      "exit_centroid": {
+        "lat": 1.448492,
+        "lng": 103.785266,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6724,13 +7319,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Woodlands South": {
       "station_name": "Woodlands South",
       "lat": 1.4271,
       "lng": 103.7935,
+      "exit_centroid": {
+        "lat": 1.426972,
+        "lng": 103.793958,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6789,13 +7389,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Springleaf": {
       "station_name": "Springleaf",
       "lat": 1.3973,
       "lng": 103.8181,
+      "exit_centroid": {
+        "lat": 1.398097,
+        "lng": 103.818159,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6837,13 +7442,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Lentor": {
       "station_name": "Lentor",
       "lat": 1.3849,
       "lng": 103.8359,
+      "exit_centroid": {
+        "lat": 1.384739,
+        "lng": 103.836552,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6892,13 +7502,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Mayflower": {
       "station_name": "Mayflower",
       "lat": 1.3724,
       "lng": 103.8369,
+      "exit_centroid": {
+        "lat": 1.37204,
+        "lng": 103.836766,
+        "exit_count": 7
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6974,13 +7589,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bright Hill": {
       "station_name": "Bright Hill",
       "lat": 1.3623,
       "lng": 103.8328,
+      "exit_centroid": {
+        "lat": 1.363167,
+        "lng": 103.832869,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7028,13 +7648,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Upper Thomson": {
       "station_name": "Upper Thomson",
       "lat": 1.354,
       "lng": 103.8326,
+      "exit_centroid": {
+        "lat": 1.354527,
+        "lng": 103.832821,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7098,13 +7723,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Napier": {
       "station_name": "Napier",
       "lat": 1.3079,
       "lng": 103.8181,
+      "exit_centroid": {
+        "lat": 1.306641,
+        "lng": 103.819496,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7140,13 +7770,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Orchard Boulevard": {
       "station_name": "Orchard Boulevard",
       "lat": 1.3022,
       "lng": 103.8254,
+      "exit_centroid": {
+        "lat": 1.303043,
+        "lng": 103.823767,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7177,13 +7812,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Great World": {
       "station_name": "Great World",
       "lat": 1.2939,
       "lng": 103.8316,
+      "exit_centroid": {
+        "lat": 1.294296,
+        "lng": 103.833092,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7253,13 +7893,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Havelock": {
       "station_name": "Havelock",
       "lat": 1.2884,
       "lng": 103.8347,
+      "exit_centroid": {
+        "lat": 1.288439,
+        "lng": 103.833734,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7328,13 +7973,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Maxwell": {
       "station_name": "Maxwell",
       "lat": 1.2802,
       "lng": 103.8447,
+      "exit_centroid": {
+        "lat": 1.280715,
+        "lng": 103.843992,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7381,13 +8031,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Shenton Way": {
       "station_name": "Shenton Way",
       "lat": 1.278,
       "lng": 103.8504,
+      "exit_centroid": {
+        "lat": 1.277471,
+        "lng": 103.850936,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7444,13 +8099,14 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Gardens by the Bay": {
       "station_name": "Gardens by the Bay",
       "lat": 1.2785,
       "lng": 103.8693,
+      "exit_centroid": null,
       "lines": [
         {
           "operator": "SMRT",
@@ -7463,7 +8119,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -7472,6 +8128,11 @@
       "station_name": "Tanjong Rhu",
       "lat": 1.2911,
       "lng": 103.8746,
+      "exit_centroid": {
+        "lat": 1.29733,
+        "lng": 103.873541,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7497,13 +8158,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Katong Park": {
       "station_name": "Katong Park",
       "lat": 1.2987,
       "lng": 103.8843,
+      "exit_centroid": {
+        "lat": 1.29796,
+        "lng": 103.88608,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7529,13 +8195,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Tanjong Katong": {
       "station_name": "Tanjong Katong",
       "lat": 1.3036,
       "lng": 103.8951,
+      "exit_centroid": {
+        "lat": 1.299428,
+        "lng": 103.897484,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7577,13 +8248,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marine Parade": {
       "station_name": "Marine Parade",
       "lat": 1.3023,
       "lng": 103.9056,
+      "exit_centroid": {
+        "lat": 1.303777,
+        "lng": 103.906844,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7658,13 +8334,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Marine Terrace": {
       "station_name": "Marine Terrace",
       "lat": 1.3057,
       "lng": 103.9156,
+      "exit_centroid": {
+        "lat": 1.306694,
+        "lng": 103.915074,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7734,13 +8415,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Siglap": {
       "station_name": "Siglap",
       "lat": 1.3144,
       "lng": 103.9281,
+      "exit_centroid": {
+        "lat": 1.309855,
+        "lng": 103.929979,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7778,13 +8464,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bayshore": {
       "station_name": "Bayshore",
       "lat": 1.3175,
       "lng": 103.9377,
+      "exit_centroid": {
+        "lat": 1.312815,
+        "lng": 103.941583,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7828,13 +8519,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "South View": {
       "station_name": "South View",
       "lat": 1.3805,
       "lng": 103.7453,
+      "exit_centroid": {
+        "lat": 1.380318,
+        "lng": 103.745101,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7859,13 +8555,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Keat Hong": {
       "station_name": "Keat Hong",
       "lat": 1.3858,
       "lng": 103.7491,
+      "exit_centroid": {
+        "lat": 1.378465,
+        "lng": 103.749227,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7885,13 +8586,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Teck Whye": {
       "station_name": "Teck Whye",
       "lat": 1.3897,
       "lng": 103.7503,
+      "exit_centroid": {
+        "lat": 1.376564,
+        "lng": 103.753826,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7911,13 +8617,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Phoenix": {
       "station_name": "Phoenix",
       "lat": 1.3858,
       "lng": 103.7544,
+      "exit_centroid": {
+        "lat": 1.378614,
+        "lng": 103.758252,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7942,13 +8653,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Petir": {
       "station_name": "Petir",
       "lat": 1.3779,
       "lng": 103.77,
+      "exit_centroid": {
+        "lat": 1.377603,
+        "lng": 103.766793,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7973,13 +8689,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Pending": {
       "station_name": "Pending",
       "lat": 1.3756,
       "lng": 103.7715,
+      "exit_centroid": {
+        "lat": 1.376297,
+        "lng": 103.771328,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8004,13 +8725,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Bangkit": {
       "station_name": "Bangkit",
       "lat": 1.3787,
       "lng": 103.7733,
+      "exit_centroid": {
+        "lat": 1.379853,
+        "lng": 103.772591,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8035,13 +8761,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Fajar": {
       "station_name": "Fajar",
       "lat": 1.3838,
       "lng": 103.7706,
+      "exit_centroid": {
+        "lat": 1.384465,
+        "lng": 103.770676,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8066,13 +8797,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Segar": {
       "station_name": "Segar",
       "lat": 1.3877,
       "lng": 103.7697,
+      "exit_centroid": {
+        "lat": 1.387812,
+        "lng": 103.76941,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8092,13 +8828,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Jelapang": {
       "station_name": "Jelapang",
       "lat": 1.3866,
       "lng": 103.7642,
+      "exit_centroid": {
+        "lat": 1.386833,
+        "lng": 103.764677,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8123,13 +8864,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Senja": {
       "station_name": "Senja",
       "lat": 1.3826,
       "lng": 103.7624,
+      "exit_centroid": {
+        "lat": 1.382875,
+        "lng": 103.762326,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -8149,13 +8895,18 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": []
     },
     "Cheng Lim": {
       "station_name": "Cheng Lim",
       "lat": 1.3962,
       "lng": 103.894,
+      "exit_centroid": {
+        "lat": 1.39628,
+        "lng": 103.893802,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8191,7 +8942,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8200,6 +8951,11 @@
       "station_name": "Farmway",
       "lat": 1.3971,
       "lng": 103.8894,
+      "exit_centroid": {
+        "lat": 1.397167,
+        "lng": 103.889261,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8235,7 +8991,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8244,6 +9000,11 @@
       "station_name": "Kupang",
       "lat": 1.3982,
       "lng": 103.8814,
+      "exit_centroid": {
+        "lat": 1.398222,
+        "lng": 103.881139,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8269,7 +9030,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8278,6 +9039,11 @@
       "station_name": "Thanggam",
       "lat": 1.3974,
       "lng": 103.8757,
+      "exit_centroid": {
+        "lat": 1.397195,
+        "lng": 103.875627,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8313,7 +9079,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8322,6 +9088,11 @@
       "station_name": "Fernvale",
       "lat": 1.3921,
       "lng": 103.8762,
+      "exit_centroid": {
+        "lat": 1.392158,
+        "lng": 103.876262,
+        "exit_count": 1
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8346,7 +9117,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8355,6 +9126,11 @@
       "station_name": "Layar",
       "lat": 1.3921,
       "lng": 103.8801,
+      "exit_centroid": {
+        "lat": 1.392085,
+        "lng": 103.880152,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8390,7 +9166,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8399,6 +9175,11 @@
       "station_name": "Tongkang",
       "lat": 1.3893,
       "lng": 103.886,
+      "exit_centroid": {
+        "lat": 1.38928,
+        "lng": 103.886023,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8424,7 +9205,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8433,6 +9214,11 @@
       "station_name": "Renjong",
       "lat": 1.3867,
       "lng": 103.8905,
+      "exit_centroid": {
+        "lat": 1.386756,
+        "lng": 103.890424,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8463,7 +9249,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8472,6 +9258,11 @@
       "station_name": "Compassvale",
       "lat": 1.3944,
       "lng": 103.9006,
+      "exit_centroid": {
+        "lat": 1.394431,
+        "lng": 103.900662,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8497,7 +9288,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8506,6 +9297,11 @@
       "station_name": "Rumbia",
       "lat": 1.3915,
       "lng": 103.9059,
+      "exit_centroid": {
+        "lat": 1.391377,
+        "lng": 103.906062,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8541,7 +9337,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8550,6 +9346,11 @@
       "station_name": "Bakau",
       "lat": 1.3881,
       "lng": 103.9055,
+      "exit_centroid": {
+        "lat": 1.388013,
+        "lng": 103.905464,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8585,7 +9386,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8594,6 +9395,11 @@
       "station_name": "Kangkar",
       "lat": 1.384,
       "lng": 103.9022,
+      "exit_centroid": {
+        "lat": 1.38392,
+        "lng": 103.902212,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8629,7 +9435,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8638,6 +9444,11 @@
       "station_name": "Ranggung",
       "lat": 1.3839,
       "lng": 103.8975,
+      "exit_centroid": {
+        "lat": 1.384141,
+        "lng": 103.897273,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8673,7 +9484,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8682,6 +9493,11 @@
       "station_name": "Cove",
       "lat": 1.3994,
       "lng": 103.9059,
+      "exit_centroid": {
+        "lat": 1.399214,
+        "lng": 103.906053,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8717,7 +9533,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8726,6 +9542,11 @@
       "station_name": "Meridian",
       "lat": 1.3968,
       "lng": 103.909,
+      "exit_centroid": {
+        "lat": 1.396902,
+        "lng": 103.908918,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8761,7 +9582,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8770,6 +9591,11 @@
       "station_name": "Coral Edge",
       "lat": 1.394,
       "lng": 103.9125,
+      "exit_centroid": {
+        "lat": 1.393828,
+        "lng": 103.912681,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8800,7 +9626,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8809,6 +9635,11 @@
       "station_name": "Riviera",
       "lat": 1.3946,
       "lng": 103.9162,
+      "exit_centroid": {
+        "lat": 1.394443,
+        "lng": 103.916099,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8844,7 +9675,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8853,6 +9684,11 @@
       "station_name": "Kadaloor",
       "lat": 1.3996,
       "lng": 103.9165,
+      "exit_centroid": {
+        "lat": 1.39961,
+        "lng": 103.916452,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8888,7 +9724,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8897,6 +9733,11 @@
       "station_name": "Oasis",
       "lat": 1.4024,
       "lng": 103.9126,
+      "exit_centroid": {
+        "lat": 1.402306,
+        "lng": 103.912701,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8932,7 +9773,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8941,6 +9782,11 @@
       "station_name": "Damai",
       "lat": 1.4054,
       "lng": 103.9085,
+      "exit_centroid": {
+        "lat": 1.405165,
+        "lng": 103.908703,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -8976,7 +9822,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -8985,6 +9831,11 @@
       "station_name": "Sam Kee",
       "lat": 1.4098,
       "lng": 103.9049,
+      "exit_centroid": {
+        "lat": 1.409766,
+        "lng": 103.904916,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9010,7 +9861,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9019,6 +9870,11 @@
       "station_name": "Teck Lee",
       "lat": 1.4128,
       "lng": 103.9066,
+      "exit_centroid": {
+        "lat": 1.412903,
+        "lng": 103.906647,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9044,7 +9900,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9053,6 +9909,11 @@
       "station_name": "Punggol Point",
       "lat": 1.4169,
       "lng": 103.9065,
+      "exit_centroid": {
+        "lat": 1.41679,
+        "lng": 103.906756,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9078,7 +9939,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9087,6 +9948,11 @@
       "station_name": "Samudera",
       "lat": 1.4159,
       "lng": 103.9021,
+      "exit_centroid": {
+        "lat": 1.415886,
+        "lng": 103.902137,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9117,7 +9983,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9126,6 +9992,11 @@
       "station_name": "Nibong",
       "lat": 1.4118,
       "lng": 103.9003,
+      "exit_centroid": {
+        "lat": 1.411842,
+        "lng": 103.900303,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9161,7 +10032,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9170,6 +10041,11 @@
       "station_name": "Sumang",
       "lat": 1.4084,
       "lng": 103.8985,
+      "exit_centroid": {
+        "lat": 1.408428,
+        "lng": 103.898547,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9205,7 +10081,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -9214,6 +10090,11 @@
       "station_name": "Soo Teck",
       "lat": 1.4051,
       "lng": 103.8972,
+      "exit_centroid": {
+        "lat": 1.40513,
+        "lng": 103.89722,
+        "exit_count": 2
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -9249,7 +10130,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:55:30.031Z",
+      "last_updated_at": "2026-05-20T09:21:42.149Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]

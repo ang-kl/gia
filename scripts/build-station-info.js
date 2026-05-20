@@ -101,6 +101,27 @@ function normaliseExitLabel(raw) {
   return String(raw).replace(/^Exit\s+/i, '').trim() || null;
 }
 
+function round6(n) {
+  return Math.round(n * 1e6) / 1e6;
+}
+
+// v0.61.65 — exit_centroid: the mean of a station's exit coordinates.
+// The exit coords come from the LTA MRT Station Exit GeoJSON (6-decimal,
+// precise); the canonical data/mrt-coords.json lat/lng is a coarse
+// hand-entered value that can sit 100 m+ (occasionally >1 km) off the
+// real station. Both are kept — lat/lng for provenance, exit_centroid as
+// the accurate map-render position. null when the station has no exits.
+function exitCentroidOf(exits) {
+  const pts = (Array.isArray(exits) ? exits : [])
+    .filter((e) => Number.isFinite(e.lat) && Number.isFinite(e.lng));
+  if (!pts.length) return null;
+  return {
+    lat: round6(pts.reduce((a, e) => a + e.lat, 0) / pts.length),
+    lng: round6(pts.reduce((a, e) => a + e.lng, 0) / pts.length),
+    exit_count: pts.length
+  };
+}
+
 function loadBusStops() {
   try {
     const doc = JSON.parse(fs.readFileSync(SRC_BUS, 'utf8'));
@@ -202,6 +223,7 @@ function build() {
       station_name: name,
       lat: info.lat,
       lng: info.lng,
+      exit_centroid: exitCentroidOf(exits),
       lines,
       exits,
       first_last_train: [],
@@ -225,6 +247,7 @@ function build() {
         busStops
           ? `exits[].nearest_bus_stop = nearest bus stop within ${BUS_NEAR_M} m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.`
           : 'exits[].nearest_bus_stop: null — run scripts/build-bus-services-by-stop.js to produce data/bus-services-by-stop.json, then re-run this build.',
+        'exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.',
         'first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).',
         'SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.',
         'SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping.'

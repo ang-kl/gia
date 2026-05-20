@@ -11473,9 +11473,40 @@ async function cacheBotUsername() {
       }
       return mrtCoordsCache;
     }
+    // v0.61.65 — name → exit_centroid map from data/stations.json. The
+    // exit_centroid is the mean of a station's LTA-GeoJSON exit coords —
+    // the accurate map position; the mrt-coords.json lat/lng can sit
+    // 100 m+ off. Used to enrich /api/transport/stations so map pins
+    // render on the real station.
+    let stationCentroidsCache;
+    function loadStationCentroids() {
+      if (stationCentroidsCache) return stationCentroidsCache;
+      stationCentroidsCache = {};
+      try {
+        const doc = JSON.parse(
+          require('fs').readFileSync(__dirname + '/data/stations.json', 'utf8'));
+        const st = doc && doc.stations ? doc.stations : {};
+        for (const [name, rec] of Object.entries(st)) {
+          const ec = rec && rec.exit_centroid;
+          if (ec && Number.isFinite(ec.lat) && Number.isFinite(ec.lng)) {
+            stationCentroidsCache[name] = { lat: ec.lat, lng: ec.lng };
+          }
+        }
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          console.error('[station-centroids] load failed:', err.message);
+        }
+      }
+      return stationCentroidsCache;
+    }
     app.get('/api/transport/stations', (_req, res) => {
       try {
-        res.json({ stations: loadMrtCoords() });
+        const centroids = loadStationCentroids();
+        const stations = loadMrtCoords().map((s) => {
+          const c = centroids[s.name];
+          return c ? { ...s, exit_centroid: c } : s;
+        });
+        res.json({ stations });
       } catch (err) {
         res.status(500).json({ error: err.message });
       }
@@ -11513,13 +11544,24 @@ async function cacheBotUsername() {
     // read as curves, not station-to-station zig-zags.
     let _linePathsMod;
     let _derivedLinePathsCache;
+    // v0.61.65 — station coords for line-geometry derivation: prefer the
+    // exit-derived centroid (accurate) over the coarse mrt-coords lat/lng
+    // so derived polylines run through the real station positions,
+    // consistent with the map pins. The stored data is untouched.
+    function mrtCoordsForGeometry() {
+      const centroids = loadStationCentroids();
+      return loadMrtCoords().map((s) => {
+        const c = centroids[s.name];
+        return c ? { ...s, lat: c.lat, lng: c.lng } : s;
+      });
+    }
     async function deriveLinePaths() {
       if (_derivedLinePathsCache) return _derivedLinePathsCache;
       if (!_linePathsMod) {
         _linePathsMod = await import('./web/transport/src/data/line-paths.js');
       }
       _derivedLinePathsCache = _linePathsMod.smoothLinePaths(
-        _linePathsMod.buildLinePaths(loadMrtCoords())
+        _linePathsMod.buildLinePaths(mrtCoordsForGeometry())
       );
       return _derivedLinePathsCache;
     }

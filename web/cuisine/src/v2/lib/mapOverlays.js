@@ -39,8 +39,8 @@ const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes t
 // render full-size, the rest of the overlay-radius set render lite.
 const BUS_DEEMPH_NEAR_M = 150;
 // v0.61.53 — zoom level at and above which the train layer expands:
-// every visible station becomes a labelled pill (<code> <name> station),
-// and the base polyline goes opaque. Below: square pins + 50 % polyline.
+// every visible station becomes a labelled pill (per-code colour chips +
+// <name> station), and the base polyline goes opaque. Below: square pins.
 const ZOOM_DETAIL_THRESHOLD = 15;
 
 // Canonical LTA line colours for the train-line overlay (the transport
@@ -285,6 +285,32 @@ export function amenityLabelNode(label, bg, fg, clickable) {
     + 'background:' + bg + ';color:' + fg + ';font-size:10px;font-weight:700;'
     + 'line-height:1.5;white-space:nowrap;border:1.5px solid #fff;'
     + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:' + (clickable ? 'pointer' : 'default') + ';';
+  return el;
+}
+
+// v0.61.65 — labelled station marker: one line-coloured chip per
+// station code (e.g. CC4 orange · DT15 blue) on a white pill, then
+// "<Name> station". Replaces the single-colour amenityLabelNode label
+// so an interchange shows each line's own colour.
+function stationPillNode(codes, name, fallbackHex) {
+  const el = document.createElement('div');
+  el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;'
+    + 'padding:1px 5px;border-radius:8px;background:#fff;'
+    + 'font-size:10px;font-weight:700;line-height:1.5;white-space:nowrap;'
+    + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+  for (const code of (Array.isArray(codes) ? codes : [])) {
+    if (!code) continue;
+    const chip = document.createElement('span');
+    chip.textContent = code;
+    chip.style.cssText = 'display:inline-block;padding:0 4px;border-radius:5px;'
+      + 'background:' + (codeHex(code) || fallbackHex || '#888888') + ';color:#fff;';
+    el.appendChild(chip);
+  }
+  const nm = document.createElement('span');
+  const nice = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+  nm.textContent = (nice + ' station').trim();
+  nm.style.cssText = 'color:#1c1c1f;';
+  el.appendChild(nm);
   return el;
 }
 
@@ -787,16 +813,22 @@ export function createOverlayController(map, googleMaps) {
   function buildTrainStations(stations) {
     const out = [];
     for (const s of (Array.isArray(stations) ? stations : [])) {
-      if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      // v0.61.65 — prefer the exit-derived centroid (the real station
+      // position from the LTA exit GeoJSON) over the coarse mrt-coords
+      // lat/lng, which can sit 100 m+ off. Falls back when absent.
+      const ec = s.exit_centroid;
+      const lat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+      const lng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
       if (s.status === 'future') continue;
       const hex = LINE_HEX[lineCodeOf(s)] || '#888888';
       const marker = new AdvancedMarkerElement({
-        position: { lat: s.lat, lng: s.lng },
+        position: { lat, lng },
         content: squareStationNode(hex),
         title: s.name || '',
         gmpClickable: true
       });
-      const item = { marker, lat: s.lat, lng: s.lng, station: s, hex };
+      const item = { marker, lat, lng, station: s, hex };
       marker.addListener('click', () => handleStationTap(item));
       out.push(item);
     }
@@ -1130,9 +1162,9 @@ export function createOverlayController(map, googleMaps) {
       detailStations = [];
       // v0.61.53 — unified per-station content swap (subsumes the
       // earlier centre-only rebuild). At zoom-in every visible station
-      // is a labelled `<code> <name> station` pill in its line colour;
-      // at zoom-out, square pins, except the explicitly-selected centre
-      // which stays a pill so it self-identifies without an InfoWindow.
+      // is a labelled pill — a line-coloured chip per station code, then
+      // `<name> station`; at zoom-out, square pins, except the explicitly-
+      // selected centre which stays a pill so it self-identifies.
       // `_mode` caches the current state to avoid rebuilding on every
       // pan-driven applyVisibility.
       const newCentre = detailStation ? detailStation.name : null;
@@ -1145,9 +1177,8 @@ export function createOverlayController(map, googleMaps) {
         const wantMode = (zoomedIn || isCentre) ? 'pill' : 'square';
         if (st._mode !== wantMode) {
           if (wantMode === 'pill') {
-            const code = (Array.isArray(st.station.codes) && st.station.codes[0]) || '';
-            const label = (code ? code + ' ' : '') + (st.station.name || '') + ' station';
-            st.marker.content = amenityLabelNode(label, st.hex, '#fff', true);
+            st.marker.content = stationPillNode(
+              st.station.codes, st.station.name || '', st.hex);
           } else {
             st.marker.content = squareStationNode(st.hex);
           }

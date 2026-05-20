@@ -1,8 +1,8 @@
 counters:
-  commit: 275
-  build: 75
+  commit: 276
+  build: 76
   documents:
-    journal: 268
+    journal: 269
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,18 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 20-05 '26 18:40 SGT
-last_anchor_source: claude_estimate_continuation_after_journal267 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-20T18:40:00+08:00
-last_anchor_utc: 2026-05-20T10:40:00Z
+last_anchor_time: 20-05 '26 19:10 SGT
+last_anchor_source: claude_estimate_continuation_after_journal268 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-20T19:10:00+08:00
+last_anchor_utc: 2026-05-20T11:10:00Z
+# journal #269 (commit 276 / build 76) — v0.61.65 two-colour station
+# pin + exit_centroid field: stationPillNode renders one line-coloured
+# chip per station code (CC4 orange · DT15 blue) then "<Name> station".
+# Investigation — mrt-coords.json station lat/lng is coarse (median
+# 37 m, worst 1.5 km off the real station); LTA exit GeoJSON is right.
+# build-station-info adds exit_centroid (mean of exit coords) to 175 of
+# 180 stations.json records; lat/lng kept. /api/transport/stations
+# serves it; map pin + derived polylines now use the exit centroid.
 # journal #268 (commit 275 / build 75) — v0.61.64 bus-stop popup
 # legibility: busArrivalRows/busInfoHtml in mapOverlays.js — arrival
 # text forced dark (#1c1c1f) + bold; each row leads with its timing
