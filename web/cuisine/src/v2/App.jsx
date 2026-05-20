@@ -153,6 +153,16 @@ export default function App() {
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
   const [searchHintActive, setSearchHintActive] = useState(false);
+  // v0.61.70 — flash the 🔍 Search FAB for 2 s whenever a result set
+  // loads (warm-start first paint or a Search-criteria run), drawing
+  // the eye to the FAB.
+  const [searchFabFlash, setSearchFabFlash] = useState(false);
+  useEffect(() => {
+    if (!venues || !venues.length) return undefined;
+    setSearchFabFlash(true);
+    const t = setTimeout(() => setSearchFabFlash(false), 2000);
+    return () => clearTimeout(t);
+  }, [venues]);
   // v0.60.14 / v0.60.18 — Google-limitation tip beside the 🔍 Search
   // FAB. Originally shown after every search. Per Human Lead 2026-05-08
   // that was too noisy ("the bubble keeps popping after each click").
@@ -1535,7 +1545,7 @@ export default function App() {
               loading ? 'opacity-60'
               : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
               : ''
-            } ${searchHintActive ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+            } ${(searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
           >🔍</button>
           <button
             type="button"

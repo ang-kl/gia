@@ -35,9 +35,6 @@ const OVERLAY_RADIUS_M = 550;
 // anchor radius, so they show the amenities of those stations only.
 const STATION_AMENITY_RADIUS_M = 400;
 const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes this near the anchor
-// v0.61.52 — bus-stop de-emphasis: stops within this of the anchor
-// render full-size, the rest of the overlay-radius set render lite.
-const BUS_DEEMPH_NEAR_M = 150;
 // v0.61.53 — zoom level at and above which the train layer expands:
 // every visible station becomes a labelled pill (per-code colour chips +
 // <name> station), and the base polyline goes opaque. Below: square pins.
@@ -314,19 +311,12 @@ function stationPillNode(codes, name, fallbackHex) {
   return el;
 }
 
-// v0.61.52 — de-emphasised bus-stop pin: about half the primary size,
-// lighter / translucent fill, no code text — just the 🚏 glyph. Used
-// for bus stops that sit inside the overlay radius but far from the
-// map anchor, so the primary search context isn't drowned out.
-function liteBusNode() {
-  const el = document.createElement('div');
-  el.textContent = '🚏';
-  el.style.cssText = 'display:inline-block;padding:0 2px;border-radius:5px;'
-    + 'background:rgba(21,101,192,0.45);color:rgba(255,255,255,0.9);'
-    + 'font-size:9px;font-weight:600;line-height:1.4;white-space:nowrap;'
-    + 'border:1px solid rgba(255,255,255,0.55);'
-    + 'box-shadow:0 0 0 0.3px rgba(0,0,0,0.25);cursor:pointer;';
-  return el;
+// v0.61.70 — bus-stop pin: a white rounded-rect like the MRT-exit pins.
+// Compact form (zoomed out) is just 🚏; zoomed in it expands to
+// 🚏 Bus Stop № <code>. White background per operator standardization.
+function busPinNode(code, full) {
+  return amenityLabelNode(
+    full ? '🚏 Bus Stop № ' + code : '🚏', '#FFFFFF', '#1c1c1f', true);
 }
 
 // Small coloured dot with an emoji glyph.
@@ -359,22 +349,14 @@ function rectPinNode(bg, text) {
 
 // v0.61.41 — shared palette for the in-map quick-toggle buttons (the
 // MapControls pills + the Colour nav button).
-// v0.61.51 — palette is now theme-aware per operator CR7: light /
-// dark variants for ON (amber-bold #D97706 / #F59E0B) and OFF (white /
-// dark slate). Avoids the previous "always-amber" reading poorly
-// against Telegram light vs dark map chrome.
+// v0.61.70 — ON = Singapore blue; OFF = white, matching the white
+// navigation-button background. Theme-independent, like the nav
+// buttons themselves. (Was the CR7 amber-on / theme-aware palette.)
 export function giaToggleStyle(on, disabled) {
-  const dark = typeof window !== 'undefined'
-    && window.Telegram && window.Telegram.WebApp
-    && window.Telegram.WebApp.colorScheme === 'dark';
   return {
-    background: on
-      ? (dark ? '#F59E0B' : '#D97706')
-      : (dark ? '#1F2937' : '#FFFFFF'),
-    color: on ? '#111827' : (dark ? '#D1D5DB' : '#374151'),
-    border: '1px solid ' + (on
-      ? (dark ? '#FCD34D' : '#B45309')
-      : (dark ? '#374151' : '#E5E7EB')),
+    background: on ? '#1565C0' : '#FFFFFF',
+    color: on ? '#FFFFFF' : '#374151',
+    border: '1px solid ' + (on ? '#0D47A1' : '#D1D5DB'),
     boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
     opacity: disabled ? 0.5 : 1
   };
@@ -559,7 +541,7 @@ function stationInfoCardHtml(rec) {
       const parts = [];
       const exTxt = 'Exit ' + escapeHtml(ex.label || '?');
       parts.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
-        ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng) + '">' + exTxt + '</span>'
+        ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng, true) + '">' + exTxt + '</span>'
         : '<span style="font-weight:700;">' + exTxt + '</span>');
       if (ex.street) {
         parts.push('<span style="font-weight:700;color:' + c.fg + ';">'
@@ -693,7 +675,7 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
   }
   for (const b of (Array.isArray(ctx.busStops) ? ctx.busStops : []).slice(0, lim.bus || 3)) {
     if (!b || !b.code) continue;
-    place(b.lat, b.lng, amenityLabelNode('🚏№' + b.code, AMENITY_BUS_BG, '#fff', true),
+    place(b.lat, b.lng, busPinNode(b.code, true),
       (m) => openBusInfo(map, infoWindow, b, m));
   }
   for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])
@@ -740,7 +722,10 @@ export function createOverlayController(map, googleMaps) {
   // v0.61.53 — re-apply the train layer on every zoom change so station
   // markers swap square ↔ labelled-pill at ZOOM_DETAIL_THRESHOLD and the
   // polyline opacity tracks zoom.
-  map.addListener('zoom_changed', () => { if (layers.train) applyVisibility('train'); });
+  map.addListener('zoom_changed', () => {
+    if (layers.train) applyVisibility('train');
+    if (layers.busstop) applyVisibility('busstop');
+  });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
   //   line   items: { polyline, pts:[{lat,lng}] }
@@ -805,18 +790,18 @@ export function createOverlayController(map, googleMaps) {
   // popup the station-detail amenity pins use.
   function buildBusMarkers(features) {
     return (features || []).map((f) => {
-      // v0.61.52 — two content variants per marker; applyVisibility
-      // upgrades to `primary` when the stop is near the map anchor.
-      const primary = amenityLabelNode('🚏 № ' + f.code, AMENITY_BUS_BG, '#fff', true);
-      const lite = liteBusNode();
+      // v0.61.70 — two zoom variants per marker; applyVisibility swaps
+      // to `full` at/above the detail zoom threshold.
+      const compact = busPinNode(f.code, false);
+      const full = busPinNode(f.code, true);
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: lite,
+        content: compact,
         title: f.description || ('Stop ' + f.code),
         gmpClickable: true
       });
       marker.addListener('click', () => openBusInfo(map, info, f, marker));
-      return { marker, lat: f.lat, lng: f.lng, primary, lite, _bus: true };
+      return { marker, lat: f.lat, lng: f.lng, compact, full, _bus: true };
     });
   }
 
@@ -986,7 +971,7 @@ export function createOverlayController(map, googleMaps) {
       const b = { code: bs.code, lat: bs.lat, lng: bs.lng };
       const marker = new AdvancedMarkerElement({
         position: { lat: bs.lat, lng: bs.lng },
-        content: amenityLabelNode('🚏 № ' + bs.code, AMENITY_BUS_BG, '#fff', true),
+        content: busPinNode(bs.code, true),
         gmpClickable: true
       });
       marker.addListener('click', () => openBusInfo(map, info, b, marker));
@@ -1003,10 +988,12 @@ export function createOverlayController(map, googleMaps) {
       const rec = doc && doc.stations ? doc.stations[item.station.name] : null;
       if (!rec) { info.close(); return; }
       // Exit / Bus-№ link affordances → pan + zoom the map to the pin.
-      // v0.61.66 — a third truthy arg (Bus Stop № links) also flashes
-      // the stop pin for ~2 s.
+      // v0.61.66 — a third truthy arg (Exit # / Bus Stop № links) also
+      // flashes the pin for ~2 s. v0.61.70 — and closes the station card
+      // first, so the card never hides the pin being flashed.
       window.__giaStationFocus = (lat, lng, flash) => {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        if (flash) info.close();
         map.panTo({ lat, lng });
         const z = map.getZoom ? map.getZoom() : 0;
         if (z < 17) map.setZoom(17);
@@ -1321,32 +1308,16 @@ export function createOverlayController(map, googleMaps) {
     // anchor radius.
     const stationScoped = detailStations.length && (name === 'exits' || name === 'taxis');
     const r = currentRadius();
-    // v0.61.54 — CR4 v2 multi-focus: a bus stop is "near focus" if it
-    // sits within BUS_DEEMPH_NEAR_M of *any* of (a) the viewport anchor,
-    // (b) the result-emphasis anchor (set by Cuisine when a venue is
-    // focused), (c) the tapped active station. Computed once per call.
-    const focusPoints = name === 'busstop' ? (() => {
-      const fp = [];
-      if (anchor) fp.push(anchor);
-      if (trainEmphasis) fp.push(trainEmphasis);
-      if (detailStation && Number.isFinite(detailStation.lat) && Number.isFinite(detailStation.lng)) {
-        fp.push({ lat: detailStation.lat, lng: detailStation.lng });
-      }
-      return fp;
-    })() : null;
+    // v0.61.70 — bus-stop pins are zoom-aware: compact 🚏 when zoomed
+    // out, full 🚏 Bus Stop № … at/above the detail zoom threshold.
+    const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
     for (const it of e.items) {
       const near = stationScoped
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
-      // v0.61.52 — bus-stop de-emphasis (CR4): inside the visible set,
-      // stops near focus render primary, the rest render lite.
-      // v0.61.54 — focus = anchor ∪ result ∪ active station (CR4 v2).
       if (it._bus && e.visible && near) {
-        const closeToFocus = focusPoints.some(
-          (fp) => metresBetween(fp.lat, fp.lng, it.lat, it.lng) <= BUS_DEEMPH_NEAR_M
-        );
-        const want = closeToFocus ? it.primary : it.lite;
+        const want = zoomedIn ? it.full : it.compact;
         if (it.marker.content !== want) it.marker.content = want;
       }
     }
