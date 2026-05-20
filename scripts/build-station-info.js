@@ -43,7 +43,15 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const SRC_COORDS = path.join(ROOT, 'data', 'mrt-coords.json');
 const SRC_EXITS  = path.join(ROOT, 'data', 'station-exits.json');
+const SRC_BUS    = path.join(ROOT, 'data', 'bus-services-by-stop.json'); // optional, Phase 2a
 const OUT_PATH   = path.join(ROOT, 'data', 'stations.json');
+
+// v0.61.56 — CR6 Phase 2a: each exit's `nearest_bus_stop` is the
+// nearest bus stop within this radius. Its `services` list is whatever
+// the routes data covers (may be empty while data_realtime/BusRoutes.json
+// is only a partial sample) — the stop's coords still drive the card's
+// "Bus №" map link, so we bind the nearest stop regardless of services.
+const BUS_NEAR_M = 80;
 
 // Line code → { display name, operator }. Operators per the CR6 brief:
 // SMRT runs NSL / EWL / CCL / TEL / BPLRT; SBS Transit runs DTL / NEL /
@@ -93,16 +101,61 @@ function normaliseExitLabel(raw) {
   return String(raw).replace(/^Exit\s+/i, '').trim() || null;
 }
 
+function loadBusStops() {
+  try {
+    const doc = JSON.parse(fs.readFileSync(SRC_BUS, 'utf8'));
+    const m = doc && doc.stops ? doc.stops : null;
+    if (!m) return null;
+    // Pre-flatten to an array for the per-exit linear scan; box-filter
+    // then haversine for the small set that survives the box.
+    return Object.entries(m).map(([code, s]) => ({
+      code, lat: s.lat, lng: s.lng, services: Array.isArray(s.services) ? s.services : []
+    }));
+  } catch (e) {
+    if (e && e.code === 'ENOENT') return null;
+    throw e;
+  }
+}
+
+function metresBetween(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function findNearestBusStop(exit, stops, capM) {
+  if (!stops || !stops.length
+      || !Number.isFinite(exit.lat) || !Number.isFinite(exit.lng)) return null;
+  const boxDeg = capM / 111000 + 1e-6;
+  let best = null;
+  let bestD = Infinity;
+  for (const s of stops) {
+    if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+    if (Math.abs(s.lat - exit.lat) > boxDeg) continue;
+    if (Math.abs(s.lng - exit.lng) > boxDeg) continue;
+    const d = metresBetween(exit.lat, exit.lng, s.lat, s.lng);
+    if (d <= capM && d < bestD) { bestD = d; best = s; }
+  }
+  if (!best) return null;
+  return { code: best.code, lat: best.lat, lng: best.lng, services: best.services };
+}
+
 function build() {
   const coords = JSON.parse(fs.readFileSync(SRC_COORDS, 'utf8'));
   const exitsDoc = JSON.parse(fs.readFileSync(SRC_EXITS, 'utf8'));
   const exitsByStation = exitsDoc.stations || {};
+  const busStops = loadBusStops(); // null when data/bus-services-by-stop.json absent
 
   const stations = {};
   const now = new Date().toISOString();
 
   let opCount = 0;
   let skipFuture = 0;
+  let exitsWithBus = 0;
 
   for (const [name, info] of Object.entries(coords)) {
     if (name === '_meta') continue;
@@ -127,12 +180,16 @@ function build() {
     });
 
     const rawExits = Array.isArray(exitsByStation[name]) ? exitsByStation[name] : [];
-    const exits = rawExits.map((e) => ({
-      label: normaliseExitLabel(e.exit),
-      lat: e.lat,
-      lng: e.lng,
-      nearest_bus_stop: null
-    }));
+    const exits = rawExits.map((e) => {
+      const nearest = busStops ? findNearestBusStop(e, busStops, BUS_NEAR_M) : null;
+      if (nearest) exitsWithBus += 1;
+      return {
+        label: normaliseExitLabel(e.exit),
+        lat: e.lat,
+        lng: e.lng,
+        nearest_bus_stop: nearest
+      };
+    });
 
     const dqNotes = [];
     if (!exits.length) dqNotes.push('no exits in source');
@@ -163,9 +220,12 @@ function build() {
       lastUpdated: now.slice(0, 10),
       stationCount: opCount,
       futureStationsSkipped: skipFuture,
+      busServicesJoined: !!busStops,
       schemaNotes: [
-        'first_last_train: [] — deferred to Phase 2 (source TBD: data.gov.sg dataset if it exists, else curated commit).',
-        'exits[].nearest_bus_stop: null — deferred to Phase 2 (needs LTA DataMall BusRoutes services-per-stop fetch).',
+        busStops
+          ? `exits[].nearest_bus_stop = nearest bus stop within ${BUS_NEAR_M} m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.`
+          : 'exits[].nearest_bus_stop: null — run scripts/build-bus-services-by-stop.js to produce data/bus-services-by-stop.json, then re-run this build.',
+        'first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).',
         'SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.',
         'SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping.'
       ]
@@ -179,7 +239,9 @@ function build() {
     skipped_future: skipFuture,
     with_exits: Object.values(stations).filter((s) => s.exits.length).length,
     smrt_links: Object.values(stations).filter((s) => s.lines.some((l) => l.operator === 'SMRT' && l.more_info_url)).length,
-    sbs_links:  Object.values(stations).filter((s) => s.lines.some((l) => l.operator === 'SBS Transit' && l.more_info_url)).length
+    sbs_links:  Object.values(stations).filter((s) => s.lines.some((l) => l.operator === 'SBS Transit' && l.more_info_url)).length,
+    bus_services_joined: !!busStops,
+    exits_with_bus_stop: exitsWithBus
   };
   console.log('stations.json written:', counts);
 }
