@@ -1,8 +1,8 @@
 counters:
-  commit: 273
-  build: 73
+  commit: 276
+  build: 76
   documents:
-    journal: 266
+    journal: 269
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,29 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 20-05 '26 17:50 SGT
-last_anchor_source: claude_estimate_continuation_after_journal265 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-20T17:50:00+08:00
-last_anchor_utc: 2026-05-20T09:50:00Z
+last_anchor_time: 20-05 '26 19:10 SGT
+last_anchor_source: claude_estimate_continuation_after_journal268 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-20T19:10:00+08:00
+last_anchor_utc: 2026-05-20T11:10:00Z
+# journal #269 (commit 276 / build 76) — v0.61.65 two-colour station
+# pin + exit_centroid field: stationPillNode renders one line-coloured
+# chip per station code (CC4 orange · DT15 blue) then "<Name> station".
+# Investigation — mrt-coords.json station lat/lng is coarse (median
+# 37 m, worst 1.5 km off the real station); LTA exit GeoJSON is right.
+# build-station-info adds exit_centroid (mean of exit coords) to 175 of
+# 180 stations.json records; lat/lng kept. /api/transport/stations
+# serves it; map pin + derived polylines now use the exit centroid.
+# journal #268 (commit 275 / build 75) — v0.61.64 bus-stop popup
+# legibility: busArrivalRows/busInfoHtml in mapOverlays.js — arrival
+# text forced dark (#1c1c1f) + bold; each row leads with its timing
+# label ("- ≤5 min ‧ Bus № …"); stop code prefixed "Bus Stop №";
+# footer link text → "Google Map ➚". mapOverlays.js byte-identical ×3.
+# journal #267 (commit 274 / build 74) — v0.61.63 CR6 nearest-bus-stop
+# enrichment: scripts/enrich-nearest-bus-stops.js — Stage A offline
+# Haversine triangulation (stations.json + LTABusStop.geojson, radius
+# 400→800→1000) → data/stations_with_nearest_bus_stops.json (180
+# stations, 880 entries); Stage B OneMap getNearestBusStops name pass
+# (operator-run, ONEMAP_API_KEY). + errors + coverage reports + README.
 # journal #266 (commit 273 / build 73) — v0.61.62 HOTFIX: /healthz
 # threw ReferenceError (pkg → should be pkgJson) → 500 → webhook-domain
 # probe classified soleat.net unreachable → TMA URLs switched to the

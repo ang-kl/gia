@@ -39,8 +39,8 @@ const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes t
 // render full-size, the rest of the overlay-radius set render lite.
 const BUS_DEEMPH_NEAR_M = 150;
 // v0.61.53 — zoom level at and above which the train layer expands:
-// every visible station becomes a labelled pill (<code> <name> station),
-// and the base polyline goes opaque. Below: square pins + 50 % polyline.
+// every visible station becomes a labelled pill (per-code colour chips +
+// <name> station), and the base polyline goes opaque. Below: square pins.
 const ZOOM_DETAIL_THRESHOLD = 15;
 
 // Canonical LTA line colours for the train-line overlay (the transport
@@ -288,6 +288,32 @@ export function amenityLabelNode(label, bg, fg, clickable) {
   return el;
 }
 
+// v0.61.65 — labelled station marker: one line-coloured chip per
+// station code (e.g. CC4 orange · DT15 blue) on a white pill, then
+// "<Name> station". Replaces the single-colour amenityLabelNode label
+// so an interchange shows each line's own colour.
+function stationPillNode(codes, name, fallbackHex) {
+  const el = document.createElement('div');
+  el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;'
+    + 'padding:1px 5px;border-radius:8px;background:#fff;'
+    + 'font-size:10px;font-weight:700;line-height:1.5;white-space:nowrap;'
+    + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+  for (const code of (Array.isArray(codes) ? codes : [])) {
+    if (!code) continue;
+    const chip = document.createElement('span');
+    chip.textContent = code;
+    chip.style.cssText = 'display:inline-block;padding:0 4px;border-radius:5px;'
+      + 'background:' + (codeHex(code) || fallbackHex || '#888888') + ';color:#fff;';
+    el.appendChild(chip);
+  }
+  const nm = document.createElement('span');
+  const nice = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+  nm.textContent = (nice + ' station').trim();
+  nm.style.cssText = 'color:#1c1c1f;';
+  el.appendChild(nm);
+  return el;
+}
+
 // v0.61.52 — de-emphasised bus-stop pin: about half the primary size,
 // lighter / translucent fill, no code text — just the 🚏 glyph. Used
 // for bus stops that sit inside the overlay radius but far from the
@@ -519,31 +545,32 @@ function busArrivalRows(services) {
   let h = '';
   for (const b of buckets) {
     if (!b.svcs.length) continue;
-    h += '<div style="margin-top:2px;">№ ' + escapeHtml(b.svcs.join(', '))
-      + ' — ' + b.label + '</div>';
+    h += '<div style="margin-top:5px;color:#1c1c1f;font-weight:600;">- '
+      + b.label + ' ‧ Bus № ' + escapeHtml(b.svcs.join(', ')) + '</div>';
   }
   return h;
 }
 
-// v0.61.44 — bus-stop popup: road name, stop code, bucketed live
-// arrivals, then a Google-Maps link whose text is the road name.
+// v0.61.64 — bus-stop popup: road name, "Bus Stop №" code, bucketed live
+// arrivals (timing label leads each row), then a Google-Maps link. Text is
+// dark (#1c1c1f) + bold so it reads on the white card.
 function busInfoHtml(b, services) {
   const c = infoPalette();
   const road = b.roadName || b.description || ('Stop ' + b.code);
-  let h = '<div style="font-weight:600;">🚏 ' + escapeHtml(road) + '</div>';
-  h += '<div style="color:' + c.sub + ';margin-top:2px;">🚏 № ' + escapeHtml(b.code) + '</div>';
+  let h = '<div style="color:' + c.fg + ';font-weight:700;">🚏 ' + escapeHtml(road) + '</div>';
+  h += '<div style="color:' + c.fg + ';font-weight:600;margin-top:2px;">🚏 Bus Stop № '
+    + escapeHtml(b.code) + '</div>';
   if (services == null) {
-    h += '<div style="color:' + c.sub + ';margin-top:3px;">Loading arrivals…</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">Loading arrivals…</div>';
   } else if (!services.length) {
-    h += '<div style="color:' + c.sub + ';margin-top:3px;">No live arrivals</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">No live arrivals</div>';
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
-    h += '<div style="margin-top:6px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
+    h += '<div style="margin-top:8px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
       + '" target="_blank" rel="noopener" style="color:' + c.link
-      + ';font-weight:600;text-decoration:underline;">'
-      + escapeHtml(road) + ' ↗</a></div>';
+      + ';font-weight:600;text-decoration:underline;">Google Map ➚</a></div>';
   }
   return infoCard(h);
 }
@@ -786,16 +813,22 @@ export function createOverlayController(map, googleMaps) {
   function buildTrainStations(stations) {
     const out = [];
     for (const s of (Array.isArray(stations) ? stations : [])) {
-      if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      // v0.61.65 — prefer the exit-derived centroid (the real station
+      // position from the LTA exit GeoJSON) over the coarse mrt-coords
+      // lat/lng, which can sit 100 m+ off. Falls back when absent.
+      const ec = s.exit_centroid;
+      const lat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+      const lng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
       if (s.status === 'future') continue;
       const hex = LINE_HEX[lineCodeOf(s)] || '#888888';
       const marker = new AdvancedMarkerElement({
-        position: { lat: s.lat, lng: s.lng },
+        position: { lat, lng },
         content: squareStationNode(hex),
         title: s.name || '',
         gmpClickable: true
       });
-      const item = { marker, lat: s.lat, lng: s.lng, station: s, hex };
+      const item = { marker, lat, lng, station: s, hex };
       marker.addListener('click', () => handleStationTap(item));
       out.push(item);
     }
@@ -1129,9 +1162,9 @@ export function createOverlayController(map, googleMaps) {
       detailStations = [];
       // v0.61.53 — unified per-station content swap (subsumes the
       // earlier centre-only rebuild). At zoom-in every visible station
-      // is a labelled `<code> <name> station` pill in its line colour;
-      // at zoom-out, square pins, except the explicitly-selected centre
-      // which stays a pill so it self-identifies without an InfoWindow.
+      // is a labelled pill — a line-coloured chip per station code, then
+      // `<name> station`; at zoom-out, square pins, except the explicitly-
+      // selected centre which stays a pill so it self-identifies.
       // `_mode` caches the current state to avoid rebuilding on every
       // pan-driven applyVisibility.
       const newCentre = detailStation ? detailStation.name : null;
@@ -1144,9 +1177,8 @@ export function createOverlayController(map, googleMaps) {
         const wantMode = (zoomedIn || isCentre) ? 'pill' : 'square';
         if (st._mode !== wantMode) {
           if (wantMode === 'pill') {
-            const code = (Array.isArray(st.station.codes) && st.station.codes[0]) || '';
-            const label = (code ? code + ' ' : '') + (st.station.name || '') + ' station';
-            st.marker.content = amenityLabelNode(label, st.hex, '#fff', true);
+            st.marker.content = stationPillNode(
+              st.station.codes, st.station.name || '', st.hex);
           } else {
             st.marker.content = squareStationNode(st.hex);
           }
