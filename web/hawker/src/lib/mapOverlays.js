@@ -755,6 +755,10 @@ export function createOverlayController(map, googleMaps) {
   // the tapped station + its line-neighbours), used to clip the Exits /
   // Taxis chips. Empty when no station-detail view is active.
   let detailStations = [];
+  // v0.61.68 — transient bus-stop pins for the open station card: the
+  // station's per-exit nearest bus stops, drawn on a station tap even
+  // when the Bus Stop overlay is off, cleared when the card closes.
+  let stationBusPins = [];
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -918,6 +922,7 @@ export function createOverlayController(map, googleMaps) {
   function exitStationDetail() {
     detailStation = null;
     info.close();
+    clearStationBusStops();
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     syncDetailAmenityLayers();
@@ -939,24 +944,55 @@ export function createOverlayController(map, googleMaps) {
     openStationCard(item);
   }
 
-  // v0.61.66 — drop a transient pulsing 🚏 pin at a point for ~2 s, so a
+  // v0.61.66 — flash a transient pulsing halo over a point for ~2 s, so a
   // station-card "Bus Stop №" tap visibly draws the eye to the stop after
-  // the map pans there. Independent of the bus-stop overlay layer.
+  // the map pans there. v0.61.68 — a hollow ring (was a solid 🚏 pin) so
+  // it reads as a highlight over the real bus-stop pin, not a duplicate.
   function flashPin(lat, lng) {
     if (typeof document === 'undefined'
       || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
     ensureGreyscaleStyle();
     const el = document.createElement('div');
-    el.textContent = '🚏';
-    el.style.cssText = 'display:flex;align-items:center;justify-content:center;'
-      + 'width:30px;height:30px;border-radius:50%;background:' + AMENITY_BUS_BG + ';'
-      + 'border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.5);'
-      + 'font-size:15px;animation:gia-pin-flash 0.5s ease-in-out 4;';
+    el.style.cssText = 'width:32px;height:32px;border-radius:50%;'
+      + 'border:3px solid ' + AMENITY_BUS_BG + ';background:rgba(21,101,192,0.18);'
+      + 'box-shadow:0 0 6px ' + AMENITY_BUS_BG + ';'
+      + 'animation:gia-pin-flash 0.5s ease-in-out 4;';
     const m = new AdvancedMarkerElement({
       position: { lat, lng }, content: el, zIndex: 9999
     });
     m.map = map;
     setTimeout(() => { m.map = null; }, 2000);
+  }
+
+  // v0.61.68 — the open station card's bus stops. Draws the station's
+  // per-exit nearest bus stops as map pins on a station tap — even when
+  // the Bus Stop overlay is off — so the card's "Bus Stop №" links have a
+  // pin to flash. Skipped when that overlay is already on (it shows every
+  // stop in radius). Cleared when the card closes / the map is tapped.
+  function clearStationBusStops() {
+    for (const m of stationBusPins) m.map = null;
+    stationBusPins = [];
+  }
+  function showStationBusStops(rec) {
+    clearStationBusStops();
+    if (layers.busstop && layers.busstop.visible) return;
+    const seen = new Set();
+    for (const ex of (Array.isArray(rec.exits) ? rec.exits : [])) {
+      const bs = ex && ex.nearest_bus_stop;
+      if (!bs || !bs.code
+        || !Number.isFinite(bs.lat) || !Number.isFinite(bs.lng)
+        || seen.has(bs.code)) continue;
+      seen.add(bs.code);
+      const b = { code: bs.code, lat: bs.lat, lng: bs.lng };
+      const marker = new AdvancedMarkerElement({
+        position: { lat: bs.lat, lng: bs.lng },
+        content: amenityLabelNode('🚏 № ' + bs.code, AMENITY_BUS_BG, '#fff', true),
+        gmpClickable: true
+      });
+      marker.addListener('click', () => openBusInfo(map, info, b, marker));
+      marker.map = map;
+      stationBusPins.push(marker);
+    }
   }
 
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
@@ -978,6 +1014,7 @@ export function createOverlayController(map, googleMaps) {
       };
       info.setContent(stationInfoCardHtml(rec));
       info.open(map, item.marker);
+      showStationBusStops(rec);
     });
   }
 
@@ -1318,7 +1355,9 @@ export function createOverlayController(map, googleMaps) {
   return {
     // v0.61.22 — let the host TMA close the overlay popup (in-card ✕ /
     // tap-elsewhere) alongside its own venue/station InfoWindow.
-    closeInfo() { info.close(); },
+    // v0.61.68 — also clears the station card's transient bus-stop pins,
+    // so a tap on the empty map removes them (when Bus Stop is off).
+    closeInfo() { info.close(); clearStationBusStops(); },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
@@ -1332,6 +1371,9 @@ export function createOverlayController(map, googleMaps) {
         detailStations = [];
         info.close();
       }
+      // v0.61.68 — when the Bus Stop overlay turns on, drop the card's
+      // transient station bus pins so they don't duplicate the layer.
+      if (name === 'busstop' && visible) clearStationBusStops();
       applyVisibility(name);
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
@@ -1362,6 +1404,7 @@ export function createOverlayController(map, googleMaps) {
       destroyed = true;
       detailStation = null;
       detailStations = [];
+      clearStationBusStops();
       for (const name of Object.keys(layers)) {
         layers[name].visible = false;
         applyVisibility(name);
