@@ -8492,7 +8492,7 @@ async function cacheBotUsername() {
     // response is OUR app — only when JSON.service === 'gia' does
     // the host count as healthy.
     app.get('/healthz', (req, res) => {
-      res.json({ service: 'gia', version: pkg.version, ok: true });
+      res.json({ service: 'gia', version: pkgJson.version, ok: true });
     });
 
     // v0.29.0: aggressive no-cache headers on TMA HTML responses so
