@@ -418,61 +418,86 @@ export function infoCard(inner, gmaps) {
     + inner + tail + '</div>';
 }
 
-// v0.61.57 — CR6 Phase 3: the station info card popup body. Renders a
-// data/stations.json record per the agreed display template — a
-// "<name> station" title; one block per line (Operator, "<line_code> ·
-// <line_name>", a station-code pill in the line colour, any first/last-
-// train rows, a More-info link); then a station-level Exits list where
-// each "Exit <label>" and "Bus №" is a tappable map-focus link.
+// v0.61.57 — CR6 Phase 3: the station info card popup body.
+// v0.61.60 — operator template redesign. Per line (stacked, divider
+// between blocks for interchanges): a big station-code pill (white
+// bold on the line colour) · "<Name> Station" bold in the line
+// colour; the "<line_code> · <line_name>" line; a per-line "More Info"
+// link. Then a station-level Exits list — "Exit # · <street?> · Bus
+// Stop № <code>", each exit + bus stop a tappable map-focus link —
+// then the operator(s) and a Google-Maps link. first/last train was
+// dropped per the operator template. `exit.street` is optional: it
+// renders only once exit street-name data is added to stations.json.
 function stationInfoCardHtml(rec) {
   const c = infoPalette();
-  const rule = 'border-top:1px solid rgba(0,0,0,0.1);margin-top:7px;padding-top:6px;';
+  const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
   const lk = 'color:' + c.link + ';font-weight:600;text-decoration:underline;cursor:pointer;';
   const focus = (lat, lng) => 'window.__giaStationFocus&&window.__giaStationFocus('
     + Number(lat) + ',' + Number(lng) + ')';
-  let h = '<div style="font-weight:700;font-size:14px;">'
-    + escapeHtml((rec.station_name || '') + ' station') + '</div>';
-  for (const ln of (Array.isArray(rec.lines) ? rec.lines : [])) {
-    h += '<div style="' + rule + '">';
-    h += '<div style="color:' + c.sub + ';">Operator: ' + escapeHtml(ln.operator || '—') + '</div>';
-    h += '<div style="margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
-      + '<span>' + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</span>'
-      + (ln.station_code ? codePill(ln.station_code, codeHex(ln.station_code), false) : '')
-      + '</div>';
-    for (const t of (Array.isArray(ln.first_last_train) ? ln.first_last_train : [])) {
-      const parts = [];
-      if (t.first_train_weekday) parts.push('1st ' + t.first_train_weekday);
-      if (t.last_train) parts.push('last ' + t.last_train);
-      if (parts.length) {
-        h += '<div style="margin-top:2px;color:' + c.sub + ';">'
-          + escapeHtml((t.direction ? t.direction + ': ' : '') + parts.join(' · ')) + '</div>';
-      }
-    }
+  const name = rec.station_name || '';
+  const lines = Array.isArray(rec.lines) ? rec.lines : [];
+  let h = '';
+
+  // One block per line — code pill + "<Name> Station", line, More Info.
+  lines.forEach((ln, i) => {
+    const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
+    h += '<div style="' + (i ? rule : '') + '">';
+    h += '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">';
+    if (ln.station_code) h += codePill(ln.station_code, hex, true);
+    h += '<span style="color:' + c.sub + ';">·</span>'
+      + '<span style="font-weight:700;font-size:14px;color:' + hex + ';">'
+      + escapeHtml(name + ' Station') + '</span></div>';
+    h += '<div style="margin-top:3px;color:' + c.fg + ';">'
+      + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
     if (ln.more_info_url) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
-        + '" target="_blank" rel="noopener" style="' + lk + '">More info ↗</a></div>';
+        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
     }
     h += '</div>';
-  }
-  const exits = Array.isArray(rec.exits) ? rec.exits : [];
+  });
+
+  // Exits — station-level, label-sorted.
+  const exits = (Array.isArray(rec.exits) ? rec.exits.slice() : [])
+    .sort((a, b) => String(a.label || '').localeCompare(
+      String(b.label || ''), undefined, { numeric: true }));
   if (exits.length) {
-    h += '<div style="' + rule + '"><div style="font-weight:600;">Exits</div>';
+    h += '<div style="' + rule + '"><div style="font-weight:700;">Exits</div>';
     for (const ex of exits) {
-      h += '<div style="margin-top:2px;">';
-      const exitTxt = 'Exit ' + escapeHtml(ex.label || '?');
-      h += (Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
-        ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng) + '">' + exitTxt + '</span>'
-        : '<span style="font-weight:600;">' + exitTxt + '</span>';
-      const bs = ex.nearest_bus_stop;
-      if (bs && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
-        h += ' · <span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng) + '">Bus №</span>';
-        const svcs = Array.isArray(bs.services) ? bs.services : [];
-        if (svcs.length) h += ' ' + escapeHtml(svcs.join(', '));
+      const parts = [];
+      const exTxt = 'Exit ' + escapeHtml(ex.label || '?');
+      parts.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
+        ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng) + '">' + exTxt + '</span>'
+        : '<span style="font-weight:700;">' + exTxt + '</span>');
+      if (ex.street) {
+        parts.push('<span style="font-weight:700;color:' + c.fg + ';">'
+          + escapeHtml(ex.street) + '</span>');
       }
-      h += '</div>';
+      const bs = ex.nearest_bus_stop;
+      if (bs && bs.code && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
+        parts.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng)
+          + '">Bus Stop № ' + escapeHtml(bs.code) + '</span>');
+      }
+      h += '<div style="margin-top:4px;">' + parts.join(' · ') + '</div>';
     }
     h += '</div>';
   }
+
+  // Operator(s) + Google Maps — station-level footer.
+  const ops = [];
+  for (const ln of lines) {
+    if (ln.operator && ops.indexOf(ln.operator) < 0) ops.push(ln.operator);
+  }
+  h += '<div style="' + rule + '">';
+  if (ops.length) {
+    h += '<div style="color:' + c.sub + ';">Operator: '
+      + escapeHtml(ops.join(' · ')) + '</div>';
+  }
+  if (Number.isFinite(rec.lat) && Number.isFinite(rec.lng)) {
+    h += '<div style="margin-top:3px;"><a href="' + escapeHtml(gmapsUrl(rec.lat, rec.lng))
+      + '" target="_blank" rel="noopener" style="' + lk + '">Google Map ↗</a></div>';
+  }
+  h += '</div>';
+
   return infoCard(h);
 }
 
