@@ -181,6 +181,27 @@ function trackWindow(pts, sLat, sLng, windowM, maxOffsetM) {
   return out;
 }
 
+// v0.61.58 — CR5 v2: the sub-path of `pts` between the vertices
+// nearest to point A and point B — used to light up the
+// prev→current→next stretch of a line around a selected station.
+function trackBetween(pts, aLat, aLng, bLat, bLng) {
+  if (!Array.isArray(pts) || pts.length < 2) return [];
+  const nearestIdx = (lat, lng) => {
+    let bi = -1;
+    let bd = Infinity;
+    for (let i = 0; i < pts.length; i++) {
+      const d = metresBetween(lat, lng, pts[i].lat, pts[i].lng);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    return bi;
+  };
+  let i = nearestIdx(aLat, aLng);
+  let j = nearestIdx(bLat, bLng);
+  if (i < 0 || j < 0) return [];
+  if (i > j) { const t = i; i = j; j = t; }
+  return pts.slice(i, j + 1);
+}
+
 // Module-level fetch caches — each runs once per page.
 let overlaysPromise = null;
 function fetchOverlays() {
@@ -729,7 +750,7 @@ export function createOverlayController(map, googleMaps) {
           path: pts, strokeColor: hex, strokeOpacity: 0.85, strokeWeight: 4,
           clickable: false, zIndex: 1
         });
-        out.push({ polyline, pts, hex });
+        out.push({ polyline, pts, hex, code });
       }
     }
     return out;
@@ -1033,10 +1054,16 @@ export function createOverlayController(map, googleMaps) {
       for (const ln of e.lines) {
         const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
         ln.polyline.setMap(e.visible && near ? map : null);
-        ln.polyline.setOptions(emph
-          ? { strokeOpacity: 0.35, strokeWeight: 3 }
-          : { strokeOpacity: zoomedIn ? 0.85 : 0.5, strokeWeight: 4 });
-        if (e.visible && near && emph && near3.length) {
+        // v0.61.58 — CR5 v2: when a station is selected the base lines
+        // mute hard (0.25) so the prev→current→next overlay segment
+        // stands out; otherwise the search-emphasis / zoom opacity applies.
+        ln.polyline.setOptions(
+          detailStation ? { strokeOpacity: 0.25, strokeWeight: 3 }
+            : emph ? { strokeOpacity: 0.35, strokeWeight: 3 }
+              : { strokeOpacity: zoomedIn ? 0.85 : 0.5, strokeWeight: 4 });
+        // search-emphasis windows (Cuisine result anchor) — suppressed
+        // while a station is selected (CR5 v2 takes precedence).
+        if (e.visible && near && emph && !detailStation && near3.length) {
           for (const s of near3) {
             const win = trackWindow(ln.pts, s.lat, s.lng, 200, 130);
             if (win.length < 2) continue;
@@ -1044,6 +1071,26 @@ export function createOverlayController(map, googleMaps) {
               path: win, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
               clickable: false, zIndex: 3, map
             }));
+          }
+        }
+        // v0.61.58 — CR5 v2 selected-station emphasis: light up the
+        // stretch of THIS line from the station before to the station
+        // after the tapped station, full opacity in the line colour.
+        if (e.visible && near && detailStation) {
+          const ordered = stationsOnLine(e.stations.map((x) => x.station), ln.code);
+          const idx = ordered.findIndex((x) => x.name === detailStation.name);
+          const onSeg = idx >= 0 && ln.pts.some((p) =>
+            metresBetween(detailStation.lat, detailStation.lng, p.lat, p.lng) <= 150);
+          if (onSeg) {
+            const a = ordered[idx - 1] || ordered[idx];
+            const b = ordered[idx + 1] || ordered[idx];
+            const seg = trackBetween(ln.pts, a.lat, a.lng, b.lat, b.lng);
+            if (seg.length >= 2) {
+              e.highlights.push(new Polyline({
+                path: seg, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
+                clickable: false, zIndex: 3, map
+              }));
+            }
           }
         }
       }
