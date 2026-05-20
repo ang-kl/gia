@@ -2883,6 +2883,26 @@ async function sendBusMenu(chatId, lang = 'en') {
   });
 }
 
+// v0.61.61 — station name → SMRT/SBS station-info URL, from
+// data/stations.json (read + cached once). null when not found.
+let _stationInfoCache;
+function stationMoreInfoUrl(name) {
+  try {
+    if (_stationInfoCache === undefined) {
+      _stationInfoCache = JSON.parse(
+        require('fs').readFileSync(__dirname + '/data/stations.json', 'utf8')
+      ).stations || {};
+    }
+    const rec = _stationInfoCache[name];
+    const ln = rec && Array.isArray(rec.lines)
+      ? rec.lines.find((l) => l && l.more_info_url) : null;
+    return ln ? ln.more_info_url : null;
+  } catch (err) {
+    _stationInfoCache = {};
+    return null;
+  }
+}
+
 async function runTransportTrain(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   const { formatDistance } = require('./format');
@@ -2893,14 +2913,14 @@ async function runTransportTrain(chatId, lang = 'en') {
     const status = cachedStatus ? JSON.parse(cachedStatus) : null;
     const cachedLoc = await getUserLocation(redis, chatId);
 
-    const lines = [t('transport.train.heading', lang)];
-    if (status) {
-      lines.push('', tn('transport.train.status', lang, { status: status.status }));
-      if (status.message) lines.push(tn('transport.train.notes', lang, { note: status.message }));
-      lines.push(tn('transport.train.refreshed', lang, { at: status.updatedAt }));
-    } else {
-      lines.push('', t('transport.train.warmup', lang));
-    }
+    // v0.61.61 — operator layout: the reply now leads with the
+    // "🚇 Nearest 3 Train stations · <weather>" header; the service-
+    // status block moves below the station rows.
+    const lines = [];
+    let wx = '';
+    try { const w = await weatherChatFooter(); if (w) wx = ' · ' + w; }
+    catch (err) { /* weather is best-effort */ }
+    lines.push(tn('transport.train.nearestHeader', lang, { wx }));
 
     // v0.56.1: nearest 3 stations FIRST, each with crowd + wait estimate.
     // Network summary follows in plain English.
@@ -2914,8 +2934,6 @@ async function runTransportTrain(chatId, lang = 'en') {
         const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
         if (mrt.length) {
           mrtForMap = mrt;
-          const wait = transport.estimateWaitMinutes();
-          lines.push('', tn('transport.train.nearestHeader', lang, { min: wait.min, max: wait.max, label: wait.label }));
           // v0.60.81 — prefix the station name with a colored line
           // emoji + code per operator request 2026-05-10:
           // "Telok Blangah" → "🟠 CCL Telok Blangah"; interchanges
@@ -2954,8 +2972,14 @@ async function runTransportTrain(chatId, lang = 'en') {
                     .join(' · ') + ' '
                 : '';
             }
+            // v0.61.61 — the station name links to its SMRT/SBS
+            // station-info page (data/stations.json more_info_url).
+            const infoUrl = stationMoreInfoUrl(s.name);
+            const nameHtml = infoUrl
+              ? `<a href="${escapeHtmlForTelegram(infoUrl)}">${escapeHtmlForTelegram(s.name)}</a>`
+              : escapeHtmlForTelegram(s.name);
             lines.push(tn('transport.train.stationRow', lang, {
-              name: linePrefix + escapeHtmlForTelegram(s.name),
+              name: linePrefix + nameHtml,
               dist,
               crowd: crowdNote,
               gmapsUrl
@@ -2967,6 +2991,15 @@ async function runTransportTrain(chatId, lang = 'en') {
       }
     } else if (!cachedLoc) {
       lines.push('', t('transport.train.noLocation', lang));
+    }
+    // v0.61.61 — service-status block, moved below the nearest-3
+    // stations per the operator layout (2026-05-20).
+    if (status) {
+      lines.push('', tn('transport.train.status', lang, { status: status.status }));
+      if (status.message) lines.push(tn('transport.train.notes', lang, { note: status.message }));
+      lines.push(tn('transport.train.refreshed', lang, { at: status.updatedAt }));
+    } else {
+      lines.push('', t('transport.train.warmup', lang));
     }
     // v0.60.89 — network-level crowd summary line dropped per operator
     // 2026-05-11. "Network is uncrowded — 93% of 184 platforms at low
@@ -3006,25 +3039,6 @@ async function runTransportTrain(chatId, lang = 'en') {
       }
     } catch (err) {
       console.warn('[Transport] per-line + engineering enrichment failed:', err.message);
-    }
-
-    // v0.60.75 — static network frequency footer (LTA published
-    // headways). Operator confirmed scraping Google Maps for live
-    // arrivals isn't worth the ToS / fragility tax — this surfaces
-    // expected frequency without an upstream call.
-    try {
-      const mrtLines = require('./mrt-lines');
-      const r = mrtLines.networkHeadwayRange();
-      if (r && Number.isFinite(r.peakMin)) {
-        lines.push('', tn('transport.train.headway', lang, {
-          peakMin: r.peakMin,
-          peakMax: r.peakMax,
-          offMin:  r.offMin,
-          offMax:  r.offMax
-        }));
-      }
-    } catch (err) {
-      console.warn('[Transport] headway footer render failed:', err.message);
     }
 
     const tmaButton = webhookDomain
