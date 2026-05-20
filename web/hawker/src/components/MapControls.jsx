@@ -1,15 +1,17 @@
-// MapControls.jsx — v0.61.68
+// MapControls.jsx — v0.61.70
 //
 // Floating in-map control surface for all three TMA maps. A single
-// left-aligned row: the Colour-mode pill first (the optional
-// `colourToggle` prop), then the layer toggle pills (Train Line,
-// Carpark, Bus Stop) and — last — the "⋯/⋮" overflow menu button. The
-// menu opens a checkbox dropdown of the remaining layers. The 4-button
+// left-aligned row that never wraps: the Colour-mode pill first (the
+// optional `colourToggle` prop), then the layer toggle pills (Train
+// Line, Carpark, Bus Stop) and — last — the "⋯/⋮" overflow menu
+// button, a white circle matching the navigation buttons. The menu
+// opens a checkbox dropdown of the remaining layers. The 4-button
 // navigation cluster (zoom / expand / reset) is rendered inline by each
 // map panel on the right.
 //
 // Presentational only — each panel passes resolved `label` strings; the
-// one non-React import is `giaToggleStyle` (the shared toggle palette).
+// one non-React import is `giaToggleStyle` (the shared toggle palette:
+// white when off, Singapore blue when on).
 // Byte-identical across web/cuisine, web/transport and web/hawker —
 // edit one, copy to the others.
 
@@ -26,9 +28,11 @@ function overflowGlyph() {
 }
 
 // Layout-only pill class; colours come from giaToggleStyle (inline).
+// v0.61.70 — smaller text + tighter padding + shrink-0 so all pills fit
+// on one non-wrapping row.
 function pillClass() {
-  return 'flex items-center gap-0.5 px-2 py-1 rounded-full '
-    + 'text-[11px] whitespace-nowrap leading-none active:scale-95';
+  return 'flex items-center gap-0.5 px-1.5 py-1 rounded-full '
+    + 'text-[9px] whitespace-nowrap leading-none shrink-0 active:scale-95';
 }
 
 export default function MapControls({
@@ -57,10 +61,12 @@ export default function MapControls({
 
   return (
     <div ref={wrapRef} className="absolute top-2 left-2 right-12 z-10">
-      <div className="flex flex-row flex-wrap gap-1 items-start">
-        {/* v0.61.68 — Colour-mode pill: first in the quick row (swapped
-            with the ⋯ menu). CR8 — single neutral style (no on/off
-            colour flip); state is conveyed by the label text. */}
+      {/* v0.61.70 — single non-wrapping row; the font is small enough
+          that the Colour pill + 3 toggles + the ⋯ menu all fit. */}
+      <div className="flex flex-row flex-nowrap gap-0.5 items-start">
+        {/* Colour-mode pill: first in the quick row. CR8 — single
+            neutral style (no on/off colour flip); state is conveyed by
+            the label text. */}
         {colourToggle && (
           <button
             type="button"
@@ -87,11 +93,11 @@ export default function MapControls({
             <span aria-hidden>{it.icon}</span>{it.label}
           </button>
         ))}
-        {/* v0.61.68 — the ⋯/⋮ overflow menu: last in the quick row
-            (swapped with the Colour pill). The dropdown is right-aligned
-            so it stays on-screen below a right-positioned button. */}
+        {/* v0.61.70 — the ⋯/⋮ overflow menu: last in the row, a white
+            circle identical to the navigation buttons. The dropdown is
+            right-aligned so it stays on-screen below it. */}
         {menuToggles.length > 0 && (
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
@@ -99,8 +105,9 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={pillClass() + ' font-bold px-2.5'}
-              style={giaToggleStyle(menuOpen, false)}
+              className={'w-7 h-7 rounded-full bg-white/70 text-gray-900 '
+                + 'border border-gray-300 shadow-md flex items-center '
+                + 'justify-center text-sm font-bold leading-none active:scale-95'}
             ><span aria-hidden>{overflowGlyph()}</span></button>
             {menuOpen && (
               <div className="absolute top-full right-0 mt-1 flex flex-col gap-0.5 p-1
