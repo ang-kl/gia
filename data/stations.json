@@ -8,9 +8,10 @@
     "lastUpdated": "2026-05-20",
     "stationCount": 180,
     "futureStationsSkipped": 29,
+    "busServicesJoined": false,
     "schemaNotes": [
-      "first_last_train: [] — deferred to Phase 2 (source TBD: data.gov.sg dataset if it exists, else curated commit).",
-      "exits[].nearest_bus_stop: null — deferred to Phase 2 (needs LTA DataMall BusRoutes services-per-stop fetch).",
+      "exits[].nearest_bus_stop: null — run scripts/fetch-bus-services-by-stop.js (needs LTA_ACCOUNT_KEY) to populate, then re-run this build.",
+      "first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
       "SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping."
     ]
@@ -65,7 +66,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bukit Batok": {
@@ -109,7 +110,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bukit Gombak": {
@@ -153,7 +154,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Choa Chu Kang": {
@@ -235,7 +236,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Yew Tee": {
@@ -279,7 +280,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Kranji": {
@@ -323,7 +324,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marsiling": {
@@ -367,7 +368,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Woodlands": {
@@ -437,7 +438,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Admiralty": {
@@ -481,7 +482,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Sembawang": {
@@ -525,7 +526,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Canberra": {
@@ -575,7 +576,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Yishun": {
@@ -625,7 +626,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Khatib": {
@@ -669,7 +670,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Yio Chu Kang": {
@@ -707,7 +708,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Ang Mo Kio": {
@@ -751,7 +752,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bishan": {
@@ -809,7 +810,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Braddell": {
@@ -847,7 +848,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Toa Payoh": {
@@ -891,7 +892,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Novena": {
@@ -923,7 +924,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Newton": {
@@ -969,7 +970,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1077,7 +1078,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Somerset": {
@@ -1121,7 +1122,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Dhoby Ghaut": {
@@ -1193,7 +1194,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1247,7 +1248,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Raffles Place": {
@@ -1335,7 +1336,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marina Bay": {
@@ -1401,7 +1402,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marina South Pier": {
@@ -1433,7 +1434,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Pasir Ris": {
@@ -1465,7 +1466,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tampines": {
@@ -1535,7 +1536,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1563,7 +1564,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tanah Merah": {
@@ -1603,7 +1604,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bedok": {
@@ -1641,7 +1642,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Kembangan": {
@@ -1673,7 +1674,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Eunos": {
@@ -1711,7 +1712,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Paya Lebar": {
@@ -1763,7 +1764,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Aljunied": {
@@ -1795,7 +1796,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Kallang": {
@@ -1827,7 +1828,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Lavender": {
@@ -1859,7 +1860,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bugis": {
@@ -1911,7 +1912,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1987,7 +1988,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Outram Park": {
@@ -2071,7 +2072,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2105,7 +2106,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Redhill": {
@@ -2137,7 +2138,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Queenstown": {
@@ -2181,7 +2182,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Commonwealth": {
@@ -2225,7 +2226,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Buona Vista": {
@@ -2277,7 +2278,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Dover": {
@@ -2309,7 +2310,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Clementi": {
@@ -2353,7 +2354,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Chinese Garden": {
@@ -2391,7 +2392,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Lakeside": {
@@ -2429,7 +2430,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Boon Lay": {
@@ -2485,7 +2486,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Pioneer": {
@@ -2517,7 +2518,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Joo Koon": {
@@ -2549,7 +2550,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Gul Circle": {
@@ -2581,7 +2582,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tuas Crescent": {
@@ -2613,7 +2614,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tuas West Road": {
@@ -2645,7 +2646,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tuas Link": {
@@ -2677,7 +2678,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Expo": {
@@ -2753,7 +2754,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2787,7 +2788,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "HarbourFront": {
@@ -2814,7 +2815,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -2881,7 +2882,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2939,7 +2940,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3005,7 +3006,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3081,7 +3082,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3121,7 +3122,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3161,7 +3162,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3201,7 +3202,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3279,7 +3280,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3319,7 +3320,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3359,7 +3360,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3393,7 +3394,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3447,7 +3448,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3501,7 +3502,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3522,7 +3523,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -3575,7 +3576,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Esplanade": {
@@ -3637,7 +3638,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Promenade": {
@@ -3683,7 +3684,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3717,7 +3718,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Stadium": {
@@ -3749,7 +3750,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Mountbatten": {
@@ -3781,7 +3782,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Dakota": {
@@ -3813,7 +3814,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "MacPherson": {
@@ -3840,7 +3841,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -3875,7 +3876,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bartley": {
@@ -3907,7 +3908,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Lorong Chuan": {
@@ -3939,7 +3940,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marymount": {
@@ -3971,7 +3972,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Caldecott": {
@@ -4023,7 +4024,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Botanic Gardens": {
@@ -4063,7 +4064,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4097,7 +4098,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Holland Village": {
@@ -4135,7 +4136,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "one-north": {
@@ -4154,7 +4155,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -4200,7 +4201,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Haw Par Villa": {
@@ -4226,7 +4227,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Pasir Panjang": {
@@ -4252,7 +4253,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Labrador Park": {
@@ -4278,7 +4279,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Telok Blangah": {
@@ -4304,7 +4305,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bayfront": {
@@ -4362,7 +4363,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4440,7 +4441,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4468,7 +4469,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4502,7 +4503,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4542,7 +4543,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4576,7 +4577,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4610,7 +4611,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4644,7 +4645,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4704,7 +4705,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4738,7 +4739,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4796,7 +4797,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4836,7 +4837,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4870,7 +4871,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4910,7 +4911,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4944,7 +4945,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4978,7 +4979,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5012,7 +5013,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5046,7 +5047,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5080,7 +5081,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5114,7 +5115,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5160,7 +5161,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5194,7 +5195,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5228,7 +5229,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5274,7 +5275,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5326,7 +5327,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5360,7 +5361,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Woodlands South": {
@@ -5410,7 +5411,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Springleaf": {
@@ -5448,7 +5449,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Lentor": {
@@ -5498,7 +5499,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Mayflower": {
@@ -5560,7 +5561,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bright Hill": {
@@ -5604,7 +5605,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Upper Thomson": {
@@ -5654,7 +5655,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Napier": {
@@ -5686,7 +5687,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Orchard Boulevard": {
@@ -5718,7 +5719,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Great World": {
@@ -5774,7 +5775,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Havelock": {
@@ -5824,7 +5825,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Maxwell": {
@@ -5862,7 +5863,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Shenton Way": {
@@ -5918,7 +5919,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Gardens by the Bay": {
@@ -5937,7 +5938,7 @@
       ],
       "exits": [],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -5971,7 +5972,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Katong Park": {
@@ -6003,7 +6004,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Tanjong Katong": {
@@ -6041,7 +6042,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marine Parade": {
@@ -6097,7 +6098,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Marine Terrace": {
@@ -6153,7 +6154,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Siglap": {
@@ -6197,7 +6198,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bayshore": {
@@ -6247,7 +6248,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "South View": {
@@ -6273,7 +6274,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Keat Hong": {
@@ -6299,7 +6300,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Teck Whye": {
@@ -6325,7 +6326,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Phoenix": {
@@ -6351,7 +6352,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Petir": {
@@ -6377,7 +6378,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Pending": {
@@ -6403,7 +6404,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Bangkit": {
@@ -6429,7 +6430,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Fajar": {
@@ -6455,7 +6456,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Segar": {
@@ -6481,7 +6482,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Jelapang": {
@@ -6507,7 +6508,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Senja": {
@@ -6533,7 +6534,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": []
     },
     "Cheng Lim": {
@@ -6565,7 +6566,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6599,7 +6600,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6633,7 +6634,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6667,7 +6668,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6695,7 +6696,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6729,7 +6730,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6763,7 +6764,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6797,7 +6798,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6831,7 +6832,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6865,7 +6866,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6899,7 +6900,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6933,7 +6934,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6967,7 +6968,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7001,7 +7002,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7035,7 +7036,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7069,7 +7070,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7103,7 +7104,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7137,7 +7138,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7171,7 +7172,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7205,7 +7206,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7239,7 +7240,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7273,7 +7274,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7307,7 +7308,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7341,7 +7342,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7375,7 +7376,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7409,7 +7410,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7443,7 +7444,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T01:27:03.450Z",
+      "last_updated_at": "2026-05-20T01:37:02.874Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
