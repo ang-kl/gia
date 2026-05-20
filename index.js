@@ -2115,6 +2115,15 @@ bot.on('callback_query', async (q) => {
       await runCarparkCommand(chatId, cbLang);
       return;
     }
+    // v0.61.72 — Refresh-location choice on the /carpark result. Drops
+    // the cached pin; runCarparkCommand re-prompts and sets the
+    // /carpark pending row so sharing a pin auto-resumes the lookup.
+    if (data === 'carpark:refresh-loc') {
+      const { hashChatId } = require('./location-cache');
+      await redis.del(`loc:${hashChatId(chatId)}`).catch(() => {});
+      await runCarparkCommand(chatId, cbLang);
+      return;
+    }
     // v0.52.0 hawker sub-menu dispatch (simplified):
     //   hawker:menu               → top-level menu (Cleaning + Browse)
     //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
@@ -2876,6 +2885,9 @@ async function sendBusMenu(chatId, lang = 'en') {
           { text: t('transport.bus.menu.btn.route', lang),   url: transitDirUrl }
         ],
         [
+          { text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'transport:refresh-loc' }
+        ],
+        [
           { text: t('button.back', lang), callback_data: 'transport:menu' }
         ]
       ]
@@ -3152,23 +3164,32 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         return;
       }
       // v0.60.61 — fetch arrivals per stop and render with HTML
-      // styling + banded ETAs (≤5 / ≤10 / ≤15 / ≤20 / >20 min).
+      // styling + banded ETAs (≤5 / ≤10 / ≤15 / ≤20 / >20 minutes).
       // Per-stop arrivals are also baked into the slim payload so
       // the /app/map InfoWindow can render the same template.
-      const lines = [`<b>${t('transport.bus.nearestHeader', lang)}</b>`];
+      // v0.61.71 — weather forecast leads the message; the header
+      // carries the live stop count (operator template 2026-05-20).
+      const lines = [];
+      { const wx = await weatherChatFooter(); if (wx) lines.push(wx, ''); }
+      lines.push(`<b>${tn('transport.bus.nearestHeader', lang, { count: stops.length })}</b>`);
       const slim = [];
+      let stopIdx = 0;
       for (const stop of stops) {
         // Fetch arrivals (4-second timeout in transport.js); empty
         // array on failure.
         // eslint-disable-next-line no-await-in-loop
         const arrivals = await transport.busArrivals(stop.code);
         const arrivalRows = formatBusArrivalsHtml(arrivals);
-        // Per-stop block: header + meta + arrivals. 2 blank lines
-        // between stops achieved by joining with '\n\n' between
-        // blocks plus the empty leading line.
-        if (lines.length > 1) lines.push('', '');
-        lines.push(`🚏 <b>${escapeHtmlForTelegram(stop.description)}</b> — <i>${escapeHtmlForTelegram(stop.roadName || '')}</i>`);
-        lines.push(`📍 ${escapeHtmlForTelegram(formatDistance(stop.distanceM))} · № ${escapeHtmlForTelegram(stop.code)}`);
+        // Per-stop block: road name + meta + arrivals. 1 blank line
+        // after the header before the first stop; 2 blank lines
+        // between stops.
+        lines.push(...(stopIdx === 0 ? [''] : ['', '']));
+        lines.push(`🚏 <b>${escapeHtmlForTelegram(stop.roadName || stop.description || '')}</b>`);
+        lines.push(tn(stopIdx === 0 ? 'transport.bus.stopMetaFirst' : 'transport.bus.stopMetaRest', lang, {
+          code: escapeHtmlForTelegram(stop.code),
+          dist: escapeHtmlForTelegram(formatDistance(stop.distanceM))
+        }));
+        stopIdx += 1;
         if (arrivalRows.length) {
           lines.push(...arrivalRows);
         } else {
@@ -3206,7 +3227,7 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
         if (webhookDomain && slim.length) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-          if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
+          if (mapUrl) mapRow = [[{ text: tn('transport.map.busStopsBtn', lang, { n: stops.length }), web_app: { url: mapUrl } }]];
         }
         const gmapsUrl = googleMapsContainerUrl(slim, {
           travelmode: 'walking',
@@ -3214,8 +3235,6 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         });
         if (gmapsUrl) gmapsRow = [[{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]];
       } catch (err) { console.warn('[Transport] bus stops map build failed:', err.message); }
-      // v0.60.220 — weather footer (item 3d).
-      { const wxFoot = await weatherChatFooter(); if (wxFoot) lines.push('', wxFoot); }
       await safeSend(chatId, lines.join('\n'), {
         parse_mode: 'HTML',
         disable_web_page_preview: true,
@@ -3649,6 +3668,7 @@ async function runCarparkCommand(chatId, lang = 'en') {
         rows.push([{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]);
       }
       if (rows.length) {
+        rows.push([{ text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'carpark:refresh-loc' }]);
         await bot.sendMessage(chatId, tn('carpark.mapAllCaption', lang, { n: list.length }), {
           reply_markup: { inline_keyboard: rows }
         });
@@ -4397,11 +4417,11 @@ function escapeHtmlForTelegram(s) {
 // Bands: ≤5 / ≤10 / ≤15 / ≤20 / >20 min.
 function busArrivalBand(minutes) {
   if (!Number.isFinite(minutes)) return null;
-  if (minutes <= 5) return '≤5 min';
-  if (minutes <= 10) return '≤10 min';
-  if (minutes <= 15) return '≤15 min';
-  if (minutes <= 20) return '≤20 min';
-  return '>20 min';
+  if (minutes <= 5) return '≤5 minutes';
+  if (minutes <= 10) return '≤10 minutes';
+  if (minutes <= 15) return '≤15 minutes';
+  if (minutes <= 20) return '≤20 minutes';
+  return '>20 minutes';
 }
 
 // v0.60.61 — render an arrivals[] (from transport.busArrivals) as
@@ -4437,7 +4457,7 @@ function formatBusArrivalsHtml(arrivals) {
   return [...byBand.entries()].map(([band, group]) => {
     const services = group.map((r) => escapeHtmlForTelegram(r.service)).join(', ');
     const bandStr = band === '—' ? '<i>—</i>' : `<b>${band}</b>`;
-    return `  № ${services} — ${bandStr}`;
+    return `🚌 Bus № ${services} — ${bandStr}`;
   });
 }
 
@@ -7900,7 +7920,7 @@ async function registerCommandsMenu() {
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
-      { command: 'carpark',    description: 'Nearest 5 with available lots' },
+      { command: 'carpark',    description: 'Nearest 5 Carpark with available lots' },
       // v0.60.113 — /buddy removed from the command menu (feature retired).
       // v0.60.37 — /search (alias /s), the conversational dish /
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)

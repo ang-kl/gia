@@ -131,8 +131,8 @@ const STRINGS = {
   'carpark.none':              { en: 'No carparks with available lots near here.', fr: 'Aucun parking avec places disponibles à proximité.' },
   'carpark.header':            { en: '🅿️ Nearest carparks with available lots', fr: '🅿️ Parkings les plus proches avec places disponibles' },
   'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist}', fr: '{i}. {name}  ·  {lots} places  ·  {dist}' },
-  'carpark.mapAllCaption':     { en: '🗺 View all {n} carparks on one map:', fr: '🗺 Voir les {n} parkings sur une seule carte :' },
-  'carpark.mapAllBtn':         { en: '🗺 View all {n} on map', fr: '🗺 Voir les {n} sur la carte' },
+  'carpark.mapAllCaption':     { en: 'Showing closest locations:', fr: 'Emplacements les plus proches :' },
+  'carpark.mapAllBtn':         { en: 'Compare all {n} carparks', fr: 'Comparer les {n} parkings' },
   'carpark.containerCaption':  { en: '🗺 Open all 5 carparks in one Google Maps container:', fr: '🗺 Ouvrir les 5 parkings dans un conteneur Google Maps :' },
   'carpark.viewAllBtn':        { en: '🗺 View all carparks', fr: '🗺 Voir tous les parkings' },
   'carpark.unreachable':       { en: "Sorry, I can't reach the LTA carpark feed right now.", fr: "Désolé, le flux LTA des parkings est inaccessible pour le moment." },
@@ -194,7 +194,9 @@ const STRINGS = {
   'transport.bus.noLocation':       { en: '🚌 I need your location first — share it once via the menu (📍) and Gia will remember.', fr: '🚌 J’ai d’abord besoin de votre position — partagez-la une fois via le menu (📍) et Gia s’en souviendra.' },
   'transport.bus.offline':          { en: '🚌 Bus lookup is offline (LTA key not configured).', fr: '🚌 Recherche de bus hors-ligne (clé LTA non configurée).' },
   'transport.bus.noStopsNearest':   { en: '🚏 No bus stops within 800 m of your saved location.', fr: '🚏 Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
-  'transport.bus.nearestHeader':    { en: '🚏 Nearest bus stops', fr: '🚏 Arrêts de bus les plus proches' },
+  'transport.bus.nearestHeader':    { en: '🚏 Nearest {count} bus stops', fr: '🚏 {count} arrêts de bus les plus proches' },
+  'transport.bus.stopMetaFirst':    { en: '🚏 Bus Stop № {code} is 📍 {dist} away from current location.', fr: '🚏 Arrêt de bus № {code} à 📍 {dist} de votre position actuelle.' },
+  'transport.bus.stopMetaRest':     { en: '🚏 Bus Stop № {code} · 📍 {dist}', fr: '🚏 Arrêt de bus № {code} · 📍 {dist}' },
   'transport.bus.stopRow':          { en: '· {desc} ({road}) — {dist}', fr: '· {desc} ({road}) — {dist}' },
   'transport.bus.stopCode':         { en: '  Code: {code}', fr: '  Code : {code}' },
   'transport.bus.noStopsArrivals':  { en: '⏱ No bus stops within 800 m of your saved location.', fr: '⏱ Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
@@ -288,7 +290,7 @@ const STRINGS = {
   // v0.60.61 — relabelled per Human Lead. Standardise on the 🚏
   // bus-stop emoji + drop the literal "on map" suffix (it's
   // implied by the button context).
-  'transport.map.busStopsBtn':      { en: '🚏 View bus stops', fr: '🚏 Voir les arrêts de bus' },
+  'transport.map.busStopsBtn':      { en: 'Show all {n} bus stops', fr: 'Voir les {n} arrêts de bus' },
   'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' },
   // v0.60.98 — operator: show the actual nearest-count instead of
   // "stations on map". Call site (index.js runTransportTrain)
@@ -502,7 +504,7 @@ const STRINGS = {
   // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
   // /transport train (nearest stations), /transport bus (nearest stops).
   // Caption + button label for the multi-stop Google Maps directions URL.
-  'gmaps.openBtn':                { en: '🗺 Open in Google Maps', fr: '🗺 Ouvrir dans Google Maps' },
+  'gmaps.openBtn':                { en: 'Google Map ↗', fr: 'Google Maps ↗' },
 
   // v0.59.14 — LTA traffic-incident TYPE label translation. Mapped from
   // the verbatim Type field on the LTA TrafficIncidents feed. Message
