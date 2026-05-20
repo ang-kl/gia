@@ -282,7 +282,7 @@ export function amenityLabelNode(label, bg, fg, clickable) {
   const el = document.createElement('div');
   el.textContent = label;
   el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
-    + 'background:' + bg + ';color:' + fg + ';font-size:10px;font-weight:700;'
+    + 'background:' + bg + ';color:' + fg + ';font-size:12px;font-weight:700;'
     + 'line-height:1.5;white-space:nowrap;border:1.5px solid #fff;'
     + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:' + (clickable ? 'pointer' : 'default') + ';';
   return el;
@@ -296,7 +296,7 @@ function stationPillNode(codes, name, fallbackHex) {
   const el = document.createElement('div');
   el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;'
     + 'padding:1px 5px;border-radius:8px;background:#fff;'
-    + 'font-size:10px;font-weight:700;line-height:1.5;white-space:nowrap;'
+    + 'font-size:12px;font-weight:700;line-height:1.5;white-space:nowrap;'
     + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
   for (const code of (Array.isArray(codes) ? codes : [])) {
     if (!code) continue;
@@ -323,7 +323,7 @@ function liteBusNode() {
   el.textContent = '🚏';
   el.style.cssText = 'display:inline-block;padding:0 2px;border-radius:5px;'
     + 'background:rgba(21,101,192,0.45);color:rgba(255,255,255,0.9);'
-    + 'font-size:7px;font-weight:600;line-height:1.4;white-space:nowrap;'
+    + 'font-size:9px;font-weight:600;line-height:1.4;white-space:nowrap;'
     + 'border:1px solid rgba(255,255,255,0.55);'
     + 'box-shadow:0 0 0 0.3px rgba(0,0,0,0.25);cursor:pointer;';
   return el;
@@ -339,7 +339,7 @@ function dotNode(bg, glyph) {
     'background:' + bg + ';';
   const ic = document.createElement('span');
   ic.textContent = glyph;
-  ic.style.cssText = 'font-size:11px;line-height:1;';
+  ic.style.cssText = 'font-size:13px;line-height:1;';
   el.appendChild(ic);
   return el;
 }
@@ -352,7 +352,7 @@ function rectPinNode(bg, text) {
   el.textContent = text;
   el.style.cssText = 'display:flex;align-items:center;justify-content:center;'
     + 'min-width:18px;height:18px;padding:0 3px;border-radius:2px;cursor:pointer;'
-    + 'background:' + bg + ';color:#fff;font-weight:700;font-size:13px;'
+    + 'background:' + bg + ';color:#fff;font-weight:700;font-size:15px;'
     + 'line-height:1;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.4);';
   return el;
 }
@@ -409,8 +409,12 @@ export function ensureGreyscaleStyle() {
   if (document.getElementById('gia-greyscale-style')) return;
   const st = document.createElement('style');
   st.id = 'gia-greyscale-style';
+  // v0.61.66 — plus the gia-pin-flash keyframes: a transient pulse used
+  // to draw the eye to a bus-stop pin after a station-card tap.
   st.textContent = '.gia-greyscale-map canvas,.gia-greyscale-map img'
-    + '{filter:grayscale(1) contrast(0.8) brightness(0.96)!important}';
+    + '{filter:grayscale(1) contrast(0.8) brightness(0.96)!important}'
+    + '@keyframes gia-pin-flash{0%,100%{opacity:1;transform:scale(1)}'
+    + '50%{opacity:0.35;transform:scale(1.7)}}';
   document.head.appendChild(st);
 }
 
@@ -458,8 +462,8 @@ function stationInfoCardHtml(rec) {
   const c = infoPalette();
   const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
   const lk = 'color:' + c.link + ';font-weight:600;text-decoration:underline;cursor:pointer;';
-  const focus = (lat, lng) => 'window.__giaStationFocus&&window.__giaStationFocus('
-    + Number(lat) + ',' + Number(lng) + ')';
+  const focus = (lat, lng, flash) => 'window.__giaStationFocus&&window.__giaStationFocus('
+    + Number(lat) + ',' + Number(lng) + (flash ? ',1' : '') + ')';
   const name = rec.station_name || '';
   const lines = Array.isArray(rec.lines) ? rec.lines : [];
   let h = '';
@@ -500,7 +504,7 @@ function stationInfoCardHtml(rec) {
       }
       const bs = ex.nearest_bus_stop;
       if (bs && bs.code && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
-        parts.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng)
+        parts.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
           + '">Bus Stop № ' + escapeHtml(bs.code) + '</span>');
       }
       h += '<div style="margin-top:4px;">' + parts.join(' · ') + '</div>';
@@ -872,6 +876,26 @@ export function createOverlayController(map, googleMaps) {
     openStationCard(item);
   }
 
+  // v0.61.66 — drop a transient pulsing 🚏 pin at a point for ~2 s, so a
+  // station-card "Bus Stop №" tap visibly draws the eye to the stop after
+  // the map pans there. Independent of the bus-stop overlay layer.
+  function flashPin(lat, lng) {
+    if (typeof document === 'undefined'
+      || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    ensureGreyscaleStyle();
+    const el = document.createElement('div');
+    el.textContent = '🚏';
+    el.style.cssText = 'display:flex;align-items:center;justify-content:center;'
+      + 'width:30px;height:30px;border-radius:50%;background:' + AMENITY_BUS_BG + ';'
+      + 'border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.5);'
+      + 'font-size:15px;animation:gia-pin-flash 0.5s ease-in-out 4;';
+    const m = new AdvancedMarkerElement({
+      position: { lat, lng }, content: el, zIndex: 9999
+    });
+    m.map = map;
+    setTimeout(() => { m.map = null; }, 2000);
+  }
+
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
   // for a tapped station, from the data/stations.json record.
   function openStationCard(item) {
@@ -880,11 +904,14 @@ export function createOverlayController(map, googleMaps) {
       const rec = doc && doc.stations ? doc.stations[item.station.name] : null;
       if (!rec) { info.close(); return; }
       // Exit / Bus-№ link affordances → pan + zoom the map to the pin.
-      window.__giaStationFocus = (lat, lng) => {
+      // v0.61.66 — a third truthy arg (Bus Stop № links) also flashes
+      // the stop pin for ~2 s.
+      window.__giaStationFocus = (lat, lng, flash) => {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         map.panTo({ lat, lng });
         const z = map.getZoom ? map.getZoom() : 0;
         if (z < 17) map.setZoom(17);
+        if (flash) flashPin(lat, lng);
       };
       info.setContent(stationInfoCardHtml(rec));
       info.open(map, item.marker);
