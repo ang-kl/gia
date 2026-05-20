@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.61.68",
+  "version": "0.61.69",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -14,6 +14,7 @@
     "build:oversight": "cd web/oversight && npm install --no-audit --no-fund && npm run build",
     "build:geo": "node scripts/build-geo-overlays.js",
     "fetch:mrt-osm": "node scripts/fetch-mrt-lines-osm.js",
+    "fetch:24hr-places": "node scripts/fetch-24hr-places.js",
     "postinstall": "npm run build"
   },
   "engines": {
