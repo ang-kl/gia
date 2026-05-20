@@ -163,7 +163,7 @@ const STRINGS = {
   'transport.train.crowd.l':        { en: '🟢 low', fr: '🟢 faible' },
   'transport.train.crowd.m':        { en: '🟡 medium', fr: '🟡 moyen' },
   'transport.train.crowd.h':        { en: '🔴 high', fr: '🔴 élevé' },
-  'transport.train.nearestHeader':  { en: '🚇 Nearest 3 stations · est. wait {min}–{max} min ({label})', fr: '🚇 3 stations les plus proches · attente est. {min}–{max} min ({label})' },
+  'transport.train.nearestHeader':  { en: '🚇 Nearest 3 Train stations{wx}', fr: '🚇 3 stations de train les plus proches{wx}' },
   'transport.train.noLocation':     { en: '🚇 Share your location once and Gia will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Gia listera aussi les stations MRT les plus proches.' },
   // v0.60.88 — operator 2026-05-11: invert the message — surface
   // CROWDED counts (medium + high) instead of uncrowded, and name
@@ -301,7 +301,7 @@ const STRINGS = {
   // (the operator's "incorporate" ask 2026-05-10): tapping it lands
   // on the station's place sheet with live arrival times. The chat
   // send is HTML parse_mode (see runTransportTrain in index.js).
-  'transport.train.stationRow':     { en: '· {name} · {dist}{crowd} <a href="{gmapsUrl}">🗺️</a>', fr: '· {name} · {dist}{crowd} <a href="{gmapsUrl}">🗺️</a>' },
+  'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' },
 
   // v0.59.4 — /hidden chrome localisation.
   'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
