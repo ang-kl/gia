@@ -3,16 +3,45 @@
     "comment": "v0.61.55 — CR6 Phase 1: station info data layer (rule-based + existing-data joins; no scraping).",
     "sources": [
       "data/mrt-coords.json (canonical operational station list)",
-      "data/station-exits.json (LTA MRT Station Exit GEOJSON)"
+      "data/station-exits.json (LTA MRT Station Exit GEOJSON)",
+      "data/sg_train_timings.json (first/last-train timings, operator-supplied)"
     ],
     "lastUpdated": "2026-05-20",
     "stationCount": 180,
     "futureStationsSkipped": 29,
     "busServicesJoined": true,
+    "trainTimingsJoined": true,
+    "stationsWithTrainTimings": 152,
+    "trainTimingsMeta": {
+      "scraped_on": "2026-05-20",
+      "active_service_adjustments": [
+        {
+          "line": "TEL",
+          "period": "2026-05-22 to 2026-07-04",
+          "adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings.",
+          "reason": "Final systems integration tests for TEL5 with existing TEL network",
+          "source": "LTA Announcement page (lta.gov.sg)"
+        },
+        {
+          "line": "DTL",
+          "period": "2026-07-10 to 2026-09-05",
+          "adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings.",
+          "reason": "Final systems integration tests for DTL3e with existing DTL network",
+          "source": "LTA Announcement page (lta.gov.sg)"
+        },
+        {
+          "line": "SK_LRT",
+          "period": "2026-04-19 to 2026-10-18",
+          "adjustment": "Sengkang West loop via SW1 Cheng Lim is closed. LRT services on West loop via SW8 Renjong operate normally.",
+          "reason": "Expansion of SPLRT depot and connection of new reception tracks",
+          "source": "LTA Announcement page (lta.gov.sg)"
+        }
+      ]
+    },
     "schemaNotes": [
       "exits[].nearest_bus_stop = nearest bus stop within 80 m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.",
       "exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.",
-      "first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).",
+      "first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
       "SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping."
     ]
@@ -76,8 +105,57 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS1",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "12:20am",
+            "last_weekend": "12:20am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NSL",
+          "station_code": "NS1",
+          "direction": "southbound",
+          "timings": {
+            "first_weekday": "5:42am",
+            "first_weekend": "5:57am",
+            "last_weekday": "12:02am",
+            "last_weekend": "12:02am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW24",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:31am",
+            "first_weekend": "6:46am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW24",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:31am",
+            "first_weekend": "5:46am",
+            "last_weekday": "11:48pm",
+            "last_weekend": "11:48pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bukit Batok": {
@@ -125,8 +203,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS2",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:32am",
+            "first_weekend": "5:47am",
+            "last_weekday": "12:18am",
+            "last_weekend": "12:18am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bukit Gombak": {
@@ -194,8 +285,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS3",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:34am",
+            "first_weekend": "5:49am",
+            "last_weekday": "12:16am",
+            "last_weekend": "12:16am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Choa Chu Kang": {
@@ -306,8 +410,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS4",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:36am",
+            "first_weekend": "5:51am",
+            "last_weekday": "12:14am",
+            "last_weekend": "12:14am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "BPL",
+          "station_code": "BP1",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Yew Tee": {
@@ -375,8 +504,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS5",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:38am",
+            "first_weekend": "5:53am",
+            "last_weekday": "12:12am",
+            "last_weekend": "12:12am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Kranji": {
@@ -439,8 +581,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS7",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:42am",
+            "first_weekend": "5:57am",
+            "last_weekday": "12:08am",
+            "last_weekend": "12:08am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marsiling": {
@@ -508,8 +663,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS8",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:44am",
+            "first_weekend": "5:59am",
+            "last_weekday": "12:06am",
+            "last_weekend": "12:06am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Woodlands": {
@@ -598,8 +766,34 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS9",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:46am",
+            "first_weekend": "6:01am",
+            "last_weekday": "12:04am",
+            "last_weekend": "12:04am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE2",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:32am",
+            "first_weekend": "5:47am",
+            "last_weekday": "12:18am",
+            "last_weekend": "12:18am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Admiralty": {
@@ -662,8 +856,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS10",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:48am",
+            "first_weekend": "6:03am",
+            "last_weekday": "12:02am",
+            "last_weekend": "12:02am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Sembawang": {
@@ -726,8 +933,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS11",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:50am",
+            "first_weekend": "6:05am",
+            "last_weekday": "12:00am",
+            "last_weekend": "12:00am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Canberra": {
@@ -796,8 +1016,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS12",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:52am",
+            "first_weekend": "6:07am",
+            "last_weekday": "11:58pm",
+            "last_weekend": "11:58pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Yishun": {
@@ -876,8 +1109,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS13",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:54am",
+            "first_weekend": "6:09am",
+            "last_weekday": "11:56pm",
+            "last_weekend": "11:56pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Khatib": {
@@ -935,8 +1181,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS14",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:56am",
+            "first_weekend": "6:11am",
+            "last_weekday": "11:54pm",
+            "last_weekend": "11:54pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Yio Chu Kang": {
@@ -978,8 +1237,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS15",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "5:58am",
+            "first_weekend": "6:13am",
+            "last_weekday": "11:52pm",
+            "last_weekend": "11:52pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Ang Mo Kio": {
@@ -1027,8 +1299,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS16",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:00am",
+            "first_weekend": "6:15am",
+            "last_weekday": "11:50pm",
+            "last_weekend": "11:50pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bishan": {
@@ -1115,8 +1400,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS17",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:02am",
+            "first_weekend": "6:17am",
+            "last_weekday": "11:48pm",
+            "last_weekend": "11:48pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC15",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:58am",
+            "first_weekend": "6:13am",
+            "last_weekday": "11:52pm",
+            "last_weekend": "11:52pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Braddell": {
@@ -1163,8 +1473,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS18",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:04am",
+            "first_weekend": "6:19am",
+            "last_weekday": "11:46pm",
+            "last_weekend": "11:46pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Toa Payoh": {
@@ -1232,8 +1555,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS19",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:06am",
+            "first_weekend": "6:21am",
+            "last_weekday": "11:44pm",
+            "last_weekend": "11:44pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Novena": {
@@ -1274,8 +1610,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS20",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:08am",
+            "first_weekend": "6:23am",
+            "last_weekday": "11:42pm",
+            "last_weekend": "11:42pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Newton": {
@@ -1340,8 +1689,45 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS21",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:10am",
+            "first_weekend": "6:25am",
+            "last_weekday": "11:40pm",
+            "last_weekend": "11:40pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT11",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:51am",
+            "first_sun_ph": "6:11am",
+            "last_daily": "11:55pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT11",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:56am",
+            "first_sun_ph": "6:16am",
+            "last_daily": "12:28am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1503,8 +1889,34 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS22",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:12am",
+            "first_weekend": "6:27am",
+            "last_weekday": "11:38pm",
+            "last_weekend": "11:38pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE14",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:56am",
+            "first_weekend": "6:11am",
+            "last_weekday": "11:54pm",
+            "last_weekend": "11:54pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Somerset": {
@@ -1567,8 +1979,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS23",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:14am",
+            "first_weekend": "6:29am",
+            "last_weekday": "11:36pm",
+            "last_weekend": "11:36pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Dhoby Ghaut": {
@@ -1674,8 +2099,71 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS24",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:16am",
+            "first_weekend": "6:31am",
+            "last_weekday": "11:34pm",
+            "last_weekend": "11:34pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NSL",
+          "station_code": "NS24",
+          "direction": "southbound",
+          "timings": {
+            "first_weekday": "5:49am",
+            "first_weekend": "6:04am",
+            "last_weekday": "12:03am",
+            "last_weekend": "12:03am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE6",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:06am",
+            "first_sun_ph": "6:26am",
+            "first_weekday": "6:06am",
+            "last_weekday": "11:52pm",
+            "last_weekend_ph": "11:52pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE6",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:53am",
+            "first_sun_ph": "6:13am",
+            "first_weekday": "5:53am",
+            "last_weekday": "12:05am",
+            "last_weekend_ph": "12:05am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC1",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "12:20am",
+            "last_weekend": "12:20am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -1743,8 +2231,57 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS25",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:18am",
+            "first_weekend": "6:33am",
+            "last_weekday": "11:32pm",
+            "last_weekend": "11:32pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NSL",
+          "station_code": "NS25",
+          "direction": "southbound",
+          "timings": {
+            "first_weekday": "5:51am",
+            "first_weekend": "6:06am",
+            "last_weekday": "12:03am",
+            "last_weekend": "12:03am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW13",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:09am",
+            "first_weekend": "6:24am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW13",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:03am",
+            "first_weekend": "6:18am",
+            "last_weekday": "12:06am",
+            "last_weekend": "12:06am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Raffles Place": {
@@ -1857,8 +2394,57 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS26",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:20am",
+            "first_weekend": "6:35am",
+            "last_weekday": "11:30pm",
+            "last_weekend": "11:30pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NSL",
+          "station_code": "NS26",
+          "direction": "southbound",
+          "timings": {
+            "first_weekday": "5:47am",
+            "first_weekend": "6:02am",
+            "last_weekday": "11:44pm",
+            "last_weekend": "11:44pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW14",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:11am",
+            "first_weekend": "6:26am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW14",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:55am",
+            "first_weekend": "6:10am",
+            "last_weekday": "12:06am",
+            "last_weekend": "12:06am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marina Bay": {
@@ -1928,8 +2514,34 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS27",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:22am",
+            "first_weekend": "6:37am",
+            "last_weekday": "11:28pm",
+            "last_weekend": "11:28pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE20",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:08am",
+            "first_weekend": "6:23am",
+            "last_weekday": "11:42pm",
+            "last_weekend": "11:42pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marina South Pier": {
@@ -1970,8 +2582,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NSL",
+          "station_code": "NS28",
+          "direction": "northbound",
+          "timings": {
+            "first_weekday": "6:24am",
+            "first_weekend": "6:39am",
+            "last_weekday": "11:26pm",
+            "last_weekend": "11:26pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Pasir Ris": {
@@ -2007,8 +2632,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW1",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:45am",
+            "first_weekend": "6:00am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tampines": {
@@ -2089,8 +2727,45 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW2",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:47am",
+            "first_weekend": "6:02am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT32",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:16am",
+            "first_sun_ph": "6:36am",
+            "last_daily": "12:36am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT32",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:43am",
+            "first_sun_ph": "6:01am",
+            "last_daily": "11:47pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2127,8 +2802,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW3",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:49am",
+            "first_weekend": "6:04am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tanah Merah": {
@@ -2182,8 +2870,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW4",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:51am",
+            "first_weekend": "6:06am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bedok": {
@@ -2235,8 +2936,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW5",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:53am",
+            "first_weekend": "6:08am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Kembangan": {
@@ -2282,8 +2996,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW6",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:55am",
+            "first_weekend": "6:10am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Eunos": {
@@ -2325,8 +3052,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW7",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:57am",
+            "first_weekend": "6:12am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Paya Lebar": {
@@ -2402,8 +3142,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW8",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "5:59am",
+            "first_weekend": "6:14am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC9",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:46am",
+            "first_weekend": "6:01am",
+            "last_weekday": "12:04am",
+            "last_weekend": "12:04am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Aljunied": {
@@ -2449,8 +3214,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW9",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:01am",
+            "first_weekend": "6:16am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Kallang": {
@@ -2496,8 +3274,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW10",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:03am",
+            "first_weekend": "6:18am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Lavender": {
@@ -2543,8 +3334,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW11",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:05am",
+            "first_weekend": "6:20am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bugis": {
@@ -2620,8 +3424,57 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW12",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:07am",
+            "first_weekend": "6:22am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "EWL",
+          "station_code": "EW12",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:01am",
+            "first_weekend": "6:16am",
+            "last_weekday": "12:08am",
+            "last_weekend": "12:08am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT14",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:57am",
+            "first_sun_ph": "6:17am",
+            "last_daily": "12:01am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT14",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:03am",
+            "first_sun_ph": "6:32am",
+            "last_daily": "12:22am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2716,8 +3569,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW15",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:13am",
+            "first_weekend": "6:28am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Outram Park": {
@@ -2830,8 +3696,60 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW16",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:15am",
+            "first_weekend": "6:30am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE3",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:12am",
+            "first_sun_ph": "6:32am",
+            "first_weekday": "6:12am",
+            "last_weekday": "11:58pm",
+            "last_weekend_ph": "11:58pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE3",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:48am",
+            "first_sun_ph": "6:08am",
+            "first_weekday": "5:48am",
+            "last_weekday": "11:59pm",
+            "last_weekend_ph": "11:59pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE17",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:02am",
+            "first_weekend": "6:17am",
+            "last_weekday": "11:48pm",
+            "last_weekend": "11:48pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -2879,8 +3797,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW17",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:17am",
+            "first_weekend": "6:32am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Redhill": {
@@ -2926,8 +3857,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW18",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:19am",
+            "first_weekend": "6:34am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Queenstown": {
@@ -2995,8 +3939,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW19",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:21am",
+            "first_weekend": "6:36am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Commonwealth": {
@@ -3059,8 +4016,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW20",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:23am",
+            "first_weekend": "6:38am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Buona Vista": {
@@ -3131,8 +4101,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW21",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:25am",
+            "first_weekend": "6:40am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC22",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:12am",
+            "first_weekend": "6:27am",
+            "last_weekday": "11:38pm",
+            "last_weekend": "11:38pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Dover": {
@@ -3178,8 +4173,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW22",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:27am",
+            "first_weekend": "6:42am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Clementi": {
@@ -3237,8 +4245,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW23",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:29am",
+            "first_weekend": "6:44am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Chinese Garden": {
@@ -3290,8 +4311,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW25",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:33am",
+            "first_weekend": "6:48am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Lakeside": {
@@ -3338,8 +4372,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW26",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:35am",
+            "first_weekend": "6:50am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Boon Lay": {
@@ -3404,8 +4451,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW27",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:37am",
+            "first_weekend": "6:52am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Pioneer": {
@@ -3451,8 +4511,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW28",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:39am",
+            "first_weekend": "6:54am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Joo Koon": {
@@ -3493,8 +4566,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW29",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:41am",
+            "first_weekend": "6:56am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Gul Circle": {
@@ -3540,8 +4626,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW30",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:43am",
+            "first_weekend": "6:58am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tuas Crescent": {
@@ -3587,8 +4686,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW31",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:45am",
+            "first_weekend": "7:00am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tuas West Road": {
@@ -3634,8 +4746,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW32",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:47am",
+            "first_weekend": "7:02am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tuas Link": {
@@ -3671,8 +4796,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "EWL",
+          "station_code": "EW33",
+          "direction": "westbound",
+          "timings": {
+            "first_weekday": "6:49am",
+            "first_weekend": "7:04am",
+            "last_weekday": "12:25am",
+            "last_weekend": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Expo": {
@@ -3757,8 +4895,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT35",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": null,
+            "first_sun_ph": null,
+            "last_daily": null
+          },
+          "note": "terminal station in this direction",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT35",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:36am",
+            "first_sun_ph": "5:54am",
+            "last_daily": "11:40pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -3797,8 +4960,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
-      "data_quality_notes": []
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "data_quality_notes": [
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
+      ]
     },
     "HarbourFront": {
       "station_name": "HarbourFront",
@@ -3824,8 +4989,47 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE1",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": null,
+            "first_sun_ph": null,
+            "first_weekday": null,
+            "last_weekday": null,
+            "last_weekend_ph": null
+          },
+          "note": "terminal station in this direction"
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE1",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:47am",
+            "first_sun_ph": "6:07am",
+            "first_weekday": "5:47am",
+            "last_weekday": "11:55pm",
+            "last_weekend_ph": "11:55pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC29",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:26am",
+            "first_weekend": "6:41am",
+            "last_weekday": "11:24pm",
+            "last_weekend": "11:24pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -3916,8 +5120,59 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE4",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:10am",
+            "first_sun_ph": "6:30am",
+            "first_weekday": "6:10am",
+            "last_weekday": "11:56pm",
+            "last_weekend_ph": "11:56pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE4",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:49am",
+            "first_sun_ph": "6:09am",
+            "first_weekday": "5:49am",
+            "last_weekday": "12:01am",
+            "last_weekend_ph": "12:01am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT19",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:08am",
+            "first_sun_ph": "6:28am",
+            "last_daily": "12:10am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT19",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:10am",
+            "first_sun_ph": "6:28am",
+            "last_daily": "12:14am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4004,8 +5259,35 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE5",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:08am",
+            "first_sun_ph": "6:28am",
+            "first_weekday": "6:08am",
+            "last_weekday": "11:55pm",
+            "last_weekend_ph": "11:55pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE5",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:51am",
+            "first_sun_ph": "6:11am",
+            "first_weekday": "5:51am",
+            "last_weekday": "12:02am",
+            "last_weekend_ph": "12:02am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4095,8 +5377,59 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE7",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:04am",
+            "first_sun_ph": "6:24am",
+            "first_weekday": "6:04am",
+            "last_weekday": "11:50pm",
+            "last_weekend_ph": "11:50pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE7",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:56am",
+            "first_sun_ph": "6:16am",
+            "first_weekday": "5:56am",
+            "last_weekday": "12:07am",
+            "last_weekend_ph": "12:07am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT12",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:53am",
+            "first_sun_ph": "6:13am",
+            "last_daily": "11:58pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT12",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:06am",
+            "first_sun_ph": "6:30am",
+            "last_daily": "12:26am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4196,8 +5529,35 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE8",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:02am",
+            "first_sun_ph": "6:22am",
+            "first_weekday": "6:02am",
+            "last_weekday": "11:48pm",
+            "last_weekend_ph": "11:48pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE8",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:57am",
+            "first_sun_ph": "6:17am",
+            "first_weekday": "5:57am",
+            "last_weekday": "12:09am",
+            "last_weekend_ph": "12:09am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4251,8 +5611,35 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE9",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "6:00am",
+            "first_sun_ph": "6:20am",
+            "first_weekday": "6:00am",
+            "last_weekday": "11:46pm",
+            "last_weekend_ph": "11:46pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE9",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:59am",
+            "first_sun_ph": "6:19am",
+            "first_weekday": "5:59am",
+            "last_weekday": "12:11am",
+            "last_weekend_ph": "12:11am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4311,8 +5698,35 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE10",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:58am",
+            "first_sun_ph": "6:18am",
+            "first_weekday": "5:58am",
+            "last_weekday": "11:44pm",
+            "last_weekend_ph": "11:44pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE10",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:02am",
+            "first_sun_ph": "6:22am",
+            "first_weekday": "6:02am",
+            "last_weekday": "12:13am",
+            "last_weekend_ph": "12:13am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4366,8 +5780,35 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE11",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:56am",
+            "first_sun_ph": "6:16am",
+            "first_weekday": "5:56am",
+            "last_weekday": "11:42pm",
+            "last_weekend_ph": "11:42pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE11",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:04am",
+            "first_sun_ph": "6:24am",
+            "first_weekday": "6:04am",
+            "last_weekday": "12:15am",
+            "last_weekend_ph": "12:15am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4474,8 +5915,47 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE12",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:54am",
+            "first_sun_ph": "6:14am",
+            "first_weekday": "5:54am",
+            "last_weekday": "11:40pm",
+            "last_weekend_ph": "11:40pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE12",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:06am",
+            "first_sun_ph": "6:26am",
+            "first_weekday": "6:06am",
+            "last_weekday": "12:17am",
+            "last_weekend_ph": "12:17am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC13",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:54am",
+            "first_weekend": "6:09am",
+            "last_weekday": "11:56pm",
+            "last_weekend": "11:56pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4529,8 +6009,35 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE13",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:51am",
+            "first_sun_ph": "6:11am",
+            "first_weekday": "5:51am",
+            "last_weekday": "11:37pm",
+            "last_weekend_ph": "11:37pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE13",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:08am",
+            "first_sun_ph": "6:28am",
+            "first_weekday": "6:08am",
+            "last_weekday": "12:20am",
+            "last_weekend_ph": "12:20am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4574,8 +6081,35 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE14",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:49am",
+            "first_sun_ph": "6:09am",
+            "first_weekday": "5:49am",
+            "last_weekday": "11:35pm",
+            "last_weekend_ph": "11:35pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE14",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:11am",
+            "first_sun_ph": "6:31am",
+            "first_weekday": "6:11am",
+            "last_weekday": "12:23am",
+            "last_weekend_ph": "12:23am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4623,8 +6157,35 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE15",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:46am",
+            "first_sun_ph": "6:06am",
+            "first_weekday": "5:46am",
+            "last_weekday": "11:32pm",
+            "last_weekend_ph": "11:32pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE15",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "6:13am",
+            "first_sun_ph": "6:33am",
+            "first_weekday": "6:13am",
+            "last_weekday": "12:25am",
+            "last_weekend_ph": "12:25am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4692,8 +6253,35 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE16",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:44am",
+            "first_sun_ph": "6:04am",
+            "first_weekday": "5:44am",
+            "last_weekday": "11:30pm",
+            "last_weekend_ph": "11:30pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE16",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:33am",
+            "first_sun_ph": "5:53am",
+            "first_weekday": "5:33am",
+            "last_weekday": "12:27am",
+            "last_weekend_ph": "12:27am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4771,8 +6359,35 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE17",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:42am",
+            "first_sun_ph": "6:02am",
+            "first_weekday": "5:42am",
+            "last_weekday": "11:28pm",
+            "last_weekend_ph": "11:28pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE17",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": "5:36am",
+            "first_sun_ph": "5:56am",
+            "first_weekday": "5:36am",
+            "last_weekday": "12:30am",
+            "last_weekend_ph": "12:30am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -4793,8 +6408,35 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "NEL",
+          "station_code": "NE18",
+          "direction": "towards_harbourfront",
+          "timings": {
+            "first_sat": "5:39am",
+            "first_sun_ph": "5:59am",
+            "first_weekday": "5:39am",
+            "last_weekday": "11:25pm",
+            "last_weekend_ph": "11:25pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "NEL",
+          "station_code": "NE18",
+          "direction": "towards_punggol_coast",
+          "timings": {
+            "first_sat": null,
+            "first_sun_ph": null,
+            "first_weekday": null,
+            "last_weekday": null,
+            "last_weekend_ph": null
+          },
+          "note": "terminal station in this direction"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -4861,8 +6503,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC2",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:32am",
+            "first_weekend": "5:47am",
+            "last_weekday": "12:18am",
+            "last_weekend": "12:18am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Esplanade": {
@@ -4938,8 +6593,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC3",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:34am",
+            "first_weekend": "5:49am",
+            "last_weekday": "12:16am",
+            "last_weekend": "12:16am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Promenade": {
@@ -4989,8 +6657,45 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC4",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:36am",
+            "first_weekend": "5:51am",
+            "last_weekday": "12:14am",
+            "last_weekend": "12:14am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT15",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:00am",
+            "first_sun_ph": "6:20am",
+            "last_daily": "12:03am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT15",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:17am",
+            "first_sun_ph": "6:35am",
+            "last_daily": "12:20am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5035,8 +6740,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC5",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:38am",
+            "first_weekend": "5:53am",
+            "last_weekday": "12:12am",
+            "last_weekend": "12:12am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Stadium": {
@@ -5072,8 +6790,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC6",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:40am",
+            "first_weekend": "5:55am",
+            "last_weekday": "12:10am",
+            "last_weekend": "12:10am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Mountbatten": {
@@ -5109,8 +6840,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC7",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:42am",
+            "first_weekend": "5:57am",
+            "last_weekday": "12:08am",
+            "last_weekend": "12:08am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Dakota": {
@@ -5153,8 +6897,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC8",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:44am",
+            "first_weekend": "5:59am",
+            "last_weekday": "12:06am",
+            "last_weekend": "12:06am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "MacPherson": {
@@ -5181,8 +6938,45 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC10",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:48am",
+            "first_weekend": "6:03am",
+            "last_weekday": "12:02am",
+            "last_weekend": "12:02am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT26",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:03am",
+            "first_sun_ph": "6:23am",
+            "last_daily": "12:24am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT26",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:56am",
+            "first_sun_ph": "6:14am",
+            "last_daily": "12:00am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "no exits in source",
         "SBS more_info_url is generic (per-station code mapping not curated)"
@@ -5231,8 +7025,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC11",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:50am",
+            "first_weekend": "6:05am",
+            "last_weekday": "12:00am",
+            "last_weekend": "12:00am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bartley": {
@@ -5278,8 +7085,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC12",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:52am",
+            "first_weekend": "6:07am",
+            "last_weekday": "11:58pm",
+            "last_weekend": "11:58pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Lorong Chuan": {
@@ -5325,8 +7145,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC14",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:56am",
+            "first_weekend": "6:11am",
+            "last_weekday": "11:54pm",
+            "last_weekend": "11:54pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marymount": {
@@ -5362,8 +7195,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC16",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:00am",
+            "first_weekend": "6:15am",
+            "last_weekday": "11:50pm",
+            "last_weekend": "11:50pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Caldecott": {
@@ -5429,8 +7275,34 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC17",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:02am",
+            "first_weekend": "6:17am",
+            "last_weekday": "11:48pm",
+            "last_weekend": "11:48pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE9",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:46am",
+            "first_weekend": "6:01am",
+            "last_weekday": "12:04am",
+            "last_weekend": "12:04am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Botanic Gardens": {
@@ -5479,8 +7351,45 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC19",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:06am",
+            "first_weekend": "6:21am",
+            "last_weekday": "11:44pm",
+            "last_weekend": "11:44pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT9",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:46am",
+            "first_sun_ph": "6:06am",
+            "last_daily": "11:50pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT9",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:00am",
+            "first_sun_ph": "6:21am",
+            "last_daily": "12:32am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -5528,8 +7437,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC20",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:08am",
+            "first_weekend": "6:23am",
+            "last_weekday": "11:42pm",
+            "last_weekend": "11:42pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Holland Village": {
@@ -5586,8 +7508,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC21",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:10am",
+            "first_weekend": "6:25am",
+            "last_weekday": "11:40pm",
+            "last_weekend": "11:40pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "one-north": {
@@ -5606,8 +7541,21 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC23",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:14am",
+            "first_weekend": "6:29am",
+            "last_weekday": "11:36pm",
+            "last_weekend": "11:36pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -5672,8 +7620,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC24",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:16am",
+            "first_weekend": "6:31am",
+            "last_weekday": "11:34pm",
+            "last_weekend": "11:34pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Haw Par Villa": {
@@ -5710,8 +7671,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC25",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:18am",
+            "first_weekend": "6:33am",
+            "last_weekday": "11:32pm",
+            "last_weekend": "11:32pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Pasir Panjang": {
@@ -5748,8 +7722,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC26",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:20am",
+            "first_weekend": "6:35am",
+            "last_weekday": "11:30pm",
+            "last_weekend": "11:30pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Labrador Park": {
@@ -5784,8 +7771,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC27",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:22am",
+            "first_weekend": "6:37am",
+            "last_weekday": "11:28pm",
+            "last_weekend": "11:28pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Telok Blangah": {
@@ -5822,8 +7822,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC28",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "6:24am",
+            "first_weekend": "6:39am",
+            "last_weekday": "11:26pm",
+            "last_weekend": "11:26pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bayfront": {
@@ -5910,8 +7923,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT16",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:02am",
+            "first_sun_ph": "6:22am",
+            "last_daily": "12:05am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT16",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:15am",
+            "first_sun_ph": "6:33am",
+            "last_daily": "12:18am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6028,8 +8066,45 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT1",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:30am",
+            "first_sun_ph": "5:50am",
+            "last_daily": "11:35pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT1",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": null,
+            "first_sun_ph": null,
+            "last_daily": null
+          },
+          "note": "terminal station in this direction",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "BPL",
+          "station_code": "BP6",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6066,8 +8141,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT2",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:32am",
+            "first_sun_ph": "5:52am",
+            "last_daily": "11:37pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT2",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:14am",
+            "first_sun_ph": "6:35am",
+            "last_daily": "12:46am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6115,8 +8215,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT3",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:34am",
+            "first_sun_ph": "5:54am",
+            "last_daily": "11:38pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT3",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:13am",
+            "first_sun_ph": "6:33am",
+            "last_daily": "12:45am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6175,8 +8300,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT5",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:37am",
+            "first_sun_ph": "5:57am",
+            "last_daily": "11:42pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT5",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:08am",
+            "first_sun_ph": "6:29am",
+            "last_daily": "12:40am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6224,8 +8374,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT6",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:39am",
+            "first_sun_ph": "5:59am",
+            "last_daily": "11:44pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT6",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:06am",
+            "first_sun_ph": "6:27am",
+            "last_daily": "12:38am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6273,8 +8448,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT7",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:42am",
+            "first_sun_ph": "6:02am",
+            "last_daily": "11:46pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT7",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:04am",
+            "first_sun_ph": "6:24am",
+            "last_daily": "12:36am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6317,8 +8517,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT8",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:44am",
+            "first_sun_ph": "6:04am",
+            "last_daily": "11:48pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT8",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:02am",
+            "first_sun_ph": "6:23am",
+            "last_daily": "12:34am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6397,8 +8622,46 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT10",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:48am",
+            "first_sun_ph": "6:08am",
+            "last_daily": "11:53pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT10",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:58am",
+            "first_sun_ph": "6:18am",
+            "last_daily": "12:30am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "TEL",
+          "station_code": "TE11",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:50am",
+            "first_weekend": "6:05am",
+            "last_weekday": "12:00am",
+            "last_weekend": "12:00am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6441,8 +8704,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT13",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:55am",
+            "first_sun_ph": "6:15am",
+            "last_daily": "11:59pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT13",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:05am",
+            "first_sun_ph": "6:34am",
+            "last_daily": "12:24am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6534,8 +8822,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT17",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:04am",
+            "first_sun_ph": "6:24am",
+            "last_daily": "12:07am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT17",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:13am",
+            "first_sun_ph": "6:31am",
+            "last_daily": "12:16am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6594,8 +8907,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT18",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:06am",
+            "first_sun_ph": "6:26am",
+            "last_daily": "12:08am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT18",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:11am",
+            "first_sun_ph": "6:29am",
+            "last_daily": "12:15am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6643,8 +8981,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT20",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:10am",
+            "first_sun_ph": "6:30am",
+            "last_daily": "12:12am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT20",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:08am",
+            "first_sun_ph": "6:26am",
+            "last_daily": "12:11am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6703,8 +9066,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT21",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:12am",
+            "first_sun_ph": "6:31am",
+            "last_daily": "12:13am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT21",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:06am",
+            "first_sun_ph": "6:24am",
+            "last_daily": "12:10am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6747,8 +9135,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT22",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:13am",
+            "first_sun_ph": "6:33am",
+            "last_daily": "12:15am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT22",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:04am",
+            "first_sun_ph": "6:22am",
+            "last_daily": "12:08am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6796,8 +9209,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT23",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:15am",
+            "first_sun_ph": "6:35am",
+            "last_daily": "12:17am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT23",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:02am",
+            "first_sun_ph": "6:20am",
+            "last_daily": "12:06am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6835,8 +9273,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT24",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "5:59am",
+            "first_sun_ph": "6:19am",
+            "last_daily": "12:19am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT24",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "6:00am",
+            "first_sun_ph": "6:18am",
+            "last_daily": "12:04am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6884,8 +9347,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT25",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:01am",
+            "first_sun_ph": "6:21am",
+            "last_daily": "12:22am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT25",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:58am",
+            "first_sun_ph": "6:16am",
+            "last_daily": "12:02am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6933,8 +9421,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT27",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:05am",
+            "first_sun_ph": "6:25am",
+            "last_daily": "12:25am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT27",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:54am",
+            "first_sun_ph": "6:12am",
+            "last_daily": "11:58pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -6977,8 +9490,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT28",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:07am",
+            "first_sun_ph": "6:27am",
+            "last_daily": "12:27am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT28",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:52am",
+            "first_sun_ph": "6:10am",
+            "last_daily": "11:56pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7033,8 +9571,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT29",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:09am",
+            "first_sun_ph": "6:29am",
+            "last_daily": "12:29am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT29",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:50am",
+            "first_sun_ph": "6:08am",
+            "last_daily": "11:54pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7082,8 +9645,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT30",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:11am",
+            "first_sun_ph": "6:31am",
+            "last_daily": "12:31am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT30",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:48am",
+            "first_sun_ph": "6:06am",
+            "last_daily": "11:51pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7121,8 +9709,33 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT31",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:13am",
+            "first_sun_ph": "6:33am",
+            "last_daily": "12:34am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT31",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:45am",
+            "first_sun_ph": "6:03am",
+            "last_daily": "11:49pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7192,8 +9805,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT33",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:18am",
+            "first_sun_ph": "6:38am",
+            "last_daily": "12:38am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT33",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:41am",
+            "first_sun_ph": "5:59am",
+            "last_daily": "11:45pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7274,8 +9912,33 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "DTL",
+          "station_code": "DT34",
+          "direction": "towards_expo",
+          "timings": {
+            "first_mon_sat": "6:21am",
+            "first_sun_ph": "6:41am",
+            "last_daily": "12:41am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        },
+        {
+          "line_code": "DTL",
+          "station_code": "DT34",
+          "direction": "towards_bukit_panjang",
+          "timings": {
+            "first_mon_sat": "5:38am",
+            "first_sun_ph": "5:56am",
+            "last_daily": "11:41pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "SBS more_info_url is generic (per-station code mapping not curated)"
       ]
@@ -7318,8 +9981,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE1",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "12:20am",
+            "last_weekend": "12:20am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Woodlands South": {
@@ -7388,8 +10065,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE3",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:34am",
+            "first_weekend": "5:49am",
+            "last_weekday": "12:16am",
+            "last_weekend": "12:16am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Springleaf": {
@@ -7441,8 +10132,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE4",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:36am",
+            "first_weekend": "5:51am",
+            "last_weekday": "12:14am",
+            "last_weekend": "12:14am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Lentor": {
@@ -7501,8 +10206,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE5",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:38am",
+            "first_weekend": "5:53am",
+            "last_weekday": "12:12am",
+            "last_weekend": "12:12am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Mayflower": {
@@ -7588,8 +10307,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE6",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:40am",
+            "first_weekend": "5:55am",
+            "last_weekday": "12:10am",
+            "last_weekend": "12:10am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bright Hill": {
@@ -7647,8 +10380,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE7",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:42am",
+            "first_weekend": "5:57am",
+            "last_weekday": "12:08am",
+            "last_weekend": "12:08am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Upper Thomson": {
@@ -7722,8 +10469,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE8",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:44am",
+            "first_weekend": "5:59am",
+            "last_weekday": "12:06am",
+            "last_weekend": "12:06am"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Napier": {
@@ -7769,8 +10530,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE12",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Not yet open",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Orchard Boulevard": {
@@ -7811,8 +10586,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE13",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Not yet open",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Great World": {
@@ -7892,8 +10681,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE15",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "5:58am",
+            "first_weekend": "6:13am",
+            "last_weekday": "11:52pm",
+            "last_weekend": "11:52pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Havelock": {
@@ -7972,8 +10775,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE16",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:00am",
+            "first_weekend": "6:15am",
+            "last_weekday": "11:50pm",
+            "last_weekend": "11:50pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Maxwell": {
@@ -8030,8 +10847,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE18",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:04am",
+            "first_weekend": "6:19am",
+            "last_weekday": "11:46pm",
+            "last_weekend": "11:46pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Shenton Way": {
@@ -8098,8 +10929,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE19",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:06am",
+            "first_weekend": "6:21am",
+            "last_weekday": "11:44pm",
+            "last_weekend": "11:44pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Gardens by the Bay": {
@@ -8118,8 +10963,22 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE22",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": "6:12am",
+            "first_weekend": "6:27am",
+            "last_weekday": "11:38pm",
+            "last_weekend": "11:38pm"
+          },
+          "note": null,
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -8157,8 +11016,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE23",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Katong Park": {
@@ -8194,8 +11067,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE24",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Tanjong Katong": {
@@ -8247,8 +11134,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE25",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marine Parade": {
@@ -8333,8 +11234,22 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE26",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Marine Terrace": {
@@ -8414,8 +11329,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE27",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Siglap": {
@@ -8463,8 +11392,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE28",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bayshore": {
@@ -8518,8 +11461,22 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "TEL",
+          "station_code": "TE29",
+          "direction": "eastbound",
+          "timings": {
+            "first_weekday": null,
+            "first_weekend": null,
+            "last_weekday": null,
+            "last_weekend": null
+          },
+          "note": "Open since Jun 2024 but timing data not available from this source",
+          "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "South View": {
@@ -8554,8 +11511,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP2",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Keat Hong": {
@@ -8585,8 +11555,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP3",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Teck Whye": {
@@ -8616,8 +11599,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP4",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Phoenix": {
@@ -8652,8 +11648,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP5",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Petir": {
@@ -8688,8 +11697,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP7",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Pending": {
@@ -8724,8 +11746,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP8",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Bangkit": {
@@ -8760,8 +11795,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP9",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Fajar": {
@@ -8796,8 +11844,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP10",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Segar": {
@@ -8827,8 +11888,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP11",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Jelapang": {
@@ -8863,8 +11937,21 @@
           }
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP12",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Senja": {
@@ -8894,8 +11981,21 @@
           "nearest_bus_stop": null
         }
       ],
-      "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "first_last_train": [
+        {
+          "line_code": "BPL",
+          "station_code": "BP13",
+          "direction": "loop",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:45am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": []
     },
     "Cheng Lim": {
@@ -8942,9 +12042,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Farmway": {
@@ -8991,9 +12092,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Kupang": {
@@ -9030,9 +12132,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Thanggam": {
@@ -9079,9 +12182,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Fernvale": {
@@ -9117,9 +12221,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Layar": {
@@ -9166,9 +12271,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Tongkang": {
@@ -9205,9 +12311,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Renjong": {
@@ -9249,9 +12356,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Compassvale": {
@@ -9288,9 +12396,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Rumbia": {
@@ -9337,9 +12446,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Bakau": {
@@ -9386,9 +12496,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Kangkar": {
@@ -9435,9 +12546,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Ranggung": {
@@ -9484,9 +12596,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Cove": {
@@ -9533,9 +12646,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Meridian": {
@@ -9582,9 +12696,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Coral Edge": {
@@ -9626,9 +12741,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Riviera": {
@@ -9675,9 +12791,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Kadaloor": {
@@ -9724,9 +12841,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Oasis": {
@@ -9773,9 +12891,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Damai": {
@@ -9822,9 +12941,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Sam Kee": {
@@ -9861,9 +12981,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Teck Lee": {
@@ -9900,9 +13021,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Punggol Point": {
@@ -9939,9 +13061,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Samudera": {
@@ -9983,9 +13106,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Nibong": {
@@ -10032,9 +13156,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Sumang": {
@@ -10081,9 +13206,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
     "Soo Teck": {
@@ -10130,9 +13256,10 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T09:21:42.149Z",
+      "last_updated_at": "2026-05-20T10:51:26.504Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "SBS more_info_url is generic (per-station code mapping not curated)",
+        "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     }
   }

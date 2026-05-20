@@ -458,6 +458,65 @@ export function infoCard(inner, gmaps) {
 // then the operator(s) and a Google-Maps link. first/last train was
 // dropped per the operator template. `exit.street` is optional: it
 // renders only once exit street-name data is added to stations.json.
+// v0.61.67 — CR6 Phase 2b: first/last-train rendering helpers. Direction
+// keys → readable labels; timing-field day suffixes → readable labels.
+const FLT_DIR_LABELS = {
+  northbound: 'Northbound', southbound: 'Southbound',
+  eastbound: 'Eastbound', westbound: 'Westbound',
+  clockwise: 'Clockwise', anticlockwise: 'Anticlockwise',
+  loop: 'Loop', airport_branch: 'Airport branch',
+  towards_expo: 'Towards Expo', towards_bukit_panjang: 'Towards Bukit Panjang',
+  towards_harbourfront: 'Towards HarbourFront', towards_punggol_coast: 'Towards Punggol Coast'
+};
+const FLT_DAY_LABELS = {
+  mon_sat: 'Mon–Sat', sun_ph: 'Sun/PH', weekday: 'Weekday',
+  sat: 'Sat', weekend: 'Weekend', weekend_ph: 'Weekend/PH', daily: 'Daily'
+};
+function fltHumanize(s) {
+  return String(s || '').split('_')
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(' ');
+}
+// Collect "5:32am (Mon–Sat), 5:52am (Sun/PH)" for kind = 'first' | 'last'.
+function fltTimes(timings, kind) {
+  const out = [];
+  for (const [k, v] of Object.entries(timings || {})) {
+    if (v == null || !k.startsWith(kind + '_')) continue;
+    const day = k.slice(kind.length + 1);
+    out.push(escapeHtml(String(v)) + ' (' + escapeHtml(FLT_DAY_LABELS[day] || fltHumanize(day)) + ')');
+  }
+  return out.join(', ');
+}
+// One line's first_last_train entries → a "🚆 First / Last Train" block,
+// one row per direction. Verbatim source strings; null/terminal rows show
+// their source note; an active service adjustment is surfaced once.
+function firstLastTrainHtml(entries, c) {
+  if (!Array.isArray(entries) || !entries.length) return '';
+  let h = '<div style="margin-top:5px;font-weight:700;color:' + c.fg
+    + ';">🚆 First / Last Train</div>';
+  for (const e of entries) {
+    const dir = FLT_DIR_LABELS[e.direction] || fltHumanize(e.direction);
+    const first = fltTimes(e.timings, 'first');
+    const last = fltTimes(e.timings, 'last');
+    let body;
+    if (first || last) {
+      const parts = [];
+      if (first) parts.push('First ' + first);
+      if (last) parts.push('Last ' + last);
+      body = parts.join(' · ');
+    } else {
+      body = escapeHtml(e.note || 'no timing data');
+    }
+    h += '<div style="margin-top:2px;color:' + c.fg + ';"><span style="font-weight:600;">'
+      + escapeHtml(dir) + '</span> — ' + body + '</div>';
+  }
+  const adj = entries.find((e) => e.service_adjustment);
+  if (adj) {
+    h += '<div style="margin-top:3px;color:' + c.sub + ';">⚠️ '
+      + escapeHtml(adj.service_adjustment) + '</div>';
+  }
+  return h;
+}
+
 function stationInfoCardHtml(rec) {
   const c = infoPalette();
   const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
@@ -483,6 +542,10 @@ function stationInfoCardHtml(rec) {
       h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
         + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
     }
+    // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
+    h += firstLastTrainHtml(
+      (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
+        .filter((e) => e.line_code === (ln.line_code || '')), c);
     h += '</div>';
   });
 

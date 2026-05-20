@@ -44,6 +44,7 @@ const ROOT = path.join(__dirname, '..');
 const SRC_COORDS = path.join(ROOT, 'data', 'mrt-coords.json');
 const SRC_EXITS  = path.join(ROOT, 'data', 'station-exits.json');
 const SRC_BUS    = path.join(ROOT, 'data', 'bus-services-by-stop.json'); // optional, Phase 2a
+const SRC_TIMINGS = path.join(ROOT, 'data', 'sg_train_timings.json');    // optional, Phase 2b
 const OUT_PATH   = path.join(ROOT, 'data', 'stations.json');
 
 // v0.61.56 — CR6 Phase 2a: each exit's `nearest_bus_stop` is the
@@ -138,6 +139,59 @@ function loadBusStops() {
   }
 }
 
+// v0.61.67 — CR6 Phase 2b: first/last train timings. Reads
+// data/sg_train_timings.json (operator-supplied; verbatim source strings,
+// no invention) and returns a station-code → entries[] map plus the
+// metadata. Each entry is one line+direction the station appears in:
+// { station_code, direction, timings, note, service_adjustment }.
+// `line_code` is assigned later, from the stations.json line record.
+const TIMING_KEYS = [
+  'first_mon_sat', 'first_sat', 'first_sun_ph', 'first_weekday', 'first_weekend',
+  'last_daily', 'last_weekday', 'last_weekend', 'last_weekend_ph'
+];
+function loadTrainTimings() {
+  let doc;
+  try {
+    doc = JSON.parse(fs.readFileSync(SRC_TIMINGS, 'utf8'));
+  } catch (e) {
+    if (e && e.code === 'ENOENT') return null;
+    throw e;
+  }
+  const meta = doc.metadata || {};
+  const adjByLine = {};
+  for (const a of (Array.isArray(meta.active_service_adjustments) ? meta.active_service_adjustments : [])) {
+    if (a && a.line) adjByLine[a.line] = a;
+  }
+  const byCode = {};
+  for (const [lineCode, line] of Object.entries(doc.lines || {})) {
+    const dirs = line && line.directions ? line.directions : {};
+    const adj = adjByLine[lineCode];
+    for (const [direction, dirObj] of Object.entries(dirs)) {
+      for (const st of (Array.isArray(dirObj.stations) ? dirObj.stations : [])) {
+        if (!st || !st.code) continue;
+        const timings = {};
+        for (const k of TIMING_KEYS) if (k in st) timings[k] = st[k];
+        const hasTiming = Object.values(timings).some((v) => v != null);
+        // Skip entries with neither a timing value nor a source note
+        // (e.g. EWL airport-branch stations carry only data_available:false).
+        if (!hasTiming && !st.note) continue;
+        const entry = {
+          station_code: st.code,
+          direction,
+          timings,
+          note: st.note || null
+        };
+        if (adj) {
+          entry.service_adjustment = adj.adjustment
+            + (adj.period ? ' (' + adj.period + ')' : '');
+        }
+        (byCode[st.code] = byCode[st.code] || []).push(entry);
+      }
+    }
+  }
+  return { byCode, meta };
+}
+
 function metresBetween(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const toRad = (d) => d * Math.PI / 180;
@@ -170,6 +224,7 @@ function build() {
   const exitsDoc = JSON.parse(fs.readFileSync(SRC_EXITS, 'utf8'));
   const exitsByStation = exitsDoc.stations || {};
   const busStops = loadBusStops(); // null when data/bus-services-by-stop.json absent
+  const trainTimings = loadTrainTimings(); // null when data/sg_train_timings.json absent
 
   const stations = {};
   const now = new Date().toISOString();
@@ -177,6 +232,7 @@ function build() {
   let opCount = 0;
   let skipFuture = 0;
   let exitsWithBus = 0;
+  let stationsWithTimings = 0;
 
   for (const [name, info] of Object.entries(coords)) {
     if (name === '_meta') continue;
@@ -212,11 +268,27 @@ function build() {
       };
     });
 
+    // v0.61.67 — CR6 Phase 2b: join first/last-train timings by station
+    // code. One entry per (line, direction) the station appears in; the
+    // entry's line_code uses the stations.json convention (from `lines`).
+    const firstLastTrain = [];
+    if (trainTimings) {
+      for (const ln of lines) {
+        for (const e of (trainTimings.byCode[ln.station_code] || [])) {
+          firstLastTrain.push({ line_code: ln.line_code, ...e });
+        }
+      }
+    }
+    if (firstLastTrain.length) stationsWithTimings += 1;
+
     const dqNotes = [];
     if (!exits.length) dqNotes.push('no exits in source');
     if (lines.some((l) => l.operator === 'Unknown')) dqNotes.push('unknown line operator');
     if (lines.some((l) => l.operator === 'SBS Transit')) {
       dqNotes.push('SBS more_info_url is generic (per-station code mapping not curated)');
+    }
+    if (trainTimings && !firstLastTrain.length) {
+      dqNotes.push('no first/last-train timings from source (e.g. LRT loop, or station not listed)');
     }
 
     stations[name] = {
@@ -226,7 +298,7 @@ function build() {
       exit_centroid: exitCentroidOf(exits),
       lines,
       exits,
-      first_last_train: [],
+      first_last_train: firstLastTrain,
       last_updated_at: now,
       data_quality_notes: dqNotes
     };
@@ -237,18 +309,25 @@ function build() {
       comment: 'v0.61.55 — CR6 Phase 1: station info data layer (rule-based + existing-data joins; no scraping).',
       sources: [
         'data/mrt-coords.json (canonical operational station list)',
-        'data/station-exits.json (LTA MRT Station Exit GEOJSON)'
+        'data/station-exits.json (LTA MRT Station Exit GEOJSON)',
+        ...(trainTimings ? ['data/sg_train_timings.json (first/last-train timings, operator-supplied)'] : [])
       ],
       lastUpdated: now.slice(0, 10),
       stationCount: opCount,
       futureStationsSkipped: skipFuture,
       busServicesJoined: !!busStops,
+      trainTimingsJoined: !!trainTimings,
+      stationsWithTrainTimings: stationsWithTimings,
+      trainTimingsMeta: trainTimings ? {
+        scraped_on: trainTimings.meta.scraped_on || null,
+        active_service_adjustments: trainTimings.meta.active_service_adjustments || []
+      } : null,
       schemaNotes: [
         busStops
           ? `exits[].nearest_bus_stop = nearest bus stop within ${BUS_NEAR_M} m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.`
           : 'exits[].nearest_bus_stop: null — run scripts/build-bus-services-by-stop.js to produce data/bus-services-by-stop.json, then re-run this build.',
         'exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.',
-        'first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).',
+        'first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.',
         'SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.',
         'SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping.'
       ]
@@ -264,7 +343,9 @@ function build() {
     smrt_links: Object.values(stations).filter((s) => s.lines.some((l) => l.operator === 'SMRT' && l.more_info_url)).length,
     sbs_links:  Object.values(stations).filter((s) => s.lines.some((l) => l.operator === 'SBS Transit' && l.more_info_url)).length,
     bus_services_joined: !!busStops,
-    exits_with_bus_stop: exitsWithBus
+    exits_with_bus_stop: exitsWithBus,
+    train_timings_joined: !!trainTimings,
+    stations_with_train_timings: stationsWithTimings
   };
   console.log('stations.json written:', counts);
 }
