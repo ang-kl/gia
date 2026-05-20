@@ -1,22 +1,22 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-20 from a snapshot of all 533 pull requests (#1–#533).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-20 from a snapshot of all 544 pull requests (#1–#544).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 533 total — 527 merged, 6 closed without merge.
+- **PRs:** 544 total — 538 merged, 6 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #541 · 2026-05-19 22:46:02 · _v0.61.51: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9)_
+- **Latest:** #552 · 2026-05-20 02:25:55 · _docs: record PR #551 merge in Journal #260_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 333 |
+| feature | 338 |
 | fix | 74 |
+| docs | 38 |
 | copy | 35 |
-| docs | 32 |
 | prompt-tune | 31 |
 | refactor | 17 |
 | test | 6 |
@@ -27,17 +27,17 @@
 | Area | PRs |
 |---|--:|
 | Cuisine Picker | 170 |
-| Core / misc | 57 |
+| Core / misc | 59 |
 | Search / free-text | 42 |
-| Transport / carpark | 38 |
+| Transport / carpark | 40 |
+| Docs / vault | 38 |
 | Hawker NEA | 37 |
 | /hidden surprise | 36 |
-| Docs / vault | 32 |
 | Recognised lists | 20 |
 | /eat /drink flow | 18 |
 | Pipeline / discovery | 18 |
 | Infra / setup | 15 |
-| Weather | 10 |
+| Weather | 11 |
 | Privacy / legal | 9 |
 | Language / i18n | 8 |
 | Commands / chat UX | 5 |
@@ -585,6 +585,17 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 539 | merged | 2026-05-19 22:12:52 | 0.61.50 | feature | Cuisine Picker | Add: Cuisine location-field search trigger + loading overlay rework | ### Cuisine TMA — location-field search trigger - **LocationField** gets a new optional `onSearch` prop. | 6 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 | 540 | merged | 2026-05-19 22:36:03 |  | docs | Docs / vault | Update docs: record PR #539 merge in Journal #254 | Standing-rule Journal upkeep after **PR #539** merged. | 1 file — doc | — | doc/vault |
 | 541 | merged | 2026-05-19 22:46:02 | 0.61.51 | refactor | Core / misc | Refactor: map-control tidy (CR1 / 2 / 3 / 7 / 8 / 9) | Phase A + B of the operator's 9-part map-control change-request batch. | 15 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 542 | merged | 2026-05-19 22:59:42 |  | docs | Docs / vault | Journal #255 + VibeCodingRecord catch-up (PRs #514–#541) | Standing-rule Journal upkeep plus a VibeCodingRecord catch-up (the hosted Vibe Journal page was rendering a 2-day-stale snapshot — last entry PR #513). | 8 files — doc, public/ | — | doc/vault |
+| 543 | merged | 2026-05-19 23:07:30 | 0.61.52 | feature | Core / misc | Add: CR4 bus-stop de-emphasis away from map focus | CR4 — bus-stop pin de-emphasis. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 544 | merged | 2026-05-19 23:09:34 |  | docs | Docs / vault | Update docs: record PR #543 merge in Journal #256 | Standing-rule Journal upkeep after PR #543 merged. | 1 file — doc | — | doc/vault |
+| 545 | merged | 2026-05-19 23:23:59 | 0.61.53 | feature | Weather | Add: CR5 v1 — zoom-aware station pins + train polyline opacity | CR5 v1 — zoom-aware train layer. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 546 | merged | 2026-05-19 23:27:01 |  | docs | Docs / vault | Update docs: record PR #545 merge in Journal #257 | Standing-rule Journal upkeep after PR #545 merged. | 1 file — doc | — | doc/vault |
+| 547 | merged | 2026-05-19 23:40:43 | 0.61.54 | feature | Core / misc | Add: CR4 v2 multi-focus bus de-emphasis + CR10 Police pin colour | CR4 v2 — bus-stop near-focus now = anchor union trainEmphasis union detailStation, decoupled from the viewport. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 548 | merged | 2026-05-19 23:42:27 |  | docs | Docs / vault | Update docs: record PR #547 merge in Journal #258 | Standing-rule Journal upkeep after PR #547 merged. | 1 file — doc | — | doc/vault |
+| 549 | merged | 2026-05-20 01:30:32 | 0.61.55 | feature | Transport / carpark | Add: CR6 Phase 1 — station info data layer | CR6 Phase 1 — scripts/build-station-info.js joins mrt-coords.json + station-exits.json + rule-based URL templates into data/stations.json (180 operational stations; 175 with exits; 118 SMRT / 76 SBS links). | 5 files — doc, data, package, scripts/ | — | doc/vault |
+| 550 | merged | 2026-05-20 01:33:39 |  | docs | Docs / vault | Update docs: record PR #549 merge in Journal #259 | Standing-rule Journal upkeep after PR #549 merged. | 1 file — doc | — | doc/vault |
+| 551 | merged | 2026-05-20 02:13:08 | 0.61.56 | feature | Transport / carpark | Add: CR6 Phase 2a — bus services per exit (static-data build) | CR6 Phase 2a — scripts/build-bus-services-by-stop.js joins committed static LTA datasets (geoloc/LTABusStop.geojson + data_realtime/BusRoutes.json) into data/bus-services-by-stop.json; build-station-info.js binds the nearest bus stop… | 7 files — doc, data, package, scripts/ | — | doc/vault |
+| 552 | merged | 2026-05-20 02:25:55 |  | docs | Docs / vault | Update docs: record PR #551 merge in Journal #260 | Standing-rule Journal upkeep after PR #551 merged. | 1 file — doc | — | doc/vault |
 
 ---
 

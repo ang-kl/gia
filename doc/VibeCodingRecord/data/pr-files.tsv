@@ -360,3 +360,14 @@
 539	doc/.serial-state.yml,doc/Journal/journal-0_61_50-20_05_26-0130.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/LocationField.jsx,web/cuisine/src/v2/lib/i18n.js
 540	doc/Journal/journal-0_61_50-20_05_26-0130.md
 541	doc/.serial-state.yml,doc/Journal/journal-0_61_51-20_05_26-0700.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/MapPanel.jsx,web/cuisine/src/v2/lib/i18n.js,web/cuisine/src/v2/lib/mapOverlays.js,web/hawker/src/App.jsx,web/hawker/src/components/HawkerMapPanel.jsx,web/hawker/src/i18n.js,web/hawker/src/lib/mapOverlays.js,web/transport/src/App.jsx,web/transport/src/components/MrtMapPanel.jsx,web/transport/src/i18n.js,web/transport/src/lib/mapOverlays.js
+542	doc/Journal/journal-0_61_51-20_05_26-0700.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+543	doc/.serial-state.yml,doc/Journal/journal-0_61_52-20_05_26-0800.md,package.json,web/cuisine/src/v2/lib/mapOverlays.js,web/hawker/src/lib/mapOverlays.js,web/transport/src/lib/mapOverlays.js
+544	doc/Journal/journal-0_61_52-20_05_26-0800.md
+545	doc/.serial-state.yml,doc/Journal/journal-0_61_53-20_05_26-0900.md,package.json,web/cuisine/src/v2/lib/mapOverlays.js,web/hawker/src/lib/mapOverlays.js,web/transport/src/lib/mapOverlays.js
+546	doc/Journal/journal-0_61_53-20_05_26-0900.md
+547	doc/.serial-state.yml,doc/Journal/journal-0_61_54-20_05_26-1000.md,package.json,web/cuisine/src/v2/lib/mapOverlays.js,web/hawker/src/lib/mapOverlays.js,web/transport/src/lib/mapOverlays.js
+548	doc/Journal/journal-0_61_54-20_05_26-1000.md
+549	data/stations.json,doc/.serial-state.yml,doc/Journal/journal-0_61_55-20_05_26-1130.md,package.json,scripts/build-station-info.js
+550	doc/Journal/journal-0_61_55-20_05_26-1130.md
+551	data/bus-services-by-stop.json,data/stations.json,doc/.serial-state.yml,doc/Journal/journal-0_61_56-20_05_26-1230.md,package.json,scripts/build-bus-services-by-stop.js,scripts/build-station-info.js
+552	doc/Journal/journal-0_61_56-20_05_26-1230.md
