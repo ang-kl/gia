@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-20",
-  "count": 533,
+  "count": 544,
   "records": [
     {
       "pr": 1,
@@ -14924,6 +14924,312 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 542,
+      "status": "merged",
+      "merged": "2026-05-19 22:59:42",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Journal #255 + VibeCodingRecord catch-up (PRs #514–#541)",
+      "approach": "Standing-rule Journal upkeep plus a VibeCodingRecord catch-up (the hosted Vibe Journal page was rendering a 2-day-stale snapshot — last entry PR #513).",
+      "codeImpact": "8 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: Journal #255 + VibeCodingRecord catch-up (PRs #514–#541)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 543,
+      "status": "merged",
+      "merged": "2026-05-19 23:07:30",
+      "day": "2026-05-19",
+      "version": "0.61.52",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: CR4 bus-stop de-emphasis away from map focus",
+      "approach": "CR4 — bus-stop pin de-emphasis.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.52: CR4 bus-stop de-emphasis away from map focus",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 544,
+      "status": "merged",
+      "merged": "2026-05-19 23:09:34",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #543 merge in Journal #256",
+      "approach": "Standing-rule Journal upkeep after PR #543 merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #543 merge in Journal #256",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 545,
+      "status": "merged",
+      "merged": "2026-05-19 23:23:59",
+      "day": "2026-05-19",
+      "version": "0.61.53",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: CR5 v1 — zoom-aware station pins + train polyline opacity",
+      "approach": "CR5 v1 — zoom-aware train layer.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.53: CR5 v1 — zoom-aware station pins + train polyline opacity",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 546,
+      "status": "merged",
+      "merged": "2026-05-19 23:27:01",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #545 merge in Journal #257",
+      "approach": "Standing-rule Journal upkeep after PR #545 merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #545 merge in Journal #257",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 547,
+      "status": "merged",
+      "merged": "2026-05-19 23:40:43",
+      "day": "2026-05-19",
+      "version": "0.61.54",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: CR4 v2 multi-focus bus de-emphasis + CR10 Police pin colour",
+      "approach": "CR4 v2 — bus-stop near-focus now = anchor union trainEmphasis union detailStation, decoupled from the viewport.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.54: CR4 v2 multi-focus bus de-emphasis + CR10 Police pin colour",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 548,
+      "status": "merged",
+      "merged": "2026-05-19 23:42:27",
+      "day": "2026-05-19",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #547 merge in Journal #258",
+      "approach": "Standing-rule Journal upkeep after PR #547 merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #547 merge in Journal #258",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 549,
+      "status": "merged",
+      "merged": "2026-05-20 01:30:32",
+      "day": "2026-05-20",
+      "version": "0.61.55",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: CR6 Phase 1 — station info data layer",
+      "approach": "CR6 Phase 1 — scripts/build-station-info.js joins mrt-coords.json + station-exits.json + rule-based URL templates into data/stations.json (180 operational stations; 175 with exits; 118 SMRT / 76 SBS links).",
+      "codeImpact": "5 files — doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.55: CR6 Phase 1 — station info data layer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 550,
+      "status": "merged",
+      "merged": "2026-05-20 01:33:39",
+      "day": "2026-05-20",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #549 merge in Journal #259",
+      "approach": "Standing-rule Journal upkeep after PR #549 merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #549 merge in Journal #259",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 551,
+      "status": "merged",
+      "merged": "2026-05-20 02:13:08",
+      "day": "2026-05-20",
+      "version": "0.61.56",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: CR6 Phase 2a — bus services per exit (static-data build)",
+      "approach": "CR6 Phase 2a — scripts/build-bus-services-by-stop.js joins committed static LTA datasets (geoloc/LTABusStop.geojson + data_realtime/BusRoutes.json) into data/bus-services-by-stop.json; build-station-info.js binds the nearest bus stop…",
+      "codeImpact": "7 files — doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.56: CR6 Phase 2a — bus services per exit (static-data build)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 552,
+      "status": "merged",
+      "merged": "2026-05-20 02:25:55",
+      "day": "2026-05-20",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: record PR #551 merge in Journal #260",
+      "approach": "Standing-rule Journal upkeep after PR #551 merged.",
+      "codeImpact": "1 file — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: record PR #551 merge in Journal #260",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
