@@ -231,6 +231,18 @@ function fetchStations() {
   return stationsPromise;
 }
 
+// v0.61.57 — CR6 Phase 3: the per-station info dataset (data/stations.json,
+// keyed by station name) backing the station info card.
+let stationInfoPromise = null;
+function fetchStationInfo() {
+  if (!stationInfoPromise) {
+    stationInfoPromise = fetch('/api/geo/stations')
+      .then((r) => r.json())
+      .catch(() => ({ stations: {} }));
+  }
+  return stationInfoPromise;
+}
+
 // v0.61.11 — square station marker for the train overlay. v0.61.17 —
 // clickable (cursor:pointer). v0.61.18 — the selected station no
 // longer uses a larger square; it becomes a named amenity-style pill.
@@ -383,6 +395,64 @@ export function infoCard(inner, gmaps) {
     + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
     + 'border-radius:50%;font-size:13px;font-weight:700;color:' + c.sub + ';">✕</span>'
     + inner + tail + '</div>';
+}
+
+// v0.61.57 — CR6 Phase 3: the station info card popup body. Renders a
+// data/stations.json record per the agreed display template — a
+// "<name> station" title; one block per line (Operator, "<line_code> ·
+// <line_name>", a station-code pill in the line colour, any first/last-
+// train rows, a More-info link); then a station-level Exits list where
+// each "Exit <label>" and "Bus №" is a tappable map-focus link.
+function stationInfoCardHtml(rec) {
+  const c = infoPalette();
+  const rule = 'border-top:1px solid rgba(0,0,0,0.1);margin-top:7px;padding-top:6px;';
+  const lk = 'color:' + c.link + ';font-weight:600;text-decoration:underline;cursor:pointer;';
+  const focus = (lat, lng) => 'window.__giaStationFocus&&window.__giaStationFocus('
+    + Number(lat) + ',' + Number(lng) + ')';
+  let h = '<div style="font-weight:700;font-size:14px;">'
+    + escapeHtml((rec.station_name || '') + ' station') + '</div>';
+  for (const ln of (Array.isArray(rec.lines) ? rec.lines : [])) {
+    h += '<div style="' + rule + '">';
+    h += '<div style="color:' + c.sub + ';">Operator: ' + escapeHtml(ln.operator || '—') + '</div>';
+    h += '<div style="margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
+      + '<span>' + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</span>'
+      + (ln.station_code ? codePill(ln.station_code, codeHex(ln.station_code), false) : '')
+      + '</div>';
+    for (const t of (Array.isArray(ln.first_last_train) ? ln.first_last_train : [])) {
+      const parts = [];
+      if (t.first_train_weekday) parts.push('1st ' + t.first_train_weekday);
+      if (t.last_train) parts.push('last ' + t.last_train);
+      if (parts.length) {
+        h += '<div style="margin-top:2px;color:' + c.sub + ';">'
+          + escapeHtml((t.direction ? t.direction + ': ' : '') + parts.join(' · ')) + '</div>';
+      }
+    }
+    if (ln.more_info_url) {
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
+        + '" target="_blank" rel="noopener" style="' + lk + '">More info ↗</a></div>';
+    }
+    h += '</div>';
+  }
+  const exits = Array.isArray(rec.exits) ? rec.exits : [];
+  if (exits.length) {
+    h += '<div style="' + rule + '"><div style="font-weight:600;">Exits</div>';
+    for (const ex of exits) {
+      h += '<div style="margin-top:2px;">';
+      const exitTxt = 'Exit ' + escapeHtml(ex.label || '?');
+      h += (Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
+        ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng) + '">' + exitTxt + '</span>'
+        : '<span style="font-weight:600;">' + exitTxt + '</span>';
+      const bs = ex.nearest_bus_stop;
+      if (bs && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
+        h += ' · <span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng) + '">Bus №</span>';
+        const svcs = Array.isArray(bs.services) ? bs.services : [];
+        if (svcs.length) h += ' ' + escapeHtml(svcs.join(', '));
+      }
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+  return infoCard(h);
 }
 
 // v0.61.19 — bucket live bus arrivals into ≤5 / ≤10 / ≤20 / 20+ min and
@@ -708,11 +778,9 @@ export function createOverlayController(map, googleMaps) {
   }
 
   // v0.61.17 — a station marker was tapped. Re-tapping the selected
-  // station clears the detail view; tapping another re-targets it.
-  // v0.61.18 — no InfoWindow: the detail view (named centre pill) and
-  // the station-scoped Exits / Taxis chips identify everything.
-  // v0.61.26 — amenities are no longer auto-drawn from station-context;
-  // the Exits / Taxis chips draw them, scoped to the 3 visible stations.
+  // station clears the selection; tapping another re-targets it.
+  // v0.61.57 — CR6 Phase 3: a tap opens the station info card
+  // (openStationCard) — this replaces the old neighbour-detail view.
   function handleStationTap(item) {
     const s = item.station;
     if (detailStation && detailStation.name === s.name) {
@@ -722,7 +790,26 @@ export function createOverlayController(map, googleMaps) {
     detailStation = s;
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
-    syncDetailAmenityLayers();
+    openStationCard(item);
+  }
+
+  // v0.61.57 — CR6 Phase 3: render + open the station info card popup
+  // for a tapped station, from the data/stations.json record.
+  function openStationCard(item) {
+    fetchStationInfo().then((doc) => {
+      if (destroyed || !detailStation || detailStation.name !== item.station.name) return;
+      const rec = doc && doc.stations ? doc.stations[item.station.name] : null;
+      if (!rec) { info.close(); return; }
+      // Exit / Bus-№ link affordances → pan + zoom the map to the pin.
+      window.__giaStationFocus = (lat, lng) => {
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        map.panTo({ lat, lng });
+        const z = map.getZoom ? map.getZoom() : 0;
+        if (z < 17) map.setZoom(17);
+      };
+      info.setContent(stationInfoCardHtml(rec));
+      info.open(map, item.marker);
+    });
   }
 
   // --- per-feature InfoWindow HTML -------------------------------------
@@ -960,22 +1047,14 @@ export function createOverlayController(map, googleMaps) {
           }
         }
       }
-      // v0.61.17 — station-detail view: only the selected station and
-      // its line-neighbours one stop before / after show.
-      // v0.61.26 — detailStations (the 3 kept stations' coordinates) is
-      // refreshed here so the Exits / Taxis chips can clip to them.
-      let keep = null;
+      // v0.61.57 — CR6 Phase 3: tapping a station opens the station
+      // info card (openStationCard) instead of the old neighbour-detail
+      // view. `detailStation` still marks the selected station (for the
+      // CR5 centre pill + the CR4 v2 bus-focus), but it no longer hides
+      // the other stations or scopes the Exits / Taxis chips —
+      // `detailStations` stays empty so every station radius-clips
+      // normally and the chip layers are anchor-clipped.
       detailStations = [];
-      if (detailStation) {
-        const ordered = stationsOnLine(e.stations.map((x) => x.station), lineCodeOf(detailStation));
-        const idx = ordered.findIndex((x) => x.name === detailStation.name);
-        keep = new Set([detailStation.name]);
-        if (idx > 0) keep.add(ordered[idx - 1].name);
-        if (idx >= 0 && idx < ordered.length - 1) keep.add(ordered[idx + 1].name);
-        detailStations = e.stations
-          .filter((it) => keep.has(it.station.name))
-          .map((it) => ({ lat: it.lat, lng: it.lng }));
-      }
       // v0.61.53 — unified per-station content swap (subsumes the
       // earlier centre-only rebuild). At zoom-in every visible station
       // is a labelled `<code> <name> station` pill in its line colour;
@@ -985,13 +1064,8 @@ export function createOverlayController(map, googleMaps) {
       // pan-driven applyVisibility.
       const newCentre = detailStation ? detailStation.name : null;
       for (const st of e.stations) {
-        let show;
-        if (keep) {
-          show = e.visible && keep.has(st.station.name);
-        } else {
-          const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
-          show = e.visible && near;
-        }
+        const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
+        const show = e.visible && near;
         st.marker.map = show ? map : null;
         if (!show) continue;
         const isCentre = st.station.name === newCentre;
