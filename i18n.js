@@ -132,7 +132,7 @@ const STRINGS = {
   'carpark.header':            { en: '🅿️ Nearest carparks with available lots', fr: '🅿️ Parkings les plus proches avec places disponibles' },
   'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist}', fr: '{i}. {name}  ·  {lots} places  ·  {dist}' },
   'carpark.mapAllCaption':     { en: 'Showing closest locations:', fr: 'Emplacements les plus proches :' },
-  'carpark.mapAllBtn':         { en: '🗺 Compare all {n} carparks location', fr: '🗺 Comparer les {n} parkings sur la carte' },
+  'carpark.mapAllBtn':         { en: 'Compare all {n} carparks', fr: 'Comparer les {n} parkings' },
   'carpark.containerCaption':  { en: '🗺 Open all 5 carparks in one Google Maps container:', fr: '🗺 Ouvrir les 5 parkings dans un conteneur Google Maps :' },
   'carpark.viewAllBtn':        { en: '🗺 View all carparks', fr: '🗺 Voir tous les parkings' },
   'carpark.unreachable':       { en: "Sorry, I can't reach the LTA carpark feed right now.", fr: "Désolé, le flux LTA des parkings est inaccessible pour le moment." },
@@ -290,7 +290,7 @@ const STRINGS = {
   // v0.60.61 — relabelled per Human Lead. Standardise on the 🚏
   // bus-stop emoji + drop the literal "on map" suffix (it's
   // implied by the button context).
-  'transport.map.busStopsBtn':      { en: '🚏 View bus stops', fr: '🚏 Voir les arrêts de bus' },
+  'transport.map.busStopsBtn':      { en: 'Show all {n} bus stops', fr: 'Voir les {n} arrêts de bus' },
   'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' },
   // v0.60.98 — operator: show the actual nearest-count instead of
   // "stations on map". Call site (index.js runTransportTrain)

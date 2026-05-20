@@ -3227,7 +3227,7 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         const { buildMapHashUrl, googleMapsContainerUrl } = require('./maps-url');
         if (webhookDomain && slim.length) {
           const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-          if (mapUrl) mapRow = [[{ text: t('transport.map.busStopsBtn', lang), web_app: { url: mapUrl } }]];
+          if (mapUrl) mapRow = [[{ text: tn('transport.map.busStopsBtn', lang, { n: stops.length }), web_app: { url: mapUrl } }]];
         }
         const gmapsUrl = googleMapsContainerUrl(slim, {
           travelmode: 'walking',
