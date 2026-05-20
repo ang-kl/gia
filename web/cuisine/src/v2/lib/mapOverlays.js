@@ -519,31 +519,32 @@ function busArrivalRows(services) {
   let h = '';
   for (const b of buckets) {
     if (!b.svcs.length) continue;
-    h += '<div style="margin-top:2px;">№ ' + escapeHtml(b.svcs.join(', '))
-      + ' — ' + b.label + '</div>';
+    h += '<div style="margin-top:5px;color:#1c1c1f;font-weight:600;">- '
+      + b.label + ' ‧ Bus № ' + escapeHtml(b.svcs.join(', ')) + '</div>';
   }
   return h;
 }
 
-// v0.61.44 — bus-stop popup: road name, stop code, bucketed live
-// arrivals, then a Google-Maps link whose text is the road name.
+// v0.61.64 — bus-stop popup: road name, "Bus Stop №" code, bucketed live
+// arrivals (timing label leads each row), then a Google-Maps link. Text is
+// dark (#1c1c1f) + bold so it reads on the white card.
 function busInfoHtml(b, services) {
   const c = infoPalette();
   const road = b.roadName || b.description || ('Stop ' + b.code);
-  let h = '<div style="font-weight:600;">🚏 ' + escapeHtml(road) + '</div>';
-  h += '<div style="color:' + c.sub + ';margin-top:2px;">🚏 № ' + escapeHtml(b.code) + '</div>';
+  let h = '<div style="color:' + c.fg + ';font-weight:700;">🚏 ' + escapeHtml(road) + '</div>';
+  h += '<div style="color:' + c.fg + ';font-weight:600;margin-top:2px;">🚏 Bus Stop № '
+    + escapeHtml(b.code) + '</div>';
   if (services == null) {
-    h += '<div style="color:' + c.sub + ';margin-top:3px;">Loading arrivals…</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">Loading arrivals…</div>';
   } else if (!services.length) {
-    h += '<div style="color:' + c.sub + ';margin-top:3px;">No live arrivals</div>';
+    h += '<div style="color:' + c.fg + ';margin-top:5px;">No live arrivals</div>';
   } else {
     h += '<div style="margin-top:3px;">' + busArrivalRows(services) + '</div>';
   }
   if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
-    h += '<div style="margin-top:6px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
+    h += '<div style="margin-top:8px;"><a href="' + escapeHtml(gmapsUrl(b.lat, b.lng))
       + '" target="_blank" rel="noopener" style="color:' + c.link
-      + ';font-weight:600;text-decoration:underline;">'
-      + escapeHtml(road) + ' ↗</a></div>';
+      + ';font-weight:600;text-decoration:underline;">Google Map ➚</a></div>';
   }
   return infoCard(h);
 }
