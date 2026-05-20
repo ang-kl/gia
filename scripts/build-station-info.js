@@ -47,9 +47,10 @@ const SRC_BUS    = path.join(ROOT, 'data', 'bus-services-by-stop.json'); // opti
 const OUT_PATH   = path.join(ROOT, 'data', 'stations.json');
 
 // v0.61.56 — CR6 Phase 2a: each exit's `nearest_bus_stop` is the
-// nearest stop within this radius that has at least one service. If
-// the nearest stop has zero services, we fall back to the next-
-// nearest within the cap. Beyond the cap → null.
+// nearest bus stop within this radius. Its `services` list is whatever
+// the routes data covers (may be empty while data_realtime/BusRoutes.json
+// is only a partial sample) — the stop's coords still drive the card's
+// "Bus №" map link, so we bind the nearest stop regardless of services.
 const BUS_NEAR_M = 80;
 
 // Line code → { display name, operator }. Operators per the CR6 brief:
@@ -130,23 +131,17 @@ function findNearestBusStop(exit, stops, capM) {
   if (!stops || !stops.length
       || !Number.isFinite(exit.lat) || !Number.isFinite(exit.lng)) return null;
   const boxDeg = capM / 111000 + 1e-6;
-  const candidates = [];
+  let best = null;
+  let bestD = Infinity;
   for (const s of stops) {
     if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
     if (Math.abs(s.lat - exit.lat) > boxDeg) continue;
     if (Math.abs(s.lng - exit.lng) > boxDeg) continue;
     const d = metresBetween(exit.lat, exit.lng, s.lat, s.lng);
-    if (d <= capM) candidates.push({ s, d });
+    if (d <= capM && d < bestD) { bestD = d; best = s; }
   }
-  candidates.sort((a, b) => a.d - b.d);
-  // Take the nearest *with services*; fall back to the next-nearest
-  // only if the closest has zero services.
-  for (const c of candidates) {
-    if (c.s.services.length > 0) {
-      return { code: c.s.code, lat: c.s.lat, lng: c.s.lng, services: c.s.services };
-    }
-  }
-  return null;
+  if (!best) return null;
+  return { code: best.code, lat: best.lat, lng: best.lng, services: best.services };
 }
 
 function build() {
@@ -228,8 +223,8 @@ function build() {
       busServicesJoined: !!busStops,
       schemaNotes: [
         busStops
-          ? `exits[].nearest_bus_stop populated from data/bus-services-by-stop.json (cap ${BUS_NEAR_M} m; nearest stop with ≥1 service; fall back to next-nearest if closest is service-less).`
-          : 'exits[].nearest_bus_stop: null — run scripts/fetch-bus-services-by-stop.js (needs LTA_ACCOUNT_KEY) to populate, then re-run this build.',
+          ? `exits[].nearest_bus_stop = nearest bus stop within ${BUS_NEAR_M} m (from data/bus-services-by-stop.json). Its services[] reflects data_realtime/BusRoutes.json coverage — may be empty while that file is a partial DataMall sample.`
+          : 'exits[].nearest_bus_stop: null — run scripts/build-bus-services-by-stop.js to produce data/bus-services-by-stop.json, then re-run this build.',
         'first_last_train: [] — deferred to Phase 2b (source TBD: data.gov.sg dataset if it exists, else curated commit).',
         'SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.',
         'SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping.'
