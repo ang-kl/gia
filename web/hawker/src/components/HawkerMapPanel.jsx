@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -398,20 +398,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
           Theme-adaptive (tg-card / tg-text). */}
-      {/* v0.61.51 — nav cluster shifted from top-2 to top-12 so the
-          quick-button row has clean horizontal space. */}
+      {/* v0.61.51 — nav cluster shifted to top-12 so the quick-button
+          row has clean horizontal space. v0.61.59 — the Colour-mode
+          pill moved out of this cluster into the quick-toggle row
+          (after Bus Stop); the cluster is now Reset / + / − / expand. */}
       <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
-        {/* v0.61.51 — Colour-mode FAB pill: state-in-text, single
-            neutral style (no on/off colour effect). */}
-        <button
-          type="button"
-          onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={overlayLayers?.colour !== false}
-          className="px-2 py-1 rounded-full text-[11px] font-medium leading-none active:scale-95 whitespace-nowrap"
-          style={giaToggleStyle(false)}
-          aria-label={t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-          title={t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-        >{t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}</button>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
@@ -452,6 +443,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         rowToggles={rowToggles}
         menuToggles={menuToggles}
         menuLabel={t('map.more', lang)}
+        colourToggle={{
+          on: overlayLayers?.colour !== false,
+          label: t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang),
+          onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
+        }}
       />
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">

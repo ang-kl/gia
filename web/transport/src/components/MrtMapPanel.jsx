@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, giaToggleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -669,21 +669,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           expand toggle. v0.61.16 — fixed white styling: the Google map
           tiles are always light, so the prior theme-adaptive tg-card
           colours rendered near-invisible in Telegram dark mode. */}
-      {/* v0.61.51 — nav cluster shifted from top-2 to top-12 so the
-          quick-button row has clean horizontal space. */}
+      {/* v0.61.51 — nav cluster shifted to top-12 so the quick-button
+          row has clean horizontal space. v0.61.59 — the Colour-mode
+          pill moved out of this cluster into the quick-toggle row
+          (after Bus Stop); the cluster is now Reset / + / − / expand. */}
       <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
-        {/* v0.61.51 — Colour-mode FAB: pill with the current state in
-            text ("🎨 Colour mode" / "🎨 Greyscale mode"), no on/off
-            colour effect (single neutral style). */}
-        <button
-          type="button"
-          onClick={() => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })}
-          aria-pressed={overlayLayers?.colour !== false}
-          className="px-2 py-1 rounded-full text-[11px] font-medium leading-none active:scale-95 whitespace-nowrap"
-          style={giaToggleStyle(false)}
-          aria-label={t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-          title={t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}
-        >{t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang)}</button>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
@@ -724,6 +714,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         rowToggles={rowToggles}
         menuToggles={menuToggles}
         menuLabel={t('map.more', lang)}
+        colourToggle={{
+          on: overlayLayers?.colour !== false,
+          label: t(overlayLayers?.colour !== false ? 'layer.colour.on' : 'layer.colour.off', lang),
+          onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
+        }}
       />
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
