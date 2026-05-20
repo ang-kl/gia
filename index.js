@@ -11597,6 +11597,22 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.57 — CR6 Phase 3: the per-station info dataset (data/stations.json),
+    // consumed by the TMA maps' station info card. Static file, read + cached once.
+    let geoStationsCache;
+    app.get('/api/geo/stations', (_req, res) => {
+      try {
+        if (geoStationsCache === undefined) {
+          geoStationsCache = JSON.parse(
+            require('fs').readFileSync(__dirname + '/data/stations.json', 'utf8')
+          );
+        }
+        res.json(geoStationsCache);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.63.0 — live carpark overlay layer for the TMA maps. Proxies the
     // LTA DataMall Carpark Availability feed (via carpark.js), Redis-
     // cached 60 s. Needs LTA_ACCOUNT_KEY; when unset the endpoint just

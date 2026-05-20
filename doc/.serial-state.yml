@@ -1,8 +1,8 @@
 counters:
-  commit: 267
-  build: 67
+  commit: 268
+  build: 68
   documents:
-    journal: 260
+    journal: 261
     builder: 2
     persona: 3
     feature: 46
@@ -12,10 +12,15 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 20-05 '26 12:30 SGT
-last_anchor_source: claude_estimate_continuation_after_journal259 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-20T12:30:00+08:00
-last_anchor_utc: 2026-05-20T04:30:00Z
+last_anchor_time: 20-05 '26 13:30 SGT
+last_anchor_source: claude_estimate_continuation_after_journal260 (live fetch blocked; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-20T13:30:00+08:00
+last_anchor_utc: 2026-05-20T05:30:00Z
+# journal #261 (commit 268 / build 68) — v0.61.57 CR6 Phase 3 station
+# info card: /api/geo/stations route; mapOverlays stationInfoCardHtml +
+# openStationCard; tap-a-station opens the card (replaces the v0.61.17/
+# .26 neighbour-detail view); Exit/Bus№ links pan+zoom via
+# window.__giaStationFocus. byte-identical mapOverlays ×3.
 # journal #260 (commit 267 / build 67) — v0.61.56 CR6 Phase 2a bus
 # services per exit: fetch-bus-services-by-stop.js fetches LTA DataMall
 # /BusStops + /BusRoutes, joins to data/bus-services-by-stop.json;
