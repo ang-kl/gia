@@ -2115,6 +2115,15 @@ bot.on('callback_query', async (q) => {
       await runCarparkCommand(chatId, cbLang);
       return;
     }
+    // v0.61.72 — Refresh-location choice on the /carpark result. Drops
+    // the cached pin; runCarparkCommand re-prompts and sets the
+    // /carpark pending row so sharing a pin auto-resumes the lookup.
+    if (data === 'carpark:refresh-loc') {
+      const { hashChatId } = require('./location-cache');
+      await redis.del(`loc:${hashChatId(chatId)}`).catch(() => {});
+      await runCarparkCommand(chatId, cbLang);
+      return;
+    }
     // v0.52.0 hawker sub-menu dispatch (simplified):
     //   hawker:menu               → top-level menu (Cleaning + Browse)
     //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
@@ -2874,6 +2883,9 @@ async function sendBusMenu(chatId, lang = 'en') {
         [
           { text: t('transport.bus.menu.btn.nearest', lang), callback_data: 'transport:bus:nearest' },
           { text: t('transport.bus.menu.btn.route', lang),   url: transitDirUrl }
+        ],
+        [
+          { text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'transport:refresh-loc' }
         ],
         [
           { text: t('button.back', lang), callback_data: 'transport:menu' }
@@ -3656,6 +3668,7 @@ async function runCarparkCommand(chatId, lang = 'en') {
         rows.push([{ text: t('gmaps.openBtn', lang), url: gmapsUrl }]);
       }
       if (rows.length) {
+        rows.push([{ text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'carpark:refresh-loc' }]);
         await bot.sendMessage(chatId, tn('carpark.mapAllCaption', lang, { n: list.length }), {
           reply_markup: { inline_keyboard: rows }
         });
@@ -7907,7 +7920,7 @@ async function registerCommandsMenu() {
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
-      { command: 'carpark',    description: 'Nearest 5 with available lots' },
+      { command: 'carpark',    description: 'Nearest 5 Carpark with available lots' },
       // v0.60.113 — /buddy removed from the command menu (feature retired).
       // v0.60.37 — /search (alias /s), the conversational dish /
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)

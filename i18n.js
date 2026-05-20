@@ -131,8 +131,8 @@ const STRINGS = {
   'carpark.none':              { en: 'No carparks with available lots near here.', fr: 'Aucun parking avec places disponibles à proximité.' },
   'carpark.header':            { en: '🅿️ Nearest carparks with available lots', fr: '🅿️ Parkings les plus proches avec places disponibles' },
   'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist}', fr: '{i}. {name}  ·  {lots} places  ·  {dist}' },
-  'carpark.mapAllCaption':     { en: '🗺 View all {n} carparks on one map:', fr: '🗺 Voir les {n} parkings sur une seule carte :' },
-  'carpark.mapAllBtn':         { en: '🗺 View all {n} on map', fr: '🗺 Voir les {n} sur la carte' },
+  'carpark.mapAllCaption':     { en: 'Showing closest locations:', fr: 'Emplacements les plus proches :' },
+  'carpark.mapAllBtn':         { en: '🗺 Compare all {n} carparks location', fr: '🗺 Comparer les {n} parkings sur la carte' },
   'carpark.containerCaption':  { en: '🗺 Open all 5 carparks in one Google Maps container:', fr: '🗺 Ouvrir les 5 parkings dans un conteneur Google Maps :' },
   'carpark.viewAllBtn':        { en: '🗺 View all carparks', fr: '🗺 Voir tous les parkings' },
   'carpark.unreachable':       { en: "Sorry, I can't reach the LTA carpark feed right now.", fr: "Désolé, le flux LTA des parkings est inaccessible pour le moment." },
@@ -504,7 +504,7 @@ const STRINGS = {
   // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
   // /transport train (nearest stations), /transport bus (nearest stops).
   // Caption + button label for the multi-stop Google Maps directions URL.
-  'gmaps.openBtn':                { en: '🗺 Open in Google Maps', fr: '🗺 Ouvrir dans Google Maps' },
+  'gmaps.openBtn':                { en: 'Google Map ↗', fr: 'Google Maps ↗' },
 
   // v0.59.14 — LTA traffic-incident TYPE label translation. Mapped from
   // the verbatim Type field on the LTA TrafficIncidents feed. Message
