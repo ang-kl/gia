@@ -150,7 +150,7 @@ const STRINGS = {
   'transport.menu.btn.refreshLoc':  { en: '📍 Refresh location', fr: '📍 Actualiser la position' },
 
   // /transport bus sub-menu
-  'transport.bus.menu.title':       { en: '🚌 Bus — pick what you need', fr: '🚌 Bus — choisissez votre option' },
+  'transport.bus.menu.title':       { en: '🚌 Bus Information', fr: '🚌 Informations bus' },
   'transport.bus.menu.btn.nearest': { en: '🚏 Nearest stops', fr: '🚏 Arrêts proches' },
   'transport.bus.menu.btn.route':   { en: '🗺 Plan a route', fr: '🗺 Planifier un itinéraire' },
 

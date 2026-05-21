@@ -2943,7 +2943,14 @@ async function runTransportTrain(chatId, lang = 'en') {
     }
     if (cachedLoc && process.env.GOOGLE_MAPS_API_KEY) {
       try {
-        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 1500, 3);
+        // v0.61.74 — search radius widened 1500 m → 5000 m. The header
+        // promises the "Nearest 3" stations, but from MRT-sparse spots
+        // (e.g. VivoCity — only HarbourFront sits within 1.5 km) the
+        // tighter radius returned just 1, leaving the header's "3" a
+        // broken promise. rankPreference:DISTANCE + slice(0,3) still
+        // yields the true nearest 3; the wider circle only guarantees
+        // 3 are found.
+        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 5000, 3);
         if (mrt.length) {
           mrtForMap = mrt;
           // v0.60.81 — prefix the station name with a colored line
