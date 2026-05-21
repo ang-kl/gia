@@ -74,11 +74,7 @@ const LINE_META = {
 };
 
 // SMRT's station-info pages use a lowercase-hyphen slug derived from
-// the station name. SBS Transit uses its own opaque 3-letter codes in
-// URLs (e.g. ?Station=BKP for Bukit Panjang), which differ from the
-// LTA station code (DT1/BP6). Curating that mapping is a Phase 2
-// follow-up; for now SBS links go to the generic Train Information
-// page so the operator can pick the station via its in-page dropdown.
+// the station name.
 function slugify(name) {
   return String(name || '')
     .toLowerCase()
@@ -87,11 +83,49 @@ function slugify(name) {
     .replace(/^-+|-+$/g, '');
 }
 
+// v0.61.77 — SBS Transit station-info deep links. SBS's TrainInformation
+// page is parameterised: ?TrainLine=<line>&Station=<code>, where <code>
+// is SBS's own station code (HBF, TLA, …), distinct from the LTA code
+// (NE1, DT18). The map below was scraped from the SBS TrainInformation
+// page + its /Ajax/StationDropdown endpoint (2026-05-21). LRT interchange
+// centrals (Sengkang STC, Punggol PTC) have no plain station entry in
+// SBS's dropdown — they resolve to the East-loop entry (STCE / PTCE),
+// matching the operator-supplied PTCE example for Punggol.
+const SBS_TRAINLINE = { NEL: 'NEL', DTL: 'DTL', SLRT: 'SKG+LRT', PLRT: 'PGL+LRT' };
+const SBS_STATION_CODE = {
+  // North East Line
+  NE1: 'HBF', NE3: 'OTP', NE4: 'CNT', NE5: 'CQY', NE6: 'DBG', NE7: 'LTI',
+  NE8: 'FRP', NE9: 'BNK', NE10: 'PTP', NE11: 'WLH', NE12: 'SER', NE13: 'KVN',
+  NE14: 'HGN', NE15: 'BGK', NE16: 'SKG', NE17: 'PGL', NE18: 'PGC',
+  // Downtown Line
+  DT1: 'BKP', DT2: 'CSW', DT3: 'HVW', DT4: 'HUM', DT5: 'BTW', DT6: 'KAP',
+  DT7: 'SAV', DT8: 'TKK', DT9: 'BTN', DT10: 'STV', DT11: 'NEW', DT12: 'LTI',
+  DT13: 'RCR', DT14: 'BGS', DT15: 'PMN', DT16: 'BFT', DT17: 'DTN', DT18: 'TLA',
+  DT19: 'CNT', DT20: 'FCN', DT21: 'BCL', DT22: 'JLB', DT23: 'BDM', DT24: 'GLB',
+  DT25: 'MTR', DT26: 'MPS', DT27: 'UBI', DT28: 'KKB', DT29: 'BDN', DT30: 'BDR',
+  DT31: 'TPW', DT32: 'TAM', DT33: 'TPE', DT34: 'UPC', DT35: 'XPO',
+  // Sengkang LRT (STC interchange → East-loop entry STCE)
+  STC: 'STCE', SE1: 'SE1', SE2: 'SE2', SE3: 'SE3', SE4: 'SE4', SE5: 'SE5',
+  SW1: 'SW1', SW2: 'SW2', SW3: 'SW3', SW4: 'SW4', SW5: 'SW5', SW6: 'SW6',
+  SW7: 'SW7', SW8: 'SW8',
+  // Punggol LRT (PTC interchange → East-loop entry PTCE)
+  PTC: 'PTCE', PE1: 'PE1', PE2: 'PE2', PE3: 'PE3', PE4: 'PE4', PE5: 'PE5',
+  PE6: 'PE6', PE7: 'PE7', PW1: 'PW1', PW2: 'PW2', PW3: 'PW3', PW4: 'PW4',
+  PW5: 'PW5', PW6: 'PW6', PW7: 'PW7'
+};
+
 function moreInfoUrl(operator, slug, stationCode, lineCode) {
   if (operator === 'SMRT') {
     return 'https://journey.smrt.com.sg/journey/station_info/' + slug + '/';
   }
   if (operator === 'SBS Transit') {
+    const tl = SBS_TRAINLINE[lineCode];
+    const sc = SBS_STATION_CODE[stationCode];
+    if (tl && sc) {
+      return 'https://www.sbstransit.com.sg/Service/TrainInformation'
+        + '?TrainLine=' + tl + '&Station=' + sc;
+    }
+    // Unmapped station → the generic page (operator picks via dropdown).
     return 'https://www.sbstransit.com.sg/Service/TrainInformation';
   }
   return null;
@@ -284,8 +318,9 @@ function build() {
     const dqNotes = [];
     if (!exits.length) dqNotes.push('no exits in source');
     if (lines.some((l) => l.operator === 'Unknown')) dqNotes.push('unknown line operator');
-    if (lines.some((l) => l.operator === 'SBS Transit')) {
-      dqNotes.push('SBS more_info_url is generic (per-station code mapping not curated)');
+    if (lines.some((l) => l.operator === 'SBS Transit'
+      && l.more_info_url === 'https://www.sbstransit.com.sg/Service/TrainInformation')) {
+      dqNotes.push('SBS more_info_url is the generic page (station code unmapped)');
     }
     if (trainTimings && !firstLastTrain.length) {
       dqNotes.push('no first/last-train timings from source (e.g. LRT loop, or station not listed)');
@@ -329,7 +364,7 @@ function build() {
         'exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.',
         'first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.',
         'SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.',
-        'SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping.'
+        'SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE).'
       ]
     },
     stations

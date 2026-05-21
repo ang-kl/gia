@@ -6,7 +6,7 @@
       "data/station-exits.json (LTA MRT Station Exit GEOJSON)",
       "data/sg_train_timings.json (first/last-train timings, operator-supplied)"
     ],
-    "lastUpdated": "2026-05-20",
+    "lastUpdated": "2026-05-21",
     "stationCount": 180,
     "futureStationsSkipped": 29,
     "busServicesJoined": true,
@@ -43,7 +43,7 @@
       "exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.",
       "first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
-      "SBS Transit more_info_url is generic; per-station codes (e.g. BKP for Bukit Panjang) require curated mapping."
+      "SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE)."
     ]
   },
   "stations": {
@@ -155,7 +155,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bukit Batok": {
@@ -217,7 +217,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bukit Gombak": {
@@ -299,7 +299,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Choa Chu Kang": {
@@ -436,7 +436,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Yew Tee": {
@@ -518,7 +518,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Kranji": {
@@ -595,7 +595,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marsiling": {
@@ -677,7 +677,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Woodlands": {
@@ -793,7 +793,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Admiralty": {
@@ -870,7 +870,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Sembawang": {
@@ -947,7 +947,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Canberra": {
@@ -1030,7 +1030,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Yishun": {
@@ -1123,7 +1123,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Khatib": {
@@ -1195,7 +1195,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Yio Chu Kang": {
@@ -1251,7 +1251,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Ang Mo Kio": {
@@ -1313,7 +1313,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bishan": {
@@ -1426,7 +1426,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Braddell": {
@@ -1487,7 +1487,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Toa Payoh": {
@@ -1569,7 +1569,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Novena": {
@@ -1624,7 +1624,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Newton": {
@@ -1651,7 +1651,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT11",
           "station_slug": "newton",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=NEW"
         }
       ],
       "exits": [
@@ -1727,10 +1727,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Orchard": {
       "station_name": "Orchard",
@@ -1916,7 +1914,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Somerset": {
@@ -1993,7 +1991,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Dhoby Ghaut": {
@@ -2020,7 +2018,7 @@
           "line_name": "North East Line",
           "station_code": "NE6",
           "station_slug": "dhoby-ghaut",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=DBG"
         },
         {
           "operator": "SMRT",
@@ -2163,10 +2161,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "City Hall": {
       "station_name": "City Hall",
@@ -2281,7 +2277,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Raffles Place": {
@@ -2444,7 +2440,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marina Bay": {
@@ -2541,7 +2537,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marina South Pier": {
@@ -2596,7 +2592,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Pasir Ris": {
@@ -2646,7 +2642,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tampines": {
@@ -2673,7 +2669,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT32",
           "station_slug": "tampines",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=TAM"
         }
       ],
       "exits": [
@@ -2765,10 +2761,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Simei": {
       "station_name": "Simei",
@@ -2816,7 +2810,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tanah Merah": {
@@ -2884,7 +2878,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bedok": {
@@ -2950,7 +2944,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Kembangan": {
@@ -3010,7 +3004,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Eunos": {
@@ -3066,7 +3060,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Paya Lebar": {
@@ -3168,7 +3162,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Aljunied": {
@@ -3228,7 +3222,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Kallang": {
@@ -3288,7 +3282,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Lavender": {
@@ -3348,7 +3342,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bugis": {
@@ -3375,7 +3369,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT14",
           "station_slug": "bugis",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BGS"
         }
       ],
       "exits": [
@@ -3474,10 +3468,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Tanjong Pagar": {
       "station_name": "Tanjong Pagar",
@@ -3583,7 +3575,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Outram Park": {
@@ -3610,7 +3602,7 @@
           "line_name": "North East Line",
           "station_code": "NE3",
           "station_slug": "outram-park",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=OTP"
         },
         {
           "operator": "SMRT",
@@ -3749,10 +3741,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Tiong Bahru": {
       "station_name": "Tiong Bahru",
@@ -3811,7 +3801,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Redhill": {
@@ -3871,7 +3861,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Queenstown": {
@@ -3953,7 +3943,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Commonwealth": {
@@ -4030,7 +4020,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Buona Vista": {
@@ -4127,7 +4117,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Dover": {
@@ -4187,7 +4177,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Clementi": {
@@ -4259,7 +4249,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Chinese Garden": {
@@ -4325,7 +4315,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Lakeside": {
@@ -4386,7 +4376,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Boon Lay": {
@@ -4465,7 +4455,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Pioneer": {
@@ -4525,7 +4515,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Joo Koon": {
@@ -4580,7 +4570,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Gul Circle": {
@@ -4640,7 +4630,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tuas Crescent": {
@@ -4700,7 +4690,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tuas West Road": {
@@ -4760,7 +4750,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tuas Link": {
@@ -4810,7 +4800,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Expo": {
@@ -4837,7 +4827,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT35",
           "station_slug": "expo",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=XPO"
         }
       ],
       "exits": [
@@ -4921,10 +4911,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Changi Airport": {
       "station_name": "Changi Airport",
@@ -4960,7 +4948,7 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
@@ -4977,7 +4965,7 @@
           "line_name": "North East Line",
           "station_code": "NE1",
           "station_slug": "harbourfront",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=HBF"
         },
         {
           "operator": "SMRT",
@@ -5029,10 +5017,9 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "no exits in source",
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "no exits in source"
       ]
     },
     "Chinatown": {
@@ -5051,7 +5038,7 @@
           "line_name": "North East Line",
           "station_code": "NE4",
           "station_slug": "chinatown",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=CNT"
         },
         {
           "operator": "SBS Transit",
@@ -5059,7 +5046,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT19",
           "station_slug": "chinatown",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=CNT"
         }
       ],
       "exits": [
@@ -5172,10 +5159,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Clarke Quay": {
       "station_name": "Clarke Quay",
@@ -5193,7 +5178,7 @@
           "line_name": "North East Line",
           "station_code": "NE5",
           "station_slug": "clarke-quay",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=CQY"
         }
       ],
       "exits": [
@@ -5287,10 +5272,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Little India": {
       "station_name": "Little India",
@@ -5308,7 +5291,7 @@
           "line_name": "North East Line",
           "station_code": "NE7",
           "station_slug": "little-india",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=LTI"
         },
         {
           "operator": "SBS Transit",
@@ -5316,7 +5299,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT12",
           "station_slug": "little-india",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=LTI"
         }
       ],
       "exits": [
@@ -5429,10 +5412,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Farrer Park": {
       "station_name": "Farrer Park",
@@ -5450,7 +5431,7 @@
           "line_name": "North East Line",
           "station_code": "NE8",
           "station_slug": "farrer-park",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=FRP"
         }
       ],
       "exits": [
@@ -5557,10 +5538,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Boon Keng": {
       "station_name": "Boon Keng",
@@ -5578,7 +5557,7 @@
           "line_name": "North East Line",
           "station_code": "NE9",
           "station_slug": "boon-keng",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=BNK"
         }
       ],
       "exits": [
@@ -5639,10 +5618,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Potong Pasir": {
       "station_name": "Potong Pasir",
@@ -5660,7 +5637,7 @@
           "line_name": "North East Line",
           "station_code": "NE10",
           "station_slug": "potong-pasir",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=PTP"
         }
       ],
       "exits": [
@@ -5726,10 +5703,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Woodleigh": {
       "station_name": "Woodleigh",
@@ -5747,7 +5722,7 @@
           "line_name": "North East Line",
           "station_code": "NE11",
           "station_slug": "woodleigh",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=WLH"
         }
       ],
       "exits": [
@@ -5808,10 +5783,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Serangoon": {
       "station_name": "Serangoon",
@@ -5829,7 +5802,7 @@
           "line_name": "North East Line",
           "station_code": "NE12",
           "station_slug": "serangoon",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=SER"
         },
         {
           "operator": "SMRT",
@@ -5955,10 +5928,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Kovan": {
       "station_name": "Kovan",
@@ -5976,7 +5947,7 @@
           "line_name": "North East Line",
           "station_code": "NE13",
           "station_slug": "kovan",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=KVN"
         }
       ],
       "exits": [
@@ -6037,10 +6008,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Hougang": {
       "station_name": "Hougang",
@@ -6058,7 +6027,7 @@
           "line_name": "North East Line",
           "station_code": "NE14",
           "station_slug": "hougang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=HGN"
         }
       ],
       "exits": [
@@ -6109,10 +6078,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Buangkok": {
       "station_name": "Buangkok",
@@ -6130,7 +6097,7 @@
           "line_name": "North East Line",
           "station_code": "NE15",
           "station_slug": "buangkok",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=BGK"
         }
       ],
       "exits": [
@@ -6185,10 +6152,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Sengkang": {
       "station_name": "Sengkang",
@@ -6206,7 +6171,7 @@
           "line_name": "North East Line",
           "station_code": "NE16",
           "station_slug": "sengkang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=SKG"
         },
         {
           "operator": "SBS Transit",
@@ -6214,7 +6179,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "STC",
           "station_slug": "sengkang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=STCE"
         }
       ],
       "exits": [
@@ -6281,10 +6246,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Punggol": {
       "station_name": "Punggol",
@@ -6302,7 +6265,7 @@
           "line_name": "North East Line",
           "station_code": "NE17",
           "station_slug": "punggol",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=PGL"
         },
         {
           "operator": "SBS Transit",
@@ -6310,7 +6273,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PTC",
           "station_slug": "punggol",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PTCE"
         }
       ],
       "exits": [
@@ -6387,10 +6350,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Punggol Coast": {
       "station_name": "Punggol Coast",
@@ -6404,7 +6365,7 @@
           "line_name": "North East Line",
           "station_code": "NE18",
           "station_slug": "punggol-coast",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=NEL&Station=PGC"
         }
       ],
       "exits": [],
@@ -6436,10 +6397,9 @@
           "note": "terminal station in this direction"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "no exits in source",
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "no exits in source"
       ]
     },
     "Bras Basah": {
@@ -6517,7 +6477,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Esplanade": {
@@ -6607,7 +6567,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Promenade": {
@@ -6634,7 +6594,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT15",
           "station_slug": "promenade",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=PMN"
         }
       ],
       "exits": [
@@ -6695,10 +6655,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Nicoll Highway": {
       "station_name": "Nicoll Highway",
@@ -6754,7 +6712,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Stadium": {
@@ -6804,7 +6762,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Mountbatten": {
@@ -6854,7 +6812,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Dakota": {
@@ -6911,7 +6869,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "MacPherson": {
@@ -6934,7 +6892,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT26",
           "station_slug": "macpherson",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=MPS"
         }
       ],
       "exits": [],
@@ -6976,10 +6934,9 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "no exits in source",
-        "SBS more_info_url is generic (per-station code mapping not curated)"
+        "no exits in source"
       ]
     },
     "Tai Seng": {
@@ -7039,7 +6996,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bartley": {
@@ -7099,7 +7056,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Lorong Chuan": {
@@ -7159,7 +7116,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marymount": {
@@ -7209,7 +7166,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Caldecott": {
@@ -7302,7 +7259,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Botanic Gardens": {
@@ -7329,7 +7286,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT9",
           "station_slug": "botanic-gardens",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BTN"
         }
       ],
       "exits": [
@@ -7389,10 +7346,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Farrer Road": {
       "station_name": "Farrer Road",
@@ -7451,7 +7406,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Holland Village": {
@@ -7522,7 +7477,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "one-north": {
@@ -7555,7 +7510,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -7634,7 +7589,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Haw Par Villa": {
@@ -7685,7 +7640,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Pasir Panjang": {
@@ -7736,7 +7691,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Labrador Park": {
@@ -7785,7 +7740,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Telok Blangah": {
@@ -7836,7 +7791,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bayfront": {
@@ -7863,7 +7818,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT16",
           "station_slug": "bayfront",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BFT"
         }
       ],
       "exits": [
@@ -7949,10 +7904,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Bukit Panjang": {
       "station_name": "Bukit Panjang",
@@ -7970,7 +7923,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT1",
           "station_slug": "bukit-panjang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BKP"
         },
         {
           "operator": "SMRT",
@@ -8104,10 +8057,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Cashew": {
       "station_name": "Cashew",
@@ -8125,7 +8076,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT2",
           "station_slug": "cashew",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=CSW"
         }
       ],
       "exits": [
@@ -8167,10 +8118,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Hillview": {
       "station_name": "Hillview",
@@ -8188,7 +8137,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT3",
           "station_slug": "hillview",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=HVW"
         }
       ],
       "exits": [
@@ -8241,10 +8190,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Beauty World": {
       "station_name": "Beauty World",
@@ -8262,7 +8209,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT5",
           "station_slug": "beauty-world",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BTW"
         }
       ],
       "exits": [
@@ -8326,10 +8273,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "King Albert Park": {
       "station_name": "King Albert Park",
@@ -8347,7 +8292,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT6",
           "station_slug": "king-albert-park",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=KAP"
         }
       ],
       "exits": [
@@ -8400,10 +8345,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Sixth Avenue": {
       "station_name": "Sixth Avenue",
@@ -8421,7 +8364,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT7",
           "station_slug": "sixth-avenue",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=SAV"
         }
       ],
       "exits": [
@@ -8474,10 +8417,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Tan Kah Kee": {
       "station_name": "Tan Kah Kee",
@@ -8495,7 +8436,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT8",
           "station_slug": "tan-kah-kee",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=TKK"
         }
       ],
       "exits": [
@@ -8543,10 +8484,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Stevens": {
       "station_name": "Stevens",
@@ -8564,7 +8503,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT10",
           "station_slug": "stevens",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=STV"
         },
         {
           "operator": "SMRT",
@@ -8661,10 +8600,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Rochor": {
       "station_name": "Rochor",
@@ -8682,7 +8619,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT13",
           "station_slug": "rochor",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=RCR"
         }
       ],
       "exits": [
@@ -8730,10 +8667,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Downtown": {
       "station_name": "Downtown",
@@ -8751,7 +8686,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT17",
           "station_slug": "downtown",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=DTN"
         }
       ],
       "exits": [
@@ -8848,10 +8783,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Telok Ayer": {
       "station_name": "Telok Ayer",
@@ -8869,7 +8802,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT18",
           "station_slug": "telok-ayer",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=TLA"
         }
       ],
       "exits": [
@@ -8933,10 +8866,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Fort Canning": {
       "station_name": "Fort Canning",
@@ -8954,7 +8885,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT20",
           "station_slug": "fort-canning",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=FCN"
         }
       ],
       "exits": [
@@ -9007,10 +8938,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Bencoolen": {
       "station_name": "Bencoolen",
@@ -9028,7 +8957,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT21",
           "station_slug": "bencoolen",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BCL"
         }
       ],
       "exits": [
@@ -9092,10 +9021,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Jalan Besar": {
       "station_name": "Jalan Besar",
@@ -9113,7 +9040,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT22",
           "station_slug": "jalan-besar",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=JLB"
         }
       ],
       "exits": [
@@ -9161,10 +9088,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Bendemeer": {
       "station_name": "Bendemeer",
@@ -9182,7 +9107,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT23",
           "station_slug": "bendemeer",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BDM"
         }
       ],
       "exits": [
@@ -9235,10 +9160,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Geylang Bahru": {
       "station_name": "Geylang Bahru",
@@ -9256,7 +9179,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT24",
           "station_slug": "geylang-bahru",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=GLB"
         }
       ],
       "exits": [
@@ -9299,10 +9222,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Mattar": {
       "station_name": "Mattar",
@@ -9320,7 +9241,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT25",
           "station_slug": "mattar",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=MTR"
         }
       ],
       "exits": [
@@ -9373,10 +9294,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Ubi": {
       "station_name": "Ubi",
@@ -9394,7 +9313,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT27",
           "station_slug": "ubi",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=UBI"
         }
       ],
       "exits": [
@@ -9447,10 +9366,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Kaki Bukit": {
       "station_name": "Kaki Bukit",
@@ -9468,7 +9385,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT28",
           "station_slug": "kaki-bukit",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=KKB"
         }
       ],
       "exits": [
@@ -9516,10 +9433,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Bedok North": {
       "station_name": "Bedok North",
@@ -9537,7 +9452,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT29",
           "station_slug": "bedok-north",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BDN"
         }
       ],
       "exits": [
@@ -9597,10 +9512,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Bedok Reservoir": {
       "station_name": "Bedok Reservoir",
@@ -9618,7 +9531,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT30",
           "station_slug": "bedok-reservoir",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=BDR"
         }
       ],
       "exits": [
@@ -9671,10 +9584,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Tampines West": {
       "station_name": "Tampines West",
@@ -9692,7 +9603,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT31",
           "station_slug": "tampines-west",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=TPW"
         }
       ],
       "exits": [
@@ -9735,10 +9646,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Tampines East": {
       "station_name": "Tampines East",
@@ -9756,7 +9665,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT33",
           "station_slug": "tampines-east",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=TPE"
         }
       ],
       "exits": [
@@ -9831,10 +9740,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Upper Changi": {
       "station_name": "Upper Changi",
@@ -9852,7 +9759,7 @@
           "line_name": "Downtown Line",
           "station_code": "DT34",
           "station_slug": "upper-changi",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=UPC"
         }
       ],
       "exits": [
@@ -9938,10 +9845,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
-      "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)"
-      ]
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "data_quality_notes": []
     },
     "Woodlands North": {
       "station_name": "Woodlands North",
@@ -9996,7 +9901,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Woodlands South": {
@@ -10080,7 +9985,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Springleaf": {
@@ -10147,7 +10052,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Lentor": {
@@ -10221,7 +10126,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Mayflower": {
@@ -10322,7 +10227,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bright Hill": {
@@ -10395,7 +10300,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Upper Thomson": {
@@ -10484,7 +10389,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Napier": {
@@ -10545,7 +10450,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Orchard Boulevard": {
@@ -10601,7 +10506,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Great World": {
@@ -10696,7 +10601,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Havelock": {
@@ -10790,7 +10695,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Maxwell": {
@@ -10862,7 +10767,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Shenton Way": {
@@ -10944,7 +10849,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Gardens by the Bay": {
@@ -10978,7 +10883,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
         "no exits in source"
       ]
@@ -11031,7 +10936,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Katong Park": {
@@ -11082,7 +10987,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Tanjong Katong": {
@@ -11149,7 +11054,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marine Parade": {
@@ -11249,7 +11154,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Marine Terrace": {
@@ -11344,7 +11249,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Siglap": {
@@ -11407,7 +11312,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bayshore": {
@@ -11476,7 +11381,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "South View": {
@@ -11525,7 +11430,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Keat Hong": {
@@ -11569,7 +11474,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Teck Whye": {
@@ -11613,7 +11518,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Phoenix": {
@@ -11662,7 +11567,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Petir": {
@@ -11711,7 +11616,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Pending": {
@@ -11760,7 +11665,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Bangkit": {
@@ -11809,7 +11714,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Fajar": {
@@ -11858,7 +11763,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Segar": {
@@ -11902,7 +11807,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Jelapang": {
@@ -11951,7 +11856,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Senja": {
@@ -11995,7 +11900,7 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": []
     },
     "Cheng Lim": {
@@ -12014,7 +11919,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW1",
           "station_slug": "cheng-lim",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW1"
         }
       ],
       "exits": [
@@ -12042,9 +11947,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12064,7 +11968,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW2",
           "station_slug": "farmway",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW2"
         }
       ],
       "exits": [
@@ -12092,9 +11996,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12114,7 +12017,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW3",
           "station_slug": "kupang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW3"
         }
       ],
       "exits": [
@@ -12132,9 +12035,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12154,7 +12056,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW4",
           "station_slug": "thanggam",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW4"
         }
       ],
       "exits": [
@@ -12182,9 +12084,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12204,7 +12105,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW5",
           "station_slug": "fernvale",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW5"
         }
       ],
       "exits": [
@@ -12221,9 +12122,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12243,7 +12143,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW6",
           "station_slug": "layar",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW6"
         }
       ],
       "exits": [
@@ -12271,9 +12171,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12293,7 +12192,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW7",
           "station_slug": "tongkang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW7"
         }
       ],
       "exits": [
@@ -12311,9 +12210,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12333,7 +12231,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SW8",
           "station_slug": "renjong",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SW8"
         }
       ],
       "exits": [
@@ -12356,9 +12254,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12378,7 +12275,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SE1",
           "station_slug": "compassvale",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SE1"
         }
       ],
       "exits": [
@@ -12396,9 +12293,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12418,7 +12314,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SE2",
           "station_slug": "rumbia",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SE2"
         }
       ],
       "exits": [
@@ -12446,9 +12342,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12468,7 +12363,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SE3",
           "station_slug": "bakau",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SE3"
         }
       ],
       "exits": [
@@ -12496,9 +12391,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12518,7 +12412,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SE4",
           "station_slug": "kangkar",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SE4"
         }
       ],
       "exits": [
@@ -12546,9 +12440,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12568,7 +12461,7 @@
           "line_name": "Sengkang LRT",
           "station_code": "SE5",
           "station_slug": "ranggung",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=SKG+LRT&Station=SE5"
         }
       ],
       "exits": [
@@ -12596,9 +12489,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12618,7 +12510,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE1",
           "station_slug": "cove",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE1"
         }
       ],
       "exits": [
@@ -12646,9 +12538,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12668,7 +12559,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE2",
           "station_slug": "meridian",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE2"
         }
       ],
       "exits": [
@@ -12696,9 +12587,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12718,7 +12608,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE3",
           "station_slug": "coral-edge",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE3"
         }
       ],
       "exits": [
@@ -12741,9 +12631,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12763,7 +12652,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE4",
           "station_slug": "riviera",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE4"
         }
       ],
       "exits": [
@@ -12791,9 +12680,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12813,7 +12701,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE5",
           "station_slug": "kadaloor",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE5"
         }
       ],
       "exits": [
@@ -12841,9 +12729,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12863,7 +12750,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE6",
           "station_slug": "oasis",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE6"
         }
       ],
       "exits": [
@@ -12891,9 +12778,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12913,7 +12799,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PE7",
           "station_slug": "damai",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PE7"
         }
       ],
       "exits": [
@@ -12941,9 +12827,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -12963,7 +12848,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW1",
           "station_slug": "sam-kee",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW1"
         }
       ],
       "exits": [
@@ -12981,9 +12866,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13003,7 +12887,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW2",
           "station_slug": "teck-lee",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW2"
         }
       ],
       "exits": [
@@ -13021,9 +12905,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13043,7 +12926,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW3",
           "station_slug": "punggol-point",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW3"
         }
       ],
       "exits": [
@@ -13061,9 +12944,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13083,7 +12965,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW4",
           "station_slug": "samudera",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW4"
         }
       ],
       "exits": [
@@ -13106,9 +12988,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13128,7 +13009,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW5",
           "station_slug": "nibong",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW5"
         }
       ],
       "exits": [
@@ -13156,9 +13037,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13178,7 +13058,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW6",
           "station_slug": "sumang",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW6"
         }
       ],
       "exits": [
@@ -13206,9 +13086,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     },
@@ -13228,7 +13107,7 @@
           "line_name": "Punggol LRT",
           "station_code": "PW7",
           "station_slug": "soo-teck",
-          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation"
+          "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=PGL+LRT&Station=PW7"
         }
       ],
       "exits": [
@@ -13256,9 +13135,8 @@
         }
       ],
       "first_last_train": [],
-      "last_updated_at": "2026-05-20T10:51:26.504Z",
+      "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
-        "SBS more_info_url is generic (per-station code mapping not curated)",
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
       ]
     }
