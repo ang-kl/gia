@@ -735,7 +735,6 @@ export function createOverlayController(map, googleMaps) {
   let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
-  let centreName = null;             // station whose marker shows the centre node
   // v0.61.26 — the 3 stations of the active detail view ({lat,lng} each:
   // the tapped station + its line-neighbours), used to clip the Exits /
   // Taxis chips. Empty when no station-detail view is active.
@@ -1277,21 +1276,20 @@ export function createOverlayController(map, googleMaps) {
       // `detailStations` stays empty so every station radius-clips
       // normally and the chip layers are anchor-clipped.
       detailStations = [];
-      // v0.61.53 — unified per-station content swap (subsumes the
-      // earlier centre-only rebuild). At zoom-in every visible station
-      // is a labelled pill — a line-coloured chip per station code, then
-      // `<name> station`; at zoom-out, square pins, except the explicitly-
-      // selected centre which stays a pill so it self-identifies.
+      // v0.61.53 — unified per-station content swap. At zoom-in every
+      // visible station is a labelled pill — a line-coloured chip per
+      // station code, then `<name> station`; at zoom-out, square pins.
       // `_mode` caches the current state to avoid rebuilding on every
       // pan-driven applyVisibility.
-      const newCentre = detailStation ? detailStation.name : null;
+      // v0.61.81 — CR-2: the centre-station zoom-bypass is deleted. A
+      // selected station now strictly obeys the z=15 threshold — it
+      // renders as a 9 px line-coloured square below z15, no exception.
       for (const st of e.stations) {
         const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
         const show = e.visible && near;
         st.marker.map = show ? map : null;
         if (!show) continue;
-        const isCentre = st.station.name === newCentre;
-        const wantMode = (zoomedIn || isCentre) ? 'pill' : 'square';
+        const wantMode = zoomedIn ? 'pill' : 'square';
         if (st._mode !== wantMode) {
           if (wantMode === 'pill') {
             st.marker.content = stationPillNode(
@@ -1302,7 +1300,6 @@ export function createOverlayController(map, googleMaps) {
           st._mode = wantMode;
         }
       }
-      centreName = newCentre;
       return;
     }
     // marker — chip overlay layer. v0.61.26 — in a station-detail view
