@@ -1,10 +1,10 @@
-// MapControls.jsx — v0.61.77
+// MapControls.jsx — v0.61.78
 //
 // Floating in-map control surface for all three TMA maps. A single
-// left-aligned row that never wraps: the Colour-mode pill first (the
-// optional `colourToggle` prop), then the "⋯/⋮" overflow menu button
-// — a white square button sitting directly after the Colour pill —
-// and then the layer toggle pills (Train Line, Carpark, Bus Stop).
+// left-aligned row that never wraps: the "⋯/⋮" overflow menu button
+// first — a white square button at the top-left corner — then the
+// Colour-mode pill (the optional `colourToggle` prop), and then the
+// layer toggle pills (Train Line, Carpark, Bus Stop).
 // The menu opens a checkbox dropdown of the remaining layers. The
 // 4-button navigation cluster (zoom / expand / reset) is rendered
 // inline by each map panel on the right.
@@ -64,23 +64,9 @@ export default function MapControls({
       {/* v0.61.70 — single non-wrapping row; the font is small enough
           that the Colour pill + the ⋯ menu + 3 toggles all fit. */}
       <div className="flex flex-row flex-nowrap gap-0.5 items-start">
-        {/* Colour-mode pill: first in the quick row. CR8 — single
-            neutral style (no on/off colour flip); state is conveyed by
-            the label text. */}
-        {colourToggle && (
-          <button
-            type="button"
-            onClick={colourToggle.onToggle}
-            aria-pressed={!!colourToggle.on}
-            aria-label={colourToggle.label}
-            title={colourToggle.label}
-            className={pillClass()}
-            style={giaToggleStyle(false)}
-          >{colourToggle.label}</button>
-        )}
-        {/* v0.61.77 — the ⋯/⋮ overflow menu: moved to the left, directly
-            after the Colour pill (was last in the row). A white square
-            button (was a circle), with a larger, brighter glyph. The
+        {/* v0.61.78 — the ⋯/⋮ overflow menu: now the first button in
+            the row, at the top-left corner (was after the Colour pill).
+            A white square button with a larger, brighter glyph. The
             dropdown is left-aligned so it stays on-screen below it. */}
         {menuToggles.length > 0 && (
           <div className="relative shrink-0">
@@ -123,6 +109,20 @@ export default function MapControls({
               </div>
             )}
           </div>
+        )}
+        {/* Colour-mode pill: sits right after the ⋯/⋮ menu. CR8 —
+            single neutral style (no on/off colour flip); state is
+            conveyed by the label text. */}
+        {colourToggle && (
+          <button
+            type="button"
+            onClick={colourToggle.onToggle}
+            aria-pressed={!!colourToggle.on}
+            aria-label={colourToggle.label}
+            title={colourToggle.label}
+            className={pillClass()}
+            style={giaToggleStyle(false)}
+          >{colourToggle.label}</button>
         )}
         {rowToggles.map((it) => (
           <button
