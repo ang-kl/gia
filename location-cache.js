@@ -37,6 +37,21 @@ async function getLocationAgeMinutes(redis, chatId) {
   return Math.floor((Date.now() - loc.setAt) / 60000);
 }
 
+const SEEN_TTL = 30 * 24 * 60 * 60;  // 30 days
+
+// v0.61.84 — per-chat last-activity marker. touchLastSeen returns the
+// PRIOR timestamp (ms epoch, or null) and then stamps `now`, so one
+// call yields the idle gap and refreshes the marker. Drives the
+// wake-from-idle location re-confirmation prompt.
+async function touchLastSeen(redis, chatId) {
+  if (!redis.isOpen) await redis.connect();
+  const key = `seen:${hashChatId(chatId)}`;
+  const prev = await redis.get(key);
+  await redis.setEx(key, SEEN_TTL, String(Date.now()));
+  const n = prev != null ? Number(prev) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+
 async function setPendingMeal(redis, chatId, mealId) {
   if (!redis.isOpen) await redis.connect();
   await redis.setEx(`loc:pending:${hashChatId(chatId)}`, PENDING_TTL, mealId);
@@ -72,6 +87,7 @@ module.exports = {
   setUserLocation,
   getUserLocation,
   getLocationAgeMinutes,
+  touchLastSeen,
   setPendingMeal,
   consumePendingMeal,
   isProcessing,

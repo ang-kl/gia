@@ -283,6 +283,15 @@ const STRINGS = {
   'location.age.minAgo':       { en: ' ({n} min ago)', fr: ' (il y a {n} min)' },
   'location.age.hourAgo':      { en: ' ({h} h {m} min ago)', fr: ' (il y a {h} h {m} min)' },
 
+  // v0.61.84 — wake-from-idle location re-confirmation prompt. Fired on
+  // the first chat message after a long idle gap when a location is
+  // still stored; the user keeps it or sets a new one.
+  'wake.locationCheck':        { en: '👋 Welcome back! Gia is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
+                                 fr: '👋 Content de vous revoir ! Gia utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
+  'wake.keepBtn':              { en: '✅ Stay here', fr: '✅ Rester ici' },
+  'wake.newBtn':               { en: '📍 New location', fr: '📍 Nouvelle position' },
+  'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' },
+
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },
   'transport.map.incidentsBtn':     { en: '🗺 View incidents on map', fr: '🗺 Voir les incidents' },
