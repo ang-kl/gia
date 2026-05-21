@@ -103,6 +103,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // venue object without going through React state.
   const venuesRef = useRef([]);
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
+  // v0.61.86 — placeId of the venue whose own map pin was just tapped.
+  // The focus-pan effect skips panning for these, so a pin tap opens
+  // the popup in place without the map jumping (a result-card tap, by
+  // contrast, still pans the map to bring the venue into view).
+  const pinFocusRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -213,7 +218,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // /location override. Previously the dep array tracked only
   // userLoc, so the pin stayed at GPS even when the search anchored
   // elsewhere.
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, focusedPlaceId]); // eslint-disable-line
+  // v0.61.86 — focusedPlaceId dropped from these deps. Tapping a venue
+  // pin set it, which forced a full marker rebuild + fitBounds + panTo:
+  // the map re-centred and the just-tapped marker was destroyed before
+  // its popup could open (the "tap twice to open a pin" bug). Focus
+  // panning now lives in its own effect below.
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
+
+  // v0.61.86 — pan the map to a focused venue, but only when the focus
+  // came from a result-card tap. A pin tap (pinFocusRef holds that
+  // placeId) opens the popup in place and must not move the map.
+  useEffect(() => {
+    if (!focusedPlaceId || !mapRef.current) return;
+    if (pinFocusRef.current === focusedPlaceId) { pinFocusRef.current = null; return; }
+    const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
+    if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
+      mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+    }
+  }, [focusedPlaceId]);
 
   // v0.61.10 — traffic accidents within 250 m of the search anchor,
   // drawn as ⚠️ markers while results are showing. Best-effort: needs
@@ -408,6 +430,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // user taps once for preview, again for Maps — matches Google
       // Maps' own native mobile pattern.
       marker.addListener('click', () => {
+        pinFocusRef.current = v.placeId;
         onPinTap?.(v.placeId);
         if (isTouchRef.current) {
           if (infoWindowRef.current) {
@@ -440,12 +463,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
         mapRef.current?.setOptions({ maxZoom: null });
       });
-    }
-    if (focusedPlaceId) {
-      const v = (venues || []).find((x) => x.placeId === focusedPlaceId);
-      if (v) {
-        mapRef.current.panTo({ lat: v.lat, lng: v.lng });
-      }
     }
   }
 
