@@ -1,8 +1,8 @@
 counters:
-  commit: 283
-  build: 83
+  commit: 284
+  build: 84
   documents:
-    journal: 276
+    journal: 277
     builder: 3
     persona: 4
     feature: 47
@@ -12,10 +12,19 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 09:44 SGT
-last_anchor_source: system_clock_utc_2026-05-21T01:44:17Z (sovereign data.gov.sg air-temperature fetch blocked by sandbox allowlist — curl + WebFetch both denied; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T09:44:00+08:00
-last_anchor_utc: 2026-05-21T01:44:17Z
+last_anchor_time: 21-05 '26 11:11 SGT
+last_anchor_source: system_clock_utc_2026-05-21T03:11:21Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-21T11:11:21+08:00
+last_anchor_utc: 2026-05-21T03:11:21Z
+# journal #277 (commit 284 / build 84) — v0.61.77 map controls: the
+# ⋯/⋮ overflow-menu button moves from last in the quick-toggle row to
+# directly after the Colour ("Monochrome") pill and becomes a square
+# button (rounded-md, was a rounded-full circle) with a brighter +
+# larger glyph (text-black / text-base); dropdown re-anchored left-0.
+# The 4 map nav buttons (Reset/+/−/expand) glyphs → text-black
+# font-bold; Reset (⛶⟲) + expand (⇲) enlarged text-sm→text-base.
+# Disabled "24hrs" (open24) placeholder removed from the overlay
+# dropdown. MapControls.jsx byte-identical ×3. PR #576.
 # journal #276 (commit 283 / build 83) — v0.61.76 docs+vault pass: a
 # fresh non-incremental master set (Builder #3 / Persona #4 / Feature
 # #47 / Technical #47 / Legal #9 / Register #115) + vault/v0.61.76/

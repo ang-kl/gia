@@ -379,8 +379,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     { key: 'parks',       icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },
-    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) },
-    { key: 'open24',  icon: '',   label: t('layer.open24', lang), disabled: true }
+    { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
   ];
 
   return (
@@ -410,26 +409,26 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
-          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
-          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-base font-semibold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white/70 text-gray-900 border border-gray-300 shadow-md flex items-center justify-center text-sm leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white/70 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
