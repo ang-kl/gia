@@ -151,7 +151,7 @@ const STRINGS = {
 
   // /transport bus sub-menu
   'transport.bus.menu.title':       { en: '🚌 Bus Information', fr: '🚌 Informations bus' },
-  'transport.bus.menu.btn.nearest': { en: '🚏 Nearest stops', fr: '🚏 Arrêts proches' },
+  'transport.bus.menu.btn.nearest': { en: 'Nearest Bus Stops', fr: 'Arrêts de bus proches' },
   'transport.bus.menu.btn.route':   { en: '🗺 Plan a route', fr: '🗺 Planifier un itinéraire' },
 
   // /transport train view
@@ -228,7 +228,7 @@ const STRINGS = {
   'transport.incidents.none':       { en: 'No live incidents reported.', fr: 'Aucun incident en direct signalé.' },
   // v0.60.103 — uncapped: show every island-wide incident, sorted
   // nearest-first when location is shared.
-  'transport.incidents.nearHeader': { en: 'All {n} island-wide incidents, nearest first:', fr: 'Tous les {n} incidents nationaux, du plus proche au plus éloigné :' },
+  'transport.incidents.nearHeader': { en: 'Latest {n} traffic incidents island-wide:', fr: 'Derniers {n} incidents de circulation à l’échelle de l’île :' },
   'transport.incidents.row':        { en: '· {type}{dist}', fr: '· {type}{dist}' },
   'transport.incidents.noNear':     { en: '{total} incidents island-wide; none within 20 km of your location.', fr: '{total} incidents dans tout le pays ; aucun à moins de 20 km de votre position.' },
   'transport.incidents.noLoc':      { en: '{total} incidents island-wide. Share your location for nearest-first sorting.', fr: '{total} incidents dans tout le pays. Partagez votre position pour un tri par proximité.' },
@@ -239,7 +239,7 @@ const STRINGS = {
   'transport.drive.trafficNear':    { en: '🚦 Traffic (top {n} of {total} island-wide):', fr: '🚦 Circulation (top {n} sur {total} dans tout le pays) :' },
   'transport.drive.trafficNoNear':  { en: '🚦 Traffic: {total} incidents island-wide; none within 5 km.', fr: '🚦 Circulation : {total} incidents dans tout le pays ; aucun à moins de 5 km.' },
   'transport.drive.trafficNone':    { en: '🚦 Traffic: no live incidents reported.', fr: '🚦 Circulation : aucun incident en direct signalé.' },
-  'transport.drive.openMapsBtn':    { en: '🗺 Open Google Maps (driving)', fr: '🗺 Ouvrir Google Maps (voiture)' },
+  'transport.drive.openMapsBtn':    { en: 'Google Map ↗', fr: 'Google Map ↗' },
   'transport.drive.noLocation':     { en: 'Share your location once and Gia will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Gia proposera un lien d’itinéraire en voiture en un clic.' },
   'transport.drive.btn.carpark':    { en: '🅿️ Carpark', fr: '🅿️ Parking' },
   'transport.drive.unreachable':    { en: 'Sorry, the drive view failed.', fr: 'Désolé, la vue voiture a échoué.' },
@@ -285,7 +285,7 @@ const STRINGS = {
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },
-  'transport.map.incidentsBtn':     { en: '🗺 View incidents on map', fr: '🗺 Voir les incidents' },
+  'transport.map.incidentsBtn':     { en: 'Show {n} incidents on the Map', fr: 'Afficher {n} incidents sur la carte' },
   'transport.map.busStopsCaption':  { en: '🗺 View {n} bus stops on one map:', fr: '🗺 Voir les {n} arrêts sur une carte :' },
   // v0.60.61 — relabelled per Human Lead. Standardise on the 🚏
   // bus-stop emoji + drop the literal "on map" suffix (it's
@@ -295,7 +295,7 @@ const STRINGS = {
   // v0.60.98 — operator: show the actual nearest-count instead of
   // "stations on map". Call site (index.js runTransportTrain)
   // interpolates {n} from the slim list length.
-  'transport.map.stationsBtn':      { en: '🗺 View nearest {n} train stations', fr: '🗺 Voir les {n} stations de train les plus proches' },
+  'transport.map.stationsBtn':      { en: 'View {n} Train Stations', fr: 'Voir {n} stations de train' },
 
   // Distance row addition for MRT stations (was previously bare).
   // v0.60.72 — per-station row carries an HTML <a> wrapping the

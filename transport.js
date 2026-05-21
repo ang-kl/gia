@@ -641,6 +641,30 @@ function haversineM(aLat, aLng, bLat, bLng) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+// v0.61.85 — parse the LTA "(D/M)HH:MM" message prefix into a sortable
+// epoch (current year assumed — LTA omits it). A parsed date more than
+// a day in the future is read as last year's. Returns 0 when the prefix
+// is absent / unparseable, so those incidents sort to the bottom.
+function incidentEpoch(message) {
+  const m = /^\((\d{1,2})\/(\d{1,2})\)(\d{1,2}):(\d{2})/.exec(String(message || ''));
+  if (!m) return 0;
+  const now = new Date();
+  const d = new Date(now.getFullYear(), Number(m[2]) - 1, Number(m[1]),
+    Number(m[3]), Number(m[4]));
+  if (d.getTime() > now.getTime() + 86400000) d.setFullYear(now.getFullYear() - 1);
+  return d.getTime();
+}
+
+// v0.61.85 — the latest `count` incidents island-wide, newest first by
+// the LTA message timestamp prefix. No radius filter.
+function latestIncidents(incidents, count = 20) {
+  if (!Array.isArray(incidents) || !incidents.length) return [];
+  return incidents
+    .map((i) => ({ ...i, epoch: incidentEpoch(i.message) }))
+    .sort((a, b) => b.epoch - a.epoch)
+    .slice(0, count);
+}
+
 // Filter incidents to those within `radiusM` of (lat,lng), sorted nearest first.
 // If lat/lng absent, returns the full list (caller can slice).
 function nearestIncidents(incidents, lat, lng, radiusM = 5000, count = 3) {
@@ -672,6 +696,7 @@ module.exports = {
   fetchCheckpointTraffic,
   fetchIcaCheckpointStatus,
   nearestIncidents,
+  latestIncidents,
   CROWD_LABEL,
   STOPS_GEO,
   STOPS_HASH_PREFIX,

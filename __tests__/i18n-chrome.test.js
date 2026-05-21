@@ -73,7 +73,10 @@ const COGNATE_OR_FORMAT_ONLY = new Set([
   'transport.menu.btn.bus',
   'transport.menu.btn.incidents',
   'transport.bus.stopRow',
-  'transport.incidents.row'
+  'transport.incidents.row',
+  // v0.61.85 — the driving button is the language-neutral "Google Map ↗"
+  // standard label (same EN/FR by design, like the map-pin popups).
+  'transport.drive.openMapsBtn'
 ]);
 
 describe('v0.59.1 chrome keys — every new key resolves to EN and FR', () => {
