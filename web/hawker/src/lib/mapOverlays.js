@@ -348,6 +348,21 @@ function dotNode(bg, glyph) {
   return el;
 }
 
+// v0.61.86 — attraction pin: an off-white rounded label carrying the
+// ⚝ glyph + the attraction name (was a 20 px 📌 dot). 28 px tall, so
+// it reads as a named place rather than an anonymous dot. Used via
+// buildMarkers' `makeNode` hook, which passes the feature `f`.
+function attractionLabelNode(bg, glyph, f) {
+  const el = document.createElement('div');
+  el.textContent = ((glyph || '⚝') + ' ' + ((f && f.name) || '')).trim();
+  el.style.cssText = 'display:inline-flex;align-items:center;height:28px;'
+    + 'padding:0 8px;border-radius:8px;cursor:pointer;white-space:nowrap;'
+    + 'background:' + (bg || '#f4f3ef') + ';color:#1c1c1f;'
+    + 'font-size:13px;font-weight:700;line-height:1;'
+    + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
+  return el;
+}
+
 // v0.61.41 — rectangular pin tag: bold white text on a solid-colour
 // rectangle with a white outline (the clinic "+" marker). A square-
 // cornered alternative to the round dotNode.
@@ -846,7 +861,9 @@ export function createOverlayController(map, googleMaps) {
     return (features || []).map((f) => {
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: (makeNode || dotNode)(bg, glyph),
+        // v0.61.86 — `makeNode` receives the feature `f` too, so a
+        // per-feature label (e.g. attractionLabelNode) can read f.name.
+        content: (makeNode || dotNode)(bg, glyph, f),
         title: f.name || '',
         gmpClickable: true
       });
@@ -1263,8 +1280,9 @@ export function createOverlayController(map, googleMaps) {
       if (name === 'parks') {
         entry = { kind: 'polygon', visible: false, items: buildParks(d.parks) };
       } else if (name === 'attractions') {
+        // v0.61.86 — attraction pins are ⚝ + name labels (attractionLabelNode).
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.attractions, '#f4f3ef', '📌', attractionInfo) };
+          items: buildMarkers(d.attractions, '#f4f3ef', '⚝', attractionInfo, attractionLabelNode) };
       } else if (name === 'taxis') {
         entry = { kind: 'marker', visible: false,
           items: buildTaxiMarkers(d.taxis) };

@@ -645,7 +645,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const menuToggles = [
     { key: 'exits',       icon: '',   label: t('layer.exits', lang) },
     { key: 'taxis',       icon: '🚕', label: t('layer.taxis', lang) },
-    { key: 'attractions', icon: '✨', label: t('layer.attractions', lang) },
+    { key: 'attractions', icon: '⚝', label: t('layer.attractions', lang) },
     { key: 'parks',       icon: '🌳', label: t('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: t('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: t('layer.clinics', lang) },

@@ -526,7 +526,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const menuToggles = [
     { key: 'exits',       icon: '',   label: tr('layer.exits', lang) },
     { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang) },
-    { key: 'attractions', icon: '✨', label: tr('layer.attractions', lang) },
+    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang) },
     { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang) },
     { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
     { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
