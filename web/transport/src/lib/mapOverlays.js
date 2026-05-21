@@ -39,6 +39,10 @@ const TRAIN_RADIUS_M = 800;         // a train-line segment shows if it passes t
 // every visible station becomes a labelled pill (per-code colour chips +
 // <name> station), and the base polyline goes opaque. Below: square pins.
 const ZOOM_DETAIL_THRESHOLD = 15;
+// v0.61.85 — CR-2 mid-zoom band: at/above this zoom (but below the
+// detail threshold) a station shows a line-coloured code chip with no
+// name. Below it, the bare square pin. Both thresholds are tunable.
+const ZOOM_CODE_THRESHOLD = 13;
 
 // Canonical LTA line colours for the train-line overlay (the transport
 // app's LINES_BY_CODE isn't importable across Vite apps).
@@ -149,35 +153,6 @@ function stationsOnLine(stations, lineCode) {
   return rows.map((r) => r.s);
 }
 
-// v0.61.12 — extract the sub-path of `pts` within `windowM` arc-length
-// each side of the path vertex closest to (sLat,sLng). Returns [] when
-// the station is further than `maxOffsetM` from the path (i.e. the
-// line doesn't actually serve that station).
-function trackWindow(pts, sLat, sLng, windowM, maxOffsetM) {
-  if (!Array.isArray(pts) || pts.length < 2) return [];
-  let bi = -1;
-  let bd = Infinity;
-  for (let i = 0; i < pts.length; i++) {
-    const d = metresBetween(sLat, sLng, pts[i].lat, pts[i].lng);
-    if (d < bd) { bd = d; bi = i; }
-  }
-  if (bi < 0 || bd > maxOffsetM) return [];
-  const out = [pts[bi]];
-  let acc = 0;
-  for (let i = bi; i < pts.length - 1; i++) {
-    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i + 1].lat, pts[i + 1].lng);
-    out.push(pts[i + 1]);
-    if (acc >= windowM) break;
-  }
-  acc = 0;
-  for (let i = bi; i > 0; i--) {
-    acc += metresBetween(pts[i].lat, pts[i].lng, pts[i - 1].lat, pts[i - 1].lng);
-    out.unshift(pts[i - 1]);
-    if (acc >= windowM) break;
-  }
-  return out;
-}
-
 // v0.61.58 — CR5 v2: the sub-path of `pts` between the vertices
 // nearest to point A and point B — used to light up the
 // prev→current→next stretch of a line around a selected station.
@@ -285,16 +260,18 @@ export function amenityLabelNode(label, bg, fg, clickable) {
   return el;
 }
 
-// v0.61.65 — labelled station marker: one line-coloured chip per
-// station code (e.g. CC4 orange · DT15 blue) on a white pill, then
-// "<Name> station". Replaces the single-colour amenityLabelNode label
-// so an interchange shows each line's own colour.
-function stationPillNode(codes, name, fallbackHex) {
+// v0.61.85 — shared white-pill base + code-chip loop for the station
+// markers. stationCodeNode (chips only) and stationPillNode (chips +
+// name) both build on these so an interchange shows each line's colour.
+function stationPillBase() {
   const el = document.createElement('div');
   el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;'
     + 'padding:1px 5px;border-radius:8px;background:#fff;'
     + 'font-size:12px;font-weight:700;line-height:1.5;white-space:nowrap;'
     + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+  return el;
+}
+function appendCodeChips(el, codes, fallbackHex) {
   for (const code of (Array.isArray(codes) ? codes : [])) {
     if (!code) continue;
     const chip = document.createElement('span');
@@ -303,6 +280,24 @@ function stationPillNode(codes, name, fallbackHex) {
       + 'background:' + (codeHex(code) || fallbackHex || '#888888') + ';color:#fff;';
     el.appendChild(chip);
   }
+}
+
+// v0.61.85 — CR-2 mid-zoom station marker: one line-coloured chip per
+// station code, no name. Shown in the ZOOM_CODE_THRESHOLD..detail band,
+// between the bare square pin and the full named pill.
+function stationCodeNode(codes, fallbackHex) {
+  const el = stationPillBase();
+  appendCodeChips(el, codes, fallbackHex);
+  return el;
+}
+
+// v0.61.65 — labelled station marker: one line-coloured chip per
+// station code (e.g. CC4 orange · DT15 blue) on a white pill, then
+// "<Name> station". Replaces the single-colour amenityLabelNode label
+// so an interchange shows each line's own colour.
+function stationPillNode(codes, name, fallbackHex) {
+  const el = stationPillBase();
+  appendCodeChips(el, codes, fallbackHex);
   const nm = document.createElement('span');
   const nice = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
   nm.textContent = (nice + ' station').trim();
@@ -375,9 +370,6 @@ export function giaToggleStyle(on, disabled) {
     opacity: disabled ? 0.5 : 1
   };
 }
-
-// v0.61.20 — amenity-pin colour for the nearest-MRT-station pill.
-const AMENITY_STATION_BG = '#00695C';
 
 // v0.61.22 — popup colour palette.
 // v0.61.47 — fixed, theme-independent palette (operator request). The
@@ -712,7 +704,7 @@ function openBusInfo(map, infoWindow, b, marker) {
 // Cuisine TMA maps. `limits` trims bus/carpark/taxi to the nearest few
 // (the endpoint returns them distance-sorted). Returns the marker array
 // for the caller to clear on the next tap / re-render.
-export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeStation = true }) {
+export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
   const out = [];
   if (!maps || !map || !infoWindow || !ctx) return out;
   const c = infoPalette();
@@ -763,18 +755,9 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits, includeS
           ? '<div style="color:' + c.sub + ';margin-top:2px;">'
             + cp.availableLots + ' lots available</div>' : ''), cp.lat, cp.lng));
   }
-  // v0.61.21 — the station-detail callers (Transport + Cuisine train
-  // overlay) pass includeStation:false; the tapped station already has
-  // its own centre marker, so a 🚉 pill on top of it would just overlap.
-  const st = ctx.station;
-  if (includeStation && st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
-    const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
-    const lines = Array.isArray(st.lines) && st.lines.length ? ' · ' + st.lines.join('/') : '';
-    place(st.lat, st.lng, amenityLabelNode('🚉 ' + st.name, AMENITY_STATION_BG, '#fff', true),
-      (m) => openCard(m, '<div style="font-weight:600;">🚉 ' + escapeHtml(st.name) + '</div>'
-        + (codes ? '<div style="color:' + c.sub + ';margin-top:2px;">'
-          + escapeHtml(codes + lines) + '</div>' : ''), st.lat, st.lng));
-  }
+  // v0.61.85 — the short 🚉 station pill + popup was removed: the train
+  // overlay's station markers already open the full CR-7 station card,
+  // and the venue/centre-detail callers no longer want a station pin.
   return out;
 }
 
@@ -802,7 +785,6 @@ export function createOverlayController(map, googleMaps) {
   const layers = Object.create(null);
   let destroyed = false;
   let anchor = null;                 // { lat, lng } — map viewport centre
-  let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
   // v0.61.26 — the 3 stations of the active detail view ({lat,lng} each:
@@ -1305,54 +1287,31 @@ export function createOverlayController(map, googleMaps) {
       }
       return;
     }
-    // v0.61.11 — train layer: radius-clipped polylines + square station
-    // markers. v0.61.12 — in result-emphasis mode the whole train line
-    // goes semi-transparent; only a ±200 m stretch of track around each
-    // of the 3 stations nearest the anchor is drawn fully opaque, as a
-    // separate bright overlay polyline. v0.61.17 — station markers are
-    // always shown when the layer is on (radius-clipped); in the
-    // station-detail view only the selected station + its two
-    // neighbours show, with their amenity pins.
+    // v0.61.11 — train layer: radius-clipped polylines + zoom-aware
+    // station markers. v0.61.17 — station markers are always shown when
+    // the layer is on (radius-clipped). v0.61.85 — the result-emphasis
+    // mode (semi-transparent base + bright overlay windows near the
+    // search anchor) was removed; the base polyline opacity now tracks
+    // zoom only, plus the CR5 v2 selected-station segment highlight.
     if (e.kind === 'train') {
-      const emph = trainEmphasis;
       // v0.61.53 — zoom-aware train layer (CR5): above the threshold
       // every visible station becomes a labelled pill and the base
       // polyline goes more opaque.
-      const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
+      const zoom = map.getZoom?.() || 0;
+      const zoomedIn = zoom >= ZOOM_DETAIL_THRESHOLD;
       for (const h of (e.highlights || [])) h.setMap(null);
       e.highlights = [];
-      let near3 = [];
-      if (emph && e.stations.length) {
-        near3 = e.stations
-          .map((s) => ({ s, d: metresBetween(emph.lat, emph.lng, s.lat, s.lng) }))
-          .sort((a, b) => a.d - b.d)
-          .slice(0, 3)
-          .map((x) => x.s);
-      }
       for (const ln of e.lines) {
         const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
         ln.polyline.setMap(e.visible && near ? map : null);
         // v0.61.58 — CR5 v2: when a station is selected the base lines
         // mute hard so the prev→current→next overlay segment stands
-        // out; otherwise the search-emphasis / zoom opacity applies.
+        // out; otherwise the zoom opacity applies.
         // v0.61.80 — CR-3 retune: muted-base 0.25 → 0.1, zoomed-out
         // 0.5 → 0.2, zoomed-in 0.85 → 0.95 (weights unchanged).
         ln.polyline.setOptions(
           detailStation ? { strokeOpacity: 0.1, strokeWeight: 3 }
-            : emph ? { strokeOpacity: 0.35, strokeWeight: 3 }
-              : { strokeOpacity: zoomedIn ? 0.95 : 0.2, strokeWeight: 4 });
-        // search-emphasis windows (Cuisine result anchor) — suppressed
-        // while a station is selected (CR5 v2 takes precedence).
-        if (e.visible && near && emph && !detailStation && near3.length) {
-          for (const s of near3) {
-            const win = trackWindow(ln.pts, s.lat, s.lng, 200, 130);
-            if (win.length < 2) continue;
-            e.highlights.push(new Polyline({
-              path: win, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
-              clickable: false, zIndex: 3, map
-            }));
-          }
-        }
+            : { strokeOpacity: zoomedIn ? 0.95 : 0.2, strokeWeight: 4 });
         // v0.61.58 — CR5 v2 selected-station emphasis: light up the
         // stretch of THIS line from the station before to the station
         // after the tapped station, full opacity in the line colour.
@@ -1382,24 +1341,26 @@ export function createOverlayController(map, googleMaps) {
       // `detailStations` stays empty so every station radius-clips
       // normally and the chip layers are anchor-clipped.
       detailStations = [];
-      // v0.61.53 — unified per-station content swap. At zoom-in every
-      // visible station is a labelled pill — a line-coloured chip per
-      // station code, then `<name> station`; at zoom-out, square pins.
-      // `_mode` caches the current state to avoid rebuilding on every
-      // pan-driven applyVisibility.
-      // v0.61.81 — CR-2: the centre-station zoom-bypass is deleted. A
-      // selected station now strictly obeys the z=15 threshold — it
-      // renders as a 9 px line-coloured square below z15, no exception.
+      // v0.61.85 — CR-2 three-state per-station content swap:
+      //   zoom < ZOOM_CODE_THRESHOLD     → bare 9 px square pin
+      //   ZOOM_CODE..ZOOM_DETAIL         → line-coloured code chip(s), no name
+      //   zoom >= ZOOM_DETAIL_THRESHOLD  → full pill (code chips + name)
+      // `_mode` caches the state to avoid rebuilding on every pan-driven
+      // applyVisibility. No centre-station zoom-bypass — every station,
+      // selected or not, strictly obeys the thresholds.
       for (const st of e.stations) {
         const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
         const show = e.visible && near;
         st.marker.map = show ? map : null;
         if (!show) continue;
-        const wantMode = zoomedIn ? 'pill' : 'square';
+        const wantMode = zoomedIn ? 'pill'
+          : zoom >= ZOOM_CODE_THRESHOLD ? 'code' : 'square';
         if (st._mode !== wantMode) {
           if (wantMode === 'pill') {
             st.marker.content = stationPillNode(
               st.station.codes, st.station.name || '', st.hex);
+          } else if (wantMode === 'code') {
+            st.marker.content = stationCodeNode(st.station.codes, st.hex);
           } else {
             st.marker.content = squareStationNode(st.hex);
           }
@@ -1465,17 +1426,6 @@ export function createOverlayController(map, googleMaps) {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
       anchor = { lat, lng };
       for (const name of Object.keys(layers)) applyVisibility(name);
-    },
-    // v0.61.11 — result-emphasis anchor for the train layer. Pass a
-    // search anchor to bold the nearby segments; pass nothing/invalid
-    // to clear it.
-    setTrainEmphasis(lat, lng) {
-      trainEmphasis = (Number.isFinite(lat) && Number.isFinite(lng))
-        ? { lat, lng } : null;
-      if (layers.train) applyVisibility('train');
-      // v0.61.54 — CR4 v2: the search-result anchor counts as focus for
-      // the bus-stop de-emphasis check.
-      if (layers.busstop) applyVisibility('busstop');
     },
     // v0.61.17 — clear the station-detail view (if any).
     clearStationDetail() {
