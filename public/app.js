@@ -248,6 +248,165 @@
     setStatus(`${list.length} ${label} pick${list.length === 1 ? '' : 's'}${focusNote}`, true);
   }
 
+  // ---- v0.61.87 — in-map overlay layers + toggle row ----------------
+  // Operator: /app/map carries the same "⋯ / Train Line / Bus Stop /
+  // Car Park" control row as the TMA maps. Train Line draws the MRT/LRT
+  // polylines; Bus Stop / Car Park drop viewport-clipped pins. Built in
+  // plain DOM — /app/map has no React / MapControls.
+  const LINE_HEX = {
+    NSL: '#d42e12', EWL: '#009645', CGL: '#009645', NEL: '#9900aa',
+    CCL: '#fa9e0d', DTL: '#005ec4', TEL: '#9D5B25', BPL: '#999999',
+    SLRT: '#999999', PLRT: '#999999', JRL: '#0099aa', CRL: '#97c93d'
+  };
+  const overlay = {
+    train:   { on: false, loaded: false, polylines: [] },
+    busstop: { on: false, data: null, markers: [] },
+    carpark: { on: false, data: null, markers: [] }
+  };
+  let overlayInfo = null;
+
+  function overlayPin(glyph) {
+    const el = document.createElement('div');
+    el.textContent = glyph;
+    el.style.cssText = 'font-size:18px;line-height:1;cursor:pointer;'
+      + 'filter:drop-shadow(0 1px 2px rgba(0,0,0,0.45));';
+    return el;
+  }
+
+  async function ensureTrainLayer() {
+    if (overlay.train.loaded) return;
+    overlay.train.loaded = true;
+    let paths = null;
+    try {
+      const r = await fetch('/api/transport/line-paths');
+      const d = await r.json();
+      paths = d && d.paths;
+    } catch { paths = null; }
+    if (!paths) return;
+    for (const code of Object.keys(paths)) {
+      if (code.startsWith('_') || !Array.isArray(paths[code])) continue;
+      const colour = LINE_HEX[code] || '#888888';
+      for (const seg of paths[code]) {
+        if (!Array.isArray(seg) || seg.length < 2) continue;
+        overlay.train.polylines.push(new google.maps.Polyline({
+          path: seg.map((p) => ({ lat: p.lat, lng: p.lng })),
+          strokeColor: colour, strokeOpacity: 0.85, strokeWeight: 4,
+          clickable: false, zIndex: 1
+        }));
+      }
+    }
+  }
+
+  async function ensureLayerData(key, url, field) {
+    if (overlay[key].data) return;
+    try {
+      const r = await fetch(url);
+      const d = await r.json();
+      overlay[key].data = Array.isArray(d[field]) ? d[field] : [];
+    } catch { overlay[key].data = []; }
+  }
+
+  function clearLayerMarkers(key) {
+    overlay[key].markers.forEach((m) => { m.map = null; });
+    overlay[key].markers = [];
+  }
+
+  function busInfo(f) {
+    const name = f.description || f.road || ('Bus Stop ' + (f.code || ''));
+    return { title: name, html: `<div style="font-size:12px;line-height:1.45">`
+      + `<strong>🚏 ${escapeHtml(name)}</strong><br>Bus Stop № ${escapeHtml(f.code || '')}</div>` };
+  }
+  function carparkInfo(f) {
+    const name = f.development || f.name || 'Carpark';
+    const lots = Number.isFinite(f.availableLots) ? ` — ${f.availableLots} lots` : '';
+    return { title: name, html: `<div style="font-size:12px;line-height:1.45">`
+      + `<strong>🅿️ ${escapeHtml(name)}</strong>${escapeHtml(lots)}</div>` };
+  }
+
+  // Bus stops (~5500) / carparks are viewport-clipped: render only the
+  // features inside the current bounds, and only when zoomed in enough
+  // that the count is sane. Re-runs on every map `idle`.
+  function renderClippedLayer(key, glyph, infoFn) {
+    clearLayerMarkers(key);
+    if (!overlay[key].on || !overlay[key].data) return;
+    const bounds = map.getBounds && map.getBounds();
+    if (!bounds || (map.getZoom() || 0) < 14) return;
+    let drawn = 0;
+    for (const f of overlay[key].data) {
+      if (drawn >= 250) break;
+      if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
+      const pos = { lat: f.lat, lng: f.lng };
+      if (!bounds.contains(pos)) continue;
+      const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(glyph) });
+      marker.addListener('click', () => {
+        if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
+        overlayInfo.setContent(infoFn(f).html);
+        overlayInfo.open({ anchor: marker, map });
+      });
+      overlay[key].markers.push(marker);
+      drawn++;
+    }
+  }
+
+  function refreshClippedLayers() {
+    if (overlay.busstop.on) renderClippedLayer('busstop', '🚏', busInfo);
+    if (overlay.carpark.on) renderClippedLayer('carpark', '🅿️', carparkInfo);
+  }
+
+  function paintToggle(btn, on) {
+    btn.style.background = on ? '#1565C0' : '#fff';
+    btn.style.color = on ? '#fff' : '#1c1c1f';
+  }
+
+  async function toggleLayer(key, btn) {
+    overlay[key].on = !overlay[key].on;
+    paintToggle(btn, overlay[key].on);
+    if (key === 'train') {
+      await ensureTrainLayer();
+      overlay.train.polylines.forEach((pl) => pl.setMap(overlay.train.on ? map : null));
+    } else if (key === 'busstop') {
+      if (overlay.busstop.on) {
+        await ensureLayerData('busstop', '/api/geo/bus-stops', 'busstops');
+        renderClippedLayer('busstop', '🚏', busInfo);
+      } else clearLayerMarkers('busstop');
+    } else if (key === 'carpark') {
+      if (overlay.carpark.on) {
+        await ensureLayerData('carpark', '/api/geo/carpark', 'carparks');
+        renderClippedLayer('carpark', '🅿️', carparkInfo);
+      } else clearLayerMarkers('carpark');
+    }
+  }
+
+  function buildToggleRow() {
+    const row = document.createElement('div');
+    row.style.cssText = 'position:fixed;top:56px;left:12px;z-index:40;'
+      + 'display:flex;gap:6px;align-items:center;';
+    const mkBtn = (label) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.style.cssText = 'border:1px solid #d0d0d0;border-radius:14px;'
+        + 'padding:5px 10px;font-size:11px;font-weight:600;line-height:1;'
+        + 'background:#fff;color:#1c1c1f;box-shadow:0 1px 4px rgba(0,0,0,0.22);'
+        + 'cursor:pointer;white-space:nowrap;';
+      return b;
+    };
+    // ⋯ — visual parity with the TMA control row; /app/map has no
+    // dropdown (overflow) layers, so this is an inert affordance.
+    const menuBtn = mkBtn('⋯');
+    menuBtn.style.borderRadius = '8px';
+    menuBtn.style.padding = '5px 9px';
+    row.appendChild(menuBtn);
+    [['train', 'Train Line'], ['busstop', 'Bus Stop'], ['carpark', 'Car Park']]
+      .forEach(([key, label]) => {
+        const b = mkBtn(label);
+        b.addEventListener('click', () => { toggleLayer(key, b).catch(() => {}); });
+        row.appendChild(b);
+      });
+    document.body.appendChild(row);
+    map.addListener('idle', refreshClippedLayers);
+  }
+
   function getUserPosition() {
     return new Promise((resolve) => {
       if (!navigator.geolocation) return resolve(null);
@@ -281,6 +440,7 @@
     const userPos = await getUserPosition();
     const center = userPos || RAFFLES_PLACE;
     initMap(center);
+    buildToggleRow();   // v0.61.87 — ⋯ / Train Line / Bus Stop / Car Park
     if (userPos) {
       userMarker = new AdvancedMarkerElement({
         map,
