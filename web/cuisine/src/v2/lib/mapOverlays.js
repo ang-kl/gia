@@ -319,6 +319,20 @@ function busPinNode(code, full) {
     full ? '🚏 Bus Stop № ' + code : '🚏', '#FFFFFF', '#1c1c1f', true);
 }
 
+// v0.61.82 — CR-5: compact zoomed-out exit marker. A low-chrome text
+// node carrying only the alphanumeric exit identifier (e.g. "A", "12");
+// a white halo keeps it legible over the greyscale base map. Above the
+// detail zoom threshold the marker swaps to the full white
+// `Exit <code>` card (amenityLabelNode) — see buildExitMarkers.
+function exitTextNode(id, hex) {
+  const el = document.createElement('div');
+  el.textContent = id || '?';
+  el.style.cssText = 'cursor:pointer;font-weight:800;font-size:13px;'
+    + 'line-height:1;color:' + (hex || AMENITY_EXIT_BG) + ';'
+    + 'text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 2px #fff;';
+  return el;
+}
+
 // Small coloured dot with an emoji glyph.
 function dotNode(bg, glyph) {
   const el = document.createElement('div');
@@ -722,9 +736,12 @@ export function createOverlayController(map, googleMaps) {
   // v0.61.53 — re-apply the train layer on every zoom change so station
   // markers swap square ↔ labelled-pill at ZOOM_DETAIL_THRESHOLD and the
   // polyline opacity tracks zoom.
+  // v0.61.82 — CR-5: also re-apply the exits layer so exit pins swap
+  // bare-identifier ↔ "Exit <code>" card at the same threshold.
   map.addListener('zoom_changed', () => {
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
+    if (layers.exits) applyVisibility('exits');
   });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
@@ -743,6 +760,10 @@ export function createOverlayController(map, googleMaps) {
   // station's per-exit nearest bus stops, drawn on a station tap even
   // when the Bus Stop overlay is off, cleared when the card closes.
   let stationBusPins = [];
+  // v0.61.82 — CR-6: the same idea for the station's exits — pins drawn
+  // on a station tap even when the Exit overlay is off, so the card's
+  // "Exit #" links can always force-render + flash their target pin.
+  let stationExitPins = [];
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -804,16 +825,21 @@ export function createOverlayController(map, googleMaps) {
     });
   }
 
-  // v0.61.24 — MRT-exit overlay pins show the exit letter/number as a
-  // pill coloured by the station's line (no more 🚆 emoji dot); a tap
-  // opens the Exit Template popup.
+  // v0.61.24 — MRT-exit overlay pins; a tap opens the Exit Template popup.
+  // v0.61.82 — CR-5: dual-state like the bus-stop pins. Compact bare
+  // identifier ("A") when zoomed out; full white "Exit A" card at/above
+  // the detail zoom threshold. applyVisibility swaps marker.content on
+  // zoom_changed.
   function buildExitMarkers(features) {
     return (features || []).map((f) => {
       const codes = Array.isArray(f.codes) ? f.codes : [];
       const hex = codes.length ? codeHex(codes[0]) : AMENITY_EXIT_BG;
+      const code = f.exitCode || '?';
+      const compact = exitTextNode(code, hex);
+      const full = amenityLabelNode('Exit ' + code, '#FFFFFF', '#1c1c1f', true);
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: amenityLabelNode(f.exitCode || '?', hex, '#fff', true),
+        content: compact,
         title: f.name || '',
         gmpClickable: true
       });
@@ -821,7 +847,7 @@ export function createOverlayController(map, googleMaps) {
         info.setContent(exitInfo(f));
         info.open(map, marker);
       });
-      return { marker, lat: f.lat, lng: f.lng };
+      return { marker, lat: f.lat, lng: f.lng, compact, full, _exit: true };
     });
   }
 
@@ -908,6 +934,8 @@ export function createOverlayController(map, googleMaps) {
     detailStation = null;
     info.close();
     clearStationBusStops();
+    clearStationExitPins();
+
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     syncDetailAmenityLayers();
@@ -980,6 +1008,30 @@ export function createOverlayController(map, googleMaps) {
     }
   }
 
+  // v0.61.82 — CR-6: the open station card's exit pins. Mirror of
+  // showStationBusStops — draws the station's exits as full "Exit <code>"
+  // white-card pins on a station tap, even when the Exit overlay is off,
+  // so the card's "Exit #" links always have a pin to focus + flash
+  // (force-render the target regardless of the layer toggle). Skipped
+  // when that overlay is already on. Cleared when the card closes.
+  function clearStationExitPins() {
+    for (const m of stationExitPins) m.map = null;
+    stationExitPins = [];
+  }
+  function showStationExits(rec) {
+    clearStationExitPins();
+    if (layers.exits && layers.exits.visible) return;
+    for (const ex of (Array.isArray(rec.exits) ? rec.exits : [])) {
+      if (!ex || !Number.isFinite(ex.lat) || !Number.isFinite(ex.lng)) continue;
+      const marker = new AdvancedMarkerElement({
+        position: { lat: ex.lat, lng: ex.lng },
+        content: amenityLabelNode('Exit ' + (ex.label || '?'), '#FFFFFF', '#1c1c1f', false)
+      });
+      marker.map = map;
+      stationExitPins.push(marker);
+    }
+  }
+
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
   // for a tapped station, from the data/stations.json record.
   function openStationCard(item) {
@@ -1002,6 +1054,7 @@ export function createOverlayController(map, googleMaps) {
       info.setContent(stationInfoCardHtml(rec));
       info.open(map, item.marker);
       showStationBusStops(rec);
+      showStationExits(rec);     // v0.61.82 — CR-6
     });
   }
 
@@ -1316,7 +1369,9 @@ export function createOverlayController(map, googleMaps) {
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
-      if (it._bus && e.visible && near) {
+      // v0.61.82 — CR-5: bus-stop AND exit pins are zoom-aware; swap
+      // marker.content between the compact and full nodes.
+      if ((it._bus || it._exit) && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
         if (it.marker.content !== want) it.marker.content = want;
       }
@@ -1328,7 +1383,7 @@ export function createOverlayController(map, googleMaps) {
     // tap-elsewhere) alongside its own venue/station InfoWindow.
     // v0.61.68 — also clears the station card's transient bus-stop pins,
     // so a tap on the empty map removes them (when Bus Stop is off).
-    closeInfo() { info.close(); clearStationBusStops(); },
+    closeInfo() { info.close(); clearStationBusStops(); clearStationExitPins(); },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
@@ -1344,7 +1399,9 @@ export function createOverlayController(map, googleMaps) {
       }
       // v0.61.68 — when the Bus Stop overlay turns on, drop the card's
       // transient station bus pins so they don't duplicate the layer.
+      // v0.61.82 — CR-6: same for the Exit overlay vs the card's exit pins.
       if (name === 'busstop' && visible) clearStationBusStops();
+      if (name === 'exits' && visible) clearStationExitPins();
       applyVisibility(name);
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
@@ -1376,6 +1433,7 @@ export function createOverlayController(map, googleMaps) {
       detailStation = null;
       detailStations = [];
       clearStationBusStops();
+      clearStationExitPins();
       for (const name of Object.keys(layers)) {
         layers[name].visible = false;
         applyVisibility(name);
