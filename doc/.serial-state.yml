@@ -1,8 +1,8 @@
 counters:
-  commit: 294
-  build: 94
+  commit: 296
+  build: 96
   documents:
-    journal: 287
+    journal: 289
     builder: 3
     persona: 4
     feature: 48
@@ -12,29 +12,35 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 20:57 SGT
-last_anchor_source: system_clock_utc_2026-05-21T12:57:34Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T20:57:34+08:00
-last_anchor_utc: 2026-05-21T12:57:34Z
-# PR #579 (v0.61.84-87) — MERGED to main 21-05 '26 as squash a4ac50a.
-# All four Journal entries now exist as files: v0.61.84 bus-stop parity
-# + wake prompt, v0.61.85 quieter eatery tap, v0.61.86 cuisine eatery-pin
-# tap-twice fix, v0.61.87 train overlay whole-network + always-on station
-# code chip. The branch drafted them as journal #282-285 / commit 289-292
-# / build 89-92; main has since reused #282-287 for the v0.61.78-83
-# catch-up, so the four branch entries renumber to journal #288-291 —
+last_anchor_time: 22-05 '26 06:55 SGT
+last_anchor_source: system_clock_utc_2026-05-21T22:55:34Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T06:55:34+08:00
+last_anchor_utc: 2026-05-21T22:55:34Z
+# v0.61.90 (commit 296 / journal 289 / build 96) — train-overlay PR #582
+# (branch claude/train-overlay-zoom-tiers, off main at v0.61.89): per-
+# TMA, per-zoom-band train-overlay rendering — squares / sized code
+# chips / named pills, station-count caps, line opacity, tap-to-pill +
+# the zoom-readout restyle and a 30% camera-widget shrink. journal-
+# 0_61_90-22_05_26-0655.md. Journal #289 is the next slot off #288;
+# it overlaps the deferred PR #579 branch renumber (#282-285 → #288-
+# 291) — the renumber stays deferred to the operator. PR #582 CI
+# failed at the GitHub Actions runner-startup stage (~4 s, same infra
+# signature as PR #580); the code passes node --check + the 5-TMA
+# build + 1932/1932 tests locally.
+# v0.61.89 (commit 295 / journal 288 / build 95) — map-control PR #581
+# (squash 8bbec47, branch claude/v0.61.89-map-controls): bottom-right
+# zoom readout on the
+# Cuisine + Hawker maps + camera-control / keyboard-shortcut parity
+# across the 3 TMA maps. Journal #288 is the next slot off main (287);
+# it overlaps the deferred PR #579 branch renumber (note below) —
+# whichever lands second renumbers, deferred to the operator.
+# PR #579 branch (v0.61.84-87) — journal entries still due: v0.61.84
+# bus-stop parity + wake prompt, v0.61.85 quieter eatery tap, v0.61.86
+# cuisine eatery-pin tap-twice fix, v0.61.87 train overlay whole-network
+# + always-on station code chip. The branch first drafted v0.61.84/85
+# as journal #282/#283; main has since reused #282-287 for the
+# v0.61.78-83 catch-up, so the branch entries renumber from #288 —
 # deferred to the operator per the concurrent-PR renumbering precedent.
-# Counters below are NOT yet bumped for these four (left at main's values
-# pending that renumber). The v0.61.86/.87 entries were written after the
-# merge (standing per-PR Journal rule) and land on a follow-up docs-only
-# PR; v0.61.84/85 shipped inside PR #579.
-# Version-number collisions: while PR #579 was open, two unrelated main
-# commits took the same labels — 647333f "v0.61.86 map attractions ⚝
-# glyph" and 3517722 "v0.61.87 /app/map overlay toggle row". All bodies
-# merged to main with no file overlap (mapOverlays.js byte-identical ×3,
-# build green, tests pass); package.json settled at 0.61.87. The
-# duplicate v0.61.86/.87 labels are flagged for the operator's renumber
-# pass.
 # The detailed v0.61.84/85 audit is preserved in the branch's
 # journal-0_61_84-*.md / journal-0_61_85-*.md files.
 # doc master refresh (Feature #48 / Technical #48 / Register #116,

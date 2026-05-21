@@ -305,18 +305,24 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       // map throws the "This page can't load Google Maps correctly"
       // auth overlay (operator screenshot 2026-05-11).
       mapId: mapIdRef.current,
-      disableDefaultUI: false,
+      // v0.61.89 — streamline: all three TMA maps now share one options block:
+      // disableDefaultUI strips the native chrome, then the camera
+      // control (pan/tilt/rotate) + keyboard shortcuts are re-enabled.
+      // mapType / streetView / fullscreen stay off (off under
+      // disableDefaultUI:true — no longer listed). The camera widget is
+      // pinned to LEFT_BOTTOM so it clears the bottom-right Overview button.
+      disableDefaultUI: true,
       zoomControl: false,
       clickableIcons: false,
-      gestureHandling: 'greedy',
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false
+      cameraControl: true,
+      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      keyboardShortcuts: true,
+      gestureHandling: 'greedy'
     });
     // v0.61.22 — headerDisabled drops Google's white header + ✕ so the
     // themed infoCard (with its own in-card ✕) is the whole popup.
     infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'transport' });
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
