@@ -1,8 +1,8 @@
 counters:
-  commit: 288
-  build: 88
+  commit: 289
+  build: 89
   documents:
-    journal: 281
+    journal: 282
     builder: 3
     persona: 4
     feature: 47
@@ -12,10 +12,20 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 13:55 SGT
-last_anchor_source: github_pr_577_merge_timestamp_2026-05-21T05:52:40Z + journal #278-281 catch-up (PR merge evidence; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T13:55:00+08:00
-last_anchor_utc: 2026-05-21T05:55:00Z
+last_anchor_time: 21-05 '26 16:44 SGT
+last_anchor_source: system_clock_utc_2026-05-21T08:44:23Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-21T16:44:23+08:00
+last_anchor_utc: 2026-05-21T08:44:23Z
+# journal #282 (commit 289 / build 89) — v0.61.84 bus-stop name
+# parity + wake-from-idle location prompt (PR #579). #3: runTransportBus
+# nearest-stops heading now leads with stop.description || stop.roadName
+# (was roadName || description) so the chat result matches the "view
+# bus stops" map card. #2: location-cache.js gains touchLastSeen (a
+# per-chat seen:<hash> marker returning the prior timestamp); index.js
+# fires a one-time "keep / new location" prompt on the first message
+# after a >6h idle gap (IDLE_WAKE_MS), with wake:keep / wake:new
+# callbacks; i18n.js EN/FR copy; +5 touchLastSeen tests. Operator
+# requests #1/#4 were already on main (v0.61.78-83).
 # journal #278-281 (commit 285-288 / build 85-88) — four-PR code-fix
 # catch-up (journal-0_61_77-21_05_26-1355.md): #572 v0.61.74 — Bus
 # sub-menu title → "Bus Information" (i18n) + runTransportTrain MRT
