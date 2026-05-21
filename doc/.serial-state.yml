@@ -1,8 +1,8 @@
 counters:
-  commit: 288
-  build: 88
+  commit: 294
+  build: 94
   documents:
-    journal: 281
+    journal: 287
     builder: 3
     persona: 4
     feature: 47
@@ -12,10 +12,36 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 13:55 SGT
-last_anchor_source: github_pr_577_merge_timestamp_2026-05-21T05:52:40Z + journal #278-281 catch-up (PR merge evidence; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T13:55:00+08:00
-last_anchor_utc: 2026-05-21T05:55:00Z
+last_anchor_time: 21-05 '26 16:45 SGT
+last_anchor_source: data.gov.sg air-temperature payload timestamp 2026-05-21T16:45:00+08:00 (live fetch per TF-6; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-21T16:45:00+08:00
+last_anchor_utc: 2026-05-21T08:45:00Z
+# journal #282-287 (commit 289-294 / build 89-94) — six-version
+# session catch-up (journal-0_61_83-21_05_26-1645.md), all committed
+# direct to main, no PRs. #282 v0.61.78 — MapControls.jsx (×3) quick-
+# row reorder: ⋯/⋮ overflow menu now first, Colour ("Monochrome") pill
+# after it (operator request); landed via the "done HH:MM" auto-commit
+# (09a246b "done 2_33 PM"), which also swept a stale stray file
+# scripts/build-station-info 2.js — removed in chore 39456da (a 7th
+# main commit, no version/build, folded into #282, not separately
+# counted). #283 v0.61.79 — Cuisine: new ResultPanel totalCount prop →
+# "Results (12/130)" on a Michelin search; 🔍 FAB flash 2 s→3 s + a
+# flashing 👉 arrow beside it; the "ℹ️ Google search limit" toast
+# removed in full (searchTipShow state + tipFirstShownRef guard +
+# trigger + EN/FR render). #284-#287 = Phases A-D of the
+# UI/CR_Google_Map_Design_1022.MD refactor (CR-1…CR-7; CR-4 adaptive
+# bus pins was already implemented, verified only): #284 v0.61.80
+# CR-3 — polyline opacity retune 0.5→0.2 / 0.85→0.95 / muted 0.25→0.1
+# (mapOverlays ×3); #285 v0.61.81 CR-1+CR-2 — cuisinePinNode circle→
+# droplet venue pin (MapPanel.jsx), centre-station zoom-bypass deleted
+# (mapOverlays ×3); #286 v0.61.82 CR-5+CR-6 — dual-state exit pins
+# (exitTextNode compact ↔ "Exit <code>" card) + showStationExits()
+# force-renders a tapped station's exits even with the Exit layer off;
+# #287 v0.61.83 CR-7 — stationInfoCardHtml restructured (header →
+# Exits with click-to-expand detail → per-line blocks → footer;
+# combined code-pill header for interchanges). doc/Feature, Technical,
+# Register + a vault/<v>/ snapshot still due for the whole v0.61.78-
+# v0.61.83 arc (logged in journal #282 [KNOWN GAPS]).
 # journal #278-281 (commit 285-288 / build 85-88) — four-PR code-fix
 # catch-up (journal-0_61_77-21_05_26-1355.md): #572 v0.61.74 — Bus
 # sub-menu title → "Bus Information" (i18n) + runTransportTrain MRT
