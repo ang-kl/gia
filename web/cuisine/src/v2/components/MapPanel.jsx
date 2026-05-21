@@ -63,7 +63,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -187,23 +187,42 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     syncMarkers();
   }
 
+  // v0.61.88 — every overlay layer is built from Singapore open data
+  // (LTA / NParks / SPF / MOH …) and has no Johor Bahru coverage. In
+  // the JB region the layers are forced off and the MapControls
+  // toggles disabled; the underlying overlayLayers state is preserved,
+  // so switching back to Singapore restores the user's choices.
+  const jb = (region || 'SG') === 'JB';
+  const effectiveLayers = (jb && overlayLayers)
+    ? {
+        ...overlayLayers,
+        train: false, busstop: false, carpark: false, exits: false,
+        taxis: false, parks: false, attractions: false,
+        clinics: false, hospitals: false, police: false
+      }
+    : overlayLayers;
+
   // Push the current layer-toggle state into the overlay controller.
+  // v0.61.88 — in the Johor Bahru region every SG-only overlay is
+  // forced off here, regardless of the saved toggle state, so the
+  // map-init call (which passes the raw ref) is JB-safe too.
   function applyOverlayLayers(layers) {
     const ctrl = overlayControllerRef.current;
     if (!ctrl || !layers) return;
-    ctrl.setLayer('parks', !!layers.parks);
-    ctrl.setLayer('attractions', !!layers.attractions);
-    ctrl.setLayer('taxis', !!layers.taxis);
-    ctrl.setLayer('carpark', !!layers.carpark);
-    ctrl.setLayer('busstop', !!layers.busstop);
-    ctrl.setLayer('exits', !!layers.exits);
-    ctrl.setLayer('clinics', !!layers.clinics);
-    ctrl.setLayer('hospitals', !!layers.hospitals);
-    ctrl.setLayer('police', !!layers.police);
-    ctrl.setLayer('train', !!layers.train);
+    const L = jb ? {} : layers;
+    ctrl.setLayer('parks', !!L.parks);
+    ctrl.setLayer('attractions', !!L.attractions);
+    ctrl.setLayer('taxis', !!L.taxis);
+    ctrl.setLayer('carpark', !!L.carpark);
+    ctrl.setLayer('busstop', !!L.busstop);
+    ctrl.setLayer('exits', !!L.exits);
+    ctrl.setLayer('clinics', !!L.clinics);
+    ctrl.setLayer('hospitals', !!L.hospitals);
+    ctrl.setLayer('police', !!L.police);
+    ctrl.setLayer('train', !!L.train);
   }
 
-  useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
+  useEffect(() => { applyOverlayLayers(effectiveLayers); }, [overlayLayers, region]); // eslint-disable-line
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
@@ -482,19 +501,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // yet); Colour toggles the greyscale map filter.
   // v0.61.51 — Train Line promoted from the dropdown into the row;
   // Attractions demoted into the dropdown above Park.
+  // v0.61.88 — `disabled: jb` greys out every overlay toggle in the
+  // Johor Bahru region (the layers are Singapore-only — see above).
   const rowToggles = [
-    { key: 'train',       icon: '🚉', label: tr('layer.train', lang) },
-    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang) }
+    { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: jb },
+    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: jb },
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: jb }
   ];
   const menuToggles = [
-    { key: 'exits',       icon: '',   label: tr('layer.exits', lang) },
-    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang) },
-    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang) },
-    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang) },
-    { key: 'police',  icon: '👮', label: tr('layer.police', lang) },
-    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang) },
-    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang) }
+    { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: jb },
+    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: jb },
+    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: jb },
+    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: jb },
+    { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: jb },
+    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: jb },
+    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: jb }
   ];
 
   return (
@@ -558,7 +579,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
-        layers={overlayLayers || {}}
+        layers={effectiveLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
         })}
