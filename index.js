@@ -2897,20 +2897,40 @@ async function sendBusMenu(chatId, lang = 'en') {
 
 // v0.61.61 — station name → SMRT/SBS station-info URL, from
 // data/stations.json (read + cached once). null when not found.
+// v0.61.76 — normalised fallback lookup. Google Places display names
+// don't always match the data/stations.json key casing/spelling
+// (e.g. Places returns "Harbourfront" but the key is "HarbourFront"),
+// so an exact-key miss falls back to a normalised match (lowercased,
+// MRT/LRT/Station tokens + punctuation stripped).
 let _stationInfoCache;
+let _stationInfoByNorm;
+function normStationName(s) {
+  return String(s == null ? '' : s)
+    .toLowerCase()
+    .replace(/\b(?:mrt|lrt|station)\b/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
 function stationMoreInfoUrl(name) {
   try {
     if (_stationInfoCache === undefined) {
       _stationInfoCache = JSON.parse(
         require('fs').readFileSync(__dirname + '/data/stations.json', 'utf8')
       ).stations || {};
+      _stationInfoByNorm = {};
+      for (const [k, v] of Object.entries(_stationInfoCache)) {
+        const nk = normStationName(k);
+        if (nk && !(nk in _stationInfoByNorm)) _stationInfoByNorm[nk] = v;
+      }
     }
-    const rec = _stationInfoCache[name];
+    const rec = _stationInfoCache[name]
+      || (_stationInfoByNorm ? _stationInfoByNorm[normStationName(name)] : null);
     const ln = rec && Array.isArray(rec.lines)
       ? rec.lines.find((l) => l && l.more_info_url) : null;
     return ln ? ln.more_info_url : null;
   } catch (err) {
     _stationInfoCache = {};
+    _stationInfoByNorm = {};
     return null;
   }
 }
