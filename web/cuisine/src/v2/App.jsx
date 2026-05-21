@@ -1054,6 +1054,7 @@ export default function App() {
         anchorName={locationName}
         overlayLayers={overlayLayers}
         onOverlayChange={setOverlayLayers}
+        region={state.region}
       />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
