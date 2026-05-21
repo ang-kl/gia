@@ -4,20 +4,29 @@ import { tg } from '../../api/tg.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
-// v0.61.70 — round venue pin: a green circle with a white border and a
-// drop shadow, carrying the venue's 1-based result number (its rank in
-// the current search results / first load). Replaces the emoji-glyph
-// pin (the v0.60.184 michelin / pet / dessert glyphs).
+// v0.61.70 — venue pin carrying the venue's 1-based result number (its
+// rank in the current search results / first load). Replaces the emoji-
+// glyph pin (the v0.60.184 michelin / pet / dessert glyphs).
+// v0.61.81 — CR-1: droplet/teardrop shape (was a round circle). The
+// outer node is a 24 px box with three rounded corners and one sharp
+// corner, rotated 45° so the sharp corner points straight down at the
+// venue coordinate. The rank number rides in a counter-rotated inner
+// span so it stays upright. White border + drop shadow retained.
 function cuisinePinNode(number) {
   const size = 24;
   const el = document.createElement('div');
   el.style.cssText =
     'display:flex;align-items:center;justify-content:center;'
-    + `width:${size}px;height:${size}px;border-radius:50%;cursor:pointer;`
+    + `width:${size}px;height:${size}px;cursor:pointer;`
+    + 'border-radius:50% 50% 50% 0;transform:rotate(-45deg);'
     + 'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.5);'
-    + 'background:#34C759;color:#fff;font-weight:700;'
+    + 'background:#34C759;';
+  const inner = document.createElement('span');
+  inner.style.cssText =
+    'transform:rotate(45deg);color:#fff;font-weight:700;'
     + 'font-size:12px;line-height:1;';
-  if (number != null) el.textContent = String(number);
+  if (number != null) inner.textContent = String(number);
+  el.appendChild(inner);
   return el;
 }
 

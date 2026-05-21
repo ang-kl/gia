@@ -319,6 +319,20 @@ function busPinNode(code, full) {
     full ? '🚏 Bus Stop № ' + code : '🚏', '#FFFFFF', '#1c1c1f', true);
 }
 
+// v0.61.82 — CR-5: compact zoomed-out exit marker. A low-chrome text
+// node carrying only the alphanumeric exit identifier (e.g. "A", "12");
+// a white halo keeps it legible over the greyscale base map. Above the
+// detail zoom threshold the marker swaps to the full white
+// `Exit <code>` card (amenityLabelNode) — see buildExitMarkers.
+function exitTextNode(id, hex) {
+  const el = document.createElement('div');
+  el.textContent = id || '?';
+  el.style.cssText = 'cursor:pointer;font-weight:800;font-size:13px;'
+    + 'line-height:1;color:' + (hex || AMENITY_EXIT_BG) + ';'
+    + 'text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 2px #fff;';
+  return el;
+}
+
 // Small coloured dot with an emoji glyph.
 function dotNode(bg, glyph) {
   const el = document.createElement('div');
@@ -499,6 +513,18 @@ function firstLastTrainHtml(entries, c) {
   return h;
 }
 
+// v0.61.83 — CR-7: standardised station info card.
+//   • Header — single line: code pill · "<Name> Station", then line
+//     code/name. Interchange: a combined row of every line's code
+//     pill, then "<Name> Station" once.
+//   • Exits — station-level, label-sorted: a row of tappable "Exit X"
+//     labels; tapping one toggles a detail row below it
+//     (Exit # · <street> · Bus Stop № — Exit # and Bus Stop № are
+//     map-focus links).
+//   • Per-line detail block(s) — More Info ↗ + First/Last Train. An
+//     interchange repeats each line's code pill · name · line above
+//     its block; a single-line station already showed those up top.
+//   • Footer — deduped Operator(s) + Google Map ↗.
 function stationInfoCardHtml(rec) {
   const c = infoPalette();
   const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
@@ -507,57 +533,98 @@ function stationInfoCardHtml(rec) {
     + Number(lat) + ',' + Number(lng) + (flash ? ',1' : '') + ')';
   const name = rec.station_name || '';
   const lines = Array.isArray(rec.lines) ? rec.lines : [];
+  const interchange = lines.length > 1;
   let h = '';
 
-  // One block per line — code pill + "<Name> Station", line, More Info.
-  lines.forEach((ln, i) => {
-    const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
-    h += '<div style="' + (i ? rule : '') + '">';
-    h += '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">';
-    if (ln.station_code) h += codePill(ln.station_code, hex, true);
-    h += '<span style="color:' + c.sub + ';">·</span>'
-      + '<span style="font-weight:700;font-size:14px;color:' + hex + ';">'
-      + escapeHtml(name + ' Station') + '</span></div>';
-    h += '<div style="margin-top:3px;color:' + c.fg + ';">'
-      + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
-    if (ln.more_info_url) {
-      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
-        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
-    }
-    // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
-    h += firstLastTrainHtml(
-      (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
-        .filter((e) => e.line_code === (ln.line_code || '')), c);
-    h += '</div>';
-  });
+  // codePill(s) · "<Name> Station" header row, the name in `nameHex`.
+  const headRow = (pills, nameHex) =>
+    '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
+    + pills
+    + '<span style="color:' + c.sub + ';">·</span>'
+    + '<span style="font-weight:700;font-size:14px;color:' + nameHex + ';">'
+    + escapeHtml(name + ' Station') + '</span></div>';
+  const lineRow = (ln) => '<div style="margin-top:3px;color:' + c.fg + ';">'
+    + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
 
-  // Exits — station-level, label-sorted.
+  // 1. Header — combined code pills for an interchange, a single pill +
+  //    line code/name otherwise.
+  if (interchange) {
+    let pills = '';
+    for (const ln of lines) {
+      if (ln.station_code) pills += codePill(ln.station_code, codeHex(ln.station_code), true);
+    }
+    h += '<div>' + headRow(pills, c.fg) + '</div>';
+  } else {
+    const ln = lines[0] || {};
+    const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
+    h += '<div>' + headRow(ln.station_code ? codePill(ln.station_code, hex, true) : '', hex)
+      + lineRow(ln) + '</div>';
+  }
+
+  // 2. Exits — station-level, label-sorted, click-to-expand detail.
   const exits = (Array.isArray(rec.exits) ? rec.exits.slice() : [])
     .sort((a, b) => String(a.label || '').localeCompare(
       String(b.label || ''), undefined, { numeric: true }));
   if (exits.length) {
     h += '<div style="' + rule + '"><div style="font-weight:700;">Exits</div>';
-    for (const ex of exits) {
-      const parts = [];
+    const labels = [];
+    let details = '';
+    exits.forEach((ex, i) => {
+      const did = 'gia-exit-' + i;
       const exTxt = 'Exit ' + escapeHtml(ex.label || '?');
-      parts.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
+      // Label — tapping it toggles its detail row's visibility.
+      const toggle = "var d=document.getElementById('" + did + "');"
+        + "if(d)d.style.display=d.style.display==='none'?'block':'none';";
+      labels.push('<span style="' + lk + '" onclick="' + toggle + '">' + exTxt + '</span>');
+      // Detail row — collapsed by default; Exit # + Bus Stop № are
+      // map-focus links (pan + flash the pin).
+      const dp = [];
+      dp.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
         ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng, true) + '">' + exTxt + '</span>'
         : '<span style="font-weight:700;">' + exTxt + '</span>');
       if (ex.street) {
-        parts.push('<span style="font-weight:700;color:' + c.fg + ';">'
+        dp.push('<span style="font-weight:700;color:' + c.fg + ';">'
           + escapeHtml(ex.street) + '</span>');
       }
       const bs = ex.nearest_bus_stop;
       if (bs && bs.code && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
-        parts.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
+        dp.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
           + '">Bus Stop № ' + escapeHtml(bs.code) + '</span>');
       }
-      h += '<div style="margin-top:4px;">' + parts.join(' · ') + '</div>';
-    }
-    h += '</div>';
+      details += '<div id="' + did + '" style="display:none;margin-top:4px;'
+        + 'padding-left:8px;">' + dp.join(' · ') + '</div>';
+    });
+    h += '<div style="margin-top:4px;">' + labels.join(' · ') + '</div>' + details + '</div>';
   }
 
-  // Operator(s) + Google Maps — station-level footer.
+  // 3. Per-line detail block(s) — More Info ↗ + First/Last Train.
+  const lineDetail = (ln, withHead) => {
+    let b = '';
+    if (withHead) {
+      const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
+      b += headRow(ln.station_code ? codePill(ln.station_code, hex, true) : '', hex)
+        + lineRow(ln);
+    }
+    if (ln.more_info_url) {
+      b += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
+        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
+    }
+    // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
+    b += firstLastTrainHtml(
+      (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
+        .filter((e) => e.line_code === (ln.line_code || '')), c);
+    return b;
+  };
+  if (interchange) {
+    for (const ln of lines) {
+      h += '<div style="' + rule + '">' + lineDetail(ln, true) + '</div>';
+    }
+  } else if (lines.length) {
+    const d = lineDetail(lines[0], false);
+    if (d) h += '<div style="' + rule + '">' + d + '</div>';
+  }
+
+  // 4. Operator(s) + Google Maps — station-level footer.
   const ops = [];
   for (const ln of lines) {
     if (ln.operator && ops.indexOf(ln.operator) < 0) ops.push(ln.operator);
@@ -722,9 +789,12 @@ export function createOverlayController(map, googleMaps) {
   // v0.61.53 — re-apply the train layer on every zoom change so station
   // markers swap square ↔ labelled-pill at ZOOM_DETAIL_THRESHOLD and the
   // polyline opacity tracks zoom.
+  // v0.61.82 — CR-5: also re-apply the exits layer so exit pins swap
+  // bare-identifier ↔ "Exit <code>" card at the same threshold.
   map.addListener('zoom_changed', () => {
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
+    if (layers.exits) applyVisibility('exits');
   });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
@@ -735,7 +805,6 @@ export function createOverlayController(map, googleMaps) {
   let trainEmphasis = null;          // { lat, lng } — result-emphasis anchor
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
-  let centreName = null;             // station whose marker shows the centre node
   // v0.61.26 — the 3 stations of the active detail view ({lat,lng} each:
   // the tapped station + its line-neighbours), used to clip the Exits /
   // Taxis chips. Empty when no station-detail view is active.
@@ -744,6 +813,10 @@ export function createOverlayController(map, googleMaps) {
   // station's per-exit nearest bus stops, drawn on a station tap even
   // when the Bus Stop overlay is off, cleared when the card closes.
   let stationBusPins = [];
+  // v0.61.82 — CR-6: the same idea for the station's exits — pins drawn
+  // on a station tap even when the Exit overlay is off, so the card's
+  // "Exit #" links can always force-render + flash their target pin.
+  let stationExitPins = [];
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -805,16 +878,21 @@ export function createOverlayController(map, googleMaps) {
     });
   }
 
-  // v0.61.24 — MRT-exit overlay pins show the exit letter/number as a
-  // pill coloured by the station's line (no more 🚆 emoji dot); a tap
-  // opens the Exit Template popup.
+  // v0.61.24 — MRT-exit overlay pins; a tap opens the Exit Template popup.
+  // v0.61.82 — CR-5: dual-state like the bus-stop pins. Compact bare
+  // identifier ("A") when zoomed out; full white "Exit A" card at/above
+  // the detail zoom threshold. applyVisibility swaps marker.content on
+  // zoom_changed.
   function buildExitMarkers(features) {
     return (features || []).map((f) => {
       const codes = Array.isArray(f.codes) ? f.codes : [];
       const hex = codes.length ? codeHex(codes[0]) : AMENITY_EXIT_BG;
+      const code = f.exitCode || '?';
+      const compact = exitTextNode(code, hex);
+      const full = amenityLabelNode('Exit ' + code, '#FFFFFF', '#1c1c1f', true);
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: amenityLabelNode(f.exitCode || '?', hex, '#fff', true),
+        content: compact,
         title: f.name || '',
         gmpClickable: true
       });
@@ -822,7 +900,7 @@ export function createOverlayController(map, googleMaps) {
         info.setContent(exitInfo(f));
         info.open(map, marker);
       });
-      return { marker, lat: f.lat, lng: f.lng };
+      return { marker, lat: f.lat, lng: f.lng, compact, full, _exit: true };
     });
   }
 
@@ -855,7 +933,8 @@ export function createOverlayController(map, googleMaps) {
         if (!Array.isArray(seg) || seg.length < 2) continue;
         const pts = seg.map((p) => ({ lat: p.lat, lng: p.lng }));
         const polyline = new Polyline({
-          path: pts, strokeColor: hex, strokeOpacity: 0.85, strokeWeight: 4,
+          // v0.61.80 — CR-3: zoomed-in default opacity 0.85 → 0.95.
+          path: pts, strokeColor: hex, strokeOpacity: 0.95, strokeWeight: 4,
           clickable: false, zIndex: 1
         });
         out.push({ polyline, pts, hex, code });
@@ -908,6 +987,8 @@ export function createOverlayController(map, googleMaps) {
     detailStation = null;
     info.close();
     clearStationBusStops();
+    clearStationExitPins();
+
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     syncDetailAmenityLayers();
@@ -980,6 +1061,30 @@ export function createOverlayController(map, googleMaps) {
     }
   }
 
+  // v0.61.82 — CR-6: the open station card's exit pins. Mirror of
+  // showStationBusStops — draws the station's exits as full "Exit <code>"
+  // white-card pins on a station tap, even when the Exit overlay is off,
+  // so the card's "Exit #" links always have a pin to focus + flash
+  // (force-render the target regardless of the layer toggle). Skipped
+  // when that overlay is already on. Cleared when the card closes.
+  function clearStationExitPins() {
+    for (const m of stationExitPins) m.map = null;
+    stationExitPins = [];
+  }
+  function showStationExits(rec) {
+    clearStationExitPins();
+    if (layers.exits && layers.exits.visible) return;
+    for (const ex of (Array.isArray(rec.exits) ? rec.exits : [])) {
+      if (!ex || !Number.isFinite(ex.lat) || !Number.isFinite(ex.lng)) continue;
+      const marker = new AdvancedMarkerElement({
+        position: { lat: ex.lat, lng: ex.lng },
+        content: amenityLabelNode('Exit ' + (ex.label || '?'), '#FFFFFF', '#1c1c1f', false)
+      });
+      marker.map = map;
+      stationExitPins.push(marker);
+    }
+  }
+
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
   // for a tapped station, from the data/stations.json record.
   function openStationCard(item) {
@@ -1002,6 +1107,7 @@ export function createOverlayController(map, googleMaps) {
       info.setContent(stationInfoCardHtml(rec));
       info.open(map, item.marker);
       showStationBusStops(rec);
+      showStationExits(rec);     // v0.61.82 — CR-6
     });
   }
 
@@ -1227,12 +1333,14 @@ export function createOverlayController(map, googleMaps) {
         const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
         ln.polyline.setMap(e.visible && near ? map : null);
         // v0.61.58 — CR5 v2: when a station is selected the base lines
-        // mute hard (0.25) so the prev→current→next overlay segment
-        // stands out; otherwise the search-emphasis / zoom opacity applies.
+        // mute hard so the prev→current→next overlay segment stands
+        // out; otherwise the search-emphasis / zoom opacity applies.
+        // v0.61.80 — CR-3 retune: muted-base 0.25 → 0.1, zoomed-out
+        // 0.5 → 0.2, zoomed-in 0.85 → 0.95 (weights unchanged).
         ln.polyline.setOptions(
-          detailStation ? { strokeOpacity: 0.25, strokeWeight: 3 }
+          detailStation ? { strokeOpacity: 0.1, strokeWeight: 3 }
             : emph ? { strokeOpacity: 0.35, strokeWeight: 3 }
-              : { strokeOpacity: zoomedIn ? 0.85 : 0.5, strokeWeight: 4 });
+              : { strokeOpacity: zoomedIn ? 0.95 : 0.2, strokeWeight: 4 });
         // search-emphasis windows (Cuisine result anchor) — suppressed
         // while a station is selected (CR5 v2 takes precedence).
         if (e.visible && near && emph && !detailStation && near3.length) {
@@ -1274,21 +1382,20 @@ export function createOverlayController(map, googleMaps) {
       // `detailStations` stays empty so every station radius-clips
       // normally and the chip layers are anchor-clipped.
       detailStations = [];
-      // v0.61.53 — unified per-station content swap (subsumes the
-      // earlier centre-only rebuild). At zoom-in every visible station
-      // is a labelled pill — a line-coloured chip per station code, then
-      // `<name> station`; at zoom-out, square pins, except the explicitly-
-      // selected centre which stays a pill so it self-identifies.
+      // v0.61.53 — unified per-station content swap. At zoom-in every
+      // visible station is a labelled pill — a line-coloured chip per
+      // station code, then `<name> station`; at zoom-out, square pins.
       // `_mode` caches the current state to avoid rebuilding on every
       // pan-driven applyVisibility.
-      const newCentre = detailStation ? detailStation.name : null;
+      // v0.61.81 — CR-2: the centre-station zoom-bypass is deleted. A
+      // selected station now strictly obeys the z=15 threshold — it
+      // renders as a 9 px line-coloured square below z15, no exception.
       for (const st of e.stations) {
         const near = !e.radius || inRadius(st.lat, st.lng, e.radius);
         const show = e.visible && near;
         st.marker.map = show ? map : null;
         if (!show) continue;
-        const isCentre = st.station.name === newCentre;
-        const wantMode = (zoomedIn || isCentre) ? 'pill' : 'square';
+        const wantMode = zoomedIn ? 'pill' : 'square';
         if (st._mode !== wantMode) {
           if (wantMode === 'pill') {
             st.marker.content = stationPillNode(
@@ -1299,7 +1406,6 @@ export function createOverlayController(map, googleMaps) {
           st._mode = wantMode;
         }
       }
-      centreName = newCentre;
       return;
     }
     // marker — chip overlay layer. v0.61.26 — in a station-detail view
@@ -1316,7 +1422,9 @@ export function createOverlayController(map, googleMaps) {
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
-      if (it._bus && e.visible && near) {
+      // v0.61.82 — CR-5: bus-stop AND exit pins are zoom-aware; swap
+      // marker.content between the compact and full nodes.
+      if ((it._bus || it._exit) && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
         if (it.marker.content !== want) it.marker.content = want;
       }
@@ -1328,7 +1436,7 @@ export function createOverlayController(map, googleMaps) {
     // tap-elsewhere) alongside its own venue/station InfoWindow.
     // v0.61.68 — also clears the station card's transient bus-stop pins,
     // so a tap on the empty map removes them (when Bus Stop is off).
-    closeInfo() { info.close(); clearStationBusStops(); },
+    closeInfo() { info.close(); clearStationBusStops(); clearStationExitPins(); },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
@@ -1344,7 +1452,9 @@ export function createOverlayController(map, googleMaps) {
       }
       // v0.61.68 — when the Bus Stop overlay turns on, drop the card's
       // transient station bus pins so they don't duplicate the layer.
+      // v0.61.82 — CR-6: same for the Exit overlay vs the card's exit pins.
       if (name === 'busstop' && visible) clearStationBusStops();
+      if (name === 'exits' && visible) clearStationExitPins();
       applyVisibility(name);
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
@@ -1376,6 +1486,7 @@ export function createOverlayController(map, googleMaps) {
       detailStation = null;
       detailStations = [];
       clearStationBusStops();
+      clearStationExitPins();
       for (const name of Object.keys(layers)) {
         layers[name].visible = false;
         applyVisibility(name);

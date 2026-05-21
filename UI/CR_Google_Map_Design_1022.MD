@@ -67,4 +67,58 @@ Extend the functional behavior of the global `window.__giaStationFocus(lat, lng,
 2. **Target Pin Visibility Enforcement:** When an interaction occurs (such as clicking an Exit link or a Bus Stop link inside a station detail card), the application must explicitly force-render and highlight the specific target `Exit #` pin or `Bus Stop №` pin on the map viewport, regardless of whether its parent global overlay layer toggle is switched on or off in `MapControls`.
 
 ---
-*Generated 21-05 '26 against CR-v0.62.00 specifications.*
+
+## CR-7. Standardise the Station Information Card
+- **Template — one stacked block per line, divider rule between blocks:**
+
+  ┌──────────────────────────────────────┐
+  │ [ TE13 ] · Orchard Boulevard MRT Station  │  ← code pill (white bold on line
+  │ TEL · Thomson–East Coast Line           │     colour) · name bold in line colour
+  │ ──────────────────────────────────── │
+  │ Exits                                 │  ← station-level, label-sorted
+  │  Exit A · Exit B · Exit C · Exit D    │
+  │  (upon clicking the "Exit A" will show one row below it the Exit A details
+  │   Exit A · <street name from Bus Stop>
+             · Bus Stop № ##### │   Exit # + Bus Stop № are tappable
+  │   Exit B · …                          │
+  │ ──────────────────────────────────── │
+  │ More Info ↗                           │  ← per-line, if more_info_url
+  │ 🚆 First / Last Train                 │  ← firstLastTrainHtml
+  │   Northbound — First 5:32am (Mon–Sat) │     one row per direction;
+  │              · Last 11:58pm (Daily)   │     verbatim source strings
+  │   ⚠️ <service adjustment>             │     surfaced once if present
+  │ ──────────────────────────────────── │  ← divider (interchange only)  
+│ Operator: SMRT                         │  ← deduped across all lines
+  │ Google Map ↗                          │
+  └──────────────────────────────────────┘
+  ```
+- **Interchange handling:** 
+  ┌──────────────────────────────────────┐
+  │ [ NS24 ]  ·  [ NE6 ]  ·  [ CC1 ]  ·  Dhoby Ghaut Station      │  ← code pill (white bold on line
+  │ ──────────────────────────────────── │
+  │ Exits                                 │  ← station-level, label-sorted
+  │  Exit A · Exit B · Exit C · Exit D    │
+  │  (upon clicking the "Exit A" will show one row below it the Exit A details
+  │   Exit A · <street name from Bus Stop>
+             · Bus Stop № ##### │   Exit # + Bus Stop № are tappable
+  │   Exit B · …                          │
+  │ ──────────────────────────────────── │  ← divider (interchange only)
+  │ [ NS24 ]  ·  Dhoby Ghaut Station      │  ← code pill (white bold on line
+  │ NSL · North South Line                │     colour) · name bold in line colour
+  │ More Info ↗                           │  ← per-line, if more_info_url
+  │ 🚆 First / Last Train                 │  ← firstLastTrainHtml
+  │   ⚠️ <service adjustment>             │     surfaced once if present
+  │ ──────────────────────────────────── │  ← divider (interchange only)
+  │ [ NE6 ]  ·  Dhoby Ghaut Station       │
+  │ NEL · North East Line                 │
+  │ More Info ↗                           │
+  │ ──────────────────────────────────── │
+  │ [ CC1 ]  ·  Dhoby Ghaut Station       │
+  │ CCL · Circle Line                     │
+  │ More Info ↗                           │
+  │ ──────────────────────────────────── │
+  │ Operator: SMRT · SBS Transit          │  ← deduped across all lines
+  │ Google Map ↗                          │
+  └──────────────────────────────────────┘
+  ```
+
