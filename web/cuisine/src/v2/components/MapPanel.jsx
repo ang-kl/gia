@@ -8,12 +8,13 @@ import MapControls from './MapControls.jsx';
 // rank in the current search results / first load). Replaces the emoji-
 // glyph pin (the v0.60.184 michelin / pet / dessert glyphs).
 // v0.61.81 — CR-1: droplet/teardrop shape (was a round circle). The
-// outer node is a 24 px box with three rounded corners and one sharp
+// outer node is a 30 px box with three rounded corners and one sharp
 // corner, rotated 45° so the sharp corner points straight down at the
 // venue coordinate. The rank number rides in a counter-rotated inner
 // span so it stays upright. White border + drop shadow retained.
+// v0.61.91 — droplet bumped one size up (24 → 30 px; operator request).
 function cuisinePinNode(number) {
-  const size = 24;
+  const size = 30;
   const el = document.createElement('div');
   el.style.cssText =
     'display:flex;align-items:center;justify-content:center;'
@@ -24,7 +25,7 @@ function cuisinePinNode(number) {
   const inner = document.createElement('span');
   inner.style.cssText =
     'transform:rotate(45deg);color:#fff;font-weight:700;'
-    + 'font-size:12px;line-height:1;';
+    + 'font-size:14px;line-height:1;';
   if (number != null) inner.textContent = String(number);
   el.appendChild(inner);
   return el;
@@ -386,6 +387,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         position: { lat: v.lat, lng: v.lng },
         title: v.name,                                    // native browser tooltip (desktop hover)
         content: pinNode,
+        // v0.61.91 — result droplets sit above every overlay layer
+        // (train stations / pins) so they are never occluded.
+        zIndex: 1000,
         gmpClickable: true                                // enable click + DOM events on the pin
       });
       // v0.58.51 / v0.58.52: hover preview via InfoWindow. Desktop only.

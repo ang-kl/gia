@@ -49,12 +49,30 @@ function escapeHtml(s) {
 // v0.60.233 — operator: pins 18px → 17px. New-centre colour changed
 // gold → navy (#1e3a8a); the operator is red/green colour-blind, so
 // navy reads cleanly against the red "established" pin.
-function hawkerPinNode(isNew) {
+// v0.61.91 — operator: the centre pin is now a numbered droplet — a
+// 26 px teardrop with the sharp corner pointing down at the coordinate
+// and the centre's 1-based list rank in a counter-rotated inner span.
+// The established-red / new-navy colour split + the "NEW" badge are
+// kept; the badge rides on a non-rotated wrapper so it stays upright.
+function hawkerPinNode(isNew, number) {
+  const size = 26;
+  const wrap = document.createElement('div');
+  wrap.style.cssText =
+    `position:relative;width:${size}px;height:${size}px;cursor:pointer;`;
   const el = document.createElement('div');
   el.style.cssText =
-    'position:relative;width:17px;height:17px;border-radius:50%;cursor:pointer;' +
-    'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.45);' +
+    'display:flex;align-items:center;justify-content:center;' +
+    `width:${size}px;height:${size}px;` +
+    'border-radius:50% 50% 50% 0;transform:rotate(-45deg);' +
+    'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);' +
     `background:${isNew ? '#1e3a8a' : '#e53935'};`;
+  const inner = document.createElement('span');
+  inner.style.cssText =
+    'transform:rotate(45deg);color:#fff;font-weight:700;' +
+    'font-size:13px;line-height:1;';
+  if (number != null) inner.textContent = String(number);
+  el.appendChild(inner);
+  wrap.appendChild(el);
   if (isNew) {
     const badge = document.createElement('div');
     badge.textContent = 'NEW';
@@ -63,9 +81,9 @@ function hawkerPinNode(isNew) {
       'background:#1e3a8a;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
       'letter-spacing:0.5px;padding:3px 5px;border-radius:4px;white-space:nowrap;' +
       'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
-    el.appendChild(badge);
+    wrap.appendChild(badge);
   }
-  return el;
+  return wrap;
 }
 
 export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null }) {
@@ -275,13 +293,18 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
 
     const bounds = new window.google.maps.LatLngBounds();
     let plotted = 0;
+    let centreNo = 0;   // v0.61.91 — 1-based rank for the droplet number
     for (const c of (centres || [])) {
+      centreNo += 1;    // counts every centre so numbers match the list
       if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: hawkerPinNode(c.isNew),
+        content: hawkerPinNode(c.isNew, centreNo),
+        // v0.61.91 — centre droplets sit above every overlay layer
+        // (train stations / pins) so they are never occluded.
+        zIndex: 1000,
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
