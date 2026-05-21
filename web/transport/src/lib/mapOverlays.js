@@ -513,6 +513,18 @@ function firstLastTrainHtml(entries, c) {
   return h;
 }
 
+// v0.61.83 — CR-7: standardised station info card.
+//   • Header — single line: code pill · "<Name> Station", then line
+//     code/name. Interchange: a combined row of every line's code
+//     pill, then "<Name> Station" once.
+//   • Exits — station-level, label-sorted: a row of tappable "Exit X"
+//     labels; tapping one toggles a detail row below it
+//     (Exit # · <street> · Bus Stop № — Exit # and Bus Stop № are
+//     map-focus links).
+//   • Per-line detail block(s) — More Info ↗ + First/Last Train. An
+//     interchange repeats each line's code pill · name · line above
+//     its block; a single-line station already showed those up top.
+//   • Footer — deduped Operator(s) + Google Map ↗.
 function stationInfoCardHtml(rec) {
   const c = infoPalette();
   const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
@@ -521,57 +533,98 @@ function stationInfoCardHtml(rec) {
     + Number(lat) + ',' + Number(lng) + (flash ? ',1' : '') + ')';
   const name = rec.station_name || '';
   const lines = Array.isArray(rec.lines) ? rec.lines : [];
+  const interchange = lines.length > 1;
   let h = '';
 
-  // One block per line — code pill + "<Name> Station", line, More Info.
-  lines.forEach((ln, i) => {
-    const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
-    h += '<div style="' + (i ? rule : '') + '">';
-    h += '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">';
-    if (ln.station_code) h += codePill(ln.station_code, hex, true);
-    h += '<span style="color:' + c.sub + ';">·</span>'
-      + '<span style="font-weight:700;font-size:14px;color:' + hex + ';">'
-      + escapeHtml(name + ' Station') + '</span></div>';
-    h += '<div style="margin-top:3px;color:' + c.fg + ';">'
-      + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
-    if (ln.more_info_url) {
-      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
-        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
-    }
-    // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
-    h += firstLastTrainHtml(
-      (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
-        .filter((e) => e.line_code === (ln.line_code || '')), c);
-    h += '</div>';
-  });
+  // codePill(s) · "<Name> Station" header row, the name in `nameHex`.
+  const headRow = (pills, nameHex) =>
+    '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
+    + pills
+    + '<span style="color:' + c.sub + ';">·</span>'
+    + '<span style="font-weight:700;font-size:14px;color:' + nameHex + ';">'
+    + escapeHtml(name + ' Station') + '</span></div>';
+  const lineRow = (ln) => '<div style="margin-top:3px;color:' + c.fg + ';">'
+    + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
 
-  // Exits — station-level, label-sorted.
+  // 1. Header — combined code pills for an interchange, a single pill +
+  //    line code/name otherwise.
+  if (interchange) {
+    let pills = '';
+    for (const ln of lines) {
+      if (ln.station_code) pills += codePill(ln.station_code, codeHex(ln.station_code), true);
+    }
+    h += '<div>' + headRow(pills, c.fg) + '</div>';
+  } else {
+    const ln = lines[0] || {};
+    const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
+    h += '<div>' + headRow(ln.station_code ? codePill(ln.station_code, hex, true) : '', hex)
+      + lineRow(ln) + '</div>';
+  }
+
+  // 2. Exits — station-level, label-sorted, click-to-expand detail.
   const exits = (Array.isArray(rec.exits) ? rec.exits.slice() : [])
     .sort((a, b) => String(a.label || '').localeCompare(
       String(b.label || ''), undefined, { numeric: true }));
   if (exits.length) {
     h += '<div style="' + rule + '"><div style="font-weight:700;">Exits</div>';
-    for (const ex of exits) {
-      const parts = [];
+    const labels = [];
+    let details = '';
+    exits.forEach((ex, i) => {
+      const did = 'gia-exit-' + i;
       const exTxt = 'Exit ' + escapeHtml(ex.label || '?');
-      parts.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
+      // Label — tapping it toggles its detail row's visibility.
+      const toggle = "var d=document.getElementById('" + did + "');"
+        + "if(d)d.style.display=d.style.display==='none'?'block':'none';";
+      labels.push('<span style="' + lk + '" onclick="' + toggle + '">' + exTxt + '</span>');
+      // Detail row — collapsed by default; Exit # + Bus Stop № are
+      // map-focus links (pan + flash the pin).
+      const dp = [];
+      dp.push((Number.isFinite(ex.lat) && Number.isFinite(ex.lng))
         ? '<span style="' + lk + '" onclick="' + focus(ex.lat, ex.lng, true) + '">' + exTxt + '</span>'
         : '<span style="font-weight:700;">' + exTxt + '</span>');
       if (ex.street) {
-        parts.push('<span style="font-weight:700;color:' + c.fg + ';">'
+        dp.push('<span style="font-weight:700;color:' + c.fg + ';">'
           + escapeHtml(ex.street) + '</span>');
       }
       const bs = ex.nearest_bus_stop;
       if (bs && bs.code && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
-        parts.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
+        dp.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
           + '">Bus Stop № ' + escapeHtml(bs.code) + '</span>');
       }
-      h += '<div style="margin-top:4px;">' + parts.join(' · ') + '</div>';
-    }
-    h += '</div>';
+      details += '<div id="' + did + '" style="display:none;margin-top:4px;'
+        + 'padding-left:8px;">' + dp.join(' · ') + '</div>';
+    });
+    h += '<div style="margin-top:4px;">' + labels.join(' · ') + '</div>' + details + '</div>';
   }
 
-  // Operator(s) + Google Maps — station-level footer.
+  // 3. Per-line detail block(s) — More Info ↗ + First/Last Train.
+  const lineDetail = (ln, withHead) => {
+    let b = '';
+    if (withHead) {
+      const hex = ln.station_code ? codeHex(ln.station_code) : '#888888';
+      b += headRow(ln.station_code ? codePill(ln.station_code, hex, true) : '', hex)
+        + lineRow(ln);
+    }
+    if (ln.more_info_url) {
+      b += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
+        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
+    }
+    // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
+    b += firstLastTrainHtml(
+      (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
+        .filter((e) => e.line_code === (ln.line_code || '')), c);
+    return b;
+  };
+  if (interchange) {
+    for (const ln of lines) {
+      h += '<div style="' + rule + '">' + lineDetail(ln, true) + '</div>';
+    }
+  } else if (lines.length) {
+    const d = lineDetail(lines[0], false);
+    if (d) h += '<div style="' + rule + '">' + d + '</div>';
+  }
+
+  // 4. Operator(s) + Google Maps — station-level footer.
   const ops = [];
   for (const ln of lines) {
     if (ln.operator && ops.indexOf(ln.operator) < 0) ops.push(ln.operator);
