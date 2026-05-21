@@ -3403,7 +3403,6 @@ async function runTransportBus(chatId, sub, lang = 'en') {
 
 async function runTransportTrafficIncidents(chatId, lang = 'en') {
   const { t, tn, translateIncidentType } = require('./i18n');
-  const { formatDistance } = require('./format');
   try {
     if (!process.env.LTA_ACCOUNT_KEY) {
       await safeSend(chatId, t('transport.incidents.offline', lang), {
@@ -3411,39 +3410,22 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
       });
       return;
     }
-    if (!redis.isOpen) await redis.connect();
-    const cachedLoc = await getUserLocation(redis, chatId);
     const all = await transport.fetchTrafficIncidents();
     const lines = [t('transport.incidents.heading', lang)];
     let mapPool = []; // incidents to plot on the one-map view
     if (!all.length) {
       lines.push('', t('transport.incidents.none', lang));
-    } else if (cachedLoc) {
-      // v0.60.103 — operator 2026-05-11: drop the 8-incident cap.
-      // Sort nearest-first and render every island-wide incident.
-      // v0.60.72's 20 km radius previously hid distant accidents the
-      // operator still wanted to see ("expand to include all").
-      const near = transport.nearestIncidents(all, cachedLoc.lat, cachedLoc.lng, Number.POSITIVE_INFINITY, all.length);
-      if (near.length) {
-        lines.push('', tn('transport.incidents.nearHeader', lang, { n: near.length, total: all.length }));
-        for (const inc of near) {
-          const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
-          lines.push('', tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist }));
-          lines.push(`  ${inc.message}`);
-        }
-        mapPool = near;
-      } else {
-        lines.push('', tn('transport.incidents.noNear', lang, { total: all.length }));
-      }
     } else {
-      // v0.60.103 — no-location path: also show every incident, not
-      // the first 5. Map pool widens to the full list too.
-      lines.push('', tn('transport.incidents.noLoc', lang, { total: all.length }));
-      for (const inc of all) {
+      // v0.61.85 — operator: show the 20 latest island-wide incidents,
+      // newest first by the LTA message timestamp. No radius filter,
+      // no location needed — the "none within N km" wording is gone.
+      const latest = transport.latestIncidents(all, 20);
+      lines.push('', tn('transport.incidents.nearHeader', lang, { n: latest.length }));
+      for (const inc of latest) {
         lines.push('', tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist: '' }));
         lines.push(`  ${inc.message}`);
       }
-      mapPool = all;
+      mapPool = latest;
     }
     // v0.59.3: one-map button.
     let mapRow = [];
@@ -3464,7 +3446,7 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
             url: `https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lng}`
           }));
         const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-        if (mapUrl) mapRow = [[{ text: t('transport.map.incidentsBtn', lang), web_app: { url: mapUrl } }]];
+        if (mapUrl) mapRow = [[{ text: tn('transport.map.incidentsBtn', lang, { n: slim.length }), web_app: { url: mapUrl } }]];
       } catch (err) { console.warn('[Transport] incidents map build failed:', err.message); }
     }
     // v0.60.103 — uncapped incident list can exceed Telegram's
@@ -3596,38 +3578,15 @@ async function runTransportCauseway(chatId, lang = 'en') {
 }
 
 async function runTransportDrive(chatId, lang = 'en') {
-  const { t, tn, translateIncidentType } = require('./i18n');
-  const { formatDistance } = require('./format');
+  const { t } = require('./i18n');
   try {
     if (!redis.isOpen) await redis.connect();
     const cachedLoc = await getUserLocation(redis, chatId);
+    // v0.61.85 — operator: Drive no longer auto-loads traffic
+    // incidents. It shows a sub-menu — Car Park, Incidents, Refresh
+    // location — plus the driving-directions Google Map link when a
+    // location is cached. Incidents load only when the user taps in.
     const lines = [t('transport.drive.title', lang)];
-    if (process.env.LTA_ACCOUNT_KEY) {
-      try {
-        const all = await transport.fetchTrafficIncidents();
-        const near = transport.nearestIncidents(
-          all,
-          cachedLoc?.lat ?? 1.2839,
-          cachedLoc?.lng ?? 103.8517,
-          5000,
-          5
-        );
-        if (near.length) {
-          lines.push('', tn('transport.drive.trafficNear', lang, { n: near.length, total: all.length }));
-          for (const inc of near) {
-            const dist = Number.isFinite(inc.distanceM) ? ` — ${formatDistance(inc.distanceM)}` : '';
-            lines.push(tn('transport.incidents.row', lang, { type: translateIncidentType(inc.type, lang), dist }));
-            lines.push(`  ${inc.message}`);
-          }
-        } else if (all.length) {
-          lines.push('', tn('transport.drive.trafficNoNear', lang, { total: all.length }));
-        } else {
-          lines.push('', t('transport.drive.trafficNone', lang));
-        }
-      } catch (err) {
-        console.error('[Transport] traffic incidents failed:', err.message);
-      }
-    }
     const buttons = [];
     if (cachedLoc) {
       const url = `https://www.google.com/maps/dir/?api=1&origin=${cachedLoc.lat},${cachedLoc.lng}&travelmode=driving`;
@@ -3635,9 +3594,10 @@ async function runTransportDrive(chatId, lang = 'en') {
     } else {
       lines.push('', t('transport.drive.noLocation', lang));
     }
-    // v0.59.3: Drive→Carpark must actually open the carpark list.
-    // Previously both buttons routed back to transport:menu.
-    buttons.push([{ text: t('transport.drive.btn.carpark', lang), callback_data: 'transport:carpark' }, { text: t('button.back', lang), callback_data: 'transport:menu' }]);
+    buttons.push([{ text: t('transport.drive.btn.carpark', lang), callback_data: 'transport:carpark' }]);
+    buttons.push([{ text: t('transport.menu.btn.incidents', lang), callback_data: 'transport:incidents' }]);
+    buttons.push([{ text: t('transport.menu.btn.refreshLoc', lang), callback_data: 'transport:refresh-loc' }]);
+    buttons.push([{ text: t('button.back', lang), callback_data: 'transport:menu' }]);
     await safeSend(chatId, lines.join('\n'), {
       reply_markup: { inline_keyboard: buttons }
     });
