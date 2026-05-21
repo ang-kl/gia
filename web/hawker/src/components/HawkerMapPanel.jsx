@@ -175,7 +175,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'hawker' });
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
@@ -418,10 +418,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout, bottom-right. */}
+      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout.
+          v0.61.90 — white-grey chip tucked into the bottom-right corner
+          (operator request). */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-3 right-3 z-10 px-1.5 py-0.5 rounded bg-black/55 text-white text-[10px] font-mono leading-none pointer-events-none select-none"
+          className="absolute bottom-1 right-1 z-10 px-1.5 py-0.5 rounded bg-gray-200/90 text-gray-700 border border-gray-300 text-[10px] font-mono leading-none pointer-events-none select-none"
           aria-hidden
         >
           z {Number(zoomLevel).toFixed(2)}

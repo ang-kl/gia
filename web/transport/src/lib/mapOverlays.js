@@ -16,8 +16,12 @@
 //
 // v0.61.87 — the train-line layer is NOT radius-clipped: the whole
 // MRT/LRT network (every line + station) draws when the Train overlay
-// is on. Station markers show a line-coloured code chip, expanding to
-// a full named pill at/above ZOOM_DETAIL_THRESHOLD.
+// is on.
+// v0.61.90 — per-TMA zoom tiers (operator spec): a station marker
+// steps square → code chip (3 ascending sizes) → full named pill
+// across the zoom bands, with per-TMA station-count caps and line
+// opacity. The controller is told its TMA via createOverlayController's
+// third arg; trainTier() resolves the band.
 //
 // v0.61.17 — train-overlay station markers are now clickable on every
 // TMA (no longer emphasis-gated): tapping one enters a STATION-DETAIL
@@ -46,6 +50,48 @@ const STATION_AMENITY_RADIUS_M = 400;
 // (codes only, no name); the bare square pin was dropped, so a station
 // always shows its code.
 const ZOOM_DETAIL_THRESHOLD = 15;
+
+// v0.61.90 — per-TMA train-overlay zoom tiers (operator spec). For a
+// TMA ('cuisine' | 'hawker' | 'transport') and the current map zoom,
+// returns how station markers + line opacity render:
+//   station : 'sq-sm' small square | 'chip' code chip | 'pill' named pill
+//   scale   : code-chip size multiplier (ascends with zoom)
+//   cap     : when > 0, only the N stations nearest the map anchor show
+//             the chip; the rest fall back to `other` ('sq-sm' | 'sq')
+//   opacity : base train-line stroke opacity
+//   emphasis: Cuisine z15+ — lines connecting the in-focus (nearest-
+//             result) stations stay 100%, the rest drop to 50%
+// Below z12 every TMA shows small squares at 50% line opacity.
+function trainTier(tma, zoom) {
+  if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
+  if (tma === 'cuisine') {
+    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm' };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm' };
+    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.9, other: 'sq' };
+    return { station: 'pill', cap: 0, opacity: 1, emphasis: true };
+  }
+  if (tma === 'hawker') {
+    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm' };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm' };
+    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.7, other: 'sq-sm' };
+    return { station: 'pill', cap: 0, opacity: 1 };
+  }
+  // transport — no station caps; z12 stays square per the operator spec.
+  if (zoom < 13) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
+  if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 0, opacity: 0.7 };
+  if (zoom < 15) return { station: 'chip', scale: 1, cap: 0, opacity: 0.7 };
+  return { station: 'pill', cap: 0, opacity: 1 };
+}
+
+// v0.61.90 — marker content for a resolved station mode (see trainTier
+// + applyVisibility's train branch). `mode`: 'sq-sm' | 'sq' | 'pill' |
+// 'chip:<scale>'.
+function trainStationNode(mode, st) {
+  if (mode === 'pill') return stationPillNode(st.station.codes, st.station.name || '', st.hex);
+  if (mode === 'sq-sm') return squareStationNode(st.hex, true);
+  if (mode === 'sq') return squareStationNode(st.hex, false);
+  return stationCodeNode(st.station.codes, st.hex, parseFloat(mode.slice(5)) || 1);
+}
 
 // Canonical LTA line colours for the train-line overlay (the transport
 // app's LINES_BY_CODE isn't importable across Vite apps).
@@ -256,11 +302,15 @@ export function amenityLabelNode(label, bg, fg, clickable) {
 // v0.61.85 — shared white-pill base + code-chip loop for the station
 // markers. stationCodeNode (chips only) and stationPillNode (chips +
 // name) both build on these so an interchange shows each line's colour.
-function stationPillBase() {
+// v0.61.90 — `scale` (default 1) shrinks the pill for the lower zoom
+// tiers: gap / padding / font-size all scale, so a code chip reads
+// progressively smaller as the map zooms out.
+function stationPillBase(scale) {
+  const s = scale || 1;
   const el = document.createElement('div');
-  el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;'
-    + 'padding:1px 5px;border-radius:8px;background:#fff;'
-    + 'font-size:12px;font-weight:700;line-height:1.5;white-space:nowrap;'
+  el.style.cssText = 'display:inline-flex;align-items:center;gap:' + (3 * s) + 'px;'
+    + 'padding:' + s + 'px ' + (5 * s) + 'px;border-radius:8px;background:#fff;'
+    + 'font-size:' + (12 * s) + 'px;font-weight:700;line-height:1.5;white-space:nowrap;'
     + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
   return el;
 }
@@ -278,9 +328,24 @@ function appendCodeChips(el, codes, fallbackHex) {
 // v0.61.85 — CR-2 station marker: one line-coloured chip per station
 // code, no name. v0.61.87 — the default train-station marker, shown
 // below ZOOM_DETAIL_THRESHOLD; expands to the full named pill above it.
-function stationCodeNode(codes, fallbackHex) {
-  const el = stationPillBase();
+// v0.61.90 — `scale` shrinks the chip for the lower zoom tiers.
+function stationCodeNode(codes, fallbackHex, scale) {
+  const el = stationPillBase(scale);
   appendCodeChips(el, codes, fallbackHex);
+  return el;
+}
+
+// v0.61.90 — small line-coloured square station marker. Re-introduced
+// for the low-zoom tiers of the per-TMA train overlay (operator zoom-
+// tier spec): below the chip bands, and for stations beyond a tier's
+// nearest-N cap. `small` is the compact form (below z12 and the capped
+// remainder at z12/z13); the larger form is the z14 Cuisine remainder.
+function squareStationNode(hex, small) {
+  const el = document.createElement('div');
+  const sz = small ? 7 : 11;
+  el.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;border-radius:2px;'
+    + 'cursor:pointer;background:' + (hex || '#888888') + ';'
+    + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
   return el;
 }
 
@@ -410,7 +475,12 @@ export function ensureGreyscaleStyle() {
   st.textContent = '.gia-greyscale-map canvas,.gia-greyscale-map img'
     + '{filter:grayscale(1) contrast(0.8) brightness(0.96)!important}'
     + '@keyframes gia-pin-flash{0%,100%{opacity:1;transform:scale(1)}'
-    + '50%{opacity:0.35;transform:scale(1.7)}}';
+    + '50%{opacity:0.35;transform:scale(1.7)}}'
+    // v0.61.90 — shrink Google's camera (pan/tilt/rotate) widget 30%
+    // (operator request). Targets the tilt button's container; scales
+    // from the bottom-left so it stays pinned in the LEFT_BOTTOM corner.
+    + '.gm-style div:has(>button[aria-label*="ilt" i])'
+    + '{transform:scale(0.7);transform-origin:0 100%}';
   document.head.appendChild(st);
 }
 
@@ -769,7 +839,11 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
   return out;
 }
 
-export function createOverlayController(map, googleMaps) {
+export function createOverlayController(map, googleMaps, opts) {
+  // v0.61.90 — the host TMA ('cuisine' | 'hawker' | 'transport') drives
+  // the per-TMA train-overlay zoom tiers (trainTier). Defaults to the
+  // Transport behaviour when not supplied.
+  const tma = (opts && opts.tma) || 'transport';
   const { Polygon, Polyline, InfoWindow } = googleMaps;
   const { AdvancedMarkerElement } = googleMaps.marker;
   // v0.61.22 — headerDisabled drops Google's own white header + ✕ so
@@ -778,8 +852,8 @@ export function createOverlayController(map, googleMaps) {
   // v0.61.22 — tapping empty map dismisses the overlay popup.
   map.addListener('click', () => info.close());
   // v0.61.53 — re-apply the train layer on every zoom change so station
-  // markers swap square ↔ labelled-pill at ZOOM_DETAIL_THRESHOLD and the
-  // polyline opacity tracks zoom.
+  // markers + line opacity track the active zoom tier (v0.61.90
+  // trainTier — square / code chip / named pill bands).
   // v0.61.82 — CR-5: also re-apply the exits layer so exit pins swap
   // bare-identifier ↔ "Exit <code>" card at the same threshold.
   map.addListener('zoom_changed', () => {
@@ -1303,30 +1377,54 @@ export function createOverlayController(map, googleMaps) {
       return;
     }
     // v0.61.11 — train layer: polylines + zoom-aware station markers.
-    // v0.61.85 — the result-emphasis mode (semi-transparent base +
-    // bright overlay windows near the search anchor) was removed; the
-    // base polyline opacity now tracks zoom only, plus the CR5 v2
-    // selected-station segment highlight.
-    // v0.61.87 — the train layer is no longer radius-clipped: the whole
-    // network draws when the overlay is on.
+    // v0.61.90 — per-TMA zoom tiers (operator spec). trainTier(tma,
+    // zoom) resolves the station marker mode + base line opacity; a
+    // capped tier shows the nearest-N stations as chips and the rest
+    // as squares; a tapped station always shows the full named pill.
     if (e.kind === 'train') {
-      // v0.61.53 — zoom-aware train layer (CR5): above the threshold
-      // every visible station becomes a labelled pill and the base
-      // polyline goes more opaque.
       const zoom = map.getZoom?.() || 0;
-      const zoomedIn = zoom >= ZOOM_DETAIL_THRESHOLD;
+      const tier = trainTier(tma, zoom);
       for (const h of (e.highlights || [])) h.setMap(null);
       e.highlights = [];
+
+      // v0.61.90 — resolve the N stations nearest the map anchor (the
+      // viewport centre — "nearest to the cuisine result / focused
+      // hawker centre" the spec asks for) when a tier caps the chip
+      // count, or for the Cuisine z15+ line emphasis.
+      let nearSet = null;
+      let nearCoords = null;
+      if (e.visible && (tier.cap > 0 || tier.emphasis)) {
+        const ctr = map.getCenter?.();
+        const ref = anchor || (ctr && { lat: ctr.lat(), lng: ctr.lng() });
+        if (ref) {
+          const n = tier.cap > 0 ? tier.cap : 15;
+          const nearest = e.stations
+            .map((st) => ({ st, d: metresBetween(ref.lat, ref.lng, st.lat, st.lng) }))
+            .sort((a, b) => a.d - b.d)
+            .slice(0, n)
+            .map((x) => x.st);
+          nearSet = new Set(nearest.map((st) => st.station.name));
+          nearCoords = nearest.map((st) => ({ lat: st.lat, lng: st.lng }));
+        }
+      }
+
       for (const ln of e.lines) {
         ln.polyline.setMap(e.visible ? map : null);
-        // v0.61.58 — CR5 v2: when a station is selected the base lines
-        // mute hard so the prev→current→next overlay segment stands
-        // out; otherwise the zoom opacity applies.
-        // v0.61.80 — CR-3 retune: muted-base 0.25 → 0.1, zoomed-out
-        // 0.5 → 0.2, zoomed-in 0.85 → 0.95 (weights unchanged).
-        ln.polyline.setOptions(
-          detailStation ? { strokeOpacity: 0.1, strokeWeight: 3 }
-            : { strokeOpacity: zoomedIn ? 0.95 : 0.2, strokeWeight: 4 });
+        // Base opacity tracks the tier; a tapped station mutes every
+        // base line hard so its prev→current→next highlight stands out;
+        // Cuisine z15+ keeps lines touching an in-focus station at 100%
+        // and drops the rest to 50%.
+        let opacity = tier.opacity;
+        if (e.visible && detailStation) {
+          opacity = 0.1;
+        } else if (e.visible && tier.emphasis && nearCoords) {
+          const touches = ln.pts.some((p) => nearCoords.some((c) =>
+            metresBetween(c.lat, c.lng, p.lat, p.lng) <= 150));
+          opacity = touches ? 1 : 0.5;
+        }
+        ln.polyline.setOptions({
+          strokeOpacity: opacity, strokeWeight: detailStation ? 3 : 4
+        });
         // v0.61.58 — CR5 v2 selected-station emphasis: light up the
         // stretch of THIS line from the station before to the station
         // after the tapped station, full opacity in the line colour.
@@ -1348,28 +1446,34 @@ export function createOverlayController(map, googleMaps) {
           }
         }
       }
-      // v0.61.57 — CR6 Phase 3: tapping a station opens the station
-      // info card (openStationCard) instead of the old neighbour-detail
-      // view. `detailStation` still marks the selected station (for the
-      // CR5 v2 selected-segment highlight), but it no longer hides the
-      // other stations or scopes the Exits / Taxis chips — `detailStations`
-      // stays empty so the chip layers are anchor-clipped.
+      // v0.61.57 — `detailStation` marks the tapped station (for the
+      // CR5 v2 highlight + the always-pill marker); `detailStations`
+      // stays empty so the Exits / Taxis chip layers are anchor-clipped.
       detailStations = [];
-      // v0.61.87 — two-state per-station content swap (the radius clip
-      // and the bare square pin were both dropped):
-      //   zoom <  ZOOM_DETAIL_THRESHOLD → line-coloured code chip(s), no name
-      //   zoom >= ZOOM_DETAIL_THRESHOLD → full pill (code chips + name)
-      // `_mode` caches the state to avoid rebuilding on every pan-driven
-      // applyVisibility.
+
+      // v0.61.90 — per-station marker mode. A tapped station always
+      // shows the full named pill (operator spec); otherwise trainTier
+      // decides, and a capped tier renders the stations beyond the
+      // nearest-N as squares. `_mode` caches the resolved mode so a
+      // marker only rebuilds when its band actually changes.
       for (const st of e.stations) {
         st.marker.map = e.visible ? map : null;
         if (!e.visible) continue;
-        const wantMode = zoomedIn ? 'pill' : 'code';
-        if (st._mode !== wantMode) {
-          st.marker.content = wantMode === 'pill'
-            ? stationPillNode(st.station.codes, st.station.name || '', st.hex)
-            : stationCodeNode(st.station.codes, st.hex);
-          st._mode = wantMode;
+        let mode;
+        if (detailStation && detailStation.name === st.station.name) {
+          mode = 'pill';
+        } else if (tier.station === 'pill') {
+          mode = 'pill';
+        } else if (tier.station === 'sq-sm') {
+          mode = 'sq-sm';
+        } else if (tier.cap > 0 && nearSet && !nearSet.has(st.station.name)) {
+          mode = tier.other || 'sq-sm';
+        } else {
+          mode = 'chip:' + (tier.scale || 1);
+        }
+        if (st._mode !== mode) {
+          st.marker.content = trainStationNode(mode, st);
+          st._mode = mode;
         }
       }
       return;
