@@ -322,7 +322,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.61.22 — headerDisabled drops Google's white header + ✕ so the
     // themed infoCard (with its own in-card ✕) is the whole popup.
     infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'transport' });
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.

@@ -190,7 +190,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     mapRef.current.addListener('zoom_changed', () => {
       setZoomLevel(mapRef.current?.getZoom?.());
     });
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine' });
     applyOverlayLayers(overlayLayersRef.current);
     // v0.61.22 — close any open popup on a tap of the empty map, and
     // expose a global the in-card ✕ button calls.
@@ -622,11 +622,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       >
         <span aria-hidden>📍</span>
       </button>
-      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout, bottom-right
-          (sits just left of the 📍 recenter button). */}
+      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout.
+          v0.61.90 — white-grey chip tucked into the bottom-right corner
+          (operator request). */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-3 right-14 z-10 px-1.5 py-0.5 rounded bg-black/55 text-white text-[10px] font-mono leading-none pointer-events-none select-none"
+          className="absolute bottom-1 right-1 z-10 px-1.5 py-0.5 rounded bg-gray-200/90 text-gray-700 border border-gray-300 text-[10px] font-mono leading-none pointer-events-none select-none"
           aria-hidden
         >
           z {Number(zoomLevel).toFixed(2)}
