@@ -16,8 +16,9 @@ last_anchor_time: 22-05 '26 05:55 SGT
 last_anchor_source: data.gov.sg air-temperature 2026-05-22T05:45+08 (sensor, TF-10 lower bound) + google HTTP Date header 2026-05-21T21:54:29Z; triangulated to ~05:55 SGT; normal re-anchor, not a TF-7 drift correction
 last_anchor_iso8601: 2026-05-22T05:55:00+08:00
 last_anchor_utc: 2026-05-21T21:55:00Z
-# v0.61.89 (commit 295 / journal 288 / build 95) — map-control PR on
-# branch claude/v0.61.89-map-controls: bottom-right zoom readout on the
+# v0.61.89 (commit 295 / journal 288 / build 95) — map-control PR #581
+# (squash 8bbec47, branch claude/v0.61.89-map-controls): bottom-right
+# zoom readout on the
 # Cuisine + Hawker maps + camera-control / keyboard-shortcut parity
 # across the 3 TMA maps. Journal #288 is the next slot off main (287);
 # it overlaps the deferred PR #579 branch renumber (note below) —
