@@ -1,8 +1,8 @@
 counters:
-  commit: 289
-  build: 89
+  commit: 290
+  build: 90
   documents:
-    journal: 282
+    journal: 283
     builder: 3
     persona: 4
     feature: 47
@@ -12,10 +12,23 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 16:44 SGT
-last_anchor_source: system_clock_utc_2026-05-21T08:44:23Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T16:44:23+08:00
-last_anchor_utc: 2026-05-21T08:44:23Z
+last_anchor_time: 21-05 '26 17:20 SGT
+last_anchor_source: system_clock_utc_2026-05-21T09:20:19Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-21T17:20:19+08:00
+last_anchor_utc: 2026-05-21T09:20:19Z
+# journal #283 (commit 290 / build 90) — v0.61.85 quieter eatery
+# tap, Station-Exit default off, mid-zoom station code chip (PR #579,
+# same branch as v0.61.84). #1: exits overlay default true→false in all
+# 3 App.jsx. #2: attachAmenityPins loses the includeStation block (the
+# short 🚉 station popup) + param; the trainEmphasis machinery
+# (setTrainEmphasis / trackWindow / emphasis opacity branches) is
+# removed — base polyline opacity tracks zoom only; Cuisine MapPanel +
+# Hawker HawkerMapPanel drop the venue/centre-tap amenity auto-draw
+# (drawVenueAmenities / drawHawkerAmenities + refs). #3: new
+# ZOOM_CODE_THRESHOLD=13 + stationCodeNode give a third marker state —
+# code chip (z13-14) between the square pin (z<13) and the named pill
+# (z>=15). mapOverlays.js byte-identical ×3. 1933/1933 tests, 3 builds
+# green. VibeCodingRecord regen still due.
 # journal #282 (commit 289 / build 89) — v0.61.84 bus-stop name
 # parity + wake-from-idle location prompt (PR #579). #3: runTransportBus
 # nearest-stops heading now leads with stop.description || stop.roadName
