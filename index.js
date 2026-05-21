@@ -33,7 +33,8 @@ const {
   consumePendingMeal,
   isProcessing,
   setProcessing,
-  clearProcessing
+  clearProcessing,
+  touchLastSeen
 } = require('./location-cache');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
@@ -1383,6 +1384,30 @@ bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, matc
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
 });
 
+// v0.61.84 — wake-from-idle location re-confirmation. The bot cannot
+// read device GPS unsolicited; when the first chat message after a
+// long idle gap (IDLE_WAKE_MS) arrives and a location is still stored,
+// ask once whether to keep it or set a new one.
+const IDLE_WAKE_MS = 6 * 60 * 60 * 1000;  // 6 h — a fresh usage session
+
+async function promptLocationOnWake(chatId, msg) {
+  try {
+    const loc = await getUserLocation(redis, chatId);
+    if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) return;
+    const { resolveLang } = require('./user-prefs');
+    const { t } = require('./i18n');
+    const lang = await resolveLang(redis, chatId, msg);
+    await safeSend(chatId, t('wake.locationCheck', lang), {
+      reply_markup: { inline_keyboard: [[
+        { text: t('wake.keepBtn', lang), callback_data: 'wake:keep' },
+        { text: t('wake.newBtn', lang), callback_data: 'wake:new' }
+      ]] }
+    });
+  } catch (err) {
+    console.warn('[Wake] location prompt failed:', err.message);
+  }
+}
+
 // v0.60.48 — extracted from the /location no-args branch so the Menu
 // TMA's "Set Location" tile (which dispatches `cmd: 'location'` via
 // web_app_data → routeMenuCommand) and the chat regex handler share
@@ -2122,6 +2147,24 @@ bot.on('callback_query', async (q) => {
       const { hashChatId } = require('./location-cache');
       await redis.del(`loc:${hashChatId(chatId)}`).catch(() => {});
       await runCarparkCommand(chatId, cbLang);
+      return;
+    }
+    // v0.61.84 — wake-from-idle location prompt buttons.
+    if (data === 'wake:keep') {
+      try {
+        await bot.editMessageText(t('wake.kept', cbLang), {
+          chat_id: chatId, message_id: q.message.message_id,
+          reply_markup: { inline_keyboard: [] }
+        });
+      } catch { /* message too old to edit — best-effort */ }
+      return;
+    }
+    if (data === 'wake:new') {
+      try {
+        await bot.editMessageReplyMarkup({ inline_keyboard: [] },
+          { chat_id: chatId, message_id: q.message.message_id });
+      } catch { /* best-effort */ }
+      await runLocationCommand(chatId);
       return;
     }
     // v0.52.0 hawker sub-menu dispatch (simplified):
@@ -3211,7 +3254,10 @@ async function runTransportBus(chatId, sub, lang = 'en') {
         // after the header before the first stop; 2 blank lines
         // between stops.
         lines.push(...(stopIdx === 0 ? [''] : ['', '']));
-        lines.push(`🚏 <b>${escapeHtmlForTelegram(stop.roadName || stop.description || '')}</b>`);
+        // v0.61.84 — lead with the bus-stop description (e.g. "Opposite
+        // VivoCity"), matching the "view bus stops" map card; the map's
+        // bus data has no roadName so it already shows the description.
+        lines.push(`🚏 <b>${escapeHtmlForTelegram(stop.description || stop.roadName || '')}</b>`);
         lines.push(tn(stopIdx === 0 ? 'transport.bus.stopMetaFirst' : 'transport.bus.stopMetaRest', lang, {
           code: escapeHtmlForTelegram(stop.code),
           dist: escapeHtmlForTelegram(formatDistance(stop.distanceM))
@@ -7214,6 +7260,15 @@ bot.on('message', async (msg) => {
     // as a "user seen" + daily-active. sha256 hashes only; never throws.
     try { usageLog.recordUser(redis, msg.chat.id).catch(() => {}); } catch { /* noop */ }
 
+    // v0.61.84 — wake-from-idle detection: refresh the per-chat
+    // last-seen marker and capture the prior idle gap so the text
+    // path below can fire a one-time location re-confirmation prompt.
+    let wokeAfterIdleMs = 0;
+    try {
+      const prevSeen = await touchLastSeen(redis, msg.chat.id);
+      if (prevSeen) wokeAfterIdleMs = Date.now() - prevSeen;
+    } catch { /* best-effort — never block message handling */ }
+
     // v0.60.151 — /clipboard rename: if the user is replying to the
     // force_reply prompt and a pending rename index is set in Redis,
     // apply the reply text as the clip's name. Done before other text
@@ -7269,6 +7324,13 @@ bot.on('message', async (msg) => {
     if (!msg.text) return;
     const text = msg.text.trim();
     if (!text) return;
+    // v0.61.84 — first text message after a long idle gap: if a
+    // location is stored, prompt once to keep it or set a new one.
+    // Skipped for /location and /l (those already drive the location
+    // flow). Non-blocking — normal routing continues below.
+    if (wokeAfterIdleMs > IDLE_WAKE_MS && !/^\/(?:location|l)(?:@\S+)?(?:\s|$)/i.test(text)) {
+      await promptLocationOnWake(msg.chat.id, msg);
+    }
     if (text.startsWith('/')) {
       // v0.59.54: any slash command other than /search /s ends an
       // active /search conversation. The slash-handler itself runs in

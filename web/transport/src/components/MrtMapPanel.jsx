@@ -509,16 +509,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // attachAmenityPins helper (the proven path the Hawker / Cuisine maps
   // use), so the pins reliably appear and each opens a clickable popup
   // (live bus arrivals etc.). Kept in amenityMarkersRef; `bounds` is
-  // extended so the detail view frames the pins. The station pill is
-  // skipped — the tapped station already has its centre dot.
+  // extended so the detail view frames the pins.
   function renderAmenityPins(ctx, bounds) {
     amenityMarkersRef.current = attachAmenityPins({
       maps: window.google.maps,
       map: mapRef.current,
       infoWindow: infoWindowRef.current,
       ctx,
-      limits: { bus: 3, carpark: 2, taxi: 2 },
-      includeStation: false
+      limits: { bus: 3, carpark: 2, taxi: 2 }
     });
     for (const m of amenityMarkersRef.current) {
       if (m.position) bounds.extend(m.position);

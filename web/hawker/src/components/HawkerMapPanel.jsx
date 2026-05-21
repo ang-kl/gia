@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -90,11 +90,6 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // v0.61.10 — per-panel cache of /api/hawker/centre-transit results,
   // keyed by centre name, so the map-pin InfoWindow fetches transit once.
   const transitCacheRef = useRef({});
-
-  // v0.61.19 — surrounding-amenity pins for the tapped hawker centre:
-  // the live markers, plus a per-name cache of /station-context.
-  const amenityMarkersRef = useRef([]);
-  const amenityCacheRef = useRef({});
 
   // One-time tablet media-query — same threshold as cuisine MapPanel.
   useEffect(() => {
@@ -248,51 +243,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     return infoCard(h);
   }
 
-  // v0.61.19 — surrounding-amenity pins for a tapped hawker centre.
-  function clearAmenities() {
-    for (const m of amenityMarkersRef.current) m.map = null;
-    amenityMarkersRef.current = [];
-  }
-
-  // v0.61.20 — clickable amenity pins via the shared attachAmenityPins
-  // helper; trimmed to the nearest 3 bus / 2 carpark / 2 taxi so the
-  // map stays readable around the tapped centre.
-  function plotAmenities(ctx) {
-    if (!mapRef.current || !window.google?.maps || !infoWindowRef.current) return;
-    clearAmenities();
-    amenityMarkersRef.current = attachAmenityPins({
-      maps: window.google.maps,
-      map: mapRef.current,
-      infoWindow: infoWindowRef.current,
-      ctx,
-      limits: { bus: 3, carpark: 2, taxi: 2 }
-    });
-  }
-
-  // v0.61.19 — fetch (cache) the station-context for a tapped hawker
-  // centre, then plot the exits / bus / taxi / carpark / nearest-MRT
-  // pins around it.
-  function drawHawkerAmenities(c) {
-    if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) return;
-    const cached = amenityCacheRef.current[c.name];
-    if (cached) { plotAmenities(cached); return; }
-    fetch(`/api/transport/station-context?lat=${c.lat}&lng=${c.lng}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((ctx) => {
-        if (!ctx) return;
-        amenityCacheRef.current[c.name] = ctx;
-        plotAmenities(ctx);
-      })
-      .catch(() => { /* no amenity pins on failure */ });
-  }
-
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement } = window.google.maps.marker;
     // Tear down old markers + InfoWindow content.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
-    clearAmenities();
     if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
       infoWindowRef.current = new window.google.maps.InfoWindow({
         disableAutoPan: false,
@@ -315,8 +271,6 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       const key = `${c.name}|${c.postal || ''}`;
       marker.addListener('click', () => {
         if (!infoWindowRef.current) return;
-        // v0.61.19 — plot the surrounding amenity pins for this centre.
-        drawHawkerAmenities(c);
         const cached = transitCacheRef.current[c.name];
         infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
         infoWindowRef.current.open(mapRef.current, marker);

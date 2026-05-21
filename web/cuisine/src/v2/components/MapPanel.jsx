@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
@@ -103,10 +103,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // venue object without going through React state.
   const venuesRef = useRef([]);
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
-  // v0.61.20 — surrounding-amenity pins for a tapped venue: the live
-  // markers + a per-venue cache of /api/transport/station-context.
-  const amenityMarkersRef = useRef([]);
-  const amenityCacheRef = useRef({});
+  // v0.61.86 — placeId of the venue whose own map pin was just tapped.
+  // The focus-pan effect skips panning for these, so a pin tap opens
+  // the popup in place without the map jumping (a result-card tap, by
+  // contrast, still pans the map to bring the venue into view).
+  const pinFocusRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,17 +206,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
-  // v0.61.11 — train-overlay result emphasis: while cuisine results are
-  // on the map, bold the line segments near the 3 closest stations and
-  // dim the rest; clear it when there are no results.
-  useEffect(() => {
-    const ctrl = overlayControllerRef.current;
-    if (!ctrl?.setTrainEmphasis) return;
-    const anchor = searchCenter || userLoc;
-    if (anchor && (venues?.length)) ctrl.setTrainEmphasis(anchor.lat, anchor.lng);
-    else ctrl.setTrainEmphasis(null);
-  }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
-
   function handleIdle() {
     // v0.64.0 — feed the map-centre anchor to the overlay controller so
     // radius-clipped layers re-filter on every pan/zoom.
@@ -228,7 +218,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // /location override. Previously the dep array tracked only
   // userLoc, so the pin stayed at GPS even when the search anchored
   // elsewhere.
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, focusedPlaceId]); // eslint-disable-line
+  // v0.61.86 — focusedPlaceId dropped from these deps. Tapping a venue
+  // pin set it, which forced a full marker rebuild + fitBounds + panTo:
+  // the map re-centred and the just-tapped marker was destroyed before
+  // its popup could open (the "tap twice to open a pin" bug). Focus
+  // panning now lives in its own effect below.
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
+
+  // v0.61.86 — pan the map to a focused venue, but only when the focus
+  // came from a result-card tap. A pin tap (pinFocusRef holds that
+  // placeId) opens the popup in place and must not move the map.
+  useEffect(() => {
+    if (!focusedPlaceId || !mapRef.current) return;
+    if (pinFocusRef.current === focusedPlaceId) { pinFocusRef.current = null; return; }
+    const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
+    if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
+      mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+    }
+  }, [focusedPlaceId]);
 
   // v0.61.10 — traffic accidents within 250 m of the search anchor,
   // drawn as ⚠️ markers while results are showing. Best-effort: needs
@@ -274,47 +281,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     return () => { cancelled = true; };
   }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
-  // v0.61.20 — surrounding-amenity pins for a tapped venue, drawn via
-  // the shared attachAmenityPins helper (trimmed 3 bus / 2 carpark /
-  // 2 taxi). Mirrors the Hawker TMA's hawker-centre amenity pins.
-  function clearAmenities() {
-    for (const m of amenityMarkersRef.current) m.map = null;
-    amenityMarkersRef.current = [];
-  }
-
-  function plotAmenities(ctx) {
-    if (!mapRef.current || !window.google?.maps || !infoWindowRef.current) return;
-    clearAmenities();
-    amenityMarkersRef.current = attachAmenityPins({
-      maps: window.google.maps,
-      map: mapRef.current,
-      infoWindow: infoWindowRef.current,
-      ctx,
-      limits: { bus: 3, carpark: 2, taxi: 2 }
-    });
-  }
-
-  function drawVenueAmenities(v) {
-    if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return;
-    const key = v.placeId || v.name;
-    const cached = amenityCacheRef.current[key];
-    if (cached) { plotAmenities(cached); return; }
-    fetch(`/api/transport/station-context?lat=${v.lat}&lng=${v.lng}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((ctx) => {
-        if (!ctx) return;
-        amenityCacheRef.current[key] = ctx;
-        plotAmenities(ctx);
-      })
-      .catch(() => { /* no amenity pins on failure */ });
-  }
-
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
-    clearAmenities();
     const bounds = new window.google.maps.LatLngBounds();
     // v0.58.53: hoist InfoWindow init above the userLoc block so the
     // anchor-pin hover wiring sees a populated ref on the first sync.
@@ -459,9 +430,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // user taps once for preview, again for Maps — matches Google
       // Maps' own native mobile pattern.
       marker.addListener('click', () => {
+        pinFocusRef.current = v.placeId;
         onPinTap?.(v.placeId);
-        // v0.61.20 — plot the surrounding amenity pins for this venue.
-        drawVenueAmenities(v);
         if (isTouchRef.current) {
           if (infoWindowRef.current) {
             infoWindowRef.current.setContent(infoHtml);
@@ -493,12 +463,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
         mapRef.current?.setOptions({ maxZoom: null });
       });
-    }
-    if (focusedPlaceId) {
-      const v = (venues || []).find((x) => x.placeId === focusedPlaceId);
-      if (v) {
-        mapRef.current.panTo({ lat: v.lat, lng: v.lng });
-      }
     }
   }
 

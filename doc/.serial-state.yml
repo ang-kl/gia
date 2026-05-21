@@ -12,10 +12,19 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 21-05 '26 16:45 SGT
-last_anchor_source: data.gov.sg air-temperature payload timestamp 2026-05-21T16:45:00+08:00 (live fetch per TF-6; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-21T16:45:00+08:00
-last_anchor_utc: 2026-05-21T08:45:00Z
+last_anchor_time: 21-05 '26 17:20 SGT
+last_anchor_source: system_clock_utc_2026-05-21T09:20:19Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-21T17:20:19+08:00
+last_anchor_utc: 2026-05-21T09:20:19Z
+# PR #579 branch (v0.61.84-87) — journal entries still due: v0.61.84
+# bus-stop parity + wake prompt, v0.61.85 quieter eatery tap, v0.61.86
+# cuisine eatery-pin tap-twice fix, v0.61.87 train overlay whole-network
+# + always-on station code chip. The branch first drafted v0.61.84/85
+# as journal #282/#283; main has since reused #282-287 for the
+# v0.61.78-83 catch-up, so the branch entries renumber from #288 —
+# deferred to the operator per the concurrent-PR renumbering precedent.
+# The detailed v0.61.84/85 audit is preserved in the branch's
+# journal-0_61_84-*.md / journal-0_61_85-*.md files.
 # doc master refresh (Feature #48 / Technical #48 / Register #116,
 # 21-05 '26 16:45 SGT) — the v0.61.83 "update all documentation"
 # pass: fresh non-incremental Feature / Technical / Register masters
