@@ -855,7 +855,8 @@ export function createOverlayController(map, googleMaps) {
         if (!Array.isArray(seg) || seg.length < 2) continue;
         const pts = seg.map((p) => ({ lat: p.lat, lng: p.lng }));
         const polyline = new Polyline({
-          path: pts, strokeColor: hex, strokeOpacity: 0.85, strokeWeight: 4,
+          // v0.61.80 — CR-3: zoomed-in default opacity 0.85 → 0.95.
+          path: pts, strokeColor: hex, strokeOpacity: 0.95, strokeWeight: 4,
           clickable: false, zIndex: 1
         });
         out.push({ polyline, pts, hex, code });
@@ -1227,12 +1228,14 @@ export function createOverlayController(map, googleMaps) {
         const near = !e.radius || ln.pts.some((p) => inRadius(p.lat, p.lng, e.radius));
         ln.polyline.setMap(e.visible && near ? map : null);
         // v0.61.58 — CR5 v2: when a station is selected the base lines
-        // mute hard (0.25) so the prev→current→next overlay segment
-        // stands out; otherwise the search-emphasis / zoom opacity applies.
+        // mute hard so the prev→current→next overlay segment stands
+        // out; otherwise the search-emphasis / zoom opacity applies.
+        // v0.61.80 — CR-3 retune: muted-base 0.25 → 0.1, zoomed-out
+        // 0.5 → 0.2, zoomed-in 0.85 → 0.95 (weights unchanged).
         ln.polyline.setOptions(
-          detailStation ? { strokeOpacity: 0.25, strokeWeight: 3 }
+          detailStation ? { strokeOpacity: 0.1, strokeWeight: 3 }
             : emph ? { strokeOpacity: 0.35, strokeWeight: 3 }
-              : { strokeOpacity: zoomedIn ? 0.85 : 0.5, strokeWeight: 4 });
+              : { strokeOpacity: zoomedIn ? 0.95 : 0.2, strokeWeight: 4 });
         // search-emphasis windows (Cuisine result anchor) — suppressed
         // while a station is selected (CR5 v2 takes precedence).
         if (e.visible && near && emph && !detailStation && near3.length) {
