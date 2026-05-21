@@ -97,6 +97,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const [isTablet, setIsTablet] = useState(false);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   const [expanded, setExpanded] = useState(false);
+  // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
+  // bottom-right readout. Updated on every `zoom_changed`.
+  const [zoomLevel, setZoomLevel] = useState(null);
   // v0.58.54: cache the current venues array in a ref so the global
   // `window.__giaOpenMap(placeId)` handler (registered once at mount,
   // invoked from inside the InfoWindow's HTML) can resolve back to a
@@ -171,9 +174,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
+      // v0.61.89 — streamline: all three TMA maps share one options block: keep
+      // Google's native camera control (pan/tilt/rotate) + keyboard
+      // shortcuts on. The camera widget is pinned to LEFT_BOTTOM so it
+      // clears the custom nav cluster (top-right) and the 📍 recenter
+      // button (bottom-right).
+      cameraControl: true,
+      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      keyboardShortcuts: true,
       gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
     });
     mapRef.current.addListener('idle', handleIdle);
+    // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
+    setZoomLevel(mapRef.current.getZoom());
+    mapRef.current.addListener('zoom_changed', () => {
+      setZoomLevel(mapRef.current?.getZoom?.());
+    });
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
     // v0.61.22 — close any open popup on a tap of the empty map, and
@@ -606,6 +622,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       >
         <span aria-hidden>📍</span>
       </button>
+      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout, bottom-right
+          (sits just left of the 📍 recenter button). */}
+      {zoomLevel != null && (
+        <div
+          className="absolute bottom-3 right-14 z-10 px-1.5 py-0.5 rounded bg-black/55 text-white text-[10px] font-mono leading-none pointer-events-none select-none"
+          aria-hidden
+        >
+          z {Number(zoomLevel).toFixed(2)}
+        </div>
+      )}
       {children}
     </div>
   );

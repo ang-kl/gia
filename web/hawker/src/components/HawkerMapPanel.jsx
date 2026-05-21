@@ -82,6 +82,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   const [expanded, setExpanded] = useState(false);
+  // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
+  // bottom-right readout. Updated on every `zoom_changed`.
+  const [zoomLevel, setZoomLevel] = useState(null);
 
   // Stable copy for the global InfoWindow CTA closure.
   const centresRef = useRef([]);
@@ -161,6 +164,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
+      // v0.61.89 — streamline: all three TMA maps share one options block: keep
+      // Google's native camera control (pan/tilt/rotate) + keyboard
+      // shortcuts on. The camera widget is pinned to LEFT_BOTTOM so it
+      // clears the custom nav cluster (top-right) and the bottom-right
+      // controls.
+      cameraControl: true,
+      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      keyboardShortcuts: true,
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
@@ -180,6 +191,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
+    // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
+    setZoomLevel(mapRef.current.getZoom());
+    mapRef.current.addListener('zoom_changed', () => {
+      setZoomLevel(mapRef.current?.getZoom?.());
+    });
     syncMarkers();
   }
 
@@ -402,6 +418,15 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
+      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout, bottom-right. */}
+      {zoomLevel != null && (
+        <div
+          className="absolute bottom-3 right-3 z-10 px-1.5 py-0.5 rounded bg-black/55 text-white text-[10px] font-mono leading-none pointer-events-none select-none"
+          aria-hidden
+        >
+          z {Number(zoomLevel).toFixed(2)}
+        </div>
+      )}
       {mapsKeyState === 'loading' && !showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-tg-card/90 text-xs text-tg-hint pointer-events-none">
           {t('map.loading', lang)}
