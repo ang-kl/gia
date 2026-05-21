@@ -55,7 +55,11 @@ export default function ResultPanel({
   // replaces the generic "Loading…" while the server runs a slow
   // pipeline (currently: Michelin's review-extract + LLM narrate +
   // enrichment-cache fill, which can take 5–10 s on a cold catalogue).
-  loadingHint = null
+  loadingHint = null,
+  // v0.61.79 — size of the full curated pool this batch is sliced from
+  // (the ~130-entry Michelin list). When set, the header reads
+  // "Results (12/130)"; null → plain "Results (12)".
+  totalCount = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -186,7 +190,10 @@ export default function ResultPanel({
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
-        <div className="text-xs font-semibold flex-shrink-0">{lang === 'fr' ? 'Résultats' : 'Results'} {venues ? `(${venues.length})` : ''}</div>
+        {/* v0.61.79 — when totalCount is set (Michelin's ~130-entry
+            pool), show "(shown/total)" so the user reads this batch as
+            a slice of the whole list; else the plain "(shown)" count. */}
+        <div className="text-xs font-semibold flex-shrink-0">{lang === 'fr' ? 'Résultats' : 'Results'} {venues ? `(${venues.length}${totalCount ? `/${totalCount}` : ''})` : ''}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (
             <button type="button" onClick={handleCopyAll} disabled={copying}

@@ -153,25 +153,21 @@ export default function App() {
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
   const [searchHintActive, setSearchHintActive] = useState(false);
-  // v0.61.70 — flash the 🔍 Search FAB for 2 s whenever a result set
-  // loads (warm-start first paint or a Search-criteria run), drawing
-  // the eye to the FAB.
+  // v0.61.70 — flash the 🔍 Search FAB whenever a result set loads
+  // (warm-start first paint or a Search-criteria run), drawing the eye
+  // to the FAB. v0.61.79 — 2 s → 3 s, and a flashing arrow points at
+  // the FAB for the same window (see the FAB row below).
   const [searchFabFlash, setSearchFabFlash] = useState(false);
   useEffect(() => {
     if (!venues || !venues.length) return undefined;
     setSearchFabFlash(true);
-    const t = setTimeout(() => setSearchFabFlash(false), 2000);
+    const t = setTimeout(() => setSearchFabFlash(false), 3000);
     return () => clearTimeout(t);
   }, [venues]);
-  // v0.60.14 / v0.60.18 — Google-limitation tip beside the 🔍 Search
-  // FAB. Originally shown after every search. Per Human Lead 2026-05-08
-  // that was too noisy ("the bubble keeps popping after each click").
-  // Now shown only at:
-  //   • first search of the session (the user has never seen it)
-  //   • dedup exhaustion (server returns exhausted=true)
-  // The "first" path uses tipFirstShownRef so the tip suppresses on
-  // refresh once acknowledged.
-  const [searchTipShow, setSearchTipShow] = useState(false);
+  // v0.61.79 — the "ℹ️ Google search limit · tap 🔍 again…" toast was
+  // removed (operator request). Its state (`searchTipShow`), trigger,
+  // and `tipFirstShownRef` guard are all gone; the 3 s FAB flash +
+  // arrow are the standing cue that another 🔍 tap loads more.
   const [exhaustedNote, setExhaustedNote] = useState(false);
   // v0.60.191 — sticky flag: did the last server response come back
   // as the planned 6-venue first batch? Used to suppress the v0.60.188
@@ -259,7 +255,6 @@ export default function App() {
       setSearchCenter(p.searchCenter || null);
     }
   }, [cursor]);  // intentionally only on cursor change; pages mutates monotonically
-  const tipFirstShownRef = useRef(false);
   // v0.58.23: explicit location-resolution status. Banner above the
   // map tells users "we're locating you" while userLoc resolves, then
   // "Telok Blangah · 5 places nearby" once everything's loaded.
@@ -711,15 +706,6 @@ export default function App() {
       // without re-expanding.
       if (Array.isArray(r.venues) && r.venues.length > 0) {
         setCriteriaOpen(false);
-      }
-      // v0.60.18 — subtle Google-limit tip: show only on first search
-      // of the session OR when the server tells us the dedup pool was
-      // exhausted (response.exhausted === true). Auto-dismiss after 4s.
-      const shouldShowTip = !tipFirstShownRef.current || r?.exhausted === true;
-      if (shouldShowTip) {
-        setSearchTipShow(true);
-        tipFirstShownRef.current = true;
-        setTimeout(() => setSearchTipShow(false), 4000);
       }
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
@@ -1290,6 +1276,11 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          /* v0.61.79 — total size of the curated Michelin pool (~130).
+             When set, the result header reads "Results (12/130)" so the
+             user sees this batch is a slice of the whole list. null on
+             non-Michelin searches → header falls back to "Results (12)". */
+          totalCount={michelinRemaining ? (michelinRemaining.total || null) : null}
           // v0.60.153 — Michelin-specific "please wait" copy. The
           // handler runs review-extract + LLM narrate + per-venue
           // enrichment-cache fill; cold catalogue takes 5–10 s.
@@ -1471,25 +1462,6 @@ export default function App() {
           appears when the user has scrolled past the hero (map +
           active filters). Stacked bottom-right, fixed positioning,
           z-30 to sit above the result panel. */}
-      {/* v0.60.47 — Google-limit tip re-styled as a centered bottom
-          toast. Previous inline-beside-FAB rendering used the same
-          `bg-tg-card` shell as every other panel, making it visually
-          indistinct (Human Lead 2026-05-09). Now uses the accent
-          colour palette + a pill shape so it reads as a transient
-          status overlay. Auto-dismisses after 4s. Sits above the
-          FAB stack via z-40. */}
-      {searchTipShow && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 max-w-[90vw] bg-tg-accent text-tg-accent-text shadow-xl rounded-full px-4 py-2 text-[12px] font-medium leading-snug z-40 animate-in fade-in slide-in-from-bottom-2"
-        >
-          {lang === 'fr'
-            ? 'ℹ️ Limite Google · appuyez de nouveau sur 🔍 ou ajoutez un critère.'
-            : 'ℹ️ Google search limit · tap 🔍 again or add a criterion.'}
-        </div>
-      )}
-
       {/* v0.60.58 — single bottom row holding BackFab (left) + the
           right-side stack (top + search). Previously each FAB was its
           own `fixed bottom-4` element; in practice the left and right
@@ -1534,19 +1506,31 @@ export default function App() {
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
               and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
               'down'." Search FAB now renders FIRST (top of column);
-              scroll FAB renders SECOND (below). */}
-          <button
-            type="button"
-            onClick={triggerSearch}
-            disabled={loading}
-            aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-            style={fabBgFg(dirty)}
-            className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
-              loading ? 'opacity-60'
-              : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
-              : ''
-            } ${(searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
-          >🔍</button>
+              scroll FAB renders SECOND (below).
+              v0.61.79 — a flashing 👉 arrow sits to the left of the
+              FAB during the 3 s post-result flash window, pointing the
+              eye at the 🔍 button (it loads the next batch). */}
+          <div className="relative pointer-events-none">
+            {(searchHintActive || searchFabFlash) && (
+              <span
+                aria-hidden="true"
+                className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5
+                  text-xl leading-none animate-pulse drop-shadow-md select-none"
+              >👉</span>
+            )}
+            <button
+              type="button"
+              onClick={triggerSearch}
+              disabled={loading}
+              aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+              style={fabBgFg(dirty)}
+              className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
+                loading ? 'opacity-60'
+                : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
+                : ''
+              } ${(searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+            >🔍</button>
+          </div>
           <button
             type="button"
             onClick={() => window.scrollTo({
