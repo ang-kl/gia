@@ -1,8 +1,8 @@
 counters:
-  commit: 302
-  build: 101
+  commit: 303
+  build: 102
   documents:
-    journal: 295
+    journal: 296
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,17 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 11:24 SGT
-last_anchor_source: system_clock_utc_2026-05-22T03:24:03Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T11:24:03+08:00
-last_anchor_utc: 2026-05-22T03:24:03Z
+last_anchor_time: 22-05 '26 12:45 SGT
+last_anchor_source: system_clock_utc_2026-05-22T04:45:34Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T12:45:34+08:00
+last_anchor_utc: 2026-05-22T04:45:34Z
+# v0.61.96 (commit 303 / journal 296 / build 102) — zoom-indicator PR
+# #589 (branch claude/v0.61.96-zoom-indicator-size, off main at
+# v0.61.95): the embedded-map zoom readout shrinks w-10 h-10 -> w-8 h-8
+# (text-sm -> text-xs) on all 3 TMA maps. First + smallest item of a
+# large operator map spec; remaining items (amenity zoom tiers; the
+# /app/map public/app.js parity overhaul) scoped as follow-up PRs.
+# journal-0_61_96-22_05_26-1245.md.
 # v0.61.95 (commit 302 / journal 295 / build 101) — monochrome-lines
 # PR #588 (branch claude/v0.61.95-mono-lines, stacked on #587):
 # new makeTrainColourOverlay — an OverlayView that draws the train
