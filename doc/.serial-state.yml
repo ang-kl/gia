@@ -1,8 +1,8 @@
 counters:
-  commit: 317
-  build: 113
+  commit: 318
+  build: 114
   documents:
-    journal: 310
+    journal: 311
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,18 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 23:25 SGT
-last_anchor_source: system_clock_utc_2026-05-22T15:25:54Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T23:25:54+08:00
-last_anchor_utc: 2026-05-22T15:25:54Z
+last_anchor_time: 22-05 '26 23:55 SGT
+last_anchor_source: system_clock_utc_2026-05-22T15:55:21Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T23:55:21+08:00
+last_anchor_utc: 2026-05-22T15:55:21Z
+# v0.61.111 (commit 318 / journal 311 / build 114) — attraction-
+# overlay auto-frame PR (branch claude/v0.61.111-attraction-autoframe,
+# off main at v0.61.110): operator point-2 follow-up. createOverlay-
+# Controller gains frameAttractions() — toggling the Attractions (⚝)
+# overlay ON fits the map to the in-radius attractions (single ->
+# setCenter + z17, multiple -> fitBounds 80px), mirroring the bot's
+# "View N Train Stations" fit. setLayer calls it on attractions+visible.
+# mapOverlays.js x3. journal-0_61_111-22_05_26-2355.md.
 # v0.61.110 (commit 317 / journal 310 / build 113) — map-polish PR
 # #603 (branch claude/v0.61.110-map-polish, off main at v0.61.109):
 # Cuisine MapPanel result auto-fit maxZoom 16 -> 11 (operator: "ceiling

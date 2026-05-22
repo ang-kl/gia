@@ -1968,6 +1968,26 @@ export function createOverlayController(map, googleMaps, opts) {
     }
   }
 
+  // v0.61.111 — operator point 2: turning the Attractions overlay on
+  // frames the map to the attractions in view, mirroring the bot's
+  // "View N Train Stations" fit. Single attraction → centre + z17;
+  // multiple → fitBounds with 80 px padding. Only the in-radius set is
+  // framed, since that is what applyVisibility actually shows.
+  function frameAttractions(entry) {
+    const pts = (entry.items || []).filter((it) =>
+      Number.isFinite(it.lat) && Number.isFinite(it.lng)
+      && inRadius(it.lat, it.lng, currentRadius()));
+    if (!pts.length) return;
+    if (pts.length === 1) {
+      map.setCenter({ lat: pts[0].lat, lng: pts[0].lng });
+      map.setZoom(17);
+      return;
+    }
+    const bounds = new googleMaps.LatLngBounds();
+    for (const p of pts) bounds.extend({ lat: p.lat, lng: p.lng });
+    map.fitBounds(bounds, 80);
+  }
+
   return {
     // v0.61.22 — let the host TMA close the overlay popup (in-card ✕ /
     // tap-elsewhere) alongside its own venue/station InfoWindow.
@@ -2001,6 +2021,9 @@ export function createOverlayController(map, googleMaps, opts) {
       if (name === 'busstop' && visible) clearStationBusStops();
       if (name === 'exits' && visible) clearStationExitPins();
       applyVisibility(name);
+      // v0.61.111 — auto-frame the map to the attractions when the
+      // layer turns on (operator point 2).
+      if (name === 'attractions' && visible) frameAttractions(entry);
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
       if (name === 'train' && !visible) syncDetailAmenityLayers();
