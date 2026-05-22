@@ -675,6 +675,43 @@
     menuState[key].items = [];
   }
 
+  // v0.61.109 — enriched attraction popup (mirrors attractionInfo in
+  // the TMA mapOverlays.js): rating, address, today's hours, contact,
+  // wheelchair flag, the nearest two stations, website + Instagram.
+  // The rating / phone / hoursWeek / wheelchair / instagram fields come
+  // from data/attraction-details.json and are absent until the
+  // scripts/fetch-attraction-details.js fetcher is run.
+  function attractionInfoHtml(f) {
+    let h = `<strong>⚝ ${escapeHtml(f.name || 'Attraction')}</strong>`;
+    if (typeof f.rating === 'number') {
+      const cnt = typeof f.ratingCount === 'number' ? ` (${f.ratingCount})` : '';
+      h += `<div>⭐ ${escapeHtml(f.rating.toFixed(1) + cnt)}</div>`;
+    }
+    if (f.address) h += `<div>📇 ${escapeHtml(f.address)}</div>`;
+    let hoursLine = '';
+    if (Array.isArray(f.hoursWeek) && f.hoursWeek.length) {
+      const d = new Date().getDay();
+      hoursLine = f.hoursWeek[d === 0 ? 6 : d - 1] || f.hoursWeek[0];
+    } else if (f.hours) hoursLine = f.hours;
+    if (hoursLine) h += `<div>🕰 ${escapeHtml(hoursLine)}</div>`;
+    if (f.phone) h += `<div>☎ ${escapeHtml(f.phone)}</div>`;
+    if (f.wheelchair === true) h += '<div>♿ Wheelchair accessible</div>';
+    for (const st of (Array.isArray(f.stations) ? f.stations : [])) {
+      if (!st || !st.name) continue;
+      const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
+      h += `<div>🚉 ${escapeHtml(st.name + (codes ? ' (' + codes + ')' : ''))}</div>`;
+    }
+    if (f.website) {
+      const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
+      h += `<div><a href="${escapeHtml(href)}" target="_blank" rel="noopener">🌐 Website</a></div>`;
+    }
+    if (f.instagram) {
+      const ig = /^https?:\/\//.test(f.instagram) ? f.instagram : 'https://' + f.instagram;
+      h += `<div><a href="${escapeHtml(ig)}" target="_blank" rel="noopener">📷 Instagram</a></div>`;
+    }
+    return '<div style="font-size:12px;line-height:1.45">' + h + '</div>';
+  }
+
   // Viewport-clipped + zoom-gated (z>=13) like the bus / carpark layers.
   function renderMenuLayer(L) {
     clearMenuLayer(L.key);
@@ -702,8 +739,10 @@
         const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(L.glyph) });
         marker.addListener('click', () => {
           if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
-          overlayInfo.setContent('<div style="font-size:12px;line-height:1.45">'
-            + `<strong>${L.glyph} ${escapeHtml(f.name || L.label)}</strong></div>`);
+          overlayInfo.setContent(L.key === 'attractions'
+            ? attractionInfoHtml(f)
+            : '<div style="font-size:12px;line-height:1.45">'
+              + `<strong>${L.glyph} ${escapeHtml(f.name || L.label)}</strong></div>`);
           overlayInfo.open({ anchor: marker, map });
         });
         menuState[L.key].items.push(marker);

@@ -321,9 +321,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     return () => { cancelled = true; };
   }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
-  // v0.61.93 — auto-fit only frames on the first data load; later loads
-  // keep the user's zoom (operator: don't auto-zoom-out).
-  const firstFitRef = useRef(true);
+  // v0.61.93 — auto-fit frames on the first data load. v0.61.107 —
+  // operator: re-frame on every NEW search too (a fresh `venues`
+  // array), not just the first load — only an incidental re-render
+  // (a userLoc / searchCenter change with the same `venues`) keeps the
+  // user's zoom. `lastFitVenuesRef` tracks the venues array last fitted.
+  const lastFitVenuesRef = useRef(null);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
@@ -370,7 +373,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const anchorPal = infoPalette();
       const anchorHtml = infoCard(
         `<div style="font-weight:600;font-size:13px;color:${anchorPal.link};">📍 ${escapeHtml(anchorName || tr('map.youAreHere', lang))}</div>
-         <div style="font-size:10.5px;color:${anchorPal.sub};margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>`);
+         <div style="font-size:12px;color:${anchorPal.sub};margin-top:2px;font-style:italic;">${escapeHtml(tr('map.yourAnchor', lang))}</div>`);
       const anchorNode = anchorPinNodeRef.current;
       if (anchorNode && infoWindowRef.current) {
         anchorNode.style.cursor = 'pointer';
@@ -406,16 +409,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // v0.61.22 — theme palette so secondary text reads in dark mode.
       const p = infoPalette();
       const addressHtml = v.area
-        ? `<div style="font-size:11px;color:${p.sub};margin-top:2px;">📇 ${escapeHtml(v.area)}</div>`
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">📇 ${escapeHtml(v.area)}</div>`
         : '';
       const travelParts = [];
       if (Number.isFinite(v.transitMinutes)) travelParts.push(`🚊 ${v.transitMinutes} min`);
       if (Number.isFinite(v.driveMinutes))   travelParts.push(`🚘 ${v.driveMinutes} min`);
       const travelHtml = travelParts.length
-        ? `<div style="font-size:11px;color:${p.sub};margin-top:3px;">${travelParts.join(' · ')}</div>`
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:3px;">${travelParts.join(' · ')}</div>`
         : '';
       const ratingHtml = Number.isFinite(v.rating)
-        ? `<div style="font-size:11px;color:${p.sub};margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">⭐ ${v.rating.toFixed(1)}${Number.isFinite(v.userRatingCount) ? ` (${v.userRatingCount})` : ''}</div>`
         : '';
       // v0.59.0: footfall chip (real per-venue busyness from BestTime,
       // populated server-side via footfall-signal.attachFootfallSignals).
@@ -431,7 +434,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           const peak = v.footfall.peakHour
             ? ` · ${lang === 'fr' ? 'pic' : 'peaks'} ${escapeHtml(v.footfall.peakHour)}`
             : '';
-          footfallHtml = `<div style="font-size:11px;color:${p.sub};margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
+          footfallHtml = `<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
         }
       }
       // v0.61.31 — every map pin popup ends with the standard
@@ -441,10 +444,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const ctaHtml = `<div style="margin-top:6px;"><a href="#" onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}'); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
       // v0.62.0 — HPB Healthier Choice + inside-building rows.
       const healthierHtml = v.healthierChoice
-        ? `<div style="font-size:11px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
+        ? `<div style="font-size:12px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
         : '';
       const buildingHtml = v.insideBuilding
-        ? `<div style="font-size:11px;color:${p.sub};margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
         : '';
       const infoHtml = infoCard(
         `<div style="font-weight:600;font-size:13px;">${escapeHtml(v.name || '')}</div>
@@ -498,19 +501,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // radius they could theoretically search. Map fits venues + user
     // marker only; the slider value still feeds the search query.
     if (!bounds.isEmpty() && (venues?.length || userLoc)) {
-      // v0.61.93 — operator: only the first data load auto-frames; a
-      // later search keeps the user's zoom (recenter only) so the map
-      // never resets to a zoomed-out view.
-      if (firstFitRef.current) {
-        firstFitRef.current = false;
-        // v0.58.20: cap the auto-zoom so a tight cluster of 5 venues
+      // v0.61.107 — operator: the first load and every new search
+      // auto-frame the results; a re-render with the same `venues`
+      // (e.g. userLoc resolved) only recenters, keeping the zoom.
+      if (lastFitVenuesRef.current !== venues) {
+        lastFitVenuesRef.current = venues;
+        // v0.58.20: cap the auto-zoom so a tight cluster of venues
         // within a few hundred metres doesn't drop the user into a
         // single-block view. setOptions before fitBounds is the
         // documented way to bound the result.
-        mapRef.current.setOptions({ maxZoom: 16 });
+        // v0.61.110 — operator: ceiling is zoom 11. A tight cluster
+        // stops at 11; spread-out picks zoom out naturally and only
+        // drop below 10 when results span opposite ends of the island.
+        mapRef.current.setOptions({ maxZoom: 11 });
         mapRef.current.fitBounds(bounds, 60);
         // v0.61.20 — release the cap once the fit settles so the user
-        // can manually zoom in past level 16.
+        // can manually zoom in past the ceiling.
         window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
           mapRef.current?.setOptions({ maxZoom: null });
         });

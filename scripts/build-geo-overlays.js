@@ -315,6 +315,34 @@ function nearestStation(lat, lng) {
   return best ? { name: best.name, codes: best.codes } : null;
 }
 
+// v0.61.109 — the nearest `n` operational stations to a point, nearest
+// first → [{ name, codes }]. The attraction overlay shows up to two.
+function nearestStations(lat, lng, n) {
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  const scored = loadStations().map((s) => {
+    const dx = (s.lng - lng) * cosLat;
+    const dy = s.lat - lat;
+    return { s, d: dx * dx + dy * dy };
+  });
+  scored.sort((a, b) => a.d - b.d);
+  return scored.slice(0, n).map(({ s }) => ({ name: s.name, codes: s.codes }));
+}
+
+// v0.61.109 — optional Google-Places enrichment for attractions
+// (data/attraction-details.json, built by scripts/fetch-attraction-
+// details.js). Name-keyed; absent/empty until the operator runs the
+// fetcher, so the join is best-effort.
+let _attractionDetails = null;
+function loadAttractionDetails() {
+  if (_attractionDetails) return _attractionDetails;
+  _attractionDetails = {};
+  try {
+    const obj = JSON.parse(fs.readFileSync(path.join(DATA, 'attraction-details.json'), 'utf8'));
+    if (obj && obj.details && typeof obj.details === 'object') _attractionDetails = obj.details;
+  } catch (err) { /* optional file — absent until the fetcher runs */ }
+  return _attractionDetails;
+}
+
 // Large building footprints, kept only above an area threshold (sqm).
 // Output: { sqm, rings:[[[lng,lat],...]] } — server-side point-in-polygon.
 function convertBuilding(features, minSqm) {
@@ -348,6 +376,9 @@ function convertPoint(features, name) {
     };
     // v0.64.0 — attractions carry address / website / hours and the
     // nearest MRT station, surfaced in the overlay InfoWindow.
+    // v0.61.109 — extended: nearest TWO stations + an optional Google-
+    // Places enrichment join (rating, phone, structured hours,
+    // wheelchair flag, Instagram).
     if (name === 'attractions') {
       const addr = stripHtml(props.ADDRESS).slice(0, 160);
       const web = String(props.EXTERNAL_LINK || '').trim();
@@ -355,11 +386,21 @@ function convertPoint(features, name) {
       if (addr) rec.address = addr;
       if (web) rec.website = web;
       if (hrs) rec.hours = hrs;
-      const st = nearestStation(lat, lng);
-      if (st) {
+      const stns = nearestStations(lat, lng, 2);
+      for (const st of stns) {
         const ex = exitsForStation(st.name);
         if (ex && ex.length) st.exits = ex.map((e) => e.exit).filter(Boolean);
-        rec.station = st;
+      }
+      if (stns.length) rec.stations = stns;
+      const det = loadAttractionDetails()[rec.name];
+      if (det) {
+        if (Number.isFinite(det.rating)) rec.rating = det.rating;
+        if (Number.isFinite(det.ratingCount)) rec.ratingCount = det.ratingCount;
+        if (det.phone) rec.phone = det.phone;
+        if (Array.isArray(det.hoursWeek) && det.hoursWeek.length) rec.hoursWeek = det.hoursWeek;
+        if (det.wheelchair === true) rec.wheelchair = true;
+        if (det.instagram) rec.instagram = det.instagram;
+        if (!rec.website && det.website) rec.website = det.website;
       }
     }
     // v0.61.24 — exits carry the bare exit code (letter/number), the

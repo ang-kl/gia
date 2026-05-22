@@ -1,8 +1,8 @@
 counters:
-  commit: 315
-  build: 111
+  commit: 320
+  build: 116
   documents:
-    journal: 308
+    journal: 313
     builder: 3
     persona: 4
     feature: 48
@@ -12,21 +12,80 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 20:16 SGT
-last_anchor_source: system_clock_utc_2026-05-22T12:16:24Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T20:16:24+08:00
-last_anchor_utc: 2026-05-22T12:16:24Z
-# v0.61.108 (commit 315 / journal 308 / build 111) — Cuisine free-text
-# keep PR #601 (branch claude/v0.61.108-cuisine-freetext-keep, off main
-# at v0.61.106): web/cuisine/src/v2/App.jsx — handleNLSubmit now calls
+last_anchor_time: 23-05 '26 07:29 SGT
+last_anchor_source: system_clock_utc_2026-05-22T23:29:59Z (NTP-synced system clock used per Rule TF-9; merge-resolution re-anchor for renumber from v0.61.108 -> v0.61.113, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T07:29:59+08:00
+last_anchor_utc: 2026-05-22T23:29:59Z
+# v0.61.113 (commit 320 / journal 313 / build 116) — Cuisine free-text
+# keep PR #601 (branch claude/v0.61.108-cuisine-freetext-keep, re-
+# stamped from v0.61.108 after main advanced to v0.61.112 ahead of
+# merge): web/cuisine/src/v2/App.jsx — handleNLSubmit now calls
 # setNlText(text) after setState, so a typed free-text dish (e.g.
 # "fishball noodle") stays visible in the Search-criteria builder and
 # is sent as the freeText qualifier alongside the inferred cuisine chip
 # (was: the typed phrase vanished, only the inferred cuisine showed).
 # Operator chose "keep both" via AskUserQuestion.
-# journal-0_61_108-22_05_26-2016.md. Concurrent with PR #600
-# (v0.61.107); if #600 merges second the counters renumber — deferred
-# to the operator per the concurrent-PR precedent.
+# journal-0_61_113-23_05_26-0729.md. Originally numbered v0.61.108 /
+# commit 315 / journal 308 / build 111 off main at v0.61.106, concurrent
+# with PR #600 (v0.61.107); renumbered on merge after PRs #600 #602
+# #603 #604 all landed first per the concurrent-PR precedent. Resolves
+# the "STILL DUE" item flagged in the v0.61.107 entry below.
+# v0.61.112 (commit 319 / journal 312 / build 115) — map-polish round 2
+# PR #604 (branch claude/v0.61.111-attraction-autoframe, re-scoped, off
+# main at v0.61.110): three operator-reported defects. (1) Popup body
+# text was thin grey — infoCard() wrapper now sets font-weight:500 and
+# infoPalette().sub darkened #5a5a5a -> #3c3c40 (covers every TMA-map
+# popup). (2) Transport zoom-hang — MrtMapPanel zoom_changed re-render
+# debounced ~180ms (zoomRenderTimerRef) so rapid multi-level zooms no
+# longer stack full ~200-marker rebuilds. (3) Attractions overlay now
+# works in the TMA maps — exempt from the 550m radius clip in
+# applyVisibility (zoom tier handles declutter, like the train layer)
+# and frameAttractions() frames the whole set. Supersedes v0.61.111's
+# in-radius frame (see journal #312 Amendments). mapOverlays.js x3.
+# v0.61.111 (commit 318 / journal 311 / build 114) — attraction-
+# overlay auto-frame PR (branch claude/v0.61.111-attraction-autoframe,
+# off main at v0.61.110): operator point-2 follow-up. createOverlay-
+# Controller gains frameAttractions() — toggling the Attractions (⚝)
+# overlay ON fits the map to the in-radius attractions (single ->
+# setCenter + z17, multiple -> fitBounds 80px), mirroring the bot's
+# "View N Train Stations" fit. setLayer calls it on attractions+visible.
+# mapOverlays.js x3. journal-0_61_111-22_05_26-2355.md.
+# v0.61.110 (commit 317 / journal 310 / build 113) — map-polish PR
+# #603 (branch claude/v0.61.110-map-polish, off main at v0.61.109):
+# Cuisine MapPanel result auto-fit maxZoom 16 -> 11 (operator: "ceiling
+# is 11"); InfoWindow text one size larger + unified — shared infoCard
+# base 12px -> 13px + sub-lines 11px -> 12px (mapOverlays.js x3), the
+# Cuisine venue popup body 11px -> 12px + anchor caption 10.5px ->
+# 12px; the 🗺 glyph dropped from the "View all N picks on map"
+# results footer. Operator's point 2 (a "View N Attractions" map-frame
+# action mirroring the bot's "View {n} Train Stations") deferred —
+# needs one more decision on where it lives. journal-0_61_110-22_05_26
+# -2325.md.
+# v0.61.109 (commit 316 / journal 309 / build 112) — attraction-
+# enrichment PR #602 (branch claude/v0.61.109-attraction-enrichment,
+# off main at v0.61.107): new scripts/fetch-attraction-details.js —
+# Google Places searchText (rating / phone / weekday hours / website /
+# wheelchair-entrance flag) + a website Instagram-link scrape, writing
+# name-keyed data/attraction-details.json (committed empty scaffold).
+# build-geo-overlays.js gains nearestStations() — attractions carry
+# the nearest TWO stations + an optional attraction-details.json join.
+# attractionInfo popup (mapOverlays.js x3 + public/app.js) rewritten
+# to show rating / address / hours / contact / wheelchair / two
+# stations / website / Instagram. Plus UI/Map_Zoom_Effects.MD — a
+# reference doc for the Google-Maps zoom/overlay/pin behaviour across
+# the 4 interactive map surfaces. Operator answered the planning
+# questions via AskUserQuestion (Instagram = website-scrape;
+# accessibility = minimal). journal-0_61_109-22_05_26-2115.md.
+# Concurrent with PR #601 (v0.61.108); if #601 merges second the
+# counters renumber — deferred to the operator.
+# v0.61.107 (commit 314 / journal 307 / build 110) — cuisine-zoom PR
+# #600 (branch claude/v0.61.107-cuisine-zoom-on-search, off main at
+# v0.61.106): Cuisine MapPanel syncMarkers re-frames (fitBounds) on the
+# first load AND every new search — firstFitRef replaced by
+# lastFitVenuesRef (tracks the venues array last fitted); a same-venues
+# re-render still only recenters. Transport/Hawker/app-map untouched.
+# journal-0_61_107-22_05_26-1940.md. STILL DUE — the free-text
+# "fishball noodle" -> Singaporean-cuisine misclassification.
 # v0.61.106 (commit 313 / journal 306 / build 109 unchanged) — /app/map
 # station-tiers PR #599 (branch claude/v0.61.106-appmap-station-tiers,
 # off main at v0.61.105): public/app.js — the Train Line layer's

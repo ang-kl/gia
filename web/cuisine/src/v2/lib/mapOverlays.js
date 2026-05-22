@@ -639,7 +639,7 @@ export function giaToggleStyle(on, disabled) {
 // underlined blue link — stays legible regardless of light/dark mode or
 // outdoor glare.
 export function infoPalette() {
-  return { bg: '#ffffff', fg: '#1c1c1f', sub: '#5a5a5a', link: '#1558d6', good: '#2e7d32' };
+  return { bg: '#ffffff', fg: '#1c1c1f', sub: '#3c3c40', link: '#1558d6', good: '#2e7d32' };
 }
 
 // v0.61.38 — greyscale the base map, leaving the DOM overlay markers
@@ -775,7 +775,7 @@ export function infoCard(inner, gmaps) {
   const tail = gmaps ? gmapsLinkRow(gmaps.lat, gmaps.lng) : '';
   return '<div style="position:relative;background:' + c.bg + ';'
     + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
-    + 'font-size:12px;line-height:1.5;max-width:248px;">'
+    + 'font-size:13px;font-weight:500;line-height:1.5;max-width:248px;">'
     + '<span onclick="window.__giaMapInfoClose&&window.__giaMapInfoClose()" '
     + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
     + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
@@ -1508,24 +1508,54 @@ export function createOverlayController(map, googleMaps, opts) {
       + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
   };
 
+  // v0.61.109 — enriched attraction popup: star rating + review count,
+  // address, today's opening hours (structured Google-Places week, with
+  // the STB prose as fallback), contact number, a wheelchair-accessible
+  // flag, the nearest TWO stations each with their exits, website and
+  // Instagram. The rating / phone / hoursWeek / wheelchair / instagram
+  // fields come from data/attraction-details.json (scripts/fetch-
+  // attraction-details.js) and are absent until that fetcher is run.
   const attractionInfo = (f) => {
     const c = infoPalette();
     let h = '<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>';
+    if (Number.isFinite(f.rating)) {
+      const cnt = Number.isFinite(f.ratingCount) ? ' (' + f.ratingCount + ')' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">⭐ ' + escapeHtml(f.rating.toFixed(1)) + cnt + '</div>';
+    }
     if (f.address) h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
-    if (f.hours) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(f.hours) + '</div>';
-    if (f.station && f.station.name) {
-      const codes = Array.isArray(f.station.codes) ? f.station.codes.join(' / ') : '';
-      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(f.station.name)
+    let hoursLine = '';
+    if (Array.isArray(f.hoursWeek) && f.hoursWeek.length) {
+      const jsDay = new Date().getDay();
+      hoursLine = f.hoursWeek[jsDay === 0 ? 6 : jsDay - 1] || f.hoursWeek[0];
+    } else if (f.hours) {
+      hoursLine = f.hours;
+    }
+    if (hoursLine) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(hoursLine) + '</div>';
+    if (f.phone) h += '<div style="color:' + c.sub + ';margin-top:2px;">☎ ' + escapeHtml(f.phone) + '</div>';
+    if (f.wheelchair === true) {
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">♿ Wheelchair accessible</div>';
+    }
+    for (const st of (Array.isArray(f.stations) ? f.stations : [])) {
+      if (!st || !st.name) continue;
+      const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(st.name)
         + (codes ? ' (' + escapeHtml(codes) + ')' : '') + '</div>';
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
-      const exits = Array.isArray(f.station.exits) ? f.station.exits.filter(Boolean) : [];
+      const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += '<div style="color:' + c.sub + ';margin-top:2px;">' + escapeHtml(exits.join(', ')) + '</div>';
+        h += '<div style="color:' + c.sub + ';margin-top:1px;font-size:12px;">'
+          + escapeHtml(exits.join(', ')) + '</div>';
       }
     }
     if (f.website) {
-      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
+      const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(href)
         + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 Website</a></div>';
+    }
+    if (f.instagram) {
+      const ig = /^https?:\/\//.test(f.instagram) ? f.instagram : 'https://' + f.instagram;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ig)
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">📷 Instagram</a></div>';
     }
     return infoCard(h, f);
   };
@@ -1581,7 +1611,7 @@ export function createOverlayController(map, googleMaps, opts) {
     const c = infoPalette();
     let h = '';
     if (f.category) {
-      h += '<div style="color:' + c.sub + ';font-size:11px;text-transform:uppercase;'
+      h += '<div style="color:' + c.sub + ';font-size:12px;text-transform:uppercase;'
         + 'letter-spacing:.04em;">' + escapeHtml(f.category) + '</div>';
     }
     h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || 'Hospital') + '</div>';
@@ -1884,9 +1914,15 @@ export function createOverlayController(map, googleMaps, opts) {
     const placedLabels = [];
     const placedCarparks = [];
     for (const it of e.items) {
-      const near = stationScoped
-        ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
-        : inRadius(it.lat, it.lng, r);
+      // v0.61.112 — operator point 4: the attractions layer is not
+      // radius-clipped. Like the train layer it shows the whole set
+      // (the zoom tier handles declutter), so the ⚝ overlay actually
+      // populates the TMA maps instead of clipping to a 550 m bubble.
+      const near = (name === 'attractions')
+        ? true
+        : stationScoped
+          ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
+          : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
       // v0.61.82 — CR-5: exit pins swap compact/full at the detail
       // zoom threshold. v0.61.102 — bus-stop pins follow the 5-band
@@ -1938,6 +1974,27 @@ export function createOverlayController(map, googleMaps, opts) {
     }
   }
 
+  // v0.61.111 — operator point 2: turning the Attractions overlay on
+  // frames the map to the attractions, mirroring the bot's "View N
+  // Train Stations" fit. Single attraction → centre + z17; multiple →
+  // fitBounds with 80 px padding.
+  // v0.61.112 — frame the whole attraction set (not a radius subset):
+  // the attractions layer is no longer radius-clipped, so applyVisibility
+  // shows them all and the frame must match.
+  function frameAttractions(entry) {
+    const pts = (entry.items || []).filter((it) =>
+      Number.isFinite(it.lat) && Number.isFinite(it.lng));
+    if (!pts.length) return;
+    if (pts.length === 1) {
+      map.setCenter({ lat: pts[0].lat, lng: pts[0].lng });
+      map.setZoom(17);
+      return;
+    }
+    const bounds = new googleMaps.LatLngBounds();
+    for (const p of pts) bounds.extend({ lat: p.lat, lng: p.lng });
+    map.fitBounds(bounds, 80);
+  }
+
   return {
     // v0.61.22 — let the host TMA close the overlay popup (in-card ✕ /
     // tap-elsewhere) alongside its own venue/station InfoWindow.
@@ -1971,6 +2028,9 @@ export function createOverlayController(map, googleMaps, opts) {
       if (name === 'busstop' && visible) clearStationBusStops();
       if (name === 'exits' && visible) clearStationExitPins();
       applyVisibility(name);
+      // v0.61.111 — auto-frame the map to the attractions when the
+      // layer turns on (operator point 2).
+      if (name === 'attractions' && visible) frameAttractions(entry);
       // v0.61.26 — leaving station-detail un-scopes the Exits / Taxis
       // chips back to the anchor radius.
       if (name === 'train' && !visible) syncDetailAmenityLayers();
