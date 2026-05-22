@@ -1036,7 +1036,10 @@ export function attachAmenityPins({ maps, map, infoWindow, ctx, limits }) {
       (m) => openBusInfo(map, infoWindow, b, m));
   }
   for (const x of (Array.isArray(ctx.taxis) ? ctx.taxis : [])
-    .filter((t) => t && t.kind !== 'stop').slice(0, lim.taxi || 2)) {
+    // v0.61.99 — show every taxi feature near the station, including
+    // generic "Taxi Stop" points (operator: no taxi pin showed in the
+    // station-detail view; many features classify as kind:'stop').
+    .filter((t) => !!t).slice(0, lim.taxi || 2)) {
     const pickup = x.kind === 'pickup';
     place(x.lat, x.lng, amenityLabelNode(pickup ? 'Pick-up' : 'Taxi', AMENITY_TAXI_BG, '#1c1c1f', true),
       (m) => openCard(m, '<div style="font-weight:600;">'
