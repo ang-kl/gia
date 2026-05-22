@@ -1764,8 +1764,13 @@ export function createOverlayController(map, googleMaps, opts) {
             metresBetween(c.lat, c.lng, p.lat, p.lng) <= 150));
           opacity = touches ? 0.95 : 0.8;
         }
+        // v0.61.103 — in monochrome the base polyline renders invisible
+        // (strokeOpacity 0) so it doesn't grey out under the canvas
+        // filter; the coloured SVG overlay (colourSegs) carries the
+        // line instead. colourSegs keeps the real opacity.
         ln.polyline.setOptions({
-          strokeOpacity: opacity, strokeWeight: detailStation ? 3 : 4
+          strokeOpacity: monochrome ? 0 : opacity,
+          strokeWeight: detailStation ? 3 : 4
         });
         colourSegs.push({ hex: ln.hex, pts: ln.pts, opacity,
           weight: detailStation ? 3 : 4 });
@@ -1783,7 +1788,8 @@ export function createOverlayController(map, googleMaps, opts) {
             const seg = trackBetween(ln.pts, a.lat, a.lng, b.lat, b.lng);
             if (seg.length >= 2) {
               e.highlights.push(new Polyline({
-                path: seg, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
+                path: seg, strokeColor: ln.hex,
+                strokeOpacity: monochrome ? 0 : 1, strokeWeight: 5,
                 clickable: false, zIndex: 3, map
               }));
               colourSegs.push({ hex: ln.hex, pts: seg, opacity: 1, weight: 5 });
