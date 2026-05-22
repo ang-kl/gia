@@ -336,21 +336,59 @@
       + `<strong>🅿️ ${escapeHtml(name)}</strong>${escapeHtml(lots)}</div>` };
   }
 
+  // v0.61.102 — operator: the bus-stop overlay marker renders by zoom
+  // tier — "🚏 Bus Stop № <code>" (z17+), "🚏 № <code>" (z15-16), the
+  // "🚏" glyph (z13-14, smaller z11-12), a light-yellow square + red
+  // "b" (z<=10), each tier a touch smaller than the one above.
+  function busTier(zoom) {
+    if (zoom >= 17) return 'full';
+    if (zoom >= 15) return 'short';
+    if (zoom >= 13) return 'glyph';
+    if (zoom >= 11) return 'glyph-sm';
+    return 'square';
+  }
+  function busTierPin(tier, code) {
+    const el = document.createElement('div');
+    if (tier === 'full' || tier === 'short') {
+      el.textContent = (tier === 'full' ? '🚏 Bus Stop № ' : '🚏 № ') + (code || '');
+      el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
+        + 'background:#fff;color:#1c1c1f;white-space:nowrap;font-weight:700;'
+        + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);'
+        + 'cursor:pointer;line-height:1.5;font-size:' + (tier === 'full' ? 11 : 10) + 'px;';
+    } else if (tier === 'glyph' || tier === 'glyph-sm') {
+      el.textContent = '🚏';
+      el.style.cssText = 'cursor:pointer;line-height:1;'
+        + 'font-size:' + (tier === 'glyph' ? 16 : 14) + 'px;';
+    } else {
+      el.textContent = 'b';
+      el.style.cssText = 'width:12px;height:12px;display:flex;align-items:center;'
+        + 'justify-content:center;background:#FFF59D;color:#D32F2F;font-weight:800;'
+        + 'font-size:9px;line-height:1;cursor:pointer;border:1px solid #fff;'
+        + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
+    }
+    return el;
+  }
+
   // Bus stops (~5500) / carparks are viewport-clipped: render only the
-  // features inside the current bounds, and only when zoomed in enough
-  // that the count is sane. Re-runs on every map `idle`.
+  // features inside the current bounds. Re-runs on every map `idle`.
   function renderClippedLayer(key, glyph, infoFn) {
     clearLayerMarkers(key);
     if (!overlay[key].on || !overlay[key].data) return;
     const bounds = map.getBounds && map.getBounds();
-    if (!bounds || (map.getZoom() || 0) < 14) return;
+    const zoom = map.getZoom() || 0;
+    // v0.61.102 — bus stops tier all the way down (z<=10 = square); the
+    // carpark layer keeps its z>=14 gate.
+    const minZoom = key === 'busstop' ? 10 : 14;
+    if (!bounds || zoom < minZoom) return;
+    const bt = key === 'busstop' ? busTier(zoom) : null;
     let drawn = 0;
     for (const f of overlay[key].data) {
       if (drawn >= 250) break;
       if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
       const pos = { lat: f.lat, lng: f.lng };
       if (!bounds.contains(pos)) continue;
-      const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(glyph) });
+      const marker = new AdvancedMarkerElement({ map, position: pos,
+        content: bt ? busTierPin(bt, f.code) : overlayPin(glyph) });
       marker.addListener('click', () => {
         if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
         overlayInfo.setContent(infoFn(f).html);
@@ -587,12 +625,12 @@
   function buildZoomPin() {
     const btn = document.createElement('button');
     btn.type = 'button';
+    // v0.61.102 — operator: a faint "🔭 <zoom>" readout (30% opacity,
+    // 2 px smaller) — no longer a solid white circle.
     btn.style.cssText = 'position:fixed;bottom:16px;right:14px;z-index:40;'
-      + 'width:34px;height:34px;border-radius:50%;border:1px solid #d0d0d0;'
-      + 'background:#fff;color:#1c1c1f;font-size:12px;font-weight:700;'
-      + 'box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;padding:0;'
-      + 'display:flex;align-items:center;justify-content:center;';
-    const paint = () => { btn.textContent = String(Math.round(map.getZoom() || 0)); };
+      + 'border:0;background:none;color:#1c1c1f;font-size:10px;font-weight:700;'
+      + 'opacity:0.3;cursor:pointer;padding:0;line-height:1;';
+    const paint = () => { btn.textContent = '🔭 ' + Math.round(map.getZoom() || 0); };
     paint();
     map.addListener('zoom_changed', paint);
     btn.addEventListener('click', () => {

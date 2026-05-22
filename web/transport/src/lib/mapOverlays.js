@@ -491,6 +491,40 @@ function busPinNode(code, full) {
     full ? '🚏 Bus Stop № ' + code : '🚏', '#FFFFFF', '#1c1c1f', true);
 }
 
+// v0.61.102 — operator: the bus-stop overlay marker renders by zoom
+// tier — "🚏 Bus Stop № <code>" (z17+), "🚏 № <code>" (z15-16), the
+// "🚏" glyph (z13-14, smaller at z11-12), and a light-yellow square
+// with a red "b" (z<=10); each tier a touch smaller than the one above.
+function busTier(zoom) {
+  if (zoom >= 17) return 'full';
+  if (zoom >= 15) return 'short';
+  if (zoom >= 13) return 'glyph';
+  if (zoom >= 11) return 'glyph-sm';
+  return 'square';
+}
+function busTierNode(tier, code) {
+  const el = document.createElement('div');
+  if (tier === 'full' || tier === 'short') {
+    el.textContent = (tier === 'full' ? '🚏 Bus Stop № ' : '🚏 № ') + (code || '');
+    el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
+      + 'background:#FFFFFF;color:#1c1c1f;white-space:nowrap;font-weight:700;'
+      + 'line-height:1.5;border:1.5px solid #fff;cursor:pointer;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);'
+      + 'font-size:' + (tier === 'full' ? 11 : 10) + 'px;';
+  } else if (tier === 'glyph' || tier === 'glyph-sm') {
+    el.textContent = '🚏';
+    el.style.cssText = 'cursor:pointer;line-height:1;'
+      + 'font-size:' + (tier === 'glyph' ? 16 : 14) + 'px;';
+  } else {
+    el.textContent = 'b';
+    el.style.cssText = 'width:12px;height:12px;display:flex;align-items:center;'
+      + 'justify-content:center;background:#FFF59D;color:#D32F2F;font-weight:800;'
+      + 'font-size:9px;line-height:1;cursor:pointer;border:1px solid #fff;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
+  }
+  return el;
+}
+
 // v0.61.82 — CR-5: compact zoomed-out exit marker. A low-chrome text
 // node carrying only the alphanumeric exit identifier (e.g. "A", "12");
 // a white halo keeps it legible over the greyscale base map. Above the
@@ -1194,19 +1228,19 @@ export function createOverlayController(map, googleMaps, opts) {
   // and a tap opens the live-arrivals popup (openBusInfo) — the same
   // popup the station-detail amenity pins use.
   function buildBusMarkers(features) {
+    // v0.61.102 — the bus-stop marker re-renders by zoom tier (see
+    // busTier); applyVisibility swaps marker.content as the band
+    // changes. `_code` + the `_busTier` cache drive that.
+    const z0 = map.getZoom?.() || 0;
     return (features || []).map((f) => {
-      // v0.61.70 — two zoom variants per marker; applyVisibility swaps
-      // to `full` at/above the detail zoom threshold.
-      const compact = busPinNode(f.code, false);
-      const full = busPinNode(f.code, true);
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: compact,
+        content: busTierNode(busTier(z0), f.code),
         title: f.description || ('Stop ' + f.code),
         gmpClickable: true
       });
       marker.addListener('click', () => openBusInfo(map, info, f, marker));
-      return { marker, lat: f.lat, lng: f.lng, compact, full, _bus: true };
+      return { marker, lat: f.lat, lng: f.lng, _bus: true, _code: f.code, _busTier: null };
     });
   }
 
@@ -1832,9 +1866,16 @@ export function createOverlayController(map, googleMaps, opts) {
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
         : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
-      // v0.61.82 — CR-5: bus-stop AND exit pins are zoom-aware; swap
-      // marker.content between the compact and full nodes.
-      if ((it._bus || it._exit) && e.visible && near) {
+      // v0.61.82 — CR-5: exit pins swap compact/full at the detail
+      // zoom threshold. v0.61.102 — bus-stop pins follow the 5-band
+      // busTier ladder instead.
+      if (it._bus && e.visible && near) {
+        const bt = busTier(zoom);
+        if (it._busTier !== bt) {
+          it.marker.content = busTierNode(bt, it._code);
+          it._busTier = bt;
+        }
+      } else if (it._exit && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
         if (it.marker.content !== want) it.marker.content = want;
       } else if (it._tiered && e.visible && near) {
