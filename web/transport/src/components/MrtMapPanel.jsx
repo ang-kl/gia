@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap, makeTrainColourOverlay } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -131,6 +131,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // station-dot markers so they survive a dot-only re-render.
   const amenityMarkersRef = useRef([]);
   const polylinesRef = useRef([]);
+  // v0.61.95 — coloured SVG copy of the line polylines, for monochrome.
+  const colourOverlayRef = useRef(null);
   const infoWindowRef = useRef(null);
   const stationsRef = useRef([]);
   // v0.63.0 — parks / attractions / taxi / carpark overlay layers.
@@ -329,6 +331,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // themed infoCard (with its own in-card ✕) is the whole popup.
     infoWindowRef.current = new window.google.maps.InfoWindow({ headerDisabled: true });
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'transport' });
+    // v0.61.95 — operator part 5: the coloured SVG train-line overlay,
+    // shown in monochrome mode so the lines don't grey out with the
+    // WebGL base-map canvas.
+    colourOverlayRef.current = makeTrainColourOverlay(window.google.maps);
+    syncColourOverlay();
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
@@ -372,7 +379,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('police', !!layers.police);
   }
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
+  useEffect(() => () => {
+    overlayControllerRef.current?.destroy?.();
+    colourOverlayRef.current?.setMap(null);
+  }, []);
 
   // v0.61.36 — Train Line toggle: show / hide the line polylines. The
   // polylines are this map's own geometry (not an overlay layer), so the
@@ -381,6 +391,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     const vis = overlayLayers?.train !== false;
     for (const p of polylinesRef.current) p.setMap(vis ? mapRef.current : null);
   }, [overlayLayers?.train]);
+
+  // v0.61.95 — operator part 5: re-sync the coloured train-line overlay
+  // whenever the Colour (monochrome) or Train Line toggle changes.
+  useEffect(() => { syncColourOverlay(); }, [overlayLayers?.colour, overlayLayers?.train]);
 
   // v0.61.16 — resolve the active station-detail view: the selected
   // station, the line it is detailed along, and the stations one stop
@@ -418,6 +432,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     if (!window.google?.maps?.Polyline) return;
     for (const p of polylinesRef.current) p.setMap(null);
     polylinesRef.current = [];
+    // v0.61.95 — a coloured SVG copy of every drawn line, fed to the
+    // monochrome colour overlay (the base polylines grey out with the
+    // WebGL canvas filter).
+    const colourSegs = [];
     // v0.61.36 — Train Line toggle (default ON) gates polyline visibility.
     const trainVisible = overlayLayersRef.current?.train !== false;
     const paths = resolveLinePaths(linePathsRef.current, list);
@@ -433,6 +451,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       const baseOpacity = isFutureLine ? FUTURE_LINE_OPACITY : LINE_OPACITY;
       const heavy = (detail && detail.line === lineCode)
         || (!overview && !detail && focusedCode === lineCode);
+      const weight = heavy ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT;
       for (const seg of segments) {
         if (!Array.isArray(seg) || seg.length < 2) continue;
         const pl = new window.google.maps.Polyline({
@@ -440,14 +459,28 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           map: trainVisible ? mapRef.current : null,
           strokeColor: hex,
           strokeOpacity: baseOpacity,
-          strokeWeight: heavy ? LINE_WEIGHT_FOCUSED : LINE_WEIGHT,
+          strokeWeight: weight,
           clickable: true,
           zIndex: 1
         });
         pl.addListener('click', () => onLineSelect?.(lineCode));
         polylinesRef.current.push(pl);
+        colourSegs.push({ hex, pts: seg, opacity: baseOpacity, weight });
       }
     }
+    colourOverlayRef.current?.setSegments(colourSegs);
+  }
+
+  // v0.61.95 — operator part 5: attach the coloured SVG line overlay
+  // only while monochrome mode is on and the Train Line layer is shown;
+  // otherwise detach it. Reads the refs, so it is safe to call from the
+  // map-init path and from the toggle effect.
+  function syncColourOverlay() {
+    const ov = colourOverlayRef.current;
+    if (!ov || !mapRef.current) return;
+    const mono = overlayLayersRef.current?.colour === false;
+    const trainOn = overlayLayersRef.current?.train !== false;
+    ov.setMap(mono && trainOn ? mapRef.current : null);
   }
 
   // v0.61.16 — build the station InfoWindow bubble and open it on the

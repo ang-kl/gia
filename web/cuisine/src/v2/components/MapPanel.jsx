@@ -237,6 +237,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('hospitals', !!L.hospitals);
     ctrl.setLayer('police', !!L.police);
     ctrl.setLayer('train', !!L.train);
+    // v0.61.95 — monochrome drives the coloured train-line SVG overlay
+    // (raw `layers`, not the JB-gated `L` — it mirrors the greyscale
+    // CSS class, which is JB-independent).
+    ctrl.setMonochrome(layers.colour === false);
   }
 
   useEffect(() => { applyOverlayLayers(effectiveLayers); }, [overlayLayers, region]); // eslint-disable-line
