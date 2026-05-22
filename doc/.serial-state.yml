@@ -1,8 +1,8 @@
 counters:
-  commit: 314
-  build: 110
+  commit: 316
+  build: 112
   documents:
-    journal: 307
+    journal: 309
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,27 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 19:40 SGT
-last_anchor_source: system_clock_utc_2026-05-22T11:40:29Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T19:40:29+08:00
-last_anchor_utc: 2026-05-22T11:40:29Z
+last_anchor_time: 22-05 '26 21:15 SGT
+last_anchor_source: system_clock_utc_2026-05-22T13:15:01Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T21:15:01+08:00
+last_anchor_utc: 2026-05-22T13:15:01Z
+# v0.61.109 (commit 316 / journal 309 / build 112) — attraction-
+# enrichment PR #602 (branch claude/v0.61.109-attraction-enrichment,
+# off main at v0.61.107): new scripts/fetch-attraction-details.js —
+# Google Places searchText (rating / phone / weekday hours / website /
+# wheelchair-entrance flag) + a website Instagram-link scrape, writing
+# name-keyed data/attraction-details.json (committed empty scaffold).
+# build-geo-overlays.js gains nearestStations() — attractions carry
+# the nearest TWO stations + an optional attraction-details.json join.
+# attractionInfo popup (mapOverlays.js x3 + public/app.js) rewritten
+# to show rating / address / hours / contact / wheelchair / two
+# stations / website / Instagram. Plus UI/Map_Zoom_Effects.MD — a
+# reference doc for the Google-Maps zoom/overlay/pin behaviour across
+# the 4 interactive map surfaces. Operator answered the planning
+# questions via AskUserQuestion (Instagram = website-scrape;
+# accessibility = minimal). journal-0_61_109-22_05_26-2115.md.
+# Concurrent with PR #601 (v0.61.108); if #601 merges second the
+# counters renumber — deferred to the operator.
 # v0.61.107 (commit 314 / journal 307 / build 110) — cuisine-zoom PR
 # #600 (branch claude/v0.61.107-cuisine-zoom-on-search, off main at
 # v0.61.106): Cuisine MapPanel syncMarkers re-frames (fitBounds) on the

@@ -1508,24 +1508,54 @@ export function createOverlayController(map, googleMaps, opts) {
       + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
   };
 
+  // v0.61.109 — enriched attraction popup: star rating + review count,
+  // address, today's opening hours (structured Google-Places week, with
+  // the STB prose as fallback), contact number, a wheelchair-accessible
+  // flag, the nearest TWO stations each with their exits, website and
+  // Instagram. The rating / phone / hoursWeek / wheelchair / instagram
+  // fields come from data/attraction-details.json (scripts/fetch-
+  // attraction-details.js) and are absent until that fetcher is run.
   const attractionInfo = (f) => {
     const c = infoPalette();
     let h = '<div style="font-weight:600;">' + escapeHtml(f.name || '') + '</div>';
+    if (Number.isFinite(f.rating)) {
+      const cnt = Number.isFinite(f.ratingCount) ? ' (' + f.ratingCount + ')' : '';
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">⭐ ' + escapeHtml(f.rating.toFixed(1)) + cnt + '</div>';
+    }
     if (f.address) h += '<div style="color:' + c.sub + ';margin-top:2px;">📇 ' + escapeHtml(f.address) + '</div>';
-    if (f.hours) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(f.hours) + '</div>';
-    if (f.station && f.station.name) {
-      const codes = Array.isArray(f.station.codes) ? f.station.codes.join(' / ') : '';
-      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(f.station.name)
+    let hoursLine = '';
+    if (Array.isArray(f.hoursWeek) && f.hoursWeek.length) {
+      const jsDay = new Date().getDay();
+      hoursLine = f.hoursWeek[jsDay === 0 ? 6 : jsDay - 1] || f.hoursWeek[0];
+    } else if (f.hours) {
+      hoursLine = f.hours;
+    }
+    if (hoursLine) h += '<div style="color:' + c.sub + ';margin-top:2px;">🕰 ' + escapeHtml(hoursLine) + '</div>';
+    if (f.phone) h += '<div style="color:' + c.sub + ';margin-top:2px;">☎ ' + escapeHtml(f.phone) + '</div>';
+    if (f.wheelchair === true) {
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">♿ Wheelchair accessible</div>';
+    }
+    for (const st of (Array.isArray(f.stations) ? f.stations : [])) {
+      if (!st || !st.name) continue;
+      const codes = Array.isArray(st.codes) ? st.codes.join(' / ') : '';
+      h += '<div style="color:' + c.sub + ';margin-top:2px;">🚉 ' + escapeHtml(st.name)
         + (codes ? ' (' + escapeHtml(codes) + ')' : '') + '</div>';
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
-      const exits = Array.isArray(f.station.exits) ? f.station.exits.filter(Boolean) : [];
+      const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += '<div style="color:' + c.sub + ';margin-top:2px;">' + escapeHtml(exits.join(', ')) + '</div>';
+        h += '<div style="color:' + c.sub + ';margin-top:1px;font-size:11px;">'
+          + escapeHtml(exits.join(', ')) + '</div>';
       }
     }
     if (f.website) {
-      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(f.website)
+      const href = /^https?:\/\//.test(f.website) ? f.website : 'https://' + f.website;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(href)
         + '" target="_blank" rel="noopener" style="color:' + c.link + ';">🌐 Website</a></div>';
+    }
+    if (f.instagram) {
+      const ig = /^https?:\/\//.test(f.instagram) ? f.instagram : 'https://' + f.instagram;
+      h += '<div style="margin-top:3px;"><a href="' + escapeHtml(ig)
+        + '" target="_blank" rel="noopener" style="color:' + c.link + ';">📷 Instagram</a></div>';
     }
     return infoCard(h, f);
   };
