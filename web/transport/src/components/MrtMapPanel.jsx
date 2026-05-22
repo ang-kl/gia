@@ -592,11 +592,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           : 'chip:' + (tier.scale || 1),
         pinned: !!(detail && s.name === detail.station.name)
       }));
-    const ovc = mapRef.current?.getCenter?.();
-    const ovRef = detail
-      ? { lat: detail.station.lat, lng: detail.station.lng }
-      : (ovc ? { lat: ovc.lat(), lng: ovc.lng() } : null);
-    demoteByOverlap(tItems, zoom, ovRef, tier.overlapChip);
+    demoteByOverlap(tItems, zoom, tier.overlapChip);
     const modeByName = new Map(tItems.map((x) => [x.name, x.mode]));
     for (const s of visibleList) {
       if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;

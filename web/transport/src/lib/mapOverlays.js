@@ -130,44 +130,62 @@ function markerBoxPx(mode, codeCount, nameLen) {
   return { w: 9, h: 9 };
 }
 
-// v0.61.92 — screen-space overlap demotion (operator: "keep the station
-// nearest the result, demote the rest"). `items` is a list of
-// { name, lat, lng, codes, mode, pinned? }; the list is walked nearest-
-// `ref`-first (pinned items, e.g. a tapped station, first and never
-// demoted) and any marker whose box collides with an already-kept
-// marker is demoted: a pill -> a code chip at `overlapChip`, a code
-// chip -> ~20 % smaller (floored). Pure geometry (metres -> px from the
-// zoom), so the result is pan-invariant. Mutates + returns `items`.
-export function demoteByOverlap(items, zoom, ref, overlapChip) {
+// v0.61.92 — screen-space overlap demotion. v0.61.94 — operator: "if
+// the text overlaps a nearby pin, change to station code only, and
+// pins near each other smaller px". The v0.61.92 pass kept the marker
+// nearest the result as a full pill and demoted only the rest — but a
+// kept pill is wide enough to still cover a demoted neighbour, so the
+// overlap persisted (the City Hall / CC3 screenshot). This pass is
+// symmetric + iterative instead: each round, EVERY non-pinned marker
+// whose box collides with another's is demoted one step — a named pill
+// -> a code chip (drops the name), a code chip -> ~20 % smaller
+// (floored at 0.5x). A marker box only ever shrinks, so the loop
+// converges; the round cap is a safety bound. A pinned marker (a
+// tapped station) is never demoted. `items` is a list of
+// { name, lat, lng, codes, mode, pinned? }. Pure geometry (metres ->
+// px from the zoom), so the result is pan-invariant. Mutates each
+// item's `mode` + returns `items`.
+export function demoteByOverlap(items, zoom, overlapChip) {
   const list = (items || []).filter((it) => it && it.mode);
   if (list.length < 2) return items;
-  const r = ref || { lat: list[0].lat, lng: list[0].lng };
-  const dist = (it) => metresBetween(r.lat, r.lng, it.lat, it.lng);
-  const order = list.slice().sort((a, b) => {
-    if (!a.pinned !== !b.pinned) return a.pinned ? -1 : 1;
-    return dist(a) - dist(b);
-  });
-  const kept = [];
-  for (const it of order) {
-    const codeN = Array.isArray(it.codes) ? it.codes.length : 1;
-    const nameLen = (it.name || '').length;
-    let box = markerBoxPx(it.mode, codeN, nameLen);
-    const mpp = metresPerPixelAt(zoom, it.lat) || 1;
-    const collides = kept.some((k) => {
-      const dx = metresBetween(it.lat, it.lng, it.lat, k.it.lng) / mpp;
-      const dy = metresBetween(it.lat, it.lng, k.it.lat, it.lng) / mpp;
-      return dx < (box.w + k.box.w) / 2 && dy < (box.h + k.box.h) / 2;
-    });
-    if (collides && !it.pinned) {
-      if (it.mode === 'pill') {
-        it.mode = 'chip:' + (overlapChip || CHIP.SM);
-      } else if (it.mode.indexOf('chip:') === 0) {
-        const s = parseFloat(it.mode.slice(5)) || 1;
-        it.mode = 'chip:' + Math.max(+(s * 0.8).toFixed(3), 0.5);
-      }
-      box = markerBoxPx(it.mode, codeN, nameLen);
+  const boxOf = (it) => markerBoxPx(
+    it.mode, Array.isArray(it.codes) ? it.codes.length : 1, (it.name || '').length);
+  // One demotion step; returns true when `mode` actually changed.
+  const demote = (it) => {
+    if (it.mode === 'pill') {
+      it.mode = 'chip:' + (overlapChip || CHIP.SM);
+      return true;
     }
-    kept.push({ it, box });
+    if (typeof it.mode === 'string' && it.mode.indexOf('chip:') === 0) {
+      const s = parseFloat(it.mode.slice(5)) || 1;
+      const next = Math.max(+(s * 0.8).toFixed(3), 0.5);
+      if (next < s) { it.mode = 'chip:' + next; return true; }
+    }
+    return false;   // a square, or a chip already at the 0.5x floor
+  };
+  // v0.61.94 — a few px of breathing room so markers don't settle
+  // edge-to-edge touching.
+  const GAP = 3;
+  for (let round = 0; round < 8; round++) {
+    const boxes = list.map(boxOf);
+    const hit = new Array(list.length).fill(false);
+    for (let i = 0; i < list.length; i++) {
+      const mpp = metresPerPixelAt(zoom, list[i].lat) || 1;
+      for (let j = i + 1; j < list.length; j++) {
+        const dx = metresBetween(list[i].lat, list[i].lng, list[i].lat, list[j].lng) / mpp;
+        const dy = metresBetween(list[i].lat, list[i].lng, list[j].lat, list[i].lng) / mpp;
+        if (dx < (boxes[i].w + boxes[j].w) / 2 + GAP
+          && dy < (boxes[i].h + boxes[j].h) / 2 + GAP) {
+          hit[i] = true;
+          hit[j] = true;
+        }
+      }
+    }
+    let changed = false;
+    for (let i = 0; i < list.length; i++) {
+      if (hit[i] && !list[i].pinned && demote(list[i])) changed = true;
+    }
+    if (!changed) break;
   }
   return items;
 }
@@ -1605,9 +1623,7 @@ export function createOverlayController(map, googleMaps, opts) {
           codes: st.station.codes, mode, pinned });
       }
       if (e.visible) {
-        const ctr = map.getCenter?.();
-        const ovRef = anchor || (ctr && { lat: ctr.lat(), lng: ctr.lng() });
-        demoteByOverlap(items, zoom, ovRef, tier.overlapChip);
+        demoteByOverlap(items, zoom, tier.overlapChip);
         for (const it of items) {
           if (it.st._mode !== it.mode) {
             it.st.marker.content = trainStationNode(it.mode, it.st);
