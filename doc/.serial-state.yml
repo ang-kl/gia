@@ -1,8 +1,8 @@
 counters:
-  commit: 308
-  build: 105
+  commit: 309
+  build: 106
   documents:
-    journal: 301
+    journal: 302
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,18 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 14:50 SGT
-last_anchor_source: system_clock_utc_2026-05-22T06:50:58Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T14:50:58+08:00
-last_anchor_utc: 2026-05-22T06:50:58Z
+last_anchor_time: 22-05 '26 15:35 SGT
+last_anchor_source: system_clock_utc_2026-05-22T07:35:17Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T15:35:17+08:00
+last_anchor_utc: 2026-05-22T07:35:17Z
+# v0.61.102 (commit 309 / journal 302 / build 106) — zoom-readout +
+# bus-tiers PR #595 (branch claude/v0.61.102-zoom-bus-tiers, off main
+# at v0.61.101): the embedded-map zoom display becomes a faint
+# "🔭 <zoom>" (30% opacity, 2 px smaller, no circle); bus-stop overlay
+# markers render by 5 zoom bands (full label / short label / glyph /
+# small glyph / light-yellow square) via busTier + busTierNode in
+# mapOverlays.js and busTier + busTierPin in public/app.js.
+# journal-0_61_102-22_05_26-1535.md.
 # v0.61.101 (commit 308 / journal 301 / build 105 unchanged) — /app/map
 # dropdown PR #594 (branch claude/v0.61.101-appmap-dropdown, off main
 # at v0.61.100): public/app.js — the inert "⋯" button now opens a

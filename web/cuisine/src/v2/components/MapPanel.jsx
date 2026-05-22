@@ -628,18 +628,18 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         }}
       />
       {/* v0.61.93 — operator: the zoom readout doubles as the recenter
-          button — a white circle showing the integer zoom; tap to pan
-          to your saved location. Replaces the separate 📍 button. */}
+          button. v0.61.102 — operator: a faint "🔭 <zoom>" readout
+          (30% opacity, 2 px smaller) — no longer a white circle. */}
       {zoomLevel != null && (
         <button
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className={`absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-xs font-bold z-10 ${userLoc ? 'text-gray-900 active:bg-gray-100' : 'text-gray-400 cursor-not-allowed'}`}
+          className="absolute bottom-3 right-3 z-10 text-[10px] font-bold leading-none opacity-30 text-gray-900 select-none"
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
         >
-          {Math.round(Number(zoomLevel))}
+          🔭 {Math.round(Number(zoomLevel))}
         </button>
       )}
       {children}
