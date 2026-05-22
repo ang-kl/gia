@@ -259,7 +259,7 @@
     SLRT: '#999999', PLRT: '#999999', JRL: '#0099aa', CRL: '#97c93d'
   };
   const overlay = {
-    train:   { on: false, loaded: false, polylines: [] },
+    train:   { on: false, loaded: false, polylines: [], stations: [], stationMarkers: [] },
     busstop: { on: false, data: null, markers: [] },
     carpark: { on: false, data: null, markers: [] }
   };
@@ -295,6 +295,13 @@
         }));
       }
     }
+    // v0.61.100 — station data so the Train Line layer shows tappable
+    // stations, not just lines (operator).
+    try {
+      const sr = await fetch('/api/transport/stations');
+      const sd = await sr.json();
+      overlay.train.stations = Array.isArray(sd.stations) ? sd.stations : [];
+    } catch { overlay.train.stations = []; }
   }
 
   async function ensureLayerData(key, url, field) {
@@ -316,8 +323,14 @@
     return { title: name, html: `<div style="font-size:12px;line-height:1.45">`
       + `<strong>🚏 ${escapeHtml(name)}</strong><br>Bus Stop № ${escapeHtml(f.code || '')}</div>` };
   }
+  // v0.61.100 — LTA carpark names arrive ALL CAPS; render them in
+  // Proper Case (operator: "not all lowercase or uppercase").
+  function toTitleCase(s) {
+    if (!s) return s;
+    return String(s).toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase());
+  }
   function carparkInfo(f) {
-    const name = f.development || f.name || 'Carpark';
+    const name = toTitleCase(f.development || f.name || 'Carpark');
     const lots = Number.isFinite(f.availableLots) ? ` — ${f.availableLots} lots` : '';
     return { title: name, html: `<div style="font-size:12px;line-height:1.45">`
       + `<strong>🅿️ ${escapeHtml(name)}</strong>${escapeHtml(lots)}</div>` };
@@ -348,9 +361,51 @@
     }
   }
 
+  function clearTrainStations() {
+    overlay.train.stationMarkers.forEach((m) => { m.map = null; });
+    overlay.train.stationMarkers = [];
+  }
+  function stationInfoHtml(s) {
+    const codes = Array.isArray(s.codes) ? s.codes.filter(Boolean).join(' · ') : '';
+    const q = encodeURIComponent(`${s.name || ''} MRT Station Singapore`);
+    return '<div style="font-size:12px;line-height:1.45">'
+      + `<strong>🚉 ${escapeHtml(s.name || '')}</strong>`
+      + (codes ? `<br>${escapeHtml(codes)}` : '')
+      + `<br><a href="https://www.google.com/maps/search/?api=1&query=${q}" `
+      + 'target="_blank" rel="noopener">Open 📍 in a map ↗</a></div>';
+  }
+  // v0.61.100 — station markers for the Train Line layer; viewport-
+  // clipped + zoom-gated (z>=13) like the bus / carpark layers so the
+  // ~177-station network never floods the map. Re-runs on map idle.
+  function renderTrainStations() {
+    clearTrainStations();
+    if (!overlay.train.on) return;
+    const bounds = map.getBounds && map.getBounds();
+    if (!bounds || (map.getZoom() || 0) < 13) return;
+    let drawn = 0;
+    for (const s of overlay.train.stations) {
+      if (drawn >= 200) break;
+      if (!s || !Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+      if (s.status === 'future') continue;
+      const pos = { lat: s.lat, lng: s.lng };
+      if (!bounds.contains(pos)) continue;
+      const marker = new AdvancedMarkerElement({
+        map, position: pos, title: s.name || '', content: overlayPin('🚉')
+      });
+      marker.addListener('click', () => {
+        if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
+        overlayInfo.setContent(stationInfoHtml(s));
+        overlayInfo.open({ anchor: marker, map });
+      });
+      overlay.train.stationMarkers.push(marker);
+      drawn++;
+    }
+  }
+
   function refreshClippedLayers() {
     if (overlay.busstop.on) renderClippedLayer('busstop', '🚏', busInfo);
     if (overlay.carpark.on) renderClippedLayer('carpark', '🅿️', carparkInfo);
+    if (overlay.train.on) renderTrainStations();
   }
 
   function paintToggle(btn, on) {
@@ -364,6 +419,8 @@
     if (key === 'train') {
       await ensureTrainLayer();
       overlay.train.polylines.forEach((pl) => pl.setMap(overlay.train.on ? map : null));
+      if (overlay.train.on) renderTrainStations();
+      else clearTrainStations();
     } else if (key === 'busstop') {
       if (overlay.busstop.on) {
         await ensureLayerData('busstop', '/api/geo/bus-stops', 'busstops');
@@ -379,7 +436,7 @@
 
   function buildToggleRow() {
     const row = document.createElement('div');
-    row.style.cssText = 'position:fixed;top:56px;left:12px;z-index:40;'
+    row.style.cssText = 'position:fixed;top:8px;left:12px;z-index:40;'
       + 'display:flex;gap:6px;align-items:center;';
     const mkBtn = (label) => {
       const b = document.createElement('button');
@@ -405,6 +462,30 @@
       });
     document.body.appendChild(row);
     map.addListener('idle', refreshClippedLayers);
+  }
+
+  // v0.61.100 — bottom-right zoom-level readout doubling as a recenter
+  // button (operator: "customised current-location pin with the
+  // integer of the zoom level"). A white circle; tapping it pans back
+  // to the user's GPS location.
+  function buildZoomPin() {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.style.cssText = 'position:fixed;bottom:16px;right:14px;z-index:40;'
+      + 'width:34px;height:34px;border-radius:50%;border:1px solid #d0d0d0;'
+      + 'background:#fff;color:#1c1c1f;font-size:12px;font-weight:700;'
+      + 'box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;padding:0;'
+      + 'display:flex;align-items:center;justify-content:center;';
+    const paint = () => { btn.textContent = String(Math.round(map.getZoom() || 0)); };
+    paint();
+    map.addListener('zoom_changed', paint);
+    btn.addEventListener('click', () => {
+      if (userMarker && userMarker.position) {
+        map.panTo(userMarker.position);
+        if ((map.getZoom() || 0) < 15) map.setZoom(16);
+      }
+    });
+    document.body.appendChild(btn);
   }
 
   function getUserPosition() {
@@ -441,6 +522,7 @@
     const center = userPos || RAFFLES_PLACE;
     initMap(center);
     buildToggleRow();   // v0.61.87 — ⋯ / Train Line / Bus Stop / Car Park
+    buildZoomPin();     // v0.61.100 — zoom readout + recenter button
     if (userPos) {
       userMarker = new AdvancedMarkerElement({
         map,
