@@ -542,18 +542,31 @@ function exitTextNode(id, hex) {
 }
 
 // Small coloured dot with an emoji glyph.
-function dotNode(bg, glyph) {
+function dotNode(bg, glyph, size) {
+  // v0.61.105 — `size` (px) sizes the dot for the carpark zoom ladder;
+  // buildMarkers passes the feature object as the 3rd arg, so only a
+  // number counts — anything else falls back to the default 20 px.
+  const sz = (typeof size === 'number' && size > 0) ? size : 20;
   const el = document.createElement('div');
   el.style.cssText =
     'display:flex;align-items:center;justify-content:center;' +
-    'width:20px;height:20px;border-radius:50%;cursor:pointer;' +
+    'width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;cursor:pointer;' +
     'border:2px solid #1c1c1f;box-shadow:0 1px 3px rgba(0,0,0,0.4);' +
     'background:' + bg + ';';
   const ic = document.createElement('span');
   ic.textContent = glyph;
-  ic.style.cssText = 'font-size:13px;line-height:1;';
+  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;';
   el.appendChild(ic);
   return el;
+}
+
+// v0.61.105 — operator: the carpark overlay marker shrinks two sizes
+// (a "size" is 2 px) per zoom level below z17, and two more on overlap.
+function carparkSize(zoom) {
+  if (zoom >= 17) return 22;
+  if (zoom >= 16) return 18;
+  if (zoom >= 15) return 14;
+  return 10;
 }
 
 // v0.61.97 — marker content for a resolved amenity tier (see
@@ -1126,7 +1139,7 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers.exits) applyVisibility('exits');
     // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
     // label) — see amenityTier.
-    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks']) {
+    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
       if (layers[n]) applyVisibility(n);
     }
   });
@@ -1869,6 +1882,7 @@ export function createOverlayController(map, googleMaps, opts) {
     const zoom = map.getZoom?.() || 0;
     const aTier = amenityTier(zoom);
     const placedLabels = [];
+    const placedCarparks = [];
     for (const it of e.items) {
       const near = stationScoped
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
@@ -1902,6 +1916,23 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it._tierRendered !== t) {
           it.marker.content = amenityNode(t, it._bg, it._glyph, it._name);
           it._tierRendered = t;
+        }
+      } else if (name === 'carpark' && e.visible && near) {
+        // v0.61.105 — carpark markers shrink by zoom (carparkSize) and
+        // two sizes (4 px) more when they collide with one already
+        // placed.
+        let sz = carparkSize(zoom);
+        const mpp = metresPerPixelAt(zoom, it.lat) || 1;
+        const clash = placedCarparks.some((p) => {
+          const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
+          const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
+          return dx < (sz + p.sz) / 2 + 2 && dy < (sz + p.sz) / 2 + 2;
+        });
+        if (clash) sz = Math.max(sz - 4, 8);
+        else placedCarparks.push({ lat: it.lat, lng: it.lng, sz });
+        if (it._cpSize !== sz) {
+          it.marker.content = dotNode(it._bg, it._glyph, sz);
+          it._cpSize = sz;
         }
       }
     }
