@@ -394,7 +394,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
 
   // v0.61.95 — operator part 5: re-sync the coloured train-line overlay
   // whenever the Colour (monochrome) or Train Line toggle changes.
-  useEffect(() => { syncColourOverlay(); }, [overlayLayers?.colour, overlayLayers?.train]);
+  // v0.61.103 — also re-render the polylines so they pick up the new
+  // monochrome state (invisible in monochrome; the SVG carries them).
+  useEffect(() => {
+    syncColourOverlay();
+    if (stationsRef.current) renderPinsRef.current?.(stationsRef.current, { keepView: true });
+  }, [overlayLayers?.colour, overlayLayers?.train]);
 
   // v0.61.16 — resolve the active station-detail view: the selected
   // station, the line it is detailed along, and the stations one stop
@@ -438,6 +443,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     const colourSegs = [];
     // v0.61.36 — Train Line toggle (default ON) gates polyline visibility.
     const trainVisible = overlayLayersRef.current?.train !== false;
+    // v0.61.103 — in monochrome the base polylines render invisible
+    // (strokeOpacity 0, still clickable) so they don't grey out under
+    // the canvas filter; the coloured SVG overlay carries the line.
+    const mono = overlayLayersRef.current?.colour === false;
     const paths = resolveLinePaths(linePathsRef.current, list);
     for (const [lineCode, segments] of Object.entries(paths)) {
       if (detail && detail.line) {
@@ -458,7 +467,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           path: seg,
           map: trainVisible ? mapRef.current : null,
           strokeColor: hex,
-          strokeOpacity: baseOpacity,
+          strokeOpacity: mono ? 0 : baseOpacity,
           strokeWeight: weight,
           clickable: true,
           zIndex: 1
