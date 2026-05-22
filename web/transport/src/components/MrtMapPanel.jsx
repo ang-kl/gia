@@ -40,7 +40,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
-import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -159,6 +159,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const [stations, setStations] = useState(null);
   const [linePaths, setLinePaths] = useState(null);
   const [err, setErr] = useState(null);
+  // v0.61.92 — live zoom readout + a zoom-tier re-render of the station
+  // markers. `renderPinsRef` gives the zoom_changed listener (bound once
+  // in initMap) the current render closure; the existing `stationsRef`
+  // (synced from `stations` below) supplies the current data.
+  const [zoomLevel, setZoomLevel] = useState(null);
+  const renderPinsRef = useRef(null);
 
   // Fetch stations once.
   useEffect(() => {
@@ -329,6 +335,14 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     mapRef.current.addListener('idle', () => {
       const c = mapRef.current?.getCenter?.();
       if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+    });
+    // v0.61.92 — live zoom readout + re-render station markers on zoom
+    // so they swap tier (code chip <-> named pill) + re-run the overlap
+    // demotion. keepView so the zoom re-render never re-frames the map.
+    setZoomLevel(mapRef.current.getZoom?.());
+    mapRef.current.addListener('zoom_changed', () => {
+      setZoomLevel(mapRef.current?.getZoom?.());
+      if (stationsRef.current) renderPinsRef.current?.(stationsRef.current, { keepView: true });
     });
     // v0.61.22 — close any open popup on a tap of the empty map, and
     // expose a global the in-card ✕ button calls.
@@ -529,7 +543,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     }
   }
 
-  function renderPins(list) {
+  function renderPins(list, opts) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
     ensureBlinkStyle();
     const { AdvancedMarkerElement } = window.google.maps.marker;
@@ -555,6 +569,28 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     }
     const bounds = new window.google.maps.LatLngBounds();
     let boundedCount = 0;
+    // v0.61.92 — operator: Transport stations follow zoom tiers — code
+    // chips at z12-14, named pills at z15+, demoted on overlap (keep the
+    // station nearest the detailed station / viewport centre). z<12 and
+    // future stations keep the plain coloured dot.
+    const zoom = mapRef.current?.getZoom?.() || SG_DEFAULT_ZOOM;
+    const tier = trainTier('transport', zoom);
+    const tItems = visibleList
+      .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+      .map((s) => ({
+        name: s.name, lat: s.lat, lng: s.lng, codes: s.codes,
+        mode: s.status === 'future' ? 'sq-sm'
+          : tier.station === 'pill' ? 'pill'
+          : tier.station === 'sq-sm' ? 'sq-sm'
+          : 'chip:' + (tier.scale || 1),
+        pinned: !!(detail && s.name === detail.station.name)
+      }));
+    const ovc = mapRef.current?.getCenter?.();
+    const ovRef = detail
+      ? { lat: detail.station.lat, lng: detail.station.lng }
+      : (ovc ? { lat: ovc.lat(), lng: ovc.lng() } : null);
+    demoteByOverlap(tItems, zoom, ovRef, tier.overlapChip);
+    const modeByName = new Map(tItems.map((x) => [x.name, x.mode]));
     for (const s of visibleList) {
       if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
       const isFuture = s.status === 'future';
@@ -566,7 +602,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
-        content: stationDotNode(bg, isFuture, crowdLevel === 'h', isCentre)
+        content: transportStationContent(s, bg, modeByName.get(s.name),
+          isFuture, crowdLevel === 'h', isCentre)
       });
       marker.addListener('click', () => {
         // v0.61.16 — tapping any station pin selects it (entering /
@@ -593,19 +630,36 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       if (ctx) renderAmenityPins(ctx, bounds);
     }
     // Framing. After "Back" from Overview, restore the exact saved
-    // viewport instead of re-fitting.
-    if (skipFitRef.current) {
-      skipFitRef.current = false;
-      const sv = savedViewRef.current;
-      if (sv && mapRef.current) {
-        mapRef.current.setCenter(sv.center);
-        mapRef.current.setZoom(sv.zoom);
+    // viewport instead of re-fitting. v0.61.92 — `keepView` (the zoom-
+    // tier re-render) skips framing entirely so it never fights a zoom.
+    if (!opts?.keepView) {
+      if (skipFitRef.current) {
+        skipFitRef.current = false;
+        const sv = savedViewRef.current;
+        if (sv && mapRef.current) {
+          mapRef.current.setCenter(sv.center);
+          mapRef.current.setZoom(sv.zoom);
+        }
+      } else if (detail) {
+        if (boundedCount) mapRef.current.fitBounds(bounds, 60);
+      } else if (boundedCount > 1) {
+        mapRef.current.fitBounds(bounds, 60);
       }
-    } else if (detail) {
-      if (boundedCount) mapRef.current.fitBounds(bounds, 60);
-    } else if (boundedCount > 1) {
-      mapRef.current.fitBounds(bounds, 60);
     }
+  }
+  // v0.61.92 — keep a live handle to renderPins so the zoom_changed
+  // listener (bound once in initMap) always calls the current closure.
+  renderPinsRef.current = renderPins;
+
+  // v0.61.92 — resolve a Transport station marker for its zoom tier: a
+  // named pill (z15+), a line-coloured code chip (z12-14, possibly
+  // overlap-demoted), or the plain coloured dot (z<12 / future stns).
+  function transportStationContent(s, bg, mode, isFuture, crowded, centre) {
+    if (!isFuture && mode === 'pill') return stationPillNode(s.codes, s.name, bg);
+    if (!isFuture && typeof mode === 'string' && mode.indexOf('chip:') === 0) {
+      return stationCodeNode(s.codes, bg, parseFloat(mode.slice(5)) || 1);
+    }
+    return stationDotNode(bg, isFuture, crowded, centre);
   }
 
   // v0.61.16 — Overview toggle. Entering Overview stashes the current
@@ -736,6 +790,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {stations && (
         <div className="text-[10px] text-tg-hint px-2 py-1.5">
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
+        </div>
+      )}
+      {/* v0.61.92 — operator: live zoom readout on the Transport map
+          too, matching the Cuisine + Hawker maps. */}
+      {zoomLevel != null && (
+        <div
+          className="absolute bottom-1 right-1 z-10 text-gray-800 text-xs font-bold leading-none pointer-events-none select-none"
+          style={{ textShadow: '0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff' }}
+          aria-hidden
+        >
+          📍 {Math.round(Number(zoomLevel))}
         </div>
       )}
     </div>

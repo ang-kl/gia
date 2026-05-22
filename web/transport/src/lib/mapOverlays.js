@@ -51,43 +51,125 @@ const STATION_AMENITY_RADIUS_M = 400;
 // always shows its code.
 const ZOOM_DETAIL_THRESHOLD = 15;
 
+// v0.61.92 — code-chip scale ladder for the train-overlay zoom tiers.
+// The operator spec sizes markers "by 1/2 size"; with no fixed unit
+// given (G-question答 "Claude picks px values") a "size" is one rung of
+// this ladder — ~13 % apart, i.e. roughly 3 px on a ~24 px chip:
+//   LG 1.00  the z15 code chip (a demoted z15 pill)
+//   MD 0.87  z15 − 1 size  (Transport z12-14 base)
+//   SM 0.74  z15 − 2 size  (Cuisine/Hawker z13-z14 base, z15 overlap)
+//   XS 0.62  smaller than z13 (Cuisine z12, overlap floor)
+const CHIP = { LG: 1, MD: 0.87, SM: 0.74, XS: 0.62 };
+
 // v0.61.90 — per-TMA train-overlay zoom tiers (operator spec). For a
 // TMA ('cuisine' | 'hawker' | 'transport') and the current map zoom,
 // returns how station markers + line opacity render:
-//   station  : 'sq-sm' small square | 'chip' code chip | 'pill' named pill
-//   scale    : code-chip size multiplier (ascends with zoom)
-//   cap      : when > 0, only the N stations nearest the map anchor show
-//              the chip; the rest fall back to `other` ('sq-sm' | 'sq')
-//   capRadius: when > 0, only stations within this many metres of the
-//              map anchor show the chip; the rest fall back to `other`
-//   opacity  : base train-line stroke opacity
-//   emphasis : Cuisine z15+ — lines touching an in-focus (nearest-
-//              result) station render at 95%, the rest at 80%
-// v0.61.91 — Cuisine retuned (operator): z<12 lines 80%; z12/z13 keep
-// every station a square and chip only the stations within 200 m / 300 m
-// of the search result, lines 90%; z14 lines 80%; z15+ 95%/80%. Hawker
-// + Transport tiers are unchanged from v0.61.90.
-function trainTier(tma, zoom) {
-  if (tma === 'cuisine') {
-    if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.8 };
-    if (zoom < 13) return { station: 'chip', scale: 0.75, capRadius: 200, opacity: 0.9, other: 'sq-sm' };
-    if (zoom < 14) return { station: 'chip', scale: 0.85, capRadius: 300, opacity: 0.9, other: 'sq-sm' };
-    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.8, other: 'sq' };
-    return { station: 'pill', cap: 0, opacity: 0.8, emphasis: true };
-  }
+//   station   : 'sq-sm' small square | 'chip' code chip | 'pill' named pill
+//   scale     : code-chip size multiplier (ascends with zoom)
+//   cap       : when > 0, only the N stations nearest the map anchor
+//               show the chip; the rest fall back to `other`
+//   capRadius : when > 0, only stations within this many metres of the
+//               map anchor show the chip; the rest fall back to `other`
+//   opacity   : base train-line stroke opacity
+//   emphasis  : Cuisine z15+ — lines touching an in-focus (nearest-
+//               result) station render at 95%, the rest at 80%
+//   overlapChip: chip scale a marker is demoted TO when it collides
+//               with another (see demoteByOverlap)
+// v0.61.92 — operator overlap spec. Cuisine z12-14 now depends on
+// `inFocus` (the search result inside the viewport): in focus keeps the
+// v0.61.91 capRadius/cap behaviour; out of focus every station is a
+// plain code chip (z13 like z14 at SM, z12 smaller at XS). z15+ shows
+// named pills. The Transport branch drives the Transport TMA's own map
+// (MrtMapPanel renderPins): z12-14 code chip (MD), z15+ pill. Hawker
+// tiers are unchanged from v0.61.91.
+export function trainTier(tma, zoom, inFocus) {
   if (tma === 'hawker') {
     if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
-    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm' };
-    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm' };
-    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.7, other: 'sq-sm' };
-    return { station: 'pill', cap: 0, opacity: 1 };
+    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.XS };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.XS };
+    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.SM };
+    return { station: 'pill', cap: 0, opacity: 1, overlapChip: CHIP.SM };
   }
-  // transport — no station caps; z12 stays square per the operator spec.
-  if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
-  if (zoom < 13) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
-  if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 0, opacity: 0.7 };
-  if (zoom < 15) return { station: 'chip', scale: 1, cap: 0, opacity: 0.7 };
-  return { station: 'pill', cap: 0, opacity: 1 };
+  if (tma === 'transport') {
+    if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
+    if (zoom < 15) return { station: 'chip', scale: CHIP.MD, cap: 0, opacity: 0.7, overlapChip: CHIP.SM };
+    return { station: 'pill', cap: 0, opacity: 1, overlapChip: CHIP.MD };
+  }
+  // cuisine
+  if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.8 };
+  if (zoom < 15) {
+    if (!inFocus) {
+      return { station: 'chip', scale: zoom < 13 ? CHIP.XS : CHIP.SM, cap: 0,
+        opacity: zoom < 14 ? 0.9 : 0.8, overlapChip: CHIP.XS };
+    }
+    if (zoom < 13) return { station: 'chip', scale: 0.75, capRadius: 200, opacity: 0.9, other: 'sq-sm', overlapChip: CHIP.XS };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, capRadius: 300, opacity: 0.9, other: 'sq-sm', overlapChip: CHIP.XS };
+    return { station: 'chip', scale: 1, cap: 15, opacity: 0.8, other: 'sq', overlapChip: CHIP.SM };
+  }
+  return { station: 'pill', cap: 0, opacity: 0.8, emphasis: true, overlapChip: CHIP.SM };
+}
+
+// v0.61.92 — Web-Mercator ground resolution: real-world metres spanned
+// by one screen pixel at a given zoom + latitude.
+export function metresPerPixelAt(zoom, lat) {
+  return 156543.03392 * Math.cos((lat || 0) * Math.PI / 180) / Math.pow(2, zoom);
+}
+
+// v0.61.92 — approximate on-screen footprint (px) of a resolved station
+// marker. Rough label-size estimates: a code chip is ~23 px per line
+// code + ~12 px padding; a pill adds ~6.2 px per name character. Used
+// only by the overlap pass, so approximate is fine.
+function markerBoxPx(mode, codeCount, nameLen) {
+  const codes = codeCount > 0 ? codeCount : 1;
+  if (mode === 'pill') return { w: 22 + codes * 23 + (nameLen + 8) * 6.2, h: 23 };
+  if (typeof mode === 'string' && mode.indexOf('chip:') === 0) {
+    const s = parseFloat(mode.slice(5)) || 1;
+    return { w: (12 + codes * 23) * s, h: 21 * s };
+  }
+  if (mode === 'sq') return { w: 13, h: 13 };
+  return { w: 9, h: 9 };
+}
+
+// v0.61.92 — screen-space overlap demotion (operator: "keep the station
+// nearest the result, demote the rest"). `items` is a list of
+// { name, lat, lng, codes, mode, pinned? }; the list is walked nearest-
+// `ref`-first (pinned items, e.g. a tapped station, first and never
+// demoted) and any marker whose box collides with an already-kept
+// marker is demoted: a pill -> a code chip at `overlapChip`, a code
+// chip -> ~20 % smaller (floored). Pure geometry (metres -> px from the
+// zoom), so the result is pan-invariant. Mutates + returns `items`.
+export function demoteByOverlap(items, zoom, ref, overlapChip) {
+  const list = (items || []).filter((it) => it && it.mode);
+  if (list.length < 2) return items;
+  const r = ref || { lat: list[0].lat, lng: list[0].lng };
+  const dist = (it) => metresBetween(r.lat, r.lng, it.lat, it.lng);
+  const order = list.slice().sort((a, b) => {
+    if (!a.pinned !== !b.pinned) return a.pinned ? -1 : 1;
+    return dist(a) - dist(b);
+  });
+  const kept = [];
+  for (const it of order) {
+    const codeN = Array.isArray(it.codes) ? it.codes.length : 1;
+    const nameLen = (it.name || '').length;
+    let box = markerBoxPx(it.mode, codeN, nameLen);
+    const mpp = metresPerPixelAt(zoom, it.lat) || 1;
+    const collides = kept.some((k) => {
+      const dx = metresBetween(it.lat, it.lng, it.lat, k.it.lng) / mpp;
+      const dy = metresBetween(it.lat, it.lng, k.it.lat, it.lng) / mpp;
+      return dx < (box.w + k.box.w) / 2 && dy < (box.h + k.box.h) / 2;
+    });
+    if (collides && !it.pinned) {
+      if (it.mode === 'pill') {
+        it.mode = 'chip:' + (overlapChip || CHIP.SM);
+      } else if (it.mode.indexOf('chip:') === 0) {
+        const s = parseFloat(it.mode.slice(5)) || 1;
+        it.mode = 'chip:' + Math.max(+(s * 0.8).toFixed(3), 0.5);
+      }
+      box = markerBoxPx(it.mode, codeN, nameLen);
+    }
+    kept.push({ it, box });
+  }
+  return items;
 }
 
 // v0.61.90 — marker content for a resolved station mode (see trainTier
@@ -336,7 +418,7 @@ function appendCodeChips(el, codes, fallbackHex) {
 // code, no name. v0.61.87 — the default train-station marker, shown
 // below ZOOM_DETAIL_THRESHOLD; expands to the full named pill above it.
 // v0.61.90 — `scale` shrinks the chip for the lower zoom tiers.
-function stationCodeNode(codes, fallbackHex, scale) {
+export function stationCodeNode(codes, fallbackHex, scale) {
   const el = stationPillBase(scale);
   appendCodeChips(el, codes, fallbackHex);
   return el;
@@ -360,7 +442,7 @@ function squareStationNode(hex, small) {
 // station code (e.g. CC4 orange · DT15 blue) on a white pill, then
 // "<Name> station". Replaces the single-colour amenityLabelNode label
 // so an interchange shows each line's own colour.
-function stationPillNode(codes, name, fallbackHex) {
+export function stationPillNode(codes, name, fallbackHex) {
   const el = stationPillBase();
   appendCodeChips(el, codes, fallbackHex);
   const nm = document.createElement('span');
@@ -487,7 +569,14 @@ export function ensureGreyscaleStyle() {
     // (operator request). Targets the tilt button's container; scales
     // from the bottom-left so it stays pinned in the LEFT_BOTTOM corner.
     + '.gm-style div:has(>button[aria-label*="ilt" i])'
-    + '{transform:scale(0.7);transform-origin:0 100%}';
+    + '{transform:scale(0.7);transform-origin:0 100%}'
+    // v0.61.92 — operator: strip Google's "Keyboard shortcuts" hint and
+    // the "Map data / Terms" attribution; keep only the Google logo,
+    // shrunk much smaller. The Maps Platform ToS keeps the logo itself
+    // visible — `.gm-style-cc` (the © / Terms text) is what's hidden.
+    + '.gm-style-cc{display:none!important}'
+    + '.gm-style button[aria-label*="eyboard" i]{display:none!important}'
+    + '.gm-style img[alt="Google"]{transform:scale(0.4);transform-origin:0 100%}';
   document.head.appendChild(st);
 }
 
@@ -872,6 +961,12 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     if (layers.exits) applyVisibility('exits');
+  });
+  // v0.61.92 — re-apply the train layer on pan-end too: "results in
+  // focus" (the anchor inside the viewport) flips as the user pans,
+  // which changes the Cuisine z12-14 zoom tier.
+  map.addListener('idle', () => {
+    if (layers.train && layers.train.visible) applyVisibility('train');
   });
   // name -> { kind:'polygon'|'marker'|'line', items, visible, radius }
   //   marker items: { marker, lat, lng }
@@ -1395,7 +1490,15 @@ export function createOverlayController(map, googleMaps, opts) {
     // as squares; a tapped station always shows the full named pill.
     if (e.kind === 'train') {
       const zoom = map.getZoom?.() || 0;
-      const tier = trainTier(tma, zoom);
+      // v0.61.92 — "results in focus" = the search / centre anchor sits
+      // inside the current viewport; it drives the Cuisine z12-14 tier.
+      let inFocus = true;
+      const vb = map.getBounds?.();
+      if (anchor && vb) {
+        try { inFocus = vb.contains({ lat: anchor.lat, lng: anchor.lng }); }
+        catch (_e) { inFocus = true; }
+      }
+      const tier = trainTier(tma, zoom, inFocus);
       for (const h of (e.highlights || [])) h.setMap(null);
       e.highlights = [];
 
@@ -1477,11 +1580,16 @@ export function createOverlayController(map, googleMaps, opts) {
       // decides, and a capped tier renders the stations beyond the
       // nearest-N as squares. `_mode` caches the resolved mode so a
       // marker only rebuilds when its band actually changes.
+      // v0.61.92 — pass 1 resolves the base tier mode; pass 2 demotes
+      // any marker overlapping a nearer one; pass 3 rebuilds only the
+      // markers whose mode actually changed.
+      const items = [];
       for (const st of e.stations) {
         st.marker.map = e.visible ? map : null;
         if (!e.visible) continue;
+        const pinned = !!(detailStation && detailStation.name === st.station.name);
         let mode;
-        if (detailStation && detailStation.name === st.station.name) {
+        if (pinned) {
           mode = 'pill';
         } else if (tier.station === 'pill') {
           mode = 'pill';
@@ -1493,9 +1601,18 @@ export function createOverlayController(map, googleMaps, opts) {
         } else {
           mode = 'chip:' + (tier.scale || 1);
         }
-        if (st._mode !== mode) {
-          st.marker.content = trainStationNode(mode, st);
-          st._mode = mode;
+        items.push({ st, name: st.station.name, lat: st.lat, lng: st.lng,
+          codes: st.station.codes, mode, pinned });
+      }
+      if (e.visible) {
+        const ctr = map.getCenter?.();
+        const ovRef = anchor || (ctr && { lat: ctr.lat(), lng: ctr.lng() });
+        demoteByOverlap(items, zoom, ovRef, tier.overlapChip);
+        for (const it of items) {
+          if (it.st._mode !== it.mode) {
+            it.st.marker.content = trainStationNode(it.mode, it.st);
+            it.st._mode = it.mode;
+          }
         }
       }
       return;
