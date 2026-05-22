@@ -1,8 +1,8 @@
 counters:
-  commit: 300
-  build: 99
+  commit: 301
+  build: 100
   documents:
-    journal: 293
+    journal: 294
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,17 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 22-05 '26 09:58 SGT
-last_anchor_source: system_clock_utc_2026-05-22T01:58:03Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-22T09:58:03+08:00
-last_anchor_utc: 2026-05-22T01:58:03Z
+last_anchor_time: 22-05 '26 11:08 SGT
+last_anchor_source: system_clock_utc_2026-05-22T03:08:30Z (sovereign data.gov.sg fetch blocked by sandbox allowlist; NTP-synced system clock used per Rule TF-9; normal re-anchor, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-22T11:08:30+08:00
+last_anchor_utc: 2026-05-22T03:08:30Z
+# v0.61.94 (commit 301 / journal 294 / build 100) — overlap PR #587
+# (branch claude/v0.61.94-overlap-resolve, off main at v0.61.93):
+# demoteByOverlap rewritten symmetric + iterative — every overlapping
+# train-marker label is demoted (pill -> code chip -> smaller chip)
+# until no collisions remain, fixing the City Hall / CC3 overlap that
+# v0.61.92's keep-nearest pass left uncleared. journal-0_61_94-*.md.
+# STILL DUE — part 5 (coloured train lines in monochrome), own PR.
 # v0.61.93 (commit 300 / journal 293 / build 99) — map-zoom PR #586
 # (branch claude/v0.61.93-map-zoom-location, off main at v0.61.92):
 # embedded maps stop auto-zooming-out (fitBounds only on first data
