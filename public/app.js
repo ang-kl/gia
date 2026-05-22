@@ -342,7 +342,9 @@
   // "b" (z<=10), each tier a touch smaller than the one above.
   function busTier(zoom) {
     if (zoom >= 17) return 'full';
-    if (zoom >= 15) return 'short';
+    if (zoom >= 16) return 'short';
+    if (zoom >= 15) return 'glyph';
+    if (zoom >= 14) return 'glyph-lg';   // v0.61.104 — z14 one size larger
     if (zoom >= 13) return 'glyph';
     if (zoom >= 11) return 'glyph-sm';
     return 'square';
@@ -355,10 +357,10 @@
         + 'background:#fff;color:#1c1c1f;white-space:nowrap;font-weight:700;'
         + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);'
         + 'cursor:pointer;line-height:1.5;font-size:' + (tier === 'full' ? 11 : 10) + 'px;';
-    } else if (tier === 'glyph' || tier === 'glyph-sm') {
+    } else if (tier === 'glyph' || tier === 'glyph-sm' || tier === 'glyph-lg') {
       el.textContent = '🚏';
-      el.style.cssText = 'cursor:pointer;line-height:1;'
-        + 'font-size:' + (tier === 'glyph' ? 16 : 14) + 'px;';
+      el.style.cssText = 'cursor:pointer;line-height:1;font-size:'
+        + (tier === 'glyph-lg' ? 18 : tier === 'glyph' ? 16 : 14) + 'px;';
     } else {
       el.textContent = 'b';
       el.style.cssText = 'width:12px;height:12px;display:flex;align-items:center;'
@@ -444,12 +446,16 @@
   // The toggle row carries Train Line / Bus Stop / Car Park; the ⋯
   // dropdown carries the rest, fetched in one shot from
   // /api/geo/overlays. Operator: "the dropdown isn't working".
+  // v0.61.104 — operator: match the Hawker TMA's dropdown layer set +
+  // order (exits, taxis, attractions, parks, police, clinics, hospitals).
   const MENU_LAYERS = [
-    { key: 'parks',       label: 'Parks',       glyph: '🌳', polygon: true },
-    { key: 'attractions', label: 'Attractions', glyph: '⚝' },
-    { key: 'clinics',     label: 'Clinics',     glyph: '➕' },
-    { key: 'police',      label: 'Police',      glyph: '👮' },
-    { key: 'hospitals',   label: 'Hospitals',   glyph: '🏥' }
+    { key: 'exits',       label: 'Station Exits', glyph: '🚪' },
+    { key: 'taxis',       label: 'Taxis',         glyph: '🚕' },
+    { key: 'attractions', label: 'Attractions',   glyph: '⚝' },
+    { key: 'parks',       label: 'Parks',         glyph: '🌳', polygon: true },
+    { key: 'police',      label: 'Police',        glyph: '👮' },
+    { key: 'clinics',     label: 'Clinics',       glyph: '💊' },
+    { key: 'hospitals',   label: 'Hospitals',     glyph: '🏥' }
   ];
   const menuState = {};
   MENU_LAYERS.forEach((L) => { menuState[L.key] = { on: false, items: [] }; });
@@ -608,7 +614,8 @@
         panel.style.display = 'none';
       }
     });
-    [['train', 'Train Line'], ['busstop', 'Bus Stop'], ['carpark', 'Car Park']]
+    // v0.61.104 — operator: match the Hawker TMA toggle-row order.
+    [['train', 'Train Line'], ['carpark', 'Car Park'], ['busstop', 'Bus Stop']]
       .forEach(([key, label]) => {
         const b = mkBtn(label);
         b.addEventListener('click', () => { toggleLayer(key, b).catch(() => {}); });
@@ -628,8 +635,8 @@
     // v0.61.102 — operator: a faint "🔭 <zoom>" readout (30% opacity,
     // 2 px smaller) — no longer a solid white circle.
     btn.style.cssText = 'position:fixed;bottom:16px;right:14px;z-index:40;'
-      + 'border:0;background:none;color:#1c1c1f;font-size:10px;font-weight:700;'
-      + 'opacity:0.3;cursor:pointer;padding:0;line-height:1;';
+      + 'border:0;background:none;color:#1c1c1f;font-size:11px;font-weight:700;'
+      + 'opacity:0.9;cursor:pointer;padding:0;line-height:1;';
     const paint = () => { btn.textContent = '🔭 ' + Math.round(map.getZoom() || 0); };
     paint();
     map.addListener('zoom_changed', paint);

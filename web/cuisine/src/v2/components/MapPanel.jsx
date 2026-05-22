@@ -635,7 +635,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className="absolute bottom-3 right-3 z-10 text-[10px] font-bold leading-none opacity-30 text-gray-900 select-none"
+          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none"
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
         >
