@@ -545,7 +545,15 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     const compose = (ctx) => infoCard(`<strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
     const cachedCtx = stationCtxRef.current[s.name] || null;
     infoWindowRef.current?.setContent(compose(cachedCtx));
-    infoWindowRef.current?.open({ anchor: marker, map: mapRef.current });
+    // v0.61.98 — anchor the InfoWindow to the station POSITION, not the
+    // tapped marker. renderPins rebuilds every station marker on each
+    // re-render — and a station tap triggers two of them (the
+    // focusedStation change, then the station-context fetch bumping
+    // detailCtxTick). An InfoWindow anchored to a torn-down marker
+    // silently closes, which is why the card used to need repeated taps
+    // to stay open. A position anchor survives the marker rebuilds.
+    infoWindowRef.current?.setPosition({ lat: s.lat, lng: s.lng });
+    infoWindowRef.current?.open({ map: mapRef.current });
     if (!cachedCtx && !isFuture && Number.isFinite(s.lat) && Number.isFinite(s.lng)) {
       fetch(`/api/transport/station-context?lat=${s.lat}&lng=${s.lng}`)
         .then((r) => (r.ok ? r.json() : null))
