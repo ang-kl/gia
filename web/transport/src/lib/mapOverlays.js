@@ -775,7 +775,7 @@ export function infoCard(inner, gmaps) {
   const tail = gmaps ? gmapsLinkRow(gmaps.lat, gmaps.lng) : '';
   return '<div style="position:relative;background:' + c.bg + ';'
     + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
-    + 'font-size:12px;line-height:1.5;max-width:248px;">'
+    + 'font-size:13px;line-height:1.5;max-width:248px;">'
     + '<span onclick="window.__giaMapInfoClose&&window.__giaMapInfoClose()" '
     + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
     + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
@@ -1543,7 +1543,7 @@ export function createOverlayController(map, googleMaps, opts) {
       // v0.61.10 — nearest station's exits (verbatim EXIT_CODE values).
       const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
       if (exits.length) {
-        h += '<div style="color:' + c.sub + ';margin-top:1px;font-size:11px;">'
+        h += '<div style="color:' + c.sub + ';margin-top:1px;font-size:12px;">'
           + escapeHtml(exits.join(', ')) + '</div>';
       }
     }
@@ -1611,7 +1611,7 @@ export function createOverlayController(map, googleMaps, opts) {
     const c = infoPalette();
     let h = '';
     if (f.category) {
-      h += '<div style="color:' + c.sub + ';font-size:11px;text-transform:uppercase;'
+      h += '<div style="color:' + c.sub + ';font-size:12px;text-transform:uppercase;'
         + 'letter-spacing:.04em;">' + escapeHtml(f.category) + '</div>';
     }
     h += '<div style="font-weight:600;margin-top:1px;">🏥 ' + escapeHtml(f.name || 'Hospital') + '</div>';

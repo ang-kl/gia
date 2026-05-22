@@ -56,7 +56,7 @@ export default function ResultsGrid({ results, expanded, onExpand }) {
       <a
         href={mapHref}
         className="mt-1 text-xs text-center px-3 py-2 rounded-md bg-tg-accent text-tg-accent-text"
-      >🗺 View all {visible.length} pick{visible.length === 1 ? '' : 's'} on map</a>
+      >View all {visible.length} pick{visible.length === 1 ? '' : 's'} on map</a>
     </div>
   );
 }
