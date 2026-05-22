@@ -11984,7 +11984,10 @@ async function cacheBotUsername() {
         const exits = (station && station.name && exitsForStation(station.name)) || [];
         let busStops = [];
         try {
-          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 400, 5);
+          // v0.61.99 — widened 400 m -> 600 m so a station's nearby
+          // bus stops / taxi points reliably fall in range (operator:
+          // the detail view showed no bus / taxi).
+          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 600, 5);
         } catch (err) {
           console.warn('[station-context] bus stops:', err.message);
         }
@@ -11992,7 +11995,7 @@ async function cacheBotUsername() {
         for (const tx of (loadGeoOverlays().taxis || [])) {
           if (!Number.isFinite(tx.lat) || !Number.isFinite(tx.lng)) continue;
           const d = transport.haversineM(lat, lng, tx.lat, tx.lng);
-          if (d > 400) continue;
+          if (d > 600) continue;
           const nm = String(tx.name || '');
           const kind = /pick ?up/i.test(nm) ? 'pickup' : (/stand/i.test(nm) ? 'stand' : 'stop');
           taxis.push({ kind, name: nm, lat: tx.lat, lng: tx.lng, distanceM: Math.round(d) });
