@@ -54,29 +54,36 @@ const ZOOM_DETAIL_THRESHOLD = 15;
 // v0.61.90 — per-TMA train-overlay zoom tiers (operator spec). For a
 // TMA ('cuisine' | 'hawker' | 'transport') and the current map zoom,
 // returns how station markers + line opacity render:
-//   station : 'sq-sm' small square | 'chip' code chip | 'pill' named pill
-//   scale   : code-chip size multiplier (ascends with zoom)
-//   cap     : when > 0, only the N stations nearest the map anchor show
-//             the chip; the rest fall back to `other` ('sq-sm' | 'sq')
-//   opacity : base train-line stroke opacity
-//   emphasis: Cuisine z15+ — lines connecting the in-focus (nearest-
-//             result) stations stay 100%, the rest drop to 50%
-// Below z12 every TMA shows small squares at 50% line opacity.
+//   station  : 'sq-sm' small square | 'chip' code chip | 'pill' named pill
+//   scale    : code-chip size multiplier (ascends with zoom)
+//   cap      : when > 0, only the N stations nearest the map anchor show
+//              the chip; the rest fall back to `other` ('sq-sm' | 'sq')
+//   capRadius: when > 0, only stations within this many metres of the
+//              map anchor show the chip; the rest fall back to `other`
+//   opacity  : base train-line stroke opacity
+//   emphasis : Cuisine z15+ — lines touching an in-focus (nearest-
+//              result) station render at 95%, the rest at 80%
+// v0.61.91 — Cuisine retuned (operator): z<12 lines 80%; z12/z13 keep
+// every station a square and chip only the stations within 200 m / 300 m
+// of the search result, lines 90%; z14 lines 80%; z15+ 95%/80%. Hawker
+// + Transport tiers are unchanged from v0.61.90.
 function trainTier(tma, zoom) {
-  if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
   if (tma === 'cuisine') {
-    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm' };
-    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm' };
-    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.9, other: 'sq' };
-    return { station: 'pill', cap: 0, opacity: 1, emphasis: true };
+    if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.8 };
+    if (zoom < 13) return { station: 'chip', scale: 0.75, capRadius: 200, opacity: 0.9, other: 'sq-sm' };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, capRadius: 300, opacity: 0.9, other: 'sq-sm' };
+    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.8, other: 'sq' };
+    return { station: 'pill', cap: 0, opacity: 0.8, emphasis: true };
   }
   if (tma === 'hawker') {
+    if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
     if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm' };
     if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm' };
     if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.7, other: 'sq-sm' };
     return { station: 'pill', cap: 0, opacity: 1 };
   }
   // transport — no station caps; z12 stays square per the operator spec.
+  if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
   if (zoom < 13) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
   if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 0, opacity: 0.7 };
   if (zoom < 15) return { station: 'chip', scale: 1, cap: 0, opacity: 0.7 };
@@ -850,7 +857,12 @@ export function createOverlayController(map, googleMaps, opts) {
   // the themed infoCard (with its own in-card ✕) is the whole popup.
   const info = new InfoWindow({ disableAutoPan: true, headerDisabled: true });
   // v0.61.22 — tapping empty map dismisses the overlay popup.
-  map.addListener('click', () => info.close());
+  // v0.61.91 — if a station is in detail mode (its marker forced to the
+  // full pill), a tap-out also reverts it to its zoom-tier marker.
+  map.addListener('click', () => {
+    if (detailStation) exitStationDetail();
+    else info.close();
+  });
   // v0.61.53 — re-apply the train layer on every zoom change so station
   // markers + line opacity track the active zoom tier (v0.61.90
   // trainTier — square / code chip / named pill bands).
@@ -1387,22 +1399,31 @@ export function createOverlayController(map, googleMaps, opts) {
       for (const h of (e.highlights || [])) h.setMap(null);
       e.highlights = [];
 
-      // v0.61.90 — resolve the N stations nearest the map anchor (the
-      // viewport centre — "nearest to the cuisine result / focused
+      // v0.61.90 — resolve the in-focus station set near the map anchor
+      // (the viewport centre — "nearest to the cuisine result / focused
       // hawker centre" the spec asks for) when a tier caps the chip
       // count, or for the Cuisine z15+ line emphasis.
+      // v0.61.91 — a `capRadius` tier selects every station within N
+      // metres of the anchor (Cuisine z12/z13); a `cap` tier selects the
+      // nearest N; the emphasis-only z15+ case uses the nearest 15.
       let nearSet = null;
       let nearCoords = null;
-      if (e.visible && (tier.cap > 0 || tier.emphasis)) {
+      if (e.visible && (tier.cap > 0 || tier.capRadius > 0 || tier.emphasis)) {
         const ctr = map.getCenter?.();
         const ref = anchor || (ctr && { lat: ctr.lat(), lng: ctr.lng() });
         if (ref) {
-          const n = tier.cap > 0 ? tier.cap : 15;
-          const nearest = e.stations
-            .map((st) => ({ st, d: metresBetween(ref.lat, ref.lng, st.lat, st.lng) }))
-            .sort((a, b) => a.d - b.d)
-            .slice(0, n)
-            .map((x) => x.st);
+          let nearest;
+          if (tier.capRadius > 0) {
+            nearest = e.stations.filter((st) =>
+              metresBetween(ref.lat, ref.lng, st.lat, st.lng) <= tier.capRadius);
+          } else {
+            const n = tier.cap > 0 ? tier.cap : 15;
+            nearest = e.stations
+              .map((st) => ({ st, d: metresBetween(ref.lat, ref.lng, st.lat, st.lng) }))
+              .sort((a, b) => a.d - b.d)
+              .slice(0, n)
+              .map((x) => x.st);
+          }
           nearSet = new Set(nearest.map((st) => st.station.name));
           nearCoords = nearest.map((st) => ({ lat: st.lat, lng: st.lng }));
         }
@@ -1412,15 +1433,15 @@ export function createOverlayController(map, googleMaps, opts) {
         ln.polyline.setMap(e.visible ? map : null);
         // Base opacity tracks the tier; a tapped station mutes every
         // base line hard so its prev→current→next highlight stands out;
-        // Cuisine z15+ keeps lines touching an in-focus station at 100%
-        // and drops the rest to 50%.
+        // Cuisine z15+ keeps lines touching an in-focus station at 95%
+        // and drops the rest to 80%.
         let opacity = tier.opacity;
         if (e.visible && detailStation) {
           opacity = 0.1;
         } else if (e.visible && tier.emphasis && nearCoords) {
           const touches = ln.pts.some((p) => nearCoords.some((c) =>
             metresBetween(c.lat, c.lng, p.lat, p.lng) <= 150));
-          opacity = touches ? 1 : 0.5;
+          opacity = touches ? 0.95 : 0.8;
         }
         ln.polyline.setOptions({
           strokeOpacity: opacity, strokeWeight: detailStation ? 3 : 4
@@ -1466,7 +1487,8 @@ export function createOverlayController(map, googleMaps, opts) {
           mode = 'pill';
         } else if (tier.station === 'sq-sm') {
           mode = 'sq-sm';
-        } else if (tier.cap > 0 && nearSet && !nearSet.has(st.station.name)) {
+        } else if ((tier.cap > 0 || tier.capRadius > 0) && nearSet
+          && !nearSet.has(st.station.name)) {
           mode = tier.other || 'sq-sm';
         } else {
           mode = 'chip:' + (tier.scale || 1);
@@ -1506,7 +1528,15 @@ export function createOverlayController(map, googleMaps, opts) {
     // tap-elsewhere) alongside its own venue/station InfoWindow.
     // v0.61.68 — also clears the station card's transient bus-stop pins,
     // so a tap on the empty map removes them (when Bus Stop is off).
-    closeInfo() { info.close(); clearStationBusStops(); clearStationExitPins(); },
+    // v0.61.91 — closing the station info card (the in-card ✕ or a
+    // tap-out) reverts the tapped station's marker from the forced full
+    // pill back to its zoom-tier mode (square / code chip).
+    closeInfo() {
+      if (detailStation) { exitStationDetail(); return; }
+      info.close();
+      clearStationBusStops();
+      clearStationExitPins();
+    },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
