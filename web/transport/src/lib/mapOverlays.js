@@ -115,6 +115,18 @@ export function metresPerPixelAt(zoom, lat) {
   return 156543.03392 * Math.cos((lat || 0) * Math.PI / 180) / Math.pow(2, zoom);
 }
 
+// v0.61.97 — operator: the amenity overlays (Attractions / Clinic /
+// Police / Hospital / Park) render by zoom tier, like the train
+// stations. Returns: 'dot' (z<12 — a tiny dot), 'glyph' (z12-13 — the
+// icon only) or 'label' (z14+ — icon + name). A label that collides
+// with another is demoted to 'glyph' (parks: the label is hidden) —
+// see applyVisibility.
+export function amenityTier(zoom) {
+  if (!(zoom >= 12)) return 'dot';
+  if (zoom < 14) return 'glyph';
+  return 'label';
+}
+
 // v0.61.92 — approximate on-screen footprint (px) of a resolved station
 // marker. Rough label-size estimates: a code chip is ~23 px per line
 // code + ~12 px padding; a pill adds ~6.2 px per name character. Used
@@ -505,6 +517,25 @@ function dotNode(bg, glyph) {
   ic.textContent = glyph;
   ic.style.cssText = 'font-size:13px;line-height:1;';
   el.appendChild(ic);
+  return el;
+}
+
+// v0.61.97 — marker content for a resolved amenity tier (see
+// amenityTier): 'dot' a tiny coloured dot for the low-zoom band,
+// 'glyph' the ~20 px icon dot, 'label' the icon + name pill.
+function amenityNode(tier, bg, glyph, name) {
+  if (tier === 'label' && name) {
+    return amenityLabelNode(((glyph || '') + ' ' + name).trim(),
+      '#ffffff', '#1c1c1f', true);
+  }
+  if (tier === 'glyph' || tier === 'label') {
+    return dotNode(bg, glyph);
+  }
+  // 'dot' — a tiny coloured dot for the z<12 band.
+  const el = document.createElement('div');
+  el.style.cssText = 'width:9px;height:9px;border-radius:50%;cursor:pointer;'
+    + 'background:' + (bg || '#888888') + ';border:1.5px solid #fff;'
+    + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.45);';
   return el;
 }
 
@@ -1054,6 +1085,11 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     if (layers.exits) applyVisibility('exits');
+    // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
+    // label) — see amenityTier.
+    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks']) {
+      if (layers[n]) applyVisibility(n);
+    }
   });
   // v0.61.92 — re-apply the train layer on pan-end too: "results in
   // focus" (the anchor inside the viewport) flips as the user pans,
@@ -1101,6 +1137,18 @@ export function createOverlayController(map, googleMaps, opts) {
     return (features || []).map((f) => {
       const rings = (f.rings || []).map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
       const first = rings[0] && rings[0][0];
+      const lat = first ? first.lat : NaN;
+      const lng = first ? first.lng : NaN;
+      // v0.61.97 — a 🌳 + name label, shown only at the z14+ tier (the
+      // green polygon itself serves the lower zoom bands).
+      let labelMarker = null;
+      if (Number.isFinite(lat) && Number.isFinite(lng) && f.name) {
+        labelMarker = new AdvancedMarkerElement({
+          position: { lat, lng },
+          content: amenityNode('label', '#2E7D32', '🌳', f.name),
+          title: f.name || ''
+        });
+      }
       return {
         polygon: new Polygon({
           paths: rings,
@@ -1108,19 +1156,25 @@ export function createOverlayController(map, googleMaps, opts) {
           fillColor: '#4CAF50', fillOpacity: 0.22,
           clickable: false
         }),
-        lat: first ? first.lat : NaN,
-        lng: first ? first.lng : NaN
+        lat, lng, labelMarker, _name: f.name || ''
       };
     });
   }
 
-  function buildMarkers(features, bg, glyph, infoFn, makeNode) {
+  // v0.61.97 — `tiered` amenity layers (attractions / clinics / police
+  // / hospitals) carry the bg / glyph / name so applyVisibility can
+  // re-render the marker per zoom tier (dot / glyph / label).
+  function buildMarkers(features, bg, glyph, infoFn, makeNode, tiered) {
+    const z0 = map.getZoom?.() || 0;
     return (features || []).map((f) => {
-      const marker = new AdvancedMarkerElement({
-        position: { lat: f.lat, lng: f.lng },
+      const content = tiered
+        ? amenityNode(amenityTier(z0), bg, glyph, f.name)
         // v0.61.86 — `makeNode` receives the feature `f` too, so a
         // per-feature label (e.g. attractionLabelNode) can read f.name.
-        content: (makeNode || dotNode)(bg, glyph, f),
+        : (makeNode || dotNode)(bg, glyph, f);
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content,
         title: f.name || '',
         gmpClickable: true
       });
@@ -1128,7 +1182,8 @@ export function createOverlayController(map, googleMaps, opts) {
         info.setContent(infoFn(f));
         info.open(map, marker);
       });
-      return { marker, lat: f.lat, lng: f.lng };
+      return { marker, lat: f.lat, lng: f.lng,
+        _bg: bg, _glyph: glyph, _name: f.name || '', _tiered: !!tiered };
     });
   }
 
@@ -1541,9 +1596,10 @@ export function createOverlayController(map, googleMaps, opts) {
       if (name === 'parks') {
         entry = { kind: 'polygon', visible: false, items: buildParks(d.parks) };
       } else if (name === 'attractions') {
-        // v0.61.86 — attraction pins are ⚝ + name labels (attractionLabelNode).
+        // v0.61.97 — attractions render by zoom tier (dot / ⚝ glyph /
+        // ⚝ + name); see amenityTier + amenityNode.
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.attractions, '#f4f3ef', '⚝', attractionInfo, attractionLabelNode) };
+          items: buildMarkers(d.attractions, '#8E24AA', '⚝', attractionInfo, null, true) };
       } else if (name === 'taxis') {
         entry = { kind: 'marker', visible: false,
           items: buildTaxiMarkers(d.taxis) };
@@ -1552,13 +1608,13 @@ export function createOverlayController(map, googleMaps, opts) {
           items: buildExitMarkers(d.exits) };
       } else if (name === 'clinics') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.clinics, '#C62828', '+', clinicInfo, rectPinNode) };
+          items: buildMarkers(d.clinics, '#C62828', '✚', clinicInfo, null, true) };
       } else if (name === 'police') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.police, AMENITY_POLICE_BG, '👮', poiInfo('👮')) };
+          items: buildMarkers(d.police, AMENITY_POLICE_BG, '👮', poiInfo('👮'), null, true) };
       } else if (name === 'hospitals') {
         entry = { kind: 'marker', visible: false,
-          items: buildMarkers(d.hospitals, '#00897B', '🏥', hospitalInfo) };
+          items: buildMarkers(d.hospitals, '#00897B', '🏥', hospitalInfo, null, true) };
       } else {
         return null;
       }
@@ -1578,9 +1634,30 @@ export function createOverlayController(map, googleMaps, opts) {
     if (e.kind === 'polygon') {
       // parks are radius-clipped to the anchor.
       const r = currentRadius();
+      // v0.61.97 — the 🌳 + name park label shows only at the z14+
+      // tier; a label colliding with one already placed is hidden
+      // (the green polygon still marks the park).
+      const zoom = map.getZoom?.() || 0;
+      const labelTier = e.visible && amenityTier(zoom) === 'label';
+      const placedLabels = [];
       for (const it of e.items) {
         const near = !Number.isFinite(it.lat) || inRadius(it.lat, it.lng, r);
         it.polygon.setMap(e.visible && near ? map : null);
+        if (it.labelMarker) {
+          let show = labelTier && near && Number.isFinite(it.lat);
+          if (show) {
+            const mpp = metresPerPixelAt(zoom, it.lat) || 1;
+            const w = 34 + (it._name || '').length * 7;
+            const clash = placedLabels.some((p) => {
+              const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
+              const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
+              return dx < (w + p.w) / 2 + 4 && dy < 26;
+            });
+            if (clash) show = false;
+            else placedLabels.push({ lat: it.lat, lng: it.lng, w });
+          }
+          it.labelMarker.map = show ? map : null;
+        }
       }
       return;
     }
@@ -1740,6 +1817,13 @@ export function createOverlayController(map, googleMaps, opts) {
     // v0.61.70 — bus-stop pins are zoom-aware: compact 🚏 when zoomed
     // out, full 🚏 Bus Stop № … at/above the detail zoom threshold.
     const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
+    // v0.61.97 — amenity layers (attractions / clinics / police /
+    // hospitals) render by zoom tier: a tiny dot (z<12), the icon
+    // (z12-13) or the icon + name (z14+). A label colliding with one
+    // already placed is demoted to its icon.
+    const zoom = map.getZoom?.() || 0;
+    const aTier = amenityTier(zoom);
+    const placedLabels = [];
     for (const it of e.items) {
       const near = stationScoped
         ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
@@ -1750,6 +1834,23 @@ export function createOverlayController(map, googleMaps, opts) {
       if ((it._bus || it._exit) && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
         if (it.marker.content !== want) it.marker.content = want;
+      } else if (it._tiered && e.visible && near) {
+        let t = aTier;
+        if (t === 'label') {
+          const mpp = metresPerPixelAt(zoom, it.lat) || 1;
+          const w = 34 + (it._name || '').length * 7;
+          const clash = placedLabels.some((p) => {
+            const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
+            const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
+            return dx < (w + p.w) / 2 + 4 && dy < 26;
+          });
+          if (clash) t = 'glyph';
+          else placedLabels.push({ lat: it.lat, lng: it.lng, w });
+        }
+        if (it._tierRendered !== t) {
+          it.marker.content = amenityNode(t, it._bg, it._glyph, it._name);
+          it._tierRendered = t;
+        }
       }
     }
   }
