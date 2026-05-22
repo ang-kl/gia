@@ -598,6 +598,81 @@ export function ensureGreyscaleStyle() {
   document.head.appendChild(st);
 }
 
+// v0.61.95 — operator part 5: the train lines must stay coloured when
+// monochrome mode is on. The monochrome filter greyscales the map
+// canvas, and on the WebGL-rendered TMA maps (Hawker / Transport) the
+// line polylines composite into that canvas — so they grey out with
+// it. The fix is a coloured copy of the lines that lives in the DOM,
+// outside the filtered canvas: this OverlayView draws each line
+// segment as an SVG <path> in the map's overlay pane. It is purely
+// decorative (pointer-events:none) — the underlying google.maps
+// Polylines stay in place and keep handling clicks + opacity tiers —
+// and is attached only while monochrome is active. Built lazily via a
+// factory because google.maps.OverlayView is not defined until the
+// Maps script has loaded. `segments` items: { hex, pts:[{lat,lng}],
+// weight, opacity }.
+export function makeTrainColourOverlay(googleMaps) {
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  class TrainColourOverlay extends googleMaps.OverlayView {
+    constructor() {
+      super();
+      this._segments = [];
+      this._div = null;
+      this._svg = null;
+    }
+    onAdd() {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;'
+        + 'pointer-events:none;';
+      const svg = document.createElementNS(SVGNS, 'svg');
+      svg.style.cssText = 'position:absolute;left:0;top:0;overflow:visible;';
+      div.appendChild(svg);
+      this._div = div;
+      this._svg = svg;
+      // overlayLayer pane: above the base map, below the marker pins.
+      const panes = this.getPanes();
+      if (panes && panes.overlayLayer) panes.overlayLayer.appendChild(div);
+    }
+    draw() {
+      const svg = this._svg;
+      const proj = this.getProjection();
+      if (!svg || !proj) return;
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      for (const seg of this._segments) {
+        const pts = (seg && seg.pts) || [];
+        if (pts.length < 2) continue;
+        let d = '';
+        for (let i = 0; i < pts.length; i++) {
+          const px = proj.fromLatLngToDivPixel(
+            new googleMaps.LatLng(pts[i].lat, pts[i].lng));
+          if (!px) continue;
+          d += (d ? 'L' : 'M') + px.x.toFixed(1) + ' ' + px.y.toFixed(1);
+        }
+        if (!d) continue;
+        const path = document.createElementNS(SVGNS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', seg.hex || '#888888');
+        path.setAttribute('stroke-width', String(seg.weight || 4));
+        path.setAttribute('stroke-opacity', String(seg.opacity == null ? 1 : seg.opacity));
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+      }
+    }
+    onRemove() {
+      if (this._div && this._div.parentNode) this._div.parentNode.removeChild(this._div);
+      this._div = null;
+      this._svg = null;
+    }
+    setSegments(segs) {
+      this._segments = Array.isArray(segs) ? segs : [];
+      this.draw();
+    }
+  }
+  return new TrainColourOverlay();
+}
+
 // v0.61.31 — standard Google-Maps deep link. Every map pin info popup
 // ends with this text hyperlink — a TMA-wide convention, never a button.
 function gmapsUrl(lat, lng) {
@@ -1006,6 +1081,14 @@ export function createOverlayController(map, googleMaps, opts) {
   // on a station tap even when the Exit overlay is off, so the card's
   // "Exit #" links can always force-render + flash their target pin.
   let stationExitPins = [];
+  // v0.61.95 — operator part 5: monochrome state + the coloured SVG
+  // train-line overlay (lazily built — see makeTrainColourOverlay).
+  let monochrome = false;
+  let colourOverlay = null;
+  function ensureColourOverlay() {
+    if (!colourOverlay) colourOverlay = makeTrainColourOverlay(googleMaps);
+    return colourOverlay;
+  }
 
   function inRadius(lat, lng, r) {
     if (!anchor) return true;        // no anchor yet → show all (avoids a blank map)
@@ -1550,6 +1633,9 @@ export function createOverlayController(map, googleMaps, opts) {
         }
       }
 
+      // v0.61.95 — collect a coloured SVG copy of every line for the
+      // monochrome overlay (the base polylines grey out with the canvas).
+      const colourSegs = [];
       for (const ln of e.lines) {
         ln.polyline.setMap(e.visible ? map : null);
         // Base opacity tracks the tier; a tapped station mutes every
@@ -1567,6 +1653,8 @@ export function createOverlayController(map, googleMaps, opts) {
         ln.polyline.setOptions({
           strokeOpacity: opacity, strokeWeight: detailStation ? 3 : 4
         });
+        colourSegs.push({ hex: ln.hex, pts: ln.pts, opacity,
+          weight: detailStation ? 3 : 4 });
         // v0.61.58 — CR5 v2 selected-station emphasis: light up the
         // stretch of THIS line from the station before to the station
         // after the tapped station, full opacity in the line colour.
@@ -1584,6 +1672,7 @@ export function createOverlayController(map, googleMaps, opts) {
                 path: seg, strokeColor: ln.hex, strokeOpacity: 1, strokeWeight: 5,
                 clickable: false, zIndex: 3, map
               }));
+              colourSegs.push({ hex: ln.hex, pts: seg, opacity: 1, weight: 5 });
             }
           }
         }
@@ -1630,6 +1719,15 @@ export function createOverlayController(map, googleMaps, opts) {
             it.st._mode = it.mode;
           }
         }
+      }
+      // v0.61.95 — monochrome: attach the coloured SVG line copy so the
+      // lines stay coloured against the greyscaled base; else detach it.
+      if (e.visible && monochrome) {
+        const ov = ensureColourOverlay();
+        ov.setSegments(colourSegs);
+        if (ov.getMap() !== map) ov.setMap(map);
+      } else if (colourOverlay) {
+        colourOverlay.setMap(null);
       }
       return;
     }
@@ -1699,6 +1797,13 @@ export function createOverlayController(map, googleMaps, opts) {
       anchor = { lat, lng };
       for (const name of Object.keys(layers)) applyVisibility(name);
     },
+    // v0.61.95 — operator part 5: monochrome on/off. While on, the
+    // train layer also draws a coloured SVG copy of the lines so they
+    // stay coloured against the greyscaled base map.
+    setMonochrome(on) {
+      monochrome = !!on;
+      if (layers.train) applyVisibility('train');
+    },
     // v0.61.17 — clear the station-detail view (if any).
     clearStationDetail() {
       if (detailStation) exitStationDetail();
@@ -1713,6 +1818,7 @@ export function createOverlayController(map, googleMaps, opts) {
         layers[name].visible = false;
         applyVisibility(name);
       }
+      if (colourOverlay) colourOverlay.setMap(null);
       info.close();
     }
   };

@@ -231,6 +231,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     ctrl.setLayer('hospitals', !!layers.hospitals);
     ctrl.setLayer('police', !!layers.police);
     ctrl.setLayer('train', !!layers.train);
+    // v0.61.95 — monochrome drives the coloured train-line SVG overlay.
+    ctrl.setMonochrome(layers.colour === false);
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
