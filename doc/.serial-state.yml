@@ -1,5 +1,5 @@
 counters:
-  commit: 320
+  commit: 321
   build: 116
   documents:
     journal: 313
@@ -12,10 +12,17 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 07:29 SGT
-last_anchor_source: system_clock_utc_2026-05-22T23:29:59Z (NTP-synced system clock used per Rule TF-9; merge-resolution re-anchor for renumber from v0.61.108 -> v0.61.113, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T07:29:59+08:00
-last_anchor_utc: 2026-05-22T23:29:59Z
+last_anchor_time: 23-05 '26 07:48 SGT
+last_anchor_source: system_clock_utc_2026-05-22T23:48:24Z (NTP-synced system clock used per Rule TF-9; post-merge journal-upkeep re-anchor for v0.61.112 STATUS flip, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T07:48:24+08:00
+last_anchor_utc: 2026-05-22T23:48:24Z
+# v0.61.112-merged (commit 321, no new journal/build) — post-merge
+# journal upkeep for v0.61.112 / PR #604 (merged at f50ab26 ahead of
+# the operator's renumber of #601 -> v0.61.113). journal-0_61_112-
+# 23_05_26-0052.md gains an Amendments entry flipping [STATUS] DRAFT
+# -> MERGED with the squash SHA, per the CLAUDE.md standing rule
+# ("After a PR merges, record it in the Journal"). No code change, no
+# version bump.
 # v0.61.113 (commit 320 / journal 313 / build 116) — Cuisine free-text
 # keep PR #601 (branch claude/v0.61.108-cuisine-freetext-keep, re-
 # stamped from v0.61.108 after main advanced to v0.61.112 ahead of
