@@ -167,6 +167,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   // (synced from `stations` below) supplies the current data.
   const [zoomLevel, setZoomLevel] = useState(null);
   const renderPinsRef = useRef(null);
+  // v0.61.112 — debounce timer for the zoom-driven station re-render.
+  const zoomRenderTimerRef = useRef(null);
 
   // Fetch stations once.
   useEffect(() => {
@@ -346,10 +348,19 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.61.92 — live zoom readout + re-render station markers on zoom
     // so they swap tier (code chip <-> named pill) + re-run the overlap
     // demotion. keepView so the zoom re-render never re-frames the map.
+    // v0.61.112 — the re-render (full ~200-marker teardown + polyline
+    // rebuild + O(N²) overlap pass) is debounced: zooming several levels
+    // quickly used to stack one synchronous rebuild per level and freeze
+    // the map. The readout still updates immediately; the rebuild runs
+    // once, ~180 ms after the zoom settles.
     setZoomLevel(mapRef.current.getZoom?.());
     mapRef.current.addListener('zoom_changed', () => {
       setZoomLevel(mapRef.current?.getZoom?.());
-      if (stationsRef.current) renderPinsRef.current?.(stationsRef.current, { keepView: true });
+      if (zoomRenderTimerRef.current) clearTimeout(zoomRenderTimerRef.current);
+      zoomRenderTimerRef.current = setTimeout(() => {
+        zoomRenderTimerRef.current = null;
+        if (stationsRef.current) renderPinsRef.current?.(stationsRef.current, { keepView: true });
+      }, 180);
     });
     // v0.61.22 — close any open popup on a tap of the empty map, and
     // expose a global the in-card ✕ button calls.
@@ -382,6 +393,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   useEffect(() => () => {
     overlayControllerRef.current?.destroy?.();
     colourOverlayRef.current?.setMap(null);
+    if (zoomRenderTimerRef.current) clearTimeout(zoomRenderTimerRef.current);
   }, []);
 
   // v0.61.36 — Train Line toggle: show / hide the line polylines. The
