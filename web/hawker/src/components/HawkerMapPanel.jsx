@@ -441,15 +441,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.61.89 — troubleshooting: tiny live zoom-level readout.
-          v0.61.90 — white-grey chip tucked into the bottom-right corner
-          (operator request). */}
+      {/* v0.61.89 — tiny live zoom-level readout, bottom-right.
+          v0.61.92 — operator: integer only, transparent background,
+          shown as "📍 <z>" (a white halo keeps it legible). */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-1 right-1 z-10 px-1.5 py-0.5 rounded bg-gray-200/90 text-gray-700 border border-gray-300 text-[10px] font-mono leading-none pointer-events-none select-none"
+          className="absolute bottom-1 right-1 z-10 text-gray-800 text-xs font-bold leading-none pointer-events-none select-none"
+          style={{ textShadow: '0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff' }}
           aria-hidden
         >
-          z {Number(zoomLevel).toFixed(2)}
+          📍 {Math.round(Number(zoomLevel))}
         </div>
       )}
       {mapsKeyState === 'loading' && !showPlaceholder && (
