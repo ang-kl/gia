@@ -321,9 +321,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     return () => { cancelled = true; };
   }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
-  // v0.61.93 — auto-fit only frames on the first data load; later loads
-  // keep the user's zoom (operator: don't auto-zoom-out).
-  const firstFitRef = useRef(true);
+  // v0.61.93 — auto-fit frames on the first data load. v0.61.107 —
+  // operator: re-frame on every NEW search too (a fresh `venues`
+  // array), not just the first load — only an incidental re-render
+  // (a userLoc / searchCenter change with the same `venues`) keeps the
+  // user's zoom. `lastFitVenuesRef` tracks the venues array last fitted.
+  const lastFitVenuesRef = useRef(null);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
@@ -498,11 +501,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // radius they could theoretically search. Map fits venues + user
     // marker only; the slider value still feeds the search query.
     if (!bounds.isEmpty() && (venues?.length || userLoc)) {
-      // v0.61.93 — operator: only the first data load auto-frames; a
-      // later search keeps the user's zoom (recenter only) so the map
-      // never resets to a zoomed-out view.
-      if (firstFitRef.current) {
-        firstFitRef.current = false;
+      // v0.61.107 — operator: the first load and every new search
+      // auto-frame the results; a re-render with the same `venues`
+      // (e.g. userLoc resolved) only recenters, keeping the zoom.
+      if (lastFitVenuesRef.current !== venues) {
+        lastFitVenuesRef.current = venues;
         // v0.58.20: cap the auto-zoom so a tight cluster of 5 venues
         // within a few hundred metres doesn't drop the user into a
         // single-block view. setOptions before fitBounds is the
