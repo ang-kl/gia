@@ -371,6 +371,25 @@
     return el;
   }
 
+  // v0.61.105 — operator: the carpark overlay marker shrinks two sizes
+  // (a "size" is 2 px) per zoom level below z17, two more on overlap.
+  function carparkSize(zoom) {
+    if (zoom >= 17) return 22;
+    if (zoom >= 16) return 18;
+    if (zoom >= 15) return 14;
+    return 10;
+  }
+  function carparkPin(size) {
+    const el = document.createElement('div');
+    el.textContent = '🅿️';
+    el.style.cssText = 'line-height:1;cursor:pointer;font-size:' + size + 'px;'
+      + 'filter:drop-shadow(0 1px 2px rgba(0,0,0,0.45));';
+    return el;
+  }
+  function mppAt(zoom) {
+    return 156543.03392 * Math.cos(1.35 * Math.PI / 180) / Math.pow(2, zoom);
+  }
+
   // Bus stops (~5500) / carparks are viewport-clipped: render only the
   // features inside the current bounds. Re-runs on every map `idle`.
   function renderClippedLayer(key, glyph, infoFn) {
@@ -383,14 +402,32 @@
     const minZoom = key === 'busstop' ? 10 : 14;
     if (!bounds || zoom < minZoom) return;
     const bt = key === 'busstop' ? busTier(zoom) : null;
+    const cpBase = key === 'carpark' ? carparkSize(zoom) : 0;
+    const cpMpp = mppAt(zoom);
+    const placedCp = [];
     let drawn = 0;
     for (const f of overlay[key].data) {
       if (drawn >= 250) break;
       if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
       const pos = { lat: f.lat, lng: f.lng };
       if (!bounds.contains(pos)) continue;
-      const marker = new AdvancedMarkerElement({ map, position: pos,
-        content: bt ? busTierPin(bt, f.code) : overlayPin(glyph) });
+      let content;
+      if (bt) {
+        content = busTierPin(bt, f.code);
+      } else if (key === 'carpark') {
+        let sz = cpBase;
+        const clash = placedCp.some((p) => {
+          const dx = Math.abs(p.lng - f.lng) * 111320 * 0.99973 / cpMpp;
+          const dy = Math.abs(p.lat - f.lat) * 110574 / cpMpp;
+          return dx < sz + 3 && dy < sz + 3;
+        });
+        if (clash) sz = Math.max(sz - 4, 8);
+        else placedCp.push({ lat: f.lat, lng: f.lng });
+        content = carparkPin(sz);
+      } else {
+        content = overlayPin(glyph);
+      }
+      const marker = new AdvancedMarkerElement({ map, position: pos, content });
       marker.addListener('click', () => {
         if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
         overlayInfo.setContent(infoFn(f).html);
