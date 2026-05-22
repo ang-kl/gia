@@ -838,6 +838,12 @@ export default function App() {
         }
       }
       setState(nextState);
+      // v0.61.108 — operator: keep the typed free-text dish as a search
+      // criterion alongside the inferred cuisine chip. It used to vanish
+      // (only the inferred cuisine showed) — now nlText holds it, so it
+      // stays visible in the Search-criteria builder and is sent as the
+      // `freeText` qualifier on the next runSearch.
+      setNlText(text);
       setLastRunSnap(stateSig(nextState));
       setWarmStartSeed(null);
     } catch (err) {
