@@ -258,6 +258,135 @@
     CCL: '#fa9e0d', DTL: '#005ec4', TEL: '#9D5B25', BPL: '#999999',
     SLRT: '#999999', PLRT: '#999999', JRL: '#0099aa', CRL: '#97c93d'
   };
+
+  // v0.61.106 — operator: /app/map's Train Line stations mirror the
+  // Hawker TMA's train-tier algorithm. The block below is a compact
+  // re-implementation of web/cuisine/src/v2/lib/mapOverlays.js (this
+  // plain-IIFE page cannot import that ES module).
+  const PREFIX_TO_LINE = {
+    NS: 'NSL', EW: 'EWL', CG: 'CGL', NE: 'NEL', CC: 'CCL', CE: 'CCL',
+    DT: 'DTL', TE: 'TEL', BP: 'BPL', SE: 'SLRT', SW: 'SLRT', STC: 'SLRT',
+    PE: 'PLRT', PW: 'PLRT', PTC: 'PLRT', JS: 'JRL', JE: 'JRL', CR: 'CRL'
+  };
+  const CHIP = { LG: 1, MD: 0.87, SM: 0.74, XS: 0.62 };
+  function parseCode(code) {
+    const m = String(code == null ? '' : code).match(/^([A-Za-z]+)(\d*)$/);
+    return m ? { prefix: m[1].toUpperCase() } : null;
+  }
+  function codeHex(code) {
+    const pc = parseCode(code);
+    return (pc && LINE_HEX[PREFIX_TO_LINE[pc.prefix]]) || '#888888';
+  }
+  // Hawker TMA train-tier bands — trainTier('hawker', zoom).
+  function trainTier(zoom) {
+    if (zoom < 12) return { station: 'sq-sm', cap: 0, opacity: 0.5 };
+    if (zoom < 13) return { station: 'chip', scale: 0.75, cap: 5, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.XS };
+    if (zoom < 14) return { station: 'chip', scale: 0.85, cap: 10, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.XS };
+    if (zoom < 15) return { station: 'chip', scale: 1, cap: 15, opacity: 0.7, other: 'sq-sm', overlapChip: CHIP.SM };
+    return { station: 'pill', cap: 0, opacity: 1, overlapChip: CHIP.SM };
+  }
+  function metresBetween(aLat, aLng, bLat, bLng) {
+    const dy = (bLat - aLat) * 110574;
+    const dx = (bLng - aLng) * 111320 * Math.cos(aLat * Math.PI / 180);
+    return Math.hypot(dx, dy);
+  }
+  function metresPerPixelAt(zoom, lat) {
+    return 156543.03392 * Math.cos((lat || 0) * Math.PI / 180) / Math.pow(2, zoom);
+  }
+  function markerBoxPx(mode, codeCount, nameLen) {
+    const codes = codeCount > 0 ? codeCount : 1;
+    if (mode === 'pill') return { w: 22 + codes * 23 + (nameLen + 8) * 6.2, h: 23 };
+    if (typeof mode === 'string' && mode.indexOf('chip:') === 0) {
+      const s = parseFloat(mode.slice(5)) || 1;
+      return { w: (12 + codes * 23) * s, h: 21 * s };
+    }
+    if (mode === 'sq') return { w: 13, h: 13 };
+    return { w: 9, h: 9 };
+  }
+  // Iterative symmetric overlap demotion (mapOverlays.js v0.61.94).
+  function demoteByOverlap(items, zoom, overlapChip) {
+    const list = (items || []).filter((it) => it && it.mode);
+    if (list.length < 2) return items;
+    const boxOf = (it) => markerBoxPx(it.mode,
+      Array.isArray(it.codes) ? it.codes.length : 1, (it.name || '').length);
+    const demote = (it) => {
+      if (it.mode === 'pill') { it.mode = 'chip:' + (overlapChip || CHIP.SM); return true; }
+      if (typeof it.mode === 'string' && it.mode.indexOf('chip:') === 0) {
+        const s = parseFloat(it.mode.slice(5)) || 1;
+        const next = Math.max(+(s * 0.8).toFixed(3), 0.5);
+        if (next < s) { it.mode = 'chip:' + next; return true; }
+      }
+      return false;
+    };
+    const GAP = 3;
+    for (let round = 0; round < 8; round++) {
+      const boxes = list.map(boxOf);
+      const hit = new Array(list.length).fill(false);
+      for (let i = 0; i < list.length; i++) {
+        const mpp = metresPerPixelAt(zoom, list[i].lat) || 1;
+        for (let j = i + 1; j < list.length; j++) {
+          const dx = metresBetween(list[i].lat, list[i].lng, list[i].lat, list[j].lng) / mpp;
+          const dy = metresBetween(list[i].lat, list[i].lng, list[j].lat, list[i].lng) / mpp;
+          if (dx < (boxes[i].w + boxes[j].w) / 2 + GAP
+            && dy < (boxes[i].h + boxes[j].h) / 2 + GAP) { hit[i] = true; hit[j] = true; }
+        }
+      }
+      let changed = false;
+      for (let i = 0; i < list.length; i++) {
+        if (hit[i] && !list[i].pinned && demote(list[i])) changed = true;
+      }
+      if (!changed) break;
+    }
+    return items;
+  }
+  function stationPillBase(scale) {
+    const s = scale || 1;
+    const el = document.createElement('div');
+    el.style.cssText = 'display:inline-flex;align-items:center;gap:' + (3 * s) + 'px;'
+      + 'padding:' + s + 'px ' + (5 * s) + 'px;border-radius:8px;background:#fff;'
+      + 'font-size:' + (12 * s) + 'px;font-weight:700;line-height:1.5;white-space:nowrap;'
+      + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+    return el;
+  }
+  function appendCodeChips(el, codes) {
+    for (const code of (Array.isArray(codes) ? codes : [])) {
+      if (!code) continue;
+      const chip = document.createElement('span');
+      chip.textContent = code;
+      chip.style.cssText = 'display:inline-block;padding:0 4px;border-radius:5px;'
+        + 'background:' + codeHex(code) + ';color:#fff;';
+      el.appendChild(chip);
+    }
+  }
+  function stationCodeNode(codes, scale) {
+    const el = stationPillBase(scale);
+    appendCodeChips(el, codes);
+    return el;
+  }
+  function squareStationNode(hex, small) {
+    const el = document.createElement('div');
+    const sz = small ? 7 : 11;
+    el.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;border-radius:2px;'
+      + 'cursor:pointer;background:' + (hex || '#888888') + ';'
+      + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);';
+    return el;
+  }
+  function stationPillNode(codes, name) {
+    const el = stationPillBase();
+    appendCodeChips(el, codes);
+    const nm = document.createElement('span');
+    const nice = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+    nm.textContent = (nice + ' station').trim();
+    nm.style.cssText = 'color:#1c1c1f;';
+    el.appendChild(nm);
+    return el;
+  }
+  function trainStationNode(mode, s, hex) {
+    if (mode === 'pill') return stationPillNode(s.codes, s.name || '');
+    if (mode === 'sq-sm') return squareStationNode(hex, true);
+    if (mode === 'sq') return squareStationNode(hex, false);
+    return stationCodeNode(s.codes, parseFloat(mode.slice(5)) || 1);
+  }
   const overlay = {
     train:   { on: false, loaded: false, polylines: [], stations: [], stationMarkers: [] },
     busstop: { on: false, data: null, markers: [] },
@@ -451,31 +580,62 @@
       + `<br><a href="https://www.google.com/maps/search/?api=1&query=${q}" `
       + 'target="_blank" rel="noopener">Open 📍 in a map ↗</a></div>';
   }
-  // v0.61.100 — station markers for the Train Line layer; viewport-
-  // clipped + zoom-gated (z>=13) like the bus / carpark layers so the
-  // ~177-station network never floods the map. Re-runs on map idle.
+  // v0.61.106 — Train Line stations render via the Hawker TMA's
+  // train-tier algorithm (trainTier): tiny coloured squares below z12,
+  // nearest-N line-code chips at z12-14, full named pills at z15+, with
+  // overlap demotion. The base polylines' opacity follows the tier.
+  // Viewport-clipped (~200 marker cap). Re-runs on every map idle.
   function renderTrainStations() {
     clearTrainStations();
     if (!overlay.train.on) return;
     const bounds = map.getBounds && map.getBounds();
-    if (!bounds || (map.getZoom() || 0) < 13) return;
-    let drawn = 0;
+    if (!bounds) return;
+    const zoom = map.getZoom() || 0;
+    const tier = trainTier(zoom);
+    overlay.train.polylines.forEach((pl) => pl.setOptions({ strokeOpacity: tier.opacity }));
+    // operational stations inside the current viewport.
+    const vis = [];
     for (const s of overlay.train.stations) {
-      if (drawn >= 200) break;
+      if (vis.length >= 200) break;
       if (!s || !Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
       if (s.status === 'future') continue;
-      const pos = { lat: s.lat, lng: s.lng };
-      if (!bounds.contains(pos)) continue;
+      if (!bounds.contains({ lat: s.lat, lng: s.lng })) continue;
+      vis.push(s);
+    }
+    // nearest-N cap: only the `cap` stations closest to the map centre
+    // get a code chip; the rest fall back to a tiny square.
+    let nearSet = null;
+    if (tier.cap > 0) {
+      const c = map.getCenter && map.getCenter();
+      if (c) {
+        nearSet = new Set(vis
+          .map((s) => ({ s, d: metresBetween(c.lat(), c.lng(), s.lat, s.lng) }))
+          .sort((a, b) => a.d - b.d)
+          .slice(0, tier.cap)
+          .map((x) => x.s.name));
+      }
+    }
+    const items = vis.map((s) => {
+      let mode;
+      if (tier.station === 'pill') mode = 'pill';
+      else if (tier.station === 'sq-sm') mode = 'sq-sm';
+      else if (tier.cap > 0 && nearSet && !nearSet.has(s.name)) mode = tier.other || 'sq-sm';
+      else mode = 'chip:' + (tier.scale || 1);
+      return { s: s, name: s.name, lat: s.lat, lng: s.lng, codes: s.codes, mode: mode };
+    });
+    demoteByOverlap(items, zoom, tier.overlapChip);
+    for (const it of items) {
+      const hex = codeHex((it.codes && it.codes[0]) || '');
       const marker = new AdvancedMarkerElement({
-        map, position: pos, title: s.name || '', content: overlayPin('🚉')
+        map, position: { lat: it.lat, lng: it.lng }, title: it.name || '',
+        content: trainStationNode(it.mode, it.s, hex)
       });
       marker.addListener('click', () => {
         if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
-        overlayInfo.setContent(stationInfoHtml(s));
+        overlayInfo.setContent(stationInfoHtml(it.s));
         overlayInfo.open({ anchor: marker, map });
       });
       overlay.train.stationMarkers.push(marker);
-      drawn++;
     }
   }
 
