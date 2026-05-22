@@ -402,10 +402,97 @@
     }
   }
 
+  // ---- v0.61.101 — the ⋯ dropdown's extra overlay layers -----------
+  // The toggle row carries Train Line / Bus Stop / Car Park; the ⋯
+  // dropdown carries the rest, fetched in one shot from
+  // /api/geo/overlays. Operator: "the dropdown isn't working".
+  const MENU_LAYERS = [
+    { key: 'parks',       label: 'Parks',       glyph: '🌳', polygon: true },
+    { key: 'attractions', label: 'Attractions', glyph: '⚝' },
+    { key: 'clinics',     label: 'Clinics',     glyph: '➕' },
+    { key: 'police',      label: 'Police',      glyph: '👮' },
+    { key: 'hospitals',   label: 'Hospitals',   glyph: '🏥' }
+  ];
+  const menuState = {};
+  MENU_LAYERS.forEach((L) => { menuState[L.key] = { on: false, items: [] }; });
+  let overlaysData = null;
+
+  async function ensureOverlaysData() {
+    if (overlaysData) return;
+    try {
+      const r = await fetch('/api/geo/overlays');
+      overlaysData = await r.json();
+    } catch { overlaysData = {}; }
+  }
+
+  function clearMenuLayer(key) {
+    // Polygons expose setMap(); AdvancedMarkerElement uses the .map prop.
+    menuState[key].items.forEach((m) => {
+      if (typeof m.setMap === 'function') m.setMap(null);
+      else m.map = null;
+    });
+    menuState[key].items = [];
+  }
+
+  // Viewport-clipped + zoom-gated (z>=13) like the bus / carpark layers.
+  function renderMenuLayer(L) {
+    clearMenuLayer(L.key);
+    if (!menuState[L.key].on || !overlaysData) return;
+    const bounds = map.getBounds && map.getBounds();
+    if (!bounds || (map.getZoom() || 0) < 13) return;
+    const feats = Array.isArray(overlaysData[L.key]) ? overlaysData[L.key] : [];
+    let drawn = 0;
+    for (const f of feats) {
+      if (drawn >= 200) break;
+      if (L.polygon) {
+        const rings = (f.rings || []).map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
+        const first = rings[0] && rings[0][0];
+        if (!first || !bounds.contains(first)) continue;
+        const poly = new google.maps.Polygon({
+          paths: rings, strokeColor: '#2E7D32', strokeOpacity: 0.6,
+          strokeWeight: 1, fillColor: '#4CAF50', fillOpacity: 0.22, clickable: false
+        });
+        poly.setMap(map);
+        menuState[L.key].items.push(poly);
+      } else {
+        if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
+        const pos = { lat: f.lat, lng: f.lng };
+        if (!bounds.contains(pos)) continue;
+        const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(L.glyph) });
+        marker.addListener('click', () => {
+          if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
+          overlayInfo.setContent('<div style="font-size:12px;line-height:1.45">'
+            + `<strong>${L.glyph} ${escapeHtml(f.name || L.label)}</strong></div>`);
+          overlayInfo.open({ anchor: marker, map });
+        });
+        menuState[L.key].items.push(marker);
+      }
+      drawn++;
+    }
+  }
+
+  function refreshMenuLayers() {
+    for (const L of MENU_LAYERS) {
+      if (menuState[L.key].on) renderMenuLayer(L);
+    }
+  }
+
+  async function toggleMenuLayer(L, boxEl) {
+    menuState[L.key].on = !menuState[L.key].on;
+    if (boxEl) boxEl.textContent = menuState[L.key].on ? '☑' : '☐';
+    if (menuState[L.key].on) {
+      await ensureOverlaysData();
+      renderMenuLayer(L);
+    } else {
+      clearMenuLayer(L.key);
+    }
+  }
+
   function refreshClippedLayers() {
     if (overlay.busstop.on) renderClippedLayer('busstop', '🚏', busInfo);
     if (overlay.carpark.on) renderClippedLayer('carpark', '🅿️', carparkInfo);
     if (overlay.train.on) renderTrainStations();
+    refreshMenuLayers();
   }
 
   function paintToggle(btn, on) {
@@ -448,12 +535,41 @@
         + 'cursor:pointer;white-space:nowrap;';
       return b;
     };
-    // ⋯ — visual parity with the TMA control row; /app/map has no
-    // dropdown (overflow) layers, so this is an inert affordance.
+    // v0.61.101 — the ⋯ overflow dropdown carries the extra overlay
+    // layers (parks / attractions / clinics / police / hospitals).
     const menuBtn = mkBtn('⋯');
     menuBtn.style.borderRadius = '8px';
     menuBtn.style.padding = '5px 9px';
     row.appendChild(menuBtn);
+    const panel = document.createElement('div');
+    panel.style.cssText = 'position:fixed;top:44px;left:12px;z-index:41;display:none;'
+      + 'background:#fff;border:1px solid #d0d0d0;border-radius:10px;'
+      + 'box-shadow:0 2px 10px rgba(0,0,0,0.28);padding:4px;min-width:158px;';
+    MENU_LAYERS.forEach((L) => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.style.cssText = 'display:flex;width:100%;gap:7px;align-items:center;'
+        + 'border:0;background:none;padding:7px 9px;font-size:12px;font-weight:600;'
+        + 'color:#1c1c1f;cursor:pointer;border-radius:6px;text-align:left;';
+      const box = document.createElement('span');
+      box.textContent = '☐';
+      const lbl = document.createElement('span');
+      lbl.textContent = `${L.glyph} ${L.label}`;
+      item.appendChild(box);
+      item.appendChild(lbl);
+      item.addEventListener('click', () => { toggleMenuLayer(L, box).catch(() => {}); });
+      panel.appendChild(item);
+    });
+    document.body.appendChild(panel);
+    menuBtn.addEventListener('click', () => {
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (ev) => {
+      if (panel.style.display !== 'none'
+        && ev.target !== menuBtn && !panel.contains(ev.target)) {
+        panel.style.display = 'none';
+      }
+    });
     [['train', 'Train Line'], ['busstop', 'Bus Stop'], ['carpark', 'Car Park']]
       .forEach(([key, label]) => {
         const b = mkBtn(label);
