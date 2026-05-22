@@ -635,7 +635,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-sm font-bold z-10 ${userLoc ? 'text-gray-900 active:bg-gray-100' : 'text-gray-400 cursor-not-allowed'}`}
+          className={`absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-xs font-bold z-10 ${userLoc ? 'text-gray-900 active:bg-gray-100' : 'text-gray-400 cursor-not-allowed'}`}
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
         >

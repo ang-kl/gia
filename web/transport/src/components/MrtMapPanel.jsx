@@ -844,7 +844,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           MRT map has no user location, so this stays a readout. */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-14 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-900 z-10 pointer-events-none select-none"
+          className="absolute bottom-14 right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-xs font-bold text-gray-900 z-10 pointer-events-none select-none"
           aria-hidden
         >
           {Math.round(Number(zoomLevel))}
