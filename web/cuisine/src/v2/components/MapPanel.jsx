@@ -317,6 +317,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     return () => { cancelled = true; };
   }, [venues, searchCenter?.lat, searchCenter?.lng, userLoc]); // eslint-disable-line
 
+  // v0.61.93 — auto-fit only frames on the first data load; later loads
+  // keep the user's zoom (operator: don't auto-zoom-out).
+  const firstFitRef = useRef(true);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
@@ -491,17 +494,25 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // radius they could theoretically search. Map fits venues + user
     // marker only; the slider value still feeds the search query.
     if (!bounds.isEmpty() && (venues?.length || userLoc)) {
-      // v0.58.20: cap the auto-zoom so a tight cluster of 5 venues
-      // within a few hundred metres doesn't drop the user into a
-      // single-block view. setOptions before fitBounds is the
-      // documented way to bound the result.
-      mapRef.current.setOptions({ maxZoom: 16 });
-      mapRef.current.fitBounds(bounds, 60);
-      // v0.61.20 — release the cap once the fit settles so the user can
-      // manually zoom in past level 16.
-      window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
-        mapRef.current?.setOptions({ maxZoom: null });
-      });
+      // v0.61.93 — operator: only the first data load auto-frames; a
+      // later search keeps the user's zoom (recenter only) so the map
+      // never resets to a zoomed-out view.
+      if (firstFitRef.current) {
+        firstFitRef.current = false;
+        // v0.58.20: cap the auto-zoom so a tight cluster of 5 venues
+        // within a few hundred metres doesn't drop the user into a
+        // single-block view. setOptions before fitBounds is the
+        // documented way to bound the result.
+        mapRef.current.setOptions({ maxZoom: 16 });
+        mapRef.current.fitBounds(bounds, 60);
+        // v0.61.20 — release the cap once the fit settles so the user
+        // can manually zoom in past level 16.
+        window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
+          mapRef.current?.setOptions({ maxZoom: null });
+        });
+      } else {
+        mapRef.current.panTo(bounds.getCenter());
+      }
     }
   }
 
@@ -612,31 +623,20 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.58.29: "Show your location" recenter button. Bottom-right
-          floating like the Google Maps native app. Disabled state
-          when userLoc hasn't resolved yet keeps the affordance
-          visible so the user knows it exists. */}
-      <button
-        type="button"
-        onClick={handleRecenterClick}
-        disabled={!userLoc}
-        className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-base z-10 ${userLoc ? 'hover:bg-gray-50 active:bg-gray-100 text-gray-900' : 'text-gray-400 cursor-not-allowed'}`}
-        aria-label={tr('btn.showLocation', lang)}
-        title={tr('btn.showLocation', lang)}
-      >
-        <span aria-hidden>📍</span>
-      </button>
-      {/* v0.61.89 — tiny live zoom-level readout, bottom-right.
-          v0.61.92 — operator: integer only, transparent background,
-          shown as "📍 <z>" (a white halo keeps it legible). */}
+      {/* v0.61.93 — operator: the zoom readout doubles as the recenter
+          button — a white circle showing the integer zoom; tap to pan
+          to your saved location. Replaces the separate 📍 button. */}
       {zoomLevel != null && (
-        <div
-          className="absolute bottom-1 right-1 z-10 text-gray-800 text-xs font-bold leading-none pointer-events-none select-none"
-          style={{ textShadow: '0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff' }}
-          aria-hidden
+        <button
+          type="button"
+          onClick={handleRecenterClick}
+          disabled={!userLoc}
+          className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-sm font-bold z-10 ${userLoc ? 'text-gray-900 active:bg-gray-100' : 'text-gray-400 cursor-not-allowed'}`}
+          aria-label={tr('btn.showLocation', lang)}
+          title={tr('btn.showLocation', lang)}
         >
-          📍 {Math.round(Number(zoomLevel))}
-        </div>
+          {Math.round(Number(zoomLevel))}
+        </button>
       )}
       {children}
     </div>

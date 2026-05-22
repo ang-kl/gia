@@ -277,6 +277,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     return infoCard(h);
   }
 
+  // v0.61.93 — auto-fit only frames on the first data load; later loads
+  // keep the user's zoom (operator: don't auto-zoom-out).
+  const firstFitRef = useRef(true);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement } = window.google.maps.marker;
@@ -332,15 +335,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     }
 
     if (plotted > 0) {
-      // v0.61.20 — cap zoom only for the auto-fit, then release it once
-      // the fit settles so the user can manually zoom in past level 16.
-      mapRef.current.setOptions({ maxZoom: 16 });
-      mapRef.current.fitBounds(bounds, 60);
-      window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
-        mapRef.current?.setOptions({ maxZoom: null });
-      });
-    } else {
-      // No coords for this region — recenter on SG.
+      // v0.61.93 — operator: only the first data load auto-frames; a
+      // later region switch keeps the user's zoom (recenter only).
+      if (firstFitRef.current) {
+        firstFitRef.current = false;
+        // v0.61.20 — cap zoom only for the auto-fit, then release it
+        // once the fit settles so the user can zoom in past level 16.
+        mapRef.current.setOptions({ maxZoom: 16 });
+        mapRef.current.fitBounds(bounds, 60);
+        window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
+          mapRef.current?.setOptions({ maxZoom: null });
+        });
+      } else {
+        mapRef.current.panTo(bounds.getCenter());
+      }
+    } else if (firstFitRef.current) {
+      // No coords for this region — recenter on SG (first load only).
       mapRef.current.setCenter(SG_CENTROID);
       mapRef.current.setZoom(11);
     }
@@ -441,16 +451,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.61.89 — tiny live zoom-level readout, bottom-right.
-          v0.61.92 — operator: integer only, transparent background,
-          shown as "📍 <z>" (a white halo keeps it legible). */}
+      {/* v0.61.92 — live zoom readout, bottom-right.
+          v0.61.93 — operator: white circle (matches the other maps).
+          The Hawker map has no user location, so this stays a readout
+          rather than a recenter button. */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-1 right-1 z-10 text-gray-800 text-xs font-bold leading-none pointer-events-none select-none"
-          style={{ textShadow: '0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff' }}
+          className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-900 z-10 pointer-events-none select-none"
           aria-hidden
         >
-          📍 {Math.round(Number(zoomLevel))}
+          {Math.round(Number(zoomLevel))}
         </div>
       )}
       {mapsKeyState === 'loading' && !showPlaceholder && (
