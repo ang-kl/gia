@@ -1514,6 +1514,109 @@ async function runLocationCommand(chatId) {
   );
 }
 
+// v0.61.93 — operator: /l also resolves an MRT/LRT station code, a
+// 5-digit bus-stop number, or "<station> exit <id>" straight to
+// coordinates, so a code can be saved as the location without
+// geocoding a place name. Lightweight module-scope loaders (the
+// richer loadMrtCoords / exitsForStation live inside the server
+// block, out of this handler's scope) — each file is read + cached
+// on first use.
+let _mrtCoordsLite = null;
+function mrtCoordsLite() {
+  if (_mrtCoordsLite) return _mrtCoordsLite;
+  try {
+    const obj = JSON.parse(require('fs').readFileSync(__dirname + '/data/mrt-coords.json', 'utf8'));
+    _mrtCoordsLite = Object.entries(obj)
+      .filter(([name]) => !name.startsWith('_'))
+      .map(([name, v]) => ({
+        name,
+        lat: Number(v.lat),
+        lng: Number(v.lng),
+        codes: Array.isArray(v.codes) ? v.codes : []
+      }))
+      .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+  } catch (err) {
+    console.error('[/l code] mrt-coords load failed:', err.message);
+    _mrtCoordsLite = [];
+  }
+  return _mrtCoordsLite;
+}
+let _stationExitsLite = null;
+function stationExitsLite() {
+  if (_stationExitsLite) return _stationExitsLite;
+  try {
+    const obj = JSON.parse(require('fs').readFileSync(__dirname + '/data/station-exits.json', 'utf8'));
+    _stationExitsLite = (obj && typeof obj.stations === 'object') ? obj.stations : {};
+  } catch { _stationExitsLite = {}; }
+  return _stationExitsLite;
+}
+let _busStopsLite = null;
+function busStopsLite() {
+  if (_busStopsLite) return _busStopsLite;
+  _busStopsLite = new Map();
+  try {
+    const obj = JSON.parse(require('fs').readFileSync(__dirname + '/data_realtime/BusStops.json', 'utf8'));
+    const list = Array.isArray(obj) ? obj : (Array.isArray(obj?.value) ? obj.value : []);
+    for (const s of list) {
+      if (s && s.BusStopCode) {
+        _busStopsLite.set(String(s.BusStopCode), {
+          lat: Number(s.Latitude), lng: Number(s.Longitude),
+          desc: s.Description || s.RoadName || ''
+        });
+      }
+    }
+  } catch (err) { console.warn('[/l code] bus-stops load failed:', err.message); }
+  return _busStopsLite;
+}
+// Resolve a "/l <code>" input — an MRT station code, a 5-digit bus-stop
+// number, or "<station> exit <id>" — to { lat, lng, label }. Returns
+// null when the text is not a recognised code (the caller then falls
+// back to Google geocoding).
+function resolveCodedLocation(text) {
+  const raw = String(text || '').trim();
+  if (!raw) return null;
+  // 5-digit bus-stop number (a 6-digit string is a postal code — leave
+  // those to the geocoder).
+  if (/^\d{5}$/.test(raw)) {
+    const bs = busStopsLite().get(raw);
+    if (bs && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
+      return { lat: bs.lat, lng: bs.lng,
+        label: `Bus stop ${raw}${bs.desc ? ' — ' + bs.desc : ''}` };
+    }
+    return null;
+  }
+  const stations = mrtCoordsLite();
+  const stationBy = (q) => {
+    const up = String(q).trim().toUpperCase();
+    const byCode = stations.find((s) => s.codes.some((c) => String(c).toUpperCase() === up));
+    if (byCode) return byCode;
+    const low = String(q).trim().toLowerCase();
+    return stations.find((s) => s.name.toLowerCase() === low) || null;
+  };
+  // "<station> exit <id>" — station identified by code or exact name.
+  const exitM = raw.match(/^(.+?)\s+exit\s+([A-Za-z0-9]+)$/i);
+  if (exitM) {
+    const st = stationBy(exitM[1]);
+    if (!st) return null;
+    const exits = stationExitsLite();
+    const key = Object.keys(exits).find((k) => k.toLowerCase() === st.name.toLowerCase());
+    const want = exitM[2].toLowerCase();
+    const ex = (key ? exits[key] : []).find((e) => {
+      const id = String(e.exit || '').toLowerCase();
+      return id === 'exit ' + want || id === want || id.endsWith(' ' + want);
+    });
+    if (ex && Number.isFinite(ex.lat) && Number.isFinite(ex.lng)) {
+      return { lat: ex.lat, lng: ex.lng, label: `${st.name} ${ex.exit}` };
+    }
+    return { lat: st.lat, lng: st.lng, label: `${st.name} station` };
+  }
+  // Bare MRT/LRT station code (e.g. EW12).
+  const up = raw.toUpperCase();
+  const st = stations.find((s) => s.codes.some((c) => String(c).toUpperCase() === up));
+  if (st) return { lat: st.lat, lng: st.lng, label: `${st.name} station` };
+  return null;
+}
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1592,6 +1695,22 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   if (!text) {
     await runLocationCommand(chatId);
     return;
+  }
+  // v0.61.93 — try a station code / bus-stop number / station exit
+  // before falling back to Google geocoding. A failure here is
+  // non-fatal — fall through to the geocoder.
+  try {
+    const coded = resolveCodedLocation(text);
+    if (coded) {
+      await setUserLocation(redis, chatId, coded.lat, coded.lng);
+      console.log(`[/l] resolved coded input "${text}" -> ${coded.label}`);
+      await safeSend(chatId, `📍 Location saved: ${coded.label}`, {
+        reply_markup: { remove_keyboard: true }
+      });
+      return;
+    }
+  } catch (err) {
+    console.warn('[/l] coded-location resolution failed:', err.message);
   }
   if (!process.env.GOOGLE_MAPS_API_KEY) {
     await safeSend(chatId, "Manual location lookup is offline (GOOGLE_MAPS_API_KEY missing).");
@@ -2366,8 +2485,8 @@ bot.on('location', async (msg) => {
         }
       } catch { /* non-fatal — keep coord placeLine */ }
       const body = locLang === 'fr'
-        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /s, /carpark, /transport._`
-        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /s, /carpark, /transport._`;
+        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /search, /carpark, /transport._`
+        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`;
       try {
         await bot.sendMessage(msg.chat.id, body, {
           parse_mode: 'Markdown',

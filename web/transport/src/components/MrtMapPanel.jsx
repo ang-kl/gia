@@ -543,6 +543,13 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     }
   }
 
+  // v0.61.93 — auto-fit gating (operator: don't auto-zoom-out).
+  // `firstFitRef` — true until the first whole-network frame; after
+  // that the default view keeps the user's zoom. `lastFocusRef` — the
+  // last focused-line / station / Overview key, so a focus change
+  // still re-frames but an incidental re-render (crowd, locale) does not.
+  const firstFitRef = useRef(true);
+  const lastFocusRef = useRef(undefined);
   function renderPins(list, opts) {
     if (!window.google?.maps?.marker?.AdvancedMarkerElement) return;
     ensureBlinkStyle();
@@ -632,7 +639,16 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // Framing. After "Back" from Overview, restore the exact saved
     // viewport instead of re-fitting. v0.61.92 — `keepView` (the zoom-
     // tier re-render) skips framing entirely so it never fights a zoom.
+    // v0.61.93 — operator: don't auto-zoom-out. The whole-network fit
+    // now runs only on the first load or when the focused line /
+    // station / Overview state changes — not on an incidental
+    // re-render (crowd refresh, locale). A tapped station still frames
+    // its own detail view.
     if (!opts?.keepView) {
+      const focusKey = `${focusedCode || ''}|${focusedStation || ''}|${overview}`;
+      const focusChanged = lastFocusRef.current !== undefined
+        && lastFocusRef.current !== focusKey;
+      lastFocusRef.current = focusKey;
       if (skipFitRef.current) {
         skipFitRef.current = false;
         const sv = savedViewRef.current;
@@ -642,7 +658,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         }
       } else if (detail) {
         if (boundedCount) mapRef.current.fitBounds(bounds, 60);
-      } else if (boundedCount > 1) {
+      } else if (boundedCount > 1 && (firstFitRef.current || focusChanged)) {
+        firstFitRef.current = false;
         mapRef.current.fitBounds(bounds, 60);
       }
     }
@@ -792,15 +809,16 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
         </div>
       )}
-      {/* v0.61.92 — operator: live zoom readout on the Transport map
-          too, matching the Cuisine + Hawker maps. */}
+      {/* v0.61.92 — live zoom readout on the Transport map.
+          v0.61.93 — operator: white circle (matches the other maps);
+          stacked above the Overview button so they don't collide. The
+          MRT map has no user location, so this stays a readout. */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-1 right-1 z-10 text-gray-800 text-xs font-bold leading-none pointer-events-none select-none"
-          style={{ textShadow: '0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff' }}
+          className="absolute bottom-14 right-3 w-10 h-10 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-900 z-10 pointer-events-none select-none"
           aria-hidden
         >
-          📍 {Math.round(Number(zoomLevel))}
+          {Math.round(Number(zoomLevel))}
         </div>
       )}
     </div>
