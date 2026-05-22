@@ -497,7 +497,9 @@ function busPinNode(code, full) {
 // with a red "b" (z<=10); each tier a touch smaller than the one above.
 function busTier(zoom) {
   if (zoom >= 17) return 'full';
-  if (zoom >= 15) return 'short';
+  if (zoom >= 16) return 'short';
+  if (zoom >= 15) return 'glyph';
+  if (zoom >= 14) return 'glyph-lg';   // v0.61.104 — z14 one size larger
   if (zoom >= 13) return 'glyph';
   if (zoom >= 11) return 'glyph-sm';
   return 'square';
@@ -511,10 +513,10 @@ function busTierNode(tier, code) {
       + 'line-height:1.5;border:1.5px solid #fff;cursor:pointer;'
       + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);'
       + 'font-size:' + (tier === 'full' ? 11 : 10) + 'px;';
-  } else if (tier === 'glyph' || tier === 'glyph-sm') {
+  } else if (tier === 'glyph' || tier === 'glyph-sm' || tier === 'glyph-lg') {
     el.textContent = '🚏';
-    el.style.cssText = 'cursor:pointer;line-height:1;'
-      + 'font-size:' + (tier === 'glyph' ? 16 : 14) + 'px;';
+    el.style.cssText = 'cursor:pointer;line-height:1;font-size:'
+      + (tier === 'glyph-lg' ? 18 : tier === 'glyph' ? 16 : 14) + 'px;';
   } else {
     el.textContent = 'b';
     el.style.cssText = 'width:12px;height:12px;display:flex;align-items:center;'
