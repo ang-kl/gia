@@ -1,5 +1,5 @@
 counters:
-  commit: 326
+  commit: 327
   build: 120
   documents:
     journal: 318
@@ -12,10 +12,17 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 15:15 SGT
-last_anchor_source: system_clock_utc_2026-05-23T07:15:00Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T15:15:00+08:00
-last_anchor_utc: 2026-05-23T07:15:00Z
+last_anchor_time: 23-05 '26 15:24 SGT
+last_anchor_source: system_clock_utc_2026-05-23T07:24:27Z (NTP-synced system clock used per Rule TF-9; post-merge journal-upkeep re-anchor for v0.61.112 STATUS flip, second redo after PRs #605 and #609 closed as superseded by drift, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T15:24:27+08:00
+last_anchor_utc: 2026-05-23T07:24:27Z
+# v0.61.112-merged-redo2 (commit 327, no new journal/build) — post-merge
+# journal upkeep for v0.61.112 / PR #604 (merged at f50ab26), second
+# redo after the operator closed PRs #605 and #609 as superseded by
+# drift. journal-0_61_112-23_05_26-0052.md gains an Amendments-section
+# entry flipping [STATUS] DRAFT -> MERGED with the squash SHA, per the
+# CLAUDE.md standing rule ("After a PR merges, record it in the
+# Journal"). No code change, no version bump. Off main at v0.61.117.
 # v0.61.117 (commit 326 / journal 318 / build 120) — Carpark popup
 # duplicate "Google Map ↗" link fix on branch claude/v0.61.117-carpark-
 # popup-dedup, off main at v0.61.116-vault-merged (f4046c0). Audit
