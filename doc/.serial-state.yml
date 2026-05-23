@@ -1,8 +1,8 @@
 counters:
-  commit: 320
-  build: 116
+  commit: 321
+  build: 117
   documents:
-    journal: 313
+    journal: 314
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,26 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 07:29 SGT
-last_anchor_source: system_clock_utc_2026-05-22T23:29:59Z (NTP-synced system clock used per Rule TF-9; merge-resolution re-anchor for renumber from v0.61.108 -> v0.61.113, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T07:29:59+08:00
-last_anchor_utc: 2026-05-22T23:29:59Z
+last_anchor_time: 23-05 '26 07:55 SGT
+last_anchor_source: system_clock_utc_2026-05-22T23:55:42Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T07:55:42+08:00
+last_anchor_utc: 2026-05-22T23:55:42Z
+# v0.61.114 (commit 321 / journal 314 / build 117) — Cuisine map zoom-11
+# lock + centroid-of-pins centre. Branch claude/v0.61.114-cuisine-zoom-
+# 11-centroid, off main at v0.61.113 (#601). Operator: "zoom level for
+# initial loading should be 11, so is everytime search result should be
+# 11. And don't centralised map, show the results in view without the
+# frame of the google map embedded." Via AskUserQuestion the operator
+# chose centre = "geometric mean of result pins (centroid)" over
+# searchCenter / fitBounds-zero-padding / no-auto-centre.
+# web/cuisine/src/v2/components/MapPanel.jsx — initMap zoom 14 -> 11;
+# syncMarkers fit block rewritten: drops setOptions({maxZoom:11}) +
+# fitBounds(60) + the post-idle maxZoom release in favour of
+# setCenter(centroid) + setZoom(11). Centroid is the mean of finite
+# venue lat/lng (anchor pin not included by operator choice). No-
+# results fallback: searchCenter || userLoc, still at z11. Supersedes
+# v0.61.110's maxZoom-11 ceiling + 60px fitBounds frame (the "frame"
+# the operator wanted removed). journal-0_61_114-23_05_26-0755.md.
 # v0.61.113 (commit 320 / journal 313 / build 116) — Cuisine free-text
 # keep PR #601 (branch claude/v0.61.108-cuisine-freetext-keep, re-
 # stamped from v0.61.108 after main advanced to v0.61.112 ahead of
