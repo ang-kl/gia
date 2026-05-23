@@ -169,6 +169,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const renderPinsRef = useRef(null);
   // v0.61.112 — debounce timer for the zoom-driven station re-render.
   const zoomRenderTimerRef = useRef(null);
+  // v0.61.119 — debounce timer for the idle-driven setAnchor pass.
+  // Each setAnchor re-runs applyVisibility (incl. applyClusterAndDrop)
+  // for every active overlay — heavy at z14+ with attractions on.
+  const anchorTimerRef = useRef(null);
 
   // Fetch stations once.
   useEffect(() => {
@@ -341,9 +345,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
+    // v0.61.119 — debounced. setAnchor re-runs applyVisibility for every
+    // active overlay (incl. the O(N²) cluster pass over ~150 attractions);
+    // zooming/panning past z14 with attractions on used to hang. ~180 ms
+    // collapses rapid idle events into a single re-evaluation.
     mapRef.current.addListener('idle', () => {
-      const c = mapRef.current?.getCenter?.();
-      if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+      if (anchorTimerRef.current) clearTimeout(anchorTimerRef.current);
+      anchorTimerRef.current = setTimeout(() => {
+        anchorTimerRef.current = null;
+        const c = mapRef.current?.getCenter?.();
+        if (c) overlayControllerRef.current?.setAnchor?.(c.lat(), c.lng());
+      }, 180);
     });
     // v0.61.92 — live zoom readout + re-render station markers on zoom
     // so they swap tier (code chip <-> named pill) + re-run the overlap
@@ -394,6 +406,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     overlayControllerRef.current?.destroy?.();
     colourOverlayRef.current?.setMap(null);
     if (zoomRenderTimerRef.current) clearTimeout(zoomRenderTimerRef.current);
+    if (anchorTimerRef.current) clearTimeout(anchorTimerRef.current);
   }, []);
 
   // v0.61.36 — Train Line toggle: show / hide the line polylines. The
@@ -668,7 +681,12 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         position: { lat: s.lat, lng: s.lng },
         title: s.name,
         content: transportStationContent(s, bg, modeByName.get(s.name),
-          isFuture, crowdLevel === 'h', isCentre)
+          isFuture, crowdLevel === 'h', isCentre),
+        // v0.61.119 — operator: station markers render in front of bus
+        // stops. Past z13 bus pins escalate to full-name labels that
+        // were occluding the station code/name pills; raising station
+        // zIndex above the bus default puts stations on top.
+        zIndex: 1000
       });
       marker.addListener('click', () => {
         // v0.61.16 — tapping any station pin selects it (entering /
@@ -870,10 +888,13 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       {/* v0.61.92 — live zoom readout on the Transport map.
           v0.61.93 — operator: white circle (matches the other maps);
           stacked above the Overview button so they don't collide. The
-          MRT map has no user location, so this stays a readout. */}
+          MRT map has no user location, so this stays a readout.
+          v0.61.119 — operator: 10 % black-transparent circle background
+          behind the readout, applied to every map TMA. */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-14 right-3 z-10 text-[11px] font-bold leading-none text-gray-900 opacity-90 pointer-events-none select-none"
+          className="absolute bottom-14 right-3 z-10 text-[11px] font-bold leading-none text-gray-900 opacity-90 pointer-events-none select-none rounded-full px-2 py-1"
+          style={{ background: 'rgba(0,0,0,0.1)' }}
           aria-hidden
         >
           🔭 {Math.round(Number(zoomLevel))}
