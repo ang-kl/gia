@@ -1,8 +1,8 @@
 counters:
-  commit: 330
-  build: 121
+  commit: 332
+  build: 122
   documents:
-    journal: 319
+    journal: 320
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,26 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 17:19 SGT
-last_anchor_source: system_clock_utc_2026-05-23T09:19:23Z (NTP-synced system clock used per Rule TF-9; post-merge journal-upkeep re-anchor for v0.61.118 STATUS flip, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T17:19:23+08:00
-last_anchor_utc: 2026-05-23T09:19:23Z
+last_anchor_time: 23-05 '26 19:45 SGT
+last_anchor_source: system_clock_utc_2026-05-23T11:45:28Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for v0.61.119 PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T19:45:28+08:00
+last_anchor_utc: 2026-05-23T11:45:28Z
+# v0.61.119 (commit 332 / journal 320 / build 122) — map-polish round 3
+# PR #617 (branch claude/v0.61.119-map-polish-round3, off main at
+# v0.61.118 / 48ee865). Four operator-reported defects: (1) attractions
+# cluster pills 'N ⚝ here' hid individuals — v0.61.118's 200 px tile
+# at z<14 = ~7.6 km in SG, easily 45+ attractions per tile in central;
+# reverted to TILE_PX = 40 at every zoom in applyClusterAndDrop, so
+# individuals dominate. (2) Transport zoom-hang past z14 — MrtMapPanel
+# idle listener (setAnchor → applyVisibility cluster pass) debounced
+# ~180ms via anchorTimerRef. (3) Zoom-readout '🔭 #' wrapped in a 10 %
+# black-transparent circle (rounded-full px-2 py-1, rgba(0,0,0,0.1))
+# across the 3 TMA map components + public/app.js. (4) Transport
+# station AdvancedMarkerElement zIndex 1000 so station pills render
+# in front of bus-stop full-name labels past z13. mapOverlays.js x3 +
+# MrtMapPanel.jsx + MapPanel.jsx + HawkerMapPanel.jsx + public/app.js.
+# journal-0_61_119-23_05_26-1945.md. Amends v0.61.118 journal #319's
+# 200 px tile description per AU-7.
 # v0.61.118-merged (commit 330, no new journal/build) — post-merge
 # journal upkeep for v0.61.118 / PR #615 (merged at 651323d on
 # 2026-05-23T09:18:25Z). journal-0_61_118-23_05_26-1711.md gains an

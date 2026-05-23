@@ -456,10 +456,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       {/* v0.61.92 — live zoom readout, bottom-right.
           v0.61.93 — operator: white circle (matches the other maps).
           The Hawker map has no user location, so this stays a readout
-          rather than a recenter button. */}
+          rather than a recenter button.
+          v0.61.119 — operator: 10 % black-transparent circle background
+          behind the readout, applied to every map TMA. */}
       {zoomLevel != null && (
         <div
-          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none text-gray-900 opacity-90 pointer-events-none select-none"
+          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none text-gray-900 opacity-90 pointer-events-none select-none rounded-full px-2 py-1"
+          style={{ background: 'rgba(0,0,0,0.1)' }}
           aria-hidden
         >
           🔭 {Math.round(Number(zoomLevel))}

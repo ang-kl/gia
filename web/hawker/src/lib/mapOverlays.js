@@ -1780,11 +1780,14 @@ export function createOverlayController(map, googleMaps, opts) {
     const forceCluster = isCarpark && zoom < 15;
     const allowLabel = isCarpark ? (zoom >= 15) : (zoom >= 14);
     const mpp = metresPerPixelAt(zoom, 1.35) || 1;
-    // v0.61.118 — attractions cluster more aggressively at low zoom:
-    // 200 px tile below the label band (z<14), 40 px at street-level
-    // (z≥14) — matching the v0.61.116 grain where individual labels
-    // are expected. Carpark unchanged at 40 px.
-    const TILE_PX = (isAttraction && zoom < 14) ? 200 : 40;
+    // v0.61.119 — operator: at z11 a 200 px tile spans ~7.6 km in
+    // Singapore (~38 m/px × 200), easily holding 45+ attractions in
+    // central SG → one mega "45 ⚝ here" pill that hides every
+    // individual attraction. Reverts the v0.61.118 low-zoom widening:
+    // 40 px tile for attractions at every zoom (same as carpark),
+    // so individuals dominate at typical zoom and clusters only form
+    // where ≥7 attractions sit within ~1.5 km × 1.5 km.
+    const TILE_PX = 40;
     const TILE_M = TILE_PX * mpp;
 
     // 1) Filter to candidates that should be considered for placement.

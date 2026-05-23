@@ -1030,9 +1030,12 @@
     btn.type = 'button';
     // v0.61.102 — operator: a faint "🔭 <zoom>" readout (30% opacity,
     // 2 px smaller) — no longer a solid white circle.
+    // v0.61.119 — operator: 10 % black-transparent circle behind the
+    // readout, applied to every map TMA.
     btn.style.cssText = 'position:fixed;bottom:16px;right:14px;z-index:40;'
-      + 'border:0;background:none;color:#1c1c1f;font-size:11px;font-weight:700;'
-      + 'opacity:0.9;cursor:pointer;padding:0;line-height:1;';
+      + 'border:0;background:rgba(0,0,0,0.1);color:#1c1c1f;font-size:11px;'
+      + 'font-weight:700;opacity:0.9;cursor:pointer;padding:4px 8px;'
+      + 'border-radius:9999px;line-height:1;';
     const paint = () => { btn.textContent = '🔭 ' + Math.round(map.getZoom() || 0); };
     paint();
     map.addListener('zoom_changed', paint);
