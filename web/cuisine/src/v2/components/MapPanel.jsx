@@ -171,7 +171,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const center = searchCenter || userLoc
       || (venues?.[0] ? { lat: venues[0].lat, lng: venues[0].lng } : { lat: 1.3521, lng: 103.8198 });
     mapRef.current = new Map(containerRef.current, {
-      center, zoom: 14, disableDefaultUI: true, zoomControl: false,
+      // v0.61.114 — operator: initial-load zoom is 11, same as every
+      // new search result (see syncMarkers fit block). Used to be 14;
+      // dropped so the first paint already shows the same Singapore-
+      // wide framing the search results will land in, avoiding a
+      // zoom-out flicker the moment results arrive.
+      center, zoom: 11, disableDefaultUI: true, zoomControl: false,
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
@@ -500,28 +505,43 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // their location and the venues around them, not the full search
     // radius they could theoretically search. Map fits venues + user
     // marker only; the slider value still feeds the search query.
-    if (!bounds.isEmpty() && (venues?.length || userLoc)) {
+    if (venues?.length || userLoc) {
       // v0.61.107 — operator: the first load and every new search
-      // auto-frame the results; a re-render with the same `venues`
+      // re-position the map; a re-render with the same `venues`
       // (e.g. userLoc resolved) only recenters, keeping the zoom.
-      if (lastFitVenuesRef.current !== venues) {
-        lastFitVenuesRef.current = venues;
-        // v0.58.20: cap the auto-zoom so a tight cluster of venues
-        // within a few hundred metres doesn't drop the user into a
-        // single-block view. setOptions before fitBounds is the
-        // documented way to bound the result.
-        // v0.61.110 — operator: ceiling is zoom 11. A tight cluster
-        // stops at 11; spread-out picks zoom out naturally and only
-        // drop below 10 when results span opposite ends of the island.
-        mapRef.current.setOptions({ maxZoom: 11 });
-        mapRef.current.fitBounds(bounds, 60);
-        // v0.61.20 — release the cap once the fit settles so the user
-        // can manually zoom in past the ceiling.
-        window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
-          mapRef.current?.setOptions({ maxZoom: null });
-        });
-      } else {
-        mapRef.current.panTo(bounds.getCenter());
+      // v0.61.114 — operator: lock zoom to exactly 11 on first load
+      // and every new search, and centre on the centroid (geometric
+      // mean) of the result pins rather than fitBounds-framing them.
+      // Replaces the v0.61.110 maxZoom-11 ceiling + fitBounds(60px)
+      // pattern; the previous "show all results inside a 60px frame"
+      // behaviour is gone by operator choice ("don't centralised map,
+      // show the results in view without the frame"). Anchor pin is
+      // intentionally NOT in the centroid so the camera tracks the
+      // result cluster, not the search anchor — operator picked
+      // "geometric mean of result pins" over the searchCenter option.
+      // No results yet (initial paint) falls back to searchCenter /
+      // userLoc so the map still positions at z11 over the user.
+      let center = null;
+      if (venues?.length) {
+        let sumLat = 0, sumLng = 0, n = 0;
+        for (const v of venues) {
+          if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
+          sumLat += v.lat;
+          sumLng += v.lng;
+          n += 1;
+        }
+        if (n > 0) center = { lat: sumLat / n, lng: sumLng / n };
+      }
+      if (!center) center = searchCenter || userLoc;
+
+      if (center) {
+        if (lastFitVenuesRef.current !== venues) {
+          lastFitVenuesRef.current = venues;
+          mapRef.current.setCenter(center);
+          mapRef.current.setZoom(11);
+        } else {
+          mapRef.current.panTo(center);
+        }
       }
     }
   }
