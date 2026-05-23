@@ -1,8 +1,8 @@
 counters:
-  commit: 328
-  build: 120
+  commit: 329
+  build: 121
   documents:
-    journal: 318
+    journal: 319
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,32 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 15:41 SGT
-last_anchor_source: system_clock_utc_2026-05-23T07:41:50Z (NTP-synced system clock used per Rule TF-9; post-merge journal-upkeep re-anchor for v0.61.117 STATUS flip, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T15:41:50+08:00
-last_anchor_utc: 2026-05-23T07:41:50Z
+last_anchor_time: 23-05 '26 17:11 SGT
+last_anchor_source: system_clock_utc_2026-05-23T09:11:40Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T17:11:40+08:00
+last_anchor_utc: 2026-05-23T09:11:40Z
+# v0.61.118 (commit 329 / journal 319 / build 121) — Attractions
+# readability + cluster-engine tuning on branch claude/v0.61.118-
+# attractions-readable-clusters, off main at v0.61.117 (b3c5a9a after
+# the #614 STATUS-flip docs commit 4a62b74). Three small changes:
+#   • dotNode (line 545, all 3 TMA copies) — glyph span gets
+#     color:#fff so the ⚝ character is legible on the purple
+#     attractions dot (the z12–13 'glyph' tier). Emoji glyphs (🅿,
+#     🌳, 👮, 🏥, 💊) ignore CSS color and keep their own palette.
+#   • applyClusterAndDrop (line 1771, all 3 TMA copies) — attractions
+#     threshold 8 → 7; cluster tile is 200 px at z<14, 40 px at z≥14
+#     (carpark unchanged at 40 px). Aggressive at low zoom so dense
+#     attraction zones collapse into a single pill; street-level grain
+#     unchanged from v0.61.116.
+#   • Cluster pill text — attractions "<N> ⚝" → "<N> ⚝ here", symmetric
+#     with the existing carpark "<N> 🅿 here".
+# public/app.js — runClusterPass gains an `opts.tilePx` (default 40);
+# the attractions caller passes 200 at z<14 / 40 at z≥14, threshold 7,
+# and the new cluster text. Carpark caller unchanged.
+# Audit context: this is the operator's response to two complaints —
+# the dark-on-dark ⚝ readability bug (not in the 23-05 '26 audit
+# top-5 but surfaced in the same conversation) and a desire for
+# heavier low-zoom clustering. journal-0_61_118-23_05_26-1711.md.
 # v0.61.117-merged (commit 328, no new journal/build) — post-merge
 # journal upkeep for v0.61.117 / PR #612 (merged at b3c5a9a on
 # 2026-05-23T07:18:43Z). journal-0_61_117-23_05_26-1515.md gains an

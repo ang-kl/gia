@@ -546,6 +546,9 @@ function dotNode(bg, glyph, size) {
   // v0.61.105 — `size` (px) sizes the dot for the carpark zoom ladder;
   // buildMarkers passes the feature object as the 3rd arg, so only a
   // number counts — anything else falls back to the default 20 px.
+  // v0.61.118 — glyph rendered in white so character glyphs (⚝ for
+  // attractions) are legible on the dark-purple dot; emoji glyphs (🅿,
+  // 🌳, 👮, 🏥, 💊) ignore CSS `color` and keep their own palette.
   const sz = (typeof size === 'number' && size > 0) ? size : 20;
   const el = document.createElement('div');
   el.style.cssText =
@@ -555,7 +558,7 @@ function dotNode(bg, glyph, size) {
     'background:' + bg + ';';
   const ic = document.createElement('span');
   ic.textContent = glyph;
-  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;';
+  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;color:#fff;';
   el.appendChild(ic);
   return el;
 }
@@ -1771,12 +1774,18 @@ export function createOverlayController(map, googleMaps, opts) {
   function applyClusterAndDrop(name, e) {
     const isCarpark = (name === 'carpark');
     const isAttraction = (name === 'attractions');
-    const threshold = isCarpark ? 5 : 8;
+    // v0.61.118 — attractions threshold lowered from 8 to 7 per operator.
+    const threshold = isCarpark ? 5 : 7;
     const zoom = map.getZoom?.() || 0;
     const forceCluster = isCarpark && zoom < 15;
     const allowLabel = isCarpark ? (zoom >= 15) : (zoom >= 14);
     const mpp = metresPerPixelAt(zoom, 1.35) || 1;
-    const TILE_M = 40 * mpp; // 40 px tile in metres at current zoom
+    // v0.61.118 — attractions cluster more aggressively at low zoom:
+    // 200 px tile below the label band (z<14), 40 px at street-level
+    // (z≥14) — matching the v0.61.116 grain where individual labels
+    // are expected. Carpark unchanged at 40 px.
+    const TILE_PX = (isAttraction && zoom < 14) ? 200 : 40;
+    const TILE_M = TILE_PX * mpp;
 
     // 1) Filter to candidates that should be considered for placement.
     const candidates = [];
@@ -1824,7 +1833,7 @@ export function createOverlayController(map, googleMaps, opts) {
         cLng /= items.length;
         const text = isCarpark
           ? items.length + ' 🅿 here'
-          : items.length + ' ⚝';
+          : items.length + ' ⚝ here';
         let cm = e._clusters[cIdx];
         if (!cm) {
           cm = new AdvancedMarkerElement({
