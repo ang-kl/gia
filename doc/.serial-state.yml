@@ -1,5 +1,5 @@
 counters:
-  commit: 329
+  commit: 330
   build: 121
   documents:
     journal: 319
@@ -12,10 +12,16 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 17:11 SGT
-last_anchor_source: system_clock_utc_2026-05-23T09:11:40Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T17:11:40+08:00
-last_anchor_utc: 2026-05-23T09:11:40Z
+last_anchor_time: 23-05 '26 17:19 SGT
+last_anchor_source: system_clock_utc_2026-05-23T09:19:23Z (NTP-synced system clock used per Rule TF-9; post-merge journal-upkeep re-anchor for v0.61.118 STATUS flip, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T17:19:23+08:00
+last_anchor_utc: 2026-05-23T09:19:23Z
+# v0.61.118-merged (commit 330, no new journal/build) — post-merge
+# journal upkeep for v0.61.118 / PR #615 (merged at 651323d on
+# 2026-05-23T09:18:25Z). journal-0_61_118-23_05_26-1711.md gains an
+# Amendments entry flipping [STATUS] DRAFT -> MERGED with the squash
+# SHA, per the CLAUDE.md standing rule. No code change, no version
+# bump.
 # v0.61.118 (commit 329 / journal 319 / build 121) — Attractions
 # readability + cluster-engine tuning on branch claude/v0.61.118-
 # attractions-readable-clusters, off main at v0.61.117 (b3c5a9a after
