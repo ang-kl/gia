@@ -1,8 +1,8 @@
 counters:
-  commit: 321
-  build: 117
+  commit: 322
+  build: 118
   documents:
-    journal: 314
+    journal: 315
     builder: 3
     persona: 4
     feature: 48
@@ -12,10 +12,41 @@ counters:
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 07:55 SGT
-last_anchor_source: system_clock_utc_2026-05-22T23:55:42Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T07:55:42+08:00
-last_anchor_utc: 2026-05-22T23:55:42Z
+last_anchor_time: 23-05 '26 08:22 SGT
+last_anchor_source: system_clock_utc_2026-05-23T00:22:12Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T08:22:12+08:00
+last_anchor_utc: 2026-05-23T00:22:12Z
+# v0.61.115 (commit 322 / journal 315 / build 118) — Attractions / Carpark
+# zoom tiers, slice 1 of the operator's UI/UX spec. Branch claude/v0.61.
+# 115-attractions-carpark-zoom-tiers, off main at v0.61.114. Operator
+# posted a 2-layer spec (Attractions / Carpark) with zoom-tier marker
+# rendering, collision degradation, clustering rules and card layouts;
+# this PR lands only the unambiguous parts and defers the rest.
+# Implemented:
+#   • Attractions z<14 → ⚝ glyph at every zoom (was: tiny coloured dot
+#     at z<12, ⚝ glyph at z12–13). Floors amenityTier 'dot' → 'glyph'
+#     for the attractions layer only.
+#   • Carpark z>=15 → labeled `🅿 Carpark Name` pill; collision with
+#     another label degrades the colliding marker back to the icon
+#     (size ladder + shrink unchanged below z15).
+#   • Carpark + Attractions labels share the placedLabels collision
+#     pool so the two layers don't visually overlap each other at z>=15.
+#   • Public /app/map mirrors both: overlayLabel() pill helper +
+#     pxBetween() distance helper; carpark label gate in
+#     renderClippedLayer; attraction label gate in renderMenuLayer.
+# Deferred (logged in [KNOWN GAPS]):
+#   • Clustering ("N ⚝" / "5 🅿 here") — spec self-contradicts
+#     (threshold >7 markers vs "exactly 5" example) and "cluster tile"
+#     is undefined.
+#   • z<15 carpark "lower-priority drop" — "priority" undefined; the
+#     v0.61.105 size-shrink-on-collision behaviour remains.
+#   • Card layouts (Header / Metadata / Transit / Actions) — the
+#     existing attraction popup is richer than the spec table; the
+#     carpark popup is bare; both pending operator confirmation that
+#     the spec table is additive, not a replacement.
+# web/cuisine/src/v2/lib/mapOverlays.js (+ byte-identical copies in
+# web/hawker/src/lib + web/transport/src/lib) and public/app.js.
+# journal-0_61_115-23_05_26-0822.md.
 # v0.61.114 (commit 321 / journal 314 / build 117) — Cuisine map zoom-11
 # lock + centroid-of-pins centre. Branch claude/v0.61.114-cuisine-zoom-
 # 11-centroid, off main at v0.61.113 (#601). Operator: "zoom level for

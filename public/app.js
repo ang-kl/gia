@@ -402,6 +402,29 @@
     return el;
   }
 
+  // v0.61.115 — labeled overlay pin (⚝ Attractions Name / 🅿 Carpark Name)
+  // for the high-zoom tier of the Attractions / Carpark layers; mirrors
+  // amenityLabelNode in the TMA mapOverlays.js. Operator UI/UX spec
+  // wants the icon + name pill at z>=14 (attractions) and z>=15 (carpark).
+  function overlayLabel(glyph, name) {
+    const el = document.createElement('div');
+    el.textContent = ((glyph || '') + ' ' + (name || '')).trim();
+    el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
+      + 'background:#ffffff;color:#1c1c1f;font-size:12px;font-weight:700;'
+      + 'line-height:1.5;white-space:nowrap;border:1.5px solid #fff;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+    return el;
+  }
+
+  // v0.61.115 — naive pixel-distance check between two lat/lng at a
+  // given zoom (mppAt-based, equator-flattened). Used by the high-zoom
+  // overlap demotion for Attractions / Carpark labels in /app/map.
+  function pxBetween(aLat, aLng, bLat, bLng, mpp) {
+    const dx = Math.abs(aLng - bLng) * 111320 * 0.99973 / mpp;
+    const dy = Math.abs(aLat - bLat) * 110574 / mpp;
+    return { dx, dy };
+  }
+
   async function ensureTrainLayer() {
     if (overlay.train.loaded) return;
     overlay.train.loaded = true;
@@ -534,6 +557,10 @@
     const cpBase = key === 'carpark' ? carparkSize(zoom) : 0;
     const cpMpp = mppAt(zoom);
     const placedCp = [];
+    // v0.61.115 — high-zoom (z>=15) carpark labels share a placedLabels
+    // pool so labels don't overlap; collisions degrade to the icon
+    // path per spec.
+    const placedLabels = [];
     let drawn = 0;
     for (const f of overlay[key].data) {
       if (drawn >= 250) break;
@@ -544,15 +571,32 @@
       if (bt) {
         content = busTierPin(bt, f.code);
       } else if (key === 'carpark') {
-        let sz = cpBase;
-        const clash = placedCp.some((p) => {
-          const dx = Math.abs(p.lng - f.lng) * 111320 * 0.99973 / cpMpp;
-          const dy = Math.abs(p.lat - f.lat) * 110574 / cpMpp;
-          return dx < sz + 3 && dy < sz + 3;
-        });
-        if (clash) sz = Math.max(sz - 4, 8);
-        else placedCp.push({ lat: f.lat, lng: f.lng });
-        content = carparkPin(sz);
+        // v0.61.115 — z>=15 renders a labeled 🅿 Name pill. On
+        // overlap with an already-placed label, fall through to
+        // the icon path (spec: "degrade ... back to the isolated
+        // 🅿 icon").
+        if (zoom >= 15) {
+          const w = 34 + (f.name || '').length * 7;
+          const clash = placedLabels.some((p) => {
+            const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, cpMpp);
+            return dx < (w + p.w) / 2 + 4 && dy < 26;
+          });
+          if (!clash) {
+            placedLabels.push({ lat: f.lat, lng: f.lng, w });
+            content = overlayLabel('🅿', f.name || 'Carpark');
+          }
+        }
+        if (!content) {
+          let sz = cpBase;
+          const clash = placedCp.some((p) => {
+            const dx = Math.abs(p.lng - f.lng) * 111320 * 0.99973 / cpMpp;
+            const dy = Math.abs(p.lat - f.lat) * 110574 / cpMpp;
+            return dx < sz + 3 && dy < sz + 3;
+          });
+          if (clash) sz = Math.max(sz - 4, 8);
+          else placedCp.push({ lat: f.lat, lng: f.lng });
+          content = carparkPin(sz);
+        }
       } else {
         content = overlayPin(glyph);
       }
@@ -717,8 +761,15 @@
     clearMenuLayer(L.key);
     if (!menuState[L.key].on || !overlaysData) return;
     const bounds = map.getBounds && map.getBounds();
-    if (!bounds || (map.getZoom() || 0) < 13) return;
+    const zoom = (map.getZoom && map.getZoom()) || 0;
+    if (!bounds || zoom < 13) return;
     const feats = Array.isArray(overlaysData[L.key]) ? overlaysData[L.key] : [];
+    // v0.61.115 — Attractions UI/UX spec: z>=14 renders a labeled
+    // ⚝ Attractions Name pill (collision → fall back to ⚝ icon);
+    // z<14 keeps the ⚝ icon only. Label overlaps demote to icon.
+    const labelAttractions = (L.key === 'attractions' && zoom >= 14);
+    const aMpp = labelAttractions ? mppAt(zoom) : 0;
+    const placedLabels = [];
     let drawn = 0;
     for (const f of feats) {
       if (drawn >= 200) break;
@@ -736,7 +787,20 @@
         if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
         const pos = { lat: f.lat, lng: f.lng };
         if (!bounds.contains(pos)) continue;
-        const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(L.glyph) });
+        let content = null;
+        if (labelAttractions) {
+          const w = 34 + (f.name || '').length * 7;
+          const clash = placedLabels.some((p) => {
+            const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, aMpp);
+            return dx < (w + p.w) / 2 + 4 && dy < 26;
+          });
+          if (!clash) {
+            placedLabels.push({ lat: f.lat, lng: f.lng, w });
+            content = overlayLabel('⚝', f.name || 'Attraction');
+          }
+        }
+        if (!content) content = overlayPin(L.glyph);
+        const marker = new AdvancedMarkerElement({ map, position: pos, content });
         marker.addListener('click', () => {
           if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
           overlayInfo.setContent(L.key === 'attractions'

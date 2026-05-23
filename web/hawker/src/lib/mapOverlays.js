@@ -1938,6 +1938,15 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it.marker.content !== want) it.marker.content = want;
       } else if (it._tiered && e.visible && near) {
         let t = aTier;
+        // v0.61.115 — UI/UX spec for the Attractions layer:
+        // "Default Marker State (Zoom Level < 14): Display the star
+        // icon ⚝ only." The shared amenityTier returns 'dot' below
+        // z12 (a 9-px coloured dot the other amenity layers use);
+        // floor it to 'glyph' for attractions so the ⚝ shows across
+        // the whole z<14 band. Other amenity layers (clinics /
+        // police / hospitals) keep the 'dot' band by operator
+        // scope ("Attractions Layer" only).
+        if (name === 'attractions' && t === 'dot') t = 'glyph';
         if (t === 'label') {
           const mpp = metresPerPixelAt(zoom, it.lat) || 1;
           const w = 34 + (it._name || '').length * 7;
@@ -1954,6 +1963,41 @@ export function createOverlayController(map, googleMaps, opts) {
           it._tierRendered = t;
         }
       } else if (name === 'carpark' && e.visible && near) {
+        // v0.61.115 — UI/UX spec for the Carpark layer:
+        // "Detailed Marker State (Zoom Level >= 15): Render markers
+        // with labels in the format <🅿 Carpark Name>. ... If an
+        // overlap occurs ... degrade the colliding marker back to
+        // the isolated 🅿 icon." Below z15 the v0.61.105 size
+        // ladder + collision-shrink keeps the icon-only behaviour.
+        // Carpark labels share the placedLabels pool with
+        // attractions so the two layers don't visually overlap each
+        // other at z>=15. The clustering rule + "lower-priority
+        // drop" at z<15 are deferred (spec ambiguous — threshold
+        // example "5 🅿 here" contradicts the >7 threshold and the
+        // visibility boundary z14/z15 mismatch).
+        if (zoom >= 15) {
+          const mpp = metresPerPixelAt(zoom, it.lat) || 1;
+          const w = 34 + (it._name || '').length * 7;
+          const clash = placedLabels.some((p) => {
+            const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
+            const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
+            return dx < (w + p.w) / 2 + 4 && dy < 26;
+          });
+          if (!clash) {
+            placedLabels.push({ lat: it.lat, lng: it.lng, w });
+            const sig = 'label:' + (it._name || '');
+            if (it._cpRendered !== sig) {
+              it.marker.content = amenityLabelNode(
+                ((it._glyph || '🅿') + ' ' + (it._name || 'Carpark')).trim(),
+                '#ffffff', '#1c1c1f', true);
+              it._cpRendered = sig;
+              it._cpSize = null;
+            }
+            continue;
+          }
+          // Fall through to the icon path (label collision → degrade
+          // to isolated 🅿 icon per spec).
+        }
         // v0.61.105 — carpark markers shrink by zoom (carparkSize) and
         // two sizes (4 px) more when they collide with one already
         // placed.
@@ -1966,9 +2010,11 @@ export function createOverlayController(map, googleMaps, opts) {
         });
         if (clash) sz = Math.max(sz - 4, 8);
         else placedCarparks.push({ lat: it.lat, lng: it.lng, sz });
-        if (it._cpSize !== sz) {
+        const sig = 'icon:' + sz;
+        if (it._cpRendered !== sig) {
           it.marker.content = dotNode(it._bg, it._glyph, sz);
           it._cpSize = sz;
+          it._cpRendered = sig;
         }
       }
     }
