@@ -1530,13 +1530,12 @@ export function createOverlayController(map, googleMaps, opts) {
   const carparkInfo = (f) => {
     // v0.61.116 — Carpark Card per operator UI/UX spec (slice 2):
     // Header (Carpark | proper-cased name) + Live Data (lots /
-    // availability) + Actions (Google Maps ↗). gmapsLinkRow is the
-    // shared helper used by the train-station footer and the cuisine
-    // venue popup, so the link styling matches every other map card.
+    // availability) + Actions (Google Maps ↗). The `f` 2nd arg to
+    // infoCard auto-appends the standard gmapsLinkRow tail (the
+    // TMA-wide convention from v0.61.31).
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>'
-      + gmapsLinkRow(f.lat, f.lng), f);
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
   };
 
   // v0.61.109 — enriched attraction popup: star rating + review count,
