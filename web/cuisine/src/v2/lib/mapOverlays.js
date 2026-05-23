@@ -603,6 +603,31 @@ function attractionLabelNode(bg, glyph, f) {
   return el;
 }
 
+// v0.61.116 — cluster label pill. Used by applyClusterAndDrop on the
+// Attractions / Carpark layers when a 40 px screen-tile contains at
+// least the per-layer threshold (Attractions ≥ 8, Carpark ≥ 5;
+// Carpark below z15 is force-clustered so even singletons render as a
+// cluster pill per operator UI/UX spec answer 4 "fully clustered below
+// z15"). Shares the white-pill styling with amenityLabelNode so the
+// cluster element reads as one of the existing label tiers.
+function clusterLabelNode(text) {
+  return amenityLabelNode(text, '#ffffff', '#1c1c1f', true);
+}
+
+// v0.61.116 — screen-space rectangle-overlap test in metres. Used by
+// the source-order drop cascade (operator spec answer 2 "Source-order
+// first-in wins"): each candidate marker tests its footprint against
+// every already-placed footprint, falling back label → icon → drop on
+// collision. aLat/aLng — candidate; aW/aH — candidate footprint px;
+// b — { lat, lng, w, h } already-placed; mpp — metres-per-pixel at
+// the current zoom. Pads 4 px on each axis to keep adjacent items
+// from kissing.
+function footprintOverlap(aLat, aLng, aW, aH, b, mpp) {
+  const dx = Math.abs(aLng - b.lng) * 111320 * 0.99973 / mpp;
+  const dy = Math.abs(aLat - b.lat) * 110574 / mpp;
+  return dx < (aW + b.w) / 2 + 4 && dy < (aH + b.h) / 2 + 4;
+}
+
 // v0.61.41 — rectangular pin tag: bold white text on a solid-colour
 // rectangle with a white outline (the clinic "+" marker). A square-
 // cornered alternative to the round dotNode.
@@ -1503,9 +1528,15 @@ export function createOverlayController(map, googleMaps, opts) {
     infoCard(exitTemplateHtml({ exitCode: f.exitCode, station: f.station, codes: f.codes, nearby: f.nearby }), f);
 
   const carparkInfo = (f) => {
+    // v0.61.116 — Carpark Card per operator UI/UX spec (slice 2):
+    // Header (Carpark | proper-cased name) + Live Data (lots /
+    // availability) + Actions (Google Maps ↗). gmapsLinkRow is the
+    // shared helper used by the train-station footer and the cuisine
+    // venue popup, so the link styling matches every other map card.
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>'
+      + gmapsLinkRow(f.lat, f.lng), f);
   };
 
   // v0.61.109 — enriched attraction popup: star rating + review count,
@@ -1710,6 +1741,169 @@ export function createOverlayController(map, googleMaps, opts) {
     return OVERLAY_RADIUS_M;
   }
 
+  // v0.61.116 — clustering engine for the Attractions / Carpark layers
+  // per operator UI/UX spec (slice 2). Bucket every visible marker
+  // into a 40 px screen tile (mppAt-scaled lat/lng), then per tile
+  // decide cluster-vs-individual:
+  //
+  //   • Carpark, zoom < 15  → force cluster (every non-empty tile
+  //     renders an "N 🅿 here" pill regardless of N; v0.61.105's
+  //     icon-size ladder for z<15 is gone by operator answer 4).
+  //   • Carpark, zoom ≥ 15  → cluster when tile count ≥ 5, else
+  //     individuals via the source-order drop cascade.
+  //   • Attractions, any zoom → cluster when tile count ≥ 8, else
+  //     individuals via the source-order drop cascade.
+  //
+  // The drop cascade (operator answer 2) iterates the tile's items
+  // in source order:
+  //   1. Try to place a label (only when the zoom is in the label
+  //      band: z ≥ 14 attractions, z ≥ 15 carpark).
+  //   2. If the label collides with anything already placed → fall
+  //      back to the icon (⚝ glyph at ~18 px, 🅿 icon at
+  //      carparkSize(zoom)).
+  //   3. If the icon also collides → drop (marker.map = null).
+  //
+  // Cluster markers live in `e._clusters`, reused across renders
+  // (positions + content updated in place). Unused entries are
+  // hidden (map = null) but kept for the next render. Click on a
+  // cluster pill zooms in by 2 levels capped at z18 — Google
+  // MarkerClusterer's default behaviour, since the spec did not
+  // define a cluster-tap action.
+  function applyClusterAndDrop(name, e) {
+    const isCarpark = (name === 'carpark');
+    const isAttraction = (name === 'attractions');
+    const threshold = isCarpark ? 5 : 8;
+    const zoom = map.getZoom?.() || 0;
+    const forceCluster = isCarpark && zoom < 15;
+    const allowLabel = isCarpark ? (zoom >= 15) : (zoom >= 14);
+    const mpp = metresPerPixelAt(zoom, 1.35) || 1;
+    const TILE_M = 40 * mpp; // 40 px tile in metres at current zoom
+
+    // 1) Filter to candidates that should be considered for placement.
+    const candidates = [];
+    const r = currentRadius();
+    for (const it of e.items) {
+      const near = isAttraction
+        ? true
+        : Number.isFinite(it.lat) && inRadius(it.lat, it.lng, r);
+      if (!(e.visible && near && Number.isFinite(it.lat) && Number.isFinite(it.lng))) {
+        it.marker.map = null;
+        continue;
+      }
+      candidates.push(it);
+    }
+
+    // 2) Bucket by 40 px screen tile. Convert lat/lng to a
+    //    pixel-space integer key — approximate (treats SG as flat at
+    //    lat 1.35), but 40 px is too small for the curvature to
+    //    matter at this latitude.
+    const tiles = new Map();
+    for (const it of candidates) {
+      const tx = Math.floor((it.lng * 111320 * 0.99973) / TILE_M);
+      const ty = Math.floor((it.lat * 110574) / TILE_M);
+      const key = tx + '|' + ty;
+      if (!tiles.has(key)) tiles.set(key, []);
+      tiles.get(key).push(it);
+    }
+
+    // 3) Ensure cluster pool exists; reuse across renders.
+    if (!e._clusters) e._clusters = [];
+    let cIdx = 0;
+
+    // 4) Per tile: cluster or individual cascade.
+    const placedLabels = [];
+    const placedIcons = [];
+    for (const items of tiles.values()) {
+      const doCluster = forceCluster || items.length >= threshold;
+      if (doCluster) {
+        // Hide every individual marker in this tile.
+        for (const it of items) it.marker.map = null;
+        // Cluster pill at the tile centroid.
+        let cLat = 0, cLng = 0;
+        for (const it of items) { cLat += it.lat; cLng += it.lng; }
+        cLat /= items.length;
+        cLng /= items.length;
+        const text = isCarpark
+          ? items.length + ' 🅿 here'
+          : items.length + ' ⚝';
+        let cm = e._clusters[cIdx];
+        if (!cm) {
+          cm = new AdvancedMarkerElement({
+            position: { lat: cLat, lng: cLng },
+            content: clusterLabelNode(text),
+            gmpClickable: true
+          });
+          cm._text = text;
+          cm.addListener('click', () => {
+            const z = map.getZoom?.() || 0;
+            map.setZoom(Math.min(z + 2, 18));
+            if (cm.position) map.setCenter(cm.position);
+          });
+          e._clusters.push(cm);
+        } else {
+          cm.position = { lat: cLat, lng: cLng };
+          if (cm._text !== text) {
+            cm.content = clusterLabelNode(text);
+            cm._text = text;
+          }
+        }
+        cm.map = map;
+        // v0.61.116 — register the cluster pill's footprint so
+        // individual labels in adjacent non-clustering tiles don't
+        // render on top of it. clusterW estimated from the same
+        // ~7 px/char heuristic the individual labels use.
+        const clusterW = 34 + text.length * 7;
+        placedLabels.push({ lat: cLat, lng: cLng, w: clusterW, h: 26 });
+        cIdx++;
+        continue;
+      }
+      // Individual cascade (label → icon → drop), source order.
+      for (const it of items) {
+        const w = 34 + (it._name || '').length * 7;
+        const h = 26;
+        let placed = false;
+        if (allowLabel) {
+          const labelClash = placedLabels.some((p) => footprintOverlap(it.lat, it.lng, w, h, p, mpp))
+            || placedIcons.some((p) => footprintOverlap(it.lat, it.lng, w, h, p, mpp));
+          if (!labelClash) {
+            const glyph = isCarpark ? '🅿' : (it._glyph || '⚝');
+            const displayName = it._name || (isCarpark ? 'Carpark' : 'Attraction');
+            it.marker.content = amenityLabelNode((glyph + ' ' + displayName).trim(),
+              '#ffffff', '#1c1c1f', true);
+            it.marker.map = map;
+            placedLabels.push({ lat: it.lat, lng: it.lng, w, h });
+            placed = true;
+          }
+        }
+        if (!placed) {
+          const sz = isCarpark ? carparkSize(zoom) : 18;
+          const iconClash = placedLabels.some((p) => footprintOverlap(it.lat, it.lng, sz, sz, p, mpp))
+            || placedIcons.some((p) => footprintOverlap(it.lat, it.lng, sz, sz, p, mpp));
+          if (!iconClash) {
+            it.marker.content = isCarpark
+              ? dotNode(it._bg, it._glyph, sz)
+              : amenityNode('glyph', it._bg, it._glyph, it._name);
+            it.marker.map = map;
+            placedIcons.push({ lat: it.lat, lng: it.lng, w: sz, h: sz });
+            placed = true;
+          }
+        }
+        if (!placed) {
+          // Drop — last-resort per spec answer 2 "Source-order
+          // first-in wins". The marker stays in e.items so the
+          // next render can re-evaluate it.
+          it.marker.map = null;
+        }
+      }
+    }
+
+    // 5) Hide any cluster pills the previous render placed and that
+    //    are not used this time.
+    for (let i = cIdx; i < e._clusters.length; i++) {
+      if (e._clusters[i].map) e._clusters[i].map = null;
+    }
+  }
+
   function applyVisibility(name) {
     const e = layers[name];
     if (!e) return;
@@ -1900,29 +2094,32 @@ export function createOverlayController(map, googleMaps, opts) {
     // the Exits / Taxis chips clip to the 3 visible stations (so they
     // show those stations' amenities); every other case clips to the
     // anchor radius.
+    // v0.61.116 — Attractions and Carpark layers no longer iterate
+    // here; they run through applyClusterAndDrop, which owns the
+    // 40 px screen-tile cluster engine + the source-order label →
+    // icon → drop cascade per operator UI/UX spec answers 1, 2, 4.
+    if (name === 'attractions' || name === 'carpark') {
+      applyClusterAndDrop(name, e);
+      return;
+    }
     const stationScoped = detailStations.length && (name === 'exits' || name === 'taxis');
     const r = currentRadius();
     // v0.61.70 — bus-stop pins are zoom-aware: compact 🚏 when zoomed
     // out, full 🚏 Bus Stop № … at/above the detail zoom threshold.
     const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
-    // v0.61.97 — amenity layers (attractions / clinics / police /
-    // hospitals) render by zoom tier: a tiny dot (z<12), the icon
-    // (z12-13) or the icon + name (z14+). A label colliding with one
-    // already placed is demoted to its icon.
+    // v0.61.97 — amenity layers (clinics / police / hospitals) render
+    // by zoom tier: a tiny dot (z<12), the icon (z12-13) or the icon
+    // + name (z14+). A label colliding with one already placed is
+    // demoted to its icon. (Attractions split off to
+    // applyClusterAndDrop in v0.61.116; this branch now only serves
+    // clinics / police / hospitals.)
     const zoom = map.getZoom?.() || 0;
     const aTier = amenityTier(zoom);
     const placedLabels = [];
-    const placedCarparks = [];
     for (const it of e.items) {
-      // v0.61.112 — operator point 4: the attractions layer is not
-      // radius-clipped. Like the train layer it shows the whole set
-      // (the zoom tier handles declutter), so the ⚝ overlay actually
-      // populates the TMA maps instead of clipping to a 550 m bubble.
-      const near = (name === 'attractions')
-        ? true
-        : stationScoped
-          ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
-          : inRadius(it.lat, it.lng, r);
+      const near = stationScoped
+        ? detailStations.some((s) => metresBetween(s.lat, s.lng, it.lat, it.lng) <= STATION_AMENITY_RADIUS_M)
+        : inRadius(it.lat, it.lng, r);
       it.marker.map = (e.visible && near) ? map : null;
       // v0.61.82 — CR-5: exit pins swap compact/full at the detail
       // zoom threshold. v0.61.102 — bus-stop pins follow the 5-band
@@ -1938,15 +2135,6 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it.marker.content !== want) it.marker.content = want;
       } else if (it._tiered && e.visible && near) {
         let t = aTier;
-        // v0.61.115 — UI/UX spec for the Attractions layer:
-        // "Default Marker State (Zoom Level < 14): Display the star
-        // icon ⚝ only." The shared amenityTier returns 'dot' below
-        // z12 (a 9-px coloured dot the other amenity layers use);
-        // floor it to 'glyph' for attractions so the ⚝ shows across
-        // the whole z<14 band. Other amenity layers (clinics /
-        // police / hospitals) keep the 'dot' band by operator
-        // scope ("Attractions Layer" only).
-        if (name === 'attractions' && t === 'dot') t = 'glyph';
         if (t === 'label') {
           const mpp = metresPerPixelAt(zoom, it.lat) || 1;
           const w = 34 + (it._name || '').length * 7;
@@ -1961,60 +2149,6 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it._tierRendered !== t) {
           it.marker.content = amenityNode(t, it._bg, it._glyph, it._name);
           it._tierRendered = t;
-        }
-      } else if (name === 'carpark' && e.visible && near) {
-        // v0.61.115 — UI/UX spec for the Carpark layer:
-        // "Detailed Marker State (Zoom Level >= 15): Render markers
-        // with labels in the format <🅿 Carpark Name>. ... If an
-        // overlap occurs ... degrade the colliding marker back to
-        // the isolated 🅿 icon." Below z15 the v0.61.105 size
-        // ladder + collision-shrink keeps the icon-only behaviour.
-        // Carpark labels share the placedLabels pool with
-        // attractions so the two layers don't visually overlap each
-        // other at z>=15. The clustering rule + "lower-priority
-        // drop" at z<15 are deferred (spec ambiguous — threshold
-        // example "5 🅿 here" contradicts the >7 threshold and the
-        // visibility boundary z14/z15 mismatch).
-        if (zoom >= 15) {
-          const mpp = metresPerPixelAt(zoom, it.lat) || 1;
-          const w = 34 + (it._name || '').length * 7;
-          const clash = placedLabels.some((p) => {
-            const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
-            const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
-            return dx < (w + p.w) / 2 + 4 && dy < 26;
-          });
-          if (!clash) {
-            placedLabels.push({ lat: it.lat, lng: it.lng, w });
-            const sig = 'label:' + (it._name || '');
-            if (it._cpRendered !== sig) {
-              it.marker.content = amenityLabelNode(
-                ((it._glyph || '🅿') + ' ' + (it._name || 'Carpark')).trim(),
-                '#ffffff', '#1c1c1f', true);
-              it._cpRendered = sig;
-              it._cpSize = null;
-            }
-            continue;
-          }
-          // Fall through to the icon path (label collision → degrade
-          // to isolated 🅿 icon per spec).
-        }
-        // v0.61.105 — carpark markers shrink by zoom (carparkSize) and
-        // two sizes (4 px) more when they collide with one already
-        // placed.
-        let sz = carparkSize(zoom);
-        const mpp = metresPerPixelAt(zoom, it.lat) || 1;
-        const clash = placedCarparks.some((p) => {
-          const dx = metresBetween(it.lat, it.lng, it.lat, p.lng) / mpp;
-          const dy = metresBetween(it.lat, it.lng, p.lat, it.lng) / mpp;
-          return dx < (sz + p.sz) / 2 + 2 && dy < (sz + p.sz) / 2 + 2;
-        });
-        if (clash) sz = Math.max(sz - 4, 8);
-        else placedCarparks.push({ lat: it.lat, lng: it.lng, sz });
-        const sig = 'icon:' + sz;
-        if (it._cpRendered !== sig) {
-          it.marker.content = dotNode(it._bg, it._glyph, sz);
-          it._cpSize = sz;
-          it._cpRendered = sig;
         }
       }
     }

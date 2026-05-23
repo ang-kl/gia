@@ -425,6 +425,98 @@
     return { dx, dy };
   }
 
+  // v0.61.116 — generic cluster pass for the Attractions / Carpark
+  // layers in /app/map, mirroring applyClusterAndDrop in the TMA
+  // mapOverlays. Buckets `items` into 40 px screen tiles, then per
+  // tile decides cluster pill vs individual cascade (label → icon →
+  // drop) per operator UI/UX spec slice 2.
+  //
+  // opts:
+  //   zoom            current map zoom (read once by caller)
+  //   threshold       cluster trigger (5 carpark, 8 attractions)
+  //   forceCluster    cluster every non-empty tile (carpark z<15)
+  //   allowLabel      label tier active (z>=15 carpark, z>=14 attr.)
+  //   clusterText(n)  text for the cluster pill ("5 🅿 here", "8 ⚝")
+  //   labelText(f)    text for the individual label pill
+  //   iconForFeature(f) → { node, sz } icon DOM + size px
+  //   infoFn(f)         { html } popup content
+  //   pool              array to push created markers into
+  function runClusterPass(items, opts) {
+    const mpp = mppAt(opts.zoom);
+    const TILE_M = 40 * mpp;
+    const tiles = new Map();
+    for (const f of items) {
+      if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
+      const tx = Math.floor((f.lng * 111320 * 0.99973) / TILE_M);
+      const ty = Math.floor((f.lat * 110574) / TILE_M);
+      const k = tx + '|' + ty;
+      if (!tiles.has(k)) tiles.set(k, []);
+      tiles.get(k).push(f);
+    }
+    const placedLabels = [];
+    const placedIcons = [];
+    let drawn = 0;
+    for (const tileItems of tiles.values()) {
+      if (drawn >= 250) break;
+      if (opts.forceCluster || tileItems.length >= opts.threshold) {
+        let cLat = 0, cLng = 0;
+        for (const f of tileItems) { cLat += f.lat; cLng += f.lng; }
+        cLat /= tileItems.length; cLng /= tileItems.length;
+        const clusterTxt = opts.clusterText(tileItems.length);
+        const content = overlayLabel('', clusterTxt);
+        const m = new AdvancedMarkerElement({ map, position: { lat: cLat, lng: cLng }, content });
+        m.addListener('click', () => {
+          const z = map.getZoom() || 0;
+          map.setZoom(Math.min(z + 2, 18));
+          map.setCenter({ lat: cLat, lng: cLng });
+        });
+        opts.pool.push(m);
+        // v0.61.116 — register the cluster pill's footprint so
+        // individual labels in adjacent non-clustering tiles don't
+        // render on top of it.
+        const clusterW = 34 + clusterTxt.length * 7;
+        placedLabels.push({ lat: cLat, lng: cLng, w: clusterW, h: 26 });
+        drawn++;
+        continue;
+      }
+      for (const f of tileItems) {
+        if (drawn >= 250) break;
+        const w = 34 + (f.name || '').length * 7;
+        const h = 26;
+        const overlapping = (cw, ch) => placedLabels.some((p) => {
+          const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, mpp);
+          return dx < (cw + p.w) / 2 + 4 && dy < (ch + p.h) / 2 + 4;
+        }) || placedIcons.some((p) => {
+          const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, mpp);
+          return dx < (cw + p.w) / 2 + 4 && dy < (ch + p.h) / 2 + 4;
+        });
+        let content = null;
+        if (opts.allowLabel && !overlapping(w, h)) {
+          content = overlayLabel('', opts.labelText(f));
+          placedLabels.push({ lat: f.lat, lng: f.lng, w, h });
+        } else {
+          const { node, sz } = opts.iconForFeature(f);
+          if (!overlapping(sz, sz)) {
+            content = node;
+            placedIcons.push({ lat: f.lat, lng: f.lng, w: sz, h: sz });
+          }
+          // else: drop (source-order first-in wins; operator spec answer 2)
+        }
+        if (content) {
+          const marker = new AdvancedMarkerElement({ map, position: { lat: f.lat, lng: f.lng }, content });
+          marker.addListener('click', () => {
+            if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
+            const info = opts.infoFn(f);
+            overlayInfo.setContent(typeof info === 'string' ? info : info.html);
+            overlayInfo.open({ anchor: marker, map });
+          });
+          opts.pool.push(marker);
+          drawn++;
+        }
+      }
+    }
+  }
+
   async function ensureTrainLayer() {
     if (overlay.train.loaded) return;
     overlay.train.loaded = true;
@@ -482,10 +574,18 @@
     return String(s).toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase());
   }
   function carparkInfo(f) {
+    // v0.61.116 — Carpark Card per operator UI/UX spec (slice 2):
+    // Header (Carpark | Proper-cased name) + Live Data (lots /
+    // availability) + Actions (Google Maps ↗). The /app/map popup
+    // mirrors the TMA carparkInfo; without the link the Card had
+    // no Actions row.
     const name = toTitleCase(f.development || f.name || 'Carpark');
     const lots = Number.isFinite(f.availableLots) ? ` — ${f.availableLots} lots` : '';
+    const mapsLink = Number.isFinite(f.lat) && Number.isFinite(f.lng)
+      ? `<br><a href="https://www.google.com/maps/search/?api=1&query=${f.lat},${f.lng}" target="_blank" rel="noopener" style="color:#1a73e8;font-weight:600;text-decoration:underline;">Google Maps ↗</a>`
+      : '';
     return { title: name, html: `<div style="font-size:12px;line-height:1.45">`
-      + `<strong>🅿️ ${escapeHtml(name)}</strong>${escapeHtml(lots)}</div>` };
+      + `<strong>🅿️ ${escapeHtml(name)}</strong>${escapeHtml(lots)}${mapsLink}</div>` };
   }
 
   // v0.61.102 — operator: the bus-stop overlay marker renders by zoom
@@ -553,53 +653,41 @@
     // carpark layer keeps its z>=14 gate.
     const minZoom = key === 'busstop' ? 10 : 14;
     if (!bounds || zoom < minZoom) return;
+
+    // v0.61.116 — Carpark layer now drives through the cluster engine:
+    // forceCluster below z15 (every non-empty 40 px tile renders an
+    // "N 🅿 here" pill regardless of count, per operator answer 4);
+    // at z>=15 cluster when tile count ≥ 5, else individuals through
+    // the label → icon → drop cascade (answer 2 source-order drop).
+    // The v0.61.105 carpark size-ladder + collision-shrink is replaced
+    // by this cascade.
+    if (key === 'carpark') {
+      const visible = overlay.carpark.data.filter((f) =>
+        Number.isFinite(f.lat) && Number.isFinite(f.lng) && bounds.contains({ lat: f.lat, lng: f.lng })
+      );
+      runClusterPass(visible, {
+        zoom,
+        threshold: 5,
+        forceCluster: zoom < 15,
+        allowLabel: zoom >= 15,
+        clusterText: (n) => n + ' 🅿 here',
+        labelText: (f) => '🅿 ' + (f.name || 'Carpark'),
+        iconForFeature: () => ({ node: carparkPin(carparkSize(zoom)), sz: carparkSize(zoom) }),
+        infoFn,
+        pool: overlay.carpark.markers
+      });
+      return;
+    }
+
+    // Bus-stop path (unchanged).
     const bt = key === 'busstop' ? busTier(zoom) : null;
-    const cpBase = key === 'carpark' ? carparkSize(zoom) : 0;
-    const cpMpp = mppAt(zoom);
-    const placedCp = [];
-    // v0.61.115 — high-zoom (z>=15) carpark labels share a placedLabels
-    // pool so labels don't overlap; collisions degrade to the icon
-    // path per spec.
-    const placedLabels = [];
     let drawn = 0;
     for (const f of overlay[key].data) {
       if (drawn >= 250) break;
       if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
       const pos = { lat: f.lat, lng: f.lng };
       if (!bounds.contains(pos)) continue;
-      let content;
-      if (bt) {
-        content = busTierPin(bt, f.code);
-      } else if (key === 'carpark') {
-        // v0.61.115 — z>=15 renders a labeled 🅿 Name pill. On
-        // overlap with an already-placed label, fall through to
-        // the icon path (spec: "degrade ... back to the isolated
-        // 🅿 icon").
-        if (zoom >= 15) {
-          const w = 34 + (f.name || '').length * 7;
-          const clash = placedLabels.some((p) => {
-            const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, cpMpp);
-            return dx < (w + p.w) / 2 + 4 && dy < 26;
-          });
-          if (!clash) {
-            placedLabels.push({ lat: f.lat, lng: f.lng, w });
-            content = overlayLabel('🅿', f.name || 'Carpark');
-          }
-        }
-        if (!content) {
-          let sz = cpBase;
-          const clash = placedCp.some((p) => {
-            const dx = Math.abs(p.lng - f.lng) * 111320 * 0.99973 / cpMpp;
-            const dy = Math.abs(p.lat - f.lat) * 110574 / cpMpp;
-            return dx < sz + 3 && dy < sz + 3;
-          });
-          if (clash) sz = Math.max(sz - 4, 8);
-          else placedCp.push({ lat: f.lat, lng: f.lng });
-          content = carparkPin(sz);
-        }
-      } else {
-        content = overlayPin(glyph);
-      }
+      const content = bt ? busTierPin(bt, f.code) : overlayPin(glyph);
       const marker = new AdvancedMarkerElement({ map, position: pos, content });
       marker.addListener('click', () => {
         if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
@@ -764,12 +852,30 @@
     const zoom = (map.getZoom && map.getZoom()) || 0;
     if (!bounds || zoom < 13) return;
     const feats = Array.isArray(overlaysData[L.key]) ? overlaysData[L.key] : [];
-    // v0.61.115 — Attractions UI/UX spec: z>=14 renders a labeled
-    // ⚝ Attractions Name pill (collision → fall back to ⚝ icon);
-    // z<14 keeps the ⚝ icon only. Label overlaps demote to icon.
-    const labelAttractions = (L.key === 'attractions' && zoom >= 14);
-    const aMpp = labelAttractions ? mppAt(zoom) : 0;
-    const placedLabels = [];
+
+    // v0.61.116 — Attractions layer drives through the cluster engine
+    // (40 px tile, threshold ≥ 8, label band z ≥ 14). At z < 14 the
+    // band is icon-only (⚝ glyph), still threshold-clustered. Source-
+    // order drop on icon overlap (operator answer 2).
+    if (L.key === 'attractions') {
+      const visible = feats.filter((f) =>
+        Number.isFinite(f.lat) && Number.isFinite(f.lng) && bounds.contains({ lat: f.lat, lng: f.lng })
+      );
+      runClusterPass(visible, {
+        zoom,
+        threshold: 8,
+        forceCluster: false,
+        allowLabel: zoom >= 14,
+        clusterText: (n) => n + ' ⚝',
+        labelText: (f) => '⚝ ' + (f.name || 'Attraction'),
+        iconForFeature: () => ({ node: overlayPin(L.glyph), sz: 18 }),
+        infoFn: (f) => ({ html: attractionInfoHtml(f) }),
+        pool: menuState[L.key].items
+      });
+      return;
+    }
+
+    // Other amenities (polygons + non-clustered point layers).
     let drawn = 0;
     for (const f of feats) {
       if (drawn >= 200) break;
@@ -787,25 +893,11 @@
         if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
         const pos = { lat: f.lat, lng: f.lng };
         if (!bounds.contains(pos)) continue;
-        let content = null;
-        if (labelAttractions) {
-          const w = 34 + (f.name || '').length * 7;
-          const clash = placedLabels.some((p) => {
-            const { dx, dy } = pxBetween(f.lat, f.lng, p.lat, p.lng, aMpp);
-            return dx < (w + p.w) / 2 + 4 && dy < 26;
-          });
-          if (!clash) {
-            placedLabels.push({ lat: f.lat, lng: f.lng, w });
-            content = overlayLabel('⚝', f.name || 'Attraction');
-          }
-        }
-        if (!content) content = overlayPin(L.glyph);
-        const marker = new AdvancedMarkerElement({ map, position: pos, content });
+        const marker = new AdvancedMarkerElement({ map, position: pos, content: overlayPin(L.glyph) });
         marker.addListener('click', () => {
           if (!overlayInfo) overlayInfo = new google.maps.InfoWindow();
-          overlayInfo.setContent(L.key === 'attractions'
-            ? attractionInfoHtml(f)
-            : '<div style="font-size:12px;line-height:1.45">'
+          overlayInfo.setContent(
+            '<div style="font-size:12px;line-height:1.45">'
               + `<strong>${L.glyph} ${escapeHtml(f.name || L.label)}</strong></div>`);
           overlayInfo.open({ anchor: marker, map });
         });
