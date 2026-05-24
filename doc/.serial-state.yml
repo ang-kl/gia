@@ -1,8 +1,8 @@
 counters:
-  commit: 345
-  build: 135
+  commit: 346
+  build: 136
   documents:
-    journal: 333
+    journal: 334
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,29 @@ counters:
     register: 119
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 43
-last_anchor_time: 25-05 '26 07:00 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T06:50:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.132 Register-increment session, rounded forward 10 min to commit-time)
-last_anchor_iso8601: 2026-05-25T07:00:00+08:00
-last_anchor_utc: 2026-05-24T23:00:00Z
+  current_chat_counter: 44
+last_anchor_time: 25-05 '26 07:15 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T07:10:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.133 VibeCodingRecord catch-up #628-#633 session, rounded forward 5 min to commit-time)
+last_anchor_iso8601: 2026-05-25T07:15:00+08:00
+last_anchor_utc: 2026-05-24T23:15:00Z
+# v0.61.133 (commit 346 / journal 334 / build 136) — Docs:
+# VibeCodingRecord ledger catch-up #628-#633. PR #634 (branch
+# claude/v0.61.133-vibe-ledger-catchup-628-633, off main at
+# v0.61.132 / df9dc2f). Operator: "merge" -> "VibeCodingRecord
+# ledger refresh" from the next-merge shortlist. PR #629's
+# v0.61.128 catch-up covered #553-#627 but explicitly excluded
+# itself + #628 (the v0.61.125-127 doc rollup) as "post-window
+# - lands in the next catch-up" (per the v0.61.128 KNOWN GAPS).
+# This refresh adds those 6 missing rows.
+# data/prs.ndjson +6 rows (620 -> 626), data/pr-files.tsv +6
+# rows (410 -> 416, all 6 PRs in range squash-merged to main
+# with a (#NNN) tag - perfect coverage this time). generate.mjs
+# GEN_DATE 2026-05-24 -> 2026-05-25. records.tsv / vibe-coding-
+# record.md / public/doc/vibe-journal.{html,json} regenerated,
+# 625 records, categories: feature=387 fix=85 docs=58 copy=35
+# prompt-tune=31 refactor=18 test=6 infra=5, rework-flagged=61.
+# package.json 0.61.132 -> 0.61.133. plumbing-committed per O-22.
+# journal-0_61_133-25_05_26-0715.md.
 # v0.61.132 (commit 345 / journal 333 / build 135 / register 119) —
 # Docs: Register increment closing the O-20 + O-23 arc + logging
 # D-61.129 + D-61.130. PR #633 (branch claude/v0.61.132-register-

@@ -408,3 +408,9 @@
 625	index.js,package.json,vibe-suggest.js,web/menu/src/App.jsx,web/menu/src/components/BackFab.jsx,web/menu/src/components/LocaleToggle.jsx,web/menu/src/components/LocationFieldMenu.jsx,web/menu/src/components/Tile.jsx,web/menu/src/components/TrainPanel.jsx,web/menu/src/i18n.js
 626	__tests__/special-mode.test.js,index.js,package.json,special-mode.js,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/CuisineDrawer.jsx,web/cuisine/src/v2/components/QuickFilters.jsx,web/cuisine/src/v2/lib/api.js,web/cuisine/src/v2/lib/i18n.js,web/cuisine/src/v2/lib/state.js
 627	package.json,scripts/Create_2_buttons.MD
+628	doc/.serial-state.yml,doc/Journal/journal-0_61_125-24_05_26-1709.md,doc/Journal/journal-0_61_126-24_05_26-1726.md,doc/Journal/journal-0_61_127-24_05_26-1754.md,doc/Register/register-0_61_127-24_05_26-1754.md
+629	doc/.serial-state.yml,doc/Journal/journal-0_61_128-24_05_26-2057.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+630	doc/.serial-state.yml,doc/Journal/journal-0_61_129-24_05_26-2220.md,index.js,package.json
+631	doc/.serial-state.yml,doc/Journal/journal-0_61_130-25_05_26-0625.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/i18n.js
+632	__tests__/cuisine-special-mode-widen.test.js,__tests__/cuisine-tellme-anchor.test.js,cuisine-special-mode-widen.js,cuisine-tellme-anchor.js,doc/.serial-state.yml,doc/Journal/journal-0_61_131-25_05_26-0645.md,index.js,package.json,web/cuisine/src/v2/App.jsx
+633	doc/.serial-state.yml,doc/Journal/journal-0_61_132-25_05_26-0700.md,doc/Register/register-0_61_132-25_05_26-0700.md,package.json

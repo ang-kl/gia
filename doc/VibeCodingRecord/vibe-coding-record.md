@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-24 from a snapshot of all 619 pull requests (#1–#619).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 625 pull requests (#1–#625).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 619 total — 610 merged, 9 closed without merge.
+- **PRs:** 625 total — 616 merged, 9 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #627 · 2026-05-24 09:54:38 · _v0.61.127: docs — fix Create_2_buttons.MD spec, Putrajaya not Sarawak_
+- **Latest:** #633 · 2026-05-24 22:56:29 · _v0.61.132: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 383 |
+| feature | 387 |
 | fix | 85 |
-| docs | 57 |
+| docs | 58 |
 | copy | 35 |
 | prompt-tune | 31 |
-| refactor | 17 |
+| refactor | 18 |
 | test | 6 |
 | infra | 5 |
 
@@ -26,10 +26,10 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 176 |
+| Cuisine Picker | 180 |
 | Core / misc | 69 |
-| Transport / carpark | 56 |
-| Docs / vault | 53 |
+| Transport / carpark | 57 |
+| Docs / vault | 54 |
 | Hawker NEA | 47 |
 | Search / free-text | 46 |
 | /hidden surprise | 36 |
@@ -671,6 +671,12 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 625 | merged | 2026-05-24 09:09:47 | 0.61.125 | feature | Search / free-text | Add: Menu TMA — Location section, region-aware geocode, font bump | Four operator-requested fixes/changes on the Menu TMA location anchor (introduced v0.61.123/124): 1. | 10 files — index.js, vibe-suggest.js, TMA:menu, package | menu | — |
 | 626 | merged | 2026-05-24 09:26:24 | 0.61.126 | feature | Cuisine Picker | Add: Cuisine TMA — Fruits + Durian exclusive special modes | Implements `scripts/Create_2_buttons.MD` (operator spec, commit `f757cb3`). | 10 files — index.js, special-mode.js, TMA:cuisine, tests, package | cuisine | tests |
 | 627 | merged | 2026-05-24 09:54:38 | 0.61.127 | fix | Core / misc | Fix: docs — fix Create_2_buttons.MD spec, Putrajaya not Sarawak | Operator clarification (24-05 '26): the Malaysia zone in `scripts/Create_2_buttons.MD` that read "Petrajaya / Petra Jaya, Sarawak" was a typo. | 2 files — package, scripts/ | — | — |
+| 628 | merged | 2026-05-24 10:10:28 | 0.61.125 | docs | Transport / carpark | Update docs: v0.61.125-127 journal catch-up + register increment | Pure docs catch-up for the 3 PRs merged earlier today (v0.61.125 / v0.61.126 / v0.61.127). | 5 files — doc | — | doc/vault |
+| 629 | merged | 2026-05-24 13:28:31 | 0.61.128 | feature | Docs / vault | Add: docs — VibeCodingRecord ledger catch-up PRs #553–#627 | Catches the hosted Vibe Journal (`/doc/vibe-journal.html`) up to PR #627. | 10 files — doc, package, public/ | — | doc/vault |
+| 630 | merged | 2026-05-24 14:28:00 | 0.61.129 | feature | Cuisine Picker | Add: Cuisine TMA — Tell-me place anchor (O-20) + Fruits/Durian radius widening (O-23) | Two related Cuisine-TMA closures from the Register, bundled into one PR because both touch the same `/api/cuisine/search` handler in `index.js`. | 4 files — index.js, doc, package | — | doc/vault |
+| 631 | merged | 2026-05-24 22:30:16 | 0.61.130 | feature | Cuisine Picker | Add: Cuisine TMA — UI pills surface v0.61.129 O-20 + O-23 | v0.61.129 wired O-20 (Tell-me place anchor) + O-23 (Fruits/Durian widening) into the `/api/cuisine/search` backend and surfaced `payload.placeAnchor` + `payload.specialModeWidened*` fields. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 632 | merged | 2026-05-24 22:47:17 | 0.61.131 | refactor | Cuisine Picker | Refactor: Cuisine TMA — pill reorder + extract v0.61.129 O-20/O-23 helpers + 33 inline tests | Closes both items deferred from the v0.61.130 KNOWN GAPS list: ### 1. | 9 files — index.js, cuisine-special-mode-widen.js, cuisine-tellme-anchor.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 633 | merged | 2026-05-24 22:56:29 | 0.61.132 | feature | Cuisine Picker | Add: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130 | Pure docs PR. | 4 files — doc, package | — | doc/vault |
 
 ---
 

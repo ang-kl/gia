@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-24",
-  "count": 619,
+  "generated": "2026-05-25",
+  "count": 625,
   "records": [
     {
       "pr": 1,
@@ -17290,6 +17290,174 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 628,
+      "status": "merged",
+      "merged": "2026-05-24 10:10:28",
+      "day": "2026-05-24",
+      "version": "0.61.125",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Transport / carpark",
+      "intent": "Update docs: v0.61.125-127 journal catch-up + register increment",
+      "approach": "Pure docs catch-up for the 3 PRs merged earlier today (v0.61.125 / v0.61.126 / v0.61.127).",
+      "codeImpact": "5 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: v0.61.125-127 journal catch-up + register increment",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 629,
+      "status": "merged",
+      "merged": "2026-05-24 13:28:31",
+      "day": "2026-05-24",
+      "version": "0.61.128",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — VibeCodingRecord ledger catch-up PRs #553–#627",
+      "approach": "Catches the hosted Vibe Journal (`/doc/vibe-journal.html`) up to PR #627.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.128: docs — VibeCodingRecord ledger catch-up PRs #553–#627",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 630,
+      "status": "merged",
+      "merged": "2026-05-24 14:28:00",
+      "day": "2026-05-24",
+      "version": "0.61.129",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — Tell-me place anchor (O-20) + Fruits/Durian radius widening (O-23)",
+      "approach": "Two related Cuisine-TMA closures from the Register, bundled into one PR because both touch the same `/api/cuisine/search` handler in `index.js`.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.129: Cuisine TMA — Tell-me place anchor (O-20) + Fruits/Durian radius widening (O-23)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 631,
+      "status": "merged",
+      "merged": "2026-05-24 22:30:16",
+      "day": "2026-05-24",
+      "version": "0.61.130",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — UI pills surface v0.61.129 O-20 + O-23",
+      "approach": "v0.61.129 wired O-20 (Tell-me place anchor) + O-23 (Fruits/Durian widening) into the `/api/cuisine/search` backend and surfaced `payload.placeAnchor` + `payload.specialModeWidened*` fields.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.130: Cuisine TMA — UI pills surface v0.61.129 O-20 + O-23",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 632,
+      "status": "merged",
+      "merged": "2026-05-24 22:47:17",
+      "day": "2026-05-24",
+      "version": "0.61.131",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Cuisine Picker",
+      "intent": "Refactor: Cuisine TMA — pill reorder + extract v0.61.129 O-20/O-23 helpers + 33 inline tests",
+      "approach": "Closes both items deferred from the v0.61.130 KNOWN GAPS list: ### 1.",
+      "codeImpact": "9 files — index.js, cuisine-special-mode-widen.js, cuisine-tellme-anchor.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-special-mode-widen.js",
+        "cuisine-tellme-anchor.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.131: Cuisine TMA — pill reorder + extract v0.61.129 O-20/O-23 helpers + 33 inline tests",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 633,
+      "status": "merged",
+      "merged": "2026-05-24 22:56:29",
+      "day": "2026-05-24",
+      "version": "0.61.132",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130",
+      "approach": "Pure docs PR.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.132: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
