@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-20 from a snapshot of all 544 pull requests (#1–#544).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-24 from a snapshot of all 619 pull requests (#1–#619).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 544 total — 538 merged, 6 closed without merge.
+- **PRs:** 619 total — 610 merged, 9 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #552 · 2026-05-20 02:25:55 · _docs: record PR #551 merge in Journal #260_
+- **Latest:** #627 · 2026-05-24 09:54:38 · _v0.61.127: docs — fix Create_2_buttons.MD spec, Putrajaya not Sarawak_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 338 |
-| fix | 74 |
-| docs | 38 |
+| feature | 383 |
+| fix | 85 |
+| docs | 57 |
 | copy | 35 |
 | prompt-tune | 31 |
 | refactor | 17 |
@@ -26,25 +26,25 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 170 |
-| Core / misc | 59 |
-| Search / free-text | 42 |
-| Transport / carpark | 40 |
-| Docs / vault | 38 |
-| Hawker NEA | 37 |
+| Cuisine Picker | 176 |
+| Core / misc | 69 |
+| Transport / carpark | 56 |
+| Docs / vault | 53 |
+| Hawker NEA | 47 |
+| Search / free-text | 46 |
 | /hidden surprise | 36 |
+| Pipeline / discovery | 20 |
 | Recognised lists | 20 |
 | /eat /drink flow | 18 |
-| Pipeline / discovery | 18 |
-| Infra / setup | 15 |
-| Weather | 11 |
+| Weather | 18 |
+| Infra / setup | 17 |
 | Privacy / legal | 9 |
 | Language / i18n | 8 |
-| Commands / chat UX | 5 |
+| Commands / chat UX | 6 |
+| Menu hub | 6 |
 | Buddy / sharing | 5 |
-| Menu hub | 5 |
+| Oversight / usage stats | 5 |
 | Maps / geo / location | 4 |
-| Oversight / usage stats | 4 |
 
 ## The ledger
 
@@ -596,6 +596,81 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 550 | merged | 2026-05-20 01:33:39 |  | docs | Docs / vault | Update docs: record PR #549 merge in Journal #259 | Standing-rule Journal upkeep after PR #549 merged. | 1 file — doc | — | doc/vault |
 | 551 | merged | 2026-05-20 02:13:08 | 0.61.56 | feature | Transport / carpark | Add: CR6 Phase 2a — bus services per exit (static-data build) | CR6 Phase 2a — scripts/build-bus-services-by-stop.js joins committed static LTA datasets (geoloc/LTABusStop.geojson + data_realtime/BusRoutes.json) into data/bus-services-by-stop.json; build-station-info.js binds the nearest bus stop… | 7 files — doc, data, package, scripts/ | — | doc/vault |
 | 552 | merged | 2026-05-20 02:25:55 |  | docs | Docs / vault | Update docs: record PR #551 merge in Journal #260 | Standing-rule Journal upkeep after PR #551 merged. | 1 file — doc | — | doc/vault |
+| 553 | merged | 2026-05-20 02:49:28 |  | docs | Docs / vault | Update docs: VibeCodingRecord catch-up (PRs #542–#552) | VibeCodingRecord catch-up so the hosted Vibe Journal (`/doc/vibe-journal.html`) is current after the `v0.61.50 → v0.61.56` arc. | doc (inferred — pre-squash) | — | doc/vault |
+| 554 | merged | 2026-05-20 03:24:41 | 0.61.57 | feature | Infra / setup | Add: CR6 Phase 3 — station info card UI | CR6 Phase 3** — the station info card. Tapping a train-overlay station now opens the card, rendered from `data/stations.json` (built in Phases 1 + 2a). Per the operator's AskUserQuestion choices: the card **replaces** the old v0.61.17/.26… | (pre-squash convention — not tracked) | — | — |
+| 555 | merged | 2026-05-20 03:36:52 |  | docs | Docs / vault | Update docs: record PR #554 merge in Journal #261 | Standing-rule Journal upkeep after **PR #554** merged. | doc (inferred — pre-squash) | — | doc/vault |
+| 556 | merged | 2026-05-20 03:44:28 | 0.61.58 | feature | Weather | Add: CR5 v2 — selected-station polyline emphasis | CR5 v2** — the deferred "selective polyline context" half of CR5. (v1, in PR #545, shipped the zoom-aware station pins + base polyline opacity.) When a train station is selected, every base line mutes to **0.25** opacity, and the stretch… | (pre-squash convention — not tracked) | — | — |
+| 557 | merged | 2026-05-20 04:03:57 |  | docs | Docs / vault | Update docs: record PR #556 merge in Journal #262 | Standing-rule Journal upkeep after **PR #556** merged. | doc (inferred — pre-squash) | — | doc/vault |
+| 558 | merged | 2026-05-20 04:58:58 | 0.61.59 | fix | Cuisine Picker | Fix: move Colour pill into the quick row + fix OFF-state palette | Operator screenshot review of the Cuisine TMA map flagged two control-layout problems: 1. | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 559 | merged | 2026-05-20 05:09:47 | 0.61.60 | feature | Weather | Add: CR6 station info card — operator template redesign | Operator screenshot review — *"the train station information looks ugly, follow this template"*. | (pre-squash convention — not tracked) | — | — |
+| 560 | merged | 2026-05-20 06:06:20 | 0.61.61 | feature | Transport / carpark | Add: /transport Train reply — operator layout tweak | Reflows the `/transport` **Train** bot reply (a Telegram text message) to the operator's supplied example layout. | index.js, i18n.js (inferred — pre-squash) | — | — |
+| 561 | merged | 2026-05-20 06:36:36 |  | docs | Docs / vault | Update docs: record PR #560 merge in Journal #265 | Standing-rule Journal upkeep after **PR #560** merged. | doc (inferred — pre-squash) | — | doc/vault |
+| 562 | merged | 2026-05-20 06:59:30 | 0.61.62 | fix | Hawker NEA | Fix: HOTFIX — /healthz crash blanking all 3 TMAs | ## 🚨 Urgent hotfix — Mini Apps outage All three TMAs (Cuisine / Train / Hawker) were showing a **blank white screen**. | index.js (inferred — pre-squash) | — | — |
+| 563 | merged | 2026-05-20 07:38:29 |  | docs | Docs / vault | Update docs: record PR #562 hotfix merge in Journal #266 | Standing-rule Journal upkeep after the **PR #562** hotfix merged. | doc (inferred — pre-squash) | — | doc/vault |
+| 564 | merged | 2026-05-20 09:35:43 | 0.61.63 | fix | Transport / carpark | Fix: 64: nearest-bus-stop enrichment + bus-popup legibility fix | Two changes ride this branch: ### 1. | (pre-squash convention — not tracked) | — | — |
+| 565 | merged | 2026-05-20 10:18:38 | 0.61.66 | feature | Hawker NEA | Add: Colour pill text, bus-stop pin flash, larger pin text | Map-UI polish from the operator's screenshot review — three of four asks shipped. | i18n.js (inferred — pre-squash) | — | — |
+| 566 | merged | 2026-05-20 11:01:14 | 0.61.67 | feature | Weather | Add: CR6 Phase 2b — first/last-train timings in the station card | CR6 Phase 2b — wires the operator-supplied first/last-train timings into the station info card. | (pre-squash convention — not tracked) | — | — |
+| 567 | merged | 2026-05-20 12:01:23 | 0.61.68 | feature | Weather | Add: station-card bus stops + Colour pill text/position | ### 1. | (pre-squash convention — not tracked) | — | — |
+| 568 | merged | 2026-05-20 13:11:20 | 0.61.69 | feature | Pipeline / discovery | Add: 24-hour places fetch pipeline | Adds a reproducible pipeline that fetches Singapore places **open 24 hours**, grouped by the operator's 8 types, into `data/sg_24hr_places.json`. | (pre-squash convention — not tracked) | — | — |
+| 569 | merged | 2026-05-20 13:33:15 | 0.61.70 | feature | Core / misc | Add: map UI redesign — toggles, pins, flashes | A 10-item in-map redesign across all three TMAs (Cuisine is the reference). | (pre-squash convention — not tracked) | — | — |
+| 570 | merged | 2026-05-20 23:17:17 | 0.61.71 | feature | Transport / carpark | Add: rework /transport nearest-bus-stops message layout | Reworks the `/transport` → Bus → "nearest bus stops" chat result to the operator's template (2026-05-20). | (pre-squash convention — not tracked) | — | — |
+| 571 | merged | 2026-05-20 23:36:55 | 0.61.73 | docs | Transport / carpark | Update docs: v0.61.73 Journal entry + UI/Google_Map_Design.MD | Doc-system catch-up for **v0.61.73** (PR #570, squash `ccfa6ad`) plus a new map-layer design reference. | index.js, i18n.js, doc (inferred — pre-squash) | — | doc/vault |
+| 572 | merged | 2026-05-21 00:49:55 | 0.61.74 | fix | Transport / carpark | Fix: Bus menu title + Train nearest-stations radius fix | Two small `/transport` fixes. | index.js, i18n.js (inferred — pre-squash) | — | — |
+| 573 | merged | 2026-05-21 01:04:45 | 0.61.75 | feature | Menu hub | Add: Menu hub FAB always shows "End" | Fixes the `/menu` hub's bottom-left FAB showing `⇠ back` instead of `🔚 end`. | TMA:menu (inferred — pre-squash) | menu | — |
+| 574 | merged | 2026-05-21 01:29:44 | 0.61.76 | feature | Transport / carpark | Add: station-info link — normalised name lookup | Fixes `/transport` → Train: only 2 of 3 station names hyperlinked to their SMRT/SBS station-info page. | (pre-squash convention — not tracked) | — | — |
+| 575 | merged | 2026-05-21 02:52:13 | 0.61.76 | docs | Docs / vault | vault snapshot + fresh master document set | A **docs + vault pass** — no source-code change, no version bump (per the v0.61.28 vault-pass precedent). | doc (inferred — pre-squash) | — | doc/vault |
+| 576 | merged | 2026-05-21 05:52:51 | 0.61.77 | feature | Hawker NEA | Add: map controls — move ⋯ menu left, brighter/larger nav buttons | Operator-requested tweaks to the in-map control surface, applied uniformly across the Cuisine, Transport and Hawker TMA maps. | TMA:hawker (inferred — pre-squash) | hawker | — |
+| 577 | merged | 2026-05-21 05:52:40 | 0.61.77 | feature | Transport / carpark | Add: SBS Transit station-info deep links | Makes SBS Transit station-info links station-specific. | (pre-squash convention — not tracked) | — | — |
+| 578 | merged | 2026-05-21 06:11:16 |  | docs | Weather | Journal catch-up — entries #278-281 | Journal catch-up for the four **code-fix PRs** the intervening docs PRs left un-journaled (journal #276 = vault PR #575, #277 = map-controls PR #576). | doc (inferred — pre-squash) | — | doc/vault |
+| 579 | merged | 2026-05-21 12:37:06 | 0.61.84 | fix | Cuisine Picker | Fix: 87: bus-stop parity, wake prompt, map tap fixes, train overlay | Operator requests across four version bumps on this branch. | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 580 | merged | 2026-05-21 23:06:13 | 0.61.86 | docs | Docs / vault | Update docs: v0.61.86/.87 Journal entries (PR #579 follow-up) | Docs-only follow-up to **PR #579** (merged as `a4ac50a`). | doc (inferred — pre-squash) | — | doc/vault |
+| 581 | merged | 2026-05-21 22:01:54 | 0.61.89 | feature | Hawker NEA | Add: zoom readout + camera-control parity across the 3 TMA maps | Two operator requests, one PR (v0.61.89, PATCH): 1. | (pre-squash convention — not tracked) | — | — |
+| 582 | merged | 2026-05-21 23:02:10 | 0.61.90 | feature | Hawker NEA | Add: train overlay — per-TMA zoom tiers | Operator spec: the **Train Line** overlay now renders **per TMA and per zoom band**, replacing the single shared `square → code chip → named pill` rule (v0.61.87). | (pre-squash convention — not tracked) | — | — |
+| 583 | merged | 2026-05-22 00:02:53 | 0.61.90 | docs | Docs / vault | vault snapshot — vault/v0.61.90/ | Operator instruction **"vault"** — a frozen, reproducible `vault/<version>/` snapshot of the repo at **v0.61.90**, per `doc/CLAUDE-FULL.md` §16.1 (rollback safety + reproducibility + audit trail). | index.js, doc (inferred — pre-squash) | — | doc/vault |
+| 584 | merged | 2026-05-22 00:03:52 | 0.61.91 | feature | Weather | Add: cuisine map refinements — train tiers, droplet pins | Operator refinement of the v0.61.90 train overlay (**Cuisine-scoped**) plus two droplet-pin tweaks. | (pre-squash convention — not tracked) | — | — |
+| 585 | merged | 2026-05-22 01:20:22 | 0.61.92 | feature | Core / misc | Add: train-overlay overlap-aware rendering + map chrome | Operator spec — **overlap-aware train-station rendering** plus map-chrome changes across all three TMA maps. | (pre-squash convention — not tracked) | — | — |
+| 586 | merged | 2026-05-22 02:02:18 | 0.61.93 | feature | Hawker NEA | Add: stop map auto-zoom-out, zoom-readout location button, /l codes | Operator spec — map-chrome + `/l`-command changes. | (pre-squash convention — not tracked) | — | — |
+| 587 | merged | 2026-05-22 03:25:45 | 0.61.94 | feature | Core / misc | Add: resolve persistent train-marker label overlap | Operator part 4 — the City Hall / CC3 label overlap from the screenshot **persisted** even after v0.61.92's overlap demotion. | (pre-squash convention — not tracked) | — | — |
+| 588 | merged | 2026-05-22 03:28:19 | 0.61.95 | feature | Hawker NEA | Add: keep train lines coloured in monochrome mode | Operator **part 5** — in monochrome mode the train lines should stay coloured and pop against the greyed-out base map (confirmed via question: "Keep them coloured"). | 10144 files — index.js, buddy-match.js, buildings.js, carpark.js, clip-store.js, consultant.js, cooking-methods.js, +77 more, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, vault, ci, data, package, config, root-docs, .claude/, .vibe-journal/, Gia-WA/, UI/, data_realtime/, geoloc/, instruction/, log/, my-skill/, prompt-templates/, public/, sample/, scripts/, src/ | cuisine+menu+hawker+transport+oversight | legal; tests; doc/vault |
+| 589 | merged | 2026-05-22 05:20:16 | 0.61.96 | feature | Hawker NEA | Add: shrink the embedded-map zoom indicator | Operator: the embedded-map zoom-level indicator is too large — shrink it by two size steps on all TMA maps. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 590 | merged | 2026-05-22 05:21:53 | 0.61.97 | feature | Core / misc | Add: zoom-tier rendering for the amenity overlays | Operator #8 — Attractions / Parks / Clinic / Police / Hospital should render by **zoom band**, the same way the train-station markers already do. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 591 | merged | 2026-05-22 06:20:36 | 0.61.98 | fix | Transport / carpark | fix the Transport-map station tap needing repeated taps | Operator bug: *"In Train TMA, when I click on the station in the map, it takes 3 taps to open the station info."* **Root cause:** `openStationInfo` opened the `InfoWindow` anchored to the tapped marker. | 4 files — TMA:transport, doc, package | transport | doc/vault |
+| 592 | merged | 2026-05-22 06:38:45 | 0.61.99 | feature | Transport / carpark | Add: widen station-detail bus/taxi range, show all taxi points | Operator: the Transport-map station-detail view showed no taxi stand or bus stop. | 7 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 593 | merged | 2026-05-22 06:47:42 | 0.61.100 | feature | Transport / carpark | Add: /app/map — top-edge toggles, zoom pin, train stations, carpark case | First pass on the operator's `/app/map` overhaul — `public/app.js` is the older, non-React map page that the bot's "View *N* Train Stations / Compare all *N* carpark / Show all *N* bus stop" buttons open. | 4 files — doc, package, public/ | — | doc/vault |
+| 594 | merged | 2026-05-22 07:29:28 | 0.61.101 | feature | Core / misc | Add: /app/map — wire the inert dropdown to overlay layers | Operator: *"the dropdown isn't working"* on `/app/map`. | 4 files — doc, package, public/ | — | doc/vault |
+| 595 | merged | 2026-05-22 07:38:43 | 0.61.102 | feature | Hawker NEA | Add: faint telescope zoom readout + bus-stop zoom tiers | Operator spec, two parts — across all the embedded maps (Cuisine / Hawker / Transport TMAs + the `/app/map` page). | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 596 | merged | 2026-05-22 09:21:45 | 0.61.103 | fix | Weather | fix monochrome train lines still showing grey | Operator screenshot: in monochrome mode the train lines are **grey** — the v0.61.95 coloured-SVG-overlay fix isn't delivering. | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 597 | merged | 2026-05-22 09:35:30 | 0.61.104 | feature | Transport / carpark | Add: bus-tier revision, /app/map layer parity, zoom-readout tweak | Three of the four items from the latest spec (the carpark zoom-size ladder follows as a separate PR). | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 598 | merged | 2026-05-22 09:36:36 | 0.61.105 | feature | Transport / carpark | Add: carpark overlay marker zoom-size ladder + overlap demotion | Operator: the carpark overlay marker should **shrink by zoom** — two sizes (a "size" = 2 px) smaller per level below z17 — and **two more on overlap** with another carpark. | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 599 | merged | 2026-05-22 11:25:00 | 0.61.106 | feature | Hawker NEA | Add: /app/map train stations — mirror the Hawker TMA tier algorithm | Operator screenshot: on `/app/map` the **Train Line** layer drew each station as a plain `🚉` emoji pin — wrong. | 5 files — doc, package, public/ | — | doc/vault |
+| 600 | merged | 2026-05-22 13:05:56 | 0.61.107 | feature | Cuisine Picker | Add: Cuisine map re-frames to results on every search | Operator: on first load of the Cuisine TMA, and after running any search, the embedded map should zoom to fit the results in view. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 601 | merged | 2026-05-22 23:46:34 | 0.61.113 | feature | Cuisine Picker | Add: Cuisine free-text — keep typed dish alongside inferred cuisine chip | Fixes the Cuisine TMA free-text search dropping the typed dish. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 602 | merged | 2026-05-22 13:24:05 | 0.61.109 | feature | Pipeline / discovery | Add: attraction overlay enrichment + map zoom-effects doc | Two deliverables from one operator request — a map zoom-effects reference doc, and the attraction-overlay enrichment. | 12 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, data, package, UI/, public/, scripts/ | cuisine+hawker+transport | doc/vault |
+| 603 | merged | 2026-05-22 15:51:00 | 0.61.110 | feature | Core / misc | Add: Cuisine map zoom ceiling, larger info-card text, drop map glyph | Map-polish feedback from the operator. | 8 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 604 | merged | 2026-05-22 17:02:32 | 0.61.112 | fix | Core / misc | Fix: readable map popups, transport zoom-hang fix, working Attractions overlay | Round 2 of the operator's map-polish feedback (two screenshots — a Transport station popup and a Cuisine venue popup). | 8 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 605 | closed (unmerged) |  | 0.61.112 | docs | Docs / vault | Update docs: v0.61.112 journal STATUS post-merge update | Doc-only post-merge upkeep for **v0.61.112** / PR #604, per the CLAUDE.md standing rule (*"After a PR merges, record it in the Journal"*). | doc (inferred — pre-squash) | — | doc/vault |
+| 606 | merged | 2026-05-23 00:09:14 | 0.61.114 | feature | Core / misc | Add: Cuisine map — z11 lock + centroid centre | Operator: *"zoom level for initial loading should be 11, so is everytime search result should be 11. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 607 | merged | 2026-05-23 00:30:13 | 0.61.115 | feature | Transport / carpark | Add: Attractions / Carpark zoom tiers — spec slice 1 | Lands the **unambiguous slice** of the operator's 2-layer Google Maps UI/UX spec (Attractions `⚝` toggle + Carpark `🅿` toggle). | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 608 | merged | 2026-05-23 03:00:50 | 0.61.116 | feature | Transport / carpark | Add: Attractions / Carpark cluster engine — spec slice 2 | Slice 2 of the operator's 2-layer Google Maps UI/UX spec (Attractions `⚝` + Carpark `🅿`). | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 609 | closed (unmerged) |  | 0.61.112 | docs | Docs / vault | Update docs: v0.61.112 journal STATUS post-merge update (redo of #605) | Redo of **PR #605**, which the operator closed as *"superseded by drift"* after `main` advanced four versions (v0.61.113 → v0.61.116) past it. | doc (inferred — pre-squash) | — | doc/vault |
+| 610 | merged | 2026-05-23 06:57:30 | 0.61.116 | docs | Oversight / usage stats | Update docs: v0.61.116 vault snapshot | Fresh `vault/v0.61.116/` reproducible snapshot — ~154 MB, 932 files — per `doc/CLAUDE-FULL.md` §16.1 strict exclusions (`vault/`, `.env`, `.claude/settings.local.json`, `*.log`, `tmp/`, `node_modules/`, `.git/`, `dist/`, `web/*/dist/`,… | 935 files — doc, vault | — | legal; doc/vault |
+| 611 | merged | 2026-05-23 07:04:02 | 0.61.116 | docs | Docs / vault | Update docs: v0.61.116 vault PR #610 journal STATUS post-merge update | Per CLAUDE.md standing rule (*"After a PR merges, record it in the Journal"*), flip `journal-0_61_116-23_05_26-1352.md` `[STATUS]` from **DRAFT** to **MERGED** with PR #610's squash SHA `7a4ee08` (merged 2026-05-23T06:57:30Z / 14:57 SGT). | 2 files — doc | — | doc/vault |
+| 612 | merged | 2026-05-23 07:18:43 | 0.61.117 | fix | Transport / carpark | Fix: Carpark popup duplicate "Google Map ↗" link fix | v0.61.116's new Carpark Card (slice 2, PR #608) accidentally rendered **two** "Google Map ↗" links per Carpark popup on all three TMAs: it added an explicit `+ gmapsLinkRow(f.lat, f.lng)` to `carparkInfo`'s inner HTML while still passing… | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package | cuisine+hawker+transport | doc/vault |
+| 613 | merged | 2026-05-23 07:25:15 | 0.61.112 | docs | Docs / vault | Update docs: v0.61.112 journal STATUS post-merge update (3rd attempt — supersedes closed #605 + #609) | Third attempt at the v0.61.112 post-merge journal upkeep (per CLAUDE.md standing rule, *"After a PR merges, record it in the Journal"*). | 2 files — doc | — | doc/vault |
+| 614 | merged | 2026-05-23 07:43:41 | 0.61.117 | docs | Docs / vault | Update docs: v0.61.117 journal STATUS post-merge update | Per CLAUDE.md standing rule (*"After a PR merges, record it in the Journal"*), flip `journal-0_61_117-23_05_26-1515.md` `[STATUS]` from **DRAFT** to **MERGED** with PR #612's squash SHA `b3c5a9a` (merged 2026-05-23T07:18:43Z / 15:18 SGT). | 2 files — doc | — | doc/vault |
+| 615 | merged | 2026-05-23 09:18:25 | 0.61.118 | feature | Core / misc | Add: Attractions ⚝ readability + cluster threshold/tile tune | Two complaints from this session's audit conversation, three small code changes: ### 1. | 7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 616 | merged | 2026-05-23 09:21:21 | 0.61.118 | docs | Docs / vault | Update docs: v0.61.118 journal STATUS post-merge update | Per CLAUDE.md standing rule, flip `journal-0_61_118-23_05_26-1711.md` `[STATUS]` from **DRAFT** to **MERGED** with PR #615's squash SHA `651323d` (merged 2026-05-23T09:18:25Z / 17:18 SGT). | 2 files — doc | — | doc/vault |
+| 617 | merged | 2026-05-23 11:59:50 | 0.61.119 | fix | Infra / setup | Fix: attractions visible, zoom-hang fix, zoom-readout circle, station-on-top | Round-3 map-polish feedback (one screenshot, four issues, a Railway log): ### 1. | 10 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 618 | closed (unmerged) |  | 0.61.119 | docs | Docs / vault | Update docs: post-merge journal upkeep for v0.61.119 (PR #617) | Post-merge journal upkeep for v0.61.119 — docs-only follow-up to PR #617 (merged as `d2abe1e`). | doc (inferred — pre-squash) | — | doc/vault |
+| 619 | merged | 2026-05-24 04:39:15 | 0.61.118 | feature | Search / free-text | Add: chat free-text — whitelist <cuisine>+<food noun> queries | Fix: `"western cuisine nearby"` (and any `<cuisine> + <food noun>` pattern) in the Telegram chat free-text path was returning the `🍛 Please try a dish name…` decline instead of running a search. | 4 files — index.js, freetext-classify.js, tests, package | — | tests |
+| 620 | merged | 2026-05-24 04:41:19 | 0.61.121 | feature | Search / free-text | Add: chat free-text — place-anchored search + 'top nearby' button | When you type a Singapore **place name** in the Telegram chat (hawker centre, MRT/LRT station, mall, building, restaurant, food court, address), the bot now: 1. | 5 files — index.js, i18n.js, place-detector.js, tests, package | — | tests |
+| 621 | merged | 2026-05-24 06:17:17 | 0.61.122 | feature | Commands / chat UX | Add: /location — quick-pick STB precincts + JB + Putrajaya | When the user runs `/location`, the bot now shows **12 inline quick-pick buttons** below the existing share-pin keyboard: - **10 SG STB key precincts** (loaded from `geoloc/stb_key_precincts.geojson`): Civic District, Marina Bay,… | 6 files — index.js, i18n.js, location-cache.js, precincts.js, tests, package | — | tests |
+| 622 | merged | 2026-05-24 06:51:07 | 0.61.123 | feature | Search / free-text | Add: Menu TMA — location anchor field + disable SG-only tiles | — Phase 2 of the /location + Menu TMA spec Phase 1 ([#621](https://github.com/ang-kl/gia/pull/621)) shipped the chat `/location` quick-pick buttons (10 STB precincts + JB + IOI Resort City Putrajaya). | 7 files — index.js, precincts.js, TMA:menu, package | menu | — |
+| 623 | merged | 2026-05-24 08:36:28 | 0.61.124 | feature | Cuisine Picker | Add: anchor completion — 7 items (TMA region/cap, outside-zone, count format, auto-suggest, locsearch, autocomplete, disabled note) | Bundles 7 outstanding items from the v0.61.120–123 anchor work into one PR. | 7 files — index.js, i18n.js, place-detector.js, TMA:cuisine, TMA:menu, package | cuisine+menu | — |
+| 624 | merged | 2026-05-24 08:57:38 | 0.61.120 | docs | Transport / carpark | Update docs: v0.61.120-124 journal catch-up + register increment | Pure documentation update for the location-anchor arc (v0.61.120 → v0.61.124, PRs #619 → #623). | 7 files — doc | — | doc/vault |
+| 625 | merged | 2026-05-24 09:09:47 | 0.61.125 | feature | Search / free-text | Add: Menu TMA — Location section, region-aware geocode, font bump | Four operator-requested fixes/changes on the Menu TMA location anchor (introduced v0.61.123/124): 1. | 10 files — index.js, vibe-suggest.js, TMA:menu, package | menu | — |
+| 626 | merged | 2026-05-24 09:26:24 | 0.61.126 | feature | Cuisine Picker | Add: Cuisine TMA — Fruits + Durian exclusive special modes | Implements `scripts/Create_2_buttons.MD` (operator spec, commit `f757cb3`). | 10 files — index.js, special-mode.js, TMA:cuisine, tests, package | cuisine | tests |
+| 627 | merged | 2026-05-24 09:54:38 | 0.61.127 | fix | Core / misc | Fix: docs — fix Create_2_buttons.MD spec, Putrajaya not Sarawak | Operator clarification (24-05 '26): the Malaysia zone in `scripts/Create_2_buttons.MD` that read "Petrajaya / Petra Jaya, Sarawak" was a typo. | 2 files — package, scripts/ | — | — |
 
 ---
 
