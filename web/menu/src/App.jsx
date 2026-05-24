@@ -3,8 +3,15 @@ import Tile from './components/Tile.jsx';
 import TrainPanel from './components/TrainPanel.jsx';
 import BackFab from './components/BackFab.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
+import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
+
+// v0.61.123 — tiles that don't work outside Singapore. When the user
+// has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
+// 'MY-PUT'), App.jsx flips these to disabled with the
+// `tile.disabledMy` tooltip.
+const SG_ONLY_TILES = new Set(['hawker', 'incidents', 'busnearest', 'weather']);
 
 // v0.60.55 — hub redesign per Human Lead 2026-05-09 ("still big,
 // half the size"). Tiles drop sub-text and switch to a 3-column
@@ -90,6 +97,39 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
+  // v0.61.123 — cached user-location anchor (region + radiusCapM +
+  // label) for the LocationFieldMenu summary line + disabled-tile
+  // logic. Reuses /api/cuisine/user-location (existing initData-gated
+  // read). Null when unset / stale.
+  const [anchor, setAnchor] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const w = tg();
+    if (!w) return;
+    fetch('/api/cuisine/user-location', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: w.initData || '' })
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((b) => {
+        if (cancelled || !b) return;
+        if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
+          setAnchor({
+            label: b.label || null,
+            lat: b.lat,
+            lng: b.lng,
+            region: b.region || 'SG',
+            radiusCapM: b.radiusCapM || null
+          });
+        }
+      })
+      .catch(() => { /* silent — anchor stays null */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT');
+
   // v0.60.67 — fire-and-forget. Per Human Lead 2026-05-10, the TMA
   // wasn't closing immediately after a dispatch tap (Incidents,
   // Location, …). Root cause: prior implementation awaited the fetch
@@ -165,25 +205,51 @@ export default function App() {
               {t(section.titleKey, lang)}
             </h2>
             {section.id === 'plan' && (
-              <TrainPanel
-                live={live}
-                lang={lang}
-                onFullStatus={() => dispatchCmd('train')}
-              />
+              <>
+                {/* v0.61.123 — location anchor picker, sits ABOVE the
+                    TrainPanel inside the Plan section so the user sees
+                    "what's my search anchored to" before the SG-only
+                    live status. */}
+                <LocationFieldMenu
+                  lang={lang}
+                  currentAnchor={anchor}
+                  onAnchorChange={setAnchor}
+                />
+                {/* TrainPanel is SG-only — grey it out when a Malaysia
+                    anchor is set. Done via an opacity wrapper since
+                    TrainPanel takes no disabled prop. */}
+                <div
+                  style={isMy ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+                  title={isMy ? t('tile.disabledMy', lang) : undefined}
+                >
+                  <TrainPanel
+                    live={live}
+                    lang={lang}
+                    onFullStatus={() => dispatchCmd('train')}
+                  />
+                </div>
+              </>
             )}
             {/* v0.60.67 — each section now carries 2 tiles after the
                 operator slim, so grid drops from 3 cols to 2 cols
-                (each tile gets ~170 px on a 375 px phone). */}
+                (each tile gets ~170 px on a 375 px phone).
+                v0.61.123 — SG-only tiles flip to disabled when a
+                Malaysia anchor is set. */}
             <div className="grid grid-cols-2 gap-1.5">
-              {section.tiles.map((tile) => (
-                <Tile
-                  key={tile.id}
-                  icon={tile.icon}
-                  iconImage={tile.iconImage}
-                  label={t(tile.labelKey, lang)}
-                  onClick={() => handle(tile)}
-                />
-              ))}
+              {section.tiles.map((tile) => {
+                const disabled = isMy && SG_ONLY_TILES.has(tile.id);
+                return (
+                  <Tile
+                    key={tile.id}
+                    icon={tile.icon}
+                    iconImage={tile.iconImage}
+                    label={t(tile.labelKey, lang)}
+                    onClick={() => handle(tile)}
+                    disabled={disabled}
+                    disabledTooltip={disabled ? t('tile.disabledMy', lang) : ''}
+                  />
+                );
+              })}
             </div>
           </section>
         ))}
