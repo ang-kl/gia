@@ -10592,7 +10592,12 @@ async function cacheBotUsername() {
         // guard for the "Tell me" free-text box. e.g. "does Beach Road
         // curry rice sell chiffon cake" — decline + log (identity-free)
         // instead of returning a misleading generic restaurant list.
-        const ftRawIn = String(req.body?.freeText || '').trim();
+        // v0.61.129 — O-20: Tell-me box place-anchor detection (below)
+        // mutates ftRawIn when the typed text names a place, so this
+        // is `let`, not `const`. The raw entry is captured separately
+        // for the freetext-log call at the end of the handler.
+        let ftRawIn = String(req.body?.freeText || '').trim();
+        const ftRawOriginal = ftRawIn;
         const hadCuisineChip = Array.isArray(cuisines) && cuisines.length > 0;
         if (ftRawIn) {
           try {
@@ -10666,7 +10671,9 @@ async function cacheBotUsername() {
         const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
           && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
           && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
-        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
+        // v0.61.129 — O-20: the Tell-me box place-anchor detection
+        // below may override searchCenter, so this is `let`.
+        let searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.58.8: client supplies a `radius` in metres from the
         // vertical slider on the map. Bounded 1000–100000. When
         // missing or out of range, fall back to the legacy region
@@ -10684,16 +10691,69 @@ async function cacheBotUsername() {
         // user-location payload; read it here and clamp regardless
         // of what the TMA's slider sent. Best-effort: any Redis
         // hiccup just leaves the slider value alone.
+        // v0.61.129 — also capture the cap into `anchorCap` so the
+        // O-23 progressive radius widening pass below doesn't have
+        // to re-read user-location.
+        let anchorCap = null;
         try {
           if (csChatId) {
             const ulPayload = await getUserLocation(redis, csChatId).catch(() => null);
             const cap = ulPayload?.radiusCapM;
-            if (Number.isFinite(cap) && cap > 0 && searchRadius > cap) {
-              console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
-              searchRadius = cap;
+            if (Number.isFinite(cap) && cap > 0) {
+              anchorCap = cap;
+              if (searchRadius > cap) {
+                console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
+                searchRadius = cap;
+              }
             }
           }
         } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
+        // v0.61.129 — O-20: Tell-me box place-anchor detection. When
+        // the typed text names a Singapore place (MRT, hawker centre,
+        // STB precinct, or a geocodable landmark) — either standalone
+        // ("Tiong Bahru") or in an `<dish> in/near/around/at <place>`
+        // pattern ("ramen in Tiong Bahru") — pivot the searchCenter
+        // to that place and tighten the radius so the cuisine search
+        // returns venues actually in that area, not 20 km out around
+        // the user's current location. The matched place span is
+        // stripped from ftRawIn so downstream cuisine-query construction
+        // doesn't double-count it (typing "ramen in Tiong Bahru" should
+        // hit Places with "ramen", not "ramen in Tiong Bahru"). Skipped
+        // for JB (place-detector data is SG-only) and skipped when the
+        // typed text is too short to plausibly name a place.
+        let detectedPlaceAnchor = null;
+        if (ftRawIn && !isJB && ftRawIn.length >= 3) {
+          try {
+            const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
+            const splitRe = /^(.+?)\s+(?:in|near|around|at)\s+(.+)$/i;
+            const splitMatch = ftRawIn.match(splitRe);
+            const placeCandidate = splitMatch ? splitMatch[2].trim() : ftRawIn;
+            const queryRemainder = splitMatch ? splitMatch[1].trim() : '';
+            const anchor = await detectPlaceName(placeCandidate);
+            if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+              detectedPlaceAnchor = {
+                name: anchor.name,
+                kind: anchor.kind,
+                lat: anchor.lat,
+                lng: anchor.lng,
+                source: anchor.source
+              };
+              searchCenter = { lat: anchor.lat, lng: anchor.lng };
+              // Per-kind anchor radii are tight (150-600m). For a
+              // cuisine-search Tell-me, widen to NEARBY_RADIUS_M (1500m)
+              // so the result pool is a real surrounding area. Honour
+              // the anchorCap above this if it's tighter.
+              const cuisineRadius = (anchorCap && Number.isFinite(anchorCap))
+                ? Math.min(NEARBY_RADIUS_M, anchorCap)
+                : NEARBY_RADIUS_M;
+              searchRadius = cuisineRadius;
+              ftRawIn = queryRemainder;
+              console.log(`[Cuisine-TMA] D780 place anchor "${anchor.name}" (${anchor.kind}, source=${anchor.source}) — center=${anchor.lat.toFixed(4)},${anchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
+            }
+          } catch (err) {
+            console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
+          }
+        }
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
         // N" note has a one-tap reset that re-fires the search with
@@ -10769,7 +10829,10 @@ async function cacheBotUsername() {
         try {
           const gc = require('./gemini-client');
           const ctxLocale = (req.body?.region === 'JB') ? 'MY' : 'SG';
-          const probeText = [String(req.body?.freeText || '').trim(), ...(cuisineMetas.map((m) => m.name))]
+          // v0.61.129 — use ftRawIn (post place-anchor strip), not the
+          // raw body, so the R.E.D probe doesn't fire on the place name
+          // ("Tiong Bahru" should not disambiguate as a dish).
+          const probeText = [ftRawIn, ...(cuisineMetas.map((m) => m.name))]
             .filter(Boolean).join(' ');
           if (probeText) {
             const probe = gc.disambiguateTerm({ text: probeText, ctx: { lang: csLang, locale: ctxLocale } });
@@ -10809,10 +10872,14 @@ async function cacheBotUsername() {
         // actually Y"). Distinct from /s and from R.E.D's disambig.
         let misrepNote = null;
         try {
-          const ftRaw = String(req.body?.freeText || '').trim();
-          if (ftRaw && !chipDisambig) {
+          // v0.61.129 — reuse outer ftRawIn (already trimmed; possibly
+          // stripped by O-20 place-anchor detection above). The prior
+          // shadow `const ftRaw = String(req.body?.freeText…)` re-read
+          // the raw body and would have matched a place name like
+          // "katong" against the misrep dictionary.
+          if (ftRawIn && !chipDisambig) {
             const { lookupMisrepresentedDish } = require('./misrepresented-dishes');
-            misrepNote = lookupMisrepresentedDish(ftRaw);
+            misrepNote = lookupMisrepresentedDish(ftRawIn);
           }
         } catch (err) {
           console.warn('[Cuisine-Search] misrepresented-dish lookup failed (continuing):', err.message);
@@ -10825,13 +10892,14 @@ async function cacheBotUsername() {
         // list. Distinct from R.E.D's chipDisambig and from misrepNote.
         let cookMethodMatches = null;
         try {
-          const ftRaw = String(req.body?.freeText || '').trim();
-          if (ftRaw && !chipDisambig) {
+          // v0.61.129 — reuse outer ftRawIn (already trimmed; possibly
+          // stripped by O-20 place-anchor detection above).
+          if (ftRawIn && !chipDisambig) {
             const cookm = require('./cooking-methods');
-            const hits = cookm.findCookingMethodMatches(ftRaw);
+            const hits = cookm.findCookingMethodMatches(ftRawIn);
             if (hits && hits.length) {
               cookMethodMatches = {
-                query: ftRaw,
+                query: ftRawIn,
                 matches: hits.slice(0, 6).map((h) => ({ slug: h.slug, cuisine: h.cuisineLabel, method: h.term }))
               };
             }
@@ -11257,6 +11325,73 @@ async function cacheBotUsername() {
           venues = sm.filterByMode(venues, specialMode);
           if (venues.length !== beforeSpecial) {
             console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
+          }
+        }
+        // v0.61.129 — O-23: progressive radius widening for special
+        // modes. Per scripts/Create_2_buttons.MD "Fallback behaviour":
+        // when fewer than the target count (8) of mode-filtered venues
+        // are found, widen the search radius progressively WITHOUT
+        // weakening semantic intent (no extra cuisines, no broadening
+        // of the keyword filter). We try 2x and 3x the initial radius,
+        // capped at the anchor's radiusCapM (lifted into anchorCap
+        // above) or 30 km hard cap so SG searches don't drift into
+        // Malaysia. Each widened pass: per-seed Places discover,
+        // dedup against placeIds we already have, run the standard
+        // venue-filter + mode-keyword filter, then merge. Bails as
+        // soon as venues.length ≥ 8 or the radius hits the cap.
+        // searchRadius is NOT mutated — downstream cache keys + the
+        // re-tap dedup-slice logic should keep using the originally-
+        // requested radius. The widened-from / widened-to metres are
+        // surfaced in the payload so the TMA can show "Widened to N km".
+        const SPECIAL_MODE_TARGET = 8;
+        let specialModeWidened = false;
+        let specialModeWidenedFromM = null;
+        let specialModeFinalRadiusM = searchRadius;
+        if (specialMode && venues.length < SPECIAL_MODE_TARGET) {
+          try {
+            const sm = require('./special-mode');
+            const venueFiltersMod = require('./venue-filters');
+            const HARD_CAP_M = (anchorCap && Number.isFinite(anchorCap) && anchorCap > 0) ? anchorCap : 30000;
+            const startRadius = searchRadius;
+            const tries = [startRadius * 2, startRadius * 3]
+              .map((r) => Math.min(r, HARD_CAP_M))
+              .filter((r) => r > startRadius)
+              .filter((r, i, arr) => arr.indexOf(r) === i);
+            const seenIds = new Set(venues.map((v) => v?.placeId).filter(Boolean));
+            for (const wider of tries) {
+              if (venues.length >= SPECIAL_MODE_TARGET) break;
+              console.log(`[Cuisine-Search] D781 specialMode=${specialMode} widening ${specialModeFinalRadiusM}m → ${wider}m (have ${venues.length}/${SPECIAL_MODE_TARGET})`);
+              const widePerSeed = await Promise.all(cuisinesForDiscover.map((q) =>
+                pipeline.discover({
+                  lat: searchCenter.lat, lng: searchCenter.lng, radius: wider,
+                  cuisines: [q], maxResults: 15, regionCode: searchRegionCode,
+                  lang: csLang, expandSingaporean: false
+                }).catch((err) => {
+                  console.warn(`[Cuisine-Search] widening per-seed "${q}" failed: ${err.message}`);
+                  return [];
+                })
+              ));
+              const flat = widePerSeed.map((r) => Array.isArray(r) ? r : (r?.venues || [])).flat();
+              let fresh = flat.filter((v) => v && v.placeId && !seenIds.has(v.placeId));
+              fresh = fresh.filter(venueFiltersMod.passesVenueFilter);
+              fresh = sm.filterByMode(fresh, specialMode);
+              for (const v of fresh) {
+                seenIds.add(v.placeId);
+                venues.push(v);
+                if (venues.length >= SPECIAL_MODE_TARGET) break;
+              }
+              specialModeFinalRadiusM = wider;
+              if (!specialModeWidened) {
+                specialModeWidened = true;
+                specialModeWidenedFromM = startRadius;
+              }
+              if (wider >= HARD_CAP_M) break;
+            }
+            if (specialModeWidened) {
+              console.log(`[Cuisine-Search] D781 specialMode widening done: ${specialModeWidenedFromM}m → ${specialModeFinalRadiusM}m, final count=${venues.length}`);
+            }
+          } catch (err) {
+            console.warn(`[Cuisine-Search] specialMode widening failed (non-fatal): ${err.message}`);
           }
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
@@ -11840,13 +11975,34 @@ async function cacheBotUsername() {
         if (specialMode) {
           payload.specialMode = specialMode;
           payload.specialModeLimited = dedupedTop.length < 8;
+          // v0.61.129 — O-23: surface the widening pass result so the
+          // TMA can optionally show "Widened to N km" alongside the
+          // existing "Limited matches nearby" amber card. Only emitted
+          // when the widening pass actually ran.
+          if (specialModeWidened) {
+            payload.specialModeWidened = true;
+            payload.specialModeWidenedFromM = specialModeWidenedFromM;
+            payload.specialModeFinalRadiusM = specialModeFinalRadiusM;
+          }
         }
-        if (ftRawIn) {
+        // v0.61.129 — O-20: surface the Tell-me-detected place anchor
+        // so the TMA can render "Searching near <X>" above the result
+        // list. Stripped query (`ftRawIn` post-detection) is also
+        // surfaced so the TMA can echo "Showing ramen near Tiong Bahru
+        // MRT".
+        if (detectedPlaceAnchor) {
+          payload.placeAnchor = detectedPlaceAnchor;
+          payload.placeAnchorQueryRemainder = ftRawIn;
+        }
+        // v0.61.129 — log the ORIGINAL typed text (`ftRawOriginal`),
+        // not the post-strip `ftRawIn`, so freetext-log captures what
+        // the user actually typed (Telemetry; identity-free).
+        if (ftRawOriginal) {
           try {
-            require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {
+            require('./freetext-log').logFreeTextQuery(redis, ftRawOriginal, {
               src: 'cuisine-tma',
               chip: hadCuisineChip,
-              matchedKnownTerm: chipDisambig ? 'red' : (misrepNote ? 'misrep' : (cookMethodMatches ? 'cooking-method' : (dessertTmaHit ? 'dessert-drink' : null))),
+              matchedKnownTerm: chipDisambig ? 'red' : (misrepNote ? 'misrep' : (cookMethodMatches ? 'cooking-method' : (dessertTmaHit ? 'dessert-drink' : (detectedPlaceAnchor ? 'place-anchor' : null)))),
               resultCount: dedupedTop.length,
             });
           } catch { /* best-effort */ }
