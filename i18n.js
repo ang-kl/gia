@@ -93,6 +93,19 @@ const STRINGS = {
                                   fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
+  // v0.61.122 — /location quick-pick buttons (10 STB precincts + Johor
+  // Bahru + IOI Resort City Putrajaya). Header for the inline-keyboard
+  // message, plus the confirmation reply that fires from the locpick
+  // callback. Cap note is appended when the picked anchor enforces a
+  // search-radius ceiling (JB → 30 km, IOI → 15 km).
+  'loc.precinct.prompt':       { en: '🗺 <b>Quick-pick anchor</b> — tap a precinct or Malaysia city below, or share your live pin above:',
+                                 fr: '🗺 <b>Sélection rapide</b> — touchez un quartier ou une ville malaisienne ci-dessous, ou partagez votre position en direct :' },
+  'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
+                                 fr: '📍 Position définie sur <b>{label}</b>.{cap}' },
+  'loc.set.capNote':           { en: ' Searches anchored here are capped to {km} km.',
+                                 fr: ' Les recherches sont limitées à {km} km autour de ce point.' },
+  'loc.set.unknown':           { en: "⚠️ I don't recognise that quick-pick. Tap one of the buttons or share a pin.",
+                                 fr: "⚠️ Je ne reconnais pas cette sélection. Touchez l'un des boutons ou partagez une position." },
   // v0.61.119 — place-anchored search (hawker centre / MRT / mall /
   // building / address typed in chat free-text). Header above the
   // venue list, the button that fans out to better-rated nearby

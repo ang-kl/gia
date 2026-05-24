@@ -1495,6 +1495,13 @@ async function runLocationCommand(chatId) {
         'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
         opts
       );
+      // v0.61.122 — follow-up message with quick-pick inline buttons
+      // (10 STB precincts + JB + IOI Resort City Putrajaya). Sent
+      // separately because Telegram's reply_markup is either a custom
+      // keyboard OR an inline keyboard, not both. The share-pin
+      // keyboard above stays available; this just lets the user one-tap
+      // any of the curated anchors.
+      await sendLocationQuickPicks(chatId).catch((err) => console.warn('[/location] quick-picks send failed:', err.message));
       return;
     }
   } catch (err) {
@@ -1512,6 +1519,42 @@ async function runLocationCommand(chatId) {
       }
     }
   );
+  // v0.61.122 — same quick-pick follow-up for the no-cache branch.
+  await sendLocationQuickPicks(chatId).catch((err) => console.warn('[/location] quick-picks send failed:', err.message));
+}
+
+// v0.61.122 — render the STB precinct + Malaysia quick-pick inline
+// keyboard as a follow-up message. callback_data is `locpick:<id>`
+// (see the bot.on('callback_query') dispatch). Layout: 5 rows of 2 SG
+// precincts, then 1 row of 2 Malaysia anchors. The labels are short
+// enough that 2-per-row fits comfortably on a phone.
+async function sendLocationQuickPicks(chatId) {
+  try {
+    const { resolveLang } = require('./user-prefs');
+    const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
+    const { t: tQP } = require('./i18n');
+    const precincts = require('./precincts');
+    const all = precincts.getAll();   // 10 STB + JB + IOI in display order
+    const rows = [];
+    for (let i = 0; i < all.length; i += 2) {
+      const row = [];
+      for (const p of all.slice(i, i + 2)) {
+        const flag = p.region === 'SG' ? '🇸🇬'
+          : p.region === 'JB' ? '🇲🇾'
+          : p.region === 'MY-PUT' ? '🇲🇾'
+          : '📍';
+        row.push({ text: `${flag} ${p.label}`, callback_data: `locpick:${p.id}` });
+      }
+      rows.push(row);
+    }
+    await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: { inline_keyboard: rows }
+    });
+  } catch (err) {
+    console.warn('[/location] sendLocationQuickPicks failed:', err.message);
+  }
 }
 
 // v0.61.93 — operator: /l also resolves an MRT/LRT station code, a
@@ -2180,6 +2223,39 @@ bot.on('callback_query', async (q) => {
 
     if (data === 'refresh:transport') {
       await runTransportTrain(chatId, cbLang); // legacy refresh button on bus stop list — point at train view
+      return;
+    }
+    // v0.61.122 — /location quick-pick (STB precinct / Johor Bahru / IOI
+    // Resort City Putrajaya). Resolves the id via precincts.getById(),
+    // stamps the cached location with region + radiusCapM + label +
+    // precinctId, replies with confirmation (+ cap note for Malaysia).
+    if (data.startsWith('locpick:')) {
+      try {
+        const id = data.slice('locpick:'.length).toLowerCase();
+        const precincts = require('./precincts');
+        const p = precincts.getById(id);
+        if (!p) {
+          await safeSend(chatId, t('loc.set.unknown', cbLang));
+          return;
+        }
+        await setUserLocation(redis, chatId, p.lat, p.lng, {
+          region: p.region,
+          radiusCapM: p.radiusCapM || null,
+          label: p.label,
+          precinctId: p.id
+        });
+        const { tn: tnLP } = require('./i18n');
+        const capNote = p.radiusCapM
+          ? t('loc.set.capNote', cbLang).replace('{km}', String(Math.round(p.radiusCapM / 1000)))
+          : '';
+        await safeSend(chatId,
+          tnLP('loc.set.success', cbLang, { label: p.label, cap: capNote }),
+          { parse_mode: 'HTML', disable_web_page_preview: true });
+        console.log(`[/location] D775 locpick id=${id} chat=${chatId} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
+      } catch (err) {
+        console.warn('[locpick] callback failed:', err.message);
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+      }
       return;
     }
     // v0.61.119 — "✨ Top eateries nearby" button from a place-anchored
@@ -7917,13 +7993,20 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         catch { dessertHit = null; }
       }
       const dessertQuery = dessertHit ? require('./dessert-drink-keywords').dessertDrinkQuery(dessertHit, null) : null;
+      // v0.61.122 — honour the per-anchor search-radius cap set by
+      // /location quick-picks (JB → 30 km, IOI Putrajaya → 15 km).
+      // Default SG radius stays 50 km; only Malaysia anchors clamp it.
+      const ftRegionCode = (cached.region === 'JB' || cached.region === 'MY-PUT') ? 'MY' : 'SG';
+      const ftRadius = (cached.radiusCapM && cached.radiusCapM > 0)
+        ? Math.min(50000, cached.radiusCapM)
+        : 50000;
       const candidates = await pipeline.discover({
         lat: cached.lat,
         lng: cached.lng,
         cuisines: [text],
-        radius: 50000,
+        radius: ftRadius,
         maxResults: 15,                                    // v0.60.123 — more candidates for the ≥7-result list
-        regionCode: 'SG',
+        regionCode: ftRegionCode,
         lang: ftLang,                                      // v0.59.0
         // v0.59.41 (Codex P2 PR #246): the user's literal query is
         // typically a dish name; capping at 2 per dish-tail would
