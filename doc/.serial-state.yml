@@ -1,21 +1,44 @@
 counters:
-  commit: 344
-  build: 134
+  commit: 345
+  build: 135
   documents:
-    journal: 332
+    journal: 333
     builder: 3
     persona: 4
     feature: 48
     technical: 48
     legal: 9
-    register: 118
+    register: 119
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 42
-last_anchor_time: 25-05 '26 06:45 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T06:40:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.131 pill-reorder + extract-helpers + add-tests session, rounded forward 5 min to commit-time)
-last_anchor_iso8601: 2026-05-25T06:45:00+08:00
-last_anchor_utc: 2026-05-24T22:45:00Z
+  current_chat_counter: 43
+last_anchor_time: 25-05 '26 07:00 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T06:50:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.132 Register-increment session, rounded forward 10 min to commit-time)
+last_anchor_iso8601: 2026-05-25T07:00:00+08:00
+last_anchor_utc: 2026-05-24T23:00:00Z
+# v0.61.132 (commit 345 / journal 333 / build 135 / register 119) —
+# Docs: Register increment closing the O-20 + O-23 arc + logging
+# D-61.129 + D-61.130. PR #633 (branch claude/v0.61.132-register-
+# o20-o23, off main at v0.61.131 / 4d061d0). Operator: "Register
+# increment for O-20 / O-23 / D-61.129 / D-61.130" (from the
+# v0.61.131 KNOWN GAPS follow-up). Pure docs PR — no code change.
+# New doc/Register/register-0_61_132-25_05_26-0700.md:
+#   - O-20 (Cuisine TMA Tell-me box place detection) moved Open →
+#     Completed (C-BA arc, refs PR #630 backend + #631 UI + #632
+#     reorder/extract/tests).
+#   - O-23 (Fruits/Durian progressive radius widening) moved Open →
+#     Completed (C-BB arc, refs same three PRs).
+#   - D-61.129 decision row logged: /api/cuisine/search is now
+#     place-aware AND special-mode searches widen progressively
+#     per scripts/Create_2_buttons.MD "Fallback behaviour".
+#   - D-61.130 decision row logged: TMA layer surfaces the v0.61.129
+#     fields as "📍 Searching near <place>" pill + "· widened to N km"
+#     caption; v0.61.131's pill-first reorder also folded in.
+#   - O-21, O-22, O-24 carry forward unchanged.
+# package.json 0.61.131 -> 0.61.132. Counters: commit 344->345,
+# build 134->135, journal 332->333, register 118->119. Re-anchored
+# 25-05 '26 07:00 SGT. plumbing-committed per O-22.
+# journal-0_61_132-25_05_26-0700.md.
 # v0.61.131 (commit 344 / journal 332 / build 134) — Cuisine TMA
 # pill reorder + extract O-20/O-23 helpers + 33 inline tests. PR
 # #632 (branch claude/v0.61.131-pill-reorder-tests, off main at
