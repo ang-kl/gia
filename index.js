@@ -2252,8 +2252,51 @@ bot.on('callback_query', async (q) => {
           tnLP('loc.set.success', cbLang, { label: p.label, cap: capNote }),
           { parse_mode: 'HTML', disable_web_page_preview: true });
         console.log(`[/location] D775 locpick id=${id} chat=${chatId} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
+        // v0.61.124 — follow-up: offer a one-tap "See eateries here"
+        // so the user doesn't have to type a query. callback fires
+        // runPlaceAnchoredSearch at the picked precinct.
+        try {
+          await bot.sendMessage(chatId,
+            tnLP('loc.searchPick.prompt', cbLang, { place: p.label }),
+            {
+              parse_mode: 'Markdown',
+              reply_markup: { inline_keyboard: [[{ text: t('loc.searchPick.btn', cbLang), callback_data: `locsearch:${p.id}` }]] }
+            });
+        } catch (err) { console.warn('[locpick] search-here button send failed:', err.message); }
       } catch (err) {
         console.warn('[locpick] callback failed:', err.message);
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+      }
+      return;
+    }
+    // v0.61.124 — "🔍 See eateries here" follow-up button from the
+    // locpick reply (above). Runs a place-anchored search at the
+    // precinct's coords; for STB precincts the polygon flows through
+    // so runNearbyAlternatives can do "outside" exclusion.
+    if (data.startsWith('locsearch:')) {
+      try {
+        const id = data.slice('locsearch:'.length).toLowerCase();
+        const precincts = require('./precincts');
+        const p = precincts.getById(id);
+        if (!p) {
+          await safeSend(chatId, t('loc.set.unknown', cbLang));
+          return;
+        }
+        // For STB precincts the wider 600m radius works better than
+        // the 300m geocoded default — most precincts span ~1.5 km².
+        const radius = (p.source === 'STB') ? 600 : 400;
+        const place = {
+          name: p.label, lat: p.lat, lng: p.lng,
+          kind: (p.source === 'STB') ? 'precinct' : (p.source === 'region' ? 'region' : 'precinct'),
+          radius
+        };
+        if (p.source === 'STB' && Array.isArray(p.polygon)) {
+          place.precinctId = p.id;
+          place.polygon = p.polygon;
+        }
+        await runPlaceAnchoredSearch(chatId, place, { lang: cbLang });
+      } catch (err) {
+        console.warn('[locsearch] callback failed:', err.message);
         await safeSend(chatId, t('bot.error.freetext', cbLang));
       }
       return;
@@ -8213,30 +8256,74 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
         await attachFootfallSignals(redis, venues);
       } catch (err) { console.warn('[place] footfall enrichment failed:', err.message); }
       const placeEsc = escapeHtmlForTelegram(place.name);
-      const header = total > 0
-        ? trnP('place.foundN', lang, { place: placeEsc, n: String(total) })
-        : trnP('place.foundEmpty', lang, { place: placeEsc });
+      // v0.61.124 — "showing X of Y" copy when we sliced the result
+      // set; "found N" when the full set fits in one reply.
+      const shown = venues.length;
+      const header = total === 0
+        ? trnP('place.foundEmpty', lang, { place: placeEsc })
+        : (shown < total
+            ? trnP('place.foundShownOfTotal', lang, { place: placeEsc, shown: String(shown), total: String(total) })
+            : trnP('place.foundN', lang, { place: placeEsc, n: String(total) }));
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
       // Cache the anchor for the "nearby" callback. 30 min TTL — by then
       // the user has either tapped or moved on.
+      // v0.61.124 — when the place is an STB precinct (detectPlaceName /
+      // /location quick-pick), persist its precinctId + polygon so
+      // runNearbyAlternatives can do polygon-based exclusion ("OUTSIDE
+      // <precinct>") instead of generic distance dedupe.
       const key = placeAnchorKey(place);
       try {
         if (redis?.isOpen) {
-          await redis.set(`place:anchor:${chatId}:${key}`, JSON.stringify({
+          const anchorPayload = {
             name: place.name, lat: place.lat, lng: place.lng, kind: place.kind || 'place',
             originalPlaceIds: venues.map((v) => v.placeId).filter(Boolean)
-          }), { EX: 1800 });
+          };
+          if (place.precinctId) anchorPayload.precinctId = place.precinctId;
+          if (Array.isArray(place.polygon) && place.polygon.length >= 3) anchorPayload.polygon = place.polygon;
+          await redis.set(`place:anchor:${chatId}:${key}`, JSON.stringify(anchorPayload), { EX: 1800 });
         }
       } catch (err) { console.warn('[place] redis anchor write failed:', err.message); }
       if (venues.length === 0) {
         // No eateries at the place itself — go straight to nearby alternatives.
         await safeSend(chatId, header, { parse_mode: 'HTML', disable_web_page_preview: true });
-        await runNearbyAlternatives(chatId, { name: place.name, lat: place.lat, lng: place.lng, kind: place.kind, originalPlaceIds: [] }, lang);
+        await runNearbyAlternatives(chatId, {
+          name: place.name, lat: place.lat, lng: place.lng, kind: place.kind,
+          originalPlaceIds: [],
+          ...(place.precinctId ? { precinctId: place.precinctId } : {}),
+          ...(Array.isArray(place.polygon) ? { polygon: place.polygon } : {})
+        }, lang);
         return;
       }
       await deliverPicks(chatId, header, venues, { lang });
-      // Append the opt-in "Top eateries nearby" inline button as a
-      // separate small message so it survives the deliverPicks pagination.
+      // v0.61.124 — auto-suggest threshold (operator spec: "if you
+      // think there are 10 or 20 eateries are good than the place …
+      // typed, suggest"). Two weakness signals:
+      //   1. < 5 eateries inside the place (slim pickings)
+      //   2. average rating of in-place eateries < 4.0
+      // Either trips the AUTO nearby fan-out — no button tap needed.
+      // When neither trips, we fall back to the v0.61.119 opt-in
+      // button (preserves existing behaviour for healthy places).
+      const ratings = venues.map((v) => Number(v.rating)).filter((n) => Number.isFinite(n));
+      const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+      const weak = total < 5 || (ratings.length >= 3 && avgRating < 4.0);
+      if (weak) {
+        try {
+          const { tn: trnAuto } = require('./i18n');
+          await bot.sendMessage(chatId, trnAuto('place.autoNearbyIntro', lang, { place: placeEsc }), {
+            parse_mode: 'Markdown', disable_web_page_preview: true
+          });
+        } catch (err) { console.warn('[place] auto-nearby intro send failed:', err.message); }
+        await runNearbyAlternatives(chatId, {
+          name: place.name, lat: place.lat, lng: place.lng, kind: place.kind,
+          originalPlaceIds: venues.map((v) => v.placeId).filter(Boolean),
+          ...(place.precinctId ? { precinctId: place.precinctId } : {}),
+          ...(Array.isArray(place.polygon) ? { polygon: place.polygon } : {})
+        }, lang).catch((err) => console.warn('[place] auto-nearby fan-out failed:', err.message));
+        return;
+      }
+      // Healthy place — append the opt-in "Top eateries nearby" inline
+      // button as a separate small message so it survives the
+      // deliverPicks pagination.
       try {
         const { t: trP } = require('./i18n');
         const km = (require('./place-detector').NEARBY_RADIUS_M / 1000).toFixed(1);
@@ -8291,10 +8378,25 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
       const dedupe = new Set(Array.isArray(anchor.originalPlaceIds) ? anchor.originalPlaceIds : []);
       venues = venues.filter((v) => v.placeId && !dedupe.has(v.placeId));
+      // v0.61.124 — polygon exclusion. When the anchor is an STB
+      // precinct (carries a polygon), filter out venues whose coords
+      // fall INSIDE the precinct so the "outside" copy is honest.
+      // For non-precinct anchors (hawker / MRT / geocoded), the
+      // existing originalPlaceIds dedupe is enough — they don't have
+      // a meaningful "inside" boundary.
+      const usingPolygon = Array.isArray(anchor.polygon) && anchor.polygon.length >= 3;
+      if (usingPolygon) {
+        const { pointInPolygon } = require('./precincts');
+        venues = venues.filter((v) => {
+          if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return true;
+          return !pointInPolygon(v.lat, v.lng, anchor.polygon);
+        });
+      }
       if (!venues.length) {
         if (wait) { await wait.finish().catch(() => {}); wait = null; }
         const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
-        await safeSend(chatId, trnN('place.nearbyEmpty', lang, { km, place: escapeHtmlForTelegram(anchor.name) }), { parse_mode: 'HTML' });
+        const emptyKey = usingPolygon ? 'place.outsideEmpty' : 'place.nearbyEmpty';
+        await safeSend(chatId, trnN(emptyKey, lang, { km, place: escapeHtmlForTelegram(anchor.name) }), { parse_mode: 'HTML' });
         return;
       }
       // Composite score: rating + Michelin + rarity + (1 - crowdCost)
@@ -8330,7 +8432,10 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
         await attachFootfallSignals(redis, ranked);
       } catch (err) { console.warn('[place-nearby] footfall failed:', err.message); }
       const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
-      const header = trnN('place.nearbyHeader', lang, {
+      // v0.61.124 — "outside <place>" header when we used polygon
+      // exclusion; otherwise the existing "near <place>" header.
+      const headerKey = usingPolygon ? 'place.outsideHeader' : 'place.nearbyHeader';
+      const header = trnN(headerKey, lang, {
         n: String(ranked.length),
         place: escapeHtmlForTelegram(anchor.name),
         km
@@ -9658,7 +9763,18 @@ async function cacheBotUsername() {
         // outside this default; users can dial the slider up to 100 km
         // for cross-island reach. JB default stays 30 km (covers JB
         // City + Iskandar Puteri + Pasir Gudang + edges of Senai/Kulai).
-        const searchRadius = isJB ? 30000 : 20000;
+        let searchRadius = isJB ? 30000 : 20000;
+        // v0.61.124 — anchor radius cap (Putrajaya IOI 15 km, JB 30 km).
+        try {
+          if (wsChatId) {
+            const ulPayload = await getUserLocation(redis, wsChatId).catch(() => null);
+            const cap = ulPayload?.radiusCapM;
+            if (Number.isFinite(cap) && cap > 0 && searchRadius > cap) {
+              console.log(`[WarmStart] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
+              searchRadius = cap;
+            }
+          }
+        } catch (err) { console.warn('[WarmStart] anchor-cap read failed:', err.message); }
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
@@ -10249,7 +10365,16 @@ async function cacheBotUsername() {
             maxAgeMinutes: Math.floor(CUISINE_LOC_FRESH_MS / 60000)
           });
         }
-        res.json({ lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null });
+        // v0.61.124 — surface the anchor metadata stamped by the chat
+        // /location quick-pick + Menu TMA dropdown so the Cuisine TMA
+        // can auto-flip its region toggle to JB (and the Menu TMA's
+        // LocationFieldMenu shows the current label / cap).
+        const payload = { lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null };
+        if (cached.region) payload.region = cached.region;
+        if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
+        if (cached.label) payload.label = cached.label;
+        if (cached.precinctId) payload.precinctId = cached.precinctId;
+        res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
         res.status(500).json({ error: err.message });
@@ -10504,9 +10629,25 @@ async function cacheBotUsername() {
         // v0.60.165 — SG default 50 km → 20 km (same correction as
         // /warm-start above). JB 30 km unchanged.
         const DEFAULT_RADIUS = isJB ? 30000 : 20000;
-        const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
+        let searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
           ? Math.round(clientRadius)
           : DEFAULT_RADIUS;
+        // v0.61.124 — honour the per-anchor radius cap set by the
+        // chat /location quick-pick / Menu TMA dropdown (Putrajaya
+        // IOI 15 km, JB 30 km). The cap is stored on the cached
+        // user-location payload; read it here and clamp regardless
+        // of what the TMA's slider sent. Best-effort: any Redis
+        // hiccup just leaves the slider value alone.
+        try {
+          if (csChatId) {
+            const ulPayload = await getUserLocation(redis, csChatId).catch(() => null);
+            const cap = ulPayload?.radiusCapM;
+            if (Number.isFinite(cap) && cap > 0 && searchRadius > cap) {
+              console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
+              searchRadius = cap;
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
         // N" note has a one-tap reset that re-fires the search with

@@ -122,6 +122,42 @@ function findMrt(text) {
   };
 }
 
+// v0.61.124 — STB precinct name match (whole-word, normalised). Lets
+// runPlaceAnchoredSearch carry the `precinctId` + `polygon` through to
+// the cached anchor so runNearbyAlternatives can do polygon-based
+// exclusion ("Top eateries OUTSIDE Marina Bay" instead of generic
+// "nearby"). Conservative: only fires on an exact normalised name
+// match against precincts.getStbPrecincts(); doesn't fuzzy-match
+// (the geocode fallback below handles "marina bay sands" etc.).
+function findStbPrecinct(text) {
+  const trimmed = String(text || '').trim();
+  if (!trimmed || trimmed.length < 3) return null;
+  try {
+    const precincts = require('./precincts');
+    const norm = normalise(trimmed);
+    if (!norm) return null;
+    for (const p of precincts.getStbPrecincts()) {
+      if (normalise(p.label) === norm) {
+        return {
+          kind: 'precinct',
+          name: p.label,
+          lat: p.lat,
+          lng: p.lng,
+          // STB precincts are zonal — use a wider 600m radius so the
+          // anchored search sees most venues inside the polygon.
+          radius: 600,
+          source: 'stb-precinct',
+          precinctId: p.id,
+          polygon: p.polygon
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('[place-detector] STB precinct lookup failed:', err.message);
+  }
+  return null;
+}
+
 function findHawker(text) {
   const trimmed = String(text || '').trim();
   if (!trimmed || trimmed.length < 3) return null;
@@ -181,6 +217,12 @@ async function findGeocoded(text) {
 async function detectPlaceName(text) {
   const raw = String(text || '').trim();
   if (!raw || raw.length < 3) return null;
+  // v0.61.124 — STB precinct first. An exact name match ("Marina Bay",
+  // "Chinatown", "Joo Chiat and Katong") returns a precinct hit with
+  // polygon + precinctId so downstream callers can do polygon-based
+  // exclusion when the user asks for "top eateries nearby".
+  const precinct = findStbPrecinct(raw);
+  if (precinct) return precinct;
   const mrt = findMrt(raw);
   if (mrt) return mrt;
   const hawker = findHawker(raw);
@@ -190,6 +232,7 @@ async function detectPlaceName(text) {
 
 module.exports = {
   detectPlaceName,
+  findStbPrecinct,
   findHawker,
   findMrt,
   findGeocoded,

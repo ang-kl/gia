@@ -111,7 +111,12 @@ const STRINGS = {
   // Tooltip surfaced when the user taps a tile / panel disabled by a
   // Malaysia anchor (Hawker, TrainPanel, Incidents, Bus stops, Weather).
   'tile.disabledMy':       { en: 'Singapore only — switch anchor to use this.',
-                             fr: 'Singapour uniquement — changez d’ancrage pour utiliser ceci.' }
+                             fr: 'Singapour uniquement — changez d’ancrage pour utiliser ceci.' },
+  // v0.61.124 — appended to the anchor-summary line when a Malaysia
+  // anchor is set, so the user understands WHY tiles are dimmed
+  // without having to tap one to see the tooltip.
+  'location.disabledList': { en: ' (Hawker, Train, Incidents, Bus stops, Weather disabled)',
+                             fr: ' (Hawker, Train, Incidents, Arrêts de bus, Météo désactivés)' }
 };
 
 export function t(key, lang) {

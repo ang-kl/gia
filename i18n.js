@@ -106,12 +106,38 @@ const STRINGS = {
                                  fr: ' Les recherches sont limitées à {km} km autour de ce point.' },
   'loc.set.unknown':           { en: "⚠️ I don't recognise that quick-pick. Tap one of the buttons or share a pin.",
                                  fr: "⚠️ Je ne reconnais pas cette sélection. Touchez l'un des boutons ou partagez une position." },
+  // v0.61.124 — after the user taps a /location quick-pick, offer a
+  // one-tap follow-up to run a place-anchored search at the picked
+  // anchor (instead of making them type a query). callback_data is
+  // `locsearch:<precinctId>`.
+  'loc.searchPick.prompt':     { en: '_Want to see top eateries at <b>{place}</b>?_',
+                                 fr: '_Voulez-vous voir les meilleurs établissements à <b>{place}</b> ?_' },
+  'loc.searchPick.btn':        { en: '🔍 See eateries here',
+                                 fr: '🔍 Voir les établissements ici' },
   // v0.61.119 — place-anchored search (hawker centre / MRT / mall /
   // building / address typed in chat free-text). Header above the
   // venue list, the button that fans out to better-rated nearby
   // eateries, and the header above that nearby list.
   'place.foundN':              { en: '📍 <b>{place}</b> — found {n} eateries here',
                                  fr: '📍 <b>{place}</b> — {n} établissements trouvés ici' },
+  // v0.61.124 — "showing {shown} of {total}" format requested by the
+  // operator: when the place has more eateries than fit in one reply
+  // (cap 12), surface the ratio so the user knows there are more.
+  'place.foundShownOfTotal':   { en: '📍 <b>{place}</b> — showing {shown} of {total} eateries here',
+                                 fr: '📍 <b>{place}</b> — {shown} sur {total} établissements ici' },
+  // v0.61.124 — auto-suggest intro when the place itself is weak
+  // (< 5 eateries OR average rating < 4.0). Sent ahead of the
+  // automatic nearby fan-out so the user understands why we're
+  // showing extras without them tapping the button.
+  'place.autoNearbyIntro':     { en: '_Slim pickings at <b>{place}</b> — here are the top-rated eateries nearby:_',
+                                 fr: '_Peu d’options à <b>{place}</b> — voici les mieux notés à proximité :_' },
+  // v0.61.124 — "outside the zone" header for precinct anchors
+  // (Marina Bay, Chinatown, etc.) where the polygon exclusion filters
+  // out venues inside the precinct itself.
+  'place.outsideHeader':       { en: '✨ <b>Top {n} eateries outside {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)',
+                                 fr: '✨ <b>Top {n} établissements hors de {place}</b> (dans un rayon de {km} km, classés par note · Michelin · rareté · affluence)' },
+  'place.outsideEmpty':        { en: '🤷 No standout eateries outside {place} (within {km} km) right now.',
+                                 fr: '🤷 Aucun établissement marquant hors de {place} (dans un rayon de {km} km) en ce moment.' },
   'place.foundEmpty':          { en: "📍 <b>{place}</b> — couldn't find eateries here. Showing top-rated nearby instead.",
                                  fr: "📍 <b>{place}</b> — aucun établissement ici. Voici les mieux notés à proximité." },
   'place.nearbyBtn':           { en: '✨ Top eateries nearby',
