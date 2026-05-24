@@ -7735,17 +7735,35 @@ bot.on('message', async (msg) => {
     // nudge instead of a search. Fail-open: a classifier error
     // proceeds to the search, so a Gemini outage never blocks a real
     // food query. R.E.D-resolved queries skip the gate (already food).
+    // v0.61.118 — pre-classifier whitelist for cuisine browse queries
+    // ("western cuisine nearby", "italian food near me", "japanese
+    // restaurant"). The Gemini prompt only buckets text as dish /
+    // ingredient / tool / venue, so "<cuisine-family> + <food noun>"
+    // patterns landed in 'ambiguous' and got declined. The whitelist
+    // recognises them deterministically and skips the LLM call.
     if (!disambigDisclosureFT) {
+      let bypassFoodGate = false;
       try {
-        const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
-        if (cls && cls.intent === 'ambiguous') {
-          try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
-          const { t: tGate } = require('./i18n');
-          await safeSend(msg.chat.id, tGate('freetext.questionDeclined', userLang), { parse_mode: 'HTML', disable_web_page_preview: true });
-          return;
+        const { looksLikeCuisineBrowse } = require('./freetext-classify');
+        if (looksLikeCuisineBrowse(text)) {
+          bypassFoodGate = true;
+          console.log(`[free-text] D773 cuisine-browse whitelist hit — skipping food-relatedness gate for "${String(text).slice(0, 60)}"`);
         }
       } catch (err) {
-        console.warn('[free-text] food-relatedness gate failed (continuing to search):', err.message);
+        console.warn('[free-text] cuisine-browse whitelist check failed (continuing to gate):', err.message);
+      }
+      if (!bypassFoodGate) {
+        try {
+          const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          if (cls && cls.intent === 'ambiguous') {
+            try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
+            const { t: tGate } = require('./i18n');
+            await safeSend(msg.chat.id, tGate('freetext.questionDeclined', userLang), { parse_mode: 'HTML', disable_web_page_preview: true });
+            return;
+          }
+        } catch (err) {
+          console.warn('[free-text] food-relatedness gate failed (continuing to search):', err.message);
+        }
       }
     }
     try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: disambigDisclosureFT ? 'red' : null, resultCount: null }); } catch { /* best-effort */ }
