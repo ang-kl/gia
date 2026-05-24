@@ -1,21 +1,91 @@
 counters:
-  commit: 337
-  build: 127
+  commit: 340
+  build: 130
   documents:
-    journal: 325
+    journal: 328
     builder: 3
     persona: 4
     feature: 48
     technical: 48
     legal: 9
-    register: 117
+    register: 118
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 24-05 '26 16:36 SGT
-last_anchor_source: github_pr_merge_timestamp_2026-05-24T08:36:28Z_for_PR_623_v0_61_124 (used per Rule TF-9 since the Claude Code session was iCloud-throttled past direct NTP fetch; merge timestamp is the authoritative source for the v0.61.120-124 arc cut)
-last_anchor_iso8601: 2026-05-24T16:36:28+08:00
-last_anchor_utc: 2026-05-24T08:36:28Z
+last_anchor_time: 24-05 '26 17:54 SGT
+last_anchor_source: github_pr_merge_timestamp_2026-05-24T09:54:38Z_for_PR_627_v0_61_127 (used per Rule TF-9; merge timestamp authoritative for the v0.61.125-127 arc cut)
+last_anchor_iso8601: 2026-05-24T17:54:38+08:00
+last_anchor_utc: 2026-05-24T09:54:38Z
+# v0.61.127 (commit 340 / journal 328 / build 130) — Docs: fix
+# Create_2_buttons.MD spec, Putrajaya not Sarawak. PR #627 (branch
+# claude/v0.61.127-spec-fix-putrajaya, off main at v0.61.126 /
+# 1c7c4cb). Operator clarification ("Should be Putrajaya where IOI
+# city mall located and a 15 km radius. My bad error.") — the
+# Malaysia zone the spec doc named "Petrajaya / Petra Jaya, Sarawak"
+# was a typo. Intended location is Putrajaya (federal admin capital,
+# West Malaysia, ~25 km south of KL, where IOI City Mall + IOI Resort
+# City sit), NOT Petra Jaya in Sarawak (Kuching suburb on Borneo).
+# Four textual fixes in scripts/Create_2_buttons.MD: Malaysia zones
+# list, Important note section, test scenarios 5 + 6, Acceptance
+# criteria line. The existing v0.61.122 ioi-resort-putrajaya
+# precinct (lat 2.9742, lng 101.7060, region MY-PUT, radiusCapM
+# 15000) already supports the Fruits/Durian Putrajaya zone tests via
+# v0.61.126's region-suffix swap to "Putrajaya Malaysia" — no code
+# change. The v0.61.126 PR's "NOT YET SUPPORTED Sarawak" caveat was
+# overly defensive. journal-0_61_127-24_05_26-1754.md. Amends
+# journal #327 (v0.61.126) per AU-7.
+# v0.61.126 (commit 339 / journal 327 / build 129) — Cuisine TMA
+# Fruits + Durian exclusive special modes per scripts/Create_2_
+# buttons.MD (operator spec at commit f757cb3). PR #626 (branch
+# claude/v0.61.126-fruits-durian, off main at v0.61.125 / e7fa92f).
+# New special-mode.js module (~150 lines): SEED_TEMPLATES per mode
+# (fruit shop / fresh fruit stall / fruit juice stall / fresh fruit
+# market / fruit seller; durian shop / stall / seller / delivery /
+# specialist); KEYWORDS per mode incl. English + variety names + Malay
+# (buah, jus buah, pasar buah) + Chinese (水果, 果汁, 榴莲, 猫山王, 红虾);
+# REJECT_PRIMARY_TYPES per mode (Fruits rejects meal_takeaway —
+# juice stalls are dine-in / counter; Durian keeps it — sellers
+# commonly use it); buildSeeds(mode, { regionSuffix }) with region-
+# appropriate suffix (Singapore / Johor Bahru Malaysia / Putrajaya
+# Malaysia); filterByMode(venues, mode) reads name + area +
+# primaryType + editorial summary + reviews. /api/cuisine/search
+# reads req.body.specialMode, overrides cuisineQueries entirely,
+# short-circuits home-based + Tell-me + dessert blocks (if (… &&
+# !specialMode)), post-filters with sm.filterByMode, response sets
+# specialModeLimited: true when dedupedTop.length < 8 (the spec's
+# 8-12 relevant target). Cuisine TMA: state.specialMode in
+# defaultState (cleared by Reset via the spread); CuisineDrawer 2
+# amber-bordered pill buttons above the catalogue grid (mutually
+# exclusive, grey out the catalogue + QuickFilters when active);
+# App.jsx forwards specialMode to searchCuisine + renders
+# "🍉/🥥 Limited matches nearby" amber card when server flags
+# specialModeLimited. 35-spec __tests__/special-mode.test.js. PR
+# test report covers SG (Central/N/NE/E/W/S) + JB; flagged Petra
+# Jaya Sarawak as "NOT YET SUPPORTED" per the spec's own clause
+# (corrected forward by v0.61.127 — see entry above).
+# journal-0_61_126-24_05_26-1726.md.
+# v0.61.125 (commit 338 / journal 326 / build 128) — Menu TMA:
+# Location section, region-aware geocode, font bump. PR #625 (branch
+# claude/v0.61.125-jb-geocode-menu-typography, off main at v0.61.124
+# / 4875f3a). Four operator issues in one PR. (1) Sheraton-in-JB
+# bug: vibe-suggest.geocodeQuery hardcoded " Singapore" suffix so
+# typing "Sheraton Hotel" with a JB anchor active resolved to
+# Sheraton Towers Orchard. Fix: new geocodeQueryRegion(text,
+# { region, biasCenter }) — swaps suffix per region (Singapore /
+# Johor Bahru Malaysia / Putrajaya Malaysia), sends Places
+# locationBias circle around the user's anchor (25 km SG / 50 km
+# JB / 15 km Putrajaya), filters out hits outside the country bbox.
+# /api/menu/set-location text path reads the cached anchor's region
+# before geocoding and preserves region + radiusCapM when the new
+# resolved point stays in the same region. (2) Menu TMA every text-
+# size class bumped one Tailwind step (App.jsx + Tile + TrainPanel
+# + LocaleToggle + BackFab + LocationFieldMenu). (3) LocationFieldMenu
+# summary split into summaryMain at text-[13px] (was [10px]) +
+# standalone disabledListLine at text-[11px] (parens stripped from
+# location.disabledList for the standalone render). (4) New 'location'
+# entry in SECTIONS array; LocationFieldMenu moved out of PLAN into
+# own section.id === 'location' branch (no tile grid). New section.
+# location i18n key. journal-0_61_125-24_05_26-1709.md.
 # v0.61.124 (commit 337 / journal 325 / build 127) — Anchor completion
 # (7 items in one PR). PR #623 (branch claude/v0.61.124-anchor-completion,
 # off main at v0.61.123 / 2fe4edf). Bundled the 7 outstanding items
