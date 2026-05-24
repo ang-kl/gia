@@ -6590,7 +6590,7 @@ async function setVariantIdx(chatId, criteriaHash, idx) {
 // to get live coords + ratings + hours, applies per-chatId dedup so
 // consecutive clicks return different slices, and falls back to
 // reset+full-list when every venue has been seen.
-async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [] }) {
+async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [], detectedPlaceAnchor = null }) {
   if (isJB) {
     // v0.60.161 — tag _vlog so the TMA can opportunistically learn the
     // toggle state even on this early-exit path.
@@ -7356,7 +7356,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       twoStar: michelin.STARS_TWO.length,
       oneStar: michelin.STARS_ONE.length,
       bibGourmand: michelin.BIB_GOURMAND.length
-    }
+    },
+    // v0.61.134 — surface the v0.61.129 place anchor on Michelin responses
+    // too (the non-Michelin path's payload.placeAnchor write at the bottom
+    // of /api/cuisine/search never runs for Michelin since this handler
+    // takes the early-return). `freeText` here is the post-strip `ftRawIn`
+    // from the caller; pre-strip text was never threaded through.
+    ...(detectedPlaceAnchor ? {
+      placeAnchor: detectedPlaceAnchor,
+      placeAnchorQueryRemainder: freeText || ''
+    } : {})
   });
 }
 
@@ -10784,7 +10793,17 @@ async function cacheBotUsername() {
           return await handleMichelinSearch({
             req, res, csChatId, csLang,
             searchCenter, searchRadius,
-            isJB, freeText: req.body?.freeText || '',
+            // v0.61.134 — pass the v0.61.129 post-strip `ftRawIn` (not
+            // the raw body) so Michelin + place-anchor combinations
+            // ("ramen in Tiong Bahru" with the Michelin chip on) get
+            // the same name-substring filter as the non-Michelin path.
+            // Closes the v0.61.129 KNOWN GAP. Also threads the detected
+            // anchor through so handleMichelinSearch can surface it in
+            // its own res.json — the v0.61.129 placeAnchor payload field
+            // is set BELOW this isMichelinSearch early-return, so without
+            // this hand-off Michelin responses wouldn't carry the pill.
+            isJB, freeText: ftRawIn,
+            detectedPlaceAnchor,
             otherCuisineSlugs,
             filters
           });
