@@ -2182,6 +2182,27 @@ bot.on('callback_query', async (q) => {
       await runTransportTrain(chatId, cbLang); // legacy refresh button on bus stop list — point at train view
       return;
     }
+    // v0.61.119 — "✨ Top eateries nearby" button from a place-anchored
+    // search reply. callback_data is `place:nearby:<10-char-key>`; the
+    // anchor (name + coords + originalPlaceIds for dedupe) is cached
+    // in Redis under `place:anchor:<chatId>:<key>` for 30 min. Expired
+    // anchors get a polite "type again to refresh" reply.
+    if (data.startsWith('place:nearby:')) {
+      try {
+        const key = data.slice('place:nearby:'.length);
+        const raw = redis?.isOpen ? await redis.get(`place:anchor:${chatId}:${key}`) : null;
+        if (!raw) {
+          await safeSend(chatId, t('place.expired', cbLang));
+          return;
+        }
+        const anchor = JSON.parse(raw);
+        await runNearbyAlternatives(chatId, anchor, cbLang);
+      } catch (err) {
+        console.warn('[place:nearby] callback failed:', err.message);
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+      }
+      return;
+    }
     // v0.60.181 /s assist sub-menu dispatch (operator-driven assistance
     // flow modelled on /transport). Stateless via callback_data:
     //   s:menu                    → top-level 3-button menu
@@ -7761,6 +7782,26 @@ bot.on('message', async (msg) => {
             await safeSend(msg.chat.id, tGate('freetext.questionDeclined', userLang), { parse_mode: 'HTML', disable_web_page_preview: true });
             return;
           }
+          // v0.61.119 — Gemini says this is a venue (proper-noun place
+          // name: mall / building / hawker centre / restaurant). Try the
+          // deterministic place-detector first (MRT/LRT → hawker vault →
+          // geocode fallback) and run a place-anchored search at the
+          // resolved coords. If detection fails, fall through to the
+          // standard runFreeTextSearch (which uses Gemini's searchTerm).
+          if (cls && cls.intent === 'venue') {
+            try {
+              const { detectPlaceName } = require('./place-detector');
+              const place = await detectPlaceName(text);
+              if (place) {
+                try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: `place-${place.kind}`, resultCount: null }); } catch { /* best-effort */ }
+                console.log(`[free-text] D774 place-anchored — "${String(text).slice(0, 60)}" → ${place.kind}: ${place.name} (${place.lat.toFixed(4)},${place.lng.toFixed(4)}, r=${place.radius}m)`);
+                await runPlaceAnchoredSearch(msg.chat.id, place, { lang: userLang });
+                return;
+              }
+            } catch (err) {
+              console.warn('[free-text] place detection failed (continuing to search):', err.message);
+            }
+          }
         } catch (err) {
           console.warn('[free-text] food-relatedness gate failed (continuing to search):', err.message);
         }
@@ -8022,6 +8063,205 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
     console.error('[Error] free-text search failed:', err.message);
     const { t: trBotErr } = require('./i18n');
     await safeSend(chatId, trBotErr('bot.error.freetext', ftLang));
+  }
+}
+
+// v0.61.119 — place-anchored search. Fired when the chat free-text
+// path detected a SG place name (hawker centre, MRT/LRT station, mall,
+// building, restaurant, address) via place-detector.js. Runs
+// pipeline.discover at the place's coords with a small radius (per
+// kind) so the result list is genuinely "eateries AT that place", not
+// "eateries near the user". Caches the anchor in Redis so the
+// "✨ Top eateries nearby" inline button can fan out into a wider
+// ranked alternatives query.
+function placeAnchorKey(place) {
+  const crypto = require('crypto');
+  const seed = `${place.lat.toFixed(4)},${place.lng.toFixed(4)},${place.kind || 'p'}`;
+  return crypto.createHash('sha256').update(seed).digest('hex').slice(0, 10);
+}
+
+async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
+  const lang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    await setProcessing(redis, chatId);
+    const { tn: trnP } = require('./i18n');
+    let wait = null;
+    try {
+      wait = createWaitStatus(chatId, lang, place.name);
+      const pipeline = require('./pipeline');
+      const candidates = await pipeline.discover({
+        lat: place.lat,
+        lng: place.lng,
+        cuisines: ['restaurant'],   // generic seed — we want anything that eats
+        radius: place.radius,
+        maxResults: 18,
+        regionCode: 'SG',
+        lang,
+        applyDishTailThrottle: false,
+        queryOverride: `restaurants ${place.name} Singapore`
+      });
+      let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+      // Filter to venues actually within the per-kind radius (Places
+      // sometimes returns hits a few hundred metres beyond the request
+      // when the location-bias is soft).
+      venues = venues.filter((v) => {
+        if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return false;
+        const R = 6371000, toRad = (d) => d * Math.PI / 180;
+        const dLat = toRad(v.lat - place.lat), dLng = toRad(v.lng - place.lng);
+        const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(place.lat)) * Math.cos(toRad(v.lat)) * Math.sin(dLng / 2) ** 2;
+        return Math.round(2 * R * Math.asin(Math.sqrt(x))) <= place.radius;
+      });
+      const total = venues.length;
+      venues = venues.slice(0, 12);
+      try {
+        const { enrichTravelTimes } = require('./travel-times');
+        await enrichTravelTimes(place.lat, place.lng, venues);
+      } catch (err) { console.warn('[place] travel-times enrichment failed:', err.message); }
+      try {
+        const { attachCrowdSignals } = require('./crowd-signal');
+        await attachCrowdSignals(venues);
+      } catch (err) { console.warn('[place] crowd-signal failed:', err.message); }
+      try {
+        const { attachFootfallSignals } = require('./footfall-signal');
+        await attachFootfallSignals(redis, venues);
+      } catch (err) { console.warn('[place] footfall enrichment failed:', err.message); }
+      const placeEsc = escapeHtmlForTelegram(place.name);
+      const header = total > 0
+        ? trnP('place.foundN', lang, { place: placeEsc, n: String(total) })
+        : trnP('place.foundEmpty', lang, { place: placeEsc });
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
+      // Cache the anchor for the "nearby" callback. 30 min TTL — by then
+      // the user has either tapped or moved on.
+      const key = placeAnchorKey(place);
+      try {
+        if (redis?.isOpen) {
+          await redis.set(`place:anchor:${chatId}:${key}`, JSON.stringify({
+            name: place.name, lat: place.lat, lng: place.lng, kind: place.kind || 'place',
+            originalPlaceIds: venues.map((v) => v.placeId).filter(Boolean)
+          }), { EX: 1800 });
+        }
+      } catch (err) { console.warn('[place] redis anchor write failed:', err.message); }
+      if (venues.length === 0) {
+        // No eateries at the place itself — go straight to nearby alternatives.
+        await safeSend(chatId, header, { parse_mode: 'HTML', disable_web_page_preview: true });
+        await runNearbyAlternatives(chatId, { name: place.name, lat: place.lat, lng: place.lng, kind: place.kind, originalPlaceIds: [] }, lang);
+        return;
+      }
+      await deliverPicks(chatId, header, venues, { lang });
+      // Append the opt-in "Top eateries nearby" inline button as a
+      // separate small message so it survives the deliverPicks pagination.
+      try {
+        const { t: trP } = require('./i18n');
+        const km = (require('./place-detector').NEARBY_RADIUS_M / 1000).toFixed(1);
+        await bot.sendMessage(chatId,
+          lang === 'fr'
+            ? `_Voulez-vous voir les meilleurs établissements à proximité (~${km} km, classés par note · Michelin · rareté · affluence) ?_`
+            : `_Want the top-rated eateries nearby (~${km} km, ranked by rating · Michelin · rarity · crowd)?_`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: { inline_keyboard: [[{ text: trP('place.nearbyBtn', lang), callback_data: `place:nearby:${key}` }]] }
+          }
+        );
+      } catch (err) { console.warn('[place] nearby-button send failed:', err.message); }
+    } finally {
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
+      await clearProcessing(redis, chatId).catch(() => {});
+    }
+  } catch (err) {
+    console.error('[Error] place-anchored search failed:', err.message);
+    const { t: trErr } = require('./i18n');
+    await safeSend(chatId, trErr('bot.error.freetext', lang));
+  }
+}
+
+// v0.61.119 — fan-out when the user taps "✨ Top eateries nearby".
+// Wider radius (1.5 km), dedupe against the original at-place list,
+// rank by composite: rating (40%) + Michelin (30%) + rarity (20%) +
+// crowd-favours-quiet (10%).
+async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
+  try {
+    if (await isProcessing(redis, chatId)) {
+      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      return;
+    }
+    await setProcessing(redis, chatId);
+    const { tn: trnN } = require('./i18n');
+    let wait = null;
+    try {
+      wait = createWaitStatus(chatId, lang, anchor.name);
+      const pipeline = require('./pipeline');
+      const { NEARBY_RADIUS_M } = require('./place-detector');
+      const candidates = await pipeline.discover({
+        lat: anchor.lat,
+        lng: anchor.lng,
+        cuisines: ['restaurant'],
+        radius: NEARBY_RADIUS_M,
+        maxResults: 40,
+        regionCode: 'SG',
+        lang,
+        applyDishTailThrottle: false
+      });
+      let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
+      const dedupe = new Set(Array.isArray(anchor.originalPlaceIds) ? anchor.originalPlaceIds : []);
+      venues = venues.filter((v) => v.placeId && !dedupe.has(v.placeId));
+      if (!venues.length) {
+        if (wait) { await wait.finish().catch(() => {}); wait = null; }
+        const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
+        await safeSend(chatId, trnN('place.nearbyEmpty', lang, { km, place: escapeHtmlForTelegram(anchor.name) }), { parse_mode: 'HTML' });
+        return;
+      }
+      // Composite score: rating + Michelin + rarity + (1 - crowdCost)
+      const rs = require('./rarity-score');
+      const { findMichelinMatch } = require('./michelin-2025');
+      const { crowdCost } = require('./crowd-signal');
+      const sortedRatings = venues.map((c) => Number(c.rating)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
+      const sortedReviews = venues.map((c) => Number(c.userRatingCount)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
+      const scoreOf = (v) => {
+        const ratingNorm = Number.isFinite(v.rating) ? Math.max(0, Math.min(1, (v.rating - 3) / 2)) : 0;
+        let michelin = 0;
+        try { michelin = findMichelinMatch(v.name || '', v.area || '') ? 1 : 0; } catch { /* no-op */ }
+        const rarity = rs.scoreCandidate(v, sortedRatings, sortedReviews);
+        // crowd not yet attached at this point; default 0.5 → score 0.5 contribution
+        return 0.4 * ratingNorm + 0.3 * michelin + 0.2 * rarity + 0.1 * (1 - crowdCost(v.crowdLevel));
+      };
+      const ranked = venues
+        .map((v) => ({ v, _s: scoreOf(v) }))
+        .sort((a, b) => b._s - a._s)
+        .slice(0, 12)
+        .map((x) => x.v);
+      // Enrich the final top-12 only (cheaper than enriching all 40).
+      try {
+        const { enrichTravelTimes } = require('./travel-times');
+        await enrichTravelTimes(anchor.lat, anchor.lng, ranked);
+      } catch (err) { console.warn('[place-nearby] travel-times failed:', err.message); }
+      try {
+        const { attachCrowdSignals } = require('./crowd-signal');
+        await attachCrowdSignals(ranked);
+      } catch (err) { console.warn('[place-nearby] crowd-signal failed:', err.message); }
+      try {
+        const { attachFootfallSignals } = require('./footfall-signal');
+        await attachFootfallSignals(redis, ranked);
+      } catch (err) { console.warn('[place-nearby] footfall failed:', err.message); }
+      const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
+      const header = trnN('place.nearbyHeader', lang, {
+        n: String(ranked.length),
+        place: escapeHtmlForTelegram(anchor.name),
+        km
+      });
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
+      await deliverPicks(chatId, header, ranked, { lang });
+    } finally {
+      if (wait) { await wait.finish().catch(() => {}); wait = null; }
+      await clearProcessing(redis, chatId).catch(() => {});
+    }
+  } catch (err) {
+    console.error('[Error] place nearby alternatives failed:', err.message);
+    const { t: trErr } = require('./i18n');
+    await safeSend(chatId, trErr('bot.error.freetext', lang));
   }
 }
 
