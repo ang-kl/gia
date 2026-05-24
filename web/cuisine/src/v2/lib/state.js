@@ -32,7 +32,12 @@ export function defaultState() {
       prices: []
     },
     region: 'SG',
-    promptText: ''
+    promptText: '',
+    // v0.61.126 — Fruits / Durian exclusive special mode. When set
+    // (one of 'fruits' / 'durian'), it overrides cuisines + Michelin
+    // + dessert filters server-side; the CuisineDrawer + QuickFilters
+    // also grey out their toggles client-side. null = inactive.
+    specialMode: null
   };
 }
 

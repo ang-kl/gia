@@ -59,6 +59,21 @@ const STRINGS = {
   // "Animaux autorisés") — chip promoted to PRIMARY row beside Halal,
   // so the longer copy ate too much horizontal space on phones.
   'filter.petFriendly':        { en: 'Pet', fr: 'Animaux' },
+  // v0.61.126 — Fruits + Durian exclusive special-mode toggles.
+  // Per scripts/Create_2_buttons.MD: short labels, distinct from the
+  // catalogue, mutually exclusive, grey-out normal cuisines + filters
+  // when active. activeNote sits below the special-mode row to
+  // remind the user other toggles are locked. limitedMatches surfaces
+  // when the server-side post-filter trimmed the result count below
+  // the spec's "8-12 relevant" target.
+  'special.fruits.label':      { en: 'Fruits', fr: 'Fruits' },
+  'special.durian.label':      { en: 'Durian', fr: 'Durian' },
+  'special.activeNote':        { en: '{mode} mode is on — other cuisine, Michelin and dessert filters are locked. Tap the active button to clear.',
+                                 fr: 'Mode {mode} activé — les autres filtres cuisine, Michelin et dessert sont verrouillés. Touchez le bouton actif pour effacer.' },
+  'special.fruits.limited':    { en: '🍉 Limited matches nearby. Showing the closest fruit-related results.',
+                                 fr: '🍉 Peu de résultats à proximité. Affichage des établissements liés aux fruits les plus proches.' },
+  'special.durian.limited':    { en: '🥥 Limited durian sellers nearby. Showing the closest relevant matches.',
+                                 fr: '🥥 Peu de vendeurs de durian à proximité. Affichage des résultats les plus proches.' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },
