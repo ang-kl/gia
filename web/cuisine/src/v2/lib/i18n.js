@@ -74,6 +74,23 @@ const STRINGS = {
                                  fr: '🍉 Peu de résultats à proximité. Affichage des établissements liés aux fruits les plus proches.' },
   'special.durian.limited':    { en: '🥥 Limited durian sellers nearby. Showing the closest relevant matches.',
                                  fr: '🥥 Peu de vendeurs de durian à proximité. Affichage des résultats les plus proches.' },
+  // v0.61.130 — UI surface for v0.61.129 O-23 backend. When the
+  // special-mode widening pass actually fired (radius escalated from
+  // X to Y), append "· widened to Y km" below the limited card so
+  // the user understands why the result list looks a bit further out
+  // than the slider suggests.
+  'special.widened':           { en: '· widened to {km} km',
+                                 fr: '· élargi à {km} km' },
+  // v0.61.130 — UI surface for v0.61.129 O-20 backend. Rendered as a
+  // pill above the result list when the Tell-me box typed text named
+  // a place (MRT station, hawker centre, STB precinct, or geocoded
+  // landmark). `anchor.searching` is the place-only form; if the user
+  // also typed a dish/qualifier alongside the place, the stripped
+  // remainder is shown via `anchor.showing` instead.
+  'anchor.searching':          { en: '📍 Searching near {place}',
+                                 fr: '📍 Recherche près de {place}' },
+  'anchor.showing':            { en: '📍 Showing "{query}" near {place}',
+                                 fr: '📍 Affichage de « {query} » près de {place}' },
   'filter.price':              { en: 'Price', fr: 'Prix' },
   'filter.openPrice':          { en: 'Open price selector', fr: 'Ouvrir le sélecteur de prix' },
   'filter.closePrice':         { en: 'Close price selector', fr: 'Fermer le sélecteur de prix' },

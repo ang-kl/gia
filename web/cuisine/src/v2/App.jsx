@@ -71,6 +71,18 @@ export default function App() {
   // dropped the count below the spec's "8-12 relevant" target. Null
   // otherwise; "fruits" / "durian" when set.
   const [specialModeNotice, setSpecialModeNotice] = useState(null);
+  // v0.61.130 — surfaces v0.61.129 O-23: when the special-mode
+  // widening pass actually escalated the radius, render a small
+  // " · widened to N km" caption next to the limited card.
+  // Null when widening didn't run; { fromM, finalM } when it did.
+  const [specialModeWidenedInfo, setSpecialModeWidenedInfo] = useState(null);
+  // v0.61.130 — surfaces v0.61.129 O-20: when the Tell-me box typed
+  // text named a place, the backend pivots searchCenter to that
+  // anchor; this state drives the "📍 Searching near …" pill above
+  // the result list. Carries the stripped query remainder so we can
+  // echo "Showing 'ramen' near Tiong Bahru MRT" rather than just the
+  // place. Null when no anchor was detected.
+  const [placeAnchor, setPlaceAnchor] = useState(null);
   // v0.60.131 — server declined a "Tell me" text that read like a
   // question/instruction rather than a dish/cuisine name.
   const [questionDeclined, setQuestionDeclined] = useState(false);
@@ -233,6 +245,11 @@ export default function App() {
     setComboInfo(p.comboInfo || null);
     setMisrepNote(p.misrepNote || null);
     setCookMethodPivot(p.cookMethodPivot || null);
+    // v0.61.130 — restore the O-20/O-23 pills + caption alongside the
+    // venues so back/forward navigation re-renders the right context.
+    setPlaceAnchor(p.placeAnchor || null);
+    setSpecialModeNotice(p.specialModeNotice || null);
+    setSpecialModeWidenedInfo(p.specialModeWidenedInfo || null);
     setSessionFull(!!p.sessionFull);
     setPageStackDepth(Number.isFinite(p.pageStackDepth) ? p.pageStackDepth : 0);
     setMichelinRemaining(p.michelinRemaining || null);
@@ -664,6 +681,9 @@ export default function App() {
       if (r && r.questionDeclined === true) {
         setQuestionDeclined(true);
         setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setComboInfo(null);
+        // v0.61.130 — clear the v0.61.129 pills + caption alongside the
+        // other info chips when the server declined the typed text.
+        setPlaceAnchor(null); setSpecialModeNotice(null); setSpecialModeWidenedInfo(null);
         setFirstLoadPending(false);
         return;
       }
@@ -712,6 +732,25 @@ export default function App() {
       // `specialModeLimited: true` when the post-filter dropped the
       // count below the spec's 8-12 target).
       setSpecialModeNotice(r.specialMode && r.specialModeLimited ? r.specialMode : null);
+      // v0.61.130 — v0.61.129 O-23 backend metadata. `specialModeWidened`
+      // is true when the server's radius-escalation loop fired at least
+      // once; the from/final metres tell the user the search drew from
+      // a wider area than the slider implies.
+      setSpecialModeWidenedInfo(
+        r.specialModeWidened && Number.isFinite(r.specialModeFinalRadiusM)
+          ? { fromM: r.specialModeWidenedFromM, finalM: r.specialModeFinalRadiusM }
+          : null
+      );
+      // v0.61.130 — v0.61.129 O-20 backend metadata. `placeAnchor` is
+      // the detected place ({ name, kind, lat, lng, source });
+      // `placeAnchorQueryRemainder` is the stripped freeText (what's
+      // left after the place name was lifted out — empty when the user
+      // typed a place name on its own).
+      setPlaceAnchor(
+        r.placeAnchor && r.placeAnchor.name && Number.isFinite(r.placeAnchor.lat)
+          ? { ...r.placeAnchor, queryRemainder: typeof r.placeAnchorQueryRemainder === 'string' ? r.placeAnchorQueryRemainder : '' }
+          : null
+      );
       setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
@@ -758,6 +797,16 @@ export default function App() {
         comboInfo: r.comboInfo || null,
         misrepNote: (r.misrepresentation && r.misrepresentation.name) ? r.misrepresentation : null,
         cookMethodPivot: (r.cookingMethod && Array.isArray(r.cookingMethod.matches) && r.cookingMethod.matches.length) ? r.cookingMethod : null,
+        // v0.61.130 — persist the v0.61.129 O-20/O-23 fields onto the
+        // page so Back/Forward re-renders the pill + widened caption
+        // that matched the venues shown.
+        placeAnchor: (r.placeAnchor && r.placeAnchor.name && Number.isFinite(r.placeAnchor.lat))
+          ? { ...r.placeAnchor, queryRemainder: typeof r.placeAnchorQueryRemainder === 'string' ? r.placeAnchorQueryRemainder : '' }
+          : null,
+        specialModeNotice: r.specialMode && r.specialModeLimited ? r.specialMode : null,
+        specialModeWidenedInfo: (r.specialModeWidened && Number.isFinite(r.specialModeFinalRadiusM))
+          ? { fromM: r.specialModeWidenedFromM, finalM: r.specialModeFinalRadiusM }
+          : null,
         sessionFull: r?.sessionFull === true,
         pageStackDepth: Number.isFinite(r?.pageStackDepth) ? r.pageStackDepth : 0,
         michelinRemaining: (r?.michelinSummary && Number.isFinite(r.michelinSummary.remaining))
@@ -800,6 +849,10 @@ export default function App() {
       }
     } catch (err) {
       setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setQuestionDeclined(false);
+      // v0.61.130 — clear the v0.61.129 pills on error so a stale
+      // "📍 Searching near Tiong Bahru" doesn't sit above an empty
+      // result list after a network blip.
+      setPlaceAnchor(null); setSpecialModeNotice(null); setSpecialModeWidenedInfo(null);
     } finally { setLoading(false); }
   }
 
@@ -1272,6 +1325,30 @@ export default function App() {
       {specialModeNotice && !loading && (
         <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t(`special.${specialModeNotice}.limited`, lang)}
+          {/* v0.61.130 — append "· widened to N km" when the v0.61.129
+              O-23 radius-escalation pass actually ran. The km is rounded
+              to one decimal place; the metres-to-km cast is the only
+              transformation. */}
+          {specialModeWidenedInfo && Number.isFinite(specialModeWidenedInfo.finalM) && (
+            <span className="text-tg-hint">
+              {' '}{tn('special.widened', lang, { km: (specialModeWidenedInfo.finalM / 1000).toFixed(1) })}
+            </span>
+          )}
+        </div>
+      )}
+      {/* v0.61.130 — place-anchor pill (v0.61.129 O-20). When the Tell-me
+          box typed text was recognised as a Singapore place (MRT,
+          hawker, STB precinct, or geocoded landmark), the backend
+          pivoted the search centre there + tightened the radius. Show
+          the user that pivot so the visible result locations are
+          self-explanatory. The pill uses the tg-hint border to feel
+          informational, not error/alert (which is the amber card's
+          job). */}
+      {placeAnchor && !loading && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {placeAnchor.queryRemainder
+            ? tn('anchor.showing', lang, { query: placeAnchor.queryRemainder, place: placeAnchor.name })
+            : tn('anchor.searching', lang, { place: placeAnchor.name })}
         </div>
       )}
 

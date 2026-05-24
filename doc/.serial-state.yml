@@ -1,8 +1,8 @@
 counters:
-  commit: 342
-  build: 132
+  commit: 343
+  build: 133
   documents:
-    journal: 330
+    journal: 331
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,40 @@ counters:
     register: 118
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 40
-last_anchor_time: 24-05 '26 22:20 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-24T22:20:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.129 O-20+O-23 session)
-last_anchor_iso8601: 2026-05-24T22:20:00+08:00
-last_anchor_utc: 2026-05-24T14:20:00Z
+  current_chat_counter: 41
+last_anchor_time: 25-05 '26 06:25 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T06:25:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.130 TMA-UI session, day rollover from v0.61.129)
+last_anchor_iso8601: 2026-05-25T06:25:00+08:00
+last_anchor_utc: 2026-05-24T22:25:00Z
+# v0.61.130 (commit 343 / journal 331 / build 133) — Cuisine TMA UI
+# surface for v0.61.129 O-20 + O-23. PR #631 (branch
+# claude/v0.61.130-cuisine-tma-pills, off main at v0.61.129 /
+# c6e8b7c). Operator: "1" (TMA UI for the new payload fields) from
+# the three follow-up next-pick shortlist. v0.61.129 wired O-20
+# (Tell-me place anchor) + O-23 (Fruits/Durian widening) into the
+# backend and surfaced payload.placeAnchor + payload.specialMode
+# Widened* fields, but the React TMA layer didn't render them yet
+# - feature was silently correct but invisible to the user. This
+# PR adds:
+# (1) "📍 Searching near <place>" pill above the result list when
+#     payload.placeAnchor is set. If the user typed a dish/qualifier
+#     alongside the place (placeAnchorQueryRemainder non-empty), the
+#     pill reads "📍 Showing 'ramen' near Tiong Bahru MRT" instead.
+# (2) "· widened to N km" caption appended to the existing amber
+#     "Limited matches nearby" card whenever specialModeWidened is
+#     true. N is finalRadiusM/1000 rounded to one decimal place.
+# Three files: web/cuisine/src/v2/App.jsx (state hooks + page-cache
+# round-trip + JSX pill + JSX caption), web/cuisine/src/v2/lib/i18n.js
+# (3 new keys: anchor.searching, anchor.showing, special.widened -
+# en + fr each), package.json (0.61.129 -> 0.61.130). Verified via
+# vite build (./web/cuisine: 69 modules, 3.31 s, no errors; pre-
+# existing dynamic-import warnings unrelated). plumbing-committed on
+# top of origin/main per the O-22 workaround.
+# journal-0_61_130-25_05_26-0625.md. KNOWN GAPS: still no inline
+# unit tests for the v0.61.129 backend (carries forward); the place-
+# anchor pill renders AFTER the misrep / specialMode cards rather
+# than before (a layout call to defer until operator preference);
+# Register increment for O-20 / O-23 / D-61.129 still due.
 # v0.61.129 (commit 342 / journal 330 / build 132) — Cuisine TMA
 # O-20 + O-23: Tell-me box place-anchor detection + Fruits/Durian
 # progressive radius widening. PR #630 (branch
