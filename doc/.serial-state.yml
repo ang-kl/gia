@@ -1,8 +1,8 @@
 counters:
-  commit: 341
-  build: 131
+  commit: 342
+  build: 132
   documents:
-    journal: 329
+    journal: 330
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,46 @@ counters:
     register: 118
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 39
-last_anchor_time: 24-05 '26 20:57 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-24T20:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.128 catch-up session, rounded forward to commit-time 20:57)
-last_anchor_iso8601: 2026-05-24T20:57:00+08:00
-last_anchor_utc: 2026-05-24T12:57:00Z
+  current_chat_counter: 40
+last_anchor_time: 24-05 '26 22:20 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-24T22:20:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.129 O-20+O-23 session)
+last_anchor_iso8601: 2026-05-24T22:20:00+08:00
+last_anchor_utc: 2026-05-24T14:20:00Z
+# v0.61.129 (commit 342 / journal 330 / build 132) — Cuisine TMA
+# O-20 + O-23: Tell-me box place-anchor detection + Fruits/Durian
+# progressive radius widening. PR #630 (branch
+# claude/v0.61.129-tellme-place-anchor-and-radius-widening, off
+# main at v0.61.128 / 2cefd59). Operator: "keep going: O-20 (Cuisine
+# TMA Tell-me box place detection - the only Open user-facing gap)
+# and O-23 (Fruits/Durian progressive radius widening, low priority)."
+# Two changes in /api/cuisine/search:
+# (O-20) After the question-decline guard + searchCenter/searchRadius
+# init, detect a place anchor in ftRawIn via place-detector.detectPlaceName
+# (the same ladder the chat /s flow uses since v0.61.119). Supports
+# "<query> in/near/around/at <place>" pattern + standalone-place
+# pattern. On hit: searchCenter pivots to anchor.lat/lng, searchRadius
+# clamps to NEARBY_RADIUS_M (1500m, anchorCap-clamped), and the matched
+# span is stripped from ftRawIn so downstream cuisine-query construction
+# is clean. Surfaced as payload.placeAnchor + .placeAnchorQueryRemainder.
+# Skipped for JB (place-detector data is SG-only).
+# (O-23) After the special-mode post-filter, when venues.length < 8,
+# try 2x then 3x the initial radius (capped at anchorCap or 30 km
+# hard cap), running the same per-seed discover + venueFilter +
+# sm.filterByMode at each step, deduping against the venues already
+# accumulated. Stops as soon as count >= 8 or the cap is hit.
+# Surfaced as payload.specialModeWidened + .specialModeWidenedFromM
+# + .specialModeFinalRadiusM. searchRadius itself is not mutated so
+# downstream cache + dedup-slice keep the original-request radius.
+# Two ftRaw shadow decls (misrep, cookMethod) folded into outer
+# ftRawIn so the post-strip text flows through. anchorCap variable
+# lifted out of the radius-clamp try block for reuse by O-23.
+# chipDisambig probe now reads ftRawIn (post-strip) so place names
+# don't enter R.E.D disambig. freetext-log captures ftRawOriginal
+# (pre-strip) so telemetry sees what the user actually typed.
+# journal-0_61_129-24_05_26-2220.md. KNOWN GAP: no inline unit test
+# for the widening loop or the place-detection wiring; verified via
+# `node --check` + manual spec walkthrough; full vitest suite skipped
+# per O-21 (~3 h on Node 24).
 # v0.61.128 (commit 341 / journal 329 / build 131) — Docs:
 # VibeCodingRecord ledger catch-up #553-#627. PR #629 (branch
 # claude/v0.61.128-vibe-ledger-catchup, off main at v0.61.127 /
