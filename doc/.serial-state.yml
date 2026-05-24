@@ -1,21 +1,49 @@
 counters:
-  commit: 347
-  build: 137
+  commit: 348
+  build: 138
   documents:
-    journal: 335
+    journal: 336
     builder: 3
     persona: 4
     feature: 48
-    technical: 48
+    technical: 49
     legal: 9
     register: 119
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 45
-last_anchor_time: 25-05 '26 07:40 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T07:35:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.134 Michelin raw-freeText fix session, rounded forward 5 min to commit-time)
-last_anchor_iso8601: 2026-05-25T07:40:00+08:00
-last_anchor_utc: 2026-05-24T23:40:00Z
+  current_chat_counter: 46
+last_anchor_time: 25-05 '26 08:00 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T07:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.135 Technical-doc O-22 session, rounded forward 5 min to commit-time)
+last_anchor_iso8601: 2026-05-25T08:00:00+08:00
+last_anchor_utc: 2026-05-25T00:00:00Z
+# v0.61.135 (commit 348 / journal 336 / build 138 / technical 49) —
+# Docs: Technical doc incremental for O-22 iCloud-Drive workaround.
+# PR #636 (branch claude/v0.61.135-technical-o22, off main at
+# v0.61.134 / 1aa9c34). Operator: "O-22 Technical doc entry while
+# it's fresh" — first Technical entry since the v0.61.83 fresh
+# master. Pure docs. New doc/Technical/technical-0_61_135-25_05_26-
+# 0800.md appends to the v0.61.83 master per AU-1; only §4 Build
+# Constraints and §5 Diagnostic Codes Index are extended. New §§:
+#   4.5 — iCloud Drive working-tree constraint (symptoms table:
+#         git diff/status hang, fetch + partial-write, npm install,
+#         vite build, vitest per-file fast path vs full-suite hang).
+#   4.6 — Plumbing-commit pattern (git read-tree origin/main + per-
+#         file git hash-object + git update-index --cacheinfo + git
+#         commit-tree + git update-ref + push), the working pattern
+#         used for every PR #629 -> #635 in the v0.61.128-134 arc.
+#   4.7 — Pack-corruption recovery (the v0.61.133->v0.61.134 boundary
+#         pack-too-short failure; both local packs were stale, mv to
+#         .git/objects/pack-broken/ + git fetch --refetch produced
+#         brand-new packs; recovery is reversible).
+#   4.8 — Test-suite under O-21 + O-22: per-file vitest pattern is
+#         the working substitute for `npm test -- --run` (PR #632's
+#         33 inline tests ran in 748 ms total).
+#   D777 / D780 / D781 / pack-broken — added to §5 Diagnostic
+#         Codes Index. package.json 0.61.134 -> 0.61.135. Counters:
+#         commit 347->348, build 137->138, journal 335->336, technical
+#         48 -> 49. Re-anchored 25-05 '26 08:00 SGT. plumbing-committed
+#         per O-22 (the workaround documenting itself).
+# journal-0_61_135-25_05_26-0800.md.
 # v0.61.134 (commit 347 / journal 335 / build 137) — Cuisine TMA
 # Michelin + place-anchor follow-up. PR #635 (branch
 # claude/v0.61.134-michelin-place-anchor, off main at v0.61.133 /
