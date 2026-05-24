@@ -377,6 +377,16 @@ export default function App() {
         const r = await fetchUserLocation();
         if (!cancelled && isValidCoord(r?.lat, r?.lng)) {
           setUserLoc({ lat: r.lat, lng: r.lng });
+          // v0.61.124 — auto-flip the region toggle when the cached
+          // anchor is Johor Bahru or IOI Resort City Putrajaya (set
+          // via the chat /location quick-pick or Menu TMA dropdown).
+          // Without this, picking JB on chat had no effect on the
+          // Cuisine TMA — the toggle stayed on 🇸🇬 and searches ran at
+          // SG defaults.
+          if (r.region === 'JB' || r.region === 'MY-PUT') {
+            setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → JB (anchor region=' + r.region + ')');
+          }
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }

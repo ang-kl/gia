@@ -28,6 +28,12 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   const [textValue, setTextValue] = useState('');
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  // v0.61.124 — autocomplete suggestions for the free-text input,
+  // backed by the existing /api/cuisine/place-autocomplete endpoint
+  // (Google Places Autocomplete proxy with 5-min Redis cache). Debounced
+  // 300 ms after the last keystroke; cleared on submit / pick.
+  const [suggestions, setSuggestions] = useState([]);
+  const [acOpen, setAcOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,13 +100,66 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const text = textValue.trim();
     if (!text) return;
     postSetLocation({ text }).then((body) => {
+      if (body?.ok) { setTextValue(''); setSuggestions([]); setAcOpen(false); }
+    });
+  }
+
+  // v0.61.124 — debounced autocomplete. Mirrors the Cuisine TMA's
+  // LocationField: POST /api/cuisine/place-autocomplete with the
+  // typed text + current anchor (used as a location bias). Only fires
+  // when the input has ≥ 3 chars and we're not already submitting.
+  useEffect(() => {
+    const text = textValue.trim();
+    if (text.length < 3 || busy) { setSuggestions([]); setAcOpen(false); return; }
+    const timer = setTimeout(() => {
+      const w = tg();
+      if (!w) return;
+      fetch('/api/cuisine/place-autocomplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: text,
+          lat: currentAnchor?.lat || null,
+          lng: currentAnchor?.lng || null,
+          region: (currentAnchor?.region === 'JB' || currentAnchor?.region === 'MY-PUT') ? 'JB' : 'SG',
+          initData: w.initData || ''
+        })
+      })
+        .then((r) => r.ok ? r.json() : null)
+        .then((b) => {
+          if (!b || !Array.isArray(b.suggestions)) return;
+          setSuggestions(b.suggestions.slice(0, 5));
+          setAcOpen(true);
+        })
+        .catch(() => { /* silent */ });
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textValue, busy]);
+
+  function pickSuggestion(s) {
+    // The cuisine TMA's LocationField uses /api/cuisine/place-resolve
+    // to convert placeId → coords. The Menu TMA's set-location
+    // endpoint already accepts free text + geocodes it server-side,
+    // so feeding the suggestion's primaryText is good enough and saves
+    // a round-trip. Operator can flip to placeId-resolve later if
+    // accuracy needs improving for ambiguous picks.
+    const text = `${s.primaryText || ''}${s.secondaryText ? ' ' + s.secondaryText : ''}`.trim();
+    setTextValue(text);
+    setSuggestions([]); setAcOpen(false);
+    postSetLocation({ text }).then((body) => {
       if (body?.ok) setTextValue('');
     });
   }
 
   // Current-anchor summary line, with cap note when present.
+  // v0.61.124 — also append the disabled-tiles note when the anchor
+  // is in Malaysia so the user understands the greying without
+  // having to tap a disabled tile to read the tooltip.
   const capKm = currentAnchor?.radiusCapM ? Math.round(currentAnchor.radiusCapM / 1000) : null;
-  const capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
+  let capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
+  const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT');
+  if (isMy) capStr = capStr + t('location.disabledList', lang);
   const summary = currentAnchor?.label
     ? t('location.currentSet', lang).replace('{label}', escapeHtml(currentAnchor.label)).replace('{cap}', capStr)
     : t('location.currentNone', lang);
@@ -143,8 +202,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           type="text"
           value={textValue}
           onChange={(e) => setTextValue(e.target.value)}
+          onFocus={() => suggestions.length > 0 && setAcOpen(true)}
+          onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}  // delay so onClick on a suggestion still fires
           placeholder={t('location.searchPlaceholder', lang)}
           disabled={busy}
+          autoComplete="off"
           className="flex-1 text-[12px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
         />
         <button
@@ -153,6 +215,22 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           className="text-[11px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
         >{busy ? '…' : t('location.searchSubmit', lang)}</button>
       </form>
+      {acOpen && suggestions.length > 0 && (
+        <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
+          {suggestions.map((s) => (
+            <button
+              key={s.placeId || s.primaryText}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}  /* don't steal focus before onClick */
+              onClick={() => pickSuggestion(s)}
+              className="block w-full text-left px-2 py-1.5 text-[11px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+            >
+              <div className="text-tg-text">{s.primaryText}</div>
+              {s.secondaryText && <div className="text-[10px] text-tg-hint">{s.secondaryText}</div>}
+            </button>
+          ))}
+        </div>
+      )}
       {errorMsg && <div className="text-[10px] text-red-500">{errorMsg}</div>}
     </div>
   );
