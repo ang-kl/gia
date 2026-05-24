@@ -1,8 +1,8 @@
 counters:
-  commit: 340
-  build: 130
+  commit: 341
+  build: 131
   documents:
-    journal: 328
+    journal: 329
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,29 @@ counters:
     register: 118
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 38
-last_anchor_time: 24-05 '26 17:54 SGT
-last_anchor_source: github_pr_merge_timestamp_2026-05-24T09:54:38Z_for_PR_627_v0_61_127 (used per Rule TF-9; merge timestamp authoritative for the v0.61.125-127 arc cut)
-last_anchor_iso8601: 2026-05-24T17:54:38+08:00
-last_anchor_utc: 2026-05-24T09:54:38Z
+  current_chat_counter: 39
+last_anchor_time: 24-05 '26 20:57 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-24T20:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.128 catch-up session, rounded forward to commit-time 20:57)
+last_anchor_iso8601: 2026-05-24T20:57:00+08:00
+last_anchor_utc: 2026-05-24T12:57:00Z
+# v0.61.128 (commit 341 / journal 329 / build 131) — Docs:
+# VibeCodingRecord ledger catch-up #553-#627. PR #629 (branch
+# claude/v0.61.128-vibe-ledger-catchup, off main at v0.61.127 /
+# 69956b3). Operator standing rule ("keep the VibeCodingRecord ledger
+# current"); last catch-up was PR #553 on 20-05 '26 covering #542-
+# #552, so the v0.61.57 → v0.61.127 arc had no ledger row. data/
+# prs.ndjson +75 rows (545->620), data/pr-files.tsv +37 rows (the 37
+# PRs in range that squash-merged to main with a (#NNN) tag; the
+# other 38 either landed via the 48ee865 "Add files via upload" bulk
+# commit or were closed-unmerged, no file list — matches the PR
+# #1-#77 pre-(#NNN)-convention precedent). generate.mjs GEN_DATE
+# 2026-05-20 -> 2026-05-24. records.tsv / vibe-coding-record.md /
+# public/doc/vibe-journal.{html,json} regenerated, 619 records,
+# categories feature=383 fix=85 docs=57 copy=35 prompt-tune=31
+# refactor=17 test=6 infra=5, rework-flagged=61. Built via the O-22
+# git-plumbing workaround (read-tree + cacheinfo + commit-tree on
+# top of origin/main) because iCloud Drive throttled git diff/status.
+# journal-0_61_128-24_05_26-2057.md.
 # v0.61.127 (commit 340 / journal 328 / build 130) — Docs: fix
 # Create_2_buttons.MD spec, Putrajaya not Sarawak. PR #627 (branch
 # claude/v0.61.127-spec-fix-putrajaya, off main at v0.61.126 /
