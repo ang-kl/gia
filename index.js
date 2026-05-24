@@ -10547,6 +10547,16 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // v0.61.126 — Fruits / Durian exclusive special mode. When
+        // set, the request body's `cuisines` / `filters.michelin` /
+        // `filters.dessert` / Tell-me text are all IGNORED in favour
+        // of the per-mode seed list from special-mode.js; results
+        // are post-filtered by mode-specific keyword signals so the
+        // Places fuzzy-match can't bleed in unrelated restaurants
+        // (per scripts/Create_2_buttons.MD). The mode short-circuits
+        // every cuisine-query construction step below.
+        const specialModeIn = (req.body && typeof req.body.specialMode === 'string') ? req.body.specialMode : null;
+        const specialMode = (specialModeIn === 'fruits' || specialModeIn === 'durian') ? specialModeIn : null;
         // v0.59.0: resolve active lang for this request — TMA body
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -10890,6 +10900,20 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.61.126 — special-mode override. When Fruits or Durian
+        // is on, replace cuisineQueries entirely with the per-mode
+        // seeds (`special-mode.buildSeeds`) suffixed for the right
+        // region. Skips the home-based / Tell-me qualifier / dessert
+        // detection blocks below by setting a flag the dessert hit
+        // gate checks for. The post-filter pass further down drops
+        // any Places result whose primaryType + name + reviews don't
+        // carry a mode keyword.
+        if (specialMode) {
+          const sm = require('./special-mode');
+          const regionSuffix = region === 'JB' ? 'Johor Bahru Malaysia' : 'Singapore';
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} seeds=${JSON.stringify(cuisineQueries)} (overrides cuisines / home-based / Tell-me / dessert)`);
+        }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens
         // poorly under generic cuisine names — they self-identify as
@@ -10906,7 +10930,7 @@ async function cacheBotUsername() {
         //                                  "home-based meals"]
         //   cuisine selected     → prefix each query with
         //                          "private dining home-cooked"
-        if (filters.homeBased) {
+        if (filters.homeBased && !specialMode) {
           if (cuisineNames.length) {
             cuisineQueries = cuisineNames.map((n) =>
               `private dining home-cooked ${modifiers.join(' ')} ${n}`.replace(/\s+/g, ' ').trim()
@@ -10934,7 +10958,13 @@ async function cacheBotUsername() {
         // the v0.60.126 qualifier-fold.
         const ftQualifier = ftRawIn.slice(0, 80);
         let dessertTmaHit = null;
-        if (ftQualifier) {
+        // v0.61.126 — special-mode short-circuits the Tell-me +
+        // dessert blocks. Per spec, "Fruits" / "Durian" allow only
+        // place names / specific fruit varieties / preparation styles
+        // as text additions; the dessert-detection pivot would over-
+        // collect bakery / café results. The cuisineQueries seeds are
+        // already mode-led from the override above.
+        if (ftQualifier && !specialMode) {
           try {
             const ddk = require('./dessert-drink-keywords');
             const hit = ddk.looksLikeDessertOrDrink(ftQualifier);
@@ -11214,6 +11244,20 @@ async function cacheBotUsername() {
         venues = venues.filter(venueFilters.passesVenueFilter);
         if (venues.length !== beforeNonFood) {
           console.log(`[Cuisine-Search] D703 venue-filter (type+name) ${beforeNonFood} → ${venues.length}`);
+        }
+        // v0.61.126 — special-mode post-filter. After the standard
+        // venue-filter trims non-food types, drop anything that doesn't
+        // carry a mode keyword (fruit/durian + Malay + Chinese
+        // signals). Per scripts/Create_2_buttons.MD: "Do not weaken
+        // the semantic intent" — better to return fewer results than
+        // pad with unrelated cuisines.
+        if (specialMode) {
+          const sm = require('./special-mode');
+          const beforeSpecial = venues.length;
+          venues = sm.filterByMode(venues, specialMode);
+          if (venues.length !== beforeSpecial) {
+            console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
+          }
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places
@@ -11787,6 +11831,16 @@ async function cacheBotUsername() {
           buildingObjAnnotator(v);
         }
         const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        // v0.61.126 — special-mode response metadata. The TMA renders
+        // the "Limited matches nearby. Showing the closest <mode>-
+        // related results." line per scripts/Create_2_buttons.MD when
+        // the result count drops below the spec's "8-12 relevant"
+        // threshold. The mode itself is echoed back so the TMA can
+        // confirm what the server actually used (defensive).
+        if (specialMode) {
+          payload.specialMode = specialMode;
+          payload.specialModeLimited = dedupedTop.length < 8;
+        }
         if (ftRawIn) {
           try {
             require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {

@@ -67,6 +67,10 @@ export default function App() {
   // cuisine chips above the result list. Tapping a chip prefills that
   // cuisine into the criteria and re-runs the search.
   const [cookMethodPivot, setCookMethodPivot] = useState(null);
+  // v0.61.126 — server tag indicating Fruits / Durian post-filter
+  // dropped the count below the spec's "8-12 relevant" target. Null
+  // otherwise; "fruits" / "durian" when set.
+  const [specialModeNotice, setSpecialModeNotice] = useState(null);
   // v0.60.131 — server declined a "Tell me" text that read like a
   // question/instruction rather than a dish/cuisine name.
   const [questionDeclined, setQuestionDeclined] = useState(false);
@@ -652,7 +656,8 @@ export default function App() {
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
-        freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined  // v0.60.126 — Tell-me box as a qualifier
+        freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
+        specialMode: snap.specialMode || null            // v0.61.126 — Fruits / Durian exclusive mode override
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
@@ -703,6 +708,10 @@ export default function App() {
       // text named a dish from the curated table)
       setMisrepNote(r.misrepresentation && r.misrepresentation.name ? r.misrepresentation : null);
       setCookMethodPivot(r.cookingMethod && Array.isArray(r.cookingMethod.matches) && r.cookingMethod.matches.length ? r.cookingMethod : null);
+      // v0.61.126 — special-mode "limited matches" notice (server sets
+      // `specialModeLimited: true` when the post-filter dropped the
+      // count below the spec's 8-12 target).
+      setSpecialModeNotice(r.specialMode && r.specialModeLimited ? r.specialMode : null);
       setFirstLoadPending(false);
       setSearchCenter({ lat: center.lat, lng: center.lng });
       setLastRunSnap(stateSig(snap));
@@ -1151,12 +1160,21 @@ export default function App() {
         )}
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
-            <QuickFilters filters={state.filters} onChange={(f) => setState((s) => ({ ...s, filters: f }))} />
+            <QuickFilters
+              filters={state.filters}
+              onChange={(f) => setState((s) => ({ ...s, filters: f }))}
+              specialModeActive={!!state.specialMode}
+            />
             {/* v0.61.29 — LocationField moved out of this collapsed
                 section to the banner slot above the map; see the
-                `!userLoc ? … : <LocationField …>` block near the top. */}
+                `!userLoc ? … : <LocationField …>` block near the top.
+                v0.61.126 — specialMode + onSpecialModeChange wired so
+                the Fruits / Durian exclusive toggles inside the drawer
+                lift state up to App.jsx. */}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
+              specialMode={state.specialMode || null}
+              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
@@ -1243,6 +1261,17 @@ export default function App() {
       {misrepNote && !loading && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
           ℹ️ <span className="font-semibold">{misrepNote.name}</span> — {misrepNote.note}
+        </div>
+      )}
+
+      {/* v0.61.126 — Fruits / Durian "Limited matches nearby" notice
+          when the server's mode-keyword post-filter dropped results
+          below the spec's 8-12 target. Per scripts/Create_2_buttons.MD
+          the message is mode-specific and explicitly does NOT pad
+          with unrelated cuisines. */}
+      {specialModeNotice && !loading && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {t(`special.${specialModeNotice}.limited`, lang)}
         </div>
       )}
 
