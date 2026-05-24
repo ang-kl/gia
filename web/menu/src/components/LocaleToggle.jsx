@@ -12,13 +12,13 @@ import { useLocale, setActiveLocale } from '../i18n.js';
 // so chat-side /language preference syncs across sessions.
 export default function LocaleToggle() {
   const lang = useLocale();
-  const cls = (active) => `text-[10px] px-1.5 py-0.5 rounded ${
+  const cls = (active) => `text-[11px] px-1.5 py-0.5 rounded ${
     active
       ? 'font-semibold text-tg-text'
       : 'text-tg-hint cursor-pointer hover:text-tg-text'
   }`;
   return (
-    <div className="text-[10px] inline-flex items-center gap-0">
+    <div className="text-[11px] inline-flex items-center gap-0">
       <button
         type="button"
         className={cls(lang === 'en')}

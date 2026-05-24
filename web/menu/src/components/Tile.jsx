@@ -77,8 +77,8 @@ export default function Tile({ icon, iconImage, label, onClick, disabled = false
             onError={() => setImgFailed(true)}
           />
         )
-        : <div className="text-lg leading-none">{icon}</div>}
-      <div className="text-[13px] font-medium leading-tight text-center">{label}</div>
+        : <div className="text-xl leading-none">{icon}</div>}
+      <div className="text-sm font-medium leading-tight text-center">{label}</div>
     </button>
   );
 }

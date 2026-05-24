@@ -153,26 +153,44 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   }
 
   // Current-anchor summary line, with cap note when present.
-  // v0.61.124 — also append the disabled-tiles note when the anchor
-  // is in Malaysia so the user understands the greying without
-  // having to tap a disabled tile to read the tooltip.
+  // v0.61.125 — operator: the "Anchored at X · 30 km cap" line should
+  // read bigger; the disabled-tiles list goes on its OWN next line.
+  // Splits the prior single-line summary into:
+  //   - summaryMain: "Anchored at <b>Johor Bahru</b> · 30 km cap."
+  //     rendered at text-[13px] (was [10px])
+  //   - summaryDisabled (only when MY anchor): "Hawker, Train,
+  //     Incidents, Bus stops, Weather disabled" on the next line at
+  //     text-[11px] in tg-hint colour.
   const capKm = currentAnchor?.radiusCapM ? Math.round(currentAnchor.radiusCapM / 1000) : null;
-  let capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
+  const capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
   const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT');
-  if (isMy) capStr = capStr + t('location.disabledList', lang);
-  const summary = currentAnchor?.label
+  const summaryMain = currentAnchor?.label
     ? t('location.currentSet', lang).replace('{label}', escapeHtml(currentAnchor.label)).replace('{cap}', capStr)
     : t('location.currentNone', lang);
+  // The disabled-list i18n string begins with " (" — strip the
+  // leading " " + the parens for the standalone next-line render.
+  const disabledListRaw = isMy ? t('location.disabledList', lang) : '';
+  const disabledListLine = disabledListRaw
+    .replace(/^\s*\(/, '')
+    .replace(/\)\s*$/, '')
+    .trim();
 
   return (
     <div className="rounded-md border border-tg-border bg-tg-card p-2 flex flex-col gap-1.5">
-      <div className="text-[11px] font-semibold text-tg-text">{t('location.fieldLabel', lang)}</div>
-      <div className="text-[10px] text-tg-hint leading-snug" dangerouslySetInnerHTML={{ __html: summary }} />
+      {/* v0.61.125 — fonts bumped one size per operator:
+          fieldLabel [11px]→[12px], summary [10px]→[13px] (the
+          "Anchored at …" line specifically should read bigger),
+          disabled-list [10px]→[11px] on its OWN line. */}
+      <div className="text-[12px] font-semibold text-tg-text">{t('location.fieldLabel', lang)}</div>
+      <div className="text-[13px] text-tg-text leading-snug" dangerouslySetInnerHTML={{ __html: summaryMain }} />
+      {disabledListLine && (
+        <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
+      )}
       <select
         value={pickerValue}
         onChange={onPickerChange}
         disabled={busy}
-        className="text-[12px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
+        className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
       >
         <option value="">{t('location.dropdownLabel', lang)}</option>
         {precincts.sg.length > 0 && (
@@ -207,12 +225,12 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           placeholder={t('location.searchPlaceholder', lang)}
           disabled={busy}
           autoComplete="off"
-          className="flex-1 text-[12px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+          className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
         />
         <button
           type="submit"
           disabled={busy || !textValue.trim()}
-          className="text-[11px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
+          className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
         >{busy ? '…' : t('location.searchSubmit', lang)}</button>
       </form>
       {acOpen && suggestions.length > 0 && (
@@ -223,15 +241,15 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               type="button"
               onMouseDown={(e) => e.preventDefault()}  /* don't steal focus before onClick */
               onClick={() => pickSuggestion(s)}
-              className="block w-full text-left px-2 py-1.5 text-[11px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+              className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
             >
               <div className="text-tg-text">{s.primaryText}</div>
-              {s.secondaryText && <div className="text-[10px] text-tg-hint">{s.secondaryText}</div>}
+              {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
             </button>
           ))}
         </div>
       )}
-      {errorMsg && <div className="text-[10px] text-red-500">{errorMsg}</div>}
+      {errorMsg && <div className="text-[11px] text-red-500">{errorMsg}</div>}
     </div>
   );
 }
