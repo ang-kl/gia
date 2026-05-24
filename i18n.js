@@ -43,12 +43,12 @@ const STRINGS = {
   'syntax.wrapper':            { en: 'Re-run this search anytime by tapping or pasting:', fr: 'Relancez cette recherche à tout moment en touchant ou collant :' },
 
   // v0.59.0 — bot chrome (most-trafficked chat replies)
-  'bot.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
-                                 fr: '⏳ Gia traite encore votre dernière demande — un instant.' },
+  'bot.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
+                                 fr: '⏳ Soleat traite encore votre dernière demande — un instant.' },
   'bot.location.prompt':       { en: '📍 Tap to share your current location.',
                                  fr: '📍 Touchez pour partager votre position actuelle.' },
-  'bot.location.locale':       { en: '📍 Share your location once so Gia uses your locale (or type `/location <place name>` to set it manually).',
-                                 fr: '📍 Partagez votre position une fois pour que Gia utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
+  'bot.location.locale':       { en: '📍 Share your location once so Soleat uses your locale (or type `/location <place name>` to set it manually).',
+                                 fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
   'bot.noresults':             { en: 'No Google Places results for "{q}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.',
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
@@ -93,12 +93,51 @@ const STRINGS = {
                                   fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
+  // v0.61.122 — /location quick-pick buttons (10 STB precincts + Johor
+  // Bahru + IOI Resort City Putrajaya). Header for the inline-keyboard
+  // message, plus the confirmation reply that fires from the locpick
+  // callback. Cap note is appended when the picked anchor enforces a
+  // search-radius ceiling (JB → 30 km, IOI → 15 km).
+  'loc.precinct.prompt':       { en: '🗺 <b>Quick-pick anchor</b> — tap a precinct or Malaysia city below, or share your live pin above:',
+                                 fr: '🗺 <b>Sélection rapide</b> — touchez un quartier ou une ville malaisienne ci-dessous, ou partagez votre position en direct :' },
+  'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
+                                 fr: '📍 Position définie sur <b>{label}</b>.{cap}' },
+  'loc.set.capNote':           { en: ' Searches anchored here are capped to {km} km.',
+                                 fr: ' Les recherches sont limitées à {km} km autour de ce point.' },
+  'loc.set.unknown':           { en: "⚠️ I don't recognise that quick-pick. Tap one of the buttons or share a pin.",
+                                 fr: "⚠️ Je ne reconnais pas cette sélection. Touchez l'un des boutons ou partagez une position." },
+  // v0.61.124 — after the user taps a /location quick-pick, offer a
+  // one-tap follow-up to run a place-anchored search at the picked
+  // anchor (instead of making them type a query). callback_data is
+  // `locsearch:<precinctId>`.
+  'loc.searchPick.prompt':     { en: '_Want to see top eateries at <b>{place}</b>?_',
+                                 fr: '_Voulez-vous voir les meilleurs établissements à <b>{place}</b> ?_' },
+  'loc.searchPick.btn':        { en: '🔍 See eateries here',
+                                 fr: '🔍 Voir les établissements ici' },
   // v0.61.119 — place-anchored search (hawker centre / MRT / mall /
   // building / address typed in chat free-text). Header above the
   // venue list, the button that fans out to better-rated nearby
   // eateries, and the header above that nearby list.
   'place.foundN':              { en: '📍 <b>{place}</b> — found {n} eateries here',
                                  fr: '📍 <b>{place}</b> — {n} établissements trouvés ici' },
+  // v0.61.124 — "showing {shown} of {total}" format requested by the
+  // operator: when the place has more eateries than fit in one reply
+  // (cap 12), surface the ratio so the user knows there are more.
+  'place.foundShownOfTotal':   { en: '📍 <b>{place}</b> — showing {shown} of {total} eateries here',
+                                 fr: '📍 <b>{place}</b> — {shown} sur {total} établissements ici' },
+  // v0.61.124 — auto-suggest intro when the place itself is weak
+  // (< 5 eateries OR average rating < 4.0). Sent ahead of the
+  // automatic nearby fan-out so the user understands why we're
+  // showing extras without them tapping the button.
+  'place.autoNearbyIntro':     { en: '_Slim pickings at <b>{place}</b> — here are the top-rated eateries nearby:_',
+                                 fr: '_Peu d’options à <b>{place}</b> — voici les mieux notés à proximité :_' },
+  // v0.61.124 — "outside the zone" header for precinct anchors
+  // (Marina Bay, Chinatown, etc.) where the polygon exclusion filters
+  // out venues inside the precinct itself.
+  'place.outsideHeader':       { en: '✨ <b>Top {n} eateries outside {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)',
+                                 fr: '✨ <b>Top {n} établissements hors de {place}</b> (dans un rayon de {km} km, classés par note · Michelin · rareté · affluence)' },
+  'place.outsideEmpty':        { en: '🤷 No standout eateries outside {place} (within {km} km) right now.',
+                                 fr: '🤷 Aucun établissement marquant hors de {place} (dans un rayon de {km} km) en ce moment.' },
   'place.foundEmpty':          { en: "📍 <b>{place}</b> — couldn't find eateries here. Showing top-rated nearby instead.",
                                  fr: "📍 <b>{place}</b> — aucun établissement ici. Voici les mieux notés à proximité." },
   'place.nearbyBtn':           { en: '✨ Top eateries nearby',
@@ -180,7 +219,7 @@ const STRINGS = {
   'transport.train.crowd.m':        { en: '🟡 medium', fr: '🟡 moyen' },
   'transport.train.crowd.h':        { en: '🔴 high', fr: '🔴 élevé' },
   'transport.train.nearestHeader':  { en: '🚇 Nearest 3 Train stations{wx}', fr: '🚇 3 stations de train les plus proches{wx}' },
-  'transport.train.noLocation':     { en: '🚇 Share your location once and Gia will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Gia listera aussi les stations MRT les plus proches.' },
+  'transport.train.noLocation':     { en: '🚇 Share your location once and Soleat will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Soleat listera aussi les stations MRT les plus proches.' },
   // v0.60.88 — operator 2026-05-11: invert the message — surface
   // CROWDED counts (medium + high) instead of uncrowded, and name
   // the lines those platforms sit on. `lines` placeholder is filled
@@ -207,7 +246,7 @@ const STRINGS = {
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." },
 
   // /transport bus
-  'transport.bus.noLocation':       { en: '🚌 I need your location first — share it once via the menu (📍) and Gia will remember.', fr: '🚌 J’ai d’abord besoin de votre position — partagez-la une fois via le menu (📍) et Gia s’en souviendra.' },
+  'transport.bus.noLocation':       { en: '🚌 I need your location first — share it once via the menu (📍) and Soleat will remember.', fr: '🚌 J’ai d’abord besoin de votre position — partagez-la une fois via le menu (📍) et Soleat s’en souviendra.' },
   'transport.bus.offline':          { en: '🚌 Bus lookup is offline (LTA key not configured).', fr: '🚌 Recherche de bus hors-ligne (clé LTA non configurée).' },
   'transport.bus.noStopsNearest':   { en: '🚏 No bus stops within 800 m of your saved location.', fr: '🚏 Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
   'transport.bus.nearestHeader':    { en: '🚏 Nearest {count} bus stops', fr: '🚏 {count} arrêts de bus les plus proches' },
@@ -256,7 +295,7 @@ const STRINGS = {
   'transport.drive.trafficNoNear':  { en: '🚦 Traffic: {total} incidents island-wide; none within 5 km.', fr: '🚦 Circulation : {total} incidents dans tout le pays ; aucun à moins de 5 km.' },
   'transport.drive.trafficNone':    { en: '🚦 Traffic: no live incidents reported.', fr: '🚦 Circulation : aucun incident en direct signalé.' },
   'transport.drive.openMapsBtn':    { en: 'Google Map ↗', fr: 'Google Map ↗' },
-  'transport.drive.noLocation':     { en: 'Share your location once and Gia will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Gia proposera un lien d’itinéraire en voiture en un clic.' },
+  'transport.drive.noLocation':     { en: 'Share your location once and Soleat will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Soleat proposera un lien d’itinéraire en voiture en un clic.' },
   'transport.drive.btn.carpark':    { en: '🅿️ Carpark', fr: '🅿️ Parking' },
   'transport.drive.unreachable':    { en: 'Sorry, the drive view failed.', fr: 'Désolé, la vue voiture a échoué.' },
 
@@ -270,7 +309,7 @@ const STRINGS = {
   'forgetme.error':            { en: 'Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.', fr: 'Désolé, /forgetme a rencontré une erreur. Réessayez dans un instant, ou contactez l’opérateur.' },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
-  'language.cleared':          { en: '✅ Preference cleared. Gia will follow your Telegram language.', fr: '✅ Préférence effacée. Gia suit désormais la langue de votre Telegram.' },
+  'language.cleared':          { en: '✅ Preference cleared. Soleat will follow your Telegram language.', fr: '✅ Préférence effacée. Soleat suit désormais la langue de votre Telegram.' },
   'language.current':          { en: '🌐 Current language: English{fromTg}.\nChoose a language:', fr: '🌐 Langue actuelle : Français{fromTg}.\nChoisissez une langue :' },
   'language.fromTg':           { en: ' (from your Telegram)', fr: ' (depuis votre Telegram)' },
   'language.btn.en':           { en: '🇬🇧 English', fr: '🇬🇧 English' },
@@ -302,8 +341,8 @@ const STRINGS = {
   // v0.61.84 — wake-from-idle location re-confirmation prompt. Fired on
   // the first chat message after a long idle gap when a location is
   // still stored; the user keeps it or sets a new one.
-  'wake.locationCheck':        { en: '👋 Welcome back! Gia is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
-                                 fr: '👋 Content de vous revoir ! Gia utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
+  'wake.locationCheck':        { en: '👋 Welcome back! Soleat is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
+                                 fr: '👋 Content de vous revoir ! Soleat utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
   'wake.keepBtn':              { en: '✅ Stay here', fr: '✅ Rester ici' },
   'wake.newBtn':               { en: '📍 New location', fr: '📍 Nouvelle position' },
   'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' },
@@ -331,8 +370,8 @@ const STRINGS = {
   'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' },
 
   // v0.59.4 — /hidden chrome localisation.
-  'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
-                                    fr: '⏳ Gia traite encore votre dernière demande — un instant.' },
+  'hidden.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
+                                    fr: '⏳ Soleat traite encore votre dernière demande — un instant.' },
   'hidden.huntingLegacy':         { en: '🎲 Hunting for one hidden gem 1.5–3 km away…',
                                     fr: '🎲 À la recherche d’un trésor caché à 1,5–3 km…' },
   'hidden.legacyNotFound':        { en: "Soleat couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.",

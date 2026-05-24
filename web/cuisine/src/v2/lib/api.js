@@ -74,9 +74,13 @@ export async function fetchCatalogue() {
 // so the next results begin fresh from the first ~60 again.
 // v0.60.126: freeText — the "Tell me" box content, passed through as a
 // search qualifier so it isn't dropped when a cuisine chip is selected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText }) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode }) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
+  // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
+  // `body.specialMode`; when set it overrides cuisines + dessert
+  // detection + home-based and applies a mode-keyword post-filter.
+  if (specialMode === 'fruits' || specialMode === 'durian') body.specialMode = specialMode;
   return postJson('/api/cuisine/search', body);
 }
 

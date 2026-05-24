@@ -443,8 +443,7 @@
   //   pool              array to push created markers into
   function runClusterPass(items, opts) {
     const mpp = mppAt(opts.zoom);
-    // v0.61.118 — opt-in zoom-aware tile size (opts.tilePx); default 40 px.
-    const TILE_M = (opts.tilePx || 40) * mpp;
+    const TILE_M = 40 * mpp;
     const tiles = new Map();
     for (const f of items) {
       if (!Number.isFinite(f.lat) || !Number.isFinite(f.lng)) continue;
@@ -854,23 +853,20 @@
     if (!bounds || zoom < 13) return;
     const feats = Array.isArray(overlaysData[L.key]) ? overlaysData[L.key] : [];
 
-    // v0.61.116 — Attractions layer drives through the cluster engine.
-    // v0.61.118 — threshold lowered 8 → 7; cluster tile is 200 px at
-    // z < 14 (aggressive low-zoom clustering) and 40 px at z ≥ 14
-    // (street-level grain unchanged); cluster pill reads "<N> ⚝ here"
-    // for symmetry with carpark "<N> 🅿 here". Source-order drop on
-    // icon overlap (operator answer 2).
+    // v0.61.116 — Attractions layer drives through the cluster engine
+    // (40 px tile, threshold ≥ 8, label band z ≥ 14). At z < 14 the
+    // band is icon-only (⚝ glyph), still threshold-clustered. Source-
+    // order drop on icon overlap (operator answer 2).
     if (L.key === 'attractions') {
       const visible = feats.filter((f) =>
         Number.isFinite(f.lat) && Number.isFinite(f.lng) && bounds.contains({ lat: f.lat, lng: f.lng })
       );
       runClusterPass(visible, {
         zoom,
-        threshold: 7,
-        tilePx: zoom < 14 ? 200 : 40,
+        threshold: 8,
         forceCluster: false,
         allowLabel: zoom >= 14,
-        clusterText: (n) => n + ' ⚝ here',
+        clusterText: (n) => n + ' ⚝',
         labelText: (f) => '⚝ ' + (f.name || 'Attraction'),
         iconForFeature: () => ({ node: overlayPin(L.glyph), sz: 18 }),
         infoFn: (f) => ({ html: attractionInfoHtml(f) }),
@@ -1018,7 +1014,20 @@
         row.appendChild(b);
       });
     document.body.appendChild(row);
-    map.addListener('idle', refreshClippedLayers);
+    // v0.61.117 — `idle` can fire twice in quick succession when a pinch
+    // settles + the camera re-anchors. refreshClippedLayers tears down
+    // and re-creates every visible bus-stop / carpark / attraction / train
+    // marker (incl. the new v0.61.116 cluster pass), so double-firing at
+    // z>=14 stacked the rebuilds and froze the /app/map views. Trailing-
+    // debounced ~120 ms so a single zoom-in past 14 produces one render.
+    let idleTickTimer = null;
+    map.addListener('idle', () => {
+      if (idleTickTimer) clearTimeout(idleTickTimer);
+      idleTickTimer = setTimeout(() => {
+        idleTickTimer = null;
+        refreshClippedLayers();
+      }, 120);
+    });
   }
 
   // v0.61.100 — bottom-right zoom-level readout doubling as a recenter
@@ -1030,12 +1039,9 @@
     btn.type = 'button';
     // v0.61.102 — operator: a faint "🔭 <zoom>" readout (30% opacity,
     // 2 px smaller) — no longer a solid white circle.
-    // v0.61.119 — operator: 10 % black-transparent circle behind the
-    // readout, applied to every map TMA.
     btn.style.cssText = 'position:fixed;bottom:16px;right:14px;z-index:40;'
-      + 'border:0;background:rgba(0,0,0,0.1);color:#1c1c1f;font-size:11px;'
-      + 'font-weight:700;opacity:0.9;cursor:pointer;padding:4px 8px;'
-      + 'border-radius:9999px;line-height:1;';
+      + 'border:0;background:none;color:#1c1c1f;font-size:11px;font-weight:700;'
+      + 'opacity:0.9;cursor:pointer;padding:0;line-height:1;';
     const paint = () => { btn.textContent = '🔭 ' + Math.round(map.getZoom() || 0); };
     paint();
     map.addListener('zoom_changed', paint);

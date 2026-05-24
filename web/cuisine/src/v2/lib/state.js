@@ -17,7 +17,12 @@
 // to the cuisine search query so Places fuzzy-matches review mentions.
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
-const REGIONS = ['SG', 'JB'];
+// v0.61.129 — 'MY-PUT' (Putrajaya / IOI City Mall area) added as a
+// first-class region. Previously the chat /location quick-pick could
+// stamp the cached anchor with region='MY-PUT' (since v0.61.122) but
+// the Cuisine TMA toggle only had SG / JB and the server forcibly
+// applied a Johor-only post-filter, wiping all Putrajaya results.
+const REGIONS = ['SG', 'JB', 'MY-PUT'];
 
 export function defaultState() {
   return {
@@ -32,7 +37,12 @@ export function defaultState() {
       prices: []
     },
     region: 'SG',
-    promptText: ''
+    promptText: '',
+    // v0.61.126 — Fruits / Durian exclusive special mode. When set
+    // (one of 'fruits' / 'durian'), it overrides cuisines + Michelin
+    // + dessert filters server-side; the CuisineDrawer + QuickFilters
+    // also grey out their toggles client-side. null = inactive.
+    specialMode: null
   };
 }
 

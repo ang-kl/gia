@@ -1003,7 +1003,7 @@ async function runFlow(chatId, lat, lng, category) {
   // when the user impatiently re-taps /eat or types again before the
   // previous run completes.
   if (await isProcessing(redis, chatId)) {
-    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
   await setProcessing(redis, chatId);
@@ -1081,7 +1081,7 @@ async function startSanctuaryFlow(chatId, category, prompt) {
   await setPendingMeal(redis, chatId, category);
   await bot.sendMessage(
     chatId,
-    `Please tap to share your location, or type a place name and Gia will search within 200 m of it.`,
+    `Please tap to share your location, or type a place name and Soleat will search within 200 m of it.`,
     LOCATION_REQUEST_KEYBOARD
   );
 }
@@ -1259,7 +1259,7 @@ async function tokenizeCuisineArgs(raw) {
 
 async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   if (await isProcessing(redis, chatId)) {
-    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
   await setProcessing(redis, chatId);
@@ -1495,6 +1495,13 @@ async function runLocationCommand(chatId) {
         'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
         opts
       );
+      // v0.61.122 — follow-up message with quick-pick inline buttons
+      // (10 STB precincts + JB + IOI Resort City Putrajaya). Sent
+      // separately because Telegram's reply_markup is either a custom
+      // keyboard OR an inline keyboard, not both. The share-pin
+      // keyboard above stays available; this just lets the user one-tap
+      // any of the curated anchors.
+      await sendLocationQuickPicks(chatId).catch((err) => console.warn('[/location] quick-picks send failed:', err.message));
       return;
     }
   } catch (err) {
@@ -1512,6 +1519,42 @@ async function runLocationCommand(chatId) {
       }
     }
   );
+  // v0.61.122 — same quick-pick follow-up for the no-cache branch.
+  await sendLocationQuickPicks(chatId).catch((err) => console.warn('[/location] quick-picks send failed:', err.message));
+}
+
+// v0.61.122 — render the STB precinct + Malaysia quick-pick inline
+// keyboard as a follow-up message. callback_data is `locpick:<id>`
+// (see the bot.on('callback_query') dispatch). Layout: 5 rows of 2 SG
+// precincts, then 1 row of 2 Malaysia anchors. The labels are short
+// enough that 2-per-row fits comfortably on a phone.
+async function sendLocationQuickPicks(chatId) {
+  try {
+    const { resolveLang } = require('./user-prefs');
+    const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
+    const { t: tQP } = require('./i18n');
+    const precincts = require('./precincts');
+    const all = precincts.getAll();   // 10 STB + JB + IOI in display order
+    const rows = [];
+    for (let i = 0; i < all.length; i += 2) {
+      const row = [];
+      for (const p of all.slice(i, i + 2)) {
+        const flag = p.region === 'SG' ? '🇸🇬'
+          : p.region === 'JB' ? '🇲🇾'
+          : p.region === 'MY-PUT' ? '🇲🇾'
+          : '📍';
+        row.push({ text: `${flag} ${p.label}`, callback_data: `locpick:${p.id}` });
+      }
+      rows.push(row);
+    }
+    await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: { inline_keyboard: rows }
+    });
+  } catch (err) {
+    console.warn('[/location] sendLocationQuickPicks failed:', err.message);
+  }
 }
 
 // v0.61.93 — operator: /l also resolves an MRT/LRT station code, a
@@ -2182,6 +2225,82 @@ bot.on('callback_query', async (q) => {
       await runTransportTrain(chatId, cbLang); // legacy refresh button on bus stop list — point at train view
       return;
     }
+    // v0.61.122 — /location quick-pick (STB precinct / Johor Bahru / IOI
+    // Resort City Putrajaya). Resolves the id via precincts.getById(),
+    // stamps the cached location with region + radiusCapM + label +
+    // precinctId, replies with confirmation (+ cap note for Malaysia).
+    if (data.startsWith('locpick:')) {
+      try {
+        const id = data.slice('locpick:'.length).toLowerCase();
+        const precincts = require('./precincts');
+        const p = precincts.getById(id);
+        if (!p) {
+          await safeSend(chatId, t('loc.set.unknown', cbLang));
+          return;
+        }
+        await setUserLocation(redis, chatId, p.lat, p.lng, {
+          region: p.region,
+          radiusCapM: p.radiusCapM || null,
+          label: p.label,
+          precinctId: p.id
+        });
+        const { tn: tnLP } = require('./i18n');
+        const capNote = p.radiusCapM
+          ? t('loc.set.capNote', cbLang).replace('{km}', String(Math.round(p.radiusCapM / 1000)))
+          : '';
+        await safeSend(chatId,
+          tnLP('loc.set.success', cbLang, { label: p.label, cap: capNote }),
+          { parse_mode: 'HTML', disable_web_page_preview: true });
+        console.log(`[/location] D775 locpick id=${id} chat=${chatId} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
+        // v0.61.124 — follow-up: offer a one-tap "See eateries here"
+        // so the user doesn't have to type a query. callback fires
+        // runPlaceAnchoredSearch at the picked precinct.
+        try {
+          await bot.sendMessage(chatId,
+            tnLP('loc.searchPick.prompt', cbLang, { place: p.label }),
+            {
+              parse_mode: 'Markdown',
+              reply_markup: { inline_keyboard: [[{ text: t('loc.searchPick.btn', cbLang), callback_data: `locsearch:${p.id}` }]] }
+            });
+        } catch (err) { console.warn('[locpick] search-here button send failed:', err.message); }
+      } catch (err) {
+        console.warn('[locpick] callback failed:', err.message);
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+      }
+      return;
+    }
+    // v0.61.124 — "🔍 See eateries here" follow-up button from the
+    // locpick reply (above). Runs a place-anchored search at the
+    // precinct's coords; for STB precincts the polygon flows through
+    // so runNearbyAlternatives can do "outside" exclusion.
+    if (data.startsWith('locsearch:')) {
+      try {
+        const id = data.slice('locsearch:'.length).toLowerCase();
+        const precincts = require('./precincts');
+        const p = precincts.getById(id);
+        if (!p) {
+          await safeSend(chatId, t('loc.set.unknown', cbLang));
+          return;
+        }
+        // For STB precincts the wider 600m radius works better than
+        // the 300m geocoded default — most precincts span ~1.5 km².
+        const radius = (p.source === 'STB') ? 600 : 400;
+        const place = {
+          name: p.label, lat: p.lat, lng: p.lng,
+          kind: (p.source === 'STB') ? 'precinct' : (p.source === 'region' ? 'region' : 'precinct'),
+          radius
+        };
+        if (p.source === 'STB' && Array.isArray(p.polygon)) {
+          place.precinctId = p.id;
+          place.polygon = p.polygon;
+        }
+        await runPlaceAnchoredSearch(chatId, place, { lang: cbLang });
+      } catch (err) {
+        console.warn('[locsearch] callback failed:', err.message);
+        await safeSend(chatId, t('bot.error.freetext', cbLang));
+      }
+      return;
+    }
     // v0.61.119 — "✨ Top eateries nearby" button from a place-anchored
     // search reply. callback_data is `place:nearby:<10-char-key>`; the
     // anchor (name + coords + originalPlaceIds for dedupe) is cached
@@ -2441,7 +2560,7 @@ bot.on('callback_query', async (q) => {
         chatId,
         '👋 *Send your buddy this link:*\n\n' +
         '[' + link + '](' + link + ')\n\n' +
-        '_When they tap it, Gia will send them this exact pick. Link works for 7 days._',
+        '_When they tap it, Soleat will send them this exact pick. Link works for 7 days._',
         { parse_mode: 'Markdown', disable_web_page_preview: true }
       );
       return;
@@ -2730,7 +2849,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
         await safeSend(msg.chat.id, "👋 Sorry, that share link has expired or never existed.");
         return;
       }
-      await safeSend(msg.chat.id, "👋 A friend shared a sanctuary pick with you via Gia:");
+      await safeSend(msg.chat.id, "👋 A friend shared a sanctuary pick with you via Soleat:");
       if (payload.kind === 'pick' && payload.pick) {
         await deliverPicks(msg.chat.id, payload.mealLabel || 'shared', [payload.pick]);
       } else if (payload.kind === 'surprise' && payload.surprise) {
@@ -7877,7 +7996,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
   const ftDishLabel = (typeof opts.dishLabel === 'string' && opts.dishLabel.trim()) ? opts.dishLabel.trim() : null;
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     const { t: trBot, tn: trnBot } = require('./i18n');
@@ -7917,13 +8036,20 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         catch { dessertHit = null; }
       }
       const dessertQuery = dessertHit ? require('./dessert-drink-keywords').dessertDrinkQuery(dessertHit, null) : null;
+      // v0.61.122 — honour the per-anchor search-radius cap set by
+      // /location quick-picks (JB → 30 km, IOI Putrajaya → 15 km).
+      // Default SG radius stays 50 km; only Malaysia anchors clamp it.
+      const ftRegionCode = (cached.region === 'JB' || cached.region === 'MY-PUT') ? 'MY' : 'SG';
+      const ftRadius = (cached.radiusCapM && cached.radiusCapM > 0)
+        ? Math.min(50000, cached.radiusCapM)
+        : 50000;
       const candidates = await pipeline.discover({
         lat: cached.lat,
         lng: cached.lng,
         cuisines: [text],
-        radius: 50000,
+        radius: ftRadius,
         maxResults: 15,                                    // v0.60.123 — more candidates for the ≥7-result list
-        regionCode: 'SG',
+        regionCode: ftRegionCode,
         lang: ftLang,                                      // v0.59.0
         // v0.59.41 (Codex P2 PR #246): the user's literal query is
         // typically a dish name; capping at 2 per dish-tail would
@@ -8084,7 +8210,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
   const lang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -8130,30 +8256,74 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
         await attachFootfallSignals(redis, venues);
       } catch (err) { console.warn('[place] footfall enrichment failed:', err.message); }
       const placeEsc = escapeHtmlForTelegram(place.name);
-      const header = total > 0
-        ? trnP('place.foundN', lang, { place: placeEsc, n: String(total) })
-        : trnP('place.foundEmpty', lang, { place: placeEsc });
+      // v0.61.124 — "showing X of Y" copy when we sliced the result
+      // set; "found N" when the full set fits in one reply.
+      const shown = venues.length;
+      const header = total === 0
+        ? trnP('place.foundEmpty', lang, { place: placeEsc })
+        : (shown < total
+            ? trnP('place.foundShownOfTotal', lang, { place: placeEsc, shown: String(shown), total: String(total) })
+            : trnP('place.foundN', lang, { place: placeEsc, n: String(total) }));
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
       // Cache the anchor for the "nearby" callback. 30 min TTL — by then
       // the user has either tapped or moved on.
+      // v0.61.124 — when the place is an STB precinct (detectPlaceName /
+      // /location quick-pick), persist its precinctId + polygon so
+      // runNearbyAlternatives can do polygon-based exclusion ("OUTSIDE
+      // <precinct>") instead of generic distance dedupe.
       const key = placeAnchorKey(place);
       try {
         if (redis?.isOpen) {
-          await redis.set(`place:anchor:${chatId}:${key}`, JSON.stringify({
+          const anchorPayload = {
             name: place.name, lat: place.lat, lng: place.lng, kind: place.kind || 'place',
             originalPlaceIds: venues.map((v) => v.placeId).filter(Boolean)
-          }), { EX: 1800 });
+          };
+          if (place.precinctId) anchorPayload.precinctId = place.precinctId;
+          if (Array.isArray(place.polygon) && place.polygon.length >= 3) anchorPayload.polygon = place.polygon;
+          await redis.set(`place:anchor:${chatId}:${key}`, JSON.stringify(anchorPayload), { EX: 1800 });
         }
       } catch (err) { console.warn('[place] redis anchor write failed:', err.message); }
       if (venues.length === 0) {
         // No eateries at the place itself — go straight to nearby alternatives.
         await safeSend(chatId, header, { parse_mode: 'HTML', disable_web_page_preview: true });
-        await runNearbyAlternatives(chatId, { name: place.name, lat: place.lat, lng: place.lng, kind: place.kind, originalPlaceIds: [] }, lang);
+        await runNearbyAlternatives(chatId, {
+          name: place.name, lat: place.lat, lng: place.lng, kind: place.kind,
+          originalPlaceIds: [],
+          ...(place.precinctId ? { precinctId: place.precinctId } : {}),
+          ...(Array.isArray(place.polygon) ? { polygon: place.polygon } : {})
+        }, lang);
         return;
       }
       await deliverPicks(chatId, header, venues, { lang });
-      // Append the opt-in "Top eateries nearby" inline button as a
-      // separate small message so it survives the deliverPicks pagination.
+      // v0.61.124 — auto-suggest threshold (operator spec: "if you
+      // think there are 10 or 20 eateries are good than the place …
+      // typed, suggest"). Two weakness signals:
+      //   1. < 5 eateries inside the place (slim pickings)
+      //   2. average rating of in-place eateries < 4.0
+      // Either trips the AUTO nearby fan-out — no button tap needed.
+      // When neither trips, we fall back to the v0.61.119 opt-in
+      // button (preserves existing behaviour for healthy places).
+      const ratings = venues.map((v) => Number(v.rating)).filter((n) => Number.isFinite(n));
+      const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+      const weak = total < 5 || (ratings.length >= 3 && avgRating < 4.0);
+      if (weak) {
+        try {
+          const { tn: trnAuto } = require('./i18n');
+          await bot.sendMessage(chatId, trnAuto('place.autoNearbyIntro', lang, { place: placeEsc }), {
+            parse_mode: 'Markdown', disable_web_page_preview: true
+          });
+        } catch (err) { console.warn('[place] auto-nearby intro send failed:', err.message); }
+        await runNearbyAlternatives(chatId, {
+          name: place.name, lat: place.lat, lng: place.lng, kind: place.kind,
+          originalPlaceIds: venues.map((v) => v.placeId).filter(Boolean),
+          ...(place.precinctId ? { precinctId: place.precinctId } : {}),
+          ...(Array.isArray(place.polygon) ? { polygon: place.polygon } : {})
+        }, lang).catch((err) => console.warn('[place] auto-nearby fan-out failed:', err.message));
+        return;
+      }
+      // Healthy place — append the opt-in "Top eateries nearby" inline
+      // button as a separate small message so it survives the
+      // deliverPicks pagination.
       try {
         const { t: trP } = require('./i18n');
         const km = (require('./place-detector').NEARBY_RADIUS_M / 1000).toFixed(1);
@@ -8185,7 +8355,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
 async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -8208,10 +8378,25 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
       const dedupe = new Set(Array.isArray(anchor.originalPlaceIds) ? anchor.originalPlaceIds : []);
       venues = venues.filter((v) => v.placeId && !dedupe.has(v.placeId));
+      // v0.61.124 — polygon exclusion. When the anchor is an STB
+      // precinct (carries a polygon), filter out venues whose coords
+      // fall INSIDE the precinct so the "outside" copy is honest.
+      // For non-precinct anchors (hawker / MRT / geocoded), the
+      // existing originalPlaceIds dedupe is enough — they don't have
+      // a meaningful "inside" boundary.
+      const usingPolygon = Array.isArray(anchor.polygon) && anchor.polygon.length >= 3;
+      if (usingPolygon) {
+        const { pointInPolygon } = require('./precincts');
+        venues = venues.filter((v) => {
+          if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return true;
+          return !pointInPolygon(v.lat, v.lng, anchor.polygon);
+        });
+      }
       if (!venues.length) {
         if (wait) { await wait.finish().catch(() => {}); wait = null; }
         const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
-        await safeSend(chatId, trnN('place.nearbyEmpty', lang, { km, place: escapeHtmlForTelegram(anchor.name) }), { parse_mode: 'HTML' });
+        const emptyKey = usingPolygon ? 'place.outsideEmpty' : 'place.nearbyEmpty';
+        await safeSend(chatId, trnN(emptyKey, lang, { km, place: escapeHtmlForTelegram(anchor.name) }), { parse_mode: 'HTML' });
         return;
       }
       // Composite score: rating + Michelin + rarity + (1 - crowdCost)
@@ -8247,7 +8432,10 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
         await attachFootfallSignals(redis, ranked);
       } catch (err) { console.warn('[place-nearby] footfall failed:', err.message); }
       const km = (NEARBY_RADIUS_M / 1000).toFixed(1);
-      const header = trnN('place.nearbyHeader', lang, {
+      // v0.61.124 — "outside <place>" header when we used polygon
+      // exclusion; otherwise the existing "near <place>" header.
+      const headerKey = usingPolygon ? 'place.outsideHeader' : 'place.nearbyHeader';
+      const header = trnN(headerKey, lang, {
         n: String(ranked.length),
         place: escapeHtmlForTelegram(anchor.name),
         km
@@ -8273,7 +8461,7 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
   const verbose = require('./verbose-log');
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -9542,8 +9730,14 @@ async function cacheBotUsername() {
         const { resolveLang } = require('./user-prefs');
         const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
+        // v0.61.129 — `region` may be 'SG' / 'JB' / 'MY-PUT' (the new
+        // Putrajaya path). Treat JB + MY-PUT as Malaysia anchors.
         const isJB = region === 'JB';
+        const isMyPut = region === 'MY-PUT';
+        const isMy = isJB || isMyPut;
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
+        const PUT_CBD = { lat: 2.9742, lng: 101.7060 };
+        const myCbd = isMyPut ? PUT_CBD : JB_CBD;
         // v0.60.164 — honour an explicit non-SG location pick. When
         // region=JB but the supplied lat/lng is inside the Singapore
         // bounding box, the user toggled JB while their GPS still
@@ -9559,7 +9753,7 @@ async function cacheBotUsername() {
         const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
           && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
           && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
-        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
+        const searchCenter = isMy ? (insideSG ? myCbd : { lat, lng }) : { lat, lng };
         // v0.60.165 — JB default radius widened 18 km → 30 km per
         // operator request. Tight 18 km only covered JB city proper;
         // 30 km reaches Iskandar Puteri + Pasir Gudang + parts of Senai
@@ -9575,8 +9769,19 @@ async function cacheBotUsername() {
         // outside this default; users can dial the slider up to 100 km
         // for cross-island reach. JB default stays 30 km (covers JB
         // City + Iskandar Puteri + Pasir Gudang + edges of Senai/Kulai).
-        const searchRadius = isJB ? 30000 : 20000;
-        const searchRegionCode = isJB ? 'MY' : 'SG';
+        let searchRadius = isMyPut ? 15000 : (isJB ? 30000 : 20000);
+        // v0.61.124 — anchor radius cap (Putrajaya IOI 15 km, JB 30 km).
+        try {
+          if (wsChatId) {
+            const ulPayload = await getUserLocation(redis, wsChatId).catch(() => null);
+            const cap = ulPayload?.radiusCapM;
+            if (Number.isFinite(cap) && cap > 0 && searchRadius > cap) {
+              console.log(`[WarmStart] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
+              searchRadius = cap;
+            }
+          }
+        } catch (err) { console.warn('[WarmStart] anchor-cap read failed:', err.message); }
+        const searchRegionCode = isMy ? 'MY' : 'SG';
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
         // round out the variety. Queries are passed straight into
@@ -9747,12 +9952,35 @@ async function cacheBotUsername() {
           }
         } catch (err) { console.warn('[PlaceAuto] cache read failed:', err.message); }
 
+        // v0.61.129 — per-region locationRestriction. Operator: "the
+        // auto-suggest list of location in Cuisine TMA and all free
+        // chat in this project should restrict to Singapore, Singapore
+        // Sentosa, Singapore Pulau Ubi, Johor and Putrajaya area".
+        // Sentosa + Pulau Ubin sit within Singapore's bbox so a single
+        // SG rectangle covers them. Johor: a tight bbox around the
+        // state. Putrajaya: bbox around IOI City Mall + adjacent
+        // Cyberjaya / Sepang. `locationRestriction` is a HARD cap
+        // (results MUST fall inside), unlike `locationBias` (soft
+        // hint). Per-anchor restriction also stops Penang / KL Sentral
+        // / Sarawak suggestions from bleeding in for JB / Putrajaya
+        // anchors.
+        const REGION_BBOX = {
+          SG:       { low: { latitude: 1.15, longitude: 103.55 }, high: { latitude: 1.50, longitude: 104.10 } },
+          JB:       { low: { latitude: 1.40, longitude: 103.50 }, high: { latitude: 1.85, longitude: 104.00 } },
+          'MY-PUT': { low: { latitude: 2.85, longitude: 101.55 }, high: { latitude: 3.10, longitude: 101.85 } }
+        };
+        const regionKey = (region === 'JB' || region === 'MY-PUT') ? region : 'SG';
+        const myRegionCountry = (region === 'JB' || region === 'MY-PUT') ? 'MY' : 'SG';
         const body = {
           input: cleanInput,
           languageCode: 'en',
-          regionCode: region === 'JB' ? 'MY' : 'SG',
-          includedRegionCodes: region === 'JB' ? ['MY'] : ['SG']
+          regionCode: myRegionCountry,
+          includedRegionCodes: [myRegionCountry],
+          locationRestriction: { rectangle: REGION_BBOX[regionKey] }
         };
+        // Soft bias around the user's actual lat/lng (inside the
+        // restriction rectangle) so a typed "kall" surfaces nearby
+        // Kallang first when the user is anchored at SG.
         if (Number.isFinite(lat) && Number.isFinite(lng)) {
           body.locationBias = {
             circle: {
@@ -9961,6 +10189,134 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.123 — Menu TMA location dropdown. Returns the full
+    // precincts list (10 STB + 5 SG region buckets + JB + Putrajaya =
+    // 17 entries) for the LocationFieldMenu dropdown. Public — no
+    // initData required since the data is non-sensitive (operator-
+    // curated static list). Caches in memory for the process lifetime
+    // (the geojson load already memoises).
+    let _menuPrecinctsCache = null;
+    app.get('/api/menu/precincts', (_req, res) => {
+      try {
+        if (!_menuPrecinctsCache) {
+          const precincts = require('./precincts');
+          _menuPrecinctsCache = precincts.getMenuDropdown().map((p) => ({
+            id: p.id,
+            label: p.label,
+            region: p.region,
+            country: p.country,
+            lat: p.lat,
+            lng: p.lng,
+            source: p.source,
+            ...(p.radiusCapM ? { radiusCapM: p.radiusCapM } : {})
+          }));
+        }
+        res.json({ precincts: _menuPrecinctsCache });
+      } catch (err) {
+        console.error('[menu/precincts] failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.61.123 — Menu TMA location setter. Two modes:
+    //   { precinctId: 'sg-cbd' }      → resolve via precincts.getById,
+    //                                   stamp setUserLocation with
+    //                                   region + radiusCapM + label.
+    //   { text: 'Tampines Mall' }     → geocodeQuery the text, then
+    //                                   stamp setUserLocation with just
+    //                                   the resolved coords + label
+    //                                   (no region / radiusCapM — text
+    //                                   anchors are SG-default).
+    // Verifies initData like the other write endpoints. Returns
+    // { ok, label, lat, lng, region, radiusCapM } on success.
+    app.post('/api/menu/set-location', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ ok: false, error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
+        const chatId = String(userId);
+        const { precinctId, text } = req.body || {};
+        const precincts = require('./precincts');
+        if (typeof precinctId === 'string' && precinctId) {
+          const p = precincts.getById(precinctId);
+          if (!p) return res.status(400).json({ ok: false, error: 'unknown precinctId' });
+          await setUserLocation(redis, chatId, p.lat, p.lng, {
+            region: p.region,
+            radiusCapM: p.radiusCapM || null,
+            label: p.label,
+            precinctId: p.id
+          });
+          console.log(`[menu/set-location] D776 chat=${chatId} precinctId=${p.id} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
+          return res.json({
+            ok: true,
+            label: p.label,
+            lat: p.lat,
+            lng: p.lng,
+            region: p.region,
+            radiusCapM: p.radiusCapM || null
+          });
+        }
+        if (typeof text === 'string' && text.trim()) {
+          // v0.61.125 — region-aware geocode. The prior version called
+          // geocodeQuery which hardcodes " Singapore" in the textQuery,
+          // so typing "Sheraton Hotel" with a JB anchor active resolved
+          // to Sheraton Towers Orchard. Now we read the cached
+          // location's region first (set by /location quick-pick or a
+          // prior precinct pick) and pass it to geocodeQueryRegion,
+          // which:
+          //   - swaps the suffix (Singapore vs Johor Bahru, Malaysia
+          //     vs Putrajaya, Malaysia)
+          //   - sends a Places API locationBias circle around the
+          //     existing anchor coords
+          //   - filters out hits outside the expected country bbox
+          // The client can also pass an explicit `region` in the body
+          // to override (e.g. when the user just toggled the region
+          // toggle but hasn't picked a precinct yet).
+          const { geocodeQueryRegion } = require('./vibe-suggest');
+          const cached = await getUserLocation(redis, chatId).catch(() => null);
+          const requestedRegion = (typeof req.body?.region === 'string' && req.body.region) ? req.body.region : null;
+          const effectiveRegion = requestedRegion || cached?.region || 'SG';
+          const biasCenter = (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng))
+            ? { lat: cached.lat, lng: cached.lng } : null;
+          const r = await geocodeQueryRegion(text.trim(), { region: effectiveRegion, biasCenter }).catch(() => null);
+          if (!r || !Number.isFinite(r.lat) || !Number.isFinite(r.lng)) {
+            return res.status(400).json({
+              ok: false,
+              error: effectiveRegion === 'SG'
+                ? 'could not resolve text to a Singapore location'
+                : 'could not resolve text to a Malaysia location'
+            });
+          }
+          // Preserve the prior region + radiusCapM when the new
+          // resolved point stays in the same region (so a JB anchor
+          // picking another JB hotel keeps the 30 km cap; switching
+          // explicitly to SG clears it).
+          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT')
+            && effectiveRegion === cached.region;
+          const setOpts = { label: r.name || text.trim() };
+          if (preserveRegion) {
+            setOpts.region = cached.region;
+            if (Number.isFinite(cached.radiusCapM)) setOpts.radiusCapM = cached.radiusCapM;
+          }
+          await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)})`);
+          return res.json({
+            ok: true,
+            label: r.name || text.trim(),
+            lat: r.lat,
+            lng: r.lng,
+            region: setOpts.region || 'SG',
+            radiusCapM: setOpts.radiusCapM || null
+          });
+        }
+        return res.status(400).json({ ok: false, error: 'missing precinctId or text' });
+      } catch (err) {
+        console.error('[menu/set-location] failed:', err.message);
+        res.status(500).json({ ok: false, error: err.message });
+      }
+    });
+
     // v0.60.53 — hawker-centre "📤 Save to chat" companion to the
     // cuisine VenueCard pattern. Mini-App initData is verified, the
     // requested centre name is resolved against the vault (fuzzy fallback
@@ -10074,7 +10430,16 @@ async function cacheBotUsername() {
             maxAgeMinutes: Math.floor(CUISINE_LOC_FRESH_MS / 60000)
           });
         }
-        res.json({ lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null });
+        // v0.61.124 — surface the anchor metadata stamped by the chat
+        // /location quick-pick + Menu TMA dropdown so the Cuisine TMA
+        // can auto-flip its region toggle to JB (and the Menu TMA's
+        // LocationFieldMenu shows the current label / cap).
+        const payload = { lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null };
+        if (cached.region) payload.region = cached.region;
+        if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
+        if (cached.label) payload.label = cached.label;
+        if (cached.precinctId) payload.precinctId = cached.precinctId;
+        res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
         res.status(500).json({ error: err.message });
@@ -10211,6 +10576,16 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // v0.61.126 — Fruits / Durian exclusive special mode. When
+        // set, the request body's `cuisines` / `filters.michelin` /
+        // `filters.dessert` / Tell-me text are all IGNORED in favour
+        // of the per-mode seed list from special-mode.js; results
+        // are post-filtered by mode-specific keyword signals so the
+        // Places fuzzy-match can't bleed in unrelated restaurants
+        // (per scripts/Create_2_buttons.MD). The mode short-circuits
+        // every cuisine-query construction step below.
+        const specialModeIn = (req.body && typeof req.body.specialMode === 'string') ? req.body.specialMode : null;
+        const specialMode = (specialModeIn === 'fruits' || specialModeIn === 'durian') ? specialModeIn : null;
         // v0.59.0: resolve active lang for this request — TMA body
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
@@ -10314,13 +10689,21 @@ async function cacheBotUsername() {
         // Kulai, …), the user has explicitly picked a Johor location
         // — trust it and centre the search there.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
+        // v0.61.129 — IOI Resort City Putrajaya (matches precincts.js
+        // 'ioi-resort-putrajaya'). Used as the centre fallback when
+        // region='MY-PUT' but the supplied lat/lng is still inside SG
+        // (user toggled MY-Putrajaya before the location settled).
+        const PUT_CBD = { lat: 2.9742, lng: 101.7060 };
         const isJB = region === 'JB';
+        const isMyPut = region === 'MY-PUT';
+        const isMy = isJB || isMyPut;
         const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
         const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
         const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
           && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
           && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
-        const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
+        const myCbd = isMyPut ? PUT_CBD : JB_CBD;
+        const searchCenter = isMy ? (insideSG ? myCbd : { lat, lng }) : { lat, lng };
         // v0.58.8: client supplies a `radius` in metres from the
         // vertical slider on the map. Bounded 1000–100000. When
         // missing or out of range, fall back to the legacy region
@@ -10328,11 +10711,31 @@ async function cacheBotUsername() {
         // v0.60.165 — JB default 18 km → 30 km (see warm-start above).
         // v0.60.165 — SG default 50 km → 20 km (same correction as
         // /warm-start above). JB 30 km unchanged.
-        const DEFAULT_RADIUS = isJB ? 30000 : 20000;
-        const searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
+        // v0.61.129 — MY-PUT default 15 km (matches precincts.js cap
+        // for Putrajaya; the anchor-cap clamp below would clamp 30 km
+        // → 15 km anyway, but starting at 15 km is honest).
+        const DEFAULT_RADIUS = isMyPut ? 15000 : (isJB ? 30000 : 20000);
+        let searchRadius = (Number.isFinite(clientRadius) && clientRadius >= 1000 && clientRadius <= 100000)
           ? Math.round(clientRadius)
           : DEFAULT_RADIUS;
-        const searchRegionCode = isJB ? 'MY' : 'SG';
+        // v0.61.124 — honour the per-anchor radius cap set by the
+        // chat /location quick-pick / Menu TMA dropdown (Putrajaya
+        // IOI 15 km, JB 30 km). The cap is stored on the cached
+        // user-location payload; read it here and clamp regardless
+        // of what the TMA's slider sent. Best-effort: any Redis
+        // hiccup just leaves the slider value alone.
+        try {
+          if (csChatId) {
+            const ulPayload = await getUserLocation(redis, csChatId).catch(() => null);
+            const cap = ulPayload?.radiusCapM;
+            if (Number.isFinite(cap) && cap > 0 && searchRadius > cap) {
+              console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
+              searchRadius = cap;
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
+        // v0.61.129 — Malaysia regions (JB + MY-PUT) both use MY country code.
+        const searchRegionCode = isMy ? 'MY' : 'SG';
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
         // N" note has a one-tap reset that re-fires the search with
         // resetSeen:true; that wipes this chat's accumulating exclusion
@@ -10538,6 +10941,20 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.61.126 — special-mode override. When Fruits or Durian
+        // is on, replace cuisineQueries entirely with the per-mode
+        // seeds (`special-mode.buildSeeds`) suffixed for the right
+        // region. Skips the home-based / Tell-me qualifier / dessert
+        // detection blocks below by setting a flag the dessert hit
+        // gate checks for. The post-filter pass further down drops
+        // any Places result whose primaryType + name + reviews don't
+        // carry a mode keyword.
+        if (specialMode) {
+          const sm = require('./special-mode');
+          const regionSuffix = region === 'JB' ? 'Johor Bahru Malaysia' : 'Singapore';
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} seeds=${JSON.stringify(cuisineQueries)} (overrides cuisines / home-based / Tell-me / dessert)`);
+        }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens
         // poorly under generic cuisine names — they self-identify as
@@ -10554,7 +10971,7 @@ async function cacheBotUsername() {
         //                                  "home-based meals"]
         //   cuisine selected     → prefix each query with
         //                          "private dining home-cooked"
-        if (filters.homeBased) {
+        if (filters.homeBased && !specialMode) {
           if (cuisineNames.length) {
             cuisineQueries = cuisineNames.map((n) =>
               `private dining home-cooked ${modifiers.join(' ')} ${n}`.replace(/\s+/g, ' ').trim()
@@ -10582,7 +10999,13 @@ async function cacheBotUsername() {
         // the v0.60.126 qualifier-fold.
         const ftQualifier = ftRawIn.slice(0, 80);
         let dessertTmaHit = null;
-        if (ftQualifier) {
+        // v0.61.126 — special-mode short-circuits the Tell-me +
+        // dessert blocks. Per spec, "Fruits" / "Durian" allow only
+        // place names / specific fruit varieties / preparation styles
+        // as text additions; the dessert-detection pivot would over-
+        // collect bakery / café results. The cuisineQueries seeds are
+        // already mode-led from the override above.
+        if (ftQualifier && !specialMode) {
           try {
             const ddk = require('./dessert-drink-keywords');
             const hit = ddk.looksLikeDessertOrDrink(ftQualifier);
@@ -10863,6 +11286,20 @@ async function cacheBotUsername() {
         if (venues.length !== beforeNonFood) {
           console.log(`[Cuisine-Search] D703 venue-filter (type+name) ${beforeNonFood} → ${venues.length}`);
         }
+        // v0.61.126 — special-mode post-filter. After the standard
+        // venue-filter trims non-food types, drop anything that doesn't
+        // carry a mode keyword (fruit/durian + Malay + Chinese
+        // signals). Per scripts/Create_2_buttons.MD: "Do not weaken
+        // the semantic intent" — better to return fewer results than
+        // pad with unrelated cuisines.
+        if (specialMode) {
+          const sm = require('./special-mode');
+          const beforeSpecial = venues.length;
+          venues = sm.filterByMode(venues, specialMode);
+          if (venues.length !== beforeSpecial) {
+            console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
+          }
+        }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places
         // searchText with regionCode 'SG' returned arbitrary SG
@@ -10945,7 +11382,22 @@ async function cacheBotUsername() {
         // region:'JB' (the formattedAddress filter below still pins
         // JB-mode results to "Johor Bahru" so we don't bleed into KL).
         venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
-        if (isJB) {
+        if (isMyPut) {
+          // v0.61.129 — Putrajaya post-filter. The Johor-only word-
+          // boundary filter (below) wiped every Putrajaya venue
+          // because Putrajaya addresses read 'Putrajaya' / 'Sepang'
+          // / 'Selangor' / 'Cyberjaya' (the IOI Resort City + IOI
+          // City Mall are in Sepang district, Selangor — adjacent
+          // to Putrajaya proper). Accept any of those keywords OR a
+          // venue within the radius cap of the Putrajaya centroid
+          // (PUT_CBD above) for the address-text-missing case.
+          venues = venues.filter((v) => {
+            const hay = `${v.area || ''} ${v.name || ''}`;
+            if (/\b(putrajaya|cyberjaya|sepang|selangor|kuala lumpur)\b/i.test(hay)) return true;
+            if (Number.isFinite(v.distanceM) && v.distanceM <= 25000) return true;  // within ~25km of the requested centre
+            return false;
+          });
+        } else if (isJB) {
           // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
           // JB region toggle covers ALL of Johor state (Pontian, Desaru,
           // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
@@ -11435,6 +11887,16 @@ async function cacheBotUsername() {
           buildingObjAnnotator(v);
         }
         const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        // v0.61.126 — special-mode response metadata. The TMA renders
+        // the "Limited matches nearby. Showing the closest <mode>-
+        // related results." line per scripts/Create_2_buttons.MD when
+        // the result count drops below the spec's "8-12 relevant"
+        // threshold. The mode itself is echoed back so the TMA can
+        // confirm what the server actually used (defensive).
+        if (specialMode) {
+          payload.specialMode = specialMode;
+          payload.specialModeLimited = dedupedTop.length < 8;
+        }
         if (ftRawIn) {
           try {
             require('./freetext-log').logFreeTextQuery(redis, ftRawIn, {
@@ -11523,7 +11985,7 @@ async function cacheBotUsername() {
             if (count > 60) {
               return res.status(429).json({
                 error: 'rate limited',
-                detail: 'Too many Tell Gia calls this hour. Try again next hour.'
+                detail: 'Too many Tell Soleat calls this hour. Try again next hour.'
               });
             }
           }

@@ -1,8 +1,8 @@
 counters:
-  commit: 332
-  build: 122
+  commit: 324
+  build: 120
   documents:
-    journal: 320
+    journal: 317
     builder: 3
     persona: 4
     feature: 48
@@ -11,95 +11,30 @@ counters:
     register: 116
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 38
-last_anchor_time: 23-05 '26 19:45 SGT
-last_anchor_source: system_clock_utc_2026-05-23T11:45:28Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for v0.61.119 PR cut, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T19:45:28+08:00
-last_anchor_utc: 2026-05-23T11:45:28Z
-# v0.61.119 (commit 332 / journal 320 / build 122) — map-polish round 3
-# PR #617 (branch claude/v0.61.119-map-polish-round3, off main at
-# v0.61.118 / 48ee865). Four operator-reported defects: (1) attractions
-# cluster pills 'N ⚝ here' hid individuals — v0.61.118's 200 px tile
-# at z<14 = ~7.6 km in SG, easily 45+ attractions per tile in central;
-# reverted to TILE_PX = 40 at every zoom in applyClusterAndDrop, so
-# individuals dominate. (2) Transport zoom-hang past z14 — MrtMapPanel
-# idle listener (setAnchor → applyVisibility cluster pass) debounced
-# ~180ms via anchorTimerRef. (3) Zoom-readout '🔭 #' wrapped in a 10 %
-# black-transparent circle (rounded-full px-2 py-1, rgba(0,0,0,0.1))
-# across the 3 TMA map components + public/app.js. (4) Transport
-# station AdvancedMarkerElement zIndex 1000 so station pills render
-# in front of bus-stop full-name labels past z13. mapOverlays.js x3 +
-# MrtMapPanel.jsx + MapPanel.jsx + HawkerMapPanel.jsx + public/app.js.
-# journal-0_61_119-23_05_26-1945.md. Amends v0.61.118 journal #319's
-# 200 px tile description per AU-7.
-# v0.61.118-merged (commit 330, no new journal/build) — post-merge
-# journal upkeep for v0.61.118 / PR #615 (merged at 651323d on
-# 2026-05-23T09:18:25Z). journal-0_61_118-23_05_26-1711.md gains an
-# Amendments entry flipping [STATUS] DRAFT -> MERGED with the squash
-# SHA, per the CLAUDE.md standing rule. No code change, no version
-# bump.
-# v0.61.118 (commit 329 / journal 319 / build 121) — Attractions
-# readability + cluster-engine tuning on branch claude/v0.61.118-
-# attractions-readable-clusters, off main at v0.61.117 (b3c5a9a after
-# the #614 STATUS-flip docs commit 4a62b74). Three small changes:
-#   • dotNode (line 545, all 3 TMA copies) — glyph span gets
-#     color:#fff so the ⚝ character is legible on the purple
-#     attractions dot (the z12–13 'glyph' tier). Emoji glyphs (🅿,
-#     🌳, 👮, 🏥, 💊) ignore CSS color and keep their own palette.
-#   • applyClusterAndDrop (line 1771, all 3 TMA copies) — attractions
-#     threshold 8 → 7; cluster tile is 200 px at z<14, 40 px at z≥14
-#     (carpark unchanged at 40 px). Aggressive at low zoom so dense
-#     attraction zones collapse into a single pill; street-level grain
-#     unchanged from v0.61.116.
-#   • Cluster pill text — attractions "<N> ⚝" → "<N> ⚝ here", symmetric
-#     with the existing carpark "<N> 🅿 here".
-# public/app.js — runClusterPass gains an `opts.tilePx` (default 40);
-# the attractions caller passes 200 at z<14 / 40 at z≥14, threshold 7,
-# and the new cluster text. Carpark caller unchanged.
-# Audit context: this is the operator's response to two complaints —
-# the dark-on-dark ⚝ readability bug (not in the 23-05 '26 audit
-# top-5 but surfaced in the same conversation) and a desire for
-# heavier low-zoom clustering. journal-0_61_118-23_05_26-1711.md.
-# v0.61.117-merged (commit 328, no new journal/build) — post-merge
-# journal upkeep for v0.61.117 / PR #612 (merged at b3c5a9a on
-# 2026-05-23T07:18:43Z). journal-0_61_117-23_05_26-1515.md gains an
-# Amendments entry flipping [STATUS] DRAFT -> MERGED with the squash
-# SHA, per the CLAUDE.md standing rule. No code change, no version
-# bump.
-# v0.61.112-merged-redo2 (commit 327, no new journal/build) — post-merge
-# journal upkeep for v0.61.112 / PR #604 (merged at f50ab26 way back at
-# the start of the day). journal-0_61_112-23_05_26-0052.md gains an
-# Amendments-section entry flipping [STATUS] DRAFT -> MERGED with the
-# squash SHA, per the CLAUDE.md standing rule. Third attempt after both
-# PR #605 (closed superseded by drift to v0.61.116) and PR #609 (closed
-# superseded by drift to v0.61.117). No code change, no version bump.
-# Off main at v0.61.117 (b3c5a9a).
-# v0.61.117 (commit 326 / journal 318 / build 120) — Carpark popup
-# duplicate "Google Map ↗" link fix on branch claude/v0.61.117-carpark-
-# popup-dedup, off main at v0.61.116-vault-merged (f4046c0). Audit
-# finding (top-5 #1 from the 23-05 '26 code-audit pass): v0.61.116's
-# Carpark Card (slice 2) added an explicit `+ gmapsLinkRow(f.lat,
-# f.lng)` to carparkInfo's inner HTML while still passing `f` as the
-# 2nd arg of infoCard(), so the popup rendered the link twice — once
-# inline, once via the infoCard auto-tail. Fix drops the explicit
-# inline call; the auto-tail remains. byte-identical in all three TMA
-# copies: web/cuisine/src/v2/lib/mapOverlays.js + web/hawker/src/lib/
-# mapOverlays.js + web/transport/src/lib/mapOverlays.js. public/app.js
-# was always correct (single link). journal-0_61_117-23_05_26-1515.md.
-# v0.61.116-vault-merged (commit 325, no new journal/build) — post-merge
-# journal upkeep for v0.61.116-vault / PR #610 (merged at 7a4ee08 on
-# 2026-05-23T06:57:30Z). journal-0_61_116-23_05_26-1352.md gains an
-# Amendments entry flipping [STATUS] DRAFT -> MERGED with the squash
-# SHA, per the CLAUDE.md standing rule ("After a PR merges, record it
-# in the Journal"). No code change, no version bump.
-# v0.61.116 vault pass (commit 324 / journal 317 / no build) — operator
-# instruction "vault first, then do a code audit": fresh vault/v0.61.116/
-# reproducible snapshot (~154 MB, 932 files) + VAULT_README.md, per
-# CLAUDE-FULL §16.1. Prior vault v0.61.90 kept (Rule V-1); v0.61.91 →
-# v0.61.116 is the delta arc (26 versions, 25 PRs). No code change, no
-# version bump. journal-0_61_116-23_05_26-1352.md; branch
-# claude/v0.61.116-vault. Rule V-3 — the snapshot omits this
-# self-referential addendum.
+  current_chat_counter: 39
+last_anchor_time: 23-05 '26 12:17 SGT
+last_anchor_source: system_clock_utc_2026-05-23T04:17:09Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for new PR cut, not a TF-7 drift correction)
+last_anchor_iso8601: 2026-05-23T12:17:09+08:00
+last_anchor_utc: 2026-05-23T04:17:09Z
+# v0.61.117 (commit 324 / journal 317 / build 120) — Attractions /
+# Carpark overlay zoom-hang past z14. Operator: "the Zoom in the
+# attractions toggled for all TMA including design-TMA hungs after zoom
+# in after level 14" (Cuisine TMA, Hawker TMA, Train TMA + the four
+# /app/map bot views). Root cause: v0.61.112 (#604) debounced the
+# MrtMapPanel zoom_changed listener but the overlay-controller's
+# zoom_changed listener in mapOverlays.js was left synchronous; v0.61.116
+# (#608) then loaded applyClusterAndDrop (Attractions + Carpark cluster
+# engine, 40 px tile bucketing + source-order label cascade) onto it,
+# plus the amenity tier-swap, and Google Maps fires zoom_changed
+# continuously through a pinch/wheel gesture, so past z14 the work
+# stacked per tick until the main thread locked. Fix mirrors v0.61.112's
+# zoomRenderTimerRef pattern: a closure-held setTimeout, 150 ms trailing
+# debounce, cleared in destroy(). public/app.js gets the same treatment
+# at 120 ms on the idle listener (refreshClippedLayers) — idle
+# double-fired on a settled pinch + camera re-anchor and stacked the
+# bus-stop / carpark / attraction / train rebuild. Branch claude/
+# v0.61.117-overlay-zoom-debounce off main at v0.61.116. mapOverlays.js x3
+# + public/app.js + package.json. journal-0_61_117-23_05_26-1217.md.
 # v0.61.116 (commit 323 / journal 316 / build 119) — Attractions /
 # Carpark cluster engine + source-order drop + Carpark popup Maps link.
 # Slice 2 of the operator's UI/UX spec, on branch claude/v0.61.116-

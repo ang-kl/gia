@@ -35,16 +35,36 @@ const CATEGORY_LABEL_KEY = {
 // drawer closes. App.jsx uses it to nudge a 3 s pulse on the 🔍
 // Search FAB so the user sees the next-step CTA right after picking
 // a cuisine.
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, specialMode = null, onSpecialModeChange }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   const [lang] = useLocale();
 
   if (!catalogue) return null;
 
   function toggle(slug) {
+    if (specialMode) return;  // v0.61.126 — cuisines locked while special mode is active
     if (selected.includes(slug)) onChange(selected.filter((s) => s !== slug));
     else if (selected.length < MAX_SELECTED) onChange([...selected, slug]);
   }
+
+  // v0.61.126 — Fruits / Durian exclusive toggle. Tapping the active
+  // button clears it; tapping the inactive one switches modes (per
+  // spec: "If 'Fruits' is toggled ON, automatically clear 'Durian'"
+  // and vice versa). Clears the selected cuisines on activation so
+  // the chip badge / criteria summary doesn't show ghosts of the
+  // prior normal-cuisine state.
+  function setSpecial(next) {
+    if (specialMode === next) {
+      onSpecialModeChange?.(null);
+    } else {
+      onSpecialModeChange?.(next);
+      if (selected.length > 0) onChange([]);   // wipe normal cuisines on mode activation
+    }
+  }
+  const SPECIAL = [
+    { id: 'fruits', label: tr('special.fruits.label', lang), emoji: '🍉' },
+    { id: 'durian', label: tr('special.durian.label', lang), emoji: '🥥' }
+  ];
 
   function labelFor(cat) {
     const key = CATEGORY_LABEL_KEY[cat.id];
@@ -109,12 +129,53 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="grid grid-cols-2 gap-1.5">
+      {/* v0.61.126: Fruits / Durian exclusive special-mode pills —
+          two amber-bordered buttons visually distinct from the white
+          catalogue cards. Active mode is bg-tg-accent + ✓; inactive
+          is amber-bordered + +. Toggle behaviour: tap active to clear,
+          tap other to switch (mutually exclusive). When ON, the
+          catalogue grid + QuickFilters go opacity-40 + pointer-
+          events-none.
+          v0.61.129: moved BELOW the catalogue grid per operator —
+          "move the Fruits and Durians after the Michelin List row".
+          Michelin is the last catalogue card; placing Fruits + Durian
+          immediately after the grid puts them right under it. */}
+      <div
+        className={`grid grid-cols-2 gap-1.5${specialMode ? ' opacity-40 pointer-events-none' : ''}`}
+        aria-disabled={specialMode ? true : undefined}
+      >
         {catalogue.map((cat) => (
           <CategoryCard key={cat.id} cat={cat} />
         ))}
       </div>
-      {selected.length > 0 && (
+      <div className="grid grid-cols-2 gap-1.5">
+        {SPECIAL.map((s) => {
+          const active = specialMode === s.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSpecial(s.id)}
+              aria-pressed={active}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-left transition-colors ${
+                active
+                  ? 'bg-tg-accent text-tg-accent-text border-tg-accent font-semibold'
+                  : 'bg-tg-card text-tg-text border-amber-500/60 hover:border-amber-500'
+              }`}
+            >
+              <span aria-hidden className="flex-shrink-0">{s.emoji}</span>
+              <span className="text-xs font-semibold flex-1">{s.label}</span>
+              <span aria-hidden className="flex-shrink-0">{active ? '✓' : '+'}</span>
+            </button>
+          );
+        })}
+      </div>
+      {specialMode && (
+        <div className="text-[11px] text-tg-hint px-1 italic">
+          {tr('special.activeNote', lang).replace('{mode}', tr(`special.${specialMode}.label`, lang))}
+        </div>
+      )}
+      {selected.length > 0 && !specialMode && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>
           <button onClick={() => onChange([])} className="underline">{tr('btn.clearCuisines', lang)}</button>

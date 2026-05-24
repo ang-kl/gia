@@ -36,12 +36,22 @@ function Chip({ active, onClick, children, ariaLabel }) {
   );
 }
 
-export default function QuickFilters({ filters, onChange }) {
+// v0.61.126 — `specialModeActive` (boolean) prop. When a Fruits or
+// Durian exclusive mode is on, the entire QuickFilters row is greyed
+// + click-disabled per scripts/Create_2_buttons.MD — taps on toggles
+// would otherwise feed conflicting modifiers into the server-side
+// special-mode override. The grey-out is purely client-side; server
+// also ignores filters when specialMode is set.
+export default function QuickFilters({ filters, onChange, specialModeActive = false }) {
   const [lang] = useLocale();
   const [moreOpen, setFiltersOpen] = useState(false);
 
-  function toggle(key) { onChange({ ...filters, [key]: !filters[key] }); }
+  function toggle(key) {
+    if (specialModeActive) return;
+    onChange({ ...filters, [key]: !filters[key] });
+  }
   function togglePrice(p) {
+    if (specialModeActive) return;
     const has = (filters.prices || []).includes(p);
     onChange({ ...filters, prices: has ? filters.prices.filter((x) => x !== p) : [...(filters.prices || []), p] });
   }
@@ -61,7 +71,10 @@ export default function QuickFilters({ filters, onChange }) {
   };
 
   return (
-    <div className="flex flex-col gap-1.5 px-0.5">
+    <div
+      className={`flex flex-col gap-1.5 px-0.5${specialModeActive ? ' opacity-40 pointer-events-none' : ''}`}
+      aria-disabled={specialModeActive || undefined}
+    >
       <div className="flex flex-wrap gap-1 items-center">
         {PRIMARY.map((f) => (
           <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}

@@ -655,16 +655,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       />
       {/* v0.61.93 — operator: the zoom readout doubles as the recenter
           button. v0.61.102 — operator: a faint "🔭 <zoom>" readout
-          (30% opacity, 2 px smaller) — no longer a white circle.
-          v0.61.119 — operator: 10 % black-transparent circle background
-          behind the readout, applied to every map TMA. */}
+          (30% opacity, 2 px smaller) — no longer a white circle. */}
       {zoomLevel != null && (
         <button
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none rounded-full px-2 py-1"
-          style={{ background: 'rgba(0,0,0,0.1)' }}
+          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none"
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
         >

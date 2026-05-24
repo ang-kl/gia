@@ -546,9 +546,6 @@ function dotNode(bg, glyph, size) {
   // v0.61.105 — `size` (px) sizes the dot for the carpark zoom ladder;
   // buildMarkers passes the feature object as the 3rd arg, so only a
   // number counts — anything else falls back to the default 20 px.
-  // v0.61.118 — glyph rendered in white so character glyphs (⚝ for
-  // attractions) are legible on the dark-purple dot; emoji glyphs (🅿,
-  // 🌳, 👮, 🏥, 💊) ignore CSS `color` and keep their own palette.
   const sz = (typeof size === 'number' && size > 0) ? size : 20;
   const el = document.createElement('div');
   el.style.cssText =
@@ -558,7 +555,7 @@ function dotNode(bg, glyph, size) {
     'background:' + bg + ';';
   const ic = document.createElement('span');
   ic.textContent = glyph;
-  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;color:#fff;';
+  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;';
   el.appendChild(ic);
   return el;
 }
@@ -1161,15 +1158,30 @@ export function createOverlayController(map, googleMaps, opts) {
   // trainTier — square / code chip / named pill bands).
   // v0.61.82 — CR-5: also re-apply the exits layer so exit pins swap
   // bare-identifier ↔ "Exit <code>" card at the same threshold.
+  // v0.61.117 — Google Maps fires `zoom_changed` continuously during a
+  // wheel/pinch gesture, not once at the end. At z>=14 the work per
+  // tick is heavy (applyClusterAndDrop's 40 px tile bucketing + the
+  // source-order label cascade for Attractions/Carpark, plus the
+  // amenity 'label' tier and the train marker re-tier) and stacking
+  // it per tick froze the map past z14. Trailing-debounced ~150 ms
+  // so the cascade runs once after the gesture settles. The MrtMapPanel
+  // got the same treatment in v0.61.112 (#604) — this is the overlay
+  // controller's missing half. Timer cleared on destroy.
+  let zoomTickTimer = null;
   map.addListener('zoom_changed', () => {
-    if (layers.train) applyVisibility('train');
-    if (layers.busstop) applyVisibility('busstop');
-    if (layers.exits) applyVisibility('exits');
-    // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
-    // label) — see amenityTier.
-    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
-      if (layers[n]) applyVisibility(n);
-    }
+    if (zoomTickTimer) clearTimeout(zoomTickTimer);
+    zoomTickTimer = setTimeout(() => {
+      zoomTickTimer = null;
+      if (destroyed) return;
+      if (layers.train) applyVisibility('train');
+      if (layers.busstop) applyVisibility('busstop');
+      if (layers.exits) applyVisibility('exits');
+      // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
+      // label) — see amenityTier.
+      for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
+        if (layers[n]) applyVisibility(n);
+      }
+    }, 150);
   });
   // v0.61.92 — re-apply the train layer on pan-end too: "results in
   // focus" (the anchor inside the viewport) flips as the user pans,
@@ -1533,12 +1545,13 @@ export function createOverlayController(map, googleMaps, opts) {
   const carparkInfo = (f) => {
     // v0.61.116 — Carpark Card per operator UI/UX spec (slice 2):
     // Header (Carpark | proper-cased name) + Live Data (lots /
-    // availability) + Actions (Google Maps ↗). The `f` 2nd arg to
-    // infoCard auto-appends the standard gmapsLinkRow tail (the
-    // TMA-wide convention from v0.61.31).
+    // availability) + Actions (Google Maps ↗). gmapsLinkRow is the
+    // shared helper used by the train-station footer and the cuisine
+    // venue popup, so the link styling matches every other map card.
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>'
+      + gmapsLinkRow(f.lat, f.lng), f);
   };
 
   // v0.61.109 — enriched attraction popup: star rating + review count,
@@ -1774,21 +1787,12 @@ export function createOverlayController(map, googleMaps, opts) {
   function applyClusterAndDrop(name, e) {
     const isCarpark = (name === 'carpark');
     const isAttraction = (name === 'attractions');
-    // v0.61.118 — attractions threshold lowered from 8 to 7 per operator.
-    const threshold = isCarpark ? 5 : 7;
+    const threshold = isCarpark ? 5 : 8;
     const zoom = map.getZoom?.() || 0;
     const forceCluster = isCarpark && zoom < 15;
     const allowLabel = isCarpark ? (zoom >= 15) : (zoom >= 14);
     const mpp = metresPerPixelAt(zoom, 1.35) || 1;
-    // v0.61.119 — operator: at z11 a 200 px tile spans ~7.6 km in
-    // Singapore (~38 m/px × 200), easily holding 45+ attractions in
-    // central SG → one mega "45 ⚝ here" pill that hides every
-    // individual attraction. Reverts the v0.61.118 low-zoom widening:
-    // 40 px tile for attractions at every zoom (same as carpark),
-    // so individuals dominate at typical zoom and clusters only form
-    // where ≥7 attractions sit within ~1.5 km × 1.5 km.
-    const TILE_PX = 40;
-    const TILE_M = TILE_PX * mpp;
+    const TILE_M = 40 * mpp; // 40 px tile in metres at current zoom
 
     // 1) Filter to candidates that should be considered for placement.
     const candidates = [];
@@ -1836,7 +1840,7 @@ export function createOverlayController(map, googleMaps, opts) {
         cLng /= items.length;
         const text = isCarpark
           ? items.length + ' 🅿 here'
-          : items.length + ' ⚝ here';
+          : items.length + ' ⚝';
         let cm = e._clusters[cIdx];
         if (!cm) {
           cm = new AdvancedMarkerElement({
@@ -2245,6 +2249,10 @@ export function createOverlayController(map, googleMaps, opts) {
     },
     destroy() {
       destroyed = true;
+      // v0.61.117 — cancel the trailing zoom-changed debounce so a
+      // gesture-in-flight at unmount can't fire applyVisibility on
+      // already-cleared layers.
+      if (zoomTickTimer) { clearTimeout(zoomTickTimer); zoomTickTimer = null; }
       detailStation = null;
       detailStations = [];
       clearStationBusStops();

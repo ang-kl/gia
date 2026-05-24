@@ -33,14 +33,39 @@ import React, { useState } from 'react';
 // vertical headroom which reads cleanly on the half-screen sheet.
 const TILE_STYLE = { height: '80px', minHeight: 0 };
 
-export default function Tile({ icon, iconImage, label, onClick }) {
+// v0.61.123 — optional `disabled` + `disabledTooltip` props. When the
+// user has set a Malaysia anchor (JB / IOI Resort City Putrajaya),
+// App.jsx flips SG-only tiles (Hawker, Incidents, Bus stops, Weather)
+// to disabled. Visual: opacity 0.4, cursor not-allowed; tap surfaces
+// the tooltip via Telegram WebApp's native showAlert (or fallback
+// window.alert) instead of running the tile's onClick.
+export default function Tile({ icon, iconImage, label, onClick, disabled = false, disabledTooltip = '' }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (disabledTooltip) {
+        try {
+          const w = (typeof window !== 'undefined') ? window.Telegram?.WebApp : null;
+          if (w && typeof w.showAlert === 'function') w.showAlert(disabledTooltip);
+          else if (typeof window !== 'undefined' && typeof window.alert === 'function') window.alert(disabledTooltip);
+        } catch { /* best-effort */ }
+      }
+      return;
+    }
+    onClick?.(e);
+  };
   return (
     <button
-      onClick={onClick}
-      style={TILE_STYLE}
-      className="flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-1.5 active:bg-tg-accent active:text-tg-accent-text transition"
+      onClick={handleClick}
+      style={{ ...TILE_STYLE, ...(disabled ? { cursor: 'not-allowed', opacity: 0.4 } : {}) }}
+      aria-disabled={disabled || undefined}
+      title={disabled ? disabledTooltip : undefined}
+      className={`flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-1.5 transition${
+        disabled ? '' : ' active:bg-tg-accent active:text-tg-accent-text'
+      }`}
     >
       {showImage
         ? (
@@ -52,8 +77,8 @@ export default function Tile({ icon, iconImage, label, onClick }) {
             onError={() => setImgFailed(true)}
           />
         )
-        : <div className="text-lg leading-none">{icon}</div>}
-      <div className="text-[13px] font-medium leading-tight text-center">{label}</div>
+        : <div className="text-xl leading-none">{icon}</div>}
+      <div className="text-sm font-medium leading-tight text-center">{label}</div>
     </button>
   );
 }

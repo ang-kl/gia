@@ -407,4 +407,107 @@ async function geocodeQuery(text) {
   }
 }
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, rankByWalkingTime };
+// v0.61.125 — region-aware geocode. When the user has anchored to a
+// Malaysia precinct ('JB' or 'MY-PUT'), `geocodeQuery` returned the
+// Singapore namesake (e.g. typing "Sheraton Hotel" with a JB anchor
+// resolved to Sheraton Towers Orchard) because the textQuery hardcoded
+// " Singapore". This variant accepts an optional `region` ('SG' | 'JB'
+// | 'MY-PUT' | null) + `biasCenter` ({ lat, lng } | null) and:
+//   - changes the textQuery suffix (Singapore vs Johor Bahru, Malaysia
+//     vs Putrajaya, Malaysia)
+//   - sends a `locationBias` circle around the anchor (50 km JB / 15 km
+//     Putrajaya / 25 km SG default) so the Places API ranks nearby
+//     candidates higher
+//   - filters out hits outside the expected country bbox so a stray
+//     SG fallback can't bleed in when the user's MY anchor finds
+//     nothing local.
+const SG_BBOX = { lat: [1.15, 1.55], lng: [103.55, 104.10] };
+// v0.61.129 — replaced the wide MY bbox with tight per-region bboxes
+// per operator: "the auto-suggest list of location in Cuisine TMA and
+// all free chat in this project should restrict to Singapore,
+// Singapore Sentosa, Singapore Pulau Ubi, Johor and Putrajaya area".
+// Sentosa + Pulau Ubin sit within SG_BBOX. The wide MY bbox let
+// Penang / Kuching / Kota Kinabalu leak through when a typed name
+// was ambiguous; the per-region bboxes stop that.
+const JB_BBOX  = { lat: [1.40, 1.85], lng: [103.50, 104.00] };
+const PUT_BBOX = { lat: [2.85, 3.10], lng: [101.55, 101.85] };
+// Legacy MY_BBOX kept as a fallback when the caller didn't pass a
+// specific region — covers the union of JB + Putrajaya so generic
+// "MY"-tagged callers still resolve both. New callers should pass
+// region='JB' or 'MY-PUT' explicitly to get the tight bbox.
+const MY_BBOX = { lat: [1.40, 3.10], lng: [101.55, 104.00] };
+
+async function geocodeQueryRegion(text, opts = {}) {
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!mapsApiKey || !text || !text.trim()) return null;
+  const region = (opts && typeof opts.region === 'string') ? opts.region : null;
+  const bias = (opts && opts.biasCenter && Number.isFinite(opts.biasCenter.lat) && Number.isFinite(opts.biasCenter.lng))
+    ? opts.biasCenter : null;
+  // Suffix + bbox per region (defaults to Singapore-only behaviour).
+  // v0.61.129 — tightened bboxes per region (JB_BBOX / PUT_BBOX
+  // instead of the wide MY_BBOX) so a Penang / Sarawak / Sabah hit
+  // can't bleed through when the suffix doesn't pin the locality.
+  let suffix = ' Singapore';
+  let bbox = SG_BBOX;
+  let biasRadiusM = 25000;
+  if (region === 'JB') {
+    suffix = ' Johor Bahru, Malaysia';
+    bbox = JB_BBOX;
+    biasRadiusM = 50000;
+  } else if (region === 'MY-PUT') {
+    suffix = ' Putrajaya, Malaysia';
+    bbox = PUT_BBOX;
+    biasRadiusM = 15000;
+  }
+  const body = {
+    textQuery: `${text.trim()}${suffix}`,
+    maxResultCount: 3   // a few candidates so the bbox filter can pick the in-region one
+  };
+  if (bias) {
+    body.locationBias = {
+      circle: {
+        center: { latitude: bias.lat, longitude: bias.lng },
+        radius: biasRadiusM
+      }
+    };
+  }
+  try {
+    const { data } = await axios.post(
+      PLACES_TEXT_URL,
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': mapsApiKey,
+          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress'].join(',')
+        },
+        timeout: 8000
+      }
+    );
+    const candidates = data?.places ?? [];
+    // Prefer the first in-bbox candidate; fall through to the first
+    // result if none match (rare — Places usually respects the suffix).
+    let place = candidates.find((p) => {
+      const lat = p?.location?.latitude;
+      const lng = p?.location?.longitude;
+      return Number.isFinite(lat) && Number.isFinite(lng)
+        && lat >= bbox.lat[0] && lat <= bbox.lat[1]
+        && lng >= bbox.lng[0] && lng <= bbox.lng[1];
+    });
+    if (!place) place = candidates[0];
+    if (!place?.location) return null;
+    return {
+      lat: place.location.latitude,
+      lng: place.location.longitude,
+      name: place.displayName?.text ?? text.trim(),
+      address: place.formattedAddress ?? '',
+      placeId: place.id ?? null,
+      region: region || 'SG'   // echo the region hint so the caller knows what context was used
+    };
+  } catch (err) {
+    logger.error({ text, region, err: { message: err.message } }, 'vibe-suggest geocodeQueryRegion failed');
+    return null;
+  }
+}
+
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, geocodeQueryRegion, rankByWalkingTime };

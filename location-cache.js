@@ -7,12 +7,26 @@ function hashChatId(chatId) {
   return crypto.createHash('sha256').update(String(chatId)).digest('hex').slice(0, 16);
 }
 
-async function setUserLocation(redis, chatId, lat, lng) {
+async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   if (!redis.isOpen) await redis.connect();
   const key = `loc:${hashChatId(chatId)}`;
   // v0.30.2: stamp setAt so callers can compute staleness for the
   // 15-min "your location is old, refresh?" reminder.
-  await redis.setEx(key, LOC_TTL, JSON.stringify({ lat, lng, setAt: Date.now() }));
+  // v0.61.122: optional anchor metadata from /location precinct picks.
+  // `region` ('SG' | 'JB' | 'MY-PUT') lets the cuisine TMA + chat
+  // pipelines know which side of the Causeway we're on; `radiusCapM`
+  // hard-caps Places search radii (JB → 30 km, IOI Putrajaya → 15 km);
+  // `label` / `precinctId` pass through for display + analytics.
+  // All four are OPTIONAL — old callers (share-pin handler, manual
+  // geocode handler) pass nothing and get exactly the legacy payload.
+  const payload = { lat, lng, setAt: Date.now() };
+  if (opts && typeof opts === 'object') {
+    if (typeof opts.region === 'string' && opts.region) payload.region = opts.region;
+    if (Number.isFinite(opts.radiusCapM) && opts.radiusCapM > 0) payload.radiusCapM = opts.radiusCapM;
+    if (typeof opts.label === 'string' && opts.label) payload.label = opts.label;
+    if (typeof opts.precinctId === 'string' && opts.precinctId) payload.precinctId = opts.precinctId;
+  }
+  await redis.setEx(key, LOC_TTL, JSON.stringify(payload));
 }
 
 async function getUserLocation(redis, chatId) {

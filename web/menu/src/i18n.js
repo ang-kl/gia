@@ -29,6 +29,9 @@ const STRINGS = {
   'section.eat':           { en: 'Eat',             fr: 'Manger' },
   'section.discover':      { en: 'Discover',        fr: 'Découvrir' },
   'section.plan':          { en: 'Plan',            fr: 'Planifier' },
+  // v0.61.125 — own section for the location anchor picker
+  // (was a sub-row inside Plan in v0.61.123/124).
+  'section.location':      { en: 'Location',        fr: 'Lieu' },
 
   // ----- Eat tiles -----
   // v0.60.55 — single-word labels per Human Lead 2026-05-09
@@ -87,7 +90,36 @@ const STRINGS = {
 
   // v0.60.54 — interaction hint shown under the tile grid.
   'hint.tap':              { en: 'Tap a tile to begin · swipe down to close',
-                             fr: 'Touchez une tuile pour commencer · glissez vers le bas pour fermer' }
+                             fr: 'Touchez une tuile pour commencer · glissez vers le bas pour fermer' },
+
+  // v0.61.123 — LocationFieldMenu (below Plan heading).
+  'location.fieldLabel':   { en: '📍 Search anchor',
+                             fr: '📍 Point d’ancrage' },
+  'location.currentNone':  { en: 'No anchor set — searches use your shared GPS pin or default to Singapore.',
+                             fr: 'Aucun point d’ancrage — les recherches utilisent votre position partagée ou défaut Singapour.' },
+  'location.currentSet':   { en: 'Anchored at <b>{label}</b>{cap}.',
+                             fr: 'Ancré à <b>{label}</b>{cap}.' },
+  'location.capNote':      { en: ' · {km} km cap',
+                             fr: ' · plafond {km} km' },
+  'location.dropdownLabel':{ en: 'Pick a precinct…',
+                             fr: 'Choisir un quartier…' },
+  'location.dropdownGroupSg':   { en: 'Singapore — STB precincts', fr: 'Singapour — quartiers STB' },
+  'location.dropdownGroupSgReg':{ en: 'Singapore — region', fr: 'Singapour — région' },
+  'location.dropdownGroupMy':   { en: 'Malaysia', fr: 'Malaisie' },
+  'location.searchPlaceholder': { en: 'or type a place name…', fr: 'ou tapez un nom de lieu…' },
+  'location.searchSubmit':      { en: 'Set', fr: 'OK' },
+  'location.setOk':             { en: '✅ Anchored at {label}.', fr: '✅ Ancré à {label}.' },
+  'location.setErr':            { en: '⚠️ Could not set that location. Try a more specific name.',
+                                  fr: '⚠️ Impossible de définir ce lieu. Essayez un nom plus spécifique.' },
+  // Tooltip surfaced when the user taps a tile / panel disabled by a
+  // Malaysia anchor (Hawker, TrainPanel, Incidents, Bus stops, Weather).
+  'tile.disabledMy':       { en: 'Singapore only — switch anchor to use this.',
+                             fr: 'Singapour uniquement — changez d’ancrage pour utiliser ceci.' },
+  // v0.61.124 — appended to the anchor-summary line when a Malaysia
+  // anchor is set, so the user understands WHY tiles are dimmed
+  // without having to tap one to see the tooltip.
+  'location.disabledList': { en: ' (Hawker, Train, Incidents, Bus stops, Weather disabled)',
+                             fr: ' (Hawker, Train, Incidents, Arrêts de bus, Météo désactivés)' }
 };
 
 export function t(key, lang) {
