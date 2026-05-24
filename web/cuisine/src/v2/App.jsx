@@ -1308,6 +1308,20 @@ export default function App() {
         </div>
       )}
 
+      {/* v0.61.131 — place-anchor pill rendered FIRST (moved up from
+          its v0.61.130 position below specialModeNotice). The "where
+          am I searching" context outranks the misrepresented-dish
+          aside and the limited-matches amber card because it tells
+          the user WHERE the visible results come from; the other
+          two cards qualify the WHAT/WHY of those same results. */}
+      {placeAnchor && !loading && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {placeAnchor.queryRemainder
+            ? tn('anchor.showing', lang, { query: placeAnchor.queryRemainder, place: placeAnchor.name })
+            : tn('anchor.searching', lang, { place: placeAnchor.name })}
+        </div>
+      )}
+
       {/* v0.60.128 — "misrepresented dish" note: when the Tell-me box
           named a dish from the curated table, show the "often assumed X,
           but actually Y" context above the results. */}
@@ -1334,21 +1348,6 @@ export default function App() {
               {' '}{tn('special.widened', lang, { km: (specialModeWidenedInfo.finalM / 1000).toFixed(1) })}
             </span>
           )}
-        </div>
-      )}
-      {/* v0.61.130 — place-anchor pill (v0.61.129 O-20). When the Tell-me
-          box typed text was recognised as a Singapore place (MRT,
-          hawker, STB precinct, or geocoded landmark), the backend
-          pivoted the search centre there + tightened the radius. Show
-          the user that pivot so the visible result locations are
-          self-explanatory. The pill uses the tg-hint border to feel
-          informational, not error/alert (which is the amber card's
-          job). */}
-      {placeAnchor && !loading && (
-        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-          {placeAnchor.queryRemainder
-            ? tn('anchor.showing', lang, { query: placeAnchor.queryRemainder, place: placeAnchor.name })
-            : tn('anchor.searching', lang, { place: placeAnchor.name })}
         </div>
       )}
 
