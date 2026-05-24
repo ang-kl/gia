@@ -93,6 +93,22 @@ const STRINGS = {
                                   fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
+  // v0.61.119 — place-anchored search (hawker centre / MRT / mall /
+  // building / address typed in chat free-text). Header above the
+  // venue list, the button that fans out to better-rated nearby
+  // eateries, and the header above that nearby list.
+  'place.foundN':              { en: '📍 <b>{place}</b> — found {n} eateries here',
+                                 fr: '📍 <b>{place}</b> — {n} établissements trouvés ici' },
+  'place.foundEmpty':          { en: "📍 <b>{place}</b> — couldn't find eateries here. Showing top-rated nearby instead.",
+                                 fr: "📍 <b>{place}</b> — aucun établissement ici. Voici les mieux notés à proximité." },
+  'place.nearbyBtn':           { en: '✨ Top eateries nearby',
+                                 fr: '✨ Meilleurs établissements à proximité' },
+  'place.nearbyHeader':        { en: '✨ <b>Top {n} eateries near {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)',
+                                 fr: '✨ <b>Top {n} établissements près de {place}</b> (dans un rayon de {km} km, classés par note · Michelin · rareté · affluence)' },
+  'place.nearbyEmpty':         { en: '🤷 No standout eateries within {km} km of {place} right now.',
+                                 fr: '🤷 Aucun établissement marquant dans un rayon de {km} km de {place} en ce moment.' },
+  'place.expired':             { en: '⏱ That suggestion expired. Type the place name again to refresh.',
+                                 fr: '⏱ Cette suggestion a expiré. Tapez à nouveau le nom du lieu pour actualiser.' },
   'bot.location.share':        { en: "📍 Tap to share your location, or type a place name. I'll search after.",
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
