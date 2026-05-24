@@ -101,11 +101,12 @@ Singapore zones:
 
 Malaysia zones:
 - Johor Bahru
-- Petrajaya / Petra Jaya, Sarawak
+- Putrajaya (IOI City Mall / IOI Resort City area), 15 km search-radius cap
 
-Important note:
-- Treat “Petrajaya” and “Petra Jaya” as possible spelling variants.
-- If the app’s location system cannot support Sarawak / Petra Jaya yet, the PR must state this clearly in the test report instead of silently passing.
+Important note (corrected 24-05 '26):
+- The earlier draft of this spec named “Petrajaya / Petra Jaya, Sarawak”. That was a typo — the operator-intended location is **Putrajaya**, the federal administrative capital in West Malaysia, ~25 km south of KL, where IOI City Mall + IOI Resort City sit. **Not** Petra Jaya in Sarawak (the Kuching suburb on Borneo).
+- The Putrajaya anchor is already in `precincts.js` as `ioi-resort-putrajaya` (lat 2.9742, lng 101.7060, region `MY-PUT`, `radiusCapM: 15000`) from v0.61.122. Fruits + Durian special-mode searches in this zone are already supported via the v0.61.126 region-suffix swap (`Putrajaya Malaysia`).
+- If a future operator request adds Petra Jaya, Sarawak as a separate anchor, treat it as a new precinct addition (new region code, e.g. `MY-SRW`).
 
 Minimum result sufficiency logic:
 - For dense food areas, aim for at least 8 to 12 relevant results.
@@ -130,12 +131,12 @@ Test scenarios:
 - Expected: durian stalls, durian sellers, durian shops, durian farms or durian-specialist sellers if within useful search range.
 - Reject: unrelated desserts, cafés, or general restaurants.
 
-5. Fruits active in Petrajaya / Petra Jaya:
-- Expected: fruit sellers, fruit stalls, fruit juice sellers, or relevant local fruit shops.
+5. Fruits active in Putrajaya (IOI City Mall area):
+- Expected: fruit sellers, fruit stalls, fruit juice sellers, or relevant local fruit shops within the 15 km cap (covers Putrajaya → Puchong → parts of Cyberjaya).
 - If results are weak, report actual count and fallback behaviour.
 
-6. Durian active in Petrajaya / Petra Jaya:
-- Expected: durian sellers, durian stalls, durian shops, or durian-led listings.
+6. Durian active in Putrajaya (IOI City Mall area):
+- Expected: durian sellers, durian stalls, durian shops, or durian-led listings within the 15 km cap.
 - If results are weak, report actual count and fallback behaviour.
 
 Fallback behaviour:
@@ -185,7 +186,7 @@ Acceptance criteria:
 - Returned results remain strongly relevant to Fruits or Durian.
 - Singapore zone tests pass with sufficient relevant results where data is available.
 - Johor Bahru tests pass or clearly report data limitations.
-- Petrajaya / Petra Jaya tests pass or clearly report location/data limitations.
+- Putrajaya (IOI City Mall area) tests pass within the 15 km cap, or clearly report data limitations.
 - The PR must not pass by adding unrelated restaurants or generic dessert listings.
 ``` [
 
