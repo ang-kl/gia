@@ -29,6 +29,9 @@ const STRINGS = {
   'section.eat':           { en: 'Eat',             fr: 'Manger' },
   'section.discover':      { en: 'Discover',        fr: 'Découvrir' },
   'section.plan':          { en: 'Plan',            fr: 'Planifier' },
+  // v0.61.125 — own section for the location anchor picker
+  // (was a sub-row inside Plan in v0.61.123/124).
+  'section.location':      { en: 'Location',        fr: 'Lieu' },
 
   // ----- Eat tiles -----
   // v0.60.55 — single-word labels per Human Lead 2026-05-09

@@ -10229,20 +10229,56 @@ async function cacheBotUsername() {
           });
         }
         if (typeof text === 'string' && text.trim()) {
-          const { geocodeQuery } = require('./vibe-suggest');
-          const r = await geocodeQuery(text.trim()).catch(() => null);
+          // v0.61.125 — region-aware geocode. The prior version called
+          // geocodeQuery which hardcodes " Singapore" in the textQuery,
+          // so typing "Sheraton Hotel" with a JB anchor active resolved
+          // to Sheraton Towers Orchard. Now we read the cached
+          // location's region first (set by /location quick-pick or a
+          // prior precinct pick) and pass it to geocodeQueryRegion,
+          // which:
+          //   - swaps the suffix (Singapore vs Johor Bahru, Malaysia
+          //     vs Putrajaya, Malaysia)
+          //   - sends a Places API locationBias circle around the
+          //     existing anchor coords
+          //   - filters out hits outside the expected country bbox
+          // The client can also pass an explicit `region` in the body
+          // to override (e.g. when the user just toggled the region
+          // toggle but hasn't picked a precinct yet).
+          const { geocodeQueryRegion } = require('./vibe-suggest');
+          const cached = await getUserLocation(redis, chatId).catch(() => null);
+          const requestedRegion = (typeof req.body?.region === 'string' && req.body.region) ? req.body.region : null;
+          const effectiveRegion = requestedRegion || cached?.region || 'SG';
+          const biasCenter = (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng))
+            ? { lat: cached.lat, lng: cached.lng } : null;
+          const r = await geocodeQueryRegion(text.trim(), { region: effectiveRegion, biasCenter }).catch(() => null);
           if (!r || !Number.isFinite(r.lat) || !Number.isFinite(r.lng)) {
-            return res.status(400).json({ ok: false, error: 'could not resolve text to a Singapore location' });
+            return res.status(400).json({
+              ok: false,
+              error: effectiveRegion === 'SG'
+                ? 'could not resolve text to a Singapore location'
+                : 'could not resolve text to a Malaysia location'
+            });
           }
-          await setUserLocation(redis, chatId, r.lat, r.lng, { label: r.name || text.trim() });
-          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)})`);
+          // Preserve the prior region + radiusCapM when the new
+          // resolved point stays in the same region (so a JB anchor
+          // picking another JB hotel keeps the 30 km cap; switching
+          // explicitly to SG clears it).
+          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT')
+            && effectiveRegion === cached.region;
+          const setOpts = { label: r.name || text.trim() };
+          if (preserveRegion) {
+            setOpts.region = cached.region;
+            if (Number.isFinite(cached.radiusCapM)) setOpts.radiusCapM = cached.radiusCapM;
+          }
+          await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)})`);
           return res.json({
             ok: true,
             label: r.name || text.trim(),
             lat: r.lat,
             lng: r.lng,
-            region: 'SG',
-            radiusCapM: null
+            region: setOpts.region || 'SG',
+            radiusCapM: setOpts.radiusCapM || null
           });
         }
         return res.status(400).json({ ok: false, error: 'missing precinctId or text' });

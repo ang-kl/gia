@@ -19,9 +19,9 @@ export default function TrainPanel({ live, lang, onFullStatus }) {
   return (
     <div className="rounded-md bg-tg-card border border-tg-border p-2 flex flex-col gap-1.5">
       <div className="flex items-center gap-2 leading-tight">
-        <div className="text-base flex-shrink-0">🚆</div>
-        <div className="text-[12px] font-semibold flex-shrink-0">{t('panel.train.title', lang)}</div>
-        <div className="text-[10px] text-tg-hint truncate min-w-0">
+        <div className="text-lg flex-shrink-0">🚆</div>
+        <div className="text-[13px] font-semibold flex-shrink-0">{t('panel.train.title', lang)}</div>
+        <div className="text-[11px] text-tg-hint truncate min-w-0">
           {t(statusKey, lang)}
           {updatedAt ? ` · ${updatedAt}` : ''}
         </div>
@@ -29,14 +29,14 @@ export default function TrainPanel({ live, lang, onFullStatus }) {
       <div className="flex gap-1.5">
         <a
           href="/app/transport"
-          className="flex-1 text-[11px] px-2 py-1 rounded-t-md rounded-b-[12px] border border-tg-border bg-tg-bg text-center active:bg-tg-accent active:text-tg-accent-text transition"
+          className="flex-1 text-[12px] px-2 py-1 rounded-t-md rounded-b-[12px] border border-tg-border bg-tg-bg text-center active:bg-tg-accent active:text-tg-accent-text transition"
         >
           🗺 {t('panel.train.map', lang)}
         </a>
         <button
           type="button"
           onClick={onFullStatus}
-          className="flex-1 text-[11px] px-2 py-1 rounded-t-md rounded-b-[12px] border border-tg-border bg-tg-bg text-center active:bg-tg-accent active:text-tg-accent-text transition"
+          className="flex-1 text-[12px] px-2 py-1 rounded-t-md rounded-b-[12px] border border-tg-border bg-tg-bg text-center active:bg-tg-accent active:text-tg-accent-text transition"
         >
           💬 {t('panel.train.more', lang)}
         </button>
