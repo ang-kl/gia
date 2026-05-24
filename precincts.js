@@ -39,6 +39,26 @@ const path = require('path');
 
 const STB_GEOJSON_PATH = path.join(__dirname, 'geoloc', 'stb_key_precincts.geojson');
 
+// v0.61.123 — Singapore region buckets (CBD + 4 cardinal regions).
+// Not in the STB geojson; these are operator-curated centroids of
+// each region for use in the Menu TMA dropdown. No polygon (so they
+// don't participate in containingPrecinct / pointInPolygon — they're
+// pure anchors, not zones). Listed AFTER the 10 STB precincts in
+// getAll().
+const SG_REGION_BUCKETS = [
+  // Raffles Place / Tanjong Pagar area — anchor for any CBD search.
+  { id: 'sg-cbd',      label: 'Singapore CBD',     region: 'SG', lat: 1.2845, lng: 103.8519, source: 'region', country: 'Singapore' },
+  // Jurong East MRT — central node of the West region (matches
+  // hawker-vault.js's "West" zone).
+  { id: 'sg-western',  label: 'Singapore Western', region: 'SG', lat: 1.3329, lng: 103.7426, source: 'region', country: 'Singapore' },
+  // Bedok MRT — central node of the East region.
+  { id: 'sg-eastern',  label: 'Singapore Eastern', region: 'SG', lat: 1.3236, lng: 103.9273, source: 'region', country: 'Singapore' },
+  // Yishun MRT — central node of the North region.
+  { id: 'sg-north',    label: 'Singapore North',   region: 'SG', lat: 1.4304, lng: 103.8354, source: 'region', country: 'Singapore' },
+  // Bishan / Toa Payoh axis — geographic centre of SG.
+  { id: 'sg-central',  label: 'Singapore Central', region: 'SG', lat: 1.3503, lng: 103.8485, source: 'region', country: 'Singapore' }
+];
+
 // Hardcoded Malaysia anchors. Kept here (not in geojson) because the
 // geojson is STB-only and these don't have STB polygons.
 const MALAYSIA_ANCHORS = [
@@ -130,20 +150,39 @@ function getStbPrecincts() {
   return _loadStbPrecincts().slice();
 }
 
+function getSgRegionBuckets() {
+  return SG_REGION_BUCKETS.slice();
+}
+
 function getMalaysiaAnchors() {
   return MALAYSIA_ANCHORS.slice();
 }
 
 // Full list — STB precincts followed by Malaysia anchors. Order is
 // the operator-preferred display order in the /location button grid.
+// NOTE the 5 SG region buckets are NOT in this list — they're for the
+// Menu TMA dropdown only, where the operator wants the broader
+// CBD/West/East/North/Central choices alongside the named STB
+// precincts. Chat /location stays focused on STB-named precincts +
+// Malaysia anchors.
 function getAll() {
   return [...getStbPrecincts(), ...getMalaysiaAnchors()];
+}
+
+// v0.61.123 — full dropdown list for the Menu TMA: STB precincts +
+// SG region buckets + Malaysia anchors. 10 + 5 + 2 = 17 entries.
+function getMenuDropdown() {
+  return [...getStbPrecincts(), ...getSgRegionBuckets(), ...getMalaysiaAnchors()];
 }
 
 function getById(id) {
   if (!id) return null;
   const norm = String(id).toLowerCase().trim();
-  for (const p of getAll()) {
+  // v0.61.123 — search across the FULL menu dropdown (includes region
+  // buckets) so the Menu TMA can resolve "sg-cbd" etc. while chat
+  // /location quick-picks (which use getAll()) keep their existing
+  // 12-entry resolution.
+  for (const p of getMenuDropdown()) {
     if (p.id === norm) return p;
   }
   return null;
@@ -187,8 +226,10 @@ function effectiveRadius(loc, requestedRadiusM) {
 
 module.exports = {
   getStbPrecincts,
+  getSgRegionBuckets,
   getMalaysiaAnchors,
   getAll,
+  getMenuDropdown,
   getById,
   pointInPolygon,
   containingPrecinct,

@@ -10044,6 +10044,98 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.123 — Menu TMA location dropdown. Returns the full
+    // precincts list (10 STB + 5 SG region buckets + JB + Putrajaya =
+    // 17 entries) for the LocationFieldMenu dropdown. Public — no
+    // initData required since the data is non-sensitive (operator-
+    // curated static list). Caches in memory for the process lifetime
+    // (the geojson load already memoises).
+    let _menuPrecinctsCache = null;
+    app.get('/api/menu/precincts', (_req, res) => {
+      try {
+        if (!_menuPrecinctsCache) {
+          const precincts = require('./precincts');
+          _menuPrecinctsCache = precincts.getMenuDropdown().map((p) => ({
+            id: p.id,
+            label: p.label,
+            region: p.region,
+            country: p.country,
+            lat: p.lat,
+            lng: p.lng,
+            source: p.source,
+            ...(p.radiusCapM ? { radiusCapM: p.radiusCapM } : {})
+          }));
+        }
+        res.json({ precincts: _menuPrecinctsCache });
+      } catch (err) {
+        console.error('[menu/precincts] failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.61.123 — Menu TMA location setter. Two modes:
+    //   { precinctId: 'sg-cbd' }      → resolve via precincts.getById,
+    //                                   stamp setUserLocation with
+    //                                   region + radiusCapM + label.
+    //   { text: 'Tampines Mall' }     → geocodeQuery the text, then
+    //                                   stamp setUserLocation with just
+    //                                   the resolved coords + label
+    //                                   (no region / radiusCapM — text
+    //                                   anchors are SG-default).
+    // Verifies initData like the other write endpoints. Returns
+    // { ok, label, lat, lng, region, radiusCapM } on success.
+    app.post('/api/menu/set-location', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ ok: false, error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
+        const chatId = String(userId);
+        const { precinctId, text } = req.body || {};
+        const precincts = require('./precincts');
+        if (typeof precinctId === 'string' && precinctId) {
+          const p = precincts.getById(precinctId);
+          if (!p) return res.status(400).json({ ok: false, error: 'unknown precinctId' });
+          await setUserLocation(redis, chatId, p.lat, p.lng, {
+            region: p.region,
+            radiusCapM: p.radiusCapM || null,
+            label: p.label,
+            precinctId: p.id
+          });
+          console.log(`[menu/set-location] D776 chat=${chatId} precinctId=${p.id} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
+          return res.json({
+            ok: true,
+            label: p.label,
+            lat: p.lat,
+            lng: p.lng,
+            region: p.region,
+            radiusCapM: p.radiusCapM || null
+          });
+        }
+        if (typeof text === 'string' && text.trim()) {
+          const { geocodeQuery } = require('./vibe-suggest');
+          const r = await geocodeQuery(text.trim()).catch(() => null);
+          if (!r || !Number.isFinite(r.lat) || !Number.isFinite(r.lng)) {
+            return res.status(400).json({ ok: false, error: 'could not resolve text to a Singapore location' });
+          }
+          await setUserLocation(redis, chatId, r.lat, r.lng, { label: r.name || text.trim() });
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)})`);
+          return res.json({
+            ok: true,
+            label: r.name || text.trim(),
+            lat: r.lat,
+            lng: r.lng,
+            region: 'SG',
+            radiusCapM: null
+          });
+        }
+        return res.status(400).json({ ok: false, error: 'missing precinctId or text' });
+      } catch (err) {
+        console.error('[menu/set-location] failed:', err.message);
+        res.status(500).json({ ok: false, error: err.message });
+      }
+    });
+
     // v0.60.53 — hawker-centre "📤 Save to chat" companion to the
     // cuisine VenueCard pattern. Mini-App initData is verified, the
     // requested centre name is resolved against the vault (fuzzy fallback
