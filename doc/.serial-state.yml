@@ -1,21 +1,154 @@
 counters:
-  commit: 332
-  build: 122
+  commit: 337
+  build: 127
   documents:
-    journal: 320
+    journal: 325
     builder: 3
     persona: 4
     feature: 48
     technical: 48
     legal: 9
-    register: 116
+    register: 117
 sessions:
   current_chat_id: 2026-05-16
   current_chat_counter: 38
-last_anchor_time: 23-05 '26 19:45 SGT
-last_anchor_source: system_clock_utc_2026-05-23T11:45:28Z (NTP-synced system clock used per Rule TF-9; normal re-anchor for v0.61.119 PR cut, not a TF-7 drift correction)
-last_anchor_iso8601: 2026-05-23T19:45:28+08:00
-last_anchor_utc: 2026-05-23T11:45:28Z
+last_anchor_time: 24-05 '26 16:36 SGT
+last_anchor_source: github_pr_merge_timestamp_2026-05-24T08:36:28Z_for_PR_623_v0_61_124 (used per Rule TF-9 since the Claude Code session was iCloud-throttled past direct NTP fetch; merge timestamp is the authoritative source for the v0.61.120-124 arc cut)
+last_anchor_iso8601: 2026-05-24T16:36:28+08:00
+last_anchor_utc: 2026-05-24T08:36:28Z
+# v0.61.124 (commit 337 / journal 325 / build 127) — Anchor completion
+# (7 items in one PR). PR #623 (branch claude/v0.61.124-anchor-completion,
+# off main at v0.61.123 / 2fe4edf). Bundled the 7 outstanding items
+# from the v0.61.120-123 anchor arc per operator instruction "Do 1-7"
+# after the audit reply: (1) /api/cuisine/user-location surfaces region
+# + radiusCapM + label + precinctId; /api/cuisine/search +
+# /api/cuisine/warm-start clamp radius to cached.radiusCapM; Cuisine TMA
+# App.jsx tryServerCache auto-flips state.region to 'JB' when cached
+# anchor is JB/MY-PUT. (2) place-detector.js new findStbPrecinct at top
+# of ladder + runNearbyAlternatives gains polygon exclusion via
+# precincts.pointInPolygon when anchor.polygon is set; new
+# place.outsideHeader / place.outsideEmpty copy. (3) LocationFieldMenu
+# gains Google Places Autocomplete (300 ms debounce, 5 suggestions max)
+# via existing /api/cuisine/place-autocomplete. (4) runPlaceAnchoredSearch
+# "showing X of Y eateries here" copy via new place.foundShownOfTotal
+# i18n key. (5) Weakness gate (total<5 OR avg rating<4.0) auto-fires
+# nearby fan-out with place.autoNearbyIntro intro; healthy places keep
+# opt-in button. (6) locpick callback chains into "🔍 See eateries here"
+# follow-up; new locsearch:<precinctId> callback handler runs
+# runPlaceAnchoredSearch with polygon flowing through. (7) Menu TMA
+# location.disabledList key appended to summary when MY anchor set
+# (" (Hawker, Train, Incidents, Bus stops, Weather disabled)").
+# 8 files: place-detector.js + index.js + i18n.js + web/cuisine/src/v2/
+# App.jsx + web/menu/src/components/LocationFieldMenu.jsx +
+# web/menu/src/i18n.js + package.json (precincts.js unchanged — already
+# exports pointInPolygon + getStbPrecincts + getById from v0.61.122/123).
+# Cuisine vite build clean in 3m 5s; Menu vite build hung on iCloud
+# (~18 min, esbuild stuck on fs reads — known env issue), killed and
+# relied on CI. Amends journals #322/#323/#324 per AU-7 for the
+# deferrals they each listed (polygon exclusion, count format, auto-
+# suggest from #322; Cuisine TMA region/cap + outside-zone from #323;
+# autocomplete + disabled note from #324). journal-0_61_124-24_05_26-
+# 1636.md.
+# v0.61.123 (commit 336 / journal 324 / build 126) — Menu TMA location
+# anchor field + grey-out SG-only tiles on Malaysia anchor. PR #622
+# (branch claude/v0.61.123-menu-tma-location, off main at v0.61.122 /
+# c24f4ff). Phase 2 of the operator's /location + Menu TMA spec.
+# Adds LocationFieldMenu below the PLAN heading (above TrainPanel),
+# two input modes (free-text → server-side geocode, grouped dropdown
+# with 17 entries: 10 STB + 5 SG region buckets CBD/Western/Eastern/
+# North/Central + 2 Malaysia anchors). When resolved anchor.region is
+# 'JB' or 'MY-PUT', SG-only tiles (Hawker / Incidents / Bus stops /
+# Weather) and TrainPanel flip to disabled (opacity 0.4, cursor not-
+# allowed, tap → Telegram showAlert "Singapore only — switch anchor
+# to use this."). precincts.js adds 5 SG region buckets with operator-
+# curated centroids (CBD=Raffles Place, West=Jurong East, East=Bedok,
+# North=Yishun, Central=Bishan) + new getMenuDropdown() export; chat
+# /location getAll() unchanged at 12. Two new endpoints in index.js:
+# GET /api/menu/precincts (public, in-memory cache) and POST
+# /api/menu/set-location (initData-gated, accepts precinctId OR text).
+# location-cache.js setUserLocation accepts opts already from v0.61.122
+# — no change here. Tile.jsx gains disabled + disabledTooltip props.
+# web/menu/src/i18n.js +12 keys. vite build for web/menu hung at 12 min
+# on iCloud; CI on Vercel/Railway built clean on merge.
+# journal-0_61_123-24_05_26-1451.md.
+# v0.61.122 (commit 335 / journal 323 / build 125) — /location quick-
+# pick STB precincts + JB + IOI Resort City Putrajaya. PR #621 (branch
+# claude/v0.61.122-location-precincts, off main at v0.61.121 / f19d3c9).
+# Phase 1 of the operator's location spec: inline-keyboard quick-pick
+# keyboard appended to the /location reply. 12 buttons (2 per row):
+# 10 STB Singapore precincts loaded from geoloc/stb_key_precincts.
+# geojson (operator-curated polygons — centroid used as search anchor,
+# polygon ring retained for the future point-in-polygon "outside the
+# zone" filter), + 2 Malaysia anchors: 🇲🇾 Johor Bahru
+# (1.4927, 103.7414, radiusCapM 30000) and 🇲🇾 IOI Resort City
+# Putrajaya (2.9742, 101.7060, radiusCapM 15000 — operator's explicit
+# "explorer perimeter up to 15km only" constraint covers Putrajaya →
+# Puchong). New module precincts.js (~150 lines) exports
+# getStbPrecincts / getMalaysiaAnchors / getAll / getById /
+# pointInPolygon / containingPrecinct / effectiveRadius. location-cache
+# setUserLocation(opts?) extended with optional region / radiusCapM /
+# label / precinctId — backwards-compatible (old callers pass nothing,
+# get legacy payload shape). index.js: sendLocationQuickPicks helper +
+# new locpick:<id> callback handler (resolves via precincts.getById,
+# stamps cached location, replies with confirmation + cap note for
+# Malaysia anchors). runFreeTextSearch honours cached.radiusCapM via
+# pipeline.discover radius clamp + regionCode flip to 'MY'. i18n.js +4
+# keys (loc.precinct.prompt / loc.set.success / loc.set.capNote /
+# loc.set.unknown) en+fr. New test file __tests__/precincts.test.js
+# (6 describes / 15 specs) — loader, MY anchors, getAll order,
+# getById, polygon, effectiveRadius. Vitest deferred (iCloud env hang
+# documented). journal-0_61_122-24_05_26-1417.md.
+# v0.61.121 (commit 334 / journal 322 / build 124) — Chat free-text
+# place-anchored search + "✨ Top eateries nearby" inline button.
+# PR #620 (branch claude/v0.61.119-place-anchored-search before rebase,
+# squash-merged as f19d3c9 off main at v0.61.120 / 60b3e40). Operator
+# request: "if I type in address or building name or place, you should
+# priority search for that place, mention there are # of # eateries
+# there then if you think there are 10 or 20 eateries are good than
+# the place ... typed, suggest." New module place-detector.js (~200
+# lines, deterministic ladder: MRT/LRT first via data/mrt-coords.json
+# whole-word match, then hawker via hawker-vault.findByName fuzzy,
+# then geocode fallback via vibe-suggest.geocodeQuery). Per-kind radii:
+# hawker 150m / MRT 400m / geocoded 300m / nearby button 1500m.
+# index.js: new runPlaceAnchoredSearch (anchors pipeline.discover at
+# place coords, replies via deliverPicks with place.foundN header,
+# appends opt-in nearby button), new runNearbyAlternatives (wider
+# 1500m discover, dedupes against in-place placeIds, scores by
+# rating·0.4 + michelin·0.3 + rarity·0.2 + (1-crowdCost)·0.1).
+# Chat free-text gate at ~7738 branches into runPlaceAnchoredSearch
+# when Gemini classifySearchIntent returns intent='venue' AND
+# detectPlaceName resolves the text. New place:nearby:<key> callback
+# handler reads the cached anchor (place:anchor:<chatId>:<key>, 30min
+# TTL). i18n.js +6 keys (place.foundN / place.foundEmpty /
+# place.nearbyBtn / place.nearbyHeader / place.nearbyEmpty /
+# place.expired) en+fr. New __tests__/place-detector.test.js (18 specs).
+# KNOWN GAPS at time of cut: polygon exclusion (closed v0.61.124),
+# "X of Y" copy (closed v0.61.124), auto-suggest weak place (closed
+# v0.61.124). journal-0_61_121-24_05_26-1241.md.
+# v0.61.120 (commit 333 / journal 321 / build 123) — Chat free-text
+# whitelist for "<cuisine> + <food noun>" queries. PR #619 (branch
+# claude/v0.61.118-cuisine-browse-whitelist before rebase, squash-
+# merged as 60b3e40 off main at v0.61.119 / d2abe1e). Operator
+# reported "western cuisine nearby" returned the food-nudge decline
+# ("🍛 Please try a dish name…") instead of running a Places search.
+# Root cause: v0.60.216 food-relatedness gate (Gemini classifySearch
+# Intent) buckets "<cuisine> + <food noun>" patterns as 'ambiguous'
+# because the prompt only knows dish/ingredient/tool/venue. New helper
+# looksLikeCuisineBrowse(text) in freetext-classify.js returns true iff
+# the text contains BOTH a cuisine word (via cuisine-family.cuisineFamily
+# OR an umbrella from CUISINE_UMBRELLA_WORDS like western/asian/fusion/
+# continental/international/pan asian/eclectic/global) AND a food-
+# specific noun (cuisine/food/restaurant/eatery/dining/dish/menu/
+# kopitiam/hawker/foodcourt/nearby/near/around + plurals). On hit the
+# Gemini classifier is skipped entirely; on miss the existing v0.60.216
+# protection fires. Wired into index.js chat free-text gate ~7738.
+# Bare cuisine words ("italian") and bare food nouns ("restaurant")
+# still go through the gate by design. New 7-spec describe block in
+# __tests__/freetext-classify.test.js. Full vitest suite eventually
+# ran on Node 24 + iCloud after a ~3-hour cold-read penalty and passed
+# 1951/1951 (incl. new 15-test freetext-classify.test.js). Reduces
+# Gemini-Flash calls (whitelist short-circuits the classifier).
+# journal-0_61_120-24_05_26-1239.md.
 # v0.61.119 (commit 332 / journal 320 / build 122) — map-polish round 3
 # PR #617 (branch claude/v0.61.119-map-polish-round3, off main at
 # v0.61.118 / 48ee865). Four operator-reported defects: (1) attractions
