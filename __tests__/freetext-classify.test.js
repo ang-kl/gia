@@ -28,6 +28,52 @@ describe('looksLikeQuestion — fires on questions / instructions', () => {
   });
 });
 
+describe('looksLikeCuisineBrowse — whitelists "<cuisine> + <food noun>" patterns', () => {
+  it('the reported regression: "western cuisine nearby"', () => {
+    expect(fc.looksLikeCuisineBrowse('western cuisine nearby')).toBe(true);
+  });
+
+  it('umbrella cuisine + food noun', () => {
+    expect(fc.looksLikeCuisineBrowse('western food near me')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('asian restaurant')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('fusion dining')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('pan asian cuisine')).toBe(true);
+  });
+
+  it('catalogue cuisine + food noun', () => {
+    expect(fc.looksLikeCuisineBrowse('italian restaurant')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('japanese food near me')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('thai cuisine nearby')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('european dining around me')).toBe(true);
+    expect(fc.looksLikeCuisineBrowse('chinese eatery')).toBe(true);
+  });
+
+  it('does NOT fire on bare cuisine word (no food noun)', () => {
+    expect(fc.looksLikeCuisineBrowse('italian')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('japanese')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('western')).toBe(false);
+  });
+
+  it('does NOT fire on bare food noun (no cuisine word)', () => {
+    expect(fc.looksLikeCuisineBrowse('restaurant')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('food near me')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('dining nearby')).toBe(false);
+  });
+
+  it('does NOT fire on off-topic queries (the v0.60.216 gate stays effective)', () => {
+    expect(fc.looksLikeCuisineBrowse('tell me a joke')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('weather in tokyo')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('how is the stock market')).toBe(false);
+  });
+
+  it('blanks / nonsense', () => {
+    expect(fc.looksLikeCuisineBrowse('')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('   ')).toBe(false);
+    expect(fc.looksLikeCuisineBrowse(null)).toBe(false);
+    expect(fc.looksLikeCuisineBrowse('italian leather')).toBe(false);  // no food noun
+  });
+});
+
 describe('looksLikeQuestion — does NOT fire on dish / place / brand names', () => {
   it('plain dish names', () => {
     for (const t of ['fish and chips', 'char kway teow', 'chiffon cake', 'nasi lemak', 'laksa', 'ramen',
