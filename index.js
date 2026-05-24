@@ -10717,42 +10717,28 @@ async function cacheBotUsername() {
         // returns venues actually in that area, not 20 km out around
         // the user's current location. The matched place span is
         // stripped from ftRawIn so downstream cuisine-query construction
-        // doesn't double-count it (typing "ramen in Tiong Bahru" should
-        // hit Places with "ramen", not "ramen in Tiong Bahru"). Skipped
-        // for JB (place-detector data is SG-only) and skipped when the
-        // typed text is too short to plausibly name a place.
+        // doesn't double-count it.
+        // v0.61.131 — extracted to ./cuisine-tellme-anchor.js so the
+        // splitter regex + the guard logic are unit-testable (see
+        // __tests__/cuisine-tellme-anchor.test.js). Behaviour identical
+        // to the prior inline implementation.
         let detectedPlaceAnchor = null;
-        if (ftRawIn && !isJB && ftRawIn.length >= 3) {
-          try {
-            const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
-            const splitRe = /^(.+?)\s+(?:in|near|around|at)\s+(.+)$/i;
-            const splitMatch = ftRawIn.match(splitRe);
-            const placeCandidate = splitMatch ? splitMatch[2].trim() : ftRawIn;
-            const queryRemainder = splitMatch ? splitMatch[1].trim() : '';
-            const anchor = await detectPlaceName(placeCandidate);
-            if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
-              detectedPlaceAnchor = {
-                name: anchor.name,
-                kind: anchor.kind,
-                lat: anchor.lat,
-                lng: anchor.lng,
-                source: anchor.source
-              };
-              searchCenter = { lat: anchor.lat, lng: anchor.lng };
-              // Per-kind anchor radii are tight (150-600m). For a
-              // cuisine-search Tell-me, widen to NEARBY_RADIUS_M (1500m)
-              // so the result pool is a real surrounding area. Honour
-              // the anchorCap above this if it's tighter.
-              const cuisineRadius = (anchorCap && Number.isFinite(anchorCap))
-                ? Math.min(NEARBY_RADIUS_M, anchorCap)
-                : NEARBY_RADIUS_M;
-              searchRadius = cuisineRadius;
-              ftRawIn = queryRemainder;
-              console.log(`[Cuisine-TMA] D780 place anchor "${anchor.name}" (${anchor.kind}, source=${anchor.source}) — center=${anchor.lat.toFixed(4)},${anchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
-            }
-          } catch (err) {
-            console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
+        try {
+          const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
+          const { detectAnchorFromFreeText } = require('./cuisine-tellme-anchor');
+          const anchorResult = await detectAnchorFromFreeText({
+            text: ftRawIn, isJB, detectPlaceName,
+            nearbyRadiusM: NEARBY_RADIUS_M, anchorCap
+          });
+          if (anchorResult) {
+            detectedPlaceAnchor = anchorResult.anchor;
+            searchCenter = anchorResult.searchCenter;
+            searchRadius = anchorResult.searchRadius;
+            ftRawIn = anchorResult.queryRemainder;
+            console.log(`[Cuisine-TMA] D780 place anchor "${detectedPlaceAnchor.name}" (${detectedPlaceAnchor.kind}, source=${detectedPlaceAnchor.source}) — center=${detectedPlaceAnchor.lat.toFixed(4)},${detectedPlaceAnchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
           }
+        } catch (err) {
+          console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
         }
         const searchRegionCode = isJB ? 'MY' : 'SG';
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
@@ -11333,60 +11319,40 @@ async function cacheBotUsername() {
         // are found, widen the search radius progressively WITHOUT
         // weakening semantic intent (no extra cuisines, no broadening
         // of the keyword filter). We try 2x and 3x the initial radius,
-        // capped at the anchor's radiusCapM (lifted into anchorCap
-        // above) or 30 km hard cap so SG searches don't drift into
-        // Malaysia. Each widened pass: per-seed Places discover,
-        // dedup against placeIds we already have, run the standard
-        // venue-filter + mode-keyword filter, then merge. Bails as
-        // soon as venues.length ≥ 8 or the radius hits the cap.
-        // searchRadius is NOT mutated — downstream cache keys + the
-        // re-tap dedup-slice logic should keep using the originally-
-        // requested radius. The widened-from / widened-to metres are
-        // surfaced in the payload so the TMA can show "Widened to N km".
-        const SPECIAL_MODE_TARGET = 8;
+        // capped at anchorCap or the helper's hard cap. searchRadius
+        // is NOT mutated — downstream cache keys + the re-tap dedup-
+        // slice logic should keep using the originally-requested
+        // radius. The widened-from / widened-to metres are surfaced
+        // in the payload so the TMA can show "Widened to N km".
+        // v0.61.131 — extracted to ./cuisine-special-mode-widen.js so
+        // the cap-clamping, dedup, and mode-filter merge are unit-
+        // testable (see __tests__/cuisine-special-mode-widen.test.js).
+        // Behaviour identical to the prior inline implementation.
         let specialModeWidened = false;
         let specialModeWidenedFromM = null;
         let specialModeFinalRadiusM = searchRadius;
-        if (specialMode && venues.length < SPECIAL_MODE_TARGET) {
+        if (specialMode) {
           try {
+            const { widenSpecialMode } = require('./cuisine-special-mode-widen');
             const sm = require('./special-mode');
             const venueFiltersMod = require('./venue-filters');
-            const HARD_CAP_M = (anchorCap && Number.isFinite(anchorCap) && anchorCap > 0) ? anchorCap : 30000;
-            const startRadius = searchRadius;
-            const tries = [startRadius * 2, startRadius * 3]
-              .map((r) => Math.min(r, HARD_CAP_M))
-              .filter((r) => r > startRadius)
-              .filter((r, i, arr) => arr.indexOf(r) === i);
-            const seenIds = new Set(venues.map((v) => v?.placeId).filter(Boolean));
-            for (const wider of tries) {
-              if (venues.length >= SPECIAL_MODE_TARGET) break;
-              console.log(`[Cuisine-Search] D781 specialMode=${specialMode} widening ${specialModeFinalRadiusM}m → ${wider}m (have ${venues.length}/${SPECIAL_MODE_TARGET})`);
-              const widePerSeed = await Promise.all(cuisinesForDiscover.map((q) =>
-                pipeline.discover({
-                  lat: searchCenter.lat, lng: searchCenter.lng, radius: wider,
-                  cuisines: [q], maxResults: 15, regionCode: searchRegionCode,
-                  lang: csLang, expandSingaporean: false
-                }).catch((err) => {
-                  console.warn(`[Cuisine-Search] widening per-seed "${q}" failed: ${err.message}`);
-                  return [];
-                })
-              ));
-              const flat = widePerSeed.map((r) => Array.isArray(r) ? r : (r?.venues || [])).flat();
-              let fresh = flat.filter((v) => v && v.placeId && !seenIds.has(v.placeId));
-              fresh = fresh.filter(venueFiltersMod.passesVenueFilter);
-              fresh = sm.filterByMode(fresh, specialMode);
-              for (const v of fresh) {
-                seenIds.add(v.placeId);
-                venues.push(v);
-                if (venues.length >= SPECIAL_MODE_TARGET) break;
-              }
-              specialModeFinalRadiusM = wider;
-              if (!specialModeWidened) {
-                specialModeWidened = true;
-                specialModeWidenedFromM = startRadius;
-              }
-              if (wider >= HARD_CAP_M) break;
-            }
+            const widenResult = await widenSpecialMode({
+              specialMode,
+              venues,
+              seeds: cuisinesForDiscover,
+              searchCenter,
+              searchRegionCode,
+              lang: csLang,
+              startRadius: searchRadius,
+              anchorCap,
+              discoverFn: pipeline.discover,
+              passesVenueFilter: venueFiltersMod.passesVenueFilter,
+              filterByMode: sm.filterByMode
+            });
+            venues = widenResult.venues;
+            specialModeWidened = widenResult.widened;
+            specialModeWidenedFromM = widenResult.widenedFromM;
+            specialModeFinalRadiusM = widenResult.finalRadiusM;
             if (specialModeWidened) {
               console.log(`[Cuisine-Search] D781 specialMode widening done: ${specialModeWidenedFromM}m → ${specialModeFinalRadiusM}m, final count=${venues.length}`);
             }
