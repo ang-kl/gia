@@ -1,21 +1,36 @@
 counters:
-  commit: 356
-  build: 146
+  commit: 357
+  build: 147
   documents:
-    journal: 344
+    journal: 345
     builder: 3
     persona: 4
     feature: 48
     technical: 49
     legal: 9
-    register: 121
+    register: 122
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 54
-last_anchor_time: 25-05 '26 11:35 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T11:30:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.143 ledger-catchup session)
-last_anchor_iso8601: 2026-05-25T11:35:00+08:00
-last_anchor_utc: 2026-05-25T03:35:00Z
+  current_chat_counter: 55
+last_anchor_time: 25-05 '26 11:40 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T11:30:00+08:00 (used per Rule TF-9 / Singapore sovereign source — same fetch as v0.61.143, rounded forward 5 min to commit-time)
+last_anchor_iso8601: 2026-05-25T11:40:00+08:00
+last_anchor_utc: 2026-05-25T03:40:00Z
+# v0.61.144 (commit 357 / journal 345 / build 147 / register 122) —
+# Docs: Register increment logging D-61.140 (wake 2-step) + D-61.141
+# (special-mode chips + mutex) + D-61.142 (per-slug imgFlag override).
+# PR #645 (branch claude/v0.61.144-register-d140-d141-d142, off main
+# at v0.61.143 / dec357e). Operator: "do the 2" (item 2 of the next-up
+# shortlist after PR #644's ledger catch-up). Pure docs - no code
+# change. New doc/Register/register-0_61_144-25_05_26-1140.md per
+# AU-1: three new Decision rows + carry-forward Open Items section
+# (O-21, O-22, retracted O-24, completed O-20/O-23). No completion
+# rows in this arc - the v0.61.134-142 PRs were operator-driven
+# feature work + UX redesigns + asset adds, not Open-item closures.
+# package.json 0.61.143 -> 0.61.144. Counters: commit 356->357,
+# build 146->147, journal 344->345, register 121->122.
+# Re-anchored 25-05 '26 11:40 SGT (same SG-API fetch as v0.61.143,
+# rounded forward 5 min). journal-0_61_144-25_05_26-1140.md.
 # v0.61.143 (commit 356 / journal 344 / build 146) — Docs:
 # VibeCodingRecord ledger catch-up #634-#643. PR #644 (branch
 # claude/v0.61.143-vibe-ledger-catchup-634-643, off main at
