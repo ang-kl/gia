@@ -109,6 +109,21 @@ const FLAG_BY_SLUG = {
   'african': '🌍', 'south-african': '🇿🇦'
 };
 
+// v0.61.142 — per-slug image asset overrides. When a slug has an
+// entry here, the TMA chip renderer uses an <img> element instead
+// of the `flag` emoji. Each value is a filename inside
+// web/cuisine/public/ (served at /app/cuisine/<filename>). Use
+// sparingly — emoji is always preferred for performance + theme-
+// respecting glyph rendering; reserve for cases where no Unicode
+// glyph is a close match.
+//   'durian' — operator-supplied clipart (v0.61.142, replaces the
+//              🥥 coconut placeholder that the v0.61.126 amber-pill
+//              row used before this slug became a regular catalogue
+//              chip in v0.61.141).
+const IMG_FLAG_BY_SLUG = {
+  'durian': 'durian.png'
+};
+
 // v0.59.2: regroup overlay. Source markdown (doc/Feature/cuisines_js.MD)
 // is left untouched per the doc/CLAUDE.md AU-1 accumulate-only rule;
 // the regrouping happens here as a post-parse remap. The original
@@ -251,6 +266,12 @@ function parseSource(text) {
         name,
         slug,
         flag: FLAG_BY_SLUG[slug] || '',
+        // v0.61.142 — optional image-asset override. Cuisine
+        // CategoryDrawer renders <img src="/app/cuisine/<imgFlag>" />
+        // when this is set, falling back to `flag` (or the default
+        // 🍽️) on load error. Only the durian slug uses this today;
+        // see IMG_FLAG_BY_SLUG above.
+        imgFlag: IMG_FLAG_BY_SLUG[slug] || null,
         searchQuery: `${name} restaurant Singapore`,
         keywords: [name.toLowerCase()],
         description: ''
