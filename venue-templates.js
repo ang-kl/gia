@@ -232,6 +232,17 @@ function formatVenueBlock(p, opts = {}) {
     const orderLine = formatOrderLine(p, lang);
     if (orderLine) lines.push(orderLine);
   }
+  // v0.61.152 — nationality-language translated review quote. Only
+  // surfaces when the backend (cuisine-search loop or
+  // runFreeTextSearch enrich) set BOTH `recentReview` (translated
+  // text) and `recentReviewTranslatedFlag` (the source flag). All
+  // other code paths leave these undefined, so non-nationality
+  // chat results render exactly as before. Mirrors the TMA
+  // ResultCard.jsx render.
+  if (typeof p.recentReview === 'string' && p.recentReview.trim()
+      && typeof p.recentReviewTranslatedFlag === 'string' && p.recentReviewTranslatedFlag) {
+    lines.push(`💬 <i>"${escapeHtml(p.recentReview.trim())}"</i> ( ${p.recentReviewTranslatedFlag} translated)`);
+  }
   if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
     // v0.60.209 — drop the "🌿 Sanctuary read for <name>" header; the
     // block is the two 🌿-prefixed fields (🌿 Quiet / 🌿 Seating).

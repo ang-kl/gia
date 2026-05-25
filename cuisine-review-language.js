@@ -230,6 +230,117 @@ function pickPreferredReview(reviews, language, minRating = 3.8) {
   return null;
 }
 
+// v0.61.152 — picks a preferred review AND translates it into the
+// caller's device language. Returns { text, sourceLang, translated }
+// or null when no qualifying review exists.
+//   text         — translated text (or original when src===tgt or
+//                  the translate helper fell back to original)
+//   sourceLang   — primary tag of the picked review's language
+//   translated   — true when the text was actually swapped via the
+//                  translate helper; false when it is the original
+//                  (e.g. src===tgt short-circuit, API failure)
+//
+// Args:
+//   reviews            — the review array from Places New API
+//   nationalityLang    — language we want to match in the picker
+//                        (Italian-cuisine search → 'it')
+//   targetLang         — user device language for the rendered quote
+//                        (e.g. 'en', 'fr', or the raw BCP-47 from
+//                        Telegram's user.language_code)
+//   placeId            — used as the translate cache key
+//   reviewIdx          — index of the picked review in the array
+//                        (defaults to 0 so the cache stays coherent
+//                        if the caller doesn't know)
+//   redis              — Redis client (optional; cache is a fast-path)
+//   minRating          — threshold for pickPreferredReview
+//   translateFn        — injected for tests; defaults to the
+//                        translate-review module's translateReview
+async function pickAndTranslateReview({
+  reviews,
+  nationalityLang,
+  targetLang,
+  placeId = null,
+  reviewIdx = null,
+  redis = null,
+  minRating = 3.8,
+  translateFn = null
+} = {}) {
+  if (!Array.isArray(reviews) || !nationalityLang) return null;
+  const picker = (typeof reviewIdx === 'number' && reviewIdx >= 0)
+    ? reviews[reviewIdx]
+    : null;
+  // Honour explicit reviewIdx when provided AND it passes the
+  // language/rating gate; otherwise scan.
+  let chosen = null;
+  let chosenIdx = -1;
+  if (picker) {
+    const rating = Number(picker.rating);
+    const lang = reviewLanguagePrimary(picker);
+    if (Number.isFinite(rating) && rating > minRating
+        && lang === nationalityLang.toLowerCase().split(/[-_]/)[0]) {
+      chosen = picker;
+      chosenIdx = reviewIdx;
+    }
+  }
+  if (!chosen) {
+    const target = nationalityLang.toLowerCase().split(/[-_]/)[0];
+    for (let i = 0; i < reviews.length; i++) {
+      const r = reviews[i];
+      if (!r) continue;
+      const rating = Number(r.rating);
+      if (!Number.isFinite(rating) || rating <= minRating) continue;
+      if (reviewLanguagePrimary(r) === target) {
+        chosen = r;
+        chosenIdx = i;
+        break;
+      }
+    }
+  }
+  if (!chosen) return null;
+
+  const sourceLang = reviewLanguagePrimary(chosen);
+  const rawText = (chosen.text && typeof chosen.text === 'object' && chosen.text.text)
+    || chosen.text
+    || chosen.originalText?.text
+    || '';
+  const cleaned = String(rawText || '').replace(/\s+/g, ' ').trim();
+  if (!cleaned) return null;
+
+  const fn = translateFn || (() => {
+    const mod = require('./translate-review');
+    return mod.translateReview;
+  })();
+
+  let translatedText = cleaned;
+  let translated = false;
+  const srcPrimary = (sourceLang || '').toLowerCase().split(/[-_]/)[0];
+  const tgtPrimary = (targetLang || '').toLowerCase().split(/[-_]/)[0];
+  if (tgtPrimary && srcPrimary && srcPrimary !== tgtPrimary) {
+    try {
+      const out = await fn({
+        text: cleaned,
+        sourceLang: srcPrimary,
+        targetLang: tgtPrimary,
+        placeId,
+        reviewIdx: chosenIdx >= 0 ? chosenIdx : 0,
+        redis
+      });
+      if (typeof out === 'string' && out.trim() && out.trim() !== cleaned) {
+        translatedText = out.trim();
+        translated = true;
+      }
+    } catch {
+      // fall back to original — translated stays false
+    }
+  }
+
+  return {
+    text: translatedText,
+    sourceLang: srcPrimary,
+    translated
+  };
+}
+
 module.exports = {
   SLUG_TO_LANGUAGE,
   SLUG_TO_FLAG,
@@ -237,5 +348,6 @@ module.exports = {
   getLanguageForCuisines,
   getFlagForCuisines,
   reviewLanguagePrimary,
-  pickPreferredReview
+  pickPreferredReview,
+  pickAndTranslateReview
 };

@@ -13,7 +13,8 @@ const {
   getLanguageForCuisines,
   getFlagForCuisines,
   reviewLanguagePrimary,
-  pickPreferredReview
+  pickPreferredReview,
+  pickAndTranslateReview
 } = require('../cuisine-review-language');
 
 describe('SLUG_TO_LANGUAGE map', () => {
@@ -172,5 +173,123 @@ describe('pickPreferredReview', () => {
       { rating: 5, text: { text: '很好吃', languageCode: 'zh-CN' } }
     ];
     expect(pickPreferredReview(zh, 'zh').text.text).toBe('很好吃');
+  });
+});
+
+describe('pickAndTranslateReview', () => {
+  const reviews = [
+    { rating: 5, text: { text: 'Pasta fresca fatta in casa', languageCode: 'it' } },
+    { rating: 3.5, text: { text: 'mediocre', languageCode: 'it' } },
+    { rating: 4.5, text: { text: 'Nice food', languageCode: 'en' } }
+  ];
+
+  it('returns null when no qualifying review exists', async () => {
+    const out = await pickAndTranslateReview({
+      reviews: [{ rating: 5, text: { text: 'a', languageCode: 'en' } }],
+      nationalityLang: 'it',
+      targetLang: 'en',
+      translateFn: async () => 'should-not-call'
+    });
+    expect(out).toBeNull();
+  });
+
+  it('returns null for missing inputs', async () => {
+    expect(await pickAndTranslateReview({ reviews: null, nationalityLang: 'it', targetLang: 'en' })).toBeNull();
+    expect(await pickAndTranslateReview({ reviews, nationalityLang: '', targetLang: 'en' })).toBeNull();
+  });
+
+  it('picks the first qualifying review + calls translateFn with src→tgt', async () => {
+    let captured = null;
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      placeId: 'p1',
+      translateFn: async (args) => {
+        captured = args;
+        return 'Fresh pasta made in-house';
+      }
+    });
+    expect(out).toEqual({ text: 'Fresh pasta made in-house', sourceLang: 'it', translated: true });
+    expect(captured.text).toBe('Pasta fresca fatta in casa');
+    expect(captured.sourceLang).toBe('it');
+    expect(captured.targetLang).toBe('en');
+    expect(captured.placeId).toBe('p1');
+    expect(captured.reviewIdx).toBe(0);
+  });
+
+  it('short-circuits translation when src === tgt (no translateFn call)', async () => {
+    let called = 0;
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'it',
+      translateFn: async () => { called++; return 'x'; }
+    });
+    expect(called).toBe(0);
+    expect(out.text).toBe('Pasta fresca fatta in casa');
+    expect(out.translated).toBe(false);
+    expect(out.sourceLang).toBe('it');
+  });
+
+  it('marks translated=false when translateFn returns identical text', async () => {
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      translateFn: async ({ text }) => text   // echoes the input
+    });
+    expect(out.translated).toBe(false);
+    expect(out.text).toBe('Pasta fresca fatta in casa');
+  });
+
+  it('falls back to original text when translateFn throws', async () => {
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      translateFn: async () => { throw new Error('api down'); }
+    });
+    expect(out.translated).toBe(false);
+    expect(out.text).toBe('Pasta fresca fatta in casa');
+  });
+
+  it('respects an explicit reviewIdx when it qualifies', async () => {
+    let capturedIdx = -1;
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      reviewIdx: 0,
+      translateFn: async ({ reviewIdx, text }) => {
+        capturedIdx = reviewIdx;
+        return 'translated';
+      }
+    });
+    expect(capturedIdx).toBe(0);
+    expect(out.text).toBe('translated');
+  });
+
+  it('skips an explicit reviewIdx that does not pass the gate, then scans', async () => {
+    // index 1 is rating 3.5 (fails > 3.8 gate). Scan continues to 0.
+    const out = await pickAndTranslateReview({
+      reviews,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      reviewIdx: 1,
+      translateFn: async () => 'EN'
+    });
+    expect(out.text).toBe('EN');
+  });
+
+  it('handles flat-string review.text shapes (legacy Places envelope)', async () => {
+    const legacy = [{ rating: 5, text: 'Ciao bello', languageCode: 'it' }];
+    const out = await pickAndTranslateReview({
+      reviews: legacy,
+      nationalityLang: 'it',
+      targetLang: 'en',
+      translateFn: async ({ text }) => `[${text}]`
+    });
+    expect(out.text).toBe('[Ciao bello]');
   });
 });

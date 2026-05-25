@@ -6099,6 +6099,15 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
     const tip = orderTip ? ` — ${vt.escapeHtmlForTelegram(orderTip)}` : '';
     lines.push(`🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
   }
+  // v0.61.152 — nationality-language translated review quote. Mirrors
+  // venue-templates.js's formatVenueBlock branch. Surfaces only when
+  // the backend swapped recentReview for the translated text AND
+  // attached the source flag. /s and free-text technique fan-outs
+  // that don't trigger the nationality preference render unchanged.
+  if (typeof venue.recentReview === 'string' && venue.recentReview.trim()
+      && typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag) {
+    lines.push(`💬 <i>"${vt.escapeHtmlForTelegram(venue.recentReview.trim())}"</i> ( ${venue.recentReviewTranslatedFlag} translated)`);
+  }
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
   if (maps) lines.push(maps);
@@ -8372,6 +8381,43 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         await attachFootfallSignals(redis, venues);
       } catch (err) {
         console.warn('[free-text] footfall enrichment failed:', err.message);
+      }
+      // v0.61.152 — nationality-language preferred review + translation.
+      // When the R.E.D disambiguation classified the query as a
+      // nationality cuisine (italian / japanese / …), look up a
+      // high-rated review in that nationality's language and translate
+      // it into the user's device language. Same helper as the TMA
+      // /api/cuisine/search loop. Sets recentReview + the
+      // recentReviewTranslatedFlag on each venue; the chat render
+      // (formatVenueBlock) surfaces the `💬 "…" ( 🇮🇹 translated)` line.
+      try {
+        const crl = require('./cuisine-review-language');
+        const nationalityLang = crl.getLanguageForCuisines([ftCuisine].filter(Boolean).map((c) => String(c).toLowerCase()));
+        const nationalityFlag = nationalityLang
+          ? crl.getFlagForCuisines([String(ftCuisine).toLowerCase()])
+          : null;
+        if (nationalityLang) {
+          await Promise.all(venues.map(async (v) => {
+            if (!Array.isArray(v.reviews) || !v.reviews.length) return;
+            try {
+              const picked = await crl.pickAndTranslateReview({
+                reviews: v.reviews,
+                nationalityLang,
+                targetLang: ftLang,
+                placeId: v.placeId || null,
+                redis: redis && redis.isOpen ? redis : null
+              });
+              if (picked && picked.text) {
+                v.recentReview = picked.text.slice(0, 200);
+                v.recentReviewTranslatedFlag = nationalityFlag;
+                v.recentReviewLanguage = nationalityLang;
+                v.recentReviewSourceLang = picked.sourceLang;
+              }
+            } catch { /* per-venue best-effort */ }
+          }));
+        }
+      } catch (err) {
+        console.warn('[free-text] nationality-review enrichment failed:', err.message);
       }
       const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
       const headerDishEsc = escapeHtmlForTelegram(headerDish);
@@ -11975,7 +12021,7 @@ async function cacheBotUsername() {
         // TMA + chat layer can render "(  🇮🇹 translated)" suffix.
         // Falls back to extractDishes' English snippet when no
         // preferred review exists.
-        const { getLanguageForCuisines, getFlagForCuisines, pickPreferredReview } =
+        const { getLanguageForCuisines, getFlagForCuisines, pickAndTranslateReview } =
           require('./cuisine-review-language');
         const nationalityLang = getLanguageForCuisines(cuisines || []);
         const nationalityFlag = nationalityLang ? getFlagForCuisines(cuisines || []) : null;
@@ -11985,23 +12031,37 @@ async function cacheBotUsername() {
             const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
             if (filtered.length) v.dishes = filtered;
             if (snippet) v.recentReview = snippet;
-            // v0.61.151 — try to override with a nationality-language
-            // preferred review when available. The override is
-            // intentional: when the user picks Italian, an Italian-
-            // speaker's "Buonissimo!" 4-star review beats a generic
-            // English snippet for relevance signal.
-            if (nationalityLang) {
-              const preferred = pickPreferredReview(v.reviews, nationalityLang);
-              if (preferred) {
-                const txt = reviewText(preferred);
-                if (txt) {
-                  v.recentReview = txt.replace(/\s+/g, ' ').trim().slice(0, 200);
-                  v.recentReviewTranslatedFlag = nationalityFlag;
-                  v.recentReviewLanguage = nationalityLang;
-                }
-              }
-            }
           }
+        }
+        // v0.61.152 — translate the nationality-preferred review into
+        // the user's device language so the surfaced quote is literally
+        // a translation (not raw native text). v0.61.151 shipped the
+        // pick + tag but rendered the original Italian/Japanese text
+        // alongside a "translated" claim; this pass closes that gap.
+        // Parallel over `top` to keep the per-venue Gemini Flash call
+        // off the critical path (typical p95 < 800 ms, cached < 5 ms).
+        if (nationalityLang) {
+          await Promise.all(top.map(async (v) => {
+            if (!Array.isArray(v.reviews) || !v.reviews.length) return;
+            try {
+              const picked = await pickAndTranslateReview({
+                reviews: v.reviews,
+                nationalityLang,
+                targetLang: csLang,
+                placeId: v.placeId || null,
+                redis: redis && redis.isOpen ? redis : null
+              });
+              if (picked && picked.text) {
+                v.recentReview = picked.text.slice(0, 200);
+                v.recentReviewTranslatedFlag = nationalityFlag;
+                v.recentReviewLanguage = nationalityLang;
+                v.recentReviewSourceLang = picked.sourceLang;
+                if (!picked.translated) v.recentReviewTranslatedRaw = true;
+              }
+            } catch (err) {
+              console.warn('[Cuisine-Search] pickAndTranslateReview failed:', err.message);
+            }
+          }));
         }
         // Fall back to the Redis place-reviews cache for any venue
         // that didn't get reviews inline.
