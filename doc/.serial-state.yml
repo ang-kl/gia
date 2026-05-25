@@ -1,21 +1,42 @@
 counters:
-  commit: 348
-  build: 138
+  commit: 349
+  build: 139
   documents:
-    journal: 336
+    journal: 337
     builder: 3
     persona: 4
     feature: 48
     technical: 49
     legal: 9
-    register: 119
+    register: 120
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 46
-last_anchor_time: 25-05 '26 08:00 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T07:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.135 Technical-doc O-22 session, rounded forward 5 min to commit-time)
-last_anchor_iso8601: 2026-05-25T08:00:00+08:00
-last_anchor_utc: 2026-05-25T00:00:00Z
+  current_chat_counter: 47
+last_anchor_time: 25-05 '26 08:10 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T08:05:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.136 O-24-drop session, rounded forward 5 min to commit-time)
+last_anchor_iso8601: 2026-05-25T08:10:00+08:00
+last_anchor_utc: 2026-05-25T00:10:00Z
+# v0.61.136 (commit 349 / journal 337 / build 139 / register 120) —
+# Docs: Register increment dropping O-24 per operator decision. PR
+# #637 (branch claude/v0.61.136-register-drop-o24, off main at
+# v0.61.135 / bea7675). Operator: "drop O-24". Pure docs - no code
+# change. New doc/Register/register-0_61_136-25_05_26-0810.md:
+#   - O-24 (Sarawak / Petra Jaya as a real Malaysian-East anchor)
+#     moved Open -> Deferred / Won't fix (operator decision) per
+#     AU-1 / AU-6. Verbatim quote of the prior v0.61.127 Open-item
+#     entry included per AU-7.
+#   - D-61.136 decision row logged: operator's "drop O-24" message
+#     converts the v0.61.127 entry's implicit "Not on the immediate
+#     roadmap" to an explicit "no". If Sarawak coverage is wanted
+#     later, a fresh O-NN row citing D-61.136 - not a re-open of
+#     O-24.
+#   - O-20 + O-23 already in Completed (per v0.61.132); O-21 + O-22
+#     carry forward (with O-21 + O-22 now codified in
+#     technical-0_61_135-25_05_26-0800.md, also v0.61.135).
+# package.json 0.61.135 -> 0.61.136. Counters: commit 348->349,
+# build 138->139, journal 336->337, register 119->120. Re-anchored
+# 25-05 '26 08:10 SGT. plumbing-committed per O-22.
+# journal-0_61_136-25_05_26-0810.md.
 # v0.61.135 (commit 348 / journal 336 / build 138 / technical 49) —
 # Docs: Technical doc incremental for O-22 iCloud-Drive workaround.
 # PR #636 (branch claude/v0.61.135-technical-o22, off main at
