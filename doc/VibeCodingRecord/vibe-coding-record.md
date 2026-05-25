@@ -1,20 +1,20 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 625 pull requests (#1–#625).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 635 pull requests (#1–#635).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 625 total — 616 merged, 9 closed without merge.
+- **PRs:** 635 total — 626 merged, 9 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #633 · 2026-05-24 22:56:29 · _v0.61.132: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130_
+- **Latest:** #643 · 2026-05-25 02:16:05 · _v0.61.142: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 387 |
-| fix | 85 |
+| feature | 396 |
+| fix | 86 |
 | docs | 58 |
 | copy | 35 |
 | prompt-tune | 31 |
@@ -26,10 +26,10 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 180 |
-| Core / misc | 69 |
+| Cuisine Picker | 183 |
+| Core / misc | 71 |
 | Transport / carpark | 57 |
-| Docs / vault | 54 |
+| Docs / vault | 57 |
 | Hawker NEA | 47 |
 | Search / free-text | 46 |
 | /hidden surprise | 36 |
@@ -40,11 +40,11 @@
 | Infra / setup | 17 |
 | Privacy / legal | 9 |
 | Language / i18n | 8 |
+| Menu hub | 7 |
 | Commands / chat UX | 6 |
-| Menu hub | 6 |
 | Buddy / sharing | 5 |
+| Maps / geo / location | 5 |
 | Oversight / usage stats | 5 |
-| Maps / geo / location | 4 |
 
 ## The ledger
 
@@ -677,6 +677,16 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 631 | merged | 2026-05-24 22:30:16 | 0.61.130 | feature | Cuisine Picker | Add: Cuisine TMA — UI pills surface v0.61.129 O-20 + O-23 | v0.61.129 wired O-20 (Tell-me place anchor) + O-23 (Fruits/Durian widening) into the `/api/cuisine/search` backend and surfaced `payload.placeAnchor` + `payload.specialModeWidened*` fields. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 | 632 | merged | 2026-05-24 22:47:17 | 0.61.131 | refactor | Cuisine Picker | Refactor: Cuisine TMA — pill reorder + extract v0.61.129 O-20/O-23 helpers + 33 inline tests | Closes both items deferred from the v0.61.130 KNOWN GAPS list: ### 1. | 9 files — index.js, cuisine-special-mode-widen.js, cuisine-tellme-anchor.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 633 | merged | 2026-05-24 22:56:29 | 0.61.132 | feature | Cuisine Picker | Add: docs — Register increment closes O-20 + O-23; logs D-61.129 + D-61.130 | Pure docs PR. | 4 files — doc, package | — | doc/vault |
+| 634 | merged | 2026-05-24 23:28:49 | 0.61.133 | feature | Core / misc | Add: docs — VibeCodingRecord ledger catch-up PRs #628–#633 | PR #629's v0.61.128 catch-up covered #553–#627 but explicitly excluded itself + PR #628 (the v0.61.125-127 doc rollup, post-window) per its `[KNOWN GAPS]`. | 10 files — doc, package, public/ | — | doc/vault |
+| 635 | merged | 2026-05-24 23:41:44 | 0.61.134 | feature | Cuisine Picker | Add: Cuisine TMA — Michelin path threads v0.61.129 place anchor + post-strip freeText | Closes the v0.61.129 KNOWN GAP: the `isMichelinSearch` early-return at the top of `/api/cuisine/search` passed `req.body?.freeText` (raw, pre-strip) to `handleMichelinSearch` while every other downstream consumer was switched to the… | 4 files — index.js, doc, package | — | doc/vault |
+| 636 | merged | 2026-05-24 23:59:40 | 0.61.135 | feature | Docs / vault | Add: docs — Technical doc incremental: O-22 iCloud-Drive workaround pattern | Operator (after PR #635 merged): **"O-22 Technical doc entry while it's fresh"**. | 4 files — doc, package | — | doc/vault |
+| 637 | merged | 2026-05-25 00:11:58 | 0.61.136 | feature | Docs / vault | Add: docs — Register drops O-24 (Sarawak/Petra Jaya anchor) per operator decision | Operator: **"drop O-24"**. | 4 files — doc, package | — | doc/vault |
+| 638 | merged | 2026-05-25 00:18:06 | 0.61.137 | feature | Docs / vault | Add: docs — Register retracts O-24 as typo-derived non-item (corrects v0.61.136 'Deferred' misclassification) | Operator clarification (after PR #637 merged the v0.61.136 *"Deferred"* entry): **"this is to drop totally - O-24 (this PR). | 4 files — doc, package | — | doc/vault |
+| 639 | merged | 2026-05-25 00:54:50 | 0.61.138 | fix | Core / misc | Fix: branding fix — user-facing 'Gia' → 'Soleat' | Operator (screenshot of the wake message): **"why still show 'Gia' should be 'Soleat'"**. | 6 files — index.js, i18n.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 640 | merged | 2026-05-25 01:11:25 | 0.61.139 | feature | Menu hub | Add: Menu TMA — anchored-at format "<street> + <building> + (<postal>)" via Places addressComponents | Operator (screenshot of the Menu TMA showing *"Anchored at **Heavenly Wang**"*): **"in the Menu the Anchored location must be stated as: `<street> + <building name, if there is> + ( + postal code + )`"**. | 10 files — index.js, location-cache.js, places-address-parser.js, vibe-suggest.js, TMA:menu, tests, doc, package | menu | tests; doc/vault |
+| 641 | merged | 2026-05-25 01:29:10 | 0.61.140 | feature | Maps / geo / location | Add: wake-from-idle 2-step rewrite — request_location → rich comparison + 3 buttons + /l helper | Operator (third item in today's screenshot triplet, alongside PR A branding + PR B Menu anchor format): rewrite the wake-from-idle message to compare *"your device is near …"* vs *"saved anchor at …"* and offer three paths. | 5 files — index.js, i18n.js, doc, package | — | doc/vault |
+| 642 | merged | 2026-05-25 02:00:32 | 0.61.141 | feature | Cuisine Picker | Add: Cuisine TMA — Fruits/Durian/Durian Pastry as chips in 'Dessert, Fruits' group; symmetric mutex with Dessert + all other cuisines | Operator (screenshot of the amber-pill Fruits/Durian row + written spec): > *"in cuisine TMA, move fruits and durian into selection for 'Dessert, Fruits' group. | 12 files — index.js, cuisines-vault.js, special-mode.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 643 | merged | 2026-05-25 02:16:05 | 0.61.142 | feature | Cuisine Picker | Add: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override) | Operator (right after PR #642 / v0.61.141 landed): uploaded a 204×192 durian clipart PNG via `data/IMG_2177.png` and said *"use this png for durian"*. | 6 files — cuisines-vault.js, TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 

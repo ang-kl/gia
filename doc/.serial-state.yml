@@ -1,8 +1,8 @@
 counters:
-  commit: 355
-  build: 145
+  commit: 356
+  build: 146
   documents:
-    journal: 343
+    journal: 344
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,34 @@ counters:
     register: 121
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 53
-last_anchor_time: 25-05 '26 10:15 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T10:10:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.142 durian-icon session)
-last_anchor_iso8601: 2026-05-25T10:15:00+08:00
-last_anchor_utc: 2026-05-25T02:15:00Z
+  current_chat_counter: 54
+last_anchor_time: 25-05 '26 11:35 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T11:30:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.143 ledger-catchup session)
+last_anchor_iso8601: 2026-05-25T11:35:00+08:00
+last_anchor_utc: 2026-05-25T03:35:00Z
+# v0.61.143 (commit 356 / journal 344 / build 146) — Docs:
+# VibeCodingRecord ledger catch-up #634-#643. PR #644 (branch
+# claude/v0.61.143-vibe-ledger-catchup-634-643, off main at
+# v0.61.142 / a371b80). Operator: "do the 1" (item 1 of the
+# next-up shortlist). Prior catch-up (PR #634) covered through
+# PR #633; this PR adds the 10 PRs that landed today during the
+# operator's screenshot-triplet session (#634-#643): the ledger
+# self-catchup, Cuisine TMA O-20 + O-23 backend, TMA UI pills,
+# pill reorder + tests, register increment closing O-20/O-23,
+# Michelin path threading, Technical doc for O-22, Register
+# drop O-24, Register retract O-24 (typo-derived), branding fix
+# Gia → Soleat, Menu TMA addr format, wake 2-step rewrite,
+# special-mode chips in catalogue, and the durian PNG icon.
+# - data/prs.ndjson +10 rows (626 -> 636).
+# - data/pr-files.tsv +10 rows (416 -> 426). All 10 PRs in range
+#   squash-merged to main with (#NNN) tags - perfect coverage.
+# - generate.mjs GEN_DATE stays 2026-05-25 (same day as last run).
+# - records.tsv / vibe-coding-record.md / public/doc/vibe-journal.
+#   {html,json} regenerated. 635 records (up from 625).
+#   Categories: feature=396 fix=86 docs=58 copy=35 prompt-tune=31
+#   refactor=18 test=6 infra=5, rework-flagged=61.
+# - package.json 0.61.142 -> 0.61.143. plumbing-committed per O-22.
+# journal-0_61_143-25_05_26-1135.md.
 # v0.61.142 (commit 355 / journal 343 / build 145) — Cuisine TMA:
 # durian chip uses operator-supplied PNG icon instead of an emoji.
 # PR #643 (branch claude/v0.61.142-durian-icon, off main at v0.61.141
