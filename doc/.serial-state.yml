@@ -1,8 +1,8 @@
 counters:
-  commit: 363
-  build: 153
+  commit: 364
+  build: 154
   documents:
-    journal: 351
+    journal: 352
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,56 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 61
-last_anchor_time: 25-05 '26 14:25 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T14:10:00+08:00 (same fetch as v0.61.149, rounded forward 10 min)
-last_anchor_iso8601: 2026-05-25T14:25:00+08:00
-last_anchor_utc: 2026-05-25T06:25:00Z
+  current_chat_counter: 62
+last_anchor_time: 25-05 '26 14:40 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T14:35:00+08:00 (fresh fetch at start of v0.61.151 nationality-review-language session)
+last_anchor_iso8601: 2026-05-25T14:40:00+08:00
+last_anchor_utc: 2026-05-25T06:40:00Z
+# v0.61.151 (commit 364 / journal 352 / build 154) — Cuisine TMA:
+# cuisine-nationality review-language priority + (<flag> translated)
+# tagging. PR #652 (branch claude/v0.61.151-nationality-review-lang,
+# off main at v0.61.150 / 10fe49f). Operator (PR 2 of 2 from the
+# v0.61.149 two-part spec): "if the cuisine is the nationalities
+# type, give priority for >3.8 google map review that mentions in
+# the language of the cuisine nationality. tag the review quoted
+# in cuisine TMA result or free chat result, at the end as
+# '( ' + spacing + <flag> + spacing + 'translated)'".
+# Files (4):
+# - NEW cuisine-review-language.js (200 lines): SLUG_TO_LANGUAGE
+#   (~50 nationality slugs -> BCP-47 primary tag) + SLUG_TO_FLAG
+#   (mirror of FLAG_BY_SLUG for the same set). Helpers:
+#   isNationalityCuisine / getLanguageForCuisines /
+#   getFlagForCuisines / reviewLanguagePrimary (normalises zh-CN ->
+#   zh etc.) / pickPreferredReview (rating > 3.8 + language match,
+#   first occurrence wins). Multilingual / generic slugs (Eurasian,
+#   Singaporean, Peranakan, Australasia, generic European,
+#   Dessert/Fusion) intentionally NOT in the map.
+# - NEW __tests__/cuisine-review-language.test.js (21 tests): map
+#   coverage / China-regional all-zh / multilingual exclusions /
+#   isNationalityCuisine / getLanguageForCuisines first-match /
+#   reviewLanguagePrimary BCP-47 normalisation / pickPreferredReview
+#   threshold + custom minRating + BCP-47 subtag handling.
+#   All 21 pass in 622 ms.
+# - index.js /api/cuisine/search: after the existing extractDishes
+#   snippet write, if the cuisines selection includes a nationality
+#   slug, call pickPreferredReview(v.reviews, nationalityLang).
+#   When a match exists, override v.recentReview with the matched
+#   review text + set v.recentReviewTranslatedFlag (the nationality
+#   flag) + v.recentReviewLanguage. Override is intentional: an
+#   Italian-speaker 4-star review beats a generic English snippet
+#   for Italian-cuisine relevance signal.
+# - web/cuisine/src/v2/components/ResultCard.jsx: when
+#   recentReviewTranslatedFlag is set, append "( <flag>  translated)"
+#   after the quoted review (with spaces around the flag per
+#   operator spec format). Uses .not-italic so the suffix doesn't
+#   inherit the italic styling of the review.
+# package.json 0.61.150 -> 0.61.151. plumbing-committed per O-22.
+# journal-0_61_151-25_05_26-1440.md. KNOWN GAP: chat-side venue
+# card rendering does not yet append the translated tag (different
+# code path - chat venue cards aren't directly through ResultCard).
+# If operator wants the tag in chat replies too, a follow-up
+# searches for the recentReview render site in venue-templates.js
+# or similar.
 # v0.61.150 (commit 363 / journal 351 / build 153) — CI hotfix:
 # stale cuisines-vault.test.js assertions broke CI for PRs #648-#650.
 # Operator: "PR run failed: CI - main (76350f1)" + linked logs.
