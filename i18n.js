@@ -341,11 +341,38 @@ const STRINGS = {
   // v0.61.84 — wake-from-idle location re-confirmation prompt. Fired on
   // the first chat message after a long idle gap when a location is
   // still stored; the user keeps it or sets a new one.
+  // v0.61.84 — original wake prompt (single message + 2 inline
+  // buttons "Stay here" / "New location"). v0.61.140 retires this
+  // path for new wake-from-idle events in favour of the 2-step
+  // request_location → rich comparison flow below; the strings are
+  // retained because old wake messages in chat history still have
+  // wake:keep / wake:new callback_data buttons that the callback
+  // handler honours for back-compat.
   'wake.locationCheck':        { en: '👋 Welcome back! Soleat is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
                                  fr: '👋 Content de vous revoir ! Soleat utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
   'wake.keepBtn':              { en: '✅ Stay here', fr: '✅ Rester ici' },
   'wake.newBtn':               { en: '📍 New location', fr: '📍 Nouvelle position' },
   'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' },
+  // v0.61.140 — wake-from-idle 2-step flow (operator rewrite). The
+  // wake message asks for a fresh GPS share via request_location;
+  // the next bot.on('location') sees the wake:pending flag and runs
+  // handleWakeLocationResponse, which sends `wake2.body` (HTML
+  // parse_mode) with 3 inline buttons + a /l helper-text line.
+  // `wake2.body` substitutes {deviceStreet} (reverse-geocoded from
+  // the just-shared GPS) + {anchor} (the v0.61.139 street/building/
+  // postal composite, or the legacy curated label).
+  'wake.intro':                { en: '👋 Welcome back to Soleat. Share your current location so Soleat can compare with your saved search anchor.',
+                                 fr: '👋 Content de vous revoir sur Soleat. Partagez votre position actuelle pour comparer avec votre point de recherche enregistré.' },
+  'wake2.body':                { en: '👋 <b>Welcome back to Soleat</b>\n\nYour device now appears to be near: <i>{deviceStreet}</i>\n\nSoleat is still using your saved search anchor:\n<b>{anchor}</b>\n\nContinue searching from the anchor, or update to your current location?\n\n<i>You can also type /l to search from another place, for example:\n/l Orchard Road\n/l IOI City Mall</i>',
+                                 fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>' },
+  'wake2.btnCurrent':          { en: '📍 Use current location', fr: '📍 Position actuelle' },
+  'wake2.btnKeep':             { en: '✅ Keep earlier location', fr: '✅ Garder le précédent' },
+  'wake2.btnAnother':          { en: '🗺 Set another location', fr: '🗺 Définir un autre lieu' },
+  'wake2.currentApplied':      { en: '👍 Anchor updated to <i>{street}</i>.', fr: '👍 Point mis à jour vers <i>{street}</i>.' },
+  'wake2.kept':                { en: '👍 Keeping your saved search anchor.', fr: '👍 Point de recherche conservé.' },
+  'wake2.anotherHint':         { en: 'Type /l <place> to set a new anchor — for example /l Orchard Road or /l IOI City Mall. Or tap 📍 below to share a fresh GPS location.',
+                                 fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.' },
+  'wake2.offerExpired':        { en: '⏱ That share expired. Tap /l to set a new anchor.', fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.' },
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' },
