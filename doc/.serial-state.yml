@@ -1,8 +1,8 @@
 counters:
-  commit: 370
-  build: 160
+  commit: 371
+  build: 161
   documents:
-    journal: 358
+    journal: 359
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,38 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-26
-  current_chat_counter: 3
-last_anchor_time: 26-05 '26 17:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_156 (PR #657 merged 26-05 '26 afternoon; v0.61.157 PR 3/5 boundary-drift session at 17:30 SGT)
-last_anchor_iso8601: 2026-05-26T17:30:00+08:00
-last_anchor_utc: 2026-05-26T09:30:00Z
+  current_chat_counter: 4
+last_anchor_time: 26-05 '26 20:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_157 (PR #658 merged 26-05 '26 evening; v0.61.158 PR 4/5 carpark+overlay session at 20:00 SGT)
+last_anchor_iso8601: 2026-05-26T20:00:00+08:00
+last_anchor_utc: 2026-05-26T12:00:00Z
+# v0.61.158 (commit 371 / journal 359 / build 161) — PR 4 of 5 in
+# the 10-rule location-classification phased build. Ships rules
+# §2.8 (carpark outside SG via Places 5 km radius) + the backend
+# half of §2.9 (independent cuisine + carpark overlay). The TMA
+# map LAYER wiring is intentionally deferred to PR 5 (needs the
+# mode threaded through createOverlayController alongside the
+# Putrajaya UI + train-line-default work). Branch
+# claude/v0.61.158-carpark-outside-sg off main at v0.61.157 /
+# aa20315.
+# Files (5):
+# - carpark.js: + nearestPlaces(lat, lng, count, radiusM=5000)
+#   via Google Places New API `places:searchNearby` with
+#   includedTypes=['parking']; + nearestForMode(mode, lat, lng,
+#   count) dispatcher (SG -> LTA nearest(); JB/OTHER -> Places).
+# - index.js: chat per-venue carpark button now mode-aware (reads
+#   userlocale and calls nearestForMode); /carpark command now
+#   mode-aware (LTA_ACCOUNT_KEY only required for SG path; Places
+#   row format drops the "{lots} lots" tail when availableLots
+#   is null). /api/geo/carpark endpoint accepts optional
+#   ?mode=JB|OTHER&lat=&lng= and falls back to nearestPlaces with
+#   a separate Redis cache namespace.
+# - NEW __tests__/carpark.test.js (14 tests, all passing).
+# - package.json: 0.61.157 -> 0.61.158.
+# - doc/.serial-state.yml: commit 370->371, build 160->161,
+#   journal 358->359; re-anchored 26-05 '26 20:00 SGT.
+# - doc/Journal/journal-0_61_158-26_05_26-2000.md: this entry.
+#
 # v0.61.157 (commit 370 / journal 358 / build 160) — PR 3 of 5 in
 # the 10-rule location-classification phased build. Ships rule §2.7:
 # boundary drift detection + single re-prompt (Accept/Decline).

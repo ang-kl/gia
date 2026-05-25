@@ -71,6 +71,81 @@ async function nearest(lat, lng, count = 5) {
   return enriched;
 }
 
+// v0.61.158 — rule §2.8: outside-SG carpark search via Google Places
+// New API. LTA's CarParkAvailability feed is SG-only, so for any
+// non-SG fix the cuisine overlay + the /carpark command have to
+// source carparks elsewhere. Places' `parking` includedType returns
+// public carparks within the requested radius (default 5 km per the
+// operator's spec). The response shape mirrors `nearest()` for a
+// uniform caller contract — except `availableLots` is `null`
+// (Places doesn't expose live occupancy) and `agency` is `'Places'`.
+const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
+
+async function nearestPlaces(lat, lng, count = 5, radiusM = 5000) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return [];
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    console.warn('[carpark.nearestPlaces] GOOGLE_MAPS_API_KEY missing');
+    return [];
+  }
+  const body = {
+    includedTypes: ['parking'],
+    maxResultCount: Math.max(1, Math.min(Number(count) || 5, 20)),
+    locationRestriction: {
+      circle: {
+        center: { latitude: lat, longitude: lng },
+        radius: Math.max(1, Math.min(Number(radiusM) || 5000, 50000))
+      }
+    }
+  };
+  try {
+    const { data } = await axios.post(PLACES_NEARBY_URL, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.displayName,places.location,places.formattedAddress,places.id'
+      },
+      timeout: 8000
+    });
+    const places = Array.isArray(data?.places) ? data.places : [];
+    return places
+      .map((p) => {
+        const la = p?.location?.latitude;
+        const lo = p?.location?.longitude;
+        if (!Number.isFinite(la) || !Number.isFinite(lo)) return null;
+        return {
+          id: p.id || '',
+          development: p.displayName?.text || p.formattedAddress || 'Carpark',
+          agency: 'Places',
+          lat: la,
+          lng: lo,
+          distanceM: Math.round(haversineMeters({ lat, lng }, { lat: la, lng: lo })),
+          availableLots: null,
+          lotType: ''
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.distanceM - b.distanceM)
+      .slice(0, count);
+  } catch (err) {
+    console.warn('[carpark.nearestPlaces] Places call failed:', err.message);
+    return [];
+  }
+}
+
+// v0.61.158 — mode-aware dispatcher. SG mode uses LTA (live lots);
+// JB / OTHER use Places (no live-lots data, but at least a list of
+// known carparks within 5 km). Caller passes the locale mode from
+// location-locale.getUserLocale; null/undefined defaults to LTA so
+// pre-registration users keep the SG behaviour.
+async function nearestForMode(mode, lat, lng, count = 5, opts = {}) {
+  const m = (mode === 'JB' || mode === 'OTHER') ? mode : 'SG';
+  if (m === 'SG') {
+    return nearest(lat, lng, count);
+  }
+  return nearestPlaces(lat, lng, count, opts.radiusM || 5000);
+}
+
 // v0.63.0 — all carparks as overlay-layer points (every carpark with a
 // parseable location, regardless of available lots), for the TMA map
 // "🅿 Carpark" layer served by GET /api/geo/carpark.
@@ -92,4 +167,4 @@ async function allPoints() {
     .filter(Boolean);
 }
 
-module.exports = { nearest, fetchAll, allPoints };
+module.exports = { nearest, nearestPlaces, nearestForMode, fetchAll, allPoints };
