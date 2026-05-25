@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-25",
-  "count": 639,
+  "count": 645,
   "records": [
     {
       "pr": 1,
@@ -17859,6 +17859,182 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 648,
+      "status": "merged",
+      "merged": "2026-05-25 04:13:00",
+      "day": "2026-05-25",
+      "version": "0.61.147",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — VibeCodingRecord ledger catch-up PRs #644–#647",
+      "approach": "Routine cadence pickup.",
+      "codeImpact": "9 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.147: docs — VibeCodingRecord ledger catch-up PRs #644–#647",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 649,
+      "status": "merged",
+      "merged": "2026-05-25 06:01:45",
+      "day": "2026-05-25",
+      "version": "0.61.148",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — fresh master pass for Register + Technical (v0.61.84-147 arc); Feature deferred",
+      "approach": "Operator: *\"viberecord, journal\"* → AskUserQuestion picked **\"Doc master refresh (Journal/Feature/Technical/Register)\"**.",
+      "codeImpact": "5 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.148: docs — fresh master pass for Register + Technical (v0.61.84-147 arc); Feature deferred",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 650,
+      "status": "merged",
+      "merged": "2026-05-25 06:17:55",
+      "day": "2026-05-25",
+      "version": "0.61.149",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Cuisine Picker",
+      "intent": "Add tests: Cuisine TMA — durian variety alias coverage + halal auto-off in special mode (PR 1/2)",
+      "approach": "Operator (PR **1 of 2** from the two-part spec): > *\"if I select 'Durian', dig into the google mapsearch review that mentions about similar durian fruits and varieties type like Mao Shan Wang, D24, Golden Phoenix, Red Prawn, and Black…",
+      "codeImpact": "5 files — special-mode.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "special-mode.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.149: Cuisine TMA — durian variety alias coverage + halal auto-off in special mode (PR 1/2)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 651,
+      "status": "merged",
+      "merged": "2026-05-25 06:26:48",
+      "day": "2026-05-25",
+      "version": "0.61.150",
+      "minor": "0.61",
+      "category": "infra",
+      "area": "Cuisine Picker",
+      "intent": "CI hotfix — update cuisines-vault.test.js for v0.61.141 dessert-group additions",
+      "approach": "Operator: GitHub email *\"PR run failed: CI - main (76350f1)\"* and 4 other failing runs since v0.61.143.",
+      "codeImpact": "4 files — tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.150: CI hotfix — update cuisines-vault.test.js for v0.61.141 dessert-group additions",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 652,
+      "status": "merged",
+      "merged": "2026-05-25 06:44:04",
+      "day": "2026-05-25",
+      "version": "0.61.151",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: Cuisine TMA — nationality review-language priority + (<flag> translated) tagging (PR 2/2)",
+      "approach": "Operator (PR **2 of 2** from the v0.61.149 two-part spec): > *\"if the cuisine is the nationalities type, give priority for >3.8 google map review that mentions in the language of the cuisine nationality.",
+      "codeImpact": "7 files — index.js, cuisine-review-language.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-review-language.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.151: Cuisine TMA — nationality review-language priority + (<flag> translated) tagging (PR 2/2)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 653,
+      "status": "merged",
+      "merged": "2026-05-25 09:46:53",
+      "day": "2026-05-25",
+      "version": "0.61.152",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Core / misc",
+      "intent": "Reword: translate-review helper + chat-side render — closes v0.61.151 \"translated\" half-implementation",
+      "approach": "Closes the v0.61.151 known gap.",
+      "codeImpact": "9 files — index.js, cuisine-review-language.js, translate-review.js, venue-templates.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-review-language.js",
+        "doc",
+        "index.js",
+        "package",
+        "translate-review.js",
+        "venue-templates.js"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.152: translate-review helper + chat-side render — closes v0.61.151 \"translated\" half-implementation",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }

@@ -1,34 +1,34 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 639 pull requests (#1–#639).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 645 pull requests (#1–#645).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 639 total — 630 merged, 9 closed without merge.
+- **PRs:** 645 total — 636 merged, 9 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #647 · 2026-05-25 04:07:00 · _v0.61.146: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180)_
+- **Latest:** #653 · 2026-05-25 09:46:53 · _v0.61.152: translate-review helper + chat-side render — closes v0.61.151 "translated" half-implementation_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 399 |
+| feature | 401 |
 | fix | 87 |
 | docs | 58 |
-| copy | 35 |
+| copy | 37 |
 | prompt-tune | 31 |
 | refactor | 18 |
-| test | 6 |
-| infra | 5 |
+| test | 7 |
+| infra | 6 |
 
 ### By feature / UX area
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 185 |
-| Core / misc | 72 |
-| Docs / vault | 58 |
+| Cuisine Picker | 188 |
+| Core / misc | 73 |
+| Docs / vault | 60 |
 | Transport / carpark | 57 |
 | Hawker NEA | 47 |
 | Search / free-text | 46 |
@@ -691,6 +691,12 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 645 | merged | 2026-05-25 03:38:47 | 0.61.144 | feature | Docs / vault | Add: docs — Register logs D-61.140 (wake 2-step) / D-61.141 (special-mode chips + mutex) / D-61.142 (per-slug imgFlag) | Operator: *"do the 2"* — item 2 from the next-up shortlist after PR #644's ledger catch-up. | 4 files — doc, package | — | doc/vault |
 | 646 | merged | 2026-05-25 03:48:15 | 0.61.145 | fix | Cuisine Picker | Fix: Cuisine TMA — special-mode name-dedup (fixes Golden Moments duplicates) + group-card emojis (🍨 / 🍉 / 🥮) | Operator (screenshot of duplicate "Golden Moments" durian cards in the result list + a written spec): > *"result of durians are repetitive, see picture"* > *"change the dessert emoji to 🍨 / change the fruits emoji to 🍉 / change the… | 5 files — index.js, cuisines-vault.js, doc, package | — | doc/vault |
 | 647 | merged | 2026-05-25 04:07:00 | 0.61.146 | feature | Cuisine Picker | Add: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180) | Operator: **"durian emoji must use the following image and no other"** + GitHub link to `data/IMG_2180.jpeg`. | 6 files — cuisines-vault.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 648 | merged | 2026-05-25 04:13:00 | 0.61.147 | feature | Docs / vault | Add: docs — VibeCodingRecord ledger catch-up PRs #644–#647 | Routine cadence pickup. | 9 files — doc, package, public/ | — | doc/vault |
+| 649 | merged | 2026-05-25 06:01:45 | 0.61.148 | feature | Docs / vault | Add: docs — fresh master pass for Register + Technical (v0.61.84-147 arc); Feature deferred | Operator: *"viberecord, journal"* → AskUserQuestion picked **"Doc master refresh (Journal/Feature/Technical/Register)"**. | 5 files — doc, package | — | doc/vault |
+| 650 | merged | 2026-05-25 06:17:55 | 0.61.149 | test | Cuisine Picker | Add tests: Cuisine TMA — durian variety alias coverage + halal auto-off in special mode (PR 1/2) | Operator (PR **1 of 2** from the two-part spec): > *"if I select 'Durian', dig into the google mapsearch review that mentions about similar durian fruits and varieties type like Mao Shan Wang, D24, Golden Phoenix, Red Prawn, and Black… | 5 files — special-mode.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 651 | merged | 2026-05-25 06:26:48 | 0.61.150 | infra | Cuisine Picker | CI hotfix — update cuisines-vault.test.js for v0.61.141 dessert-group additions | Operator: GitHub email *"PR run failed: CI - main (76350f1)"* and 4 other failing runs since v0.61.143. | 4 files — tests, doc, package | — | tests; doc/vault |
+| 652 | merged | 2026-05-25 06:44:04 | 0.61.151 | copy | Cuisine Picker | Reword: Cuisine TMA — nationality review-language priority + (<flag> translated) tagging (PR 2/2) | Operator (PR **2 of 2** from the v0.61.149 two-part spec): > *"if the cuisine is the nationalities type, give priority for >3.8 google map review that mentions in the language of the cuisine nationality. | 7 files — index.js, cuisine-review-language.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 653 | merged | 2026-05-25 09:46:53 | 0.61.152 | copy | Core / misc | Reword: translate-review helper + chat-side render — closes v0.61.151 "translated" half-implementation | Closes the v0.61.151 known gap. | 9 files — index.js, cuisine-review-language.js, translate-review.js, venue-templates.js, tests, doc, package | — | tests; doc/vault |
 
 ---
 

@@ -428,3 +428,9 @@
 645	doc/.serial-state.yml,doc/Journal/journal-0_61_144-25_05_26-1140.md,doc/Register/register-0_61_144-25_05_26-1140.md,package.json
 646	cuisines-vault.js,doc/.serial-state.yml,doc/Journal/journal-0_61_145-25_05_26-1145.md,index.js,package.json
 647	cuisines-vault.js,doc/.serial-state.yml,doc/Journal/journal-0_61_146-25_05_26-1205.md,package.json,web/cuisine/public/durian.jpeg,web/cuisine/public/durian.png
+648	doc/.serial-state.yml,doc/Journal/journal-0_61_147-25_05_26-1215.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+649	doc/.serial-state.yml,doc/Journal/journal-0_61_148-25_05_26-1400.md,doc/Register/register-0_61_147-25_05_26-1225.md,doc/Technical/technical-0_61_147-25_05_26-1225.md,package.json
+650	doc/.serial-state.yml,doc/Journal/journal-0_61_149-25_05_26-1415.md,package.json,special-mode.js,web/cuisine/src/v2/components/QuickFilters.jsx
+651	__tests__/cuisines-vault.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_150-25_05_26-1425.md,package.json
+652	__tests__/cuisine-review-language.test.js,cuisine-review-language.js,doc/.serial-state.yml,doc/Journal/journal-0_61_151-25_05_26-1440.md,index.js,package.json,web/cuisine/src/v2/components/ResultCard.jsx
+653	__tests__/cuisine-review-language.test.js,__tests__/translate-review.test.js,cuisine-review-language.js,doc/.serial-state.yml,doc/Journal/journal-0_61_152-25_05_26-1610.md,index.js,package.json,translate-review.js,venue-templates.js
