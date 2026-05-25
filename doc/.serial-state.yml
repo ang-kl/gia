@@ -1,8 +1,8 @@
 counters:
-  commit: 350
-  build: 140
+  commit: 351
+  build: 141
   documents:
-    journal: 338
+    journal: 339
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,38 @@ counters:
     register: 121
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 48
-last_anchor_time: 25-05 '26 08:20 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T08:05:00+08:00 (used per Rule TF-9 / Singapore sovereign source — same fetch as v0.61.136, rounded forward 15 min to commit-time for v0.61.137 retraction session)
-last_anchor_iso8601: 2026-05-25T08:20:00+08:00
-last_anchor_utc: 2026-05-25T00:20:00Z
+  current_chat_counter: 49
+last_anchor_time: 25-05 '26 08:45 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T08:45:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.138 branding-fix session)
+last_anchor_iso8601: 2026-05-25T08:45:00+08:00
+last_anchor_utc: 2026-05-25T00:45:00Z
+# v0.61.138 (commit 351 / journal 339 / build 141) — Branding fix:
+# user-facing "Gia" -> "Soleat" across i18n + inline strings. PR
+# #639 (branch claude/v0.61.138-branding-soleat, off main at
+# v0.61.137 / 4a6a708). Operator (after screenshot of the wake
+# message showing stale "Gia" branding): "why still show 'Gia'
+# should be 'Soleat'". The Telegram bot's display name is Soleat
+# (per CLAUDE.md root: "soleat (gia / Gia4lunch)"); the user-facing
+# copy was still showing the retired Gia persona name in 13 i18n
+# strings + 9 inline strings in index.js + 1 string in
+# web/cuisine/src/components/Header.jsx. Replaced all. Comments
+# referencing "Gia" / "Tell Gia" / "I'm Gia" kept as internal code
+# documentation (operator's CLAUDE.md root names both forms).
+# Three files: index.js (4 unique strings - 6 'bot.busy'-pattern
+# repeated + share + sanctuary + Tell + location-prompt template),
+# i18n.js (8 unique keys - bot.busy, bot.location.locale,
+# transport.train.noLocation, transport.bus.noLocation,
+# transport.drive.noLocation, language.cleared, wake.locationCheck,
+# hidden.busy - each with EN + FR), web/cuisine/src/components/
+# Header.jsx (location-required message). Note: wake.locationCheck
+# will be fully rewritten by PR C (next-up); branding swap here is
+# the minimum to stop the operator-screenshot regression.
+# package.json 0.61.137 -> 0.61.138. plumbing-committed per O-22.
+# (Fresh O-22 data point: web/cuisine/node_modules/rollup/package.json
+# was iCloud-corrupted during this session - vite build refused;
+# esbuild --loader=jsx parse-check substituted. Railway postinstall
+# rebuilds the bundle fine.)
+# journal-0_61_138-25_05_26-0845.md.
 # v0.61.137 (commit 350 / journal 338 / build 140 / register 121) —
 # Docs: Register amendment retracting O-24 as a typo-derived non-item
 # (corrects v0.61.136's "Deferred / Won't fix" misclassification). PR

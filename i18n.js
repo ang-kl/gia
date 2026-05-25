@@ -43,12 +43,12 @@ const STRINGS = {
   'syntax.wrapper':            { en: 'Re-run this search anytime by tapping or pasting:', fr: 'Relancez cette recherche à tout moment en touchant ou collant :' },
 
   // v0.59.0 — bot chrome (most-trafficked chat replies)
-  'bot.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
-                                 fr: '⏳ Gia traite encore votre dernière demande — un instant.' },
+  'bot.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
+                                 fr: '⏳ Soleat traite encore votre dernière demande — un instant.' },
   'bot.location.prompt':       { en: '📍 Tap to share your current location.',
                                  fr: '📍 Touchez pour partager votre position actuelle.' },
-  'bot.location.locale':       { en: '📍 Share your location once so Gia uses your locale (or type `/location <place name>` to set it manually).',
-                                 fr: '📍 Partagez votre position une fois pour que Gia utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
+  'bot.location.locale':       { en: '📍 Share your location once so Soleat uses your locale (or type `/location <place name>` to set it manually).',
+                                 fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
   'bot.noresults':             { en: 'No Google Places results for "{q}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.',
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
@@ -219,7 +219,7 @@ const STRINGS = {
   'transport.train.crowd.m':        { en: '🟡 medium', fr: '🟡 moyen' },
   'transport.train.crowd.h':        { en: '🔴 high', fr: '🔴 élevé' },
   'transport.train.nearestHeader':  { en: '🚇 Nearest 3 Train stations{wx}', fr: '🚇 3 stations de train les plus proches{wx}' },
-  'transport.train.noLocation':     { en: '🚇 Share your location once and Gia will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Gia listera aussi les stations MRT les plus proches.' },
+  'transport.train.noLocation':     { en: '🚇 Share your location once and Soleat will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Soleat listera aussi les stations MRT les plus proches.' },
   // v0.60.88 — operator 2026-05-11: invert the message — surface
   // CROWDED counts (medium + high) instead of uncrowded, and name
   // the lines those platforms sit on. `lines` placeholder is filled
@@ -246,7 +246,7 @@ const STRINGS = {
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." },
 
   // /transport bus
-  'transport.bus.noLocation':       { en: '🚌 I need your location first — share it once via the menu (📍) and Gia will remember.', fr: '🚌 J’ai d’abord besoin de votre position — partagez-la une fois via le menu (📍) et Gia s’en souviendra.' },
+  'transport.bus.noLocation':       { en: '🚌 I need your location first — share it once via the menu (📍) and Soleat will remember.', fr: '🚌 J’ai d’abord besoin de votre position — partagez-la une fois via le menu (📍) et Soleat s’en souviendra.' },
   'transport.bus.offline':          { en: '🚌 Bus lookup is offline (LTA key not configured).', fr: '🚌 Recherche de bus hors-ligne (clé LTA non configurée).' },
   'transport.bus.noStopsNearest':   { en: '🚏 No bus stops within 800 m of your saved location.', fr: '🚏 Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' },
   'transport.bus.nearestHeader':    { en: '🚏 Nearest {count} bus stops', fr: '🚏 {count} arrêts de bus les plus proches' },
@@ -295,7 +295,7 @@ const STRINGS = {
   'transport.drive.trafficNoNear':  { en: '🚦 Traffic: {total} incidents island-wide; none within 5 km.', fr: '🚦 Circulation : {total} incidents dans tout le pays ; aucun à moins de 5 km.' },
   'transport.drive.trafficNone':    { en: '🚦 Traffic: no live incidents reported.', fr: '🚦 Circulation : aucun incident en direct signalé.' },
   'transport.drive.openMapsBtn':    { en: 'Google Map ↗', fr: 'Google Map ↗' },
-  'transport.drive.noLocation':     { en: 'Share your location once and Gia will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Gia proposera un lien d’itinéraire en voiture en un clic.' },
+  'transport.drive.noLocation':     { en: 'Share your location once and Soleat will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Soleat proposera un lien d’itinéraire en voiture en un clic.' },
   'transport.drive.btn.carpark':    { en: '🅿️ Carpark', fr: '🅿️ Parking' },
   'transport.drive.unreachable':    { en: 'Sorry, the drive view failed.', fr: 'Désolé, la vue voiture a échoué.' },
 
@@ -309,7 +309,7 @@ const STRINGS = {
   'forgetme.error':            { en: 'Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.', fr: 'Désolé, /forgetme a rencontré une erreur. Réessayez dans un instant, ou contactez l’opérateur.' },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
-  'language.cleared':          { en: '✅ Preference cleared. Gia will follow your Telegram language.', fr: '✅ Préférence effacée. Gia suit désormais la langue de votre Telegram.' },
+  'language.cleared':          { en: '✅ Preference cleared. Soleat will follow your Telegram language.', fr: '✅ Préférence effacée. Soleat suit désormais la langue de votre Telegram.' },
   'language.current':          { en: '🌐 Current language: English{fromTg}.\nChoose a language:', fr: '🌐 Langue actuelle : Français{fromTg}.\nChoisissez une langue :' },
   'language.fromTg':           { en: ' (from your Telegram)', fr: ' (depuis votre Telegram)' },
   'language.btn.en':           { en: '🇬🇧 English', fr: '🇬🇧 English' },
@@ -341,8 +341,8 @@ const STRINGS = {
   // v0.61.84 — wake-from-idle location re-confirmation prompt. Fired on
   // the first chat message after a long idle gap when a location is
   // still stored; the user keeps it or sets a new one.
-  'wake.locationCheck':        { en: '👋 Welcome back! Gia is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
-                                 fr: '👋 Content de vous revoir ! Gia utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
+  'wake.locationCheck':        { en: '👋 Welcome back! Soleat is still using the location you shared earlier. Are you still there, or would you like to set a new one?',
+                                 fr: '👋 Content de vous revoir ! Soleat utilise toujours la position que vous avez partagée. Y êtes-vous toujours, ou souhaitez-vous en définir une nouvelle ?' },
   'wake.keepBtn':              { en: '✅ Stay here', fr: '✅ Rester ici' },
   'wake.newBtn':               { en: '📍 New location', fr: '📍 Nouvelle position' },
   'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' },
@@ -370,8 +370,8 @@ const STRINGS = {
   'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' },
 
   // v0.59.4 — /hidden chrome localisation.
-  'hidden.busy':                  { en: '⏳ Gia is still working on your last request — hold on a moment.',
-                                    fr: '⏳ Gia traite encore votre dernière demande — un instant.' },
+  'hidden.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
+                                    fr: '⏳ Soleat traite encore votre dernière demande — un instant.' },
   'hidden.huntingLegacy':         { en: '🎲 Hunting for one hidden gem 1.5–3 km away…',
                                     fr: '🎲 À la recherche d’un trésor caché à 1,5–3 km…' },
   'hidden.legacyNotFound':        { en: "Soleat couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.",

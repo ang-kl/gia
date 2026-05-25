@@ -99,7 +99,7 @@ export default function Header({ loc, locDenied, onLoc, debugOn, onToggleDebug }
       {!loc && locDenied && (
         <div className="mt-2 p-2 rounded-md bg-tg-card border border-red-400/40">
           <p className="text-xs text-tg-text leading-snug">
-            <span className="text-red-500 font-semibold">📍 Location required</span> — Gia needs your spot to find nearby food. Tap the button below to enable location, OR use the 📍 Detect button up top.
+            <span className="text-red-500 font-semibold">📍 Location required</span> — Soleat needs your spot to find nearby food. Tap the button below to enable location, OR use the 📍 Detect button up top.
           </p>
           <button
             onClick={detect}
