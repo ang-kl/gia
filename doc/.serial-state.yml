@@ -1,8 +1,8 @@
 counters:
-  commit: 364
-  build: 154
+  commit: 365
+  build: 155
   documents:
-    journal: 352
+    journal: 353
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,50 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 62
-last_anchor_time: 25-05 '26 14:40 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T14:35:00+08:00 (fresh fetch at start of v0.61.151 nationality-review-language session)
-last_anchor_iso8601: 2026-05-25T14:40:00+08:00
-last_anchor_utc: 2026-05-25T06:40:00Z
+  current_chat_counter: 63
+last_anchor_time: 25-05 '26 16:10 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_151 (PR #652 merged 25-05 '26 ~14:55 SGT; v0.61.152 session opened 16:10 SGT)
+last_anchor_iso8601: 2026-05-25T16:10:00+08:00
+last_anchor_utc: 2026-05-25T08:10:00Z
+# v0.61.152 (commit 365 / journal 353 / build 155) — translate-review
+# helper + Redis cache + chat-side render. PR follow-up to v0.61.151
+# (the v0.61.151 quote was shown raw in the native language alongside
+# a "translated" suffix — operator: "the review quoted should be in
+# the device language (either English or French or device (preferred)
+# language) - {EN text} ( 🇮🇹 translated)"). Branch
+# claude/v0.61.152-translate-review off main at v0.61.151 / 4e64dc7.
+# Files (8):
+# - NEW translate-review.js (~140 lines): translateReview({ text,
+#   sourceLang, targetLang, placeId, reviewIdx, redis,
+#   _genAIFactory }). Short-circuits src===tgt, caches in Redis under
+#   `translate-review:v1:<placeId>:<idx>:<src>:<tgt>` with 30-day TTL,
+#   defensive fallback to original on Gemini error. Model chain:
+#   gemini-flash-latest -> gemini-2.5-flash -> gemini-1.5-flash.
+# - NEW __tests__/translate-review.test.js (~140 lines, 14 tests):
+#   primaryTag normalisation, langName fallback, short-circuit cases,
+#   Gemini path with ```fence + quote stripping, all-model failure,
+#   empty response fallback, Redis cache hit/miss + skip on closed.
+# - cuisine-review-language.js: new pickAndTranslateReview helper
+#   (wraps pickPreferredReview + translate-review). Returns
+#   { text, sourceLang, translated } or null.
+# - __tests__/cuisine-review-language.test.js: +8 tests around
+#   pickAndTranslateReview (null branches, explicit reviewIdx, src===tgt
+#   short-circuit, translateFn throws, legacy flat-string text shape).
+# - index.js: /api/cuisine/search loop now does an async Promise.all
+#   pass calling pickAndTranslateReview after extractDishes (was
+#   pickPreferredReview, sync). formatTechniqueVenueBlock renders the
+#   💬 quote line when recentReviewTranslatedFlag set.
+#   runFreeTextSearch's main branch (line ~8385) now also runs the
+#   nationality enrichment so chat free-text "italian food" surfaces
+#   the translated quote.
+# - venue-templates.js: formatVenueBlock renders the 💬 quote line
+#   when both recentReview + recentReviewTranslatedFlag are set
+#   (gated; non-nationality chat results unchanged).
+# - package.json: 0.61.151 -> 0.61.152.
+# - doc/.serial-state.yml: commit 364->365, build 154->155,
+#   journal 352->353; re-anchored 25-05 '26 16:10 SGT.
+# - doc/Journal/journal-0_61_152-25_05_26-1610.md: this entry.
+#
 # v0.61.151 (commit 364 / journal 352 / build 154) — Cuisine TMA:
 # cuisine-nationality review-language priority + (<flag> translated)
 # tagging. PR #652 (branch claude/v0.61.151-nationality-review-lang,
