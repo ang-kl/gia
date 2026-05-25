@@ -1,20 +1,20 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 635 pull requests (#1–#635).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-05-25 from a snapshot of all 639 pull requests (#1–#639).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 635 total — 626 merged, 9 closed without merge.
+- **PRs:** 639 total — 630 merged, 9 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #643 · 2026-05-25 02:16:05 · _v0.61.142: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override)_
+- **Latest:** #647 · 2026-05-25 04:07:00 · _v0.61.146: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 396 |
-| fix | 86 |
+| feature | 399 |
+| fix | 87 |
 | docs | 58 |
 | copy | 35 |
 | prompt-tune | 31 |
@@ -26,10 +26,10 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 183 |
-| Core / misc | 71 |
+| Cuisine Picker | 185 |
+| Core / misc | 72 |
+| Docs / vault | 58 |
 | Transport / carpark | 57 |
-| Docs / vault | 57 |
 | Hawker NEA | 47 |
 | Search / free-text | 46 |
 | /hidden surprise | 36 |
@@ -687,6 +687,10 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 641 | merged | 2026-05-25 01:29:10 | 0.61.140 | feature | Maps / geo / location | Add: wake-from-idle 2-step rewrite — request_location → rich comparison + 3 buttons + /l helper | Operator (third item in today's screenshot triplet, alongside PR A branding + PR B Menu anchor format): rewrite the wake-from-idle message to compare *"your device is near …"* vs *"saved anchor at …"* and offer three paths. | 5 files — index.js, i18n.js, doc, package | — | doc/vault |
 | 642 | merged | 2026-05-25 02:00:32 | 0.61.141 | feature | Cuisine Picker | Add: Cuisine TMA — Fruits/Durian/Durian Pastry as chips in 'Dessert, Fruits' group; symmetric mutex with Dessert + all other cuisines | Operator (screenshot of the amber-pill Fruits/Durian row + written spec): > *"in cuisine TMA, move fruits and durian into selection for 'Dessert, Fruits' group. | 12 files — index.js, cuisines-vault.js, special-mode.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 643 | merged | 2026-05-25 02:16:05 | 0.61.142 | feature | Cuisine Picker | Add: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override) | Operator (right after PR #642 / v0.61.141 landed): uploaded a 204×192 durian clipart PNG via `data/IMG_2177.png` and said *"use this png for durian"*. | 6 files — cuisines-vault.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 644 | merged | 2026-05-25 03:35:01 | 0.61.143 | feature | Core / misc | Add: docs — VibeCodingRecord ledger catch-up PRs #634–#643 | Operator: *"do the 1"* — first of the next-up shortlist after PR #643. | 9 files — doc, package, public/ | — | doc/vault |
+| 645 | merged | 2026-05-25 03:38:47 | 0.61.144 | feature | Docs / vault | Add: docs — Register logs D-61.140 (wake 2-step) / D-61.141 (special-mode chips + mutex) / D-61.142 (per-slug imgFlag) | Operator: *"do the 2"* — item 2 from the next-up shortlist after PR #644's ledger catch-up. | 4 files — doc, package | — | doc/vault |
+| 646 | merged | 2026-05-25 03:48:15 | 0.61.145 | fix | Cuisine Picker | Fix: Cuisine TMA — special-mode name-dedup (fixes Golden Moments duplicates) + group-card emojis (🍨 / 🍉 / 🥮) | Operator (screenshot of duplicate "Golden Moments" durian cards in the result list + a written spec): > *"result of durians are repetitive, see picture"* > *"change the dessert emoji to 🍨 / change the fruits emoji to 🍉 / change the… | 5 files — index.js, cuisines-vault.js, doc, package | — | doc/vault |
+| 647 | merged | 2026-05-25 04:07:00 | 0.61.146 | feature | Cuisine Picker | Add: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180) | Operator: **"durian emoji must use the following image and no other"** + GitHub link to `data/IMG_2180.jpeg`. | 6 files — cuisines-vault.js, TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 

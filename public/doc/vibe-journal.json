@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-25",
-  "count": 635,
+  "count": 639,
   "records": [
     {
       "pr": 1,
@@ -17748,6 +17748,117 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 644,
+      "status": "merged",
+      "merged": "2026-05-25 03:35:01",
+      "day": "2026-05-25",
+      "version": "0.61.143",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: docs — VibeCodingRecord ledger catch-up PRs #634–#643",
+      "approach": "Operator: *\"do the 1\"* — first of the next-up shortlist after PR #643.",
+      "codeImpact": "9 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.143: docs — VibeCodingRecord ledger catch-up PRs #634–#643",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 645,
+      "status": "merged",
+      "merged": "2026-05-25 03:38:47",
+      "day": "2026-05-25",
+      "version": "0.61.144",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — Register logs D-61.140 (wake 2-step) / D-61.141 (special-mode chips + mutex) / D-61.142 (per-slug imgFlag)",
+      "approach": "Operator: *\"do the 2\"* — item 2 from the next-up shortlist after PR #644's ledger catch-up.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.144: docs — Register logs D-61.140 (wake 2-step) / D-61.141 (special-mode chips + mutex) / D-61.142 (per-slug imgFlag)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 646,
+      "status": "merged",
+      "merged": "2026-05-25 03:48:15",
+      "day": "2026-05-25",
+      "version": "0.61.145",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA — special-mode name-dedup (fixes Golden Moments duplicates) + group-card emojis (🍨 / 🍉 / 🥮)",
+      "approach": "Operator (screenshot of duplicate \"Golden Moments\" durian cards in the result list + a written spec): > *\"result of durians are repetitive, see picture\"* > *\"change the dessert emoji to 🍨 / change the fruits emoji to 🍉 / change the…",
+      "codeImpact": "5 files — index.js, cuisines-vault.js, doc, package",
+      "modules": [
+        "cuisines-vault.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.145: Cuisine TMA — special-mode name-dedup (fixes Golden Moments duplicates) + group-card emojis (🍨 / 🍉 / 🥮)",
+      "reworkCue": false,
+      "reworkOf": 643,
+      "burst": true
+    },
+    {
+      "pr": 647,
+      "status": "merged",
+      "merged": "2026-05-25 04:07:00",
+      "day": "2026-05-25",
+      "version": "0.61.146",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180)",
+      "approach": "Operator: **\"durian emoji must use the following image and no other\"** + GitHub link to `data/IMG_2180.jpeg`.",
+      "codeImpact": "6 files — cuisines-vault.js, TMA:cuisine, doc, package",
+      "modules": [
+        "cuisines-vault.js",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.146: Cuisine TMA — durian chip swaps v0.61.142 PNG for operator JPEG (IMG_2180)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
