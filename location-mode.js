@@ -173,12 +173,94 @@ async function classifyLocation({
   };
 }
 
+// v0.61.156 — rule §2.5 feature gate. SG-only features that require
+// SG-specific feeds (LTA DataMall, NEA, HPB, etc.) are listed here.
+// The gate is a positive list (allowed-in-non-SG), not a deny-list —
+// keeps the spec readable: "what's still alive outside Singapore".
+//
+// Outside SG, ONLY these surfaces are kept:
+//   - cuisine search / free-text search / Michelin (Places-driven,
+//     no SG-specific data source)
+//   - carpark search (Places-driven outside SG per rule §2.8)
+//   - transport "Drive" mode (Routes API, no LTA)
+//   - the location-handler itself (must always work)
+//
+// Everything else (hawker / weather / recognised / TMA toggles for
+// bus stop, taxi stand, train line, parks, attractions) requires
+// SG.
+//
+// Operator: "When mode is not SG, disable: Hawker TMA; Transport -
+// all except Drive and Carpark; Weather; TMA toggles (bus stop,
+// taxi stand, train line, parks, attractions); and SG-specific
+// commands such as /recognised."
+const FEATURE_KIND = Object.freeze({
+  // Always allowed (any mode):
+  CUISINE_SEARCH:   'cuisine-search',
+  FREETEXT_SEARCH:  'freetext-search',
+  MICHELIN_SEARCH:  'michelin-search',
+  CARPARK:          'carpark',
+  TRANSPORT_DRIVE:  'transport-drive',
+  LOCATION:         'location',
+  // SG-only (gated below):
+  HAWKER:           'hawker',
+  WEATHER:          'weather',
+  RECOGNISED:       'recognised',
+  TRANSPORT_TRAIN:  'transport-train',
+  TRANSPORT_BUS:    'transport-bus',
+  TRANSPORT_TAXI:   'transport-taxi',
+  TMA_BUSSTOP:      'tma-busstop',
+  TMA_TAXISTAND:    'tma-taxistand',
+  TMA_TRAINLINE:    'tma-trainline',
+  TMA_PARKS:        'tma-parks',
+  TMA_ATTRACTIONS:  'tma-attractions'
+});
+
+const ALWAYS_ALLOWED = Object.freeze(new Set([
+  FEATURE_KIND.CUISINE_SEARCH,
+  FEATURE_KIND.FREETEXT_SEARCH,
+  FEATURE_KIND.MICHELIN_SEARCH,
+  FEATURE_KIND.CARPARK,
+  FEATURE_KIND.TRANSPORT_DRIVE,
+  FEATURE_KIND.LOCATION
+]));
+
+const SG_ONLY = Object.freeze(new Set([
+  FEATURE_KIND.HAWKER,
+  FEATURE_KIND.WEATHER,
+  FEATURE_KIND.RECOGNISED,
+  FEATURE_KIND.TRANSPORT_TRAIN,
+  FEATURE_KIND.TRANSPORT_BUS,
+  FEATURE_KIND.TRANSPORT_TAXI,
+  FEATURE_KIND.TMA_BUSSTOP,
+  FEATURE_KIND.TMA_TAXISTAND,
+  FEATURE_KIND.TMA_TRAINLINE,
+  FEATURE_KIND.TMA_PARKS,
+  FEATURE_KIND.TMA_ATTRACTIONS
+]));
+
+// Returns true when `feature` may run for the given `mode`.
+//   - any mode → ALWAYS_ALLOWED features run.
+//   - mode === 'SG' AND feature in SG_ONLY → runs.
+//   - anything else → false (including unknown features — defensive
+//     deny so a caller that types a typo'd feature name doesn't
+//     accidentally bypass the gate).
+function isFeatureAllowed(mode, feature) {
+  if (typeof feature !== 'string') return false;
+  if (ALWAYS_ALLOWED.has(feature)) return true;
+  if (mode === 'SG' && SG_ONLY.has(feature)) return true;
+  return false;
+}
+
 module.exports = {
   SG_CENTROID,
   COARSE_GATE_M,
   JB_ADMIN_KEYWORDS,
+  FEATURE_KIND,
+  ALWAYS_ALLOWED,
+  SG_ONLY,
   haversineMeters,
   coarseGate,
   classifyByCountry,
-  classifyLocation
+  classifyLocation,
+  isFeatureAllowed
 };
