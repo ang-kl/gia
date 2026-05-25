@@ -55,16 +55,22 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 67 cuisines (v0.59.49: split Australian + New Zealand back, plus Australasia catch-all)', () => {
-    expect(vault.getAllCuisines().length).toBe(67);
+  it('loads exactly 70 cuisines (v0.61.141: Dessert category gained Fruits + Durian + Durian Pastry)', () => {
+    // v0.59.49 baseline was 67 (split Australian + New Zealand back,
+    // plus Australasia catch-all). v0.61.141 added Fruits + Durian +
+    // Durian Pastry to the dessert category → 70 total. See D-61.141
+    // in the v0.61.144 Register increment.
+    expect(vault.getAllCuisines().length).toBe(70);
   });
 
   it('groups by category with expected counts', () => {
     // v0.59.2: regrouped per Human Lead. Source markdown still has
     // 8 categories in the original layout; cuisines-vault remaps at
     // load time into a 10-bucket world-region view.
-    // v0.59.21: 2 new top-level categories (dessert + fusion), 1
-    // entry each. Total cuisine count 72 → 74.
+    // v0.59.21: 2 new top-level categories (dessert + fusion).
+    // v0.61.141: dessert category gains Fruits + Durian + Durian
+    //            Pastry (1 → 4). Source label also renamed to
+    //            "Dessert, Fruits".
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
     expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
@@ -78,10 +84,10 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['americas']).toBe(4);             // v0.59.35: Argentinian (source) + American, Mexican, Brazilian (remap). -Peruvian -Cuban -Jamaican = 4
     expect(counts['australasia']).toBe(3);          // v0.59.49: Australian, New Zealand, Australasia (regional catch-all)
     expect(counts['african']).toBe(2);              // v0.59.34: African + South African
-    expect(counts['dessert']).toBe(1);              // v0.59.21: Dessert
+    expect(counts['dessert']).toBe(4);              // v0.61.141: Dessert + Fruits + Durian + Durian Pastry
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(67);
+    expect(total).toBe(70);
   });
 
   // v0.60.22 — defend against the duplicate-Michelin bug. The
