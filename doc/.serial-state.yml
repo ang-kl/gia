@@ -1,8 +1,8 @@
 counters:
-  commit: 359
-  build: 149
+  commit: 360
+  build: 150
   documents:
-    journal: 347
+    journal: 348
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,31 @@ counters:
     register: 122
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 57
-last_anchor_time: 25-05 '26 12:05 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T12:00:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.146 durian-jpeg session)
-last_anchor_iso8601: 2026-05-25T12:05:00+08:00
-last_anchor_utc: 2026-05-25T04:05:00Z
+  current_chat_counter: 58
+last_anchor_time: 25-05 '26 12:15 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T12:10:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.147 ledger-catchup session)
+last_anchor_iso8601: 2026-05-25T12:15:00+08:00
+last_anchor_utc: 2026-05-25T04:15:00Z
+# v0.61.147 (commit 360 / journal 348 / build 150) — Docs:
+# VibeCodingRecord ledger catch-up #644-#647. PR #648 (branch
+# claude/v0.61.147-vibe-ledger-catchup-644-647, off main at
+# v0.61.146 / b22f762). Operator: "merge" - the routine cadence
+# pickup after PR #647 closed the durian-JPEG swap. Adds the 4
+# PRs that landed in the v0.61.143-146 mini-arc:
+# - #644 v0.61.143 ledger catchup itself (couldn't self-reference)
+# - #645 v0.61.144 Register increment D-61.140/.141/.142
+# - #646 v0.61.145 special-mode name-dedup + group-card emojis
+# - #647 v0.61.146 durian PNG -> JPEG swap
+# data/prs.ndjson +4 rows (636 -> 640). data/pr-files.tsv +4
+# rows (426 -> 430, all 4 squash-merged with (#NNN) tags).
+# generate.mjs GEN_DATE stays 2026-05-25 (same day). records.tsv
+# / vibe-coding-record.md / public/doc/vibe-journal.{html,json}
+# regenerated. 639 records (up from 635). Categories: feature=399
+# fix=87 docs=58 copy=35 prompt-tune=31 refactor=18 test=6 infra=5,
+# rework-flagged=62 (+1 from yesterday — durian JPEG swap counts
+# as a follow-up to the PNG, flagging it as rework).
+# package.json 0.61.146 -> 0.61.147. plumbing-committed per O-22.
+# journal-0_61_147-25_05_26-1215.md.
 # v0.61.146 (commit 359 / journal 347 / build 149) — Cuisine TMA:
 # durian chip swaps the v0.61.142 PNG for an operator-supplied
 # JPEG. PR #647 (branch claude/v0.61.146-durian-jpeg, off main at
