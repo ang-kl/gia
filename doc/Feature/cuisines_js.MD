@@ -67,8 +67,8 @@ export const CUISINE_CATEGORIES = [
   },
   {
     id: 'dessert',
-    label: 'Dessert',
-    items: ['Dessert']
+    label: 'Dessert, Fruits',
+    items: ['Dessert', 'Fruits', 'Durian', 'Durian Pastry']
   },
   {
     id: 'fusion',

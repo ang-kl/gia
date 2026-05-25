@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import CuisineCategoryDrawer from './CuisineCategoryDrawer.jsx';
 import { useLocale, t as tr } from '../lib/i18n.js';
+// v0.61.141 — special-mode mutex logic extracted to a pure module so
+// it's unit-testable. Fruits / Durian / Durian Pastry are now
+// regular catalogue chips inside the "Dessert, Fruits" category;
+// applyChipToggle enforces the symmetric mutex against Dessert + all
+// other cuisines, replacing the v0.61.126 amber-pill row that lived
+// above the catalogue grid.
+import { applyChipToggle } from '../lib/cuisine-selection.js';
 
 const MAX_SELECTED = 5;
 
@@ -35,36 +42,21 @@ const CATEGORY_LABEL_KEY = {
 // drawer closes. App.jsx uses it to nudge a 3 s pulse on the 🔍
 // Search FAB so the user sees the next-step CTA right after picking
 // a cuisine.
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, specialMode = null, onSpecialModeChange }) {
+// v0.61.141 — operator: Fruits + Durian + Durian Pastry moved into the
+// "Dessert, Fruits" catalogue group as regular chips. specialMode /
+// onSpecialModeChange props retired; the active special slug is now
+// derived from `selected` at the App.jsx request-build site. The
+// applyChipToggle helper enforces the mutex (special ↔ everything else
+// including Dessert).
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   const [lang] = useLocale();
 
   if (!catalogue) return null;
 
   function toggle(slug) {
-    if (specialMode) return;  // v0.61.126 — cuisines locked while special mode is active
-    if (selected.includes(slug)) onChange(selected.filter((s) => s !== slug));
-    else if (selected.length < MAX_SELECTED) onChange([...selected, slug]);
+    onChange(applyChipToggle({ slug, selected, maxSelected: MAX_SELECTED }));
   }
-
-  // v0.61.126 — Fruits / Durian exclusive toggle. Tapping the active
-  // button clears it; tapping the inactive one switches modes (per
-  // spec: "If 'Fruits' is toggled ON, automatically clear 'Durian'"
-  // and vice versa). Clears the selected cuisines on activation so
-  // the chip badge / criteria summary doesn't show ghosts of the
-  // prior normal-cuisine state.
-  function setSpecial(next) {
-    if (specialMode === next) {
-      onSpecialModeChange?.(null);
-    } else {
-      onSpecialModeChange?.(next);
-      if (selected.length > 0) onChange([]);   // wipe normal cuisines on mode activation
-    }
-  }
-  const SPECIAL = [
-    { id: 'fruits', label: tr('special.fruits.label', lang), emoji: '🍉' },
-    { id: 'durian', label: tr('special.durian.label', lang), emoji: '🥥' }
-  ];
 
   function labelFor(cat) {
     const key = CATEGORY_LABEL_KEY[cat.id];
@@ -129,50 +121,17 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
 
   return (
     <div className="flex flex-col gap-1.5">
-      {/* v0.61.126 — Fruits / Durian exclusive special-mode pills.
-          Render ABOVE the catalogue grid in a row of 2 amber-tinted
-          buttons (visually distinct from the white catalogue cards).
-          Active mode is bg-tg-accent + filled glyph; inactive is
-          amber-bordered. Tap behaviour: toggle off if active, switch
-          if other is active, set if none active. When a mode is on,
-          the catalogue grid AND the per-card 'selected' badges go
-          opacity-40 + pointer-events-none. */}
+      {/* v0.61.141 — the v0.61.126 Fruits / Durian amber-pill row above
+          the catalogue grid is retired. Fruits + Durian + the new
+          Durian Pastry are now regular chips inside the "Dessert,
+          Fruits" category card. The mutex (special ↔ Dessert + all
+          other cuisines) is enforced by applyChipToggle. */}
       <div className="grid grid-cols-2 gap-1.5">
-        {SPECIAL.map((s) => {
-          const active = specialMode === s.id;
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setSpecial(s.id)}
-              aria-pressed={active}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-left transition-colors ${
-                active
-                  ? 'bg-tg-accent text-tg-accent-text border-tg-accent font-semibold'
-                  : 'bg-tg-card text-tg-text border-amber-500/60 hover:border-amber-500'
-              }`}
-            >
-              <span aria-hidden className="flex-shrink-0">{s.emoji}</span>
-              <span className="text-xs font-semibold flex-1">{s.label}</span>
-              <span aria-hidden className="flex-shrink-0">{active ? '✓' : '+'}</span>
-            </button>
-          );
-        })}
-      </div>
-      {specialMode && (
-        <div className="text-[11px] text-tg-hint px-1 italic">
-          {tr('special.activeNote', lang).replace('{mode}', tr(`special.${specialMode}.label`, lang))}
-        </div>
-      )}
-      <div
-        className={`grid grid-cols-2 gap-1.5${specialMode ? ' opacity-40 pointer-events-none' : ''}`}
-        aria-disabled={specialMode ? true : undefined}
-      >
         {catalogue.map((cat) => (
           <CategoryCard key={cat.id} cat={cat} />
         ))}
       </div>
-      {selected.length > 0 && !specialMode && (
+      {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>
           <button onClick={() => onChange([])} className="underline">{tr('btn.clearCuisines', lang)}</button>

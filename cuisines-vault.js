@@ -193,7 +193,11 @@ const CATEGORY_LABEL_OVERRIDE = {
   'australasia':             'Australasia',
   'african':                 'African',
   // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
-  'dessert':                 'Dessert',
+  // v0.61.141 — Dessert relabelled "Dessert, Fruits" after the operator
+  // moved Fruits + Durian (narrowed to durian fruit only) + Durian
+  // Pastry (NEW, durian pastry only) into the category. Source label
+  // in doc/Feature/cuisines_js.MD also updated to match.
+  'dessert':                 'Dessert, Fruits',
   'fusion':                  'Fusion'
 };
 

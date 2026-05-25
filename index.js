@@ -10779,7 +10779,12 @@ async function cacheBotUsername() {
         // (per scripts/Create_2_buttons.MD). The mode short-circuits
         // every cuisine-query construction step below.
         const specialModeIn = (req.body && typeof req.body.specialMode === 'string') ? req.body.specialMode : null;
-        const specialMode = (specialModeIn === 'fruits' || specialModeIn === 'durian') ? specialModeIn : null;
+        // v0.61.141 — added 'durian-pastry' (DURIAN narrowed to fruit-
+        // only; pastry seeds moved to the new bucket). Slug matches
+        // what cuisines-vault.js's slugify() produces for the new
+        // Durian Pastry cuisine entry, so the TMA chip-tap routes
+        // here directly.
+        const specialMode = (specialModeIn === 'fruits' || specialModeIn === 'durian' || specialModeIn === 'durian-pastry') ? specialModeIn : null;
         // v0.59.0: resolve active lang for this request — TMA body
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);

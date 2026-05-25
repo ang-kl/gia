@@ -11,20 +11,26 @@ const require = createRequire(import.meta.url);
 const sm = require('../special-mode.js');
 
 describe('special-mode — mode constants + guard', () => {
-  it('exposes the two canonical mode ids', () => {
+  it('exposes the three canonical mode ids', () => {
+    // v0.61.141 — DURIAN_PASTRY added; DURIAN narrowed to fruit-only.
     expect(sm.SPECIAL_MODES.FRUITS).toBe('fruits');
     expect(sm.SPECIAL_MODES.DURIAN).toBe('durian');
+    expect(sm.SPECIAL_MODES.DURIAN_PASTRY).toBe('durian-pastry');
   });
 
-  it('isSpecialMode accepts only the two canonical strings', () => {
+  it('isSpecialMode accepts only the three canonical strings', () => {
     expect(sm.isSpecialMode('fruits')).toBe(true);
     expect(sm.isSpecialMode('durian')).toBe(true);
+    expect(sm.isSpecialMode('durian-pastry')).toBe(true);
     expect(sm.isSpecialMode('Fruits')).toBe(false);    // case-sensitive
     expect(sm.isSpecialMode('')).toBe(false);
     expect(sm.isSpecialMode(null)).toBe(false);
     expect(sm.isSpecialMode(undefined)).toBe(false);
     expect(sm.isSpecialMode('michelin')).toBe(false);
     expect(sm.isSpecialMode(42)).toBe(false);
+    // 'durianpastry' (no hyphen) is NOT accepted — slug must match
+    // cuisines-vault.js slugify() output exactly.
+    expect(sm.isSpecialMode('durianpastry')).toBe(false);
   });
 });
 
@@ -65,7 +71,12 @@ describe('special-mode — isRelevant (Fruits)', () => {
     { name: 'Mr Fruit Juice', primaryType: 'juice_shop', expect: true },
     { name: 'Yong Tau Fu & Fresh Fruit Stall', primaryType: 'food_court', expect: true },
     { name: 'Pasar Buah Tampines', primaryType: 'market', expect: true },   // Malay
-    { name: '榴莲莊', primaryType: 'fruit_shop', expect: false },           // durian-only name; primaryType not in reject; no fruit keyword
+    // v0.61.141 — was `primaryType: 'fruit_shop'` which spuriously
+    // matched the 'fruit' keyword via the haystack substring search
+    // (`'fruit_shop'.includes('fruit')` is true). Pre-existing test
+    // bug from v0.61.126 that only surfaces now that this PR is
+    // adding adjacent durian-pastry coverage. Swapped to `food_store`.
+    { name: '榴莲莊', primaryType: 'food_store', expect: false },         // durian-only name; primaryType not in reject; no fruit keyword
     { name: '水果天堂', primaryType: 'shopping_mall', expect: true },        // Chinese
     { name: 'Smoothie Factory', primaryType: 'cafe', expect: true },
     { name: 'Cold-pressed Juice Bar', primaryType: 'cafe', expect: true },
@@ -183,5 +194,92 @@ describe('special-mode — type rejection invariants', () => {
     // The spec wants juice STALLS / SHOPS, not delivery — meal_takeaway
     // is in the reject list for fruits mode.
     expect(sm.isRelevant({ name: 'Daily Fruit Juice Delivery', primaryType: 'meal_takeaway' }, 'fruits')).toBe(false);
+  });
+});
+
+describe('special-mode — DURIAN narrowed to fruit-only (v0.61.141)', () => {
+  // The bare word "durian" is in DURIAN's keyword list, so a venue
+  // named "Durian Puff Specialist" would match the keyword. The
+  // v0.61.141 name-token reject patterns guard against this so
+  // pastry shops are routed to DURIAN_PASTRY instead.
+  const pastryNames = [
+    'Combat Durian Puff',
+    'Old Chang Kee Durian Pastry',
+    'Bengawan Solo Durian Cake',
+    'Durian Cake & Mochi Studio',
+    'Durian Crepes & Cream',
+    'Mr Durian Tart',
+    'Durian Pancake House',
+    'Durian Cream Puff Stand'
+  ];
+  for (const name of pastryNames) {
+    it(`rejects "${name}" from DURIAN (pastry signal in name)`, () => {
+      expect(sm.isRelevant({ name, primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+    });
+  }
+
+  it('accepts plain "Combat Durian" (no pastry signal)', () => {
+    expect(sm.isRelevant({ name: 'Combat Durian', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+  });
+
+  it('accepts variety names without pastry tokens', () => {
+    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+  });
+});
+
+describe('special-mode — DURIAN_PASTRY (v0.61.141)', () => {
+  it('buildSeeds emits pastry-focused queries with default suffix', () => {
+    const seeds = sm.buildSeeds('durian-pastry');
+    expect(seeds.length).toBeGreaterThanOrEqual(3);
+    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(true);
+    expect(seeds.some((s) => s.includes('durian puff'))).toBe(true);
+    expect(seeds.some((s) => s.includes('durian pastry'))).toBe(true);
+    expect(seeds.some((s) => s.includes('durian cake'))).toBe(true);
+  });
+
+  it('buildSeeds respects regionSuffix override (JB)', () => {
+    const seeds = sm.buildSeeds('durian-pastry', { regionSuffix: 'Johor Bahru Malaysia' });
+    expect(seeds.every((s) => s.endsWith(' Johor Bahru Malaysia'))).toBe(true);
+  });
+
+  const pastryAccepts = [
+    { name: 'Old Chang Kee Durian Puff', primaryType: 'bakery', expect: true },
+    { name: 'Bengawan Solo Durian Cake', primaryType: 'bakery', expect: true },
+    { name: 'Durian Mochi Heaven', primaryType: 'cafe', expect: true },
+    { name: 'Durian Crepes Stall', primaryType: 'food_court', expect: true },
+    { name: '榴莲蛋糕屋', primaryType: 'bakery', expect: true },        // Chinese pastry
+    { name: '榴莲泡芙专门店', primaryType: 'bakery', expect: true }     // durian puff specialist
+  ];
+  for (const c of pastryAccepts) {
+    it(`✓ "${c.name}" → durian-pastry`, () => {
+      expect(sm.isRelevant({ name: c.name, primaryType: c.primaryType }, 'durian-pastry')).toBe(true);
+    });
+  }
+
+  const pastryRejects = [
+    // fruit-only sellers should NOT match durian-pastry
+    { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' },
+    { name: '99 Old Trees', primaryType: 'food_store' },
+    // unrelated cafe with no durian signal
+    { name: 'Toast Box', primaryType: 'cafe' },
+    // fine dining rejected even with name signal
+    { name: 'Durian Tasting Menu', primaryType: 'fine_dining_restaurant' }
+  ];
+  for (const c of pastryRejects) {
+    it(`✗ "${c.name}" not in durian-pastry`, () => {
+      expect(sm.isRelevant({ name: c.name, primaryType: c.primaryType }, 'durian-pastry')).toBe(false);
+    });
+  }
+
+  it('filterByMode keeps only pastry-tagged venues', () => {
+    const venues = [
+      { name: 'Combat Durian', primaryType: 'meal_takeaway' },         // fruit only
+      { name: 'Old Chang Kee Durian Puff', primaryType: 'bakery' },    // pastry ✓
+      { name: 'Sushi Tei', primaryType: 'japanese_restaurant' },       // unrelated
+      { name: '榴莲蛋糕屋', primaryType: 'bakery' }                      // pastry ✓
+    ];
+    const out = sm.filterByMode(venues, 'durian-pastry');
+    expect(out.map((v) => v.name)).toEqual(['Old Chang Kee Durian Puff', '榴莲蛋糕屋']);
   });
 });
