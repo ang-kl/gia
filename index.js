@@ -949,25 +949,43 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
     // + venue having lat/lng. Skips silently otherwise so EN-card behaviour
     // is unchanged when prerequisites aren't met.
     const carparkButtons = [];
-    if (Number.isFinite(p.lat) && Number.isFinite(p.lng) && process.env.LTA_ACCOUNT_KEY && webhookDomain) {
+    // v0.61.158 — rule §2.8 / §2.9. The carpark button is now
+    // mode-aware: SG mode uses LTA (live lots); JB / OTHER use
+    // Places (5 km radius, no live-lots). Falls through silently
+    // when neither source returns hits — chat card behaviour
+    // unchanged for SG users without LTA_ACCOUNT_KEY.
+    if (Number.isFinite(p.lat) && Number.isFinite(p.lng) && webhookDomain) {
       try {
-        const cps = await carpark.nearest(p.lat, p.lng, 5);
-        if (cps.length) {
-          const { buildMapHashUrl } = require('./maps-url');
-          const slim = cps
-            .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
-            .map((c) => ({
-              name: `${c.development} (${c.availableLots} lots)`,
-              placeId: '',
-              lat: c.lat,
-              lng: c.lng,
-              area: '',
-              url: `https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`
-            }));
-          const mapUrl = buildMapHashUrl(slim, { webhookDomain });
-          if (mapUrl) {
-            const { t: tCard } = require('./i18n');
-            carparkButtons.push({ text: tCard('card.carparkMapBtn', dpLang), web_app: { url: mapUrl } });
+        let carparkMode = 'SG';
+        try {
+          const { getUserLocale } = require('./location-locale');
+          const loc = await getUserLocale(redis, chatId);
+          if (loc && (loc.mode === 'JB' || loc.mode === 'OTHER')) carparkMode = loc.mode;
+        } catch { /* default SG */ }
+        // Skip the SG path when LTA key is missing — keeps prior behaviour.
+        if (carparkMode === 'SG' && !process.env.LTA_ACCOUNT_KEY) {
+          // no carpark button — same as pre-v0.61.158
+        } else {
+          const cps = await carpark.nearestForMode(carparkMode, p.lat, p.lng, 5);
+          if (cps.length) {
+            const { buildMapHashUrl } = require('./maps-url');
+            const slim = cps
+              .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
+              .map((c) => ({
+                name: c.availableLots != null
+                  ? `${c.development} (${c.availableLots} lots)`
+                  : c.development,
+                placeId: '',
+                lat: c.lat,
+                lng: c.lng,
+                area: '',
+                url: `https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`
+              }));
+            const mapUrl = buildMapHashUrl(slim, { webhookDomain });
+            if (mapUrl) {
+              const { t: tCard } = require('./i18n');
+              carparkButtons.push({ text: tCard('card.carparkMapBtn', dpLang), web_app: { url: mapUrl } });
+            }
           }
         }
       } catch (err) {
@@ -4272,12 +4290,23 @@ async function runCarparkCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   const { formatDistance } = require('./format');
   try {
-    if (!process.env.LTA_ACCOUNT_KEY) { await safeSend(chatId, t('carpark.offline', lang)); return; }
+    // v0.61.158 — rule §2.8: read the registered locale. SG mode
+    // requires LTA_ACCOUNT_KEY (live lots); JB / OTHER use Places.
+    // Missing LTA only blocks the SG path.
+    let cpMode = 'SG';
+    try {
+      const { getUserLocale } = require('./location-locale');
+      const loc = await getUserLocale(redis, chatId);
+      if (loc && (loc.mode === 'JB' || loc.mode === 'OTHER')) cpMode = loc.mode;
+    } catch { /* default SG */ }
+    if (cpMode === 'SG' && !process.env.LTA_ACCOUNT_KEY) {
+      await safeSend(chatId, t('carpark.offline', lang)); return;
+    }
     // v0.53.0: 5-min staleness gate + reverse-geocoded "Current: <addr>" header.
     const cached = await ensureFreshLocationOrPrompt(chatId, '/carpark', lang);
     if (!cached) return;
     await safeSend(chatId, t('carpark.lookingUp', lang));
-    const list = await carpark.nearest(cached.lat, cached.lng, 5);
+    const list = await carpark.nearestForMode(cpMode, cached.lat, cached.lng, 5);
     if (!list.length) { await safeSend(chatId, t('carpark.none', lang)); return; }
     const lines = [t('carpark.header', lang)];
     // v0.60.98 — operator: LTA's carpark feed returns some entries
@@ -4293,7 +4322,16 @@ async function runCarparkCommand(chatId, lang = 'en') {
         .replace(/\b([a-z])([a-z]*)/g, (_, head, tail) => head.toUpperCase() + tail)
         .replace(/\bBlk\b/gi, 'BLK');
     };
-    list.forEach((c, i) => lines.push(tn('carpark.row', lang, { i: i + 1, name: toCarparkTitleCase(c.development), lots: c.availableLots, dist: formatDistance(c.distanceM) })));
+    list.forEach((c, i) => {
+      // v0.61.158 — Places-sourced carparks have no live-lots data
+      // (availableLots === null). Render without the "{lots} lots"
+      // tail in that case; falls through to a "name · 1.2 km" row.
+      if (c.availableLots == null) {
+        lines.push(`${i + 1}. ${toCarparkTitleCase(c.development)} · ${formatDistance(c.distanceM)}`);
+      } else {
+        lines.push(tn('carpark.row', lang, { i: i + 1, name: toCarparkTitleCase(c.development), lots: c.availableLots, dist: formatDistance(c.distanceM) }));
+      }
+    });
     // v0.60.220 — weather footer (item 3d).
     { const wxFoot = await weatherChatFooter(); if (wxFoot) lines.push('', wxFoot); }
     await safeSend(chatId, lines.join('\n'));
@@ -13151,15 +13189,53 @@ async function cacheBotUsername() {
     // LTA DataMall Carpark Availability feed (via carpark.js), Redis-
     // cached 60 s. Needs LTA_ACCOUNT_KEY; when unset the endpoint just
     // returns an empty list and the carpark chip toggles nothing.
-    app.get('/api/geo/carpark', async (_req, res) => {
+    //
+    // v0.61.158 — rule §2.8 fallback: optional `?lat=X&lng=Y&mode=OTHER`
+    // query params switch the source to Google Places (5 km radius)
+    // when mode is JB / OTHER. SG-mode requests (or missing params)
+    // keep the existing LTA-allPoints behaviour. Places responses are
+    // NOT shared with the LTA cache key (different geometry + payload
+    // shape — `availableLots` is null for Places hits).
+    app.get('/api/geo/carpark', async (req, res) => {
       const CACHE_KEY = 'geo:carpark';
       try {
+        const qmode = String(req.query?.mode || '').toUpperCase();
+        const qlat = Number(req.query?.lat);
+        const qlng = Number(req.query?.lng);
+        const carparkMod = require('./carpark');
+        // Non-SG fallback path (Places, 5 km radius).
+        if ((qmode === 'JB' || qmode === 'OTHER')
+            && Number.isFinite(qlat) && Number.isFinite(qlng)) {
+          // Places-source cache by rounded grid (4 dp ≈ 11 m) so adjacent
+          // taps share the same response without flooding the API.
+          const placesKey = `geo:carpark:places:${qmode}:${qlat.toFixed(3)}:${qlng.toFixed(3)}`;
+          if (redis.isOpen) {
+            const cached = await redis.get(placesKey).catch(() => null);
+            if (cached) { res.json(JSON.parse(cached)); return; }
+          }
+          const list = await carparkMod.nearestPlaces(qlat, qlng, 20, 5000);
+          const payload = {
+            carparks: list.map((c) => ({
+              name: c.development,
+              lat: c.lat,
+              lng: c.lng,
+              availableLots: null,
+              lotType: ''
+            }))
+          };
+          if (redis.isOpen) {
+            redis.set(placesKey, JSON.stringify(payload), { EX: 300 }).catch(() => {});
+          }
+          res.json(payload);
+          return;
+        }
+        // SG path (LTA).
         if (!process.env.LTA_ACCOUNT_KEY) { res.json({ carparks: [] }); return; }
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
-        const carparks = await require('./carpark').allPoints();
+        const carparks = await carparkMod.allPoints();
         const payload = { carparks };
         if (redis.isOpen) {
           redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 60 }).catch(() => {});
