@@ -1,8 +1,8 @@
 counters:
-  commit: 351
-  build: 141
+  commit: 352
+  build: 142
   documents:
-    journal: 339
+    journal: 340
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,51 @@ counters:
     register: 121
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 49
-last_anchor_time: 25-05 '26 08:45 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T08:45:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.138 branding-fix session)
-last_anchor_iso8601: 2026-05-25T08:45:00+08:00
-last_anchor_utc: 2026-05-25T00:45:00Z
+  current_chat_counter: 50
+last_anchor_time: 25-05 '26 09:10 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T09:05:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.139 Menu-TMA anchor-format session)
+last_anchor_iso8601: 2026-05-25T09:10:00+08:00
+last_anchor_utc: 2026-05-25T01:10:00Z
+# v0.61.139 (commit 352 / journal 340 / build 142) — Menu TMA anchored-
+# at format: "<street> + <building, if any> + (<postal>)" via Places
+# addressComponents. PR #640 (branch claude/v0.61.139-menu-anchor-
+# format, off main at v0.61.138 / 25bd5fb). Operator (after PR #639's
+# branding fix + a screenshot of the Menu TMA showing "Anchored at
+# Heavenly Wang" with no geographic context): "in the Menu the
+# Anchored location must be stated as: <street> + <building name, if
+# there is> + ( + postal code + )".
+# Three back-end changes + two front-end:
+# - vibe-suggest.js geocodeQueryRegion FIELD_MASK +places.address
+#   Components; the parser itself moved to places-address-parser.js
+#   so unit tests can require it without transitively loading axios
+#   (O-22 sidesteps node_modules/axios/package.json corruption mode).
+#   Re-exported via vibe-suggest for back-compat.
+# - location-cache.js setUserLocation opts: accept + persist `street`
+#   / `building` / `postal` strings (each optional). Backwards
+#   compatible - precinct picks (no addressComponents) pass nothing.
+# - index.js: /api/menu/set-location typed-text branch passes the
+#   structured parts through setUserLocation + returns them in the
+#   response. /api/cuisine/user-location surfaces them on the cached-
+#   read response so cold TMA loads render the new format.
+# - web/menu/src/App.jsx: threads street/building/postal into the
+#   anchor state on initial fetch.
+# - web/menu/src/components/LocationFieldMenu.jsx: new pure helper
+#   composeAddressLabel(anchor) builds "<street>[, <building>][ (<postal>)]".
+#   Substituted for the existing `label` placeholder when street is
+#   present; falls back to `label` otherwise (precinct picks +
+#   pre-v0.61.139 cached anchors). onAnchorChange payload extended
+#   to propagate the new fields.
+# - NEW __tests__/parse-address-components.test.js: 10 unit tests
+#   covering null/empty inputs, typical SG building address, route-
+#   without-number, premise/subpremise/establishment fallback ladder,
+#   longText vs shortText preference, missing-types skip, duplicate-
+#   types first-match, road junction, residential address. All pass
+#   in 689 ms via npx vitest run.
+# package.json 0.61.138 -> 0.61.139. plumbing-committed per O-22.
+# Fresh O-22 data point: node_modules/axios/package.json was
+# iCloud-corrupted during this session - the standalone-parser
+# extraction was specifically to dodge that.
+# journal-0_61_139-25_05_26-0910.md.
 # v0.61.138 (commit 351 / journal 339 / build 141) — Branding fix:
 # user-facing "Gia" -> "Soleat" across i18n + inline strings. PR
 # #639 (branch claude/v0.61.138-branding-soleat, off main at

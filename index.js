@@ -10279,15 +10279,31 @@ async function cacheBotUsername() {
             setOpts.region = cached.region;
             if (Number.isFinite(cached.radiusCapM)) setOpts.radiusCapM = cached.radiusCapM;
           }
+          // v0.61.139 — pass through the structured address parts from
+          // geocodeQueryRegion (Places addressComponents parser) so the
+          // Menu TMA pill can render "<street> + <building> + (<postal>)"
+          // instead of just the Places displayName. Each field is
+          // optional — Places doesn't always tag a premise (residential)
+          // or a postal_code (road junctions), so the TMA must fall back
+          // gracefully when any is null.
+          if (typeof r.street === 'string' && r.street) setOpts.street = r.street;
+          if (typeof r.building === 'string' && r.building) setOpts.building = r.building;
+          if (typeof r.postal === 'string' && r.postal) setOpts.postal = r.postal;
           await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
-          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)})`);
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
           return res.json({
             ok: true,
             label: r.name || text.trim(),
             lat: r.lat,
             lng: r.lng,
             region: setOpts.region || 'SG',
-            radiusCapM: setOpts.radiusCapM || null
+            radiusCapM: setOpts.radiusCapM || null,
+            // v0.61.139 — surface the address parts so the Menu TMA
+            // re-renders immediately without waiting for a separate
+            // /api/cuisine/user-location refresh.
+            street: r.street || null,
+            building: r.building || null,
+            postal: r.postal || null
           });
         }
         return res.status(400).json({ ok: false, error: 'missing precinctId or text' });
@@ -10419,6 +10435,14 @@ async function cacheBotUsername() {
         if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
         if (cached.label) payload.label = cached.label;
         if (cached.precinctId) payload.precinctId = cached.precinctId;
+        // v0.61.139 — surface the structured address parts so the
+        // Menu TMA can render "Anchored at <street> + <building> +
+        // (<postal>)" on cold load (after the user has set an anchor
+        // in a prior TMA session). Each is optional — Places may
+        // not have tagged a particular component type.
+        if (cached.street) payload.street = cached.street;
+        if (cached.building) payload.building = cached.building;
+        if (cached.postal) payload.postal = cached.postal;
         res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);

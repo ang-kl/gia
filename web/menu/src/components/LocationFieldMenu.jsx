@@ -76,7 +76,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
         lat: body.lat,
         lng: body.lng,
         region: body.region || 'SG',
-        radiusCapM: body.radiusCapM || null
+        radiusCapM: body.radiusCapM || null,
+        // v0.61.139 — propagate structured address parts so the
+        // summary line re-renders with "<street> + <building> +
+        // (<postal>)" without waiting for App.jsx to re-fetch.
+        street: body.street || null,
+        building: body.building || null,
+        postal: body.postal || null
       });
       return body;
     } catch (err) {
@@ -155,17 +161,22 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // Current-anchor summary line, with cap note when present.
   // v0.61.125 — operator: the "Anchored at X · 30 km cap" line should
   // read bigger; the disabled-tiles list goes on its OWN next line.
-  // Splits the prior single-line summary into:
-  //   - summaryMain: "Anchored at <b>Johor Bahru</b> · 30 km cap."
-  //     rendered at text-[13px] (was [10px])
-  //   - summaryDisabled (only when MY anchor): "Hawker, Train,
-  //     Incidents, Bus stops, Weather disabled" on the next line at
-  //     text-[11px] in tg-hint colour.
+  // v0.61.139 — operator: a typed-text anchor (like "Heavenly Wang")
+  // should show as "<street> + <building, if any> + (<postal>)"
+  // instead of just the Places displayName, which for shops-in-malls
+  // reads as the shop name only without geographic context. When the
+  // backend (v0.61.139 geocodeQueryRegion) provides `street` /
+  // `building` / `postal` via the addressComponents parser, build a
+  // composite address-label via composeAddressLabel and substitute it
+  // for {label}. Precinct picks (no addressComponents) and pre-
+  // v0.61.139 cached anchors fall back to the curated `label` field
+  // — unchanged behaviour.
   const capKm = currentAnchor?.radiusCapM ? Math.round(currentAnchor.radiusCapM / 1000) : null;
   const capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
   const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT');
-  const summaryMain = currentAnchor?.label
-    ? t('location.currentSet', lang).replace('{label}', escapeHtml(currentAnchor.label)).replace('{cap}', capStr)
+  const composedLabel = composeAddressLabel(currentAnchor) || currentAnchor?.label;
+  const summaryMain = composedLabel
+    ? t('location.currentSet', lang).replace('{label}', escapeHtml(composedLabel)).replace('{cap}', capStr)
     : t('location.currentNone', lang);
   // The disabled-list i18n string begins with " (" — strip the
   // leading " " + the parens for the standalone next-line render.
@@ -260,4 +271,24 @@ function escapeHtml(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+// v0.61.139 — composes the operator's anchor format. Returns:
+//   "<street>"                            (no building, no postal)
+//   "<street>, <building>"                (no postal)
+//   "<street> (<postal>)"                 (no building)
+//   "<street>, <building> (<postal>)"     (everything)
+// Returns null when there's no `street` to anchor the composition
+// on; the caller then falls back to the legacy `label` field
+// (precinct picks, pre-v0.61.139 cached anchors).
+function composeAddressLabel(anchor) {
+  if (!anchor) return null;
+  const street = (typeof anchor.street === 'string' && anchor.street.trim()) ? anchor.street.trim() : null;
+  if (!street) return null;
+  const building = (typeof anchor.building === 'string' && anchor.building.trim()) ? anchor.building.trim() : null;
+  const postal = (typeof anchor.postal === 'string' && anchor.postal.trim()) ? anchor.postal.trim() : null;
+  let out = street;
+  if (building && building !== street) out += ', ' + building;
+  if (postal) out += ' (' + postal + ')';
+  return out;
 }
