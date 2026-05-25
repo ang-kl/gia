@@ -130,7 +130,12 @@ const FLAG_BY_SLUG = {
 //              row used before this slug became a regular catalogue
 //              chip in v0.61.141).
 const IMG_FLAG_BY_SLUG = {
-  'durian': 'durian.png'
+  // v0.61.146 — operator-supplied JPEG replaces the v0.61.142 PNG.
+  // Operator: "durian emoji must use the following image and no
+  // other" — pinning to the IMG_2180 upload (blob `8654d6f…`). The
+  // 🥥 emoji in FLAG_BY_SLUG['durian'] (above) stays as the on-
+  // error fallback — only renders when the static asset 404s.
+  'durian': 'durian.jpeg'
 };
 
 // v0.59.2: regroup overlay. Source markdown (doc/Feature/cuisines_js.MD)
