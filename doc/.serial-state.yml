@@ -1,8 +1,8 @@
 counters:
-  commit: 365
-  build: 155
+  commit: 366
+  build: 156
   documents:
-    journal: 353
+    journal: 354
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,22 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 63
-last_anchor_time: 25-05 '26 16:10 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_151 (PR #652 merged 25-05 '26 ~14:55 SGT; v0.61.152 session opened 16:10 SGT)
-last_anchor_iso8601: 2026-05-25T16:10:00+08:00
-last_anchor_utc: 2026-05-25T08:10:00Z
+  current_chat_counter: 64
+last_anchor_time: 25-05 '26 19:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_152 (PR #653 merged 25-05 '26 ~17:46 SGT; v0.61.153 VCR catch-up session at 19:15 SGT)
+last_anchor_iso8601: 2026-05-25T19:15:00+08:00
+last_anchor_utc: 2026-05-25T11:15:00Z
+# v0.61.153 (commit 366 / journal 354 / build 156) — docs: VibeCodingRecord
+# ledger catch-up for PRs #648-#653 (v0.61.147-152 arc). Pure data /
+# generated artefact updates: prs.ndjson +6 rows (640 -> 646),
+# pr-files.tsv +6 rows, regenerated records.tsv / vibe-coding-record.md
+# / public/doc/vibe-journal.{html,json}. Operator: "1, 2, 3" -> #1 was
+# the VCR refresh; #2 (CI check on PR #653) confirmed CI green
+# (SHA 7efe8c8 = success); #3 deferred to v0.61.154+ (translate
+# enrichment for /eat, /drink, michelin path, secondary free-text
+# branches). Branch claude/v0.61.153-vcr-catchup off main at
+# v0.61.152 / 7efe8c8.
+#
 # v0.61.152 (commit 365 / journal 353 / build 155) — translate-review
 # helper + Redis cache + chat-side render. PR follow-up to v0.61.151
 # (the v0.61.151 quote was shown raw in the native language alongside
