@@ -414,3 +414,13 @@
 631	doc/.serial-state.yml,doc/Journal/journal-0_61_130-25_05_26-0625.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/i18n.js
 632	__tests__/cuisine-special-mode-widen.test.js,__tests__/cuisine-tellme-anchor.test.js,cuisine-special-mode-widen.js,cuisine-tellme-anchor.js,doc/.serial-state.yml,doc/Journal/journal-0_61_131-25_05_26-0645.md,index.js,package.json,web/cuisine/src/v2/App.jsx
 633	doc/.serial-state.yml,doc/Journal/journal-0_61_132-25_05_26-0700.md,doc/Register/register-0_61_132-25_05_26-0700.md,package.json
+634	doc/.serial-state.yml,doc/Journal/journal-0_61_133-25_05_26-0715.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+635	doc/.serial-state.yml,doc/Journal/journal-0_61_134-25_05_26-0740.md,index.js,package.json
+636	doc/.serial-state.yml,doc/Journal/journal-0_61_135-25_05_26-0800.md,doc/Technical/technical-0_61_135-25_05_26-0800.md,package.json
+637	doc/.serial-state.yml,doc/Journal/journal-0_61_136-25_05_26-0810.md,doc/Register/register-0_61_136-25_05_26-0810.md,package.json
+638	doc/.serial-state.yml,doc/Journal/journal-0_61_137-25_05_26-0820.md,doc/Register/register-0_61_137-25_05_26-0820.md,package.json
+639	doc/.serial-state.yml,doc/Journal/journal-0_61_138-25_05_26-0845.md,i18n.js,index.js,package.json,web/cuisine/src/components/Header.jsx
+640	__tests__/parse-address-components.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_139-25_05_26-0910.md,index.js,location-cache.js,package.json,places-address-parser.js,vibe-suggest.js,web/menu/src/App.jsx,web/menu/src/components/LocationFieldMenu.jsx
+641	doc/.serial-state.yml,doc/Journal/journal-0_61_140-25_05_26-0925.md,i18n.js,index.js,package.json
+642	__tests__/cuisine-selection.test.js,__tests__/special-mode.test.js,cuisines-vault.js,doc/.serial-state.yml,doc/Feature/cuisines_js.MD,doc/Journal/journal-0_61_141-25_05_26-0955.md,index.js,package.json,special-mode.js,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/CuisineDrawer.jsx,web/cuisine/src/v2/lib/cuisine-selection.js
+643	cuisines-vault.js,doc/.serial-state.yml,doc/Journal/journal-0_61_142-25_05_26-1015.md,package.json,web/cuisine/public/durian.png,web/cuisine/src/v2/components/CuisineCategoryDrawer.jsx

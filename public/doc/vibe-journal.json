@@ -1,6 +1,6 @@
 {
   "generated": "2026-05-25",
-  "count": 625,
+  "count": 635,
   "records": [
     {
       "pr": 1,
@@ -17458,6 +17458,296 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 634,
+      "status": "merged",
+      "merged": "2026-05-24 23:28:49",
+      "day": "2026-05-24",
+      "version": "0.61.133",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: docs — VibeCodingRecord ledger catch-up PRs #628–#633",
+      "approach": "PR #629's v0.61.128 catch-up covered #553–#627 but explicitly excluded itself + PR #628 (the v0.61.125-127 doc rollup, post-window) per its `[KNOWN GAPS]`.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.133: docs — VibeCodingRecord ledger catch-up PRs #628–#633",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 635,
+      "status": "merged",
+      "merged": "2026-05-24 23:41:44",
+      "day": "2026-05-24",
+      "version": "0.61.134",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — Michelin path threads v0.61.129 place anchor + post-strip freeText",
+      "approach": "Closes the v0.61.129 KNOWN GAP: the `isMichelinSearch` early-return at the top of `/api/cuisine/search` passed `req.body?.freeText` (raw, pre-strip) to `handleMichelinSearch` while every other downstream consumer was switched to the…",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.134: Cuisine TMA — Michelin path threads v0.61.129 place anchor + post-strip freeText",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 636,
+      "status": "merged",
+      "merged": "2026-05-24 23:59:40",
+      "day": "2026-05-24",
+      "version": "0.61.135",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — Technical doc incremental: O-22 iCloud-Drive workaround pattern",
+      "approach": "Operator (after PR #635 merged): **\"O-22 Technical doc entry while it's fresh\"**.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.135: docs — Technical doc incremental: O-22 iCloud-Drive workaround pattern",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 637,
+      "status": "merged",
+      "merged": "2026-05-25 00:11:58",
+      "day": "2026-05-25",
+      "version": "0.61.136",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — Register drops O-24 (Sarawak/Petra Jaya anchor) per operator decision",
+      "approach": "Operator: **\"drop O-24\"**.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.136: docs — Register drops O-24 (Sarawak/Petra Jaya anchor) per operator decision",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 638,
+      "status": "merged",
+      "merged": "2026-05-25 00:18:06",
+      "day": "2026-05-25",
+      "version": "0.61.137",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs — Register retracts O-24 as typo-derived non-item (corrects v0.61.136 'Deferred' misclassification)",
+      "approach": "Operator clarification (after PR #637 merged the v0.61.136 *\"Deferred\"* entry): **\"this is to drop totally - O-24 (this PR).",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.137: docs — Register retracts O-24 as typo-derived non-item (corrects v0.61.136 'Deferred' misclassification)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 639,
+      "status": "merged",
+      "merged": "2026-05-25 00:54:50",
+      "day": "2026-05-25",
+      "version": "0.61.138",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: branding fix — user-facing 'Gia' → 'Soleat'",
+      "approach": "Operator (screenshot of the wake message): **\"why still show 'Gia' should be 'Soleat'\"**.",
+      "codeImpact": "6 files — index.js, i18n.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.138: branding fix — user-facing 'Gia' → 'Soleat'",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 640,
+      "status": "merged",
+      "merged": "2026-05-25 01:11:25",
+      "day": "2026-05-25",
+      "version": "0.61.139",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Menu hub",
+      "intent": "Add: Menu TMA — anchored-at format \"<street> + <building> + (<postal>)\" via Places addressComponents",
+      "approach": "Operator (screenshot of the Menu TMA showing *\"Anchored at **Heavenly Wang**\"*): **\"in the Menu the Anchored location must be stated as: `<street> + <building name, if there is> + ( + postal code + )`\"**.",
+      "codeImpact": "10 files — index.js, location-cache.js, places-address-parser.js, vibe-suggest.js, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "places-address-parser.js",
+        "vibe-suggest.js",
+        "TMA:menu"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.139: Menu TMA — anchored-at format \"<street> + <building> + (<postal>)\" via Places addressComponents",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 641,
+      "status": "merged",
+      "merged": "2026-05-25 01:29:10",
+      "day": "2026-05-25",
+      "version": "0.61.140",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: wake-from-idle 2-step rewrite — request_location → rich comparison + 3 buttons + /l helper",
+      "approach": "Operator (third item in today's screenshot triplet, alongside PR A branding + PR B Menu anchor format): rewrite the wake-from-idle message to compare *\"your device is near …\"* vs *\"saved anchor at …\"* and offer three paths.",
+      "codeImpact": "5 files — index.js, i18n.js, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.140: wake-from-idle 2-step rewrite — request_location → rich comparison + 3 buttons + /l helper",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 642,
+      "status": "merged",
+      "merged": "2026-05-25 02:00:32",
+      "day": "2026-05-25",
+      "version": "0.61.141",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — Fruits/Durian/Durian Pastry as chips in 'Dessert, Fruits' group; symmetric mutex with Dessert + all other cuisines",
+      "approach": "Operator (screenshot of the amber-pill Fruits/Durian row + written spec): > *\"in cuisine TMA, move fruits and durian into selection for 'Dessert, Fruits' group.",
+      "codeImpact": "12 files — index.js, cuisines-vault.js, special-mode.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisines-vault.js",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.141: Cuisine TMA — Fruits/Durian/Durian Pastry as chips in 'Dessert, Fruits' group; symmetric mutex with Dessert + all other cuisines",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 643,
+      "status": "merged",
+      "merged": "2026-05-25 02:16:05",
+      "day": "2026-05-25",
+      "version": "0.61.142",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override)",
+      "approach": "Operator (right after PR #642 / v0.61.141 landed): uploaded a 204×192 durian clipart PNG via `data/IMG_2177.png` and said *\"use this png for durian\"*.",
+      "codeImpact": "6 files — cuisines-vault.js, TMA:cuisine, doc, package",
+      "modules": [
+        "cuisines-vault.js",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.142: Cuisine TMA — durian chip uses operator PNG icon (per-slug imgFlag override)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }
