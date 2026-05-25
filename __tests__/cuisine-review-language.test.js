@@ -14,7 +14,8 @@ const {
   getFlagForCuisines,
   reviewLanguagePrimary,
   pickPreferredReview,
-  pickAndTranslateReview
+  pickAndTranslateReview,
+  enrichVenuesWithTranslatedReview
 } = require('../cuisine-review-language');
 
 describe('SLUG_TO_LANGUAGE map', () => {
@@ -291,5 +292,117 @@ describe('pickAndTranslateReview', () => {
       translateFn: async ({ text }) => `[${text}]`
     });
     expect(out.text).toBe('[Ciao bello]');
+  });
+});
+
+describe('enrichVenuesWithTranslatedReview', () => {
+  const makeVenue = (placeId, reviews) => ({ placeId, reviews });
+  const italianReview = { rating: 5, text: { text: 'Pasta fresca', languageCode: 'it' } };
+  const englishReview = { rating: 4.5, text: { text: 'Nice food', languageCode: 'en' } };
+
+  it('is a no-op for empty / non-array venues', async () => {
+    await expect(enrichVenuesWithTranslatedReview({ venues: null, cuisineSlugs: ['italian'], targetLang: 'en' }))
+      .resolves.toBeUndefined();
+    await expect(enrichVenuesWithTranslatedReview({ venues: [], cuisineSlugs: ['italian'], targetLang: 'en' }))
+      .resolves.toBeUndefined();
+  });
+
+  it('is a no-op when cuisineSlugs has no nationality slug', async () => {
+    const venues = [makeVenue('p1', [italianReview])];
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['dessert', 'fusion'],
+      targetLang: 'en'
+    });
+    expect(venues[0].recentReviewTranslatedFlag).toBeUndefined();
+    expect(venues[0].recentReview).toBeUndefined();
+  });
+
+  it('mutates each venue with translated text + flag + language', async () => {
+    const venues = [
+      makeVenue('p1', [italianReview]),
+      makeVenue('p2', [italianReview])
+    ];
+    // Inject a custom translateFn via the module's pickAndTranslateReview
+    // by mocking translateReview module to throw; we instead pass through
+    // the helper which constructs the call internally.
+    // Since enrichVenuesWithTranslatedReview doesn't accept a translateFn
+    // override, use the no-API-key branch: with no GEMINI_API_KEY and no
+    // _genAIFactory, translate-review.js falls back to the original
+    // text, so the recentReview becomes the (untranslated) original.
+    delete process.env.GEMINI_API_KEY;
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['italian'],
+      targetLang: 'en'
+    });
+    expect(venues[0].recentReview).toBe('Pasta fresca');
+    expect(venues[0].recentReviewTranslatedFlag).toBe('🇮🇹');
+    expect(venues[0].recentReviewLanguage).toBe('it');
+    expect(venues[0].recentReviewSourceLang).toBe('it');
+    expect(venues[1].recentReviewTranslatedFlag).toBe('🇮🇹');
+  });
+
+  it('skips venues without reviews', async () => {
+    const venues = [
+      { placeId: 'p1' },
+      { placeId: 'p2', reviews: [] },
+      { placeId: 'p3', reviews: [italianReview] }
+    ];
+    delete process.env.GEMINI_API_KEY;
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['italian'],
+      targetLang: 'en'
+    });
+    expect(venues[0].recentReview).toBeUndefined();
+    expect(venues[1].recentReview).toBeUndefined();
+    expect(venues[2].recentReview).toBe('Pasta fresca');
+  });
+
+  it('skips venues with no qualifying review (lang mismatch / rating too low)', async () => {
+    const venues = [
+      makeVenue('p1', [englishReview]),                        // wrong lang
+      makeVenue('p2', [{ rating: 3, text: { text: 'meh', languageCode: 'it' } }])  // too low
+    ];
+    delete process.env.GEMINI_API_KEY;
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['italian'],
+      targetLang: 'en'
+    });
+    expect(venues[0].recentReviewTranslatedFlag).toBeUndefined();
+    expect(venues[1].recentReviewTranslatedFlag).toBeUndefined();
+  });
+
+  it('respects capChars option', async () => {
+    const longText = 'A'.repeat(500);
+    const longReview = { rating: 5, text: { text: longText, languageCode: 'it' } };
+    const venues = [makeVenue('p1', [longReview])];
+    delete process.env.GEMINI_API_KEY;
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['italian'],
+      targetLang: 'en',
+      capChars: 50
+    });
+    expect(venues[0].recentReview.length).toBe(50);
+  });
+
+  it('per-venue failures do not abort the batch', async () => {
+    // Venue with malformed reviews shape — the picker should return null
+    // without throwing. Other venues still get processed.
+    const venues = [
+      { placeId: 'p1', reviews: 'not-an-array' },   // skipped via array guard
+      makeVenue('p2', [italianReview])
+    ];
+    delete process.env.GEMINI_API_KEY;
+    await enrichVenuesWithTranslatedReview({
+      venues,
+      cuisineSlugs: ['italian'],
+      targetLang: 'en'
+    });
+    expect(venues[0].recentReview).toBeUndefined();
+    expect(venues[1].recentReview).toBe('Pasta fresca');
   });
 });

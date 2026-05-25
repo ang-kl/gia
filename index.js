@@ -1266,6 +1266,25 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   try {
     const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType });
     if (venues.length) {
+      // v0.61.154 — translate-enrich for nationality cuisines so the
+      // chat /cuisine command matches the TMA + free-text behaviour.
+      // No-op when cuisineType isn't a nationality slug (no flag set
+      // → chat block omits the 💬 quote line per the v0.61.152 gate).
+      // Resolves lang from the per-chat Redis user-prefs (same source
+      // /api/cuisine/search uses), falling back to 'en'.
+      try {
+        const { resolveLang } = require('./user-prefs');
+        const tgtLang = await resolveLang(redis, chatId, null).catch(() => 'en') || 'en';
+        const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
+        await enrichVenuesWithTranslatedReview({
+          venues,
+          cuisineSlugs: [String(cuisineType || '').toLowerCase()].filter(Boolean),
+          targetLang: tgtLang,
+          redis
+        });
+      } catch (err) {
+        console.warn('[runCuisineFlow] translate-enrich failed:', err.message);
+      }
       await deliverPicks(chatId, meal.label, venues);
       return;
     }
@@ -7459,6 +7478,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }));
   }
 
+  // v0.61.154 — when the Michelin search is narrowed by a nationality
+  // cuisine (e.g. Michelin + Italian), translate-enrich the surfaced
+  // review so the TMA / chat card shows "💬 <EN/FR text> ( 🇮🇹 translated)".
+  // Same shared helper as /api/cuisine/search + runFreeTextSearch.
+  // Runs AFTER the v0.60.153 enrichment-cache WRITE on purpose: the
+  // cache stores the source (English) text so other sessions in
+  // different device languages don't get cross-locale pollution.
+  // Per-venue translation cost is bounded by the translate-review
+  // module's own Redis cache (30-day TTL, language-aware key).
+  // Runs BEFORE the v.reviews strip so the picker can still scan
+  // them. No-op when otherCuisineSlugs lacks a nationality slug.
+  try {
+    const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
+    await enrichVenuesWithTranslatedReview({
+      venues: filteredVenues,
+      cuisineSlugs: (otherCuisineSlugs || []).map((c) => String(c).toLowerCase()),
+      targetLang: csLang,
+      redis
+    });
+  } catch (err) {
+    console.warn('[Michelin] translate-enrich failed:', err.message);
+  }
+
   // Strip the heavy review payload before responding.
   for (const v of filteredVenues) { delete v.reviews; }
 
@@ -8382,42 +8424,20 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       } catch (err) {
         console.warn('[free-text] footfall enrichment failed:', err.message);
       }
-      // v0.61.152 — nationality-language preferred review + translation.
-      // When the R.E.D disambiguation classified the query as a
-      // nationality cuisine (italian / japanese / …), look up a
-      // high-rated review in that nationality's language and translate
-      // it into the user's device language. Same helper as the TMA
-      // /api/cuisine/search loop. Sets recentReview + the
-      // recentReviewTranslatedFlag on each venue; the chat render
-      // (formatVenueBlock) surfaces the `💬 "…" ( 🇮🇹 translated)` line.
+      // v0.61.152 / v0.61.154 — nationality-language preferred review
+      // + translation when the R.E.D disambiguation classified the
+      // query as a nationality cuisine. Uses the shared helper
+      // (same path as /api/cuisine/search + handleMichelinSearch).
       try {
-        const crl = require('./cuisine-review-language');
-        const nationalityLang = crl.getLanguageForCuisines([ftCuisine].filter(Boolean).map((c) => String(c).toLowerCase()));
-        const nationalityFlag = nationalityLang
-          ? crl.getFlagForCuisines([String(ftCuisine).toLowerCase()])
-          : null;
-        if (nationalityLang) {
-          await Promise.all(venues.map(async (v) => {
-            if (!Array.isArray(v.reviews) || !v.reviews.length) return;
-            try {
-              const picked = await crl.pickAndTranslateReview({
-                reviews: v.reviews,
-                nationalityLang,
-                targetLang: ftLang,
-                placeId: v.placeId || null,
-                redis: redis && redis.isOpen ? redis : null
-              });
-              if (picked && picked.text) {
-                v.recentReview = picked.text.slice(0, 200);
-                v.recentReviewTranslatedFlag = nationalityFlag;
-                v.recentReviewLanguage = nationalityLang;
-                v.recentReviewSourceLang = picked.sourceLang;
-              }
-            } catch { /* per-venue best-effort */ }
-          }));
-        }
+        const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
+        await enrichVenuesWithTranslatedReview({
+          venues,
+          cuisineSlugs: [ftCuisine].filter(Boolean).map((c) => String(c).toLowerCase()),
+          targetLang: ftLang,
+          redis
+        });
       } catch (err) {
-        console.warn('[free-text] nationality-review enrichment failed:', err.message);
+        console.warn('[free-text] translate-enrich failed:', err.message);
       }
       const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
       const headerDishEsc = escapeHtmlForTelegram(headerDish);
@@ -12021,10 +12041,6 @@ async function cacheBotUsername() {
         // TMA + chat layer can render "(  🇮🇹 translated)" suffix.
         // Falls back to extractDishes' English snippet when no
         // preferred review exists.
-        const { getLanguageForCuisines, getFlagForCuisines, pickAndTranslateReview } =
-          require('./cuisine-review-language');
-        const nationalityLang = getLanguageForCuisines(cuisines || []);
-        const nationalityFlag = nationalityLang ? getFlagForCuisines(cuisines || []) : null;
         for (const v of top) {
           if (Array.isArray(v.reviews) && v.reviews.length) {
             const { dishes, snippet } = extractDishes(v.reviews, v.name);
@@ -12033,35 +12049,22 @@ async function cacheBotUsername() {
             if (snippet) v.recentReview = snippet;
           }
         }
-        // v0.61.152 — translate the nationality-preferred review into
-        // the user's device language so the surfaced quote is literally
-        // a translation (not raw native text). v0.61.151 shipped the
-        // pick + tag but rendered the original Italian/Japanese text
-        // alongside a "translated" claim; this pass closes that gap.
-        // Parallel over `top` to keep the per-venue Gemini Flash call
-        // off the critical path (typical p95 < 800 ms, cached < 5 ms).
-        if (nationalityLang) {
-          await Promise.all(top.map(async (v) => {
-            if (!Array.isArray(v.reviews) || !v.reviews.length) return;
-            try {
-              const picked = await pickAndTranslateReview({
-                reviews: v.reviews,
-                nationalityLang,
-                targetLang: csLang,
-                placeId: v.placeId || null,
-                redis: redis && redis.isOpen ? redis : null
-              });
-              if (picked && picked.text) {
-                v.recentReview = picked.text.slice(0, 200);
-                v.recentReviewTranslatedFlag = nationalityFlag;
-                v.recentReviewLanguage = nationalityLang;
-                v.recentReviewSourceLang = picked.sourceLang;
-                if (!picked.translated) v.recentReviewTranslatedRaw = true;
-              }
-            } catch (err) {
-              console.warn('[Cuisine-Search] pickAndTranslateReview failed:', err.message);
-            }
-          }));
+        // v0.61.152 / v0.61.154 — translate the nationality-preferred
+        // review into the user's device language so the surfaced quote
+        // is literally a translation (not raw native text). The 30-line
+        // inline block from v0.61.152 is now the
+        // enrichVenuesWithTranslatedReview helper (shared with
+        // runFreeTextSearch, handleMichelinSearch, and runCuisineFlow).
+        try {
+          const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
+          await enrichVenuesWithTranslatedReview({
+            venues: top,
+            cuisineSlugs: cuisines || [],
+            targetLang: csLang,
+            redis
+          });
+        } catch (err) {
+          console.warn('[Cuisine-Search] translate-enrich failed:', err.message);
         }
         // Fall back to the Redis place-reviews cache for any venue
         // that didn't get reviews inline.
