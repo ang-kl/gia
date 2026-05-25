@@ -177,7 +177,7 @@ async function reverseGeocodeAddress(lat, lng) {
   if (!apiKey) return null;
   const gLat = lat.toFixed(4);
   const gLng = lng.toFixed(4);
-  const cacheKey = `revgeo:addr:${gLat}:${gLng}`;
+  const cacheKey = `revgeo:addr:v2:${gLat}:${gLng}`;
   try {
     if (redis.isOpen) {
       const cached = await redis.get(cacheKey);
@@ -195,6 +195,9 @@ async function reverseGeocodeAddress(lat, lng) {
     // showed the friendlier "Raffles City" — the mismatch confused
     // users. Also skip Google Plus-Code rows ("9R29+RW Singapore")
     // when no street name is available.
+    // v0.61.156 — cache key bumped to v2 so the new country +
+    // adminAreaLevel1 fields aren't masked by stale v0.61.139 entries
+    // that only carry { name, formatted }.
     const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
     const filteredUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&result_type=premise|point_of_interest|street_address|intersection|neighborhood|sublocality|locality&key=${apiKey}`;
     let { data } = await axios.get(filteredUrl, { timeout: 5000 });
@@ -225,7 +228,12 @@ async function reverseGeocodeAddress(lat, lng) {
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
     const formatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    const payload = { name, formatted };
+    // v0.61.156 — surface country + admin_area_level_1 so the
+    // location-mode classifier (rule §2.3) can map the fix into
+    // SG / JB / OTHER without a second geocode call.
+    const country = findComp('country') || null;
+    const adminAreaLevel1 = findComp('administrative_area_level_1') || null;
+    const payload = { name, formatted, country, adminAreaLevel1 };
     try {
       if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
     } catch { /* cache-write fail is non-fatal */ }
@@ -466,6 +474,41 @@ async function safeSend(chatId, text, opts = {}) {
     await bot.sendMessage(chatId, text, opts);
   } catch (err) {
     console.error(`[Error] sendMessage to ${chatId} failed:`, err.message);
+  }
+}
+
+// v0.61.156 — rule §2.5 feature gate. Returns `true` when the command
+// may proceed (locale unknown / SG); `false` after sending a friendly
+// "SG-only" reply (locale = JB / OTHER). Caller short-circuits on
+// false: `if (!(await isSgOnlyCommandAllowed(...))) return;`.
+//
+// `command` is a short label used in the reply ("weather", "hawker",
+// "recognised") and in the [Feature-Gate] log line.
+//
+// Defaults to ALLOW when:
+//   - no userlocale record yet (user hasn't shared location)
+//   - Redis read fails
+//   - locale.mode === 'SG'
+//
+// This preserves the v0.61.155 conservative-default principle: an
+// unclassified user gets the SG experience, not a degraded one.
+async function isSgOnlyCommandAllowed(chatId, command, lang) {
+  try {
+    const { getUserLocale } = require('./location-locale');
+    const locale = await getUserLocale(redis, chatId);
+    if (!locale || locale.mode === 'SG') return true;
+    const label = String(command || '').toLowerCase();
+    const place = (typeof locale.placeName === 'string' && locale.placeName) || locale.country || locale.mode;
+    const isFr = lang === 'fr';
+    const msg = isFr
+      ? `🇸🇬 La commande <code>/${label}</code> n'est disponible qu'à Singapour (dépend des données LTA / NEA / HPB). Votre lieu enregistré est <b>${place}</b>. Réenregistrez un lieu à Singapour pour réactiver cette commande.`
+      : `🇸🇬 The <code>/${label}</code> command is only available in Singapore (it pulls from LTA / NEA / HPB feeds). Your registered location is <b>${place}</b>. Re-register a Singapore location to re-enable.`;
+    await safeSend(chatId, msg, { parse_mode: 'HTML', disable_web_page_preview: true });
+    console.log(`[Feature-Gate] gated /${label} mode=${locale.mode} chat=${chatId}`);
+    return false;
+  } catch (err) {
+    console.warn(`[Feature-Gate] check failed for /${command}:`, err.message);
+    return true;
   }
 }
 
@@ -1319,6 +1362,9 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
+  // v0.61.156 — rule §2.5 feature gate. Weather pulls from NEA SG
+  // feeds; gate it when the registered locale is non-SG.
+  if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'weather', lang))) return;
   await runWeatherCommand(msg.chat.id, lang, (match && match[1]) ? match[1].trim() : null);
 });
 
@@ -1929,6 +1975,8 @@ async function refreshChatMenuButton(chatId) {
 bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
+  // v0.61.156 — rule §2.5 feature gate. Hawker centres are SG-only.
+  if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'hawker', lang))) return;
   await sendHawkerMenu(msg.chat.id, lang);
 });
 
@@ -1997,6 +2045,9 @@ bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
 bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
+  // v0.61.156 — rule §2.5 feature gate. /recognised reads the
+  // Michelin SG list; gate it when the registered locale is non-SG.
+  if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'recognised', lang))) return;
   await runRecognisedCommand(msg.chat.id, lang);
 });
 
@@ -2801,6 +2852,31 @@ bot.on('location', async (msg) => {
       }
       catch (err) {
         console.error(`[location] setUserLocation FAILED chatId=${msg.chat.id}:`, err.message);
+      }
+      // v0.61.156 — rules §2.2 + §2.3 + §2.4 + §2.6. Classify the
+      // fix, persist the resulting locale, and (when the locale
+      // hasn't changed) reuse silently per the no-nag rule. The
+      // classifyAndPersist call is best-effort: any failure logs
+      // and falls through to the legacy reverse-geocode reply.
+      try {
+        const { classifyAndPersist } = require('./location-classify');
+        const reverseGeocodeFn = async ({ lat: la, lng: lo }) => {
+          const r = await reverseGeocodeAddress(la, lo);
+          if (!r) return null;
+          return {
+            country: r.country || null,
+            adminAreaLevel1: r.adminAreaLevel1 || null,
+            placeName: r.name || null,
+            formatted: r.formatted || null
+          };
+        };
+        const result = await classifyAndPersist({
+          chatId: msg.chat.id,
+          lat, lng, redis, reverseGeocodeFn
+        });
+        console.log(`[location] classifyAndPersist mode=${result.mode} changed=${result.changed} gated=${result.gated} geocoded=${result.geocoded}`);
+      } catch (err) {
+        console.warn('[location] classifyAndPersist failed:', err.message);
       }
     } else {
       console.warn(`[location] coords missing/malformed chatId=${msg.chat.id} location=${JSON.stringify(msg.location)}`);

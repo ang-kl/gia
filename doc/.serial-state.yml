@@ -1,8 +1,8 @@
 counters:
-  commit: 368
-  build: 158
+  commit: 369
+  build: 159
   documents:
-    journal: 356
+    journal: 357
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,45 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-26
-  current_chat_counter: 1
-last_anchor_time: 26-05 '26 09:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_154 (PR #655 merged 25-05 '26 ~21:10 SGT; v0.61.155 PR 1/5 location-mode session 26-05 '26 09:00 SGT)
-last_anchor_iso8601: 2026-05-26T09:00:00+08:00
-last_anchor_utc: 2026-05-26T01:00:00Z
+  current_chat_counter: 2
+last_anchor_time: 26-05 '26 14:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_155 (PR #656 merged 26-05 '26 morning; v0.61.156 PR 2/5 location-locale+gate session 26-05 '26 14:30 SGT)
+last_anchor_iso8601: 2026-05-26T14:30:00+08:00
+last_anchor_utc: 2026-05-26T06:30:00Z
+# v0.61.156 (commit 369 / journal 357 / build 159) — PR 2 of 5 in
+# the 10-rule location-classification phased build. Ships rules
+# §2.4 (set_location with placeName persistence — never raw lat/long),
+# §2.5 (feature gate for non-SG via isFeatureAllowed + the
+# isSgOnlyCommandAllowed helper at the chat-command boundary), §2.6
+# (per-chatId silence-when-same-locale via isSameLocale).
+# Branch claude/v0.61.156-set-location-feature-gate off main at
+# v0.61.155 / d44fdd7.
+# Files (8):
+# - NEW location-locale.js (~110 lines): Redis-backed userlocale
+#   record persistence + isSameLocale predicate (rule §2.6).
+# - NEW location-classify.js (~75 lines): classifyAndPersist
+#   orchestrator that wires the v0.61.155 classifier to the
+#   v0.61.156 persistence + applies the no-nag check.
+# - location-mode.js: + FEATURE_KIND constants, ALWAYS_ALLOWED +
+#   SG_ONLY sets, isFeatureAllowed(mode, feature).
+# - __tests__/location-locale.test.js (NEW, 18 tests).
+# - __tests__/location-classify.test.js (NEW, 9 tests).
+# - __tests__/location-mode.test.js: +5 tests for isFeatureAllowed.
+# - index.js wiring (5 edits):
+#   * reverseGeocodeAddress now also surfaces country +
+#     adminAreaLevel1 (cache key bumped revgeo:addr -> revgeo:addr:v2).
+#   * bot.on('location') calls classifyAndPersist after
+#     setUserLocation succeeds (best-effort, logs on failure).
+#   * new isSgOnlyCommandAllowed helper next to safeSend (sends a
+#     bilingual "SG-only" reply when the registered locale is
+#     non-SG).
+#   * /weather, /hawker, /recognised handlers each call the helper
+#     and short-circuit when gate trips.
+# - package.json: 0.61.155 -> 0.61.156.
+# - doc/.serial-state.yml: commit 368->369, build 158->159,
+#   journal 356->357; re-anchored 26-05 '26 14:30 SGT.
+# - doc/Journal/journal-0_61_156-26_05_26-1430.md: this entry.
+#
 # v0.61.155 (commit 368 / journal 356 / build 158) — PR 1 of 5 in
 # the 10-rule location-classification phased build. Pure module +
 # unit tests, NO integration yet (PR 2 wires it into set_location).

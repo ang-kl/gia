@@ -12,10 +12,13 @@ const require = createRequire(import.meta.url);
 const {
   SG_CENTROID,
   COARSE_GATE_M,
+  FEATURE_KIND,
+  ALWAYS_ALLOWED,
   haversineMeters,
   coarseGate,
   classifyByCountry,
-  classifyLocation
+  classifyLocation,
+  isFeatureAllowed
 } = require('../location-mode');
 
 // Well-known anchors used across the cases. Coordinates are the
@@ -200,5 +203,48 @@ describe('classifyLocation (orchestrator)', () => {
     expect(out.mode).toBe('OTHER');
     expect(out.gated).toBe(true);
     expect(calls).toBe(0);
+  });
+});
+
+describe('isFeatureAllowed (rule §2.5 feature gate)', () => {
+  it('exposes a stable FEATURE_KIND map', () => {
+    expect(FEATURE_KIND.HAWKER).toBe('hawker');
+    expect(FEATURE_KIND.WEATHER).toBe('weather');
+    expect(FEATURE_KIND.RECOGNISED).toBe('recognised');
+    expect(FEATURE_KIND.CARPARK).toBe('carpark');
+    expect(FEATURE_KIND.CUISINE_SEARCH).toBe('cuisine-search');
+  });
+
+  it('cuisine / freetext / Michelin / carpark / drive / location are always allowed', () => {
+    for (const f of ALWAYS_ALLOWED) {
+      expect(isFeatureAllowed('SG', f)).toBe(true);
+      expect(isFeatureAllowed('JB', f)).toBe(true);
+      expect(isFeatureAllowed('OTHER', f)).toBe(true);
+    }
+  });
+
+  it('SG-only features run for SG, not for JB / OTHER', () => {
+    const sgOnly = [
+      FEATURE_KIND.HAWKER, FEATURE_KIND.WEATHER, FEATURE_KIND.RECOGNISED,
+      FEATURE_KIND.TRANSPORT_TRAIN, FEATURE_KIND.TRANSPORT_BUS, FEATURE_KIND.TRANSPORT_TAXI,
+      FEATURE_KIND.TMA_BUSSTOP, FEATURE_KIND.TMA_TAXISTAND, FEATURE_KIND.TMA_TRAINLINE,
+      FEATURE_KIND.TMA_PARKS, FEATURE_KIND.TMA_ATTRACTIONS
+    ];
+    for (const f of sgOnly) {
+      expect(isFeatureAllowed('SG', f)).toBe(true);
+      expect(isFeatureAllowed('JB', f)).toBe(false);
+      expect(isFeatureAllowed('OTHER', f)).toBe(false);
+    }
+  });
+
+  it('unknown feature → false (defensive deny)', () => {
+    expect(isFeatureAllowed('SG', 'unknown-feature')).toBe(false);
+    expect(isFeatureAllowed('SG', null)).toBe(false);
+    expect(isFeatureAllowed('SG', 42)).toBe(false);
+  });
+
+  it('unknown mode treats SG-only as not allowed (defensive)', () => {
+    expect(isFeatureAllowed('XX', FEATURE_KIND.HAWKER)).toBe(false);
+    expect(isFeatureAllowed(null, FEATURE_KIND.HAWKER)).toBe(false);
   });
 });
