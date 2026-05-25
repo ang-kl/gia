@@ -1003,7 +1003,7 @@ async function runFlow(chatId, lat, lng, category) {
   // when the user impatiently re-taps /eat or types again before the
   // previous run completes.
   if (await isProcessing(redis, chatId)) {
-    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
   await setProcessing(redis, chatId);
@@ -1081,7 +1081,7 @@ async function startSanctuaryFlow(chatId, category, prompt) {
   await setPendingMeal(redis, chatId, category);
   await bot.sendMessage(
     chatId,
-    `Please tap to share your location, or type a place name and Gia will search within 200 m of it.`,
+    `Please tap to share your location, or type a place name and Soleat will search within 200 m of it.`,
     LOCATION_REQUEST_KEYBOARD
   );
 }
@@ -1259,7 +1259,7 @@ async function tokenizeCuisineArgs(raw) {
 
 async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   if (await isProcessing(redis, chatId)) {
-    await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+    await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
   await setProcessing(redis, chatId);
@@ -2560,7 +2560,7 @@ bot.on('callback_query', async (q) => {
         chatId,
         '👋 *Send your buddy this link:*\n\n' +
         '[' + link + '](' + link + ')\n\n' +
-        '_When they tap it, Gia will send them this exact pick. Link works for 7 days._',
+        '_When they tap it, Soleat will send them this exact pick. Link works for 7 days._',
         { parse_mode: 'Markdown', disable_web_page_preview: true }
       );
       return;
@@ -2849,7 +2849,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
         await safeSend(msg.chat.id, "👋 Sorry, that share link has expired or never existed.");
         return;
       }
-      await safeSend(msg.chat.id, "👋 A friend shared a sanctuary pick with you via Gia:");
+      await safeSend(msg.chat.id, "👋 A friend shared a sanctuary pick with you via Soleat:");
       if (payload.kind === 'pick' && payload.pick) {
         await deliverPicks(msg.chat.id, payload.mealLabel || 'shared', [payload.pick]);
       } else if (payload.kind === 'surprise' && payload.surprise) {
@@ -8005,7 +8005,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
   const ftDishLabel = (typeof opts.dishLabel === 'string' && opts.dishLabel.trim()) ? opts.dishLabel.trim() : null;
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     const { t: trBot, tn: trnBot } = require('./i18n');
@@ -8219,7 +8219,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
   const lang = (typeof opts.lang === 'string' && ['en','fr'].includes(opts.lang)) ? opts.lang : 'en';
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -8364,7 +8364,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
 async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -8470,7 +8470,7 @@ async function runNLFlow(chatId, lat, lng, { cuisines = [], specialRequest = '',
   const verbose = require('./verbose-log');
   try {
     if (await isProcessing(redis, chatId)) {
-      await safeSend(chatId, '⏳ Gia is still working on your last request — hold on a moment.');
+      await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
     await setProcessing(redis, chatId);
@@ -12070,7 +12070,7 @@ async function cacheBotUsername() {
             if (count > 60) {
               return res.status(429).json({
                 error: 'rate limited',
-                detail: 'Too many Tell Gia calls this hour. Try again next hour.'
+                detail: 'Too many Tell Soleat calls this hour. Try again next hour.'
               });
             }
           }
