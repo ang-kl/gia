@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 
 // v0.58.1: below-map filter strip. Primary row keeps the highest-
@@ -36,22 +36,40 @@ function Chip({ active, onClick, children, ariaLabel }) {
   );
 }
 
-// v0.61.126 — `specialModeActive` (boolean) prop. When a Fruits or
-// Durian exclusive mode is on, the entire QuickFilters row is greyed
-// + click-disabled per scripts/Create_2_buttons.MD — taps on toggles
-// would otherwise feed conflicting modifiers into the server-side
-// special-mode override. The grey-out is purely client-side; server
-// also ignores filters when specialMode is set.
+// v0.61.126 — `specialModeActive` (boolean) prop. When a special mode
+// (Fruits / Durian / Durian Pastry) is on, the original behaviour
+// blanket-greyed the entire QuickFilters row.
+// v0.61.149 — operator refinement: $ / 🆕 New / 🟢 Open / 🥗 Veg /
+// 🏠 Home / 🐾 Pet remain togglable in special mode. ONLY 🕌 Halal
+// is forced off + click-blocked (durians + fruits are mostly NOT
+// halal-certified in SG; the operator wants the chip auto-off so
+// users don't see an empty result list from a no-op intersection).
+// The auto-off useEffect below also clears any pre-existing
+// filters.halal when special mode activates so the request body
+// doesn't carry a stale modifier.
 export default function QuickFilters({ filters, onChange, specialModeActive = false }) {
   const [lang] = useLocale();
   const [moreOpen, setFiltersOpen] = useState(false);
 
+  // v0.61.149 — auto-clear halal when special mode flips on. Runs once
+  // per specialModeActive transition; the !filters.halal short-circuit
+  // skips the call when there's nothing to clear.
+  useEffect(() => {
+    if (specialModeActive && filters && filters.halal) {
+      onChange({ ...filters, halal: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [specialModeActive]);
+
   function toggle(key) {
-    if (specialModeActive) return;
+    // v0.61.149 — only halal is locked in special mode; other toggles
+    // (newlyOpened / petFriendly / openNow / vegetarian / homeBased)
+    // still work so users can refine their special-mode search.
+    if (specialModeActive && key === 'halal') return;
     onChange({ ...filters, [key]: !filters[key] });
   }
   function togglePrice(p) {
-    if (specialModeActive) return;
+    // Price chips ($ / $$ / $$$) remain togglable in special mode.
     const has = (filters.prices || []).includes(p);
     onChange({ ...filters, prices: has ? filters.prices.filter((x) => x !== p) : [...(filters.prices || []), p] });
   }
@@ -72,16 +90,23 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
 
   return (
     <div
-      className={`flex flex-col gap-1.5 px-0.5${specialModeActive ? ' opacity-40 pointer-events-none' : ''}`}
-      aria-disabled={specialModeActive || undefined}
+      className="flex flex-col gap-1.5 px-0.5"
     >
       <div className="flex flex-wrap gap-1 items-center">
-        {PRIMARY.map((f) => (
-          <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
-            ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-            <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
-          </Chip>
-        ))}
+        {PRIMARY.map((f) => {
+          // v0.61.149 — only halal gets the special-mode grey-out;
+          // every other chip stays full-opacity + togglable.
+          const chipDisabled = specialModeActive && f.key === 'halal';
+          return (
+            <span key={f.key} className={chipDisabled ? 'opacity-40 pointer-events-none' : ''}
+              aria-disabled={chipDisabled || undefined}>
+              <Chip active={!!filters[f.key]} onClick={() => toggle(f.key)}
+                ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}${chipDisabled ? ' — disabled in special mode' : ''}`}>
+                <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
+              </Chip>
+            </span>
+          );
+        })}
         <Chip active={moreOpen} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
           <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
