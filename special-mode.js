@@ -102,23 +102,36 @@ const KEYWORDS = {
     // Latin / English — fruit sellers + raw product
     'durian', 'durians', 'durian seller', 'durian stall', 'durian shop',
     'durian specialist', 'durian delivery', 'durian puree',
-    // Specific varieties (signal fruit-only buyers)
+    // v0.61.149 — explicit variety alias coverage per operator request
+    // ("dig into Google Maps reviews for Mao Shan Wang, D24, Golden
+    // Phoenix, Red Prawn, Black Thorn"). Jin Feng (金凤) is the Chinese
+    // name for Golden Phoenix; both English aliases now match so a
+    // reviewer who writes either form surfaces the venue.
     'mao shan wang', 'msw', 'd24', 'red prawn', 'black thorn',
-    'xo durian', 'jin feng', 'sultan', 'kampung',
+    'xo durian', 'jin feng', 'golden phoenix', 'sultan', 'kampung',
     // Chinese — fruit
-    '榴莲', '榴梿', '猫山王', '红虾'
+    '榴莲', '榴梿', '猫山王', '红虾', '金凤'
   ],
   // v0.61.141 — durian-pastry signal terms. Pastry / bakery / dessert
   // markers that the operator wants surfaced as a separate chip from
-  // the fruit-only DURIAN mode. Excludes raw fruit variety names
-  // (those belong to DURIAN).
+  // the fruit-only DURIAN mode.
+  // v0.61.149 — added variety aliases (Mao Shan Wang / D24 / Golden
+  // Phoenix / Red Prawn / Black Thorn) so reviews praising a specific
+  // variety in a pastry context surface the bakery. A pastry-named
+  // venue ("XX Durian Puff") still needs its pastry keyword to match;
+  // varieties are additive signal, not the primary qualifier.
   [SPECIAL_MODES.DURIAN_PASTRY]: [
     // Latin / English — pastry-specific
     'durian puff', 'durian puffs', 'durian pastry', 'durian pastries',
     'durian mochi', 'durian pancake', 'durian crepe', 'durian crepes',
     'durian cake', 'durian tart', 'durian roll', 'durian cream puff',
-    // Chinese — pastry / cake variants
-    '榴莲泡芙', '榴莲蛋糕', '榴莲麻糬', '榴莲班戟'
+    // Variety aliases (review-signal — surfaces pastries that pair the
+    // pastry word with a specific variety like "Mao Shan Wang puff")
+    'mao shan wang', 'msw', 'd24', 'red prawn', 'black thorn',
+    'golden phoenix', 'jin feng',
+    // Chinese — pastry / cake variants + variety
+    '榴莲泡芙', '榴莲蛋糕', '榴莲麻糬', '榴莲班戟',
+    '猫山王', '金凤', '红虾'
   ]
 };
 

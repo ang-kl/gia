@@ -1,8 +1,8 @@
 counters:
-  commit: 361
-  build: 151
+  commit: 362
+  build: 152
   documents:
-    journal: 349
+    journal: 350
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,42 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 59
-last_anchor_time: 25-05 '26 14:00 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T13:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.148 doc-master-refresh session)
-last_anchor_iso8601: 2026-05-25T14:00:00+08:00
-last_anchor_utc: 2026-05-25T06:00:00Z
+  current_chat_counter: 60
+last_anchor_time: 25-05 '26 14:15 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T14:10:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.149 durian-variety + halal-auto-off session)
+last_anchor_iso8601: 2026-05-25T14:15:00+08:00
+last_anchor_utc: 2026-05-25T06:15:00Z
+# v0.61.149 (commit 362 / journal 350 / build 152) — Cuisine TMA:
+# durian variety alias coverage + halal auto-off in special mode.
+# PR #650 (branch claude/v0.61.149-durian-variety-halal-off, off
+# main at v0.61.148 / e8bb417). Operator: "if I select 'Durian',
+# dig into the google mapsearch review that mentions about similar
+# durian fruits and varieties type like Mao Shan Wang, D24, Golden
+# Phoenix, Red Prawn, Black Thorn ... only halal is turn off — for
+# durian fruits and durian pastry selection."
+# Two changes (PR 1 of 2 — the cuisine-nationality review-language
+# tagging asks lands in a follow-up PR):
+# 1. special-mode.js KEYWORDS — Golden Phoenix added explicitly to
+#    DURIAN (was implicit via Jin Feng, the Chinese name; English
+#    speakers who'd type Golden Phoenix in a review now match).
+#    DURIAN_PASTRY KEYWORDS gain the full variety set (Mao Shan Wang
+#    + MSW + D24 + Red Prawn + Black Thorn + Golden Phoenix + Jin
+#    Feng + Chinese 猫山王/金凤/红虾) so reviews praising a specific
+#    variety in a pastry context surface the bakery. Pastry-specific
+#    keywords (puff/cake/mochi/etc.) are still the primary qualifier;
+#    varieties are additive signal.
+# 2. web/cuisine/src/v2/components/QuickFilters.jsx — v0.61.126 blanket
+#    grey-out of the whole filter row when specialMode is active is
+#    retired. Replaced with per-chip gating: ONLY 🕌 Halal is
+#    disabled (opacity-40 + pointer-events-none on the chip
+#    wrapper). New useEffect auto-clears filters.halal when
+#    specialModeActive flips on, so a stale 'halal: true' doesn't
+#    silently carry into the special-mode search. 🆕 New / 🐾 Pet /
+#    🟢 Open now / 🥗 Veg / 🏠 Home / $/$$/$$$ prices all stay
+#    togglable per operator spec.
+# All 65 special-mode tests pass via npx vitest run.
+# package.json 0.61.148 -> 0.61.149. plumbing-committed per O-22.
+# journal-0_61_149-25_05_26-1415.md.
 # v0.61.148 (commit 361 / journal 349 / build 151 / technical 50
 # / register 123) — Docs: fresh master pass for Register +
 # Technical (operator: "viberecord, journal" -> "Doc master
