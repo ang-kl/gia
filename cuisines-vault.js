@@ -106,7 +106,16 @@ const FLAG_BY_SLUG = {
   'argentinian': '🇦🇷',
   'american': '🇺🇸', 'mexican': '🇲🇽', 'brazilian': '🇧🇷',
   // African — v0.59.34 collapsed the individual cuisines into 'African'.
-  'african': '🌍', 'south-african': '🇿🇦'
+  'african': '🌍', 'south-african': '🇿🇦',
+  // v0.61.145 — operator-chosen glyphs for the v0.61.141 "Dessert,
+  // Fruits" group. Dessert was previously falling back to the default
+  // 🍽️; durian uses the v0.61.142 PNG icon but keeps 🥥 as the
+  // emoji on-error fallback (matches the v0.61.126 amber-pill
+  // placeholder).
+  'dessert':       '🍨',
+  'fruits':        '🍉',
+  'durian':        '🥥',
+  'durian-pastry': '🥮'
 };
 
 // v0.61.142 — per-slug image asset overrides. When a slug has an

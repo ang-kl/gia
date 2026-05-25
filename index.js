@@ -11597,6 +11597,31 @@ async function cacheBotUsername() {
           } catch (err) {
             console.warn(`[Cuisine-Search] specialMode widening failed (non-fatal): ${err.message}`);
           }
+          // v0.61.145 — operator-flagged regression: durian search
+          // result list was showing the same chain (e.g. "Golden
+          // Moments") multiple times. Root cause: Places returns
+          // separate placeIds per OUTLET of a multi-location chain, so
+          // the placeId-based dedup upstream lets all outlets through.
+          // For special-mode searches (Fruits / Durian / Durian
+          // Pastry) the operator wants ONE card per chain-name.
+          // Normal cuisine searches keep their existing behaviour
+          // (showing multiple outlets is useful for chains like Tim
+          // Ho Wan or Toast Box). Dedup key: lowercased + trimmed
+          // `name`; the first occurrence (closest by walking time
+          // after the round-robin merge) wins. Empty/missing names
+          // pass through.
+          const beforeNameDedup = venues.length;
+          const nameSeen = new Set();
+          venues = venues.filter((v) => {
+            const key = String(v?.name || '').toLowerCase().trim();
+            if (!key) return true;
+            if (nameSeen.has(key)) return false;
+            nameSeen.add(key);
+            return true;
+          });
+          if (venues.length !== beforeNameDedup) {
+            console.log(`[Cuisine-Search] D782 specialMode=${specialMode} name-dedup ${beforeNameDedup} → ${venues.length}`);
+          }
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places

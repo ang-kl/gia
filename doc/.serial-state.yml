@@ -1,8 +1,8 @@
 counters:
-  commit: 357
-  build: 147
+  commit: 358
+  build: 148
   documents:
-    journal: 345
+    journal: 346
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,41 @@ counters:
     register: 122
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 55
-last_anchor_time: 25-05 '26 11:40 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T11:30:00+08:00 (used per Rule TF-9 / Singapore sovereign source — same fetch as v0.61.143, rounded forward 5 min to commit-time)
-last_anchor_iso8601: 2026-05-25T11:40:00+08:00
-last_anchor_utc: 2026-05-25T03:40:00Z
+  current_chat_counter: 56
+last_anchor_time: 25-05 '26 11:45 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T11:40:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.145 name-dedup + emoji session)
+last_anchor_iso8601: 2026-05-25T11:45:00+08:00
+last_anchor_utc: 2026-05-25T03:45:00Z
+# v0.61.145 (commit 358 / journal 346 / build 148) — Cuisine TMA:
+# special-mode name-dedup + group-card emojis (operator screenshot
+# of duplicate Golden Moments durian cards + emoji-change spec).
+# PR #646 (branch claude/v0.61.145-name-dedup-emojis, off main at
+# v0.61.144 / 4ef5e1b). Operator: "result of durians are repetitive,
+# see picture" + spec to set dessert=🍨, fruits=🍉, durian-pastry=🥮.
+# Two changes:
+# 1. index.js /api/cuisine/search: after the v0.61.129 widening loop
+#    completes (special-mode branch), apply a name-dedup pass. Key
+#    = name.toLowerCase().trim(). First occurrence wins (closest by
+#    walking time given the round-robin merge order). Empty/missing
+#    names pass through. Only fires for special modes (Fruits /
+#    Durian / Durian Pastry). Normal cuisine searches keep showing
+#    multiple outlets of a chain (intentional - useful for Tim Ho
+#    Wan / Toast Box style chains). Logs D782 when dupes were dropped.
+# 2. cuisines-vault.js FLAG_BY_SLUG: 4 new entries. dessert=🍨,
+#    fruits=🍉, durian=🥥 (used as on-error fallback for the v0.61.142
+#    PNG), durian-pastry=🥮. Previously dessert + fruits + durian-
+#    pastry were falling back to the default 🍽️ plate emoji.
+# Files: index.js (+30 lines net inline dedup block), cuisines-
+# vault.js (+10 lines, 4 new FLAG_BY_SLUG entries + comment). No
+# tests added - the dedup is a small inline Set-based filter,
+# behaviour-obvious; the emoji change is a data-only delta.
+# package.json 0.61.144 -> 0.61.145. plumbing-committed per O-22.
+# journal-0_61_145-25_05_26-1145.md. KNOWN GAP: name-dedup is
+# applied AFTER the v0.61.129 widening (so widening sees the full
+# pool incl. duplicates); if widening adds new outlets of a chain
+# already in the initial pool, the post-widening dedup catches
+# them. Better: apply per-pass dedup inside widenSpecialMode. Easy
+# follow-up if needed.
 # v0.61.144 (commit 357 / journal 345 / build 147 / register 122) —
 # Docs: Register increment logging D-61.140 (wake 2-step) + D-61.141
 # (special-mode chips + mutex) + D-61.142 (per-slug imgFlag override).
