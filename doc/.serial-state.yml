@@ -1,21 +1,53 @@
 counters:
-  commit: 360
-  build: 150
+  commit: 361
+  build: 151
   documents:
-    journal: 348
+    journal: 349
     builder: 3
     persona: 4
     feature: 48
-    technical: 49
+    technical: 50
     legal: 9
-    register: 122
+    register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 58
-last_anchor_time: 25-05 '26 12:15 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T12:10:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.147 ledger-catchup session)
-last_anchor_iso8601: 2026-05-25T12:15:00+08:00
-last_anchor_utc: 2026-05-25T04:15:00Z
+  current_chat_counter: 59
+last_anchor_time: 25-05 '26 14:00 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T13:55:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.148 doc-master-refresh session)
+last_anchor_iso8601: 2026-05-25T14:00:00+08:00
+last_anchor_utc: 2026-05-25T06:00:00Z
+# v0.61.148 (commit 361 / journal 349 / build 151 / technical 50
+# / register 123) — Docs: fresh master pass for Register +
+# Technical (operator: "viberecord, journal" -> "Doc master
+# refresh" dropdown choice). PR #649 (branch claude/v0.61.148-
+# doc-master-refresh, off main at v0.61.147 / accc837).
+# New doc/Register/register-0_61_147-25_05_26-1225.md — fresh
+# non-incremental master consolidating v0.61.83 + v0.61.124 /
+# .127 / .132 / .136 / .137 / .144 increments + the v0.61.84 -
+# v0.61.147 arc. Open items O-1 through O-11 + O-21 + O-22.
+# Retracted: O-24. Decisions D-61.120 through D-61.146 enumerated.
+# Completed arcs C-AV through C-BF.
+# New doc/Technical/technical-0_61_147-25_05_26-1225.md — fresh
+# master consolidating v0.61.83 + v0.61.135 + the v0.61.84-147
+# module additions (10 new modules incl. precincts.js, place-
+# detector.js, special-mode.js, places-address-parser.js,
+# cuisine-tellme-anchor.js, cuisine-special-mode-widen.js,
+# cuisine-selection.js, plus major in-place rewrites). §3 budgets
+# updated for the new Redis TTLs (wake-pending, wake-offer) and
+# special-mode per-tap Places calls. §4.5-§4.8 carry forward
+# the v0.61.135 O-21+O-22 codification. §5 diagnostic codes
+# index extended (D782 special-mode name-dedup). §6 test
+# surface adds the 5 new test files (+131 tests since v0.61.83).
+# Journal session-summary entry for today's 20-PR arc lives in
+# this PR's journal entry. VibeCodingRecord current (PR #648
+# closed the catch-up cycle).
+# FEATURE master DEFERRED — the heaviest doc; needs a dedicated
+# session. Logged as "still due" in the journal KNOWN GAPS.
+# package.json 0.61.147 -> 0.61.148. Counters: commit 360->361,
+# build 150->151, journal 348->349, technical 49->50, register
+# 122->123. Re-anchored 25-05 '26 14:00 SGT.
+# plumbing-committed per O-22.
+# journal-0_61_148-25_05_26-1400.md.
 # v0.61.147 (commit 360 / journal 348 / build 150) — Docs:
 # VibeCodingRecord ledger catch-up #644-#647. PR #648 (branch
 # claude/v0.61.147-vibe-ledger-catchup-644-647, off main at
