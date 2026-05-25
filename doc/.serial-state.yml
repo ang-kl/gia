@@ -1,8 +1,8 @@
 counters:
-  commit: 358
-  build: 148
+  commit: 359
+  build: 149
   documents:
-    journal: 346
+    journal: 347
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,32 @@ counters:
     register: 122
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 56
-last_anchor_time: 25-05 '26 11:45 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T11:40:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.145 name-dedup + emoji session)
-last_anchor_iso8601: 2026-05-25T11:45:00+08:00
-last_anchor_utc: 2026-05-25T03:45:00Z
+  current_chat_counter: 57
+last_anchor_time: 25-05 '26 12:05 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T12:00:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.146 durian-jpeg session)
+last_anchor_iso8601: 2026-05-25T12:05:00+08:00
+last_anchor_utc: 2026-05-25T04:05:00Z
+# v0.61.146 (commit 359 / journal 347 / build 149) — Cuisine TMA:
+# durian chip swaps the v0.61.142 PNG for an operator-supplied
+# JPEG. PR #647 (branch claude/v0.61.146-durian-jpeg, off main at
+# v0.61.145 / f55e7b8 + a follow-up data/ upload). Operator:
+# "durian emoji must use the following image and no other" with
+# a link to data/IMG_2180.jpeg (19,441 bytes, 204x192 JPEG,
+# blob 8654d6f...).
+# - NEW web/cuisine/public/durian.jpeg (blob reused from
+#   data/IMG_2180.jpeg).
+# - REMOVED web/cuisine/public/durian.png (the v0.61.142 PNG;
+#   blob 9c3b29c... preserved in git history at 427924c +
+#   a371b80 + subsequent commits).
+# - REMOVED data/IMG_2180.jpeg (the raw upload; blob preserved
+#   in git history at fc8822d).
+# - cuisines-vault.js IMG_FLAG_BY_SLUG['durian']: 'durian.png'
+#   -> 'durian.jpeg'. FLAG_BY_SLUG['durian'] = '🥥' carries
+#   forward as the on-error emoji fallback (operator's "no
+#   other [image]" rule honoured by pinning the IMG_FLAG; the
+#   emoji is a safety net, not an alternate image).
+# package.json 0.61.145 -> 0.61.146. plumbing-committed per O-22.
+# journal-0_61_146-25_05_26-1205.md.
 # v0.61.145 (commit 358 / journal 346 / build 148) — Cuisine TMA:
 # special-mode name-dedup + group-card emojis (operator screenshot
 # of duplicate Golden Moments durian cards + emoji-change spec).
