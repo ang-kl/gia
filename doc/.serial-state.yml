@@ -1,8 +1,8 @@
 counters:
-  commit: 367
-  build: 157
+  commit: 368
+  build: 158
   documents:
-    journal: 355
+    journal: 356
     builder: 3
     persona: 4
     feature: 48
@@ -10,12 +10,32 @@ counters:
     legal: 9
     register: 123
 sessions:
-  current_chat_id: 2026-05-16
-  current_chat_counter: 65
-last_anchor_time: 25-05 '26 20:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_153 (PR #654 merged 25-05 '26 ~19:25 SGT; v0.61.154 translate-enrich extension session at 20:30 SGT)
-last_anchor_iso8601: 2026-05-25T20:30:00+08:00
-last_anchor_utc: 2026-05-25T12:30:00Z
+  current_chat_id: 2026-05-26
+  current_chat_counter: 1
+last_anchor_time: 26-05 '26 09:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_154 (PR #655 merged 25-05 '26 ~21:10 SGT; v0.61.155 PR 1/5 location-mode session 26-05 '26 09:00 SGT)
+last_anchor_iso8601: 2026-05-26T09:00:00+08:00
+last_anchor_utc: 2026-05-26T01:00:00Z
+# v0.61.155 (commit 368 / journal 356 / build 158) — PR 1 of 5 in
+# the 10-rule location-classification phased build. Pure module +
+# unit tests, NO integration yet (PR 2 wires it into set_location).
+# Operator (after a discussion that traded the temporary Putrajaya
+# button for a foundational system): "1, 2, 3 ..." 10-rule spec +
+# "(b) Spec is the FOUNDATION — build the system, and the Putrajaya
+# button is a UI surface ON TOP of it" + "Auto build & Test, merge
+# (manually)". Branch claude/v0.61.155-location-mode-classifier off
+# main at v0.61.154 / 9991499.
+# Files (4):
+# - NEW location-mode.js (~150 lines): SG_CENTROID, COARSE_GATE_M
+#   = 120 km (rule §2.2), haversineMeters, coarseGate, pure
+#   classifyByCountry (rule §2.3 mapping) + classifyLocation
+#   orchestrator with injectable reverseGeocodeFn.
+# - NEW __tests__/location-mode.test.js (~190 lines, 30+ tests).
+# - package.json: 0.61.154 -> 0.61.155.
+# - doc/.serial-state.yml: commit 367->368, build 157->158,
+#   journal 355->356; re-anchored 26-05 '26 09:00 SGT.
+# - doc/Journal/journal-0_61_155-26_05_26-0900.md: this entry.
+#
 # v0.61.154 (commit 367 / journal 355 / build 157) — extend translate
 # enrichment to Michelin path + chat /cuisine command; factor the
 # v0.61.152 inline blocks into a shared helper. Operator (continuing
