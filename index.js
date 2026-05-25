@@ -2317,6 +2317,50 @@ bot.on('callback_query', async (q) => {
     const { t, tn } = require('./i18n');
     const cbLang = await resolveLang(redis, chatId, q);
 
+    // v0.61.157 — rule §2.7 drift prompt callback. `drift:accept`
+    // applies the pending candidate as the new userlocale (and
+    // clears the suppress set so future re-prompts are open).
+    // `drift:decline` adds the candidate matchKey to the suppress
+    // set so subsequent fixes in the same destination stay silent
+    // for 24 h.
+    if (data === 'drift:accept' || data === 'drift:decline') {
+      try {
+        const pendingRaw = await redis.get(`drift-pending:${chatId}`).catch(() => null);
+        await redis.del(`drift-pending:${chatId}`).catch(() => {});
+        if (!pendingRaw) {
+          await safeSend(chatId, cbLang === 'fr'
+            ? '⌛ Cette invite est expirée. Réessayez en partageant à nouveau votre position.'
+            : '⌛ That prompt has expired. Share your location again to retry.');
+          return;
+        }
+        const candidate = JSON.parse(pendingRaw);
+        const isFr = cbLang === 'fr';
+        const placeLabel = candidate.placeName || candidate.country || candidate.mode || '—';
+        if (data === 'drift:accept') {
+          const { setUserLocale, clearDriftSuppress } = require('./location-locale');
+          await setUserLocale(redis, chatId, candidate);
+          await clearDriftSuppress(redis, chatId);
+          await safeSend(chatId, isFr
+            ? `✅ Lieu mis à jour vers <b>${escapeHtmlForTelegram(placeLabel)}</b>.`
+            : `✅ Location updated to <b>${escapeHtmlForTelegram(placeLabel)}</b>.`,
+            { parse_mode: 'HTML' });
+          console.log(`[Drift] accepted mode=${candidate.mode} matchKey=${candidate.boundary?.matchKey} chat=${chatId}`);
+        } else {
+          const { addDriftSuppress } = require('./location-locale');
+          const { deriveMatchKey } = require('./location-boundary');
+          const matchKey = deriveMatchKey({ mode: candidate.mode, adminAreaLevel1: candidate.adminAreaLevel1 });
+          await addDriftSuppress(redis, chatId, matchKey);
+          await safeSend(chatId, isFr
+            ? '🚫 Lieu enregistré conservé. Aucune nouvelle invite pendant 24 h pour cette destination.'
+            : '🚫 Kept your registered location. No further prompt for this destination in the next 24 h.');
+          console.log(`[Drift] declined matchKey=${matchKey} chat=${chatId}`);
+        }
+      } catch (err) {
+        console.warn('[Drift] callback failed:', err.message);
+      }
+      return;
+    }
+
     // v0.61.25 — /v builder-menu buttons. Owner-gated: the menu is only
     // ever sent to the owner, but re-check in case a callback is replayed.
     if (data.startsWith('v:')) {
@@ -2855,9 +2899,11 @@ bot.on('location', async (msg) => {
       }
       // v0.61.156 — rules §2.2 + §2.3 + §2.4 + §2.6. Classify the
       // fix, persist the resulting locale, and (when the locale
-      // hasn't changed) reuse silently per the no-nag rule. The
-      // classifyAndPersist call is best-effort: any failure logs
-      // and falls through to the legacy reverse-geocode reply.
+      // hasn't changed) reuse silently per the no-nag rule.
+      // v0.61.157 — adds rule §2.7. The classifier returns one of
+      // four drift states; the new 'outside' state triggers a
+      // single re-prompt (Accept → swap anchor, Decline →
+      // suppress until natural 24 h expiry).
       try {
         const { classifyAndPersist } = require('./location-classify');
         const reverseGeocodeFn = async ({ lat: la, lng: lo }) => {
@@ -2874,7 +2920,35 @@ bot.on('location', async (msg) => {
           chatId: msg.chat.id,
           lat, lng, redis, reverseGeocodeFn
         });
-        console.log(`[location] classifyAndPersist mode=${result.mode} changed=${result.changed} gated=${result.gated} geocoded=${result.geocoded}`);
+        console.log(`[location] classifyAndPersist mode=${result.mode} changed=${result.changed} drift=${result.drift} gated=${result.gated} geocoded=${result.geocoded}`);
+        // v0.61.157 — rule §2.7 drift prompt. Stash the candidate
+        // record under the chatId so the Accept-callback can write
+        // it without re-classifying. 10 min TTL; the prompt
+        // disappears on its own if untouched.
+        if (result.drift === 'outside' && result.candidate) {
+          try {
+            const { resolveLang: rl } = require('./user-prefs');
+            const dpLang = await rl(redis, msg.chat.id, msg);
+            const isFr = dpLang === 'fr';
+            const prevName = (result.prev && result.prev.placeName) || (result.prev && result.prev.country) || (result.prev && result.prev.mode) || '—';
+            const newName = result.candidate.placeName || result.candidate.country || result.candidate.mode || '—';
+            await redis.setEx(`drift-pending:${msg.chat.id}`, 10 * 60, JSON.stringify(result.candidate)).catch(() => {});
+            const promptText = isFr
+              ? `🌐 Vous êtes maintenant près de <b>${escapeHtmlForTelegram(newName)}</b>. Votre lieu enregistré est <b>${escapeHtmlForTelegram(prevName)}</b>. Mettre à jour ?`
+              : `🌐 You're now near <b>${escapeHtmlForTelegram(newName)}</b>. Your registered location is <b>${escapeHtmlForTelegram(prevName)}</b>. Update to the new one?`;
+            await bot.sendMessage(msg.chat.id, promptText, {
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [[
+                  { text: isFr ? '✅ Oui, changer' : '✅ Yes, switch', callback_data: 'drift:accept' },
+                  { text: isFr ? '🚫 Non, garder' : '🚫 No, keep', callback_data: 'drift:decline' }
+                ]]
+              }
+            });
+          } catch (innerErr) {
+            console.warn('[Drift] prompt send failed:', innerErr.message);
+          }
+        }
       } catch (err) {
         console.warn('[location] classifyAndPersist failed:', err.message);
       }

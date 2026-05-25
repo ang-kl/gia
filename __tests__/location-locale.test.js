@@ -11,22 +11,34 @@ const require = createRequire(import.meta.url);
 
 const {
   LOCALE_TTL,
+  DRIFT_SUPPRESS_TTL,
   getUserLocale,
   setUserLocale,
   clearUserLocale,
-  isSameLocale
+  isSameLocale,
+  getDriftSuppress,
+  isDriftSuppressed,
+  addDriftSuppress,
+  clearDriftSuppress
 } = require('../location-locale');
 
 function makeFakeRedis({ isOpen = true } = {}) {
   const store = new Map();
+  const sets = new Map();
   const ttls = new Map();
   return {
-    isOpen,
-    store,
-    ttls,
+    isOpen, store, sets, ttls,
     async get(k) { return store.has(k) ? store.get(k) : null; },
     async setEx(k, ttl, v) { store.set(k, v); ttls.set(k, ttl); return 'OK'; },
-    async del(k) { store.delete(k); ttls.delete(k); return 1; }
+    async del(k) { store.delete(k); sets.delete(k); ttls.delete(k); return 1; },
+    async sMembers(k) { return Array.from(sets.get(k) || []); },
+    async sIsMember(k, m) { return (sets.get(k) || new Set()).has(m); },
+    async sAdd(k, m) {
+      if (!sets.has(k)) sets.set(k, new Set());
+      sets.get(k).add(m);
+      return 1;
+    },
+    async expire(k, ttl) { ttls.set(k, ttl); return 1; }
   };
 }
 
@@ -128,33 +140,30 @@ describe('setUserLocale + getUserLocale round-trip', () => {
   });
 });
 
-describe('isSameLocale (rule §2.6 no-nag)', () => {
-  it('matches identical mode + admin', () => {
+describe('isSameLocale (rule §2.6 no-nag) — v0.61.157 matchKey semantics', () => {
+  it('matches identical JB records', () => {
     expect(isSameLocale(
       { mode: 'JB', adminAreaLevel1: 'Johor' },
       { mode: 'JB', adminAreaLevel1: 'Johor' }
     )).toBe(true);
   });
 
-  it('matches case-insensitively + trims', () => {
+  it('collapses SG sub-region differences (v0.61.157 behaviour change)', () => {
+    expect(isSameLocale(
+      { mode: 'SG', adminAreaLevel1: 'Central Region' },
+      { mode: 'SG', adminAreaLevel1: 'North Region' }
+    )).toBe(true);
+  });
+
+  it('OTHER mode keeps admin-specific matching', () => {
     expect(isSameLocale(
       { mode: 'OTHER', adminAreaLevel1: '  Selangor  ' },
       { mode: 'OTHER', adminAreaLevel1: 'selangor' }
     )).toBe(true);
-  });
-
-  it('distinguishes Selangor from Wilayah Persekutuan Putrajaya', () => {
     expect(isSameLocale(
       { mode: 'OTHER', adminAreaLevel1: 'Selangor' },
       { mode: 'OTHER', adminAreaLevel1: 'Wilayah Persekutuan Putrajaya' }
     )).toBe(false);
-  });
-
-  it('treats two null-admin SG records as same locale', () => {
-    expect(isSameLocale(
-      { mode: 'SG', adminAreaLevel1: null },
-      { mode: 'SG' }
-    )).toBe(true);
   });
 
   it('different modes never match', () => {
@@ -169,5 +178,88 @@ describe('isSameLocale (rule §2.6 no-nag)', () => {
     expect(isSameLocale({ mode: 'SG' }, null)).toBe(false);
     expect(isSameLocale('a', 'b')).toBe(false);
     expect(isSameLocale(undefined, undefined)).toBe(false);
+  });
+});
+
+describe('drift-suppression set (rule §2.7 single re-prompt)', () => {
+  let redis;
+  beforeEach(() => { redis = makeFakeRedis(); });
+
+  it('DRIFT_SUPPRESS_TTL is 24 hours', () => {
+    expect(DRIFT_SUPPRESS_TTL).toBe(24 * 60 * 60);
+  });
+
+  it('empty set by default + isDriftSuppressed=false for unknown key', async () => {
+    expect((await getDriftSuppress(redis, 'x')).size).toBe(0);
+    expect(await isDriftSuppressed(redis, 'x', 'JB|johor')).toBe(false);
+  });
+
+  it('add → isDriftSuppressed=true; set carries the entry', async () => {
+    await addDriftSuppress(redis, 'x', 'JB|johor');
+    expect(await isDriftSuppressed(redis, 'x', 'JB|johor')).toBe(true);
+    expect((await getDriftSuppress(redis, 'x')).has('JB|johor')).toBe(true);
+  });
+
+  it('different destinations isolate per matchKey', async () => {
+    await addDriftSuppress(redis, 'x', 'JB|johor');
+    expect(await isDriftSuppressed(redis, 'x', 'OTHER|selangor')).toBe(false);
+  });
+
+  it('clearDriftSuppress empties the set', async () => {
+    await addDriftSuppress(redis, 'x', 'JB|johor');
+    await clearDriftSuppress(redis, 'x');
+    expect(await isDriftSuppressed(redis, 'x', 'JB|johor')).toBe(false);
+  });
+
+  it('per-chat isolation', async () => {
+    await addDriftSuppress(redis, 'a', 'JB|johor');
+    expect(await isDriftSuppressed(redis, 'b', 'JB|johor')).toBe(false);
+  });
+
+  it('TTL refreshes on every add', async () => {
+    await addDriftSuppress(redis, 'x', 'JB|johor');
+    const ttl1 = redis.ttls.get(`drift-suppress:${require('crypto').createHash('sha256').update('x').digest('hex').slice(0, 16)}`);
+    expect(ttl1).toBe(DRIFT_SUPPRESS_TTL);
+  });
+
+  it('no-op on closed redis / missing args', async () => {
+    const closed = makeFakeRedis({ isOpen: false });
+    await addDriftSuppress(closed, 'x', 'JB|johor');
+    expect(await isDriftSuppressed(closed, 'x', 'JB|johor')).toBe(false);
+    expect(await isDriftSuppressed(redis, 'x', '')).toBe(false);
+    expect(await isDriftSuppressed(redis, 'x', null)).toBe(false);
+  });
+});
+
+describe('setUserLocale persists structured boundary (v0.61.157)', () => {
+  let redis;
+  beforeEach(() => { redis = makeFakeRedis(); });
+
+  it('stores a valid boundary verbatim', async () => {
+    await setUserLocale(redis, 'b1', {
+      mode: 'JB', placeName: 'X', country: 'Malaysia', adminAreaLevel1: 'Johor',
+      lat: 1.49, lng: 103.74,
+      boundary: { matchKey: 'JB|johor', radiusM: 30000, anchorLat: 1.49, anchorLng: 103.74 }
+    });
+    const got = await getUserLocale(redis, 'b1');
+    expect(got.boundary).toMatchObject({ matchKey: 'JB|johor', radiusM: 30000 });
+  });
+
+  it('drops a boundary missing matchKey or radiusM (defensive)', async () => {
+    await setUserLocale(redis, 'b2', {
+      mode: 'SG', lat: 1, lng: 103,
+      boundary: { matchKey: '', radiusM: 30000 }
+    });
+    expect((await getUserLocale(redis, 'b2')).boundary).toBeNull();
+    await setUserLocale(redis, 'b3', {
+      mode: 'SG', lat: 1, lng: 103,
+      boundary: { matchKey: 'SG', radiusM: 0 }
+    });
+    expect((await getUserLocale(redis, 'b3')).boundary).toBeNull();
+  });
+
+  it('drops boundary entirely when input is not an object', async () => {
+    await setUserLocale(redis, 'b4', { mode: 'SG', lat: 1, lng: 103, boundary: 'oops' });
+    expect((await getUserLocale(redis, 'b4')).boundary).toBeNull();
   });
 });

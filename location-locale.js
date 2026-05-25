@@ -73,6 +73,24 @@ async function setUserLocale(redis, chatId, record) {
   // Defensive: drop unknown fields; freeze the canonical shape so
   // future fields go through here, not via ad-hoc spread at call
   // sites.
+  // v0.61.157 — boundary is a structured `{ matchKey, radiusM,
+  // anchorLat, anchorLng }`; computeBoundary in location-boundary.js
+  // builds it. Persisted shape sanity-checks the four fields and
+  // drops everything else. PR 2 stored `null`; v0.61.157 callers
+  // pass the computed boundary.
+  let sanitizedBoundary = null;
+  if (record.boundary && typeof record.boundary === 'object') {
+    const b = record.boundary;
+    if (typeof b.matchKey === 'string' && b.matchKey
+        && Number.isFinite(b.radiusM) && b.radiusM > 0) {
+      sanitizedBoundary = {
+        matchKey: b.matchKey,
+        radiusM: b.radiusM,
+        anchorLat: Number.isFinite(b.anchorLat) ? b.anchorLat : null,
+        anchorLng: Number.isFinite(b.anchorLng) ? b.anchorLng : null
+      };
+    }
+  }
   const sanitized = {
     mode: (record.mode === 'SG' || record.mode === 'JB' || record.mode === 'OTHER') ? record.mode : 'OTHER',
     placeName: typeof record.placeName === 'string' && record.placeName.trim() ? record.placeName.trim() : null,
@@ -81,7 +99,7 @@ async function setUserLocale(redis, chatId, record) {
       ? record.adminAreaLevel1.trim() : null,
     lat: Number.isFinite(record.lat) ? record.lat : null,
     lng: Number.isFinite(record.lng) ? record.lng : null,
-    boundary: (record.boundary && typeof record.boundary === 'object') ? record.boundary : null,
+    boundary: sanitizedBoundary,
     registeredAt: Number.isFinite(record.registeredAt) ? record.registeredAt : Date.now()
   };
   try {
@@ -94,26 +112,81 @@ async function clearUserLocale(redis, chatId) {
   try { await redis.del(_key(chatId)); } catch { /* non-fatal */ }
 }
 
-// Rule §2.6 — "no nagging". Two locales are the same when:
-//   - both modes are equal AND
-//   - either both have null adminAreaLevel1 (e.g. SG region, no
-//     admin component surfaced) OR both share the same
-//     adminAreaLevel1 (case-insensitive).
+// Rule §2.6 — "no nagging". Two locales are the same when their
+// boundary matchKey (mode + admin per location-boundary.js) agrees.
 //
-// PR 3 will add the boundary radius dimension (rule §2.7). PR 2's
-// shape is conservative: same-admin = same locale.
+// v0.61.157 — delegates to deriveMatchKey so SG sub-regions
+// ('Central Region' / 'North East Region' / …) collapse to a single
+// SG matchKey. Previously the PR 2 implementation compared
+// adminAreaLevel1 directly, which would flag a Bishan → Sentosa
+// fix as a different locale.
 function isSameLocale(prev, next) {
   if (!prev || !next || typeof prev !== 'object' || typeof next !== 'object') return false;
   if (prev.mode !== next.mode) return false;
-  const prevA = typeof prev.adminAreaLevel1 === 'string' ? prev.adminAreaLevel1.toLowerCase().trim() : '';
-  const nextA = typeof next.adminAreaLevel1 === 'string' ? next.adminAreaLevel1.toLowerCase().trim() : '';
-  return prevA === nextA;
+  const { deriveMatchKey } = require('./location-boundary');
+  return deriveMatchKey(prev) === deriveMatchKey(next);
+}
+
+// v0.61.157 — drift-suppression set. After the user declines the
+// rule §2.7 re-prompt for a particular destination matchKey, we
+// record the suppression so subsequent fixes during the same
+// "excursion" don't re-prompt. TTL 24 hours — long enough to cover
+// a typical day-trip, short enough to re-engage the prompt for a
+// genuine relocation.
+//
+// Storage: a single Redis SET per chat. Members are matchKeys.
+// Cleared on user accept (anchor swap) or natural TTL expiry.
+const DRIFT_SUPPRESS_TTL = 24 * 60 * 60;
+
+function _driftKey(chatId) {
+  return `drift-suppress:${_hashChatId(chatId)}`;
+}
+
+async function getDriftSuppress(redis, chatId) {
+  if (!redis || !redis.isOpen) return new Set();
+  try {
+    const members = await redis.sMembers(_driftKey(chatId));
+    return new Set(Array.isArray(members) ? members : []);
+  } catch {
+    return new Set();
+  }
+}
+
+async function isDriftSuppressed(redis, chatId, matchKey) {
+  if (!redis || !redis.isOpen) return false;
+  if (typeof matchKey !== 'string' || !matchKey) return false;
+  try {
+    return Boolean(await redis.sIsMember(_driftKey(chatId), matchKey));
+  } catch {
+    return false;
+  }
+}
+
+async function addDriftSuppress(redis, chatId, matchKey) {
+  if (!redis || !redis.isOpen) return;
+  if (typeof matchKey !== 'string' || !matchKey) return;
+  try {
+    await redis.sAdd(_driftKey(chatId), matchKey);
+    // Refresh TTL on every add so the 24h window restarts each
+    // time the user declines for a new destination.
+    await redis.expire(_driftKey(chatId), DRIFT_SUPPRESS_TTL);
+  } catch { /* non-fatal */ }
+}
+
+async function clearDriftSuppress(redis, chatId) {
+  if (!redis || !redis.isOpen) return;
+  try { await redis.del(_driftKey(chatId)); } catch { /* non-fatal */ }
 }
 
 module.exports = {
   LOCALE_TTL,
+  DRIFT_SUPPRESS_TTL,
   getUserLocale,
   setUserLocale,
   clearUserLocale,
-  isSameLocale
+  isSameLocale,
+  getDriftSuppress,
+  isDriftSuppressed,
+  addDriftSuppress,
+  clearDriftSuppress
 };
