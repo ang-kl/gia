@@ -78,7 +78,35 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 disabled={dim && !sel}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${dim ? 'opacity-40' : 'hover:border-tg-accent'}`}`}
               >
-                <span aria-hidden className="flex-shrink-0 text-base leading-none">{cu.flag || '🍽️'}</span>
+                {/* v0.61.142 — operator-supplied PNG icon for the
+                    durian chip (cuisines-vault.IMG_FLAG_BY_SLUG ships
+                    `imgFlag: "durian.png"` on the cuisine entry).
+                    Falls back to the emoji `flag` (or the default
+                    🍽️ plate) when the file fails to load — so a
+                    missing asset never leaves the chip iconless.
+                    Other cuisines (without imgFlag) continue to
+                    render the emoji span as before. */}
+                {cu.imgFlag ? (
+                  <span aria-hidden className="flex-shrink-0 inline-flex items-center justify-center w-4 h-4">
+                    <img
+                      src={`/app/cuisine/${cu.imgFlag}`}
+                      alt=""
+                      width="16"
+                      height="16"
+                      className="w-4 h-4 object-contain"
+                      onError={(e) => {
+                        // Hide the broken <img>, then show the emoji
+                        // fallback sibling.
+                        e.currentTarget.style.display = 'none';
+                        const fb = e.currentTarget.nextElementSibling;
+                        if (fb) fb.style.display = 'inline';
+                      }}
+                    />
+                    <span style={{ display: 'none' }} className="text-base leading-none">{cu.flag || '🍽️'}</span>
+                  </span>
+                ) : (
+                  <span aria-hidden className="flex-shrink-0 text-base leading-none">{cu.flag || '🍽️'}</span>
+                )}
                 <span className="flex-1 break-words">{cu.name}</span>
                 {sel && <span aria-hidden className="text-tg-accent-text flex-shrink-0">✓</span>}
               </button>
