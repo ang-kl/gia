@@ -1,8 +1,8 @@
 counters:
-  commit: 366
-  build: 156
+  commit: 367
+  build: 157
   documents:
-    journal: 354
+    journal: 355
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,46 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 64
-last_anchor_time: 25-05 '26 19:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_152 (PR #653 merged 25-05 '26 ~17:46 SGT; v0.61.153 VCR catch-up session at 19:15 SGT)
-last_anchor_iso8601: 2026-05-25T19:15:00+08:00
-last_anchor_utc: 2026-05-25T11:15:00Z
+  current_chat_counter: 65
+last_anchor_time: 25-05 '26 20:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_153 (PR #654 merged 25-05 '26 ~19:25 SGT; v0.61.154 translate-enrich extension session at 20:30 SGT)
+last_anchor_iso8601: 2026-05-25T20:30:00+08:00
+last_anchor_utc: 2026-05-25T12:30:00Z
+# v0.61.154 (commit 367 / journal 355 / build 157) — extend translate
+# enrichment to Michelin path + chat /cuisine command; factor the
+# v0.61.152 inline blocks into a shared helper. Operator (continuing
+# the option-3 conversation): "option 3- drop /eat /drink. explain
+# what is michelin path, secondary runFreeText Search branches" then
+# "go" after I clarified that (a) handleMichelinSearch was a real
+# gap, (b) "secondary runFreeTextSearch branches" was a misnomer in
+# v0.61.152 known gaps — only one branch exists, already plumbed,
+# (c) the chat /cuisine command (runCuisineFlow at index.js:1260)
+# was a real gap I'd missed. Branch
+# claude/v0.61.154-translate-enrich-michelin off main at v0.61.153 /
+# c1c46ab.
+# Files (4):
+# - cuisine-review-language.js: new enrichVenuesWithTranslatedReview
+#   helper (wraps pickAndTranslateReview for an array of venues).
+#   Returns void; mutates each venue's recentReview, ...TranslatedFlag,
+#   ...Language, ...SourceLang in place. No-op when the cuisineSlugs
+#   list has no nationality.
+# - __tests__/cuisine-review-language.test.js: +6 tests around the
+#   helper (no-op cases, mutation contract, translateFn injection,
+#   per-venue failure isolation).
+# - index.js: 4 call-site changes:
+#   * /api/cuisine/search loop — replaces v0.61.152 30-line inline
+#     pickAndTranslateReview block with one helper call.
+#   * runFreeTextSearch main branch — same refactor.
+#   * handleMichelinSearch — new call, AFTER the Step 5 cache WRITE
+#     (so the Michelin enrichment cache stays language-neutral) and
+#     BEFORE the v.reviews strip.
+#   * runCuisineFlow (chat /cuisine command) — new call, uses
+#     user-prefs.resolveLang for targetLang.
+# - package.json: 0.61.153 -> 0.61.154.
+# - doc/.serial-state.yml: commit 366->367, build 156->157,
+#   journal 354->355; re-anchored 25-05 '26 20:30 SGT.
+# - doc/Journal/journal-0_61_154-25_05_26-2030.md: this entry.
+#
 # v0.61.153 (commit 366 / journal 354 / build 156) — docs: VibeCodingRecord
 # ledger catch-up for PRs #648-#653 (v0.61.147-152 arc). Pure data /
 # generated artefact updates: prs.ndjson +6 rows (640 -> 646),

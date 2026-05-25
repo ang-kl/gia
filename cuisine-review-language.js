@@ -341,6 +341,59 @@ async function pickAndTranslateReview({
   };
 }
 
+// v0.61.154 — convenience wrapper that resolves nationality from a
+// cuisine slug list and applies pickAndTranslateReview to every
+// venue in the array (parallel). Used by /api/cuisine/search,
+// runFreeTextSearch's main branch, handleMichelinSearch, and the
+// chat /cuisine command — same pattern was inline at each site
+// pre-v0.61.154; factored here for DRY + tests.
+//
+// Mutates each venue in place:
+//   v.recentReview            ← translated text (≤ capChars)
+//   v.recentReviewTranslatedFlag ← the nationality flag emoji
+//   v.recentReviewLanguage    ← the nationality BCP-47 primary tag
+//   v.recentReviewSourceLang  ← the review's source primary tag
+//
+// No-op when:
+//   - venues is empty / not an array
+//   - cuisineSlugs has no nationality slug (e.g. ['dessert'])
+//   - a given venue has no reviews
+async function enrichVenuesWithTranslatedReview({
+  venues,
+  cuisineSlugs,
+  targetLang,
+  redis = null,
+  minRating = 3.8,
+  capChars = 200
+} = {}) {
+  if (!Array.isArray(venues) || !venues.length) return;
+  const nationalityLang = getLanguageForCuisines(cuisineSlugs || []);
+  if (!nationalityLang) return;
+  const nationalityFlag = getFlagForCuisines(cuisineSlugs || []);
+  await Promise.all(venues.map(async (v) => {
+    if (!v || !Array.isArray(v.reviews) || !v.reviews.length) return;
+    try {
+      const picked = await pickAndTranslateReview({
+        reviews: v.reviews,
+        nationalityLang,
+        targetLang,
+        placeId: v.placeId || null,
+        redis: redis && redis.isOpen ? redis : null,
+        minRating
+      });
+      if (picked && picked.text) {
+        v.recentReview = picked.text.slice(0, capChars);
+        v.recentReviewTranslatedFlag = nationalityFlag;
+        v.recentReviewLanguage = nationalityLang;
+        v.recentReviewSourceLang = picked.sourceLang;
+      }
+    } catch {
+      // per-venue best-effort; a single Gemini hiccup must not abort
+      // the whole batch.
+    }
+  }));
+}
+
 module.exports = {
   SLUG_TO_LANGUAGE,
   SLUG_TO_FLAG,
@@ -349,5 +402,6 @@ module.exports = {
   getFlagForCuisines,
   reviewLanguagePrimary,
   pickPreferredReview,
-  pickAndTranslateReview
+  pickAndTranslateReview,
+  enrichVenuesWithTranslatedReview
 };
