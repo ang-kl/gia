@@ -1388,7 +1388,17 @@ bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, matc
 // read device GPS unsolicited; when the first chat message after a
 // long idle gap (IDLE_WAKE_MS) arrives and a location is still stored,
 // ask once whether to keep it or set a new one.
+// v0.61.140 — operator rewrite (screenshot of the stale "Gia is still
+// using…" message): two-step flow. The wake message now asks the user
+// to share their current device GPS via the request_location keyboard
+// FIRST; the subsequent bot.on('location') handler picks up the share
+// (via the wake:pending flag), reverse-geocodes the street, reads the
+// cached anchor, and sends the rich comparison message with 3 inline
+// buttons (Use current / Keep earlier / Set another) + a /l helper-
+// text line. See handleWakeLocationResponse below + wake2:* callbacks.
 const IDLE_WAKE_MS = 6 * 60 * 60 * 1000;  // 6 h — a fresh usage session
+const WAKE_PENDING_TTL_S = 10 * 60;       // 10 min — share-location grace window
+const WAKE_OFFER_TTL_S   = 10 * 60;       // 10 min — button-tap grace window
 
 async function promptLocationOnWake(chatId, msg) {
   try {
@@ -1397,14 +1407,102 @@ async function promptLocationOnWake(chatId, msg) {
     const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
     const lang = await resolveLang(redis, chatId, msg);
-    await safeSend(chatId, t('wake.locationCheck', lang), {
-      reply_markup: { inline_keyboard: [[
-        { text: t('wake.keepBtn', lang), callback_data: 'wake:keep' },
-        { text: t('wake.newBtn', lang), callback_data: 'wake:new' }
-      ]] }
-    });
+    // v0.61.140 — stamp the wake:pending flag so the next bot.on('location')
+    // takes the rich-comparison branch instead of the default "Location
+    // saved" path. 10-min TTL means a stale wake will silently revert to
+    // the default flow if the user takes too long to share.
+    if (redis.isOpen) {
+      try { await redis.setEx(`wake:pending:${chatId}`, WAKE_PENDING_TTL_S, '1'); }
+      catch (err) { console.warn('[Wake] set wake:pending failed:', err.message); }
+    }
+    await safeSend(chatId, t('wake.intro', lang), LOCATION_REQUEST_KEYBOARD);
   } catch (err) {
     console.warn('[Wake] location prompt failed:', err.message);
+  }
+}
+
+// v0.61.140 — handles the device-GPS share that follows a
+// promptLocationOnWake. Reverse-geocodes the device GPS to a street
+// name (no full address per operator spec), reads the cached anchor
+// for the "anchored at" line, and sends the rich comparison message
+// with 3 inline buttons. The device GPS is stashed in wake2:offer:
+// <chat> so the wake2:current button can apply it without re-reading
+// from msg.location (which the user no longer sees by then).
+async function handleWakeLocationResponse(chatId, lat, lng, msg) {
+  try {
+    const { resolveLang } = require('./user-prefs');
+    const { t, tn } = require('./i18n');
+    const lang = await resolveLang(redis, chatId, msg);
+
+    // Reverse-geocode → street name. Prefer the `name` field (street /
+    // landmark) over the full formatted address per operator spec.
+    let deviceStreet = '';
+    try {
+      const geo = await reverseGeocodeAddress(lat, lng);
+      deviceStreet = geo?.name || (geo?.formatted ? geo.formatted.split(',')[0].trim() : '');
+    } catch { /* best-effort */ }
+    if (!deviceStreet) deviceStreet = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+    // Read the cached anchor — preferred format (street + building +
+    // postal from v0.61.139) falls back to the curated `label` for
+    // precinct picks / pre-v0.61.139 cached entries.
+    const cached = await getUserLocation(redis, chatId).catch(() => null);
+    let anchorLabel = '';
+    if (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng)) {
+      const street = (typeof cached.street === 'string' && cached.street.trim()) ? cached.street.trim() : '';
+      const building = (typeof cached.building === 'string' && cached.building.trim() && cached.building !== street) ? cached.building.trim() : '';
+      const postal = (typeof cached.postal === 'string' && cached.postal.trim()) ? cached.postal.trim() : '';
+      if (street) {
+        anchorLabel = street + (building ? ', ' + building : '') + (postal ? ' (' + postal + ')' : '');
+      } else if (cached.label) {
+        anchorLabel = cached.label;
+      } else {
+        anchorLabel = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+      }
+    } else {
+      anchorLabel = lang === 'fr' ? 'aucun lieu enregistré' : 'no saved location';
+    }
+
+    // Stash the device GPS so the wake2:current button can apply it
+    // when tapped (could be several seconds later).
+    if (redis.isOpen) {
+      try {
+        await redis.setEx(`wake2:offer:${chatId}`, WAKE_OFFER_TTL_S, JSON.stringify({
+          lat, lng, street: deviceStreet
+        }));
+      } catch (err) { console.warn('[Wake] set wake2:offer failed:', err.message); }
+    }
+
+    // First message: remove the share-location reply keyboard and
+    // send the rich comparison body. Single message with parse_mode
+    // HTML + an inline-keyboard 3-button group.
+    const body = tn('wake2.body', lang, {
+      deviceStreet: escapeHtmlForTelegram(deviceStreet),
+      anchor: escapeHtmlForTelegram(anchorLabel)
+    });
+    // Telegram's reply_markup accepts ONE of:
+    // ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove |
+    // ForceReply — we use the inline_keyboard here for the 3 buttons.
+    // The request_location reply keyboard auto-collapses on share
+    // (LOCATION_REQUEST_KEYBOARD sets one_time_keyboard: true), so no
+    // need to send a separate ReplyKeyboardRemove.
+    await bot.sendMessage(chatId, body, {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: t('wake2.btnCurrent', lang), callback_data: 'wake2:current' },
+            { text: t('wake2.btnKeep', lang), callback_data: 'wake2:keep' }
+          ],
+          [
+            { text: t('wake2.btnAnother', lang), callback_data: 'wake2:another' }
+          ]
+        ]
+      }
+    });
+  } catch (err) {
+    console.error('[Wake] handleWakeLocationResponse failed:', err.message);
   }
 }
 
@@ -2143,8 +2241,10 @@ bot.on('callback_query', async (q) => {
     bot.answerCallbackQuery(q.id).catch(() => {});
 
     // v0.59.1: resolve user lang once for all chrome dispatch below.
+    // v0.61.140 — `tn` added to the destructure for the wake2:current
+    // confirmation which interpolates {street}.
     const { resolveLang } = require('./user-prefs');
-    const { t } = require('./i18n');
+    const { t, tn } = require('./i18n');
     const cbLang = await resolveLang(redis, chatId, q);
 
     // v0.61.25 — /v builder-menu buttons. Owner-gated: the menu is only
@@ -2426,6 +2526,73 @@ bot.on('callback_query', async (q) => {
       await runLocationCommand(chatId);
       return;
     }
+    // v0.61.140 — wake-from-idle 2-step flow (operator rewrite). The
+    // rich comparison message (sent by handleWakeLocationResponse)
+    // offers three buttons:
+    //   wake2:current — apply the just-shared device GPS as the new
+    //                   anchor. The lat/lng/street were stashed in
+    //                   wake2:offer:<chat> at message-send time.
+    //   wake2:keep    — no-op acknowledgement, the cached anchor stays.
+    //   wake2:another — send a hint message with /l usage + the
+    //                   request_location reply keyboard so the user
+    //                   can pick a third path.
+    if (data === 'wake2:current') {
+      try {
+        let offer = null;
+        try {
+          const raw = await redis.get(`wake2:offer:${chatId}`);
+          if (raw) offer = JSON.parse(raw);
+        } catch (err) { console.warn('[Wake2] read wake2:offer failed:', err.message); }
+        try {
+          await bot.editMessageReplyMarkup({ inline_keyboard: [] },
+            { chat_id: chatId, message_id: q.message.message_id });
+        } catch { /* best-effort */ }
+        if (!offer || !Number.isFinite(offer.lat) || !Number.isFinite(offer.lng)) {
+          await safeSend(chatId, t('wake2.offerExpired', cbLang));
+          return;
+        }
+        // Overwrite the cached anchor with the device GPS. This is the
+        // standard setUserLocation path — no precinct, no addressComponents
+        // (would need a separate Places reverse-geocode to populate those;
+        // the deviceStreet we surfaced is a reverse-geocode but not a
+        // structured-parts breakdown). The user can re-set via the Menu
+        // TMA for the richer pill if they want it back.
+        await setUserLocation(redis, chatId, offer.lat, offer.lng);
+        await redis.del(`wake2:offer:${chatId}`).catch(() => {});
+        await safeSend(chatId,
+          tn('wake2.currentApplied', cbLang, { street: escapeHtmlForTelegram(offer.street || '') }),
+          { parse_mode: 'HTML' });
+      } catch (err) {
+        console.error('[Wake2] current failed:', err.message);
+      }
+      return;
+    }
+    if (data === 'wake2:keep') {
+      try {
+        await redis.del(`wake2:offer:${chatId}`).catch(() => {});
+        try {
+          await bot.editMessageReplyMarkup({ inline_keyboard: [] },
+            { chat_id: chatId, message_id: q.message.message_id });
+        } catch { /* best-effort */ }
+        await safeSend(chatId, t('wake2.kept', cbLang));
+      } catch (err) {
+        console.warn('[Wake2] keep failed:', err.message);
+      }
+      return;
+    }
+    if (data === 'wake2:another') {
+      try {
+        await redis.del(`wake2:offer:${chatId}`).catch(() => {});
+        try {
+          await bot.editMessageReplyMarkup({ inline_keyboard: [] },
+            { chat_id: chatId, message_id: q.message.message_id });
+        } catch { /* best-effort */ }
+        await safeSend(chatId, t('wake2.anotherHint', cbLang), LOCATION_REQUEST_KEYBOARD);
+      } catch (err) {
+        console.warn('[Wake2] another failed:', err.message);
+      }
+      return;
+    }
     // v0.52.0 hawker sub-menu dispatch (simplified):
     //   hawker:menu               → top-level menu (Cleaning + Browse)
     //   hawker:cleaning           → cleaning-info screen → Hawker Centre Status TMA
@@ -2585,6 +2752,29 @@ bot.on('location', async (msg) => {
   try {
     const lat = msg.location?.latitude;
     const lng = msg.location?.longitude;
+    // v0.61.140 — wake-from-idle 2-step flow. When promptLocationOnWake
+    // stamped `wake:pending:<chat>` and the next inbound is a share,
+    // route it to handleWakeLocationResponse (rich comparison message +
+    // 3 inline buttons) INSTEAD of the default "Location saved" path.
+    // The cached anchor is preserved (not overwritten); the device GPS
+    // is stashed in wake2:offer:<chat> for the wake2:current button to
+    // apply later. The flag is del'd here so a follow-up share within
+    // 10 min takes the default path.
+    if (Number.isFinite(lat) && Number.isFinite(lng) && redis.isOpen) {
+      let isWake = false;
+      try {
+        const flag = await redis.get(`wake:pending:${msg.chat.id}`);
+        if (flag) {
+          await redis.del(`wake:pending:${msg.chat.id}`).catch(() => {});
+          isWake = true;
+        }
+      } catch (err) { console.warn('[Wake] read wake:pending failed:', err.message); }
+      if (isWake) {
+        console.log(`[location] wake-response chatId=${msg.chat.id} lat=${lat.toFixed(4)} lng=${lng.toFixed(4)}`);
+        await handleWakeLocationResponse(msg.chat.id, lat, lng, msg);
+        return;
+      }
+    }
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       try {
         await setUserLocation(redis, msg.chat.id, lat, lng);
