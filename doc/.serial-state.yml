@@ -1,8 +1,8 @@
 counters:
-  commit: 353
-  build: 143
+  commit: 354
+  build: 144
   documents:
-    journal: 341
+    journal: 342
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,77 @@ counters:
     register: 121
 sessions:
   current_chat_id: 2026-05-16
-  current_chat_counter: 51
-last_anchor_time: 25-05 '26 09:25 SGT
-last_anchor_source: sg_air_temperature_api_2026-05-25T09:20:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.140 wake-rewrite session)
-last_anchor_iso8601: 2026-05-25T09:25:00+08:00
-last_anchor_utc: 2026-05-25T01:25:00Z
+  current_chat_counter: 52
+last_anchor_time: 25-05 '26 09:55 SGT
+last_anchor_source: sg_air_temperature_api_2026-05-25T09:50:00+08:00 (used per Rule TF-9 / Singapore sovereign source — fresh fetch at start of v0.61.141 special-mode chips session)
+last_anchor_iso8601: 2026-05-25T09:55:00+08:00
+last_anchor_utc: 2026-05-25T01:55:00Z
+# v0.61.141 (commit 354 / journal 342 / build 144) — Cuisine TMA:
+# Fruits / Durian / Durian Pastry as regular chips in "Dessert,
+# Fruits" group; mutex special ↔ all other cuisines including
+# Dessert. PR #642 (branch claude/v0.61.141-special-mode-chips, off
+# main at v0.61.140 / 9d6eeec). Operator (screenshot of the existing
+# amber-pill row + spec):
+#   - move Fruits + Durian into "Dessert, Fruits" group
+#   - add: Dessert (existing) + Fruits + Durian + Durian Pastry (NEW)
+#   - change "Durian" criteria to "Durian fruit only"
+#   - new "Durian Pastry" criteria = "Durian pastry only"
+#   - mutex: when selecting any of {Fruits, Durian, Durian Pastry},
+#     other cuisines (incl. Dessert) cannot be selected/in search.
+#     Symmetric: when selecting Dessert, the three specials cannot
+#     be selected/in search.
+#
+# Backend:
+# - doc/Feature/cuisines_js.MD: dessert category label "Dessert,
+#   Fruits"; items ['Dessert','Fruits','Durian','Durian Pastry'].
+# - cuisines-vault.js: CATEGORY_LABEL_OVERRIDE.dessert updated.
+# - special-mode.js: SPECIAL_MODES.DURIAN_PASTRY='durian-pastry'
+#   added; SEED_TEMPLATES + KEYWORDS for the new mode; DURIAN
+#   narrowed (pastry terms moved to DURIAN_PASTRY); NAME_REJECT_
+#   PATTERNS for DURIAN to reject pastry-named venues (puff/cake/
+#   mochi/etc.) even when the bare 'durian' keyword would match.
+# - index.js: /api/cuisine/search specialMode whitelist accepts
+#   'durian-pastry'.
+#
+# Frontend:
+# - NEW web/cuisine/src/v2/lib/cuisine-selection.js (~70 lines):
+#   pure helpers SPECIAL_SLUGS / isSpecialSlug / hasSpecialSlug /
+#   getActiveSpecialSlug / applyChipToggle. The toggle helper
+#   implements the operator mutex symmetrically: special tap
+#   replaces selection with [slug]; non-special tap when special is
+#   active also replaces; tap-active deselects; standard add-with-
+#   MAX otherwise.
+# - CuisineDrawer.jsx: amber-pill SPECIAL row + setSpecial logic
+#   retired. toggle() delegates to applyChipToggle. specialMode /
+#   onSpecialModeChange props dropped.
+# - App.jsx: state.specialMode field dropped; the active special
+#   slug is derived from state.cuisines at the search request-build
+#   site (and the QuickFilters specialModeActive prop). Backend
+#   request body: cuisines: specialMode ? [] : snap.cuisines,
+#   specialMode: <slug>|null.
+#
+# Tests:
+# - NEW __tests__/cuisine-selection.test.js: 23 tests covering
+#   SPECIAL_SLUGS membership, isSpecialSlug, hasSpecialSlug,
+#   getActiveSpecialSlug, applyChipToggle (special rules, non-
+#   special rules, special↔non-special boundary, full operator
+#   walkthrough, defensive inputs).
+# - __tests__/special-mode.test.js extended: new DURIAN-narrowed-
+#   to-fruit-only block (8 pastry-named rejects + 2 pure-fruit
+#   accepts); new DURIAN_PASTRY block (buildSeeds, JB suffix,
+#   6 accepts + 4 rejects, filterByMode). Pre-existing test bug
+#   for FRUITS isRelevant case ('榴莲莊' with primaryType='fruit_
+#   shop' spuriously matching 'fruit' substring) fixed to use
+#   'food_store'.
+# - 88 tests pass in 817 ms via npx vitest run.
+#
+# package.json 0.61.140 -> 0.61.141. plumbing-committed per O-22.
+# Today's tally: 14 PRs (#629-#642).
+# journal-0_61_141-25_05_26-0955.md.
+# KNOWN GAPS: no React-component test (covered by post-deploy
+# operator walkthrough); old amber-pill messages in operator chat
+# history don't apply (the UI element disappears entirely after
+# this PR ships).
 # v0.61.140 (commit 353 / journal 341 / build 143) — Wake-from-idle
 # 2-step rewrite: request_location first → reverse-geocode street →
 # rich comparison message with cached anchor + 3 inline buttons + /l

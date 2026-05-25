@@ -20,9 +20,20 @@
 
 'use strict';
 
+// v0.61.141 — DURIAN_PASTRY added per operator request. The previous
+// DURIAN mode mixed durian-fruit sellers and durian-pastry shops in a
+// single bucket (the v0.61.126 keyword list included puff/mochi/
+// pancake/crepe alongside the fruit terms). Splitting:
+//   DURIAN          → durian-fruit only (pastry keywords moved to the
+//                     new DURIAN_PASTRY bucket).
+//   DURIAN_PASTRY   → durian puffs / mochi / pancakes / crepes / cakes.
+// Slug 'durian-pastry' matches what cuisines-vault.js's slugify()
+// produces for the new "Durian Pastry" cuisine entry, so the chip-tap
+// → request payload → specialMode dispatch chain just works.
 const SPECIAL_MODES = Object.freeze({
   FRUITS: 'fruits',
-  DURIAN: 'durian'
+  DURIAN: 'durian',
+  DURIAN_PASTRY: 'durian-pastry'
 });
 
 const SPECIAL_MODE_VALUES = new Set(Object.values(SPECIAL_MODES));
@@ -52,6 +63,16 @@ const SEED_TEMPLATES = {
     'durian seller',
     'durian delivery',
     'durian specialist'
+  ],
+  // v0.61.141 — durian-pastry seeds. Targets bakery + dessert-shop
+  // queries that surface durian puffs / mochi / pancakes / cakes,
+  // not fruit sellers.
+  [SPECIAL_MODES.DURIAN_PASTRY]: [
+    'durian puff',
+    'durian pastry',
+    'durian mochi',
+    'durian cake',
+    'durian dessert bakery'
   ]
 };
 
@@ -73,16 +94,31 @@ const KEYWORDS = {
     // Chinese
     '水果', '果汁', '鲜果', '鲜榨', '果园'
   ],
+  // v0.61.141 — DURIAN now narrowed to durian FRUIT only. Pastry
+  // terms (puff / mochi / pancake / crepe) moved to DURIAN_PASTRY
+  // below; durian-puree stays because it's the raw frozen-fruit
+  // product, not a pastry.
   [SPECIAL_MODES.DURIAN]: [
-    // Latin / English
+    // Latin / English — fruit sellers + raw product
     'durian', 'durians', 'durian seller', 'durian stall', 'durian shop',
-    'durian specialist', 'durian delivery', 'durian puree', 'durian puff',
-    'durian mochi', 'durian pancake', 'durian crepe',
-    // Specific varieties
+    'durian specialist', 'durian delivery', 'durian puree',
+    // Specific varieties (signal fruit-only buyers)
     'mao shan wang', 'msw', 'd24', 'red prawn', 'black thorn',
     'xo durian', 'jin feng', 'sultan', 'kampung',
-    // Chinese
+    // Chinese — fruit
     '榴莲', '榴梿', '猫山王', '红虾'
+  ],
+  // v0.61.141 — durian-pastry signal terms. Pastry / bakery / dessert
+  // markers that the operator wants surfaced as a separate chip from
+  // the fruit-only DURIAN mode. Excludes raw fruit variety names
+  // (those belong to DURIAN).
+  [SPECIAL_MODES.DURIAN_PASTRY]: [
+    // Latin / English — pastry-specific
+    'durian puff', 'durian puffs', 'durian pastry', 'durian pastries',
+    'durian mochi', 'durian pancake', 'durian crepe', 'durian crepes',
+    'durian cake', 'durian tart', 'durian roll', 'durian cream puff',
+    // Chinese — pastry / cake variants
+    '榴莲泡芙', '榴莲蛋糕', '榴莲麻糬', '榴莲班戟'
   ]
 };
 
@@ -103,13 +139,49 @@ const REJECT_PRIMARY_TYPES = new Set([
 // Durian carve-out — `meal_takeaway` (the Places type for delivery-
 // only sellers) IS legitimate for durian, and is the most common type
 // for the small JB / SG specialist sellers. Don't reject it.
+// v0.61.141 — DURIAN_PASTRY uses the FRUITS reject list (no carve-out
+// for meal_takeaway): pastry sellers are typically dine-in bakeries or
+// `bakery` / `cafe` primaryType Places venues, not delivery-only
+// specialists.
 const REJECT_PRIMARY_TYPES_FRUITS = REJECT_PRIMARY_TYPES;
 const REJECT_PRIMARY_TYPES_DURIAN = new Set(
   [...REJECT_PRIMARY_TYPES].filter((t) => t !== 'meal_takeaway')
 );
+const REJECT_PRIMARY_TYPES_DURIAN_PASTRY = REJECT_PRIMARY_TYPES;
 
 function _rejectTypesFor(mode) {
-  return mode === SPECIAL_MODES.DURIAN ? REJECT_PRIMARY_TYPES_DURIAN : REJECT_PRIMARY_TYPES_FRUITS;
+  if (mode === SPECIAL_MODES.DURIAN) return REJECT_PRIMARY_TYPES_DURIAN;
+  if (mode === SPECIAL_MODES.DURIAN_PASTRY) return REJECT_PRIMARY_TYPES_DURIAN_PASTRY;
+  return REJECT_PRIMARY_TYPES_FRUITS;
+}
+
+// v0.61.141 — name-token reject patterns. Used to enforce the operator
+// spec that DURIAN means "durian fruit only" — a venue whose name
+// carries a pastry signal ("durian puff", "durian cake", …) is
+// rejected from the DURIAN mode even though the bare word "durian"
+// matches the keyword list. DURIAN_PASTRY has its own keyword + seed
+// list; FRUITS doesn't share the durian / pastry vocabulary so its
+// reject list is empty.
+const NAME_REJECT_PATTERNS = {
+  [SPECIAL_MODES.FRUITS]: [],
+  [SPECIAL_MODES.DURIAN]: [
+    /\bpuff\b/i, /\bpuffs\b/i,
+    /\bmochi\b/i,
+    /\bpancake\b/i, /\bpancakes\b/i,
+    /\bcrepe\b/i, /\bcrepes\b/i,
+    /\bcake\b/i, /\bcakes\b/i,
+    /\bpastry\b/i, /\bpastries\b/i,
+    /\btart\b/i, /\btarts\b/i,
+    /\bbakery\b/i, /\bbakeries\b/i,
+    /\béclair\b/i, /\béclairs\b/i,
+    /\bcream puff\b/i,
+    /\bdessert\b/i
+  ],
+  [SPECIAL_MODES.DURIAN_PASTRY]: []
+};
+
+function _rejectNamesFor(mode) {
+  return NAME_REJECT_PATTERNS[mode] || [];
 }
 
 // Build the cuisines array for pipeline.discover when a special mode
@@ -148,6 +220,18 @@ function isRelevant(venue, mode) {
   if (!venue || !isSpecialMode(mode)) return false;
   const pt = String(venue.primaryType || '').toLowerCase();
   if (pt && _rejectTypesFor(mode).has(pt)) return false;
+  // v0.61.141 — name-token reject (DURIAN only). A venue whose name
+  // carries a pastry signal ("durian puff", "durian cake", …) is NOT
+  // a fruit seller; the operator wants those routed to DURIAN_PASTRY
+  // instead. The bare-name reject check fires BEFORE the keyword
+  // loop so a venue like "Combat Durian Puff" doesn't slip in via
+  // the broad "durian" keyword match.
+  const nameLc = String(venue.name || '').toLowerCase();
+  if (nameLc) {
+    for (const re of _rejectNamesFor(mode)) {
+      if (re.test(nameLc)) return false;
+    }
+  }
   const kws = KEYWORDS[mode];
   const hay = _haystack(venue);
   for (const kw of kws) {

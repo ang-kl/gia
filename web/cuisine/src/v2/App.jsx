@@ -667,14 +667,24 @@ export default function App() {
       && !michelinRemaining;
     setLoading(true); setError(null);
     try {
+      // v0.61.141 — special-mode dispatch derived from the cuisine
+      // selection. Fruits / Durian / Durian Pastry are now regular
+      // catalogue chips (in the "Dessert, Fruits" group), so the user
+      // sees them inside the same drawer as Dessert + every other
+      // cuisine. When one is in `snap.cuisines`, route via
+      // specialMode: <slug> and clear `cuisines` so the backend's
+      // v0.61.126 override fires the per-mode seeds path.
+      const SPECIAL_SLUGS = new Set(['fruits', 'durian', 'durian-pastry']);
+      const inferredSpecialMode = (snap.cuisines || []).find((s) => SPECIAL_SLUGS.has(s)) || null;
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
-        cuisines: snap.cuisines, filters: snap.filters,
+        cuisines: inferredSpecialMode ? [] : snap.cuisines,
+        filters: snap.filters,
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
-        specialMode: snap.specialMode || null            // v0.61.126 — Fruits / Durian exclusive mode override
+        specialMode: inferredSpecialMode                 // v0.61.141 — derived from snap.cuisines, no longer a separate state field
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
@@ -1216,7 +1226,11 @@ export default function App() {
             <QuickFilters
               filters={state.filters}
               onChange={(f) => setState((s) => ({ ...s, filters: f }))}
-              specialModeActive={!!state.specialMode}
+              /* v0.61.141 — derived from state.cuisines now that the
+                 special slugs (Fruits / Durian / Durian Pastry) live
+                 in the catalogue as regular chips. state.specialMode
+                 is no longer a separate field. */
+              specialModeActive={(state.cuisines || []).some((s) => ['fruits', 'durian', 'durian-pastry'].includes(s))}
             />
             {/* v0.61.29 — LocationField moved out of this collapsed
                 section to the banner slot above the map; see the
@@ -1224,10 +1238,15 @@ export default function App() {
                 v0.61.126 — specialMode + onSpecialModeChange wired so
                 the Fruits / Durian exclusive toggles inside the drawer
                 lift state up to App.jsx. */}
+            {/* v0.61.141 — specialMode / onSpecialModeChange props dropped.
+                Fruits / Durian / Durian Pastry are now regular catalogue
+                chips inside the "Dessert, Fruits" category; the active
+                special slug is derived from state.cuisines at the
+                request-build site (search effect below). The mutex
+                (special ↔ Dessert + all other cuisines) is enforced by
+                applyChipToggle inside CuisineDrawer. */}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
-              specialMode={state.specialMode || null}
-              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
