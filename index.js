@@ -11967,12 +11967,40 @@ async function cacheBotUsername() {
         // legitimate headline items there).
         const pipelineMod = require('./pipeline');
         const dropDrinks = pipelineMod.shouldFilterDrinks(cuisineQueries);
+        // v0.61.151 — cuisine-nationality review-language priority.
+        // When the selected cuisines include a nationality (italian /
+        // japanese / chinese / etc.), prefer a high-rated (>3.8)
+        // review written in that nationality's language for the
+        // `recentReview` quote. Surface the matching flag so the
+        // TMA + chat layer can render "(  🇮🇹 translated)" suffix.
+        // Falls back to extractDishes' English snippet when no
+        // preferred review exists.
+        const { getLanguageForCuisines, getFlagForCuisines, pickPreferredReview } =
+          require('./cuisine-review-language');
+        const nationalityLang = getLanguageForCuisines(cuisines || []);
+        const nationalityFlag = nationalityLang ? getFlagForCuisines(cuisines || []) : null;
         for (const v of top) {
           if (Array.isArray(v.reviews) && v.reviews.length) {
             const { dishes, snippet } = extractDishes(v.reviews, v.name);
             const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
             if (filtered.length) v.dishes = filtered;
             if (snippet) v.recentReview = snippet;
+            // v0.61.151 — try to override with a nationality-language
+            // preferred review when available. The override is
+            // intentional: when the user picks Italian, an Italian-
+            // speaker's "Buonissimo!" 4-star review beats a generic
+            // English snippet for relevance signal.
+            if (nationalityLang) {
+              const preferred = pickPreferredReview(v.reviews, nationalityLang);
+              if (preferred) {
+                const txt = reviewText(preferred);
+                if (txt) {
+                  v.recentReview = txt.replace(/\s+/g, ' ').trim().slice(0, 200);
+                  v.recentReviewTranslatedFlag = nationalityFlag;
+                  v.recentReviewLanguage = nationalityLang;
+                }
+              }
+            }
           }
         }
         // Fall back to the Redis place-reviews cache for any venue

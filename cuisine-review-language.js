@@ -1,0 +1,241 @@
+// cuisine-review-language.js — v0.61.151
+//
+// Maps cuisine slugs to the language code most likely spoken by
+// natives of that nationality. Used by `/api/cuisine/search` to
+// PREFER a high-rated Google Maps review written in that language,
+// so a user searching Italian sees the Italian-speaker review
+// quoted on the card (instead of generic English).
+//
+// Operator spec (v0.61.151):
+//   "if the cuisine is the nationalities type, give priority for
+//   >3.8 google map review that mentions in the language of the
+//   cuisine nationality. tag the review quoted in cuisine TMA
+//   result or free chat result, at the end as
+//   '(' + spacing + <flag of nationality> + spacing + 'translated)'"
+//
+// Slugs match the cuisines-vault.js slugify output. Languages that
+// the operator's nationality list doesn't have a clear mapping for
+// (Eurasian, Singaporean, Australasia, generic European, generic
+// African) are intentionally NOT in the map — those slugs fall
+// through to the existing English-only review selection.
+//
+// Public surface:
+//   SLUG_TO_LANGUAGE     — the raw map (slug → BCP-47 primary tag)
+//   SLUG_TO_FLAG         — slug → flag emoji (mirrored from
+//                          cuisines-vault.FLAG_BY_SLUG so the chat
+//                          layer can render without re-importing
+//                          the vault)
+//   getLanguageForCuisines(slugs) → first matching language, or null
+//   getFlagForCuisines(slugs)     → first matching flag, or null
+//   pickPreferredReview(reviews, language, minRating=3.8)
+//                                  → first review in `language`
+//                                    with rating > minRating, or null
+//   isNationalityCuisine(slug)    → true when SLUG_TO_LANGUAGE has slug
+
+'use strict';
+
+// BCP-47 primary tag for each nationality cuisine. Conservative — only
+// includes slugs where the country has ONE dominant native language.
+// Multilingual SG/Asian (Peranakan, Eurasian, Singaporean), regional
+// EU (Slavic-Eastern-European, generic European, Mediterranean), and
+// the African catch-all are intentionally omitted: their reviews on
+// Places will be a mix of languages and the "translate" tag would
+// mis-signal.
+const SLUG_TO_LANGUAGE = Object.freeze({
+  // Common Here (where the cuisine has a single dominant language)
+  'south-indian':   'ta',   // Tamil — most South Indian SG restaurants are Tamil-owned
+  'north-indian':   'hi',   // Hindi
+  'malaysian':      'ms',   // Malay
+  'indonesian':     'id',   // Indonesian
+  'thai':           'th',
+  'filipino':       'tl',   // Tagalog
+  'vietnamese':     'vi',
+  'japanese':       'ja',
+  'chinese':        'zh',   // Standard Chinese
+  'korean':         'ko',
+  'taiwanese':      'zh',   // Mandarin (also Taiwanese Hokkien — Mandarin is the broader match)
+  'burmese':        'my',
+  // Southeast Asian
+  'laotian':        'lo',
+  'timorese':       'pt',   // East Timor uses Portuguese as official
+  // China-regional — all default to zh
+  'sichuan':        'zh',
+  'shanghainese':   'zh',
+  'cantonese':      'zh',
+  'hunan':          'zh',
+  'hokkien':        'zh',
+  'teochew':        'zh',
+  'hainanese':      'zh',
+  'hakka':          'zh',
+  'northeastern':   'zh',
+  'northwestern':   'zh',
+  'hong-kong':      'zh',
+  'macau':          'zh',
+  // South Asian
+  'bengali':        'bn',
+  'gujarati':       'gu',
+  'goan':           'kok',  // Konkani
+  'nepalese':       'ne',
+  'sri-lankan':     'si',   // Sinhala
+  'pakistani':      'ur',   // Urdu
+  // Middle Eastern + Central Asian
+  'lebanese':       'ar',
+  'turkish':        'tr',
+  'persian':        'fa',
+  'moroccan':       'ar',
+  'egyptian':       'ar',
+  'jordanian':      'ar',
+  'israeli':        'he',
+  'uzbek':          'uz',
+  'georgian':       'ka',
+  // European
+  'italian':        'it',
+  'spanish':        'es',
+  'greek':          'el',
+  'french':         'fr',
+  'german':         'de',
+  'austrian':       'de',
+  'swiss':          'de',
+  'portuguese':     'pt',
+  'russian':        'ru',
+  'ukrainian':      'uk',
+  'polish':         'pl',
+  'scandinavian':   'sv',   // Swedish proxy
+  // Americas
+  'mexican':        'es',
+  'brazilian':      'pt',
+  'argentinian':    'es',
+  // African (only South African; the African catch-all is multilingual)
+  'south-african':  'en'
+});
+
+// Mirror of cuisines-vault.FLAG_BY_SLUG for the slugs that have a
+// language mapping above. Kept in-file so the chat layer can resolve
+// flag + language without two requires.
+const SLUG_TO_FLAG = Object.freeze({
+  'south-indian':   '🇮🇳',
+  'north-indian':   '🇮🇳',
+  'malaysian':      '🇲🇾',
+  'indonesian':     '🇮🇩',
+  'thai':           '🇹🇭',
+  'filipino':       '🇵🇭',
+  'vietnamese':     '🇻🇳',
+  'japanese':       '🇯🇵',
+  'chinese':        '🇨🇳',
+  'korean':         '🇰🇷',
+  'taiwanese':      '🇹🇼',
+  'burmese':        '🇲🇲',
+  'laotian':        '🇱🇦',
+  'timorese':       '🇹🇱',
+  'sichuan':        '🇨🇳',
+  'shanghainese':   '🇨🇳',
+  'cantonese':      '🇨🇳',
+  'hunan':          '🇨🇳',
+  'hokkien':        '🇨🇳',
+  'teochew':        '🇨🇳',
+  'hainanese':      '🇨🇳',
+  'hakka':          '🇨🇳',
+  'northeastern':   '🇨🇳',
+  'northwestern':   '🇨🇳',
+  'hong-kong':      '🇭🇰',
+  'macau':          '🇲🇴',
+  'bengali':        '🇧🇩',
+  'gujarati':       '🇮🇳',
+  'goan':           '🇮🇳',
+  'nepalese':       '🇳🇵',
+  'sri-lankan':     '🇱🇰',
+  'pakistani':      '🇵🇰',
+  'lebanese':       '🇱🇧',
+  'turkish':        '🇹🇷',
+  'persian':        '🇮🇷',
+  'moroccan':       '🇲🇦',
+  'egyptian':       '🇪🇬',
+  'jordanian':      '🇯🇴',
+  'israeli':        '🇮🇱',
+  'uzbek':          '🇺🇿',
+  'georgian':       '🇬🇪',
+  'italian':        '🇮🇹',
+  'spanish':        '🇪🇸',
+  'greek':          '🇬🇷',
+  'french':         '🇫🇷',
+  'german':         '🇩🇪',
+  'austrian':       '🇦🇹',
+  'swiss':          '🇨🇭',
+  'portuguese':     '🇵🇹',
+  'russian':        '🇷🇺',
+  'ukrainian':      '🇺🇦',
+  'polish':         '🇵🇱',
+  'scandinavian':   '🇸🇪',
+  'mexican':        '🇲🇽',
+  'brazilian':      '🇧🇷',
+  'argentinian':    '🇦🇷',
+  'south-african':  '🇿🇦'
+});
+
+function isNationalityCuisine(slug) {
+  return typeof slug === 'string' && Object.prototype.hasOwnProperty.call(SLUG_TO_LANGUAGE, slug);
+}
+
+// For multi-cuisine selections, returns the language for the FIRST
+// slug in the input that has a mapping. Returns null for empty inputs,
+// non-arrays, or selections with no nationality slugs (e.g. all
+// special-mode, Dessert + Fusion).
+function getLanguageForCuisines(slugs) {
+  if (!Array.isArray(slugs)) return null;
+  for (const s of slugs) {
+    if (typeof s === 'string' && SLUG_TO_LANGUAGE[s]) return SLUG_TO_LANGUAGE[s];
+  }
+  return null;
+}
+
+// Returns the matching nationality flag for the first nationality
+// slug. Pairs with getLanguageForCuisines — if that returns a
+// language, this returns its flag.
+function getFlagForCuisines(slugs) {
+  if (!Array.isArray(slugs)) return null;
+  for (const s of slugs) {
+    if (typeof s === 'string' && SLUG_TO_FLAG[s]) return SLUG_TO_FLAG[s];
+  }
+  return null;
+}
+
+// Returns the BCP-47 primary tag (or null) from a review's text
+// envelope. Places New API: review.text is `{ text, languageCode }`;
+// older shapes may use review.languageCode directly. Normalises to
+// the primary tag — 'zh-Hant' / 'zh-CN' / 'zh-Hans' all → 'zh'.
+function reviewLanguagePrimary(review) {
+  if (!review) return null;
+  const raw = (review.text && typeof review.text === 'object' && review.text.languageCode)
+    || review.languageCode
+    || '';
+  if (typeof raw !== 'string' || !raw) return null;
+  const primary = raw.toLowerCase().split(/[-_]/)[0];
+  return primary || null;
+}
+
+// Picks the FIRST review whose primary language matches `language`
+// AND whose rating > minRating (default 3.8 per operator spec).
+// Returns the review object or null. Defensive against missing
+// fields (rating may be missing, language may be empty).
+function pickPreferredReview(reviews, language, minRating = 3.8) {
+  if (!Array.isArray(reviews) || !language || typeof language !== 'string') return null;
+  const target = language.toLowerCase().split(/[-_]/)[0];
+  for (const r of reviews) {
+    if (!r) continue;
+    const rating = Number(r.rating);
+    if (!Number.isFinite(rating) || rating <= minRating) continue;
+    const lang = reviewLanguagePrimary(r);
+    if (lang === target) return r;
+  }
+  return null;
+}
+
+module.exports = {
+  SLUG_TO_LANGUAGE,
+  SLUG_TO_FLAG,
+  isNationalityCuisine,
+  getLanguageForCuisines,
+  getFlagForCuisines,
+  reviewLanguagePrimary,
+  pickPreferredReview
+};
