@@ -131,7 +131,14 @@ export default function App() {
             lat: b.lat,
             lng: b.lng,
             region: b.region || 'SG',
-            radiusCapM: b.radiusCapM || null
+            radiusCapM: b.radiusCapM || null,
+            // v0.61.139 — structured address parts persisted by
+            // /api/menu/set-location for typed-text anchors (precinct
+            // picks have no address parts, so these stay null and the
+            // pill falls back to the curated `label`).
+            street: b.street || null,
+            building: b.building || null,
+            postal: b.postal || null
           });
         }
       })

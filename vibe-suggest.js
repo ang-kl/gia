@@ -463,7 +463,15 @@ async function geocodeQueryRegion(text, opts = {}) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': mapsApiKey,
-          'X-Goog-FieldMask': ['places.id', 'places.displayName', 'places.location', 'places.formattedAddress'].join(',')
+          // v0.61.139 — addressComponents lets the Menu TMA render the
+          // anchor as "<street> + <building, if any> + (<postal>)" per
+          // operator spec, instead of just the Places displayName which
+          // for shops-in-malls reads as the shop name only ("Heavenly
+          // Wang") without any geographic context. Parser below.
+          'X-Goog-FieldMask': [
+            'places.id', 'places.displayName', 'places.location',
+            'places.formattedAddress', 'places.addressComponents'
+          ].join(',')
         },
         timeout: 8000
       }
@@ -480,13 +488,22 @@ async function geocodeQueryRegion(text, opts = {}) {
     });
     if (!place) place = candidates[0];
     if (!place?.location) return null;
+    const parsed = parseAddressComponents(place.addressComponents);
     return {
       lat: place.location.latitude,
       lng: place.location.longitude,
       name: place.displayName?.text ?? text.trim(),
       address: place.formattedAddress ?? '',
       placeId: place.id ?? null,
-      region: region || 'SG'   // echo the region hint so the caller knows what context was used
+      region: region || 'SG',  // echo the region hint so the caller knows what context was used
+      // v0.61.139 — structured address components for the Menu TMA's
+      // "Anchored at <street>, <building> (<postal>)" rendering. Any
+      // field may be null when Places didn't tag a component (e.g. a
+      // residential address often has no `premise`; a road junction
+      // pin has no `postal_code`). Caller must tolerate nulls.
+      street: parsed?.street || null,
+      building: parsed?.building || null,
+      postal: parsed?.postal || null
     };
   } catch (err) {
     logger.error({ text, region, err: { message: err.message } }, 'vibe-suggest geocodeQueryRegion failed');
@@ -494,4 +511,11 @@ async function geocodeQueryRegion(text, opts = {}) {
   }
 }
 
-module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, geocodeQueryRegion, rankByWalkingTime };
+// v0.61.139 — parseAddressComponents moved to places-address-parser.js
+// so unit tests can require it without transitively loading axios
+// (vibe-suggest.js imports axios at the top, which breaks under the
+// O-22 iCloud-corrupted node_modules/axios/package.json mode). Re-
+// exported below for back-compat callers.
+const { parseAddressComponents } = require('./places-address-parser');
+
+module.exports = { mealPeriodSGT, geminiCandidates, validateWithPlaces, pickValidated, pickValidatedInverted, geocodeQuery, geocodeQueryRegion, rankByWalkingTime, parseAddressComponents };

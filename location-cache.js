@@ -25,6 +25,14 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
     if (Number.isFinite(opts.radiusCapM) && opts.radiusCapM > 0) payload.radiusCapM = opts.radiusCapM;
     if (typeof opts.label === 'string' && opts.label) payload.label = opts.label;
     if (typeof opts.precinctId === 'string' && opts.precinctId) payload.precinctId = opts.precinctId;
+    // v0.61.139 — structured address parts from Places addressComponents.
+    // Optional — set only when the caller geocoded via geocodeQueryRegion
+    // (precinct picks have no addressComponents). Persisted so the Menu
+    // TMA's anchor pill can render "<street> + <building> + (<postal>)"
+    // after a reload without re-hitting Places.
+    if (typeof opts.street === 'string' && opts.street) payload.street = opts.street;
+    if (typeof opts.building === 'string' && opts.building) payload.building = opts.building;
+    if (typeof opts.postal === 'string' && opts.postal) payload.postal = opts.postal;
   }
   await redis.setEx(key, LOC_TTL, JSON.stringify(payload));
 }
