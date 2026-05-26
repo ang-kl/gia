@@ -12151,26 +12151,24 @@ async function cacheBotUsername() {
         // response is `{ venues: [], exhausted: true }` and the client
         // surfaces the terminal "↺ Start over" / "you've seen the 80
         // maximum" copy.
-        // v0.60.191 — operator: the first 🔍 tap loads 6 venues, not
-        // 12, to halve travel-times + footfall enrichment latency on
-        // initial render. "First tap" = empty seen-set for this chat ×
-        // criteriaHash pair. Subsequent taps (or post-resetSeen retap)
-        // restore the 12-cap so the per-criteria walk-through still
-        // hits the full pool in ~11 pages.
+        // v0.60.191 — operator: first 🔍 tap loaded 6 venues to halve
+        // travel-times + footfall enrichment latency; subsequent taps
+        // returned 12. v0.61.163 (operator's pagination ask) unifies
+        // both to 19 — the TMA's PAGE_SIZE=12 then paginates 12 + 7
+        // with the `Results (12/19) → (19/19)` indicator. Operator
+        // explicitly accepted the latency trade-off in the
+        // ~$0.04/search Routes Distance Matrix delta. Warm-start
+        // (`pickTopN(venues, 5)`) is a separate path and stays at 5.
         //
-        // v0.60.191 — Codex interaction fix: the v0.60.188 client-side
-        // autoResetOnLowCount (`venues.length < 12 && !exhaustedNote`
-        // → next tap fires resetSeen=true) would loop a 6-venue first
-        // batch forever — after tap 1 the TMA sees 6 < 12, arms
-        // resetSeen, sends it on tap 2, server wipes seen back to 0 →
-        // sliceCap=6 again. The response now ships `firstBatch: bool`
-        // so the TMA can suppress the auto-reset (and the matching
-        // visible hint) when the previous response was a planned
-        // 6-venue first batch.
-        const FIRST_TAP_SLICE = 6;
-        const FOLLOW_UP_SLICE = 12;
+        // `firstBatch` is preserved in the response payload so the TMA
+        // can still distinguish the empty-seen-set initial tap (for
+        // the auto-reset suppression v0.60.191 added). The slice
+        // size is now the same on both branches.
+        const RESULT_SLICE = 19;
         const isFirstBatch = (seen.size === 0);
-        const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
+        const sliceCap = RESULT_SLICE;
+        const FIRST_TAP_SLICE = RESULT_SLICE;   // retained for diagnostic logs
+        const FOLLOW_UP_SLICE = RESULT_SLICE;   // retained for diagnostic logs
         const top = trulyUnseen.slice(0, sliceCap);
         console.log(`[Cuisine-Search] sliceCap=${sliceCap} firstBatch=${isFirstBatch} seenBefore=${seen.size} hash=${String(dedupHash || '').slice(0, 8)}`);
         const poolCount = new Set([...seen, ...top.map((v) => v.placeId).filter(Boolean)]).size;
