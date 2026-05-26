@@ -1,8 +1,8 @@
 counters:
-  commit: 376
-  build: 166
+  commit: 377
+  build: 167
   documents:
-    journal: 364
+    journal: 365
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,37 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 3
-last_anchor_time: 27-05 '26 02:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_162 (PR #663 merged 27-05 '26 ~02:15 SGT; v0.61.163 cap-19+pagination session at 02:30 SGT)
-last_anchor_iso8601: 2026-05-27T02:30:00+08:00
-last_anchor_utc: 2026-05-26T18:30:00Z
+  current_chat_counter: 5
+last_anchor_time: 27-05 '26 10:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_163 (PR #664 merged 27-05 '26 ~09:50 SGT; v0.61.164 count-history rebase session 10:00 SGT)
+last_anchor_iso8601: 2026-05-27T10:00:00+08:00
+last_anchor_utc: 2026-05-27T02:00:00Z
+# v0.61.164 (commit 377 / journal 365 / build 167) — Periodical
+# admin: count-history data layer (operator Q1: all 14 items in
+# one go). Pure data + 14 recount fns + 30 tests; NO UI yet
+# (v0.61.165 lands the /ver Periodical chat sub-menu), NO scheduler
+# (v0.61.166). Rebased on v0.61.163 after PR #664 merged. Branch
+# claude/v0.61.164-count-history-data-layer off main at v0.61.163 /
+# 6de1361.
+# Files (5):
+# - NEW count-history.js (~110 lines): HISTORY_CAP=12, ITEMS (14
+#   frozen), isKnownItem, recordCount, getHistory,
+#   getCurrentCount, revertTo (operator Q2 (a): display-only, no
+#   source-of-truth mutation), clearHistory. Redis schema:
+#   count:history:<item> ZSET capped at 12 newest via
+#   ZREMRANGEBYRANK 0 -13.
+# - NEW count-recount.js (~250 lines): 14 recount fns + RECOUNTERS
+#   dispatch + recountOne + recountAll. Defensive: each fn returns
+#   {item, n, source} where n=null + source='unavailable' when the
+#   data source is missing (no throws).
+# - NEW __tests__/count-history.test.js (18 tests).
+# - NEW __tests__/count-recount.test.js (12 tests).
+#   Total: 30 tests passing.
+# - package.json: 0.61.163 -> 0.61.164.
+# - doc/.serial-state.yml: commit 376->377, build 166->167,
+#   journal 364->365; re-anchored 27-05 '26 10:00 SGT.
+# - doc/Journal/journal-0_61_164-27_05_27-1000.md: this entry.
+#
 # v0.61.163 (commit 376 / journal 364 / build 166) — cuisine search
 # result cap 12 -> 19; Results (visible_on_page / total) header;
 # friendlier zero-state. Operator chose option (a): warm-start
