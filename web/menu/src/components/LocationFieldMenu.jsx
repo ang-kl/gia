@@ -127,7 +127,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           input: text,
           lat: currentAnchor?.lat || null,
           lng: currentAnchor?.lng || null,
-          region: (currentAnchor?.region === 'JB' || currentAnchor?.region === 'MY-PUT') ? 'JB' : 'SG',
+          region: (currentAnchor?.region === 'JB' || currentAnchor?.region === 'MY-PUT' || currentAnchor?.region === 'OTHER') ? 'JB' : 'SG',
           initData: w.initData || ''
         })
       })
@@ -173,7 +173,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // — unchanged behaviour.
   const capKm = currentAnchor?.radiusCapM ? Math.round(currentAnchor.radiusCapM / 1000) : null;
   const capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
-  const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT');
+  const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT' || currentAnchor.region === 'OTHER');
   const composedLabel = composeAddressLabel(currentAnchor) || currentAnchor?.label;
   const summaryMain = composedLabel
     ? t('location.currentSet', lang).replace('{label}', escapeHtml(composedLabel)).replace('{cap}', capStr)

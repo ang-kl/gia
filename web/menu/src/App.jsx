@@ -146,7 +146,8 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
-  const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT');
+  // v0.61.185 — accept 'OTHER' alongside legacy 'MY-PUT' (was Putrajaya-specific).
+  const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT' || anchor.region === 'OTHER');
 
   // v0.60.67 — fire-and-forget. Per Human Lead 2026-05-10, the TMA
   // wasn't closing immediately after a dispatch tap (Incidents,

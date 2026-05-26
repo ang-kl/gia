@@ -28,9 +28,13 @@ const STRINGS = {
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
-  // v0.61.159 — Putrajaya region pill (Cuisine TMA), part of the
+  // v0.61.159 — third region pill on the Cuisine TMA, part of the
   // location-classification phased build's PR 5/5.
-  'region.putrajaya':          { en: 'Putrajaya', fr: 'Putrajaya' },
+  // v0.61.185 — pill semantics generalised from "Putrajaya" → "Others"
+  // (matches location-mode.js's SG | JB | OTHER classifier). The
+  // pill now covers any non-SG/JB anchor: Putrajaya, KL, Penang,
+  // Batam, etc. Cap bumped 15 km → 20 km (operator's spec).
+  'region.others':             { en: 'Others', fr: 'Autres' },
   // v0.60.213 — two-line footer.
   'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
                                  fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },

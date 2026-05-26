@@ -13,9 +13,11 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   // v0.30.2: stamp setAt so callers can compute staleness for the
   // 15-min "your location is old, refresh?" reminder.
   // v0.61.122: optional anchor metadata from /location precinct picks.
-  // `region` ('SG' | 'JB' | 'MY-PUT') lets the cuisine TMA + chat
+  // `region` ('SG' | 'JB' | 'OTHER') lets the cuisine TMA + chat
   // pipelines know which side of the Causeway we're on; `radiusCapM`
-  // hard-caps Places search radii (JB → 30 km, IOI Putrajaya → 15 km);
+  // hard-caps Places search radii (JB → 30 km, IOI Putrajaya → 20 km
+  // per v0.61.185; was 15 km). Legacy 'MY-PUT' anchors written
+  // before v0.61.185 still work — read paths accept both values.
   // `label` / `precinctId` pass through for display + analytics.
   // All four are OPTIONAL — old callers (share-pin handler, manual
   // geocode handler) pass nothing and get exactly the legacy payload.

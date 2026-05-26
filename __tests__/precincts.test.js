@@ -49,8 +49,8 @@ describe('precincts — Malaysia anchors', () => {
     expect(jb.country).toBe('Malaysia');
     const ioi = my.find((x) => x.id === 'ioi-resort-putrajaya');
     expect(ioi).toBeTruthy();
-    expect(ioi.region).toBe('MY-PUT');
-    expect(ioi.radiusCapM).toBe(15000);
+    expect(ioi.region).toBe('OTHER');         // v0.61.185 — was 'MY-PUT'
+    expect(ioi.radiusCapM).toBe(20000);        // v0.61.185 — was 15000
     expect(ioi.country).toBe('Malaysia');
     // Putrajaya coordinate sanity (well outside SG bbox)
     expect(ioi.lat).toBeGreaterThan(2.5);
@@ -64,13 +64,13 @@ describe('precincts — getAll + getById', () => {
     // First 10 SG, last 2 MY
     for (let i = 0; i < 10; i++) expect(all[i].region).toBe('SG');
     expect(all[10].region).toBe('JB');
-    expect(all[11].region).toBe('MY-PUT');
+    expect(all[11].region).toBe('OTHER');      // v0.61.185 — was 'MY-PUT'
   });
 
   it('getById finds existing ids and rejects unknowns', () => {
     expect(p.getById('marina-bay')?.label).toBe('Marina Bay');
     expect(p.getById('jb')?.region).toBe('JB');
-    expect(p.getById('ioi-resort-putrajaya')?.radiusCapM).toBe(15000);
+    expect(p.getById('ioi-resort-putrajaya')?.radiusCapM).toBe(20000);   // v0.61.185 — was 15000
     expect(p.getById('not-a-real-precinct')).toBeNull();
     expect(p.getById('')).toBeNull();
     expect(p.getById(null)).toBeNull();

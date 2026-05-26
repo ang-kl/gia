@@ -1,8 +1,8 @@
 counters:
-  commit: 397
-  build: 187
+  commit: 398
+  build: 188
   documents:
-    journal: 385
+    journal: 386
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,70 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 25
-last_anchor_time: 28-05 '26 00:45 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_183 (PR #685 v0.61.183 merged 28-05 '26 ~00:42 SGT; v0.61.184 mrt-coords _meta resync built on v0.61.183 at 28-05 '26 00:45 SGT)
-last_anchor_iso8601: 2026-05-28T00:45:00+08:00
-last_anchor_utc: 2026-05-27T16:45:00Z
+  current_chat_counter: 26
+last_anchor_time: 28-05 '26 01:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_184 (PR #686 v0.61.184 merged 28-05 '26 ~00:55 SGT; v0.61.185 MY-PUT → OTHER rename built on v0.61.184 at 28-05 '26 01:00 SGT)
+last_anchor_iso8601: 2026-05-28T01:00:00+08:00
+last_anchor_utc: 2026-05-27T17:00:00Z
+# v0.61.185 (commit 398 / journal 386 / build 188) — TMA region
+# rename MY-PUT → OTHER + Putrajaya cap 15 km → 20 km + region-
+# aware Places searchText (drops the hardcoded SG default for
+# OTHER, relies on locationBias.circle around the anchor).
+# Operator: "I stated that Putrajaya range is 20 km and is part
+# of 'others'. Remember I have three settings - Singapore, Johor
+# Bahru and Others." Plus auto-flip pill on anchor change. Branch
+# claude/v0.61.185-other-rename off main at v0.61.184.
+#
+# Operator's "Others" criteria (codified in location-mode.js
+# rules §2.2 + §2.3 since v0.61.155):
+#   - Coarse gate (rule §2.2): >120 km from SG centroid → OTHER
+#   - Country mapping (rule §2.3): NOT Singapore AND NOT
+#     (Malaysia + Johor admin) → OTHER (Putrajaya, KL, Penang,
+#     Selangor, Wilayah Persekutuan Putrajaya, Batam, Bintan, etc.)
+# This PR aligns the TMA pill semantics to the classifier.
+#
+# Files (12):
+# - precincts.js: region 'MY-PUT' → 'OTHER', radiusCapM 15000 →
+#   20000 (the IOI Resort City Putrajaya precinct).
+# - web/cuisine/src/v2/lib/state.js: REGIONS array
+#   ['SG','JB','MY-PUT'] → ['SG','JB','OTHER'].
+# - web/cuisine/src/v2/lib/i18n.js: 'region.putrajaya' key
+#   retired; new 'region.others' = 'Others' / 'Autres'.
+# - web/cuisine/src/v2/App.jsx (2 edits): (1) third pill added
+#   to the region toggle UI ('🌏 Others'). (2) tryServerCache
+#   auto-flip logic — anchor region 'MY-PUT' / 'OTHER' → set TMA
+#   pill to 'OTHER' (was setting to 'JB' which masked the
+#   mismatch reported in operator logs).
+# - index.js (4 edits): (1) location quick-pick keyboard flag
+#   mapping — 'OTHER' anchors get 🇲🇾 when country='Malaysia',
+#   else 🌏. (2) ftRegionCode logic — 'OTHER' + Malaysia →
+#   'MY' regionCode; 'OTHER' + other country → undefined (rely
+#   on locationBias). (3) preserveRegion check now accepts
+#   'OTHER' alongside 'MY-PUT' / 'JB'. (4) cuisine-search
+#   searchRegionCode — added `isOther` flag; OTHER drops the SG
+#   default and lets locationBias.circle constrain. Closes the
+#   operator's 0-result Putrajaya bug.
+# - location-cache.js: comment updated (legacy 'MY-PUT' accepted
+#   on reads; new writes use 'OTHER').
+# - vibe-suggest.js: region branch accepts both 'MY-PUT' /
+#   'OTHER'; biasRadiusM bumped 15 km → 20 km for Putrajaya.
+# - web/menu/src/App.jsx + LocationFieldMenu.jsx: isMy checks
+#   now include 'OTHER' alongside 'MY-PUT' / 'JB'.
+# - __tests__/precincts.test.js: ioi region 'MY-PUT' → 'OTHER',
+#   radiusCapM 15000 → 20000.
+# - __tests__/scope-guard.test.js: comments updated to reflect
+#   the v0.61.185 rename; classifier expectations unchanged.
+# - package.json: 0.61.184 -> 0.61.185.
+# - doc/.serial-state.yml: commit 397->398, build 187->188,
+#   journal 385->386; re-anchored 28-05 '26 01:00 SGT.
+# - doc/Journal/journal-0_61_185-28_05_28-0100.md: this entry.
+#
+# Backward compat: read paths accept BOTH 'MY-PUT' and 'OTHER'
+# so anchors persisted in Redis before v0.61.185 continue to
+# work without migration. Write paths emit 'OTHER' going forward.
+#
+# Verification: 2460 / 2460 tests pass; cuisine TMA build 8.27 s.
+#
 # v0.61.184 (commit 397 / journal 385 / build 187) — data quality:
 # resync data/mrt-coords.json _meta header against the body.
 # v0.61.172 flagged the drift (header said 143 operational + 41

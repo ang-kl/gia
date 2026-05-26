@@ -438,10 +438,16 @@ async function geocodeQueryRegion(text, opts = {}) {
     suffix = ' Johor Bahru, Malaysia';
     bbox = MY_BBOX;
     biasRadiusM = 50000;
-  } else if (region === 'MY-PUT') {
+  } else if (region === 'MY-PUT' || region === 'OTHER') {
+    // v0.61.185 — region renamed MY-PUT → OTHER. The Putrajaya anchor
+    // is now ONE of several OTHER anchors (KL / Penang / Batam in
+    // future); biasRadiusM bumped 15 km → 20 km to match the v0.61.185
+    // precincts.js cap. Suffix still 'Putrajaya, Malaysia' for the
+    // IOI Resort anchor specifically; if other-country OTHER anchors
+    // are added, this branch will need precinct-specific suffixes.
     suffix = ' Putrajaya, Malaysia';
     bbox = MY_BBOX;
-    biasRadiusM = 15000;
+    biasRadiusM = 20000;
   }
   const body = {
     textQuery: `${text.trim()}${suffix}`,

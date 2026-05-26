@@ -10,10 +10,10 @@
 //      allowed surfaces (cuisine-search, freetext-search,
 //      michelin-search, carpark, transport-drive, location) for
 //      EVERY mode.
-//   2. Putrajaya UI region toggle ('MY-PUT') is a valid REGION
-//      and does NOT change the mode classifier output for a fix
-//      at the SG-centroid (the classifier reads coords, not the
-//      TMA toggle).
+//   2. The third UI region pill (v0.61.185 renamed 'MY-PUT' → 'OTHER')
+//      is a valid REGION and does NOT change the mode classifier
+//      output for a fix at the SG-centroid (the classifier reads
+//      coords, not the TMA toggle).
 //   3. The drift suppression set NEVER contains an always-allowed
 //      feature key — feature-gating and locale drift are separate
 //      concerns and must remain decoupled.
@@ -64,14 +64,14 @@ describe('rule §2.11 — cuisine / freetext / carpark NEVER gated by mode', () 
 });
 
 describe('rule §2.11 — TMA region toggle and locale-mode are decoupled', () => {
-  it('the SG-centroid still classifies as SG even though there is no MY-PUT enum on the classifier side', () => {
+  it('the SG-centroid still classifies as SG even though the TMA pill is OTHER (v0.61.185 rename)', () => {
     // The classifier reads `country` + `adminAreaLevel1`, never the
-    // TMA region toggle. So clicking the Putrajaya pill in the
-    // Cuisine TMA can't change a SG-coordinated user's mode.
+    // TMA region toggle. So clicking the Others pill in the Cuisine
+    // TMA can't change a SG-coordinated user's mode.
     expect(classifyByCountry({ country: 'Singapore' })).toBe('SG');
   });
 
-  it('Putrajaya country/admin still classifies as OTHER (operator answer 3 — MY-PUT demoted)', () => {
+  it('Putrajaya country/admin still classifies as OTHER (v0.61.155 + v0.61.185)', () => {
     expect(classifyByCountry({
       country: 'Malaysia',
       adminAreaLevel1: 'Wilayah Persekutuan Putrajaya'
@@ -94,7 +94,7 @@ describe('rule §2.10 — train-line layer default is OFF', () => {
   // The default overlayLayers state in MapPanel.jsx (verified by
   // inspection — `train: false, busstop: false, carpark: false,
   // exits: false`) means a fresh TMA load has the train layer OFF.
-  // Outside-SG regions (JB, MY-PUT) additionally force every layer
+  // Outside-SG regions (JB, OTHER — v0.61.185 rename of MY-PUT) additionally force every layer
   // to false via the `isNonSg` effective-layers override. We assert
   // the contract here so a future default change doesn't silently
   // flip the train default to ON.

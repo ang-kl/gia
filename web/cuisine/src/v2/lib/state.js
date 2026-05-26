@@ -18,13 +18,14 @@
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
 // v0.61.159 — rule §2.7 boundary work demoted MY-PUT to a sub-case of
-// OTHER (operator answer 3), BUT the operator still wants a Putrajaya
+// OTHER (operator answer 3), BUT the operator still wants a third
 // pill in the Cuisine TMA region toggle (the UI surface on top of the
-// foundation). The pill sets region='MY-PUT'; the backend recognises
-// MY-PUT as a known anchor (IOI Resort City, 15 km cap from
-// precincts.js) and applies it as a one-tap pre-anchored search
-// independent of the user's GPS classification.
-const REGIONS = ['SG', 'JB', 'MY-PUT'];
+// foundation). v0.61.185 — pill semantics generalised: was MY-PUT
+// (Putrajaya-specific), now OTHER (anything non-SG/JB — Putrajaya,
+// KL, Penang, Batam, etc.). Matches location-mode.js classifier.
+// Default anchor still IOI Resort City for now, cap bumped 15 km
+// → 20 km (operator's spec).
+const REGIONS = ['SG', 'JB', 'OTHER'];
 
 export function defaultState() {
   return {
