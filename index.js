@@ -2490,6 +2490,36 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.171 — chat free-text "Search 🔍 for more" + "↺ Start
+    // over" callbacks. The hash points at the stored query text in
+    // Redis; on `ft:more:<hash>` we just re-run runFreeTextSearch
+    // (the seen-set filter inside it skips what was already shown).
+    // On `ft:recycle:<hash>` we clearSeen first → the next pass
+    // starts fresh on the SAME criteria.
+    if (data.startsWith('ft:')) {
+      try {
+        const ftSeenMod = require('./chat-freetext-seen');
+        const [, action, hash] = data.split(':');
+        if (!hash) return;
+        const queryText = await ftSeenMod.getQuery(redis, hash);
+        if (!queryText) {
+          const { t: trBotExp } = require('./i18n');
+          await safeSend(chatId, trBotExp('freetext.expired', cbLang));
+          return;
+        }
+        if (action === 'recycle') {
+          await ftSeenMod.clearSeen(redis, chatId, hash);
+        }
+        // Re-run the free-text search with the stored query text.
+        await runFreeTextSearch(chatId, queryText, { lang: cbLang }).catch((err) => {
+          console.warn('[ft:cb] re-run failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[Error] ft: callback failed:', err.message);
+      }
+      return;
+    }
+
     // v0.59.0: language toggle from /language inline keyboard.
     if (data === 'language:set:en' || data === 'language:set:fr') {
       const target = data.endsWith(':fr') ? 'fr' : 'en';
@@ -8729,6 +8759,18 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         await safeSend(chatId, trnBot('bot.noresults', ftLang, { q: ftDishLabel || text }));
         return;
       }
+      // v0.61.171 — chat free-text seen-set filter. Drops venues
+      // the user has already been shown for THIS (chatId, criteria)
+      // pair so the "🔍 Search for more" button surfaces fresh
+      // results on each tap. Operator's spec — same dedup model
+      // as the cuisine TMA's seen-set, but keyed per-chat-query.
+      // Hash is stable across taps; clearSeen via the recycle
+      // callback resets the rotation.
+      const ftSeen = await require('./chat-freetext-seen').getSeenSet(redis, chatId, require('./chat-freetext-seen').hashCriteria(chatId, text));
+      const ftSeenSize = ftSeen.size;
+      if (ftSeenSize > 0) {
+        venues = venues.filter((v) => v && v.placeId && !ftSeen.has(v.placeId));
+      }
       // v0.60.123 — rank: dish/cuisine matches first (the "actually
       // serves it" tier), then a divider, then the looser Google
       // text-matches. Within each tier: strongest match → best rating
@@ -8862,6 +8904,38 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         : `🔎 Results for "${headerDishEsc}"`;
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
       await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
+      // v0.61.171 — chat free-text seen-set: record the placeIds we
+      // just showed for this (chatId, criteria) pair, then send the
+      // follow-up inline keyboard. "🔍 Search for more" while
+      // unseen results may remain; "↺ Start over" copy once we're
+      // exhausted (fewer than the batch size came back, OR the
+      // cumulative seen-set is at the cap).
+      try {
+        const ftSeenMod = require('./chat-freetext-seen');
+        const ftHash = ftSeenMod.hashCriteria(chatId, text);
+        const shownIds = venues.map((v) => v && v.placeId).filter(Boolean);
+        await ftSeenMod.setQuery(redis, ftHash, text);
+        await ftSeenMod.addSeen(redis, chatId, ftHash, shownIds);
+        const seenSizeAfter = ftSeenSize + shownIds.length;
+        const exhausted = shownIds.length < 8 || seenSizeAfter >= ftSeenMod.SEEN_CAP;
+        const { t: trBotKB } = require('./i18n');
+        if (exhausted) {
+          await bot.sendMessage(chatId, trBotKB('freetext.noMore', ftLang), {
+            reply_markup: { inline_keyboard: [[
+              { text: trBotKB('freetext.recycleBtn', ftLang), callback_data: `ft:recycle:${ftHash}` },
+            ]] },
+          }).catch(() => {});
+        } else {
+          await bot.sendMessage(chatId, trBotKB('freetext.moreHint', ftLang), {
+            reply_markup: { inline_keyboard: [[
+              { text: trBotKB('freetext.moreBtn', ftLang), callback_data: `ft:more:${ftHash}` },
+              { text: trBotKB('freetext.recycleBtn', ftLang), callback_data: `ft:recycle:${ftHash}` },
+            ]] },
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.warn('[free-text] seen-set follow-up failed:', err.message);
+      }
     } finally {
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
       await clearProcessing(redis, chatId).catch(() => {});
