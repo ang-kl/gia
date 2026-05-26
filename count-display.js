@@ -45,10 +45,33 @@ const FALLBACK = Object.freeze({
   'attractions':        100,
   'clinics':            1200,
   'hospitals':          25,
-  'police':             45
+  'police':             45,
+  // v0.61.178 — total SG venue count across the 48-cuisine subset
+  // (cuisine-venue-counts.js). NOT a Periodical count-history item;
+  // sourced from the cuisine-venue-counts:latest Redis blob written
+  // by v0.61.177's owner-triggered chat sweep. Fallback 600 is a
+  // rough estimate (most non-saturating cuisines × ~10-20 venues
+  // each).
+  'cuisine-venues':     600
 });
 
+// v0.61.178 — read the cumulative total from the cuisine-venue-
+// counts module's Redis layer (single JSON blob, separate from
+// count-history). Defensive: any error / missing total / unparseable
+// JSON falls back to FALLBACK baseline.
+async function _getCuisineVenuesCount(redis) {
+  try {
+    const cvc = require('./cuisine-venue-counts');
+    const latest = await cvc.loadFromRedis(redis);
+    if (latest && Number.isFinite(latest.total) && latest.total > 0) return latest.total;
+  } catch { /* fall through */ }
+  return FALLBACK['cuisine-venues'];
+}
+
 async function getDisplayCount(redis, item) {
+  // v0.61.178 — cuisine-venues lives in a separate Redis key from
+  // the count-history ZSETs; route to the cvc loader.
+  if (item === 'cuisine-venues') return _getCuisineVenuesCount(redis);
   const cur = await getCurrentCount(redis, item);
   if (cur && Number.isFinite(cur.n) && cur.n > 0) return cur.n;
   if (Object.prototype.hasOwnProperty.call(FALLBACK, item)) return FALLBACK[item];
@@ -60,6 +83,9 @@ async function getDisplayCounts(redis) {
   for (const item of ITEMS) {
     out[item] = await getDisplayCount(redis, item);
   }
+  // v0.61.178 — cuisine-venues isn't part of count-history.ITEMS;
+  // surface it alongside the 14 standard items.
+  out['cuisine-venues'] = await getDisplayCount(redis, 'cuisine-venues');
   return out;
 }
 
@@ -82,6 +108,8 @@ async function formatAllCountsPlus(redis) {
   for (const item of ITEMS) {
     out[item] = await formatCountPlus(redis, item);
   }
+  // v0.61.178 — include cuisine-venues alongside the 14 standard items.
+  out['cuisine-venues'] = await formatCountPlus(redis, 'cuisine-venues');
   return out;
 }
 

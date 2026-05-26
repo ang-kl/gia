@@ -1,8 +1,8 @@
 counters:
-  commit: 390
-  build: 180
+  commit: 391
+  build: 181
   documents:
-    journal: 378
+    journal: 379
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,44 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 18
-last_anchor_time: 27-05 '26 23:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_176_stacked (PR #677 v0.61.176 stacked + v0.61.177 cuisine-venue-counts chat trigger built on the v0.61.176 branch at 23:00 SGT)
-last_anchor_iso8601: 2026-05-27T23:00:00+08:00
-last_anchor_utc: 2026-05-27T15:00:00Z
+  current_chat_counter: 19
+last_anchor_time: 27-05 '26 23:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_177 (PR #679 v0.61.177 merged 27-05 '26 ~23:05 SGT; v0.61.178 {cuisine-venues} marketing-copy placeholder built on v0.61.177 at 23:15 SGT)
+last_anchor_iso8601: 2026-05-27T23:15:00+08:00
+last_anchor_utc: 2026-05-27T15:15:00Z
+# v0.61.178 (commit 391 / journal 379 / build 181) — surface the
+# v0.61.177 cuisine-venue-counts total in marketing copy via a new
+# `{cuisine-venues}` placeholder in `start.intro`. Reads from the
+# cuisine-venue-counts:latest Redis blob written by the
+# owner-triggered chat sweep; falls back to 600 when Redis is
+# empty (no sweep run yet). Branch
+# claude/v0.61.178-cuisine-venues-marketing-copy off main at
+# v0.61.177.
+# Files (4):
+# - count-display.js (3 changes):
+#   * FALLBACK extended with `cuisine-venues: 600`.
+#   * NEW _getCuisineVenuesCount(redis) — reads cvc.loadFromRedis,
+#     pulls latest.total, falls back on missing/closed/corrupt.
+#   * getDisplayCount special-cases item === 'cuisine-venues' to
+#     route to _getCuisineVenuesCount (instead of count-history).
+#   * getDisplayCounts + formatAllCountsPlus both append the
+#     'cuisine-venues' entry to their output maps.
+# - __tests__/count-display.test.js: +8 tests (FALLBACK shape;
+#   empty/blob-present/null/zero/corrupt-json paths;
+#   getDisplayCounts + formatAllCountsPlus include cuisine-venues;
+#   substituteCounts replaces the hyphenated placeholder). 2
+#   existing tests updated to expect 15-item map (was 14). Total
+#   17 → 25 tests, all passing.
+# - i18n.js: `start.intro` EN + FR templates updated to inject the
+#   {cuisine-venues} placeholder in both the marketing paragraph
+#   and the `/cuisine` slash-menu description line. Falls back to
+#   the literal `{cuisine-venues}` literal in the rendered string
+#   if substitution fails (loud signal not silent).
+# - package.json: 0.61.177 -> 0.61.178.
+# - doc/.serial-state.yml: commit 390->391, build 180->181,
+#   journal 378->379; re-anchored 27-05 '26 23:15 SGT.
+# - doc/Journal/journal-0_61_178-27_05_27-2315.md: this entry.
+#
 # v0.61.177 (commit 390 / journal 378 / build 180) — cuisine-venue-
 # counts chat trigger + Redis persistence. v0.61.173 shipped the
 # module + CLI but persisted to data/cuisine-venue-counts.json on

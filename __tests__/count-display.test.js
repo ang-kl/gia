@@ -77,11 +77,12 @@ describe('getDisplayCounts', () => {
   let redis;
   beforeEach(() => { redis = makeFakeRedis(); });
 
-  it('returns a complete map of all 14 items', async () => {
+  it('returns a complete map of all 14 items + cuisine-venues (v0.61.178)', async () => {
     const counts = await getDisplayCounts(redis);
-    expect(Object.keys(counts).length).toBe(14);
+    expect(Object.keys(counts).length).toBe(15);   // 14 Periodical items + cuisine-venues
     expect(counts.cuisines).toBe(55);
     expect(counts.hawker).toBe(100);
+    expect(counts['cuisine-venues']).toBe(600);    // FALLBACK
   });
 
   it('mixes live + fallback for partially-seeded redis', async () => {
@@ -119,11 +120,12 @@ describe('formatAllCountsPlus', () => {
   let redis;
   beforeEach(() => { redis = makeFakeRedis(); });
 
-  it('returns "N+" strings for all 14 items', async () => {
+  it('returns "N+" strings for all 14 items + cuisine-venues (v0.61.178)', async () => {
     const out = await formatAllCountsPlus(redis);
     expect(out.cuisines).toBe('55+');
     expect(out.hawker).toBe('100+');
-    expect(Object.keys(out).length).toBe(14);
+    expect(out['cuisine-venues']).toBe('600+');     // FALLBACK rounded
+    expect(Object.keys(out).length).toBe(15);
   });
 });
 
@@ -150,5 +152,71 @@ describe('substituteCounts', () => {
     const counts = { 'bus-stops': '5500+', 'train-lines': '6+' };
     const out = substituteCounts('{bus-stops} stops, {train-lines} lines', counts);
     expect(out).toBe('5500+ stops, 6+ lines');
+  });
+});
+
+// v0.61.178 — cuisine-venues special path (reads from
+// cuisine-venue-counts:latest Redis blob instead of count-history).
+describe('cuisine-venues (v0.61.178)', () => {
+  it('FALLBACK includes a cuisine-venues baseline', () => {
+    expect(FALLBACK['cuisine-venues']).toBe(600);
+  });
+
+  it('falls back to FALLBACK when Redis has no cuisine-venues blob', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => null;
+    const n = await getDisplayCount(redis, 'cuisine-venues');
+    expect(n).toBe(600);
+  });
+
+  it('reads the total from the cvc Redis blob when present', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async (k) => {
+      if (k === 'cuisine-venue-counts:latest') return JSON.stringify({ total: 723, perSlug: {}, capped: [], errors: {} });
+      return null;
+    };
+    const n = await getDisplayCount(redis, 'cuisine-venues');
+    expect(n).toBe(723);
+  });
+
+  it('falls back when blob exists but has no finite total', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => JSON.stringify({ total: null });
+    const n = await getDisplayCount(redis, 'cuisine-venues');
+    expect(n).toBe(600);
+  });
+
+  it('falls back when blob exists but total <= 0', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => JSON.stringify({ total: 0 });
+    const n = await getDisplayCount(redis, 'cuisine-venues');
+    expect(n).toBe(600);
+  });
+
+  it('falls back on corrupt JSON in the Redis blob', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => '{this-is-not-json';
+    const n = await getDisplayCount(redis, 'cuisine-venues');
+    expect(n).toBe(600);
+  });
+
+  it('getDisplayCounts includes cuisine-venues in the output map', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => JSON.stringify({ total: 615 });
+    const m = await getDisplayCounts(redis);
+    expect(m['cuisine-venues']).toBe(615);
+  });
+
+  it('formatAllCountsPlus includes cuisine-venues with the "{n}+" format', async () => {
+    const redis = makeFakeRedis();
+    redis.get = async () => JSON.stringify({ total: 612 });
+    const m = await formatAllCountsPlus(redis);
+    expect(m['cuisine-venues']).toBe('610+');   // rounded down to nearest 5
+  });
+
+  it('substituteCounts replaces {cuisine-venues} placeholders', () => {
+    const counts = { 'cuisine-venues': '610+' };
+    const out = substituteCounts('over {cuisine-venues} curated venues', counts);
+    expect(out).toBe('over 610+ curated venues');
   });
 });
