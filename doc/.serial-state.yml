@@ -1,8 +1,8 @@
 counters:
-  commit: 385
-  build: 175
+  commit: 386
+  build: 176
   documents:
-    journal: 373
+    journal: 374
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,62 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 13
-last_anchor_time: 27-05 '26 17:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_171 (PR #672 merged 27-05 '26 ~17:15 SGT; v0.61.172 recountTrain* schema fix built on v0.61.171 at 17:30 SGT)
-last_anchor_iso8601: 2026-05-27T17:30:00+08:00
-last_anchor_utc: 2026-05-27T09:30:00Z
+  current_chat_counter: 14
+last_anchor_time: 27-05 '26 21:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_172 (PR #673 merged 27-05 '26 ~16:48 SGT; v0.61.173 cuisine-venue-counts built on v0.61.172 at 21:00 SGT — operator interrupted between merges to re-login + upgrade plan)
+last_anchor_iso8601: 2026-05-27T21:00:00+08:00
+last_anchor_utc: 2026-05-27T13:00:00Z
+# v0.61.173 (commit 386 / journal 374 / build 176) — standalone
+# cuisine-venue-counts module + scripts/recount-cuisine-venues.js
+# CLI runner for the operator-confirmed 48-cuisine subset (of 67 in
+# cuisines-vault.js). Per-cuisine tally via Google Places searchText
+# with pagination up to the 60-result cap. NOT wired into the
+# v0.61.166 Periodical system — operator chose "separate module,
+# manual-only" so paid Places calls only fire when the operator
+# explicitly invokes `npm run count:cuisines`. Privacy contract:
+# venue names + placeIds transit memory during the count but ONLY
+# integers persist (one per cuisine + one total) to
+# data/cuisine-venue-counts.json. Branch
+# claude/v0.61.173-cuisine-venue-counts off main at v0.61.172.
+# Files (6):
+# - NEW cuisine-venue-counts.js (~135 lines):
+#   * SCOPE_SLUGS frozen array of 48 slugs (excludes the 19 the
+#     operator dropped: singaporean/south-indian/malaysian/
+#     indonesian/chinese/sichuan/cantonese/hunan/hokkien/teochew/
+#     hainanese/hakka/hong-kong/macau/european/mediterranean/
+#     turkish/dessert/fusion).
+#   * PLACES_SEARCH_TEXT_URL + FIELD_MASK_COUNT (minimal: places.id
+#     + nextPageToken — keeps us on the cheapest Places SKU).
+#   * PAGE_SIZE=20, MAX_PAGES=3 (Places hard ceiling = 60).
+#   * buildTextQuery: prefers cuisines-vault.searchQuery, falls
+#     back to "<name> restaurant Singapore".
+#   * countOne(slug, opts): paginates, dedups placeIds across
+#     pages (Set), surfaces capped=true at 60+, isolates errors.
+#     opts.fetchFn lets tests inject a synthetic fetch.
+#   * countAll(opts): parallel sweep of all 48; returns
+#     { ts, total, perSlug, capped, errors, pages, elapsedMs }.
+#   * _defaultFetch: axios-based, regionCode=SG, 8s timeout.
+# - NEW scripts/recount-cuisine-venues.js (CLI runner):
+#   * Loads .env, validates GOOGLE_MAPS_API_KEY, calls countAll,
+#     writes data/cuisine-venue-counts.json atomically (tmp +
+#     rename), prints summary (total / capped slugs / errors /
+#     pages / elapsed).
+# - NEW data/cuisine-venue-counts.json (placeholder skeleton, all
+#   per-slug values null until the operator runs the script).
+# - NEW __tests__/cuisine-venue-counts.test.js (18 tests):
+#   SCOPE_SLUGS shape/freeze/no-dupes/vault-coverage; the 19
+#   exclusions verified absent; buildTextQuery vault preference +
+#   fallbacks; countOne pagination + dedup + cap + error isolation
+#   + empty-page; countAll aggregation + capped-list + elapsed +
+#   ISO ts. All 18 pass.
+# - package.json: 0.61.172 -> 0.61.173 + new `count:cuisines` npm
+#   script alias.
+# - doc/.serial-state.yml: commit 385->386, build 175->176,
+#   journal 373->374; re-anchored 27-05 '26 21:00 SGT.
+# - doc/Journal/journal-0_61_173-27_05_27-2100.md: this entry.
+# Cost estimate: ~$3.45 per sweep (48 cuisines × ~1.8 paginated
+# calls × $0.04). Operator invokes manually.
+#
 # v0.61.172 (commit 385 / journal 373 / build 175) — fix two schema
 # mismatches in v0.61.166's Periodical recount system that left
 # train-stations + train-lines reporting `source: 'unavailable'`

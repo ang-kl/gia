@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.61.172",
+  "version": "0.61.173",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -15,6 +15,7 @@
     "build:geo": "node scripts/build-geo-overlays.js",
     "fetch:mrt-osm": "node scripts/fetch-mrt-lines-osm.js",
     "fetch:24hr-places": "node scripts/fetch-24hr-places.js",
+    "count:cuisines": "node scripts/recount-cuisine-venues.js",
     "postinstall": "npm run build"
   },
   "engines": {
