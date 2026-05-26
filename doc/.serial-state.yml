@@ -1,8 +1,8 @@
 counters:
-  commit: 407
-  build: 197
+  commit: 408
+  build: 198
   documents:
-    journal: 395
+    journal: 396
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,70 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 35
-last_anchor_time: 28-05 '26 07:45 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_193 (PR #695 v0.61.193 merged 28-05 '26 ~03:05 SGT; v0.61.194 Catmull-Rom smoothing for LRT lines built on v0.61.193 at 28-05 '26 07:45 SGT)
-last_anchor_iso8601: 2026-05-28T07:45:00+08:00
-last_anchor_utc: 2026-05-27T23:45:00Z
+  current_chat_counter: 36
+last_anchor_time: 28-05 '26 08:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_194 (PR #696 v0.61.194 merged 28-05 '26 07:48 SGT; v0.61.195 /location country picker built on v0.61.194 at 28-05 '26 08:00 SGT)
+last_anchor_iso8601: 2026-05-28T08:00:00+08:00
+last_anchor_utc: 2026-05-28T00:00:00Z
+# v0.61.195 (commit 408 / journal 396 / build 198) — chat-side
+# /location country picker. Operator's earlier flow (`/location
+# Times Square`) hard-coded `components=country:SG`, so a typed-in
+# Kuala Lumpur address resolved to a Singapore shop — same class of
+# bug v0.61.191 fixed in the Cuisine TMA's OTHER picker. v0.61.195
+# adds the symmetric chat-side fix: a 17-country picker (SG + the
+# 16 OTHER countries from v0.61.191/192) accessible via `/lcountry`
+# (alias `/lc`), persisted in Redis (`country-pref:<chatId>`, TTL
+# 365d), and read by `/location <place>` to branch geocoding —
+# SG stays on the legacy Geocoding-API path; non-SG routes through
+# Places (New) `searchText` with `includedRegionCodes:[<cc>]` (the
+# same endpoint shape as the TMA's /api/cuisine/place-search-by-
+# country).
+#
+# Branch claude/v0.61.195-location-country-picker off main at
+# v0.61.194. Files (4):
+# - NEW country-pref.js (~115 lines): CommonJS module mirroring
+#   web/cuisine/src/v2/lib/countries.js. Exports OTHER_COUNTRIES
+#   (16, identical to the TMA list), ALL_COUNTRIES (17 — SG +
+#   OTHER), DEFAULT_COUNTRY='SG', findCountry, isValidCountry,
+#   buildCountryPickerKeyboard (inline keyboard: SG alone row 1,
+#   4 rows of 4 OTHER, Cancel row), getUserCountryPref(redis,
+#   chatId) returning 'SG' default + setUserCountryPref(redis,
+#   chatId, code) validating against ALL_CODES.
+# - NEW __tests__/country-pref.test.js: 13 tests — list shape (SG
+#   first + 17 total + 16 OTHER + ASEAN-9/Oceania-2/N-Asia-5
+#   coverage); validators (case-insensitive accept, reject US/
+#   null/empty); keyboard layout (6 rows, ≤ 4 cols, cp:cancel);
+#   Redis stub round-trip (default → set → get → corrupt fallback).
+# - index.js (3 edits):
+#   * require('./country-pref') in the top destructure block (~line 40).
+#   * NEW `/lcountry` (alias `/lc`) handler — sends the picker
+#     inline keyboard with current pref shown as a _Current: ..._
+#     line above.
+#   * NEW `cp:<CODE>` / `cp:cancel` branch in callback_query —
+#     persists via setUserCountryPref, edits the picker message to
+#     a "✅ Search country: <flag> <name>" confirmation, falls
+#     back to safeSend on edit failure. Cancel deletes the picker
+#     message.
+#   * `/location <text>` geocode block restructured: reads
+#     getUserCountryPref(redis, chatId); if SG → legacy
+#     Geocoding-API path with components=country:SG (unchanged);
+#     else Places searchText with regionCode + includedRegionCodes
+#     for the picked country. Stores the resulting anchor with
+#     `region: 'OTHER'` + `label`, so the TMA's auto-flip logic
+#     (v0.61.185) picks up the non-SG anchor on next mount.
+# - package.json: 0.61.194 -> 0.61.195.
+# - doc/.serial-state.yml: commit 407->408, build 197->198,
+#   journal 395->396; re-anchored 28-05 '26 08:00 SGT.
+# - doc/Journal/journal-0_61_195-28_05_28-0800.md: this entry.
+#
+# Privacy: country pref is just a 2-letter ISO code, no PII
+# beyond what chatId already carries. 365-day TTL — operators
+# may not touch the picker again for months and we don't want
+# their saved country wiping on a slow week.
+#
+# Verification: 2477/2477 tests pass (13 new); node --check
+# index.js + country-pref.js both clean.
+#
 # v0.61.194 (commit 407 / journal 395 / build 197) — Catmull-Rom
 # spline smoothing for LRT lines (BPL/SLRT/PLRT). Operator
 # screenshots showed the existing Chaikin 2-iter smoothing
