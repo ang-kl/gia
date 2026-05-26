@@ -213,7 +213,13 @@ export default function ResultPanel({
             seen so far for this criteria. `cumulativeCap` is the
             session SEEN_CAP (100 today) — when knownTotal ≥ cap AND
             finalBatch, the "limit reached" copy fires. */}
-        <div className="text-xs font-semibold flex-shrink-0">{(() => {
+        {/* v0.61.190 — title rendered on TWO lines so the right-side
+            Copy all / Copy syntax buttons stay un-crowded on narrow
+            phones. Line 1: "Results: {known}". Line 2: per-state
+            "· Showing first N" / "· Showing A-B" / "· Showing all"
+            / "· Limit reached". Pre-first-fetch falls back to the
+            single-line "Showing N results" string. */}
+        <div className="text-xs font-semibold flex-shrink-0 leading-tight">{(() => {
           if (!venues) return lang === 'fr' ? 'Résultats' : 'Results';
           const visibleStart = (page - 1) * PAGE_SIZE + 1;
           const visibleEnd = Math.min(page * PAGE_SIZE, venues.length);
@@ -224,23 +230,31 @@ export default function ResultPanel({
           else if (Number.isFinite(knownTotal) && knownTotal > 0) known = knownTotal;
           const cap = Number.isFinite(cumulativeCap) && cumulativeCap > 0 ? cumulativeCap : null;
           const isExhaustedNow = !!finalBatch || !!exhausted;
-          // Limit-reached branch: cap-tracking + this batch exhausts
-          if (cap && known && known >= cap && isExhaustedNow) {
-            return tr('panel.limit', lang).replace('{cap}', cap);
+          // Single-line fallback when total isn't known yet.
+          if (!known) {
+            return tr('panel.discovering', lang).replace('{n}', venues.length);
           }
-          // Known + single-page (all visible fit on one page) → "Showing all"
-          if (known && venues.length <= PAGE_SIZE && known === venues.length) {
-            return tr('panel.all', lang).replace('{known}', known);
-          }
-          // Known + multi-page → "Showing A-B"
-          if (known) {
-            return tr('panel.range', lang)
-              .replace('{known}', known)
+          const line1 = tr('panel.line1', lang).replace('{known}', known);
+          // Build line 2 per state.
+          let line2;
+          if (cap && known >= cap && isExhaustedNow) {
+            line2 = tr('panel.line2.limit', lang);
+          } else if (venues.length <= PAGE_SIZE && known === venues.length) {
+            line2 = tr('panel.line2.all', lang);
+          } else if (visibleStart === 1 && visibleEnd <= PAGE_SIZE) {
+            // First batch / first page — "Showing first N".
+            line2 = tr('panel.line2.first', lang).replace('{first}', visibleEnd);
+          } else {
+            line2 = tr('panel.line2.range', lang)
               .replace('{start}', visibleStart)
               .replace('{end}', visibleEnd);
           }
-          // Unknown total (pre-first-fetch / no signal) → "Showing N results"
-          return tr('panel.discovering', lang).replace('{n}', venues.length);
+          return (
+            <>
+              <div>{line1}</div>
+              <div className="text-tg-hint font-normal">{line2}</div>
+            </>
+          );
         })()}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (

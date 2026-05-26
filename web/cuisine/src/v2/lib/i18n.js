@@ -61,14 +61,28 @@ const STRINGS = {
   // discovered (server-side cap not yet known); `Results: {cap}+ ·
   // Limit reached` when SEEN_CAP reached. Michelin keeps the curated
   // pool size as known total.
-  'panel.range':               { en: 'Results: {known} · Showing {start}-{end}',
-                                 fr: 'Résultats : {known} · Affichage de {start} à {end}' },
-  'panel.all':                 { en: 'Results: {known} · Showing all',
-                                 fr: 'Résultats : {known} · Tout afficher' },
+  // v0.61.190 — title is now rendered on TWO lines so the Copy
+  // all / Copy syntax buttons on the right stay un-crowded.
+  // line 1: "Results: {known}"
+  // line 2: "· Showing {start}-{end}"   (or "Showing first {n}",
+  //         or "Showing all", or "Limit reached")
+  // The i18n keys below carry the SECOND line only; line 1 is
+  // rendered inline by ResultPanel ("Results: {known}"). When the
+  // total is unknown, line 1 is omitted and we fall back to the
+  // single-line `panel.discovering` string.
+  'panel.line1':               { en: 'Results: {known}',
+                                 fr: 'Résultats : {known}' },
+  'panel.line2.first':         { en: '· Showing first {first}',
+                                 fr: '· Affichage des {first} premiers' },
+  'panel.line2.range':         { en: '· Showing {start}-{end}',
+                                 fr: '· Affichage de {start} à {end}' },
+  'panel.line2.all':           { en: '· Showing all',
+                                 fr: '· Tout afficher' },
+  'panel.line2.limit':         { en: '· Limit reached',
+                                 fr: '· Limite atteinte' },
+  // Single-line fallback when total isn't yet known.
   'panel.discovering':         { en: 'Showing {n} results',
                                  fr: 'Affichage de {n} résultats' },
-  'panel.limit':               { en: 'Results: {cap}+ · Limit reached',
-                                 fr: 'Résultats : {cap}+ · Limite atteinte' },
   // Helper line below header for the "too few results" state.
   'panel.helperTooFew':        { en: 'Change search or tap 🔍',
                                  fr: 'Modifiez la recherche ou touchez 🔍' },
