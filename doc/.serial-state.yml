@@ -1,8 +1,8 @@
 counters:
-  commit: 384
-  build: 174
+  commit: 385
+  build: 175
   documents:
-    journal: 372
+    journal: 373
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,44 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 12
-last_anchor_time: 27-05 '26 17:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_170 (PR #671 merged 27-05 '26 ~16:45 SGT; v0.61.171 chat-freetext seen-set built on v0.61.170 at 17:00 SGT)
-last_anchor_iso8601: 2026-05-27T17:00:00+08:00
-last_anchor_utc: 2026-05-27T09:00:00Z
+  current_chat_counter: 13
+last_anchor_time: 27-05 '26 17:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_171 (PR #672 merged 27-05 '26 ~17:15 SGT; v0.61.172 recountTrain* schema fix built on v0.61.171 at 17:30 SGT)
+last_anchor_iso8601: 2026-05-27T17:30:00+08:00
+last_anchor_utc: 2026-05-27T09:30:00Z
+# v0.61.172 (commit 385 / journal 373 / build 175) — fix two schema
+# mismatches in v0.61.166's Periodical recount system that left
+# train-stations + train-lines reporting `source: 'unavailable'`
+# in every cadence run. Operator ran a manual recount on the
+# 14-item Periodical set and surfaced the gap (10,300 records
+# across 11 of 14 items; +209 train stations + 12 train lines
+# brings total to 10,521 — production carparks via LTA brings it
+# to ~12,500). Branch claude/v0.61.172-recount-train-schema-fix
+# off main at v0.61.171.
+# Files (4):
+# - count-recount.js (2 fns rewritten):
+#   * recountTrainStations: was `_countJsonArray('data/mrt-coords.
+#     json')` — the helper only recognises array shapes
+#     (Array.isArray / j.features / j.centres / j[arrayKey]) but
+#     data/mrt-coords.json is `{ _meta, "Jurong East": {...},
+#     "Bishan": {...}, ... }`. Fix: read the file directly,
+#     `Object.keys(j).filter((k) => k !== '_meta').length`.
+#     Returns 209 (180 operational + 29 future, as of 2026-05-10).
+#   * recountTrainLines: parsed a singular `.code` field on a
+#     `j.features` array — wrong shape on BOTH axes. Fix: union
+#     each station entry's `.lines` array ('NSL', 'EWL', etc.)
+#     into a Set. Returns 12 (10 operational + JRL + CRL future).
+# - __tests__/count-recount.test.js: train-lines test
+#   strengthened (was guarded by `if (Number.isFinite(out.n))` —
+#   which masked the bug because n was always null); new
+#   train-stations test added. Both assert `source !==
+#   'unavailable'` so a future schema regression fails loudly.
+#   Total count-recount.test.js: 13 tests (was 12).
+# - package.json: 0.61.171 -> 0.61.172.
+# - doc/.serial-state.yml: commit 384->385, build 174->175,
+#   journal 372->373; re-anchored 27-05 '26 17:30 SGT.
+# - doc/Journal/journal-0_61_172-27_05_27-1730.md: this entry.
+#
 # v0.61.171 (commit 384 / journal 372 / build 174) — chat free-text
 # seen-set + 🔍 for more button + recycle. Mirrors the cuisine TMA
 # per-(chatId, criteria) dedup (cuisine-session.js) for the

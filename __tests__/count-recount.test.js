@@ -153,14 +153,28 @@ describe('recount fns — defensive behaviour', () => {
     expect(out.n).toBeLessThan(200);
   });
 
-  it('train-lines recount derives a small integer from station codes', async () => {
+  it('train-lines recount derives a small integer from each station\'s .lines array', async () => {
+    // v0.61.172 fix — the v0.61.164 implementation parsed a singular
+    // `.code` field against a `features` array; the file is keyed by
+    // station name with a plural `.lines` array. The fix unions every
+    // entry's .lines into a Set.
     const out = await recountOne(redis, 'train-lines');
-    // SG has 6 operational MRT lines as of 2026; LRT prefixes may
-    // bring the total higher. JB RTS Link (Dec 2026 / Jun 2027)
-    // adds another prefix once exposed.
-    if (Number.isFinite(out.n)) {
-      expect(out.n).toBeGreaterThan(3);
-      expect(out.n).toBeLessThan(20);
-    }
+    // SG has 6 trunk MRT lines + 3 LRT lines + CGL branch + future
+    // JRL / CRL → ~10-15 distinct codes expected.
+    expect(out.source).not.toBe('unavailable');
+    expect(out.n).toBeGreaterThan(5);
+    expect(out.n).toBeLessThan(20);
+  });
+
+  it('train-stations recount counts station-name keys, ignoring _meta', async () => {
+    // v0.61.172 fix — mrt-coords.json is a flat object whose keys are
+    // station names ("Jurong East", "Bishan", ...) plus a single
+    // "_meta" header. _countJsonArray didn't recognise this shape so
+    // returned null; the fix reads `Object.keys(j).filter(k => k !==
+    // '_meta').length` directly.
+    const out = await recountOne(redis, 'train-stations');
+    expect(out.source).not.toBe('unavailable');
+    expect(out.n).toBeGreaterThan(150);  // 180 operational as of 2026
+    expect(out.n).toBeLessThan(300);     // + ~29 future + buffer
   });
 });
