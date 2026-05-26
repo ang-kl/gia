@@ -3473,6 +3473,16 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     if (routed) return;
   }
   let intro = t('start.intro', startLang);
+  // v0.61.169 — substitute live Periodical counts into the intro
+  // template. Falls back to count-display.FALLBACK baselines when
+  // the count:history is unseeded.
+  try {
+    const { formatAllCountsPlus, substituteCounts } = require('./count-display');
+    const counts = await formatAllCountsPlus(redis);
+    intro = substituteCounts(intro, counts);
+  } catch (err) {
+    console.warn('[/start] count-display substitution failed:', err.message);
+  }
   // v0.59.37 — proactive language-drift hint. Per Human Lead 2026-05-07:
   // when the user's Telegram client locale differs from their explicit
   // Redis pref (set via /language en|fr), surface a one-line hint so
@@ -9197,11 +9207,24 @@ async function registerCommandsMenu() {
     // /cuisine) and /l (for /location) are surfaced inline in the
     // description so users learn the shortcut. /hidden, /legal, /ver
     // remain "special commands" — handlers exist, menu does not.
+    // v0.61.169 — read live Periodical counts at startup so the
+    // setMyCommands descriptions reflect the current numbers. The
+    // count system seeds from FALLBACK when nothing's in history.
+    let _periodicalCountsStr = { cuisines: '50+', hawker: '100' };
+    try {
+      const { formatAllCountsPlus } = require('./count-display');
+      const _cs = await formatAllCountsPlus(redis);
+      _periodicalCountsStr = {
+        cuisines: _cs.cuisines || '50+',
+        hawker: (_cs.hawker || '100+').replace('+', '')   // 'Plus de 100' reads better than 'Plus de 100+'
+      };
+    } catch (err) { console.warn('[setMyCommands] count-display read failed:', err.message); }
+
     const enCommands = [
       { command: 'menu',       description: 'Soleat menu hub · one-tap reach to every feature (or /m)' },
-      { command: 'cuisine',    description: 'Cuisine Picker · 50+ cuisines, SG + Johor Bahru, quick filters (or /c)' },
+      { command: 'cuisine',    description: `Cuisine Picker · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters (or /c)` },
       { command: 'location',   description: 'Change location · /location [street] (or /l)' },
-      { command: 'hawker',     description: '>100 hawker centres (2025)' },
+      { command: 'hawker',     description: `>${_periodicalCountsStr.hawker} hawker centres (2025)` },
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
@@ -9218,9 +9241,9 @@ async function registerCommandsMenu() {
     ];
     const frCommands = [
       { command: 'menu',       description: 'Hub Soleat · accès rapide à toutes les fonctionnalités (ou /m)' },
-      { command: 'cuisine',    description: 'Sélecteur de cuisine · 50+ cuisines, SG + Johor Bahru, filtres rapides (ou /c)' },
+      { command: 'cuisine',    description: `Sélecteur de cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres rapides (ou /c)` },
       { command: 'location',   description: 'Changer de lieu · /location [rue] (ou /l)' },
-      { command: 'hawker',     description: 'Plus de 100 hawker centres (2025)' },
+      { command: 'hawker',     description: `Plus de ${_periodicalCountsStr.hawker} hawker centres (2025)` },
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, produits locaux' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
@@ -9255,9 +9278,9 @@ async function registerCommandsMenu() {
     // setMyShortDescription (120-char "About" pane); the body here is
     // the menu list + a tap-to-open hint.
     const enDescription =
-      "/cuisine (or /c) · 50+ cuisines, SG + Johor Bahru, quick filters\n" +
+      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters\n` +
       "/location (or /l) · change location [street]\n" +
-      "/hawker · >100 hawker centres (2025)\n" +
+      `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
       "/weather · now + 2-hour NEA forecast\n" +
       "/transport · bus, MRT, walk, drive\n" +
@@ -9269,9 +9292,9 @@ async function registerCommandsMenu() {
       "/forgetme · erase stored data\n\n" +
       "Tap 🍴 Cuisine Picker to jump in.";
     const frDescription =
-      "/cuisine (ou /c) · 50+ cuisines, SG + Johor Bahru, filtres\n" +
+      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres\n` +
       "/location (ou /l) · changer de lieu [rue]\n" +
-      "/hawker · plus de 100 hawker centres (2025)\n" +
+      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
       "/weather · actuel + prévision NEA 2 h\n" +
       "/transport · bus, MRT, marche, voiture\n" +
@@ -13462,6 +13485,27 @@ async function cacheBotUsername() {
     // cached 60 s. Needs LTA_ACCOUNT_KEY; when unset the endpoint just
     // returns an empty list and the carpark chip toggles nothing.
     //
+    // v0.61.169 — live Periodical counts endpoint. Returns the
+    // newest entry's `n` for every tracked item, formatted as a
+    // `{n}+` string (rounded down to the nearest 5 for stability).
+    // Used by the Menu TMA + (future) Cuisine TMA banner so the
+    // marketing strings reflect the live count instead of a
+    // hardcoded baseline. Public — no initData required (just a
+    // display count, no PII).
+    app.get('/api/cuisine/counts', async (_req, res) => {
+      try {
+        const { getDisplayCounts, formatAllCountsPlus } = require('./count-display');
+        const [counts, plus] = await Promise.all([
+          getDisplayCounts(redis),
+          formatAllCountsPlus(redis)
+        ]);
+        res.json({ counts, plus });
+      } catch (err) {
+        console.warn('[/api/cuisine/counts] failed:', err.message);
+        res.json({ counts: {}, plus: {} });
+      }
+    });
+
     // v0.61.158 — rule §2.8 fallback: optional `?lat=X&lng=Y&mode=OTHER`
     // query params switch the source to Google Places (5 km radius)
     // when mode is JB / OTHER. SG-mode requests (or missing params)
