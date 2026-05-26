@@ -2529,6 +2529,15 @@ bot.on('callback_query', async (q) => {
           try { await bot.deleteMessage(chatId, messageId); } catch { /* ignore */ }
           return;
         }
+        // v0.61.183 — per-cuisine detail view. Dumps the loaded
+        // Redis blob's perSlug map as a code block. If the count
+        // exceeds Telegram's 4096-char limit (it shouldn't at 48
+        // slugs but ~80 char per row is a safe ceiling), it gets
+        // chunked.
+        if (data === 'cv:details') {
+          await ownerCuisineVenueDetails(chatId);
+          return;
+        }
       } catch (err) {
         console.error('[Error] /cv callback failed:', err.message);
         await safeSend(chatId, 'Sorry, that Cuisine-venues action hit an error.');
@@ -3430,9 +3439,14 @@ async function ownerCuisineVenueMenu(chatId, messageId = null) {
     if (errN > 0) lines.push(`<i>Errors: ${Object.keys(latest.errors).slice(0, 5).join(', ')}${errN > 5 ? ` (+${errN - 5})` : ''}</i>`);
   }
   const rows = [
-    [{ text: latest ? '🔄 Recount now (~$3.45)' : '🔄 Run now (~$3.45)', callback_data: 'cv:run' }],
-    [{ text: '✕ Close', callback_data: 'cv:close' }]
+    [{ text: latest ? '🔄 Recount now (~$3.45)' : '🔄 Run now (~$3.45)', callback_data: 'cv:run' }]
   ];
+  // v0.61.183 — per-cuisine detail dump button, only when there's
+  // something to show.
+  if (latest && latest.perSlug) {
+    rows.push([{ text: '📋 Per-cuisine details', callback_data: 'cv:details' }]);
+  }
+  rows.push([{ text: '✕ Close', callback_data: 'cv:close' }]);
   const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
   if (messageId) {
     try { await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload }); return; }
@@ -3480,6 +3494,61 @@ async function ownerCuisineVenueRecount(chatId) {
   await bot.sendMessage(chatId, summary, { parse_mode: 'HTML' }).catch(() => {});
   // Re-open the menu so operator sees the refreshed view.
   await ownerCuisineVenueMenu(chatId, null);
+}
+
+// v0.61.183 — per-cuisine detail dump for the chat cv: menu.
+// Loads the latest sweep result + renders a sorted-by-count table
+// of all 48 slugs in a Markdown code block. Chunks the output if
+// it exceeds Telegram's 4096-char per-message limit (shouldn't at
+// 48 rows but defensive).
+async function ownerCuisineVenueDetails(chatId) {
+  const cvc = require('./cuisine-venue-counts');
+  const latest = await cvc.loadFromRedis(redis);
+  if (!latest || !latest.perSlug) {
+    await safeSend(chatId, 'ℹ️ No cuisine-venue sweep data yet. Tap 🔄 Run now first.');
+    return;
+  }
+  const entries = Object.entries(latest.perSlug);
+  // Sort: errors (null) last, then by count desc, then alpha.
+  entries.sort((a, b) => {
+    const an = a[1], bn = b[1];
+    if (an == null && bn == null) return a[0].localeCompare(b[0]);
+    if (an == null) return 1;
+    if (bn == null) return -1;
+    if (an !== bn) return bn - an;
+    return a[0].localeCompare(b[0]);
+  });
+  const capped = new Set(Array.isArray(latest.capped) ? latest.capped : []);
+  const tiled = new Set(Array.isArray(latest.tiledSlugs) ? latest.tiledSlugs : []);
+  // Build rows: "slug ........ n [60+|tiled|err]"
+  const slugMax = Math.max(...entries.map(([s]) => s.length));
+  const rows = entries.map(([slug, n]) => {
+    const flag = n == null
+      ? ' err'
+      : capped.has(slug)
+        ? ' 60+'
+        : tiled.has(slug)
+          ? ' (tiled)'
+          : '';
+    const nStr = n == null ? '—' : String(n);
+    return `  ${slug.padEnd(slugMax + 2, '.')}${nStr.padStart(5)}${flag}`;
+  });
+  const header = `Cuisine venue counts (${cvc.SCOPE_SLUGS.length} cuisines) — total: ${latest.total ?? '?'}`;
+  // Chunk into ≤3500-char blocks (leaving headroom for code-block markdown).
+  const CHUNK = 3500;
+  let block = header + '\n';
+  const blocks = [];
+  for (const row of rows) {
+    if (block.length + row.length + 1 > CHUNK) {
+      blocks.push(block);
+      block = '';
+    }
+    block += row + '\n';
+  }
+  if (block) blocks.push(block);
+  for (const b of blocks) {
+    await bot.sendMessage(chatId, '```\n' + b + '```', { parse_mode: 'Markdown' }).catch(() => {});
+  }
 }
 
 async function setVerboseMode(chatId, action) {
