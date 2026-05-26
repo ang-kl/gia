@@ -6,7 +6,7 @@
 // root (node-environment) Vitest can exercise it directly.
 
 import { describe, it, expect } from 'vitest';
-import { buildLinePaths, resolveLinePaths, smoothSegment, smoothLinePaths } from '../web/transport/src/data/line-paths.js';
+import { buildLinePaths, resolveLinePaths, smoothSegment, smoothLinePaths, catmullRomSegment } from '../web/transport/src/data/line-paths.js';
 
 const STATIONS = [
   { name: 'Jurong East',    lat: 1.3329, lng: 103.7421, codes: ['NS1', 'EW24'], lines: ['NSL', 'EWL'], status: 'operational' },
@@ -273,18 +273,77 @@ describe('smoothSegment — Chaikin corner-cutting (v0.66.0)', () => {
   });
 });
 
-describe('smoothLinePaths — whole-map smoothing (v0.66.0)', () => {
+describe('smoothLinePaths — whole-map smoothing (v0.66.0 + v0.61.194)', () => {
   it('smooths every segment and preserves _meta keys', () => {
     const raw = buildLinePaths(ALL_STATIONS);
     const smoothed = smoothLinePaths({ _meta: { x: 1 }, ...raw });
     expect(smoothed._meta).toEqual({ x: 1 });
-    // BPL is a single segment — smoothing should lengthen it.
-    expect(smoothed.BPL[0].length).toBeGreaterThan(raw.BPL[0].length);
+    // v0.61.194 — LRT lines (BPL/SLRT/PLRT) use Catmull-Rom (12 sub-
+    // segments per control point) so the output is MUCH denser than
+    // the raw segment.
+    expect(smoothed.BPL[0].length).toBeGreaterThan(raw.BPL[0].length * 5);
+    // CCL stays on Chaikin — also lengthens, less dramatically.
+    expect(smoothed.CCL[0].length).toBeGreaterThan(raw.CCL[0].length);
     // every point stays a finite {lat,lng}.
     for (const seg of smoothed.CCL) {
       for (const p of seg) {
         expect(Number.isFinite(p.lat) && Number.isFinite(p.lng)).toBe(true);
       }
     }
+  });
+
+  it('LRT lines (BPL/SLRT/PLRT) use Catmull-Rom — output passes through every station (v0.61.194)', () => {
+    const raw = buildLinePaths(ALL_STATIONS);
+    const smoothed = smoothLinePaths(raw);
+    // For each LRT line, every original station coord must appear
+    // (within 1e-5° rounding) in the smoothed output. Catmull-Rom
+    // guarantees B(0) = P1, so every control point is preserved.
+    for (const code of ['BPL', 'PLRT']) {
+      if (!raw[code]) continue;
+      for (let si = 0; si < raw[code].length; si++) {
+        const rawSeg = raw[code][si];
+        const smoothSeg = smoothed[code][si];
+        for (const p of rawSeg) {
+          const hit = smoothSeg.some((q) =>
+            Math.abs(q.lat - p.lat) < 1e-5 && Math.abs(q.lng - p.lng) < 1e-5
+          );
+          expect(hit).toBe(true);
+        }
+      }
+    }
+  });
+});
+
+describe('catmullRomSegment (v0.61.194)', () => {
+  it('passes through every input control point', () => {
+    const ctrl = [
+      { lat: 1.30, lng: 103.80 },
+      { lat: 1.31, lng: 103.81 },
+      { lat: 1.32, lng: 103.79 },
+      { lat: 1.33, lng: 103.78 }
+    ];
+    const out = catmullRomSegment(ctrl, 12);
+    for (const p of ctrl) {
+      const hit = out.some((q) =>
+        Math.abs(q.lat - p.lat) < 1e-5 && Math.abs(q.lng - p.lng) < 1e-5
+      );
+      expect(hit).toBe(true);
+    }
+  });
+
+  it('preserves closed-loop topology (first === last)', () => {
+    const ring = [
+      { lat: 1.30, lng: 103.80 },
+      { lat: 1.31, lng: 103.81 },
+      { lat: 1.32, lng: 103.79 },
+      { lat: 1.30, lng: 103.80 }
+    ];
+    const out = catmullRomSegment(ring, 8);
+    expect(out[0]).toEqual(out[out.length - 1]);
+  });
+
+  it('returns input unchanged for < 2 points', () => {
+    const seg = [{ lat: 1.30, lng: 103.80 }];
+    expect(catmullRomSegment(seg)).toBe(seg);
   });
 });

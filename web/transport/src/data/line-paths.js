@@ -236,12 +236,90 @@ export function smoothSegment(seg, iterations = 2) {
   return pts;
 }
 
+// v0.61.194 — Catmull-Rom spline INTERPOLATION (unlike Chaikin's
+// approximation). The output polyline passes through every input
+// control point — so LRT station markers stay ON the line — and
+// curves smoothly between them via the previous + next neighbours
+// as tangent controls. Operator's screenshots showed Chaikin's
+// 25 % inward pull noticeably offsetting LRT polylines from
+// station markers (BP5 Phoenix, BP7 Petir, SW3 Kupang, etc.).
+// Catmull-Rom fixes that while still curving the line.
+//
+// Formula for segment P1→P2 with P0/P3 as tangent neighbours:
+//   B(t) = 0.5 * (
+//     2*P1 +
+//     (-P0 + P2) * t +
+//     (2*P0 - 5*P1 + 4*P2 - P3) * t² +
+//     (-P0 + 3*P1 - 3*P2 + P3) * t³
+//   )
+// B(0) = P1, B(1) = P2 — guaranteed to pass through both anchors.
+function _catmullRomBlend(p0, p1, p2, p3, t) {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return {
+    lat: 0.5 * (
+      (2 * p1.lat) +
+      (-p0.lat + p2.lat) * t +
+      (2 * p0.lat - 5 * p1.lat + 4 * p2.lat - p3.lat) * t2 +
+      (-p0.lat + 3 * p1.lat - 3 * p2.lat + p3.lat) * t3
+    ),
+    lng: 0.5 * (
+      (2 * p1.lng) +
+      (-p0.lng + p2.lng) * t +
+      (2 * p0.lng - 5 * p1.lng + 4 * p2.lng - p3.lng) * t2 +
+      (-p0.lng + 3 * p1.lng - 3 * p2.lng + p3.lng) * t3
+    )
+  };
+}
+
+// `samples` = how many sub-points to render between each pair of
+// control points. 12 gives smooth curves for the 30-50 m LRT
+// station spacing without overloading the canvas. Closed rings
+// wrap around for proper tangents at the join; open paths
+// duplicate the first/last point as a degenerate tangent.
+export function catmullRomSegment(seg, samples = 12) {
+  if (!Array.isArray(seg) || seg.length < 2) return seg;
+  const closed = _samePoint(seg[0], seg[seg.length - 1]);
+  const ctrl = closed ? seg.slice(0, -1) : seg.slice();
+  const n = ctrl.length;
+  if (n < 2) return seg;
+  const getPt = (i) => {
+    if (closed) return ctrl[((i % n) + n) % n];
+    return ctrl[Math.max(0, Math.min(n - 1, i))];
+  };
+  const out = [];
+  const lastSeg = closed ? n : n - 1;
+  for (let i = 0; i < lastSeg; i++) {
+    const p0 = getPt(i - 1);
+    const p1 = getPt(i);
+    const p2 = getPt(i + 1);
+    const p3 = getPt(i + 2);
+    for (let s = 0; s < samples; s++) {
+      out.push(_catmullRomBlend(p0, p1, p2, p3, s / samples));
+    }
+  }
+  if (closed) {
+    out.push({ ...out[0] });
+  } else {
+    out.push(ctrl[n - 1]);
+  }
+  return out.map((p) => ({ lat: _round6(p.lat), lng: _round6(p.lng) }));
+}
+
+// v0.61.194 — Catmull-Rom is the right tool for LRT lines (close-
+// spaced stations where Chaikin's inward pull is visible). MRT
+// lines keep Chaikin (well-tested + good enough for 1-2 km spacing).
+const CATMULL_ROM_LINES = new Set(['BPL', 'SLRT', 'PLRT']);
+
 // Smooth every segment of a { lineCode: segments[] } map.
 export function smoothLinePaths(paths) {
   const out = {};
   for (const [code, segs] of Object.entries(paths || {})) {
     if (code.startsWith('_')) { out[code] = segs; continue; }
-    out[code] = (Array.isArray(segs) ? segs : []).map((seg) => smoothSegment(seg, 2));
+    const useCatmull = CATMULL_ROM_LINES.has(code);
+    out[code] = (Array.isArray(segs) ? segs : []).map((seg) =>
+      useCatmull ? catmullRomSegment(seg, 12) : smoothSegment(seg, 2)
+    );
   }
   return out;
 }
