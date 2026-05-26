@@ -2399,6 +2399,83 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.165 — /ver Periodical sub-menu callbacks. Owner-gated.
+    // Dispatch: per:menu, per:close, per:recheck-all, per:item:<id>,
+    // per:recheck:<id>, per:revert:<id>:<ts>, per:clear:<id>.
+    if (data.startsWith('per:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[per:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      const messageId = q.message?.message_id || null;
+      try {
+        if (data === 'per:menu') {
+          await ownerPeriodicalMenu(chatId, messageId);
+          return;
+        }
+        if (data === 'per:close') {
+          if (messageId) { try { await bot.deleteMessage(chatId, messageId); } catch { /* non-fatal */ } }
+          return;
+        }
+        if (data === 'per:recheck-all') {
+          const { recountAll } = require('./count-recount');
+          const results = await recountAll(redis, { source: 'manual', notes: 'recheck-all from /ver' });
+          const lines = ['📊 <b>Re-check all — results</b>'];
+          for (const r of results) {
+            const label = PER_ITEM_LABEL[r.item] || r.item;
+            lines.push(`  • ${label}: ${r.n} <i>(${r.source})</i>`);
+          }
+          await bot.sendMessage(chatId, lines.join('\n'), { parse_mode: 'HTML' });
+          await ownerPeriodicalMenu(chatId, null);
+          return;
+        }
+        if (data.startsWith('per:item:')) {
+          const item = data.slice('per:item:'.length);
+          await ownerPeriodicalItemPanel(chatId, messageId, item);
+          return;
+        }
+        if (data.startsWith('per:recheck:')) {
+          const item = data.slice('per:recheck:'.length);
+          const { recountOne } = require('./count-recount');
+          const out = await recountOne(redis, item, { source: 'manual', notes: 'recheck from /ver' });
+          const label = PER_ITEM_LABEL[item] || item;
+          await safeSend(chatId, `🔄 ${label}: ${out?.n ?? '—'} <i>(${out?.source || 'unknown'})</i>`, { parse_mode: 'HTML' });
+          await ownerPeriodicalItemPanel(chatId, messageId, item);
+          return;
+        }
+        if (data.startsWith('per:revert:')) {
+          // per:revert:<item>:<ts>
+          const rest = data.slice('per:revert:'.length);
+          const sep = rest.lastIndexOf(':');
+          const item = sep >= 0 ? rest.slice(0, sep) : rest;
+          const ts = sep >= 0 ? Number(rest.slice(sep + 1)) : NaN;
+          const ch = require('./count-history');
+          const entry = await ch.revertTo(redis, item, ts);
+          const label = PER_ITEM_LABEL[item] || item;
+          if (entry) {
+            await safeSend(chatId, `⏪ ${label}: reverted to ${entry.n} <i>(display-only — source-of-truth unchanged)</i>`, { parse_mode: 'HTML' });
+          } else {
+            await safeSend(chatId, `⚠️ ${label}: revert failed (entry ts=${ts} not in history)`);
+          }
+          await ownerPeriodicalItemPanel(chatId, messageId, item);
+          return;
+        }
+        if (data.startsWith('per:clear:')) {
+          const item = data.slice('per:clear:'.length);
+          const { clearHistory } = require('./count-history');
+          const ok = await clearHistory(redis, item);
+          const label = PER_ITEM_LABEL[item] || item;
+          await safeSend(chatId, ok ? `🗑 ${label}: history cleared.` : `⚠️ ${label}: clear failed.`);
+          await ownerPeriodicalItemPanel(chatId, messageId, item);
+          return;
+        }
+      } catch (err) {
+        console.error('[Error] /per callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that Periodical action hit an error.');
+      }
+      return;
+    }
+
     // v0.59.0: language toggle from /language inline keyboard.
     if (data === 'language:set:en' || data === 'language:set:fr') {
       const target = data.endsWith(':fr') ? 'fr' : 'en';
@@ -3102,6 +3179,115 @@ async function ownerOversightLauncher(chatId) {
   }).catch(async () => { await safeSend(chatId, `🛡 Oversight: ${url}`); });
 }
 
+// v0.61.165 — /ver Periodical owner sub-menu. PR 2 of 3 in the
+// reference-count admin lever. Browses the 14 items the v0.61.164
+// data layer tracks, lets the operator Re-check (run the recount
+// fn), Revert (display-only switch to a prior count), or Clear
+// the history. Inline keyboards only — no TMA changes.
+//
+// Callback grammar:
+//   per:menu                — open the top-level item list
+//   per:item:<id>           — open a single item's panel (current
+//                              + last 12 history + action buttons)
+//   per:recheck:<id>        — run recountOne for the item; show
+//                              the new entry + return to panel
+//   per:revert:<id>:<ts>    — revertTo(<ts>); return to panel
+//   per:clear:<id>          — clearHistory; return to panel
+//   per:close               — dismiss the panel (delete message)
+
+// Item label + emoji used in the inline-keyboard buttons + headers.
+// Kept here (not in count-history) because labels are UI concern.
+const PER_ITEM_LABEL = Object.freeze({
+  'cuisines':           '🍽 Cuisines',
+  'michelin':           '✳️ Michelin',
+  'hawker':             '🥘 Hawker',
+  'healthier-eateries': '🥗 Healthier Choice',
+  'buildings':          '🏢 Buildings',
+  'bus-stops':          '🚌 Bus stops',
+  'train-stations':     '🚉 Train stations',
+  'train-lines':        '🚊 Train lines',
+  'carparks':           '🅿️ Carparks',
+  'parks':              '🌳 Parks',
+  'attractions':        '⚝ Attractions',
+  'clinics':            '💊 Clinics',
+  'hospitals':          '🏥 Hospitals',
+  'police':             '👮 Police'
+});
+
+async function ownerPeriodicalMenu(chatId, messageId = null) {
+  const { ITEMS, getCurrentCount } = require('./count-history');
+  // Build a 2-column grid of 14 items. Each cell shows current count.
+  const rows = [];
+  for (let i = 0; i < ITEMS.length; i += 2) {
+    const r = [];
+    for (let j = i; j < Math.min(i + 2, ITEMS.length); j++) {
+      const item = ITEMS[j];
+      const cur = await getCurrentCount(redis, item);
+      const label = PER_ITEM_LABEL[item] || item;
+      const n = cur ? cur.n : '—';
+      r.push({ text: `${label} (${n})`, callback_data: `per:item:${item}` });
+    }
+    rows.push(r);
+  }
+  rows.push([{ text: '🔄 Re-check all', callback_data: 'per:recheck-all' }]);
+  rows.push([{ text: '✕ Close', callback_data: 'per:close' }]);
+  const text = '📊 <b>Periodical — reference counts</b>\nTap an item to re-check / revert / clear its history.';
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
+  if (messageId) {
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through to fresh send */ }
+  }
+  await bot.sendMessage(chatId, text, payload);
+}
+
+async function ownerPeriodicalItemPanel(chatId, messageId, item) {
+  const ch = require('./count-history');
+  if (!ch.isKnownItem(item)) {
+    await safeSend(chatId, `Unknown item: ${item}`);
+    return;
+  }
+  const label = PER_ITEM_LABEL[item] || item;
+  const history = await ch.getHistory(redis, item);
+  const lines = [`📊 <b>${label}</b>`];
+  if (!history.length) {
+    lines.push('', '<i>No history yet — tap 🔄 Re-check to seed the first entry.</i>');
+  } else {
+    lines.push(`<b>Current:</b> ${history[0].n} <i>(${history[0].source})</i>`);
+    if (history.length > 1) {
+      lines.push('', '<b>History</b> (newest → oldest):');
+      for (const e of history) {
+        const d = new Date(e.ts);
+        const dateStr = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        lines.push(`  • ${e.n} <i>(${e.source}, ${dateStr})</i>`);
+      }
+    }
+  }
+  // Action buttons. Revert is a sub-row showing up to 4 most recent
+  // historical entries (excluding the current = history[0]); each
+  // button carries the ts so the callback can dispatch directly.
+  const rows = [];
+  rows.push([{ text: '🔄 Re-check now', callback_data: `per:recheck:${item}` }]);
+  if (history.length >= 2) {
+    const revertRow = [];
+    for (let i = 1; i < Math.min(history.length, 5); i++) {
+      const e = history[i];
+      revertRow.push({ text: `⏪ ${e.n}`, callback_data: `per:revert:${item}:${e.ts}` });
+    }
+    rows.push(revertRow);
+  }
+  if (history.length) {
+    rows.push([{ text: '🗑 Clear history', callback_data: `per:clear:${item}` }]);
+  }
+  rows.push([{ text: '◀ Back', callback_data: 'per:menu' },
+             { text: '✕ Close', callback_data: 'per:close' }]);
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
+  try {
+    await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload });
+  } catch {
+    await bot.sendMessage(chatId, lines.join('\n'), payload);
+  }
+}
+
 async function setVerboseMode(chatId, action) {
   const verbose = require('./verbose-log');
   if (action === 'on') {
@@ -3143,7 +3329,9 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
         [{ text: '📋 /ftlog', callback_data: 'v:ftlog20' },
          { text: '🛡 /oversight', callback_data: 'v:oversight' }],
         [{ text: '🔍 /log on', callback_data: 'v:logon' },
-         { text: '🔍 /log off', callback_data: 'v:logoff' }]
+         { text: '🔍 /log off', callback_data: 'v:logoff' }],
+        // v0.61.165 — Periodical sub-menu.
+        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }]
       ] }
     }).catch(() => { /* the choices keyboard is best-effort */ });
   } catch (err) {
@@ -3202,7 +3390,9 @@ bot.onText(/^\/v(?:@\w+)?$/, async (msg) => {
         [{ text: '🛡 Oversight (/oversight)', callback_data: 'v:oversight' }],
         [{ text: '📋 Free-text log (/ftlog 20)', callback_data: 'v:ftlog20' }],
         [{ text: '🔍 Verbose ON (/log on)', callback_data: 'v:logon' },
-         { text: '🔍 Verbose OFF (/log off)', callback_data: 'v:logoff' }]
+         { text: '🔍 Verbose OFF (/log off)', callback_data: 'v:logoff' }],
+        // v0.61.165 — Periodical sub-menu.
+        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }]
       ] }
     });
   } catch (err) {
