@@ -150,30 +150,48 @@ async function recountBusStops(redis, opts = {}) {
   return { item: 'bus-stops', n, source };
 }
 
+// v0.61.172 — data/mrt-coords.json is a flat object keyed by station
+// name ({ _meta, "Jurong East": { lat, lng, codes, lines, status },
+// ... }). The v0.61.164 _countJsonArray helper only recognises array
+// shapes (`Array.isArray(j)`, `j.features`, `j.centres`), so it
+// returned null. Read the actual shape directly.
 async function recountTrainStations(redis, opts = {}) {
-  const n = _countJsonArray('data/mrt-coords.json');
-  const source = n == null ? 'unavailable' : (opts.source || 'manual');
-  await recordCount(redis, 'train-stations', n ?? 0, source, opts.notes || '');
-  return { item: 'train-stations', n, source };
-}
-
-async function recountTrainLines(redis, opts = {}) {
-  // Derive line count from the station codes' first prefix
-  // (e.g. NS, EW, CC, NE, DT, TE, BP, JE, JW). The JB RTS Link
-  // (Dec 2026 / Jun 2027) will get its own prefix; this recount
-  // surfaces it automatically once LTA exposes the stations.
   let n = null;
   try {
     const abs = path.join(__dirname, 'data', 'mrt-coords.json');
     const raw = fs.readFileSync(abs, 'utf8');
     const j = JSON.parse(raw);
-    const features = Array.isArray(j) ? j : (Array.isArray(j?.features) ? j.features : []);
+    if (j && typeof j === 'object' && !Array.isArray(j)) {
+      const stations = Object.keys(j).filter((k) => k !== '_meta');
+      n = stations.length > 0 ? stations.length : null;
+    }
+  } catch { /* file missing / unparseable → n stays null */ }
+  const source = n == null ? 'unavailable' : (opts.source || 'manual');
+  await recordCount(redis, 'train-stations', n ?? 0, source, opts.notes || '');
+  return { item: 'train-stations', n, source };
+}
+
+// v0.61.172 — each station entry carries `lines: ['NSL', 'EWL', ...]`
+// (and `codes: ['NS1', 'EW24']` for individual platform codes). The
+// v0.61.164 implementation looked at a singular `code` field and a
+// `features` array — neither matches the actual schema. Union the
+// `lines` arrays across all station entries (operational + future).
+async function recountTrainLines(redis, opts = {}) {
+  let n = null;
+  try {
+    const abs = path.join(__dirname, 'data', 'mrt-coords.json');
+    const raw = fs.readFileSync(abs, 'utf8');
+    const j = JSON.parse(raw);
     const lines = new Set();
-    for (const f of features) {
-      const code = String((f?.code) || (f?.properties?.code) || '').toUpperCase().trim();
-      // Strip the trailing digits to get the line prefix.
-      const m = code.match(/^[A-Z]{2,3}/);
-      if (m) lines.add(m[0]);
+    if (j && typeof j === 'object' && !Array.isArray(j)) {
+      for (const key of Object.keys(j)) {
+        if (key === '_meta') continue;
+        const lineArr = Array.isArray(j[key]?.lines) ? j[key].lines : [];
+        for (const l of lineArr) {
+          const norm = String(l || '').toUpperCase().trim();
+          if (norm) lines.add(norm);
+        }
+      }
     }
     n = lines.size > 0 ? lines.size : null;
   } catch { /* */ }
