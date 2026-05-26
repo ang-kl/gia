@@ -93,6 +93,24 @@ const STRINGS = {
                                   fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' },
+  // v0.61.171 — chat free-text "Search 🔍 for more" follow-up after a
+  // free-text search result batch. moreHint: the body line above the
+  // inline keyboard when fresh results may remain. moreBtn: the inline
+  // button itself. recycleBtn: the "↺" reset button that clears the
+  // seen-set and re-runs the same query. noMore: shown when the
+  // seen-set is exhausted (either the cap was hit or no fresh results
+  // came back). expired: shown if the user taps an old button whose
+  // stored query has rolled out of Redis (>30 min TTL).
+  'freetext.moreHint':         { en: '💡 Want different picks for the same search?',
+                                 fr: '💡 Voulez-vous d\'autres suggestions pour la même recherche ?' },
+  'freetext.moreBtn':          { en: '🔍 Search for more',
+                                 fr: '🔍 Voir d\'autres résultats' },
+  'freetext.recycleBtn':       { en: '↺ Start over',
+                                 fr: '↺ Recommencer' },
+  'freetext.noMore':           { en: '🔚 No more matching results · Change criteria or tap ↺ to start over.',
+                                 fr: '🔚 Plus de résultats correspondants · Modifiez les critères ou touchez ↺ pour recommencer.' },
+  'freetext.expired':          { en: '⌛ That search has expired. Please re-type your query.',
+                                 fr: '⌛ Cette recherche a expiré. Veuillez ressaisir votre requête.' },
   // v0.61.122 — /location quick-pick buttons (10 STB precincts + Johor
   // Bahru + IOI Resort City Putrajaya). Header for the inline-keyboard
   // message, plus the confirmation reply that fires from the locpick

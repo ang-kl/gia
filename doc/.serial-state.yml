@@ -1,8 +1,8 @@
 counters:
-  commit: 383
-  build: 173
+  commit: 384
+  build: 174
   documents:
-    journal: 371
+    journal: 372
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,47 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 11
-last_anchor_time: 27-05 '26 16:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_169 (PR #670 merged 27-05 '26 ~16:15 SGT; v0.61.170 TMA-counter-rewrite rebased on v0.61.169 at 16:30 SGT)
-last_anchor_iso8601: 2026-05-27T16:30:00+08:00
-last_anchor_utc: 2026-05-27T08:30:00Z
+  current_chat_counter: 12
+last_anchor_time: 27-05 '26 17:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_170 (PR #671 merged 27-05 '26 ~16:45 SGT; v0.61.171 chat-freetext seen-set built on v0.61.170 at 17:00 SGT)
+last_anchor_iso8601: 2026-05-27T17:00:00+08:00
+last_anchor_utc: 2026-05-27T09:00:00Z
+# v0.61.171 (commit 384 / journal 372 / build 174) — chat free-text
+# seen-set + 🔍 for more button + recycle. Mirrors the cuisine TMA
+# per-(chatId, criteria) dedup (cuisine-session.js) for the
+# CHAT-side free-text search path. Each tap of "🔍 Search for more"
+# re-runs runFreeTextSearch with the same query text but excludes
+# already-shown placeIds; "↺ Start over" clears the seen-set so a
+# fresh rotation begins. Exhausted state (fewer than 8 fresh
+# results came back OR seen-set hit the 80-cap) swaps the keyboard
+# to "↺ Start over only" with a "No more matching results"
+# caption. Branch claude/v0.61.171-chat-freetext-seen off main at
+# v0.61.170. Files (6):
+# - NEW chat-freetext-seen.js (~60 lines): TTL_S=1800,
+#   SEEN_CAP=80, hashCriteria/getSeenSet/getSeenSize/addSeen/
+#   clearSeen/setQuery/getQuery/pickUnseen. Redis schema:
+#   chat-freetext:seen:<chatId>:<10-char-hash> set,
+#   chat-freetext:query:<10-char-hash> string (both 30-min TTL).
+# - NEW __tests__/chat-freetext-seen.test.js (21 tests, all passing).
+# - index.js wiring (2 edits):
+#   * runFreeTextSearch: pre-filter venues by seen-set before the
+#     disambig / dessert / plain slice paths; post-deliverPicks
+#     send a follow-up inline keyboard (🔍 for more + ↺ Start over,
+#     or just ↺ Start over when exhausted). setQuery stores the
+#     query text by hash so the callback can re-run without
+#     needing it in callback_data.
+#   * bot.on('callback_query'): new ft: branch with two actions —
+#     ft:more:<hash> (re-runs runFreeTextSearch with stored query),
+#     ft:recycle:<hash> (clearSeen first, then re-runs). Graceful
+#     "search expired" message if the 30-min TTL elapsed.
+# - i18n.js: 5 new keys (EN + FR) — freetext.moreHint,
+#   freetext.moreBtn, freetext.recycleBtn, freetext.noMore,
+#   freetext.expired.
+# - package.json: 0.61.170 -> 0.61.171.
+# - doc/.serial-state.yml: commit 383->384, build 173->174,
+#   journal 371->372; re-anchored 27-05 '26 17:00 SGT.
+# - doc/Journal/journal-0_61_171-27_05_27-1700.md: this entry.
+#
 # v0.61.170 (commit 383 / journal 371 / build 173) — TMA counter
 # rewrite per operator UX review. Rebased on v0.61.169 after PR
 # #670 merged. Five changes:
