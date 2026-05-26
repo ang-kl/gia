@@ -1,8 +1,8 @@
 counters:
-  commit: 405
-  build: 195
+  commit: 406
+  build: 196
   documents:
-    journal: 393
+    journal: 394
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,42 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 33
-last_anchor_time: 28-05 '26 02:45 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_191 (PR #693 v0.61.191 merged 28-05 '26 ~02:40 SGT; v0.61.192 Menu TMA OTHER picker built on v0.61.191 at 28-05 '26 02:45 SGT)
-last_anchor_iso8601: 2026-05-28T02:45:00+08:00
-last_anchor_utc: 2026-05-27T18:45:00Z
+  current_chat_counter: 34
+last_anchor_time: 28-05 '26 03:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_192 (PR #694 v0.61.192 merged 28-05 '26 ~02:55 SGT; v0.61.193 SG-only chip gating built on v0.61.192 at 28-05 '26 03:00 SGT)
+last_anchor_iso8601: 2026-05-28T03:00:00+08:00
+last_anchor_utc: 2026-05-27T19:00:00Z
+# v0.61.193 (commit 406 / journal 394 / build 196) — SG-only
+# cuisine chip gating per operator's v0.61.191 retrospective
+# reminder: "turn off … healther choice in the quick filter,
+# cuisine like Durian, Durian Pastry are turn off" when region
+# != SG. v0.61.193 implements chip gating for the three SG-only
+# slugs (fruits / durian / durian-pastry) in the Cuisine TMA's
+# catalogue drawer. Healthier Choice is a venue badge (not a
+# quick filter), so no filter gating is added in this PR.
+# Branch claude/v0.61.193-sg-only-chip-gating off main at
+# v0.61.192. Files (4):
+# - NEW web/cuisine/src/v2/lib/sg-only-slugs.js: frozen Set
+#   { 'fruits', 'durian', 'durian-pastry' } + isSgOnlySlug +
+#   stripSgOnly helpers.
+# - web/cuisine/src/v2/components/CuisineCategoryDrawer.jsx:
+#   imports SG_ONLY_SLUGS; accepts new `region` prop (default SG);
+#   chip render gates dim + disabled + tooltip on
+#   `SG_ONLY_SLUGS.has(cu.slug) && region !== 'SG'`; appends 🇸🇬
+#   to the locked chip label as a visual cue.
+# - web/cuisine/src/v2/components/CuisineDrawer.jsx: passes
+#   `region` prop through to CuisineCategoryDrawer.
+# - web/cuisine/src/v2/App.jsx: imports stripSgOnly; new
+#   useEffect strips SG-only slugs from state.cuisines whenever
+#   state.region !== 'SG' (so a JB/OTHER user with durian
+#   pre-selected doesn't carry it forward — the chip would be
+#   locked but selected, confusing).
+# - package.json: 0.61.192 -> 0.61.193.
+# - doc/.serial-state.yml: commit 405->406, build 195->196,
+#   journal 393->394; re-anchored 28-05 '26 03:00 SGT.
+# - doc/Journal/journal-0_61_193-28_05_28-0300.md: this entry.
+# Cuisine TMA build: 2.61 s green.
+#
 # v0.61.192 (commit 405 / journal 393 / build 195) — Menu TMA's
 # LocationFieldMenu gets the v0.61.191 OTHER-region treatment:
 # when active anchor is OTHER, hide the precinct <select> + the

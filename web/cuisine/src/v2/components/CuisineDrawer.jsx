@@ -145,6 +145,9 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           onToggle={toggle}
           onClose={() => { setOpenCategoryId(null); onCategoryClose?.(); }}
           maxSelected={MAX_SELECTED}
+          /* v0.61.193 — region prop so the drawer can lock SG-only
+             chips (fruits / durian / durian-pastry) when region != SG. */
+          region={region}
         />
       )}
     </div>
