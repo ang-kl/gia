@@ -172,14 +172,48 @@ async function _defaultFetch({ url, apiKey, textQuery, pageSize, pageToken, time
   return data;
 }
 
+// v0.61.177 — Redis persistence so the result survives Railway
+// container redeploys (the data/cuisine-venue-counts.json file from
+// v0.61.173 lives on the container's ephemeral filesystem; gone on
+// each rollout). Single key, single JSON blob, long TTL (manually
+// invoked recount means stale-but-present is better than empty).
+const REDIS_KEY = 'cuisine-venue-counts:latest';
+const REDIS_TTL_S = 60 * 24 * 60 * 60;     // 60 days
+
+async function persistToRedis(redis, result) {
+  if (!redis || !redis.isOpen) return false;
+  if (!result || typeof result !== 'object') return false;
+  try {
+    await redis.set(REDIS_KEY, JSON.stringify(result), { EX: REDIS_TTL_S });
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function loadFromRedis(redis) {
+  if (!redis || !redis.isOpen) return null;
+  try {
+    const raw = await redis.get(REDIS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) {
+    return null;
+  }
+}
+
 module.exports = {
   SCOPE_SLUGS,
   PLACES_SEARCH_TEXT_URL,
   FIELD_MASK_COUNT,
   PAGE_SIZE,
   MAX_PAGES,
+  REDIS_KEY,
+  REDIS_TTL_S,
   buildTextQuery,
   countOne,
   countAll,
+  persistToRedis,
+  loadFromRedis,
   _defaultFetch
 };
