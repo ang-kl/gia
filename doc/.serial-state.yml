@@ -1,8 +1,8 @@
 counters:
-  commit: 377
-  build: 167
+  commit: 378
+  build: 168
   documents:
-    journal: 365
+    journal: 366
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,37 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 5
-last_anchor_time: 27-05 '26 10:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_163 (PR #664 merged 27-05 '26 ~09:50 SGT; v0.61.164 count-history rebase session 10:00 SGT)
-last_anchor_iso8601: 2026-05-27T10:00:00+08:00
-last_anchor_utc: 2026-05-27T02:00:00Z
+  current_chat_counter: 6
+last_anchor_time: 27-05 '26 11:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_164 (PR #665 merged 27-05 '26 ~10:15 SGT; v0.61.165 Periodical-UI session at 11:00 SGT)
+last_anchor_iso8601: 2026-05-27T11:00:00+08:00
+last_anchor_utc: 2026-05-27T03:00:00Z
+# v0.61.165 (commit 378 / journal 366 / build 168) — Periodical
+# UI: /ver Periodical owner sub-menu (PR 2 of 3). Adds the
+# inline-keyboard browse + Re-check + Revert + Clear actions for
+# the v0.61.164 count-history data layer. NO scheduler / cadence
+# config / TMA template wiring yet (v0.61.166). Branch
+# claude/v0.61.165-periodical-ui off main at v0.61.164 / f42fede.
+# Files (4):
+# - index.js wiring (5 edits):
+#   * NEW PER_ITEM_LABEL (14 emoji+label entries adjacent to
+#     ownerOversightLauncher).
+#   * NEW async ownerPeriodicalMenu(chatId, messageId) — renders
+#     2-col grid of 14 items with current counts.
+#   * NEW async ownerPeriodicalItemPanel(chatId, messageId, item)
+#     — renders panel with current + history (newest-first) +
+#     action rows (🔄 Re-check, ⏪ Revert sub-buttons for last 4
+#     prior entries, 🗑 Clear, ◀ Back / ✕ Close).
+#   * /ver + /v inline keyboards gain a '📊 Periodical (counts)'
+#     row.
+#   * callback_query dispatch adds a per:* branch with 7 handlers:
+#     menu, close, recheck-all, item:<id>, recheck:<id>,
+#     revert:<id>:<ts>, clear:<id>. Owner-gated.
+# - package.json: 0.61.164 -> 0.61.165.
+# - doc/.serial-state.yml: commit 377->378, build 167->168,
+#   journal 365->366; re-anchored 27-05 '26 11:00 SGT.
+# - doc/Journal/journal-0_61_165-27_05_27-1100.md: this entry.
+#
 # v0.61.164 (commit 377 / journal 365 / build 167) — Periodical
 # admin: count-history data layer (operator Q1: all 14 items in
 # one go). Pure data + 14 recount fns + 30 tests; NO UI yet
