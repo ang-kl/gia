@@ -1,8 +1,8 @@
 counters:
-  commit: 379
-  build: 169
+  commit: 380
+  build: 170
   documents:
-    journal: 367
+    journal: 368
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,32 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 7
-last_anchor_time: 27-05 '26 12:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_165 (PR #666 merged 27-05 '26 ~11:30 SGT; v0.61.166 Periodical-scheduler session at 12:00 SGT)
-last_anchor_iso8601: 2026-05-27T12:00:00+08:00
-last_anchor_utc: 2026-05-27T04:00:00Z
+  current_chat_counter: 8
+last_anchor_time: 27-05 '26 13:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_166 (PR #667 merged 27-05 '26 ~12:30 SGT; v0.61.167 autoReset-tune session at 13:00 SGT)
+last_anchor_iso8601: 2026-05-27T13:00:00+08:00
+last_anchor_utc: 2026-05-27T05:00:00Z
+# v0.61.167 (commit 380 / journal 368 / build 170) — autoResetOnLowCount
+# threshold tune. v0.61.163 unified the cuisine-search slice to 19
+# (was 6 first / 12 follow-up per v0.60.191) but the v0.60.188
+# client-side autoReset gate still used `firstBatch ? 6 : 12` —
+# triggering reset on legitimately-sparse first-batch responses
+# (e.g. an area with only 8 matching venues). v0.61.167 changes
+# the gate to NEVER auto-reset on a firstBatch response (firstBatch
+# means seen-set was empty server-side; whatever came back IS the
+# natural pool). Threshold for follow-up batches stays at < 19.
+# Branch claude/v0.61.167-autoreset-tune off main at v0.61.166 /
+# 47b4668.
+# Files (4):
+# - web/cuisine/src/v2/App.jsx: runSearch's lowCountThreshold
+#   ternary -> single FOLLOW_UP_THIN_THRESHOLD = 19; added
+#   `!firstBatch` clause to autoResetOnLowCount; matching tweak
+#   to the result-list hint indicator (line ~1484).
+# - package.json: 0.61.166 -> 0.61.167.
+# - doc/.serial-state.yml: commit 379->380, build 169->170,
+#   journal 367->368; re-anchored 27-05 '26 13:00 SGT.
+# - doc/Journal/journal-0_61_167-27_05_27-1300.md: this entry.
+#
 # v0.61.166 (commit 379 / journal 367 / build 169) — Periodical
 # cadence + nightly scheduler. PR 3 of 3 — closes the Periodical
 # admin lever. Operator picks one of manual / 4-monthly / yearly

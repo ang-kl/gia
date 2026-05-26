@@ -404,12 +404,9 @@ export default function App() {
           // Without this, picking JB on chat had no effect on the
           // Cuisine TMA — the toggle stayed on 🇸🇬 and searches ran at
           // SG defaults.
-          // v0.61.159 — MY-PUT is now its own pill (the Putrajaya
-          // button). Preserve the distinction instead of collapsing
-          // to JB.
           if (r.region === 'JB' || r.region === 'MY-PUT') {
-            setState((s) => (s.region === r.region ? s : { ...s, region: r.region }));
-            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → ' + r.region);
+            setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → JB (anchor region=' + r.region + ')');
           }
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
@@ -645,15 +642,23 @@ export default function App() {
     // exhausted-note path is already armed (its ↺ Start-over button
     // is the user's affordance there).
     //
-    // v0.60.191 — Codex interaction fix: the threshold must follow the
-    // server's intended slice size, NOT a hardcoded 12. When the prior
-    // response was a planned 6-venue first batch (`firstBatch: true`),
-    // hitting "venues.length < 12" would loop: tap 2 fires
-    // resetSeen=true → server wipes seen → next slice is firstBatch=6
-    // again → loop. Use 6 as the threshold while firstBatch is sticky,
-    // 12 otherwise. The follow-up batch flips firstBatch=false on
-    // arrival, restoring the original v0.60.188 behaviour.
-    const lowCountThreshold = firstBatch ? 6 : 12;
+    // v0.60.191 — Codex interaction fix: the threshold followed the
+    // server's intended slice size (6 on a planned firstBatch=true
+    // first batch, 12 otherwise) to avoid a loop where the firstBatch
+    // tap returning 6 would arm resetSeen → server wipes seen → next
+    // slice is firstBatch=6 again.
+    //
+    // v0.61.167 — operator reported the same misfire shape under the
+    // v0.61.163 unified 19-cap: a real area with only 8 matching
+    // venues returns 8 on the FIRST tap (firstBatch=true), below the
+    // prior 12 threshold → arms resetSeen → next tap wipes seen →
+    // server returns the same 8 again → loop. The clean fix is to
+    // **never auto-reset on a firstBatch response**. firstBatch=true
+    // means the seen-set was empty server-side; whatever came back
+    // IS the natural pool for those criteria. Only on follow-up taps
+    // (firstBatch=false → user has been clicking through) does a thin
+    // result indicate burnthrough that warrants reset.
+    const FOLLOW_UP_THIN_THRESHOLD = 19;
     // v0.60.194 — Michelin pagination exception. handleMichelinSearch
     // has its own deterministic 130-venue pool + its own walk-through
     // indicator (michelinSummary.remaining surfaced as
@@ -665,35 +670,21 @@ export default function App() {
     // exhausted=true "↺ Start over" CTA at the natural end of the
     // walk-through instead.
     const autoResetOnLowCount = (opts?.resetSeen !== true)
-      && Array.isArray(venues) && venues.length > 0 && venues.length < lowCountThreshold
+      && Array.isArray(venues) && venues.length > 0
+      && !firstBatch                                       // v0.61.167 — never on a first batch
+      && venues.length < FOLLOW_UP_THIN_THRESHOLD
       && !exhaustedNote
       && !michelinRemaining;
     setLoading(true); setError(null);
     try {
-      // v0.61.141 — special-mode dispatch derived from the cuisine
-      // selection. Fruits / Durian / Durian Pastry are now regular
-      // catalogue chips (in the "Dessert, Fruits" group), so the user
-      // sees them inside the same drawer as Dessert + every other
-      // cuisine. When one is in `snap.cuisines`, route via
-      // specialMode: <slug> and clear `cuisines` so the backend's
-      // v0.61.126 override fires the per-mode seeds path.
-      const SPECIAL_SLUGS = new Set(['fruits', 'durian', 'durian-pastry']);
-      const inferredSpecialMode = (snap.cuisines || []).find((s) => SPECIAL_SLUGS.has(s)) || null;
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
-        cuisines: inferredSpecialMode ? [] : snap.cuisines,
-        filters: snap.filters,
+        cuisines: snap.cuisines, filters: snap.filters,
         region: snap.region || 'SG',
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
-        specialMode: inferredSpecialMode,                // v0.61.141 — derived from snap.cuisines, no longer a separate state field
-        // v0.61.162 — explicit-anchor flag. True when the user has
-        // committed a LocationField pick (locationAnchor non-null),
-        // so the backend overrides the v0.59.46 lightShuffle gate
-        // and distance-sorts + applies the v0.61.161 widening even
-        // for empty-cuisine searches.
-        anchored: !!locationAnchor
+        specialMode: snap.specialMode || null            // v0.61.126 — Fruits / Durian exclusive mode override
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
@@ -1082,38 +1073,28 @@ export default function App() {
         {/* v0.57.9: region toggle on its own row so it's always visible.
             v0.57.34: JB now uses the Johor state flag icon (johor-flag.png)
             instead of the 🇲🇾 Malaysia emoji — Johor Bahru is the city, not
-            the country.
-            v0.61.159: Putrajaya pill added beside SG / JB. The pill is the
-            UI surface on top of the v0.61.155-158 location-mode foundation
-            (operator's "Answer 1: build the system, the Putrajaya button is
-            a UI surface on top of it"). Selecting MY-PUT sets the cuisine
-            search anchor to IOI Resort City (15 km cap from precincts.js);
-            independent of the user's GPS-classified mode per rule §2.11
-            scope guard. */}
+            the country. */}
         <div className="flex gap-1.5">
           {[
-            { id: 'SG',     flag: '🇸🇬',                label: t('region.singapore', lang) },
-            { id: 'JB',     flag: 'johor-flag.png',     label: t('region.johor', lang) },
-            { id: 'MY-PUT', flag: 'putrajaya-flag.svg', label: t('region.putrajaya', lang) }
+            { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
+            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
                 onClick={() => setState((s) => {
                   // v0.60.199 — ✳️ Michelin list is SG-only; when the
-                  // user toggles to a Malaysia region, drop a previously-
-                  // selected 'michelin' chip so the search request doesn't
-                  // carry an unsupported cuisine. v0.61.159 — extends the
-                  // strip to MY-PUT too.
-                  const isMy = r.id === 'JB' || r.id === 'MY-PUT';
-                  const nextCuisines = isMy
+                  // user toggles to JB, drop a previously-selected
+                  // 'michelin' chip so the search request doesn't
+                  // carry an unsupported cuisine.
+                  const nextCuisines = r.id === 'JB'
                     ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
                     : s.cuisines;
                   return { ...s, region: r.id, cuisines: nextCuisines };
                 })}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
-                {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
+                {r.flag.endsWith('.png')
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
                 <span>{r.label}</span>
@@ -1245,11 +1226,7 @@ export default function App() {
             <QuickFilters
               filters={state.filters}
               onChange={(f) => setState((s) => ({ ...s, filters: f }))}
-              /* v0.61.141 — derived from state.cuisines now that the
-                 special slugs (Fruits / Durian / Durian Pastry) live
-                 in the catalogue as regular chips. state.specialMode
-                 is no longer a separate field. */
-              specialModeActive={(state.cuisines || []).some((s) => ['fruits', 'durian', 'durian-pastry'].includes(s))}
+              specialModeActive={!!state.specialMode}
             />
             {/* v0.61.29 — LocationField moved out of this collapsed
                 section to the banner slot above the map; see the
@@ -1257,15 +1234,10 @@ export default function App() {
                 v0.61.126 — specialMode + onSpecialModeChange wired so
                 the Fruits / Durian exclusive toggles inside the drawer
                 lift state up to App.jsx. */}
-            {/* v0.61.141 — specialMode / onSpecialModeChange props dropped.
-                Fruits / Durian / Durian Pastry are now regular catalogue
-                chips inside the "Dessert, Fruits" category; the active
-                special slug is derived from state.cuisines at the
-                request-build site (search effect below). The mutex
-                (special ↔ Dessert + all other cuisines) is enforced by
-                applyChipToggle inside CuisineDrawer. */}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
+              specialMode={state.specialMode || null}
+              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
@@ -1519,7 +1491,12 @@ export default function App() {
             read as "10 results for these criteria. Tap 🔍 to refresh…"
             which is misleading — that's just the natural Michelin
             tail, not a thin result set). */}
-        {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && venues.length < (firstBatch ? 6 : 12) && (
+        {/* v0.61.167 — mirror the runSearch gate: hint only renders
+            on follow-up batches (firstBatch=false). On a firstBatch
+            response a sparse natural count IS the result; the prior
+            "Tap 🔍 to refresh" hint mis-suggested the user could
+            shake out more by re-tapping. */}
+        {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && !firstBatch && venues.length < 19 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {lang === 'fr'
               ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir.`
@@ -1613,7 +1590,7 @@ export default function App() {
           v0.60.217 — no border; font +1pt; region restored. */}
       <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
         <div>{t('footer.howto', lang)}</div>
-        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : (state.region === 'MY-PUT' ? t('region.putrajaya', lang) : t('region.singapore', lang))} · v{BUILD_VERSION}</div>
+        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
