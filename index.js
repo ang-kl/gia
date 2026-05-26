@@ -3452,6 +3452,14 @@ async function ownerCuisineVenueRecount(chatId) {
     await safeSend(chatId, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run sweep.');
     return;
   }
+  // v0.61.179 — 60-second debounce so a double-tap doesn't spend
+  // ~\$7 instead of ~\$3.50. Friendly "wait N seconds" reply if
+  // the slot is held by a recent caller.
+  const slot = await cvc.claimDebounceSlot(redis);
+  if (!slot.won) {
+    await safeSend(chatId, `⏱ Another sweep just ran — wait ${slot.remainingSec} s before re-running (debounce prevents accidental double-charge).`);
+    return;
+  }
   await safeSend(chatId, `⏳ Running Places sweep across ${cvc.SCOPE_SLUGS.length} cuisines… (~15 s)`);
   let result;
   try {
