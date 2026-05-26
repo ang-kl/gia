@@ -63,7 +63,16 @@ export default function ResultPanel({
   // v0.61.170 — cumulative range labels for the 24-first / 12-follow-up
   // session model. Server provides start/end (1-based) so the TMA
   // doesn't need to track cumulative position across taps.
-  cumulativeStart = null, cumulativeEnd = null, finalBatch = false, firstBatch = false
+  cumulativeStart = null, cumulativeEnd = null, finalBatch = false, firstBatch = false,
+  // v0.61.174 — cumulative total seen across all taps for this
+  // criteria. Tracked by App.jsx (max of cumulativeEnd seen so
+  // far). Used as `{known}` in the title. When null, the title
+  // falls back to the "discovering" copy.
+  knownTotal = null,
+  // v0.61.174 — cumulative cap (cuisine-session SEEN_CAP). When the
+  // server signals knownTotal >= cap AND finalBatch, title swaps
+  // to "Results: {cap}+ · Limit reached".
+  cumulativeCap = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -194,49 +203,44 @@ export default function ResultPanel({
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
-        {/* v0.61.170 — counter copy rewritten per operator:
-            - Michelin (totalCount set): "Results ({total}) · Showing
-              first {first}" → "Results ({total}) · Showing {start}-{end}"
-              → "Results ({total}) · Final {n} shown" on the last batch.
-            - Cuisine first tap with more available:
-              "Showing first {first} · More available, click 🔍".
-            - Cuisine first tap, all-in-pool (exhausted=true on tap 1):
-              "Showing first {n} (only) · Change criteria or tap ↺".
-            - Cuisine subsequent taps:
-              "Result {start}-{end} · click 🔍 for next more"
-              (with `finalBatch`/`exhausted`, swaps to
-              "No more matching · Change criteria or tap ↺").
-            cumulativeStart / cumulativeEnd come from the server
-            (1-based). v0.61.163's slash format retired entirely. */}
+        {/* v0.61.174 — counter copy follows the operator's spec table:
+              • known total + multi-page → "Results: {known} · Showing {a}-{b}"
+              • known total + all shown on a single page → "Results: {known} · Showing all"
+              • SEEN_CAP reached → "Results: {cap}+ · Limit reached"
+              • unknown total (very early state) → "Showing {n} results"
+              • Michelin curated pool keeps `totalCount` as known.
+            `knownTotal` is App.jsx's monotonic max of `cumulativeEnd`
+            seen so far for this criteria. `cumulativeCap` is the
+            session SEEN_CAP (100 today) — when knownTotal ≥ cap AND
+            finalBatch, the "limit reached" copy fires. */}
         <div className="text-xs font-semibold flex-shrink-0">{(() => {
           if (!venues) return lang === 'fr' ? 'Résultats' : 'Results';
-          const n = venues.length;
-          const start = Number.isFinite(cumulativeStart) ? cumulativeStart : 1;
-          const end = Number.isFinite(cumulativeEnd) ? cumulativeEnd : n;
+          const visibleStart = (page - 1) * PAGE_SIZE + 1;
+          const visibleEnd = Math.min(page * PAGE_SIZE, venues.length);
+          // Known total: prefer Michelin's curated pool; else App.jsx's
+          // running max; else null (unknown — pre-first-fetch state).
+          let known = null;
+          if (Number.isFinite(totalCount) && totalCount > 0) known = totalCount;
+          else if (Number.isFinite(knownTotal) && knownTotal > 0) known = knownTotal;
+          const cap = Number.isFinite(cumulativeCap) && cumulativeCap > 0 ? cumulativeCap : null;
           const isExhaustedNow = !!finalBatch || !!exhausted;
-          // Michelin / curated-pool path
-          if (Number.isFinite(totalCount) && totalCount > 0) {
-            if (isExhaustedNow) {
-              return tr('panel.michelinFinal', lang).replace('{total}', totalCount).replace('{n}', n);
-            }
-            if (firstBatch) {
-              return tr('panel.michelinFirst', lang).replace('{total}', totalCount).replace('{first}', n);
-            }
-            return tr('panel.michelinRange', lang).replace('{total}', totalCount).replace('{start}', start).replace('{end}', end);
+          // Limit-reached branch: cap-tracking + this batch exhausts
+          if (cap && known && known >= cap && isExhaustedNow) {
+            return tr('panel.limit', lang).replace('{cap}', cap);
           }
-          // Cuisine path
-          if (firstBatch) {
-            // tight-combo: first tap AND exhausted
-            if (isExhaustedNow) {
-              return tr('panel.firstTight', lang).replace('{n}', n);
-            }
-            return tr('panel.first', lang).replace('{first}', n);
+          // Known + single-page (all visible fit on one page) → "Showing all"
+          if (known && venues.length <= PAGE_SIZE && known === venues.length) {
+            return tr('panel.all', lang).replace('{known}', known);
           }
-          // Subsequent tap — range or final-range
-          if (isExhaustedNow) {
-            return tr('panel.finalRange', lang).replace('{start}', start).replace('{end}', end);
+          // Known + multi-page → "Showing A-B"
+          if (known) {
+            return tr('panel.range', lang)
+              .replace('{known}', known)
+              .replace('{start}', visibleStart)
+              .replace('{end}', visibleEnd);
           }
-          return tr('panel.range', lang).replace('{start}', start).replace('{end}', end);
+          // Unknown total (pre-first-fetch / no signal) → "Showing N results"
+          return tr('panel.discovering', lang).replace('{n}', venues.length);
         })()}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (
