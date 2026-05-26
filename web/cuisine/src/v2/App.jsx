@@ -441,9 +441,16 @@ export default function App() {
           // Without this, picking JB on chat had no effect on the
           // Cuisine TMA — the toggle stayed on 🇸🇬 and searches ran at
           // SG defaults.
-          if (r.region === 'JB' || r.region === 'MY-PUT') {
+          // v0.61.185 — operator's three-pill model SG | JB | OTHER.
+          // Anchor region 'MY-PUT' (legacy) treated as 'OTHER'; JB
+          // stays JB. Auto-flips the pill to match the anchor so the
+          // search request goes out with the correct region tag.
+          if (r.region === 'JB') {
             setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
-            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → JB (anchor region=' + r.region + ')');
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → JB');
+          } else if (r.region === 'OTHER' || r.region === 'MY-PUT') {
+            setState((s) => (s.region === 'OTHER' ? s : { ...s, region: 'OTHER' }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → OTHER (anchor region=' + r.region + ')');
           }
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
@@ -1131,7 +1138,12 @@ export default function App() {
         <div className="flex gap-1.5">
           {[
             { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
-            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) }
+            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) },
+            // v0.61.185 — third pill for OTHER (anything not SG/JB:
+            // Putrajaya, KL, Penang, Batam, etc.). 🌏 chosen as a
+            // region-neutral globe — JB already has the Johor flag,
+            // Putrajaya / KL / etc. have no single flag that fits.
+            { id: 'OTHER', flag: '🌏', label: t('region.others', lang) }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (

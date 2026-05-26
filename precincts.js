@@ -24,8 +24,11 @@
 //     country, description?, keyAttractions? }
 //
 //   - id: stable kebab-case slug used in callback_data (`locpick:<id>`)
-//   - region: 'SG' | 'JB' | 'MY-PUT' — used by region-gated UI (Cuisine
-//     TMA's JB toggle, future Menu TMA disable-when-Malaysia logic)
+//   - region: 'SG' | 'JB' | 'OTHER' — used by region-gated UI (Cuisine
+//     TMA's three-pill toggle, future Menu TMA disable-when-Malaysia
+//     logic). v0.61.185 — was 'MY-PUT', generalised to 'OTHER' to
+//     match the location-mode.js classifier and cover any non-SG/JB
+//     anchor (Putrajaya, KL, Penang, Batam, etc.).
 //   - source: 'STB' | 'JB' | 'Putrajaya' — for analytics + display
 //   - polygon: STB-only; array of [lng,lat] pairs from the geojson
 //   - radiusCapM: when present, hard ceiling on any Places search
@@ -78,15 +81,17 @@ const MALAYSIA_ANCHORS = [
   {
     id: 'ioi-resort-putrajaya',
     label: 'IOI Resort City, Putrajaya',
-    region: 'MY-PUT',
+    region: 'OTHER',
     // IOI Resort City, 62502 Putrajaya — the operator's specified
-    // anchor; perimeter capped to 15 km (covers Putrajaya → Puchong).
+    // anchor. v0.61.185 — region 'MY-PUT' → 'OTHER' (matches the
+    // location-mode.js classifier) + cap 15 km → 20 km (operator's
+    // spec — covers Putrajaya, Cyberjaya, Kajang, Puchong, Subang).
     lat: 2.9742,
     lng: 101.7060,
     source: 'Putrajaya',
     country: 'Malaysia',
-    radiusCapM: 15000,
-    description: 'IOI Resort City (62502 Putrajaya). Searches capped to 15 km — covers Putrajaya → Puchong.'
+    radiusCapM: 20000,
+    description: 'IOI Resort City (62502 Putrajaya). Searches capped to 20 km — covers Putrajaya, Cyberjaya, Kajang, Puchong, Subang.'
   }
 ];
 

@@ -1720,9 +1720,13 @@ async function sendLocationQuickPicks(chatId) {
     for (let i = 0; i < all.length; i += 2) {
       const row = [];
       for (const p of all.slice(i, i + 2)) {
+        // v0.61.185 — three-pill model (SG | JB | OTHER). Legacy
+        // 'MY-PUT' rows still get the 🇲🇾 flag (Putrajaya = Malaysia).
+        // Generic 'OTHER' rows fall back to 🌏.
         const flag = p.region === 'SG' ? '🇸🇬'
           : p.region === 'JB' ? '🇲🇾'
           : p.region === 'MY-PUT' ? '🇲🇾'
+          : p.region === 'OTHER' ? (p.country === 'Malaysia' ? '🇲🇾' : '🌏')
           : '📍';
         row.push({ text: `${flag} ${p.label}`, callback_data: `locpick:${p.id}` });
       }
@@ -8944,9 +8948,17 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       }
       const dessertQuery = dessertHit ? require('./dessert-drink-keywords').dessertDrinkQuery(dessertHit, null) : null;
       // v0.61.122 — honour the per-anchor search-radius cap set by
-      // /location quick-picks (JB → 30 km, IOI Putrajaya → 15 km).
-      // Default SG radius stays 50 km; only Malaysia anchors clamp it.
-      const ftRegionCode = (cached.region === 'JB' || cached.region === 'MY-PUT') ? 'MY' : 'SG';
+      // /location quick-picks (JB → 30 km, IOI Putrajaya → 20 km).
+      // Default SG radius stays 50 km; Malaysia anchors clamp.
+      // v0.61.185 — accept legacy 'MY-PUT' alongside the new
+      // 'OTHER'; both pick 'MY' as the Places regionCode when the
+      // cached precinct's country is Malaysia. Other-country OTHER
+      // anchors (Indonesia etc.) omit the regionCode and rely on
+      // locationBias.circle.
+      const ftRegionCode = (cached.region === 'JB' || cached.region === 'MY-PUT'
+                            || (cached.region === 'OTHER' && cached.country === 'Malaysia'))
+        ? 'MY'
+        : (cached.region === 'OTHER' ? undefined : 'SG');
       const ftRadius = (cached.radiusCapM && cached.radiusCapM > 0)
         ? Math.min(50000, cached.radiusCapM)
         : 50000;
@@ -10734,6 +10746,9 @@ async function cacheBotUsername() {
         const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
+        // v0.61.185 — three-region model. See cuisine-search comment
+        // below (line ~11720) for OTHER handling rationale.
+        const isOther = region === 'OTHER' || region === 'MY-PUT';
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         // v0.60.164 — honour an explicit non-SG location pick. When
         // region=JB but the supplied lat/lng is inside the Singapore
@@ -10778,7 +10793,9 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[WarmStart] anchor-cap read failed:', err.message); }
-        const searchRegionCode = isJB ? 'MY' : 'SG';
+        // v0.61.185 — SG default, JB → 'MY', OTHER → undefined (rely
+        // on locationBias.circle). Fixes the Putrajaya 0-result bug.
+        const searchRegionCode = isJB ? 'MY' : (typeof isOther !== 'undefined' && isOther ? undefined : 'SG');
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
         // round out the variety. Queries are passed straight into
@@ -11266,7 +11283,9 @@ async function cacheBotUsername() {
           // resolved point stays in the same region (so a JB anchor
           // picking another JB hotel keeps the 30 km cap; switching
           // explicitly to SG clears it).
-          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT')
+          // v0.61.185 — accept legacy 'MY-PUT' alongside 'OTHER' when
+          // checking whether to preserve the cached region's cap.
+          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT' || cached?.region === 'OTHER')
             && effectiveRegion === cached.region;
           const setOpts = { label: r.name || text.trim() };
           if (preserveRegion) {
@@ -11698,6 +11717,12 @@ async function cacheBotUsername() {
         // — trust it and centre the search there.
         const JB_CBD = { lat: 1.4927, lng: 103.7414 };
         const isJB = region === 'JB';
+        // v0.61.185 — three-region model adds 'OTHER' (Putrajaya,
+        // KL, Penang, Batam, etc.). For OTHER we don't constrain
+        // the Places regionCode — let locationBias.circle around
+        // the anchor do the geo work. Legacy 'MY-PUT' aliased to
+        // 'OTHER' for back-compat with anchors written before v0.61.185.
+        const isOther = region === 'OTHER' || region === 'MY-PUT';
         const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
         const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
         const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
@@ -11772,7 +11797,9 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
         }
-        const searchRegionCode = isJB ? 'MY' : 'SG';
+        // v0.61.185 — SG default, JB → 'MY', OTHER → undefined (rely
+        // on locationBias.circle). Fixes the Putrajaya 0-result bug.
+        const searchRegionCode = isJB ? 'MY' : (typeof isOther !== 'undefined' && isOther ? undefined : 'SG');
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
         // N" note has a one-tap reset that re-fires the search with
         // resetSeen:true; that wipes this chat's accumulating exclusion
