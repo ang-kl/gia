@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, startSession, backOnePage, recycleSession } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
+import { stripSgOnly } from './lib/sg-only-slugs.js';
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
@@ -565,6 +566,20 @@ export default function App() {
   }, []);
 
   useEffect(() => { writeToHash(state); }, [state]);
+
+  // v0.61.193 — when region flips away from SG, strip any SG-only
+  // cuisine slugs (fruits / durian / durian-pastry) from the
+  // selected chips. Otherwise the chips look selected but are
+  // locked in the drawer — confusing. Re-selecting requires
+  // toggling back to SG and re-picking.
+  useEffect(() => {
+    if (state.region === 'SG') return;
+    setState((s) => {
+      const stripped = stripSgOnly(s.cuisines || []);
+      if (stripped.length === (s.cuisines || []).length) return s;
+      return { ...s, cuisines: stripped };
+    });
+  }, [state.region]);
 
   // v0.58.4: warm-start the result list on first paint with 5 random
   // venues drawn from a rotating server-side seed. Falls back to the
