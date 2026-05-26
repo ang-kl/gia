@@ -2483,6 +2483,24 @@ bot.on('callback_query', async (q) => {
           await ownerPeriodicalItemPanel(chatId, messageId, item);
           return;
         }
+        // v0.61.175 — quick "Set all off" kill switch: walks ITEMS
+        // and flips every cadence to 'off'. Idempotent — safe to
+        // tap twice. Auto-cron tick (count-scheduler.runDueRecounts)
+        // skips items at cadence=off, so this effectively pauses
+        // every scheduled recount until the operator picks a new
+        // per-item cadence.
+        if (data === 'per:set-all-off') {
+          const { ITEMS } = require('./count-history');
+          const { setCadence } = require('./count-cadence');
+          let n = 0;
+          for (const item of ITEMS) {
+            const ok = await setCadence(redis, item, 'off');
+            if (ok) n += 1;
+          }
+          await safeSend(chatId, `🔇 ${n} of ${ITEMS.length} items set to <b>off</b>. Re-open the menu to confirm.`).catch(() => {});
+          await ownerPeriodicalMenu(chatId, null);
+          return;
+        }
       } catch (err) {
         console.error('[Error] /per callback failed:', err.message);
         await safeSend(chatId, 'Sorry, that Periodical action hit an error.');
@@ -3259,23 +3277,33 @@ const PER_ITEM_LABEL = Object.freeze({
 });
 
 async function ownerPeriodicalMenu(chatId, messageId = null) {
-  const { ITEMS, getCurrentCount } = require('./count-history');
-  // Build a 2-column grid of 14 items. Each cell shows current count.
+  const { ITEMS } = require('./count-history');
+  const cadenceMod = require('./count-cadence');
+  // v0.61.175 — operator: each button now shows the current
+  // CADENCE in parens (off / M / 4M / Yr), not the count. The
+  // count surfaces inside the per-item panel along with history.
+  // Two quick-action buttons added below: "▶️ Run now" (same call
+  // as the prior "🔄 Re-check all" — recountAll) + "🔇 Set all
+  // off" — one-tap kill switch that flips every cadence to 'off'.
+  const cadShort = (v) => v === '4-monthly' ? '4M' : v === 'yearly' ? 'Yr' : v === 'manual' ? 'M' : 'off';
+  const cadences = await cadenceMod.listAll(redis, ITEMS);
   const rows = [];
   for (let i = 0; i < ITEMS.length; i += 2) {
     const r = [];
     for (let j = i; j < Math.min(i + 2, ITEMS.length); j++) {
       const item = ITEMS[j];
-      const cur = await getCurrentCount(redis, item);
       const label = PER_ITEM_LABEL[item] || item;
-      const n = cur ? cur.n : '—';
-      r.push({ text: `${label} (${n})`, callback_data: `per:item:${item}` });
+      const cad = cadShort(cadences.get(item) || 'manual');
+      r.push({ text: `${label} (${cad})`, callback_data: `per:item:${item}` });
     }
     rows.push(r);
   }
-  rows.push([{ text: '🔄 Re-check all', callback_data: 'per:recheck-all' }]);
+  rows.push([
+    { text: '▶️ Run now', callback_data: 'per:recheck-all' },
+    { text: '🔇 Set all off', callback_data: 'per:set-all-off' }
+  ]);
   rows.push([{ text: '✕ Close', callback_data: 'per:close' }]);
-  const text = '📊 <b>Periodical — reference counts</b>\nTap an item to re-check / revert / clear its history.';
+  const text = '📊 <b>Periodical — cadence per item</b>\nButton shows cadence (off / M / 4M / Yr). Tap an item to see count + history + change cadence.';
   const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
   if (messageId) {
     try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }

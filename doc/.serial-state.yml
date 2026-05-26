@@ -1,8 +1,8 @@
 counters:
-  commit: 387
-  build: 177
+  commit: 388
+  build: 178
   documents:
-    journal: 375
+    journal: 376
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,36 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 15
-last_anchor_time: 27-05 '26 21:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_173 (PR #674 merged 27-05 '26 ~21:08 SGT; v0.61.174 TMA counter redesign + speech-bubble flash hint built on v0.61.173 at 21:30 SGT)
-last_anchor_iso8601: 2026-05-27T21:30:00+08:00
-last_anchor_utc: 2026-05-27T13:30:00Z
+  current_chat_counter: 16
+last_anchor_time: 27-05 '26 22:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_174 (PR #675 merged 27-05 '26 ~22:04 SGT; v0.61.175 Periodical UI cadence-buttons + Set-all-off built on v0.61.174 at 22:15 SGT)
+last_anchor_iso8601: 2026-05-27T22:15:00+08:00
+last_anchor_utc: 2026-05-27T14:15:00Z
+# v0.61.175 (commit 388 / journal 376 / build 178) — Periodical
+# owner UI ergonomics per operator: each item button now shows
+# the current cadence in parens (off / M / 4M / Yr) instead of the
+# venue count, so the operator can see scheduler state at a glance
+# WITHOUT tapping into each item's panel. Two new quick-action
+# buttons on the menu's bottom row: "▶️ Run now" (same call as the
+# prior "🔄 Re-check all") and "🔇 Set all off" — a one-tap kill
+# switch that flips every cadence to 'off'. Branch
+# claude/v0.61.175-periodical-cadence-buttons off main at v0.61.174.
+# Files (4):
+# - index.js (2 changes):
+#   * ownerPeriodicalMenu: reads cadences via cadenceMod.listAll
+#     (one round-trip instead of N getCurrentCount calls), formats
+#     each cell as `${label} (${cadShort(cadence)})` where cadShort
+#     maps '4-monthly'→'4M', 'yearly'→'Yr', 'manual'→'M', 'off'→
+#     'off'. Bottom row: [▶️ Run now] + [🔇 Set all off] + [✕ Close].
+#   * callback_query 'per:set-all-off' branch added: walks ITEMS,
+#     calls setCadence(redis, item, 'off') for each. Idempotent.
+#     count-scheduler.runDueRecounts already skips items at
+#     cadence=off, so this effectively pauses every auto-recount.
+# - package.json: 0.61.174 -> 0.61.175.
+# - doc/.serial-state.yml: commit 387->388, build 177->178,
+#   journal 375->376; re-anchored 27-05 '26 22:15 SGT.
+# - doc/Journal/journal-0_61_175-27_05_27-2215.md: this entry.
+#
 # v0.61.174 (commit 387 / journal 375 / build 177) — Cuisine TMA
 # result-counter redesign + speech-bubble flash hint per operator's
 # detailed copy spec. Operator screenshot showed "Result 1-5 ·
