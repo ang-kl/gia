@@ -74,13 +74,21 @@ export async function fetchCatalogue() {
 // so the next results begin fresh from the first ~60 again.
 // v0.60.126: freeText — the "Tell me" box content, passed through as a
 // search qualifier so it isn't dropped when a cuisine chip is selected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode }) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored }) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
   // `body.specialMode`; when set it overrides cuisines + dessert
   // detection + home-based and applies a mode-keyword post-filter.
   if (specialMode === 'fruits' || specialMode === 'durian') body.specialMode = specialMode;
+  // v0.61.162 — explicit-anchor flag. When the user has picked a
+  // LocationField anchor (not just device GPS), the TMA sets this
+  // so the server overrides the v0.59.46 lightShuffle gate for
+  // empty-cuisine searches. With anchored=true, distance-sort + the
+  // v0.61.161 nearby-widening ladder fire regardless of cuisine
+  // count; without it (no anchor, generic browse), the rating-tier
+  // shuffle continues to surface variety on re-tap.
+  if (anchored === true) body.anchored = true;
   return postJson('/api/cuisine/search', body);
 }
 
