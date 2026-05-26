@@ -49,22 +49,32 @@ const STRINGS = {
   // `{first}` (first-tap count), `{start}` / `{end}` (cumulative
   // range on subsequent taps), `{n}` (count for final/exhausted
   // states), and `{total}` (Michelin curated pool).
-  'panel.first':               { en: 'Showing first {first} · More available, click 🔍',
-                                 fr: 'Affichage des {first} premiers · Plus disponibles, touchez 🔍' },
-  'panel.range':               { en: 'Result {start}-{end} · click 🔍 for next more',
-                                 fr: 'Résultats {start}-{end} · touchez 🔍 pour plus' },
-  'panel.firstTight':          { en: 'Showing first {n} (only) · Change criteria or tap ↺',
-                                 fr: 'Affichage des {n} premiers (uniquement) · Modifiez les critères ou touchez ↺' },
-  'panel.finalRange':          { en: 'Result {start}-{end} · No more matching · Change criteria or tap ↺',
-                                 fr: 'Résultats {start}-{end} · Aucun autre résultat · Modifiez les critères ou touchez ↺' },
-  'panel.noMore':              { en: 'No more matching results · Change criteria or tap ↺',
-                                 fr: 'Aucun autre résultat · Modifiez les critères ou touchez ↺' },
-  'panel.michelinFirst':       { en: 'Results ({total}) · Showing first {first}',
-                                 fr: 'Résultats ({total}) · Affichage des {first} premiers' },
-  'panel.michelinRange':       { en: 'Results ({total}) · Showing {start}-{end}',
-                                 fr: 'Résultats ({total}) · Affichage de {start}-{end}' },
-  'panel.michelinFinal':       { en: 'Results ({total}) · Final {n} shown',
-                                 fr: 'Résultats ({total}) · {n} derniers affichés' },
+  // v0.61.174 — counter copy rewritten per operator's full spec
+  // table. Format: `Results: {known} · Showing {start}-{end}` when
+  // known total is known + multiple pages; `Results: {known} ·
+  // Showing all` when single-page (≤ PAGE_SIZE) OR final page with
+  // start=1; `Showing {n} results` when total still being
+  // discovered (server-side cap not yet known); `Results: {cap}+ ·
+  // Limit reached` when SEEN_CAP reached. Michelin keeps the curated
+  // pool size as known total.
+  'panel.range':               { en: 'Results: {known} · Showing {start}-{end}',
+                                 fr: 'Résultats : {known} · Affichage de {start} à {end}' },
+  'panel.all':                 { en: 'Results: {known} · Showing all',
+                                 fr: 'Résultats : {known} · Tout afficher' },
+  'panel.discovering':         { en: 'Showing {n} results',
+                                 fr: 'Affichage de {n} résultats' },
+  'panel.limit':               { en: 'Results: {cap}+ · Limit reached',
+                                 fr: 'Résultats : {cap}+ · Limite atteinte' },
+  // Helper line below header for the "too few results" state.
+  'panel.helperTooFew':        { en: 'Change search or tap 🔍',
+                                 fr: 'Modifiez la recherche ou touchez 🔍' },
+  'panel.helperLimit':         { en: 'Refine search',
+                                 fr: 'Affiner la recherche' },
+  // v0.61.174 — speech-bubble tooltip that flashes above the 🔍 FAB
+  // for 5 s after a fresh batch lands, replacing the v0.61.79 👉
+  // arrow that sat to the left of the FAB.
+  'panel.bubble.moreEats':     { en: 'More eats? Tap 🔍',
+                                 fr: 'Plus à manger ? Touchez 🔍' },
 
   // ----- Filters -----
   'filter.openNow':            { en: 'Open now', fr: 'Ouvert maintenant' },

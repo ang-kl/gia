@@ -173,11 +173,13 @@ export default function App() {
   // (warm-start first paint or a Search-criteria run), drawing the eye
   // to the FAB. v0.61.79 — 2 s → 3 s, and a flashing arrow points at
   // the FAB for the same window (see the FAB row below).
+  // v0.61.174 — 3 s → 5 s per operator + 👉 replaced with a speech-
+  // bubble tooltip ("More eats? Tap 🔍") above the FAB.
   const [searchFabFlash, setSearchFabFlash] = useState(false);
   useEffect(() => {
     if (!venues || !venues.length) return undefined;
     setSearchFabFlash(true);
-    const t = setTimeout(() => setSearchFabFlash(false), 3000);
+    const t = setTimeout(() => setSearchFabFlash(false), 5000);
     return () => clearTimeout(t);
   }, [venues]);
   // v0.61.79 — the "ℹ️ Google search limit · tap 🔍 again…" toast was
@@ -199,6 +201,14 @@ export default function App() {
   const [cumulativeStart, setCumulativeStart] = useState(null);
   const [cumulativeEnd, setCumulativeEnd] = useState(null);
   const [finalBatch, setFinalBatch] = useState(false);
+  // v0.61.174 — `knownTotal` = monotonic max of `cumulativeEnd` for
+  // this criteria. Powers the "Results: {known} · Showing A-B" title
+  // copy. Resets to null on criteria change (alongside firstBatch).
+  // SEEN_CAP mirrors the server-side cuisine-session.SEEN_CAP=100
+  // bumped in v0.61.170; surfaces as `cumulativeCap` prop so the
+  // header can render "Results: {cap}+ · Limit reached" when hit.
+  const [knownTotal, setKnownTotal] = useState(null);
+  const CUMULATIVE_CAP = 100;
   // v0.60.157 — zero-results auto-retry guard + CTA flag. When a search
   // returns `venues.length === 0`, runSearch fires exactly one silent
   // retry with `resetSeen: true` (covers the common case where the
@@ -265,6 +275,11 @@ export default function App() {
     setCumulativeStart(Number.isFinite(p.cumulativeStart) ? p.cumulativeStart : null);
     setCumulativeEnd(Number.isFinite(p.cumulativeEnd) ? p.cumulativeEnd : null);
     setFinalBatch(!!p.finalBatch);
+    // v0.61.174 — knownTotal tracks the highest cumulativeEnd seen
+    // for this criteria. On snapshot replay (Prev nav), restore to
+    // the snapshot's cumulativeEnd (the snapshot is a static
+    // moment-in-time view; it shouldn't carry a "future" knownTotal).
+    setKnownTotal(Number.isFinite(p.cumulativeEnd) ? p.cumulativeEnd : null);
     setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
     // v0.60.154 — also restore the criteria, free-text and search
     // anchor that produced this page (Codex review on PR #395:
@@ -795,6 +810,17 @@ export default function App() {
       setCumulativeStart(Number.isFinite(r?.cumulativeStart) ? r.cumulativeStart : null);
       setCumulativeEnd(Number.isFinite(r?.cumulativeEnd) ? r.cumulativeEnd : null);
       setFinalBatch(r?.finalBatch === true);
+      // v0.61.174 — knownTotal grows monotonically per criteria.
+      // On a fresh criteria (firstBatch=true), seed from cumulativeEnd;
+      // otherwise keep the max so the title's "Results: {known}" never
+      // shrinks mid-rotation.
+      if (Number.isFinite(r?.cumulativeEnd)) {
+        if (r?.firstBatch === true) {
+          setKnownTotal(r.cumulativeEnd);
+        } else {
+          setKnownTotal((prev) => Math.max(Number.isFinite(prev) ? prev : 0, r.cumulativeEnd));
+        }
+      }
       setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
       // v0.60.146 — per-session clipboard signal carried by every
       // /api/cuisine/search response.
@@ -1258,7 +1284,7 @@ export default function App() {
               onCategoryClose={() => {
                 if (state.cuisines.length > 0) {
                   setSearchHintActive(true);
-                  setTimeout(() => setSearchHintActive(false), 3000);
+                  setTimeout(() => setSearchHintActive(false), 5000);  // v0.61.174: 3s → 5s
                 }
               }} />
             <div className="flex gap-1.5 items-center">
@@ -1473,6 +1499,11 @@ export default function App() {
           finalBatch={finalBatch}
           cumulativeStart={cumulativeStart}
           cumulativeEnd={cumulativeEnd}
+          // v0.61.174 — monotonic cumulative total + SEEN_CAP for the
+          // "Results: {known} · Showing {start}-{end}" / "Results:
+          // {cap}+ · Limit reached" title states.
+          knownTotal={knownTotal}
+          cumulativeCap={CUMULATIVE_CAP}
           // v0.60.146 — per-session clipboard. `pageStackDepth` ≥ 1
           // enables the ⇠ Prev FAB in the strip; tapping it asks the
           // server to pop the most-recent page off the history list
@@ -1661,16 +1692,29 @@ export default function App() {
               and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
               'down'." Search FAB now renders FIRST (top of column);
               scroll FAB renders SECOND (below).
-              v0.61.79 — a flashing 👉 arrow sits to the left of the
-              FAB during the 3 s post-result flash window, pointing the
-              eye at the 🔍 button (it loads the next batch). */}
+              v0.61.174 — v0.61.79's left-of-FAB 👉 arrow retired.
+              Replaced with a speech-bubble tooltip ABOVE the 🔍 ("More
+              eats? Tap 🔍") for the same flash window, now 5 s. The
+              tail is a 8 px rotated square positioned at the bottom-
+              center of the bubble body (same bg, no border on the
+              tail's hidden edges) so the silhouette reads as a true
+              chat bubble pointing down at the FAB. */}
           <div className="relative pointer-events-none">
             {(searchHintActive || searchFabFlash) && (
-              <span
+              <div
                 aria-hidden="true"
-                className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5
-                  text-xl leading-none animate-pulse drop-shadow-md select-none"
-              >👉</span>
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 animate-pulse drop-shadow-md select-none pointer-events-none"
+              >
+                <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
+                  {t('panel.bubble.moreEats', lang)}
+                  {/* Downward tail — rotated square hugging the bottom
+                      edge so half the diamond sits under the bubble
+                      body. Same bg as the body for a seamless join. */}
+                  <span
+                    className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-tg-accent rotate-45"
+                  />
+                </div>
+              </div>
             )}
             <button
               type="button"

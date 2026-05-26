@@ -1,8 +1,8 @@
 counters:
-  commit: 386
-  build: 176
+  commit: 387
+  build: 177
   documents:
-    journal: 374
+    journal: 375
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,64 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 14
-last_anchor_time: 27-05 '26 21:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_172 (PR #673 merged 27-05 '26 ~16:48 SGT; v0.61.173 cuisine-venue-counts built on v0.61.172 at 21:00 SGT — operator interrupted between merges to re-login + upgrade plan)
-last_anchor_iso8601: 2026-05-27T21:00:00+08:00
-last_anchor_utc: 2026-05-27T13:00:00Z
+  current_chat_counter: 15
+last_anchor_time: 27-05 '26 21:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_173 (PR #674 merged 27-05 '26 ~21:08 SGT; v0.61.174 TMA counter redesign + speech-bubble flash hint built on v0.61.173 at 21:30 SGT)
+last_anchor_iso8601: 2026-05-27T21:30:00+08:00
+last_anchor_utc: 2026-05-27T13:30:00Z
+# v0.61.174 (commit 387 / journal 375 / build 177) — Cuisine TMA
+# result-counter redesign + speech-bubble flash hint per operator's
+# detailed copy spec. Operator screenshot showed "Result 1-5 ·
+# click 🔍 for next more" header crowding the [Copy all] /
+# [Copy syntax] buttons, and a duplicate "5 suggestions · tap 🔍
+# Search to refine" footer; both referenced the 🔍 icon for
+# different actions. Operator provided a full state-by-state copy
+# table for the new title scheme and asked the 👉 flash arrow be
+# replaced with a TRUE speech-bubble shape (rounded rect + tail).
+# Branch claude/v0.61.174-counter-redesign-speech-bubble off main
+# at v0.61.173.
+# Files (5):
+# - web/cuisine/src/v2/lib/i18n.js: panel.* keys rewritten — old
+#   `panel.first` / `panel.range` / `panel.firstTight` / `panel.
+#   finalRange` / `panel.noMore` retired (preserved as Removed
+#   table rows in the i18n header). NEW `panel.range` is the
+#   new dynamic-total form: `Results: {known} · Showing {start}-
+#   {end}`; new `panel.all` = `Results: {known} · Showing all`;
+#   new `panel.discovering` = `Showing {n} results` (when total
+#   unknown); new `panel.limit` = `Results: {cap}+ · Limit
+#   reached`; new `panel.helperTooFew` + `panel.helperLimit` for
+#   the corresponding helper-line copy; new `panel.bubble.
+#   moreEats` = `More eats? Tap 🔍` for the speech bubble.
+#   Bilingual EN + FR.
+# - web/cuisine/src/v2/components/ResultPanel.jsx: header render
+#   logic rewritten using `page` (current page index) + PAGE_SIZE
+#   to compute `visibleStart` / `visibleEnd`. New props
+#   `knownTotal` + `cumulativeCap` accepted. Branch order:
+#   limit-reached → known-all (single-page) → known-range
+#   (multi-page) → discovering (unknown total). Michelin
+#   keeps `totalCount` as known.
+# - web/cuisine/src/v2/App.jsx:
+#   * NEW state: `knownTotal` (monotonic max of cumulativeEnd for
+#     this criteria). On firstBatch=true response, reset to
+#     cumulativeEnd (criteria changed). Otherwise:
+#     max(prev, cumulativeEnd) so the title never shrinks
+#     mid-rotation.
+#   * NEW const `CUMULATIVE_CAP = 100` (mirrors cuisine-session.
+#     SEEN_CAP v0.61.170 bump).
+#   * Passed `knownTotal` + `cumulativeCap` to ResultPanel.
+#   * Speech-bubble JSX replaces the v0.61.79 👉 span. Position:
+#     absolute bottom-full above the 🔍 FAB. Body: rounded-2xl
+#     bg-tg-accent text-tg-bg px-2.5 py-1. Tail: 8 px rotated
+#     square at the bottom-center, same bg color so the silhouette
+#     reads as one continuous speech-bubble shape (iMessage-style).
+#   * 3000 → 5000 ms on BOTH timers (searchFabFlash useEffect +
+#     setSearchHintActive timeout) per operator's "flash 🔍 for
+#     five seconds" ask.
+# - package.json: 0.61.173 -> 0.61.174.
+# - doc/.serial-state.yml: commit 386->387, build 176->177,
+#   journal 374->375; re-anchored 27-05 '26 21:30 SGT.
+# - doc/Journal/journal-0_61_174-27_05_27-2130.md: this entry.
+#
 # v0.61.173 (commit 386 / journal 374 / build 176) — standalone
 # cuisine-venue-counts module + scripts/recount-cuisine-venues.js
 # CLI runner for the operator-confirmed 48-cuisine subset (of 67 in
