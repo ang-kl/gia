@@ -1,8 +1,8 @@
 counters:
-  commit: 394
-  build: 184
+  commit: 395
+  build: 185
   documents:
-    journal: 382
+    journal: 383
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,35 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 22
-last_anchor_time: 28-05 '26 00:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_180 (PR #682 v0.61.180 merged 27-05 '26 ~23:22 SGT; v0.61.181 smart tile-search built on v0.61.180 at 28-05 '26 00:00 SGT)
-last_anchor_iso8601: 2026-05-28T00:00:00+08:00
-last_anchor_utc: 2026-05-27T16:00:00Z
+  current_chat_counter: 23
+last_anchor_time: 28-05 '26 00:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_181 (PR #683 v0.61.181 merged 27-05 '26 ~23:46 SGT; v0.61.182 cuisine TMA footer build-time chip built on v0.61.181 at 28-05 '26 00:15 SGT)
+last_anchor_iso8601: 2026-05-28T00:15:00+08:00
+last_anchor_utc: 2026-05-27T16:15:00Z
+# v0.61.182 (commit 395 / journal 383 / build 185) — cuisine TMA
+# footer build-time chip. Vite already injects __BUILD_VERSION__
+# (used since v0.60.213) AND __BUILD_TIME__ (used by nobody until
+# now). v0.61.182 surfaces __BUILD_TIME__ in the footer next to
+# the version so the operator can spot a stale browser/Telegram-
+# cached bundle at a glance (same version + old timestamp =
+# cached, fresh timestamp = current deploy). Branch
+# claude/v0.61.182-tma-build-time-footer off main at v0.61.181.
+# Files (3):
+# - web/cuisine/src/v2/App.jsx (2 edits):
+#   * NEW const BUILD_TIME = typeof __BUILD_TIME__ !== 'undefined'
+#     ? __BUILD_TIME__ : '' (mirrors BUILD_VERSION pattern).
+#   * NEW _formatBuildTimeShort(iso) helper — strips trailing
+#     Z + seconds, returns 'YYYY-MM-DD HH:MM'.
+#   * Footer line updated: was
+#       "Experimental · SG · v0.61.181"
+#     Now:
+#       "Experimental · SG · v0.61.182 · built 2026-05-28 00:15 UTC"
+# - package.json: 0.61.181 -> 0.61.182.
+# - doc/.serial-state.yml: commit 394->395, build 184->185,
+#   journal 382->383; re-anchored 28-05 '26 00:15 SGT.
+# - doc/Journal/journal-0_61_182-28_05_28-0015.md: this entry.
+# Cuisine TMA build: 3.76s, no errors.
+#
 # v0.61.181 (commit 394 / journal 382 / build 184) — smart tile-
 # search to break the Google Places 60-result cap for saturating
 # cuisines. Operator's question: "do you have the true count for
