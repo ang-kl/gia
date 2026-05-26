@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
+import { placeAutocomplete, placeResolve, placeSearchByCountry, reverseGeocode } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
+import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -37,7 +38,13 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // re-render, no server save) per the operator's "if the new
 // location set is same as current location, don't do anything"
 // instruction.
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null }) {
+  // v0.61.191 — branch on region AFTER all hooks below have been
+  // declared (React Rules of Hooks: same order every render). The
+  // OTHER picker is wholly its own sub-component; the SG/JB path
+  // keeps the v0.61.189 code intact and uses the hooks declared
+  // here. The early-return at the very end of this hook prologue
+  // skips the rest of the SG/JB JSX when region === 'OTHER'.
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -175,6 +182,21 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const resting = pickedLabel || anchorLabel || currentLabel || tr('loc.searchLocation', lang);
   const showClear = !!(pickedLabel || anchorDiffers);
 
+  // v0.61.191 — OTHER region: branch to the dedicated picker that
+  // uses country dropdown + free-text + confirmation list. The
+  // SG/JB JSX below stays the same as v0.61.189.
+  if (region === 'OTHER') {
+    return (
+      <OtherLocationPicker
+        countryPref={countryPref}
+        onCountryChange={onCountryChange}
+        onSelect={onSelect}
+        anchor={anchor}
+        suffix={suffix}
+      />
+    );
+  }
+
   return (
     <div className="relative">
       {/* v0.58.14: clearer affordance — accent-coloured pin, "Tap to
@@ -260,6 +282,137 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
       {open && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg px-3 py-2 text-xs text-tg-hint">
           {tr('loc.noMatch', lang)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// v0.61.191 — OTHER-region location picker. Replaces the
+// autocomplete-dropdown flow with: tiny flag dropdown on the left
+// (16 ASEAN/Oceania/N-Asia countries minus SG), free-text input,
+// 🔍 Search button, then a 5-entry confirmation list returned by
+// /api/cuisine/place-search-by-country. No autocomplete dropdown
+// during typing (operator: "too many for a dropdown to be useful").
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix }) {
+  const [lang] = useLocale();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);   // [{placeId, primaryText, secondaryText, lat, lng}, ...]
+  const [searching, setSearching] = useState(false);
+  const [noMatch, setNoMatch] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
+
+  async function doSearch() {
+    const text = query.trim();
+    if (text.length < 2) return;
+    setSearching(true); setNoMatch(false); setErrorMsg(''); setResults([]);
+    try {
+      const r = await placeSearchByCountry({ input: text, countryCode: country.code });
+      const arr = Array.isArray(r?.results) ? r.results : [];
+      if (arr.length === 0) setNoMatch(true);
+      setResults(arr);
+    } catch (err) {
+      setErrorMsg(err?.message || String(err));
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+  }
+
+  function pickResult(r) {
+    onSelect?.({ lat: r.lat, lng: r.lng, label: r.primaryText });
+    setResults([]); setQuery(''); setNoMatch(false);
+  }
+
+  function cancel() {
+    setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
+  }
+
+  const restingLabel = (anchor && anchor.name) ? anchor.name : tr('loc.other.placeholder', lang);
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+        {/* Tiny flag-only dropdown on the left. Native <select> keeps
+            it accessible without building a custom popover. */}
+        <select
+          aria-label={tr('loc.other.country', lang)}
+          value={country.code}
+          onChange={(e) => onCountryChange?.(e.target.value)}
+          className="bg-transparent text-sm outline-none flex-shrink-0 pr-1"
+          style={{ width: '4.5rem' }}
+        >
+          {OTHER_COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKey}
+          enterKeyHint="search"
+          placeholder={anchor && anchor.name ? anchor.name : tr('loc.other.placeholder', lang)}
+          className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+        />
+        <button
+          type="button"
+          onClick={doSearch}
+          disabled={searching || query.trim().length < 2}
+          className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
+          aria-label={tr('loc.other.searchBtn', lang)}
+        >🔍</button>
+      </div>
+      {/* Current anchor + suffix hint (mirrors the SG/JB resting line) */}
+      {anchor?.name && results.length === 0 && !searching && (
+        <div className="text-[11px] text-tg-hint truncate px-1">
+          📍 {anchor.name}{suffix ? ` · ${suffix}` : ''}
+        </div>
+      )}
+      {searching && (
+        <div className="text-[11px] text-tg-hint px-1 italic">
+          {tr('loc.other.searching', lang).replace('{country}', country.name)}
+        </div>
+      )}
+      {noMatch && (
+        <div className="text-[11px] text-tg-hint px-1 italic">
+          {tr('loc.other.noMatch', lang).replace('{country}', country.name)}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="text-[11px] text-red-500 px-1">{errorMsg}</div>
+      )}
+      {results.length > 0 && (
+        <div className="rounded-md border border-tg-border bg-tg-card overflow-hidden">
+          <div className="px-3 py-1.5 text-[11px] text-tg-hint font-semibold border-b border-tg-border bg-tg-bg/40">
+            {tr('loc.other.confirmHeader', lang)
+              .replace('{flag}', country.flag)
+              .replace('{country}', country.name)}
+          </div>
+          {results.map((r) => (
+            <button
+              key={r.placeId}
+              type="button"
+              onClick={() => pickResult(r)}
+              className="block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0"
+            >
+              <div className="text-sm">{r.primaryText}</div>
+              {r.secondaryText && (
+                <div className="text-[11px] text-tg-hint truncate">{r.secondaryText}</div>
+              )}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={cancel}
+            className="block w-full text-left px-3 py-1.5 text-[11px] text-tg-hint italic bg-tg-bg/40"
+          >
+            {tr('loc.other.cancel', lang)}
+          </button>
         </div>
       )}
     </div>

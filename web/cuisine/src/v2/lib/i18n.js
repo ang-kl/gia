@@ -94,6 +94,24 @@ const STRINGS = {
   'panel.bubble.moreEats':     { en: 'More eats? Tap 🔍',
                                  fr: 'Plus à manger ? Touchez 🔍' },
 
+  // v0.61.191 — OTHER-region country picker + place-search-by-country
+  // confirmation modal. Operator: "Times Square Kuala Lumpur" was
+  // resolving to a SG shop because OTHER autocomplete defaulted to
+  // regionCode=SG. New flow: pick country flag → type → search →
+  // confirmation list (no autocomplete dropdown for OTHER).
+  'loc.other.country':         { en: 'Country', fr: 'Pays' },
+  'loc.other.placeholder':     { en: 'Type a place name + 🔍',
+                                 fr: 'Tapez un lieu + 🔍' },
+  'loc.other.searchBtn':       { en: '🔍 Search', fr: '🔍 Rechercher' },
+  'loc.other.searching':       { en: 'Searching {country}…',
+                                 fr: 'Recherche {country}…' },
+  'loc.other.noMatch':         { en: 'No places found in {country}. Try a different name.',
+                                 fr: 'Aucun lieu trouvé en {country}. Essayez un autre nom.' },
+  'loc.other.confirmHeader':   { en: 'Found in {flag} {country}:',
+                                 fr: 'Trouvé en {flag} {country} :' },
+  'loc.other.cancel':          { en: '✕ Cancel · type again',
+                                 fr: '✕ Annuler · réessayer' },
+
   // ----- Filters -----
   'filter.openNow':            { en: 'Open now', fr: 'Ouvert maintenant' },
   'filter.halal':              { en: 'Halal', fr: 'Halal' },

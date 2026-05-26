@@ -1238,6 +1238,12 @@ export default function App() {
                 : tn('banner.places.many', lang, { n: venues.length })))}
           onSelect={onLocationSelect}
           onSearch={triggerSearch}
+          /* v0.61.191 — OTHER region's country picker. countryPref is
+             one of the 16 ISO codes from countries.js; onCountryChange
+             updates state.countryPref so the next Places search-by-
+             country call constrains to the right country. */
+          countryPref={state.countryPref || 'MY'}
+          onCountryChange={(code) => setState((s) => ({ ...s, countryPref: code }))}
         />
       )}
 
