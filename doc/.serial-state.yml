@@ -1,8 +1,8 @@
 counters:
-  commit: 399
-  build: 189
+  commit: 400
+  build: 190
   documents:
-    journal: 387
+    journal: 388
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,57 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 27
-last_anchor_time: 28-05 '26 01:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_185 (PR #687 v0.61.185 merged 28-05 '26 ~01:10 SGT; v0.61.186 TMA visibility-refetch built on v0.61.185 at 28-05 '26 01:15 SGT)
-last_anchor_iso8601: 2026-05-28T01:15:00+08:00
-last_anchor_utc: 2026-05-27T17:15:00Z
+  current_chat_counter: 28
+last_anchor_time: 28-05 '26 01:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_186 (PR #688 v0.61.186 merged 28-05 '26 ~01:25 SGT; v0.61.187 LocationField suppress for OTHER built on v0.61.186 at 28-05 '26 01:30 SGT)
+last_anchor_iso8601: 2026-05-28T01:30:00+08:00
+last_anchor_utc: 2026-05-27T17:30:00Z
+# v0.61.187 (commit 400 / journal 388 / build 190) — Cuisine TMA +
+# Menu TMA LocationField suppress UI when anchor is OTHER region.
+# Operator: "location field in Menu TMA, Cuisine TMA should
+# unhinch for others if others is selected, and should not have
+# dropdown to select as it is too many. currently is set to
+# singapore and johor bahru."
+#
+# Cuisine TMA LocationField.jsx:
+#   - For region==='OTHER': skip the places:autocomplete fetch
+#     entirely (early return in the keystroke useEffect).
+#   - Hide the input + button (render a read-only label instead).
+#   - Skip the suggestions / no-match dropdowns.
+#   - Label suffix shows "locked (chat /location)" so the operator
+#     knows where to change the anchor.
+#
+# Menu TMA LocationFieldMenu.jsx:
+#   - For currentAnchor.region==='OTHER' or legacy 'MY-PUT':
+#     hide the precinct <select> dropdown + free-text input +
+#     autocomplete dropdown entirely.
+#   - Show "🔒 Anchor locked. To change, use /location in chat."
+#     (EN; FR equivalent).
+#
+# Both TMAs: the anchor summary line (existing) + 🔍 search-here
+# button (Cuisine TMA only) remain — user can still tap to
+# search at the locked Putrajaya / KL / etc. anchor.
+#
+# Branch claude/v0.61.187-locationfield-other-suppress off main
+# at v0.61.186.
+#
+# Files (5):
+# - web/cuisine/src/v2/components/LocationField.jsx (3 edits):
+#   * autocomplete useEffect early-returns when region==='OTHER'.
+#   * input/button render becomes a static label when
+#     region==='OTHER'.
+#   * suggestions + no-match dropdowns gated by region!=='OTHER'.
+# - web/menu/src/components/LocationFieldMenu.jsx (1 edit):
+#   * Wraps the <select> + <form> + autocomplete in a conditional
+#     {!isOtherAnchor && ...}; the OTHER branch renders the
+#     locked-anchor hint.
+# - package.json: 0.61.186 -> 0.61.187.
+# - doc/.serial-state.yml: commit 399->400, build 189->190,
+#   journal 387->388; re-anchored 28-05 '26 01:30 SGT.
+# - doc/Journal/journal-0_61_187-28_05_28-0130.md: this entry.
+# Cuisine TMA build verified: 2.90s, no errors. Menu TMA build:
+# verified separately.
+#
 # v0.61.186 (commit 399 / journal 387 / build 189) — Cuisine TMA
 # re-fetches the server-cached user-location on visibility change
 # (operator switched back to the TMA after editing chat → /location

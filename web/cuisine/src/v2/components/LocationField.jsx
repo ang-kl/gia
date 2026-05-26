@@ -71,6 +71,15 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 
   // Debounced autocomplete fetch on every keystroke.
   useEffect(() => {
+    // v0.61.187 — OTHER region (Putrajaya / KL / Penang / Batam) has
+    // too many candidate places for a useful dropdown. The anchor is
+    // set externally (chat /location precinct picker → auto-flips
+    // the TMA pill). Suppress the autocomplete entirely.
+    if (region === 'OTHER') {
+      setSuggestions([]);
+      setSuggestionsQuery('');
+      return;
+    }
     const trimmed = query.trim();
     if (!trimmed || trimmed.length < 2) {
       setSuggestions([]);
@@ -182,7 +191,19 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           users see this is editable, not a label. */}
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
         <span aria-hidden className="text-tg-accent">📍</span>
-        {open ? (
+        {region === 'OTHER' ? (
+          /* v0.61.187 — OTHER region: read-only label, no edit, no
+             dropdown. Anchor is set externally (chat /location). */
+          <span className="flex-1 text-sm truncate text-tg-text flex items-baseline gap-1.5">
+            <span className="truncate">{resting}</span>
+            {suffix && (
+              <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>
+            )}
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">
+              · {lang === 'fr' ? 'verrouillé (chat /location)' : 'locked (chat /location)'}
+            </span>
+          </span>
+        ) : open ? (
           <input
             ref={inputRef}
             type="text"
@@ -229,7 +250,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           >🔍</button>
         )}
       </div>
-      {open && suggestions.length > 0 && (
+      {open && region !== 'OTHER' && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
           {suggestions.map((s, i) => (
             <button
@@ -257,7 +278,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           ≥ 2 chars but Autocomplete returned no result. Keeps the
           Enter-key contract honest — Enter no-ops, and now the user
           knows why. */}
-      {open && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
+      {open && region !== 'OTHER' && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg px-3 py-2 text-xs text-tg-hint">
           {tr('loc.noMatch', lang)}
         </div>
