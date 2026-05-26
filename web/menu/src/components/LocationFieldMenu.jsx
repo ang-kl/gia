@@ -21,6 +21,7 @@
 import React, { useEffect, useState } from 'react';
 import { tg } from '../tg.js';
 import { t } from '../i18n.js';
+import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 
 export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor }) {
   const [precincts, setPrecincts] = useState({ sg: [], sgRegion: [], my: [] });
@@ -34,6 +35,14 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // 300 ms after the last keystroke; cleared on submit / pick.
   const [suggestions, setSuggestions] = useState([]);
   const [acOpen, setAcOpen] = useState(false);
+  // v0.61.192 — OTHER-region country picker. countryPref is the
+  // ISO 3166-1 alpha-2 code the user picked in the flag dropdown
+  // (defaults to MY). otherResults is the 5-row confirmation list
+  // returned by /api/cuisine/place-search-by-country.
+  const [countryPref, setCountryPref] = useState(DEFAULT_OTHER_COUNTRY);
+  const [otherResults, setOtherResults] = useState([]);
+  const [otherSearching, setOtherSearching] = useState(false);
+  const [otherNoMatch, setOtherNoMatch] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +108,49 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     setPickerValue(id);
     if (!id) return;
     postSetLocation({ precinctId: id }).then(() => setPickerValue(''));
+  }
+
+  // v0.61.192 — OTHER-region search. Calls the v0.61.191
+  // /api/cuisine/place-search-by-country endpoint with the
+  // selected country code; renders top 5 in a confirmation panel.
+  // Tap a row → postSetLocation with the picked lat/lng/label (no
+  // server-side geocode round-trip needed).
+  async function onOtherSearch(e) {
+    e?.preventDefault?.();
+    const text = textValue.trim();
+    if (text.length < 2) return;
+    const w = tg();
+    if (!w) { setErrorMsg(t('location.setErr', lang)); return; }
+    setOtherSearching(true); setOtherNoMatch(false); setOtherResults([]); setErrorMsg('');
+    try {
+      const r = await fetch('/api/cuisine/place-search-by-country', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: text, countryCode: countryPref, initData: w.initData || '' })
+      }).then((res) => res.ok ? res.json() : null);
+      const arr = Array.isArray(r?.results) ? r.results : [];
+      if (arr.length === 0) setOtherNoMatch(true);
+      setOtherResults(arr);
+    } catch (err) {
+      setErrorMsg(err?.message || String(err));
+    } finally {
+      setOtherSearching(false);
+    }
+  }
+
+  function pickOtherResult(r) {
+    postSetLocation({ lat: r.lat, lng: r.lng, label: r.primaryText, country: countryPref })
+      .then((body) => {
+        if (body?.ok) {
+          setTextValue('');
+          setOtherResults([]);
+          setOtherNoMatch(false);
+        }
+      });
+  }
+
+  function cancelOtherSearch() {
+    setOtherResults([]); setOtherNoMatch(false); setErrorMsg('');
   }
 
   function onTextSubmit(e) {
@@ -197,68 +249,150 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       {disabledListLine && (
         <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
       )}
-      <select
-        value={pickerValue}
-        onChange={onPickerChange}
-        disabled={busy}
-        className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
-      >
-        <option value="">{t('location.dropdownLabel', lang)}</option>
-        {precincts.sg.length > 0 && (
-          <optgroup label={t('location.dropdownGroupSg', lang)}>
-            {precincts.sg.map((p) => (
-              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-            ))}
-          </optgroup>
-        )}
-        {precincts.sgRegion.length > 0 && (
-          <optgroup label={t('location.dropdownGroupSgReg', lang)}>
-            {precincts.sgRegion.map((p) => (
-              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-            ))}
-          </optgroup>
-        )}
-        {precincts.my.length > 0 && (
-          <optgroup label={t('location.dropdownGroupMy', lang)}>
-            {precincts.my.map((p) => (
-              <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
-            ))}
-          </optgroup>
-        )}
-      </select>
-      <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
-        <input
-          type="text"
-          value={textValue}
-          onChange={(e) => setTextValue(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setAcOpen(true)}
-          onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}  // delay so onClick on a suggestion still fires
-          placeholder={t('location.searchPlaceholder', lang)}
+      {/* v0.61.192 — when active anchor is OTHER region (Putrajaya
+          / KL / Tokyo / etc.), hide the precinct dropdown and the
+          existing free-text + autocomplete input. Render the flag
+          picker + free-text + Search button + confirmation list
+          (mirror of Cuisine TMA's v0.61.191 flow). SG/JB unchanged. */}
+      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? null : (
+        <select
+          value={pickerValue}
+          onChange={onPickerChange}
           disabled={busy}
-          autoComplete="off"
-          className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
-        />
-        <button
-          type="submit"
-          disabled={busy || !textValue.trim()}
-          className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
-        >{busy ? '…' : t('location.searchSubmit', lang)}</button>
-      </form>
-      {acOpen && suggestions.length > 0 && (
-        <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
-          {suggestions.map((s) => (
-            <button
-              key={s.placeId || s.primaryText}
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}  /* don't steal focus before onClick */
-              onClick={() => pickSuggestion(s)}
-              className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+          className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
+        >
+          <option value="">{t('location.dropdownLabel', lang)}</option>
+          {precincts.sg.length > 0 && (
+            <optgroup label={t('location.dropdownGroupSg', lang)}>
+              {precincts.sg.map((p) => (
+                <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+              ))}
+            </optgroup>
+          )}
+          {precincts.sgRegion.length > 0 && (
+            <optgroup label={t('location.dropdownGroupSgReg', lang)}>
+              {precincts.sgRegion.map((p) => (
+                <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+              ))}
+            </optgroup>
+          )}
+          {precincts.my.length > 0 && (
+            <optgroup label={t('location.dropdownGroupMy', lang)}>
+              {precincts.my.map((p) => (
+                <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      )}
+      {/* v0.61.192 — input row. For OTHER: country flag dropdown +
+          free-text + 🔍 Search. For SG/JB: free-text + Set button +
+          autocomplete dropdown below. */}
+      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? (
+        <>
+          <form onSubmit={onOtherSearch} className="flex gap-1.5 items-center">
+            <select
+              aria-label={t('loc.other.country', lang)}
+              value={countryPref}
+              onChange={(e) => setCountryPref(e.target.value)}
+              className="text-[13px] bg-tg-bg border border-tg-border rounded px-1 py-1.5 text-tg-text flex-shrink-0"
+              style={{ width: '4.5rem' }}
             >
-              <div className="text-tg-text">{s.primaryText}</div>
-              {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
-            </button>
-          ))}
-        </div>
+              {OTHER_COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              placeholder={t('loc.other.placeholder', lang)}
+              disabled={busy || otherSearching}
+              autoComplete="off"
+              className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+            />
+            <button
+              type="submit"
+              disabled={busy || otherSearching || textValue.trim().length < 2}
+              className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
+            >{otherSearching ? '…' : '🔍'}</button>
+          </form>
+          {otherSearching && (
+            <div className="text-[11px] text-tg-hint italic">
+              {t('loc.other.searching', lang).replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
+            </div>
+          )}
+          {otherNoMatch && (
+            <div className="text-[11px] text-tg-hint italic">
+              {t('loc.other.noMatch', lang).replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
+            </div>
+          )}
+          {otherResults.length > 0 && (
+            <div className="rounded border border-tg-border bg-tg-bg overflow-hidden">
+              <div className="px-2 py-1 text-[11px] text-tg-hint font-semibold border-b border-tg-border bg-tg-card">
+                {t('loc.other.confirmHeader', lang)
+                  .replace('{flag}', (findCountry(countryPref) || {}).flag || '')
+                  .replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
+              </div>
+              {otherResults.map((r) => (
+                <button
+                  key={r.placeId}
+                  type="button"
+                  onClick={() => pickOtherResult(r)}
+                  disabled={busy}
+                  className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+                >
+                  <div className="text-tg-text">{r.primaryText}</div>
+                  {r.secondaryText && <div className="text-[11px] text-tg-hint">{r.secondaryText}</div>}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={cancelOtherSearch}
+                className="block w-full text-left px-2 py-1 text-[11px] text-tg-hint italic bg-tg-card"
+              >
+                {t('loc.other.cancel', lang)}
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
+            <input
+              type="text"
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              onFocus={() => suggestions.length > 0 && setAcOpen(true)}
+              onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}
+              placeholder={t('location.searchPlaceholder', lang)}
+              disabled={busy}
+              autoComplete="off"
+              className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+            />
+            <button
+              type="submit"
+              disabled={busy || !textValue.trim()}
+              className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
+            >{busy ? '…' : t('location.searchSubmit', lang)}</button>
+          </form>
+          {acOpen && suggestions.length > 0 && (
+            <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
+              {suggestions.map((s) => (
+                <button
+                  key={s.placeId || s.primaryText}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => pickSuggestion(s)}
+                  className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+                >
+                  <div className="text-tg-text">{s.primaryText}</div>
+                  {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
       {errorMsg && <div className="text-[11px] text-red-500">{errorMsg}</div>}
     </div>

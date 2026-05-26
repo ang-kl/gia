@@ -119,7 +119,24 @@ const STRINGS = {
   // anchor is set, so the user understands WHY tiles are dimmed
   // without having to tap one to see the tooltip.
   'location.disabledList': { en: ' (Hawker, Train, Incidents, Bus stops, Weather disabled)',
-                             fr: ' (Hawker, Train, Incidents, Arrêts de bus, Météo désactivés)' }
+                             fr: ' (Hawker, Train, Incidents, Arrêts de bus, Météo désactivés)' },
+  // v0.61.192 — OTHER-region picker UI. Mirrors the Cuisine TMA's
+  // v0.61.191 country-flag dropdown + free-text + Search button +
+  // confirmation list flow. Replaces the precinct dropdown +
+  // autocomplete when the active anchor is in the OTHER region
+  // (Putrajaya / KL / Penang / Tokyo / Sydney / etc.).
+  'loc.other.country':         { en: 'Country', fr: 'Pays' },
+  'loc.other.placeholder':     { en: 'Type a place + Search',
+                                 fr: 'Tapez un lieu + Rechercher' },
+  'loc.other.searchBtn':       { en: '🔍 Search', fr: '🔍 Rechercher' },
+  'loc.other.searching':       { en: 'Searching {country}…',
+                                 fr: 'Recherche {country}…' },
+  'loc.other.noMatch':         { en: 'No places found in {country}. Try a different name.',
+                                 fr: 'Aucun lieu trouvé en {country}. Essayez un autre nom.' },
+  'loc.other.confirmHeader':   { en: 'Found in {flag} {country}:',
+                                 fr: 'Trouvé en {flag} {country} :' },
+  'loc.other.cancel':          { en: '✕ Cancel · type again',
+                                 fr: '✕ Annuler · réessayer' }
 };
 
 export function t(key, lang) {
