@@ -197,20 +197,15 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       {disabledListLine && (
         <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
       )}
-      {/* v0.61.187 — when anchor is OTHER (Putrajaya / KL / Penang
-          etc.), hide the precinct dropdown + free-text input. The
-          precinct list doesn't cover those regions, and Places
-          autocomplete is too broad to be useful with the variety
-          of OTHER locations. Operator can still change anchor via
-          chat /location (which returns to SG/JB/OTHER as needed). */}
-      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? (
-        <div className="text-[11px] text-tg-hint italic leading-snug">
-          🔒 {lang === 'fr'
-            ? 'Ancrage verrouillé. Pour changer, utilisez /location dans le chat.'
-            : 'Anchor locked. To change, use /location in chat.'}
-        </div>
-      ) : (
-        <>
+      {/* v0.61.188 — for OTHER anchors, suppress the PRECINCT
+          <select> (too many possibilities to enumerate) and the
+          autocomplete SUGGESTIONS dropdown, but KEEP the free-text
+          input + submit button so the operator can type & submit
+          a Putrajaya / KL / Penang address. SG / JB keep their
+          full picker UI (precinct + text + autocomplete). */}
+      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT')
+        ? null
+        : (
           <select
             value={pickerValue}
             onChange={onPickerChange}
@@ -240,41 +235,46 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               </optgroup>
             )}
           </select>
-          <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
-            <input
-              type="text"
-              value={textValue}
-              onChange={(e) => setTextValue(e.target.value)}
-              onFocus={() => suggestions.length > 0 && setAcOpen(true)}
-              onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}  // delay so onClick on a suggestion still fires
-              placeholder={t('location.searchPlaceholder', lang)}
-              disabled={busy}
-              autoComplete="off"
-              className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
-            />
+        )}
+      {/* v0.61.188 — free-text input + submit always visible. For
+          OTHER it's the ONLY way to change anchor inside the TMA
+          (precinct dropdown hidden above). */}
+      <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
+        <input
+          type="text"
+          value={textValue}
+          onChange={(e) => setTextValue(e.target.value)}
+          onFocus={() => suggestions.length > 0 && setAcOpen(true)}
+          onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}
+          placeholder={t('location.searchPlaceholder', lang)}
+          disabled={busy}
+          autoComplete="off"
+          className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+        />
+        <button
+          type="submit"
+          disabled={busy || !textValue.trim()}
+          className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
+        >{busy ? '…' : t('location.searchSubmit', lang)}</button>
+      </form>
+      {/* v0.61.188 — autocomplete suggestions dropdown is hidden
+          for OTHER (operator: "too many to list"). Submit button
+          geocodes the typed text server-side as a fallback. */}
+      {acOpen && suggestions.length > 0 && !(currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT')) && (
+        <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
+          {suggestions.map((s) => (
             <button
-              type="submit"
-              disabled={busy || !textValue.trim()}
-              className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
-            >{busy ? '…' : t('location.searchSubmit', lang)}</button>
-          </form>
-          {acOpen && suggestions.length > 0 && (
-            <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
-              {suggestions.map((s) => (
-                <button
-                  key={s.placeId || s.primaryText}
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}  /* don't steal focus before onClick */
-                  onClick={() => pickSuggestion(s)}
-                  className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
-                >
-                  <div className="text-tg-text">{s.primaryText}</div>
-                  {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
-                </button>
-              ))}
-            </div>
-          )}
-        </>
+              key={s.placeId || s.primaryText}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pickSuggestion(s)}
+              className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
+            >
+              <div className="text-tg-text">{s.primaryText}</div>
+              {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
+            </button>
+          ))}
+        </div>
       )}
       {errorMsg && <div className="text-[11px] text-red-500">{errorMsg}</div>}
     </div>

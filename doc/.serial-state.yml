@@ -1,8 +1,8 @@
 counters:
-  commit: 400
-  build: 190
+  commit: 401
+  build: 191
   documents:
-    journal: 388
+    journal: 389
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,54 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 28
-last_anchor_time: 28-05 '26 01:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_186 (PR #688 v0.61.186 merged 28-05 '26 ~01:25 SGT; v0.61.187 LocationField suppress for OTHER built on v0.61.186 at 28-05 '26 01:30 SGT)
-last_anchor_iso8601: 2026-05-28T01:30:00+08:00
-last_anchor_utc: 2026-05-27T17:30:00Z
+  current_chat_counter: 29
+last_anchor_time: 28-05 '26 01:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_187 (PR #689 v0.61.187 merged 28-05 '26 ~01:40 SGT; v0.61.188 OTHER LocationField keeps text input built on v0.61.187 at 28-05 '26 01:45 SGT)
+last_anchor_iso8601: 2026-05-28T01:45:00+08:00
+last_anchor_utc: 2026-05-27T17:45:00Z
+# v0.61.188 (commit 401 / journal 389 / build 191) — partial revert
+# of v0.61.187's over-suppression. Operator: "the location field
+# suppressed cannot type anymore. you didn't check". v0.61.187
+# made the location fields fully read-only for OTHER — fixing
+# "too many dropdown" but also removing the ability to type +
+# submit a free-text Putrajaya / KL address. v0.61.188 restores
+# typing for both TMAs while keeping the dropdown suppression.
+#
+# Cuisine TMA LocationField.jsx:
+#   - Autocomplete useEffect no longer early-returns on OTHER —
+#     the fetch RUNS so Enter-to-anchor still picks the top
+#     suggestion behind the scenes.
+#   - The static "locked" label is gone; the editable input/button
+#     renders the same as SG/JB.
+#   - Suggestions + no-match dropdown gates KEPT (still hidden
+#     for OTHER) so the operator never sees a long dropdown.
+#
+# Menu TMA LocationFieldMenu.jsx:
+#   - Precinct <select> still hidden for OTHER (kept from v0.61.187).
+#   - Free-text input + submit button NOW visible for OTHER
+#     (was hidden — the regression operator caught).
+#   - Autocomplete suggestions dropdown still hidden for OTHER
+#     (operator: "too many to list"). Submit button geocodes
+#     the typed text server-side as fallback.
+#
+# Net behaviour for OTHER anchors:
+#   - You CAN type a free-text address (Cuisine TMA: input opens
+#     on tap, types, Enter submits; Menu TMA: input visible with
+#     submit button).
+#   - You CANNOT scroll through a precinct dropdown or
+#     autocomplete suggestion list (too noisy for OTHER per
+#     operator's intent).
+#
+# Branch claude/v0.61.188-other-locationfield-keep-typing off
+# main at v0.61.187. Files (5):
+# - web/cuisine/src/v2/components/LocationField.jsx (2 reverts).
+# - web/menu/src/components/LocationFieldMenu.jsx (1 restructure).
+# - package.json: 0.61.187 -> 0.61.188.
+# - doc/.serial-state.yml: commit 400->401, build 190->191,
+#   journal 388->389; re-anchored 28-05 '26 01:45 SGT.
+# - doc/Journal/journal-0_61_188-28_05_28-0145.md: this entry.
+# Cuisine TMA build: 3.09 s. Menu TMA build: 2.75 s. Both green.
+#
 # v0.61.187 (commit 400 / journal 388 / build 190) — Cuisine TMA +
 # Menu TMA LocationField suppress UI when anchor is OTHER region.
 # Operator: "location field in Menu TMA, Cuisine TMA should
