@@ -1,8 +1,8 @@
 counters:
-  commit: 373
-  build: 163
+  commit: 374
+  build: 164
   documents:
-    journal: 361
+    journal: 362
     builder: 3
     persona: 4
     feature: 48
@@ -10,12 +10,36 @@ counters:
     legal: 9
     register: 123
 sessions:
-  current_chat_id: 2026-05-26
-  current_chat_counter: 6
-last_anchor_time: 27-05 '26 00:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_159 (PR #660 merged 26-05 '26 late evening; v0.61.160 LocationField fix session 00:30 SGT)
-last_anchor_iso8601: 2026-05-27T00:30:00+08:00
-last_anchor_utc: 2026-05-26T16:30:00Z
+  current_chat_id: 2026-05-27
+  current_chat_counter: 1
+last_anchor_time: 27-05 '26 01:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_160 (PR #661 merged 27-05 '26 ~00:45 SGT; v0.61.161 nearby-widen session at 01:30 SGT)
+last_anchor_iso8601: 2026-05-27T01:30:00+08:00
+last_anchor_utc: 2026-05-26T17:30:00Z
+# v0.61.161 (commit 374 / journal 362 / build 164) — server-side
+# progressive nearby widening for /api/cuisine/search. Operator
+# spec: "prioritise the location set at least 3 with top rating >4,
+# then open by enlarging the radius by 2km, then by 6km, by 8km,
+# then 12km then 15km, 20km." Implemented as a post-fetch ladder
+# filter (single Places call → in-memory walk through 2/6/8/12/15/20
+# km tiers); the smallest tier with ≥ 3 venues rating > 4 wins.
+# Skipped for shuffle / dessert paths (preserve v0.59.46 lightShuffle)
+# and special-mode (preserve v0.61.129 widening). Anchor cap honoured
+# (Putrajaya 15 km, JB 30 km). Branch
+# claude/v0.61.161-nearby-progressive-widen off main at v0.61.160 /
+# 045bd3a.
+# Files (5):
+# - NEW cuisine-nearby-widen.js (~85 lines): LADDER_M, MIN_TOP_RATED,
+#   TOP_RATING_GT, countTopRated, widenAndPick.
+# - NEW __tests__/cuisine-nearby-widen.test.js (22 tests, all passing).
+# - index.js: insert widenAndPick call between the distance-sort
+#   (post v0.59.46 lightShuffle gate) and the per-chatId "seen" dedup
+#   slice. New D790 log line surfaces the chosen tier + radius.
+# - package.json: 0.61.160 -> 0.61.161.
+# - doc/.serial-state.yml: commit 373->374, build 163->164,
+#   journal 361->362; re-anchored 27-05 '26 01:30 SGT.
+# - doc/Journal/journal-0_61_161-27_05_26-0130.md: this entry.
+#
 # v0.61.160 (commit 373 / journal 361 / build 163) — Cuisine TMA
 # LocationField hotfix. The v0.61.50 2.5 s keystroke-idle auto-close
 # removed; pick-of-same-coords now an idempotent no-op (operator

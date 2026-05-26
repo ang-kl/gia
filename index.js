@@ -12072,6 +12072,29 @@ async function cacheBotUsername() {
         if (!skipCacheForShuffle) {
           venues.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
         }
+        // v0.61.161 — operator: "the spread should priortise the
+        // location set at least 3 with top rating >4, then open by
+        // enlarging the radius by 2km, then by 6km, by 8km, then 12km
+        // then 15km, 20km." Implemented as a post-fetch ladder filter
+        // (single Places call → walk the ladder in memory). Skipped
+        // for shuffle paths (cuisineQueries empty / Dessert) so the
+        // v0.59.46 lightShuffle order survives, AND for special-mode
+        // searches (Fruits / Durian / Durian-Pastry) which have their
+        // own v0.61.129 widening pass. Anchor cap (Putrajaya 15 km,
+        // JB 30 km) limits the ladder.
+        try {
+          if (!skipCacheForShuffle && !specialMode) {
+            const { widenAndPick } = require('./cuisine-nearby-widen');
+            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
+              ? Math.min(anchorCap, searchRadius)
+              : searchRadius;
+            const widened = widenAndPick({ venues, cap: widenCap });
+            console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${venues.length} to=${widened.venues.length}`);
+            venues = widened.venues;
+          }
+        } catch (err) {
+          console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
+        }
         // v0.60.27 — server cap raised 12 → 24 for in-response pagination.
         // v0.60.35 (Human Lead 2026-05-08) — reverted to 12. Each 🔍
         // Search tap now returns 12 venues, and consecutive taps with
