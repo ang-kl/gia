@@ -44,6 +44,27 @@ const STRINGS = {
   'banner.showing':            { en: 'Showing places', fr: 'Lieux affichés' },
   'banner.places.one':         { en: '1 place nearby', fr: '1 lieu à proximité' },
   'banner.places.many':        { en: '{n} places nearby', fr: '{n} lieux à proximité' },
+  // v0.61.170 — Results-panel counter copy. Range-based labels for
+  // the 24-first / 12-follow-up session model. Templates take
+  // `{first}` (first-tap count), `{start}` / `{end}` (cumulative
+  // range on subsequent taps), `{n}` (count for final/exhausted
+  // states), and `{total}` (Michelin curated pool).
+  'panel.first':               { en: 'Showing first {first} · More available, click 🔍',
+                                 fr: 'Affichage des {first} premiers · Plus disponibles, touchez 🔍' },
+  'panel.range':               { en: 'Result {start}-{end} · click 🔍 for next more',
+                                 fr: 'Résultats {start}-{end} · touchez 🔍 pour plus' },
+  'panel.firstTight':          { en: 'Showing first {n} (only) · Change criteria or tap ↺',
+                                 fr: 'Affichage des {n} premiers (uniquement) · Modifiez les critères ou touchez ↺' },
+  'panel.finalRange':          { en: 'Result {start}-{end} · No more matching · Change criteria or tap ↺',
+                                 fr: 'Résultats {start}-{end} · Aucun autre résultat · Modifiez les critères ou touchez ↺' },
+  'panel.noMore':              { en: 'No more matching results · Change criteria or tap ↺',
+                                 fr: 'Aucun autre résultat · Modifiez les critères ou touchez ↺' },
+  'panel.michelinFirst':       { en: 'Results ({total}) · Showing first {first}',
+                                 fr: 'Résultats ({total}) · Affichage des {first} premiers' },
+  'panel.michelinRange':       { en: 'Results ({total}) · Showing {start}-{end}',
+                                 fr: 'Résultats ({total}) · Affichage de {start}-{end}' },
+  'panel.michelinFinal':       { en: 'Results ({total}) · Final {n} shown',
+                                 fr: 'Résultats ({total}) · {n} derniers affichés' },
 
   // ----- Filters -----
   'filter.openNow':            { en: 'Open now', fr: 'Ouvert maintenant' },

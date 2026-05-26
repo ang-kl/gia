@@ -12429,13 +12429,27 @@ async function cacheBotUsername() {
         // can still distinguish the empty-seen-set initial tap (for
         // the auto-reset suppression v0.60.191 added). The slice
         // size is now the same on both branches.
-        const RESULT_SLICE = 19;
+        // v0.61.170 — operator's 24/12 split. First tap returns 24
+        // (rich initial impression, 2 pages of the TMA's PAGE_SIZE=12);
+        // subsequent taps return 12 (saves ~$0.025/tap Routes
+        // Distance Matrix). Restores the v0.60.191 firstBatch
+        // distinction with new numbers. autoReset / counter copy on
+        // the TMA side keys on `firstBatch` + `finalBatch` +
+        // `cumulativeStart` / `cumulativeEnd`.
+        const FIRST_TAP_SLICE = 24;
+        const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
-        const sliceCap = RESULT_SLICE;
-        const FIRST_TAP_SLICE = RESULT_SLICE;   // retained for diagnostic logs
-        const FOLLOW_UP_SLICE = RESULT_SLICE;   // retained for diagnostic logs
+        const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
         const top = trulyUnseen.slice(0, sliceCap);
-        console.log(`[Cuisine-Search] sliceCap=${sliceCap} firstBatch=${isFirstBatch} seenBefore=${seen.size} hash=${String(dedupHash || '').slice(0, 8)}`);
+        // v0.61.170 — cumulative range surfaced to the TMA counter.
+        // start = seen.size + 1 (1-based for display).
+        // end   = seen.size + top.length.
+        // finalBatch = this tap drains the unseen pool (no more on
+        //              next tap from this criteria/variant).
+        const cumulativeStart = seen.size + 1;
+        const cumulativeEnd = seen.size + top.length;
+        const finalBatch = (top.length > 0 && trulyUnseen.length <= sliceCap && atLastVariant);
+        console.log(`[Cuisine-Search] sliceCap=${sliceCap} firstBatch=${isFirstBatch} finalBatch=${finalBatch} range=${cumulativeStart}-${cumulativeEnd} seenBefore=${seen.size} hash=${String(dedupHash || '').slice(0, 8)}`);
         const poolCount = new Set([...seen, ...top.map((v) => v.placeId).filter(Boolean)]).size;
         // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
         // carpark fetch per 500 m grid cell, not per venue). Surfaces
@@ -12768,7 +12782,17 @@ async function cacheBotUsername() {
           healthierObjAnnotator(v);
           buildingObjAnnotator(v);
         }
-        const payload = { venues: dedupedTop, exhausted: dedupExhausted, sessionFull, pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig, misrepresentation: misrepNote, cookingMethod: cookMethodMatches, dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch, debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' } };
+        const payload = {
+          venues: dedupedTop, exhausted: dedupExhausted, sessionFull,
+          pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
+          misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
+          dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
+          // v0.61.170 — counter-copy fields. TMA renders range labels
+          // ("Showing first 24", "Result 25-36") from these instead of
+          // the prior "Results (12/19)" slash format.
+          cumulativeStart, cumulativeEnd, finalBatch,
+          debug: { cuisineQueries, modifiers, scope: 'sg-wide-50km' }
+        };
         // v0.61.126 — special-mode response metadata. The TMA renders
         // the "Limited matches nearby. Showing the closest <mode>-
         // related results." line per scripts/Create_2_buttons.MD when
