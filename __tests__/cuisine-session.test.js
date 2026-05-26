@@ -53,14 +53,15 @@ describe('recordPage / seenCount / depth', () => {
     expect(b.capped).toBe(false);
   });
 
-  it('reports capped=true once the 80-cap is reached', async () => {
-    // serve 12 venues per page; 7 pages → 84 placeIds → 80 unique after the cap fires
+  it('reports capped=true once the 100-cap is reached', async () => {
+    // v0.61.170 bumped SEEN_CAP 80 → 100. Serve 12 venues per page;
+    // 9 pages → 108 placeIds → cap fires once the SET hits 100.
     let last;
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 9; i++) {
       const ids = Array.from({ length: 12 }, (_, j) => `pg${i}-${j}`);
       last = await sess.recordPage(r, 7, makePage(ids));
     }
-    expect(last.seenCount).toBeGreaterThanOrEqual(80);
+    expect(last.seenCount).toBeGreaterThanOrEqual(100);
     expect(last.capped).toBe(true);
     expect(await sess.isExhausted(r, 7)).toBe(true);
   });
@@ -111,9 +112,11 @@ describe('popPage', () => {
 
 describe('isExhausted', () => {
   it('returns false below the cap and true at/above', async () => {
+    // v0.61.170 — SEEN_CAP is 100 (was 80); isExhausted flips at /
+    // above that.
     const r = createStub();
     expect(await sess.isExhausted(r, 8)).toBe(false);
-    const ids = Array.from({ length: 80 }, (_, i) => 'p' + i);
+    const ids = Array.from({ length: 100 }, (_, i) => 'p' + i);
     await sess.recordPage(r, 8, makePage(ids));
     expect(await sess.isExhausted(r, 8)).toBe(true);
   });
@@ -125,7 +128,8 @@ describe('recordPage opts.skipCap (v0.60.149 — Michelin)', () => {
 
   it('never reports capped=true even when serving > SEEN_CAP venues', async () => {
     // 12 batches of 12 venues = 144 unique placeIds across two cuisine-
-    // sized chunks; cap is 80. With skipCap=true, capped must stay false.
+    // sized chunks; cap is 100 (v0.61.170). With skipCap=true, capped
+    // must stay false.
     let last;
     for (let i = 0; i < 12; i++) {
       const ids = Array.from({ length: 12 }, (_, j) => `pg${i}-${j}`);
