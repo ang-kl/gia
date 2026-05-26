@@ -40,6 +40,12 @@ export function defaultState() {
       prices: []
     },
     region: 'SG',
+    // v0.61.191 — for OTHER region only: ISO 3166-1 alpha-2 country
+    // code (MY/ID/TH/...) the user picked via the LocationField's
+    // flag dropdown. Constrains Places search to that country.
+    // Defaults to 'MY' (operator's primary OTHER target at ship time).
+    // Unused when region !== 'OTHER'.
+    countryPref: 'MY',
     promptText: '',
     // v0.61.126 — Fruits / Durian exclusive special mode. When set
     // (one of 'fruits' / 'durian'), it overrides cuisines + Michelin

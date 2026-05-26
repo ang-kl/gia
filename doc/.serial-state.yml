@@ -1,8 +1,8 @@
 counters:
-  commit: 403
-  build: 193
+  commit: 404
+  build: 194
   documents:
-    journal: 391
+    journal: 392
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,70 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 31
-last_anchor_time: 28-05 '26 02:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_189 (PR #691 v0.61.189 merged 28-05 '26 ~02:10 SGT; v0.61.190 two-line title built on v0.61.189 at 28-05 '26 02:15 SGT)
-last_anchor_iso8601: 2026-05-28T02:15:00+08:00
-last_anchor_utc: 2026-05-27T18:15:00Z
+  current_chat_counter: 32
+last_anchor_time: 28-05 '26 02:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_190 (PR #692 v0.61.190 merged 28-05 '26 ~02:25 SGT; v0.61.191 OTHER country picker built on v0.61.190 at 28-05 '26 02:30 SGT)
+last_anchor_iso8601: 2026-05-28T02:30:00+08:00
+last_anchor_utc: 2026-05-27T18:30:00Z
+# v0.61.191 (commit 404 / journal 392 / build 194) — OTHER-region
+# location picker rewritten as: 16-flag country dropdown + free-
+# text input + 🔍 Search button + confirmation list. Closes the
+# "Times Square Kuala Lumpur" bug where the OTHER autocomplete
+# defaulted to regionCode='SG' (server-side bug in place-
+# autocomplete endpoint) and returned a Singapore shop. New flow
+# uses /api/cuisine/place-search-by-country with explicit
+# countryCode → Places includedRegionCodes constraint → top 5
+# matches → user picks from confirmation list. SG/JB picker
+# untouched.
+#
+# Country scope (16 countries — operator's spec, SG excluded):
+#   ASEAN-9: MY, ID, TH, VN, PH, BN, KH, LA, MM
+#   Oceania: AU, NZ
+#   North Asia: JP, KR, CN, HK, TW
+# Default: MY (operator's primary OTHER target at ship time).
+#
+# Branch claude/v0.61.191-other-country-picker off main at
+# v0.61.190. Files (7):
+# - NEW web/cuisine/src/v2/lib/countries.js: OTHER_COUNTRIES
+#   frozen array of 16 entries + DEFAULT_OTHER_COUNTRY + findCountry.
+# - web/cuisine/src/v2/lib/state.js: defaultState gains
+#   `countryPref: 'MY'` (only used when region === 'OTHER').
+# - web/cuisine/src/v2/lib/i18n.js: 7 new keys for the OTHER
+#   picker UI (loc.other.country, .placeholder, .searchBtn,
+#   .searching, .noMatch, .confirmHeader, .cancel). EN + FR.
+# - web/cuisine/src/v2/lib/api.js: NEW placeSearchByCountry({
+#   input, countryCode }) → POST /api/cuisine/place-search-by-
+#   country.
+# - web/cuisine/src/v2/components/LocationField.jsx: imports
+#   the new countries module + placeSearchByCountry. After the
+#   existing hooks declare (Rules of Hooks safety), branches on
+#   region==='OTHER' → renders <OtherLocationPicker> (new sub-
+#   component at file bottom; ~110 lines). The OtherLocationPicker
+#   draws: flag select on the left (4.5rem fixed width) +
+#   free-text input + 🔍 Search button. Enter submits. Results
+#   render in a confirmation panel below the input (top 5
+#   from Places); tap picks; "✕ Cancel · type again" resets.
+#   "No match in {country}" + error states surface inline.
+# - web/cuisine/src/v2/App.jsx: <LocationField> invocation
+#   gains `countryPref={state.countryPref || 'MY'}` +
+#   `onCountryChange={(c) => setState(...countryPref: c)}`.
+# - index.js: NEW POST /api/cuisine/place-search-by-country
+#   endpoint (~85 lines). Validates input (2-200 chars) +
+#   countryCode (must be in the 16-country set). Calls Places
+#   New `searchText` with regionCode=cc + includedRegionCodes=
+#   [cc] + pageSize=5 + minimal field mask
+#   (places.id/displayName/formattedAddress/location). 1 h
+#   Redis cache (places don't move; operator may retype the
+#   same query). Owner-anyone (initData-gated by makeRateLimiter
+#   same as other place-* endpoints).
+# - package.json: 0.61.190 -> 0.61.191.
+# - doc/.serial-state.yml: commit 403->404, build 193->194,
+#   journal 391->392; re-anchored 28-05 '26 02:30 SGT.
+# - doc/Journal/journal-0_61_191-28_05_28-0230.md: this entry.
+#
+# Verification: node --check index.js (OK); cuisine TMA build
+# 2.55 s green.
+#
 # v0.61.190 (commit 403 / journal 391 / build 193) — Cuisine TMA
 # result-panel title rendered on TWO lines per operator's
 # screenshot spec. Line 1: "Results: {known}". Line 2: per-state

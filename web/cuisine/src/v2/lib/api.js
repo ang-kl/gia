@@ -162,6 +162,16 @@ export async function placeResolve({ placeId }) {
   return postJson('/api/cuisine/place-resolve', { placeId });
 }
 
+// v0.61.191 — country-constrained Places search for the OTHER-region
+// location picker. Sends `countryCode` (ISO 3166-1 alpha-2) and the
+// typed `input`; server uses `includedRegionCodes: [code]` so e.g.
+// "Times Square Kuala Lumpur" stays inside Malaysia instead of
+// falling back to SG. Returns up to 5 candidates the TMA renders
+// as a confirmation list.
+export async function placeSearchByCountry({ input, countryCode }) {
+  return postJson('/api/cuisine/place-search-by-country', { input, countryCode });
+}
+
 // v0.58.7: reverse-geocode current GPS to a readable neighbourhood
 // name ("📍 Telok Blangah" instead of "📍 1.2722, 103.8112") for the
 // LocationField placeholder. Reuses the existing /api/reverse-geocode

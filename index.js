@@ -11069,6 +11069,98 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.191 — country-constrained Places search for the OTHER
+    // region's location picker. Operator's bug: typing "Times Square
+    // Kuala Lumpur" in the Cuisine TMA's OTHER-region location field
+    // returned a Singapore shop because the existing /place-autocomplete
+    // endpoint hardcoded regionCode='SG' for non-JB anchors. This
+    // endpoint takes an explicit countryCode (one of the 16 OTHER
+    // countries — see web/cuisine/src/v2/lib/countries.js) and pins
+    // Places to that country via includedRegionCodes. Returns the top
+    // 5 matches with name + address + coords so the TMA can render a
+    // confirmation list (no autocomplete dropdown for OTHER per
+    // operator).
+    const OTHER_COUNTRY_CODES = new Set([
+      'MY','ID','TH','VN','PH','BN','KH','LA','MM',  // ASEAN sans SG
+      'AU','NZ',                                      // Oceania
+      'JP','KR','CN','HK','TW'                        // North Asia
+    ]);
+    app.post('/api/cuisine/place-search-by-country',
+      makeRateLimiter(redis, { endpoint: 'place-search-by-country', cap: 500 }),
+      async (req, res) => {
+      try {
+        const { input, countryCode } = req.body || {};
+        const text = typeof input === 'string' ? input.trim() : '';
+        if (!text || text.length < 2 || text.length > 200) {
+          return res.status(400).json({ error: 'input (2-200 chars) required' });
+        }
+        const cc = typeof countryCode === 'string' ? countryCode.toUpperCase() : '';
+        if (!OTHER_COUNTRY_CODES.has(cc)) {
+          return res.status(400).json({ error: 'countryCode must be one of the 16 OTHER countries' });
+        }
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        // 1 h cache — places don't move and operators may retype the
+        // same query a few times while debating between candidates.
+        const cacheKey = `placesearchbycountry:v1:${cc}:${text.toLowerCase()}`;
+        try {
+          if (redis && redis.isOpen) {
+            const hit = await redis.get(cacheKey).catch(() => null);
+            if (hit) {
+              try { return res.json({ ...JSON.parse(hit), cached: true }); } catch { /* fall through */ }
+            }
+          }
+        } catch { /* fall through */ }
+        const axios = require('axios');
+        const body = {
+          textQuery: text,
+          regionCode: cc,
+          includedRegionCodes: [cc],
+          pageSize: 5,
+          languageCode: 'en'
+        };
+        let data;
+        try {
+          const r = await axios.post(
+            'https://places.googleapis.com/v1/places:searchText',
+            body,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': apiKey,
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
+              },
+              timeout: 8000
+            }
+          );
+          data = r.data;
+        } catch (err) {
+          console.warn('[place-search-by-country] Places searchText failed:', err.message);
+          return res.status(502).json({ error: 'Places search failed' });
+        }
+        const results = (Array.isArray(data?.places) ? data.places : [])
+          .slice(0, 5)
+          .map((p) => ({
+            placeId: p?.id || '',
+            primaryText: p?.displayName?.text || 'Unnamed',
+            secondaryText: p?.formattedAddress || '',
+            lat: p?.location?.latitude ?? null,
+            lng: p?.location?.longitude ?? null
+          }))
+          .filter((r) => r.placeId && Number.isFinite(r.lat) && Number.isFinite(r.lng));
+        const payload = { results, countryCode: cc };
+        try {
+          if (redis && redis.isOpen) {
+            await redis.set(cacheKey, JSON.stringify(payload), { EX: 3600 }).catch(() => {});
+          }
+        } catch { /* */ }
+        res.json({ ...payload, cached: false });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/place-search-by-country failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.58.20: fetch the bot's Redis-cached location for the current
     // user (set via /location <place> or a shared location pin). The
     // cuisine TMA falls back to this when navigator.geolocation
