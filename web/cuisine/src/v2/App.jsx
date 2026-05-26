@@ -522,6 +522,48 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
+  // v0.61.186 — re-fetch the server-cached user-location when the
+  // TMA becomes visible again. Operator pain point: setting the
+  // location to Putrajaya via chat /location, then switching back
+  // to an already-open Cuisine TMA, left the pill on 🇸🇬 because
+  // the initial-mount tryServerCache only ran once. This listener
+  // catches the visibility flip + the Telegram WebApp's
+  // viewportChanged event (fires when the user returns to the
+  // TMA from chat) and re-runs the same auto-flip logic.
+  useEffect(() => {
+    async function refetchAndFlip() {
+      if (typeof document !== 'undefined' && document.visibilityState && document.visibilityState !== 'visible') return;
+      try {
+        const r = await fetchUserLocation();
+        if (!r || !isValidCoord(r.lat, r.lng)) return;
+        setUserLoc({ lat: r.lat, lng: r.lng });
+        if (r.region === 'JB') {
+          setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
+        } else if (r.region === 'OTHER' || r.region === 'MY-PUT') {
+          setState((s) => (s.region === 'OTHER' ? s : { ...s, region: 'OTHER' }));
+        } else if (r.region === 'SG') {
+          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+        }
+        console.log('[Cuisine-TMA-v2] visibility-refresh: region=' + r.region);
+      } catch { /* defensive: network blip shouldn't crash the listener */ }
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', refetchAndFlip);
+    }
+    const w = tg();
+    if (w && typeof w.onEvent === 'function') {
+      w.onEvent('viewportChanged', refetchAndFlip);
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', refetchAndFlip);
+      }
+      if (w && typeof w.offEvent === 'function') {
+        w.offEvent('viewportChanged', refetchAndFlip);
+      }
+    };
+  }, []);
+
   useEffect(() => { writeToHash(state); }, [state]);
 
   // v0.58.4: warm-start the result list on first paint with 5 random
@@ -1665,7 +1707,15 @@ export default function App() {
         {/* v0.61.182 — append the build timestamp so a stale-cached
             bundle is identifiable at a glance (same version + old
             timestamp = browser/Telegram cache). */}
-        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · v{BUILD_VERSION}{BUILD_TIME ? ` · built ${_formatBuildTimeShort(BUILD_TIME)} UTC` : ''}</div>
+        {/* v0.61.186 — footer now resolves all three pill states.
+            Was missing 'OTHER' (introduced in v0.61.185); operator
+            on Putrajaya would see "Singapore" in the footer even
+            with the 🌏 Others pill selected. */}
+        <div>{t('footer.experimental', lang)} · {
+          state.region === 'JB' ? t('region.johor', lang)
+          : state.region === 'OTHER' ? t('region.others', lang)
+          : t('region.singapore', lang)
+        } · v{BUILD_VERSION}{BUILD_TIME ? ` · built ${_formatBuildTimeShort(BUILD_TIME)} UTC` : ''}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
