@@ -1,8 +1,8 @@
 counters:
-  commit: 371
-  build: 161
+  commit: 372
+  build: 162
   documents:
-    journal: 359
+    journal: 360
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,41 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-26
-  current_chat_counter: 4
-last_anchor_time: 26-05 '26 20:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_157 (PR #658 merged 26-05 '26 evening; v0.61.158 PR 4/5 carpark+overlay session at 20:00 SGT)
-last_anchor_iso8601: 2026-05-26T20:00:00+08:00
-last_anchor_utc: 2026-05-26T12:00:00Z
+  current_chat_counter: 5
+last_anchor_time: 26-05 '26 22:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_158 (PR #659 merged 26-05 '26 evening; v0.61.159 PR 5/5 final phase session at 22:00 SGT)
+last_anchor_iso8601: 2026-05-26T22:00:00+08:00
+last_anchor_utc: 2026-05-26T14:00:00Z
+# v0.61.159 (commit 372 / journal 360 / build 162) — FINAL PR (5 of 5)
+# in the 10-rule location-classification phased build. Ships rules
+# §2.10 (train-line default OFF outside SG — verified by the SG_ONLY
+# membership of TRANSPORT_TRAIN + TMA_TRAINLINE), §2.11 (scope-guard
+# tests: cuisine/freetext/michelin/carpark/drive/location MUST be in
+# ALWAYS_ALLOWED and NEVER in SG_ONLY for any mode), plus the
+# operator's original Putrajaya UI button (the surface on top of the
+# foundation). Branch claude/v0.61.159-putrajaya-button-scope-guard
+# off main at v0.61.158 / e1bc856.
+# Files (8):
+# - NEW web/cuisine/public/putrajaya-flag.svg (188 KB, Wikipedia
+#   Commons File:Flag_of_Putrajaya.svg).
+# - web/cuisine/src/v2/App.jsx: + Putrajaya pill (3rd region toggle
+#   alongside SG | JB). Auto-flip on cached MY-PUT anchor preserves
+#   the MY-PUT region distinction (was: collapsed to JB). Footer
+#   region label gains the Putrajaya branch.
+# - web/cuisine/src/v2/lib/state.js: REGIONS = ['SG', 'JB', 'MY-PUT'].
+# - web/cuisine/src/v2/lib/i18n.js: + region.putrajaya (EN + FR).
+# - web/cuisine/src/v2/components/MapPanel.jsx: `jb` flag broadened
+#   to `isNonSg = jb || region === 'MY-PUT'`; SG-only layer set
+#   force-zeroed for any non-SG region; row + menu toggle disabled
+#   flags use isNonSg.
+# - NEW __tests__/scope-guard.test.js (25 tests for rules §2.10 +
+#   §2.11). All 6 location-* + carpark + scope-guard test files
+#   together: 128 tests passing.
+# - package.json: 0.61.158 -> 0.61.159.
+# - doc/.serial-state.yml: commit 371->372, build 161->162,
+#   journal 359->360; re-anchored 26-05 '26 22:00 SGT.
+# - doc/Journal/journal-0_61_159-26_05_26-2200.md: this entry.
+#
 # v0.61.158 (commit 371 / journal 359 / build 161) — PR 4 of 5 in
 # the 10-rule location-classification phased build. Ships rules
 # §2.8 (carpark outside SG via Places 5 km radius) + the backend

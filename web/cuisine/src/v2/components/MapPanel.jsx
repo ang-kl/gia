@@ -214,8 +214,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the JB region the layers are forced off and the MapControls
   // toggles disabled; the underlying overlayLayers state is preserved,
   // so switching back to Singapore restores the user's choices.
+  // v0.61.159 — MY-PUT (Putrajaya pill) gets the same SG-only-layer
+  // treatment as JB. Rule §2.10 ("train-line default OFF outside SG")
+  // is satisfied here too — the SG-only layer set is force-zeroed
+  // for any non-SG region, including the train layer.
   const jb = (region || 'SG') === 'JB';
-  const effectiveLayers = (jb && overlayLayers)
+  const isNonSg = jb || ((region || 'SG') === 'MY-PUT');
+  const effectiveLayers = (isNonSg && overlayLayers)
     ? {
         ...overlayLayers,
         train: false, busstop: false, carpark: false, exits: false,
@@ -228,10 +233,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // v0.61.88 — in the Johor Bahru region every SG-only overlay is
   // forced off here, regardless of the saved toggle state, so the
   // map-init call (which passes the raw ref) is JB-safe too.
+  // v0.61.159 — broaden the SG-only force-off to any non-SG region.
   function applyOverlayLayers(layers) {
     const ctrl = overlayControllerRef.current;
     if (!ctrl || !layers) return;
-    const L = jb ? {} : layers;
+    const L = isNonSg ? {} : layers;
     ctrl.setLayer('parks', !!L.parks);
     ctrl.setLayer('attractions', !!L.attractions);
     ctrl.setLayer('taxis', !!L.taxis);
@@ -564,19 +570,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // Attractions demoted into the dropdown above Park.
   // v0.61.88 — `disabled: jb` greys out every overlay toggle in the
   // Johor Bahru region (the layers are Singapore-only — see above).
+  // v0.61.159 — broaden the disabled flag to any non-SG region so the
+  // new MY-PUT (Putrajaya) pill also greys these out. Rule §2.10 +
+  // §2.5 (TMA toggle gate for non-SG).
   const rowToggles = [
-    { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: jb },
-    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: jb },
-    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: jb }
+    { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: isNonSg },
+    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: isNonSg },
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg }
   ];
   const menuToggles = [
-    { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: jb },
-    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: jb },
-    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: jb },
-    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: jb },
-    { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: jb },
-    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: jb },
-    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: jb }
+    { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: isNonSg },
+    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: isNonSg },
+    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: isNonSg },
+    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: isNonSg },
+    { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: isNonSg },
+    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: isNonSg },
+    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: isNonSg }
   ];
 
   return (

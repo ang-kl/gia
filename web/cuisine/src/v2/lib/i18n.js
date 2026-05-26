@@ -28,6 +28,9 @@ const STRINGS = {
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
+  // v0.61.159 — Putrajaya region pill (Cuisine TMA), part of the
+  // location-classification phased build's PR 5/5.
+  'region.putrajaya':          { en: 'Putrajaya', fr: 'Putrajaya' },
   // v0.60.213 — two-line footer.
   'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
                                  fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
