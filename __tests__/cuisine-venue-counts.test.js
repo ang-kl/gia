@@ -19,9 +19,14 @@ const {
   SCOPE_SLUGS,
   buildTextQuery,
   countOne,
+  countOneTiled,
   countAll,
   PAGE_SIZE,
-  MAX_PAGES
+  MAX_PAGES,
+  SG_TILES,
+  JB_TILES,
+  TILES,
+  SATURATING_SLUGS
 } = require('../cuisine-venue-counts');
 
 describe('SCOPE_SLUGS', () => {
@@ -149,30 +154,38 @@ describe('countOne', () => {
 
 describe('countAll', () => {
   it('aggregates per-slug counts into a total + isolates per-slug errors', async () => {
-    let i = 0;
+    // v0.61.181 — fetchFn returns a stable id per cuisine so dedup
+    // keeps each at exactly 1 regardless of whether the cuisine is
+    // single-queried or tile-searched (saturating slugs fire 15 tile
+    // calls × ~1 page each, but they all return the same id and
+    // dedup to 1).
     const fetchFn = async ({ textQuery }) => {
-      i += 1;
-      // First call for "japanese" errors; rest succeed with 1 hit each.
       if (textQuery.toLowerCase().startsWith('japanese')) throw new Error('quota');
-      return { places: [{ id: `id-${i}` }], nextPageToken: null };
+      const seed = String(textQuery).toLowerCase().split(/\s+/)[0];
+      return { places: [{ id: `id-${seed}` }], nextPageToken: null };
     };
     const out = await countAll({ apiKey: 'x', fetchFn });
     expect(Object.keys(out.perSlug).length).toBe(SCOPE_SLUGS.length);
     expect(out.errors.japanese).toMatch(/quota/);
     expect(out.perSlug.japanese).toBeNull();
-    // 47 cuisines × 1 hit each = 47
+    // 47 cuisines × 1 unique placeId (deduped across single + tile
+    // calls) = 47
     expect(out.total).toBe(SCOPE_SLUGS.length - 1);
   });
 
-  it('surfaces capped slugs', async () => {
+  it('surfaces capped slugs (non-saturating only — tiled slugs never report capped)', async () => {
     const fetchFn = async () => ({
       places: Array.from({ length: PAGE_SIZE }, (_, i) => ({ id: `pid-${i}-${Math.random()}` })),
       nextPageToken: 'more'
     });
     const out = await countAll({ apiKey: 'x', fetchFn });
-    // Every slug hits the 60-ceiling.
-    expect(out.capped.length).toBe(SCOPE_SLUGS.length);
-    expect(out.total).toBe(SCOPE_SLUGS.length * PAGE_SIZE * MAX_PAGES);
+    // v0.61.181 — only non-saturating cuisines go through countOne
+    // (which sets capped=true at the 60-ceiling). Saturating slugs
+    // route through countOneTiled which never sets capped (no
+    // single API ceiling to hit across 15 different tile circles).
+    const expectedCapped = SCOPE_SLUGS.filter((s) => !SATURATING_SLUGS.has(s));
+    expect(out.capped.length).toBe(expectedCapped.length);
+    expect(out.tiledSlugs.sort()).toEqual([...SATURATING_SLUGS].sort());
   });
 
   it('records elapsedMs as a finite number', async () => {
@@ -323,3 +336,142 @@ describe('claimDebounceSlot (v0.61.179)', () => {
     expect(result.won).toBe(true);
   });
 });
+
+// v0.61.181 — geographic tile-search for saturating cuisines.
+describe('tiles (v0.61.181 geometry)', () => {
+  it('exports 9 SG tiles + 6 JB tiles = 15 total', () => {
+    expect(SG_TILES.length).toBe(9);
+    expect(JB_TILES.length).toBe(6);
+    expect(TILES.length).toBe(15);
+  });
+
+  it('all tiles are frozen', () => {
+    expect(Object.isFrozen(SG_TILES)).toBe(true);
+    expect(Object.isFrozen(JB_TILES)).toBe(true);
+    expect(Object.isFrozen(TILES)).toBe(true);
+  });
+
+  it('every tile carries id + region + lat + lng + radiusM + label', () => {
+    for (const t of TILES) {
+      expect(typeof t.id).toBe('string');
+      expect(['SG', 'JB']).toContain(t.region);
+      expect(Number.isFinite(t.lat)).toBe(true);
+      expect(Number.isFinite(t.lng)).toBe(true);
+      expect(Number.isFinite(t.radiusM)).toBe(true);
+      expect(t.radiusM).toBeGreaterThan(0);
+      expect(typeof t.label).toBe('string');
+    }
+  });
+
+  it('Legoland Malaysia (1.4248, 103.6347) is inside JB tile #1', () => {
+    const t = JB_TILES[0];
+    const distM = haversineMeters(1.4248, 103.6347, t.lat, t.lng);
+    expect(distM).toBeLessThanOrEqual(t.radiusM);
+  });
+
+  it('Desaru (1.5400, 104.2700) is inside JB tile #6', () => {
+    const t = JB_TILES[5];
+    const distM = haversineMeters(1.5400, 104.2700, t.lat, t.lng);
+    expect(distM).toBeLessThanOrEqual(t.radiusM);
+  });
+
+  it('SCOPE_SLUGS contains every SATURATING_SLUGS entry', () => {
+    for (const slug of SATURATING_SLUGS) {
+      expect(SCOPE_SLUGS).toContain(slug);
+    }
+  });
+
+  it('SATURATING_SLUGS is exactly 8 slugs', () => {
+    expect(SATURATING_SLUGS.size).toBe(8);
+  });
+});
+
+describe('countOneTiled', () => {
+  it('issues one fetch per tile (× pagination)', async () => {
+    let callCount = 0;
+    const tilesUsed = new Set();
+    const fetchFn = async ({ locationBias }) => {
+      callCount += 1;
+      const c = locationBias?.circle?.center;
+      if (c) tilesUsed.add(`${c.latitude},${c.longitude}`);
+      return { places: [{ id: 'shared' }], nextPageToken: null };
+    };
+    const out = await countOneTiled('italian', { apiKey: 'x', fetchFn });
+    expect(callCount).toBe(TILES.length);
+    expect(tilesUsed.size).toBe(TILES.length);
+    expect(out.tiles).toBe(TILES.length);
+    expect(out.n).toBe(1);   // all tiles returned 'shared' → deduped
+  });
+
+  it('dedups placeIds across tiles', async () => {
+    let i = 0;
+    const fetchFn = async () => {
+      i += 1;
+      // Each tile returns 2 ids, with 1 overlap between adjacent tiles.
+      return {
+        places: [{ id: `p-${i}` }, { id: `p-${Math.max(1, i - 1)}` }],
+        nextPageToken: null
+      };
+    };
+    const out = await countOneTiled('italian', { apiKey: 'x', fetchFn });
+    expect(out.tiles).toBe(TILES.length);
+    // 15 unique fresh ids + overlap deduped = 15
+    expect(out.n).toBe(TILES.length);
+  });
+
+  it('paginates per tile up to MAX_PAGES', async () => {
+    let tileNo = 0;
+    let pageNo = 0;
+    const fetchFn = async ({ pageToken }) => {
+      if (!pageToken) { tileNo += 1; pageNo = 1; } else { pageNo += 1; }
+      const ids = Array.from({ length: PAGE_SIZE }, (_, k) => `t${tileNo}-p${pageNo}-${k}`);
+      return { places: ids.map((id) => ({ id })), nextPageToken: 'more' };
+    };
+    const out = await countOneTiled('italian', { apiKey: 'x', fetchFn });
+    // Each tile fires MAX_PAGES pages with PAGE_SIZE unique ids
+    expect(out.pages).toBe(TILES.length * MAX_PAGES);
+    expect(out.n).toBe(TILES.length * MAX_PAGES * PAGE_SIZE);
+    expect(out.capped).toBe(false);   // tiled never reports capped
+  });
+
+  it('isolates per-tile errors + continues to next tile', async () => {
+    let i = 0;
+    const fetchFn = async () => {
+      i += 1;
+      if (i === 1) throw new Error('first-tile-network-error');
+      return { places: [{ id: `id-${i}` }], nextPageToken: null };
+    };
+    const out = await countOneTiled('italian', { apiKey: 'x', fetchFn });
+    expect(out.tiles).toBe(TILES.length);   // all tiles attempted
+    expect(out.error).toMatch(/first-tile-network-error/);
+    expect(out.n).toBe(TILES.length - 1);   // 14 tiles succeeded
+  });
+
+  it('returns n=null + error when GOOGLE_MAPS_API_KEY is missing', async () => {
+    const out = await countOneTiled('italian', { apiKey: '' });
+    expect(out.n).toBeNull();
+    expect(out.error).toMatch(/API_KEY/i);
+  });
+
+  it('SG tiles use regionCode=SG; JB tiles use regionCode=MY', async () => {
+    const regionsSeen = new Set();
+    const fetchFn = async ({ regionCode }) => {
+      regionsSeen.add(regionCode);
+      return { places: [{ id: 'x' }], nextPageToken: null };
+    };
+    await countOneTiled('italian', { apiKey: 'x', fetchFn });
+    expect(regionsSeen.has('SG')).toBe(true);
+    expect(regionsSeen.has('MY')).toBe(true);
+  });
+});
+
+// Haversine distance helper for the tile-coverage tests.
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}

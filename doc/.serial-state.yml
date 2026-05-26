@@ -1,8 +1,8 @@
 counters:
-  commit: 393
-  build: 183
+  commit: 394
+  build: 184
   documents:
-    journal: 381
+    journal: 382
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,61 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 21
-last_anchor_time: 27-05 '26 23:45 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_179 (PR #681 v0.61.179 merged 27-05 '26 ~23:40 SGT; v0.61.180 TMA disable 🔍 on pool exhaustion built on v0.61.179 at 23:45 SGT)
-last_anchor_iso8601: 2026-05-27T23:45:00+08:00
-last_anchor_utc: 2026-05-27T15:45:00Z
+  current_chat_counter: 22
+last_anchor_time: 28-05 '26 00:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_180 (PR #682 v0.61.180 merged 27-05 '26 ~23:22 SGT; v0.61.181 smart tile-search built on v0.61.180 at 28-05 '26 00:00 SGT)
+last_anchor_iso8601: 2026-05-28T00:00:00+08:00
+last_anchor_utc: 2026-05-27T16:00:00Z
+# v0.61.181 (commit 394 / journal 382 / build 184) — smart tile-
+# search to break the Google Places 60-result cap for saturating
+# cuisines. Operator's question: "do you have the true count for
+# the Places 60 — gives true counts for Italian/Japanese/etc.
+# instead of 60+". Tile geometry from operator: "9 SG tiles + 6
+# JB tiles across west of johor to east of johor, paginated.
+# check that lego Johor and Dessaru is cover as johor."
+# Branch claude/v0.61.181-smart-tile-search off main at v0.61.180.
+# Files (4):
+# - cuisine-venue-counts.js:
+#   * NEW SG_TILES (9): nw, n, ne, w, c, e, sw, s, se. 3×3 grid,
+#     9 km radius each. Covers Tuas (sg-w) → Pulau Ubin (sg-ne)
+#     → Changi (sg-se) → Sentosa (sg-s).
+#   * NEW JB_TILES (6): jb-1-iskandar (Legoland, verified at
+#     1.4248/103.6347 inside the 10km radius), jb-2-skudai,
+#     jb-3-city, jb-4-pasir, jb-5-mid (15 km radius to bridge the
+#     Pasir Gudang → Bandar Penawar rural span), jb-6-desaru
+#     (verified at ~1.54/104.27 inside the 12km radius).
+#   * NEW TILES = [...SG_TILES, ...JB_TILES] (15 total, frozen).
+#   * NEW SATURATING_SLUGS = Set of 8: italian, japanese, korean,
+#     american, thai, vietnamese, north-indian, french. These hit
+#     the 60-cap on v0.61.177's single-query sweep.
+#   * NEW countOneTiled(slug, opts): iterates TILES, paginates
+#     each up to MAX_PAGES, dedups placeIds across all tiles via
+#     Set. Returns { slug, n, capped: false, pages, tiles, error }.
+#     Per-tile errors isolated (continues to next tile). regionCode
+#     dynamic per tile ('SG' or 'MY' for JB tiles).
+#   * _defaultFetch extended with optional locationBias.circle +
+#     regionCode params (backwards-compatible — old single-query
+#     callers omit locationBias).
+#   * countAll routes SATURATING_SLUGS via countOneTiled, the
+#     other 40 via countOne (single-query, unchanged). New
+#     `tiledSlugs` field in the return payload reports which
+#     cuisines took the tiled path.
+# - __tests__/cuisine-venue-counts.test.js (+13 tests): tile
+#   shape + freeze + Legoland-coverage + Desaru-coverage +
+#   SATURATING_SLUGS shape + countOneTiled fetch-per-tile +
+#   cross-tile dedup + per-tile pagination + per-tile-error
+#   isolation + missing-key + regionCode SG/MY split. Two
+#   existing countAll tests updated to expect mixed routing
+#   (saturating slugs take tile path, no capped). Total 34 → 47.
+# - package.json: 0.61.180 -> 0.61.181.
+# - doc/.serial-state.yml: commit 393->394, build 183->184,
+#   journal 381->382; re-anchored 28-05 '26 00:00 SGT.
+# - doc/Journal/journal-0_61_181-28_05_28-0000.md: this entry.
+# Cost projection: v0.61.177 baseline ~\$3.45/sweep. v0.61.181
+# adds ~\$5-7 for tile-searching the 8 saturating cuisines (15
+# tiles × ~1.5 paginated pages × \$0.04 × 8 cuisines = ~\$7.20).
+# Total: ~\$8-12/sweep.
+#
 # v0.61.180 (commit 393 / journal 381 / build 183) — disable the
 # Cuisine TMA 🔍 FAB when the search pool is exhausted (finalBatch
 # AND venues.length === knownTotal). Closes the operator's
