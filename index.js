@@ -2469,6 +2469,20 @@ bot.on('callback_query', async (q) => {
           await ownerPeriodicalItemPanel(chatId, messageId, item);
           return;
         }
+        if (data.startsWith('per:set-cadence:')) {
+          // per:set-cadence:<item>:<value>
+          const rest = data.slice('per:set-cadence:'.length);
+          const sep = rest.lastIndexOf(':');
+          const item = sep >= 0 ? rest.slice(0, sep) : rest;
+          const value = sep >= 0 ? rest.slice(sep + 1) : '';
+          const { setCadence } = require('./count-cadence');
+          const ok = await setCadence(redis, item, value);
+          if (!ok) {
+            await safeSend(chatId, `⚠️ Invalid cadence value: ${value}`);
+          }
+          await ownerPeriodicalItemPanel(chatId, messageId, item);
+          return;
+        }
       } catch (err) {
         console.error('[Error] /per callback failed:', err.message);
         await safeSend(chatId, 'Sorry, that Periodical action hit an error.');
@@ -3248,7 +3262,11 @@ async function ownerPeriodicalItemPanel(chatId, messageId, item) {
   }
   const label = PER_ITEM_LABEL[item] || item;
   const history = await ch.getHistory(redis, item);
-  const lines = [`📊 <b>${label}</b>`];
+  // v0.61.166 — show the current cadence in the panel header. The
+  // 4 cadence values are toggleable from the row below.
+  const cadenceMod = require('./count-cadence');
+  const currentCadence = await cadenceMod.getCadence(redis, item);
+  const lines = [`📊 <b>${label}</b> · cadence: <i>${currentCadence}</i>`];
   if (!history.length) {
     lines.push('', '<i>No history yet — tap 🔄 Re-check to seed the first entry.</i>');
   } else {
@@ -3262,11 +3280,21 @@ async function ownerPeriodicalItemPanel(chatId, messageId, item) {
       }
     }
   }
-  // Action buttons. Revert is a sub-row showing up to 4 most recent
-  // historical entries (excluding the current = history[0]); each
-  // button carries the ts so the callback can dispatch directly.
+  // Action buttons.
   const rows = [];
   rows.push([{ text: '🔄 Re-check now', callback_data: `per:recheck:${item}` }]);
+  // v0.61.166 — cadence picker. 4 inline buttons; the active one
+  // gets a ✓ prefix. Tapping calls per:set-cadence:<item>:<value>.
+  const cadenceLabel = (v) => `${currentCadence === v ? '✓ ' : ''}${v === '4-monthly' ? '4M' : v === 'yearly' ? '1Y' : v === 'manual' ? 'M' : 'Off'}`;
+  rows.push([
+    { text: `⏰ ${cadenceLabel('manual')}`,    callback_data: `per:set-cadence:${item}:manual` },
+    { text: `⏰ ${cadenceLabel('4-monthly')}`, callback_data: `per:set-cadence:${item}:4-monthly` },
+    { text: `⏰ ${cadenceLabel('yearly')}`,    callback_data: `per:set-cadence:${item}:yearly` },
+    { text: `⏰ ${cadenceLabel('off')}`,       callback_data: `per:set-cadence:${item}:off` }
+  ]);
+  // Revert is a sub-row showing up to 4 most recent historical
+  // entries (excluding the current = history[0]); each button
+  // carries the ts so the callback can dispatch directly.
   if (history.length >= 2) {
     const revertRow = [];
     for (let i = 1; i < Math.min(history.length, 5); i++) {
@@ -9463,6 +9491,30 @@ async function cacheBotUsername() {
         .catch((err) => console.error('[Warn] Bus stops cache refresh failed:', err.message));
     }, 24 * 60 * 60 * 1000); // 24 h
   }
+
+  // v0.61.166 — Periodical scheduler. Every 6 h, walk the 14 items
+  // the v0.61.164 data layer tracks; for items with cadence
+  // '4-monthly' (≥ 120 d since last entry) or 'yearly' (≥ 365 d),
+  // call recountOne with source = the cadence label. 'manual' /
+  // 'off' items are skipped. The cadence check incorporates the
+  // history's newest entry ts so container restarts don't
+  // double-count. Auto-skips when Redis isn't open.
+  const PERIODICAL_TICK_MS = 6 * 60 * 60 * 1000;   // 6 h
+  setInterval(() => {
+    try {
+      if (!redis || !redis.isOpen) return;
+      const { runDueRecounts } = require('./count-scheduler');
+      runDueRecounts(redis)
+        .then((results) => {
+          if (results.length) {
+            console.log(`[Periodical] tick: ran ${results.length} due recount(s) — ${results.map((r) => `${r.item}=${r.n}`).join(', ')}`);
+          }
+        })
+        .catch((err) => console.error('[Periodical] tick failed:', err.message));
+    } catch (err) {
+      console.error('[Periodical] tick setup failed:', err.message);
+    }
+  }, PERIODICAL_TICK_MS);
 
   if (useWebhook) {
     const app = express();
