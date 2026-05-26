@@ -2508,6 +2508,34 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.177 — cuisine-venue-counts (cvc) owner sub-menu.
+    // Dispatch: cv:menu (show latest + Recount button), cv:run
+    // (trigger a fresh Places sweep + persist to Redis).
+    if (data.startsWith('cv:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[cv:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      try {
+        if (data === 'cv:menu') {
+          await ownerCuisineVenueMenu(chatId, messageId);
+          return;
+        }
+        if (data === 'cv:run') {
+          await ownerCuisineVenueRecount(chatId);
+          return;
+        }
+        if (data === 'cv:close') {
+          try { await bot.deleteMessage(chatId, messageId); } catch { /* ignore */ }
+          return;
+        }
+      } catch (err) {
+        console.error('[Error] /cv callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that Cuisine-venues action hit an error.');
+      }
+      return;
+    }
+
     // v0.61.171 — chat free-text "Search 🔍 for more" + "↺ Start
     // over" callbacks. The hash points at the stored query text in
     // Redis; on `ft:more:<hash>` we just re-run runFreeTextSearch
@@ -3377,6 +3405,75 @@ async function ownerPeriodicalItemPanel(chatId, messageId, item) {
   }
 }
 
+// v0.61.177 — cuisine-venue-counts owner sub-menu. Shows the
+// latest Places sweep result (loaded from Redis) + a "🔄 Recount
+// now" button that triggers a fresh server-side sweep. Cost ~$3.45
+// per Recount; gated by isOwnerChat (the per-call check in the
+// dispatcher above).
+async function ownerCuisineVenueMenu(chatId, messageId = null) {
+  const cvc = require('./cuisine-venue-counts');
+  const latest = await cvc.loadFromRedis(redis);
+  const lines = [`🍽 <b>Cuisine Venue Counts</b> (${cvc.SCOPE_SLUGS.length} cuisines)  ·  <i>v${pkgJson.version}</i>`];
+  if (!latest) {
+    lines.push('', '<i>No data yet. Tap "🔄 Run now" to fire the first Places sweep.</i>');
+    lines.push(`<i>Cost: ~\$3.45 (48 cuisines × ~1.8 paginated calls × \$0.04). Elapsed: ~15 s.</i>`);
+  } else {
+    const ts = latest.ts ? new Date(latest.ts) : null;
+    const tsStr = ts && !Number.isNaN(ts.getTime())
+      ? `${ts.getUTCFullYear()}-${String(ts.getUTCMonth() + 1).padStart(2, '0')}-${String(ts.getUTCDate()).padStart(2, '0')} ${String(ts.getUTCHours()).padStart(2, '0')}:${String(ts.getUTCMinutes()).padStart(2, '0')} UTC`
+      : 'unknown';
+    lines.push('', `<b>Total:</b> ${latest.total} venues  ·  <b>Last run:</b> ${tsStr}`);
+    const cappedN = Array.isArray(latest.capped) ? latest.capped.length : 0;
+    const errN = latest.errors ? Object.keys(latest.errors).length : 0;
+    lines.push(`<b>Capped at 60+:</b> ${cappedN}  ·  <b>Errors:</b> ${errN}`);
+    if (cappedN > 0) lines.push(`<i>Capped: ${latest.capped.slice(0, 8).join(', ')}${cappedN > 8 ? ` (+${cappedN - 8})` : ''}</i>`);
+    if (errN > 0) lines.push(`<i>Errors: ${Object.keys(latest.errors).slice(0, 5).join(', ')}${errN > 5 ? ` (+${errN - 5})` : ''}</i>`);
+  }
+  const rows = [
+    [{ text: latest ? '🔄 Recount now (~$3.45)' : '🔄 Run now (~$3.45)', callback_data: 'cv:run' }],
+    [{ text: '✕ Close', callback_data: 'cv:close' }]
+  ];
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
+  if (messageId) {
+    try { await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through to fresh send */ }
+  }
+  await bot.sendMessage(chatId, lines.join('\n'), payload);
+}
+
+// v0.61.177 — fires the 48-cuisine Places sweep server-side using
+// the prod GOOGLE_MAPS_API_KEY env var. Acknowledges immediately,
+// runs countAll (~15 s, parallel), persists the result to Redis,
+// then sends a final summary message + re-opens the menu so the
+// operator sees the updated state without re-tapping.
+async function ownerCuisineVenueRecount(chatId) {
+  const cvc = require('./cuisine-venue-counts');
+  if (!process.env.GOOGLE_MAPS_API_KEY) {
+    await safeSend(chatId, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run sweep.');
+    return;
+  }
+  await safeSend(chatId, `⏳ Running Places sweep across ${cvc.SCOPE_SLUGS.length} cuisines… (~15 s)`);
+  let result;
+  try {
+    result = await cvc.countAll();
+  } catch (err) {
+    await safeSend(chatId, `❌ Sweep failed: ${String(err && err.message || err).slice(0, 200)}`);
+    return;
+  }
+  const persisted = await cvc.persistToRedis(redis, result);
+  const cappedN = Array.isArray(result.capped) ? result.capped.length : 0;
+  const errN = result.errors ? Object.keys(result.errors).length : 0;
+  const summary = [
+    `✅ <b>Sweep complete.</b>`,
+    `<b>Total:</b> ${result.total} venues across ${cvc.SCOPE_SLUGS.length} cuisines.`,
+    `<b>Capped (60+):</b> ${cappedN}  ·  <b>Errors:</b> ${errN}  ·  <b>Pages:</b> ${result.pages}  ·  <b>Elapsed:</b> ${(result.elapsedMs / 1000).toFixed(1)} s.`,
+    persisted ? `<i>Stored in Redis (key: cuisine-venue-counts:latest, TTL 60d).</i>` : `<i>⚠️ Redis persist failed — result NOT stored.</i>`
+  ].join('\n');
+  await bot.sendMessage(chatId, summary, { parse_mode: 'HTML' }).catch(() => {});
+  // Re-open the menu so operator sees the refreshed view.
+  await ownerCuisineVenueMenu(chatId, null);
+}
+
 async function setVerboseMode(chatId, action) {
   const verbose = require('./verbose-log');
   if (action === 'on') {
@@ -3420,7 +3517,10 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
         [{ text: '🔍 /log on', callback_data: 'v:logon' },
          { text: '🔍 /log off', callback_data: 'v:logoff' }],
         // v0.61.165 — Periodical sub-menu.
-        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }]
+        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }],
+        // v0.61.177 — cuisine-venue-counts sub-menu (48-cuisine
+        // Places sweep, separate from Periodical's 14-item set).
+        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }]
       ] }
     }).catch(() => { /* the choices keyboard is best-effort */ });
   } catch (err) {
@@ -3481,7 +3581,10 @@ bot.onText(/^\/v(?:@\w+)?$/, async (msg) => {
         [{ text: '🔍 Verbose ON (/log on)', callback_data: 'v:logon' },
          { text: '🔍 Verbose OFF (/log off)', callback_data: 'v:logoff' }],
         // v0.61.165 — Periodical sub-menu.
-        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }]
+        [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }],
+        // v0.61.177 — cuisine-venue-counts sub-menu (48-cuisine
+        // Places sweep, separate from Periodical's 14-item set).
+        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }]
       ] }
     });
   } catch (err) {

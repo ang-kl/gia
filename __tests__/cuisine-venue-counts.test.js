@@ -188,3 +188,79 @@ describe('countAll', () => {
     expect(new Date(out.ts).toString()).not.toBe('Invalid Date');
   });
 });
+
+// v0.61.177 — Redis persistence layer.
+const { persistToRedis, loadFromRedis, REDIS_KEY, REDIS_TTL_S } = require('../cuisine-venue-counts');
+
+function makeFakeRedis() {
+  const store = new Map();
+  const ttls = new Map();
+  return {
+    isOpen: true,
+    async set(key, value, opts) {
+      store.set(key, value);
+      if (opts && opts.EX) ttls.set(key, opts.EX);
+      return 'OK';
+    },
+    async get(key) {
+      return store.has(key) ? store.get(key) : null;
+    },
+    _ttl(key) { return ttls.get(key); }
+  };
+}
+
+describe('persistToRedis / loadFromRedis', () => {
+  it('REDIS_KEY + REDIS_TTL_S are sane', () => {
+    expect(REDIS_KEY).toBe('cuisine-venue-counts:latest');
+    expect(REDIS_TTL_S).toBeGreaterThan(7 * 24 * 60 * 60);   // > 1 week
+    expect(REDIS_TTL_S).toBeLessThanOrEqual(365 * 24 * 60 * 60);  // <= 1 year
+  });
+
+  it('persists + loads a result object round-trip', async () => {
+    const redis = makeFakeRedis();
+    const result = { ts: '2026-05-27T00:00:00Z', total: 612, perSlug: { italian: 60, czech: 5 }, capped: ['italian'], errors: {}, pages: 78, elapsedMs: 14823 };
+    expect(await persistToRedis(redis, result)).toBe(true);
+    const loaded = await loadFromRedis(redis);
+    expect(loaded).toEqual(result);
+  });
+
+  it('persist sets the configured TTL', async () => {
+    const redis = makeFakeRedis();
+    await persistToRedis(redis, { total: 100, perSlug: {}, capped: [], errors: {} });
+    expect(redis._ttl(REDIS_KEY)).toBe(REDIS_TTL_S);
+  });
+
+  it('persist returns false when redis is null', async () => {
+    expect(await persistToRedis(null, { total: 0 })).toBe(false);
+  });
+
+  it('persist returns false when redis is closed', async () => {
+    const closed = { isOpen: false };
+    expect(await persistToRedis(closed, { total: 0 })).toBe(false);
+  });
+
+  it('persist returns false when result is not an object', async () => {
+    const redis = makeFakeRedis();
+    expect(await persistToRedis(redis, null)).toBe(false);
+    expect(await persistToRedis(redis, 'not-an-object')).toBe(false);
+  });
+
+  it('load returns null when redis is null', async () => {
+    expect(await loadFromRedis(null)).toBeNull();
+  });
+
+  it('load returns null when redis is closed', async () => {
+    expect(await loadFromRedis({ isOpen: false })).toBeNull();
+  });
+
+  it('load returns null when key is empty', async () => {
+    const redis = makeFakeRedis();
+    expect(await loadFromRedis(redis)).toBeNull();
+  });
+
+  it('load returns null when stored JSON is corrupt', async () => {
+    const redis = makeFakeRedis();
+    await redis.set(REDIS_KEY, '{not-valid-json');
+    expect(await loadFromRedis(redis)).toBeNull();
+  });
+});
