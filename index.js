@@ -3303,7 +3303,10 @@ async function ownerPeriodicalMenu(chatId, messageId = null) {
     { text: '🔇 Set all off', callback_data: 'per:set-all-off' }
   ]);
   rows.push([{ text: '✕ Close', callback_data: 'per:close' }]);
-  const text = '📊 <b>Periodical — cadence per item</b>\nButton shows cadence (off / M / 4M / Yr). Tap an item to see count + history + change cadence.';
+  // v0.61.176 — operator: surface the running version inline so a
+  // glance at the menu confirms which build is live (the prior pain
+  // point was a silent Railway redeploy delay between merge + live).
+  const text = `📊 <b>Periodical — cadence per item</b>  ·  <i>v${pkgJson.version}</i>\nButton shows cadence (off / M / 4M / Yr). Tap an item to see count + history + change cadence.`;
   const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
   if (messageId) {
     try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
@@ -3409,7 +3412,7 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
     // v0.61.34 — after the health-check report, surface the other
     // owner-only commands as tappable choices (same callbacks as the
     // /v builder menu). "/admin" launches the Oversight admin TMA.
-    await bot.sendMessage(msg.chat.id, '🛠 <b>Admin commands</b>', {
+    await bot.sendMessage(msg.chat.id, `🛠 <b>Admin commands</b>  ·  <i>v${pkgJson.version}</i>`, {
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: [
         [{ text: '📋 /ftlog', callback_data: 'v:ftlog20' },

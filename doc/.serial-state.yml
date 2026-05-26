@@ -1,8 +1,8 @@
 counters:
-  commit: 388
-  build: 178
+  commit: 389
+  build: 179
   documents:
-    journal: 376
+    journal: 377
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,34 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 16
-last_anchor_time: 27-05 '26 22:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_174 (PR #675 merged 27-05 '26 ~22:04 SGT; v0.61.175 Periodical UI cadence-buttons + Set-all-off built on v0.61.174 at 22:15 SGT)
-last_anchor_iso8601: 2026-05-27T22:15:00+08:00
-last_anchor_utc: 2026-05-27T14:15:00Z
+  current_chat_counter: 17
+last_anchor_time: 27-05 '26 22:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_175 (PR #676 merged 27-05 '26 ~22:19 SGT; v0.61.176 running-version chip in /ver + Periodical built on v0.61.175 at 22:45 SGT)
+last_anchor_iso8601: 2026-05-27T22:45:00+08:00
+last_anchor_utc: 2026-05-27T14:45:00Z
+# v0.61.176 (commit 389 / journal 377 / build 179) — visible
+# running-version chip on the owner /ver admin keyboard + the
+# /ver Periodical menu header. Operator pain point: after the
+# v0.61.174 merge, Railway redeploy delay left the operator
+# guessing which version was live ("still v0.61.174" complaint).
+# runHealthCheck (ver.js) already prints the version at line 1
+# of its output, but the FOLLOW-UP "🛠 Admin commands" keyboard
+# message + the Periodical menu header were both silent. This
+# PR adds a `· v0.61.176` chip to both surfaces so the operator
+# sees the running version every time they tap into /ver or
+# Periodical. Branch claude/v0.61.176-running-version-chip off
+# main at v0.61.175. Files (3):
+# - index.js:
+#   * /ver onText handler (~line 3413): "🛠 Admin commands"
+#     message becomes "🛠 Admin commands · v0.61.176" (using
+#     pkgJson.version which index.js already imports at line 7).
+#   * ownerPeriodicalMenu (~line 3306): header text becomes
+#     "📊 Periodical — cadence per item · v0.61.176" (italic).
+# - package.json: 0.61.175 -> 0.61.176.
+# - doc/.serial-state.yml: commit 388->389, build 178->179,
+#   journal 376->377; re-anchored 27-05 '26 22:45 SGT.
+# - doc/Journal/journal-0_61_176-27_05_27-2245.md: this entry.
+#
 # v0.61.175 (commit 388 / journal 376 / build 178) — Periodical
 # owner UI ergonomics per operator: each item button now shows
 # the current cadence in parens (off / M / 4M / Yr) instead of the
