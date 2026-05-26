@@ -1,8 +1,8 @@
 counters:
-  commit: 406
-  build: 196
+  commit: 407
+  build: 197
   documents:
-    journal: 394
+    journal: 395
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,59 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 34
-last_anchor_time: 28-05 '26 03:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_192 (PR #694 v0.61.192 merged 28-05 '26 ~02:55 SGT; v0.61.193 SG-only chip gating built on v0.61.192 at 28-05 '26 03:00 SGT)
-last_anchor_iso8601: 2026-05-28T03:00:00+08:00
-last_anchor_utc: 2026-05-27T19:00:00Z
+  current_chat_counter: 35
+last_anchor_time: 28-05 '26 07:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_193 (PR #695 v0.61.193 merged 28-05 '26 ~03:05 SGT; v0.61.194 Catmull-Rom smoothing for LRT lines built on v0.61.193 at 28-05 '26 07:45 SGT)
+last_anchor_iso8601: 2026-05-28T07:45:00+08:00
+last_anchor_utc: 2026-05-27T23:45:00Z
+# v0.61.194 (commit 407 / journal 395 / build 197) — Catmull-Rom
+# spline smoothing for LRT lines (BPL/SLRT/PLRT). Operator
+# screenshots showed the existing Chaikin 2-iter smoothing
+# pulled the polylines ~25% inward from each control point,
+# which is invisible on MRT (1-2 km spacing) but visibly offset
+# the LRT polylines from station markers (200-500 m spacing).
+# Operator also flagged BPL's lollipop topology being distorted
+# into a single oval. Operator: "the lines ought to have curve?"
+#
+# Catmull-Rom is an INTERPOLATING spline (vs Chaikin's
+# approximation): the curve is GUARANTEED to pass through every
+# control point. Stations stay ON the line, curve is smooth
+# between them. 12 sub-samples per control-point pair.
+#
+# MRT lines keep Chaikin (well-tested, fine at MRT spacing).
+#
+# Branch claude/v0.61.194-catmull-rom-lrt off main at v0.61.193.
+# Files (3):
+# - web/transport/src/data/line-paths.js:
+#   * NEW _catmullRomBlend(p0, p1, p2, p3, t) — uniform Catmull-Rom
+#     blend function (standard cubic formula, t=0 returns p1,
+#     t=1 returns p2).
+#   * NEW catmullRomSegment(seg, samples=12) — interpolates a
+#     dense polyline through the input control points. Closed
+#     loops (first === last) wrap around for proper tangents at
+#     the join; open paths duplicate first/last as degenerate
+#     tangents. Returns input unchanged for < 2 points. Rounds
+#     to 6 decimals.
+#   * NEW CATMULL_ROM_LINES = Set('BPL', 'SLRT', 'PLRT'). The
+#     smoothLinePaths dispatcher routes these through
+#     catmullRomSegment(seg, 12); all others stay on
+#     smoothSegment(seg, 2) (Chaikin).
+# - __tests__/transport-line-paths.test.js (+5 tests):
+#   * BPL smoothed length > raw × 5 (Catmull-Rom densifies)
+#   * Every LRT raw control point appears in smoothed output
+#     within 1e-5 deg (proves interpolation property)
+#   * catmullRomSegment: passes through controls, preserves
+#     closed loops, returns unchanged for < 2 points.
+#   Updated 1 existing test (BPL → CCL for the "smoothing
+#   lengthens" assertion since LRTs now use Catmull, not Chaikin).
+#   Total 20 → 24, all passing.
+# - package.json: 0.61.193 -> 0.61.194.
+# - doc/.serial-state.yml: commit 406->407, build 196->197,
+#   journal 394->395; re-anchored 28-05 '26 07:45 SGT.
+# - doc/Journal/journal-0_61_194-28_05_28-0745.md: this entry.
+#
+# Verification: 24/24 tests pass; cuisine TMA build 2.98 s.
+#
 # v0.61.193 (commit 406 / journal 394 / build 196) — SG-only
 # cuisine chip gating per operator's v0.61.191 retrospective
 # reminder: "turn off … healther choice in the quick filter,
