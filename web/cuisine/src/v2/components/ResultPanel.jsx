@@ -192,8 +192,19 @@ export default function ResultPanel({
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
         {/* v0.61.79 — when totalCount is set (Michelin's ~130-entry
             pool), show "(shown/total)" so the user reads this batch as
-            a slice of the whole list; else the plain "(shown)" count. */}
-        <div className="text-xs font-semibold flex-shrink-0">{lang === 'fr' ? 'Résultats' : 'Results'} {venues ? `(${venues.length}${totalCount ? `/${totalCount}` : ''})` : ''}</div>
+            a slice of the whole list; else the plain "(shown)" count.
+            v0.61.163 — header now ALWAYS shows the
+            `(visible_on_page / total)` ratio per operator's
+            "Results (12/19)" pagination indicator. For a 19-venue
+            cuisine search split across two PAGE_SIZE=12 pages, the
+            header reads "Results (12/19)" on page 1 and
+            "Results (19/19)" after tapping ▶. */}
+        <div className="text-xs font-semibold flex-shrink-0">{(() => {
+          if (!venues) return lang === 'fr' ? 'Résultats' : 'Results';
+          const visibleOnPage = Math.min(page * PAGE_SIZE, venues.length);
+          const denom = totalCount || venues.length;
+          return `${lang === 'fr' ? 'Résultats' : 'Results'} (${visibleOnPage}/${denom})`;
+        })()}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (
             <button type="button" onClick={handleCopyAll} disabled={copying}
@@ -232,7 +243,17 @@ export default function ResultPanel({
           {loadingHint || 'Loading…'}
         </div>
       ) : !venues?.length ? (
-        <div className="text-xs text-tg-hint px-2 py-4">No matches yet — pick a cuisine or use 💬 Tell me above.</div>
+        /* v0.61.163 — operator's friendlier zero-state copy. The
+           prior "No matches yet — pick a cuisine…" assumed the user
+           hadn't yet tried. After a real search returning 0 (which
+           the header now states as `Results (0/0)` per the new
+           format), the message explicitly suggests two paths
+           forward: change the criteria, or clear them. */
+        <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
+          {lang === 'fr'
+            ? 'Aucun résultat. Modifiez vos critères de recherche ou laissez-les vides.'
+            : 'No results. Suggest changing the search criteria, or leaving it blank.'}
+        </div>
       ) : (
         <div className="flex flex-col gap-1.5">
           {/* v0.60.82 — combo fallback banner. When the user picked 2+
