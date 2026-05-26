@@ -1,9 +1,11 @@
 {
   "_meta": {
-    "comment": "v0.60.85 — SG MRT + LRT station coordinates. Operational network as of 2026 (NSL, EWL/CGL, NEL, CCL, DTL, TEL, BPL/SLRT/PLRT) + announced future stations (CCL6, TEL5, DTL3e, JRL, CRL). Lat/lng sourced from public LTA + OneMap.sg references; precision ~5 decimal places (≈1m accuracy is overkill, ~10m typical). Future stations use precinct centroids where exact coords aren't published yet. status=operational|future; opensYear set for future entries.",
-    "lastUpdated": "2026-05-10",
-    "operationalCount": 143,
-    "futureCount": 41,
+    "comment": "v0.60.85 — SG MRT + LRT station coordinates. Operational network as of 2026 (NSL, EWL/CGL, NEL, CCL, DTL, TEL, BPL/SLRT/PLRT) + announced future stations (CCL6, TEL5, DTL3e, JRL, CRL). Lat/lng sourced from public LTA + OneMap.sg references; precision ~5 decimal places (≈1m accuracy is overkill, ~10m typical). Future stations use precinct centroids where exact coords aren't published yet. status=operational|future; opensYear set for future entries. v0.61.184: operationalCount + futureCount re-synced against the body (the original v0.60.85 counts had rotted as later edits added stations without bumping the header).",
+    "lastUpdated": "2026-05-27",
+    "operationalCount": 180,
+    "futureCount": 29,
+    "linesOperational": 10,
+    "linesTotal": 12,
     "schema": { "lat": "number", "lng": "number", "codes": "array of LTA codes (e.g. ['NS24','NE6','CC1'])", "lines": "array of line codes (NSL/EWL/NEL/CCL/DTL/TEL/CGL/BPL/SLRT/PLRT/JRL/CRL)", "status": "operational|future", "opensYear": "number (future only)" }
   },
   "Jurong East":         { "lat": 1.3329, "lng": 103.7421, "codes": ["NS1","EW24"],        "lines": ["NSL","EWL"], "status": "operational" },
