@@ -197,55 +197,42 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       {disabledListLine && (
         <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
       )}
-      {/* v0.61.188 — for OTHER anchors, suppress the PRECINCT
-          <select> (too many possibilities to enumerate) and the
-          autocomplete SUGGESTIONS dropdown, but KEEP the free-text
-          input + submit button so the operator can type & submit
-          a Putrajaya / KL / Penang address. SG / JB keep their
-          full picker UI (precinct + text + autocomplete). */}
-      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT')
-        ? null
-        : (
-          <select
-            value={pickerValue}
-            onChange={onPickerChange}
-            disabled={busy}
-            className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
-          >
-            <option value="">{t('location.dropdownLabel', lang)}</option>
-            {precincts.sg.length > 0 && (
-              <optgroup label={t('location.dropdownGroupSg', lang)}>
-                {precincts.sg.map((p) => (
-                  <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-                ))}
-              </optgroup>
-            )}
-            {precincts.sgRegion.length > 0 && (
-              <optgroup label={t('location.dropdownGroupSgReg', lang)}>
-                {precincts.sgRegion.map((p) => (
-                  <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-                ))}
-              </optgroup>
-            )}
-            {precincts.my.length > 0 && (
-              <optgroup label={t('location.dropdownGroupMy', lang)}>
-                {precincts.my.map((p) => (
-                  <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
-                ))}
-              </optgroup>
-            )}
-          </select>
+      <select
+        value={pickerValue}
+        onChange={onPickerChange}
+        disabled={busy}
+        className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
+      >
+        <option value="">{t('location.dropdownLabel', lang)}</option>
+        {precincts.sg.length > 0 && (
+          <optgroup label={t('location.dropdownGroupSg', lang)}>
+            {precincts.sg.map((p) => (
+              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+            ))}
+          </optgroup>
         )}
-      {/* v0.61.188 — free-text input + submit always visible. For
-          OTHER it's the ONLY way to change anchor inside the TMA
-          (precinct dropdown hidden above). */}
+        {precincts.sgRegion.length > 0 && (
+          <optgroup label={t('location.dropdownGroupSgReg', lang)}>
+            {precincts.sgRegion.map((p) => (
+              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+            ))}
+          </optgroup>
+        )}
+        {precincts.my.length > 0 && (
+          <optgroup label={t('location.dropdownGroupMy', lang)}>
+            {precincts.my.map((p) => (
+              <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
+            ))}
+          </optgroup>
+        )}
+      </select>
       <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
         <input
           type="text"
           value={textValue}
           onChange={(e) => setTextValue(e.target.value)}
           onFocus={() => suggestions.length > 0 && setAcOpen(true)}
-          onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}
+          onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}  // delay so onClick on a suggestion still fires
           placeholder={t('location.searchPlaceholder', lang)}
           disabled={busy}
           autoComplete="off"
@@ -257,16 +244,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
         >{busy ? '…' : t('location.searchSubmit', lang)}</button>
       </form>
-      {/* v0.61.188 — autocomplete suggestions dropdown is hidden
-          for OTHER (operator: "too many to list"). Submit button
-          geocodes the typed text server-side as a fallback. */}
-      {acOpen && suggestions.length > 0 && !(currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT')) && (
+      {acOpen && suggestions.length > 0 && (
         <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
           {suggestions.map((s) => (
             <button
               key={s.placeId || s.primaryText}
               type="button"
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}  /* don't steal focus before onClick */
               onClick={() => pickSuggestion(s)}
               className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
             >

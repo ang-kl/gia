@@ -70,11 +70,6 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   // file header for the full rationale.
 
   // Debounced autocomplete fetch on every keystroke.
-  // v0.61.188 — for OTHER (Putrajaya / KL / Penang / Batam) the
-  // autocomplete fetch KEEPS running so Enter-to-anchor still works
-  // (picks the top suggestion behind the scenes). The dropdown UI
-  // itself stays hidden for OTHER per the operator's "too many to
-  // list" — see the render gate below.
   useEffect(() => {
     const trimmed = query.trim();
     if (!trimmed || trimmed.length < 2) {
@@ -187,10 +182,6 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           users see this is editable, not a label. */}
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
         <span aria-hidden className="text-tg-accent">📍</span>
-        {/* v0.61.188 — OTHER region: input stays editable so the
-            operator can type a free-text address. Only the
-            suggestions / no-match dropdowns are suppressed (gated
-            below). Enter still picks the top hidden suggestion. */}
         {open ? (
           <input
             ref={inputRef}
@@ -238,7 +229,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           >🔍</button>
         )}
       </div>
-      {open && region !== 'OTHER' && suggestions.length > 0 && (
+      {open && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
           {suggestions.map((s, i) => (
             <button
@@ -266,7 +257,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           ≥ 2 chars but Autocomplete returned no result. Keeps the
           Enter-key contract honest — Enter no-ops, and now the user
           knows why. */}
-      {open && region !== 'OTHER' && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
+      {open && !loading && query.trim().length >= 2 && suggestions.length === 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg px-3 py-2 text-xs text-tg-hint">
           {tr('loc.noMatch', lang)}
         </div>
