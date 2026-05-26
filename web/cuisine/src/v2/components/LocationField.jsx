@@ -24,12 +24,19 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // v0.61.50 — the right-side icon is now context-aware:
 //   • closed (search mode) → 🔍 button that fires `onSearch`;
 //   • open  (edit mode)   → ✏️ visual indicator only.
-// While open, the field auto-closes back to search mode after 2.5 s of
-// keystroke inactivity, so the search 🔍 reappears without the user
-// having to blur the input. Picking a suggestion still commits the
-// anchor only — the actual search runs when the user taps one of the
-// three search controls: the field's own 🔍, the floating 🔍 FAB, or
-// the "🔍 Search · Show me places to eat" button.
+// v0.61.160 — operator bug report: the previous 2.5 s keystroke-idle
+// auto-close was too aggressive — users typing a long address found
+// the dropdown vanishing mid-thought, and the field appeared to
+// "revert" to the device location while they were still composing.
+// The auto-close is removed; the dropdown now stays open until the
+// user (a) picks a suggestion, (b) taps the × clear button,
+// (c) clicks outside the field (onBlur closes after 200 ms — long
+// enough for suggestion clicks to register), or (d) hits Enter.
+// Picking a suggestion that resolves to the SAME coordinates as the
+// current anchor is now a no-op (no anchor re-commit, no map
+// re-render, no server save) per the operator's "if the new
+// location set is same as current location, don't do anything"
+// instruction.
 export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null }) {
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
@@ -57,14 +64,10 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     return () => { cancelled = true; };
   }, [userLoc?.lat, userLoc?.lng]);
 
-  // v0.61.50 — while the input is open, auto-close back to search mode
-  // after 2.5 s of keystroke inactivity. Each `query` change re-arms the
-  // timer; on close, the right-side icon flips ✏️ → 🔍.
-  useEffect(() => {
-    if (!open) return undefined;
-    const tid = setTimeout(() => setOpen(false), 2500);
-    return () => clearTimeout(tid);
-  }, [open, query]);
+  // v0.61.160 — the v0.61.50 2.5 s keystroke-idle auto-close was
+  // removed (operator bug report). The dropdown now stays open until
+  // the user explicitly picks, clears, blurs, or hits Enter. See the
+  // file header for the full rationale.
 
   // Debounced autocomplete fetch on every keystroke.
   useEffect(() => {
@@ -104,8 +107,22 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
       const r = await placeResolve({ placeId: s.placeId });
       if (r?.lat != null && r?.lng != null) {
         const label = r.name || s.primaryText || '';
-        setPickedLabel(label);
-        onSelect?.({ lat: r.lat, lng: r.lng, label });
+        // v0.61.160 — idempotent pick. If the resolved coords match
+        // the current anchor (~10 m tolerance for floating-point
+        // drift), do nothing: no anchor re-commit, no server save,
+        // no map re-centre. The user can still click the explicit
+        // search button to fire a fresh query. This stops the
+        // "picked the same place I'm already at" loop the operator
+        // observed (the prior code re-saved the anchor + reset
+        // searchCenter, which contributed to the "looks like a
+        // revert" feel when combined with the 2.5 s auto-close).
+        const same = anchor
+          && Math.abs(anchor.lat - r.lat) < 1e-4
+          && Math.abs(anchor.lng - r.lng) < 1e-4;
+        if (!same) {
+          setPickedLabel(label);
+          onSelect?.({ lat: r.lat, lng: r.lng, label });
+        }
       }
     } catch (err) {
       console.warn('[LocationField] resolve failed:', err.message);
