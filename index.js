@@ -11319,8 +11319,37 @@ async function cacheBotUsername() {
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
         const chatId = String(userId);
-        const { precinctId, text } = req.body || {};
+        const { precinctId, text, lat, lng, label, country } = req.body || {};
         const precincts = require('./precincts');
+        // v0.61.192 — direct lat/lng/label path for the Menu TMA's
+        // OTHER picker. The TMA's confirmation list (server-side
+        // /api/cuisine/place-search-by-country returned top 5 with
+        // explicit coords) calls /api/menu/set-location with the
+        // chosen result's lat/lng/label so we skip a redundant
+        // geocode round-trip. Region defaults to OTHER, radius cap
+        // 20 km (matches the Putrajaya precinct cap, applied to any
+        // OTHER anchor for now). `country` is an optional ISO 3166-1
+        // alpha-2 code for telemetry / future per-country caps.
+        if (Number.isFinite(lat) && Number.isFinite(lng)
+            && (typeof label === 'string' && label.trim())) {
+          const cc = typeof country === 'string' ? country.toUpperCase() : null;
+          await setUserLocation(redis, chatId, lat, lng, {
+            region: 'OTHER',
+            radiusCapM: 20000,
+            label: label.trim(),
+            ...(cc ? { country: cc } : {})
+          });
+          console.log(`[menu/set-location] D776 chat=${chatId} OTHER lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} country=${cc || '?'} label="${label.slice(0, 60)}"`);
+          return res.json({
+            ok: true,
+            label: label.trim(),
+            lat,
+            lng,
+            region: 'OTHER',
+            radiusCapM: 20000,
+            ...(cc ? { country: cc } : {})
+          });
+        }
         if (typeof precinctId === 'string' && precinctId) {
           const p = precincts.getById(precinctId);
           if (!p) return res.status(400).json({ ok: false, error: 'unknown precinctId' });
