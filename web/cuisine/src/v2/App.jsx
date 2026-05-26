@@ -1716,18 +1716,35 @@ export default function App() {
                 </div>
               </div>
             )}
-            <button
-              type="button"
-              onClick={triggerSearch}
-              disabled={loading}
-              aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-              style={fabBgFg(dirty)}
-              className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
-                loading ? 'opacity-60'
-                : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
-                : ''
-              } ${(searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
-            >🔍</button>
+            {/* v0.61.180 — disable the 🔍 FAB when the cumulative
+                pool is exhausted (finalBatch=true + knownTotal ===
+                venues.length means the user has been shown
+                everything Places returned AND the next tap would
+                fetch zero). Closes operator's earlier complaint
+                "subsequent tap return zero because of the five
+                near location". `dirty` (criteria changed) re-enables
+                the button — a new query has its own pool. */}
+            {(() => {
+              const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+              const isDisabled = loading || (poolExhausted && !dirty);
+              return (
+                <button
+                  type="button"
+                  onClick={triggerSearch}
+                  disabled={isDisabled}
+                  aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+                  title={poolExhausted && !dirty
+                    ? (lang === 'fr' ? 'Aucun autre résultat — modifiez les critères' : 'No more results — change criteria')
+                    : undefined}
+                  style={fabBgFg(dirty)}
+                  className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
+                    isDisabled ? 'opacity-40'
+                    : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
+                    : ''
+                  } ${(searchHintActive || searchFabFlash) && !isDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                >🔍</button>
+              );
+            })()}
           </div>
           <button
             type="button"
