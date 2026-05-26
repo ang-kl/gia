@@ -404,9 +404,12 @@ export default function App() {
           // Without this, picking JB on chat had no effect on the
           // Cuisine TMA — the toggle stayed on 🇸🇬 and searches ran at
           // SG defaults.
+          // v0.61.159 — MY-PUT is now its own pill (the Putrajaya
+          // button). Preserve the distinction instead of collapsing
+          // to JB.
           if (r.region === 'JB' || r.region === 'MY-PUT') {
-            setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
-            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → JB (anchor region=' + r.region + ')');
+            setState((s) => (s.region === r.region ? s : { ...s, region: r.region }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → ' + r.region);
           }
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
@@ -1073,28 +1076,38 @@ export default function App() {
         {/* v0.57.9: region toggle on its own row so it's always visible.
             v0.57.34: JB now uses the Johor state flag icon (johor-flag.png)
             instead of the 🇲🇾 Malaysia emoji — Johor Bahru is the city, not
-            the country. */}
+            the country.
+            v0.61.159: Putrajaya pill added beside SG / JB. The pill is the
+            UI surface on top of the v0.61.155-158 location-mode foundation
+            (operator's "Answer 1: build the system, the Putrajaya button is
+            a UI surface on top of it"). Selecting MY-PUT sets the cuisine
+            search anchor to IOI Resort City (15 km cap from precincts.js);
+            independent of the user's GPS-classified mode per rule §2.11
+            scope guard. */}
         <div className="flex gap-1.5">
           {[
-            { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
-            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) }
+            { id: 'SG',     flag: '🇸🇬',                label: t('region.singapore', lang) },
+            { id: 'JB',     flag: 'johor-flag.png',     label: t('region.johor', lang) },
+            { id: 'MY-PUT', flag: 'putrajaya-flag.svg', label: t('region.putrajaya', lang) }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
                 onClick={() => setState((s) => {
                   // v0.60.199 — ✳️ Michelin list is SG-only; when the
-                  // user toggles to JB, drop a previously-selected
-                  // 'michelin' chip so the search request doesn't
-                  // carry an unsupported cuisine.
-                  const nextCuisines = r.id === 'JB'
+                  // user toggles to a Malaysia region, drop a previously-
+                  // selected 'michelin' chip so the search request doesn't
+                  // carry an unsupported cuisine. v0.61.159 — extends the
+                  // strip to MY-PUT too.
+                  const isMy = r.id === 'JB' || r.id === 'MY-PUT';
+                  const nextCuisines = isMy
                     ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
                     : s.cuisines;
                   return { ...s, region: r.id, cuisines: nextCuisines };
                 })}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
-                {r.flag.endsWith('.png')
+                {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
                 <span>{r.label}</span>
@@ -1594,7 +1607,7 @@ export default function App() {
           v0.60.217 — no border; font +1pt; region restored. */}
       <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
         <div>{t('footer.howto', lang)}</div>
-        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : t('region.singapore', lang)} · v{BUILD_VERSION}</div>
+        <div>{t('footer.experimental', lang)} · {state.region === 'JB' ? t('region.johor', lang) : (state.region === 'MY-PUT' ? t('region.putrajaya', lang) : t('region.singapore', lang))} · v{BUILD_VERSION}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search

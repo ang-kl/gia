@@ -17,7 +17,14 @@
 // to the cuisine search query so Places fuzzy-matches review mentions.
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
-const REGIONS = ['SG', 'JB'];
+// v0.61.159 — rule §2.7 boundary work demoted MY-PUT to a sub-case of
+// OTHER (operator answer 3), BUT the operator still wants a Putrajaya
+// pill in the Cuisine TMA region toggle (the UI surface on top of the
+// foundation). The pill sets region='MY-PUT'; the backend recognises
+// MY-PUT as a known anchor (IOI Resort City, 15 km cap from
+// precincts.js) and applies it as a one-tap pre-anchored search
+// independent of the user's GPS classification.
+const REGIONS = ['SG', 'JB', 'MY-PUT'];
 
 export function defaultState() {
   return {
