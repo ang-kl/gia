@@ -11561,7 +11561,16 @@ async function cacheBotUsername() {
         const isDessertPick = cuisineQueries.some((c) =>
           String(c || '').split(/\s+/).some((tok) => tok.toLowerCase() === 'dessert')
         );
-        const skipCacheForShuffle = cuisineQueries.length === 0 || isDessertPick;
+        // v0.61.162 — explicit-anchor override. When the TMA flags
+        // body.anchored === true (user picked a LocationField place),
+        // the v0.59.46 lightShuffle "skip distance-sort for empty
+        // cuisines" gate is bypassed. Anchored empty-cuisine searches
+        // now distance-sort + run the v0.61.161 widening, so the
+        // result list is tightly around the picked anchor. Generic
+        // browse (no anchor + no cuisine) keeps the shuffle for the
+        // "tap again for variety" UX.
+        const reqAnchored = req.body?.anchored === true;
+        const skipCacheForShuffle = (cuisineQueries.length === 0 || isDessertPick) && !reqAnchored;
         const SEARCH_CACHE_TTL_S = 30;     // retained for any code paths that still reference it
         const skipCache = true;            // v0.60.11 — unconditional, restores v0.59.33
         void skipCacheForSingaporean;      // kept for diagnostic logging surface
@@ -11580,7 +11589,7 @@ async function cacheBotUsername() {
         // results" reports are diagnosable from the prod console.
         // Logs: incoming slug list, derived cuisineQueries, regionCode,
         // post-discover candidate count, post-NON_FOOD_TYPES count.
-        console.log(`[Cuisine-Search] D700 incoming cuisines=${JSON.stringify(cuisines || [])} filters=${JSON.stringify(filters)} region=${region} center=${searchCenter.lat.toFixed(4)},${searchCenter.lng.toFixed(4)} radius=${searchRadius}`);
+        console.log(`[Cuisine-Search] D700 incoming cuisines=${JSON.stringify(cuisines || [])} filters=${JSON.stringify(filters)} region=${region} center=${searchCenter.lat.toFixed(4)},${searchCenter.lng.toFixed(4)} radius=${searchRadius} anchored=${reqAnchored} skipShuffle=${skipCacheForShuffle}`);
         console.log(`[Cuisine-Search] D701 cuisineQueries=${JSON.stringify(cuisineQueries)} cuisineMetas.length=${cuisineMetas.length} allSelectedAreGated=${allSelectedAreGated}`);
 
         // v0.59.26 — per-chatId Singaporean dish memory. When the user

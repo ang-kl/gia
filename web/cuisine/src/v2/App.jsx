@@ -687,7 +687,13 @@ export default function App() {
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
-        specialMode: inferredSpecialMode                 // v0.61.141 — derived from snap.cuisines, no longer a separate state field
+        specialMode: inferredSpecialMode,                // v0.61.141 — derived from snap.cuisines, no longer a separate state field
+        // v0.61.162 — explicit-anchor flag. True when the user has
+        // committed a LocationField pick (locationAnchor non-null),
+        // so the backend overrides the v0.59.46 lightShuffle gate
+        // and distance-sorts + applies the v0.61.161 widening even
+        // for empty-cuisine searches.
+        anchored: !!locationAnchor
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
