@@ -57,9 +57,13 @@ export default function ResultPanel({
   // enrichment-cache fill, which can take 5–10 s on a cold catalogue).
   loadingHint = null,
   // v0.61.79 — size of the full curated pool this batch is sliced from
-  // (the ~130-entry Michelin list). When set, the header reads
-  // "Results (12/130)"; null → plain "Results (12)".
-  totalCount = null
+  // (the ~130-entry Michelin list). When set, the header switches
+  // to the "Results (130) · Showing 13-24" / "Final 9 shown" copy.
+  totalCount = null,
+  // v0.61.170 — cumulative range labels for the 24-first / 12-follow-up
+  // session model. Server provides start/end (1-based) so the TMA
+  // doesn't need to track cumulative position across taps.
+  cumulativeStart = null, cumulativeEnd = null, finalBatch = false, firstBatch = false
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -190,20 +194,49 @@ export default function ResultPanel({
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
-        {/* v0.61.79 — when totalCount is set (Michelin's ~130-entry
-            pool), show "(shown/total)" so the user reads this batch as
-            a slice of the whole list; else the plain "(shown)" count.
-            v0.61.163 — header now ALWAYS shows the
-            `(visible_on_page / total)` ratio per operator's
-            "Results (12/19)" pagination indicator. For a 19-venue
-            cuisine search split across two PAGE_SIZE=12 pages, the
-            header reads "Results (12/19)" on page 1 and
-            "Results (19/19)" after tapping ▶. */}
+        {/* v0.61.170 — counter copy rewritten per operator:
+            - Michelin (totalCount set): "Results ({total}) · Showing
+              first {first}" → "Results ({total}) · Showing {start}-{end}"
+              → "Results ({total}) · Final {n} shown" on the last batch.
+            - Cuisine first tap with more available:
+              "Showing first {first} · More available, click 🔍".
+            - Cuisine first tap, all-in-pool (exhausted=true on tap 1):
+              "Showing first {n} (only) · Change criteria or tap ↺".
+            - Cuisine subsequent taps:
+              "Result {start}-{end} · click 🔍 for next more"
+              (with `finalBatch`/`exhausted`, swaps to
+              "No more matching · Change criteria or tap ↺").
+            cumulativeStart / cumulativeEnd come from the server
+            (1-based). v0.61.163's slash format retired entirely. */}
         <div className="text-xs font-semibold flex-shrink-0">{(() => {
           if (!venues) return lang === 'fr' ? 'Résultats' : 'Results';
-          const visibleOnPage = Math.min(page * PAGE_SIZE, venues.length);
-          const denom = totalCount || venues.length;
-          return `${lang === 'fr' ? 'Résultats' : 'Results'} (${visibleOnPage}/${denom})`;
+          const n = venues.length;
+          const start = Number.isFinite(cumulativeStart) ? cumulativeStart : 1;
+          const end = Number.isFinite(cumulativeEnd) ? cumulativeEnd : n;
+          const isExhaustedNow = !!finalBatch || !!exhausted;
+          // Michelin / curated-pool path
+          if (Number.isFinite(totalCount) && totalCount > 0) {
+            if (isExhaustedNow) {
+              return tr('panel.michelinFinal', lang).replace('{total}', totalCount).replace('{n}', n);
+            }
+            if (firstBatch) {
+              return tr('panel.michelinFirst', lang).replace('{total}', totalCount).replace('{first}', n);
+            }
+            return tr('panel.michelinRange', lang).replace('{total}', totalCount).replace('{start}', start).replace('{end}', end);
+          }
+          // Cuisine path
+          if (firstBatch) {
+            // tight-combo: first tap AND exhausted
+            if (isExhaustedNow) {
+              return tr('panel.firstTight', lang).replace('{n}', n);
+            }
+            return tr('panel.first', lang).replace('{first}', n);
+          }
+          // Subsequent tap — range or final-range
+          if (isExhaustedNow) {
+            return tr('panel.finalRange', lang).replace('{start}', start).replace('{end}', end);
+          }
+          return tr('panel.range', lang).replace('{start}', start).replace('{end}', end);
         })()}</div>
         <div className="flex gap-1.5 flex-wrap justify-end">
           {venues?.length > 0 && (

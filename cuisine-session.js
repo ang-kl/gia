@@ -27,8 +27,11 @@
 'use strict';
 
 const SESSION_TTL_S = 30 * 60;       // 30 minutes
-const SEEN_CAP = 80;                 // operator's "80 per Cuisine TMA session"
-const PAGES_CAP = 10;                // ~80 / 12 ≈ 7; allow a few extras for retries
+// v0.61.170 — operator bumped cap 80 → 100 alongside the 24/12
+// pagination model. 24 + 8 × 12 ≈ 120 max if every tap is full;
+// 100 cap means recycle prompt typically lands around tap 7-8.
+const SEEN_CAP = 100;                // operator's "cap to 100"
+const PAGES_CAP = 10;                // ~100 / 12 ≈ 9; allow a buffer for retries
 
 function ok(redis) { return !!(redis && redis.isOpen); }
 

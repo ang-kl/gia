@@ -193,6 +193,12 @@ export default function App() {
   // which makes the next response firstBatch=true again, so this
   // resets to true via the normal setFirstBatch(p.firstBatch) call.
   const [firstBatch, setFirstBatch] = useState(false);
+  // v0.61.170 — counter-copy state. Server returns 1-based cumulative
+  // range + finalBatch flag with every cuisine search response; the
+  // TMA ResultPanel reads these to render the range labels.
+  const [cumulativeStart, setCumulativeStart] = useState(null);
+  const [cumulativeEnd, setCumulativeEnd] = useState(null);
+  const [finalBatch, setFinalBatch] = useState(false);
   // v0.60.157 — zero-results auto-retry guard + CTA flag. When a search
   // returns `venues.length === 0`, runSearch fires exactly one silent
   // retry with `resetSeen: true` (covers the common case where the
@@ -255,6 +261,10 @@ export default function App() {
     setMichelinRemaining(p.michelinRemaining || null);
     setExhaustedNote(!!p.exhausted);
     setFirstBatch(!!p.firstBatch);              // v0.60.191
+    // v0.61.170 — restore range counter fields when snapshot replay
+    setCumulativeStart(Number.isFinite(p.cumulativeStart) ? p.cumulativeStart : null);
+    setCumulativeEnd(Number.isFinite(p.cumulativeEnd) ? p.cumulativeEnd : null);
+    setFinalBatch(!!p.finalBatch);
     setPoolCount(Number.isFinite(p.poolCount) ? p.poolCount : 0);
     // v0.60.154 — also restore the criteria, free-text and search
     // anchor that produced this page (Codex review on PR #395:
@@ -669,12 +679,14 @@ export default function App() {
     // state. Suppress when michelinRemaining is truthy; rely on the
     // exhausted=true "↺ Start over" CTA at the natural end of the
     // walk-through instead.
-    const autoResetOnLowCount = (opts?.resetSeen !== true)
-      && Array.isArray(venues) && venues.length > 0
-      && !firstBatch                                       // v0.61.167 — never on a first batch
-      && venues.length < FOLLOW_UP_THIN_THRESHOLD
-      && !exhaustedNote
-      && !michelinRemaining;
+    // v0.61.170 — autoResetOnLowCount disabled. The new range-label
+    // copy makes recycle an explicit operator action ("Change criteria
+    // or tap ↺") instead of a silent auto-reset. The server's
+    // exhausted/finalBatch flags drive the UI directly; users who
+    // want a fresh rotation tap the ↺ recycle button (handled
+    // elsewhere). The v0.61.167 "!firstBatch on thin result" carve-out
+    // is rolled into this complete disable.
+    const autoResetOnLowCount = false;
     setLoading(true); setError(null);
     try {
       const r = await searchCuisine({
@@ -779,6 +791,10 @@ export default function App() {
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
       setFirstBatch(r?.firstBatch === true);    // v0.60.191
+      // v0.61.170 — range counter fields from the response.
+      setCumulativeStart(Number.isFinite(r?.cumulativeStart) ? r.cumulativeStart : null);
+      setCumulativeEnd(Number.isFinite(r?.cumulativeEnd) ? r.cumulativeEnd : null);
+      setFinalBatch(r?.finalBatch === true);
       setPoolCount(Number.isFinite(r?.poolCount) ? r.poolCount : 0);
       // v0.60.146 — per-session clipboard signal carried by every
       // /api/cuisine/search response.
@@ -1450,6 +1466,13 @@ export default function App() {
           // the centered indicator's wrap-to-1 recycle UX takes over.
           onLastPageNext={() => runSearch(state)}
           exhausted={exhaustedNote}
+          // v0.61.170 — range counter fields drive the new "Showing
+          // first 24 · More available, click 🔍" / "Result 25-36 ·
+          // click 🔍 for next more" / "Final {n} shown" copy.
+          firstBatch={firstBatch}
+          finalBatch={finalBatch}
+          cumulativeStart={cumulativeStart}
+          cumulativeEnd={cumulativeEnd}
           // v0.60.146 — per-session clipboard. `pageStackDepth` ≥ 1
           // enables the ⇠ Prev FAB in the strip; tapping it asks the
           // server to pop the most-recent page off the history list
@@ -1491,18 +1514,12 @@ export default function App() {
             read as "10 results for these criteria. Tap 🔍 to refresh…"
             which is misleading — that's just the natural Michelin
             tail, not a thin result set). */}
-        {/* v0.61.167 — mirror the runSearch gate: hint only renders
-            on follow-up batches (firstBatch=false). On a firstBatch
-            response a sparse natural count IS the result; the prior
-            "Tap 🔍 to refresh" hint mis-suggested the user could
-            shake out more by re-tapping. */}
-        {!exhaustedNote && !michelinRemaining && !loading && venues.length > 0 && !firstBatch && venues.length < 19 && (
-          <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
-            {lang === 'fr'
-              ? `${venues.length} résultat${venues.length === 1 ? '' : 's'} pour ces critères. Touchez 🔍 pour rafraîchir.`
-              : `${venues.length} result${venues.length === 1 ? '' : 's'} for these criteria. Tap 🔍 to refresh.`}
-          </div>
-        )}
+        {/* v0.61.170 — the v0.60.188 "N results for these criteria.
+            Tap 🔍 to refresh." hint is retired. The new ResultPanel
+            header carries the equivalent signal explicitly:
+            "Result {start}-{end} · click 🔍 for next more" (mid-session)
+            or "...No more matching · Change criteria or tap ↺"
+            (finalBatch). Removing this hint avoids double-messaging. */}
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {sessionFull

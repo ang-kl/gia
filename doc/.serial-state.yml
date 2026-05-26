@@ -1,8 +1,8 @@
 counters:
-  commit: 382
-  build: 172
+  commit: 383
+  build: 173
   documents:
-    journal: 370
+    journal: 371
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,33 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 10
-last_anchor_time: 27-05 '26 15:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_168 (PR #669 merged 27-05 '26 ~14:30 SGT; v0.61.169 live-counts-templates session at 15:00 SGT)
-last_anchor_iso8601: 2026-05-27T15:00:00+08:00
-last_anchor_utc: 2026-05-27T07:00:00Z
+  current_chat_counter: 11
+last_anchor_time: 27-05 '26 16:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_169 (PR #670 merged 27-05 '26 ~16:15 SGT; v0.61.170 TMA-counter-rewrite rebased on v0.61.169 at 16:30 SGT)
+last_anchor_iso8601: 2026-05-27T16:30:00+08:00
+last_anchor_utc: 2026-05-27T08:30:00Z
+# v0.61.170 (commit 383 / journal 371 / build 173) — TMA counter
+# rewrite per operator UX review. Rebased on v0.61.169 after PR
+# #670 merged. Five changes:
+# 1. cuisine-session._SEEN_CAP 80 -> 100.
+# 2. /api/cuisine/search slice: FIRST_TAP_SLICE = 24,
+#    FOLLOW_UP_SLICE = 12 (restores v0.60.191 split with new values).
+# 3. Response payload adds cumulativeStart / cumulativeEnd /
+#    finalBatch for the TMA range counter.
+# 4. ResultPanel header rewritten to range-based labels (Showing
+#    first 24 · More available, click 🔍 / Result 25-36 · click 🔍
+#    for next more / Showing first 15 (only) · Change criteria or
+#    tap ↺ / Result 37-41 · No more matching · ↺ / Michelin
+#    Results (130) · Showing first 12 / Showing 13-24 / Final 9).
+# 5. autoResetOnLowCount fully disabled; orphaned hint indicator
+#    removed.
+# Branch claude/v0.61.170-tma-counter-rewrite, originally branched
+# off v0.61.168, rebased on v0.61.169 / 457595f after PR #670
+# merged. Operator answered the 4 clarification questions; cap 100,
+# tight-combo "Showing first N (only)", actual-range tails, full
+# chat seen-set (v0.61.171 next PR). Cost: 5-tap session enriches
+# 72 venues vs prior 95 = ~$0.115 Routes Distance Matrix saving.
+#
 # v0.61.169 (commit 382 / journal 370 / build 172) — live count
 # templates. Closes the v0.61.166 filed follow-up: the Periodical
 # count-history data layer (v0.61.164) is now read by the bot's
