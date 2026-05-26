@@ -352,14 +352,39 @@ function fetchOverlays() {
   }
   return overlaysPromise;
 }
+// v0.61.168 — outside-SG carpark layer falls back to Google Places
+// (5 km around the current anchor) via the v0.61.158 backend
+// endpoint extension. SG users keep the unbounded LTA snapshot.
+// Cache key combines mode + rounded coords so anchor-jitter within
+// ~110 m reuses the same fetch; a new anchor or region triggers
+// a fresh fetch.
 let carparkPromise = null;
-function fetchCarpark() {
-  if (!carparkPromise) {
-    carparkPromise = fetch('/api/geo/carpark')
+let carparkPromiseKey = '';
+function fetchCarpark(opts = {}) {
+  const mode = (opts.mode === 'JB' || opts.mode === 'MY-PUT' || opts.mode === 'OTHER') ? opts.mode : 'SG';
+  const lat = Number.isFinite(opts.lat) ? opts.lat : null;
+  const lng = Number.isFinite(opts.lng) ? opts.lng : null;
+  const key = mode === 'SG'
+    ? 'SG'
+    : `${mode}:${lat != null ? lat.toFixed(3) : 'x'}:${lng != null ? lng.toFixed(3) : 'x'}`;
+  if (!carparkPromise || carparkPromiseKey !== key) {
+    carparkPromiseKey = key;
+    const url = (mode === 'SG' || lat == null || lng == null)
+      ? '/api/geo/carpark'
+      : `/api/geo/carpark?mode=${encodeURIComponent(mode)}&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`;
+    carparkPromise = fetch(url)
       .then((r) => r.json())
       .catch(() => ({ carparks: [] }));
   }
   return carparkPromise;
+}
+
+// v0.61.168 — invalidates the carpark fetch cache so the next
+// fetchCarpark() call hits the network. Used by setRegionMode +
+// setAnchor when the region/anchor changes mid-session.
+function _invalidateCarparkCache() {
+  carparkPromise = null;
+  carparkPromiseKey = '';
 }
 
 // v0.61.42 — the full LTA bus-stop catalogue for the Bus Stop overlay
@@ -546,9 +571,6 @@ function dotNode(bg, glyph, size) {
   // v0.61.105 — `size` (px) sizes the dot for the carpark zoom ladder;
   // buildMarkers passes the feature object as the 3rd arg, so only a
   // number counts — anything else falls back to the default 20 px.
-  // v0.61.118 — glyph rendered in white so character glyphs (⚝ for
-  // attractions) are legible on the dark-purple dot; emoji glyphs (🅿,
-  // 🌳, 👮, 🏥, 💊) ignore CSS `color` and keep their own palette.
   const sz = (typeof size === 'number' && size > 0) ? size : 20;
   const el = document.createElement('div');
   el.style.cssText =
@@ -558,7 +580,7 @@ function dotNode(bg, glyph, size) {
     'background:' + bg + ';';
   const ic = document.createElement('span');
   ic.textContent = glyph;
-  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;color:#fff;';
+  ic.style.cssText = 'font-size:' + Math.round(sz * 0.62) + 'px;line-height:1;';
   el.appendChild(ic);
   return el;
 }
@@ -1144,6 +1166,11 @@ export function createOverlayController(map, googleMaps, opts) {
   // the per-TMA train-overlay zoom tiers (trainTier). Defaults to the
   // Transport behaviour when not supplied.
   const tma = (opts && opts.tma) || 'transport';
+  // v0.61.168 — region mode threads through so the carpark layer
+  // can fall back to Google Places (5 km radius) outside SG. The
+  // caller (MapPanel.jsx) updates this via setRegionMode when the
+  // user toggles the SG / JB / Putrajaya pill.
+  let regionMode = (opts && typeof opts.regionMode === 'string') ? opts.regionMode : 'SG';
   const { Polygon, Polyline, InfoWindow } = googleMaps;
   const { AdvancedMarkerElement } = googleMaps.marker;
   // v0.61.22 — headerDisabled drops Google's own white header + ✕ so
@@ -1161,15 +1188,30 @@ export function createOverlayController(map, googleMaps, opts) {
   // trainTier — square / code chip / named pill bands).
   // v0.61.82 — CR-5: also re-apply the exits layer so exit pins swap
   // bare-identifier ↔ "Exit <code>" card at the same threshold.
+  // v0.61.117 — Google Maps fires `zoom_changed` continuously during a
+  // wheel/pinch gesture, not once at the end. At z>=14 the work per
+  // tick is heavy (applyClusterAndDrop's 40 px tile bucketing + the
+  // source-order label cascade for Attractions/Carpark, plus the
+  // amenity 'label' tier and the train marker re-tier) and stacking
+  // it per tick froze the map past z14. Trailing-debounced ~150 ms
+  // so the cascade runs once after the gesture settles. The MrtMapPanel
+  // got the same treatment in v0.61.112 (#604) — this is the overlay
+  // controller's missing half. Timer cleared on destroy.
+  let zoomTickTimer = null;
   map.addListener('zoom_changed', () => {
-    if (layers.train) applyVisibility('train');
-    if (layers.busstop) applyVisibility('busstop');
-    if (layers.exits) applyVisibility('exits');
-    // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
-    // label) — see amenityTier.
-    for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
-      if (layers[n]) applyVisibility(n);
-    }
+    if (zoomTickTimer) clearTimeout(zoomTickTimer);
+    zoomTickTimer = setTimeout(() => {
+      zoomTickTimer = null;
+      if (destroyed) return;
+      if (layers.train) applyVisibility('train');
+      if (layers.busstop) applyVisibility('busstop');
+      if (layers.exits) applyVisibility('exits');
+      // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
+      // label) — see amenityTier.
+      for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
+        if (layers[n]) applyVisibility(n);
+      }
+    }, 150);
   });
   // v0.61.92 — re-apply the train layer on pan-end too: "results in
   // focus" (the anchor inside the viewport) flips as the user pans,
@@ -1533,12 +1575,13 @@ export function createOverlayController(map, googleMaps, opts) {
   const carparkInfo = (f) => {
     // v0.61.116 — Carpark Card per operator UI/UX spec (slice 2):
     // Header (Carpark | proper-cased name) + Live Data (lots /
-    // availability) + Actions (Google Maps ↗). The `f` 2nd arg to
-    // infoCard auto-appends the standard gmapsLinkRow tail (the
-    // TMA-wide convention from v0.61.31).
+    // availability) + Actions (Google Maps ↗). gmapsLinkRow is the
+    // shared helper used by the train-station footer and the cuisine
+    // venue popup, so the link styling matches every other map card.
     const lots = Number.isFinite(f.availableLots) ? ' — ' + f.availableLots + ' lots' : '';
     return infoCard('<div style="font-weight:600;">'
-      + escapeHtml((f.name || 'Carpark') + lots) + '</div>', f);
+      + escapeHtml((f.name || 'Carpark') + lots) + '</div>'
+      + gmapsLinkRow(f.lat, f.lng), f);
   };
 
   // v0.61.109 — enriched attraction popup: star rating + review count,
@@ -1688,7 +1731,13 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers[name]) return layers[name];
     let entry;
     if (name === 'carpark') {
-      const d = await fetchCarpark();
+      // v0.61.168 — pass the current region + anchor so the
+      // backend can switch SG→LTA vs JB/MY-PUT→Places(5km).
+      const d = await fetchCarpark({
+        mode: regionMode,
+        lat: anchor && Number.isFinite(anchor.lat) ? anchor.lat : null,
+        lng: anchor && Number.isFinite(anchor.lng) ? anchor.lng : null
+      });
       if (destroyed) return null;
       entry = { kind: 'marker', visible: false,
         items: buildMarkers(d.carparks, '#1565C0', '🅿', carparkInfo) };
@@ -1774,21 +1823,12 @@ export function createOverlayController(map, googleMaps, opts) {
   function applyClusterAndDrop(name, e) {
     const isCarpark = (name === 'carpark');
     const isAttraction = (name === 'attractions');
-    // v0.61.118 — attractions threshold lowered from 8 to 7 per operator.
-    const threshold = isCarpark ? 5 : 7;
+    const threshold = isCarpark ? 5 : 8;
     const zoom = map.getZoom?.() || 0;
     const forceCluster = isCarpark && zoom < 15;
     const allowLabel = isCarpark ? (zoom >= 15) : (zoom >= 14);
     const mpp = metresPerPixelAt(zoom, 1.35) || 1;
-    // v0.61.119 — operator: at z11 a 200 px tile spans ~7.6 km in
-    // Singapore (~38 m/px × 200), easily holding 45+ attractions in
-    // central SG → one mega "45 ⚝ here" pill that hides every
-    // individual attraction. Reverts the v0.61.118 low-zoom widening:
-    // 40 px tile for attractions at every zoom (same as carpark),
-    // so individuals dominate at typical zoom and clusters only form
-    // where ≥7 attractions sit within ~1.5 km × 1.5 km.
-    const TILE_PX = 40;
-    const TILE_M = TILE_PX * mpp;
+    const TILE_M = 40 * mpp; // 40 px tile in metres at current zoom
 
     // 1) Filter to candidates that should be considered for placement.
     const candidates = [];
@@ -1836,7 +1876,7 @@ export function createOverlayController(map, googleMaps, opts) {
         cLng /= items.length;
         const text = isCarpark
           ? items.length + ' 🅿 here'
-          : items.length + ' ⚝ here';
+          : items.length + ' ⚝';
         let cm = e._clusters[cIdx];
         if (!cm) {
           cm = new AdvancedMarkerElement({
@@ -2226,9 +2266,33 @@ export function createOverlayController(map, googleMaps, opts) {
       // chips back to the anchor radius.
       if (name === 'train' && !visible) syncDetailAmenityLayers();
     },
+    // v0.61.168 — region setter. Updates the regionMode used by the
+    // carpark layer + invalidates the carpark cache so the next
+    // ensureLayer('carpark') call hits the new mode's endpoint.
+    // Also drops the cached carpark layer entry so the markers
+    // get rebuilt with the new data on the next setLayer-on.
+    setRegionMode(mode) {
+      if (typeof mode !== 'string') return;
+      if (regionMode === mode) return;
+      regionMode = mode;
+      _invalidateCarparkCache();
+      if (layers.carpark) {
+        // Drop markers so they don't linger from the prior mode.
+        try {
+          for (const m of layers.carpark.items || []) {
+            if (m && m.marker) m.marker.map = null;
+          }
+        } catch { /* best-effort */ }
+        delete layers.carpark;
+      }
+    },
     // Map viewport centre — re-clips every radius-filtered layer.
     setAnchor(lat, lng) {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      // v0.61.168 — when anchor moves while we're in a non-SG mode,
+      // the carpark Places fetch is keyed by rounded coords; refresh
+      // the cache so the new anchor's 5 km radius is fetched.
+      if (regionMode !== 'SG') _invalidateCarparkCache();
       anchor = { lat, lng };
       for (const name of Object.keys(layers)) applyVisibility(name);
     },
@@ -2245,6 +2309,10 @@ export function createOverlayController(map, googleMaps, opts) {
     },
     destroy() {
       destroyed = true;
+      // v0.61.117 — cancel the trailing zoom-changed debounce so a
+      // gesture-in-flight at unmount can't fire applyVisibility on
+      // already-cleared layers.
+      if (zoomTickTimer) { clearTimeout(zoomTickTimer); zoomTickTimer = null; }
       detailStation = null;
       detailStations = [];
       clearStationBusStops();

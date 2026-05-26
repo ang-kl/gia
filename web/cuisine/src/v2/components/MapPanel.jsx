@@ -196,7 +196,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     mapRef.current.addListener('zoom_changed', () => {
       setZoomLevel(mapRef.current?.getZoom?.());
     });
-    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine' });
+    // v0.61.168 — thread the region mode into the overlay controller
+    // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
+    // MapPanel keeps the controller in sync via setRegionMode below.
+    overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine', regionMode: region || 'SG' });
     applyOverlayLayers(overlayLayersRef.current);
     // v0.61.22 — close any open popup on a tap of the empty map, and
     // expose a global the in-card ✕ button calls.
@@ -220,12 +223,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // for any non-SG region, including the train layer.
   const jb = (region || 'SG') === 'JB';
   const isNonSg = jb || ((region || 'SG') === 'MY-PUT');
+  // v0.61.168 — carpark layer now backed by Google Places outside
+  // SG (v0.61.158 backend + v0.61.168 controller wiring). The other
+  // overlays remain SG-only feeds so they still force-off here.
   const effectiveLayers = (isNonSg && overlayLayers)
     ? {
         ...overlayLayers,
-        train: false, busstop: false, carpark: false, exits: false,
+        train: false, busstop: false, exits: false,
         taxis: false, parks: false, attractions: false,
         clinics: false, hospitals: false, police: false
+        // carpark: NOT forced — Places fallback works in JB / MY-PUT
       }
     : overlayLayers;
 
@@ -234,10 +241,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // forced off here, regardless of the saved toggle state, so the
   // map-init call (which passes the raw ref) is JB-safe too.
   // v0.61.159 — broaden the SG-only force-off to any non-SG region.
+  // v0.61.168 — carpark layer is no longer SG-only (Places fallback
+  // wired through the controller). Keep its user-toggle state in
+  // non-SG; everything else still force-zeroes.
   function applyOverlayLayers(layers) {
     const ctrl = overlayControllerRef.current;
     if (!ctrl || !layers) return;
-    const L = isNonSg ? {} : layers;
+    const L = isNonSg ? { carpark: layers.carpark } : layers;
     ctrl.setLayer('parks', !!L.parks);
     ctrl.setLayer('attractions', !!L.attractions);
     ctrl.setLayer('taxis', !!L.taxis);
@@ -255,6 +265,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   }
 
   useEffect(() => { applyOverlayLayers(effectiveLayers); }, [overlayLayers, region]); // eslint-disable-line
+  // v0.61.168 — push the region mode into the overlay controller
+  // when the SG / JB / Putrajaya pill changes. The controller's
+  // setRegionMode also invalidates the carpark fetch cache + drops
+  // its layer entry so the next setLayer('carpark', true) re-fetches
+  // against the new mode's endpoint.
+  useEffect(() => {
+    const ctrl = overlayControllerRef.current;
+    if (ctrl && typeof ctrl.setRegionMode === 'function') {
+      ctrl.setRegionMode(region || 'SG');
+    }
+  }, [region]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
@@ -575,7 +596,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // §2.5 (TMA toggle gate for non-SG).
   const rowToggles = [
     { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: isNonSg },
-    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: isNonSg },
+    // v0.61.168 — carpark toggle enabled in non-SG: the layer now
+    // falls back to Google Places (5 km around the anchor) via the
+    // v0.61.158 backend endpoint + v0.61.168 controller wiring.
+    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
     { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg }
   ];
   const menuToggles = [

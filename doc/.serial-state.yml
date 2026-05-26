@@ -1,8 +1,8 @@
 counters:
-  commit: 380
-  build: 170
+  commit: 381
+  build: 171
   documents:
-    journal: 368
+    journal: 369
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,45 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 8
-last_anchor_time: 27-05 '26 13:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_166 (PR #667 merged 27-05 '26 ~12:30 SGT; v0.61.167 autoReset-tune session at 13:00 SGT)
-last_anchor_iso8601: 2026-05-27T13:00:00+08:00
-last_anchor_utc: 2026-05-27T05:00:00Z
+  current_chat_counter: 9
+last_anchor_time: 27-05 '26 14:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_167 (PR #668 merged 27-05 '26 ~13:30 SGT; v0.61.168 carpark-layer-non-SG session at 14:00 SGT)
+last_anchor_iso8601: 2026-05-27T14:00:00+08:00
+last_anchor_utc: 2026-05-27T06:00:00Z
+# v0.61.168 (commit 381 / journal 369 / build 171) — Cuisine TMA
+# carpark map LAYER non-SG wiring. Closes the v0.61.158 known
+# gap: the backend supported ?mode=&lat=&lng= since v0.61.158, but
+# the TMA hadn't threaded the locale mode through
+# createOverlayController, so the carpark toggle stayed
+# disabled in JB / MY-PUT. v0.61.168 ships the wiring + un-disables
+# the toggle for non-SG. Branch claude/v0.61.168-carpark-layer-nonsg
+# off main at v0.61.167 / b8bee59.
+# Files (4):
+# - web/cuisine/src/v2/lib/mapOverlays.js:
+#   * fetchCarpark(opts={mode, lat, lng}) — mode-aware fetcher
+#     with per-(mode, lat3, lng3) cache key.
+#   * _invalidateCarparkCache helper.
+#   * createOverlayController accepts opts.regionMode; stored in
+#     mutable `regionMode` var.
+#   * ensureLayer('carpark') passes regionMode + anchor coords
+#     into fetchCarpark.
+#   * new setRegionMode(mode) method: updates regionMode,
+#     invalidates carpark cache, drops the cached carpark layer
+#     entry so the next setLayer rebuilds with the new data.
+#   * setAnchor also invalidates carpark cache when regionMode
+#     !== 'SG' (so anchor-pan in non-SG re-fetches the 5km radius).
+# - web/cuisine/src/v2/components/MapPanel.jsx:
+#   * createOverlayController call gains regionMode opt.
+#   * New useEffect: calls ctrl.setRegionMode(region) when the
+#     region pill changes.
+#   * effectiveLayers no longer force-offs carpark in non-SG.
+#   * applyOverlayLayers passes carpark.layers through in non-SG.
+#   * Carpark rowToggle no longer disabled: isNonSg.
+# - package.json: 0.61.167 -> 0.61.168.
+# - doc/.serial-state.yml: commit 380->381, build 170->171,
+#   journal 368->369; re-anchored 27-05 '26 14:00 SGT.
+# - doc/Journal/journal-0_61_168-27_05_27-1400.md: this entry.
+#
 # v0.61.167 (commit 380 / journal 368 / build 170) — autoResetOnLowCount
 # threshold tune. v0.61.163 unified the cuisine-search slice to 19
 # (was 6 first / 12 follow-up per v0.60.191) but the v0.60.188
