@@ -70,16 +70,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   // file header for the full rationale.
 
   // Debounced autocomplete fetch on every keystroke.
+  // v0.61.188 — for OTHER (Putrajaya / KL / Penang / Batam) the
+  // autocomplete fetch KEEPS running so Enter-to-anchor still works
+  // (picks the top suggestion behind the scenes). The dropdown UI
+  // itself stays hidden for OTHER per the operator's "too many to
+  // list" — see the render gate below.
   useEffect(() => {
-    // v0.61.187 — OTHER region (Putrajaya / KL / Penang / Batam) has
-    // too many candidate places for a useful dropdown. The anchor is
-    // set externally (chat /location precinct picker → auto-flips
-    // the TMA pill). Suppress the autocomplete entirely.
-    if (region === 'OTHER') {
-      setSuggestions([]);
-      setSuggestionsQuery('');
-      return;
-    }
     const trimmed = query.trim();
     if (!trimmed || trimmed.length < 2) {
       setSuggestions([]);
@@ -191,19 +187,11 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           users see this is editable, not a label. */}
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
         <span aria-hidden className="text-tg-accent">📍</span>
-        {region === 'OTHER' ? (
-          /* v0.61.187 — OTHER region: read-only label, no edit, no
-             dropdown. Anchor is set externally (chat /location). */
-          <span className="flex-1 text-sm truncate text-tg-text flex items-baseline gap-1.5">
-            <span className="truncate">{resting}</span>
-            {suffix && (
-              <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>
-            )}
-            <span className="text-[10px] text-tg-hint italic flex-shrink-0">
-              · {lang === 'fr' ? 'verrouillé (chat /location)' : 'locked (chat /location)'}
-            </span>
-          </span>
-        ) : open ? (
+        {/* v0.61.188 — OTHER region: input stays editable so the
+            operator can type a free-text address. Only the
+            suggestions / no-match dropdowns are suppressed (gated
+            below). Enter still picks the top hidden suggestion. */}
+        {open ? (
           <input
             ref={inputRef}
             type="text"
