@@ -264,3 +264,62 @@ describe('persistToRedis / loadFromRedis', () => {
     expect(await loadFromRedis(redis)).toBeNull();
   });
 });
+
+// v0.61.179 — 60-second debounce on the chat-side Recount button.
+const { claimDebounceSlot, DEBOUNCE_KEY, DEBOUNCE_TTL_S } = require('../cuisine-venue-counts');
+
+function makeFakeRedisWithSetNX() {
+  const store = new Map();
+  const ttls = new Map();
+  return {
+    isOpen: true,
+    async set(key, value, opts) {
+      if (opts && opts.NX && store.has(key)) return null;   // NX fails when key exists
+      store.set(key, value);
+      if (opts && opts.EX) ttls.set(key, opts.EX);
+      return 'OK';
+    },
+    async get(key) { return store.has(key) ? store.get(key) : null; },
+    async ttl(key) { return ttls.has(key) ? ttls.get(key) : -2; }
+  };
+}
+
+describe('claimDebounceSlot (v0.61.179)', () => {
+  it('exports the key + TTL constants', () => {
+    expect(DEBOUNCE_KEY).toBe('cuisine-venue-counts:debounce');
+    expect(DEBOUNCE_TTL_S).toBe(60);
+  });
+
+  it('first caller wins the slot', async () => {
+    const redis = makeFakeRedisWithSetNX();
+    const result = await claimDebounceSlot(redis);
+    expect(result.won).toBe(true);
+    expect(result.remainingSec).toBe(0);
+  });
+
+  it('second concurrent caller loses + gets the remaining TTL', async () => {
+    const redis = makeFakeRedisWithSetNX();
+    const first = await claimDebounceSlot(redis);
+    const second = await claimDebounceSlot(redis);
+    expect(first.won).toBe(true);
+    expect(second.won).toBe(false);
+    expect(second.remainingSec).toBe(DEBOUNCE_TTL_S);
+  });
+
+  it('returns won=true when redis is null (no Redis = no debounce, fail-open)', async () => {
+    const result = await claimDebounceSlot(null);
+    expect(result.won).toBe(true);
+  });
+
+  it('returns won=true when redis is closed (fail-open)', async () => {
+    const result = await claimDebounceSlot({ isOpen: false });
+    expect(result.won).toBe(true);
+  });
+
+  it('returns won=true when SET throws (fail-open — debounce is best-effort, not a security gate)', async () => {
+    const redis = makeFakeRedisWithSetNX();
+    redis.set = async () => { throw new Error('redis-down'); };
+    const result = await claimDebounceSlot(redis);
+    expect(result.won).toBe(true);
+  });
+});

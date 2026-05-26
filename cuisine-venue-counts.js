@@ -202,6 +202,32 @@ async function loadFromRedis(redis) {
   }
 }
 
+// v0.61.179 — 60-second debounce so the operator can't
+// accidentally double-tap the chat-side Recount button and spend
+// ~\$7 instead of ~\$3.50. `claimDebounceSlot(redis)` uses Redis
+// SET NX EX semantics: returns true if THIS caller won the slot,
+// false if a recent caller already holds it. Caller then either
+// fires the sweep (won=true) or shows a "wait N seconds" message
+// (won=false). The slot expires after DEBOUNCE_TTL_S so future
+// runs aren't permanently blocked.
+const DEBOUNCE_KEY = 'cuisine-venue-counts:debounce';
+const DEBOUNCE_TTL_S = 60;
+
+async function claimDebounceSlot(redis) {
+  if (!redis || !redis.isOpen) return { won: true, remainingSec: 0 };
+  try {
+    const result = await redis.set(DEBOUNCE_KEY, '1', { NX: true, EX: DEBOUNCE_TTL_S });
+    if (result === 'OK') return { won: true, remainingSec: 0 };
+    let ttl = 0;
+    try { ttl = await redis.ttl(DEBOUNCE_KEY); } catch { /* ignore */ }
+    return { won: false, remainingSec: Math.max(0, ttl) };
+  } catch (err) {
+    // On Redis error, allow the call (debounce is a nice-to-have,
+    // not a security gate — the cost is operator-borne).
+    return { won: true, remainingSec: 0 };
+  }
+}
+
 module.exports = {
   SCOPE_SLUGS,
   PLACES_SEARCH_TEXT_URL,
@@ -210,10 +236,13 @@ module.exports = {
   MAX_PAGES,
   REDIS_KEY,
   REDIS_TTL_S,
+  DEBOUNCE_KEY,
+  DEBOUNCE_TTL_S,
   buildTextQuery,
   countOne,
   countAll,
   persistToRedis,
   loadFromRedis,
+  claimDebounceSlot,
   _defaultFetch
 };
