@@ -1,8 +1,8 @@
 counters:
-  commit: 395
-  build: 185
+  commit: 396
+  build: 186
   documents:
-    journal: 383
+    journal: 384
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,34 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 23
-last_anchor_time: 28-05 '26 00:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_181 (PR #683 v0.61.181 merged 27-05 '26 ~23:46 SGT; v0.61.182 cuisine TMA footer build-time chip built on v0.61.181 at 28-05 '26 00:15 SGT)
-last_anchor_iso8601: 2026-05-28T00:15:00+08:00
-last_anchor_utc: 2026-05-27T16:15:00Z
+  current_chat_counter: 24
+last_anchor_time: 28-05 '26 00:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_182 (PR #684 v0.61.182 merged 28-05 '26 ~00:25 SGT; v0.61.183 per-cuisine detail dump built on v0.61.182 at 28-05 '26 00:30 SGT)
+last_anchor_iso8601: 2026-05-28T00:30:00+08:00
+last_anchor_utc: 2026-05-27T16:30:00Z
+# v0.61.183 (commit 396 / journal 384 / build 186) — per-cuisine
+# detail dump for the v0.61.177 cv:menu. Closes v0.61.177 known
+# gap: the menu only showed total + capped slugs; the per-slug
+# breakdown sat in Redis but was inaccessible from chat. This PR
+# adds a "📋 Per-cuisine details" button that dumps all 48 slug
+# counts in a sorted Markdown code block (count desc, errors
+# last). Chunks output if >3500 chars (safe under Telegram's 4096
+# limit) — shouldn't trigger at 48 rows but defensive. Branch
+# claude/v0.61.183-cv-per-slug-details off main at v0.61.182.
+# Files (3):
+# - index.js:
+#   * NEW cv:details callback branch in the cv: dispatcher.
+#   * NEW button row in ownerCuisineVenueMenu (gated on
+#     `latest && latest.perSlug` — only when there's data).
+#   * NEW ownerCuisineVenueDetails(chatId): loads Redis blob,
+#     sorts entries (errors last → count desc → alpha), tags
+#     each row with "60+" (capped) / "(tiled)" / " err". Renders
+#     in a fixed-width Markdown code block.
+# - package.json: 0.61.182 -> 0.61.183.
+# - doc/.serial-state.yml: commit 395->396, build 185->186,
+#   journal 383->384; re-anchored 28-05 '26 00:30 SGT.
+# - doc/Journal/journal-0_61_183-28_05_28-0030.md: this entry.
+#
 # v0.61.182 (commit 395 / journal 383 / build 185) — cuisine TMA
 # footer build-time chip. Vite already injects __BUILD_VERSION__
 # (used since v0.60.213) AND __BUILD_TIME__ (used by nobody until
