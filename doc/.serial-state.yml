@@ -1,8 +1,8 @@
 counters:
-  commit: 414
-  build: 204
+  commit: 415
+  build: 205
   documents:
-    journal: 402
+    journal: 403
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,57 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 42
-last_anchor_time: 28-05 '26 09:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_200 (PR #702 v0.61.200 merged 28-05 '26 09:16 SGT; v0.61.201 place-search Geocoding fallback built on v0.61.200 at 28-05 '26 09:30 SGT)
-last_anchor_iso8601: 2026-05-28T09:30:00+08:00
-last_anchor_utc: 2026-05-28T01:30:00Z
+  current_chat_counter: 43
+last_anchor_time: 28-05 '26 09:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_201 (PR #703 v0.61.201 merged 28-05 '26 09:31 SGT; v0.61.202 grouped quick-pick built on v0.61.201 at 28-05 '26 09:45 SGT)
+last_anchor_iso8601: 2026-05-28T09:45:00+08:00
+last_anchor_utc: 2026-05-28T01:45:00Z
+# v0.61.202 (commit 415 / journal 403 / build 205) — operator
+# screenshot of the v0.61.200 quick-pick keyboard (17 SG buttons
+# + JB + IOI + Others) showed it overflowing one mobile screen:
+# "this is too many in one screen, group them and create further
+# sub-menu". Restructured into a 6-button hierarchical top-level
+# menu with two SG submenus.
+#
+# Top-level (4 rows):
+#   🇸🇬 Tourist Areas →            (single, full width)
+#   🇸🇬 Regions →                  (single, full width)
+#   🇲🇾 Johor Bahru | 🇲🇾 IOI City Mall
+#   🌏 Others       | 🕓 Saved Location
+#
+# Submenu "Tourist Areas" — the 10 STB precincts (5 rows × 2) +
+# 🔙 Back. Submenu "Regions" — the 5 SG region buckets (3 rows
+# × 2 with last row single) + 🔙 Back. Both submenus EDIT the
+# current message via bot.editMessageReplyMarkup so the user
+# navigates without accumulating message stacks. Back returns
+# to the top-level.
+#
+# Operator preference (AskUserQuestion): IOI button shows "IOI
+# City Mall" while the saved label stays "IOI Resort City,
+# Putrajaya" — cached anchors + search-result UIs retain the
+# descriptive name; only the button text is shortened.
+#
+# Others reuses the v0.61.195 country picker (cp:<CODE>); Saved
+# Location reuses the v0.61.197 recent-locations LRU (lr:<idx>).
+# Both paths existed before — v0.61.202 wires them as top-level
+# menu entries.
+#
+# Branch claude/v0.61.202-grouped-quickpick off main at
+# v0.61.201. Files (3):
+# - index.js (3 edits): NEW _buildTopLevelKeyboard,
+#   _buildTouristAreasKeyboard, _buildRegionsKeyboard helpers;
+#   sendLocationQuickPicks rewritten to send the top-level menu;
+#   locpick: callback gains menu_root / menu_tourist /
+#   menu_regions / saved cases. Menu cases editMessageReplyMarkup
+#   in place.
+# - package.json: 0.61.201 -> 0.61.202.
+# - doc/.serial-state.yml: commit 414->415, build 204->205,
+#   journal 402->403; re-anchored 28-05 '26 09:45 SGT.
+# - doc/Journal/journal-0_61_202-28_05_28-0945.md: this entry.
+#
+# Verification: 2513/2513 tests pass; node --check on index.js
+# clean.
+#
 # v0.61.201 (commit 414 / journal 402 / build 204) — Cuisine
 # TMA OTHER picker robustness. Operator: "select Others, type
 # 'Times Square Kuala Lumpur' → error 502" and "select Vietnam,
