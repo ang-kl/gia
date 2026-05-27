@@ -1,8 +1,8 @@
 counters:
-  commit: 412
-  build: 202
+  commit: 413
+  build: 203
   documents:
-    journal: 400
+    journal: 401
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,63 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 40
-last_anchor_time: 28-05 '26 09:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_198 (PR #700 v0.61.198 merged 28-05 '26 08:46 SGT; v0.61.199 diagnostic + UX fix built on v0.61.198 at 28-05 '26 09:00 SGT)
-last_anchor_iso8601: 2026-05-28T09:00:00+08:00
-last_anchor_utc: 2026-05-28T01:00:00Z
+  current_chat_counter: 41
+last_anchor_time: 28-05 '26 09:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_199 (PR #701 v0.61.199 merged 28-05 '26 09:01 SGT; v0.61.200 quick-pick restructure + country hints built on v0.61.199 at 28-05 '26 09:15 SGT)
+last_anchor_iso8601: 2026-05-28T09:15:00+08:00
+last_anchor_utc: 2026-05-28T01:15:00Z
+# v0.61.200 (commit 413 / journal 401 / build 203) — two
+# operator-flagged /location UX bugs:
+#
+# (a) `/location Times Square KL` returned a Singapore venue
+#     because the chat-side `/location <text>` flow defaulted to
+#     `country=SG` Geocoding-API regardless of obvious country
+#     tokens in the query text. The user has to remember to run
+#     `/lcountry` first — too much friction.
+# (b) The `/location` no-args quick-pick keyboard showed only
+#     12 entries (10 STB tourist precincts + JB + IOI Putrajaya).
+#     The Menu TMA already has a 17-entry dropdown that adds 5
+#     SG region buckets (CBD / Western / Eastern / North /
+#     Central). Operator wants the chat quick-pick to mirror it,
+#     plus an "🌏 Others — pick a country" row that opens the
+#     /lcountry picker inline.
+#
+# Fix:
+# - NEW country-hints.js (~110 lines, CommonJS). Per-country
+#   regex arrays for the 16 OTHER countries (no SG entries —
+#   SG remains the default). Patterns are sorted by source-
+#   length so multi-word names ("kuala lumpur", "hong kong")
+#   beat single-word collisions. `detectCountryHint(text)`
+#   returns the matched ISO 3166-1 alpha-2 code or null.
+#   Notable omission: "nagoya" intentionally NOT in JP list
+#   because "Nagoya Hill" is a famous Batam (Indonesia) mall.
+# - NEW __tests__/country-hints.test.js: 23 tests (input
+#   sanitisation; MY/TH/ID/PH/VN/JP/KR/CN/HK/TW/AU/NZ samples;
+#   word-boundary precision e.g. "skl" doesn't fire MY;
+#   longest-match priority for multi-word names; HINTS shape).
+# - index.js (4 edits):
+#   * Top require: destructure detectCountryHint.
+#   * /location <text> geocode prelude: after reading the
+#     countryPref, scan the text for a hint; if found, override
+#     countryCode for THIS query only (pref unchanged). New
+#     log line "[/l] country-hint <text> → <CC> (override pref=
+#     <pref>)" when the override fires.
+#   * sendLocationQuickPicks: was using getAll() (12 entries).
+#     Now uses getMenuDropdown() (17) grouped into three
+#     sections (STB / SG-regions / Malaysia) plus a 🌏 Others
+#     row. Layout: 5 rows × 2 STB → 3 rows (with last 1-wide)
+#     × SG-regions → 1 row × 2 Malaysia → 1 row × 1 Others.
+#   * locpick: callback branch: NEW handler for
+#     `locpick:others` that sends the /lcountry inline keyboard
+#     (reuses buildCountryPickerKeyboard from country-pref.js).
+# - package.json: 0.61.199 -> 0.61.200.
+# - doc/.serial-state.yml: commit 412->413, build 202->203,
+#   journal 400->401; re-anchored 28-05 '26 09:15 SGT.
+# - doc/Journal/journal-0_61_200-28_05_28-0915.md: this entry.
+#
+# Verification: 2513/2513 tests pass (+23 in country-hints);
+# node --check on index.js + country-hints.js both clean.
+#
 # v0.61.199 (commit 412 / journal 400 / build 202) — debug
 # follow-up to v0.61.198. Operator's same log surfaced two
 # secondary issues:
