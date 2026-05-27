@@ -25,6 +25,20 @@ function loadVenues() {
   return Array.isArray(raw?.venues) ? raw.venues : [];
 }
 
+// v0.61.218 — alias map. Operator types `KL` / `PJ` / `JB`; venues
+// store `Kuala Lumpur` / `Petaling Jaya` / `Johor Bahru`. Without
+// these expansions, substring/prefix match misses every short form.
+const CITY_ALIASES = Object.freeze({
+  'kl':  ['kuala lumpur'],
+  'pj':  ['petaling jaya'],
+  'sa':  ['shah alam'],
+  'sj':  ['subang jaya'],
+  'jb':  ['johor bahru'],
+  'bkk': ['bangkok'],
+  'kjg': ['kajang'],
+  'klg': ['klang']
+});
+
 // v0.61.216 — buildTestSet now accepts `cities` (an array of
 // lowercase city-name fragments matched as case-insensitive
 // prefixes of `venue.city`) alongside the existing `country` filter.
@@ -34,10 +48,18 @@ function loadVenues() {
 // filter call.
 function buildTestSet({ limit, country, cities } = {}) {
   const venues = loadVenues();
+  // v0.61.218 — expand common short forms to their full venue.city
+  // names. v0.61.217's `/training 100 KL Putrajaya` matched only
+  // Putrajaya because "kuala lumpur".includes("kl") is false.
   const normCities = Array.isArray(cities) && cities.length
-    ? cities.map((c) => String(c).toLowerCase().trim()).filter(Boolean)
+    ? cities.map((c) => String(c).toLowerCase().trim()).filter(Boolean).flatMap((c) => CITY_ALIASES[c] || [c])
     : null;
-  const tests = [];
+  // v0.61.218 — emit per-venue then round-robin by variant so a
+  // small `limit` gives balanced coverage across all matched
+  // cities. Previously a flat `for (venue) for (variant)` meant
+  // `/training 100 KL Putrajaya` (with KL listed first) consumed
+  // the cap on KL before reaching Putrajaya.
+  const venueTests = [];
   for (const v of venues) {
     if (country && v.country !== country) continue;
     if (normCities) {
@@ -45,8 +67,9 @@ function buildTestSet({ limit, country, cities } = {}) {
       const matched = normCities.some((nc) => cityLower.includes(nc) || cityLower.startsWith(nc));
       if (!matched) continue;
     }
+    const variants = [];
     for (const x of generateVariants(v)) {
-      tests.push({
+      variants.push({
         venueId: v.id,
         country: v.country,
         city: v.city,
@@ -54,6 +77,31 @@ function buildTestSet({ limit, country, cities } = {}) {
         variant: x.variant,
         query: x.query
       });
+    }
+    if (variants.length) venueTests.push(variants);
+  }
+  // Interleave venues across cities so a small cap is balanced.
+  // Group venueTests by city → transpose → flat list with cities
+  // alternating: [KL1, PJ1, KL2, PJ2, ...].
+  const byCity = new Map();
+  for (const vt of venueTests) {
+    const c = vt[0].city;
+    if (!byCity.has(c)) byCity.set(c, []);
+    byCity.get(c).push(vt);
+  }
+  const cityGroups = Array.from(byCity.values());
+  const maxCityLen = Math.max(0, ...cityGroups.map((g) => g.length));
+  const interleavedVenues = [];
+  for (let i = 0; i < maxCityLen; i++) {
+    for (const g of cityGroups) {
+      if (i < g.length) interleavedVenues.push(g[i]);
+    }
+  }
+  const tests = [];
+  const maxVariantCount = Math.max(0, ...interleavedVenues.map((vt) => vt.length));
+  for (let i = 0; i < maxVariantCount; i++) {
+    for (const vt of interleavedVenues) {
+      if (i < vt.length) tests.push(vt[i]);
     }
   }
   return limit ? tests.slice(0, limit) : tests;
