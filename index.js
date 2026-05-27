@@ -3051,6 +3051,12 @@ bot.on('callback_query', async (q) => {
         const capNote = p.radiusCapM
           ? t('loc.set.capNote', cbLang).replace('{km}', String(Math.round(p.radiusCapM / 1000)))
           : '';
+        // v0.61.204 (revised) — operator: "this state flag is very
+        // long". The Johor flag is a 1:2 aspect ratio; sent as a
+        // chat photo it dominates the screen. Dropping the photo
+        // confirmation; chat stays plain-text with the standard
+        // 🇲🇾 emoji on buttons. The state-flag assets are still
+        // shipped (TMA renders them at 18×12 in the region pill).
         await safeSend(chatId,
           tnLP('loc.set.success', cbLang, { label: p.label, cap: capNote }),
           { parse_mode: 'HTML', disable_web_page_preview: true });

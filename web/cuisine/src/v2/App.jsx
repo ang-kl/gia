@@ -1255,11 +1255,15 @@ export default function App() {
         {/* v0.57.9: region toggle on its own row so it's always visible.
             v0.57.34: JB now uses the Johor state flag icon (johor-flag.png)
             instead of the 🇲🇾 Malaysia emoji — Johor Bahru is the city, not
-            the country. */}
+            the country.
+            v0.61.204: JB asset renamed `johor-flag.png` → `MY_Johor_flag.png`
+            per operator's new naming (clearer ISO-like prefix); old path
+            kept on the public/ folder for backward-compat with pre-v0.61.204
+            cached bundles. */}
         <div className="flex gap-1.5">
           {[
             { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
-            { id: 'JB', flag: 'johor-flag.png', label: t('region.johor', lang) },
+            { id: 'JB', flag: 'MY_Johor_flag.png', label: t('region.johor', lang) },
             // v0.61.185 — third pill for OTHER (anything not SG/JB:
             // Putrajaya, KL, Penang, Batam, etc.). 🌏 chosen as a
             // region-neutral globe — JB already has the Johor flag,
@@ -1281,7 +1285,7 @@ export default function App() {
                 })}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
-                {r.flag.endsWith('.png')
+                {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
                 <span>{r.label}</span>
