@@ -1,8 +1,8 @@
 counters:
-  commit: 431
-  build: 221
+  commit: 432
+  build: 222
   documents:
-    journal: 419
+    journal: 420
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,40 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 59
-last_anchor_time: 28-05 '26 05:37 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_217 (PR #720 v0.61.217 merged 27-05 '26 ~14:43 UTC = 28-05 '26 ~22:43 SGT; v0.61.218 city aliases + round-robin built at 28-05 '26 05:37 SGT — operator-validated balanced KL+Putrajaya output)
-last_anchor_iso8601: 2026-05-28T05:37:00+08:00
-last_anchor_utc: 2026-05-27T21:37:00Z
+  current_chat_counter: 60
+last_anchor_time: 28-05 '26 06:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_218 (PR #721 v0.61.218 merged 27-05 '26 ~22:00 UTC; v0.61.219 OTHER disable + Closed now built at 28-05 '26 06:30 SGT)
+last_anchor_iso8601: 2026-05-28T06:30:00+08:00
+last_anchor_utc: 2026-05-27T22:30:00Z
+
+# v0.61.219 (commit 432 / journal 420 / build 222) — two
+# operator-reported issues from a Bukit Bintang KL session:
+#
+# 1. Cuisine TMA's overlay toggles (Train Line / Car Park / Bus
+#    Stop / Taxi Stand / Attractions / Park / Police / Hospital /
+#    Clinic-Pharmacy) were still active when region='OTHER'
+#    (general non-SG, set by the /location <text> picker for KL,
+#    Bangkok, Jakarta, etc.). Only JB and MY-PUT had been wired
+#    via `isNonSg`. Adds `isOther` and applies it to every toggle's
+#    `disabled` flag, INCLUDING carpark (whose Places-fallback was
+#    kept for JB/MY-PUT but is too coarse for the country-pin
+#    OTHER anchors). MapControls already supports `disabled` —
+#    no UI changes needed beyond the data wiring.
+#
+# 2. Result cards displayed "Closed today · Opens today 11:30 AM"
+#    which is misleading (sounds like all-day closed when in fact
+#    it re-opens later same day). closedTodayString in open-hours.js
+#    now checks whether next-open string starts with "Opens today";
+#    if so, prefix flips to "Closed now". Existing "Closed today"
+#    cases (Opens tomorrow / Opens Thu / …) unchanged.
+#
+# Verification: node --check OK; direct Node smoke confirms both
+# cases. Vitest currently bitten by iCloud-induced
+# ERR_INVALID_PACKAGE_CONFIG on local but CI runs cleanly.
+# Cuisine TMA build green (npm run build:cuisine passed in task
+# bi1wsi3o8 exit 0).
+
+
 
 # v0.61.218 (commit 431 / journal 419 / build 221) — operator
 # (28-05 '26 05:30 SGT) ran `/training 100 KL Putrajaya` on

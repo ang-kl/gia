@@ -72,12 +72,18 @@ function nextOpenString(periods, now = new Date()) {
 }
 
 // closedTodayString — returns the user-facing closed-today line for
-// a venue that's currently closed. Combines "Closed today" with the
-// next-open hint when available.
+// a venue that's currently closed. Combines "Closed now"/"Closed today"
+// with the next-open hint when available.
+//
+// v0.61.219 — operator: "Closed today" is misleading when the venue
+// re-opens later the same day. Switch the prefix:
+//   next opens TODAY     → "Closed now · Opens today 11:30 AM"
+//   next opens tomorrow+ → "Closed today · Opens tomorrow 11:00 AM"
 function closedTodayString(periods, now = new Date()) {
   const next = nextOpenString(periods, now);
   if (!next) return 'Closed';
-  return `Closed today · ${next}`;
+  const prefix = next.startsWith('Opens today ') ? 'Closed now' : 'Closed today';
+  return `${prefix} · ${next}`;
 }
 
 module.exports = {

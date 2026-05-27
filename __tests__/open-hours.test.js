@@ -110,6 +110,18 @@ describe('closedTodayString', () => {
     expect(oh.closedTodayString(periods, now)).toBe('Closed today · Opens tomorrow 11:00 AM');
   });
 
+  // v0.61.219 — "Closed today" was misleading when the venue re-opens
+  // later the same day. The prefix now flips to "Closed now" in that
+  // case (operator-reported on a KL Bukit Bintang card that showed
+  // "Closed today · Opens today 11:30 AM").
+  it('uses "Closed now" prefix when next-open is later today', () => {
+    const now = sgtDate(2026, 5, 4, 9, 30); // Mon 09:30 — pre-opening
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 22, minute: 0 } }
+    ];
+    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens today 11:30 AM');
+  });
+
   it('handles a Kafe-Utu-shaped venue (closed Mon-Wed, opens Thu)', () => {
     const now = sgtDate(2026, 5, 4, 14, 0); // Monday afternoon
     const periods = [
