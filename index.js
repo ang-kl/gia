@@ -11388,7 +11388,26 @@ async function cacheBotUsername() {
           );
           data = r.data;
         } catch (err) {
-          console.warn('[place-search-by-country] Places searchText failed:', err.message);
+          // v0.61.199 — operator log 2026-05-27 showed two consecutive
+          // 400s from Places with no diagnostic context. Surface the
+          // HTTP status + response body (truncated) so the next failure
+          // tells us *why* (invalid `regionCode`? bad `textQuery`?
+          // missing field mask? quota?). Also log the request body so
+          // we can reproduce.
+          const status = err.response?.status ?? '?';
+          const bodyTxt = (() => {
+            try {
+              if (!err.response?.data) return '';
+              const s = typeof err.response.data === 'string'
+                ? err.response.data
+                : JSON.stringify(err.response.data);
+              return s.slice(0, 600);
+            } catch { return ''; }
+          })();
+          const reqTxt = (() => {
+            try { return JSON.stringify(body).slice(0, 400); } catch { return ''; }
+          })();
+          console.warn(`[place-search-by-country] Places searchText failed: status=${status} msg=${err.message} body=${bodyTxt} req=${reqTxt}`);
           return res.status(502).json({ error: 'Places search failed' });
         }
         const results = (Array.isArray(data?.places) ? data.places : [])

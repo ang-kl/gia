@@ -313,7 +313,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
       if (arr.length === 0) setNoMatch(true);
       setResults(arr);
     } catch (err) {
-      setErrorMsg(err?.message || String(err));
+      // v0.61.199 — operator log showed "HTTP 502" surfaced verbatim
+      // to the user, which is meaningless. Rewrite to a friendlier
+      // line so they know the anchor IS unchanged and what to try.
+      const raw = err?.message || String(err);
+      const friendly = lang === 'fr'
+        ? `Recherche dans ${country.name} impossible. Réessayez ou changez de pays. (${raw})`
+        : `Couldn't search ${country.name}. Try again or pick a different country. (${raw})`;
+      setErrorMsg(friendly);
     } finally {
       setSearching(false);
     }
