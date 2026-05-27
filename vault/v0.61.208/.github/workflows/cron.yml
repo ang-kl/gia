@@ -1,0 +1,56 @@
+name: Scheduled admin tasks
+
+# v0.43.0: portable cron via GitHub Actions instead of Railway dashboard
+# config (which is harder to version-control). The admin endpoints are
+# guarded by ADMIN_SYNC_SECRET so this workflow only fires meaningful
+# work when the secret matches.
+#
+# Each job is independently optional — set the corresponding repository
+# secret only if you want that schedule active. If a secret is missing,
+# the curl returns 401 and the job soft-fails (`|| true`).
+#
+# Times are UTC. SGT = UTC + 8h.
+#   03:00 SGT = 19:00 UTC (prior day) — quietest hour for vault sync
+#   05:00 SGT = 21:00 UTC (prior day) — pre-breakfast NEA hawker scrape
+#   13:00 SGT = 05:00 UTC — mid-day vault refresh
+#
+# Recommended schedules (uncomment as needed):
+
+on:
+  schedule:
+    # Vault sync — daily at 03:00 SGT
+    - cron: '0 19 * * *'
+    # NEA hawker cleaning-schedule scrape — daily at 05:00 SGT
+    - cron: '0 21 * * *'
+  workflow_dispatch:  # allow manual trigger from Actions tab
+
+jobs:
+  sync-vault:
+    if: github.event.schedule == '0 19 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger vault sync
+        env:
+          BASE: ${{ secrets.BOT_BASE_URL }}
+          SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
+        run: |
+          if [ -z "$BASE" ] || [ -z "$SECRET" ]; then
+            echo "BOT_BASE_URL or ADMIN_SYNC_SECRET not set — skipping"
+            exit 0
+          fi
+          curl -fsSL --max-time 60 "$BASE/admin/sync-vault?secret=$SECRET" || echo "vault sync failed (non-fatal)"
+
+  scrape-nea-hawker:
+    if: github.event.schedule == '0 21 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger NEA hawker scrape
+        env:
+          BASE: ${{ secrets.BOT_BASE_URL }}
+          SECRET: ${{ secrets.ADMIN_SYNC_SECRET }}
+        run: |
+          if [ -z "$BASE" ] || [ -z "$SECRET" ]; then
+            echo "BOT_BASE_URL or ADMIN_SYNC_SECRET not set — skipping"
+            exit 0
+          fi
+          curl -fsSL --max-time 90 "$BASE/admin/scrape-hawker?secret=$SECRET" || echo "NEA scrape failed (non-fatal)"
