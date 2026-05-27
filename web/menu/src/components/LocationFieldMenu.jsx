@@ -111,6 +111,47 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   const [otherSearching, setOtherSearching] = useState(false);
   const [otherNoMatch, setOtherNoMatch] = useState(false);
 
+  // v0.61.209 — seed countryPref from the server (`country-pref:<chatId>`)
+  // on mount so the Menu TMA's OTHER picker opens on whatever the user
+  // last set via /lcountry chat command or the Cuisine TMA's OTHER picker
+  // (v0.61.196 already wires Cuisine TMA → server; this closes the
+  // Menu TMA half of the bidirectional sync). Silently falls back to
+  // DEFAULT_OTHER_COUNTRY on any network failure / 401.
+  useEffect(() => {
+    let cancelled = false;
+    const w = tg();
+    if (!w) return;
+    fetch('/api/cuisine/country-pref', {
+      headers: {
+        Accept: 'application/json',
+        'X-Telegram-Init-Data': w.initData || ''
+      }
+    }).then((r) => r.ok ? r.json() : null)
+      .then((body) => {
+        if (cancelled || !body?.countryCode) return;
+        // 'SG' is the SG region pill default — skip so we don't shove
+        // it into the OTHER picker's countryPref slot.
+        if (body.countryCode === 'SG') return;
+        setCountryPref((cur) => (cur === body.countryCode ? cur : body.countryCode));
+      })
+      .catch(() => { /* non-fatal */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // v0.61.209 — fire-and-forget push to /api/cuisine/country-pref when
+  // the user changes the flag dropdown. Mirrors Cuisine TMA's
+  // saveCountryPref helper.
+  function updateCountryPref(code) {
+    setCountryPref(code);
+    const w = tg();
+    if (!w) return;
+    fetch('/api/cuisine/country-pref', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ countryCode: code, initData: w.initData || '' })
+    }).catch(() => { /* non-fatal */ });
+  }
+
   useEffect(() => {
     let cancelled = false;
     fetch('/api/menu/precincts')
@@ -374,7 +415,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
                 closed: flag + CC). Mirrors Cuisine TMA. */}
             <CountryDropdownMenu
               value={countryPref}
-              onChange={(code) => setCountryPref(code)}
+              onChange={(code) => updateCountryPref(code)}
               ariaLabel={t('loc.other.country', lang)}
             />
             <input

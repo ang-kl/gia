@@ -1,8 +1,8 @@
 counters:
-  commit: 421
-  build: 211
+  commit: 422
+  build: 212
   documents:
-    journal: 409
+    journal: 410
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,65 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 49
-last_anchor_time: 28-05 '26 16:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_207 (PR #709 v0.61.207 merged 28-05 '26 ~15:45 SGT; v0.61.208 country dropdown UX built on v0.61.207 at 28-05 '26 16:30 SGT)
-last_anchor_iso8601: 2026-05-28T16:30:00+08:00
-last_anchor_utc: 2026-05-28T08:30:00Z
+  current_chat_counter: 50
+last_anchor_time: 28-05 '26 18:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_208_plus_vault (PR #710 v0.61.208 merged + PR #711 vault snapshot merged 28-05 '26 ~17:55 SGT; v0.61.209 Menu TMA country-pref sync + WP-state abbreviation built at 28-05 '26 18:30 SGT)
+last_anchor_iso8601: 2026-05-28T18:30:00+08:00
+last_anchor_utc: 2026-05-28T10:30:00Z
+# v0.61.209 (commit 422 / journal 410 / build 212) — two small
+# fixes bundled, both follow-ups to the v0.61.196 / v0.61.207
+# arc:
+#
+# (a) Menu TMA `country-pref` consumer. v0.61.196 wired the
+#     Cuisine TMA to mount-fetch the server-cached country pref
+#     (`country-pref:<chatId>`) and POST changes back. Menu TMA
+#     was left with a local `useState(DEFAULT_OTHER_COUNTRY)`
+#     default — so a user who picked 🇲🇾 via /lcountry or the
+#     Cuisine TMA still saw Menu TMA default to 🇲🇾 (by luck — but
+#     would see 🇲🇾 even if their pref was 🇯🇵). v0.61.209 adds:
+#       1. mount-only useEffect that fetches /api/cuisine/
+#          country-pref via X-Telegram-Init-Data; seeds state
+#          unless code === 'SG' (the SG region pill has its own
+#          anchor).
+#       2. updateCountryPref(code) helper that wraps the
+#          setCountryPref call with a fire-and-forget POST. The
+#          custom CountryDropdownMenu onChange now uses this
+#          helper.
+#
+# (b) WP-state abbreviation in smart-place-label.js. The
+#     "Wilayah Persekutuan Kuala Lumpur" tail at the end of every
+#     KL anchor label reads long; "Federal Territory of Kuala
+#     Lumpur" (the English form some Places replies use) is even
+#     longer. Three rewrites in the helper:
+#       Wilayah Persekutuan Kuala Lumpur   → WP KL
+#       Federal Territory of Kuala Lumpur  → WP KL
+#       Wilayah Persekutuan <X>            → WP <X>
+#       Federal Territory of <X>           → WP <X>
+#     So the operator's example anchor now reads
+#     "Jln Imbi, Kuala Lumpur, WP KL" (was "Jln Imbi, Kuala
+#     Lumpur, Wilayah Persekutuan Kuala Lumpur").
+#
+# Branch claude/v0.61.209-menu-sync-and-wp-abbrev off main at
+# v0.61.208 (+ the vault snapshot PR #711). Files (4):
+# - web/menu/src/components/LocationFieldMenu.jsx (~50 lines):
+#   NEW mount useEffect fetching country-pref; NEW
+#   updateCountryPref helper; CountryDropdownMenu onChange points
+#   at updateCountryPref. Imports unchanged.
+# - smart-place-label.js (~10 lines added inside the state-tail
+#   handling): 4 sequential .replace() calls.
+# - __tests__/smart-place-label.test.js: 2 test cases updated
+#   (Imbi/KL + named-venue tests now expect "WP KL"); +2 NEW
+#   tests for Putrajaya + Federal-Territory-English forms. 9
+#   → 11 tests.
+# - package.json: 0.61.208 -> 0.61.209.
+# - doc/.serial-state.yml: commit 421->422, build 211->212,
+#   journal 409->410; re-anchored 28-05 '26 18:30 SGT.
+# - doc/Journal/journal-0_61_209-28_05_28-1830.md: this entry.
+#
+# Verification: 2524/2524 tests pass (+2 in smart-place-label);
+# Menu TMA Vite build 2.87 s; node --check on smart-place-label
+# clean (index.js not touched).
+#
 # v0.61.208 (commit 421 / journal 409 / build 211) — operator:
 # "Cuisine TMA, the dropdown should spell out the country name
 # but after selection is back to <flag> + <two characters denote
