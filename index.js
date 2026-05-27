@@ -1734,45 +1734,67 @@ async function runLocationCommand(chatId) {
 // (see the bot.on('callback_query') dispatch). Layout: 5 rows of 2 SG
 // precincts, then 1 row of 2 Malaysia anchors. The labels are short
 // enough that 2-per-row fits comfortably on a phone.
+// v0.61.202 — grouped quick-pick menu. Operator: 17 buttons in one
+// screen was too dense. Restructured into a 6-button top-level menu
+// (Tourist Areas / Regions / JB / IOI City Mall / Others / Saved
+// Location). Tourist Areas and Regions are submenus that edit the
+// current message in-place (no new message stacking).
+function _buildTopLevelKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: '🇸🇬 Tourist Areas →', callback_data: 'locpick:menu_tourist' }],
+      [{ text: '🇸🇬 Regions →',       callback_data: 'locpick:menu_regions' }],
+      [
+        { text: '🇲🇾 Johor Bahru',    callback_data: 'locpick:jb' },
+        { text: '🇲🇾 IOI City Mall',  callback_data: 'locpick:ioi-resort-putrajaya' }
+      ],
+      [
+        { text: '🌏 Others',          callback_data: 'locpick:others' },
+        { text: '🕓 Saved Location',  callback_data: 'locpick:saved' }
+      ]
+    ]
+  };
+}
+
+function _buildTouristAreasKeyboard() {
+  const precincts = require('./precincts');
+  const stb = precincts.getMenuDropdown()
+    .filter((p) => p.region === 'SG' && p.source === 'STB');
+  const rows = [];
+  for (let i = 0; i < stb.length; i += 2) {
+    rows.push(stb.slice(i, i + 2).map((p) => ({
+      text: `🇸🇬 ${p.label}`,
+      callback_data: `locpick:${p.id}`
+    })));
+  }
+  rows.push([{ text: '🔙 Back', callback_data: 'locpick:menu_root' }]);
+  return { inline_keyboard: rows };
+}
+
+function _buildRegionsKeyboard() {
+  const precincts = require('./precincts');
+  const regions = precincts.getMenuDropdown()
+    .filter((p) => p.region === 'SG' && p.source === 'region');
+  const rows = [];
+  for (let i = 0; i < regions.length; i += 2) {
+    rows.push(regions.slice(i, i + 2).map((p) => ({
+      text: `🇸🇬 ${p.label}`,
+      callback_data: `locpick:${p.id}`
+    })));
+  }
+  rows.push([{ text: '🔙 Back', callback_data: 'locpick:menu_root' }]);
+  return { inline_keyboard: rows };
+}
+
 async function sendLocationQuickPicks(chatId) {
   try {
     const { resolveLang } = require('./user-prefs');
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
-    const precincts = require('./precincts');
-    // v0.61.200 — was: getAll() = 10 STB + JB + IOI = 12 entries.
-    // Now: getMenuDropdown() = 10 STB + 5 SG region buckets + JB + IOI
-    // = 17 entries, mirroring the Menu TMA's precinct dropdown.
-    // Followed by a 🌏 Others row that opens the 17-country picker.
-    const all = precincts.getMenuDropdown();
-    const flagOf = (p) => p.region === 'SG' ? '🇸🇬'
-      : p.region === 'JB' ? '🇲🇾'
-      : p.region === 'MY-PUT' ? '🇲🇾'
-      : p.region === 'OTHER' ? (p.country === 'Malaysia' ? '🇲🇾' : '🌏')
-      : '📍';
-    const stb = all.filter((p) => p.region === 'SG' && p.source === 'STB');
-    const sgRegions = all.filter((p) => p.region === 'SG' && p.source === 'region');
-    const my = all.filter((p) => p.region === 'JB' || p.region === 'MY-PUT' || (p.region === 'OTHER' && p.country === 'Malaysia'));
-    const rows = [];
-    const pushPairs = (list) => {
-      for (let i = 0; i < list.length; i += 2) {
-        const row = list.slice(i, i + 2).map((p) => ({
-          text: `${flagOf(p)} ${p.label}`,
-          callback_data: `locpick:${p.id}`
-        }));
-        rows.push(row);
-      }
-    };
-    pushPairs(stb);          // 10 STB tourist precincts (5 rows × 2)
-    pushPairs(sgRegions);    // 5 SG region buckets (3 rows × 2, last cell single)
-    pushPairs(my);           // JB + IOI Putrajaya (1 row × 2)
-    // 🌏 Others — opens the country picker (reuses /lcountry's
-    // inline keyboard via a dedicated locpick:others callback).
-    rows.push([{ text: '🌏 Others — pick a country', callback_data: 'locpick:others' }]);
     await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      reply_markup: { inline_keyboard: rows }
+      reply_markup: _buildTopLevelKeyboard()
     });
   } catch (err) {
     console.warn('[/location] sendLocationQuickPicks failed:', err.message);
@@ -2925,6 +2947,37 @@ bot.on('callback_query', async (q) => {
     if (data.startsWith('locpick:')) {
       try {
         const id = data.slice('locpick:'.length).toLowerCase();
+        const messageId = q.message?.message_id || null;
+        // v0.61.202 — grouped quick-pick navigation. menu_root /
+        // menu_tourist / menu_regions edit the current message in
+        // place so the user navigates without stacking new messages.
+        if (id === 'menu_root') {
+          if (messageId) {
+            try {
+              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(),
+                { chat_id: chatId, message_id: messageId });
+            } catch { /* non-fatal */ }
+          }
+          return;
+        }
+        if (id === 'menu_tourist') {
+          if (messageId) {
+            try {
+              await bot.editMessageReplyMarkup(_buildTouristAreasKeyboard(),
+                { chat_id: chatId, message_id: messageId });
+            } catch { /* non-fatal */ }
+          }
+          return;
+        }
+        if (id === 'menu_regions') {
+          if (messageId) {
+            try {
+              await bot.editMessageReplyMarkup(_buildRegionsKeyboard(),
+                { chat_id: chatId, message_id: messageId });
+            } catch { /* non-fatal */ }
+          }
+          return;
+        }
         // v0.61.200 — `locpick:others` opens the country picker
         // (same keyboard as /lcountry). Mirrors operator's spec:
         // "Others" should let the user pick a country for the
@@ -2940,6 +2993,35 @@ bot.on('callback_query', async (q) => {
             'Future `/location <place>` lookups will use the chosen country. Singapore-only commands (/cuisine, /hidden, /carpark, /hawker) still work the same.',
             { parse_mode: 'Markdown', reply_markup: buildCountryPickerKeyboard() }
           );
+          return;
+        }
+        // v0.61.202 — `locpick:saved` opens the recent-locations
+        // LRU drawer (same keyboard as /lrecent v0.61.197).
+        if (id === 'saved') {
+          const list = await listRecentLocations(redis, chatId);
+          if (!list.length) {
+            await safeSend(chatId,
+              '🕓 *No saved locations yet.*\n\n' +
+              'Anywhere you set via `/location <place>`, the share-pin button, or the Cuisine TMA will appear here.',
+              { parse_mode: 'Markdown' });
+            return;
+          }
+          const rows = list.map((e, i) => {
+            const flag = e.country
+              ? (findCountryPref(e.country)?.flag || '🌍')
+              : '📍';
+            const labelDisplay = e.label && e.label.trim()
+              ? e.label.slice(0, 50)
+              : `${Number(e.lat).toFixed(4)}, ${Number(e.lng).toFixed(4)}`;
+            return [{ text: `${flag} ${labelDisplay}`, callback_data: `lr:${i}` }];
+          });
+          rows.push([
+            { text: '🗑 Clear all', callback_data: 'lr:clear' },
+            { text: '✖ Close',      callback_data: 'lr:close' }
+          ]);
+          await safeSend(chatId,
+            `🕓 *Saved locations* (${list.length}/10). Tap to re-anchor.`,
+            { parse_mode: 'Markdown', reply_markup: { inline_keyboard: rows } });
           return;
         }
         const precincts = require('./precincts');
