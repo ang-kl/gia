@@ -223,6 +223,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // for any non-SG region, including the train layer.
   const jb = (region || 'SG') === 'JB';
   const isNonSg = jb || ((region || 'SG') === 'MY-PUT');
+  // v0.61.219 — OTHER region (the generic non-SG umbrella set by the
+  // /location <text> picker for KL, Bangkok, Jakarta, etc.) greys
+  // out ALL nine overlay toggles, carpark included. The anchor is
+  // too coarse for the Places-fallback carpark layer to be useful,
+  // and the SG-specific feeds (train / bus / etc.) are not
+  // populated outside JB and Putrajaya. JB / MY-PUT keep their
+  // existing behaviour — only OTHER is the new disable target.
+  const isOther = (region || 'SG') === 'OTHER';
   // v0.61.168 — carpark layer now backed by Google Places outside
   // SG (v0.61.158 backend + v0.61.168 controller wiring). The other
   // overlays remain SG-only feeds so they still force-off here.
@@ -233,6 +241,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         taxis: false, parks: false, attractions: false,
         clinics: false, hospitals: false, police: false
         // carpark: NOT forced — Places fallback works in JB / MY-PUT
+      }
+    : (isOther && overlayLayers)
+    ? {
+        ...overlayLayers,
+        train: false, carpark: false, busstop: false, exits: false,
+        taxis: false, parks: false, attractions: false,
+        clinics: false, hospitals: false, police: false
       }
     : overlayLayers;
 
@@ -594,22 +609,26 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // v0.61.159 — broaden the disabled flag to any non-SG region so the
   // new MY-PUT (Putrajaya) pill also greys these out. Rule §2.10 +
   // §2.5 (TMA toggle gate for non-SG).
+  // v0.61.219 — `isOther` (region === 'OTHER') ALSO disables every
+  // toggle, carpark included. JB / MY-PUT keep their carpark toggle
+  // enabled (Places fallback) as before.
   const rowToggles = [
-    { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: isNonSg },
+    { key: 'train',       icon: '🚉', label: tr('layer.train', lang), disabled: isNonSg || isOther },
     // v0.61.168 — carpark toggle enabled in non-SG: the layer now
     // falls back to Google Places (5 km around the anchor) via the
     // v0.61.158 backend endpoint + v0.61.168 controller wiring.
-    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg }
+    // v0.61.219 — OTHER region forces it off (anchor too coarse).
+    { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: isOther },
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg || isOther }
   ];
   const menuToggles = [
-    { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: isNonSg },
-    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: isNonSg },
-    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: isNonSg },
-    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: isNonSg },
-    { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: isNonSg },
-    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: isNonSg },
-    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: isNonSg }
+    { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: isNonSg || isOther },
+    { key: 'taxis',       icon: '🚕', label: tr('layer.taxis', lang), disabled: isNonSg || isOther },
+    { key: 'attractions', icon: '⚝', label: tr('layer.attractions', lang), disabled: isNonSg || isOther },
+    { key: 'parks',       icon: '🌳', label: tr('layer.parks', lang), disabled: isNonSg || isOther },
+    { key: 'police',  icon: '👮', label: tr('layer.police', lang), disabled: isNonSg || isOther },
+    { key: 'clinics', icon: '💊', label: tr('layer.clinics', lang), disabled: isNonSg || isOther },
+    { key: 'hospitals', icon: '🏥', label: tr('layer.hospitals', lang), disabled: isNonSg || isOther }
   ];
 
   return (
