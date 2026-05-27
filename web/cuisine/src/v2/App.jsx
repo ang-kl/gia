@@ -490,34 +490,79 @@ export default function App() {
       });
     }
 
+    // v0.61.203 — defensive region applier. Used after URL-hash /
+    // initData / GPS / centroid paths set userLoc to ensure the
+    // region pill matches the server-cached anchor's region. Without
+    // this, the operator's chat /location to IOI (region OTHER)
+    // silently reverts to SG on TMA mount when the deep-link hash
+    // didn't carry the region or when Telegram initData provided
+    // device GPS — both bypass tryServerCache. Mirrors the legacy
+    // auto-flip inside tryServerCache; idempotent.
+    function applyRegionFromAnchor(region) {
+      if (!region || cancelled) return;
+      const r = String(region).toUpperCase();
+      const target = (r === 'MY-PUT') ? 'OTHER'
+        : (r === 'JB' || r === 'OTHER' || r === 'SG') ? r
+        : null;
+      if (!target) return;
+      setState((s) => (s.region === target ? s : { ...s, region: target }));
+      console.log(`[Cuisine-TMA-v2] applyRegionFromAnchor → ${target}`);
+    }
+
     (async () => {
       // v0.58.26: TMA URL hash anchor wins ahead of all client paths —
       // the bot's /cuisine handler now pre-resolves the cached
       // location and deep-links it via #lat&lng. Without this, the
       // hash anchor would only be honoured by the warm-start guard
       // (line ~208), but userLoc itself would still go through GPS.
+      let userLocSource = '';
       if (initialOverrides?.location && isValidCoord(initialOverrides.location.lat, initialOverrides.location.lng)) {
         if (!cancelled) {
           setUserLoc({ lat: initialOverrides.location.lat, lng: initialOverrides.location.lng });
           console.log('[Cuisine-TMA-v2] userLoc from URL hash (bot deep-link)');
+          // v0.61.203 — apply region from hash if the bot included it.
+          if (initialOverrides.location.region) {
+            applyRegionFromAnchor(initialOverrides.location.region);
+          }
         }
-        return;
-      }
-      const w = tg();
-      const init = w?.initDataUnsafe || {};
-      const tgLoc = init.user_location || init.user?.location;
-      if (isValidCoord(tgLoc?.latitude, tgLoc?.longitude)) {
-        if (!cancelled) {
-          setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
-          console.log('[Cuisine-TMA-v2] userLoc from Telegram initData');
+        userLocSource = 'hash';
+      } else {
+        const w = tg();
+        const init = w?.initDataUnsafe || {};
+        const tgLoc = init.user_location || init.user?.location;
+        if (isValidCoord(tgLoc?.latitude, tgLoc?.longitude)) {
+          if (!cancelled) {
+            setUserLoc({ lat: tgLoc.latitude, lng: tgLoc.longitude });
+            console.log('[Cuisine-TMA-v2] userLoc from Telegram initData');
+          }
+          userLocSource = 'initData';
+        } else if (await tryServerCache()) {
+          // tryServerCache already applies region inside; no follow-up needed.
+          userLocSource = 'serverCache';
+        } else if (await tryGps()) {
+          userLocSource = 'gps';
+        } else {
+          if (!cancelled) {
+            setUserLoc(SG_CENTROID);
+            console.log('[Cuisine-TMA-v2] userLoc fallback to SG centroid');
+          }
+          userLocSource = 'centroid';
         }
-        return;
       }
-      if (await tryServerCache()) return;
-      if (await tryGps()) return;
-      if (!cancelled) {
-        setUserLoc(SG_CENTROID);
-        console.log('[Cuisine-TMA-v2] userLoc fallback to SG centroid');
+      // v0.61.203 — DEFENSIVE: for every userLoc source EXCEPT
+      // `serverCache` (which already applied region), do one extra
+      // fetch to read the server's region for this user. Closes the
+      // "map says Putrajaya but pill says Singapore" bug that
+      // appeared whenever the deep-link hash omitted region or the
+      // operator launched the TMA from the menu button (Telegram
+      // initData with device GPS) after setting a non-SG anchor
+      // in chat. Idempotent (won't fight an in-progress chat → TMA
+      // pill flip).
+      if (userLocSource && userLocSource !== 'serverCache' && !cancelled) {
+        try {
+          const r = await fetchUserLocation();
+          if (r?.region) applyRegionFromAnchor(r.region);
+        } catch { /* non-fatal */ }
       }
     })();
     return () => { cancelled = true; };

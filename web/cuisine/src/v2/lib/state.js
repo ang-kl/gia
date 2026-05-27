@@ -123,6 +123,16 @@ export function readOverridesFromHash() {
   const validLng = Number.isFinite(lng) && lng >= -180 && lng <= 180 && Math.abs(lng) > 0.001;
   if (validLat && validLng) {
     out.location = { lat, lng, name: typeof place === 'string' ? place.slice(0, 80) : '' };
+    // v0.61.203 — accept `region` from the hash (`JB` / `OTHER` /
+    // `MY-PUT` / `SG`). The bot's /cuisine handler started emitting
+    // this so the TMA mount path 1 can apply it without a follow-up
+    // server round-trip. Legacy `MY-PUT` is normalised to `OTHER`.
+    const rawRegion = params.get('region');
+    if (typeof rawRegion === 'string' && rawRegion) {
+      const r = rawRegion.toUpperCase();
+      if (r === 'MY-PUT') out.location.region = 'OTHER';
+      else if (r === 'JB' || r === 'OTHER' || r === 'SG') out.location.region = r;
+    }
   }
   return Object.keys(out).length ? out : null;
 }
