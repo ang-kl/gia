@@ -91,6 +91,16 @@ function smartPlaceLabel(displayName, formattedAddress) {
     state = parts[parts.length - 1];
     parts = parts.slice(0, -1);
   }
+  // v0.61.209 — abbreviate verbose Malaysian federal-territory names.
+  // "Wilayah Persekutuan Kuala Lumpur" → "WP KL"
+  // "Wilayah Persekutuan Putrajaya"    → "WP Putrajaya"
+  // "Wilayah Persekutuan Labuan"       → "WP Labuan"
+  // "Federal Territory of Kuala Lumpur" → "WP KL"
+  state = state
+    .replace(/^Wilayah\s+Persekutuan\s+Kuala\s+Lumpur$/i, 'WP KL')
+    .replace(/^Federal\s+Territory\s+of\s+Kuala\s+Lumpur$/i, 'WP KL')
+    .replace(/^Wilayah\s+Persekutuan\s+/i, 'WP ')
+    .replace(/^Federal\s+Territory\s+of\s+/i, 'WP ');
 
   // City — the last remaining piece (postal stripped + leading
   // building number stripped, since the city slot shouldn't carry

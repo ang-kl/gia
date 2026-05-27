@@ -7,10 +7,10 @@ const require = createRequire(import.meta.url);
 const { smartPlaceLabel } = require('../smart-place-label.js');
 
 describe('smartPlaceLabel — operator failure case (Jln Imbi / KL)', () => {
-  it('"1" + KL address → "Jln Imbi, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur"', () => {
+  it('"1" + KL address → "Jln Imbi, Kuala Lumpur, WP KL" (state abbreviated)', () => {
     const dn = '1';
     const fa = '1, Jln Imbi, Imbi, 55100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia';
-    expect(smartPlaceLabel(dn, fa)).toBe('Jln Imbi, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur');
+    expect(smartPlaceLabel(dn, fa)).toBe('Jln Imbi, Kuala Lumpur, WP KL');
   });
 });
 
@@ -18,12 +18,23 @@ describe('smartPlaceLabel — uses real displayName when present', () => {
   it('"Berjaya Times Square" + KL address', () => {
     expect(smartPlaceLabel('Berjaya Times Square',
       '1, Jalan Imbi, Bukit Bintang, 55100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia'))
-      .toBe('Berjaya Times Square, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur');
+      .toBe('Berjaya Times Square, Kuala Lumpur, WP KL');
   });
   it('"Pavilion KL" + KL address', () => {
     expect(smartPlaceLabel('Pavilion KL',
       '168, Jalan Bukit Bintang, 55100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia'))
-      .toBe('Pavilion KL, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur');
+      .toBe('Pavilion KL, Kuala Lumpur, WP KL');
+  });
+});
+
+describe('smartPlaceLabel — WP abbreviation (v0.61.209)', () => {
+  it('Putrajaya address: "Wilayah Persekutuan Putrajaya" → "WP Putrajaya"', () => {
+    const fa = 'IOI Resort City, 62502 Putrajaya, Wilayah Persekutuan Putrajaya, Malaysia';
+    expect(smartPlaceLabel('IOI Resort City', fa)).toBe('IOI Resort City, Putrajaya, WP Putrajaya');
+  });
+  it('Federal Territory of Kuala Lumpur (English form) → "WP KL"', () => {
+    const fa = '168 Jln Bukit Bintang, 55100 Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia';
+    expect(smartPlaceLabel('Pavilion', fa)).toBe('Pavilion, Kuala Lumpur, WP KL');
   });
 });
 
