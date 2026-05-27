@@ -57,6 +57,10 @@ const {
   addRecentLocation,
   removeRecentLocationAt: removeRecentLocationAtIdx
 } = require('./recent-locations');
+// v0.61.200 — city/country token detection in /location <text>.
+// Override the SG default when "Times Square KL", "Bangkok",
+// "Putrajaya", etc. appears in the query.
+const { detectCountryHint } = require('./country-hints');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
 const usageLog = require('./usage-log');
@@ -1736,23 +1740,35 @@ async function sendLocationQuickPicks(chatId) {
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
     const precincts = require('./precincts');
-    const all = precincts.getAll();   // 10 STB + JB + IOI in display order
+    // v0.61.200 — was: getAll() = 10 STB + JB + IOI = 12 entries.
+    // Now: getMenuDropdown() = 10 STB + 5 SG region buckets + JB + IOI
+    // = 17 entries, mirroring the Menu TMA's precinct dropdown.
+    // Followed by a 🌏 Others row that opens the 17-country picker.
+    const all = precincts.getMenuDropdown();
+    const flagOf = (p) => p.region === 'SG' ? '🇸🇬'
+      : p.region === 'JB' ? '🇲🇾'
+      : p.region === 'MY-PUT' ? '🇲🇾'
+      : p.region === 'OTHER' ? (p.country === 'Malaysia' ? '🇲🇾' : '🌏')
+      : '📍';
+    const stb = all.filter((p) => p.region === 'SG' && p.source === 'STB');
+    const sgRegions = all.filter((p) => p.region === 'SG' && p.source === 'region');
+    const my = all.filter((p) => p.region === 'JB' || p.region === 'MY-PUT' || (p.region === 'OTHER' && p.country === 'Malaysia'));
     const rows = [];
-    for (let i = 0; i < all.length; i += 2) {
-      const row = [];
-      for (const p of all.slice(i, i + 2)) {
-        // v0.61.185 — three-pill model (SG | JB | OTHER). Legacy
-        // 'MY-PUT' rows still get the 🇲🇾 flag (Putrajaya = Malaysia).
-        // Generic 'OTHER' rows fall back to 🌏.
-        const flag = p.region === 'SG' ? '🇸🇬'
-          : p.region === 'JB' ? '🇲🇾'
-          : p.region === 'MY-PUT' ? '🇲🇾'
-          : p.region === 'OTHER' ? (p.country === 'Malaysia' ? '🇲🇾' : '🌏')
-          : '📍';
-        row.push({ text: `${flag} ${p.label}`, callback_data: `locpick:${p.id}` });
+    const pushPairs = (list) => {
+      for (let i = 0; i < list.length; i += 2) {
+        const row = list.slice(i, i + 2).map((p) => ({
+          text: `${flagOf(p)} ${p.label}`,
+          callback_data: `locpick:${p.id}`
+        }));
+        rows.push(row);
       }
-      rows.push(row);
-    }
+    };
+    pushPairs(stb);          // 10 STB tourist precincts (5 rows × 2)
+    pushPairs(sgRegions);    // 5 SG region buckets (3 rows × 2, last cell single)
+    pushPairs(my);           // JB + IOI Putrajaya (1 row × 2)
+    // 🌏 Others — opens the country picker (reuses /lcountry's
+    // inline keyboard via a dedicated locpick:others callback).
+    rows.push([{ text: '🌏 Others — pick a country', callback_data: 'locpick:others' }]);
     await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
@@ -2039,12 +2055,24 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   // v0.61.195 — read user country pref (default SG). SG keeps the
   // legacy Geocoding-API path; non-SG routes through Places searchText
   // with includedRegionCodes for true country-pinned results.
+  // v0.61.200 — also scan the text for explicit country/city hints
+  // (e.g. "Times Square KL" → MY, "Bangkok" → TH). A hint overrides
+  // the persistent pref for THIS query only. The persistent pref
+  // (`/lcountry`) is still the way to flip the default for non-hinted
+  // queries.
   let countryCode = 'SG';
   try {
     countryCode = await getUserCountryPref(redis, chatId);
   } catch (err) {
     console.warn('[/l] country pref read failed; defaulting to SG:', err.message);
   }
+  try {
+    const hinted = detectCountryHint(text);
+    if (hinted && hinted !== countryCode) {
+      console.log(`[/l] country-hint "${text.slice(0, 60)}" → ${hinted} (override pref=${countryCode})`);
+      countryCode = hinted;
+    }
+  } catch (err) { console.warn('[/l] country-hint scan failed:', err.message); }
   try {
     if (countryCode === 'SG') {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text + ', Singapore')}&components=country:SG&key=${process.env.GOOGLE_MAPS_API_KEY}`;
@@ -2897,6 +2925,23 @@ bot.on('callback_query', async (q) => {
     if (data.startsWith('locpick:')) {
       try {
         const id = data.slice('locpick:'.length).toLowerCase();
+        // v0.61.200 — `locpick:others` opens the country picker
+        // (same keyboard as /lcountry). Mirrors operator's spec:
+        // "Others" should let the user pick a country for the
+        // /location <text> search that follows.
+        if (id === 'others') {
+          const current = await getUserCountryPref(redis, chatId).catch(() => 'SG');
+          const entry = findCountryPref(current);
+          const nowLine = entry
+            ? `_Current search country:_ ${entry.flag} ${entry.name}\n\n`
+            : '';
+          await safeSend(chatId,
+            `🌍 *Choose a search country.*\n\n${nowLine}` +
+            'Future `/location <place>` lookups will use the chosen country. Singapore-only commands (/cuisine, /hidden, /carpark, /hawker) still work the same.',
+            { parse_mode: 'Markdown', reply_markup: buildCountryPickerKeyboard() }
+          );
+          return;
+        }
         const precincts = require('./precincts');
         const p = precincts.getById(id);
         if (!p) {
