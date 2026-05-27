@@ -12051,7 +12051,26 @@ async function cacheBotUsername() {
         // can auto-flip its region toggle to JB (and the Menu TMA's
         // LocationFieldMenu shows the current label / cap).
         const payload = { lat: cached.lat, lng: cached.lng, setAt: cached.setAt || null };
-        if (cached.region) payload.region = cached.region;
+        if (cached.region) {
+          payload.region = cached.region;
+        } else {
+          // v0.61.206 — DEFENSIVE: legacy anchors written before this
+          // version weren't stamped with region (share-pin handler and
+          // a few other callers passed no opts). Infer it on the GET
+          // path via the coarse gate so the Cuisine TMA's auto-flip
+          // doesn't silently default to SG for a pin that's clearly
+          // outside SG. The setUserLocation boundary now stamps at
+          // write-time too — this is the cleanup for already-cached
+          // anchors. Distinct field name `inferredRegion` so the TMA
+          // (and analytics) can tell the difference.
+          try {
+            const { coarseGate } = require('./location-mode');
+            if (!coarseGate({ lat: cached.lat, lng: cached.lng })) {
+              payload.region = 'OTHER';
+              payload.regionInferred = true;
+            }
+          } catch { /* non-fatal */ }
+        }
         if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
         if (cached.label) payload.label = cached.label;
         if (cached.precinctId) payload.precinctId = cached.precinctId;
