@@ -36,6 +36,28 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
     if (typeof opts.building === 'string' && opts.building) payload.building = opts.building;
     if (typeof opts.postal === 'string' && opts.postal) payload.postal = opts.postal;
   }
+  // v0.61.206 — operator's repeated bug: share-pin from outside SG
+  // (e.g. Padang Tengku Pahang, lat 4.21) was cached with no region
+  // because bot.on('location') passes no opts. Cuisine TMA then sent
+  // region=SG with Pahang coords → 0 results. Stamp region='OTHER'
+  // here when no explicit region was passed AND the coarse gate
+  // (v0.61.155 rule §2.2, 120 km from SG centroid) trips. Anything
+  // INSIDE the gate stays unstamped — distinguishing SG from JB
+  // needs a reverse-geocode which would be a paid Places call on
+  // every share-pin; existing v0.61.157 drift-prompt covers the
+  // SG↔JB ambiguity at chat time.
+  if (!payload.region && Number.isFinite(lat) && Number.isFinite(lng)) {
+    try {
+      const { coarseGate } = require('./location-mode');
+      if (!coarseGate({ lat, lng })) {
+        payload.region = 'OTHER';
+        payload.regionInferredFromCoords = true;
+      }
+    } catch (err) {
+      // location-mode unavailable (shouldn't happen in prod) —
+      // silently skip the stamp.
+    }
+  }
   await redis.setEx(key, LOC_TTL, JSON.stringify(payload));
 }
 
