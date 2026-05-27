@@ -223,6 +223,20 @@ export async function saveUserLocation({ lat, lng }) {
   return postJson('/api/cuisine/set-location', { lat, lng });
 }
 
+// v0.61.196 — TMA <-> chat country-pref sync. The chat-side /lcountry
+// (v0.61.195) writes the same Redis key (`country-pref:<chatId>`);
+// this lets the TMA initialise its OTHER-region picker with whatever
+// the user last set in chat, and push the choice back so the chat
+// side picks up TMA-side changes too.
+export async function fetchCountryPref() {
+  try { return await getJson('/api/cuisine/country-pref'); }
+  catch { return null; }
+}
+export async function saveCountryPref(countryCode) {
+  try { return await postJson('/api/cuisine/country-pref', { countryCode }); }
+  catch { return null; }
+}
+
 // v0.60.146 — Cuisine TMA per-session clipboard. startSession wipes the
 // session-seen + page-history Redis keys on mount; backOnePage returns
 // the previous result list (the one shown before the most recent
