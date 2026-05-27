@@ -1,8 +1,8 @@
 counters:
-  commit: 410
-  build: 200
+  commit: 411
+  build: 201
   documents:
-    journal: 398
+    journal: 399
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,64 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 38
-last_anchor_time: 28-05 '26 08:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_196 (PR #698 v0.61.196 merged 28-05 '26 08:16 SGT; v0.61.197 recent-locations drawer built on v0.61.196 at 28-05 '26 08:30 SGT)
-last_anchor_iso8601: 2026-05-28T08:30:00+08:00
-last_anchor_utc: 2026-05-28T00:30:00Z
+  current_chat_counter: 39
+last_anchor_time: 28-05 '26 08:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_197 (PR #699 v0.61.197 merged 28-05 '26 08:31 SGT; v0.61.198 JB filter + pagination ladder fix built on v0.61.197 at 28-05 '26 08:45 SGT)
+last_anchor_iso8601: 2026-05-28T08:45:00+08:00
+last_anchor_utc: 2026-05-28T00:45:00Z
+# v0.61.198 (commit 411 / journal 399 / build 201) — JB region
+# search debug from operator's South Key + Cantonese log
+# (2026-05-27 07:58 SGT). Operator saw 9 venues in first batch,
+# then 0 on the 🔍 next-batch tap. Root cause was two compounding
+# bugs in cuisine-search.js:
+#
+# (a) the JB area-text filter at index.js:12968 dropped 54 → 14
+#     candidates because Places sometimes returns JB addresses as
+#     "Skudai, 81300, Malaysia" or "Iskandar Puteri, 79100" with
+#     no "Johor" word. The strict `/\bjohor\b/i` filter cut ~74%
+#     of legitimate JB venues.
+#
+# (b) the v0.61.161 nearby-widen ladder cut 14 → 9 at tier 1
+#     (6 km from anchor) because ≥3 top-rated venues existed
+#     within 6 km — operator's "prioritize nearby" intent. On the
+#     next 🔍 tap pagination tried to read venues 10-21 from the
+#     9-venue pool → returned 0. The ladder was only applied
+#     once at first-batch time; subsequent taps never widened.
+#
+# Fix:
+# - JB filter rewritten as a hybrid mirror of the SG branch:
+#   accept "Johor" text OR within 60 km of a JB centroid
+#   (1.4927, 103.7414) AND NOT explicitly "Singapore"-tagged.
+#   60 km covers Pontian / Kulai / Desaru without leaking into KL.
+#   New D703b log "JB-hybrid-filter ${before} → ${after}" when
+#   the count changes.
+# - Nearby-widen now only applies on FIRST batch (`seen.size === 0`).
+#   Subsequent 🔍 taps serve the full anchor-capped pool so
+#   pagination walks the wider tiers naturally. To enable the
+#   first-batch check before widen runs, the seen-set read at
+#   line 13123 moved up just above the widen block; the duplicate
+#   read site was retired (comment placeholder retained for trace).
+#   New D790 alternate log "nearby-widen skipped (followUp tap,
+#   seen=N); serving full anchor-capped pool=N" so the operator
+#   can see when widening is in effect vs bypassed.
+#
+# Combined effect for the operator's reported case: 54 → ~40+
+# after the hybrid filter, 9 served first batch, 30+ served on
+# subsequent taps until the pool drains.
+#
+# Branch claude/v0.61.198-jb-filter-pagination-fix off main at
+# v0.61.197. Files (3):
+# - index.js (3 edits): JB-hybrid filter; seen-set read moved up;
+#   nearby-widen gated on isFirstBatchForWiden + alternate log
+#   when bypassed.
+# - package.json: 0.61.197 -> 0.61.198.
+# - doc/.serial-state.yml: commit 410->411, build 200->201,
+#   journal 398->399; re-anchored 28-05 '26 08:45 SGT.
+# - doc/Journal/journal-0_61_198-28_05_28-0845.md: this entry.
+#
+# Verification: 2490/2490 tests pass; node --check on index.js
+# clean.
+#
 # v0.61.197 (commit 410 / journal 398 / build 200) — recent-
 # locations LRU + /lrecent chat drawer. Per-user, Redis-backed,
 # 10-entry cap, newest-first, 180-day TTL. Three call sites hook
