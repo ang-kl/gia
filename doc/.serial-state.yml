@@ -1,8 +1,8 @@
 counters:
-  commit: 409
-  build: 199
+  commit: 410
+  build: 200
   documents:
-    journal: 397
+    journal: 398
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,78 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 37
-last_anchor_time: 28-05 '26 08:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_195 (PR #697 v0.61.195 merged 28-05 '26 08:01 SGT; v0.61.196 TMA/chat country-pref sync built on v0.61.195 at 28-05 '26 08:15 SGT)
-last_anchor_iso8601: 2026-05-28T08:15:00+08:00
-last_anchor_utc: 2026-05-28T00:15:00Z
+  current_chat_counter: 38
+last_anchor_time: 28-05 '26 08:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_196 (PR #698 v0.61.196 merged 28-05 '26 08:16 SGT; v0.61.197 recent-locations drawer built on v0.61.196 at 28-05 '26 08:30 SGT)
+last_anchor_iso8601: 2026-05-28T08:30:00+08:00
+last_anchor_utc: 2026-05-28T00:30:00Z
+# v0.61.197 (commit 410 / journal 398 / build 200) — recent-
+# locations LRU + /lrecent chat drawer. Per-user, Redis-backed,
+# 10-entry cap, newest-first, 180-day TTL. Three call sites hook
+# `addRecentLocation` into the v0.61.195 chat `/location <text>`
+# flow (both SG geocoder + non-SG Places searchText paths) plus
+# the existing `/api/cuisine/set-location` endpoint (Cuisine TMA
+# location picks). New chat command `/lrecent` (alias `/lr`)
+# renders the LRU as an inline-keyboard drawer; tapping a row
+# re-applies the anchor via setUserLocation and bubbles it to
+# the top.
+#
+# Branch claude/v0.61.197-recent-locations-drawer off main at
+# v0.61.196. Files (4):
+# - NEW recent-locations.js (~110 lines, CommonJS):
+#   * MAX_ENTRIES = 10, TTL_S = 180 days.
+#   * listRecentLocations(redis, chatId) — JSON-parse the Redis
+#     blob or []; defensive on missing/corrupt.
+#   * addRecentLocation(redis, chatId, entry) — validates
+#     lat/lng, normalises (lat/lng rounded to 5 decimals; label
+#     capped at 240 chars; optional country uppercased + 2 chars;
+#     optional region kept ≤16 chars). Dedups by (lat,lng) within
+#     ~11 m so re-saving the same spot bubbles the existing row
+#     to the top instead of duplicating. Trims to MAX_ENTRIES.
+#   * removeRecentLocationAt(redis, chatId, idx) — splices the
+#     indexed row; auto-deletes the key when emptied.
+#   * clearRecentLocations(redis, chatId) — DEL the key.
+# - NEW __tests__/recent-locations.test.js: 13 tests covering
+#   MAX_ENTRIES shape; add/list (empty → 1 → invalid reject →
+#   dedup-bubble → cap-trim → country/region pass-through);
+#   removeAt (drop indexed → out-of-range false); clear; and
+#   defensive null-redis + corrupt-JSON paths.
+# - index.js (5 edits):
+#   * Top require: destructure listRecentLocations +
+#     addRecentLocation + removeRecentLocationAtIdx from
+#     ./recent-locations (alongside the v0.61.195 country-pref).
+#   * NEW /lrecent (alias /lr) handler — renders LRU as inline
+#     keyboard. Each row: `<flag> <label>` callback_data `lr:<i>`.
+#     Footer row: `🗑 Clear all` / `✖ Close`. Empty-list path
+#     sends a hint message instead.
+#   * NEW lr:<idx>/lr:clear/lr:close callback branch in
+#     callback_query: idx → look up entry, setUserLocation
+#     (preserving region/label opts), bubble via addRecentLocation,
+#     editMessageText confirmation; clear → clearRecentLocations
+#     + edit message; close → deleteMessage.
+#   * Chat /location <text> success branches now also call
+#     addRecentLocation fire-and-forget — three call sites: coded
+#     (MRT/bus-stop) resolver; SG Geocoding-API result; non-SG
+#     Places searchText result (carries country code + region).
+#   * /api/cuisine/set-location persists Redis location, now also
+#     pushes to recent-locations LRU (empty label — TMA POSTs
+#     only lat/lng; the drawer renders these as "<lat>, <lng>").
+# - package.json: 0.61.196 -> 0.61.197.
+# - doc/.serial-state.yml: commit 409->410, build 199->200,
+#   journal 397->398; re-anchored 28-05 '26 08:30 SGT.
+# - doc/Journal/journal-0_61_197-28_05_28-0830.md: this entry.
+#
+# Privacy: the LRU stores lat/lng + optional label/country/region
+# only. No PII beyond what loc:<chatId> already carries via
+# setUserLocation; just a 10-entry history of those same values.
+# 180-day TTL means an account that hasn't touched location in
+# 6 months has its history wiped (deliberate — accounts can
+# decay; old anchors become irrelevant).
+#
+# Verification: 2490/2490 tests pass (13 new in
+# recent-locations.test.js); node --check on index.js +
+# recent-locations.js both clean.
+#
 # v0.61.196 (commit 409 / journal 397 / build 199) — TMA <-> chat
 # country-pref sync. v0.61.195 added the chat-side picker; the
 # Cuisine TMA still seeded its `state.countryPref` from the

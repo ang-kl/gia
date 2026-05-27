@@ -49,6 +49,14 @@ const {
   getUserCountryPref,
   setUserCountryPref
 } = require('./country-pref');
+// v0.61.197 — recent-locations LRU (10 entries/user, Redis-backed).
+// Hooked into the chat /location <text> success paths + the TMA's
+// /api/cuisine/set-location endpoint; surfaced via /lrecent.
+const {
+  listRecentLocations,
+  addRecentLocation,
+  removeRecentLocationAt: removeRecentLocationAtIdx
+} = require('./recent-locations');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
 const usageLog = require('./usage-log');
@@ -1880,6 +1888,47 @@ bot.onText(/^\/(?:lcountry|lc)(?:@\w+)?$/i, async (msg) => {
   }
 });
 
+// v0.61.197 — /lrecent (alias /lr) opens the recent-locations drawer
+// (up to 10 most-recently-resolved anchors). Each row is a tappable
+// inline-keyboard button that re-applies the anchor via setUserLocation
+// (and bubbles it back to the top of the LRU via addRecentLocation,
+// so frequently-used spots stay sticky).
+bot.onText(/^\/(?:lrecent|lr)(?:@\w+)?$/i, async (msg) => {
+  const chatId = msg.chat.id;
+  try {
+    const list = await listRecentLocations(redis, chatId);
+    if (!list.length) {
+      await safeSend(chatId,
+        '🕓 *No recent locations yet.*\n\n' +
+        'Set one via `/location <place>`, the share-pin button, or the Cuisine TMA. The 10 most-recent will appear here.',
+        { parse_mode: 'Markdown' });
+      return;
+    }
+    const rows = list.map((e, i) => {
+      const flag = e.country
+        ? (findCountryPref(e.country)?.flag || '🌍')
+        : '📍';
+      const labelDisplay = e.label && e.label.trim()
+        ? e.label.slice(0, 50)
+        : `${Number(e.lat).toFixed(4)}, ${Number(e.lng).toFixed(4)}`;
+      return [{
+        text: `${flag} ${labelDisplay}`,
+        callback_data: `lr:${i}`
+      }];
+    });
+    rows.push([
+      { text: '🗑 Clear all', callback_data: 'lr:clear' },
+      { text: '✖ Close', callback_data: 'lr:close' }
+    ]);
+    await safeSend(chatId,
+      `🕓 *Recent locations* (${list.length}/${10}). Tap to re-anchor.`,
+      { parse_mode: 'Markdown', reply_markup: { inline_keyboard: rows } });
+  } catch (err) {
+    console.warn('[/lrecent] failed:', err.message);
+    await safeSend(chatId, '⚠️ Sorry, could not open recent locations.');
+  }
+});
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
@@ -1972,6 +2021,8 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     const coded = resolveCodedLocation(text);
     if (coded) {
       await setUserLocation(redis, chatId, coded.lat, coded.lng);
+      // v0.61.197 — recent-locations LRU push.
+      addRecentLocation(redis, chatId, { lat: coded.lat, lng: coded.lng, label: coded.label }).catch(() => {});
       console.log(`[/l] resolved coded input "${text}" -> ${coded.label}`);
       await safeSend(chatId, `📍 Location saved: ${coded.label}`, {
         reply_markup: { remove_keyboard: true }
@@ -2010,6 +2061,12 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         return;
       }
       await setUserLocation(redis, chatId, lat, lng);
+      // v0.61.197 — recent-locations LRU push.
+      addRecentLocation(redis, chatId, {
+        lat, lng,
+        label: r.formatted_address,
+        country: 'SG'
+      }).catch(() => {});
       await safeSend(chatId, `📍 Location saved: ${r.formatted_address}`, {
         reply_markup: { remove_keyboard: true }
       });
@@ -2045,6 +2102,13 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
       region: 'OTHER',
       label
     });
+    // v0.61.197 — recent-locations LRU push.
+    addRecentLocation(redis, chatId, {
+      lat, lng,
+      label,
+      country: countryCode,
+      region: 'OTHER'
+    }).catch(() => {});
     await safeSend(chatId,
       `📍 Location saved: ${country?.flag || ''} ${label}${top.formattedAddress && top.formattedAddress !== label ? `\n${top.formattedAddress}` : ''}`,
       { reply_markup: { remove_keyboard: true } }
@@ -2507,6 +2571,67 @@ bot.on('callback_query', async (q) => {
         }
       } catch (err) {
         console.warn('[cp:] callback failed:', err.message);
+      }
+      return;
+    }
+
+    // v0.61.197 — `lr:<idx>` / `lr:clear` / `lr:close` callbacks
+    // from /lrecent. Re-applies the chosen recent location via
+    // setUserLocation (preserves the original anchor metadata —
+    // region/country) and bubbles it to the top of the LRU.
+    if (data.startsWith('lr:')) {
+      const arg = data.slice(3);
+      try {
+        if (arg === 'close') {
+          if (q.message?.message_id) {
+            try { await bot.deleteMessage(chatId, q.message.message_id); } catch { /* non-fatal */ }
+          }
+          return;
+        }
+        if (arg === 'clear') {
+          const { clearRecentLocations } = require('./recent-locations');
+          await clearRecentLocations(redis, chatId);
+          if (q.message?.message_id) {
+            try {
+              await bot.editMessageText('🕓 _Recent locations cleared._',
+                { chat_id: chatId, message_id: q.message.message_id, parse_mode: 'Markdown' });
+            } catch { await safeSend(chatId, '🕓 Recent locations cleared.'); }
+          } else {
+            await safeSend(chatId, '🕓 Recent locations cleared.');
+          }
+          return;
+        }
+        const idx = parseInt(arg, 10);
+        if (!Number.isInteger(idx) || idx < 0) {
+          await safeSend(chatId, '⚠️ Invalid recent-location index.');
+          return;
+        }
+        const list = await listRecentLocations(redis, chatId);
+        const entry = list[idx];
+        if (!entry) {
+          await safeSend(chatId, '⚠️ That recent location is no longer available.');
+          return;
+        }
+        const opts = {};
+        if (entry.region) opts.region = entry.region;
+        if (entry.label) opts.label = entry.label;
+        await setUserLocation(redis, chatId, entry.lat, entry.lng, opts);
+        // Bubble to top of LRU.
+        addRecentLocation(redis, chatId, entry).catch(() => {});
+        const flag = entry.country ? (findCountryPref(entry.country)?.flag || '🌍') : '📍';
+        const label = entry.label && entry.label.trim()
+          ? entry.label
+          : `${Number(entry.lat).toFixed(4)}, ${Number(entry.lng).toFixed(4)}`;
+        if (q.message?.message_id) {
+          try {
+            await bot.editMessageText(`✅ *Anchor set:* ${flag} ${label}`,
+              { chat_id: chatId, message_id: q.message.message_id, parse_mode: 'Markdown' });
+          } catch { await safeSend(chatId, `✅ Anchor set: ${flag} ${label}`); }
+        } else {
+          await safeSend(chatId, `✅ Anchor set: ${flag} ${label}`);
+        }
+      } catch (err) {
+        console.warn('[lr:] callback failed:', err.message);
       }
       return;
     }
@@ -11732,6 +11857,10 @@ async function cacheBotUsername() {
           && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
         if (!valid) return res.status(400).json({ error: 'invalid lat/lng' });
         await setUserLocation(redis, String(userId), lat, lng);
+        // v0.61.197 — recent-locations LRU. The TMA POSTs only lat/lng
+        // (no label); we record an empty label which the chat /lrecent
+        // surface renders as "<lat>, <lng>" so the row is still tappable.
+        addRecentLocation(redis, String(userId), { lat, lng, label: '' }).catch(() => {});
         console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)}`);
         res.json({ ok: true });
       } catch (err) {
