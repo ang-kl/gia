@@ -165,6 +165,11 @@ export default function App() {
   // /cuisine command can deep-link the recipient back to the same
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
+  // v0.61.205 — track the server-cached anchor's precinctId so the
+  // OTHER region pill can show the Putrajaya flag PNG specifically
+  // for the IOI Resort City anchor (other OTHER anchors — KL,
+  // Bangkok, etc. — keep the generic 🌏 globe).
+  const [anchorPrecinctId, setAnchorPrecinctId] = useState(null);
   // v0.60.126 — the free-text "Tell me" box value, lifted out of
   // TellMePanel so the Search-criteria 🔍 search passes it to the
   // server as a `freeText` qualifier (it was being silently dropped —
@@ -453,6 +458,10 @@ export default function App() {
             setState((s) => (s.region === 'OTHER' ? s : { ...s, region: 'OTHER' }));
             console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → OTHER (anchor region=' + r.region + ')');
           }
+          // v0.61.205 — track anchor precinctId so the OTHER pill can
+          // show the Putrajaya flag PNG when the anchor is IOI Resort
+          // City (other OTHER anchors stay on 🌏).
+          if (r.precinctId) setAnchorPrecinctId(r.precinctId);
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }
@@ -562,6 +571,8 @@ export default function App() {
         try {
           const r = await fetchUserLocation();
           if (r?.region) applyRegionFromAnchor(r.region);
+          // v0.61.205 — track precinctId for the OTHER pill flag swap.
+          if (r?.precinctId) setAnchorPrecinctId(r.precinctId);
         } catch { /* non-fatal */ }
       }
     })();
@@ -609,7 +620,10 @@ export default function App() {
         } else if (r.region === 'SG') {
           setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
         }
-        console.log('[Cuisine-TMA-v2] visibility-refresh: region=' + r.region);
+        // v0.61.205 — keep precinctId in sync with the server cache
+        // so the OTHER pill's flag swaps to Putrajaya when relevant.
+        setAnchorPrecinctId(r.precinctId || null);
+        console.log('[Cuisine-TMA-v2] visibility-refresh: region=' + r.region + ' precinctId=' + (r.precinctId || '<none>'));
       } catch { /* defensive: network blip shouldn't crash the listener */ }
     }
     if (typeof document !== 'undefined') {
@@ -1259,7 +1273,10 @@ export default function App() {
             v0.61.204: JB asset renamed `johor-flag.png` → `MY_Johor_flag.png`
             per operator's new naming (clearer ISO-like prefix); old path
             kept on the public/ folder for backward-compat with pre-v0.61.204
-            cached bundles. */}
+            cached bundles.
+            v0.61.205: OTHER pill flag is now dynamic — `MY_Putrajaya_flag.png`
+            when the server-cached anchor is IOI Resort City Putrajaya, else
+            falls back to the 🌏 globe. */}
         <div className="flex gap-1.5">
           {[
             { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
@@ -1268,7 +1285,14 @@ export default function App() {
             // Putrajaya, KL, Penang, Batam, etc.). 🌏 chosen as a
             // region-neutral globe — JB already has the Johor flag,
             // Putrajaya / KL / etc. have no single flag that fits.
-            { id: 'OTHER', flag: '🌏', label: t('region.others', lang) }
+            // v0.61.205 — when the active OTHER anchor IS the IOI
+            // Resort City Putrajaya precinct, the pill picks up the
+            // Putrajaya state flag PNG instead of the globe.
+            {
+              id: 'OTHER',
+              flag: anchorPrecinctId === 'ioi-resort-putrajaya' ? 'MY_Putrajaya_flag.png' : '🌏',
+              label: t('region.others', lang)
+            }
           ].map((r) => {
             const sel = (state.region || 'SG') === r.id;
             return (
