@@ -2866,6 +2866,43 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.213 — place-search variance test menu, owner-gated.
+    // Dispatch:
+    //   psv:menu              — show latest summary + Run options
+    //   psv:run-<smoke|my|full>  — confirm prompt (single tap)
+    //   psv:go-<smoke|my|full>   — actually fire the run
+    //   psv:close              — delete the menu message
+    if (data.startsWith('psv:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[psv:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      try {
+        if (data === 'psv:menu') {
+          await ownerPlaceSearchVarianceMenu(chatId, messageId);
+          return;
+        }
+        if (data === 'psv:close') {
+          try { await bot.deleteMessage(chatId, messageId); } catch { /* ignore */ }
+          return;
+        }
+        if (data.startsWith('psv:run-')) {
+          const mode = data.slice('psv:run-'.length);
+          await ownerPlaceSearchVarianceConfirm(chatId, messageId, mode);
+          return;
+        }
+        if (data.startsWith('psv:go-')) {
+          const mode = data.slice('psv:go-'.length);
+          await ownerPlaceSearchVarianceRun(chatId, mode);
+          return;
+        }
+      } catch (err) {
+        console.error('[Error] /psv callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that variance-test action hit an error.');
+      }
+      return;
+    }
+
     // v0.61.171 — chat free-text "Search 🔍 for more" + "↺ Start
     // over" callbacks. The hash points at the stored query text in
     // Redis; on `ft:more:<hash>` we just re-run runFreeTextSearch
@@ -3955,6 +3992,154 @@ async function ownerCuisineVenueDetails(chatId) {
   }
 }
 
+// v0.61.213 — Place-Search Variance test menu, owner-gated.
+// Three run modes (cost shown so the operator never accidentally
+// triggers $85 by mistapping):
+//   smoke   50 rows  ~$2.50  ~30 s
+//   my      500 rows ~$25     ~3 min
+//   full    1700     ~$85     ~10 min
+// All three require a confirm tap. Latest result summary is cached
+// in Redis under psv:latest (60 d TTL).
+const PSV_MODE_LABEL = {
+  smoke: { name: 'Smoke (50)',  cost: '~$2.50', tests: 50,   limit: 50,   country: null, eta: '~30 s' },
+  my:    { name: 'MY only',     cost: '~$25',   tests: 500,  limit: null, country: 'MY', eta: '~3 min' },
+  full:  { name: 'Full sweep',  cost: '~$85',   tests: 1700, limit: null, country: null, eta: '~10 min' }
+};
+
+async function ownerPlaceSearchVarianceMenu(chatId, messageId = null) {
+  const psv = require('./place-search-variance');
+  const latest = await psv.loadFromRedis(redis).catch(() => null);
+  const lines = [`🧪 <b>Place-Search Variance Test</b>  ·  <i>v${pkgJson.version}</i>`];
+  if (!latest) {
+    lines.push('', '<i>No data yet. Tap a Run option below to fire the first sweep.</i>');
+  } else {
+    const ts = latest.ts ? new Date(latest.ts) : null;
+    const tsStr = ts && !Number.isNaN(ts.getTime())
+      ? `${ts.getUTCFullYear()}-${String(ts.getUTCMonth() + 1).padStart(2, '0')}-${String(ts.getUTCDate()).padStart(2, '0')} ${String(ts.getUTCHours()).padStart(2, '0')}:${String(ts.getUTCMinutes()).padStart(2, '0')} UTC`
+      : 'unknown';
+    const s = latest.summary || {};
+    const pct = (n, d) => d === 0 ? '—' : `${((n / d) * 100).toFixed(1)}%`;
+    lines.push('', `<b>Last run:</b> ${tsStr}  ·  <b>n=${s.total ?? '?'}</b>  ·  <b>${(latest.durationMs / 1000).toFixed(1)} s</b>`);
+    lines.push(`<b>Top-1 hit:</b> ${s.top1Hits ?? 0} (${pct(s.top1Hits ?? 0, s.total ?? 0)})  ·  <b>Top-6 hit:</b> ${s.top6Hits ?? 0} (${pct(s.top6Hits ?? 0, s.total ?? 0)})`);
+    if (s.byVariant) {
+      lines.push('<b>By variant:</b>');
+      for (const [k, v] of Object.entries(s.byVariant)) {
+        lines.push(`  <code>${String(k).padEnd(14)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`);
+      }
+    }
+    if (s.byCountry) {
+      lines.push('<b>By country:</b>');
+      for (const [k, v] of Object.entries(s.byCountry)) {
+        lines.push(`  <code>${k.padEnd(4)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`);
+      }
+    }
+  }
+  const rows = [
+    [{ text: `🧪 ${PSV_MODE_LABEL.smoke.name} (${PSV_MODE_LABEL.smoke.cost})`, callback_data: 'psv:run-smoke' }],
+    [{ text: `🇲🇾 ${PSV_MODE_LABEL.my.name} (${PSV_MODE_LABEL.my.cost})`,       callback_data: 'psv:run-my' }],
+    [{ text: `🌏 ${PSV_MODE_LABEL.full.name} (${PSV_MODE_LABEL.full.cost})`,   callback_data: 'psv:run-full' }],
+    [{ text: '✕ Close', callback_data: 'psv:close' }]
+  ];
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
+  if (messageId) {
+    try { await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through to fresh send */ }
+  }
+  await bot.sendMessage(chatId, lines.join('\n'), payload);
+}
+
+async function ownerPlaceSearchVarianceConfirm(chatId, messageId, mode) {
+  const cfg = PSV_MODE_LABEL[mode];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${mode}`);
+    return;
+  }
+  const lines = [
+    `⚠️ <b>Confirm: ${cfg.name}</b>`,
+    '',
+    `<b>Tests:</b> ${cfg.tests}  ·  <b>Cost:</b> ${cfg.cost}  ·  <b>ETA:</b> ${cfg.eta}`,
+    '',
+    `<i>This spends real Places + Geocoding budget on the prod GOOGLE_MAPS_API_KEY. Tap "Run now" to proceed, or "Cancel" to back out.</i>`
+  ];
+  const rows = [
+    [{ text: `▶️ Run ${cfg.name} now`, callback_data: `psv:go-${mode}` }],
+    [{ text: '↩ Cancel', callback_data: 'psv:menu' }]
+  ];
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
+  if (messageId) {
+    try { await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through */ }
+  }
+  await bot.sendMessage(chatId, lines.join('\n'), payload);
+}
+
+async function ownerPlaceSearchVarianceRun(chatId, mode) {
+  const psv = require('./place-search-variance');
+  const cfg = PSV_MODE_LABEL[mode];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${mode}`);
+    return;
+  }
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    await safeSend(chatId, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run.');
+    return;
+  }
+  await safeSend(chatId,
+    `⏳ <b>${cfg.name}</b> starting — ${cfg.tests} tests, ETA ${cfg.eta}. ` +
+    `I'll post the summary when it's done.`,
+    { parse_mode: 'HTML' });
+  let lastProgressAt = Date.now();
+  const onProgress = async ({ done, total, top1So }) => {
+    // Throttle: progress ping every ~30 s.
+    if (Date.now() - lastProgressAt < 30000) return;
+    lastProgressAt = Date.now();
+    const pct = ((done / total) * 100).toFixed(0);
+    const hitPct = ((top1So / done) * 100).toFixed(1);
+    await safeSend(chatId,
+      `🧪 ${done}/${total} (${pct}%)  ·  top-1 ${hitPct}% so far`).catch(() => {});
+  };
+  let result;
+  try {
+    result = await psv.runVarianceTest({
+      limit: cfg.limit,
+      country: cfg.country,
+      apiKey,
+      onProgress
+    });
+  } catch (err) {
+    await safeSend(chatId, `❌ Variance test failed: ${String(err && err.message || err).slice(0, 300)}`);
+    return;
+  }
+  const persisted = await psv.persistToRedis(redis, result).catch(() => false);
+  // Build summary message.
+  const s = result.summary;
+  const pct = (n, d) => d === 0 ? '—' : `${((n / d) * 100).toFixed(1)}%`;
+  const summary = [
+    `✅ <b>${cfg.name} complete.</b>`,
+    `<b>n=${s.total}</b>  ·  <b>${(result.durationMs / 1000).toFixed(1)} s</b>`,
+    `<b>Top-1 hit:</b> ${s.top1Hits} (${pct(s.top1Hits, s.total)})  ·  <b>Top-6 hit:</b> ${s.top6Hits} (${pct(s.top6Hits, s.total)})`,
+    s.placesFails + s.geocodeFails > 0
+      ? `<b>API fails:</b> Places ${s.placesFails}  ·  Geocoding ${s.geocodeFails}  ·  Both empty: ${s.bothEmpty}`
+      : `<b>Both empty:</b> ${s.bothEmpty}`,
+    '',
+    `<b>By variant:</b>`,
+    ...Object.entries(s.byVariant).map(([k, v]) =>
+      `  <code>${String(k).padEnd(14)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`),
+    '',
+    `<b>By country:</b>`,
+    ...Object.entries(s.byCountry).map(([k, v]) =>
+      `  <code>${k.padEnd(4)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`),
+    '',
+    `<b>By city:</b>`,
+    ...Object.entries(s.byCity).map(([k, v]) =>
+      `  <code>${k.padEnd(22)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`),
+    '',
+    persisted ? `<i>Stored in Redis (psv:latest, TTL 60 d).</i>` : `<i>⚠️ Redis persist failed.</i>`
+  ].join('\n');
+  await bot.sendMessage(chatId, summary, { parse_mode: 'HTML' }).catch(() => {});
+}
+
 async function setVerboseMode(chatId, action) {
   const verbose = require('./verbose-log');
   if (action === 'on') {
@@ -4001,7 +4186,11 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
         [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }],
         // v0.61.177 — cuisine-venue-counts sub-menu (48-cuisine
         // Places sweep, separate from Periodical's 14-item set).
-        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }]
+        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }],
+        // v0.61.213 — place-search variance test sub-menu (340
+        // venues × 5 typing variants = 1700-row stress test, run
+        // on operator demand against the prod Maps API key).
+        [{ text: '🧪 Place-search variance', callback_data: 'psv:menu' }]
       ] }
     }).catch(() => { /* the choices keyboard is best-effort */ });
   } catch (err) {
@@ -4065,7 +4254,11 @@ bot.onText(/^\/v(?:@\w+)?$/, async (msg) => {
         [{ text: '📊 Periodical (counts)', callback_data: 'per:menu' }],
         // v0.61.177 — cuisine-venue-counts sub-menu (48-cuisine
         // Places sweep, separate from Periodical's 14-item set).
-        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }]
+        [{ text: '🍽 Cuisine venues (48)', callback_data: 'cv:menu' }],
+        // v0.61.213 — place-search variance test sub-menu (340
+        // venues × 5 typing variants = 1700-row stress test, run
+        // on operator demand against the prod Maps API key).
+        [{ text: '🧪 Place-search variance', callback_data: 'psv:menu' }]
       ] }
     });
   } catch (err) {
