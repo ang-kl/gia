@@ -1,8 +1,8 @@
 counters:
-  commit: 416
-  build: 206
+  commit: 417
+  build: 207
   documents:
-    journal: 404
+    journal: 405
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,55 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 44
-last_anchor_time: 28-05 '26 10:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_202 (PR #704 v0.61.202 merged 28-05 '26 09:46 SGT; v0.61.203 TMA region auto-flip fix built on v0.61.202 at 28-05 '26 10:00 SGT)
-last_anchor_iso8601: 2026-05-28T10:00:00+08:00
-last_anchor_utc: 2026-05-28T02:00:00Z
+  current_chat_counter: 45
+last_anchor_time: 28-05 '26 10:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_203 (PR #705 v0.61.203 merged 28-05 '26 10:01 SGT; v0.61.204 Johor + Putrajaya state flags built on v0.61.203 at 28-05 '26 10:15 SGT)
+last_anchor_iso8601: 2026-05-28T10:15:00+08:00
+last_anchor_utc: 2026-05-28T02:15:00Z
+# v0.61.204 (commit 417 / journal 405 / build 207) — operator
+# provided two state-flag assets to use for Johor Bahru and IOI
+# Resort City Putrajaya:
+#   data/IMG_1854.png                     → rename MY_Johor_flag.png
+#   web/cuisine/public/putrajaya-flag.svg → rename MY_Putrajaya_flag.svg
+#
+# Telegram limitation honest-note: inline_keyboard buttons
+# support text + emoji only — they can't render custom PNG/SVG.
+# A draft of this PR sent the Johor flag as a chat photo for the
+# locpick:jb confirmation, but the operator immediately pushed
+# back: "this state flag is very long" — the 1:2 Johor flag
+# rendered too tall in chat. Scope rolled back: TMA gets the new
+# image asset (small 18×12 region pill); chat sticks to plain-
+# text confirmation with the standard 🇲🇾 emoji on buttons. The
+# Putrajaya SVG ships but isn't yet wired to any UI surface
+# (future PR can add it to a sub-precinct OTHER pill or similar).
+#
+# Branch claude/v0.61.204-johor-putrajaya-state-flags off main
+# at v0.61.203. Files (5):
+# - NEW data/MY_Johor_flag.png (copy of operator's IMG_1854.png).
+# - NEW web/cuisine/public/MY_Johor_flag.png (Vite static — TMA).
+# - NEW public/cuisine/MY_Johor_flag.png (manual mirror of Vite
+#   build output so the runtime serves it before next build).
+# - NEW web/cuisine/public/MY_Putrajaya_flag.svg (renamed from
+#   putrajaya-flag.svg — original kept for backward-compat).
+# - NEW public/cuisine/MY_Putrajaya_flag.svg (Vite build mirror).
+# - web/cuisine/src/v2/App.jsx: region toggle JB pill flag path
+#   `johor-flag.png` → `MY_Johor_flag.png`. Image renderer
+#   broadened to accept both .png and .svg ends (in case a future
+#   pill uses the Putrajaya SVG). Old `johor-flag.png` kept on
+#   disk to avoid breaking pre-v0.61.204 cached bundles.
+# - index.js locpick: callback path: unchanged from v0.61.203
+#   (a draft sendPhoto branch was removed per operator feedback
+#   that the 1:2 Johor flag rendered too tall in chat). Plain-
+#   text "Location saved: …" reply stays for ALL precincts.
+# - package.json: 0.61.203 -> 0.61.204.
+# - doc/.serial-state.yml: commit 416->417, build 206->207,
+#   journal 404->405; re-anchored 28-05 '26 10:15 SGT.
+# - doc/Journal/journal-0_61_204-28_05_28-1015.md: this entry.
+#
+# Verification: node --check on index.js clean. Cuisine TMA
+# build pending (Vite copies the new public/ assets into the
+# dist; CI confirms).
+#
 # v0.61.203 (commit 416 / journal 404 / build 206) — repeated
 # operator complaint: "set location as IOI Resort City → launch
 # Cuisine TMA → pin lands on Putrajaya but pill stays on
