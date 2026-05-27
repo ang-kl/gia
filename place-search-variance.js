@@ -25,11 +25,26 @@ function loadVenues() {
   return Array.isArray(raw?.venues) ? raw.venues : [];
 }
 
-function buildTestSet({ limit, country } = {}) {
+// v0.61.216 — buildTestSet now accepts `cities` (an array of
+// lowercase city-name fragments matched as case-insensitive
+// prefixes of `venue.city`) alongside the existing `country` filter.
+// `cities` and `country` are AND-combined (e.g. country='JP' +
+// cities=['osaka'] matches only Osaka venues). Pass cities as a
+// list so `/training 500 Bali Jakarta` resolves to a single
+// filter call.
+function buildTestSet({ limit, country, cities } = {}) {
   const venues = loadVenues();
+  const normCities = Array.isArray(cities) && cities.length
+    ? cities.map((c) => String(c).toLowerCase().trim()).filter(Boolean)
+    : null;
   const tests = [];
   for (const v of venues) {
     if (country && v.country !== country) continue;
+    if (normCities) {
+      const cityLower = String(v.city || '').toLowerCase();
+      const matched = normCities.some((nc) => cityLower.includes(nc) || cityLower.startsWith(nc));
+      if (!matched) continue;
+    }
     for (const x of generateVariants(v)) {
       tests.push({
         venueId: v.id,
@@ -42,6 +57,58 @@ function buildTestSet({ limit, country } = {}) {
     }
   }
   return limit ? tests.slice(0, limit) : tests;
+}
+
+// v0.61.216 — anchor → curated city. Given the user's cached
+// anchor (lat/lng), find the venues' city with the smallest
+// haversine distance to any of its venues. Used by the "Smoke
+// (current location)" button. Returns null when no anchor
+// available or no venue has coords (none do in v0.61.212 — the
+// curated venues.json has no lat/lng yet so this helper returns
+// the country's first city by default).
+function _haversineKm(a, b) {
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const x = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+// City-centroid table — coarse but sufficient to pick the right
+// city for a "Smoke (current location)" run. Coords are city
+// centres of the 14 cities we curate venues for.
+const CITY_CENTROIDS = Object.freeze({
+  'Kuala Lumpur': { lat: 3.139, lng: 101.687 },
+  'Putrajaya':    { lat: 2.926, lng: 101.696 },
+  'Penang':       { lat: 5.414, lng: 100.329 },
+  'Melaka':       { lat: 2.196, lng: 102.247 },
+  'Johor Bahru':  { lat: 1.493, lng: 103.741 },
+  'Petaling Jaya':{ lat: 3.107, lng: 101.607 },
+  'Shah Alam':    { lat: 3.073, lng: 101.518 },
+  'Kajang':       { lat: 2.993, lng: 101.787 },
+  'Klang':        { lat: 3.044, lng: 101.445 },
+  'Subang Jaya':  { lat: 3.044, lng: 101.580 },
+  'Tokyo':        { lat: 35.681, lng: 139.767 },
+  'Osaka':        { lat: 34.694, lng: 135.502 },
+  'Seoul':        { lat: 37.566, lng: 126.978 },
+  'Busan':        { lat: 35.180, lng: 129.075 },
+  'Jakarta':      { lat: -6.208, lng: 106.846 },
+  'Bali':         { lat: -8.339, lng: 115.092 },
+  'Bangkok':      { lat: 13.756, lng: 100.501 },
+  'Phuket':       { lat: 7.880, lng: 98.398 },
+  'Chiang Mai':   { lat: 18.788, lng: 98.985 }
+});
+
+function nearestCityForAnchor(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  let best = null;
+  for (const [city, c] of Object.entries(CITY_CENTROIDS)) {
+    const d = _haversineKm({ lat, lng }, c);
+    if (!best || d < best.distanceKm) best = { city, distanceKm: d };
+  }
+  return best;
 }
 
 async function fetchPlaces(apiKey, query, cc) {
@@ -259,9 +326,9 @@ function summarise(results) {
   };
 }
 
-async function runVarianceTest({ limit, country, apiKey, onProgress } = {}) {
+async function runVarianceTest({ limit, country, cities, apiKey, onProgress } = {}) {
   if (!apiKey) throw new Error('apiKey is required');
-  const tests = buildTestSet({ limit, country });
+  const tests = buildTestSet({ limit, country, cities });
   if (tests.length === 0) return { summary: summarise([]), results: [], durationMs: 0, total: 0 };
   const startedAt = Date.now();
   const results = [];
@@ -282,6 +349,7 @@ async function runVarianceTest({ limit, country, apiKey, onProgress } = {}) {
     durationMs,
     total: results.length,
     countryFilter: country || null,
+    cityFilter: Array.isArray(cities) && cities.length ? cities.slice() : null,
     limit: limit || null,
     startedAt
   };
@@ -297,6 +365,7 @@ async function persistToRedis(redis, payload) {
       total: payload.total,
       durationMs: payload.durationMs,
       countryFilter: payload.countryFilter,
+      cityFilter: payload.cityFilter || null,
       limit: payload.limit
     }));
     return true;
@@ -320,9 +389,11 @@ async function loadFromRedis(redis) {
 module.exports = {
   REDIS_KEY,
   REDIS_TTL_S,
+  CITY_CENTROIDS,
   loadVenues,
   buildTestSet,
   runVarianceTest,
   persistToRedis,
-  loadFromRedis
+  loadFromRedis,
+  nearestCityForAnchor
 };

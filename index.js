@@ -4010,9 +4010,16 @@ async function ownerCuisineVenueDetails(chatId) {
 // All three require a confirm tap. Latest result summary is cached
 // in Redis under psv:latest (60 d TTL).
 const PSV_MODE_LABEL = {
-  smoke: { name: 'Smoke (50)',  cost: '~$2.50', tests: 50,   limit: 50,   country: null, eta: '~30 s' },
-  my:    { name: 'MY only',     cost: '~$25',   tests: 500,  limit: null, country: 'MY', eta: '~3 min' },
-  full:  { name: 'Full sweep',  cost: '~$85',   tests: 1700, limit: null, country: null, eta: '~10 min' }
+  smoke:   { name: 'Smoke (50)',           cost: '~$2.50', tests: 50,   limit: 50,   country: null, cities: null, eta: '~30 s' },
+  current: { name: 'Smoke (current city)', cost: '~$5',    tests: 100,  limit: 100,  country: null, cities: null, dynamic: 'current', eta: '~30 s' },
+  // v0.61.216 — city-preset buttons. Costs computed from venue count
+  // × 5 variants × $0.05/test.
+  johor:   { name: 'Johor',                cost: '~$5',    tests: 100,  limit: null, country: 'MY', cities: ['johor'], eta: '~30 s' },
+  kl6:     { name: 'KL + 6 cities',        cost: '~$23',   tests: 450,  limit: null, country: 'MY', cities: ['kuala lumpur', 'putrajaya', 'petaling jaya', 'shah alam', 'kajang', 'klang', 'subang jaya'], eta: '~3 min' },
+  penang:  { name: 'Penang',               cost: '~$5',    tests: 100,  limit: null, country: 'MY', cities: ['penang'], eta: '~30 s' },
+  bangkok: { name: 'Bangkok',              cost: '~$5',    tests: 100,  limit: null, country: 'TH', cities: ['bangkok'], eta: '~30 s' },
+  my:      { name: 'MY only',              cost: '~$25',   tests: 500,  limit: null, country: 'MY', cities: null, eta: '~3 min' },
+  full:    { name: 'Full sweep',           cost: '~$98',   tests: 1950, limit: null, country: null, cities: null, eta: '~10 min' }
 };
 
 async function ownerPlaceSearchVarianceMenu(chatId, messageId = null) {
@@ -4043,12 +4050,20 @@ async function ownerPlaceSearchVarianceMenu(chatId, messageId = null) {
       }
     }
   }
+  // v0.61.216 — extended menu with city-preset rows + current-
+  // location smoke + /training command hint.
   const rows = [
-    [{ text: `🧪 ${PSV_MODE_LABEL.smoke.name} (${PSV_MODE_LABEL.smoke.cost})`, callback_data: 'psv:run-smoke' }],
-    [{ text: `🇲🇾 ${PSV_MODE_LABEL.my.name} (${PSV_MODE_LABEL.my.cost})`,       callback_data: 'psv:run-my' }],
-    [{ text: `🌏 ${PSV_MODE_LABEL.full.name} (${PSV_MODE_LABEL.full.cost})`,   callback_data: 'psv:run-full' }],
+    [{ text: `🧪 ${PSV_MODE_LABEL.smoke.name}  (${PSV_MODE_LABEL.smoke.cost})`, callback_data: 'psv:run-smoke' }],
+    [{ text: `📍 ${PSV_MODE_LABEL.current.name}  (${PSV_MODE_LABEL.current.cost})`, callback_data: 'psv:run-current' }],
+    [{ text: `🇲🇾 ${PSV_MODE_LABEL.johor.name}  (${PSV_MODE_LABEL.johor.cost})`, callback_data: 'psv:run-johor' }],
+    [{ text: `🇲🇾 ${PSV_MODE_LABEL.kl6.name}  (${PSV_MODE_LABEL.kl6.cost})`, callback_data: 'psv:run-kl6' }],
+    [{ text: `🇲🇾 ${PSV_MODE_LABEL.penang.name}  (${PSV_MODE_LABEL.penang.cost})`, callback_data: 'psv:run-penang' }],
+    [{ text: `🇹🇭 ${PSV_MODE_LABEL.bangkok.name}  (${PSV_MODE_LABEL.bangkok.cost})`, callback_data: 'psv:run-bangkok' }],
+    [{ text: `🇲🇾 ${PSV_MODE_LABEL.my.name}  (${PSV_MODE_LABEL.my.cost})`, callback_data: 'psv:run-my' }],
+    [{ text: `🌏 ${PSV_MODE_LABEL.full.name}  (${PSV_MODE_LABEL.full.cost})`, callback_data: 'psv:run-full' }],
     [{ text: '✕ Close', callback_data: 'psv:close' }]
   ];
+  lines.push('', '<i>Or use /training &lt;count&gt; &lt;country|city&gt;… for ad-hoc runs, e.g. <code>/training 500 MY</code>, <code>/training 300 JP Osaka</code>, <code>/training 200 Bali Jakarta</code>.</i>');
   const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: rows } };
   if (messageId) {
     try { await bot.editMessageText(lines.join('\n'), { chat_id: chatId, message_id: messageId, ...payload }); return; }
@@ -4094,8 +4109,34 @@ async function ownerPlaceSearchVarianceRun(chatId, mode) {
     await safeSend(chatId, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run.');
     return;
   }
+  // v0.61.216 — Smoke (current city) mode: read the user's cached
+  // anchor, pick the nearest curated city, run that city's venues.
+  // Falls back to KL when no anchor is cached.
+  let runCities = cfg.cities;
+  let runCountry = cfg.country;
+  let extraNote = '';
+  if (cfg.dynamic === 'current') {
+    try {
+      const cached = await getUserLocation(redis, chatId).catch(() => null);
+      const lat = cached?.lat;
+      const lng = cached?.lng;
+      const near = psv.nearestCityForAnchor(lat, lng);
+      if (near) {
+        runCities = [near.city.toLowerCase()];
+        runCountry = null;
+        extraNote = `<i>Nearest curated city: ${near.city} (~${near.distanceKm.toFixed(0)} km from your cached anchor).</i>\n`;
+      } else {
+        runCities = ['kuala lumpur'];
+        runCountry = 'MY';
+        extraNote = `<i>No cached anchor — defaulting to Kuala Lumpur.</i>\n`;
+      }
+    } catch {
+      runCities = ['kuala lumpur'];
+      runCountry = 'MY';
+    }
+  }
   await safeSend(chatId,
-    `⏳ <b>${cfg.name}</b> starting — ${cfg.tests} tests, ETA ${cfg.eta}. ` +
+    `${extraNote}⏳ <b>${cfg.name}</b> starting — ~${cfg.tests} tests, ETA ${cfg.eta}. ` +
     `I'll post the summary when it's done.`,
     { parse_mode: 'HTML' });
   let lastProgressAt = Date.now();
@@ -4112,7 +4153,8 @@ async function ownerPlaceSearchVarianceRun(chatId, mode) {
   try {
     result = await psv.runVarianceTest({
       limit: cfg.limit,
-      country: cfg.country,
+      country: runCountry,
+      cities: runCities,
       apiKey,
       onProgress
     });
@@ -4177,6 +4219,121 @@ async function setVerboseMode(chatId, action) {
     : '';
   await safeSend(chatId, `🔍 Verbose mode is currently *${s.on ? 'ON' : 'OFF'}*${remaining}. Use \`/log on\` or \`/log off\` to toggle.`);
 }
+
+// v0.61.216 — /training <count> <arg1> [arg2] …
+// Owner-gated ad-hoc variance-test trigger. Args are tokens; each
+// matches either a 2-letter ISO country code (MY/JP/KR/ID/TH) or a
+// case-insensitive city prefix from the curated venues. Examples:
+//   /training 500 MY                — 500 tests across MY venues
+//   /training 300 JP Osaka          — JP venues whose city contains "osaka"
+//   /training 200 Bali Jakarta      — venues in Bali OR Jakarta
+//   /training 100 KL Putrajaya Penang — three MY cities
+bot.onText(/^\/training(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/training] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
+  const argStr = (match?.[1] || '').trim();
+  if (!argStr) {
+    await safeSend(msg.chat.id,
+      '<b>Usage:</b> <code>/training &lt;count&gt; &lt;country|city&gt;…</code>\n\n' +
+      'Examples:\n' +
+      '<code>/training 500 MY</code> — 500 MY tests\n' +
+      '<code>/training 300 JP Osaka</code> — Osaka-only\n' +
+      '<code>/training 200 Bali Jakarta</code> — both cities\n' +
+      '<code>/training 100 KL Putrajaya</code> — two MY cities\n\n' +
+      '<i>Countries: MY JP KR ID TH. Cities: case-insensitive prefix match.</i>',
+      { parse_mode: 'HTML' });
+    return;
+  }
+  const tokens = argStr.split(/\s+/).filter(Boolean);
+  const count = parseInt(tokens[0], 10);
+  if (!Number.isFinite(count) || count < 1 || count > 2000) {
+    await safeSend(msg.chat.id, '⚠️ First arg must be a number 1-2000 (test count cap).');
+    return;
+  }
+  const ISO = new Set(['MY', 'JP', 'KR', 'ID', 'TH']);
+  const countries = new Set();
+  const cities = [];
+  for (const t of tokens.slice(1)) {
+    const upper = t.toUpperCase();
+    if (ISO.has(upper)) countries.add(upper);
+    else cities.push(t);
+  }
+  // Single-country case → run with country filter; multi-country
+  // → drop the country filter and rely on cities only (countries
+  // are implied by city names). Mixed (1 country + cities) is
+  // common (e.g. "JP Osaka") → AND-filter.
+  let country = null;
+  if (countries.size === 1) country = [...countries][0];
+  const psv = require('./place-search-variance');
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    await safeSend(msg.chat.id, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run.');
+    return;
+  }
+  // Preview the test count + estimated cost before firing.
+  const preview = psv.buildTestSet({ limit: count, country, cities: cities.length ? cities : null });
+  const actual = preview.length;
+  const estCost = (actual * 0.05).toFixed(2);
+  if (actual === 0) {
+    await safeSend(msg.chat.id,
+      `⚠️ No venues matched. countries=[${[...countries].join(',')}] cities=[${cities.join(', ')}].\n` +
+      `Curated cities: MY (KL, Putrajaya, Penang, Melaka, Johor Bahru, Petaling Jaya, Shah Alam, Kajang, Klang, Subang Jaya); JP (Tokyo, Osaka); KR (Seoul, Busan); ID (Jakarta, Bali); TH (Bangkok, Phuket, Chiang Mai).`,
+      { parse_mode: 'HTML' });
+    return;
+  }
+  await safeSend(msg.chat.id,
+    `⏳ <b>/training</b> starting — ${actual} tests (cap ${count}), est. <b>$${estCost}</b>. ` +
+    `Filters: ${country ? `country=${country}` : 'any country'}${cities.length ? `, cities=[${cities.join(', ')}]` : ''}. ` +
+    `I'll post the summary when it's done.`,
+    { parse_mode: 'HTML' });
+  let lastProgressAt = Date.now();
+  const onProgress = async ({ done, total, top1So }) => {
+    if (Date.now() - lastProgressAt < 30000) return;
+    lastProgressAt = Date.now();
+    const pct = ((done / total) * 100).toFixed(0);
+    const hitPct = ((top1So / done) * 100).toFixed(1);
+    await safeSend(msg.chat.id, `🧪 ${done}/${total} (${pct}%)  ·  top-1 ${hitPct}% so far`).catch(() => {});
+  };
+  let result;
+  try {
+    result = await psv.runVarianceTest({
+      limit: count,
+      country,
+      cities: cities.length ? cities : null,
+      apiKey,
+      onProgress
+    });
+  } catch (err) {
+    await safeSend(msg.chat.id, `❌ /training failed: ${String(err && err.message || err).slice(0, 300)}`);
+    return;
+  }
+  const persisted = await psv.persistToRedis(redis, result).catch(() => false);
+  const s = result.summary;
+  const pct = (n, d) => d === 0 ? '—' : `${((n / d) * 100).toFixed(1)}%`;
+  const summary = [
+    `✅ <b>/training complete.</b>`,
+    `<b>n=${s.total}</b>  ·  <b>${(result.durationMs / 1000).toFixed(1)} s</b>  ·  filters: ${country || 'any'}${cities.length ? ` + [${cities.join(', ')}]` : ''}`,
+    `<b>Top-1 hit:</b> ${s.top1Hits} (${pct(s.top1Hits, s.total)})  ·  <b>Top-6 hit:</b> ${s.top6Hits} (${pct(s.top6Hits, s.total)})`,
+    s.placesFails + s.geocodeFails > 0
+      ? `<b>API fails:</b> Places ${s.placesFails}  ·  Geocoding ${s.geocodeFails}  ·  Both empty: ${s.bothEmpty}`
+      : `<b>Both empty:</b> ${s.bothEmpty}`,
+    ...(s.topPlacesError ? [`<b>Top Places error:</b> <code>${escapeHtmlForTelegram(s.topPlacesError.key)}</code> (×${s.topPlacesError.n})`] : []),
+    ...(s.topGeocodeError ? [`<b>Top Geocoding error:</b> <code>${escapeHtmlForTelegram(s.topGeocodeError.key)}</code> (×${s.topGeocodeError.n})`] : []),
+    '',
+    `<b>By variant:</b>`,
+    ...Object.entries(s.byVariant).map(([k, v]) =>
+      `  <code>${String(k).padEnd(14)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`),
+    '',
+    `<b>By city:</b>`,
+    ...Object.entries(s.byCity).map(([k, v]) =>
+      `  <code>${k.padEnd(22)}</code>  n=${String(v.n).padStart(4)}  top-1 ${pct(v.top1, v.n).padStart(7)}  top-6 ${pct(v.top6, v.n).padStart(7)}`),
+    '',
+    persisted ? `<i>Stored in Redis (psv:latest, TTL 60 d).</i>` : `<i>⚠️ Redis persist failed.</i>`
+  ].join('\n');
+  await bot.sendMessage(msg.chat.id, summary, { parse_mode: 'HTML' }).catch(() => {});
+});
 
 bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   if (!isOwnerChat(msg.chat.id)) {
