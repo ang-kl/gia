@@ -1,8 +1,8 @@
 counters:
-  commit: 415
-  build: 205
+  commit: 416
+  build: 206
   documents:
-    journal: 403
+    journal: 404
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,74 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 43
-last_anchor_time: 28-05 '26 09:45 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_201 (PR #703 v0.61.201 merged 28-05 '26 09:31 SGT; v0.61.202 grouped quick-pick built on v0.61.201 at 28-05 '26 09:45 SGT)
-last_anchor_iso8601: 2026-05-28T09:45:00+08:00
-last_anchor_utc: 2026-05-28T01:45:00Z
+  current_chat_counter: 44
+last_anchor_time: 28-05 '26 10:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_202 (PR #704 v0.61.202 merged 28-05 '26 09:46 SGT; v0.61.203 TMA region auto-flip fix built on v0.61.202 at 28-05 '26 10:00 SGT)
+last_anchor_iso8601: 2026-05-28T10:00:00+08:00
+last_anchor_utc: 2026-05-28T02:00:00Z
+# v0.61.203 (commit 416 / journal 404 / build 206) — repeated
+# operator complaint: "set location as IOI Resort City → launch
+# Cuisine TMA → pin lands on Putrajaya but pill stays on
+# Singapore → 0 results". Root cause: the TMA App.jsx mount has
+# four ways userLoc can be set (URL hash, Telegram initData,
+# server cache via tryServerCache, navigator.geolocation), but
+# ONLY tryServerCache reads the `region` field. Paths 1/2/4 set
+# userLoc and return early, leaving region defaulting to SG.
+#
+# Operator's case path 1 (URL hash from /cuisine deep-link):
+# the bot's pre-resolved anchor only emitted lat/lng to the
+# hash. TMA mount set userLoc to (2.97, 101.71) (Putrajaya
+# coords) but never asked the server for the region, so the SG
+# pill stayed selected. The cuisine search then ran with
+# region=SG center=Putrajaya → JB/SG search paths returned 0.
+#
+# Belt+braces fix in 4 places:
+# 1. index.js /cuisine handler: forward `region` (when set) to
+#    the deep-link URL hash. Operator's intent now travels in
+#    the deep-link itself.
+# 2. web/cuisine/src/v2/lib/state.js readOverridesFromHash:
+#    accept `region` from the hash (JB / OTHER / MY-PUT / SG).
+#    Legacy MY-PUT normalised to OTHER. Mirrors the location
+#    classifier (v0.61.185) and the auto-flip in App.jsx
+#    tryServerCache.
+# 3. web/cuisine/src/v2/App.jsx mount useEffect: NEW
+#    applyRegionFromAnchor(region) helper. For the URL-hash
+#    path, applies region from the parsed hash. For Telegram-
+#    initData / GPS / centroid paths, follows up with one
+#    fetchUserLocation() call to read the server-cached
+#    region and apply it. Idempotent setState.
+#
+# Defensive contract: regardless of which userLoc source fires,
+# the TMA will end up with region matching the server-cached
+# anchor (the operator's most-recent explicit /location intent).
+# Only path that skips the follow-up read is tryServerCache
+# itself (it already does the read inline).
+#
+# Branch claude/v0.61.203-tma-region-autoflip-fix off main at
+# v0.61.202. Files (4):
+# - index.js (1 edit ~10 lines): /cuisine handler tracks
+#   preResolvedAnchor.region; emits `region=<...>` in the URL
+#   params when non-empty.
+# - web/cuisine/src/v2/lib/state.js (1 edit ~15 lines):
+#   readOverridesFromHash now also reads `region` from the
+#   hash, normalises MY-PUT → OTHER, validates against the
+#   four-value enum.
+# - web/cuisine/src/v2/App.jsx (1 edit ~50 lines): mount
+#   useEffect restructured. NEW applyRegionFromAnchor helper.
+#   Each userLoc source path sets userLocSource ('hash' /
+#   'initData' / 'serverCache' / 'gps' / 'centroid'). After
+#   the resolution chain, all sources except serverCache
+#   trigger one fetchUserLocation() → applyRegionFromAnchor
+#   follow-up. Hash path also applies region from the parsed
+#   hash if present (faster than waiting for server).
+# - package.json: 0.61.202 -> 0.61.203.
+# - doc/.serial-state.yml: commit 415->416, build 205->206,
+#   journal 403->404; re-anchored 28-05 '26 10:00 SGT.
+# - doc/Journal/journal-0_61_203-28_05_28-1000.md: this entry.
+#
+# Verification: 2513/2513 tests pass; cuisine TMA build 4.22 s;
+# node --check on index.js clean.
+#
 # v0.61.202 (commit 415 / journal 403 / build 205) — operator
 # screenshot of the v0.61.200 quick-pick keyboard (17 SG buttons
 # + JB + IOI + Others) showed it overflowing one mobile screen:

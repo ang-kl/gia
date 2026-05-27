@@ -1217,6 +1217,14 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
 
     // Pre-resolve cached location. Fresh ≤30 min wins; stale is treated
     // as "no anchor" so we don't anchor on a 14-hour-old pin.
+    // v0.61.203 — also forward `region` (JB / OTHER / MY-PUT) and the
+    // anchor's radius-cap when present. Operator's repeat bug: setting
+    // /location to IOI Resort City → /cuisine deep-link carried only
+    // lat/lng → TMA mount path 1 (URL hash) set userLoc but left
+    // region defaulting to SG → pill said Singapore on a Putrajaya
+    // anchor → 0 results. v0.61.203 closes the hash hole here AND
+    // adds a defensive server-region read in App.jsx so the TMA
+    // is correct even when the hash is incomplete.
     let preResolvedAnchor = null;
     try {
       const cached = await getUserLocation(redis, msg.chat.id);
@@ -1224,7 +1232,7 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
       const validCoord = cached?.lat && cached?.lng
         && Math.abs(cached.lat) > 0.001 && Math.abs(cached.lng) > 0.001;
       if (validCoord && ageMs <= CUISINE_FRESH_LOC_MS) {
-        preResolvedAnchor = { lat: cached.lat, lng: cached.lng };
+        preResolvedAnchor = { lat: cached.lat, lng: cached.lng, region: cached.region || null };
       }
     } catch (err) {
       console.warn('[/cuisine] getUserLocation failed:', err.message);
@@ -1235,6 +1243,9 @@ bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
     if (preResolvedAnchor && !params.has('lat')) {
       params.set('lat', String(preResolvedAnchor.lat));
       params.set('lng', String(preResolvedAnchor.lng));
+      if (preResolvedAnchor.region && !params.has('region')) {
+        params.set('region', String(preResolvedAnchor.region));
+      }
     }
 
     let url = `https://${webhookDomain}/app/cuisine`;
