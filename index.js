@@ -12972,7 +12972,25 @@ async function cacheBotUsername() {
           // Puteri, …), not only the city named "Johor Bahru". KL +
           // Selangor + Pahang addresses don't mention "Johor" so the
           // word-boundary filter still keeps non-Johor MY venues out.
-          venues = venues.filter((v) => /\bjohor\b/i.test(`${v.area || ''} ${v.name || ''}`));
+          // v0.61.198 — operator's log (South Key + Cantonese): the strict
+          // word-boundary filter still drops ~74% of JB candidates because
+          // Places sometimes formats addresses as "Skudai, 81300, Malaysia"
+          // or "Iskandar Puteri, 79100" with no "Johor" word. Hybrid
+          // matches the SG branch below: accept "Johor" text OR within
+          // 60 km of a JB centroid AND NOT explicitly Singapore-tagged.
+          // 60 km covers Pontian / Kulai / Desaru without leaking into KL.
+          const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
+          const beforeJb = venues.length;
+          venues = venues.filter((v) => {
+            const text = `${v.area || ''} ${v.name || ''}`;
+            if (/\bjohor\b/i.test(text)) return true;
+            if (/singapore/i.test(text)) return false;
+            const distFromJB = haversine(JB_CENTROID, v);
+            return Number.isFinite(distFromJB) && distFromJB <= 60000;
+          });
+          if (venues.length !== beforeJb) {
+            console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
+          }
         } else {
           // SG only: post-filter by Singapore mention OR proximity
           // (some hawker centres' formattedAddress lacks "Singapore").
@@ -13088,8 +13106,32 @@ async function cacheBotUsername() {
         // searches (Fruits / Durian / Durian-Pastry) which have their
         // own v0.61.129 widening pass. Anchor cap (Putrajaya 15 km,
         // JB 30 km) limits the ladder.
+        // v0.61.198 — operator's South Key / Cantonese log: nearby-
+        // widen capped the pool to 9 (6 km tier) of 14 surviving
+        // candidates; pagination then hit zero because the next slice
+        // tried to read past the truncated pool. Fix: only narrow
+        // ladders on the FIRST batch (operator's intent). Subsequent
+        // 🔍 taps serve the full anchor-capped pool, so the user can
+        // page through to venues further from the anchor without
+        // hitting a hard zero. seen.size === 0 is the first-batch
+        // signal; we need it BEFORE the widen now, so the seen read
+        // moves up here.
+        let dedupHash = cuisineSearchHash || '';
+        let seen = new Set();
         try {
-          if (!skipCacheForShuffle && !specialMode) {
+          if (!dedupHash) {
+            dedupHash = computeCriteriaHash({
+              cuisines, filters, prices: req.body?.prices || [],
+              radius: searchRadius, region, freeText: req.body?.freeText || ''
+            });
+          }
+          seen = await readSeenSet(csChatId, dedupHash);
+        } catch (err) {
+          console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
+        }
+        const isFirstBatchForWiden = (seen.size === 0);
+        try {
+          if (!skipCacheForShuffle && !specialMode && isFirstBatchForWiden) {
             const { widenAndPick } = require('./cuisine-nearby-widen');
             const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
               ? Math.min(anchorCap, searchRadius)
@@ -13097,6 +13139,8 @@ async function cacheBotUsername() {
             const widened = widenAndPick({ venues, cap: widenCap });
             console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${venues.length} to=${widened.venues.length}`);
             venues = widened.venues;
+          } else if (!skipCacheForShuffle && !specialMode) {
+            console.log(`[Cuisine-Search] D790 nearby-widen skipped (followUp tap, seen=${seen.size}); serving full anchor-capped pool=${venues.length}`);
           }
         } catch (err) {
           console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
@@ -13120,19 +13164,10 @@ async function cacheBotUsername() {
         // / AND-combo / no-cuisine paths still get plain dedup).
         // `exhausted` is set only when the LAST variant's pool is also
         // fully seen → client shows the "↺ Start over" terminal note.
-        let dedupHash = cuisineSearchHash || '';
-        let seen = new Set();
-        try {
-          if (!dedupHash) {
-            dedupHash = computeCriteriaHash({
-              cuisines, filters, prices: req.body?.prices || [],
-              radius: searchRadius, region, freeText: req.body?.freeText || ''
-            });
-          }
-          seen = await readSeenSet(csChatId, dedupHash);
-        } catch (err) {
-          console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
-        }
+        // v0.61.198 — `dedupHash` + `seen` were read above this point so
+        // the nearby-widen block could gate on `isFirstBatchForWiden`.
+        // The re-read previously here is removed; the prior values flow
+        // straight through to the slice logic below.
         // v0.60.146 — session-clipboard 80-cap (per-TMA-launch) is the
         // OUTER gate. Reset on /api/cuisine/session/start (called by the
         // TMA on mount); independent of the per-criteria seen-set
