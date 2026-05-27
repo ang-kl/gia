@@ -36,6 +36,19 @@ const {
   clearProcessing,
   touchLastSeen
 } = require('./location-cache');
+// v0.61.195 — chat-side /location country picker. Mirrors the TMA's
+// frozen 16-country OTHER list and adds SG as the 17th option. Used by
+// the `/lcountry` command + the new `cp:<CODE>` callback to set
+// `country-pref:<chatId>` in Redis, which `/location <place>` then
+// reads to route geocoding through the correct country.
+const {
+  ALL_COUNTRIES: COUNTRY_PREF_ALL_COUNTRIES,
+  findCountry: findCountryPref,
+  isValidCountry: isValidCountryPref,
+  buildCountryPickerKeyboard,
+  getUserCountryPref,
+  setUserCountryPref
+} = require('./country-pref');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
 const usageLog = require('./usage-log');
@@ -1845,9 +1858,37 @@ function resolveCodedLocation(text) {
   return null;
 }
 
+// v0.61.195 — /lcountry (alias /lc) opens the 17-country picker.
+// Pure UI sender; the cp:<CODE> callback in callback_query persists
+// the choice and `/location <place>` reads it from Redis.
+bot.onText(/^\/(?:lcountry|lc)(?:@\w+)?$/i, async (msg) => {
+  const chatId = msg.chat.id;
+  try {
+    const current = await getUserCountryPref(redis, chatId);
+    const entry = findCountryPref(current);
+    const nowLine = entry
+      ? `_Current search country:_ ${entry.flag} ${entry.name}\n\n`
+      : '';
+    await safeSend(chatId,
+      `🌍 *Choose a search country.*\n\n${nowLine}` +
+      'Future `/location <place>` lookups will use the chosen country. Singapore-only commands (/cuisine, /hidden, /carpark, /hawker) still work the same; non-SG anchors only affect the cuisine TMA + free-text search.',
+      { parse_mode: 'Markdown', reply_markup: buildCountryPickerKeyboard() }
+    );
+  } catch (err) {
+    console.warn('[/lcountry] failed:', err.message);
+    await safeSend(chatId, '⚠️ Sorry, could not open the country picker.');
+  }
+});
+
 // v0.56.1: /location <free text> — manual override when sharing GPS
 // is awkward (e.g. on desktop). Geocodes the text via Google
 // Geocoding and stores as the user's cached location.
+// v0.61.195 — geocode now branches on the chat-side country pref
+// (`country-pref:<chatId>` Redis key, default SG). SG stays on the
+// existing Geocoding-API path with `components=country:SG`; non-SG
+// routes through the Places (New) `searchText` endpoint with
+// `includedRegionCodes:[<cc>]`, mirroring the TMA OTHER picker so
+// the user gets the same country-pinned resolution from chat.
 bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const rawText = (match?.[1] || '').trim();
   const chatId = msg.chat.id;
@@ -1944,24 +1985,70 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     await safeSend(chatId, "Manual location lookup is offline (GOOGLE_MAPS_API_KEY missing).");
     return;
   }
+  // v0.61.195 — read user country pref (default SG). SG keeps the
+  // legacy Geocoding-API path; non-SG routes through Places searchText
+  // with includedRegionCodes for true country-pinned results.
+  let countryCode = 'SG';
   try {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text + ', Singapore')}&components=country:SG&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-    const { data } = await axios.get(url, { timeout: 5000 });
-    if (data.status !== 'OK' || !data.results?.length) {
-      await safeSend(chatId, `Could not resolve "${text}" to a Singapore location. Try a more specific name (street, MRT, mall, postal).`);
+    countryCode = await getUserCountryPref(redis, chatId);
+  } catch (err) {
+    console.warn('[/l] country pref read failed; defaulting to SG:', err.message);
+  }
+  try {
+    if (countryCode === 'SG') {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text + ', Singapore')}&components=country:SG&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+      const { data } = await axios.get(url, { timeout: 5000 });
+      if (data.status !== 'OK' || !data.results?.length) {
+        await safeSend(chatId, `Could not resolve "${text}" to a Singapore location. Try a more specific name (street, MRT, mall, postal), or change country with /lcountry.`);
+        return;
+      }
+      const r = data.results[0];
+      const lat = r.geometry?.location?.lat;
+      const lng = r.geometry?.location?.lng;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        await safeSend(chatId, "Geocoding result missing coordinates.");
+        return;
+      }
+      await setUserLocation(redis, chatId, lat, lng);
+      await safeSend(chatId, `📍 Location saved: ${r.formatted_address}`, {
+        reply_markup: { remove_keyboard: true }
+      });
       return;
     }
-    const r = data.results[0];
-    const lat = r.geometry?.location?.lat;
-    const lng = r.geometry?.location?.lng;
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      await safeSend(chatId, "Geocoding result missing coordinates.");
+    // Non-SG path — Places (New) searchText, top result wins.
+    const country = findCountryPref(countryCode);
+    const r = await axios.post(
+      'https://places.googleapis.com/v1/places:searchText',
+      { textQuery: text, regionCode: countryCode, includedRegionCodes: [countryCode], pageSize: 5, languageCode: 'en' },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': process.env.GOOGLE_MAPS_API_KEY,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
+        },
+        timeout: 8000
+      }
+    );
+    const places = Array.isArray(r.data?.places) ? r.data.places : [];
+    const top = places.find((p) => Number.isFinite(p?.location?.latitude) && Number.isFinite(p?.location?.longitude));
+    if (!top) {
+      await safeSend(chatId,
+        `Could not resolve "${text}" inside ${country?.flag || ''} ${country?.name || countryCode}. Try a more specific name (street, mall, landmark), or change country with /lcountry.`);
       return;
     }
-    await setUserLocation(redis, chatId, lat, lng);
-    await safeSend(chatId, `📍 Location saved: ${r.formatted_address}`, {
-      reply_markup: { remove_keyboard: true }
+    const lat = top.location.latitude;
+    const lng = top.location.longitude;
+    const label = top.displayName?.text || top.formattedAddress || text;
+    // OTHER region anchor so cuisine TMA + free-text searches know
+    // this is non-SG; no radiusCap (per-precinct caps don't apply here).
+    await setUserLocation(redis, chatId, lat, lng, {
+      region: 'OTHER',
+      label
     });
+    await safeSend(chatId,
+      `📍 Location saved: ${country?.flag || ''} ${label}${top.formattedAddress && top.formattedAddress !== label ? `\n${top.formattedAddress}` : ''}`,
+      { reply_markup: { remove_keyboard: true } }
+    );
   } catch (err) {
     console.error('[Error] /location command failed:', err.message);
     await safeSend(chatId, "Sorry, geocoding hit an error. Try sharing GPS instead.");
@@ -2379,6 +2466,47 @@ bot.on('callback_query', async (q) => {
         }
       } catch (err) {
         console.warn('[Drift] callback failed:', err.message);
+      }
+      return;
+    }
+
+    // v0.61.195 — `cp:<CODE>` / `cp:cancel` callbacks from the
+    // /lcountry picker. Persists the chosen country in Redis so
+    // /location <place> can geocode through the right country.
+    if (data.startsWith('cp:')) {
+      const code = data.slice(3);
+      try {
+        if (code === 'cancel') {
+          if (q.message?.message_id) {
+            try { await bot.deleteMessage(chatId, q.message.message_id); } catch { /* non-fatal */ }
+          }
+          return;
+        }
+        if (!isValidCountryPref(code)) {
+          await safeSend(chatId, '⚠️ Unknown country code.');
+          return;
+        }
+        const ok = await setUserCountryPref(redis, chatId, code);
+        const entry = findCountryPref(code);
+        if (ok && entry) {
+          if (q.message?.message_id) {
+            try {
+              await bot.editMessageText(
+                `✅ *Search country set:* ${entry.flag} ${entry.name}\n\n` +
+                `Now run \`/location <place>\` (e.g. \`/location Times Square\`) and the bot will geocode it inside *${entry.name}*.`,
+                { chat_id: chatId, message_id: q.message.message_id, parse_mode: 'Markdown' }
+              );
+            } catch {
+              await safeSend(chatId, `✅ Search country: ${entry.flag} ${entry.name}`);
+            }
+          } else {
+            await safeSend(chatId, `✅ Search country: ${entry.flag} ${entry.name}`);
+          }
+        } else {
+          await safeSend(chatId, '⚠️ Could not save your country preference (Redis unreachable?).');
+        }
+      } catch (err) {
+        console.warn('[cp:] callback failed:', err.message);
       }
       return;
     }
