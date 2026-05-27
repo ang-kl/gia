@@ -1,8 +1,8 @@
 counters:
-  commit: 424
-  build: 214
+  commit: 425
+  build: 215
   documents:
-    journal: 412
+    journal: 413
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,75 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 52
-last_anchor_time: 28-05 '26 20:20 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_210 (PR #713 v0.61.210 merged 28-05 '26 ~19:30 SGT; v0.61.211 keyboard nav for country dropdown built at 28-05 '26 20:20 SGT)
-last_anchor_iso8601: 2026-05-28T20:20:00+08:00
-last_anchor_utc: 2026-05-28T12:20:00Z
+  current_chat_counter: 53
+last_anchor_time: 28-05 '26 21:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_211 (PR #714 v0.61.211 merged 28-05 '26 ~20:25 SGT; v0.61.212 place-search variance test scaffolding built at 28-05 '26 21:30 SGT)
+last_anchor_iso8601: 2026-05-28T21:30:00+08:00
+last_anchor_utc: 2026-05-28T13:30:00Z
+# v0.61.212 (commit 425 / journal 413 / build 215) — test
+# scaffolding for the place-search-by-country endpoint. Operator
+# (28-05 '26): "do a test of 300 test each of how different
+# people use the google map search in their native language or
+# tourist from singapore or english or french use, through out
+# in different cities of Malaysia, Japan, Korea, Indoneasia,
+# thailand". Refined to 1700 tests (340 curated venues × 5
+# typing variants) per operator's revised country breakdown:
+# MY 100 (5 cities × 20), JP 60 (2 × 30), KR 60 (2 × 30), ID 60
+# (2 × 30), TH 60 (3 × 20).
+#
+# Five typing variants per venue:
+#   1. full         — canonical name as a local types it
+#   2. shortened    — tourist-shortened (Berjaya Times Square → Times Square)
+#   3. native       — native-script for JP/KR/TH (東京駅, 강남역, สยามพารากอน)
+#                     or `<name> <Country>` for MY/ID (Latin only)
+#   4. typo         — deterministic typoize() drops a vowel /
+#                     swaps consonants (Pavilion → Pavlion)
+#   5. descriptive  — vague / "near me" / language-mixed
+#                     ("shopping mall Kuala Lumpur",
+#                      "train station Tokyo")
+#
+# Output: per row, runner records places=N geocode=N merged=N,
+# top-1 hit, top-6 hit (using fuzzy name-token overlap ≥ 50%),
+# top-1's rating + userRatingCount + source. Aggregate summary
+# by variant / country / city.
+#
+# Bar for "good place" per operator's 2026-05-28 spec: top-1 is
+# the intended landmark. Rating + userRatingCount are reported
+# but not gating (the cuisine-search downstream applies the
+# rating ≥ 4.0 + MIN_TOP_RATED = 3 criteria from
+# cuisine-nearby-widen.js).
+#
+# Cost: ~$85 in API spend (~$0.05/test row at 1700 rows). Runner
+# supports --limit (smoke test) and --country (single-country
+# deep dive) flags to cap spend during iteration.
+#
+# This PR ships ONLY the scaffolding. Operator runs `node
+# scripts/place-search-variance/run.mjs` themselves with their
+# GOOGLE_MAPS_API_KEY in env. Output (results-<stamp>.json) is
+# gitignored. Findings + tuning recommendations land in a
+# follow-up PR (v0.61.213+).
+#
+# Branch claude/v0.61.212-place-search-variance-test off main at
+# v0.61.211. Files (5):
+# - NEW scripts/place-search-variance/venues.json (340 entries).
+# - NEW scripts/place-search-variance/typing-variants.js
+#   (~90 lines, exports generateVariants).
+# - NEW scripts/place-search-variance/run.mjs (~250 lines, ESM
+#   runner with Places + Geocoding parallel merge + scoring +
+#   per-variant / per-country / per-city aggregate summary).
+# - NEW scripts/place-search-variance/README.md (usage,
+#   pricing, schema, caveats).
+# - package.json: 0.61.211 -> 0.61.212.
+# - doc/.serial-state.yml: commit 424->425, build 214->215,
+#   journal 412->413; re-anchored 28-05 '26 21:30 SGT.
+# - doc/Journal/journal-0_61_212-28_05_28-2130.md: this entry.
+#
+# Verification: node --check on both .js files clean; variant
+# generator smoke-tested via inline node -e (5 sample venues
+# across MY/JP/KR/TH produced reasonable variant strings).
+# Full vitest unchanged at 2538/2538 — no new module imported
+# by index.js.
+#
 # v0.61.211 (commit 424 / journal 412 / build 214) — keyboard
 # nav for the v0.61.208 custom country dropdowns in both TMAs.
 # Operator's open polish item from the v0.61.208 known-gaps:
