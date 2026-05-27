@@ -2156,7 +2156,10 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     }
     const lat = top.location.latitude;
     const lng = top.location.longitude;
-    const label = top.displayName?.text || top.formattedAddress || text;
+    // v0.61.207 — smart label drops bare building-number displayNames
+    // and produces "<Street/Building>, <City>, <State>".
+    const { smartPlaceLabel } = require('./smart-place-label');
+    const label = smartPlaceLabel(top.displayName?.text || '', top.formattedAddress || '') || text;
     // OTHER region anchor so cuisine TMA + free-text searches know
     // this is non-SG; no radiusCap (per-precinct caps don't apply here).
     await setUserLocation(redis, chatId, lat, lng, {
@@ -11523,6 +11526,10 @@ async function cacheBotUsername() {
         // ("Times Square" → Berjaya Times Square).
         const RESULT_CAP = 6;
 
+        // v0.61.207 — smart label helper. Drops bare building-number
+        // displayNames (e.g. "1" for "1, Jln Imbi …") and synthesises
+        // "<Street/Building>, <City>, <State>" from formattedAddress.
+        const { smartPlaceLabel } = require('./smart-place-label');
         async function runPlacesText() {
           const body = {
             textQuery: text,
@@ -11546,7 +11553,7 @@ async function cacheBotUsername() {
             return (Array.isArray(r.data?.places) ? r.data.places : [])
               .map((p) => ({
                 placeId: p?.id || '',
-                primaryText: p?.displayName?.text || 'Unnamed',
+                primaryText: smartPlaceLabel(p?.displayName?.text || '', p?.formattedAddress || ''),
                 secondaryText: p?.formattedAddress || '',
                 lat: p?.location?.latitude ?? null,
                 lng: p?.location?.longitude ?? null,
@@ -11583,13 +11590,14 @@ async function cacheBotUsername() {
             const arr = Array.isArray(r.data?.results) ? r.data.results : [];
             return arr.map((g) => {
               const fa = g.formatted_address || '';
-              const splitIdx = fa.indexOf(',');
-              const primary = splitIdx > 0 ? fa.slice(0, splitIdx).trim() : fa;
-              const secondary = splitIdx > 0 ? fa.slice(splitIdx + 1).trim() : '';
+              // v0.61.207 — use the smart label helper; Geocoding doesn't
+              // give us a displayName so the helper falls back to parsing
+              // formattedAddress.
+              const primary = smartPlaceLabel('', fa);
               return {
                 placeId: g.place_id || '',
                 primaryText: primary || 'Unnamed',
-                secondaryText: secondary,
+                secondaryText: fa,
                 lat: g.geometry?.location?.lat ?? null,
                 lng: g.geometry?.location?.lng ?? null,
                 source: 'geocode'
@@ -13243,6 +13251,21 @@ async function cacheBotUsername() {
           if (venues.length !== beforeJb) {
             console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
           }
+        } else if (isOther) {
+          // v0.61.207 — operator: "first load is zero for location set
+          // to others". Root cause: the SG area-text filter below was
+          // firing for EVERY non-JB region (including OTHER) — and
+          // OTHER venues (Pahang, KL, etc.) by definition have no
+          // "Singapore" text and sit > 30 km from SG centroid, so the
+          // entire pool collapsed to 0. Fix: for OTHER, trust the
+          // upstream Places search (already pinned by regionCode +
+          // locationBias.circle around the user's coords). Just keep
+          // the 120 km from-user hard gate that fires above (line
+          // ~13190) and skip the SG/JB area-text filter entirely.
+          // Note: a future PR could add per-country fuzzy text filters
+          // (e.g. for MY, accept "Malaysia" + state names); v0.61.207
+          // is the minimum to stop the silent 0-result collapse.
+          console.log(`[Cuisine-Search] D703c OTHER-region: skipping SG/JB area-text filter (pool=${venues.length})`);
         } else {
           // SG only: post-filter by Singapore mention OR proximity
           // (some hawker centres' formattedAddress lacks "Singapore").
