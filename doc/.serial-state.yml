@@ -1,8 +1,8 @@
 counters:
-  commit: 425
-  build: 215
+  commit: 426
+  build: 216
   documents:
-    journal: 413
+    journal: 414
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,61 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 53
-last_anchor_time: 28-05 '26 21:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_211 (PR #714 v0.61.211 merged 28-05 '26 ~20:25 SGT; v0.61.212 place-search variance test scaffolding built at 28-05 '26 21:30 SGT)
-last_anchor_iso8601: 2026-05-28T21:30:00+08:00
-last_anchor_utc: 2026-05-28T13:30:00Z
+  current_chat_counter: 54
+last_anchor_time: 28-05 '26 22:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_212 (PR #715 v0.61.212 merged 28-05 '26 ~21:35 SGT; v0.61.213 /ver psv: button built at 28-05 '26 22:00 SGT)
+last_anchor_iso8601: 2026-05-28T22:00:00+08:00
+last_anchor_utc: 2026-05-28T14:00:00Z
+# v0.61.213 (commit 426 / journal 414 / build 216) — /ver chat
+# button to run the v0.61.212 place-search variance test from
+# Telegram instead of needing terminal access. Operator: "i don't
+# understand, I thought you would run them or you add to the /ver
+# for me to run?" — closing that gap.
+#
+# Three run modes, each behind a single-tap confirm:
+#   smoke (50 rows, ~$2.50, ~30 s)
+#   my    (500 rows, ~$25, ~3 min)
+#   full  (1700 rows, ~$85, ~10 min)
+#
+# Latest summary is cached in Redis under psv:latest (60 d TTL).
+# Menu pops up via psv:menu → shows latest summary (if any) + 3
+# Run options + Close. Each Run option opens a confirm dialog
+# (psv:run-<mode>); confirm fires psv:go-<mode>.
+#
+# Progress pings every ~30 s during the run ("🧪 N/total (X%)
+# top-1 Y% so far"). Final summary mirrors the run.mjs console
+# output but as Telegram HTML (variant + country + city
+# breakdowns).
+#
+# Branch claude/v0.61.213-ver-place-search-variance-button off
+# main at v0.61.212. Files (4):
+# - NEW place-search-variance.js (~230 lines, CommonJS wrapper
+#   around scripts/place-search-variance/typing-variants.js +
+#   venues.json). Exports: REDIS_KEY, REDIS_TTL_S, loadVenues,
+#   buildTestSet, runVarianceTest({ limit, country, apiKey,
+#   onProgress }), persistToRedis, loadFromRedis. Mirrors the
+#   run.mjs scoring + merge logic; uses axios instead of fetch
+#   to share the project's HTTP setup.
+# - index.js (3 edits):
+#   * NEW psv: callback branch (psv:menu / psv:run-<mode> /
+#     psv:go-<mode> / psv:close), inserted right after cv:
+#     branch in the callback_query dispatcher (~30 lines).
+#   * NEW ownerPlaceSearchVarianceMenu, *Confirm, *Run async
+#     functions (~110 lines), inserted right after
+#     ownerCuisineVenueDetails. Mirrors the cv: pattern:
+#     menu → confirm → fire → summarise → store.
+#   * NEW [🧪 Place-search variance] button row added under the
+#     existing [🍽 Cuisine venues (48)] entry on both /ver and
+#     /v admin keyboards.
+# - package.json: 0.61.212 -> 0.61.213.
+# - doc/.serial-state.yml: commit 425->426, build 215->216,
+#   journal 413->414; re-anchored 28-05 '26 22:00 SGT.
+# - doc/Journal/journal-0_61_213-28_05_28-2200.md: this entry.
+#
+# Verification: 2538/2538 tests pass; node --check on index.js +
+# place-search-variance.js both clean. Live run depends on prod
+# GOOGLE_MAPS_API_KEY — operator will fire from chat.
+#
 # v0.61.212 (commit 425 / journal 413 / build 215) — test
 # scaffolding for the place-search-by-country endpoint. Operator
 # (28-05 '26): "do a test of 300 test each of how different
