@@ -112,8 +112,14 @@ function nearestCityForAnchor(lat, lng) {
 }
 
 async function fetchPlaces(apiKey, query, cc) {
+  // v0.61.216 — mirror the live OTHER picker body at index.js:2140
+  // (`regionCode` + `includedRegionCodes`). Without `regionCode`, the
+  // Places (New) endpoint returns 400 on every call under the
+  // project's current billing tier — observed as Places 50/50 fails
+  // in the v0.61.215 smoke test.
   const body = {
     textQuery: query,
+    regionCode: cc,
     includedRegionCodes: [cc],
     pageSize: RESULT_CAP,
     languageCode: 'en'
@@ -153,10 +159,15 @@ async function fetchPlaces(apiKey, query, cc) {
     }));
     return { ok: true, results };
   } catch (err) {
+    // v0.61.216 — capture Google's actual error.message
+    // (err.response.data.error.message) instead of axios's generic
+    // "Request failed with status code 400". Without this the chat
+    // summary just shows the status; we can't tell WHY.
+    const googleMsg = err.response?.data?.error?.message;
     return {
       ok: false,
       status: err.response?.status ?? 'network',
-      error: String(err.message || err).slice(0, 300),
+      error: String(googleMsg || err.message || err).slice(0, 300),
       results: []
     };
   }
