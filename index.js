@@ -2137,7 +2137,11 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     const country = findCountryPref(countryCode);
     const r = await axios.post(
       'https://places.googleapis.com/v1/places:searchText',
-      { textQuery: text, regionCode: countryCode, includedRegionCodes: [countryCode], pageSize: 5, languageCode: 'en' },
+      // v0.61.217 — dropped `includedRegionCodes` (Autocomplete-only field).
+      // searchText (New) returns 400 "Unknown name 'includedRegionCodes'"
+      // on every call when this is set; `regionCode` alone is the
+      // correct country bias. Caught by v0.61.216 variance smoke.
+      { textQuery: text, regionCode: countryCode, pageSize: 5, languageCode: 'en' },
       {
         headers: {
           'Content-Type': 'application/json',
