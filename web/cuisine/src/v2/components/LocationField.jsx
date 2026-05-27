@@ -288,6 +288,76 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   );
 }
 
+// v0.61.208 — custom country dropdown. Native <select> renders the
+// selected option's text identically when closed and when open —
+// operator wanted "<flag> <CC>" when closed (compact) but
+// "<flag> <Name>" when the dropdown is open (descriptive). This
+// component implements that via a button + absolutely-positioned
+// popover. Click-outside / Esc closes; focus stays on the button.
+function CountryDropdown({ value, onChange, ariaLabel }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const current = findCountry(value) || findCountry(DEFAULT_OTHER_COUNTRY);
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  function pick(code) {
+    setOpen(false);
+    if (code !== value) onChange?.(code);
+  }
+  return (
+    <div ref={wrapRef} className="relative flex-shrink-0">
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="bg-transparent text-sm outline-none whitespace-nowrap inline-flex items-center gap-0.5"
+        style={{ minWidth: '4.5rem' }}
+      >
+        <span aria-hidden>{current.flag}</span>
+        <span>{current.code}</span>
+        <span aria-hidden className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[10rem] py-0.5"
+        >
+          {OTHER_COUNTRIES.map((c) => {
+            const sel = c.code === value;
+            return (
+              <li key={c.code} role="option" aria-selected={sel}>
+                <button
+                  type="button"
+                  onClick={() => pick(c.code)}
+                  className={`w-full text-left px-3 py-1.5 text-sm whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                >
+                  <span aria-hidden>{c.flag}</span>
+                  <span>{c.name}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // v0.61.191 — OTHER-region location picker. Replaces the
 // autocomplete-dropdown flow with: tiny flag dropdown on the left
 // (16 ASEAN/Oceania/N-Asia countries minus SG), free-text input,
@@ -344,19 +414,15 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-        {/* Tiny flag-only dropdown on the left. Native <select> keeps
-            it accessible without building a custom popover. */}
-        <select
-          aria-label={tr('loc.other.country', lang)}
+        {/* v0.61.208 — custom dropdown: closed shows "<flag> <CC>"
+            (compact), opened shows "<flag> <Name>" (descriptive).
+            Native <select> can't differentiate closed vs open
+            text, so we use a button + popover. */}
+        <CountryDropdown
           value={country.code}
-          onChange={(e) => onCountryChange?.(e.target.value)}
-          className="bg-transparent text-sm outline-none flex-shrink-0 pr-1"
-          style={{ width: '4.5rem' }}
-        >
-          {OTHER_COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-          ))}
-        </select>
+          onChange={(code) => onCountryChange?.(code)}
+          ariaLabel={tr('loc.other.country', lang)}
+        />
         <input
           type="text"
           value={query}
