@@ -18,10 +18,77 @@
 // Telegram WebApp `keepalive: true` ensures the POST hits the server
 // even if the user immediately taps a tile that closes the webview.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
+
+// v0.61.208 — same custom-dropdown pattern as the Cuisine TMA's
+// LocationField (closed = "<flag> <CC>", open = "<flag> <Name>").
+// Native <select> can't render different text for closed vs open.
+function CountryDropdownMenu({ value, onChange, ariaLabel }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const current = findCountry(value) || findCountry(DEFAULT_OTHER_COUNTRY);
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  function pick(code) {
+    setOpen(false);
+    if (code !== value) onChange?.(code);
+  }
+  return (
+    <div ref={wrapRef} className="relative flex-shrink-0">
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="text-[13px] bg-tg-bg border border-tg-border rounded px-1 py-1.5 text-tg-text whitespace-nowrap inline-flex items-center gap-0.5"
+        style={{ minWidth: '4.5rem' }}
+      >
+        <span aria-hidden>{current.flag}</span>
+        <span>{current.code}</span>
+        <span aria-hidden className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[10rem] py-0.5"
+        >
+          {OTHER_COUNTRIES.map((c) => {
+            const sel = c.code === value;
+            return (
+              <li key={c.code} role="option" aria-selected={sel}>
+                <button
+                  type="button"
+                  onClick={() => pick(c.code)}
+                  className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                >
+                  <span aria-hidden>{c.flag}</span>
+                  <span>{c.name}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor }) {
   const [precincts, setPrecincts] = useState({ sg: [], sgRegion: [], my: [] });
@@ -303,17 +370,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? (
         <>
           <form onSubmit={onOtherSearch} className="flex gap-1.5 items-center">
-            <select
-              aria-label={t('loc.other.country', lang)}
+            {/* v0.61.208 — custom dropdown (open: flag + full name,
+                closed: flag + CC). Mirrors Cuisine TMA. */}
+            <CountryDropdownMenu
               value={countryPref}
-              onChange={(e) => setCountryPref(e.target.value)}
-              className="text-[13px] bg-tg-bg border border-tg-border rounded px-1 py-1.5 text-tg-text flex-shrink-0"
-              style={{ width: '4.5rem' }}
-            >
-              {OTHER_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-              ))}
-            </select>
+              onChange={(code) => setCountryPref(code)}
+              ariaLabel={t('loc.other.country', lang)}
+            />
             <input
               type="text"
               value={textValue}

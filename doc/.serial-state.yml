@@ -1,8 +1,8 @@
 counters:
-  commit: 420
-  build: 210
+  commit: 421
+  build: 211
   documents:
-    journal: 408
+    journal: 409
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,48 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 48
-last_anchor_time: 28-05 '26 15:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_206 (PR #708 v0.61.206 merged 28-05 '26 ~15:00 SGT; v0.61.207 smart label + OTHER filter fix built on v0.61.206 at 28-05 '26 15:30 SGT)
-last_anchor_iso8601: 2026-05-28T15:30:00+08:00
-last_anchor_utc: 2026-05-28T07:30:00Z
+  current_chat_counter: 49
+last_anchor_time: 28-05 '26 16:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_207 (PR #709 v0.61.207 merged 28-05 '26 ~15:45 SGT; v0.61.208 country dropdown UX built on v0.61.207 at 28-05 '26 16:30 SGT)
+last_anchor_iso8601: 2026-05-28T16:30:00+08:00
+last_anchor_utc: 2026-05-28T08:30:00Z
+# v0.61.208 (commit 421 / journal 409 / build 211) — operator:
+# "Cuisine TMA, the dropdown should spell out the country name
+# but after selection is back to <flag> + <two characters denote
+# as country>. … same as the Menu TMA". Native <select> renders
+# the selected option's text identically when closed and when
+# open — so it can't show "🇲🇾 MY" closed and "🇲🇾 Malaysia" as
+# an option. Replaced with a custom button + popover in both
+# TMAs.
+#
+# Behaviour:
+#   CLOSED button → "🇲🇾 MY ▾" (compact, same width as before).
+#   OPEN list     → each row: "🇲🇾 Malaysia" (descriptive).
+#   Click-outside / Esc closes. Selected row highlighted.
+#
+# Branch claude/v0.61.208-country-dropdown-ux off main at
+# v0.61.207. Files (4):
+# - web/cuisine/src/v2/components/LocationField.jsx: NEW
+#   <CountryDropdown> component above OtherLocationPicker
+#   (~55 lines). Replaces the existing <select> render block.
+#   Adds useRef import (was useEffect/useState only).
+# - web/menu/src/components/LocationFieldMenu.jsx: NEW
+#   <CountryDropdownMenu> (~60 lines, near-duplicate but
+#   styled to match the Menu TMA's text-[13px] + border
+#   chrome). Replaces the inline <select>. Adds useRef.
+# - package.json: 0.61.207 -> 0.61.208.
+# - doc/.serial-state.yml: commit 420->421, build 210->211,
+#   journal 408->409; re-anchored 28-05 '26 16:30 SGT.
+# - doc/Journal/journal-0_61_208-28_05_28-1630.md: this entry.
+#
+# Both dropdowns are functionally identical (same data + same
+# pick semantics) but styled per-TMA to match local chrome.
+# Could be extracted to a shared package later — out of scope.
+#
+# Verification: node --check on index.js clean (not touched);
+# Cuisine TMA build 5m 1s; Menu TMA build 3m 44s; full vitest
+# suite unchanged at 2522/2522 (no JS module added).
+#
 # v0.61.207 (commit 420 / journal 408 / build 210) — two
 # operator-flagged issues, both rooted in OTHER-region handling:
 #
