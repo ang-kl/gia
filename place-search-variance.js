@@ -112,15 +112,16 @@ function nearestCityForAnchor(lat, lng) {
 }
 
 async function fetchPlaces(apiKey, query, cc) {
-  // v0.61.216 — mirror the live OTHER picker body at index.js:2140
-  // (`regionCode` + `includedRegionCodes`). Without `regionCode`, the
-  // Places (New) endpoint returns 400 on every call under the
-  // project's current billing tier — observed as Places 50/50 fails
-  // in the v0.61.215 smoke test.
+  // v0.61.217 — v0.61.216 smoke surfaced Google's real error:
+  // "Invalid JSON payload received. Unknown name 'includedRegionCodes'".
+  // That field is Autocomplete-only — searchText (New) accepts
+  // `regionCode` as the country-bias hint. Dropping the unknown name
+  // is the actual fix for the 50/50 Places fails. Same patch applied
+  // to index.js:2140 (the live OTHER picker, which had been silently
+  // failing 400 + showing "Sorry, geocoding hit an error").
   const body = {
     textQuery: query,
     regionCode: cc,
-    includedRegionCodes: [cc],
     pageSize: RESULT_CAP,
     languageCode: 'en'
   };
