@@ -13253,19 +13253,38 @@ async function cacheBotUsername() {
           }
         } else if (isOther) {
           // v0.61.207 — operator: "first load is zero for location set
-          // to others". Root cause: the SG area-text filter below was
-          // firing for EVERY non-JB region (including OTHER) — and
-          // OTHER venues (Pahang, KL, etc.) by definition have no
-          // "Singapore" text and sit > 30 km from SG centroid, so the
-          // entire pool collapsed to 0. Fix: for OTHER, trust the
-          // upstream Places search (already pinned by regionCode +
-          // locationBias.circle around the user's coords). Just keep
-          // the 120 km from-user hard gate that fires above (line
-          // ~13190) and skip the SG/JB area-text filter entirely.
-          // Note: a future PR could add per-country fuzzy text filters
-          // (e.g. for MY, accept "Malaysia" + state names); v0.61.207
-          // is the minimum to stop the silent 0-result collapse.
-          console.log(`[Cuisine-Search] D703c OTHER-region: skipping SG/JB area-text filter (pool=${venues.length})`);
+          // to others". The SG area-text filter was firing for OTHER
+          // and collapsing the pool to 0. v0.61.207 fixed by skipping
+          // the SG/JB area-text filter entirely.
+          // v0.61.210 — defence layer: read the user's country-pref
+          // (the OTHER-picker ISO 3166-1 alpha-2 code) and apply a
+          // soft per-country keyword filter (country name + state +
+          // major cities). Catches cross-border bleed when Places
+          // returns venues outside the user's chosen country.
+          // Fail-open: unknown country → no filter (same behaviour
+          // as v0.61.207).
+          let ctxCountry = null;
+          try {
+            ctxCountry = await getUserCountryPref(redis, csChatId);
+          } catch (err) {
+            console.warn('[Cuisine-Search] country-pref read failed (no defence filter):', err.message);
+          }
+          if (ctxCountry && ctxCountry !== 'SG') {
+            try {
+              const { filterVenuesByCountry, hasKeywordsFor } = require('./country-text-match');
+              if (hasKeywordsFor(ctxCountry)) {
+                const beforeOther = venues.length;
+                venues = filterVenuesByCountry(venues, ctxCountry);
+                console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
+              } else {
+                console.log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${venues.length}`);
+              }
+            } catch (err) {
+              console.warn('[Cuisine-Search] country-text-match failed (skip filter):', err.message);
+            }
+          } else {
+            console.log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${venues.length})`);
+          }
         } else {
           // SG only: post-filter by Singapore mention OR proximity
           // (some hawker centres' formattedAddress lacks "Singapore").
