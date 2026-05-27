@@ -2837,9 +2837,13 @@ bot.on('callback_query', async (q) => {
         console.log(`[cv:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
         return;
       }
+      // v0.61.214 — declare locally; same latent-bug fix as the psv:
+      // branch (v0.61.177's cv: branch had been silently ReferenceError-ing
+      // on every cv:menu tap that didn't come from a fresh message).
+      const cvMessageId = q.message?.message_id || null;
       try {
         if (data === 'cv:menu') {
-          await ownerCuisineVenueMenu(chatId, messageId);
+          await ownerCuisineVenueMenu(chatId, cvMessageId);
           return;
         }
         if (data === 'cv:run') {
@@ -2847,7 +2851,7 @@ bot.on('callback_query', async (q) => {
           return;
         }
         if (data === 'cv:close') {
-          try { await bot.deleteMessage(chatId, messageId); } catch { /* ignore */ }
+          if (cvMessageId) { try { await bot.deleteMessage(chatId, cvMessageId); } catch { /* ignore */ } }
           return;
         }
         // v0.61.183 — per-cuisine detail view. Dumps the loaded
@@ -2877,18 +2881,23 @@ bot.on('callback_query', async (q) => {
         console.log(`[psv:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
         return;
       }
+      // v0.61.214 — messageId is declared LOCAL to each callback branch
+      // (the per: branch sets the pattern). The original v0.61.213 psv:
+      // branch referenced it without declaring → ReferenceError on
+      // every tap. This local declaration matches the per: convention.
+      const psvMessageId = q.message?.message_id || null;
       try {
         if (data === 'psv:menu') {
-          await ownerPlaceSearchVarianceMenu(chatId, messageId);
+          await ownerPlaceSearchVarianceMenu(chatId, psvMessageId);
           return;
         }
         if (data === 'psv:close') {
-          try { await bot.deleteMessage(chatId, messageId); } catch { /* ignore */ }
+          if (psvMessageId) { try { await bot.deleteMessage(chatId, psvMessageId); } catch { /* ignore */ } }
           return;
         }
         if (data.startsWith('psv:run-')) {
           const mode = data.slice('psv:run-'.length);
-          await ownerPlaceSearchVarianceConfirm(chatId, messageId, mode);
+          await ownerPlaceSearchVarianceConfirm(chatId, psvMessageId, mode);
           return;
         }
         if (data.startsWith('psv:go-')) {
