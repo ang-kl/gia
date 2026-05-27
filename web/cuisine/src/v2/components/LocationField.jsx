@@ -294,9 +294,13 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 // "<flag> <Name>" when the dropdown is open (descriptive). This
 // component implements that via a button + absolutely-positioned
 // popover. Click-outside / Esc closes; focus stays on the button.
+// v0.61.211 — keyboard nav: ↑/↓ to move highlight, Home/End to
+// jump to first/last, Enter to pick. Initial focus on the
+// currently-selected country (or first country if none).
 function CountryDropdown({ value, onChange, ariaLabel }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
+  const itemRefs = useRef([]);
   const current = findCountry(value) || findCountry(DEFAULT_OTHER_COUNTRY);
   useEffect(() => {
     if (!open) return;
@@ -313,9 +317,43 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+  // v0.61.211 — when the listbox opens, focus the currently-selected
+  // option (or the first one if `value` isn't in the list). Native
+  // button focus drives Enter-to-pick + visual focus ring.
+  useEffect(() => {
+    if (!open) return;
+    const idx = OTHER_COUNTRIES.findIndex((c) => c.code === value);
+    const target = itemRefs.current[idx >= 0 ? idx : 0];
+    if (target && typeof target.focus === 'function') {
+      // setTimeout 0 so the popover is in the DOM when focus runs.
+      const id = setTimeout(() => target.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [open, value]);
   function pick(code) {
     setOpen(false);
     if (code !== value) onChange?.(code);
+  }
+  function onListKey(e) {
+    if (!open) return;
+    const len = OTHER_COUNTRIES.length;
+    const active = document.activeElement;
+    const idx = itemRefs.current.findIndex((el) => el === active);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = idx < 0 ? 0 : (idx + 1) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = idx < 0 ? len - 1 : (idx - 1 + len) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      itemRefs.current[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      itemRefs.current[len - 1]?.focus();
+    }
   }
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
@@ -335,16 +373,18 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
       {open && (
         <ul
           role="listbox"
+          onKeyDown={onListKey}
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[10rem] py-0.5"
         >
-          {OTHER_COUNTRIES.map((c) => {
+          {OTHER_COUNTRIES.map((c, i) => {
             const sel = c.code === value;
             return (
               <li key={c.code} role="option" aria-selected={sel}>
                 <button
                   type="button"
+                  ref={(el) => { itemRefs.current[i] = el; }}
                   onClick={() => pick(c.code)}
-                  className={`w-full text-left px-3 py-1.5 text-sm whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                  className={`w-full text-left px-3 py-1.5 text-sm whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
                   <span aria-hidden>{c.flag}</span>
                   <span>{c.name}</span>

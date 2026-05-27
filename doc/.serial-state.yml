@@ -1,8 +1,8 @@
 counters:
-  commit: 423
-  build: 213
+  commit: 424
+  build: 214
   documents:
-    journal: 411
+    journal: 412
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,53 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 51
-last_anchor_time: 28-05 '26 19:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_209 (PR #712 v0.61.209 merged 28-05 '26 ~18:35 SGT; v0.61.210 per-country fuzzy text filter built at 28-05 '26 19:00 SGT)
-last_anchor_iso8601: 2026-05-28T19:00:00+08:00
-last_anchor_utc: 2026-05-28T11:00:00Z
+  current_chat_counter: 52
+last_anchor_time: 28-05 '26 20:20 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_210 (PR #713 v0.61.210 merged 28-05 '26 ~19:30 SGT; v0.61.211 keyboard nav for country dropdown built at 28-05 '26 20:20 SGT)
+last_anchor_iso8601: 2026-05-28T20:20:00+08:00
+last_anchor_utc: 2026-05-28T12:20:00Z
+# v0.61.211 (commit 424 / journal 412 / build 214) — keyboard
+# nav for the v0.61.208 custom country dropdowns in both TMAs.
+# Operator's open polish item from the v0.61.208 known-gaps:
+# "Keyboard nav (arrow keys) not yet implemented; only
+# Esc-to-close + Tab. Add if operator asks." Operator: "2"
+# (picked this item from the backlog).
+#
+# Keys added:
+#   ↑      — focus previous option (wraps to last from first)
+#   ↓      — focus next option (wraps to first from last)
+#   Home   — focus first option
+#   End    — focus last option
+#   Enter  — picks the focused option (native button onClick)
+#   Esc    — closes the popover (already from v0.61.208)
+#
+# On open: the currently-selected option gets initial focus.
+# If `value` isn't in OTHER_COUNTRIES the first option gets it.
+# Focus is real (button.focus()) — screen readers + visual
+# focus rings work out-of-the-box; no aria-activedescendant
+# bookkeeping.
+#
+# Branch claude/v0.61.211-dropdown-keyboard-nav off main at
+# v0.61.210. Files (3):
+# - web/cuisine/src/v2/components/LocationField.jsx (~35 lines
+#   added to CountryDropdown): NEW itemRefs array; NEW useEffect
+#   that focuses the selected option on open (setTimeout 0 so
+#   the popover is mounted before .focus()); NEW onListKey
+#   handler attached to the <ul>; option <button>s now carry a
+#   ref={(el) => { itemRefs.current[i] = el; }} and
+#   focus:bg-tg-bg focus:outline-none classes for focus styling.
+# - web/menu/src/components/LocationFieldMenu.jsx (~35 lines
+#   added to CountryDropdownMenu): identical pattern, styled
+#   for Menu TMA chrome.
+# - package.json: 0.61.210 -> 0.61.211.
+# - doc/.serial-state.yml: commit 423->424, build 213->214,
+#   journal 411->412; re-anchored 28-05 '26 20:20 SGT.
+# - doc/Journal/journal-0_61_211-28_05_28-2020.md: this entry.
+#
+# Verification: 2538/2538 tests pass (component changes don't
+# add unit tests since the vitest setup has no JSX renderer in
+# this repo); cuisine TMA build 3.93 s; menu TMA build 2.88 s.
+#
 # v0.61.210 (commit 423 / journal 411 / build 213) — defence
 # layer for OTHER cuisine-search. v0.61.207 removed the SG/JB
 # area-text filter for OTHER (the "first load is zero" fix) and

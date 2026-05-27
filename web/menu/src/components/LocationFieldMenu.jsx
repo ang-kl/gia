@@ -26,9 +26,12 @@ import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countrie
 // v0.61.208 — same custom-dropdown pattern as the Cuisine TMA's
 // LocationField (closed = "<flag> <CC>", open = "<flag> <Name>").
 // Native <select> can't render different text for closed vs open.
+// v0.61.211 — keyboard nav: ↑/↓/Home/End + Enter, mirrors Cuisine
+// TMA's CountryDropdown.
 function CountryDropdownMenu({ value, onChange, ariaLabel }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
+  const itemRefs = useRef([]);
   const current = findCountry(value) || findCountry(DEFAULT_OTHER_COUNTRY);
   useEffect(() => {
     if (!open) return;
@@ -45,9 +48,41 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+  // v0.61.211 — focus the currently-selected option on open so
+  // Enter immediately picks it; arrows from there move the focus.
+  useEffect(() => {
+    if (!open) return;
+    const idx = OTHER_COUNTRIES.findIndex((c) => c.code === value);
+    const target = itemRefs.current[idx >= 0 ? idx : 0];
+    if (target && typeof target.focus === 'function') {
+      const id = setTimeout(() => target.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [open, value]);
   function pick(code) {
     setOpen(false);
     if (code !== value) onChange?.(code);
+  }
+  function onListKey(e) {
+    if (!open) return;
+    const len = OTHER_COUNTRIES.length;
+    const active = document.activeElement;
+    const idx = itemRefs.current.findIndex((el) => el === active);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = idx < 0 ? 0 : (idx + 1) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = idx < 0 ? len - 1 : (idx - 1 + len) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      itemRefs.current[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      itemRefs.current[len - 1]?.focus();
+    }
   }
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
@@ -67,16 +102,18 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
       {open && (
         <ul
           role="listbox"
+          onKeyDown={onListKey}
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[10rem] py-0.5"
         >
-          {OTHER_COUNTRIES.map((c) => {
+          {OTHER_COUNTRIES.map((c, i) => {
             const sel = c.code === value;
             return (
               <li key={c.code} role="option" aria-selected={sel}>
                 <button
                   type="button"
+                  ref={(el) => { itemRefs.current[i] = el; }}
                   onClick={() => pick(c.code)}
-                  className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                  className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
                   <span aria-hidden>{c.flag}</span>
                   <span>{c.name}</span>
