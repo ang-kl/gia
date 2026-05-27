@@ -11398,9 +11398,9 @@ async function cacheBotUsername() {
         }
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
-        // 1 h cache — places don't move and operators may retype the
-        // same query a few times while debating between candidates.
-        const cacheKey = `placesearchbycountry:v1:${cc}:${text.toLowerCase()}`;
+        // v0.61.201 — cache key bump to v2 because the schema below
+        // changed (Geocoding fallback added; result count 5 → 6).
+        const cacheKey = `placesearchbycountry:v2:${cc}:${text.toLowerCase()}`;
         try {
           if (redis && redis.isOpen) {
             const hit = await redis.get(cacheKey).catch(() => null);
@@ -11410,68 +11410,138 @@ async function cacheBotUsername() {
           }
         } catch { /* fall through */ }
         const axios = require('axios');
-        const body = {
-          textQuery: text,
-          regionCode: cc,
-          includedRegionCodes: [cc],
-          pageSize: 5,
-          languageCode: 'en'
-        };
-        let data;
-        try {
-          const r = await axios.post(
-            'https://places.googleapis.com/v1/places:searchText',
-            body,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Goog-Api-Key': apiKey,
-                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
-              },
-              timeout: 8000
-            }
-          );
-          data = r.data;
-        } catch (err) {
-          // v0.61.199 — operator log 2026-05-27 showed two consecutive
-          // 400s from Places with no diagnostic context. Surface the
-          // HTTP status + response body (truncated) so the next failure
-          // tells us *why* (invalid `regionCode`? bad `textQuery`?
-          // missing field mask? quota?). Also log the request body so
-          // we can reproduce.
-          const status = err.response?.status ?? '?';
-          const bodyTxt = (() => {
-            try {
-              if (!err.response?.data) return '';
-              const s = typeof err.response.data === 'string'
-                ? err.response.data
-                : JSON.stringify(err.response.data);
-              return s.slice(0, 600);
-            } catch { return ''; }
-          })();
-          const reqTxt = (() => {
-            try { return JSON.stringify(body).slice(0, 400); } catch { return ''; }
-          })();
-          console.warn(`[place-search-by-country] Places searchText failed: status=${status} msg=${err.message} body=${bodyTxt} req=${reqTxt}`);
-          return res.status(502).json({ error: 'Places search failed' });
+        // v0.61.201 — operator: "Times Square Kuala Lumpur → error 502"
+        // and "select Vietnam and type 'Ho Chin Ming' should suggest …
+        // 6 closest fuzzy". Two issues with the v0.61.191 single-call
+        // approach: (1) Places (New) `searchText` returned non-2xx for
+        // some queries (root cause TBD; v0.61.199 logging captures the
+        // body but doesn't *fix* the failure), (2) typo tolerance was
+        // weak. Fix: fire Places searchText AND Geocoding API in
+        // parallel, merge + dedup the results, return up to 6. Each
+        // path's failure is isolated; we only 502 when BOTH come back
+        // empty. Geocoding is older, more forgiving on typos ("Ho Chin
+        // Ming" → Ho Chi Minh); Places is sharper on venue names
+        // ("Times Square" → Berjaya Times Square).
+        const RESULT_CAP = 6;
+
+        async function runPlacesText() {
+          const body = {
+            textQuery: text,
+            includedRegionCodes: [cc],
+            pageSize: RESULT_CAP,
+            languageCode: 'en'
+          };
+          try {
+            const r = await axios.post(
+              'https://places.googleapis.com/v1/places:searchText',
+              body,
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Goog-Api-Key': apiKey,
+                  'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
+                },
+                timeout: 8000
+              }
+            );
+            return (Array.isArray(r.data?.places) ? r.data.places : [])
+              .map((p) => ({
+                placeId: p?.id || '',
+                primaryText: p?.displayName?.text || 'Unnamed',
+                secondaryText: p?.formattedAddress || '',
+                lat: p?.location?.latitude ?? null,
+                lng: p?.location?.longitude ?? null,
+                source: 'places'
+              }))
+              .filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
+          } catch (err) {
+            const status = err.response?.status ?? '?';
+            const bodyTxt = (() => {
+              try {
+                if (!err.response?.data) return '';
+                const s = typeof err.response.data === 'string'
+                  ? err.response.data
+                  : JSON.stringify(err.response.data);
+                return s.slice(0, 600);
+              } catch { return ''; }
+            })();
+            const reqTxt = (() => {
+              try { return JSON.stringify(body).slice(0, 400); } catch { return ''; }
+            })();
+            console.warn(`[place-search-by-country] Places searchText failed: status=${status} msg=${err.message} body=${bodyTxt} req=${reqTxt}`);
+            return [];
+          }
         }
-        const results = (Array.isArray(data?.places) ? data.places : [])
-          .slice(0, 5)
-          .map((p) => ({
-            placeId: p?.id || '',
-            primaryText: p?.displayName?.text || 'Unnamed',
-            secondaryText: p?.formattedAddress || '',
-            lat: p?.location?.latitude ?? null,
-            lng: p?.location?.longitude ?? null
-          }))
-          .filter((r) => r.placeId && Number.isFinite(r.lat) && Number.isFinite(r.lng));
-        const payload = { results, countryCode: cc };
+
+        async function runGeocoding() {
+          const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text)}&components=country:${cc}&key=${apiKey}`;
+          try {
+            const r = await axios.get(url, { timeout: 8000 });
+            if (r.data?.status && r.data.status !== 'OK' && r.data.status !== 'ZERO_RESULTS') {
+              console.warn(`[place-search-by-country] Geocoding non-OK status=${r.data.status} error_message=${r.data.error_message || ''}`);
+              return [];
+            }
+            const arr = Array.isArray(r.data?.results) ? r.data.results : [];
+            return arr.map((g) => {
+              const fa = g.formatted_address || '';
+              const splitIdx = fa.indexOf(',');
+              const primary = splitIdx > 0 ? fa.slice(0, splitIdx).trim() : fa;
+              const secondary = splitIdx > 0 ? fa.slice(splitIdx + 1).trim() : '';
+              return {
+                placeId: g.place_id || '',
+                primaryText: primary || 'Unnamed',
+                secondaryText: secondary,
+                lat: g.geometry?.location?.lat ?? null,
+                lng: g.geometry?.location?.lng ?? null,
+                source: 'geocode'
+              };
+            }).filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
+          } catch (err) {
+            console.warn(`[place-search-by-country] Geocoding failed: msg=${err.message}`);
+            return [];
+          }
+        }
+
+        const [placesRes, geocodeRes] = await Promise.all([runPlacesText(), runGeocoding()]);
+
+        // Merge: Places results first (sharper on venue names), then
+        // Geocoding results that aren't already present. Dedup by
+        // placeId; if a Geocoding result shares a placeId with a Places
+        // hit, skip it. Falls back to (lat,lng)-rounded equality when
+        // placeId is missing.
+        const seenIds = new Set();
+        const seenCoords = new Set();
+        const merged = [];
+        for (const list of [placesRes, geocodeRes]) {
+          for (const x of list) {
+            if (merged.length >= RESULT_CAP) break;
+            const id = x.placeId || '';
+            const coordKey = `${(x.lat ?? 0).toFixed(4)}|${(x.lng ?? 0).toFixed(4)}`;
+            if (id && seenIds.has(id)) continue;
+            if (seenCoords.has(coordKey)) continue;
+            if (id) seenIds.add(id);
+            seenCoords.add(coordKey);
+            merged.push(x);
+          }
+          if (merged.length >= RESULT_CAP) break;
+        }
+
+        console.log(`[place-search-by-country] cc=${cc} input="${text.slice(0, 60)}" places=${placesRes.length} geocode=${geocodeRes.length} merged=${merged.length}`);
+
+        const payload = { results: merged, countryCode: cc };
         try {
           if (redis && redis.isOpen) {
-            await redis.set(cacheKey, JSON.stringify(payload), { EX: 3600 }).catch(() => {});
+            // Only cache non-empty payloads — operator typos should
+            // not lock in "no results" for 1 h.
+            if (merged.length > 0) {
+              await redis.set(cacheKey, JSON.stringify(payload), { EX: 3600 }).catch(() => {});
+            }
           }
         } catch { /* */ }
-        res.json({ ...payload, cached: false });
+        // 200 with empty `results` array on no-matches (TMA renders
+        // its existing "No match in <country>" line). Reserve non-2xx
+        // for actual API/auth failures so the TMA can distinguish.
+        res.json({ ...payload, cached: false, notFound: merged.length === 0 });
       } catch (err) {
         console.error('[Error] /api/cuisine/place-search-by-country failed:', err.message);
         res.status(500).json({ error: err.message });

@@ -1,8 +1,8 @@
 counters:
-  commit: 413
-  build: 203
+  commit: 414
+  build: 204
   documents:
-    journal: 401
+    journal: 402
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,57 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 41
-last_anchor_time: 28-05 '26 09:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_199 (PR #701 v0.61.199 merged 28-05 '26 09:01 SGT; v0.61.200 quick-pick restructure + country hints built on v0.61.199 at 28-05 '26 09:15 SGT)
-last_anchor_iso8601: 2026-05-28T09:15:00+08:00
-last_anchor_utc: 2026-05-28T01:15:00Z
+  current_chat_counter: 42
+last_anchor_time: 28-05 '26 09:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_200 (PR #702 v0.61.200 merged 28-05 '26 09:16 SGT; v0.61.201 place-search Geocoding fallback built on v0.61.200 at 28-05 '26 09:30 SGT)
+last_anchor_iso8601: 2026-05-28T09:30:00+08:00
+last_anchor_utc: 2026-05-28T01:30:00Z
+# v0.61.201 (commit 414 / journal 402 / build 204) — Cuisine
+# TMA OTHER picker robustness. Operator: "select Others, type
+# 'Times Square Kuala Lumpur' → error 502" and "select Vietnam,
+# type 'Ho Chin Ming' → should suggest 6 closest fuzzy matches".
+#
+# Root causes:
+# (1) `/api/cuisine/place-search-by-country` made a single
+#     Places (New) `searchText` call. When Google returned non-
+#     2xx (intermittent reasons — v0.61.199 logging captures
+#     bodies but doesn't *fix* failures), the endpoint hard-
+#     errored 502 with no fallback.
+# (2) Places searchText alone has weak typo tolerance — "Ho
+#     Chin Ming" doesn't surface "Ho Chi Minh" reliably.
+#
+# Fix: parallel Places + Geocoding queries with result merge.
+# Places remains primary (sharper on venue names); Geocoding
+# (more forgiving on typos, well-tested) is now an always-on
+# secondary source. Results merged, deduped by placeId AND by
+# rounded (lat,lng) coords (since the two APIs use different
+# place_id namespaces). Up to 6 returned (was 5; operator's
+# "6 closest fuzzy" spec). The endpoint only 502s when BOTH
+# paths fail at the network level — and even then we 200 with
+# `notFound: true` rather than non-2xx, so the TMA can
+# distinguish "no results" from "API failure".
+#
+# Branch claude/v0.61.201-place-search-geocoding-fallback off
+# main at v0.61.200. Files (3):
+# - index.js (1 edit, ~120 lines around line 11386):
+#   /api/cuisine/place-search-by-country rewritten. NEW inner
+#   helpers runPlacesText() + runGeocoding() that each return
+#   [] on failure (logged with full context). Promise.all both,
+#   then merge with placeId + coord-rounded dedup. RESULT_CAP=6.
+#   Cache key bumped 'placesearchbycountry:v1:' → ':v2:' so
+#   the v0.61.191 cached 5-result payloads don't shadow the new
+#   6-result merged ones. Empty-result responses are NOT cached
+#   (operator typos shouldn't lock in "no match" for 1 h).
+# - package.json: 0.61.200 -> 0.61.201.
+# - doc/.serial-state.yml: commit 413->414, build 203->204,
+#   journal 401->402; re-anchored 28-05 '26 09:30 SGT.
+# - doc/Journal/journal-0_61_201-28_05_28-0930.md: this entry.
+#
+# Verification: 2513/2513 tests pass; node --check on index.js
+# clean. End-to-end sandbox testing of the dual-API merge
+# requires live GOOGLE_MAPS_API_KEY — operator's prod retest
+# will validate.
+#
 # v0.61.200 (commit 413 / journal 401 / build 203) — two
 # operator-flagged /location UX bugs:
 #
