@@ -1,0 +1,168 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:georss="http://www.georss.org/georss" xmlns:gml="http://www.opengis.net/gml" xml:base="http://datamall2.mytransport.sg/ltaodataservice">
+    <id>http://schemas.datacontract.org/2004/07/</id>
+    <title />
+    <updated>2018-3-15T22:16:28Z</updated>
+    <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes" />
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>1</d:StopSequence>
+                <d:BusStopCode>75009</d:BusStopCode>
+                <d:Distance>0</d:Distance>
+                <d:WD_FirstBus>0500</d:WD_FirstBus>
+                <d:WD_LastBus>2300</d:WD_LastBus>
+                <d:SAT_FirstBus>0500</d:SAT_FirstBus>
+                <d:SAT_LastBus>2300</d:SAT_LastBus>
+                <d:SUN_FirstBus>0500</d:SUN_FirstBus>
+                <d:SUN_LastBus>2300</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>2</d:StopSequence>
+                <d:BusStopCode>76059</d:BusStopCode>
+                <d:Distance>0.6</d:Distance>
+                <d:WD_FirstBus>0502</d:WD_FirstBus>
+                <d:WD_LastBus>2302</d:WD_LastBus>
+                <d:SAT_FirstBus>0502</d:SAT_FirstBus>
+                <d:SAT_LastBus>2302</d:SAT_LastBus>
+                <d:SUN_FirstBus>0502</d:SUN_FirstBus>
+                <d:SUN_LastBus>2302</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>3</d:StopSequence>
+                <d:BusStopCode>76069</d:BusStopCode>
+                <d:Distance>1.1</d:Distance>
+                <d:WD_FirstBus>0504</d:WD_FirstBus>
+                <d:WD_LastBus>2304</d:WD_LastBus>
+                <d:SAT_FirstBus>0504</d:SAT_FirstBus>
+                <d:SAT_LastBus>2304</d:SAT_LastBus>
+                <d:SUN_FirstBus>0503</d:SUN_FirstBus>
+                <d:SUN_LastBus>2304</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>4</d:StopSequence>
+                <d:BusStopCode>96289</d:BusStopCode>
+                <d:Distance>2.3</d:Distance>
+                <d:WD_FirstBus>0508</d:WD_FirstBus>
+                <d:WD_LastBus>2308</d:WD_LastBus>
+                <d:SAT_FirstBus>0508</d:SAT_FirstBus>
+                <d:SAT_LastBus>2309</d:SAT_LastBus>
+                <d:SUN_FirstBus>0507</d:SUN_FirstBus>
+                <d:SUN_LastBus>2308</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>5</d:StopSequence>
+                <d:BusStopCode>96109</d:BusStopCode>
+                <d:Distance>2.7</d:Distance>
+                <d:WD_FirstBus>0509</d:WD_FirstBus>
+                <d:WD_LastBus>2310</d:WD_LastBus>
+                <d:SAT_FirstBus>0509</d:SAT_FirstBus>
+                <d:SAT_LastBus>2311</d:SAT_LastBus>
+                <d:SUN_FirstBus>0508</d:SUN_FirstBus>
+                <d:SUN_LastBus>2309</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()</id>
+        <category term="DataMall2.Models.BusRoute.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusRoutes()" />
+        <title />
+        <updated>2018-3-15T22:16:28Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>10</d:ServiceNo>
+                <d:Operator>SBST</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:StopSequence>6</d:StopSequence>
+                <d:BusStopCode>85079</d:BusStopCode>
+                <d:Distance>3.3</d:Distance>
+                <d:WD_FirstBus>0511</d:WD_FirstBus>
+                <d:WD_LastBus>2312</d:WD_LastBus>
+                <d:SAT_FirstBus>0511</d:SAT_FirstBus>
+                <d:SAT_LastBus>2313</d:SAT_LastBus>
+                <d:SUN_FirstBus>0510</d:SUN_FirstBus>
+                <d:SUN_LastBus>2311</d:SUN_LastBus>
+            </m:properties>
+        </content>
+    </entry>
+</feed>
