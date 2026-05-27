@@ -4131,6 +4131,10 @@ async function ownerPlaceSearchVarianceRun(chatId, mode) {
     s.placesFails + s.geocodeFails > 0
       ? `<b>API fails:</b> Places ${s.placesFails}  ·  Geocoding ${s.geocodeFails}  ·  Both empty: ${s.bothEmpty}`
       : `<b>Both empty:</b> ${s.bothEmpty}`,
+    // v0.61.215 — surface the most-common error so the operator
+    // can root-cause without server-log access.
+    ...(s.topPlacesError ? [`<b>Top Places error:</b> <code>${escapeHtmlForTelegram(s.topPlacesError.key)}</code> (×${s.topPlacesError.n})`] : []),
+    ...(s.topGeocodeError ? [`<b>Top Geocoding error:</b> <code>${escapeHtmlForTelegram(s.topGeocodeError.key)}</code> (×${s.topGeocodeError.n})`] : []),
     '',
     `<b>By variant:</b>`,
     ...Object.entries(s.byVariant).map(([k, v]) =>

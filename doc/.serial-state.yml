@@ -1,8 +1,8 @@
 counters:
-  commit: 427
-  build: 217
+  commit: 428
+  build: 218
   documents:
-    journal: 415
+    journal: 416
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,55 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 55
-last_anchor_time: 28-05 '26 22:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_213 (PR #716 v0.61.213 merged 28-05 '26 ~22:05 SGT; v0.61.214 messageId fix built at 28-05 '26 22:30 SGT)
-last_anchor_iso8601: 2026-05-28T22:30:00+08:00
-last_anchor_utc: 2026-05-28T14:30:00Z
+  current_chat_counter: 56
+last_anchor_time: 28-05 '26 23:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_214 (PR #717 v0.61.214 merged 28-05 '26 ~22:35 SGT; v0.61.215 field mask + error reporting built at 28-05 '26 23:00 SGT)
+last_anchor_iso8601: 2026-05-28T23:00:00+08:00
+last_anchor_utc: 2026-05-28T15:00:00Z
+# v0.61.215 (commit 428 / journal 416 / build 218) — variance
+# test field-mask hotfix + error reporting in the chat summary.
+#
+# Operator ran smoke (50) + MY-only (500) sweeps after v0.61.214
+# merged. Result: 100% Places fail in both. The 58% / 54% top-1
+# hit rates were Geocoding-only, salvaged by the merge step.
+#
+# Root cause: v0.61.213's place-search-variance.js fetchPlaces
+# requested rating + userRatingCount + types + primaryType in
+# X-Goog-FieldMask. These are Places (New) **Pro tier** fields;
+# if the project's billing is Essentials-only, requesting them
+# returns 400 every call. The live v0.61.201 endpoint asks ONLY
+# for the four Essentials fields (id, displayName,
+# formattedAddress, location) and works fine — operator has
+# been using it via the Cuisine TMA's OTHER picker.
+#
+# Fix:
+# - place-search-variance.js fetchPlaces: trim X-Goog-FieldMask
+#   to match v0.61.201 (id, displayName, formattedAddress,
+#   location). rating + userRatingCount stay in the schema
+#   but always null going forward.
+# - summarise(): NEW topPlacesError + topGeocodeError fields.
+#   Most-common (status:msg) tuple per source.
+# - ownerPlaceSearchVarianceRun's summary message: surface those
+#   top errors as `Top Places error: <code>` lines when any
+#   fail count > 0. Escaped via escapeHtmlForTelegram.
+#
+# After this fix, re-running smoke should show ~0 Places fails
+# AND a higher top-1 hit rate (Places contributes its venue-
+# focused candidates which Geocoding misses on `descriptive`
+# variant especially).
+#
+# Branch claude/v0.61.215-field-mask-and-error-reporting off
+# main at v0.61.214. Files (4):
+# - place-search-variance.js (2 edits): field mask trim + new
+#   topPlacesError / topGeocodeError computation.
+# - index.js (1 edit): chat summary surfaces top errors.
+# - package.json: 0.61.214 -> 0.61.215.
+# - doc/.serial-state.yml: commit 427->428, build 217->218,
+#   journal 415->416; re-anchored 28-05 '26 23:00 SGT.
+# - doc/Journal/journal-0_61_215-28_05_28-2300.md: this entry.
+#
+# Verification: 2538/2538 tests pass; node --check clean.
+#
 # v0.61.214 (commit 427 / journal 415 / build 217) — hotfix.
 # Operator: tapped /ver → 🧪 Place-search variance → "Sorry, that
 # variance-test action hit an error." Server log shows:

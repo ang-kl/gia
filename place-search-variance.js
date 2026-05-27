@@ -59,7 +59,14 @@ async function fetchPlaces(apiKey, query, cc) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.types,places.primaryType'
+          // v0.61.215 — match v0.61.201's live endpoint field mask
+          // (Essentials tier only). The original v0.61.213 runner
+          // also asked for rating/userRatingCount/types/primaryType
+          // which are Pro-tier fields; if the project's billing is
+          // Essentials-only, requesting them returns 400 every call.
+          // Operator's smoke test showed Places 50/50 fail from this
+          // exact cause.
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
         },
         timeout: 10000
       }
@@ -71,10 +78,10 @@ async function fetchPlaces(apiKey, query, cc) {
       formattedAddress: p?.formattedAddress || '',
       lat: p?.location?.latitude ?? null,
       lng: p?.location?.longitude ?? null,
-      rating: p?.rating ?? null,
-      userRatingCount: p?.userRatingCount ?? null,
-      primaryType: p?.primaryType || null,
-      types: p?.types || [],
+      rating: null,
+      userRatingCount: null,
+      primaryType: null,
+      types: [],
       source: 'places'
     }));
     return { ok: true, results };
@@ -211,6 +218,13 @@ function summarise(results) {
   const byVariant = {};
   const byCountry = {};
   const byCity = {};
+  // v0.61.215 — top error sample so the chat summary shows WHY
+  // an API is failing without needing server-log access.
+  const errSamples = { places: new Map(), geocode: new Map() };
+  function tallyErr(map, statusCode, msg) {
+    const key = `${statusCode || '?'}: ${(msg || '').slice(0, 80)}`;
+    map.set(key, (map.get(key) || 0) + 1);
+  }
   for (const r of results) {
     if (!byVariant[r.variant]) byVariant[r.variant] = { n: 0, top1: 0, top6: 0 };
     byVariant[r.variant].n++;
@@ -225,8 +239,24 @@ function summarise(results) {
     byCity[key].n++;
     if (r.top1Hit) byCity[key].top1++;
     if (r.top6Hit) byCity[key].top6++;
+    if (!r.placesOk) tallyErr(errSamples.places, r.placesStatus, r.placesError);
+    if (!r.geocodeOk) tallyErr(errSamples.geocode, r.geocodeStatus, r.geocodeError);
   }
-  return { total, top1Hits, top6Hits, placesFails, geocodeFails, bothEmpty, byVariant, byCountry, byCity };
+  // Top error per source (most-common).
+  const topErr = (m) => {
+    if (m.size === 0) return null;
+    let max = null;
+    for (const [k, n] of m.entries()) {
+      if (!max || n > max.n) max = { key: k, n };
+    }
+    return max;
+  };
+  return {
+    total, top1Hits, top6Hits, placesFails, geocodeFails, bothEmpty,
+    byVariant, byCountry, byCity,
+    topPlacesError: topErr(errSamples.places),
+    topGeocodeError: topErr(errSamples.geocode)
+  };
 }
 
 async function runVarianceTest({ limit, country, apiKey, onProgress } = {}) {
