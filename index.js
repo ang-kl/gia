@@ -11740,6 +11740,48 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.196 — TMA <-> chat country-pref sync. The Cuisine TMA
+    // reads this on mount to seed its `state.countryPref`; the
+    // chat-side /lcountry picker (v0.61.195) writes the same Redis
+    // key. Either surface can change the value and the other picks
+    // it up on next session.
+    app.get('/api/cuisine/country-pref',
+      makeRateLimiter(redis, { endpoint: 'country-pref-read', cap: 300 }),
+      async (req, res) => {
+        try {
+          const initStr = req.headers['x-telegram-init-data'] || '';
+          const verified = verifyInitData(initStr, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const code = await getUserCountryPref(redis, String(userId));
+          res.json({ countryCode: code });
+        } catch (err) {
+          console.error('[country-pref GET] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
+    app.post('/api/cuisine/country-pref',
+      makeRateLimiter(redis, { endpoint: 'country-pref-write', cap: 100 }),
+      async (req, res) => {
+        try {
+          const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const code = String(req.body?.countryCode || '').toUpperCase();
+          if (!isValidCountryPref(code)) return res.status(400).json({ error: 'invalid countryCode' });
+          const ok = await setUserCountryPref(redis, String(userId), code);
+          if (!ok) return res.status(503).json({ error: 'set failed' });
+          console.log(`[country-pref] chat=${userId} → ${code}`);
+          res.json({ ok: true, countryCode: code });
+        } catch (err) {
+          console.error('[country-pref POST] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
     // v0.58.10: copy-syntax — emit a re-runnable /cuisine command
     // built from the current TMA state. Mirrors /api/cuisine/copy-all
     // (auth via initData → sends to the user's chat). The recipient

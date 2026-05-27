@@ -1,8 +1,8 @@
 counters:
-  commit: 408
-  build: 198
+  commit: 409
+  build: 199
   documents:
-    journal: 396
+    journal: 397
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,51 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-27
-  current_chat_counter: 36
-last_anchor_time: 28-05 '26 08:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_194 (PR #696 v0.61.194 merged 28-05 '26 07:48 SGT; v0.61.195 /location country picker built on v0.61.194 at 28-05 '26 08:00 SGT)
-last_anchor_iso8601: 2026-05-28T08:00:00+08:00
-last_anchor_utc: 2026-05-28T00:00:00Z
+  current_chat_counter: 37
+last_anchor_time: 28-05 '26 08:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_195 (PR #697 v0.61.195 merged 28-05 '26 08:01 SGT; v0.61.196 TMA/chat country-pref sync built on v0.61.195 at 28-05 '26 08:15 SGT)
+last_anchor_iso8601: 2026-05-28T08:15:00+08:00
+last_anchor_utc: 2026-05-28T00:15:00Z
+# v0.61.196 (commit 409 / journal 397 / build 199) — TMA <-> chat
+# country-pref sync. v0.61.195 added the chat-side picker; the
+# Cuisine TMA still seeded its `state.countryPref` from the
+# v0.61.191 default ('MY') with no server read. v0.61.196 wires
+# both surfaces to the same Redis key (`country-pref:<chatId>`)
+# so changing the value in EITHER surface is picked up by the
+# other on next session.
+#
+# Branch claude/v0.61.196-country-pref-tma-sync off main at
+# v0.61.195. Files (3):
+# - index.js (2 new endpoints, ~50 lines total):
+#   * GET /api/cuisine/country-pref — initData-gated (X-Telegram-
+#     Init-Data header). Returns { countryCode } via
+#     getUserCountryPref. Rate-limited (300/h per endpoint key).
+#   * POST /api/cuisine/country-pref — initData-gated (body).
+#     Validates the code against country-pref's ALL_CODES set,
+#     persists via setUserCountryPref. Rate-limited (100/h).
+# - web/cuisine/src/v2/lib/api.js (+2 helpers):
+#   * fetchCountryPref() — GET, returns { countryCode } or null.
+#   * saveCountryPref(code) — POST, fire-and-forget.
+# - web/cuisine/src/v2/App.jsx (3 edits):
+#   * Imports fetchCountryPref + saveCountryPref.
+#   * NEW useEffect (mount-only) — fetches the pref and seeds
+#     state.countryPref UNLESS the stored value is 'SG' (the
+#     state.countryPref slot is dedicated to the OTHER picker; SG
+#     has its own region pill, no carry-over needed). Defensive
+#     against network blips — silently falls back to the v0.61.191
+#     'MY' default.
+#   * onCountryChange handler updated — still updates local state
+#     immediately, then fires saveCountryPref(code) to the server.
+#     Fire-and-forget; chat surface picks up the new value on next
+#     /location <text>.
+# - package.json: 0.61.195 -> 0.61.196.
+# - doc/.serial-state.yml: commit 408->409, build 198->199,
+#   journal 396->397; re-anchored 28-05 '26 08:15 SGT.
+# - doc/Journal/journal-0_61_196-28_05_28-0815.md: this entry.
+#
+# Verification: 2477/2477 tests pass; node --check on index.js
+# clean; cuisine TMA build 2.73 s.
+#
 # v0.61.195 (commit 408 / journal 396 / build 198) — chat-side
 # /location country picker. Operator's earlier flow (`/location
 # Times Square`) hard-coded `components=country:SG`, so a typed-in

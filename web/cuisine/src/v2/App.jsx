@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, startSession, backOnePage, recycleSession } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, startSession, backOnePage, recycleSession } from './lib/api.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { stripSgOnly } from './lib/sg-only-slugs.js';
 import QuickFilters from './components/QuickFilters.jsx';
@@ -519,6 +519,25 @@ export default function App() {
         setUserLoc(SG_CENTROID);
         console.log('[Cuisine-TMA-v2] userLoc fallback to SG centroid');
       }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // v0.61.196 — seed state.countryPref from the server on mount so
+  // the OTHER picker opens on whatever the user last set in the
+  // chat /lcountry (v0.61.195) command (or in a prior TMA session).
+  // Falls back to the v0.61.191 default ('MY') silently on any
+  // network failure or 401.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await fetchCountryPref();
+      if (cancelled || !r?.countryCode) return;
+      // Treat 'SG' as "no OTHER pref" — the SG region pill has its
+      // own anchor, so we don't overwrite state.countryPref with SG.
+      // The state.countryPref slot is dedicated to the OTHER picker.
+      if (r.countryCode === 'SG') return;
+      setState((s) => (s.countryPref === r.countryCode ? s : { ...s, countryPref: r.countryCode }));
     })();
     return () => { cancelled = true; };
   }, []);
@@ -1258,7 +1277,12 @@ export default function App() {
              updates state.countryPref so the next Places search-by-
              country call constrains to the right country. */
           countryPref={state.countryPref || 'MY'}
-          onCountryChange={(code) => setState((s) => ({ ...s, countryPref: code }))}
+          onCountryChange={(code) => {
+            setState((s) => ({ ...s, countryPref: code }));
+            // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
+            // so the chat /location (v0.61.195) picks up the same value.
+            saveCountryPref(code).catch(() => { /* non-fatal */ });
+          }}
         />
       )}
 
