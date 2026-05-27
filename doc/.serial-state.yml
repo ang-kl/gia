@@ -1,8 +1,8 @@
 counters:
-  commit: 430
-  build: 220
+  commit: 431
+  build: 221
   documents:
-    journal: 418
+    journal: 419
     builder: 3
     persona: 4
     feature: 48
@@ -10,12 +10,34 @@ counters:
     legal: 9
     register: 123
 sessions:
-  current_chat_id: 2026-05-27
-  current_chat_counter: 58
-last_anchor_time: 28-05 '26 22:38 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_216 (PR #719 v0.61.216 merged 27-05 '26 14:30 UTC = 28-05 '26 22:30 SGT; v0.61.217 includedRegionCodes drop built at 28-05 '26 22:38 SGT)
-last_anchor_iso8601: 2026-05-28T22:38:00+08:00
-last_anchor_utc: 2026-05-28T14:38:00Z
+  current_chat_id: 2026-05-28
+  current_chat_counter: 59
+last_anchor_time: 28-05 '26 05:37 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_217 (PR #720 v0.61.217 merged 27-05 '26 ~14:43 UTC = 28-05 '26 ~22:43 SGT; v0.61.218 city aliases + round-robin built at 28-05 '26 05:37 SGT — operator-validated balanced KL+Putrajaya output)
+last_anchor_iso8601: 2026-05-28T05:37:00+08:00
+last_anchor_utc: 2026-05-27T21:37:00Z
+
+# v0.61.218 (commit 431 / journal 419 / build 221) — operator
+# (28-05 '26 05:30 SGT) ran `/training 100 KL Putrajaya` on
+# v0.61.217 and got 100 Putrajaya tests with 0 KL. Root cause: my
+# substring/prefix matcher checked `"kuala lumpur".includes("kl")`
+# which is false. Two-part fix:
+# 1. **CITY_ALIASES map** — KL→Kuala Lumpur, PJ→Petaling Jaya,
+#    SA→Shah Alam, SJ→Subang Jaya, JB→Johor Bahru, BKK→Bangkok,
+#    KJG→Kajang, KLG→Klang. Tokens lowercased then expanded
+#    before matching.
+# 2. **Round-robin emission** by venue → by variant, with cities
+#    interleaved (transpose). Previously a flat
+#    `for(venue) for(variant)` meant a small `limit` hit one city
+#    fully before reaching the next. After interleave:
+#       /training 100 KL Putrajaya  → 50/50
+#       /training 100 Bali Jakarta  → 50/50
+#       /training 100 KL PJ Putrajaya → 40/40/20
+#    `full sweep` unchanged at 1950 tests.
+#
+# Verification: vitest 2538/2538 pass.
+
+
 
 # v0.61.217 (commit 430 / journal 418 / build 220) — operator
 # (28-05 '26 22:36 SGT): post-merge smoke (50) on v0.61.216 STILL
