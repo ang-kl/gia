@@ -123,16 +123,28 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     if (!w) { setErrorMsg(t('location.setErr', lang)); return; }
     setOtherSearching(true); setOtherNoMatch(false); setOtherResults([]); setErrorMsg('');
     try {
-      const r = await fetch('/api/cuisine/place-search-by-country', {
+      // v0.61.199 — was: `res.ok ? res.json() : null` then treat null
+      // as "noMatch", which made HTTP 502 look identical to a clean
+      // zero-results response. Now distinguish: !res.ok → throw a
+      // typed error so the user sees a real failure message instead
+      // of "No match in Malaysia".
+      const res = await fetch('/api/cuisine/place-search-by-country', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: text, countryCode: countryPref, initData: w.initData || '' })
-      }).then((res) => res.ok ? res.json() : null);
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const r = await res.json();
       const arr = Array.isArray(r?.results) ? r.results : [];
       if (arr.length === 0) setOtherNoMatch(true);
       setOtherResults(arr);
     } catch (err) {
-      setErrorMsg(err?.message || String(err));
+      const raw = err?.message || String(err);
+      const countryName = findCountry(countryPref)?.name || countryPref;
+      const friendly = lang === 'fr'
+        ? `Recherche dans ${countryName} impossible. Réessayez ou changez de pays. (${raw})`
+        : `Couldn't search ${countryName}. Try again or pick a different country. (${raw})`;
+      setErrorMsg(friendly);
     } finally {
       setOtherSearching(false);
     }
