@@ -11920,7 +11920,14 @@ async function cacheBotUsername() {
             return (Array.isArray(r.data?.places) ? r.data.places : [])
               .map((p) => ({
                 placeId: p?.id || '',
-                primaryText: smartPlaceLabel(p?.displayName?.text || '', p?.formattedAddress || ''),
+                // v0.61.222 — Bug B: `smartPlaceLabel` can return null/empty
+                // on edge-case Places results (building-only entries, bare
+                // numbers, etc.). Without a fallback, the JSON shipped to
+                // the TMA carried `primaryText: null`, which JSX rendered
+                // as the literal string "null" (operator-seen on KR + "LG").
+                // Mirror the Geocoding-path fallback at line ~11966.
+                primaryText: smartPlaceLabel(p?.displayName?.text || '', p?.formattedAddress || '')
+                  || p?.formattedAddress || text || 'Unnamed',
                 secondaryText: p?.formattedAddress || '',
                 lat: p?.location?.latitude ?? null,
                 lng: p?.location?.longitude ?? null,

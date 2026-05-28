@@ -1,8 +1,8 @@
 counters:
-  commit: 434
-  build: 224
+  commit: 435
+  build: 225
   documents:
-    journal: 422
+    journal: 423
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,46 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 62
-last_anchor_time: 28-05 '26 08:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_220 (PR #723 v0.61.220 merged ~07:45 SGT; v0.61.221 SG in Menu TMA dropdown built at 28-05 '26 08:00 SGT)
-last_anchor_iso8601: 2026-05-28T08:00:00+08:00
-last_anchor_utc: 2026-05-28T00:00:00Z
+  current_chat_counter: 63
+last_anchor_time: 28-05 '26 08:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_221 (PR #724 v0.61.221 merged 28-05 '26 ~00:15 UTC; v0.61.222 OTHER picker fixes built at 28-05 '26 08:30 SGT)
+last_anchor_iso8601: 2026-05-28T08:30:00+08:00
+last_anchor_utc: 2026-05-28T00:30:00Z
+
+# v0.61.222 (commit 435 / journal 423 / build 225) — two
+# operator-reported OTHER picker bugs from a KR session:
+#
+# **Bug A — KR + Japanese cuisine returned only 4 venues.**
+# Root cause: `filterVenuesByCountry` (country-text-match.js)
+# applied an all-Latin keyword set to venues whose
+# `area + name` was Hangul (Places returned legitimate Tokyo /
+# Seoul restaurants with Hangul or Kanji display names). The
+# substring match `'seoul'.includes(hangul)` is always false →
+# the filter dropped ~80% of valid venues.
+#
+# Fix: detect non-Latin-script characters in `area + name`
+# (Hangul / Hiragana / Katakana / CJK / Thai / Lao / Khmer /
+# Burmese / Cyrillic blocks) and fail-open for those venues.
+# locationBias.circle remains the primary geographic constraint;
+# the keyword filter still drops cross-border Latin-script venues
+# (regression guard test ensures SG-in-MY drop still works).
+#
+# **Bug B — KR + "LG" picker returned ONE result labelled "null".**
+# Root cause: index.js:11923 (place-search-by-country Places path)
+# was missing the `|| 'Unnamed'` fallback the Geocoding path at
+# line 11966 has. When Places returned a result whose
+# `displayName.text` was empty/missing, `smartPlaceLabel(null, '')`
+# returned null → JSON shipped `primaryText: null` → JSX rendered
+# the literal string "null".
+#
+# Fix: chain fallbacks at line 11923 —
+#     smartPlaceLabel(...) || formattedAddress || query || 'Unnamed'
+#
+# Verification: direct Node smoke (4/4 cases ✓), node --check on
+# both files OK. Vitest hit the same iCloud ENV err as v0.61.219;
+# CI will validate.
+
+
 
 # v0.61.221 (commit 434 / journal 422 / build 224) — operator
 # 28-05 '26: "Add Singapore in part of the dropdown list at the

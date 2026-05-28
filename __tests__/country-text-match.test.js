@@ -92,3 +92,45 @@ describe('country-text-match — case-insensitive match', () => {
     expect(filterVenuesByCountry(venues, 'MY')).toHaveLength(1);
   });
 });
+
+// v0.61.222 — operator-reported KR + Japanese cuisine = 4 results.
+// Places returned legitimate restaurants whose displayName.text was
+// in Hangul / Kanji; the all-Latin KR keyword set couldn't match.
+// Fix: venues with any non-Latin-script character in `area + name`
+// fail-open through the filter (locationBias keeps them honest).
+describe('country-text-match — non-Latin script fail-open (v0.61.222)', () => {
+  it('KR venue with Hangul name keeps even without Latin city token', () => {
+    // `area` here is realistic Places-returned Korean address (Hangul),
+    // `name` is the venue name in Hangul. No keyword matches the
+    // pre-v0.61.222 filter — must now pass via the script bypass.
+    const venues = [v('서울특별시 강남구 테헤란로', '부야부야')];
+    expect(filterVenuesByCountry(venues, 'KR')).toHaveLength(1);
+  });
+  it('JP venue with Kanji+Kana name keeps', () => {
+    const venues = [v('東京都渋谷区', '一蘭ラーメン')];
+    expect(filterVenuesByCountry(venues, 'JP')).toHaveLength(1);
+  });
+  it('TH venue with Thai script keeps', () => {
+    const venues = [v('กรุงเทพมหานคร', 'ส้มตำ')];
+    expect(filterVenuesByCountry(venues, 'TH')).toHaveLength(1);
+  });
+  it('CN venue with Han script keeps', () => {
+    const venues = [v('上海市黄浦区', '南翔小笼包')];
+    expect(filterVenuesByCountry(venues, 'CN')).toHaveLength(1);
+  });
+  it('HK venue with traditional Chinese keeps', () => {
+    const venues = [v('香港九龍尖沙咀', '茶餐廳')];
+    expect(filterVenuesByCountry(venues, 'HK')).toHaveLength(1);
+  });
+  it('still drops cross-border SG venue (all-Latin name) when country=MY', () => {
+    // Regression guard: the Hangul-fail-open path must not weaken the
+    // cross-border defense for Latin-script venue text.
+    const venues = [
+      v('Tanjong Pagar, Singapore', 'Hawker'),
+      v('Kuala Lumpur, Malaysia', 'KL Hawker')
+    ];
+    const out = filterVenuesByCountry(venues, 'MY');
+    expect(out).toHaveLength(1);
+    expect(out[0].name).toBe('KL Hawker');
+  });
+});
