@@ -94,41 +94,67 @@ const KEYWORDS = {
     // Chinese
     '水果', '果汁', '鲜果', '鲜榨', '果园'
   ],
-  // v0.61.141 — DURIAN now narrowed to durian FRUIT only. Pastry
-  // terms (puff / mochi / pancake / crepe) moved to DURIAN_PASTRY
-  // below; durian-puree stays because it's the raw frozen-fruit
-  // product, not a pastry.
+  // v0.61.225 — DURIAN keyword list expanded to the operator's full 41-
+  // variety catalogue (was 8 aliases). Each "X or Y" alias is split into
+  // both names so a Google review that uses either form surfaces the
+  // venue. Lowercased; matched as substrings against `_haystack`.
   [SPECIAL_MODES.DURIAN]: [
     // Latin / English — fruit sellers + raw product
     'durian', 'durians', 'durian seller', 'durian stall', 'durian shop',
     'durian specialist', 'durian delivery', 'durian puree',
-    // v0.61.149 — explicit variety alias coverage per operator request
-    // ("dig into Google Maps reviews for Mao Shan Wang, D24, Golden
-    // Phoenix, Red Prawn, Black Thorn"). Jin Feng (金凤) is the Chinese
-    // name for Golden Phoenix; both English aliases now match so a
-    // reviewer who writes either form surfaces the venue.
-    'mao shan wang', 'msw', 'd24', 'red prawn', 'black thorn',
-    'xo durian', 'jin feng', 'golden phoenix', 'sultan', 'kampung',
+    // Variety catalogue (operator-supplied, v0.61.225). 41 entries —
+    // every "X or Y" alias broken into both names. Lower-cased.
+    'mao shan wang', 'musang king', 'msw', 'super msw', 'old tree msw',
+    'black thorn', 'black thorn johor',
+    'd24', 'sultan',
+    'red prawn', 'udang merah',
+    'golden phoenix', 'jin feng', 'd198', 'golden phoenix johor',
+    'xo', 'xo durian',
+    'd101', 'd168', '101 johor',
+    'black pearl', 'green bamboo', 'tekka',
+    'golden pillow', 'mon thong',
+    'kasap', 'butter king',
+    'd13', 'd1', 'd17', 'd88', 'd2', 'd22', 'd78', 'd144', 'd200',
+    'ganghai', 's17',
+    'hor lor', 'd163', 'hor lor penang',
+    'd162',
+    'd175', 'red flesh',
+    'kampung durian', 'kampung',
+    'tawa', 'mdur88',
+    'd160', 'lohat',
+    'kanyao', 'chanee',
+    'jiang hai', 'lao tai po',
+    'tupai king', 'squirrel king',
     // Chinese — fruit
     '榴莲', '榴梿', '猫山王', '红虾', '金凤'
   ],
-  // v0.61.141 — durian-pastry signal terms. Pastry / bakery / dessert
-  // markers that the operator wants surfaced as a separate chip from
-  // the fruit-only DURIAN mode.
-  // v0.61.149 — added variety aliases (Mao Shan Wang / D24 / Golden
-  // Phoenix / Red Prawn / Black Thorn) so reviews praising a specific
-  // variety in a pastry context surface the bakery. A pastry-named
-  // venue ("XX Durian Puff") still needs its pastry keyword to match;
-  // varieties are additive signal, not the primary qualifier.
+  // v0.61.225 — DURIAN_PASTRY keyword list expanded to the operator's
+  // full 41-dessert catalogue (was 12 entries). Mirrors the fruit-
+  // catalogue split: each operator entry becomes a lower-cased keyword.
   [SPECIAL_MODES.DURIAN_PASTRY]: [
-    // Latin / English — pastry-specific
-    'durian puff', 'durian puffs', 'durian pastry', 'durian pastries',
-    'durian mochi', 'durian pancake', 'durian crepe', 'durian crepes',
-    'durian cake', 'durian tart', 'durian roll', 'durian cream puff',
-    // Variety aliases (review-signal — surfaces pastries that pair the
-    // pastry word with a specific variety like "Mao Shan Wang puff")
-    'mao shan wang', 'msw', 'd24', 'red prawn', 'black thorn',
-    'golden phoenix', 'jin feng',
+    // Pastry-specific (operator-supplied, v0.61.225). 41 entries.
+    'durian mousse', 'durian puff', 'durian puffs', 'durian crepe',
+    'durian crepes', 'durian ice cream', 'durian chendol', 'durian cake',
+    'durian mochi', 'durian pengat', 'durian mooncake',
+    'durian swiss roll', 'durian tart', 'durian pizza',
+    'durian ice kacang', 'durian milkshake', 'durian smoothie',
+    'durian coffee', 'durian macarons', 'durian kueh lapis',
+    'durian waffles', 'durian strudel', 'durian souffle',
+    'durian pudding', 'durian coconut shake', 'durian egg tart',
+    'durian basque burnt cheesecake', 'durian choux pastry',
+    'durian croissant', 'durian kaya toast', 'durian goreng',
+    'fried durian', 'durian bingsoo', 'durian soft serve',
+    'durian swiss roll ice cream', 'durian crème brûlée',
+    'durian creme brulee', 'durian mille crepe', 'durian mille crepe cake',
+    'durian snowy mooncake', 'durian milk tea', 'durian sago',
+    'durian sticky rice', 'durian swiss tart', 'durian éclair',
+    'durian eclair', 'durian pancake', 'durian frappuccino',
+    'durian frappucci',
+    // Generic pastry / bakery markers (v0.61.141 baseline)
+    'durian pastry', 'durian pastries', 'durian roll', 'durian cream puff',
+    // Variety aliases (review signal — pairs variety + pastry word)
+    'mao shan wang', 'musang king', 'msw', 'd24', 'red prawn',
+    'black thorn', 'golden phoenix', 'jin feng',
     // Chinese — pastry / cake variants + variety
     '榴莲泡芙', '榴莲蛋糕', '榴莲麻糬', '榴莲班戟',
     '猫山王', '金凤', '红虾'
@@ -175,9 +201,15 @@ function _rejectTypesFor(mode) {
 // matches the keyword list. DURIAN_PASTRY has its own keyword + seed
 // list; FRUITS doesn't share the durian / pastry vocabulary so its
 // reject list is empty.
+// v0.61.225 — DURIAN name-reject patterns extended to cover every
+// pastry / dessert form in the operator's DURIAN_PASTRY catalogue, so a
+// venue named e.g. "Durian Mousse Bar" or "Durian Bingsoo Cafe" cannot
+// satisfy DURIAN-mode (fruit-only) on the basis of the bare "durian"
+// keyword.
 const NAME_REJECT_PATTERNS = {
   [SPECIAL_MODES.FRUITS]: [],
   [SPECIAL_MODES.DURIAN]: [
+    // v0.61.141 baseline
     /\bpuff\b/i, /\bpuffs\b/i,
     /\bmochi\b/i,
     /\bpancake\b/i, /\bpancakes\b/i,
@@ -186,9 +218,26 @@ const NAME_REJECT_PATTERNS = {
     /\bpastry\b/i, /\bpastries\b/i,
     /\btart\b/i, /\btarts\b/i,
     /\bbakery\b/i, /\bbakeries\b/i,
-    /\béclair\b/i, /\béclairs\b/i,
+    /\béclair\b/i, /\béclairs\b/i, /\beclair\b/i, /\beclairs\b/i,
     /\bcream puff\b/i,
-    /\bdessert\b/i
+    /\bdessert\b/i,
+    // v0.61.225 — operator's DURIAN_PASTRY catalogue
+    /\bmousse\b/i,
+    /\bice cream\b/i, /\bsoft serve\b/i, /\bbingsoo\b/i, /\bbingsu\b/i,
+    /\bchendol\b/i, /\bcendol\b/i, /\bice kacang\b/i, /\bpengat\b/i,
+    /\bmooncake\b/i, /\bsnowy mooncake\b/i,
+    /\bswiss roll\b/i, /\broll\b/i, /\bswiss tart\b/i,
+    /\bpizza\b/i,
+    /\bmilkshake\b/i, /\bsmoothie\b/i, /\bcoconut shake\b/i,
+    /\bcoffee\b/i, /\bmilk tea\b/i, /\bfrappucci(no)?\b/i, /\bfrappuccino\b/i,
+    /\bmacarons?\b/i, /\bkueh lapis\b/i,
+    /\bwaffles?\b/i, /\bstrudel\b/i, /\bsouffl(é|e)\b/i, /\bpudding\b/i,
+    /\begg tart\b/i, /\bbasque\b/i, /\bcheesecake\b/i,
+    /\bchoux\b/i, /\bcroissant\b/i, /\bkaya toast\b/i,
+    /\bgoreng\b/i, /\bfried durian\b/i,
+    /\bcr(è|e)me br(û|u)l(é|e)e?\b/i,
+    /\bmille crepe\b/i, /\bmille-crepe\b/i, /\bmille feuille\b/i,
+    /\bsago\b/i, /\bsticky rice\b/i
   ],
   [SPECIAL_MODES.DURIAN_PASTRY]: []
 };
