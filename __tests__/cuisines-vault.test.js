@@ -87,7 +87,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['dessert']).toBe(4);              // v0.61.141: Dessert + Fruits + Durian + Durian Pastry
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(70);
+    expect(total).toBe(69);   // v0.61.234: was 70, Australasia catch-all removed
   });
 
   // v0.60.22 — defend against the duplicate-Michelin bug. The
