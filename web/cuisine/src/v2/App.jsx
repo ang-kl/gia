@@ -1265,7 +1265,12 @@ export default function App() {
       // v0.61.237 — auto-fire the search with the explicit new anchor.
       // Microtask deferral so the locationAnchor + searchCenter state
       // updates have committed before runSearch reads `state`.
-      if ((p.label || '').trim()) {
+      // v0.61.241 — OTHER city-dropdown picks pass noAutoFire (operator:
+      // "you fire search after selecting the city is wrong. It should
+      // wait until clicking the search button."). Free-text picks +
+      // SG/JB Autocomplete picks still auto-fire — that flow already
+      // has a search gesture baked in.
+      if ((p.label || '').trim() && !p.noAutoFire) {
         Promise.resolve().then(() => runSearch(state, { lat: p.lat, lng: p.lng }));
       }
     } else {
@@ -1375,6 +1380,12 @@ export default function App() {
           📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
         </div>
       ) : (
+        /* v0.61.241 — extra top margin so the resting speech bubble
+           (rendered above the pill via `bottom-full` inside
+           LocationField) has room to overhang without colliding
+           with the region pill row above. ~28 px is the bubble's
+           overall height including its tail. */
+        <div className="mt-7">
         <LocationField
           userLoc={userLoc}
           region={state.region}
@@ -1400,6 +1411,7 @@ export default function App() {
             saveCountryPref(code).catch(() => { /* non-fatal */ });
           }}
         />
+        </div>
       )}
 
       <MapPanel
