@@ -166,9 +166,9 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     }).then((r) => r.ok ? r.json() : null)
       .then((body) => {
         if (cancelled || !body?.countryCode) return;
-        // 'SG' is the SG region pill default — skip so we don't shove
-        // it into the OTHER picker's countryPref slot.
-        if (body.countryCode === 'SG') return;
+        // v0.61.221 — 'SG' is now in OTHER_COUNTRIES (bottom of list)
+        // so we read it back like any other country. Was: explicit
+        // skip because the dropdown couldn't render SG.
         setCountryPref((cur) => (cur === body.countryCode ? cur : body.countryCode));
       })
       .catch(() => { /* non-fatal */ });

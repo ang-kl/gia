@@ -1,14 +1,25 @@
-// web/menu/src/countries.js — v0.61.192
+// web/menu/src/countries.js — v0.61.221
 //
-// Duplicate of web/cuisine/src/v2/lib/countries.js so the Menu TMA's
-// build (separate Vite config, separate node_modules) can import
-// without cross-package wiring. Keep the two lists in sync — 16
-// entries: ASEAN-9 (sans SG), Oceania-2, North Asia-5.
+// Was a byte-identical duplicate of web/cuisine/src/v2/lib/countries.js.
+// v0.61.221 diverges: the Menu TMA's flag dropdown now appends 🇸🇬 SG at
+// the bottom so a user anchored in OTHER (e.g. Bangkok) can flip back to
+// SG via the same control. Cuisine TMA still uses a SG/JB pill outside
+// the dropdown, so its list stays SG-less.
+//
+// Operator (28-05 '26): "Add Singapore in part of the dropdown list at
+// the bottom for Menu TMA only … When Select Singapore in the Menu TMA,
+// and user type in the location it should behavior like what has been
+// coded and not change." Picking SG + searching flows through the
+// existing /api/cuisine/place-search-by-country endpoint with
+// countryCode=SG; the picked result is set-located server-side which
+// stamps region='SG' on the anchor; the parent App's region transition
+// then re-renders the form back into native SG mode (precinct dropdown
+// + place-autocomplete). End behaviour matches the SG-mode codepath.
 
 'use strict';
 
 export const OTHER_COUNTRIES = Object.freeze([
-  // ASEAN excluding SG (SG has its own pill).
+  // ASEAN excluding SG (SG sits at the bottom of this list).
   { code: 'MY', flag: '🇲🇾', name: 'Malaysia' },
   { code: 'ID', flag: '🇮🇩', name: 'Indonesia' },
   { code: 'TH', flag: '🇹🇭', name: 'Thailand' },
@@ -26,7 +37,9 @@ export const OTHER_COUNTRIES = Object.freeze([
   { code: 'KR', flag: '🇰🇷', name: 'South Korea' },
   { code: 'CN', flag: '🇨🇳', name: 'China' },
   { code: 'HK', flag: '🇭🇰', name: 'Hong Kong' },
-  { code: 'TW', flag: '🇹🇼', name: 'Taiwan' }
+  { code: 'TW', flag: '🇹🇼', name: 'Taiwan' },
+  // v0.61.221 — Singapore at the bottom, Menu TMA only.
+  { code: 'SG', flag: '🇸🇬', name: 'Singapore' }
 ]);
 
 export const DEFAULT_OTHER_COUNTRY = 'MY';
