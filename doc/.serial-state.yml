@@ -1,8 +1,8 @@
 counters:
-  commit: 440
-  build: 230
+  commit: 441
+  build: 231
   documents:
-    journal: 428
+    journal: 429
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,36 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 68
-last_anchor_time: 28-05 '26 10:50 SGT
-last_anchor_source: build_timestamp_v0_61_227 (Menu TMA city dropdown built at 28-05 '26 10:50 SGT; v0.61.226 social-profiles arc held local pending its own PR)
-last_anchor_iso8601: 2026-05-28T10:50:00+08:00
-last_anchor_utc: 2026-05-28T02:50:00Z
+  current_chat_counter: 69
+last_anchor_time: 28-05 '26 13:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_227 (PR #730 v0.61.227 merged ~11:20 SGT; v0.61.228 Cuisine TMA city cascade built at 28-05 '26 13:30 SGT)
+last_anchor_iso8601: 2026-05-28T13:30:00+08:00
+last_anchor_utc: 2026-05-28T05:30:00Z
+
+# v0.61.228 (commit 441 / journal 429 / build 231) — operator
+# 28-05 '26 "proceed". Mirrors v0.61.227's Menu TMA cascading
+# city dropdown into the Cuisine TMA's OTHER picker, completing
+# the second half of the operator's "another field for common
+# cities of the country, child dropdown button related to the
+# country dropdown" arc. The /s search wiring (item 3 of the
+# arc) is tracked as v0.61.229+.
+#
+# - NEW `web/cuisine/src/v2/lib/cities.js`: byte-identical copy
+#   of `web/menu/src/cities.js` (header rewritten to call out the
+#   intentional duplication, same convention as countries.js).
+#   16 countries / 133 cities; MY = 15 capitals.
+# - `web/cuisine/src/v2/components/LocationField.jsx` —
+#   OtherLocationPicker grows a `cityPick` state, an effect that
+#   resets it on country change, an `onCityPick` handler that
+#   propagates `{ lat, lng, label }` via the existing `onSelect`
+#   prop (so the Cuisine TMA's existing anchor-set path stays
+#   the source of truth), and a `<select>` rendered between the
+#   country flag and the search input (only when the country has
+#   a city catalogue).
+# - `web/cuisine/src/v2/lib/i18n.js`: 'loc.other.city' added
+#   for both en + fr.
+
+
 
 # v0.61.227 (commit 440 / journal 428 / build 230) — operator
 # 28-05 '26: "we may need another field for common cities of the
