@@ -1238,10 +1238,13 @@ export default function App() {
   // of inside the collapsed Search-criteria section.
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
-      // v0.60.166 — picking a location commits the anchor ONLY; it must
-      // not auto-fire a search (the user composes the rest of the
-      // criteria and taps 🔍 themselves, and auto-firing raced the
-      // React state update so the search ran with the stale anchor).
+      // v0.61.237 — operator: city / precinct picks in the OTHER
+      // cascade weren't auto-refreshing the result list ("the google
+      // didn't set the location and search based on the new set
+      // location"). v0.60.166 disabled auto-fire because of a state
+      // race against the stale anchor; the fix is to pass the new
+      // anchor to runSearch EXPLICITLY (the `anchor` arg, not via
+      // state) so it doesn't matter when React commits the update.
       setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
       // v0.60.170 — also setSearchCenter on pick, so the map re-renders
       // at the picked place and the Search button (runSearch(state),
@@ -1251,6 +1254,12 @@ export default function App() {
       // also updates the bot's /location cache so it sticks across
       // sessions and in chat.
       if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
+      // v0.61.237 — auto-fire the search with the explicit new anchor.
+      // Microtask deferral so the locationAnchor + searchCenter state
+      // updates have committed before runSearch reads `state`.
+      if ((p.label || '').trim()) {
+        Promise.resolve().then(() => runSearch(state, { lat: p.lat, lng: p.lng }));
+      }
     } else {
       setLocationAnchor(null);
     }
