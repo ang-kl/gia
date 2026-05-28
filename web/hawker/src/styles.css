@@ -26,9 +26,11 @@ body { -webkit-font-smoothing: antialiased; }
     justify-content: center;
     background-color: var(--tg-card, #1c1c1f);
   }
+  /* v0.61.231 — cap raised 1280 → 1600 to match the other TMAs so
+     notebook viewports fill the width. */
   #root {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1600px;
     min-height: var(--tg-viewport-stable-height, 100vh);
     background-color: var(--tg-bg);
   }
