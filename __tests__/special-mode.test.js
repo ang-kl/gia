@@ -283,3 +283,87 @@ describe('special-mode — DURIAN_PASTRY (v0.61.141)', () => {
     expect(out.map((v) => v.name)).toEqual(['Old Chang Kee Durian Puff', '榴莲蛋糕屋']);
   });
 });
+
+// v0.61.225 — operator-supplied full catalogues.
+//   DURIAN          → 41 fruit-variety names (MSW/Musang King, Black
+//                     Thorn, D24/Sultan, …)
+//   DURIAN_PASTRY   → 41 dessert/drink/cake items (Durian Mousse,
+//                     Bingsoo, Mille Crepe, Goreng, Frappuccino, …)
+describe('special-mode — v0.61.225 fruit-variety catalogue (DURIAN)', () => {
+  // A representative sample of the 41 varieties — review-text signal
+  // alone (no name match) must still surface the stall.
+  const fruitVarietySignals = [
+    'Musang King', 'Super MSW', 'Old Tree MSW', 'Black Thorn Johor',
+    'Red Prawn', 'Udang Merah', 'D198', 'Sultan',
+    'XO Durian', 'D101', '101 Johor', 'D168',
+    'Black Pearl', 'Green Bamboo', 'Tekka', 'Mon Thong', 'Golden Pillow',
+    'Kasap', 'Butter King', 'D13', 'D1', 'D17', 'D88',
+    'Ganghai', 'S17', 'Hor Lor', 'D163', 'D162', 'D175', 'Red Flesh',
+    'Kampung Durian', 'Tawa', 'MDUR88', 'D78', 'D144', 'D160', 'Lohat',
+    'Kanyao', 'Chanee', 'Jiang Hai', 'Lao Tai Po',
+    'Tupai King', 'Squirrel King', 'D200'
+  ];
+  for (const variety of fruitVarietySignals) {
+    it(`accepts a stall with "${variety}" in a review`, () => {
+      const v = {
+        name: 'Generic Durian Stall',
+        primaryType: 'meal_takeaway',
+        reviews: [{ text: `Their ${variety} was the best this season` }]
+      };
+      expect(sm.isRelevant(v, 'durian')).toBe(true);
+    });
+  }
+});
+
+describe('special-mode — v0.61.225 dessert catalogue (DURIAN_PASTRY)', () => {
+  // Operator's 41-item dessert/drink/cake list. Name match alone — no
+  // primaryType reject — must surface for the pastry mode.
+  const pastryItems = [
+    'Durian Mousse', 'Durian Puffs', 'Durian Crepes', 'Durian Ice Cream',
+    'Durian Chendol', 'Durian Cake', 'Durian Mochi', 'Durian Pengat',
+    'Durian Mooncake', 'Durian Swiss Roll', 'Durian Tart', 'Durian Pizza',
+    'Durian Ice Kacang', 'Durian Milkshake', 'Durian Smoothie',
+    'Durian Coffee', 'Durian Macarons', 'Durian Kueh Lapis',
+    'Durian Waffles', 'Durian Strudel', 'Durian Souffle',
+    'Durian Pudding', 'Durian Coconut Shake', 'Durian Egg Tart',
+    'Durian Basque Burnt Cheesecake', 'Durian Choux Pastry',
+    'Durian Croissant', 'Durian Kaya Toast', 'Durian Goreng',
+    'Durian Bingsoo', 'Durian Soft Serve', 'Durian Mille Crepe Cake',
+    'Durian Snowy Mooncake', 'Durian Milk Tea', 'Durian Sago',
+    'Durian Sticky Rice', 'Durian Swiss Tart', 'Durian Eclair',
+    'Durian Pancake', 'Durian Frappuccino'
+  ];
+  for (const item of pastryItems) {
+    it(`accepts a cafe named "${item}"`, () => {
+      const v = { name: `${item} House`, primaryType: 'bakery' };
+      expect(sm.isRelevant(v, 'durian-pastry')).toBe(true);
+    });
+  }
+});
+
+describe('special-mode — v0.61.225 pastry names REJECTED from DURIAN', () => {
+  // Every operator-list pastry name must drop out of the DURIAN
+  // (fruit-only) mode via NAME_REJECT_PATTERNS — even if "durian" is
+  // in the name and the venue is meal_takeaway.
+  const pastryNames = [
+    'Durian Mousse Bar',
+    'Durian Bingsoo Cafe',
+    'Durian Mille Crepe Heaven',
+    'Durian Ice Kacang Spot',
+    'Durian Chendol Stall',
+    'Durian Goreng Hut',
+    'Durian Croissant Bakery',
+    'Durian Egg Tart Shop',
+    'Durian Frappuccino Express',
+    'Durian Sago Bowl',
+    'Durian Macaron Lab',
+    'Durian Soft Serve Truck',
+    'Durian Kaya Toast Place',
+    'Durian Mooncake Boutique'
+  ];
+  for (const name of pastryNames) {
+    it(`rejects "${name}" from DURIAN`, () => {
+      expect(sm.isRelevant({ name, primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+    });
+  }
+});
