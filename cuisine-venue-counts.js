@@ -40,7 +40,9 @@ const SCOPE_SLUGS = Object.freeze([
   'thai', 'filipino', 'vietnamese', 'burmese',
   'japanese', 'korean', 'taiwanese',
   'american', 'mexican', 'brazilian', 'argentinian',
-  'australian', 'new-zealand', 'australasia',
+  // v0.61.234 — 'australasia' catch-all removed from the catalogue.
+  // Australian + New Zealand remain as the canonical search paths.
+  'australian', 'new-zealand',
   'shanghainese', 'northeastern', 'northwestern',
   'italian', 'spanish', 'greek', 'french', 'british', 'german', 'austrian',
   'swiss', 'portuguese', 'russian', 'ukrainian', 'polish', 'scandinavian',

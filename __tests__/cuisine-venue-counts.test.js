@@ -30,8 +30,8 @@ const {
 } = require('../cuisine-venue-counts');
 
 describe('SCOPE_SLUGS', () => {
-  it('contains exactly 48 slugs (operator-confirmed subset)', () => {
-    expect(SCOPE_SLUGS.length).toBe(48);
+  it('contains exactly 47 slugs (operator-confirmed subset, v0.61.234 dropped Australasia catch-all)', () => {
+    expect(SCOPE_SLUGS.length).toBe(47);
   });
 
   it('is frozen', () => {

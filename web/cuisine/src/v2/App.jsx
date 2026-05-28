@@ -205,6 +205,10 @@ export default function App() {
   // and `tipFirstShownRef` guard are all gone; the 3 s FAB flash +
   // arrow are the standing cue that another 🔍 tap loads more.
   const [exhaustedNote, setExhaustedNote] = useState(false);
+  // v0.61.234 — "limited coverage" hint shown when the selected cuisine
+  // has genuinely few SG matches in Places (African / Georgian).
+  // Operator-recommended set after the rare-cuisine investigation.
+  const [sparseNotice, setSparseNotice] = useState(null);
   // v0.60.191 — sticky flag: did the last server response come back
   // as the planned 6-venue first batch? Used to suppress the v0.60.188
   // <12 auto-reset (which would otherwise loop 6 venues forever — see
@@ -972,6 +976,15 @@ export default function App() {
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
       setExhaustedNote(r?.exhausted === true);
+      // v0.61.234 — sparse-coverage hint. When the user selected a
+      // cuisine that Places genuinely has few SG matches for and the
+      // result count is ≤ 5, surface a note so they understand the
+      // ceiling is real (vs assuming the search broke).
+      const SPARSE_SLUGS = new Set(['african', 'south-african', 'georgian']);
+      const sparseHit = Array.isArray(snap?.cuisines)
+        && snap.cuisines.some((s) => SPARSE_SLUGS.has(String(s).toLowerCase()));
+      const lowCount = Array.isArray(r?.venues) && r.venues.length > 0 && r.venues.length <= 5;
+      setSparseNotice(sparseHit && lowCount ? snap.cuisines.find((s) => SPARSE_SLUGS.has(String(s).toLowerCase())) : null);
       setFirstBatch(r?.firstBatch === true);    // v0.60.191
       // v0.61.170 — range counter fields from the response.
       setCumulativeStart(Number.isFinite(r?.cumulativeStart) ? r.cumulativeStart : null);
@@ -1597,6 +1610,18 @@ export default function App() {
               {' '}{tn('special.widened', lang, { km: (specialModeWidenedInfo.finalM / 1000).toFixed(1) })}
             </span>
           )}
+        </div>
+      )}
+
+      {/* v0.61.234 — sparse-coverage hint for African / South African /
+          Georgian cuisines where Google Maps SG has genuinely few
+          listings. Sets expectation so the user doesn't perceive the
+          short result list as a bug. */}
+      {sparseNotice && !loading && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {lang === 'fr'
+            ? `Cuisine peu représentée à Singapour — Google Maps répertorie peu d'établissements ${sparseNotice}. Affichage de toutes les correspondances.`
+            : `Limited coverage in Singapore — Google Maps has few ${sparseNotice} restaurants listed. Showing all matches.`}
         </div>
       )}
 

@@ -13158,7 +13158,15 @@ async function cacheBotUsername() {
         // gated-category validation (Australasia added to
         // GATED_CATEGORIES below) handles the original junk-results
         // concern without zeroing the result list.
-        const SEARCH_QUERY_OVERRIDE = {};
+        // v0.61.234 — rare-cuisine investigation. The default textQuery
+        // construction is `"${name} restaurant Singapore"` which Places
+        // can't strongly match for "Georgian" (one venue: Suprë by
+        // Sandro). Override to broaden the signal — Caucasus + cuisine
+        // qualifiers pick up the same venue plus any Caucasus-adjacent
+        // listings Places might index under broader terms.
+        const SEARCH_QUERY_OVERRIDE = {
+          'Georgian': 'Georgian Caucasus cuisine restaurant Singapore'
+        };
         const cuisineNames = cuisineMetas.map((c) => SEARCH_QUERY_OVERRIDE[c.name] || c.name);
         // v0.57.13: only gate non-local categories. Singapore common
         // food (SEA, China-regional, South Asian, Middle Eastern,
