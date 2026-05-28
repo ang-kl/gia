@@ -100,6 +100,8 @@ const STRINGS = {
   // regionCode=SG. New flow: pick country flag → type → search →
   // confirmation list (no autocomplete dropdown for OTHER).
   'loc.other.country':         { en: 'Country', fr: 'Pays' },
+  // v0.61.228 — cascading child city dropdown next to the country flag.
+  'loc.other.city':            { en: 'City',    fr: 'Ville' },
   'loc.other.placeholder':     { en: 'Type a place name + 🔍',
                                  fr: 'Tapez un lieu + 🔍' },
   'loc.other.searchBtn':       { en: '🔍 Search', fr: '🔍 Rechercher' },

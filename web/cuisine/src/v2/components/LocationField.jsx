@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { placeAutocomplete, placeResolve, placeSearchByCountry, reverseGeocode } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
+import { citiesForCountry } from '../lib/cities.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -412,6 +413,24 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   const [noMatch, setNoMatch] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
+  // v0.61.228 — child city dropdown. Mirrors v0.61.227 Menu TMA. The
+  // cityPick value is reset whenever the country flips because each
+  // country has its own catalogue. Picking a city sets the anchor
+  // directly to that city's centroid (no geocode round-trip — coords
+  // are inline in lib/cities.js).
+  const [cityPick, setCityPick] = useState('');
+  useEffect(() => { setCityPick(''); }, [country.code]);
+  function onCityPick(name) {
+    if (!name) { setCityPick(''); return; }
+    setCityPick(name);
+    const list = citiesForCountry(country.code);
+    const hit = list.find((c) => c.name === name);
+    if (!hit) return;
+    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name });
+    setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
+    // City pick has just propagated upstream → clear local picker.
+    setCityPick('');
+  }
 
   async function doSearch() {
     const text = query.trim();
@@ -463,6 +482,24 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           onChange={(code) => onCountryChange?.(code)}
           ariaLabel={tr('loc.other.country', lang)}
         />
+        {/* v0.61.228 — cascading child city dropdown. Renders only
+            when the selected country has a city catalogue (so SG
+            mode stays unchanged). Picking a city sets the anchor
+            directly to that city's centroid. */}
+        {citiesForCountry(country.code).length > 0 && (
+          <select
+            value={cityPick}
+            onChange={(e) => onCityPick(e.target.value)}
+            disabled={searching}
+            aria-label={tr('loc.other.city', lang) || 'City'}
+            className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1 py-0.5 max-w-[8rem]"
+          >
+            <option value="">— City —</option>
+            {citiesForCountry(country.code).map((c) => (
+              <option key={c.name} value={c.name}>{c.name}</option>
+            ))}
+          </select>
+        )}
         <input
           type="text"
           value={query}
