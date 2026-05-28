@@ -1,8 +1,8 @@
 counters:
-  commit: 441
-  build: 231
+  commit: 442
+  build: 232
   documents:
-    journal: 429
+    journal: 430
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,49 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 69
-last_anchor_time: 28-05 '26 13:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_227 (PR #730 v0.61.227 merged ~11:20 SGT; v0.61.228 Cuisine TMA city cascade built at 28-05 '26 13:30 SGT)
-last_anchor_iso8601: 2026-05-28T13:30:00+08:00
-last_anchor_utc: 2026-05-28T05:30:00Z
+  current_chat_counter: 70
+last_anchor_time: 28-05 '26 14:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_228 (PR #731 v0.61.228 merged ~13:40 SGT; v0.61.229 Durian correction built at 28-05 '26 14:30 SGT)
+last_anchor_iso8601: 2026-05-28T14:30:00+08:00
+last_anchor_utc: 2026-05-28T06:30:00Z
+
+# v0.61.229 (commit 442 / journal 430 / build 232) — operator
+# 28-05 '26 (serious bug): Durian + Durian Pastry cuisine results
+# include "other types of food cuisines". The 41-variety list
+# shipped in v0.61.225 was supposed to be for review-snippet
+# EXTRACTION, not for primary inclusion filtering. The previous
+# REJECT-list approach also let too many primaryTypes through.
+#
+# - `special-mode.js` REJECT_PRIMARY_TYPES → ACCEPT_PRIMARY_TYPES
+#   per mode (operator-supplied positive lists for fruit /
+#   pastry / fruits). Venues with a primaryType outside the
+#   accept list are filtered before the keyword loop runs.
+# - KEYWORDS[DURIAN] reduced from ~60 variety aliases back to
+#   four core tokens: 'durian', 'durians', '榴莲', '榴梿'. The
+#   41 varieties moved to a NEW `DURIAN_VARIETY_TERMS` export
+#   used by the new `extractVarietyMentions(venue)` helper, which
+#   returns word-bounded matches for review-snippet rendering
+#   (UI-side feature lands separately).
+# - `__tests__/special-mode.test.js` updated:
+#   1. v0.61.141 "accepts variety names without pastry tokens"
+#      flipped to "REJECTS variety-only names" (v0.61.229).
+#   2. v0.61.225 fruit-variety review-signal tests still pass
+#      because the venue NAME has "durian" in the test case.
+#   3. Added REGRESSION GUARD tests — French / Italian / Sushi
+#      restaurant whose review mentions a variety or "durian"
+#      MUST be rejected.
+#   4. Added DURIAN_VARIETY_TERMS + extractVarietyMentions tests
+#      (Latin word-bounded "d24" vs "d2", Chinese, empty venue).
+# - NEW `scripts/durian-variance.js` — CLI diagnostic. Runs
+#   Places searchText for Durian / Durian-Pastry seeds in
+#   en / zh-CN / zh-TW / ms × SG / JB / Putrajaya, logs every
+#   result's primaryType + the special-mode.isRelevant() verdict.
+#   Operator runs via:
+#     GOOGLE_MAPS_API_KEY=... node scripts/durian-variance.js
+#   Default mode=durian; pass `--mode=durian-pastry` for pastry
+#   run. ~$0.11 per execution.
+
+
 
 # v0.61.228 (commit 441 / journal 429 / build 231) — operator
 # 28-05 '26 "proceed". Mirrors v0.61.227's Menu TMA cascading

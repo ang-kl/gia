@@ -101,14 +101,21 @@ describe('special-mode — isRelevant (Fruits)', () => {
 });
 
 describe('special-mode — isRelevant (Durian)', () => {
+  // v0.61.229 — variety names ("Mao Shan Wang Express", "Black
+  // Thorn King") and unrecognised primaryTypes ("market",
+  // "fruit_shop" — Google Places uses "fruit_and_vegetable_store")
+  // no longer slip through. The accept-list + "durian must appear
+  // in name/area" combination is the gate.
   const cases = [
-    // Accepted
-    { name: 'Combat Durian', primaryType: 'meal_takeaway', expect: true },   // takeaway is OK for durian
+    // Accepted — name has 'durian' + primaryType in accept list
+    { name: 'Combat Durian', primaryType: 'meal_takeaway', expect: true },
     { name: '99 Old Trees Durian', primaryType: 'food_store', expect: true },
-    { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway', expect: true }, // variety in name
-    { name: 'Tasty D24 Stall', primaryType: 'market', expect: true },
     { name: '榴莲专卖店', primaryType: 'food_store', expect: true },           // Chinese
-    { name: 'Black Thorn King', primaryType: 'meal_takeaway', expect: true },
+    // Rejected — variety in name but no "durian" word (v0.61.229).
+    { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway', expect: false },
+    { name: 'Black Thorn King', primaryType: 'meal_takeaway', expect: false },
+    // Rejected — primaryType outside the accept list (v0.61.229).
+    { name: 'Tasty D24 Stall', primaryType: 'market', expect: false },
     // Rejected — restaurant types
     { name: 'Durian Pasta Bistro', primaryType: 'italian_restaurant', expect: false },
     { name: 'Sushi & Durian Buffet', primaryType: 'japanese_restaurant', expect: false },
@@ -186,14 +193,95 @@ describe('special-mode — type rejection invariants', () => {
     expect(sm.isRelevant({ name: 'Cold-pressed Fruit Juice Tasting', primaryType: 'fine_dining_restaurant' }, 'fruits')).toBe(false);
   });
 
-  it('Durian keeps meal_takeaway (sellers commonly use this primaryType)', () => {
-    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+  // v0.61.229 — meal_takeaway IS in the DURIAN accept list (small
+  // delivery-only specialists). Venue name must still contain the
+  // CORE 'durian' word (variety names alone — like "Mao Shan Wang
+  // Express" — no longer pass; they're extraction signals only).
+  it('Durian keeps meal_takeaway when name has "durian"', () => {
+    expect(sm.isRelevant({ name: 'Durian Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+  });
+
+  it('Durian REJECTS variety-only name (no "durian" word) — extraction-only role', () => {
+    // v0.61.229 — variety names like "Mao Shan Wang", "Black Thorn"
+    // moved OUT of KEYWORDS[DURIAN] into DURIAN_VARIETY_TERMS for
+    // review-snippet extraction. A venue named only after a variety
+    // (with no "durian" word) no longer satisfies the filter.
+    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
   });
 
   it('Fruits rejects meal_takeaway even with juice in name (juice stalls are dine-in / counter)', () => {
     // The spec wants juice STALLS / SHOPS, not delivery — meal_takeaway
-    // is in the reject list for fruits mode.
+    // is not in the fruits accept list.
     expect(sm.isRelevant({ name: 'Daily Fruit Juice Delivery', primaryType: 'meal_takeaway' }, 'fruits')).toBe(false);
+  });
+
+  // v0.61.229 — the operator-reported bug. A French / Italian
+  // restaurant whose review mentions a variety name should NOT
+  // be classified as DURIAN.
+  it('REGRESSION — French restaurant with "Mao Shan Wang" in review is NOT durian', () => {
+    expect(sm.isRelevant({
+      name: 'La Bonne Table',
+      primaryType: 'french_restaurant',
+      reviews: [{ text: 'we paired the foie gras with a Mao Shan Wang reduction' }]
+    }, 'durian')).toBe(false);
+  });
+
+  it('REGRESSION — Italian restaurant with "durian dessert" in review is NOT durian (fruit)', () => {
+    expect(sm.isRelevant({
+      name: 'Pasta Bar',
+      primaryType: 'italian_restaurant',
+      reviews: [{ text: 'pair the durian with our tiramisu' }]
+    }, 'durian')).toBe(false);
+  });
+
+  it('REGRESSION — Sushi restaurant rejected from DURIAN_PASTRY too', () => {
+    expect(sm.isRelevant({
+      name: 'Sushi Tei',
+      primaryType: 'sushi_restaurant',
+      reviews: [{ text: 'they have a durian dessert on the seasonal menu' }]
+    }, 'durian-pastry')).toBe(false);
+  });
+});
+
+describe('special-mode — v0.61.229 DURIAN_VARIETY_TERMS + extractVarietyMentions', () => {
+  it('exposes the operator catalogue as DURIAN_VARIETY_TERMS', () => {
+    expect(Array.isArray(sm.DURIAN_VARIETY_TERMS)).toBe(true);
+    expect(sm.DURIAN_VARIETY_TERMS).toContain('mao shan wang');
+    expect(sm.DURIAN_VARIETY_TERMS).toContain('musang king');
+    expect(sm.DURIAN_VARIETY_TERMS).toContain('d24');
+    expect(sm.DURIAN_VARIETY_TERMS).toContain('black thorn');
+    expect(sm.DURIAN_VARIETY_TERMS).toContain('猫山王');
+  });
+
+  it('extractVarietyMentions returns word-bounded matches (Latin)', () => {
+    const v = {
+      reviews: [{ text: 'They had Mao Shan Wang, D24, and Black Thorn Johor — top notch' }]
+    };
+    const hits = sm.extractVarietyMentions(v);
+    expect(hits).toContain('mao shan wang');
+    expect(hits).toContain('d24');
+    expect(hits).toContain('black thorn');
+    expect(hits).toContain('black thorn johor');
+  });
+
+  it('extractVarietyMentions does NOT match "d2" inside "d24"', () => {
+    const v = { reviews: [{ text: 'D24 was fresh today' }] };
+    const hits = sm.extractVarietyMentions(v);
+    expect(hits).toContain('d24');
+    expect(hits).not.toContain('d2');
+  });
+
+  it('extractVarietyMentions matches Chinese variety names', () => {
+    const v = { reviews: [{ text: '今天买了猫山王和红虾' }] };
+    const hits = sm.extractVarietyMentions(v);
+    expect(hits).toContain('猫山王');
+    expect(hits).toContain('红虾');
+  });
+
+  it('extractVarietyMentions returns [] for empty / null venue', () => {
+    expect(sm.extractVarietyMentions(null)).toEqual([]);
+    expect(sm.extractVarietyMentions({})).toEqual([]);
   });
 });
 
@@ -222,9 +310,12 @@ describe('special-mode — DURIAN narrowed to fruit-only (v0.61.141)', () => {
     expect(sm.isRelevant({ name: 'Combat Durian', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
   });
 
-  it('accepts variety names without pastry tokens', () => {
-    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
-    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+  // v0.61.229 — variety-only names no longer pass DURIAN (they're
+  // extraction-only signals now). See the v0.61.229 regression
+  // tests in the "type rejection invariants" block above.
+  it('REJECTS variety-only names (v0.61.229 update of v0.61.141 test)', () => {
+    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
   });
 });
 

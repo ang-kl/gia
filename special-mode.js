@@ -94,39 +94,24 @@ const KEYWORDS = {
     // Chinese
     '水果', '果汁', '鲜果', '鲜榨', '果园'
   ],
-  // v0.61.225 — DURIAN keyword list expanded to the operator's full 41-
-  // variety catalogue (was 8 aliases). Each "X or Y" alias is split into
-  // both names so a Google review that uses either form surfaces the
-  // venue. Lowercased; matched as substrings against `_haystack`.
+  // v0.61.229 — DURIAN now matches via:
+  //   (a) primaryType ∈ ACCEPT_PRIMARY_TYPES_DURIAN (operator's positive
+  //       list — see below), AND
+  //   (b) the venue's name/area/address/review contains a CORE durian
+  //       term (the word "durian" in any script, or one of the small set
+  //       of stall-style modifiers).
+  // The 41-variety catalogue moved OUT of KEYWORDS and into
+  // DURIAN_VARIETY_TERMS (exported below) — those names are for
+  // post-match review-snippet extraction (operator: "i gave you the
+  // list of durian varieties … for extract google reviews"), NOT
+  // primary inclusion. Old behaviour (v0.61.225) caused a French /
+  // Italian restaurant whose review mentioned "Mao Shan Wang reduction"
+  // to surface under DURIAN.
   [SPECIAL_MODES.DURIAN]: [
-    // Latin / English — fruit sellers + raw product
-    'durian', 'durians', 'durian seller', 'durian stall', 'durian shop',
-    'durian specialist', 'durian delivery', 'durian puree',
-    // Variety catalogue (operator-supplied, v0.61.225). 41 entries —
-    // every "X or Y" alias broken into both names. Lower-cased.
-    'mao shan wang', 'musang king', 'msw', 'super msw', 'old tree msw',
-    'black thorn', 'black thorn johor',
-    'd24', 'sultan',
-    'red prawn', 'udang merah',
-    'golden phoenix', 'jin feng', 'd198', 'golden phoenix johor',
-    'xo', 'xo durian',
-    'd101', 'd168', '101 johor',
-    'black pearl', 'green bamboo', 'tekka',
-    'golden pillow', 'mon thong',
-    'kasap', 'butter king',
-    'd13', 'd1', 'd17', 'd88', 'd2', 'd22', 'd78', 'd144', 'd200',
-    'ganghai', 's17',
-    'hor lor', 'd163', 'hor lor penang',
-    'd162',
-    'd175', 'red flesh',
-    'kampung durian', 'kampung',
-    'tawa', 'mdur88',
-    'd160', 'lohat',
-    'kanyao', 'chanee',
-    'jiang hai', 'lao tai po',
-    'tupai king', 'squirrel king',
-    // Chinese — fruit
-    '榴莲', '榴梿', '猫山王', '红虾', '金凤'
+    // Latin / English — core durian word (singular + plural).
+    'durian', 'durians',
+    // Chinese — core word.
+    '榴莲', '榴梿'
   ],
   // v0.61.225 — DURIAN_PASTRY keyword list expanded to the operator's
   // full 41-dessert catalogue (was 12 entries). Mirrors the fruit-
@@ -161,37 +146,126 @@ const KEYWORDS = {
   ]
 };
 
-// Primary-type rejection list — these Google Places `primaryType`
-// values are NEVER kept under a special mode, regardless of keyword
-// hits in the review text. Catches the "fine_dining_restaurant whose
-// review says 'we serve fresh fruit'" false positive that the spec
-// explicitly forbids.
-const REJECT_PRIMARY_TYPES = new Set([
-  'fine_dining_restaurant', 'chinese_restaurant', 'italian_restaurant',
-  'japanese_restaurant', 'french_restaurant', 'korean_restaurant',
-  'indian_restaurant', 'thai_restaurant', 'mexican_restaurant',
-  'pizza_restaurant', 'sushi_restaurant', 'ramen_restaurant',
-  'steak_house', 'seafood_restaurant', 'bar', 'night_club',
-  'hamburger_restaurant', 'meal_takeaway'  // takeaway-only is allowed for durian; carve-out below
+// v0.61.229 — POSITIVE primaryType accept lists per mode. Operator
+// (28-05 '26): the v0.61.141 REJECT-list approach let too many
+// non-durian-fruit venues through because anything outside the
+// hard-coded reject set passed. Operator-supplied accept lists:
+//
+//   DURIAN (fruit):     fruit and vegetable shop / store, fruits
+//                       wholesaler, wholesaler, produce market,
+//                       grocery store, bakery, cafe (selling whole
+//                       fruit), juice, dessert, fruit parlor.
+//   DURIAN_PASTRY:      cafe, bakery, ice cream shop, dessert,
+//                       fruit parlor, juice, hawker, wholesaler,
+//                       produce market.
+//
+// When the venue's primaryType is set AND not in the mode's accept
+// list, it's rejected before keyword matching. When primaryType is
+// absent (Places didn't return one), accept-list is bypassed —
+// rely on keyword match. `meal_takeaway` is kept for DURIAN
+// (delivery-only specialists, v0.61.141 rationale).
+const ACCEPT_PRIMARY_TYPES_DURIAN = new Set([
+  'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
+  'grocery_store', 'supermarket',
+  'produce_market', 'food_market',
+  'wholesaler', 'wholesale_business', 'wholesale_supplier',
+  'fruit_parlor', 'fresh_fruit_store',
+  'bakery', 'cafe',
+  'juice_shop', 'juice_bar',
+  'dessert_shop',
+  'meal_takeaway',  // v0.61.141 carve-out — small specialist sellers
+  'meal_delivery',
+  'store', 'food_store'
 ]);
 
-// Durian carve-out — `meal_takeaway` (the Places type for delivery-
-// only sellers) IS legitimate for durian, and is the most common type
-// for the small JB / SG specialist sellers. Don't reject it.
-// v0.61.141 — DURIAN_PASTRY uses the FRUITS reject list (no carve-out
-// for meal_takeaway): pastry sellers are typically dine-in bakeries or
-// `bakery` / `cafe` primaryType Places venues, not delivery-only
-// specialists.
-const REJECT_PRIMARY_TYPES_FRUITS = REJECT_PRIMARY_TYPES;
-const REJECT_PRIMARY_TYPES_DURIAN = new Set(
-  [...REJECT_PRIMARY_TYPES].filter((t) => t !== 'meal_takeaway')
-);
-const REJECT_PRIMARY_TYPES_DURIAN_PASTRY = REJECT_PRIMARY_TYPES;
+const ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY = new Set([
+  'bakery', 'cafe',
+  'ice_cream_shop',
+  'dessert_shop',
+  'food_court', 'hawker_centre', 'hawker',
+  'fruit_parlor',
+  'juice_shop', 'juice_bar',
+  'wholesaler', 'wholesale_business',
+  'produce_market', 'food_market',
+  'restaurant',  // generic — caught by name reject if it's actually a non-pastry venue
+  'store', 'food_store'
+]);
 
-function _rejectTypesFor(mode) {
-  if (mode === SPECIAL_MODES.DURIAN) return REJECT_PRIMARY_TYPES_DURIAN;
-  if (mode === SPECIAL_MODES.DURIAN_PASTRY) return REJECT_PRIMARY_TYPES_DURIAN_PASTRY;
-  return REJECT_PRIMARY_TYPES_FRUITS;
+// Fruits mode keeps the broad "any fresh produce" net.
+const ACCEPT_PRIMARY_TYPES_FRUITS = new Set([
+  'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
+  'grocery_store', 'supermarket',
+  'produce_market', 'food_market',
+  'wholesaler', 'wholesale_business',
+  'fruit_parlor', 'fresh_fruit_store',
+  'juice_shop', 'juice_bar',
+  'cafe',
+  'store', 'food_store'
+]);
+
+function _acceptTypesFor(mode) {
+  if (mode === SPECIAL_MODES.DURIAN) return ACCEPT_PRIMARY_TYPES_DURIAN;
+  if (mode === SPECIAL_MODES.DURIAN_PASTRY) return ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY;
+  return ACCEPT_PRIMARY_TYPES_FRUITS;
+}
+
+// v0.61.229 — durian VARIETY catalogue, exported separately from
+// KEYWORDS so callers can extract "review mentions: Mao Shan Wang"
+// snippets post-match without these names contributing to the
+// inclusion filter. Operator-supplied 41 fruit varieties + every
+// "X or Y" alias split into both names. Lower-cased.
+const DURIAN_VARIETY_TERMS = Object.freeze([
+  'mao shan wang', 'musang king', 'msw', 'super msw', 'old tree msw',
+  'black thorn', 'black thorn johor',
+  'd24', 'sultan',
+  'red prawn', 'udang merah',
+  'golden phoenix', 'jin feng', 'd198', 'golden phoenix johor',
+  'xo', 'xo durian',
+  'd101', 'd168', '101 johor',
+  'black pearl', 'green bamboo', 'tekka',
+  'golden pillow', 'mon thong',
+  'kasap', 'butter king',
+  'd13', 'd1', 'd17', 'd88', 'd2', 'd22', 'd78', 'd144', 'd200',
+  'ganghai', 's17',
+  'hor lor', 'd163', 'hor lor penang',
+  'd162', 'd175', 'red flesh',
+  'kampung durian',
+  'tawa', 'mdur88',
+  'd160', 'lohat',
+  'kanyao', 'chanee',
+  'jiang hai', 'lao tai po',
+  'tupai king', 'squirrel king',
+  // Chinese
+  '猫山王', '红虾', '金凤'
+]);
+
+// Find every variety mentioned in a venue's haystack. Used to render
+// "Review mentions: Mao Shan Wang, D24" lines on the result card.
+// Returns a deduplicated array of canonical variety names.
+//
+// Word-bounded match for Latin terms so "d2" doesn't accidentally
+// match "d24" (and vice-versa). CJK terms are matched as substrings
+// since regex word boundaries don't work the same way for ideographs.
+function _isCjk(s) {
+  return /[一-鿿぀-ヿ가-힯]/.test(String(s || ''));
+}
+function _escapeRe(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function extractVarietyMentions(venue) {
+  if (!venue) return [];
+  const hay = _haystack(venue);
+  if (!hay) return [];
+  const found = new Set();
+  for (const term of DURIAN_VARIETY_TERMS) {
+    if (_isCjk(term)) {
+      if (hay.includes(term)) found.add(term);
+    } else {
+      const re = new RegExp('\\b' + _escapeRe(term) + '\\b', 'i');
+      if (re.test(hay)) found.add(term);
+    }
+  }
+  return [...found];
 }
 
 // v0.61.141 — name-token reject patterns. Used to enforce the operator
@@ -281,7 +355,15 @@ function _haystack(v) {
 function isRelevant(venue, mode) {
   if (!venue || !isSpecialMode(mode)) return false;
   const pt = String(venue.primaryType || '').toLowerCase();
-  if (pt && _rejectTypesFor(mode).has(pt)) return false;
+  // v0.61.229 — POSITIVE primaryType accept-list check. When a venue
+  // has a primaryType AND it's not in the mode's accept list, the
+  // venue is rejected before the name / keyword checks. When
+  // primaryType is absent (Places returned no type), we fall through
+  // to name / keyword matching (no-data shouldn't fail-closed).
+  if (pt) {
+    const accepts = _acceptTypesFor(mode);
+    if (accepts && accepts.size > 0 && !accepts.has(pt)) return false;
+  }
   // v0.61.141 — name-token reject (DURIAN only). A venue whose name
   // carries a pastry signal ("durian puff", "durian cake", …) is NOT
   // a fruit seller; the operator wants those routed to DURIAN_PASTRY
@@ -318,8 +400,15 @@ module.exports = {
   buildSeeds,
   filterByMode,
   isRelevant,
+  // v0.61.229 — variety / accept-list exports for review-snippet
+  // extraction (UI side) and tests.
+  DURIAN_VARIETY_TERMS,
+  extractVarietyMentions,
+  ACCEPT_PRIMARY_TYPES_DURIAN,
+  ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY,
+  ACCEPT_PRIMARY_TYPES_FRUITS,
   // exposed for tests
   KEYWORDS,
   SEED_TEMPLATES,
-  _rejectTypesFor
+  _acceptTypesFor
 };
