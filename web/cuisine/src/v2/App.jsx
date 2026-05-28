@@ -1689,6 +1689,33 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          /* v0.61.240 — operator (Issue 3): tiny combo-criteria line
+             below the result title, e.g. "· Japanese · Halal · $$".
+             Computed from state.cuisines + state.filters + catalogue. */
+          comboLine={(() => {
+            const parts = [];
+            if (Array.isArray(state.cuisines) && state.cuisines.length && catalogue) {
+              const all = [].concat(...catalogue.map((c) => c.cuisines || []));
+              for (const slug of state.cuisines) {
+                const m = all.find((c) => c.slug === slug);
+                if (m) parts.push(m.name);
+                else parts.push(slug);
+              }
+            }
+            const f = state.filters || {};
+            if (f.halal) parts.push(lang === 'fr' ? 'Halal' : 'Halal');
+            if (f.vegetarian) parts.push(lang === 'fr' ? 'Végétarien' : 'Vegetarian');
+            if (f.openNow) parts.push(lang === 'fr' ? 'Ouvert' : 'Open now');
+            if (f.homeBased) parts.push(lang === 'fr' ? 'À domicile' : 'Home-based');
+            if (f.petFriendly) parts.push(lang === 'fr' ? 'Animaux acceptés' : 'Pet-friendly');
+            if (f.newlyOpened) parts.push(lang === 'fr' ? 'Nouveau' : 'Newly opened');
+            if (Array.isArray(f.prices) && f.prices.length) {
+              const min = Math.min(...f.prices);
+              const max = Math.max(...f.prices);
+              parts.push('$'.repeat(min) + (max > min ? '–' + '$'.repeat(max) : ''));
+            }
+            return parts.length ? parts.join(' · ') : '';
+          })()}
           /* v0.61.79 — total size of the curated Michelin pool (~130).
              When set, the result header reads "Results (12/130)" so the
              user sees this batch is a slice of the whole list. null on
