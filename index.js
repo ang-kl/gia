@@ -13997,14 +13997,15 @@ async function cacheBotUsername() {
         // can still distinguish the empty-seen-set initial tap (for
         // the auto-reset suppression v0.60.191 added). The slice
         // size is now the same on both branches.
-        // v0.61.170 — operator's 24/12 split. First tap returns 24
-        // (rich initial impression, 2 pages of the TMA's PAGE_SIZE=12);
-        // subsequent taps return 12 (saves ~$0.025/tap Routes
-        // Distance Matrix). Restores the v0.60.191 firstBatch
-        // distinction with new numbers. autoReset / counter copy on
-        // the TMA side keys on `firstBatch` + `finalBatch` +
-        // `cumulativeStart` / `cumulativeEnd`.
-        const FIRST_TAP_SLICE = 24;
+        // v0.61.239 — operator (Issue 4): "The first load of opening
+        // Cuisine TMA is always 5, right now is 48, 84 for Others."
+        // Tightened FIRST_TAP_SLICE 24 → 5 so the initial render is
+        // a curated taste of the best matches, not a multi-page wall.
+        // Subsequent taps still return 12 each (PAGE_SIZE-aligned).
+        // The TMA's "🔍 to load more" / autoReset logic keys on
+        // `firstBatch` + `finalBatch` + `cumulativeStart/End` which
+        // continue to work with the new ceiling.
+        const FIRST_TAP_SLICE = 5;
         const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
         const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;

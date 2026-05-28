@@ -1,8 +1,8 @@
 counters:
-  commit: 451
-  build: 241
+  commit: 452
+  build: 242
   documents:
-    journal: 439
+    journal: 440
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,24 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 79
-last_anchor_time: 28-05 '26 20:50 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_237 (PR #740 auto-fire merged ~20:45 SGT; v0.61.238 SG flip on tryServerCache built at 28-05 '26 20:50 SGT)
-last_anchor_iso8601: 2026-05-28T20:50:00+08:00
-last_anchor_utc: 2026-05-28T12:50:00Z
+  current_chat_counter: 80
+last_anchor_time: 28-05 '26 21:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_238 (PR #741 SG-flip merged ~20:55 SGT; v0.61.239 first-load cap built at 28-05 '26 21:00 SGT)
+last_anchor_iso8601: 2026-05-28T21:00:00+08:00
+last_anchor_utc: 2026-05-28T13:00:00Z
+
+# v0.61.239 (commit 452 / journal 440 / build 242) — operator
+# Issue 4 of 5: "The first load of opening Cuisine TmA is always
+# 5, right now is 48, 84 for Others."
+#
+# Tightened FIRST_TAP_SLICE 24 → 5 in index.js. The v0.61.170
+# split was 24 first-tap (rich initial impression) + 12 per
+# follow-up. Operator now prefers a curated 5-venue first
+# impression, then 12 per follow-up tap. autoReset + counter
+# copy on the TMA side already keys on firstBatch / finalBatch /
+# cumulativeStart-End which all still work with the new ceiling.
+
+
 
 # v0.61.238 (commit 451 / journal 439 / build 241) — operator
 # Issue 5 of 5 (28-05 '26): "if my location set to Geylang, I
