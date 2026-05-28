@@ -144,10 +144,42 @@ function _venueMatches(venueText, words) {
   return false;
 }
 
+// v0.61.222 — detect "this text is in a non-Latin script" so the
+// keyword filter can fail-open for venues whose name + address are
+// in CJK / Hangul / Hiragana / Katakana / Thai / Cyrillic / etc.
+// Operator hit this on KR + Japanese cuisine: Google Places returned
+// real Tokyo / Seoul restaurants with Hangul / Kanji display names
+// (and sometimes Hangul-localized addresses), so the all-Latin
+// keyword set (`'seoul', 'gangnam', …`) couldn't match and the
+// filter dropped them. Result: 4 venues instead of 30+.
+//
+// Unicode blocks covered:
+//   Hangul Syllables / Jamo          U+AC00–U+D7A3, U+1100–U+11FF, U+3130–U+318F
+//   CJK Unified Ideographs           U+4E00–U+9FFF (+ extensions)
+//   Hiragana                         U+3040–U+309F
+//   Katakana                         U+30A0–U+30FF, U+31F0–U+31FF
+//   Thai                             U+0E00–U+0E7F
+//   Lao                              U+0E80–U+0EFF
+//   Khmer                            U+1780–U+17FF
+//   Burmese (Myanmar)                U+1000–U+109F
+//   Cyrillic                         U+0400–U+04FF
+// Failing open here means we trust upstream locationBias.circle to
+// keep the geographic constraint — which it does, since the user's
+// anchor coords are already inside the target country.
+const _NON_LATIN_RE = /[Ѐ-ӿ฀-໿က-႟ក-៿぀-ヿㇰ-ㇿ㄰-㆏ᄀ-ᇿ一-鿿가-힣]/;
+function _isNonLatinScript(text) {
+  return _NON_LATIN_RE.test(String(text || ''));
+}
+
 // Public: filter a venue array, keeping only those whose
 // `area + name` text contains at least one keyword for the country.
 // When the country has no keyword set, returns the input unchanged
 // (fail-open).
+//
+// v0.61.222 — a venue whose `area + name` contains characters from
+// a non-Latin script block is kept regardless of keyword match. The
+// upstream locationBias.circle is doing the geographic work; the
+// per-country keyword set is Latin-only and can't match these venues.
 function filterVenuesByCountry(venues, countryCode) {
   if (!Array.isArray(venues)) return [];
   const cc = String(countryCode || '').toUpperCase();
@@ -155,6 +187,7 @@ function filterVenuesByCountry(venues, countryCode) {
   if (!words || words.length === 0) return venues;
   return venues.filter((v) => {
     const hay = `${v?.area || ''} ${v?.name || ''}`;
+    if (_isNonLatinScript(hay)) return true;
     return _venueMatches(hay, words);
   });
 }
