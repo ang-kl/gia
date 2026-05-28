@@ -252,8 +252,35 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const id = e.target.value;
     setPickerValue(id);
     if (!id) return;
+    // v0.61.223 — sync the flag dropdown to match the picked
+    // precinct's country: SG/SGRegion sources → 'SG'; MY source
+    // (JB / IOI Resort City / MY-PUT etc.) → 'MY'. Operator:
+    // "If I select IOI Resort City or Johor Bahru or any of the
+    // quick pick, the country should change to either MY or SG in
+    // the dropdown next to the location field."
+    const isSgPrecinct = precincts.sg.some((p) => p.id === id)
+      || precincts.sgRegion.some((p) => p.id === id);
+    const isMyPrecinct = precincts.my.some((p) => p.id === id);
+    if (isSgPrecinct) updateCountryPref('SG');
+    else if (isMyPrecinct) updateCountryPref('MY');
     postSetLocation({ precinctId: id }).then(() => setPickerValue(''));
   }
+
+  // v0.61.223 — keep the flag dropdown in sync with the resolved
+  // anchor region when the user changes anchor by another route
+  // (e.g. typed text geocodes to SG → flag dropdown should read
+  // 🇸🇬). For OTHER anchors, leave countryPref as the explicit
+  // user pick (could be any of the 16 non-SG codes).
+  useEffect(() => {
+    if (!currentAnchor) return;
+    const region = currentAnchor.region;
+    if (region === 'SG') {
+      setCountryPref((cur) => (cur === 'SG' ? cur : 'SG'));
+    } else if (region === 'JB' || region === 'MY-PUT') {
+      setCountryPref((cur) => (cur === 'MY' ? cur : 'MY'));
+    }
+    // region === 'OTHER' — keep whatever the user explicitly picked.
+  }, [currentAnchor?.region]);
 
   // v0.61.192 — OTHER-region search. Calls the v0.61.191
   // /api/cuisine/place-search-by-country endpoint with the
@@ -406,46 +433,45 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       {disabledListLine && (
         <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
       )}
-      {/* v0.61.192 — when active anchor is OTHER region (Putrajaya
-          / KL / Tokyo / etc.), hide the precinct dropdown and the
-          existing free-text + autocomplete input. Render the flag
-          picker + free-text + Search button + confirmation list
-          (mirror of Cuisine TMA's v0.61.191 flow). SG/JB unchanged. */}
-      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? null : (
-        <select
-          value={pickerValue}
-          onChange={onPickerChange}
-          disabled={busy}
-          className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
-        >
-          <option value="">{t('location.dropdownLabel', lang)}</option>
-          {precincts.sg.length > 0 && (
-            <optgroup label={t('location.dropdownGroupSg', lang)}>
-              {precincts.sg.map((p) => (
-                <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-              ))}
-            </optgroup>
-          )}
-          {precincts.sgRegion.length > 0 && (
-            <optgroup label={t('location.dropdownGroupSgReg', lang)}>
-              {precincts.sgRegion.map((p) => (
-                <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-              ))}
-            </optgroup>
-          )}
-          {precincts.my.length > 0 && (
-            <optgroup label={t('location.dropdownGroupMy', lang)}>
-              {precincts.my.map((p) => (
-                <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
-              ))}
-            </optgroup>
-          )}
-        </select>
-      )}
-      {/* v0.61.192 — input row. For OTHER: country flag dropdown +
-          free-text + 🔍 Search. For SG/JB: free-text + Set button +
-          autocomplete dropdown below. */}
-      {currentAnchor && (currentAnchor.region === 'OTHER' || currentAnchor.region === 'MY-PUT') ? (
+      {/* v0.61.223 — precinct quick-pick is now ALWAYS visible
+          regardless of region (operator: "the quick pick dropdown
+          select still there and not remove in the Menu TMA"). Was
+          v0.61.192: hidden when region was OTHER / MY-PUT. */}
+      <select
+        value={pickerValue}
+        onChange={onPickerChange}
+        disabled={busy}
+        className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
+      >
+        <option value="">{t('location.dropdownLabel', lang)}</option>
+        {precincts.sg.length > 0 && (
+          <optgroup label={t('location.dropdownGroupSg', lang)}>
+            {precincts.sg.map((p) => (
+              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+            ))}
+          </optgroup>
+        )}
+        {precincts.sgRegion.length > 0 && (
+          <optgroup label={t('location.dropdownGroupSgReg', lang)}>
+            {precincts.sgRegion.map((p) => (
+              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
+            ))}
+          </optgroup>
+        )}
+        {precincts.my.length > 0 && (
+          <optgroup label={t('location.dropdownGroupMy', lang)}>
+            {precincts.my.map((p) => (
+              <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
+            ))}
+          </optgroup>
+        )}
+      </select>
+      {/* v0.61.223 — form mode now driven by countryPref (SG vs non-SG),
+          not by currentAnchor.region. Flag dropdown is ALWAYS visible
+          (was OTHER-mode-only in v0.61.192). When countryPref === 'SG'
+          → SG mode (text + Set + autocomplete). Else → OTHER mode
+          (flag-biased Places search via place-search-by-country). */}
+      {countryPref !== 'SG' ? (
         <>
           <form onSubmit={onOtherSearch} className="flex gap-1.5 items-center">
             {/* v0.61.208 — custom dropdown (open: flag + full name,
@@ -512,6 +538,15 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       ) : (
         <>
           <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
+            {/* v0.61.223 — flag dropdown ALSO visible in SG mode so
+                the user can flip to a non-SG country without leaving
+                the picker. Picking a non-SG code in here flips the
+                form to OTHER mode on the next render. */}
+            <CountryDropdownMenu
+              value={countryPref}
+              onChange={(code) => updateCountryPref(code)}
+              ariaLabel={t('loc.other.country', lang)}
+            />
             <input
               type="text"
               value={textValue}
