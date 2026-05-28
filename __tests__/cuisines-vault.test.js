@@ -55,12 +55,12 @@ describe('parseSource', () => {
 });
 
 describe('integration — load real cuisines_js.MD file', () => {
-  it('loads exactly 70 cuisines (v0.61.141: Dessert category gained Fruits + Durian + Durian Pastry)', () => {
+  it('loads exactly 69 cuisines (v0.61.234: Australasia catch-all removed)', () => {
     // v0.59.49 baseline was 67 (split Australian + New Zealand back,
     // plus Australasia catch-all). v0.61.141 added Fruits + Durian +
-    // Durian Pastry to the dessert category → 70 total. See D-61.141
-    // in the v0.61.144 Register increment.
-    expect(vault.getAllCuisines().length).toBe(70);
+    // Durian Pastry to the dessert category → 70 total. v0.61.234
+    // dropped the Australasia catch-all (weak Places match) → 69.
+    expect(vault.getAllCuisines().length).toBe(69);
   });
 
   it('groups by category with expected counts', () => {
@@ -82,7 +82,7 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(counts['european']).toBe(15);            // v0.59.38: -Belgian -Dutch -Irish +European generic = 15
     expect(counts['slavic-eastern-european']).toBe(2); // v0.59.35: new bucket — Uzbek, Georgian
     expect(counts['americas']).toBe(4);             // v0.59.35: Argentinian (source) + American, Mexican, Brazilian (remap). -Peruvian -Cuban -Jamaican = 4
-    expect(counts['australasia']).toBe(3);          // v0.59.49: Australian, New Zealand, Australasia (regional catch-all)
+    expect(counts['australasia']).toBe(2);          // v0.61.234: Australian, New Zealand (catch-all dropped)
     expect(counts['african']).toBe(2);              // v0.59.34: African + South African
     expect(counts['dessert']).toBe(4);              // v0.61.141: Dessert + Fruits + Durian + Durian Pastry
     expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
