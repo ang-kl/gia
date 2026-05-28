@@ -943,7 +943,20 @@ export default function App() {
           : null
       );
       setFirstLoadPending(false);
-      setSearchCenter({ lat: center.lat, lng: center.lng });
+      // v0.61.224 — operator bug: when the user types a place name in the
+      // Tell-me box (e.g. "Geylang") the backend pivots `searchCenter` to
+      // that place's coords (place-anchor detection, v0.61.129), but the
+      // CLIENT was still calling `setSearchCenter({ lat: center.lat, lng:
+      // center.lng })` using the pre-search `center`. Result: the map
+      // stayed on the user's anchor (Bedok) while the result pins were in
+      // Geylang. Re-anchor the map to the detected place's coords when
+      // present so the map visually shifts to where the search actually
+      // happened.
+      if (r.placeAnchor && Number.isFinite(r.placeAnchor.lat) && Number.isFinite(r.placeAnchor.lng)) {
+        setSearchCenter({ lat: r.placeAnchor.lat, lng: r.placeAnchor.lng });
+      } else {
+        setSearchCenter({ lat: center.lat, lng: center.lng });
+      }
       setLastRunSnap(stateSig(snap));
       // v0.58.4: any explicit search supersedes the warm-start label.
       setWarmStartSeed(null);
