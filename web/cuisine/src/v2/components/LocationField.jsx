@@ -478,6 +478,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   const [noMatch, setNoMatch] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
+  // v0.61.236 — collapsed/expanded toggle. Mirrors SG mode's resting
+  // pill. When `anchor` is set, render a single-line "📍 {label} ·
+  // {suffix} tap to change" pill (operator: "the {country code} +
+  // {city code} is taking too much UI estate"). Expanded form
+  // (flag + city + text + 🔍) shows only when user taps to edit OR
+  // when there's no anchor yet.
+  const [expanded, setExpanded] = useState(false);
+  const showCompact = !!(anchor && anchor.name) && !expanded && results.length === 0;
   // v0.61.228 — child city dropdown. Mirrors v0.61.227 Menu TMA. The
   // cityPick value is reset whenever the country flips because each
   // country has its own catalogue. Picking a city sets the anchor
@@ -493,8 +501,10 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     if (!hit) return;
     onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name });
     setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
-    // City pick has just propagated upstream → clear local picker.
+    // City pick has just propagated upstream → clear local picker
+    // and collapse back to the compact pill (v0.61.236).
     setCityPick('');
+    setExpanded(false);
   }
 
   async function doSearch() {
@@ -527,6 +537,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   function pickResult(r) {
     onSelect?.({ lat: r.lat, lng: r.lng, label: r.primaryText });
     setResults([]); setQuery(''); setNoMatch(false);
+    setExpanded(false); // v0.61.236 — collapse after a pick
   }
 
   function cancel() {
@@ -537,6 +548,22 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
 
   return (
     <div className="flex flex-col gap-1.5">
+      {/* v0.61.236 — compact resting pill (anchor set, not expanded). */}
+      {showCompact ? (
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+          <span aria-hidden className="text-tg-accent">📍</span>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
+          >
+            <span className="truncate">{country.flag} {anchor.name}</span>
+            {suffix && <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>}
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
+          </button>
+          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+        </div>
+      ) : (
       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
         {/* v0.61.208 — custom dropdown: closed shows "<flag> <CC>"
             (compact), opened shows "<flag> <Name>" (descriptive).
@@ -576,10 +603,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           aria-label={tr('loc.other.searchBtn', lang)}
         >🔍</button>
       </div>
-      {/* Current anchor + suffix hint (mirrors the SG/JB resting line) */}
-      {anchor?.name && results.length === 0 && !searching && (
+      )}
+      {/* v0.61.236 — collapse back to compact pill after a city pick. */}
+      {/* Current anchor + suffix hint (only when expanded and no results
+          panel). The compact pill above shows this same info in resting. */}
+      {!showCompact && anchor?.name && results.length === 0 && !searching && (
         <div className="text-[11px] text-tg-hint truncate px-1">
           📍 {anchor.name}{suffix ? ` · ${suffix}` : ''}
+          {' '}<button type="button" onClick={() => setExpanded(false)} className="text-tg-accent underline">collapse</button>
         </div>
       )}
       {searching && (
