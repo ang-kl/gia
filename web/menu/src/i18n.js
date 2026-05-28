@@ -126,6 +126,8 @@ const STRINGS = {
   // autocomplete when the active anchor is in the OTHER region
   // (Putrajaya / KL / Penang / Tokyo / Sydney / etc.).
   'loc.other.country':         { en: 'Country', fr: 'Pays' },
+  // v0.61.226 — cascading child city dropdown next to the country flag.
+  'loc.other.city':            { en: 'City',    fr: 'Ville' },
   'loc.other.placeholder':     { en: 'Type a place + Search',
                                  fr: 'Tapez un lieu + Rechercher' },
   'loc.other.searchBtn':       { en: '🔍 Search', fr: '🔍 Rechercher' },

@@ -22,6 +22,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
+import { citiesForCountry } from '../cities.js';
 
 // v0.61.208 — same custom-dropdown pattern as the Cuisine TMA's
 // LocationField (closed = "<flag> <CC>", open = "<flag> <Name>").
@@ -147,6 +148,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   const [otherResults, setOtherResults] = useState([]);
   const [otherSearching, setOtherSearching] = useState(false);
   const [otherNoMatch, setOtherNoMatch] = useState(false);
+  // v0.61.226 — child city dropdown. Mirrors countryPref; cleared
+  // whenever the country changes. When the user picks a city, the
+  // form set-locations to that city's centroid directly (skips the
+  // geocode round-trip that the free-text path would otherwise need).
+  const [cityPick, setCityPick] = useState('');
 
   // v0.61.209 — seed countryPref from the server (`country-pref:<chatId>`)
   // on mount so the Menu TMA's OTHER picker opens on whatever the user
@@ -246,6 +252,31 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     } finally {
       setBusy(false);
     }
+  }
+
+  // v0.61.226 — clear the city pick whenever the country flag changes
+  // (the new country has a different city catalogue, so the prior
+  // selection no longer makes sense).
+  useEffect(() => {
+    setCityPick('');
+  }, [countryPref]);
+
+  // v0.61.226 — city picked from the cascading child dropdown. Sets
+  // the Menu TMA anchor directly to the city's centroid (lat/lng) +
+  // label; no geocode round-trip needed because cities.js carries the
+  // coords inline.
+  function onCityPick(cityName) {
+    if (!cityName) { setCityPick(''); return; }
+    setCityPick(cityName);
+    const list = citiesForCountry(countryPref);
+    const hit = list.find((c) => c.name === cityName);
+    if (!hit) return;
+    postSetLocation({
+      lat: hit.lat,
+      lng: hit.lng,
+      label: hit.name,
+      country: countryPref
+    }).then(() => setCityPick(''));
   }
 
   function onPickerChange(e) {
@@ -481,6 +512,24 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               onChange={(code) => updateCountryPref(code)}
               ariaLabel={t('loc.other.country', lang)}
             />
+            {/* v0.61.226 — cascading child city dropdown. Renders only
+                when the selected country has a city catalogue. Picking
+                a city sets the anchor directly to that city's centroid
+                via postSetLocation (no geocode round-trip). */}
+            {citiesForCountry(countryPref).length > 0 && (
+              <select
+                value={cityPick}
+                onChange={(e) => onCityPick(e.target.value)}
+                disabled={busy || otherSearching}
+                aria-label={t('loc.other.city', lang) || 'City'}
+                className="text-[13px] px-1.5 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text max-w-[10rem]"
+              >
+                <option value="">— City —</option>
+                {citiesForCountry(countryPref).map((c) => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            )}
             <input
               type="text"
               value={textValue}
