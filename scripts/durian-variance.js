@@ -44,29 +44,56 @@ const REGIONS = [
   { name: 'Putrajaya',  lat: 2.9264,  lng: 101.6964, cc: 'MY' }
 ];
 
-// Per-language seed templates. The Durian/Durian-Pastry buildSeeds
-// in special-mode.js gives us the English seeds; we'd like Chinese
-// (Simplified + Traditional) + Malay for the multi-language run.
+// Per-language seed templates. 12 languages covering the SG/JB/
+// Putrajaya market: official SG languages (en, zh-CN, zh-TW, ms, ta),
+// regional durian heartlands (th, id, vi), and major tourist
+// reviewer pools (ja, ko, hi, tl). Each language gets 2-3 native-
+// script queries so Places' multilingual matching surfaces venues
+// whose name OR review-text is dominantly in that language.
 const SEEDS = MODE === 'durian-pastry' ? {
-  en: ['durian puff', 'durian pastry', 'durian cake bakery', 'durian dessert'],
+  en:      ['durian puff', 'durian pastry', 'durian cake bakery', 'durian dessert'],
   'zh-CN': ['榴莲泡芙', '榴莲蛋糕', '榴莲甜品'],
   'zh-TW': ['榴梿泡芙', '榴梿蛋糕'],
-  ms: ['kek durian', 'puff durian']
+  ms:      ['kek durian', 'puff durian', 'pastri durian'],
+  ta:      ['durian puff', 'durian cake'],
+  ja:      ['ドリアンパフ', 'ドリアンケーキ', 'ドリアンスイーツ'],
+  ko:      ['두리안 디저트', '두리안 케이크'],
+  th:      ['พัฟทุเรียน', 'เค้กทุเรียน', 'ขนมทุเรียน'],
+  id:      ['kue durian', 'pastri durian', 'dessert durian'],
+  vi:      ['bánh sầu riêng', 'kem sầu riêng'],
+  hi:      ['durian dessert', 'durian cake'],
+  tl:      ['durian dessert', 'durian pastry']
 } : {
-  en: ['durian shop', 'durian stall', 'durian seller', 'fresh durian'],
+  en:      ['durian shop', 'durian stall', 'durian seller', 'fresh durian'],
   'zh-CN': ['榴莲店', '榴莲档', '鲜榴莲'],
   'zh-TW': ['榴梿店', '榴梿攤'],
-  ms: ['kedai durian', 'durian segar']
+  ms:      ['kedai durian', 'durian segar'],
+  ta:      ['durian shop', 'டூரியன்'],
+  ja:      ['ドリアン店', 'ドリアン専門店'],
+  ko:      ['두리안 가게', '두리안 전문점'],
+  th:      ['ร้านทุเรียน', 'ทุเรียน'],
+  id:      ['toko durian', 'buah durian segar'],
+  vi:      ['sầu riêng', 'cửa hàng sầu riêng'],
+  hi:      ['durian shop', 'durian'],
+  tl:      ['tindahan ng durian', 'durian']
 };
 
 const LIMIT_PER_QUERY = 8;
 const RADIUS_M = 8000;
 
+// v0.61.229 — BCP-47 mapping. Google Places (New) accepts most
+// two-letter codes directly + `zh-TW` for Traditional Chinese.
+const PLACES_LANG = {
+  en: 'en', 'zh-CN': 'zh', 'zh-TW': 'zh-TW',
+  ms: 'ms', ta: 'ta', ja: 'ja', ko: 'ko',
+  th: 'th', id: 'id', vi: 'vi', hi: 'hi', tl: 'tl'
+};
+
 async function searchText(textQuery, region, langCode) {
   const body = {
     textQuery,
     regionCode: region.cc,
-    languageCode: langCode === 'zh-TW' ? 'zh-TW' : (langCode === 'zh-CN' ? 'zh' : langCode),
+    languageCode: PLACES_LANG[langCode] || langCode,
     pageSize: LIMIT_PER_QUERY,
     locationBias: { circle: { center: { latitude: region.lat, longitude: region.lng }, radius: RADIUS_M } }
   };
