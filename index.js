@@ -7307,6 +7307,16 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       lines.push(trnSearch('freetext.allBelow', lang, { dish: esc(dishPhraseForCard) }));
       lines.push('');
     }
+    // v0.61.225 — pre-render social-profile enrichment (Instagram /
+    // TikTok / Facebook / X / YouTube / Threads). Cached 30d in Redis;
+    // a Gemini outage leaves venues with no 📱 row but does not block
+    // rendering.
+    try {
+      const { attachSocialsToVenues } = require('./social-profiles');
+      await attachSocialsToVenues(redis, ordered135, { concurrency: 4 });
+    } catch (err) {
+      console.warn('[Search] social-profiles enrichment failed:', err.message);
+    }
     // v0.60.133 — render each card defensively (mirrors
     // runCookingMethodFanOut): a single malformed venue / template
     // helper must not throw the whole /s reply into silence.
@@ -7558,6 +7568,14 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
   if (maps) lines.push(maps);
+  // v0.61.226 — social profile URLs, positioned immediately after the
+  // 📍 maps line per operator request. Mirrors the post-maps placement
+  // in formatVenueBlock. URLs come from social-profiles.js (Gemini
+  // grounded), pre-validated and priority-ordered; row is skipped
+  // when the venue has no verified profiles.
+  if (Array.isArray(venue.socialProfiles) && venue.socialProfiles.length) {
+    lines.push(`📱 ${venue.socialProfiles.join(' · ')}`);
+  }
   // v0.60.16 — Michelin / Bib Gourmand annotation row appended after
   // the maps URL. v0.60.193 — DF-91: cross-ref logic factored into
   // michelin-2025's appendMichelinAnnotation helper. Shared with
@@ -7785,6 +7803,15 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
       } catch (err) {
         console.warn('[Search-FanOut] attachFootfallSignals failed (continuing without):', err.message);
       }
+      // v0.61.225 — social-profile enrichment. finalVenues object
+      // references are shared with each block.venues, so attaching
+      // here also surfaces the 📱 row on rendered cards below.
+      try {
+        const { attachSocialsToVenues } = require('./social-profiles');
+        await attachSocialsToVenues(redis, finalVenues, { concurrency: 4 });
+      } catch (err) {
+        console.warn('[Search-FanOut] attachSocialsToVenues failed (continuing without):', err.message);
+      }
     }
 
     // Phase 4 — render. Header (technique explainer) goes on top, then
@@ -7906,6 +7933,15 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
       await attachFootfallSignals(redis, venues);
     } catch (err) {
       console.warn('[Nation-Iconic] attachFootfallSignals failed:', err.message);
+    }
+    // v0.61.225 — social-profile enrichment for the 5 nation-iconic
+    // picks rendered below. Same Gemini-grounded helper as /s and
+    // /copy-all use; results cached 30d in Redis.
+    try {
+      const { attachSocialsToVenues } = require('./social-profiles');
+      await attachSocialsToVenues(redis, venues.slice(0, 5), { concurrency: 4 });
+    } catch (err) {
+      console.warn('[Nation-Iconic] attachSocialsToVenues failed:', err.message);
     }
 
     // Phase 3 — render. Header is the cuisine + dish + a tourist-friendly
@@ -11086,6 +11122,16 @@ async function cacheBotUsername() {
         const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
         const { formatVenueBlock } = require('./venue-templates');
         const { tn: trn } = require('./i18n');
+        // v0.61.225 — fan-out social-profile fetch (concurrency 4) for
+        // all up-to-12 venues in this clip. Cached 30d so warm clips
+        // resolve in milliseconds. attachSocialsToVenues is non-
+        // throwing — a Gemini outage simply leaves the 📱 row absent.
+        try {
+          const { attachSocialsToVenues } = require('./social-profiles');
+          await attachSocialsToVenues(redis, slim, { concurrency: 4 });
+        } catch (err) {
+          console.warn('[Cuisine] copy-all social-profiles enrichment failed:', err.message);
+        }
         const header = slim.length === 1
           ? trn('pick.header.one', reqLang)
           : trn('pick.header.many', reqLang, { n: slim.length });
@@ -11414,6 +11460,24 @@ async function cacheBotUsername() {
           try { sanctuaryRead = await getOrCacheSummary(redis, venue.placeId, oneLang) || ''; }
           catch { /* fall through; T1 will render without sanctuary section */ }
         }
+        // v0.61.225 — fetch social-profile URLs (Instagram / TikTok /
+        // Facebook / X / YouTube / Threads) and attach to venue.
+        // Cached 30d in Redis (social:<placeId>) so most subsequent
+        // copies are free. Failures are swallowed — the 📱 row simply
+        // doesn't render.
+        try {
+          const { getSocialProfiles, pickTopProfiles } = require('./social-profiles');
+          const profiles = await getSocialProfiles(redis, {
+            placeId: venue.placeId,
+            name: venue.name,
+            address: venue.area,
+            websiteUri: venue.websiteUri
+          });
+          const urls = pickTopProfiles(profiles).map((p) => p.url);
+          if (urls.length) venue.socialProfiles = urls;
+        } catch (err) {
+          console.warn('[Cuisine] copy-one social-profiles enrichment failed:', err.message);
+        }
         const body = formatVenueBlock(venue, {
           variant: 'detail-with-sanctuary',
           sanctuaryRead,
@@ -11470,6 +11534,35 @@ async function cacheBotUsername() {
           const vlogExit = require('./verbose-log');
           await vlogExit.vlogIf(redis, chatId2, { kind: 'copy-one-error', ms: Date.now() - copyOneStart, error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
         } catch { /* best-effort */ }
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.61.225 — social-profile lookup for the Cuisine TMA ResultCard.
+    // Card mounts → POST { placeId, name, address, websiteUri } →
+    // { profiles: { instagram?, tiktok?, facebook?, x?, youtube?,
+    // threads? } }. Results cached server-side in Redis under
+    // social:<placeId> with a 30-day TTL, so most repeat browses
+    // resolve in milliseconds. initData-gated mirroring the other
+    // /api/cuisine/* endpoints. A miss / Gemini failure returns
+    // { profiles: {} } — the card simply doesn't render the social
+    // button row.
+    app.post('/api/cuisine/social-profiles',
+      makeRateLimiter(redis, { endpoint: 'social-profiles', cap: 500 }),
+      async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const placeId = typeof req.body?.placeId === 'string' ? req.body.placeId : '';
+        const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+        const address = typeof req.body?.address === 'string' ? req.body.address.trim() : '';
+        const websiteUri = typeof req.body?.websiteUri === 'string' ? req.body.websiteUri.trim() : '';
+        if (!name) return res.status(400).json({ error: 'missing name' });
+        const { getSocialProfiles } = require('./social-profiles');
+        const profiles = await getSocialProfiles(redis, { placeId, name, address, websiteUri });
+        res.json({ profiles });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/social-profiles failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });

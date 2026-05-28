@@ -263,6 +263,18 @@ function formatVenueBlock(p, opts = {}) {
   if (travelLine) lines.push(travelLine);
   const mapsLine = formatMapsLine(p, mapsFn);
   if (mapsLine) lines.push(mapsLine);
+  // v0.61.226 — social profile URLs (Instagram / TikTok / Facebook /
+  // X / YouTube / Threads), positioned immediately after the 📍 maps
+  // line per operator request. Sourced from social-profiles.js via
+  // Gemini grounded Google Search (Places API does not expose
+  // these). Backend attaches a pre-validated, priority-ordered URL
+  // array as `p.socialProfiles`; chat templates render the full
+  // URLs separated by ` · ` so Telegram auto-links each. Gated by
+  // `includeContact` (same gate as 🌐/📞) so the compact T3 variant
+  // stays sparse.
+  if (includeContact && Array.isArray(p.socialProfiles) && p.socialProfiles.length) {
+    lines.push(`📱 ${p.socialProfiles.join(' · ')}`);
+  }
   // v0.60.192 — Michelin / Bib Gourmand annotation row appended after
   // the maps URL. Mirrors the formatTechniqueVenueBlock + cuisine-
   // search annotation paths so /eat / /drink / Cuisine TMA Copy-All
