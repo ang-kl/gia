@@ -297,6 +297,71 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 // popover. Click-outside / Esc closes; focus stays on the button.
 // v0.61.211 — keyboard nav: ↑/↓ to move highlight, Home/End to
 // jump to first/last, Enter to pick. Initial focus on the
+// v0.61.233 — custom city dropdown matching CountryDropdown's
+// closed-short / open-full-name pattern. Closed state shows the
+// 3-letter city code (BKK, KUL, TYO, …); open state lists every
+// city name with the code on the right. Scrollable (max-h-72)
+// so 15 Malaysia capitals fit on a phone viewport.
+function CityDropdown({ countryCode, value, onChange, ariaLabel }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const list = citiesForCountry(countryCode);
+  const current = value ? list.find((c) => c.name === value) : null;
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    function onKey(e) { if (e.key === 'Escape') setOpen(false); }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  function pick(name) { setOpen(false); onChange?.(name); }
+  if (!list.length) return null;
+  return (
+    <div ref={wrapRef} className="relative flex-shrink-0">
+      <button
+        type="button"
+        aria-label={ariaLabel || 'City'}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
+        style={{ minWidth: '3.5rem' }}
+      >
+        <span className="font-mono tracking-tight">{current ? current.code : '— —'}</span>
+        <span aria-hidden className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[12rem] py-0.5"
+        >
+          {list.map((c) => {
+            const sel = current && c.name === current.name;
+            return (
+              <li key={c.name} role="option" aria-selected={sel}>
+                <button
+                  type="button"
+                  onClick={() => pick(c.name)}
+                  className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                >
+                  <span>{c.name}</span>
+                  <span className="font-mono text-[11px] text-tg-hint">{c.code}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // currently-selected country (or first country if none).
 function CountryDropdown({ value, onChange, ariaLabel }) {
   const [open, setOpen] = useState(false);
@@ -482,24 +547,18 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           onChange={(code) => onCountryChange?.(code)}
           ariaLabel={tr('loc.other.country', lang)}
         />
-        {/* v0.61.228 — cascading child city dropdown. Renders only
-            when the selected country has a city catalogue (so SG
-            mode stays unchanged). Picking a city sets the anchor
-            directly to that city's centroid. */}
-        {citiesForCountry(country.code).length > 0 && (
-          <select
-            value={cityPick}
-            onChange={(e) => onCityPick(e.target.value)}
-            disabled={searching}
-            aria-label={tr('loc.other.city', lang) || 'City'}
-            className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1 py-0.5 max-w-[8rem]"
-          >
-            <option value="">— City —</option>
-            {citiesForCountry(country.code).map((c) => (
-              <option key={c.name} value={c.name}>{c.name}</option>
-            ))}
-          </select>
-        )}
+        {/* v0.61.233 — cascading child city dropdown, now a custom
+            CityDropdown: closed state shows the 3-letter city code
+            (BKK / KUL / …) mirroring the country flag's closed-CC
+            pattern; open state lists every full name + code on
+            the right and scrolls (max-h-72). Narrow closed-state
+            leaves the free-text input usable. */}
+        <CityDropdown
+          countryCode={country.code}
+          value={cityPick}
+          onChange={(name) => onCityPick(name)}
+          ariaLabel={tr('loc.other.city', lang) || 'City'}
+        />
         <input
           type="text"
           value={query}

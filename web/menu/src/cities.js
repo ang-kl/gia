@@ -1,216 +1,204 @@
-// web/menu/src/cities.js — v0.61.226
+// web/menu/src/cities.js — v0.61.233
 //
 // Per-country city catalogue for the cascading "common destination"
 // dropdown next to the country flag in the Menu TMA's location field
-// (and, in a follow-up PR, the Cuisine TMA + /s search).
+// (and the Cuisine TMA's parallel copy at web/cuisine/src/v2/lib/
+// cities.js — keep the two in sync).
 //
-// Operator (28-05 '26): *"in other words we may need another field
-// for common cities of the country (adjust to keep to top 8 cities
-// of each countries by tourism destination then by population size)
-// next to the country, an child dropdown button related to the
-// country dropdown button … Only Malaysia have all the capital of
-// the state listed in the child dropdown button."*
+// Operator (28-05 '26): top-8 cities by tourism + population per
+// country; Malaysia is the exception (all 15 state / federal-
+// territory capitals).
 //
-// Per-country rules:
-//   - **MY** — exception: all 13 state / federal-territory capitals
-//     (Kuala Lumpur, Putrajaya, Shah Alam, Johor Bahru, Alor Setar,
-//     Kota Kinabalu, Kuching, Kuantan, Kota Bharu, Kuala Terengganu,
-//     George Town, Ipoh, Seremban, Malacca City).
-//   - All other countries: top 8 by combined tourism profile + city
-//     population. SG is intentionally absent — the Menu TMA's SG
-//     mode uses the existing precinct quick-pick (10 STB + 5 region
-//     buckets) instead of this child dropdown.
-//
-// Each city is { name, lat, lng } with a 5-decimal centroid (≈ 1 m
-// accuracy is overkill; ~10 m typical) sourced from public OneMap /
-// LTA / city-government open data. The lat/lng is used to set the
-// Menu TMA's location anchor directly when the user picks a city,
-// bypassing the geocode round-trip.
+// v0.61.233 — operator: *"city selected should be shortform (using
+// city code) like the country once selected like BKK for Bangkok."*
+// Every city now has a `code` field (3-letter abbreviation,
+// IATA-aligned where unambiguous). The custom CityDropdown shows
+// `code` when closed and the full `name` when open, mirroring the
+// CountryDropdown's closed-CC / open-name pattern.
 
 'use strict';
 
 export const CITIES_BY_COUNTRY = Object.freeze({
-  // Malaysia — 13 state + federal-territory capitals (operator
-  // exception: not capped at 8).
+  // Malaysia — 15 state / federal-territory capitals.
   MY: [
-    { name: 'Kuala Lumpur',       lat: 3.1390,  lng: 101.6869 },
-    { name: 'Putrajaya',          lat: 2.9264,  lng: 101.6964 },
-    { name: 'Shah Alam',          lat: 3.0738,  lng: 101.5183 },  // Selangor
-    { name: 'Johor Bahru',        lat: 1.4927,  lng: 103.7414 },  // Johor
-    { name: 'Alor Setar',         lat: 6.1248,  lng: 100.3678 },  // Kedah
-    { name: 'Kota Kinabalu',      lat: 5.9788,  lng: 116.0753 },  // Sabah
-    { name: 'Kuching',            lat: 1.5535,  lng: 110.3593 },  // Sarawak
-    { name: 'Kuantan',            lat: 3.8077,  lng: 103.3260 },  // Pahang
-    { name: 'Kota Bharu',         lat: 6.1254,  lng: 102.2386 },  // Kelantan
-    { name: 'Kuala Terengganu',   lat: 5.3296,  lng: 103.1370 },  // Terengganu
-    { name: 'George Town',        lat: 5.4145,  lng: 100.3293 },  // Penang
-    { name: 'Ipoh',               lat: 4.5975,  lng: 101.0901 },  // Perak
-    { name: 'Seremban',           lat: 2.7297,  lng: 101.9381 },  // Negeri Sembilan
-    { name: 'Malacca City',       lat: 2.1896,  lng: 102.2501 },  // Melaka
-    { name: 'Kangar',             lat: 6.4414,  lng: 100.1986 }   // Perlis
+    { name: 'Kuala Lumpur',     code: 'KUL', lat: 3.1390,  lng: 101.6869 },
+    { name: 'Putrajaya',        code: 'PUT', lat: 2.9264,  lng: 101.6964 },
+    { name: 'Shah Alam',        code: 'SHA', lat: 3.0738,  lng: 101.5183 },
+    { name: 'Johor Bahru',      code: 'JHB', lat: 1.4927,  lng: 103.7414 },
+    { name: 'Alor Setar',       code: 'AOR', lat: 6.1248,  lng: 100.3678 },
+    { name: 'Kota Kinabalu',    code: 'BKI', lat: 5.9788,  lng: 116.0753 },
+    { name: 'Kuching',          code: 'KCH', lat: 1.5535,  lng: 110.3593 },
+    { name: 'Kuantan',          code: 'KUA', lat: 3.8077,  lng: 103.3260 },
+    { name: 'Kota Bharu',       code: 'KBR', lat: 6.1254,  lng: 102.2386 },
+    { name: 'Kuala Terengganu', code: 'TGG', lat: 5.3296,  lng: 103.1370 },
+    { name: 'George Town',      code: 'PEN', lat: 5.4145,  lng: 100.3293 },
+    { name: 'Ipoh',             code: 'IPH', lat: 4.5975,  lng: 101.0901 },
+    { name: 'Seremban',         code: 'SBN', lat: 2.7297,  lng: 101.9381 },
+    { name: 'Malacca City',     code: 'MLK', lat: 2.1896,  lng: 102.2501 },
+    { name: 'Kangar',           code: 'KGR', lat: 6.4414,  lng: 100.1986 }
   ],
   // Indonesia — top 8 by tourism + population.
   ID: [
-    { name: 'Jakarta',            lat: -6.2088, lng: 106.8456 },
-    { name: 'Bali (Denpasar)',    lat: -8.6705, lng: 115.2126 },
-    { name: 'Yogyakarta',         lat: -7.7956, lng: 110.3695 },
-    { name: 'Bandung',            lat: -6.9175, lng: 107.6191 },
-    { name: 'Surabaya',           lat: -7.2575, lng: 112.7521 },
-    { name: 'Medan',              lat:  3.5952, lng:  98.6722 },
-    { name: 'Semarang',           lat: -6.9667, lng: 110.4167 },
-    { name: 'Makassar',           lat: -5.1477, lng: 119.4327 }
+    { name: 'Jakarta',          code: 'JKT', lat: -6.2088, lng: 106.8456 },
+    { name: 'Bali (Denpasar)',  code: 'DPS', lat: -8.6705, lng: 115.2126 },
+    { name: 'Yogyakarta',       code: 'JOG', lat: -7.7956, lng: 110.3695 },
+    { name: 'Bandung',          code: 'BDO', lat: -6.9175, lng: 107.6191 },
+    { name: 'Surabaya',         code: 'SUB', lat: -7.2575, lng: 112.7521 },
+    { name: 'Medan',            code: 'MES', lat:  3.5952, lng:  98.6722 },
+    { name: 'Semarang',         code: 'SRG', lat: -6.9667, lng: 110.4167 },
+    { name: 'Makassar',         code: 'UPG', lat: -5.1477, lng: 119.4327 }
   ],
   // Thailand.
   TH: [
-    { name: 'Bangkok',            lat: 13.7563, lng: 100.5018 },
-    { name: 'Chiang Mai',         lat: 18.7883, lng:  98.9853 },
-    { name: 'Phuket',             lat:  7.8804, lng:  98.3923 },
-    { name: 'Pattaya',            lat: 12.9236, lng: 100.8825 },
-    { name: 'Hua Hin',            lat: 12.5684, lng:  99.9577 },
-    { name: 'Krabi',              lat:  8.0863, lng:  98.9063 },
-    { name: 'Ayutthaya',          lat: 14.3692, lng: 100.5877 },
-    { name: 'Koh Samui',          lat:  9.5120, lng: 100.0136 }
+    { name: 'Bangkok',          code: 'BKK', lat: 13.7563, lng: 100.5018 },
+    { name: 'Chiang Mai',       code: 'CNX', lat: 18.7883, lng:  98.9853 },
+    { name: 'Phuket',           code: 'HKT', lat:  7.8804, lng:  98.3923 },
+    { name: 'Pattaya',          code: 'PTY', lat: 12.9236, lng: 100.8825 },
+    { name: 'Hua Hin',          code: 'HHQ', lat: 12.5684, lng:  99.9577 },
+    { name: 'Krabi',            code: 'KBV', lat:  8.0863, lng:  98.9063 },
+    { name: 'Ayutthaya',        code: 'AYU', lat: 14.3692, lng: 100.5877 },
+    { name: 'Koh Samui',        code: 'USM', lat:  9.5120, lng: 100.0136 }
   ],
   // Vietnam.
   VN: [
-    { name: 'Ho Chi Minh City',   lat: 10.8231, lng: 106.6297 },
-    { name: 'Hanoi',              lat: 21.0285, lng: 105.8542 },
-    { name: 'Da Nang',            lat: 16.0544, lng: 108.2022 },
-    { name: 'Hoi An',             lat: 15.8801, lng: 108.3380 },
-    { name: 'Nha Trang',          lat: 12.2388, lng: 109.1967 },
-    { name: 'Hue',                lat: 16.4637, lng: 107.5909 },
-    { name: 'Phu Quoc',           lat: 10.2270, lng: 103.9637 },
-    { name: 'Dalat',              lat: 11.9404, lng: 108.4583 }
+    { name: 'Ho Chi Minh City', code: 'SGN', lat: 10.8231, lng: 106.6297 },
+    { name: 'Hanoi',            code: 'HAN', lat: 21.0285, lng: 105.8542 },
+    { name: 'Da Nang',          code: 'DAD', lat: 16.0544, lng: 108.2022 },
+    { name: 'Hoi An',           code: 'HOI', lat: 15.8801, lng: 108.3380 },
+    { name: 'Nha Trang',        code: 'CXR', lat: 12.2388, lng: 109.1967 },
+    { name: 'Hue',              code: 'HUI', lat: 16.4637, lng: 107.5909 },
+    { name: 'Phu Quoc',         code: 'PQC', lat: 10.2270, lng: 103.9637 },
+    { name: 'Dalat',            code: 'DLI', lat: 11.9404, lng: 108.4583 }
   ],
   // Philippines.
   PH: [
-    { name: 'Manila',             lat: 14.5995, lng: 120.9842 },
-    { name: 'Cebu City',          lat: 10.3157, lng: 123.8854 },
-    { name: 'Boracay',            lat: 11.9674, lng: 121.9248 },
-    { name: 'Palawan (Puerto Princesa)', lat: 9.7392, lng: 118.7353 },
-    { name: 'Davao City',         lat:  7.1907, lng: 125.4553 },
-    { name: 'Tagaytay',           lat: 14.1095, lng: 120.9601 },
-    { name: 'Baguio',             lat: 16.4023, lng: 120.5960 },
-    { name: 'Iloilo City',        lat: 10.7202, lng: 122.5621 }
+    { name: 'Manila',           code: 'MNL', lat: 14.5995, lng: 120.9842 },
+    { name: 'Cebu City',        code: 'CEB', lat: 10.3157, lng: 123.8854 },
+    { name: 'Boracay',          code: 'MPH', lat: 11.9674, lng: 121.9248 },
+    { name: 'Palawan',          code: 'PPS', lat:  9.7392, lng: 118.7353 },
+    { name: 'Davao City',       code: 'DVO', lat:  7.1907, lng: 125.4553 },
+    { name: 'Tagaytay',         code: 'TGT', lat: 14.1095, lng: 120.9601 },
+    { name: 'Baguio',           code: 'BAG', lat: 16.4023, lng: 120.5960 },
+    { name: 'Iloilo City',      code: 'ILO', lat: 10.7202, lng: 122.5621 }
   ],
-  // Brunei — small country, single capital + a handful of districts.
+  // Brunei.
   BN: [
-    { name: 'Bandar Seri Begawan', lat:  4.9031, lng: 114.9398 },
-    { name: 'Muara',               lat:  5.0387, lng: 115.0644 },
-    { name: 'Kuala Belait',        lat:  4.5837, lng: 114.2241 },
-    { name: 'Seria',               lat:  4.6075, lng: 114.3270 },
-    { name: 'Tutong',              lat:  4.8000, lng: 114.6500 },
-    { name: 'Bangar (Temburong)',  lat:  4.7000, lng: 115.0667 }
+    { name: 'Bandar Seri Begawan', code: 'BWN', lat:  4.9031, lng: 114.9398 },
+    { name: 'Muara',               code: 'MUR', lat:  5.0387, lng: 115.0644 },
+    { name: 'Kuala Belait',        code: 'KLB', lat:  4.5837, lng: 114.2241 },
+    { name: 'Seria',               code: 'SER', lat:  4.6075, lng: 114.3270 },
+    { name: 'Tutong',              code: 'TUT', lat:  4.8000, lng: 114.6500 },
+    { name: 'Bangar (Temburong)',  code: 'BGR', lat:  4.7000, lng: 115.0667 }
   ],
   // Cambodia.
   KH: [
-    { name: 'Phnom Penh',         lat: 11.5564, lng: 104.9282 },
-    { name: 'Siem Reap',          lat: 13.3633, lng: 103.8564 },
-    { name: 'Sihanoukville',      lat: 10.6276, lng: 103.5222 },
-    { name: 'Battambang',         lat: 13.0957, lng: 103.2022 },
-    { name: 'Kampot',             lat: 10.6104, lng: 104.1810 },
-    { name: 'Kep',                lat: 10.4827, lng: 104.3158 },
-    { name: 'Koh Rong',           lat: 10.7167, lng: 103.2333 },
-    { name: 'Kratié',             lat: 12.4881, lng: 106.0179 }
+    { name: 'Phnom Penh',       code: 'PNH', lat: 11.5564, lng: 104.9282 },
+    { name: 'Siem Reap',        code: 'REP', lat: 13.3633, lng: 103.8564 },
+    { name: 'Sihanoukville',    code: 'KOS', lat: 10.6276, lng: 103.5222 },
+    { name: 'Battambang',       code: 'BBM', lat: 13.0957, lng: 103.2022 },
+    { name: 'Kampot',           code: 'KPT', lat: 10.6104, lng: 104.1810 },
+    { name: 'Kep',              code: 'KEP', lat: 10.4827, lng: 104.3158 },
+    { name: 'Koh Rong',         code: 'KRG', lat: 10.7167, lng: 103.2333 },
+    { name: 'Kratié',           code: 'KTI', lat: 12.4881, lng: 106.0179 }
   ],
   // Laos.
   LA: [
-    { name: 'Vientiane',          lat: 17.9757, lng: 102.6331 },
-    { name: 'Luang Prabang',      lat: 19.8845, lng: 102.1348 },
-    { name: 'Vang Vieng',         lat: 18.9237, lng: 102.4476 },
-    { name: 'Pakse',              lat: 15.1202, lng: 105.7997 },
-    { name: 'Savannakhet',        lat: 16.5667, lng: 104.7500 },
-    { name: 'Xieng Khuang (Phonsavan)', lat: 19.4500, lng: 103.2000 },
-    { name: 'Champasak',          lat: 14.8848, lng: 105.8689 },
-    { name: 'Don Det / 4000 Islands', lat: 13.9333, lng: 105.8667 }
+    { name: 'Vientiane',        code: 'VTE', lat: 17.9757, lng: 102.6331 },
+    { name: 'Luang Prabang',    code: 'LPQ', lat: 19.8845, lng: 102.1348 },
+    { name: 'Vang Vieng',       code: 'VVN', lat: 18.9237, lng: 102.4476 },
+    { name: 'Pakse',            code: 'PKZ', lat: 15.1202, lng: 105.7997 },
+    { name: 'Savannakhet',      code: 'ZVK', lat: 16.5667, lng: 104.7500 },
+    { name: 'Phonsavan',        code: 'XKH', lat: 19.4500, lng: 103.2000 },
+    { name: 'Champasak',        code: 'CMS', lat: 14.8848, lng: 105.8689 },
+    { name: '4000 Islands',     code: 'DDT', lat: 13.9333, lng: 105.8667 }
   ],
   // Myanmar.
   MM: [
-    { name: 'Yangon',             lat: 16.8409, lng:  96.1735 },
-    { name: 'Mandalay',           lat: 21.9588, lng:  96.0891 },
-    { name: 'Naypyidaw',          lat: 19.7633, lng:  96.0785 },
-    { name: 'Bagan',              lat: 21.1717, lng:  94.8585 },
-    { name: 'Inle Lake (Nyaungshwe)', lat: 20.6600, lng: 96.9300 },
-    { name: 'Mawlamyine',         lat: 16.4904, lng:  97.6282 },
-    { name: 'Pyin Oo Lwin',       lat: 22.0333, lng:  96.4667 },
-    { name: 'Hpa-An',             lat: 16.8901, lng:  97.6334 }
+    { name: 'Yangon',           code: 'RGN', lat: 16.8409, lng:  96.1735 },
+    { name: 'Mandalay',         code: 'MDL', lat: 21.9588, lng:  96.0891 },
+    { name: 'Naypyidaw',        code: 'NYT', lat: 19.7633, lng:  96.0785 },
+    { name: 'Bagan',            code: 'NYU', lat: 21.1717, lng:  94.8585 },
+    { name: 'Inle Lake',        code: 'HEH', lat: 20.6600, lng:  96.9300 },
+    { name: 'Mawlamyine',       code: 'MNU', lat: 16.4904, lng:  97.6282 },
+    { name: 'Pyin Oo Lwin',     code: 'POL', lat: 22.0333, lng:  96.4667 },
+    { name: 'Hpa-An',           code: 'HPA', lat: 16.8901, lng:  97.6334 }
   ],
   // Australia.
   AU: [
-    { name: 'Sydney',             lat: -33.8688, lng: 151.2093 },
-    { name: 'Melbourne',          lat: -37.8136, lng: 144.9631 },
-    { name: 'Brisbane',           lat: -27.4698, lng: 153.0251 },
-    { name: 'Perth',              lat: -31.9505, lng: 115.8605 },
-    { name: 'Adelaide',           lat: -34.9285, lng: 138.6007 },
-    { name: 'Gold Coast',         lat: -28.0167, lng: 153.4000 },
-    { name: 'Canberra',           lat: -35.2809, lng: 149.1300 },
-    { name: 'Cairns',             lat: -16.9186, lng: 145.7781 }
+    { name: 'Sydney',           code: 'SYD', lat: -33.8688, lng: 151.2093 },
+    { name: 'Melbourne',        code: 'MEL', lat: -37.8136, lng: 144.9631 },
+    { name: 'Brisbane',         code: 'BNE', lat: -27.4698, lng: 153.0251 },
+    { name: 'Perth',            code: 'PER', lat: -31.9505, lng: 115.8605 },
+    { name: 'Adelaide',         code: 'ADL', lat: -34.9285, lng: 138.6007 },
+    { name: 'Gold Coast',       code: 'OOL', lat: -28.0167, lng: 153.4000 },
+    { name: 'Canberra',         code: 'CBR', lat: -35.2809, lng: 149.1300 },
+    { name: 'Cairns',           code: 'CNS', lat: -16.9186, lng: 145.7781 }
   ],
   // New Zealand.
   NZ: [
-    { name: 'Auckland',           lat: -36.8485, lng: 174.7633 },
-    { name: 'Wellington',         lat: -41.2865, lng: 174.7762 },
-    { name: 'Christchurch',       lat: -43.5321, lng: 172.6362 },
-    { name: 'Queenstown',         lat: -45.0312, lng: 168.6626 },
-    { name: 'Rotorua',            lat: -38.1368, lng: 176.2497 },
-    { name: 'Dunedin',            lat: -45.8788, lng: 170.5028 },
-    { name: 'Hamilton',           lat: -37.7870, lng: 175.2793 },
-    { name: 'Napier',             lat: -39.4928, lng: 176.9120 }
+    { name: 'Auckland',         code: 'AKL', lat: -36.8485, lng: 174.7633 },
+    { name: 'Wellington',       code: 'WLG', lat: -41.2865, lng: 174.7762 },
+    { name: 'Christchurch',     code: 'CHC', lat: -43.5321, lng: 172.6362 },
+    { name: 'Queenstown',       code: 'ZQN', lat: -45.0312, lng: 168.6626 },
+    { name: 'Rotorua',          code: 'ROT', lat: -38.1368, lng: 176.2497 },
+    { name: 'Dunedin',          code: 'DUD', lat: -45.8788, lng: 170.5028 },
+    { name: 'Hamilton',         code: 'HLZ', lat: -37.7870, lng: 175.2793 },
+    { name: 'Napier',           code: 'NPE', lat: -39.4928, lng: 176.9120 }
   ],
   // Japan.
   JP: [
-    { name: 'Tokyo',              lat: 35.6762, lng: 139.6503 },
-    { name: 'Osaka',              lat: 34.6937, lng: 135.5023 },
-    { name: 'Kyoto',              lat: 35.0116, lng: 135.7681 },
-    { name: 'Yokohama',           lat: 35.4437, lng: 139.6380 },
-    { name: 'Fukuoka',            lat: 33.5904, lng: 130.4017 },
-    { name: 'Sapporo',            lat: 43.0618, lng: 141.3545 },
-    { name: 'Hiroshima',          lat: 34.3853, lng: 132.4553 },
-    { name: 'Nara',               lat: 34.6851, lng: 135.8048 }
+    { name: 'Tokyo',            code: 'TYO', lat: 35.6762, lng: 139.6503 },
+    { name: 'Osaka',            code: 'OSA', lat: 34.6937, lng: 135.5023 },
+    { name: 'Kyoto',            code: 'UKY', lat: 35.0116, lng: 135.7681 },
+    { name: 'Yokohama',         code: 'YOK', lat: 35.4437, lng: 139.6380 },
+    { name: 'Fukuoka',          code: 'FUK', lat: 33.5904, lng: 130.4017 },
+    { name: 'Sapporo',          code: 'SPK', lat: 43.0618, lng: 141.3545 },
+    { name: 'Hiroshima',        code: 'HIJ', lat: 34.3853, lng: 132.4553 },
+    { name: 'Nara',             code: 'NRA', lat: 34.6851, lng: 135.8048 }
   ],
   // South Korea.
   KR: [
-    { name: 'Seoul',              lat: 37.5665, lng: 126.9780 },
-    { name: 'Busan',              lat: 35.1796, lng: 129.0756 },
-    { name: 'Incheon',            lat: 37.4563, lng: 126.7052 },
-    { name: 'Jeju City',          lat: 33.4996, lng: 126.5312 },
-    { name: 'Daegu',              lat: 35.8714, lng: 128.6014 },
-    { name: 'Daejeon',            lat: 36.3504, lng: 127.3845 },
-    { name: 'Gwangju',            lat: 35.1595, lng: 126.8526 },
-    { name: 'Gyeongju',           lat: 35.8562, lng: 129.2247 }
+    { name: 'Seoul',            code: 'SEL', lat: 37.5665, lng: 126.9780 },
+    { name: 'Busan',            code: 'PUS', lat: 35.1796, lng: 129.0756 },
+    { name: 'Incheon',          code: 'ICN', lat: 37.4563, lng: 126.7052 },
+    { name: 'Jeju City',        code: 'CJU', lat: 33.4996, lng: 126.5312 },
+    { name: 'Daegu',            code: 'TAE', lat: 35.8714, lng: 128.6014 },
+    { name: 'Daejeon',          code: 'DAJ', lat: 36.3504, lng: 127.3845 },
+    { name: 'Gwangju',          code: 'KWJ', lat: 35.1595, lng: 126.8526 },
+    { name: 'Gyeongju',         code: 'GJU', lat: 35.8562, lng: 129.2247 }
   ],
   // China.
   CN: [
-    { name: 'Shanghai',           lat: 31.2304, lng: 121.4737 },
-    { name: 'Beijing',            lat: 39.9042, lng: 116.4074 },
-    { name: 'Guangzhou',          lat: 23.1291, lng: 113.2644 },
-    { name: 'Shenzhen',           lat: 22.5431, lng: 114.0579 },
-    { name: 'Chengdu',            lat: 30.5728, lng: 104.0668 },
-    { name: 'Hangzhou',           lat: 30.2741, lng: 120.1551 },
-    { name: "Xi'an",              lat: 34.3416, lng: 108.9398 },
-    { name: 'Suzhou',             lat: 31.2989, lng: 120.5853 }
+    { name: 'Shanghai',         code: 'SHG', lat: 31.2304, lng: 121.4737 },
+    { name: 'Beijing',          code: 'BJS', lat: 39.9042, lng: 116.4074 },
+    { name: 'Guangzhou',        code: 'CAN', lat: 23.1291, lng: 113.2644 },
+    { name: 'Shenzhen',         code: 'SZX', lat: 22.5431, lng: 114.0579 },
+    { name: 'Chengdu',          code: 'CTU', lat: 30.5728, lng: 104.0668 },
+    { name: 'Hangzhou',         code: 'HGH', lat: 30.2741, lng: 120.1551 },
+    { name: "Xi'an",            code: 'XIY', lat: 34.3416, lng: 108.9398 },
+    { name: 'Suzhou',           code: 'SZH', lat: 31.2989, lng: 120.5853 }
   ],
-  // Hong Kong — single SAR; surface the most-frequented districts.
+  // Hong Kong districts.
   HK: [
-    { name: 'Tsim Sha Tsui',      lat: 22.2978, lng: 114.1722 },
-    { name: 'Central',            lat: 22.2819, lng: 114.1582 },
-    { name: 'Causeway Bay',       lat: 22.2783, lng: 114.1813 },
-    { name: 'Mong Kok',           lat: 22.3193, lng: 114.1694 },
-    { name: 'Wan Chai',           lat: 22.2779, lng: 114.1731 },
-    { name: 'Sha Tin',            lat: 22.3868, lng: 114.1947 },
-    { name: 'Aberdeen',           lat: 22.2486, lng: 114.1551 },
-    { name: 'Lantau (Tung Chung)', lat: 22.2914, lng: 113.9434 }
+    { name: 'Tsim Sha Tsui',    code: 'TST', lat: 22.2978, lng: 114.1722 },
+    { name: 'Central',          code: 'CEN', lat: 22.2819, lng: 114.1582 },
+    { name: 'Causeway Bay',     code: 'CWB', lat: 22.2783, lng: 114.1813 },
+    { name: 'Mong Kok',         code: 'MOK', lat: 22.3193, lng: 114.1694 },
+    { name: 'Wan Chai',         code: 'WCH', lat: 22.2779, lng: 114.1731 },
+    { name: 'Sha Tin',          code: 'SHT', lat: 22.3868, lng: 114.1947 },
+    { name: 'Aberdeen',         code: 'ABD', lat: 22.2486, lng: 114.1551 },
+    { name: 'Tung Chung',       code: 'TCH', lat: 22.2914, lng: 113.9434 }
   ],
   // Taiwan.
   TW: [
-    { name: 'Taipei',             lat: 25.0330, lng: 121.5654 },
-    { name: 'Kaohsiung',          lat: 22.6273, lng: 120.3014 },
-    { name: 'Taichung',           lat: 24.1477, lng: 120.6736 },
-    { name: 'Tainan',             lat: 22.9999, lng: 120.2269 },
-    { name: 'Hsinchu',            lat: 24.8138, lng: 120.9675 },
-    { name: 'Keelung',            lat: 25.1276, lng: 121.7392 },
-    { name: 'Jiufen',             lat: 25.1097, lng: 121.8439 },
-    { name: 'Sun Moon Lake',      lat: 23.8569, lng: 120.9152 }
+    { name: 'Taipei',           code: 'TPE', lat: 25.0330, lng: 121.5654 },
+    { name: 'Kaohsiung',        code: 'KHH', lat: 22.6273, lng: 120.3014 },
+    { name: 'Taichung',         code: 'TXG', lat: 24.1477, lng: 120.6736 },
+    { name: 'Tainan',           code: 'TNN', lat: 22.9999, lng: 120.2269 },
+    { name: 'Hsinchu',          code: 'HSZ', lat: 24.8138, lng: 120.9675 },
+    { name: 'Keelung',          code: 'KEE', lat: 25.1276, lng: 121.7392 },
+    { name: 'Jiufen',           code: 'JFN', lat: 25.1097, lng: 121.8439 },
+    { name: 'Sun Moon Lake',    code: 'SML', lat: 23.8569, lng: 120.9152 }
   ]
 });
 
@@ -222,7 +210,7 @@ export function citiesForCountry(code) {
 }
 
 // Look up a city by name within a country (case-insensitive). Returns
-// { name, lat, lng } or null.
+// { name, code, lat, lng } or null.
 export function findCity(countryCode, cityName) {
   const list = citiesForCountry(countryCode);
   if (!list.length || !cityName) return null;
