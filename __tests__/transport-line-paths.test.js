@@ -273,7 +273,7 @@ describe('smoothSegment — Chaikin corner-cutting (v0.66.0)', () => {
   });
 });
 
-describe('smoothLinePaths — whole-map smoothing (v0.66.0 + v0.61.194)', () => {
+describe('smoothLinePaths — whole-map smoothing (v0.66.0 + v0.61.194 + v0.61.220)', () => {
   it('smooths every segment and preserves _meta keys', () => {
     const raw = buildLinePaths(ALL_STATIONS);
     const smoothed = smoothLinePaths({ _meta: { x: 1 }, ...raw });
@@ -282,8 +282,9 @@ describe('smoothLinePaths — whole-map smoothing (v0.66.0 + v0.61.194)', () => 
     // segments per control point) so the output is MUCH denser than
     // the raw segment.
     expect(smoothed.BPL[0].length).toBeGreaterThan(raw.BPL[0].length * 5);
-    // CCL stays on Chaikin — also lengthens, less dramatically.
-    expect(smoothed.CCL[0].length).toBeGreaterThan(raw.CCL[0].length);
+    // v0.61.220 — CCL (and the other MRT lines) now also use
+    // Catmull-Rom, same density.
+    expect(smoothed.CCL[0].length).toBeGreaterThan(raw.CCL[0].length * 5);
     // every point stays a finite {lat,lng}.
     for (const seg of smoothed.CCL) {
       for (const p of seg) {
@@ -292,13 +293,18 @@ describe('smoothLinePaths — whole-map smoothing (v0.66.0 + v0.61.194)', () => 
     }
   });
 
-  it('LRT lines (BPL/SLRT/PLRT) use Catmull-Rom — output passes through every station (v0.61.194)', () => {
+  it('every line (LRT + MRT) uses Catmull-Rom — output passes through every station (v0.61.194 + v0.61.220)', () => {
     const raw = buildLinePaths(ALL_STATIONS);
     const smoothed = smoothLinePaths(raw);
-    // For each LRT line, every original station coord must appear
+    // For each line, every original station coord must appear
     // (within 1e-5° rounding) in the smoothed output. Catmull-Rom
     // guarantees B(0) = P1, so every control point is preserved.
-    for (const code of ['BPL', 'PLRT']) {
+    // v0.61.220 — added the 6 MRT line codes (was LRT-only).
+    const ALL_LINES = [
+      'BPL', 'PLRT',
+      'NSL', 'EWL', 'NEL', 'CCL', 'DTL', 'TEL', 'CGL'
+    ];
+    for (const code of ALL_LINES) {
       if (!raw[code]) continue;
       for (let si = 0; si < raw[code].length; si++) {
         const rawSeg = raw[code][si];
