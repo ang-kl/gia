@@ -1,8 +1,8 @@
 counters:
-  commit: 446
-  build: 236
+  commit: 447
+  build: 237
   documents:
-    journal: 434
+    journal: 435
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,39 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 74
-last_anchor_time: 28-05 '26 16:50 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_232 (PR #735 v0.61.232 social profiles merged ~16:35 SGT; v0.61.233 city-code dropdown built at 28-05 '26 16:50 SGT)
-last_anchor_iso8601: 2026-05-28T16:50:00+08:00
-last_anchor_utc: 2026-05-28T08:50:00Z
+  current_chat_counter: 75
+last_anchor_time: 28-05 '26 17:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_233 (PR #736 city-code dropdown merged ~17:10 SGT; v0.61.234 rare-cuisine fixes built at 28-05 '26 17:30 SGT)
+last_anchor_iso8601: 2026-05-28T17:30:00+08:00
+last_anchor_utc: 2026-05-28T09:30:00Z
+
+# v0.61.234 (commit 447 / journal 435 / build 237) — rare-cuisine
+# investigation follow-up (operator selected 3 of 4 fixes):
+#
+# 1. Remove the 'Australasia' catch-all entry from the catalogue
+#    (`doc/Feature/cuisines_js.MD`). The umbrella term only returned
+#    ~3 weak Places matches; Australian + New Zealand chips remain
+#    and are the canonical search paths.
+# 2. Georgian cuisine gains dish keywords (khachapuri, khinkali,
+#    lobio, pkhali, shoti, chacha, mtsvadi, satsivi, churchkhela,
+#    tkemali, kharcho, chakhokhbili, ostri, kupati, tarragon,
+#    badrijani, plus 'georgian', 'caucasus', 'caucasian' and three
+#    Mkhedruli script aliases). Operator scope had previously
+#    excluded Caucasus cuisines from cuisine-dish-keywords.js.
+# 3. SEARCH_QUERY_OVERRIDE['Georgian'] = 'Georgian Caucasus cuisine
+#    restaurant Singapore' added at index.js:13161, broadening
+#    Places' signal vs the bare 'Georgian restaurant Singapore'.
+# 4. Sparse-coverage hint on the Cuisine TMA — when the selected
+#    cuisines include african / south-african / georgian AND the
+#    response has 1-5 venues, render an amber-bordered card
+#    explaining the SG ceiling so the user doesn't perceive the
+#    short list as a bug.
+#
+# NOT in this PR (operator deferred):
+# - Eastern European OR-fanout chip — the catalogue still doesn't
+#   have a selectable umbrella; operator can request later.
+
+
 
 # v0.61.233 (commit 446 / journal 434 / build 236) — operator
 # 28-05 '26: "when I select the city, there should have a location

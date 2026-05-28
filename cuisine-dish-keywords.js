@@ -35,7 +35,22 @@ const CUISINE_DISH_KEYWORDS = {
   african:        ['injera', 'doro wat', 'kitfo', 'tibs', 'berbere', 'shiro', 'niter kibbeh', 'wat', 'awaze',
                    'ugali', 'sukuma', 'nyama choma', 'githeri', 'mukimo', 'irio',
                    'jollof', 'suya', 'egusi', 'fufu', 'akara', 'efo', 'ogbono', 'pounded yam'],
-  'south african': ['bobotie', 'biltong', 'boerewors', 'malva', 'bunny chow', 'chakalaka', 'pap', 'potjiekos'],
+  'south african': ['bobotei', 'bobotie', 'biltong', 'boerewors', 'malva', 'bunny chow', 'chakalaka', 'pap', 'potjiekos'],
+
+  // ─── Caucasus / Georgian (v0.61.234) ───────────────────────────
+  // Operator's rare-cuisine investigation: Georgian had no dish-keyword
+  // entry (file scope was "African, European, Americas only"), so the
+  // post-filter dropped legitimate Caucasus venues. Adding the staples:
+  // khachapuri (cheese bread), khinkali (dumplings), lobio (bean stew),
+  // pkhali (vegetable paste), shoti (bread), chacha (grape brandy),
+  // mtsvadi (skewers), satsivi (walnut chicken), churchkhela (candy).
+  georgian:       ['khachapuri', 'khachapuri adjarian', 'imeretian', 'megrelian',
+                   'khinkali', 'lobio', 'pkhali', 'shoti', 'tonis puri', 'shotis puri',
+                   'chacha', 'badrijani', 'badrijani nigvzit',
+                   'mtsvadi', 'mtsvadi shashlik', 'churchkhela', 'satsivi', 'tkemali',
+                   'kharcho', 'chakhokhbili', 'ostri', 'kupati', 'tarragon',
+                   'georgian', 'caucasus', 'caucasian',
+                   'ქართული', 'ხაჭაპური', 'ხინკალი'],
 
   // ─── European ──────────────────────────────────────────────────
   // v0.60.123 — 'European' is the broad-category cuisine the free-text
