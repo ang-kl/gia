@@ -461,6 +461,14 @@ export default function App() {
           } else if (r.region === 'OTHER' || r.region === 'MY-PUT') {
             setState((s) => (s.region === 'OTHER' ? s : { ...s, region: 'OTHER' }));
             console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → OTHER (anchor region=' + r.region + ')');
+          } else if (r.region === 'SG') {
+            // v0.61.238 — operator: "if my location set to Geylang, I
+            // launch Cuisine TMA it still stick with 'Others' button
+            // being the last selection". Missing SG branch meant a
+            // previous OTHER state stayed sticky when the cached
+            // anchor moved back to SG.
+            setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → SG');
           }
           // v0.61.205 — track anchor precinctId so the OTHER pill can
           // show the Putrajaya flag PNG when the anchor is IOI Resort

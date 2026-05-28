@@ -1,8 +1,8 @@
 counters:
-  commit: 450
-  build: 240
+  commit: 451
+  build: 241
   documents:
-    journal: 438
+    journal: 439
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,27 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 78
-last_anchor_time: 28-05 '26 20:35 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_236 (PR #739 OTHER compact pill merged ~20:30 SGT; v0.61.237 auto-fire search built at 28-05 '26 20:35 SGT)
-last_anchor_iso8601: 2026-05-28T20:35:00+08:00
-last_anchor_utc: 2026-05-28T12:35:00Z
+  current_chat_counter: 79
+last_anchor_time: 28-05 '26 20:50 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_237 (PR #740 auto-fire merged ~20:45 SGT; v0.61.238 SG flip on tryServerCache built at 28-05 '26 20:50 SGT)
+last_anchor_iso8601: 2026-05-28T20:50:00+08:00
+last_anchor_utc: 2026-05-28T12:50:00Z
+
+# v0.61.238 (commit 451 / journal 439 / build 241) — operator
+# Issue 5 of 5 (28-05 '26): "if my location set to Geylang, I
+# launch Cuisine TMA it still stick with 'Others' button being
+# the last selection".
+#
+# Diagnosis: tryServerCache() in web/cuisine/src/v2/App.jsx had
+# auto-flip branches for JB and OTHER/MY-PUT but no SG branch.
+# When the cached anchor's region was SG and local state.region
+# was OTHER (sticky from previous TMA session), nothing flipped
+# back. The visibility-refresh handler at L620 already had the
+# SG case (v0.61.206); the mount path missed it.
+#
+# One-line branch addition.
+
+
 
 # v0.61.237 (commit 450 / journal 438 / build 240) — operator
 # 28-05 '26 (Issue 1 of 5): "I select Others then select the
