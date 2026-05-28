@@ -119,6 +119,51 @@ describe('formatVenueBlock — gracefully omits missing fields', () => {
   });
 });
 
+// v0.61.226 — 📱 social-profile row. Sits inside the includeContact
+// gate (T1 / T2 only), positioned immediately AFTER the 📍 maps line
+// per operator request (was between 📞 phone and 🌟 stats in the
+// initial draft of this PR). Skipped when the venue object has no
+// socialProfiles array.
+describe('formatVenueBlock — 📱 social-profile row', () => {
+  it('renders 📱 row with joined URLs when socialProfiles is set (T1)', () => {
+    const v = {
+      ...SAMPLE_VENUE,
+      socialProfiles: [
+        'https://www.instagram.com/lazylizard',
+        'https://www.tiktok.com/@lazylizard',
+        'https://www.facebook.com/lazylizard'
+      ]
+    };
+    const out = formatVenueBlock(v, { variant: 'detail-with-sanctuary' });
+    expect(out).toContain('📱 https://www.instagram.com/lazylizard · https://www.tiktok.com/@lazylizard · https://www.facebook.com/lazylizard');
+  });
+
+  it('positions 📱 row AFTER the 📍 maps line', () => {
+    const v = { ...SAMPLE_VENUE, socialProfiles: ['https://www.instagram.com/x'] };
+    const out = formatVenueBlock(v, { variant: 'detail' });
+    const mapsIdx = out.indexOf('📍');
+    const socialIdx = out.indexOf('📱');
+    expect(mapsIdx).toBeGreaterThan(-1);
+    expect(socialIdx).toBeGreaterThan(mapsIdx);
+  });
+
+  it('renders 📱 row on T2 detail variant too', () => {
+    const v = { ...SAMPLE_VENUE, socialProfiles: ['https://www.instagram.com/x'] };
+    expect(formatVenueBlock(v, { variant: 'detail' })).toContain('📱 https://www.instagram.com/x');
+  });
+
+  it('omits 📱 row on T3 compact (no contact rows)', () => {
+    const v = { ...SAMPLE_VENUE, socialProfiles: ['https://www.instagram.com/x'] };
+    expect(formatVenueBlock(v, { variant: 'compact', number: 1 })).not.toContain('📱');
+  });
+
+  it('omits 📱 row when socialProfiles is unset / empty / non-array', () => {
+    expect(formatVenueBlock(SAMPLE_VENUE, { variant: 'detail' })).not.toContain('📱');
+    expect(formatVenueBlock({ ...SAMPLE_VENUE, socialProfiles: [] }, { variant: 'detail' })).not.toContain('📱');
+    expect(formatVenueBlock({ ...SAMPLE_VENUE, socialProfiles: 'not-an-array' }, { variant: 'detail' })).not.toContain('📱');
+  });
+});
+
 describe('formatHoursLine — closedTodayLabel preferred over weekdayDescriptions', () => {
   it('uses closedTodayLabel when present', () => {
     const v = {

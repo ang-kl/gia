@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { tg } from '../../api/tg.js';
-import { copyOneToChat } from '../lib/api.js';
+import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
+import SocialButtons from './SocialButtons.jsx';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -83,6 +84,25 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
   // user pasting forward) the full standardised template.
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
+  // v0.61.225 — lazy-load the venue's social-profile URLs once on
+  // mount. Server caches results 30d under social:<placeId>, so most
+  // browses resolve in milliseconds; cold cache calls Gemini (~1-2s)
+  // but the page renders without waiting. AbortController cancels
+  // in-flight fetches when the card unmounts (e.g. user navigates).
+  const [socialProfiles, setSocialProfiles] = useState(null);
+  useEffect(() => {
+    if (!venue?.name) return;
+    const controller = new AbortController();
+    fetchSocialProfiles({
+      placeId: venue.placeId,
+      name: venue.name,
+      address: venue.area,
+      websiteUri: venue.websiteUri
+    }, { signal: controller.signal }).then((p) => {
+      if (!controller.signal.aborted) setSocialProfiles(p);
+    });
+    return () => controller.abort();
+  }, [venue?.placeId, venue?.name]);
   async function copy(e) {
     e.stopPropagation();
     if (copying) return;
@@ -277,6 +297,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
           {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
         </button>
       </div>
+      {/* v0.61.225 — social-profile brand buttons (max 3, priority
+          IG → TikTok → Facebook → X → YouTube → Threads). Renders
+          nothing when the lazy-fetched lookup turns up empty or is
+          still in flight, so the card height is stable for venues
+          without socials. */}
+      <SocialButtons profiles={socialProfiles} />
       {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
           below the Maps + Copy buttons when /api/cuisine/search
           attached michelinCategory to the venue payload.

@@ -133,6 +133,38 @@ export async function copyOneToChat(venue, context = {}) {
   });
 }
 
+// v0.61.225 — social-profile lookup for ResultCard. Card mounts call
+// this with the venue's placeId/name/address/websiteUri; server hits
+// Gemini grounded search (cached 30d in Redis), returns the URL map.
+// Caller passes an optional AbortSignal so unmounting cards cancel
+// in-flight requests rather than racing to setState on a dead node.
+export async function fetchSocialProfiles({ placeId, name, address, websiteUri }, { signal } = {}) {
+  const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  try {
+    const r = await fetch('/api/cuisine/social-profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ placeId, name, address, websiteUri, initData: initData() }),
+      signal
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const json = await r.json();
+    vlog.noteServerHint(json);
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'POST', url: '/api/cuisine/social-profiles', ms, ok: true });
+    }
+    return json?.profiles || {};
+  } catch (err) {
+    if (err?.name === 'AbortError') return {};
+    if (vlog.isEnabled()) {
+      const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+      vlog.report({ kind: 'fetch', method: 'POST', url: '/api/cuisine/social-profiles', ms, ok: false, error: err && (err.message || String(err)) });
+    }
+    return {};
+  }
+}
+
 // v0.58.10: copy-syntax — POST current TMA state, server returns a
 // re-runnable /cuisine command in the user's chat. Recipient pastes
 // it into any chat with @soleat_bot to relaunch this exact search.

@@ -1,8 +1,8 @@
 counters:
-  commit: 444
-  build: 234
+  commit: 445
+  build: 235
   documents:
-    journal: 432
+    journal: 433
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,11 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 72
-last_anchor_time: 28-05 '26 16:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_230 (PR #733 v0.61.230 merged ~15:50 SGT; v0.61.231 notebook aspect ratio built at 28-05 '26 16:00 SGT)
-last_anchor_iso8601: 2026-05-28T16:00:00+08:00
-last_anchor_utc: 2026-05-28T08:00:00Z
+  current_chat_counter: 73
+last_anchor_time: 28-05 '26 16:20 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_231 (PR #734 merged 28-05 '26 ~16:10 SGT; v0.61.232 social-profile row re-shipped from closed PR #729 at 28-05 '26 16:20 SGT)
+last_anchor_iso8601: 2026-05-28T16:20:00+08:00
+last_anchor_utc: 2026-05-28T08:20:00Z
 
 # v0.61.231 (commit 444 / journal 432 / build 234) — operator
 # 28-05 '26: "If I am using Notebook or web browser in Notebook
@@ -4750,3 +4750,32 @@ tf_7_self_correction:
   drift_minutes: 25
   corrected_at: 29-04 '26 23:10 SGT
   rule: TF_7
+
+# v0.61.232 (commit 445 / journal 433 / build 235) — operator
+# 28-05 '26: re-ship the social-profile row (PR #729 v0.61.226) on
+# top of current main. The original PR was on a stale base
+# (v0.61.225) and had merge conflicts; closing #729 and shipping
+# the same 11-file payload as v0.61.232. Content verified
+# byte-identical for 7 of 8 modified files; index.js cleanly
+# 3-way-merged (0 conflicts) on top of v0.61.231 main.
+#
+# Files (10 — same as PR #729 + new journal):
+# - NEW social-profiles.js (~265 lines): getSocialProfiles,
+#   fetchSocialProfilesForVenues (concurrency-4 fan-out),
+#   attachSocialsToVenues, pickTopProfiles. Per-platform URL
+#   regex for IG/TikTok/FB/X/YouTube/Threads. Redis
+#   social:<placeId> with 30-day TTL via setEx; negative caching;
+#   no caching on transient Gemini failures.
+# - NEW __tests__/social-profiles.test.js (~190 lines, 19 tests).
+# - NEW web/cuisine/src/v2/components/SocialButtons.jsx —
+#   brand-glyph button row on the result card.
+# - venue-templates.js: new 📱 row inserted after the 📍 maps line
+#   inside the includeContact gate (T3 compact stays sparse).
+# - web/cuisine/src/v2/components/ResultCard.jsx: imports + renders
+#   SocialButtons; lazy fetch on card mount.
+# - web/cuisine/src/v2/lib/api.js: client helper for /api/cuisine/
+#   socials lookup.
+# - index.js: server endpoint + venue enrichment plumbing (+93
+#   additions, no deletions; 3-way merged clean against the
+#   v0.61.222 / v0.61.230 changes to the same file).
+# - __tests__/venue-templates.test.js: 📱 row coverage.
