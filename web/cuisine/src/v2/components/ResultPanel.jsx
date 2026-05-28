@@ -69,6 +69,10 @@ export default function ResultPanel({
   // far). Used as `{known}` in the title. When null, the title
   // falls back to the "discovering" copy.
   knownTotal = null,
+  /* v0.61.240 — tiny combo-criteria line under the title. e.g.
+     "Japanese · Halal · $$". Computed in App.jsx so this component
+     stays presentational. Empty string = don't render the line. */
+  comboLine = '',
   // v0.61.174 — cumulative cap (cuisine-session SEEN_CAP). When the
   // server signals knownTotal >= cap AND finalBatch, title swaps
   // to "Results: {cap}+ · Limit reached".
@@ -253,6 +257,11 @@ export default function ResultPanel({
             <>
               <div>{line1}</div>
               <div className="text-tg-hint font-normal">{line2}</div>
+              {comboLine && (
+                <div className="text-[10px] text-tg-hint italic font-normal leading-tight mt-0.5">
+                  · {comboLine}
+                </div>
+              )}
             </>
           );
         })()}</div>
