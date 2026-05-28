@@ -191,22 +191,32 @@ const ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY = new Set([
   'store', 'food_store'
 ]);
 
-// Fruits mode keeps the broad "any fresh produce" net.
-const ACCEPT_PRIMARY_TYPES_FRUITS = new Set([
-  'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
-  'grocery_store', 'supermarket',
-  'produce_market', 'food_market',
-  'wholesaler', 'wholesale_business',
-  'fruit_parlor', 'fresh_fruit_store',
-  'juice_shop', 'juice_bar',
-  'cafe',
-  'store', 'food_store'
+// Fruits mode has no operator-supplied accept list, so it keeps the
+// v0.61.126 / v0.61.141 REJECT-list approach (only the restaurant /
+// bar set is dropped; everything else passes). Operator-requested
+// accept lists are scoped to DURIAN + DURIAN_PASTRY where the bug
+// reports came from.
+const ACCEPT_PRIMARY_TYPES_FRUITS = null;
+const REJECT_PRIMARY_TYPES_FRUITS = new Set([
+  'fine_dining_restaurant', 'chinese_restaurant', 'italian_restaurant',
+  'japanese_restaurant', 'french_restaurant', 'korean_restaurant',
+  'indian_restaurant', 'thai_restaurant', 'mexican_restaurant',
+  'pizza_restaurant', 'sushi_restaurant', 'ramen_restaurant',
+  'steak_house', 'seafood_restaurant', 'bar', 'night_club',
+  'hamburger_restaurant', 'meal_takeaway'  // fruits mode keeps the
+                                           // takeaway reject (juice
+                                           // stalls are dine-in/counter)
 ]);
 
 function _acceptTypesFor(mode) {
   if (mode === SPECIAL_MODES.DURIAN) return ACCEPT_PRIMARY_TYPES_DURIAN;
   if (mode === SPECIAL_MODES.DURIAN_PASTRY) return ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY;
-  return ACCEPT_PRIMARY_TYPES_FRUITS;
+  return ACCEPT_PRIMARY_TYPES_FRUITS;   // null → fall back to REJECT
+}
+
+function _rejectTypesFor(mode) {
+  if (mode === SPECIAL_MODES.FRUITS) return REJECT_PRIMARY_TYPES_FRUITS;
+  return null;
 }
 
 // v0.61.229 — durian VARIETY catalogue, exported separately from
@@ -355,14 +365,20 @@ function _haystack(v) {
 function isRelevant(venue, mode) {
   if (!venue || !isSpecialMode(mode)) return false;
   const pt = String(venue.primaryType || '').toLowerCase();
-  // v0.61.229 — POSITIVE primaryType accept-list check. When a venue
-  // has a primaryType AND it's not in the mode's accept list, the
-  // venue is rejected before the name / keyword checks. When
-  // primaryType is absent (Places returned no type), we fall through
-  // to name / keyword matching (no-data shouldn't fail-closed).
+  // v0.61.229 — POSITIVE primaryType accept-list (DURIAN /
+  // DURIAN_PASTRY) OR negative REJECT list (FRUITS). When a venue
+  // has a primaryType AND the mode has an accept list AND the type
+  // is not in it → reject. When the mode has a reject list AND the
+  // type is in it → reject. When primaryType is absent (Places
+  // returned no type), fall through to name / keyword matching.
   if (pt) {
     const accepts = _acceptTypesFor(mode);
-    if (accepts && accepts.size > 0 && !accepts.has(pt)) return false;
+    if (accepts && accepts.size > 0) {
+      if (!accepts.has(pt)) return false;
+    } else {
+      const rejects = _rejectTypesFor(mode);
+      if (rejects && rejects.has(pt)) return false;
+    }
   }
   // v0.61.141 — name-token reject (DURIAN only). A venue whose name
   // carries a pastry signal ("durian puff", "durian cake", …) is NOT
@@ -407,8 +423,10 @@ module.exports = {
   ACCEPT_PRIMARY_TYPES_DURIAN,
   ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY,
   ACCEPT_PRIMARY_TYPES_FRUITS,
+  REJECT_PRIMARY_TYPES_FRUITS,
   // exposed for tests
   KEYWORDS,
   SEED_TEMPLATES,
-  _acceptTypesFor
+  _acceptTypesFor,
+  _rejectTypesFor
 };
