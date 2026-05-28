@@ -102,7 +102,7 @@ export default function App() {
 
   return (
     <div
-      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[960px] mx-auto"
+      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[1600px] mx-auto"
       style={{
         // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',

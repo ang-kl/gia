@@ -35,7 +35,12 @@ body { -webkit-font-smoothing: antialiased; }
 
   /* v0.60.42 — tablet/desktop centered column.
      v0.60.57 — root cap raised 800 → 1280 to match the menu/hawker/
-     cuisine TMAs (v0.60.49 wide-screen bump that this TMA missed). */
+     cuisine TMAs (v0.60.49 wide-screen bump that this TMA missed).
+     v0.61.231 — operator: "screen size for TMA should be expand to
+     fill the notebook aspect ratio, currently is narrow especially
+     the Train MTA." Cap raised 1280 → 1600 so a 1440 px MacBook /
+     1366 px laptop fills its width and a 1920 px desktop centers
+     a 1600 px column. */
   body {
     display: flex;
     justify-content: center;
@@ -43,7 +48,7 @@ body { -webkit-font-smoothing: antialiased; }
   }
   #root {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1600px;
     min-height: var(--tg-viewport-stable-height, 100vh);
     background-color: var(--tg-bg);
   }

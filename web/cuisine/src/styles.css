@@ -39,9 +39,12 @@ body { -webkit-font-smoothing: antialiased; }
     justify-content: center;
     background-color: var(--tg-card, #1c1c1f);
   }
+  /* v0.61.231 — operator: TMAs should fill notebook aspect ratio.
+     Raised from 1280 → 1600 so a 1440 / 1366 px laptop fills the
+     viewport and a 1920 px desktop gets a 1600 px centered column. */
   #root {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1600px;
     min-height: var(--tg-viewport-stable-height, 100vh);
     background-color: var(--tg-bg);
   }
