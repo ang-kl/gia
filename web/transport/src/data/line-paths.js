@@ -306,10 +306,27 @@ export function catmullRomSegment(seg, samples = 12) {
   return out.map((p) => ({ lat: _round6(p.lat), lng: _round6(p.lng) }));
 }
 
-// v0.61.194 — Catmull-Rom is the right tool for LRT lines (close-
-// spaced stations where Chaikin's inward pull is visible). MRT
-// lines keep Chaikin (well-tested + good enough for 1-2 km spacing).
-const CATMULL_ROM_LINES = new Set(['BPL', 'SLRT', 'PLRT']);
+// v0.61.220 — extended to every line. Operator: the MRT lines also
+// ought to curve, AND every station marker must sit on the line.
+// Catmull-Rom is interpolating — output passes through every
+// control point exactly — so this is the right tool whether station
+// spacing is 30 m (LRT) or 1-2 km (MRT). Verified against the
+// Overpass MRT-line-geometry (scripts/fetch-mrt-lines-osm.js) and
+// the LTA "MRT/LRT Line (GEOJSON)" dataset for shape, but we draw
+// from the station-code derived control points so the curve always
+// runs through the pin coordinate.
+const CATMULL_ROM_LINES = new Set([
+  // LRT (v0.61.194 — kept)
+  'BPL', 'SLRT', 'PLRT',
+  // MRT (v0.61.220 — operator request)
+  'NSL', // North-South (Red)
+  'EWL', // East-West (Green) + CG (Airport branch)
+  'CGL', //   (CG branch on EW)
+  'NEL', // North East (Purple)
+  'CCL', // Circle (Orange) + CE spur
+  'DTL', // Downtown (Blue)
+  'TEL'  // Thomson-East Coast (Brown)
+]);
 
 // Smooth every segment of a { lineCode: segments[] } map.
 export function smoothLinePaths(paths) {
