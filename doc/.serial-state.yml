@@ -1,8 +1,8 @@
 counters:
-  commit: 442
-  build: 232
+  commit: 443
+  build: 233
   documents:
-    journal: 430
+    journal: 431
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,34 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 70
-last_anchor_time: 28-05 '26 14:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_228 (PR #731 v0.61.228 merged ~13:40 SGT; v0.61.229 Durian correction built at 28-05 '26 14:30 SGT)
-last_anchor_iso8601: 2026-05-28T14:30:00+08:00
-last_anchor_utc: 2026-05-28T06:30:00Z
+  current_chat_counter: 71
+last_anchor_time: 28-05 '26 15:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_229 (PR #732 v0.61.229 merged ~15:00 SGT; v0.61.230 /s regionCode-aware built at 28-05 '26 15:30 SGT)
+last_anchor_iso8601: 2026-05-28T15:30:00+08:00
+last_anchor_utc: 2026-05-28T07:30:00Z
+
+# v0.61.230 (commit 443 / journal 431 / build 233) — operator
+# 28-05 '26 (third item of the cascading-dropdown arc): /s chat
+# search now picks up the country + city anchor. Previously /s
+# was always biased to SG (regionCode='SG' hardcoded), even
+# after the user set a city like Tokyo or Bangkok via the
+# v0.61.227/228 Menu/Cuisine TMA cascades.
+#
+# - `searchVenuesByDish` accepts new `regionCode` option (default
+#   'SG' for back-compat).
+# - `handleSearchTurn` (the /s entry) derives regionCode from
+#   `loc.country` (ISO alpha-2) or maps `loc.region === 'JB' |
+#   'MY-PUT'` → 'MY'; falls back to 'SG'.
+# - Three fan-outs (technique / cooking-method) thread regionCode
+#   through their ctx + drop the "Singapore" suffix from the
+#   textQuery when regionCode != 'SG' (regionCode +
+#   locationBias.circle do the geographic work).
+# - Cooking-method callback handler also derives regionCode from
+#   the cached anchor (parallel to /s).
+# - Nation-iconic fan-out left as SG-only by design (matches
+#   SG-specific iconic dishes like "milo dinosaur", "kaya toast").
+
+
 
 # v0.61.229 (commit 442 / journal 430 / build 232) — operator
 # 28-05 '26 (serious bug): Durian + Durian Pastry cuisine results

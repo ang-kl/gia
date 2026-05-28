@@ -2989,10 +2989,14 @@ bot.on('callback_query', async (q) => {
         const loc = await getUserLocation(redis, chatId).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+        // v0.61.230 — derive regionCode from anchor, parallel to /s.
+        let cbRegionCode = 'SG';
+        if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) cbRegionCode = loc.country;
+        else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') cbRegionCode = 'MY';
         const sc = require('./search-conversation');
         try { await sc.setLastCuisine(redis, chatId, 'cooking-method', hit.slug, hit.term); }
         catch (err) { console.warn('[cookm] setLastCuisine failed:', err.message); }
-        await runCookingMethodFanOut({ chatId, userText: cookText, hit, lang: cbLang, center, sc });
+        await runCookingMethodFanOut({ chatId, userText: cookText, hit, lang: cbLang, center, sc, regionCode: cbRegionCode });
       } catch (err) {
         console.warn('[cookm] callback failed:', err.message);
         await runFreeTextSearch(chatId, cookText, { lang: cbLang });
@@ -7043,6 +7047,21 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   const loc = await getUserLocation(redis, chatId).catch(() => null);
   const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
   const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+  // v0.61.230 — derive Places regionCode from the user's anchor so
+  // `/s` searches the right country. Without this, the search was
+  // always biased to SG even after the user picked a city like
+  // Tokyo or Bangkok via the Menu / Cuisine TMA cascade dropdowns
+  // (v0.61.227 / v0.61.228). Resolution:
+  //   loc.country (ISO alpha-2)  → use it
+  //   loc.region === 'JB'        → 'MY'
+  //   loc.region === 'MY-PUT'    → 'MY'
+  //   default                    → 'SG'
+  let regionCode = 'SG';
+  if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) {
+    regionCode = loc.country;
+  } else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') {
+    regionCode = 'MY';
+  }
 
   // ── v0.60.134 — R.E.D disambiguation runs FIRST ─────────────────────
   // Deterministic, no LLM. When the term is in AMBIGUOUS_DISHES
@@ -7102,7 +7121,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (!intent) {
     const techShortcut = gc.lookupTechnique(userText);
     if (techShortcut) {
-      return await runTechniqueFanOut({ chatId, userText, techEntry: techShortcut, lang, center, sc, esc });
+      return await runTechniqueFanOut({ chatId, userText, techEntry: techShortcut, lang, center, sc, esc, regionCode });
     }
   }
 
@@ -7134,7 +7153,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // skipped so R.E.D's resolution wins.
   const techEntry = (!disambigDisclosure && intent.intent === 'tool') ? gc.lookupTechnique(userText) : null;
   if (techEntry) {
-    return await runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc });
+    return await runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc, regionCode });
   }
   // v0.60.6 — Nation-iconic detection: if the query matches a known
   // SG iconic dish or drink (e.g. "milo dinosaur", "kaya toast",
@@ -7174,7 +7193,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       const cmHit = cmMatches[0];
       try { await sc.setLastCuisine(redis, chatId, 'cooking-method', cmHit.slug, cmHit.term); }
       catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
-      return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc });
+      return await runCookingMethodFanOut({ chatId, userText, hit: cmHit, lang, center, sc, regionCode });
     }
     // ambiguous or non-verbatim → pivot prompt
     const { tn: trnCm } = require('./i18n');
@@ -7205,7 +7224,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } else {
     try {
       venues = await searchVenuesByDish(intent.searchTerm, intent.cuisine || null, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
       });
     } catch (err) {
       console.warn('[Search] searchVenuesByDish failed:', err.message);
@@ -7306,6 +7325,16 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     if (aboveShown === 0 && belowShown > 0) {
       lines.push(trnSearch('freetext.allBelow', lang, { dish: esc(dishPhraseForCard) }));
       lines.push('');
+    }
+    // v0.61.225 — pre-render social-profile enrichment (Instagram /
+    // TikTok / Facebook / X / YouTube / Threads). Cached 30d in Redis;
+    // a Gemini outage leaves venues with no 📱 row but does not block
+    // rendering.
+    try {
+      const { attachSocialsToVenues } = require('./social-profiles');
+      await attachSocialsToVenues(redis, ordered135, { concurrency: 4 });
+    } catch (err) {
+      console.warn('[Search] social-profiles enrichment failed:', err.message);
     }
     // v0.60.133 — render each card defensively (mirrors
     // runCookingMethodFanOut): a single malformed venue / template
@@ -7427,7 +7456,12 @@ function humaniseRestaurantType(displayText, primaryTypeEnum) {
   return s;
 }
 
-async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey }) {
+// v0.61.230 — `regionCode` is now an option (default 'SG' kept for
+// backwards compat with the technique / nation-iconic / cooking-
+// method fan-outs that haven't been threaded yet). When the user's
+// anchor is non-SG, callers pass the resolved alpha-2 (e.g. 'MY',
+// 'JP', 'KR') so Places biases its search to that country.
+async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey, regionCode = 'SG' }) {
   if (!mapsApiKey) return [];
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   // v0.60.2: expanded field mask so the rich card template can
@@ -7450,7 +7484,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
       PLACES_TEXT_URL,
       {
         textQuery,
-        regionCode: 'SG',
+        regionCode,                // v0.61.230 — was hardcoded 'SG'
         languageCode: lang === 'fr' ? 'fr' : 'en',
         maxResultCount: Math.min(Math.max(max, 1), 10),
         locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: 50000 } },
@@ -7558,6 +7592,14 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
   if (maps) lines.push(maps);
+  // v0.61.226 — social profile URLs, positioned immediately after the
+  // 📍 maps line per operator request. Mirrors the post-maps placement
+  // in formatVenueBlock. URLs come from social-profiles.js (Gemini
+  // grounded), pre-validated and priority-ordered; row is skipped
+  // when the venue has no verified profiles.
+  if (Array.isArray(venue.socialProfiles) && venue.socialProfiles.length) {
+    lines.push(`📱 ${venue.socialProfiles.join(' · ')}`);
+  }
   // v0.60.16 — Michelin / Bib Gourmand annotation row appended after
   // the maps URL. v0.60.193 — DF-91: cross-ref logic factored into
   // michelin-2025's appendMichelinAnnotation helper. Shared with
@@ -7633,7 +7675,7 @@ function createWaitStatus(chatId, lang, queryLabel = '') {
   return { finish };
 }
 
-async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc }) {
+async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, sc, esc, regionCode = 'SG' }) {
   const gc = require('./gemini-client');
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   // Origin resolution.
@@ -7685,11 +7727,16 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     };
     const variants = [originVariant, ...(Array.isArray(techEntry.variants) ? techEntry.variants : [])];
     // Phase 1 — parallel Places searches.
-    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey };
+    // v0.61.230 — when the user's anchor is outside SG, regionCode +
+    // locationBias.circle constrain Places to the right country.
+    // Drop the hardcoded "Singapore" suffix so the textQuery doesn't
+    // pull SG-only matches.
+    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey, regionCode };
+    const placeSuffix = regionCode === 'SG' ? ' restaurant Singapore' : ' restaurant';
     const variantSearches = variants.map((v) => {
       const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
       const max = v.isOrigin ? 5 : 2;
-      return searchVenuesByDish(`${dishPhrase} restaurant Singapore`, v.cuisine, { ...ctx, max });
+      return searchVenuesByDish(`${dishPhrase}${placeSuffix}`, v.cuisine, { ...ctx, max });
     });
     const fusionEntry = techEntry.fusion;
     const fusionSearch = fusionEntry
@@ -7784,6 +7831,15 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
         await attachFootfallSignals(redis, finalVenues);
       } catch (err) {
         console.warn('[Search-FanOut] attachFootfallSignals failed (continuing without):', err.message);
+      }
+      // v0.61.225 — social-profile enrichment. finalVenues object
+      // references are shared with each block.venues, so attaching
+      // here also surfaces the 📱 row on rendered cards below.
+      try {
+        const { attachSocialsToVenues } = require('./social-profiles');
+        await attachSocialsToVenues(redis, finalVenues, { concurrency: 4 });
+      } catch (err) {
+        console.warn('[Search-FanOut] attachSocialsToVenues failed (continuing without):', err.message);
       }
     }
 
@@ -7907,6 +7963,15 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
     } catch (err) {
       console.warn('[Nation-Iconic] attachFootfallSignals failed:', err.message);
     }
+    // v0.61.225 — social-profile enrichment for the 5 nation-iconic
+    // picks rendered below. Same Gemini-grounded helper as /s and
+    // /copy-all use; results cached 30d in Redis.
+    try {
+      const { attachSocialsToVenues } = require('./social-profiles');
+      await attachSocialsToVenues(redis, venues.slice(0, 5), { concurrency: 4 });
+    } catch (err) {
+      console.warn('[Nation-Iconic] attachSocialsToVenues failed:', err.message);
+    }
 
     // Phase 3 — render. Header is the cuisine + dish + a tourist-friendly
     // single-line explainer pulled from NATION_OVERLAY.
@@ -7989,7 +8054,7 @@ function buildCookMethodKeyboard(text, matches, lang) {
 // pulled from the method-dict slug; the Places query combines the term
 // + cuisine label + Singapore for tight targeting (e.g. "tadka
 // tempering Indian Singapore restaurant").
-async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc }) {
+async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc, regionCode = 'SG' }) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -7999,7 +8064,10 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc 
   const wait = createWaitStatus(chatId, lang, `${hit.cuisineLabel} · ${hit.term}`);
 
   try {
-    const textQuery = `"${hit.term}" ${hit.cuisineLabel} Singapore restaurant`;
+    // v0.61.230 — when user's anchor is non-SG, drop the "Singapore"
+    // suffix; regionCode + locationBias do the geographic work.
+    const placeSuffix = regionCode === 'SG' ? 'Singapore restaurant' : 'restaurant';
+    const textQuery = `"${hit.term}" ${hit.cuisineLabel} ${placeSuffix}`;
     // v0.60.208 — fire the method-describe Gemini call in parallel with
     // the Places search (Places is the long pole, so this adds ~no
     // wall-clock). It yields the one-line explainer for the card header
@@ -11086,6 +11154,16 @@ async function cacheBotUsername() {
         const { googleMapsUrl, buildMapHashUrl } = require('./maps-url');
         const { formatVenueBlock } = require('./venue-templates');
         const { tn: trn } = require('./i18n');
+        // v0.61.225 — fan-out social-profile fetch (concurrency 4) for
+        // all up-to-12 venues in this clip. Cached 30d so warm clips
+        // resolve in milliseconds. attachSocialsToVenues is non-
+        // throwing — a Gemini outage simply leaves the 📱 row absent.
+        try {
+          const { attachSocialsToVenues } = require('./social-profiles');
+          await attachSocialsToVenues(redis, slim, { concurrency: 4 });
+        } catch (err) {
+          console.warn('[Cuisine] copy-all social-profiles enrichment failed:', err.message);
+        }
         const header = slim.length === 1
           ? trn('pick.header.one', reqLang)
           : trn('pick.header.many', reqLang, { n: slim.length });
@@ -11414,6 +11492,24 @@ async function cacheBotUsername() {
           try { sanctuaryRead = await getOrCacheSummary(redis, venue.placeId, oneLang) || ''; }
           catch { /* fall through; T1 will render without sanctuary section */ }
         }
+        // v0.61.225 — fetch social-profile URLs (Instagram / TikTok /
+        // Facebook / X / YouTube / Threads) and attach to venue.
+        // Cached 30d in Redis (social:<placeId>) so most subsequent
+        // copies are free. Failures are swallowed — the 📱 row simply
+        // doesn't render.
+        try {
+          const { getSocialProfiles, pickTopProfiles } = require('./social-profiles');
+          const profiles = await getSocialProfiles(redis, {
+            placeId: venue.placeId,
+            name: venue.name,
+            address: venue.area,
+            websiteUri: venue.websiteUri
+          });
+          const urls = pickTopProfiles(profiles).map((p) => p.url);
+          if (urls.length) venue.socialProfiles = urls;
+        } catch (err) {
+          console.warn('[Cuisine] copy-one social-profiles enrichment failed:', err.message);
+        }
         const body = formatVenueBlock(venue, {
           variant: 'detail-with-sanctuary',
           sanctuaryRead,
@@ -11470,6 +11566,35 @@ async function cacheBotUsername() {
           const vlogExit = require('./verbose-log');
           await vlogExit.vlogIf(redis, chatId2, { kind: 'copy-one-error', ms: Date.now() - copyOneStart, error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
         } catch { /* best-effort */ }
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.61.225 — social-profile lookup for the Cuisine TMA ResultCard.
+    // Card mounts → POST { placeId, name, address, websiteUri } →
+    // { profiles: { instagram?, tiktok?, facebook?, x?, youtube?,
+    // threads? } }. Results cached server-side in Redis under
+    // social:<placeId> with a 30-day TTL, so most repeat browses
+    // resolve in milliseconds. initData-gated mirroring the other
+    // /api/cuisine/* endpoints. A miss / Gemini failure returns
+    // { profiles: {} } — the card simply doesn't render the social
+    // button row.
+    app.post('/api/cuisine/social-profiles',
+      makeRateLimiter(redis, { endpoint: 'social-profiles', cap: 500 }),
+      async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified?.user?.id) return res.status(401).json({ error: 'invalid initData' });
+        const placeId = typeof req.body?.placeId === 'string' ? req.body.placeId : '';
+        const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+        const address = typeof req.body?.address === 'string' ? req.body.address.trim() : '';
+        const websiteUri = typeof req.body?.websiteUri === 'string' ? req.body.websiteUri.trim() : '';
+        if (!name) return res.status(400).json({ error: 'missing name' });
+        const { getSocialProfiles } = require('./social-profiles');
+        const profiles = await getSocialProfiles(redis, { placeId, name, address, websiteUri });
+        res.json({ profiles });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/social-profiles failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });
