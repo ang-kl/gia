@@ -1,8 +1,8 @@
 counters:
-  commit: 447
-  build: 237
+  commit: 448
+  build: 238
   documents:
-    journal: 435
+    journal: 436
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,36 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-28
-  current_chat_counter: 75
-last_anchor_time: 28-05 '26 17:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_233 (PR #736 city-code dropdown merged ~17:10 SGT; v0.61.234 rare-cuisine fixes built at 28-05 '26 17:30 SGT)
-last_anchor_iso8601: 2026-05-28T17:30:00+08:00
-last_anchor_utc: 2026-05-28T09:30:00Z
+  current_chat_counter: 76
+last_anchor_time: 28-05 '26 18:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_234 (PR #737 rare-cuisine fixes merged ~17:45 SGT; v0.61.235 ACCEPT-list widening built at 28-05 '26 18:00 SGT)
+last_anchor_iso8601: 2026-05-28T18:00:00+08:00
+last_anchor_utc: 2026-05-28T10:00:00Z
+
+# v0.61.235 (commit 448 / journal 436 / build 238) — operator ran
+# scripts/durian-variance.js across SG/JB/Putrajaya × 12 languages
+# on 28-05 '26. The primaryType frequency histograms exposed gaps
+# in v0.61.229's ACCEPT lists — real durian venues were being
+# rejected because their primaryType wasn't on the list.
+#
+# DURIAN gains: 'food' (JB:15, PUT:12 — "99 Old Trees Durian",
+# "Hey!Durian"), 'market' (JB:11), 'farm' (JB:5, PUT:2 — orchards),
+# 'farmers_market', 'garden', 'coffee_shop', 'general_store'.
+#
+# DURIAN_PASTRY gains: 'cake_shop' (SG:19, JB:12, PUT:13 — major
+# miss; Emicakes, Temptations Cakes, Delcie's), 'pastry_shop'
+# (SG:3, JB:5, PUT:8), 'food' (SG:24), 'dessert_restaurant'
+# (JB:7, PUT:5), 'meal_delivery' (SG:6), 'snack_bar' (JB:2),
+# 'grocery_store' (PUT:5).
+#
+# Name-reject patterns + keyword loop continue to drop non-durian
+# noise even with the wider primaryType allow list. Verified via
+# direct Node smoke: 7/8 cases (the 8th was a test-fixture
+# mismatch, not a code issue — "DurianBB World" alone with no
+# reviews legitimately fails the keyword check, real-world pass
+# was via review text).
+
+
 
 # v0.61.234 (commit 447 / journal 435 / build 237) — rare-cuisine
 # investigation follow-up (operator selected 3 of 4 fixes):

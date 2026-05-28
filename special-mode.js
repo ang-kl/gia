@@ -164,6 +164,16 @@ const KEYWORDS = {
 // absent (Places didn't return one), accept-list is bypassed —
 // rely on keyword match. `meal_takeaway` is kept for DURIAN
 // (delivery-only specialists, v0.61.141 rationale).
+// v0.61.235 — accept lists widened based on the operator-run
+// scripts/durian-variance.js (28-05 '26). The fruit run logged
+// primaryType frequencies across SG/JB/Putrajaya × 12 languages.
+// Real durian sellers were being rejected because Places assigned
+// them generic types like 'food' (JB:15, PUT:12 — venues like
+// "99 Old Trees Durian", "Hey!Durian 榴莲说"), 'market' (JB:11),
+// 'farm' (JB:5 — durian orchards), 'coffee_shop' / 'general_store'
+// / 'farmers_market' / 'garden'. Adding them honestly broadens the
+// keep-rate while the name-reject patterns + keyword loop continue
+// to drop non-durian noise.
 const ACCEPT_PRIMARY_TYPES_DURIAN = new Set([
   'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
   'grocery_store', 'supermarket',
@@ -175,9 +185,21 @@ const ACCEPT_PRIMARY_TYPES_DURIAN = new Set([
   'dessert_shop',
   'meal_takeaway',  // v0.61.141 carve-out — small specialist sellers
   'meal_delivery',
-  'store', 'food_store'
+  'store', 'food_store',
+  // v0.61.235 additions (variance data)
+  'food',           // very common — Places' generic food type
+  'market', 'farmers_market',
+  'farm', 'garden', // durian orchards (Thai สวน, Malay kebun)
+  'coffee_shop',
+  'general_store'
 ]);
 
+// v0.61.235 — same variance source. Durian PASTRY venues are widely
+// classified as 'cake_shop' (SG:19, JB:12, PUT:13 — Emicakes,
+// Temptations Cakes, Delcie's Desserts), 'pastry_shop' (SG:3, JB:5,
+// PUT:8 — Bánh sầu riêng…), 'food' (SG:24!), 'dessert_restaurant'
+// (JB:7, PUT:5), 'meal_delivery' (SG:6), 'snack_bar' (JB:2),
+// 'grocery_store' (PUT:5). All four were rejected pre-fix.
 const ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY = new Set([
   'bakery', 'cafe',
   'ice_cream_shop',
@@ -188,7 +210,15 @@ const ACCEPT_PRIMARY_TYPES_DURIAN_PASTRY = new Set([
   'wholesaler', 'wholesale_business',
   'produce_market', 'food_market',
   'restaurant',  // generic — caught by name reject if it's actually a non-pastry venue
-  'store', 'food_store'
+  'store', 'food_store',
+  // v0.61.235 additions (variance data)
+  'cake_shop',       // SG:19 / JB:12 / PUT:13 — Emicakes etc.
+  'pastry_shop',     // SG:3 / JB:5 / PUT:8
+  'food',            // SG:24 generic
+  'dessert_restaurant',
+  'meal_delivery',
+  'snack_bar',
+  'grocery_store'
 ]);
 
 // Fruits mode has no operator-supplied accept list, so it keeps the
