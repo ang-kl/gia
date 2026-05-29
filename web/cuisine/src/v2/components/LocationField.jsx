@@ -39,6 +39,30 @@ import { citiesForCountry } from '../lib/cities.js';
 // re-render, no server save) per the operator's "if the new
 // location set is same as current location, don't do anything"
 // instruction.
+// v0.61.265 — operator (29-05 '26):
+//   "the location field box cannot be a country like singapore or
+//    malaysia. it has to be street number + building name +
+//    Street name."
+//   "always show 'unnamed' on whatever i typed in the other mode. why"
+//   "i select johor bahru, the street name should be erased in the box."
+// _isCountryOnly() screens labels that resolved to a bare country
+// name (Places sometimes returns just "Singapore" for ambiguous
+// inputs, and our pre-v0.61.265 `smart-place-label.js` deep fallback
+// of 'Unnamed' would also leak through). _safeLabel() picks the
+// best display string from a {primaryText, secondaryText} pair and
+// the user's typed query, never showing 'Unnamed' to the user.
+const COUNTRY_ONLY_RX = /^(singapore|malaysia|indonesia|thailand|vietnam|philippines|brunei|cambodia|laos|myanmar|japan|china|hong\s*kong|taiwan|south\s*korea|korea|australia|new\s*zealand|united\s*states|usa|united\s*kingdom|uk)$/i;
+function _isCountryOnly(s) {
+  return !!s && COUNTRY_ONLY_RX.test(String(s).trim());
+}
+function _safeLabel(primaryText, secondaryText, typedFallback = '') {
+  const p = String(primaryText || '').trim();
+  if (p && p !== 'Unnamed' && !_isCountryOnly(p)) return p;
+  const s = String(secondaryText || '').trim();
+  if (s && s !== 'Unnamed' && !_isCountryOnly(s)) return s;
+  return String(typedFallback || '').trim();
+}
+
 // v0.61.251 — module-scoped haversine helper for the v0.61.251
 // nearest-cities.js-entry sync. Returns km between two lat/lng
 // pairs; Earth radius 6371 km. Plain JS, no deps.
@@ -220,8 +244,31 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const anchorLabel = anchorDiffers ? (anchor.name || '').trim() : '';
   // Resting label: just-picked label > locked-in anchor name >
   // device-pin neighbourhood > i18n('Search location').
-  const resting = pickedLabel || anchorLabel || currentLabel || tr('loc.searchLocation', lang);
-  const showClear = !!(pickedLabel || anchorDiffers);
+  // v0.61.265 — operator: bare country names are NEVER acceptable
+  // resting labels; the field should show street/building/street
+  // name, not "Singapore" or "Malaysia". Filter at each tier so a
+  // bad reverseGeocode or an ambiguous pick falls through to the
+  // i18n placeholder.
+  const pickedSafe = _isCountryOnly(pickedLabel) ? '' : pickedLabel;
+  const anchorSafe = _isCountryOnly(anchorLabel) ? '' : anchorLabel;
+  const currentSafe = _isCountryOnly(currentLabel) ? '' : currentLabel;
+  const resting = pickedSafe || anchorSafe || currentSafe || tr('loc.searchLocation', lang);
+  const showClear = !!(pickedSafe || (anchorDiffers && anchorSafe));
+
+  // v0.61.265 — operator: "i select johor bahru, the street name
+  // should be erased in the box." Region switching invalidates any
+  // typed-but-not-yet-picked input from the previous region (a
+  // street name typed for SG isn't relevant to JB). Reset query +
+  // suggestions when the region prop flips. The pickedLabel /
+  // anchor state is owned by the parent and persists by design.
+  useEffect(() => {
+    setQuery('');
+    setSuggestions([]);
+    setSuggestionsQuery('');
+    clearIdleHint();
+    setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [region]);
 
   // v0.61.191 — OTHER region: branch to the dedicated picker that
   // uses country dropdown + free-text + confirmation list. The
@@ -330,7 +377,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
       )}
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
-          {suggestions.map((s, i) => (
+          {suggestions.map((s, i) => {
+            // v0.61.265 — display guard: never show literal 'Unnamed'
+            // or a bare country name in the suggestion list; fall
+            // back to secondaryText or the user's typed query.
+            const primaryDisplay = _safeLabel(s.primaryText, s.secondaryText, query.trim());
+            return (
             <button
               key={s.placeId}
               type="button"
@@ -339,12 +391,13 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               onClick={() => handlePick(s)}
               className={`block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0 ${i === 0 ? 'bg-tg-bg/50' : ''}`}
             >
-              <div className="text-sm">{s.primaryText}</div>
-              {s.secondaryText && (
+              <div className="text-sm">{primaryDisplay || s.primaryText}</div>
+              {s.secondaryText && s.secondaryText !== primaryDisplay && (
                 <div className="text-[11px] text-tg-hint truncate">{s.secondaryText}</div>
               )}
             </button>
-          ))}
+            );
+          })}
           {/* v0.59.12: Enter-to-anchor affordance — makes the new keyboard
               shortcut discoverable without forcing the user to read docs. */}
           <div className="px-3 py-1.5 text-[10px] text-tg-hint italic border-t border-tg-border bg-tg-bg/40">
@@ -578,7 +631,12 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // (flag + city + text + 🔍) shows only when user taps to edit OR
   // when there's no anchor yet.
   const [expanded, setExpanded] = useState(false);
-  const showCompact = !!(anchor && anchor.name) && !expanded && results.length === 0;
+  // v0.61.265 — show the compact pill only when the anchor name is
+  // actually meaningful (not a stale country label, not the literal
+  // 'Unnamed' placeholder). Otherwise the picker stays expanded so
+  // the user can re-anchor cleanly.
+  const showCompact = !!(anchor && anchor.name && !_isCountryOnly(anchor.name)
+    && anchor.name !== 'Unnamed') && !expanded && results.length === 0;
   // v0.61.228 — child city dropdown. Mirrors v0.61.227 Menu TMA. The
   // cityPick value is reset whenever the country flips because each
   // country has its own catalogue. Picking a city sets the anchor
@@ -682,10 +740,13 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // v0.61.256 — operator (image 3 batch): the server's
     // /api/cuisine/place-search-by-country fills primaryText with
     // the literal string 'Unnamed' when Places has no displayName.
-    // Guard at this seam so we never persist that placeholder.
-    const labelOut = (r.primaryText && r.primaryText !== 'Unnamed')
-      ? r.primaryText
-      : (r.secondaryText || r.primaryText || 'Pinned location');
+    // v0.61.265 — operator: "always show 'unnamed' on whatever i
+    // typed in the other mode." Add the country-only filter on top
+    // of the v0.61.256 'Unnamed' guard so bare country picks fall
+    // through to the user's typed text rather than persisting
+    // "Singapore" or "Malaysia" as the anchor name.
+    const labelOut = _safeLabel(r.primaryText, r.secondaryText, query.trim())
+      || 'Pinned location';
     onSelect?.({ lat: r.lat, lng: r.lng, label: labelOut, noAutoFire: true });
     setResults([]); setQuery(''); setNoMatch(false);
     clearIdleHint();
@@ -697,7 +758,13 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     clearIdleHint();
   }
 
-  const restingLabel = (anchor && anchor.name) ? anchor.name : tr('loc.other.placeholder', lang);
+  // v0.61.265 — operator: "the location field box cannot be a country."
+  // Guard the resting label so a stale country-named anchor (e.g.
+  // server returned just "Singapore" pre-v0.61.265) falls back to
+  // the i18n placeholder rather than the bare country.
+  const anchorNameSafe = (anchor && anchor.name && !_isCountryOnly(anchor.name)
+    && anchor.name !== 'Unnamed') ? anchor.name : '';
+  const restingLabel = anchorNameSafe || tr('loc.other.placeholder', lang);
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -764,7 +831,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             enterKeyHint="search"
-            placeholder={anchor && anchor.name ? anchor.name : tr('loc.other.placeholder', lang)}
+            placeholder={anchorNameSafe || tr('loc.other.placeholder', lang)}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
           />
           <button
@@ -820,19 +887,25 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
               .replace('{flag}', country.flag)
               .replace('{country}', country.name)}
           </div>
-          {results.map((r) => (
+          {results.map((r) => {
+            // v0.61.265 — never render literal 'Unnamed' or a bare
+            // country name; fall back to secondaryText / typed query.
+            const primaryDisplay = _safeLabel(r.primaryText, r.secondaryText, query.trim())
+              || 'Pinned location';
+            return (
             <button
               key={r.placeId}
               type="button"
               onClick={() => pickResult(r)}
               className="block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0"
             >
-              <div className="text-sm">{r.primaryText}</div>
-              {r.secondaryText && (
+              <div className="text-sm">{primaryDisplay}</div>
+              {r.secondaryText && r.secondaryText !== primaryDisplay && (
                 <div className="text-[11px] text-tg-hint truncate">{r.secondaryText}</div>
               )}
             </button>
-          ))}
+            );
+          })}
           <button
             type="button"
             onClick={cancel}

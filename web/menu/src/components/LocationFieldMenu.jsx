@@ -33,6 +33,25 @@ import { citiesForCountry } from '../cities.js';
 // city name. The list is scrollable (max-h-72 + overflow-y-auto)
 // so 15 capitals (Malaysia) fit on a phone viewport. Narrow
 // closed-state (~4rem) leaves the free-text input room.
+// v0.61.265 — operator (29-05 '26):
+//   "the location field box cannot be a country like singapore or
+//    malaysia. it has to be street number + building name +
+//    Street name."
+//   "always show 'unnamed' on whatever i typed in the other mode. why"
+// Display guards mirrored from the Cuisine TMA's LocationField.jsx —
+// keep the two TMAs' resting-label semantics in lock-step.
+const COUNTRY_ONLY_RX = /^(singapore|malaysia|indonesia|thailand|vietnam|philippines|brunei|cambodia|laos|myanmar|japan|china|hong\s*kong|taiwan|south\s*korea|korea|australia|new\s*zealand|united\s*states|usa|united\s*kingdom|uk)$/i;
+function _isCountryOnly(s) {
+  return !!s && COUNTRY_ONLY_RX.test(String(s).trim());
+}
+function _safeLabel(primaryText, secondaryText, typedFallback = '') {
+  const p = String(primaryText || '').trim();
+  if (p && p !== 'Unnamed' && !_isCountryOnly(p)) return p;
+  const s = String(secondaryText || '').trim();
+  if (s && s !== 'Unnamed' && !_isCountryOnly(s)) return s;
+  return String(typedFallback || '').trim();
+}
+
 // v0.61.251 — module-scoped haversine helper for the cities.js
 // nearest-by-distance fallback inside LocationFieldMenu. Returns km
 // between two lat/lng pairs (Earth R = 6371 km). Plain JS, no deps.
@@ -312,6 +331,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // saveCountryPref helper.
   function updateCountryPref(code) {
     setCountryPref(code);
+    // v0.61.265 — operator: "i select johor bahru, the street name
+    // should be erased in the box." A street name typed for the old
+    // country (e.g. SG) is meaningless after the flip; clear it so
+    // the user starts fresh in the new country's picker.
+    setTextValue('');
+    setSuggestions([]);
+    setAcOpen(false);
     const w = tg();
     if (!w) return;
     fetch('/api/cuisine/country-pref', {
@@ -512,9 +538,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     // r.secondaryText (the full formatted address) when primaryText is
     // missing or the literal 'Unnamed' fallback; falls through to
     // r.primaryText as last resort so we never persist 'Unnamed'.
-    const labelOut = (r.primaryText && r.primaryText !== 'Unnamed')
-      ? r.primaryText
-      : (r.secondaryText || r.primaryText || 'Pinned location');
+    // v0.61.265 — also strip bare country names (Singapore / Malaysia
+    // / …) so they never persist as the anchor label. Server-side
+    // fix lives in smart-place-label.js + the route fallback chain.
+    const labelOut = _safeLabel(r.primaryText, r.secondaryText, textValue.trim())
+      || 'Pinned location';
     postSetLocation({ lat: r.lat, lng: r.lng, label: labelOut, country: countryPref })
       .then((body) => {
         if (body?.ok) {
@@ -603,7 +631,15 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   const capKm = currentAnchor?.radiusCapM ? Math.round(currentAnchor.radiusCapM / 1000) : null;
   const capStr = capKm ? t('location.capNote', lang).replace('{km}', String(capKm)) : '';
   const isMy = currentAnchor && (currentAnchor.region === 'JB' || currentAnchor.region === 'MY-PUT' || currentAnchor.region === 'OTHER');
-  const composedLabel = composeAddressLabel(currentAnchor) || currentAnchor?.label;
+  // v0.61.265 — operator: "the location field box cannot be a country."
+  // composeAddressLabel returns null when anchor.street is missing,
+  // and we fall back to anchor.label. If THAT label is a bare country
+  // name ("Singapore" / "Malaysia") or the literal 'Unnamed', collapse
+  // it to empty so the resting pill shows the i18n placeholder instead
+  // of the country.
+  const rawComposed = composeAddressLabel(currentAnchor) || currentAnchor?.label;
+  const composedLabel = (rawComposed && rawComposed !== 'Unnamed' && !_isCountryOnly(rawComposed))
+    ? rawComposed : '';
   const summaryMain = composedLabel
     ? t('location.currentSet', lang).replace('{label}', escapeHtml(composedLabel)).replace('{cap}', capStr)
     : t('location.currentNone', lang);
@@ -786,7 +822,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
                   .replace('{flag}', (findCountry(countryPref) || {}).flag || '')
                   .replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
               </div>
-              {otherResults.map((r) => (
+              {otherResults.map((r) => {
+                // v0.61.265 — never show literal 'Unnamed' or a bare
+                // country name in the result row; fall back to
+                // secondaryText / user-typed query.
+                const primaryDisplay = _safeLabel(r.primaryText, r.secondaryText, textValue.trim())
+                  || 'Pinned location';
+                return (
                 <button
                   key={r.placeId}
                   type="button"
@@ -794,10 +836,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
                   disabled={busy}
                   className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
                 >
-                  <div className="text-tg-text">{r.primaryText}</div>
-                  {r.secondaryText && <div className="text-[11px] text-tg-hint">{r.secondaryText}</div>}
+                  <div className="text-tg-text">{primaryDisplay}</div>
+                  {r.secondaryText && r.secondaryText !== primaryDisplay && (
+                    <div className="text-[11px] text-tg-hint">{r.secondaryText}</div>
+                  )}
                 </button>
-              ))}
+                );
+              })}
               <button
                 type="button"
                 onClick={cancelOtherSearch}
@@ -845,7 +890,12 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           </form>
           {acOpen && suggestions.length > 0 && (
             <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">
-              {suggestions.map((s) => (
+              {suggestions.map((s) => {
+                // v0.61.265 — display guard mirroring the OTHER results
+                // list above.
+                const primaryDisplay = _safeLabel(s.primaryText, s.secondaryText, textValue.trim())
+                  || s.primaryText;
+                return (
                 <button
                   key={s.placeId || s.primaryText}
                   type="button"
@@ -853,10 +903,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
                   onClick={() => pickSuggestion(s)}
                   className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
                 >
-                  <div className="text-tg-text">{s.primaryText}</div>
-                  {s.secondaryText && <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>}
+                  <div className="text-tg-text">{primaryDisplay}</div>
+                  {s.secondaryText && s.secondaryText !== primaryDisplay && (
+                    <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>
+                  )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </>
