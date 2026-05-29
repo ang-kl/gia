@@ -1,8 +1,8 @@
 counters:
-  commit: 454
-  build: 244
+  commit: 455
+  build: 245
   documents:
-    journal: 442
+    journal: 443
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,55 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 1
-last_anchor_time: 29-05 '26 06:40 SGT
-last_anchor_source: sovereign_api_data_gov_sg_air_temperature (timestamp 2026-05-29T06:40:00+08:00 — fetched at start of v0.61.241 session)
-last_anchor_iso8601: 2026-05-29T06:40:00+08:00
-last_anchor_utc: 2026-05-28T22:40:00Z
+  current_chat_counter: 2
+last_anchor_time: 29-05 '26 07:10 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_241 (PR #744 merged 2026-05-28T23:33:10Z = 29-05 '26 07:33 SGT; v0.61.242 IATA-table PR being built minutes earlier ≈ 07:10 SGT)
+last_anchor_iso8601: 2026-05-29T07:10:00+08:00
+last_anchor_utc: 2026-05-28T23:10:00Z
+
+# v0.61.242 (commit 455 / journal 443 / build 245) — operator
+# 29-05 '26 morning: "do a PR to collect all the airline city code
+# of Asean, Asia, Australia and New Zealand first in a table … remember
+# must be country code and city code by IATA, non inventive."
+#
+# Data-only prerequisite PR for the upcoming GPS-snap auto-detect
+# behaviour (v0.61.243):
+#
+# - NEW: web/cuisine/src/v2/lib/iata-cities.js — 348 real IATA city
+#   codes covering ASEAN (~138), East Asia (~76), South Asia (~57),
+#   Central Asia (~13), West Asia / Middle East (~49), Oceania (~47),
+#   plus nearestIataCity(lat,lng) haversine helper. Every code matches
+#   the IATA airline-industry directory; no LLM invention. Earth radius
+#   6371 km. Verified against operator's banned-code list (TST/CEN/CWB/
+#   MOK/WCH/SHT/ABD/TCH/MUR/KLB/SER/TUT/BGR/PUT/SHG/SZH/UKY/NRA/YOK/
+#   DAJ/GJU/SML/JFN/KEE/HOI/AYU/TGT/KEP/KPT/KRG/CMS/DDT/VVN/POL/HPA/
+#   SBN/MLK/KGR — none present).
+#
+# - AUDIT: web/cuisine/src/v2/lib/cities.js — 39 entries whose `code`
+#   field used an invented 3-letter abbreviation have been remapped to
+#   the nearest real IATA from iata-cities.js (HK districts → HKG;
+#   Brunei subdistricts → BWN; Pattaya → UTP; Kyoto/Nara → OSA;
+#   Yokohama → TYO; Shanghai/Suzhou → SHA; Hoi An → DAD; Tagaytay →
+#   MNL; Pyin Oo Lwin → MDL; Hpa-An → MNU; Vang Vieng → VTE;
+#   Champasak / 4000 Islands → PKZ; Kep / Kampot / Koh Rong → KOS;
+#   Daejeon → CJJ; Gyeongju → TAE; Sun Moon Lake → TXG; Keelung /
+#   Jiufen → TPE; Pattaya → UTP; Ayutthaya → BKK; Putrajaya / Shah
+#   Alam / Seremban → KUL; Malacca → MKZ; Kangar → AOR). Entry
+#   names + lat/lng preserved — only the `code` field changed. Some
+#   codes now collapse to the metro gateway (all 8 HK districts →
+#   HKG, all 6 Brunei subdistricts → BWN); CityDropdown still
+#   displays the original `name` so users see the place they
+#   recognise.
+#
+# - NEW: __tests__/iata-cities.test.js — pins the no-invention rule
+#   (every code 3-letter uppercase, ISO-2 country, finite lat/lng,
+#   unique, ≥300 entries, every banned-list code absent), regional
+#   coverage gates (all 11 ASEAN + 7 East Asia + AU/NZ ≥ 10/5),
+#   nearestIataCity correctness (KUL/TYO/SYD/BKK/SIN known anchors,
+#   NaN input → null), and the cities.js cross-reference invariant
+#   (every code in CITIES_BY_COUNTRY must exist in IATA_CITIES).
+
+
 
 # v0.61.241 (commit 454 / journal 442 / build 244) — operator
 # overnight batch: "Change the '· 5 places nearby tap to change'
