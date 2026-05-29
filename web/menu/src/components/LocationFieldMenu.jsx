@@ -231,7 +231,30 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // single 2-row pill mirroring v0.61.253 Cuisine TMA layout. Tap the
   // body to expand the full picker. Expanded by default when there's
   // no anchor (user needs the picker to set one).
-  const [expanded, setExpanded] = useState(!currentAnchor);
+  //
+  // v0.61.256 — operator-reported bug (image 2 in the 29-05 '26
+  // afternoon batch): the Menu TMA kept showing the expanded picker
+  // even when an anchor was already set ("Anchored at Sydney · 20 km
+  // cap." with the full precinct + flag/city/text form below).
+  // Root cause: the v0.61.254 init `useState(!currentAnchor)` captures
+  // the value at FIRST render — when the anchor fetch is still
+  // pending, `currentAnchor === null`, so `expanded` starts at true.
+  // The fetch resolves later → `currentAnchor` becomes an object,
+  // but the `expanded` state is already `true` and stays there.
+  // Fix: start collapsed (`useState(false)`), then a useEffect
+  // collapses again on every anchor change so an externally-updated
+  // anchor (chat /location command, GPS auto-detect after deploy)
+  // always lands the user back in compact mode. The user can still
+  // tap ✏️ / pill body to expand; the next anchor change re-collapses
+  // (matches the v0.61.254 auto-collapse-after-pick contract).
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    if (currentAnchor && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
+      setExpanded(false);
+    } else {
+      setExpanded(true);
+    }
+  }, [currentAnchor?.lat, currentAnchor?.lng]);
   const [precincts, setPrecincts] = useState({ sg: [], sgRegion: [], my: [] });
   const [pickerValue, setPickerValue] = useState('');
   const [textValue, setTextValue] = useState('');
@@ -480,7 +503,19 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   }
 
   function pickOtherResult(r) {
-    postSetLocation({ lat: r.lat, lng: r.lng, label: r.primaryText, country: countryPref })
+    // v0.61.256 — operator (image 3): "Anchored at **Unnamed**" surfaced
+    // after a place pick. Root cause: when Places has no displayName,
+    // index.js /api/cuisine/place-search-by-country fills primaryText
+    // with the literal string 'Unnamed' (see line ~12055 / 12098). That
+    // string then gets POSTed as the anchor `label` here, persisted to
+    // Redis, and read back by every TMA. Guard at this seam: prefer
+    // r.secondaryText (the full formatted address) when primaryText is
+    // missing or the literal 'Unnamed' fallback; falls through to
+    // r.primaryText as last resort so we never persist 'Unnamed'.
+    const labelOut = (r.primaryText && r.primaryText !== 'Unnamed')
+      ? r.primaryText
+      : (r.secondaryText || r.primaryText || 'Pinned location');
+    postSetLocation({ lat: r.lat, lng: r.lng, label: labelOut, country: countryPref })
       .then((body) => {
         if (body?.ok) {
           setTextValue('');

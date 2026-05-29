@@ -1,8 +1,8 @@
 counters:
-  commit: 468
-  build: 258
+  commit: 469
+  build: 259
   documents:
-    journal: 456
+    journal: 457
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,58 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 15
-last_anchor_time: 29-05 '26 15:20 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_254 (PR #757 merged 2026-05-29T06:50:26Z = 14:50 SGT; v0.61.255 halal+durian PR built ~30 min later)
-last_anchor_iso8601: 2026-05-29T15:20:00+08:00
-last_anchor_utc: 2026-05-29T07:20:00Z
+  current_chat_counter: 16
+last_anchor_time: 29-05 '26 15:40 SGT
+last_anchor_source: pr_progress_v0_61_255 (PR #758 v0.61.255 halal+durian still open at build time; v0.61.256 picker-bugfix bundled the 3 image issues)
+last_anchor_iso8601: 2026-05-29T15:40:00+08:00
+last_anchor_utc: 2026-05-29T07:40:00Z
+
+# v0.61.256 (commit 469 / journal 457 / build 259) — operator
+# 29-05 '26 afternoon: operator sent 3 screenshots showing Menu/
+# Cuisine TMA picker bugs + asked "which one to follow and why".
+# Operator confirmed via AskUserQuestion: (1) prioritise Menu TMA
+# expanded-pill bug (image 2); (2) the 'Unnamed' label came up
+# after a city-dropdown pick.
+#
+# Three bugs fixed in one PR:
+#
+# 1) Menu TMA expanded-pill bug (image 2). v0.61.254 used
+#    `useState(!currentAnchor)` to init `expanded`, but the anchor
+#    fetch is async — `currentAnchor` is null at first render, so
+#    `expanded` started at true and stayed true when the anchor
+#    resolved. Rewritten as `useState(false)` + a useEffect that
+#    sets expanded ↔ !!currentAnchor on every anchor change.
+#    External anchor updates (chat /location, GPS auto-detect)
+#    auto-collapse to the v0.61.254 compact pill.
+#
+# 2) DAJ → CJJ in Menu TMA (image 3). web/menu/src/cities.js was
+#    NOT updated by the v0.61.242 cities.js audit (only the
+#    cuisine parallel copy was). Synced web/menu/src/cities.js
+#    to match web/cuisine/src/v2/lib/cities.js verbatim + path
+#    comment adjusted. All v0.61.242 invented-code corrections
+#    now propagate to the Menu TMA too: DAJ → CJJ (Daejeon),
+#    SHG → SHA (Shanghai), UKY → OSA (Kyoto), and the rest of
+#    the 39-entry audit.
+#
+# 3) 'Anchored at Unnamed' label (image 3). Root cause: when
+#    Google Places has no displayName, /api/cuisine/place-search-
+#    by-country fills primaryText with the literal string
+#    'Unnamed' (index.js ~12055/12098). That string is then sent
+#    as the anchor `label` by both TMAs' pickResult /
+#    pickOtherResult handlers, persisted in Redis, and shown
+#    back as 'Anchored at **Unnamed**'.
+#    Guards added at every seam where a label is set:
+#    - web/menu/src/components/LocationFieldMenu.jsx
+#      pickOtherResult — labelOut = primaryText || secondaryText
+#      || 'Pinned location'; 'Unnamed' is filtered.
+#    - web/menu/src/App.jsx runAutoDetect — labelOut fallback
+#      becomes '<countryCode> location' when nothing else.
+#    - web/cuisine/src/v2/components/LocationField.jsx pickResult
+#      — same filter for the Cuisine TMA OTHER picker.
+#    - web/cuisine/src/v2/App.jsx auto-detect — same labelOut
+#      fallback.
+
+
 
 # v0.61.255 (commit 468 / journal 456 / build 258) — operator
 # 29-05 '26 afternoon: "For Halal button, use 'حلال' (bold) and
