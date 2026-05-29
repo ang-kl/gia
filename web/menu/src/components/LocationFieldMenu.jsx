@@ -221,6 +221,17 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
 }
 
 export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor }) {
+  // v0.61.254 — operator: "in the location card, has two boxes is
+  // currently wrong see picture. it should be Cuisine TMA's location
+  // box '📍🇲🇾 Kuala Lumpur' (left flush). '🔍' (right flush) next
+  // line (font size smaller by 2 pt, flush right so the '🔝' is
+  // directly below 🔍). like this '5 places nearby · tap to change
+  // 🔝' (below 🔍 or ✏️)."
+  // Compact-pill mode (collapsed): when an anchor is set, render a
+  // single 2-row pill mirroring v0.61.253 Cuisine TMA layout. Tap the
+  // body to expand the full picker. Expanded by default when there's
+  // no anchor (user needs the picker to set one).
+  const [expanded, setExpanded] = useState(!currentAnchor);
   const [precincts, setPrecincts] = useState({ sg: [], sgRegion: [], my: [] });
   const [pickerValue, setPickerValue] = useState('');
   const [textValue, setTextValue] = useState('');
@@ -389,18 +400,12 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const list = citiesForCountry(countryPref);
     const hit = list.find((c) => c.name === cityName);
     if (!hit) return;
-    // v0.61.248 — operator: "After I select, it is not baked into the
-    // selection. why. I keep asking for this to be done." The prior
-    // `.then(() => setCityPick(''))` wiped the dropdown back to "— —"
-    // immediately after server round-trip. Mirrors the v0.61.241
-    // Cuisine TMA fix — keep cityPick set so the closed dropdown shows
-    // the picked 3-letter code (KUL / BKK / TYO / …).
     postSetLocation({
       lat: hit.lat,
       lng: hit.lng,
       label: hit.name,
       country: countryPref
-    });
+    }).then((body) => { if (body?.ok) setExpanded(false); });
   }
 
   function onPickerChange(e) {
@@ -415,12 +420,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const isMyPrecinct = precincts.my.some((p) => p.id === id);
     if (isSgPrecinct) updateCountryPref('SG');
     else if (isMyPrecinct) updateCountryPref('MY');
-    // v0.61.248 — operator: "After I select, it is not baked into the
-    // selection. why." Was: .then(() => setPickerValue('')) wiped the
-    // dropdown back to the placeholder immediately after pick. Drop
-    // the wipe so the picked precinct stays visible until the user
-    // picks something else.
-    postSetLocation({ precinctId: id });
+    postSetLocation({ precinctId: id }).then((body) => { if (body?.ok) setExpanded(false); });
   }
 
   // v0.61.223 — keep the flag dropdown in sync with the resolved
@@ -486,6 +486,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           setTextValue('');
           setOtherResults([]);
           setOtherNoMatch(false);
+          setExpanded(false);
         }
       });
   }
@@ -499,7 +500,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const text = textValue.trim();
     if (!text) return;
     postSetLocation({ text }).then((body) => {
-      if (body?.ok) { setTextValue(''); setSuggestions([]); setAcOpen(false); }
+      if (body?.ok) { setTextValue(''); setSuggestions([]); setAcOpen(false); setExpanded(false); }
     });
   }
 
@@ -547,7 +548,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     setTextValue(text);
     setSuggestions([]); setAcOpen(false);
     postSetLocation({ text }).then((body) => {
-      if (body?.ok) setTextValue('');
+      if (body?.ok) { setTextValue(''); setExpanded(false); }
     });
   }
 
@@ -579,16 +580,74 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     .replace(/\)\s*$/, '')
     .trim();
 
+  // v0.61.254 — compact pill mode. When an anchor is set AND the user
+  // hasn't tapped to expand, render the same 2-row layout as the
+  // Cuisine TMA's LocationField (v0.61.253): row 1 "📍 <flag>
+  // <label>" + ✏️; row 2 (text-[10px] italic, right-flush) "{capStr
+  // ·} tap to change 🔝". Body tap → expand.
+  if (currentAnchor && !expanded) {
+    let flagEl;
+    if (currentAnchor.region === 'SG') {
+      flagEl = <span aria-hidden className="flex-shrink-0">🇸🇬</span>;
+    } else if (currentAnchor.region === 'JB') {
+      flagEl = <img src="MY_Johor_flag.png" alt="" width="16" height="11" className="rounded-sm border border-tg-border/40 flex-shrink-0" />;
+    } else {
+      const cc = findCountry(countryPref);
+      flagEl = <span aria-hidden className="flex-shrink-0">{cc?.flag || '🌏'}</span>;
+    }
+    const metaLeftRaw = capStr || '';
+    const tapStr = lang === 'fr' ? 'touchez pour changer' : 'tap to change';
+    return (
+      <div className="rounded-md border border-tg-border bg-tg-card p-2 flex flex-col gap-1.5">
+        <div className="text-[12px] font-semibold text-tg-text">{t('location.fieldLabel', lang)}</div>
+        <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="text-tg-accent">📍</span>
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
+            >
+              {flagEl}
+              <span className="truncate">{composedLabel || currentAnchor.label || ''}</span>
+            </button>
+            <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+          </div>
+          <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
+            {metaLeftRaw ? `${metaLeftRaw.replace(/^\s*·\s*/, '').trim()} · ` : ''}{tapStr} 🔝
+          </div>
+        </div>
+        {disabledListLine && (
+          <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-md border border-tg-border bg-tg-card p-2 flex flex-col gap-1.5">
       {/* v0.61.125 — fonts bumped one size per operator:
           fieldLabel [11px]→[12px], summary [10px]→[13px] (the
           "Anchored at …" line specifically should read bigger),
-          disabled-list [10px]→[11px] on its OWN line. */}
+          disabled-list [10px]→[11px] on its OWN line.
+          v0.61.254 — when an anchor is set the user sees the new
+          compact 2-row pill (above). Reaching this expanded JSX
+          means either no anchor yet OR the user tapped ✏️ to
+          edit. The expanded form retains all the v0.61.248 picker
+          parts: summary line + precinct dropdown + country/city/
+          text form. Tap any pick → setExpanded(false) collapses
+          back to the compact pill once a new anchor lands. */}
       <div className="text-[12px] font-semibold text-tg-text">{t('location.fieldLabel', lang)}</div>
       <div className="text-[13px] text-tg-text leading-snug" dangerouslySetInnerHTML={{ __html: summaryMain }} />
       {disabledListLine && (
         <div className="text-[11px] text-tg-hint leading-snug">{disabledListLine}</div>
+      )}
+      {currentAnchor && (
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="text-[11px] text-tg-accent underline self-start"
+        >{lang === 'fr' ? '↩︎ Replier' : '↩︎ Collapse'}</button>
       )}
       {/* v0.61.223 — precinct quick-pick is now ALWAYS visible
           regardless of region (operator: "the quick pick dropdown
