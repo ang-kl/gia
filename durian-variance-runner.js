@@ -38,19 +38,29 @@ const SEEDS_DURIAN = {
   tl:      ['tindahan ng durian', 'durian']
 };
 
+// v0.61.262 — wider DURIAN_PASTRY seed set (operator: "i expect durian
+// pastry, durian cakes, durian dessert, durian drinks, durian snacks of
+// such eateries to be in thousands across singapore and malaysia").
+// Explicitly added durian drinks (shake / smoothie / frap), snacks
+// (mochi / kueh / kuih / pancake), and seasonal-specialty terms.
 const SEEDS_DURIAN_PASTRY = {
-  en:      ['durian puff', 'durian pastry', 'durian cake bakery', 'durian dessert'],
-  'zh-CN': ['榴莲泡芙', '榴莲蛋糕', '榴莲甜品'],
-  'zh-TW': ['榴梿泡芙', '榴梿蛋糕'],
-  ms:      ['kek durian', 'puff durian', 'pastri durian'],
-  ta:      ['durian puff', 'durian cake'],
-  ja:      ['ドリアンパフ', 'ドリアンケーキ', 'ドリアンスイーツ'],
-  ko:      ['두리안 디저트', '두리안 케이크'],
-  th:      ['พัฟทุเรียน', 'เค้กทุเรียน', 'ขนมทุเรียน'],
-  id:      ['kue durian', 'pastri durian', 'dessert durian'],
-  vi:      ['bánh sầu riêng', 'kem sầu riêng'],
-  hi:      ['durian dessert', 'durian cake'],
-  tl:      ['durian dessert', 'durian pastry']
+  en:      [
+    'durian puff', 'durian pastry', 'durian cake', 'durian dessert',
+    'durian ice cream', 'durian mochi', 'durian crepe', 'durian shake',
+    'durian smoothie', 'durian frappuccino', 'durian snack',
+    'durian kueh', 'durian tart', 'durian pancake'
+  ],
+  'zh-CN': ['榴莲泡芙', '榴莲蛋糕', '榴莲甜品', '榴莲冰淇淋', '榴莲奶茶', '榴莲麻糬', '榴莲班戟'],
+  'zh-TW': ['榴梿泡芙', '榴梿蛋糕', '榴梿冰淇淋', '榴梿奶茶'],
+  ms:      ['kek durian', 'puff durian', 'pastri durian', 'aiskrim durian', 'kuih durian', 'pancake durian', 'durian shake'],
+  ta:      ['durian puff', 'durian cake', 'durian ice cream'],
+  ja:      ['ドリアンパフ', 'ドリアンケーキ', 'ドリアンスイーツ', 'ドリアンアイス', 'ドリアンモチ'],
+  ko:      ['두리안 디저트', '두리안 케이크', '두리안 아이스크림', '두리안 모찌'],
+  th:      ['พัฟทุเรียน', 'เค้กทุเรียน', 'ขนมทุเรียน', 'ไอศกรีมทุเรียน', 'ทุเรียนปั่น'],
+  id:      ['kue durian', 'pastri durian', 'dessert durian', 'es krim durian', 'pancake durian', 'durian shake'],
+  vi:      ['bánh sầu riêng', 'kem sầu riêng', 'sầu riêng nướng', 'bánh kẹp sầu riêng'],
+  hi:      ['durian dessert', 'durian cake', 'durian ice cream'],
+  tl:      ['durian dessert', 'durian pastry', 'durian ice cream', 'durian shake']
 };
 
 const PLACES_LANG = {
@@ -59,9 +69,14 @@ const PLACES_LANG = {
   th: 'th', id: 'id', vi: 'vi', hi: 'hi', tl: 'tl'
 };
 
-const DEFAULT_LIMIT_PER_QUERY = 8;
-const DEFAULT_RADIUS_M = 8000;
+const DEFAULT_LIMIT_PER_QUERY = 20;     // v0.61.262 — 8 → 20 (Places' per-page max for the new searchText)
+const DEFAULT_RADIUS_M = 25000;          // v0.61.262 — 8 km → 25 km so suburban venues surface
+const DEFAULT_MAX_PAGES = 3;             // v0.61.262 — walk nextPageToken up to 3 pages per query (Google caps text-search at ~3 × 20 = 60)
 
+// v0.61.262 — capture publishTime + rating per review so
+// special-mode.isRelevant can apply the recency filter the operator
+// asked for ("did you accurately check reviews (last 24 months) as
+// durian are seasonal").
 function _placeToVenue(p) {
   return {
     name: p?.displayName?.text || '',
@@ -69,37 +84,54 @@ function _placeToVenue(p) {
     area: p?.formattedAddress || '',
     primaryType: p?.primaryType || '',
     googleSummary: { overview: p?.editorialSummary?.text || '' },
-    reviews: Array.isArray(p?.reviews) ? p.reviews.map((r) => ({ text: r?.text?.text || '' })) : []
+    reviews: Array.isArray(p?.reviews) ? p.reviews.map((r) => ({
+      text: r?.text?.text || '',
+      publishTime: r?.publishTime || null,
+      rating: typeof r?.rating === 'number' ? r.rating : null
+    })) : []
   };
 }
 
-async function _searchText(textQuery, region, langCode, apiKey, limit, radiusM, log) {
-  const body = {
+// v0.61.262 — pagination support. Walk Google's `nextPageToken` up
+// to `maxPages-1` more times and concatenate the `places` arrays.
+// Default maxPages=3 → up to 60 raw results per query (Places caps
+// text-search at ~3 × 20). Reviews include the new `publishTime`
+// field so special-mode.isRelevant can apply the 24-month recency
+// filter.
+async function _searchText(textQuery, region, langCode, apiKey, limit, radiusM, maxPages, log) {
+  const baseBody = {
     textQuery,
     regionCode: region.cc,
     languageCode: PLACES_LANG[langCode] || langCode,
     pageSize: limit,
     locationBias: { circle: { center: { latitude: region.lat, longitude: region.lng }, radius: radiusM } }
   };
-  try {
-    const r = await axios.post(
-      'https://places.googleapis.com/v1/places:searchText',
-      body,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.primaryType,places.primaryTypeDisplayName,places.reviews,places.editorialSummary'
-        },
-        timeout: 12000
-      }
-    );
-    return Array.isArray(r.data?.places) ? r.data.places : [];
-  } catch (err) {
-    const errMsg = err.response?.data?.error?.message || err.message;
-    if (typeof log === 'function') log(`  [search FAIL ${region.name}/${langCode}/"${textQuery}"] ${errMsg}`);
-    return [];
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Goog-Api-Key': apiKey,
+    'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.primaryType,places.primaryTypeDisplayName,places.reviews,places.editorialSummary,nextPageToken'
+  };
+  const allPlaces = [];
+  let pageToken = null;
+  for (let i = 0; i < maxPages; i++) {
+    try {
+      const body = pageToken ? { ...baseBody, pageToken } : baseBody;
+      const r = await axios.post(
+        'https://places.googleapis.com/v1/places:searchText',
+        body,
+        { headers, timeout: 12000 }
+      );
+      const places = Array.isArray(r.data?.places) ? r.data.places : [];
+      allPlaces.push(...places);
+      pageToken = r.data?.nextPageToken || null;
+      if (!pageToken) break;
+    } catch (err) {
+      const errMsg = err.response?.data?.error?.message || err.message;
+      if (typeof log === 'function') log(`  [search FAIL ${region.name}/${langCode}/"${textQuery}" page ${i + 1}] ${errMsg}`);
+      break;
+    }
   }
+  return allPlaces;
 }
 
 // Public runner. Returns the same structured report shape that
@@ -120,6 +152,7 @@ async function runVariance(opts = {}) {
     regions = REGIONS_DEFAULT,
     limit = DEFAULT_LIMIT_PER_QUERY,
     radiusM = DEFAULT_RADIUS_M,
+    maxPages = DEFAULT_MAX_PAGES,
     onProgress = null,
     log = null
   } = opts;
@@ -146,7 +179,7 @@ async function runVariance(opts = {}) {
     };
     for (const [lang, queries] of Object.entries(seeds)) {
       for (const q of queries) {
-        const places = await _searchText(q, region, lang, apiKey, limit, radiusM, log);
+        const places = await _searchText(q, region, lang, apiKey, limit, radiusM, maxPages, log);
         const kept = [];
         const rejected = [];
         for (const p of places) {
@@ -197,7 +230,7 @@ async function runVariance(opts = {}) {
     apiKey: { hashSha256First16: require('crypto').createHash('sha256').update(apiKey).digest('hex').slice(0, 16) },
     regions: reportRegions,
     seeds,
-    config: { LIMIT_PER_QUERY: limit, RADIUS_M: radiusM },
+    config: { LIMIT_PER_QUERY: limit, RADIUS_M: radiusM, MAX_PAGES: maxPages },
     totals: {
       placesReturned: allPlaces,
       kept: allKept,
