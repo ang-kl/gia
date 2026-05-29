@@ -226,28 +226,15 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 
   return (
     <div className="relative">
-      {/* v0.61.241 — speech-bubble hint above the pill (mirrors the
-          🔍 FAB bubble in App.jsx). Operator: "Cannot see the location"
-          when "· N places nearby tap to change" sits inline and squeezes
-          the truncated label. The bubble points down at the pill via a
-          rotated-square tail; bg-tg-accent matches the FAB hint. No
-          animate-pulse — this is persistent state, not a CTA flash. */}
-      {!open && suffix && (
-        <div
-          aria-hidden="true"
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 select-none pointer-events-none z-10"
-        >
-          <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
-            {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'}
-            <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-tg-accent rotate-45" />
-          </div>
-        </div>
-      )}
-      {/* v0.58.14: clearer affordance — accent-coloured pin, ✏️ pencil
-          icon on the right so users see this is editable, not a label.
-          v0.61.241: the suffix + "tap to change" moved into the speech
-          bubble above; the button now shows just the location label so
-          long names like "SPH Media Centre" don't get truncated. */}
+      {/* v0.61.247 — reverted the v0.61.241 location-suffix speech
+          bubble (operator: "isn't permanent there, disappear after 5
+          second … revert to earlier without the bubble about the
+          location"). The suffix + "tap to change" are back inline in
+          the button below. v0.61.244 6 s idle "Tap 🔍 to search"
+          reminder bubble (further down) is unaffected. */}
+      {/* v0.58.14: clearer affordance — accent-coloured pin, "Tap to
+          change" hint when resting, ✏️ pencil icon on the right so
+          users see this is editable, not a label. */}
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
         <span aria-hidden className="text-tg-accent">📍</span>
         {open ? (
@@ -267,9 +254,13 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex-1 text-left text-sm truncate text-tg-text"
+            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
           >
             <span className="truncate">{resting}</span>
+            {suffix && (
+              <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>
+            )}
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
           </button>
         )}
         {loading && <span className="text-tg-hint text-xs">…</span>}
@@ -647,32 +638,22 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   return (
     <div className="flex flex-col gap-1.5">
       {/* v0.61.236 — compact resting pill (anchor set, not expanded).
-          v0.61.241 — same speech-bubble pattern as the SG/JB pill so
-          the truncated location label gets full width. */}
+          v0.61.247 — reverted the v0.61.241 speech-bubble. Suffix +
+          "tap to change" inline again to match the SG/JB pill's
+          new (post-revert) layout. */}
       {showCompact ? (
-        <div className="relative">
-          {suffix && (
-            <div
-              aria-hidden="true"
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 select-none pointer-events-none z-10"
-            >
-              <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
-                {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'}
-                <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-tg-accent rotate-45" />
-              </div>
-            </div>
-          )}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-            <span aria-hidden className="text-tg-accent">📍</span>
-            <button
-              type="button"
-              onClick={() => setExpanded(true)}
-              className="flex-1 text-left text-sm truncate text-tg-text"
-            >
-              <span className="truncate">{country.flag} {anchor.name}</span>
-            </button>
-            <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
-          </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+          <span aria-hidden className="text-tg-accent">📍</span>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
+          >
+            <span className="truncate">{country.flag} {anchor.name}</span>
+            {suffix && <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>}
+            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
+          </button>
+          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
         </div>
       ) : (
       <div className="relative">
