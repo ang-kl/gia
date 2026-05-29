@@ -12048,7 +12048,19 @@ async function cacheBotUsername() {
         } catch (err) { console.warn('[WarmStart] anchor-cap read failed:', err.message); }
         // v0.61.185 — SG default, JB → 'MY', OTHER → undefined (rely
         // on locationBias.circle). Fixes the Putrajaya 0-result bug.
-        const searchRegionCode = isJB ? 'MY' : (typeof isOther !== 'undefined' && isOther ? undefined : 'SG');
+        // v0.61.271 — Phase 3 fix: prefer client-supplied countryCode
+        // for OTHER mode so warm-start results match the actual
+        // country instead of falling back to Places' IP geo.
+        const wsRequestCountryRaw = typeof req.body?.countryCode === 'string' ? req.body.countryCode.toUpperCase() : '';
+        const wsRequestCountry = /^[A-Z]{2}$/.test(wsRequestCountryRaw) ? wsRequestCountryRaw : null;
+        let searchRegionCode;
+        if (isJB) {
+          searchRegionCode = 'MY';
+        } else if (typeof isOther !== 'undefined' && isOther) {
+          searchRegionCode = wsRequestCountry || undefined;
+        } else {
+          searchRegionCode = 'SG';
+        }
         // 5 rotating seeds. Halal/openNow/newlyOpened are the highest-
         // signal axes per Human Lead's brief; cheap-eats and popular
         // round out the variety. Queries are passed straight into
@@ -13322,6 +13334,13 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
+        // v0.61.271 — Phase 3 SSOT: prefer client-supplied countryCode
+        // over Redis-cached country. The Cuisine TMA forwards
+        // state.countryPref for OTHER / MY-PUT regions; the legacy
+        // chat-bot path falls through to cache.country (still read at
+        // the existing seam ~line 14289). ISO 3166-1 alpha-2 only.
+        const requestCountryRaw = typeof req.body?.countryCode === 'string' ? req.body.countryCode.toUpperCase() : '';
+        const requestCountry = /^[A-Z]{2}$/.test(requestCountryRaw) ? requestCountryRaw : null;
         // v0.61.126 — Fruits / Durian exclusive special mode. When
         // set, the request body's `cuisines` / `filters.michelin` /
         // `filters.dessert` / Tell-me text are all IGNORED in favour
@@ -13528,7 +13547,18 @@ async function cacheBotUsername() {
         }
         // v0.61.185 — SG default, JB → 'MY', OTHER → undefined (rely
         // on locationBias.circle). Fixes the Putrajaya 0-result bug.
-        const searchRegionCode = isJB ? 'MY' : (typeof isOther !== 'undefined' && isOther ? undefined : 'SG');
+        // v0.61.271 — Phase 3 fix (audit ledger D6): prefer the
+        // request body's countryCode when present so Places' regionCode
+        // matches the user's explicit pick. Closes the silent IP-geo
+        // leak that biased OTHER searches toward SG.
+        let searchRegionCode;
+        if (isJB) {
+          searchRegionCode = 'MY';
+        } else if (typeof isOther !== 'undefined' && isOther) {
+          searchRegionCode = requestCountry || undefined;
+        } else {
+          searchRegionCode = 'SG';
+        }
         // v0.60.117 — ↺ Start over. The TMA's terminal "you've seen all
         // N" note has a one-tap reset that re-fires the search with
         // resetSeen:true; that wipes this chat's accumulating exclusion
@@ -13770,9 +13800,20 @@ async function cacheBotUsername() {
         // carry a mode keyword.
         if (specialMode) {
           const sm = require('./special-mode');
-          const regionSuffix = region === 'JB' ? 'Johor Bahru Malaysia' : 'Singapore';
+          // v0.61.271 — Phase 3 fix (audit ledger C3). The pre-v0.61.271
+          // binary "JB suffix or default SG suffix" silently bound
+          // every non-JB special-mode search to Singapore. Now the
+          // suffix mirrors the actual region/country: SG / JB stay
+          // textual (Places fuzzy-match works best with explicit city
+          // names); OTHER countries pass NO suffix and let Places
+          // regionCode + includedRegionCodes handle the country bias.
+          let regionSuffix = '';
+          if (region === 'JB') regionSuffix = 'Johor Bahru Malaysia';
+          else if (region === 'SG') regionSuffix = 'Singapore';
+          // OTHER / MY-PUT → empty suffix (country comes from
+          // requestCountry / cache.country / Places regionCode below).
           cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix });
-          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} seeds=${JSON.stringify(cuisineQueries)} (overrides cuisines / home-based / Tell-me / dessert)`);
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}…`);
         }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens

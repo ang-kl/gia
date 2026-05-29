@@ -491,12 +491,20 @@ function _canonicalForReviews(mode) {
 // is active. opts.regionSuffix lets the caller append " Johor Bahru
 // Malaysia" / " Putrajaya Malaysia" / " Singapore" so Places searchText
 // disambiguates correctly.
+// v0.61.271 — Phase 3 fix (audit ledger item C3): pre-v0.61.271 the
+// suffix DEFAULTED to ' Singapore' when callers passed nothing, so
+// every durian/durian-pastry/fruits search outside SG silently
+// appended ' Singapore' to the query — masquerading as a hidden
+// geofence leak. The default is now '' (no suffix); country bias
+// MUST come from the Places API's `regionCode` + `includedRegionCodes`
+// parameters, which the v0.61.267 pipeline already plumbs. Callers
+// that explicitly want a textual suffix (e.g. " Johor Bahru Malaysia"
+// for very specific Places disambiguation) keep doing so.
 function buildSeeds(mode, opts = {}) {
   if (!isSpecialMode(mode)) return [];
   const tmpl = SEED_TEMPLATES[mode];
-  const suffix = (opts && typeof opts.regionSuffix === 'string' && opts.regionSuffix.trim())
-    ? ` ${opts.regionSuffix.trim()}`
-    : ' Singapore';
+  const raw = (opts && typeof opts.regionSuffix === 'string') ? opts.regionSuffix.trim() : '';
+  const suffix = raw ? ` ${raw}` : '';
   return tmpl.map((s) => `${s}${suffix}`);
 }
 

@@ -34,21 +34,37 @@ describe('special-mode — mode constants + guard', () => {
   });
 });
 
-describe('special-mode — buildSeeds', () => {
-  it('Fruits seeds default to " Singapore" suffix', () => {
+describe('special-mode — buildSeeds (v0.61.271 contract — no silent SG suffix)', () => {
+  // v0.61.271 — Phase 3 audit fix. Pre-v0.61.271 the default suffix
+  // was ' Singapore'; that silent geofence leak made every durian/
+  // fruits search outside SG land on SG venues. Default is now ''
+  // and callers must opt into a suffix explicitly when they want one.
+  it('Fruits seeds with no opts → bare seeds, no country suffix', () => {
     const seeds = sm.buildSeeds('fruits');
     expect(seeds.length).toBeGreaterThanOrEqual(3);
-    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(true);
-    expect(seeds.some((s) => s.includes('fruit shop'))).toBe(true);
+    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(false);
+    expect(seeds.some((s) => s === 'fruit shop')).toBe(true);
     expect(seeds.some((s) => s.includes('fruit juice'))).toBe(true);
   });
 
-  it('Durian seeds default to " Singapore" suffix', () => {
+  it('Durian seeds with no opts → bare seeds, no country suffix', () => {
     const seeds = sm.buildSeeds('durian');
     expect(seeds.length).toBeGreaterThanOrEqual(3);
-    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(true);
-    expect(seeds.some((s) => s.includes('durian shop'))).toBe(true);
-    expect(seeds.some((s) => s.includes('durian seller'))).toBe(true);
+    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(false);
+    expect(seeds.some((s) => s === 'durian shop')).toBe(true);
+    expect(seeds.some((s) => s === 'durian seller')).toBe(true);
+  });
+
+  it('Empty/whitespace regionSuffix is treated as no suffix', () => {
+    const empty = sm.buildSeeds('fruits', { regionSuffix: '' });
+    expect(empty.every((s) => !s.endsWith(' Singapore'))).toBe(true);
+    const ws = sm.buildSeeds('fruits', { regionSuffix: '   ' });
+    expect(ws.every((s) => !s.endsWith(' Singapore'))).toBe(true);
+  });
+
+  it('Explicit Singapore suffix still works for opt-in callers', () => {
+    const sg = sm.buildSeeds('fruits', { regionSuffix: 'Singapore' });
+    expect(sg.every((s) => s.endsWith(' Singapore'))).toBe(true);
   });
 
   it('regionSuffix override swaps the suffix (JB / Putrajaya)', () => {
@@ -56,6 +72,13 @@ describe('special-mode — buildSeeds', () => {
     expect(jb.every((s) => s.endsWith(' Johor Bahru Malaysia'))).toBe(true);
     const pj = sm.buildSeeds('durian', { regionSuffix: 'Putrajaya Malaysia' });
     expect(pj.every((s) => s.endsWith(' Putrajaya Malaysia'))).toBe(true);
+  });
+
+  it('regionSuffix supports new-country callers (Bangkok / Jakarta / Tokyo)', () => {
+    const bkk = sm.buildSeeds('durian', { regionSuffix: 'Bangkok Thailand' });
+    expect(bkk.every((s) => s.endsWith(' Bangkok Thailand'))).toBe(true);
+    const jkt = sm.buildSeeds('durian-pastry', { regionSuffix: 'Jakarta Indonesia' });
+    expect(jkt.every((s) => s.endsWith(' Jakarta Indonesia'))).toBe(true);
   });
 
   it('returns [] for invalid modes', () => {
@@ -511,13 +534,15 @@ describe('special-mode — DURIAN narrowed to fruit-only (v0.61.141)', () => {
 });
 
 describe('special-mode — DURIAN_PASTRY (v0.61.141)', () => {
-  it('buildSeeds emits pastry-focused queries with default suffix', () => {
+  // v0.61.271 — was: "default suffix" expects ' Singapore'. Updated
+  // to reflect the new no-suffix default (audit ledger C3).
+  it('buildSeeds emits pastry-focused queries with no default suffix', () => {
     const seeds = sm.buildSeeds('durian-pastry');
     expect(seeds.length).toBeGreaterThanOrEqual(3);
-    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(true);
-    expect(seeds.some((s) => s.includes('durian puff'))).toBe(true);
-    expect(seeds.some((s) => s.includes('durian pastry'))).toBe(true);
-    expect(seeds.some((s) => s.includes('durian cake'))).toBe(true);
+    for (const s of seeds) expect(s.endsWith(' Singapore')).toBe(false);
+    expect(seeds.some((s) => s === 'durian puff')).toBe(true);
+    expect(seeds.some((s) => s === 'durian pastry')).toBe(true);
+    expect(seeds.some((s) => s === 'durian cake')).toBe(true);
   });
 
   it('buildSeeds respects regionSuffix override (JB)', () => {
