@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, startSession, backOnePage, recycleSession } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
+import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
+import { OTHER_COUNTRIES } from './lib/countries.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { stripSgOnly } from './lib/sg-only-slugs.js';
 import QuickFilters from './components/QuickFilters.jsx';
@@ -671,12 +673,186 @@ export default function App() {
     });
   }, [state.region]);
 
+  // v0.61.243 — GPS auto-detect + snap to nearest IATA city. Operator
+  // 29-05 '26 morning: *"if my location is Kuala Lumpur, and i just
+  // launch the cuisine TMA … you should detect the location and
+  // change the location to Others and city code to Kuala Lumpur. if
+  // my location isnt in the list of country code and/or city code —
+  // you should replace with the country code and city code nearest
+  // to the place of my location. … if not in the list then fire a
+  // gemini. remember must be country code and city code by IATA,
+  // non inventive."*
+  //
+  // Lifecycle: one-shot, runs after userLoc resolves. Claims the
+  // warm-start effect's `initialSearchDone.current` ref so warm-
+  // start is skipped on this mount — the auto-detect path fires its
+  // own `runSearch` with the corrected region. Hash-deep-link mounts
+  // (initialOverrides.location → `locationAnchor` already set on
+  // first render) bypass auto-detect entirely; the bot already chose
+  // the anchor explicitly.
+  //
+  // Algorithm:
+  //   1. Ask for a *fresh* GPS reading (separate from userLoc, which
+  //      may have come from tryServerCache and be stale by 100s of km).
+  //      Fall back to userLoc when GPS denied.
+  //   2. nearestIataCity(GPS) from the v0.61.242 348-entry table. If
+  //      distance < 2000 km, trust the table.
+  //   3. Otherwise (GPS outside ASEAN/Asia/AU-NZ/Oceania footprint),
+  //      call iataSnap → /api/cuisine/iata-snap → Gemini for the
+  //      nearest real IATA city. G4 pre-approved by operator
+  //      ("Always fire Gemini for unknown GPS", AskUserQuestion
+  //      answer recorded in the v0.61.242 journal). Last-ditch
+  //      fallback: nearest in the local table even if far.
+  //   4. Region routing: detected.countryCode === 'SG' → region SG;
+  //      countryCode='MY' AND iata='JHB' → region JB; everything
+  //      else → region OTHER + countryPref = detected.countryCode.
+  //   5. Anchor lat/lng = GPS coords (operator: "move my google view
+  //      to my location"). Anchor.name = the IATA city's canonical
+  //      name from iata-cities.js so LocationField's OTHER picker can
+  //      sync the city dropdown to the matching code (KUL, BKK, …).
+  //   6. Save to /api/cuisine/set-location + country-pref so chat /
+  //      next session see the same anchor.
+  //   7. Fire `runSearch` with the explicit new state + GPS anchor —
+  //      5 venues loaded at the GPS location with the right region.
+  const autoDetectedRef = useRef(false);
+  useEffect(() => {
+    if (autoDetectedRef.current) return;
+    if (!userLoc || !Number.isFinite(userLoc.lat) || !Number.isFinite(userLoc.lng)) return;
+    if (Math.abs(userLoc.lat) < 0.001 && Math.abs(userLoc.lng) < 0.001) return;
+    // v0.61.243 — deep-link case: the bot's /cuisine handler set
+    // locationAnchor via the URL hash before mount. Respect that —
+    // skip auto-detect, let warm-start's existing line 686 branch
+    // fire runSearch at the deep-link anchor.
+    if (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng)
+        && initialOverrides?.location) {
+      autoDetectedRef.current = true;
+      return;
+    }
+    autoDetectedRef.current = true;
+    // Claim warm-start's ref so the regular warm-start effect (declared
+    // immediately below) skips this mount. Auto-detect owns the first
+    // venue load.
+    initialSearchDone.current = true;
+
+    function getFreshGps() {
+      return new Promise((resolve) => {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) {
+          resolve(null); return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            const { latitude, longitude } = p.coords || {};
+            if (Number.isFinite(latitude) && Number.isFinite(longitude)
+                && !(Math.abs(latitude) < 0.001 && Math.abs(longitude) < 0.001)) {
+              resolve({ lat: latitude, lng: longitude });
+            } else resolve(null);
+          },
+          () => resolve(null),
+          { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
+        );
+      });
+    }
+
+    (async () => {
+      const fresh = await getFreshGps();
+      const target = fresh || userLoc;
+      console.log('[Cuisine-TMA-v2] auto-detect: target', target, 'fresh-gps=' + !!fresh);
+
+      // 1) Try the v0.61.242 local IATA table.
+      let detected = null;
+      const local = nearestIataCity(target.lat, target.lng);
+      if (local && local.distanceKm < 2000) {
+        detected = local.city;
+        console.log('[Cuisine-TMA-v2] auto-detect: LOCAL hit', detected.iata, detected.name,
+          local.distanceKm.toFixed(0) + 'km');
+      } else {
+        // 2) GPS sits >2000 km from any covered city — Gemini fallback.
+        console.log('[Cuisine-TMA-v2] auto-detect: local nearest >2000km, firing Gemini');
+        try {
+          const r = await iataSnap({ lat: target.lat, lng: target.lng });
+          if (r?.iata) {
+            // Normalise the Gemini-returned name to the canonical
+            // iata-cities.js entry when we have one (so cityPick
+            // sync in LocationField finds a matching dropdown row).
+            const canon = IATA_CITIES.find((c) => c.iata === r.iata);
+            detected = canon || r;
+            console.log('[Cuisine-TMA-v2] auto-detect: GEMINI hit', detected.iata, detected.name);
+          } else {
+            console.log('[Cuisine-TMA-v2] auto-detect: Gemini returned null');
+          }
+        } catch (err) {
+          console.warn('[Cuisine-TMA-v2] auto-detect: Gemini call failed', err?.message);
+        }
+        // Last-ditch: even a distant local entry is better than nothing.
+        if (!detected && local) {
+          detected = local.city;
+          console.log('[Cuisine-TMA-v2] auto-detect: LAST-DITCH distant local',
+            detected.iata, local.distanceKm.toFixed(0) + 'km');
+        }
+      }
+
+      // 3) Route region based on the detected country.
+      //    - SG → 'SG' pill
+      //    - MY + JHB → 'JB' pill (Johor Bahru special-case)
+      //    - Any country present in OTHER_COUNTRIES (v0.61.191 16-list:
+      //      MY/ID/TH/VN/PH/BN/KH/LA/MM/AU/NZ/JP/KR/CN/HK/TW) → 'OTHER'
+      //      + countryPref = detected.countryCode.
+      //    - Anything else (e.g. detected in India, Pakistan, UAE) →
+      //      leave region/countryPref alone. The CountryDropdown can't
+      //      display a country it doesn't know, so flipping countryPref
+      //      to e.g. 'IN' would silently render as MY (findCountry
+      //      falls back to DEFAULT_OTHER_COUNTRY). Anchor + map + 5-
+      //      place load still fire so the user sees their location.
+      let targetRegion = null;
+      let stateDelta = {};
+      if (detected) {
+        const OTHER_SUPPORTED = new Set(OTHER_COUNTRIES.map((c) => c.code));
+        if (detected.countryCode === 'SG') {
+          targetRegion = 'SG';
+        } else if (detected.countryCode === 'MY' && detected.iata === 'JHB') {
+          targetRegion = 'JB';
+        } else if (OTHER_SUPPORTED.has(detected.countryCode)) {
+          targetRegion = 'OTHER';
+          stateDelta.countryPref = detected.countryCode;
+        }
+        if (targetRegion) stateDelta.region = targetRegion;
+      }
+
+      // 4) Apply state + anchor + map center.
+      if (Object.keys(stateDelta).length) {
+        setState((s) => ({ ...s, ...stateDelta }));
+      }
+      const anchorName = detected
+        ? (IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name)
+        : '';
+      setLocationAnchor({ lat: target.lat, lng: target.lng, name: anchorName });
+      setSearchCenter({ lat: target.lat, lng: target.lng });
+
+      // 5) Persist to server (fire-and-forget).
+      saveUserLocation({ lat: target.lat, lng: target.lng }).catch(() => {});
+      if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
+
+      // 6) Fire the 5-place load. Explicit state object so we don't
+      //    race the queued setState.
+      const snap = { ...state, ...stateDelta };
+      runSearch(snap, { lat: target.lat, lng: target.lng });
+      console.log('[Cuisine-TMA-v2] auto-detect applied',
+        { region: targetRegion || '(unchanged)', country: detected?.countryCode || null, city: anchorName });
+    })();
+  }, [userLoc?.lat, userLoc?.lng]);
+
   // v0.58.4: warm-start the result list on first paint with 5 random
   // venues drawn from a rotating server-side seed. Falls back to the
   // regular search pipeline if warm-start errors so the picker never
   // opens to an empty list. lastRunSnap stays null on warm-start so
   // the user's first manual 🔍 Search press still runs and populates
   // the dirty-indicator baseline.
+  //
+  // v0.61.243 — the autoDetect effect (declared above) now claims
+  // initialSearchDone.current before this effect runs, so warm-start
+  // is suppressed on the auto-detect path. This branch still owns
+  // the URL-hash deep-link case (initialOverrides.location) and the
+  // pathological "no GPS, no cache" path where autoDetect noops.
   useEffect(() => {
     if (!userLoc || initialSearchDone.current) return;
     initialSearchDone.current = true;

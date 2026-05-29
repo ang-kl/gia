@@ -12154,6 +12154,142 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.61.243 — Gemini-backed IATA city snap for the Cuisine TMA
+    // GPS auto-detect. The client (web/cuisine/src/v2/App.jsx) first
+    // tries its local 348-entry IATA table (iata-cities.js). When the
+    // device GPS sits >2000 km from any covered city — i.e. the user
+    // launched the TMA from Western Europe, the Americas, or Africa
+    // — this endpoint asks Gemini for the nearest real IATA city
+    // globally.
+    //
+    // Operator 29-05 '26 morning: *"must be country code and city code
+    // by IATA, non inventive."* The prompt explicitly forbids the model
+    // from inventing codes and returns `{ iata: null }` rather than
+    // guessing. G4 pre-approved by the operator on 29-05 '26 via the
+    // AskUserQuestion answer "Always fire Gemini for unknown GPS".
+    //
+    // Cache: 24h Redis keyed by lat/lng rounded to 0.1° (~11 km
+    // resolution) so repeated launches from the same city share a
+    // cached lookup. Each call costs one Gemini Flash invocation
+    // (gemini-2.5-flash, thinkingBudget=0, ~$0.0001 / call at current
+    // pricing) — the rounded-cell cache keeps the steady-state cost
+    // near zero.
+    app.post('/api/cuisine/iata-snap',
+      makeRateLimiter(redis, { endpoint: 'iata-snap', cap: 200 }),
+      async (req, res) => {
+      try {
+        const { lat, lng } = req.body || {};
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)
+            || (Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001)
+            || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+          return res.status(400).json({ error: 'valid lat/lng required' });
+        }
+        // 0.1° grid cell — ~11 km at the equator. Cells share one
+        // Gemini lookup (cities don't change between launches from
+        // the same neighbourhood).
+        const rLat = Math.round(lat * 10) / 10;
+        const rLng = Math.round(lng * 10) / 10;
+        const cacheKey = `iatasnap:v1:${rLat.toFixed(1)}:${rLng.toFixed(1)}`;
+        if (redis && redis.isOpen) {
+          try {
+            const hit = await redis.get(cacheKey).catch(() => null);
+            if (hit) {
+              try { return res.json({ ...JSON.parse(hit), cached: true }); }
+              catch { /* fall through */ }
+            }
+          } catch { /* fall through */ }
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(503).json({ error: 'GEMINI_API_KEY unset' });
+
+        const prompt = [
+          'You are an IATA airline city-code lookup.',
+          '',
+          `Given GPS coordinates lat=${lat.toFixed(4)} lng=${lng.toFixed(4)}, identify the nearest commercial city or town that has a real, registered IATA 3-letter CITY code (used by the airline industry).`,
+          '',
+          'HARD RULES:',
+          '- Return ONLY a real, registered IATA code from the IATA airline-industry directory. DO NOT invent codes.',
+          '- Prefer the IATA *city* code over an airport code for multi-airport metros. Examples: TYO not HND/NRT, SEL not ICN, BJS not PEK/PKX, LON not LHR/LGW, NYC not JFK/LGA, OSA not KIX/ITM, BKK not BKK-airport.',
+          '- For single-airport cities, the airport code IS the city code (KUL, SIN, HKG, DXB, SYD, AKL).',
+          '- If you cannot confidently identify a city with a real IATA code within 5000 km of the given coordinates, return {"iata": null}. Do NOT guess.',
+          '',
+          'OUTPUT FORMAT — return ONLY valid JSON, no markdown fence, no commentary:',
+          '{"iata": "XXX", "name": "City Name", "countryCode": "ZZ", "lat": 12.34, "lng": 56.78}',
+          '',
+          'Where iata is 3 uppercase letters, countryCode is ISO 3166-1 alpha-2, lat/lng are city centroid in decimal degrees (4 dp).',
+          '',
+          'Examples (for orientation, do not copy):',
+          '  - GPS in central Paris  → {"iata":"PAR","name":"Paris","countryCode":"FR","lat":48.8566,"lng":2.3522}',
+          '  - GPS in central London → {"iata":"LON","name":"London","countryCode":"GB","lat":51.5074,"lng":-0.1278}',
+          '  - GPS mid-Atlantic Ocean → {"iata": null}'
+        ].join('\n');
+
+        let detected = null;
+        try {
+          const { GoogleGenerativeAI } = require('@google/generative-ai');
+          const genAI = new GoogleGenerativeAI(apiKey);
+          const model = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash',
+            generationConfig: {
+              temperature: 0.1,
+              topP: 0.8,
+              maxOutputTokens: 256,
+              thinkingConfig: { thinkingBudget: 0 },
+              responseMimeType: 'application/json'
+            }
+          });
+          const PER_ATTEMPT_MS = 15_000;
+          const text = await Promise.race([
+            (async () => {
+              const r = await model.generateContent(prompt);
+              return (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
+            })(),
+            new Promise((_, reject) => setTimeout(
+              () => reject(new Error('iata-snap Gemini per-attempt timeout')),
+              PER_ATTEMPT_MS
+            ))
+          ]);
+          if (text && text.trim()) {
+            // Strip any accidental ```json fences just in case.
+            const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+            try {
+              const parsed = JSON.parse(cleaned);
+              if (parsed && typeof parsed.iata === 'string'
+                  && /^[A-Z]{3}$/.test(parsed.iata)
+                  && typeof parsed.countryCode === 'string'
+                  && /^[A-Z]{2}$/.test(parsed.countryCode)
+                  && Number.isFinite(parsed.lat) && Number.isFinite(parsed.lng)) {
+                detected = {
+                  iata: parsed.iata,
+                  name: String(parsed.name || '').slice(0, 80),
+                  countryCode: parsed.countryCode,
+                  lat: parsed.lat,
+                  lng: parsed.lng
+                };
+              }
+            } catch (parseErr) {
+              console.warn('[iata-snap] JSON parse failed:', parseErr.message,
+                'raw:', cleaned.slice(0, 120));
+            }
+          }
+        } catch (err) {
+          console.warn('[iata-snap] Gemini call failed:', err.message);
+        }
+
+        const payload = detected || { iata: null };
+        if (redis && redis.isOpen) {
+          try {
+            await redis.set(cacheKey, JSON.stringify(payload), { EX: 86400 }).catch(() => {});
+          } catch { /* */ }
+        }
+        res.json({ ...payload, cached: false });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/iata-snap failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.58.20: fetch the bot's Redis-cached location for the current
     // user (set via /location <place> or a shared location pin). The
     // cuisine TMA falls back to this when navigator.geolocation
