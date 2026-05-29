@@ -20,16 +20,13 @@ name: Durian Variance
 #      back to main automatically.
 
 on:
-  # Manual trigger from the Actions tab.
+  # v0.61.260 — operator switched to running variance from the chat
+  # /ver inline button (uses the server's Railway-stored
+  # GOOGLE_MAPS_API_KEY directly). The auto-trigger on relevant
+  # merges is disabled to stop the no-secret failure log noise; the
+  # workflow remains available for manual dispatch from the Actions
+  # tab if anyone adds a GOOGLE_MAPS_API_KEY repo secret later.
   workflow_dispatch:
-  # Auto trigger on merge to main when the inputs change.
-  push:
-    branches: [main]
-    paths:
-      - 'special-mode.js'
-      - 'scripts/durian-variance.js'
-      - 'scripts/durian-variance-summary.js'
-      - '.github/workflows/durian-variance.yml'
 
 # Prevent the auto-commit at the end from re-triggering this same
 # workflow forever.

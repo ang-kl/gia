@@ -2916,6 +2916,43 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.260 — durian variance owner sub-menu.
+    //   dv:menu                  — show options + Run buttons
+    //   dv:run-<durian|pastry|both>  — confirm prompt
+    //   dv:go-<durian|pastry|both>   — actually fire the run
+    //   dv:close                 — dismiss
+    if (data.startsWith('dv:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[dv:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      const dvMessageId = q.message?.message_id || null;
+      try {
+        if (data === 'dv:menu') {
+          await ownerDurianVarianceMenu(chatId, dvMessageId);
+          return;
+        }
+        if (data === 'dv:close') {
+          if (dvMessageId) { try { await bot.deleteMessage(chatId, dvMessageId); } catch { /* ignore */ } }
+          return;
+        }
+        if (data.startsWith('dv:run-')) {
+          const which = data.slice('dv:run-'.length);
+          await ownerDurianVarianceConfirm(chatId, dvMessageId, which);
+          return;
+        }
+        if (data.startsWith('dv:go-')) {
+          const which = data.slice('dv:go-'.length);
+          await ownerDurianVarianceRun(chatId, which);
+          return;
+        }
+      } catch (err) {
+        console.error('[Error] /dv callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that durian-variance action hit an error.');
+      }
+      return;
+    }
+
     // v0.61.171 — chat free-text "Search 🔍 for more" + "↺ Start
     // over" callbacks. The hash points at the stored query text in
     // Redis; on `ft:more:<hash>` we just re-run runFreeTextSearch
@@ -4203,6 +4240,145 @@ async function ownerPlaceSearchVarianceRun(chatId, mode) {
   await bot.sendMessage(chatId, summary, { parse_mode: 'HTML' }).catch(() => {});
 }
 
+// v0.61.260 — durian / durian-pastry variance owner panel. Operator
+// (29-05 '26): "add to the /ver" — runs the variance against the
+// server's Railway-stored GOOGLE_MAPS_API_KEY instead of a GitHub
+// secret. Two modes (durian fruit / durian pastry) + a "Both" option.
+// On completion: posts a cross-region precision rollup to chat AND
+// uploads the structured JSON as a Telegram document attachment.
+const DV_LABEL = {
+  'durian':       { name: '🥥 Durian (fruit)', mode: 'durian' },
+  'pastry':       { name: '🍰 Durian Pastry',  mode: 'durian-pastry' },
+  'both':         { name: '🥥 + 🍰 Both modes', mode: 'both' }
+};
+
+async function ownerDurianVarianceMenu(chatId, messageId = null) {
+  const text = `🥥 <b>Durian variance</b>  ·  <i>v${pkgJson.version}</i>\n` +
+    `Runs <code>special-mode.isRelevant</code> precision check across 4 cities (SG / JB / KL / Putrajaya) × 12 languages × ~3 seeds.\n` +
+    `Cost: ~$0.40 USD per mode, ~3-5 min wall-clock per mode. Server uses Railway-stored <code>GOOGLE_MAPS_API_KEY</code>.\n` +
+    `Output: cross-region rollup posted to this chat + full JSON as a document attachment.`;
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: [
+    [{ text: '🥥 Durian only', callback_data: 'dv:run-durian' }],
+    [{ text: '🍰 Durian Pastry only', callback_data: 'dv:run-pastry' }],
+    [{ text: '🥥 + 🍰 Both modes', callback_data: 'dv:run-both' }],
+    [{ text: '✕ Close', callback_data: 'dv:close' }]
+  ] } };
+  if (messageId) {
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through */ }
+  }
+  await bot.sendMessage(chatId, text, payload);
+}
+
+async function ownerDurianVarianceConfirm(chatId, messageId, which) {
+  const cfg = DV_LABEL[which];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${which}`);
+    return;
+  }
+  const text = `🥥 <b>${cfg.name} — confirm</b>\n` +
+    `~${which === 'both' ? '$0.80' : '$0.40'} USD, ETA ${which === 'both' ? '6-10 min' : '3-5 min'}.\n` +
+    `Tap below to fire the run.`;
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: [
+    [{ text: `▶️ Run ${cfg.name}`, callback_data: `dv:go-${which}` }],
+    [{ text: '↩ Back', callback_data: 'dv:menu' }, { text: '✕ Close', callback_data: 'dv:close' }]
+  ] } };
+  if (messageId) {
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through */ }
+  }
+  await bot.sendMessage(chatId, text, payload);
+}
+
+async function _ownerDurianVarianceRunSingle(chatId, mode) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    await safeSend(chatId, '⚠️ GOOGLE_MAPS_API_KEY not set on the server — cannot run.');
+    return null;
+  }
+  const { runVariance } = require('./durian-variance-runner');
+  await safeSend(chatId, `⏳ <b>${mode}</b> starting (~120 Places searchText calls, ~$0.40, ETA 3-5 min).`,
+    { parse_mode: 'HTML' });
+  let lastProgressAt = Date.now();
+  const onProgress = async ({ done, total }) => {
+    if (Date.now() - lastProgressAt < 30000) return;
+    lastProgressAt = Date.now();
+    const pct = ((done / total) * 100).toFixed(0);
+    await safeSend(chatId, `🥥 ${mode}: ${done}/${total} (${pct}%)`).catch(() => {});
+  };
+  let report;
+  try {
+    report = await runVariance({ mode, apiKey, onProgress });
+  } catch (err) {
+    await safeSend(chatId, `❌ ${mode} variance failed: ${String(err && err.message || err).slice(0, 300)}`);
+    return null;
+  }
+  // Persist to Redis (60 d) so a later command can replay.
+  try {
+    if (redis && redis.isOpen) {
+      await redis.setEx(`dv:latest:${mode}`, 60 * 24 * 60 * 60, JSON.stringify(report)).catch(() => {});
+    }
+  } catch { /* non-fatal */ }
+  // Build summary text.
+  const lines = [];
+  const pct = (n, d) => d === 0 ? '—' : `${((n / d) * 100).toFixed(1)}%`;
+  lines.push(`✅ <b>${mode} complete.</b>`);
+  lines.push(`<b>Duration:</b> ${(report.durationMs / 1000).toFixed(1)} s  ·  <b>Cross-region precision:</b> ${pct(report.totals.kept, report.totals.placesReturned)} (${report.totals.kept}/${report.totals.placesReturned})`);
+  lines.push('');
+  lines.push('<b>By region:</b>');
+  for (const r of report.regions) {
+    const t = r.totals || {};
+    lines.push(`  <code>${r.name.padEnd(15)}</code>  n=${String(t.placesReturned ?? 0).padStart(4)}  kept ${String(t.kept ?? 0).padStart(3)}  precision ${pct(t.kept ?? 0, t.placesReturned ?? 0).padStart(7)}`);
+  }
+  // Top 10 primary types across all regions.
+  const merged = {};
+  for (const r of report.regions) {
+    for (const [pt, n] of Object.entries(r.primaryTypeFrequency || {})) {
+      merged[pt] = (merged[pt] || 0) + n;
+    }
+  }
+  const topTypes = Object.entries(merged).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  if (topTypes.length) {
+    lines.push('');
+    lines.push('<b>Top primaryTypes returned:</b>');
+    for (const [t, n] of topTypes) {
+      lines.push(`  <code>${String(t).padEnd(32)}</code> ${n}`);
+    }
+  }
+  await bot.sendMessage(chatId, lines.join('\n'), { parse_mode: 'HTML' }).catch(() => {});
+  // Send the full JSON as a Telegram document attachment.
+  try {
+    const buf = Buffer.from(JSON.stringify(report, null, 2));
+    const ymd = new Date().toISOString().slice(0, 10);
+    await bot.sendDocument(
+      chatId,
+      buf,
+      { caption: `${mode} variance full JSON (${ymd})` },
+      { filename: `${mode}-variance-${ymd}.json`, contentType: 'application/json' }
+    ).catch((err) => {
+      console.warn('[dv] sendDocument failed:', err.message);
+    });
+  } catch (err) {
+    console.warn('[dv] document build failed:', err.message);
+  }
+  return report;
+}
+
+async function ownerDurianVarianceRun(chatId, which) {
+  const cfg = DV_LABEL[which];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${which}`);
+    return;
+  }
+  if (cfg.mode === 'both') {
+    await _ownerDurianVarianceRunSingle(chatId, 'durian');
+    await _ownerDurianVarianceRunSingle(chatId, 'durian-pastry');
+    await safeSend(chatId, '🥥 + 🍰 Both modes complete.');
+    return;
+  }
+  await _ownerDurianVarianceRunSingle(chatId, cfg.mode);
+}
+
 async function setVerboseMode(chatId, action) {
   const verbose = require('./verbose-log');
   if (action === 'on') {
@@ -4368,7 +4544,12 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
         // v0.61.213 — place-search variance test sub-menu (340
         // venues × 5 typing variants = 1700-row stress test, run
         // on operator demand against the prod Maps API key).
-        [{ text: '🧪 Place-search variance', callback_data: 'psv:menu' }]
+        [{ text: '🧪 Place-search variance', callback_data: 'psv:menu' }],
+        // v0.61.260 — durian / durian-pastry variance test sub-menu.
+        // Runs special-mode.isRelevant precision check across 4
+        // cities × 12 languages × ~3 seeds. Owner-only, server-side
+        // (uses the Railway-stored GOOGLE_MAPS_API_KEY).
+        [{ text: '🥥 Durian variance', callback_data: 'dv:menu' }]
       ] }
     }).catch(() => { /* the choices keyboard is best-effort */ });
   } catch (err) {
