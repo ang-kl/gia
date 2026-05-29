@@ -261,8 +261,20 @@ export async function fetchUserLocation() {
 // bot's Redis cache (loc:{chatId}) — so it becomes the user's /location
 // and is honoured across sessions + by chat commands. Fire-and-forget;
 // callers ignore the result.
-export async function saveUserLocation({ lat, lng }) {
-  return postJson('/api/cuisine/set-location', { lat, lng });
+// v0.61.270 — Phase 2 SSOT consolidation. Optional `label`, `country`,
+// `region`, `street`, `building`, `postal` fields are now accepted
+// (server route v0.61.270 brings them to parity with /api/menu/
+// set-location). Pre-v0.61.270 callers (lat/lng only) keep working —
+// the server treats the missing fields as "don't persist".
+export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal }) {
+  const body = { lat, lng };
+  if (label) body.label = label;
+  if (country) body.country = country;
+  if (region) body.region = region;
+  if (street) body.street = street;
+  if (building) body.building = building;
+  if (postal) body.postal = postal;
+  return postJson('/api/cuisine/set-location', body);
 }
 
 // v0.61.196 — TMA <-> chat country-pref sync. The chat-side /lcountry

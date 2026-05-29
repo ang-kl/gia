@@ -13112,6 +13112,11 @@ async function cacheBotUsername() {
         if (cached.street) payload.street = cached.street;
         if (cached.building) payload.building = cached.building;
         if (cached.postal) payload.postal = cached.postal;
+        // v0.61.270 — Phase 2: surface the persisted country code so
+        // both TMAs round-trip the user's explicit country pick (Menu
+        // OTHER picker writes it; pre-v0.61.270 this was silently
+        // dropped at the setUserLocation seam).
+        if (cached.country) payload.country = cached.country;
         res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
@@ -13138,13 +13143,35 @@ async function cacheBotUsername() {
           && Math.abs(lat) > 0.001 && Math.abs(lng) > 0.001
           && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
         if (!valid) return res.status(400).json({ error: 'invalid lat/lng' });
-        await setUserLocation(redis, String(userId), lat, lng);
+        // v0.61.270 — Phase 2 (audit ledger A4): bring Cuisine's
+        // writer to parity with /api/menu/set-location (index.js:12805).
+        // Pre-v0.61.270 we passed lat/lng only — every cross-TMA round
+        // trip lost the label/country/region the user just picked. Now
+        // accept the full payload + forward to setUserLocation. All
+        // fields optional + backwards-compatible.
+        const { label, country, region, street, building, postal, radiusCapM } = req.body || {};
+        const opts = {};
+        if (typeof label === 'string' && label.trim()) opts.label = label.trim();
+        if (typeof country === 'string' && /^[A-Z]{2}$/i.test(country.trim())) {
+          opts.country = country.trim().toUpperCase();
+        }
+        if (typeof region === 'string' && /^(SG|JB|OTHER|MY-PUT)$/.test(region.trim())) {
+          opts.region = region.trim();
+        }
+        if (typeof street === 'string' && street.trim()) opts.street = street.trim();
+        if (typeof building === 'string' && building.trim()) opts.building = building.trim();
+        if (typeof postal === 'string' && postal.trim()) opts.postal = postal.trim();
+        if (Number.isFinite(radiusCapM) && radiusCapM > 0) opts.radiusCapM = radiusCapM;
+        await setUserLocation(redis, String(userId), lat, lng, opts);
         // v0.61.197 — recent-locations LRU. The TMA POSTs only lat/lng
         // (no label); we record an empty label which the chat /lrecent
         // surface renders as "<lat>, <lng>" so the row is still tappable.
-        addRecentLocation(redis, String(userId), { lat, lng, label: '' }).catch(() => {});
-        console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)}`);
-        res.json({ ok: true });
+        // v0.61.270 — if a label was passed, persist it in the LRU too.
+        addRecentLocation(redis, String(userId), {
+          lat, lng, label: opts.label || ''
+        }).catch(() => {});
+        console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)} ${opts.label ? `label="${opts.label.slice(0, 40)}"` : ''} ${opts.country || ''} ${opts.region || ''}`);
+        res.json({ ok: true, persisted: opts });
       } catch (err) {
         console.error('[set-location] 500', err.message);
         res.status(500).json({ error: err.message });

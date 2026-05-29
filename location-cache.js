@@ -35,6 +35,15 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
     if (typeof opts.street === 'string' && opts.street) payload.street = opts.street;
     if (typeof opts.building === 'string' && opts.building) payload.building = opts.building;
     if (typeof opts.postal === 'string' && opts.postal) payload.postal = opts.postal;
+    // v0.61.270 — Phase 2 SSOT consolidation. Menu TMA's set-location
+    // has been passing `{ country: cc }` since v0.61.192 but
+    // setUserLocation silently dropped it. Now persisted so the
+    // Cuisine TMA's auto-flip + the cuisine-search OTHER branch can
+    // both read the user's selected country code instead of inferring
+    // it from coords.
+    if (typeof opts.country === 'string' && /^[A-Z]{2}$/i.test(opts.country)) {
+      payload.country = opts.country.toUpperCase();
+    }
   }
   // v0.61.206 — operator's repeated bug: share-pin from outside SG
   // (e.g. Padang Tengku Pahang, lat 4.21) was cached with no region
