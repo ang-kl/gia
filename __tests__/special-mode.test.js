@@ -244,6 +244,94 @@ describe('special-mode — type rejection invariants', () => {
   });
 });
 
+// v0.61.257 — operator: "<20% right for each results in singapore,
+// johor bahru, Kuala Lumpur, Putrajaya" on Durian + Durian Pastry.
+// Two-pronged precision fix in special-mode.js: (a) DURIAN +
+// DURIAN_PASTRY now use the STRONG haystack only (name + area +
+// formattedAddress + primaryType), dropping reviews + googleSummary
+// from the keyword match — so a single review mention of "durian"
+// doesn't promote a generic cafe. (b) broad accept types (food,
+// market, farm, coffee_shop, grocery_store, …) now require "durian"
+// in the venue NAME, gated via STRICT_NAME_TYPES_DURIAN /
+// _DURIAN_PASTRY.
+describe('special-mode — v0.61.257 precision tightening (Durian + Durian Pastry)', () => {
+  it('Durian: review-only mention no longer passes a generic food-type cafe', () => {
+    expect(sm.isRelevant({
+      name: 'Bob Café',
+      primaryType: 'food',
+      reviews: [{ text: 'we tried their durian latte once and loved it' }]
+    }, 'durian')).toBe(false);
+  });
+
+  it('Durian: googleSummary-only mention no longer passes a generic cafe', () => {
+    expect(sm.isRelevant({
+      name: 'Coffee Spot',
+      primaryType: 'coffee_shop',
+      googleSummary: { overview: 'A cozy cafe that occasionally offers durian flavour drinks' }
+    }, 'durian')).toBe(false);
+  });
+
+  it('Durian: broad type (food) + "durian" in NAME still passes', () => {
+    // The v0.61.235 mistyped-venue argument — keep these in scope.
+    expect(sm.isRelevant({
+      name: '99 Old Trees Durian',
+      primaryType: 'food'
+    }, 'durian')).toBe(true);
+  });
+
+  it('Durian: broad type (general_store) + 榴莲 in NAME still passes', () => {
+    expect(sm.isRelevant({
+      name: 'Hey!Durian 榴莲说',
+      primaryType: 'general_store'
+    }, 'durian')).toBe(true);
+  });
+
+  it('Durian: canonical type (fruit_and_vegetable_store) passes without name match if area mentions durian', () => {
+    expect(sm.isRelevant({
+      name: 'Geylang Fruit Stand',
+      primaryType: 'fruit_and_vegetable_store',
+      area: 'Sims Avenue · durian wholesale district'
+    }, 'durian')).toBe(true);
+  });
+
+  it('Durian Pastry: review-only mention no longer passes a generic restaurant', () => {
+    expect(sm.isRelevant({
+      name: 'Steakhouse Foo',
+      primaryType: 'restaurant',
+      reviews: [{ text: 'durian crepe was a fun seasonal item' }]
+    }, 'durian-pastry')).toBe(false);
+  });
+
+  it('Durian Pastry: cake_shop (canonical) with "durian cake" in NAME passes', () => {
+    expect(sm.isRelevant({
+      name: 'Emicakes Durian Cake Specialist',
+      primaryType: 'cake_shop'
+    }, 'durian-pastry')).toBe(true);
+  });
+
+  it('Durian Pastry: meal_delivery (broad) requires "durian" + pastry keyword in NAME', () => {
+    // Without "durian" in name → rejected even with primaryType=meal_delivery.
+    expect(sm.isRelevant({
+      name: 'GrabFood Mart',
+      primaryType: 'meal_delivery',
+      reviews: [{ text: 'lots of durian items here' }]
+    }, 'durian-pastry')).toBe(false);
+    // With "durian" in name BUT no pastry keyword in name → fails the
+    // DURIAN_PASTRY keyword set (which is pastry-specific: 'durian
+    // puff', 'durian cake', …, never bare 'durian'). Operator-expected
+    // — this would be a DURIAN-mode candidate, not DURIAN_PASTRY.
+    expect(sm.isRelevant({
+      name: 'Durian Delivery KL',
+      primaryType: 'meal_delivery'
+    }, 'durian-pastry')).toBe(false);
+    // With "durian" + an explicit pastry keyword in name → accepted.
+    expect(sm.isRelevant({
+      name: 'Durian Pastry Delivery KL',
+      primaryType: 'meal_delivery'
+    }, 'durian-pastry')).toBe(true);
+  });
+});
+
 describe('special-mode — v0.61.229 DURIAN_VARIETY_TERMS + extractVarietyMentions', () => {
   it('exposes the operator catalogue as DURIAN_VARIETY_TERMS', () => {
     expect(Array.isArray(sm.DURIAN_VARIETY_TERMS)).toBe(true);

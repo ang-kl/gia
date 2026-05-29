@@ -360,6 +360,69 @@ function _rejectNamesFor(mode) {
   return NAME_REJECT_PATTERNS[mode] || [];
 }
 
+// v0.61.257 — STRICT name-required types. Operator (29-05 '26): "<20%
+// right for each results in singapore, johor bahru, Kuala Lumpur,
+// Putrajaya" on Durian + Durian Pastry. Root cause investigation:
+// v0.61.235 widened the accept lists to catch real durian sellers
+// that Places mis-typed (food, market, farm, etc.), but the keyword
+// match runs over the FULL haystack (including reviews +
+// googleSummary). A generic cafe whose primaryType is 'food' and
+// whose reviews mention "durian" ONCE passed the filter — pollution
+// dominated. These broad types are now gated on "venue name must
+// contain a durian keyword" (the v0.61.235 mistyped-venue argument
+// only holds when the name itself signals durian — e.g. "99 Old
+// Trees Durian", "Hey!Durian"). Canonical durian types
+// (fruit_and_vegetable_store, produce_market, fruit_parlor, etc.)
+// still pass via the standard haystack check below — they're
+// dedicated durian-shaped businesses by type.
+const STRICT_NAME_TYPES_DURIAN = new Set([
+  'food', 'food_store', 'store', 'general_store',
+  'market', 'farm', 'garden', 'farmers_market',
+  'coffee_shop', 'grocery_store',
+  'meal_takeaway', 'meal_delivery',
+  'bakery', 'cafe'   // bakery/cafe also need "durian" in name —
+                     // most bakeries don't specialise in durian
+                     // (cake shops in DURIAN_PASTRY do).
+]);
+const STRICT_NAME_TYPES_DURIAN_PASTRY = new Set([
+  'food', 'meal_delivery', 'snack_bar', 'grocery_store',
+  'food_court', 'hawker_centre', 'hawker', 'restaurant',
+  'store', 'food_store',
+  'produce_market', 'food_market',
+  'wholesaler', 'wholesale_business',
+  'juice_shop', 'juice_bar',
+  'fruit_parlor'
+]);
+function _strictNameTypesFor(mode) {
+  if (mode === SPECIAL_MODES.DURIAN) return STRICT_NAME_TYPES_DURIAN;
+  if (mode === SPECIAL_MODES.DURIAN_PASTRY) return STRICT_NAME_TYPES_DURIAN_PASTRY;
+  return null;
+}
+
+// v0.61.257 — STRONG-signal haystack: name + area + formattedAddress
+// + primaryType. Drops the v0.61.229 reviews + googleSummary fields
+// from the keyword check. Reviews are noisy ("we tried their durian
+// once" → false-positive accept); googleSummary is AI-generated and
+// often mentions durian without the venue being durian-focused.
+// Strong signals only.
+function _strongHaystack(v) {
+  return [
+    v?.name || '',
+    v?.area || '',
+    v?.formattedAddress || '',
+    v?.primaryType || ''
+  ].join(' ').toLowerCase();
+}
+
+// Cheap "name contains durian" test — used by the v0.61.257 strict-
+// name gate for broad accept types. Covers Latin + Chinese scripts;
+// extend later if Korean/Japanese transliterations need first-class
+// support.
+function _nameHasDurian(venue) {
+  const n = String(venue?.name || '').toLowerCase();
+  return n.includes('durian') || n.includes('榴莲') || n.includes('榴梿');
+}
+
 // Build the cuisines array for pipeline.discover when a special mode
 // is active. opts.regionSuffix lets the caller append " Johor Bahru
 // Malaysia" / " Putrajaya Malaysia" / " Singapore" so Places searchText
@@ -422,8 +485,29 @@ function isRelevant(venue, mode) {
       if (re.test(nameLc)) return false;
     }
   }
+  // v0.61.257 — STRICT name-required gate for broad accept types.
+  // When the venue's primaryType is one of the v0.61.235 generic
+  // additions (food, market, farm, coffee_shop, grocery_store, …),
+  // require the venue NAME to contain a durian keyword. Stops
+  // generic cafes / supermarkets with a single review mention from
+  // polluting the result list.
+  const strictNameTypes = _strictNameTypesFor(mode);
+  if (pt && strictNameTypes && strictNameTypes.has(pt)) {
+    if (!_nameHasDurian(venue)) return false;
+  }
+  // v0.61.257 — DURIAN + DURIAN_PASTRY keyword check restricted to
+  // STRONG signals only (name + area + formattedAddress +
+  // primaryType). The v0.61.229 full haystack with reviews +
+  // googleSummary was the major false-positive vector — operator
+  // measured <20% accuracy across SG / JB / KL / Putrajaya. Reviews
+  // / AI summaries can mention durian once without the venue being
+  // durian-focused. FRUITS mode still uses the full haystack (the
+  // test suite pins matches in googleSummary.overview '果汁' and
+  // review text 'fresh fruit juice'; durian's keyword set is
+  // tighter so the same loophole doesn't apply).
   const kws = KEYWORDS[mode];
-  const hay = _haystack(venue);
+  const useStrong = (mode === SPECIAL_MODES.DURIAN || mode === SPECIAL_MODES.DURIAN_PASTRY);
+  const hay = useStrong ? _strongHaystack(venue) : _haystack(venue);
   for (const kw of kws) {
     if (kw && hay.includes(kw.toLowerCase())) return true;
   }
