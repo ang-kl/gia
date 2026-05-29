@@ -1,8 +1,8 @@
 counters:
-  commit: 461
-  build: 251
+  commit: 462
+  build: 252
   documents:
-    journal: 449
+    journal: 450
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,47 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 8
-last_anchor_time: 29-05 '26 12:55 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_247 (PR #750 merged 2026-05-29T04:46:22Z = 12:46 SGT; v0.61.248 Menu-TMA layout PR built minutes later ≈ 12:55 SGT)
-last_anchor_iso8601: 2026-05-29T12:55:00+08:00
-last_anchor_utc: 2026-05-29T04:55:00Z
+  current_chat_counter: 9
+last_anchor_time: 29-05 '26 13:50 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_248 (PR #751 merged 2026-05-29T05:40:53Z = 13:40 SGT; v0.61.249 Menu GPS auto-detect built ~10 min later)
+last_anchor_iso8601: 2026-05-29T13:50:00+08:00
+last_anchor_utc: 2026-05-29T05:50:00Z
+
+# v0.61.249 (commit 462 / journal 450 / build 252) — operator
+# 29-05 '26: "If the location isn't the current selection in Menu
+# TMA, should change to the location as spec earlier in 5 PR ago
+# investigate."
+#
+# Port of the v0.61.243 Cuisine TMA GPS auto-detect to the Menu
+# TMA:
+#
+# - NEW web/menu/src/iata-cities.js — parallel copy of
+#   web/cuisine/src/v2/lib/iata-cities.js (the two TMAs are
+#   separate Vite apps with no shared package; same convention as
+#   cities.js / countries.js). 348 entries + nearestIataCity helper
+#   identical to Cuisine TMA's.
+#
+# - web/menu/src/App.jsx — new useEffect after the existing anchor
+#   fetch + before the isMy derivation:
+#     1) one-shot via autoDetectedRef + 800 ms wakeup delay so the
+#        anchor fetch has a chance to resolve first
+#     2) navigator.geolocation reading (5 s timeout, 60 s maxAge)
+#     3) skip if GPS lands inside SG bbox AND cached anchor is SG
+#        or null (Menu TMA's home mode)
+#     4) drift check — skip when GPS is within 10 km of cached
+#        anchor (mirrors v0.61.243 rule)
+#     5) nearestIataCity from the 348-entry table; if >2000 km,
+#        call /api/cuisine/iata-snap (Gemini, G4 pre-approved) for
+#        a globally-nearest IATA hit
+#     6) gate on the 16-country OTHER_COUNTRIES + SG — if detected
+#        is e.g. India / UAE / GB, skip rather than emit a confusing
+#        half-state (the Menu TMA dropdowns can't represent those)
+#     7) POST /api/menu/set-location with detected lat/lng + canon-
+#        ical IATA city name + ISO countryCode. setAnchor with the
+#        server-returned label/region; fire-and-forget
+#        /api/cuisine/country-pref sync.
+
+
 
 # v0.61.248 (commit 461 / journal 449 / build 251) — operator
 # 29-05 '26 morning: "Big Bug: The Menu TMA - see the dropdown
