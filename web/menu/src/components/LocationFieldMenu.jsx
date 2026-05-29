@@ -57,6 +57,11 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
     onChange?.(name);
   }
   if (!list.length) return null;
+  // v0.61.248 — compact layout matching Cuisine TMA's CityDropdown
+  // (web/cuisine/src/v2/components/LocationField.jsx ~line 305).
+  // Operator: "make the country and city dropdown smaller and too
+  // much gaps. it should be like the Cuisine TMA way of selection.
+  // be consistent for Menu TMA and Cuisine TMA."
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
       <button
@@ -65,7 +70,7 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="text-[13px] bg-tg-bg border border-tg-border rounded px-1 py-1.5 text-tg-text whitespace-nowrap inline-flex items-center gap-0.5"
+        className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
         style={{ minWidth: '3.5rem' }}
       >
         <span className="font-mono tracking-tight">{current ? current.code : '— —'}</span>
@@ -156,6 +161,8 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
       itemRefs.current[len - 1]?.focus();
     }
   }
+  // v0.61.248 — compact layout matching Cuisine TMA's CountryDropdown
+  // (web/cuisine/src/v2/components/LocationField.jsx ~line 360).
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
       <button
@@ -164,7 +171,7 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="text-[13px] bg-tg-bg border border-tg-border rounded px-1 py-1.5 text-tg-text whitespace-nowrap inline-flex items-center gap-0.5"
+        className="bg-transparent text-sm outline-none whitespace-nowrap inline-flex items-center gap-0.5"
         style={{ minWidth: '4.5rem' }}
       >
         <span aria-hidden>{current.flag}</span>
@@ -342,12 +349,18 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     const list = citiesForCountry(countryPref);
     const hit = list.find((c) => c.name === cityName);
     if (!hit) return;
+    // v0.61.248 — operator: "After I select, it is not baked into the
+    // selection. why. I keep asking for this to be done." The prior
+    // `.then(() => setCityPick(''))` wiped the dropdown back to "— —"
+    // immediately after server round-trip. Mirrors the v0.61.241
+    // Cuisine TMA fix — keep cityPick set so the closed dropdown shows
+    // the picked 3-letter code (KUL / BKK / TYO / …).
     postSetLocation({
       lat: hit.lat,
       lng: hit.lng,
       label: hit.name,
       country: countryPref
-    }).then(() => setCityPick(''));
+    });
   }
 
   function onPickerChange(e) {
@@ -356,16 +369,18 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     if (!id) return;
     // v0.61.223 — sync the flag dropdown to match the picked
     // precinct's country: SG/SGRegion sources → 'SG'; MY source
-    // (JB / IOI Resort City / MY-PUT etc.) → 'MY'. Operator:
-    // "If I select IOI Resort City or Johor Bahru or any of the
-    // quick pick, the country should change to either MY or SG in
-    // the dropdown next to the location field."
+    // (JB / IOI Resort City / MY-PUT etc.) → 'MY'.
     const isSgPrecinct = precincts.sg.some((p) => p.id === id)
       || precincts.sgRegion.some((p) => p.id === id);
     const isMyPrecinct = precincts.my.some((p) => p.id === id);
     if (isSgPrecinct) updateCountryPref('SG');
     else if (isMyPrecinct) updateCountryPref('MY');
-    postSetLocation({ precinctId: id }).then(() => setPickerValue(''));
+    // v0.61.248 — operator: "After I select, it is not baked into the
+    // selection. why." Was: .then(() => setPickerValue('')) wiped the
+    // dropdown back to the placeholder immediately after pick. Drop
+    // the wipe so the picked precinct stays visible until the user
+    // picks something else.
+    postSetLocation({ precinctId: id });
   }
 
   // v0.61.223 — keep the flag dropdown in sync with the resolved
@@ -575,7 +590,17 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           (flag-biased Places search via place-search-by-country). */}
       {countryPref !== 'SG' ? (
         <>
-          <form onSubmit={onOtherSearch} className="flex gap-1.5 items-center">
+          {/* v0.61.248 — operator: "make the country and city dropdown
+              smaller and too much gaps. … the 🔍 icon is off the
+              boundary." Pill wrapped in `flex items-center gap-1.5
+              px-3 py-1.5 rounded-md border border-tg-accent
+              bg-tg-card` to mirror Cuisine TMA's OtherLocationPicker
+              expanded row; that gives the 🔍 button a defined
+              container so it never overflows. Gap tightened 1.5 → 1.5
+              kept (Cuisine TMA value). The 🔍 button is now a bare
+              text-tg-accent icon (Cuisine TMA style) — no background
+              fill — so it doesn't visually compete with the dropdowns. */}
+          <form onSubmit={onOtherSearch} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
             {/* v0.61.208 — custom dropdown (open: flag + full name,
                 closed: flag + CC). Mirrors Cuisine TMA. */}
             <CountryDropdownMenu
@@ -583,12 +608,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               onChange={(code) => updateCountryPref(code)}
               ariaLabel={t('loc.other.country', lang)}
             />
-            {/* v0.61.233 — cascading child city dropdown, now a custom
-                CityDropdownMenu: closed state shows the 3-letter city
-                code (BKK / KUL / …) mirroring the country flag's
-                closed-CC pattern; open state lists every full name
-                and scrolls (max-h-72). Narrow closed-state leaves
-                the free-text input usable. */}
+            {/* v0.61.233 — cascading child city dropdown. Closed
+                state shows the 3-letter city code (BKK / KUL / …);
+                open state lists every full name with the code on
+                the right and scrolls (max-h-72). Narrow closed-state
+                leaves the free-text input usable. */}
             <CityDropdownMenu
               countryCode={countryPref}
               value={cityPick}
@@ -602,12 +626,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               placeholder={t('loc.other.placeholder', lang)}
               disabled={busy || otherSearching}
               autoComplete="off"
-              className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
             />
             <button
               type="submit"
               disabled={busy || otherSearching || textValue.trim().length < 2}
-              className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
+              className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
+              aria-label={t('loc.other.searchBtn', lang)}
             >{otherSearching ? '…' : '🔍'}</button>
           </form>
           {otherSearching && (
@@ -651,7 +676,12 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
         </>
       ) : (
         <>
-          <form onSubmit={onTextSubmit} className="flex gap-1.5 items-center">
+          {/* v0.61.248 — same compact pill layout as the OTHER form
+              above (consistent across SG / OTHER and with Cuisine
+              TMA's LocationField). The trailing button used to be a
+              text-label "Set" pill; now it's a bare 🔍 icon for
+              consistency. */}
+          <form onSubmit={onTextSubmit} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
             {/* v0.61.223 — flag dropdown ALSO visible in SG mode so
                 the user can flip to a non-SG country without leaving
                 the picker. Picking a non-SG code in here flips the
@@ -670,13 +700,14 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               placeholder={t('location.searchPlaceholder', lang)}
               disabled={busy}
               autoComplete="off"
-              className="flex-1 text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text outline-none"
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
             />
             <button
               type="submit"
               disabled={busy || !textValue.trim()}
-              className="text-[12px] px-2.5 py-1.5 rounded bg-tg-accent text-tg-accent-text disabled:opacity-40 active:opacity-90"
-            >{busy ? '…' : t('location.searchSubmit', lang)}</button>
+              className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
+              aria-label={t('location.searchSubmit', lang)}
+            >{busy ? '…' : '🔍'}</button>
           </form>
           {acOpen && suggestions.length > 0 && (
             <div className="rounded border border-tg-border bg-tg-bg max-h-40 overflow-y-auto">

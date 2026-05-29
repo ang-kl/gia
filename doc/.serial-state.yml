@@ -1,8 +1,8 @@
 counters:
-  commit: 460
-  build: 250
+  commit: 461
+  build: 251
   documents:
-    journal: 448
+    journal: 449
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,59 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 7
-last_anchor_time: 29-05 '26 12:25 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_246 (PR #749 merged 2026-05-29T04:19:59Z = 12:19 SGT; v0.61.247 bubble-revert PR built minutes later ≈ 12:25 SGT)
-last_anchor_iso8601: 2026-05-29T12:25:00+08:00
-last_anchor_utc: 2026-05-29T04:25:00Z
+  current_chat_counter: 8
+last_anchor_time: 29-05 '26 12:55 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_247 (PR #750 merged 2026-05-29T04:46:22Z = 12:46 SGT; v0.61.248 Menu-TMA layout PR built minutes later ≈ 12:55 SGT)
+last_anchor_iso8601: 2026-05-29T12:55:00+08:00
+last_anchor_utc: 2026-05-29T04:55:00Z
+
+# v0.61.248 (commit 461 / journal 449 / build 251) — operator
+# 29-05 '26 morning: "Big Bug: The Menu TMA - see the dropdown
+# list for country and city, it is too far apart and the 🔍 icon
+# is off the boundary. Afer I select, it is not baked into the
+# selection. why. I keep asking for this to be done and not to
+# take too much space. make the country and city dropdown smaller
+# and too much gaps. it should be like the Cuisine TMA way of
+# selection. be consistent for Menu TMA and Cuisine TMA."
+#
+# Menu TMA `LocationFieldMenu.jsx` rebuild:
+#
+# 1) Persist selection — onCityPick + onPickerChange no longer wipe
+#    the selected value with `.then(() => setX(''))` after the
+#    server round-trip. After picking KUL, the dropdown stays on
+#    "KUL"; after picking IOI Resort City in the quick-pick, the
+#    quick-pick stays on that label. Operator's "not baked into
+#    the selection" complaint resolved.
+#
+# 2) Compact dropdowns — CountryDropdownMenu + CityDropdownMenu
+#    button classes rewritten to match Cuisine TMA's CityDropdown /
+#    CountryDropdown almost verbatim:
+#      country: bg-transparent text-sm outline-none (no border)
+#      city:    text-sm bg-transparent border border-tg-border
+#               rounded px-1.5 py-0.5
+#    Both shorter (~2 mm) than the pre-PR `text-[13px] bg-tg-bg
+#    border border-tg-border rounded px-1 py-1.5`.
+#
+# 3) Pill container — both the OTHER form AND the SG form are now
+#    wrapped in `flex items-center gap-1.5 px-3 py-1.5 rounded-md
+#    border border-tg-accent bg-tg-card`. Defines the pill's right
+#    boundary so the 🔍 button (now a flex-shrink-0 px-1 bare
+#    icon, no background) can't get pushed past the edge.
+#
+# 4) Input — `flex-1 bg-transparent text-sm outline-none
+#    placeholder:text-tg-hint min-w-0`. The `min-w-0` is the fix
+#    for the 🔍-off-edge symptom: flex children default to
+#    min-width:auto which prevents the input from shrinking below
+#    its content's intrinsic min size; on narrow viewports that
+#    pushed the 🔍 button past the right edge.
+#
+# 5) 🔍 button — replaced the filled `bg-tg-accent text-tg-accent-
+#    text px-2.5 py-1.5 rounded` pill with a bare
+#    `text-tg-accent text-sm leading-none flex-shrink-0 px-1`
+#    icon, matching Cuisine TMA. Disabled state uses opacity-40
+#    (same as Cuisine TMA).
+
+
 
 # v0.61.247 (commit 460 / journal 448 / build 250) — operator
 # 29-05 '26 morning: "The Cusine TMA bubble about the Location
