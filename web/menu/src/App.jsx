@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Tile from './components/Tile.jsx';
 import TrainPanel from './components/TrainPanel.jsx';
 import BackFab from './components/BackFab.jsx';
@@ -6,6 +6,8 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
+import { IATA_CITIES, nearestIataCity } from './iata-cities.js';
+import { OTHER_COUNTRIES } from './countries.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -145,6 +147,181 @@ export default function App() {
       .catch(() => { /* silent — anchor stays null */ });
     return () => { cancelled = true; };
   }, []);
+
+  // v0.61.249 — GPS auto-detect on mount, mirroring Cuisine TMA
+  // v0.61.243. Operator (29-05 '26): *"If the location isn't the
+  // current selection in Menu TMA, should change to the location as
+  // spec earlier in 5 PR ago investigate."*
+  //
+  // Algorithm (matches Cuisine TMA App.jsx):
+  //   1. One-shot via autoDetectedRef.
+  //   2. Ask navigator.geolocation for a fresh reading.
+  //   3. nearestIataCity(GPS) from the v0.61.242 table; if >2000 km
+  //      from any covered city, call /api/cuisine/iata-snap for the
+  //      Gemini-resolved nearest IATA city globally.
+  //   4. Decide whether to re-anchor: skip when GPS is within
+  //      ~10 km of the cached anchor (the v0.61.243 drift rule).
+  //      Skip outright when GPS lands inside the SG bbox AND the
+  //      cached anchor is already SG (Menu TMA's home mode).
+  //   5. Otherwise POST /api/menu/set-location with the detected
+  //      coords + canonical IATA city name + country code. The
+  //      server flips region (JB / OTHER) and the LocationFieldMenu
+  //      picks up the new anchor via the `currentAnchor` prop +
+  //      v0.61.223 region-sync useEffect.
+  const autoDetectedRef = useRef(false);
+  useEffect(() => {
+    if (autoDetectedRef.current) return;
+    // Don't fire until the initial /api/cuisine/user-location fetch
+    // resolves (anchor === null could mean "still loading" or "no
+    // cached anchor"). 800 ms tolerance: by the time the user notices
+    // the hub, the anchor fetch has either returned or is going to fail.
+    const wakeup = setTimeout(() => {
+      if (autoDetectedRef.current) return;
+      autoDetectedRef.current = true;
+      runAutoDetect();
+    }, 800);
+    return () => clearTimeout(wakeup);
+
+    async function runAutoDetect() {
+      const w = tg();
+      if (!w) return;
+      // Fresh GPS reading.
+      const fresh = await new Promise((resolve) => {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) {
+          resolve(null); return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            const { latitude, longitude } = p.coords || {};
+            if (Number.isFinite(latitude) && Number.isFinite(longitude)
+                && !(Math.abs(latitude) < 0.001 && Math.abs(longitude) < 0.001)) {
+              resolve({ lat: latitude, lng: longitude });
+            } else resolve(null);
+          },
+          () => resolve(null),
+          { timeout: 5000, maximumAge: 60_000, enableHighAccuracy: false }
+        );
+      });
+      if (!fresh) {
+        console.log('[Menu-TMA] auto-detect: no fresh GPS, skip');
+        return;
+      }
+      // Skip when GPS sits inside the SG bbox AND no cached anchor
+      // already says "I'm somewhere else explicitly".
+      const SG_LAT_MIN = 1.13, SG_LAT_MAX = 1.50;
+      const SG_LNG_MIN = 103.55, SG_LNG_MAX = 104.10;
+      const insideSG = fresh.lat >= SG_LAT_MIN && fresh.lat <= SG_LAT_MAX
+        && fresh.lng >= SG_LNG_MIN && fresh.lng <= SG_LNG_MAX;
+      if (insideSG && (!anchor || anchor.region === 'SG')) {
+        console.log('[Menu-TMA] auto-detect: GPS in SG bbox + anchor SG/none, skip');
+        return;
+      }
+      // Drift check.
+      if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+        const drift = haversineKm(fresh.lat, fresh.lng, anchor.lat, anchor.lng);
+        if (drift < 10) {
+          console.log(`[Menu-TMA] auto-detect: GPS within ${drift.toFixed(1)}km of cached anchor, skip`);
+          return;
+        }
+      }
+      // Local IATA lookup.
+      let detected = null;
+      const local = nearestIataCity(fresh.lat, fresh.lng);
+      if (local && local.distanceKm < 2000) {
+        detected = local.city;
+        console.log('[Menu-TMA] auto-detect: local hit', detected.iata, detected.name,
+          local.distanceKm.toFixed(0) + 'km');
+      } else {
+        // Gemini fallback via /api/cuisine/iata-snap (same endpoint
+        // Cuisine TMA uses; G4 pre-approved per v0.61.243).
+        try {
+          const r = await fetch('/api/cuisine/iata-snap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: fresh.lat, lng: fresh.lng, initData: w.initData || '' })
+          });
+          if (r.ok) {
+            const body = await r.json();
+            if (body?.iata) {
+              const canon = IATA_CITIES.find((c) => c.iata === body.iata);
+              detected = canon || body;
+              console.log('[Menu-TMA] auto-detect: Gemini hit', detected.iata, detected.name);
+            }
+          }
+        } catch (err) {
+          console.warn('[Menu-TMA] auto-detect: Gemini fetch failed', err?.message);
+        }
+        if (!detected && local) {
+          detected = local.city;
+          console.log('[Menu-TMA] auto-detect: distant local fallback', detected.iata);
+        }
+      }
+      if (!detected) {
+        console.log('[Menu-TMA] auto-detect: no detected city');
+        return;
+      }
+      // Only act on the 16 OTHER countries + SG. Detected in any other
+      // country (India, UAE, GB, US…) means Menu TMA's country dropdown
+      // can't represent it — log and skip rather than emit a confusing
+      // half-state.
+      const OTHER_SUPPORTED = new Set(OTHER_COUNTRIES.map((c) => c.code));
+      const isSgDetected = detected.countryCode === 'SG';
+      const isSupportedOther = OTHER_SUPPORTED.has(detected.countryCode);
+      if (!isSgDetected && !isSupportedOther) {
+        console.log(`[Menu-TMA] auto-detect: detected ${detected.iata}/${detected.countryCode} not in Menu TMA's country list; skip`);
+        return;
+      }
+      // POST set-location.
+      try {
+        const r = await fetch('/api/menu/set-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: fresh.lat,
+            lng: fresh.lng,
+            label: IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name,
+            country: detected.countryCode,
+            initData: w.initData || ''
+          }),
+          keepalive: true
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const body = await r.json();
+        if (body?.ok) {
+          setAnchor({
+            label: body.label,
+            lat: body.lat,
+            lng: body.lng,
+            region: body.region || 'SG',
+            radiusCapM: body.radiusCapM || null,
+            street: body.street || null,
+            building: body.building || null,
+            postal: body.postal || null
+          });
+          console.log('[Menu-TMA] auto-detect applied', { iata: detected.iata, region: body.region });
+          // Sync chat country-pref (fire-and-forget).
+          if (!isSgDetected) {
+            fetch('/api/cuisine/country-pref', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ countryCode: detected.countryCode, initData: w.initData || '' })
+            }).catch(() => { /* non-fatal */ });
+          }
+        }
+      } catch (err) {
+        console.warn('[Menu-TMA] auto-detect: set-location failed', err?.message);
+      }
+    }
+
+    function haversineKm(lat1, lng1, lat2, lng2) {
+      const R = 6371;
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+  }, [anchor?.lat, anchor?.lng]);
 
   // v0.61.185 — accept 'OTHER' alongside legacy 'MY-PUT' (was Putrajaya-specific).
   const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT' || anchor.region === 'OTHER');
