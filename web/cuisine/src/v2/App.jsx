@@ -1904,6 +1904,11 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          /* v0.61.255 — forward specialMode so ResultCard can render
+             the "Inquire for seasonal durian pastry" hint when the
+             active search is durian-pastry AND the venue name doesn't
+             contain "durian" (operator-specified condition). */
+          specialMode={state.specialMode || null}
           /* v0.61.240 — operator (Issue 3): tiny combo-criteria line
              below the result title, e.g. "· Japanese · Halal · $$".
              Computed from state.cuisines + state.filters + catalogue. */

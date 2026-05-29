@@ -6,7 +6,7 @@ import SocialButtons from './SocialButtons.jsx';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {} }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -187,6 +187,20 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
               glance without scanning chips. */}
           {venue.restaurantType && (
             <div className="text-[11px] text-tg-text/80 truncate">{venue.restaurantType}</div>
+          )}
+          {/* v0.61.255 — operator: "For Durian Pastry, if the
+              resturant/eateries is not Durian per se, but a note in
+              the ResultCard that small font size below the
+              Resturant Type this line 'Inquire for seasonal durian
+              pastry' italic, small font size color." Show only when
+              specialMode is durian-pastry AND venue name does NOT
+              contain "durian" (case-insensitive). Operator-confirmed
+              trigger: name-substring check. */}
+          {specialMode === 'durian-pastry'
+            && !/durian/i.test(venue.name || '') && (
+            <div className="text-[10px] italic text-tg-hint truncate">
+              {lang === 'fr' ? 'Renseignez-vous pour le pâtisserie durian saisonnier' : 'Inquire for seasonal durian pastry'}
+            </div>
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}

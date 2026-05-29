@@ -76,7 +76,10 @@ export default function ResultPanel({
   // v0.61.174 — cumulative cap (cuisine-session SEEN_CAP). When the
   // server signals knownTotal >= cap AND finalBatch, title swaps
   // to "Results: {cap}+ · Limit reached".
-  cumulativeCap = null
+  cumulativeCap = null,
+  // v0.61.255 — forward specialMode so ResultCard can render the
+  // "Inquire for seasonal durian pastry" hint.
+  specialMode = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -332,7 +335,7 @@ export default function ResultPanel({
             </div>
           )}
           {pagedVenues.map((v, i) => (
-            <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} />
+            <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
           ))}
           {/* v0.60.22 — pagination strip. Only renders when the result
               set exceeds one PAGE_SIZE chunk. v0.60.28 (Human Lead
