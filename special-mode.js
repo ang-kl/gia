@@ -191,7 +191,16 @@ const ACCEPT_PRIMARY_TYPES_DURIAN = new Set([
   'market', 'farmers_market',
   'farm', 'garden', // durian orchards (Thai สวน, Malay kebun)
   'coffee_shop',
-  'general_store'
+  'general_store',
+  // v0.61.262 — operator's 29-05 '26 variance run flagged 15 real
+  // durian sellers classed as restaurant / asian_restaurant /
+  // chinese_restaurant / diner (e.g. "皇后镇榴莲档 Durian Stall",
+  // "Durian Power Food Stall", "Gerai Durian Kubur Cina"). These
+  // types are accepted ONLY via the v0.61.257 STRICT_NAME gate so
+  // they're required to have "durian" in the name — cuisine-
+  // specific restaurants (italian/japanese/french/etc.) remain
+  // OUT of the accept list so "Durian Pasta Bistro" still rejects.
+  'restaurant', 'asian_restaurant', 'chinese_restaurant', 'diner'
 ]);
 
 // v0.61.235 — same variance source. Durian PASTRY venues are widely
@@ -380,9 +389,14 @@ const STRICT_NAME_TYPES_DURIAN = new Set([
   'market', 'farm', 'garden', 'farmers_market',
   'coffee_shop', 'grocery_store',
   'meal_takeaway', 'meal_delivery',
-  'bakery', 'cafe'   // bakery/cafe also need "durian" in name —
-                     // most bakeries don't specialise in durian
-                     // (cake shops in DURIAN_PASTRY do).
+  'bakery', 'cafe',   // bakery/cafe also need "durian" in name —
+                      // most bakeries don't specialise in durian
+                      // (cake shops in DURIAN_PASTRY do).
+  // v0.61.262 — restaurant family added to DURIAN accept above;
+  // strict-name gate keeps them name-required so the Italian /
+  // sushi / etc. reject patterns also still apply (those types
+  // aren't in the accept list at all → rejected upstream).
+  'restaurant', 'asian_restaurant', 'chinese_restaurant', 'diner'
 ]);
 const STRICT_NAME_TYPES_DURIAN_PASTRY = new Set([
   'food', 'meal_delivery', 'snack_bar', 'grocery_store',
@@ -423,6 +437,56 @@ function _nameHasDurian(venue) {
   return n.includes('durian') || n.includes('榴莲') || n.includes('榴梿');
 }
 
+// v0.61.262 — recency-filtered review signal. Operator (29-05 '26):
+// *"did you accurately check reviews (last 24 months) as durian are
+// seasonal."* Counts "durian" / 榴莲 / 榴梿 mentions across reviews
+// whose `publishTime` falls within the last 24 months. Reviews
+// without a publishTime are ignored (defensive — Places usually
+// includes it). Returns the total mention count across all qualifying
+// reviews; the relevance check uses a >= 2 threshold so a single
+// stale-feeling mention doesn't promote a non-durian venue.
+const REVIEW_RECENCY_MS = 24 * 30 * 24 * 60 * 60 * 1000;
+function _countRecentDurianMentions(venue) {
+  const reviews = Array.isArray(venue?.reviews) ? venue.reviews : [];
+  if (!reviews.length) return 0;
+  const now = Date.now();
+  let count = 0;
+  for (const r of reviews) {
+    if (!r) continue;
+    const pubMs = r.publishTime ? Date.parse(r.publishTime) : NaN;
+    if (!Number.isFinite(pubMs)) continue;
+    if (now - pubMs > REVIEW_RECENCY_MS) continue;
+    const text = String(r.text || '').toLowerCase();
+    const matches = text.match(/durian|榴莲|榴梿/g);
+    if (matches) count += matches.length;
+  }
+  return count;
+}
+
+// v0.61.262 — CANONICAL durian primary types (a strict subset of
+// ACCEPT_PRIMARY_TYPES_DURIAN). These are the types where a venue
+// is clearly durian-shaped by business category, so a recent-reviews
+// signal alone is enough to keep them even when the name doesn't
+// explicitly say "durian". Restaurants / cafes / coffee shops are
+// NOT canonical here — they need the name-override path instead.
+const CANONICAL_TYPES_DURIAN_FOR_REVIEWS = new Set([
+  'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
+  'produce_market', 'food_market', 'farmers_market',
+  'fruit_parlor', 'fresh_fruit_store',
+  'wholesaler', 'wholesale_business', 'wholesale_supplier',
+  'food_store'
+]);
+const CANONICAL_TYPES_DURIAN_PASTRY_FOR_REVIEWS = new Set([
+  'bakery', 'cake_shop', 'pastry_shop',
+  'dessert_shop', 'dessert_restaurant',
+  'ice_cream_shop'
+]);
+function _canonicalForReviews(mode) {
+  if (mode === SPECIAL_MODES.DURIAN) return CANONICAL_TYPES_DURIAN_FOR_REVIEWS;
+  if (mode === SPECIAL_MODES.DURIAN_PASTRY) return CANONICAL_TYPES_DURIAN_PASTRY_FOR_REVIEWS;
+  return null;
+}
+
 // Build the cuisines array for pipeline.discover when a special mode
 // is active. opts.regionSuffix lets the caller append " Johor Bahru
 // Malaysia" / " Putrajaya Malaysia" / " Singapore" so Places searchText
@@ -458,6 +522,8 @@ function _haystack(v) {
 function isRelevant(venue, mode) {
   if (!venue || !isSpecialMode(mode)) return false;
   const pt = String(venue.primaryType || '').toLowerCase();
+  const nameLc = String(venue.name || '').toLowerCase();
+
   // v0.61.229 — POSITIVE primaryType accept-list (DURIAN /
   // DURIAN_PASTRY) OR negative REJECT list (FRUITS). When a venue
   // has a primaryType AND the mode has an accept list AND the type
@@ -479,11 +545,31 @@ function isRelevant(venue, mode) {
   // instead. The bare-name reject check fires BEFORE the keyword
   // loop so a venue like "Combat Durian Puff" doesn't slip in via
   // the broad "durian" keyword match.
-  const nameLc = String(venue.name || '').toLowerCase();
   if (nameLc) {
     for (const re of _rejectNamesFor(mode)) {
       if (re.test(nameLc)) return false;
     }
+  }
+  // v0.61.262 — RECENCY-FILTERED REVIEW signal (operator: "did you
+  // accurately check reviews (last 24 months) as durian are
+  // seasonal"). When the venue is on a CANONICAL durian-shaped type
+  // for the mode (fruit_and_vegetable_store, produce_market,
+  // food_store, etc. for DURIAN; bakery, cake_shop, pastry_shop,
+  // etc. for DURIAN_PASTRY) AND its reviews from the last 24 months
+  // mention durian ≥ 2 times, accept — this catches real durian
+  // shops whose name is a variety only (e.g. "Mao Shan Wang Stall")
+  // without re-introducing the v0.61.229 review-noise loophole on
+  // broad types like cafe / coffee_shop / restaurant. Threshold 2
+  // because a single review mention is the noise mode; two
+  // independent reviewers separately calling out durian is much
+  // stronger evidence. Runs BEFORE the v0.61.257 strict-name gate
+  // because some canonical types (food_store) are ALSO in the
+  // strict-name set — the recency signal needs first crack at
+  // them.
+  const canonicalForReviews = _canonicalForReviews(mode);
+  if (pt && canonicalForReviews && canonicalForReviews.has(pt)) {
+    const recent = _countRecentDurianMentions(venue);
+    if (recent >= 2) return true;
   }
   // v0.61.257 — STRICT name-required gate for broad accept types.
   // When the venue's primaryType is one of the v0.61.235 generic

@@ -332,6 +332,109 @@ describe('special-mode — v0.61.257 precision tightening (Durian + Durian Pastr
   });
 });
 
+// v0.61.262 — operator (29-05 '26): the v0.61.260 /ver variance run
+// showed 15 real durian sellers (restaurants / asian_restaurants /
+// chinese_restaurants / diners) wrongly rejected because their
+// primaryType wasn't in the DURIAN accept list. Two structural
+// changes in special-mode.isRelevant:
+//
+//   1) Restaurant family (restaurant / asian_restaurant /
+//      chinese_restaurant / diner) added to ACCEPT_PRIMARY_TYPES_DURIAN
+//      AND to STRICT_NAME_TYPES_DURIAN. They pass DURIAN mode only
+//      when the venue name contains "durian" / 榴莲 / 榴梿.
+//      Cuisine-specific restaurants (italian/japanese/french/sushi/
+//      etc.) remain OUT of the accept list → still rejected outright.
+//   2) RECENCY-FILTERED REVIEW signal: if primaryType is canonical
+//      for the mode (DURIAN: fruit_and_vegetable_store /
+//      produce_market / wholesaler / food_store; DURIAN_PASTRY:
+//      bakery / cake_shop / pastry_shop / dessert_shop /
+//      dessert_restaurant / ice_cream_shop) AND reviews from the
+//      last 24 months mention durian ≥ 2 times, accept.
+describe('special-mode — v0.61.262 restaurant family + recency-filtered reviews', () => {
+  it('Durian: restaurant-typed durian stalls now pass (operator-flagged false negatives)', () => {
+    // The operator-flagged false negatives from the variance run.
+    expect(sm.isRelevant({ name: '皇后镇榴莲档 Durian Stall', primaryType: 'asian_restaurant' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Durian Power Food Stall', primaryType: 'chinese_restaurant' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: '榴心花园 DuriYen Garden - Durian Store TRX', primaryType: 'restaurant' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Gerai Durian Kubur Cina', primaryType: 'restaurant' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Mr Durian', primaryType: 'restaurant' }, 'durian')).toBe(true);
+  });
+
+  it('Durian: cuisine-specific restaurants still rejected even with durian in name', () => {
+    // italian/japanese/french/sushi/etc. NOT in accept list → rejected.
+    expect(sm.isRelevant({ name: 'Durian Pasta Bistro', primaryType: 'italian_restaurant' }, 'durian')).toBe(false);
+    expect(sm.isRelevant({ name: 'Sushi & Durian Buffet', primaryType: 'japanese_restaurant' }, 'durian')).toBe(false);
+  });
+
+  it('Durian: restaurant-type WITHOUT durian in name is still rejected (strict-name gate)', () => {
+    // restaurant is in accept list BUT also in strict-name → must have durian in name.
+    expect(sm.isRelevant({ name: 'Bob Café', primaryType: 'restaurant' }, 'durian')).toBe(false);
+  });
+
+  it('Durian: pastry-reject regex still fires for restaurant-typed venues', () => {
+    // 'Durian Cake Bakery' (restaurant) — accepted by type, but name has 'cake' → pastry-reject → rejected.
+    expect(sm.isRelevant({ name: 'Durian Cake Bakery', primaryType: 'restaurant' }, 'durian')).toBe(false);
+    expect(sm.isRelevant({ name: 'Durian Mousse Bar', primaryType: 'restaurant' }, 'durian')).toBe(false);
+  });
+
+  it('Durian: recency-filtered ≥2 mentions in canonical type passes (variety-named shop)', () => {
+    const recentIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    expect(sm.isRelevant({
+      name: 'Mao Shan Wang Stall',
+      primaryType: 'food_store',  // canonical
+      reviews: [
+        { text: 'Best durian I have had in years!', publishTime: recentIso },
+        { text: 'The Mao Shan Wang durian is top notch.', publishTime: recentIso }
+      ]
+    }, 'durian')).toBe(true);
+  });
+
+  it('Durian: recency-filtered single mention does NOT pass (threshold is 2)', () => {
+    const recentIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    expect(sm.isRelevant({
+      name: 'Generic Stall',
+      primaryType: 'food_store',
+      reviews: [{ text: 'They had durian once.', publishTime: recentIso }]
+    }, 'durian')).toBe(false);
+  });
+
+  it('Durian: stale reviews (>24 months) do not count for the recency signal', () => {
+    const oldIso = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString(); // 3 years
+    expect(sm.isRelevant({
+      name: 'Old Stall',
+      primaryType: 'food_store',
+      reviews: [
+        { text: 'Great durian.', publishTime: oldIso },
+        { text: 'Best durian here.', publishTime: oldIso }
+      ]
+    }, 'durian')).toBe(false);
+  });
+
+  it('Durian: recency signal does NOT apply to non-canonical types (cafe / coffee_shop / restaurant) — name is required', () => {
+    const recentIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    expect(sm.isRelevant({
+      name: 'Generic Café',
+      primaryType: 'cafe',
+      reviews: [
+        { text: 'Their durian dessert is great.', publishTime: recentIso },
+        { text: 'Lovely durian flavour drink.', publishTime: recentIso }
+      ]
+    }, 'durian')).toBe(false);  // cafe is in STRICT_NAME → rejected because name has no "durian"
+  });
+
+  it('Durian Pastry: recency-filtered ≥2 mentions in cake_shop passes', () => {
+    const recentIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    expect(sm.isRelevant({
+      name: 'Emicakes',
+      primaryType: 'cake_shop',
+      reviews: [
+        { text: 'Their durian cake is legendary.', publishTime: recentIso },
+        { text: 'Best durian pastry in town.', publishTime: recentIso }
+      ]
+    }, 'durian-pastry')).toBe(true);
+  });
+});
+
 describe('special-mode — v0.61.229 DURIAN_VARIETY_TERMS + extractVarietyMentions', () => {
   it('exposes the operator catalogue as DURIAN_VARIETY_TERMS', () => {
     expect(Array.isArray(sm.DURIAN_VARIETY_TERMS)).toBe(true);
