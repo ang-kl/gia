@@ -332,12 +332,25 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     }
   }
 
-  // v0.61.226 — clear the city pick whenever the country flag changes
-  // (the new country has a different city catalogue, so the prior
-  // selection no longer makes sense).
+  // v0.61.250 — operator: *"Whenever I select a new country code,
+  // immediately change the city code to the capital don't leave it
+  // as '--' unless i am currently in the city change to the city
+  // the location is detected."*
+  // Strategy mirrors the Cuisine TMA (v0.61.250 in LocationField.jsx):
+  // on country change, prefer (a) the current anchor's label when it
+  // matches a city in this country's list (GPS auto-detect feeds it
+  // through), (b) the first cities.js entry (capital convention).
+  // Was: `setCityPick('')` which reset to "— —" until the user picked.
   useEffect(() => {
-    setCityPick('');
-  }, [countryPref]);
+    const list = citiesForCountry(countryPref);
+    if (!list.length) { setCityPick(''); return; }
+    const anchorName = (currentAnchor?.label || '').trim();
+    if (anchorName) {
+      const hit = list.find((c) => c.name === anchorName);
+      if (hit) { setCityPick(hit.name); return; }
+    }
+    setCityPick(list[0].name);
+  }, [countryPref, currentAnchor?.label]);
 
   // v0.61.226 — city picked from the cascading child dropdown. Sets
   // the Menu TMA anchor directly to the city's centroid (lat/lng) +
