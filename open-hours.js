@@ -86,9 +86,104 @@ function closedTodayString(periods, now = new Date()) {
   return `${prefix} · ${next}`;
 }
 
+// v0.61.246 — operator: "if currently is open, state the closing time
+// like what time and next open (especially for resturants that have
+// fix lunch and dinner timing)."
+//
+// Returns the user-facing current-open line:
+//   single same-day period      → "Open · Closes 10:00 PM"
+//   split (lunch + dinner)      → "Open · Closes 3:00 PM · Reopens 6:00 PM"
+//   period crosses midnight     → "Open · Closes Tue 2:00 AM" (best-effort)
+//   no current period           → null
+//
+// Algorithm:
+//   1. Find the current period — one whose [open, close] interval
+//      contains `now` in SGT minutes. Midnight crossers are handled
+//      by treating close-day shift as +24h on the close side.
+//   2. Look for a same-day reopen — another period today whose open
+//      is strictly after the current period's close.
+//   3. Format the close time + (if reopen) the reopen time.
+function currentOpenString(periods, now = new Date()) {
+  if (!Array.isArray(periods) || !periods.length) return null;
+  const cur = sgtNow(now);
+
+  // Find the current period in SGT.
+  let active = null;
+  for (const pd of periods) {
+    const o = pd?.open;
+    const c = pd?.close;
+    if (!o || typeof o.day !== 'number') continue;
+    const openMin = (o.hour ?? 0) * 60 + (o.minute ?? 0);
+    // 24-hour venue: no close → permanently open
+    if (!c) {
+      if (o.day === cur.day || cur.day === (o.day + 1) % 7) {
+        return 'Open · 24 hours';
+      }
+      continue;
+    }
+    const closeMin = (c.hour ?? 0) * 60 + (c.minute ?? 0);
+    // Same-day period — open.day === today AND open<=now<close
+    if (o.day === cur.day && c.day === cur.day) {
+      if (openMin <= cur.minutes && cur.minutes < closeMin) {
+        active = { period: pd, sameDayClose: true, openMin, closeMin, closeHour: c.hour ?? 0, closeMinute: c.minute ?? 0, closeDay: c.day };
+        break;
+      }
+      continue;
+    }
+    // Midnight-crosser starting today, closing on the next day.
+    if (o.day === cur.day && c.day === (o.day + 1) % 7) {
+      if (cur.minutes >= openMin) {
+        active = { period: pd, sameDayClose: false, openMin, closeMin: closeMin + 1440, closeHour: c.hour ?? 0, closeMinute: c.minute ?? 0, closeDay: c.day };
+        break;
+      }
+      continue;
+    }
+    // Midnight-crosser opened yesterday, still closing today.
+    if (o.day === (cur.day + 6) % 7 && c.day === cur.day) {
+      if (cur.minutes < closeMin) {
+        active = { period: pd, sameDayClose: false, openMin: openMin - 1440, closeMin, closeHour: c.hour ?? 0, closeMinute: c.minute ?? 0, closeDay: c.day };
+        break;
+      }
+      continue;
+    }
+  }
+
+  if (!active) return null;
+
+  // Look for a same-day reopen — a period whose open.day === today AND
+  // openMin > current period's closeMin (relative to today's minutes).
+  // Only meaningful when the current period closes today (not on a
+  // midnight-crosser that closes tomorrow).
+  let reopen = null;
+  if (active.sameDayClose) {
+    for (const pd of periods) {
+      const o = pd?.open;
+      if (!o || typeof o.day !== 'number') continue;
+      if (o.day !== cur.day) continue;
+      const openMin = (o.hour ?? 0) * 60 + (o.minute ?? 0);
+      if (openMin > active.closeMin) {
+        if (!reopen || openMin < reopen.openMin) {
+          reopen = { openMin, hour: o.hour ?? 0, minute: o.minute ?? 0 };
+        }
+      }
+    }
+  }
+
+  const closeFmt = fmtTime(active.closeHour, active.closeMinute);
+  // Midnight-crosser closing on the next day surfaces the day label so
+  // the user isn't surprised by an early-morning AM time.
+  const sameDay = active.sameDayClose || active.closeDay === cur.day;
+  const closePart = sameDay ? `Closes ${closeFmt}` : `Closes ${DAY_LABEL[active.closeDay]} ${closeFmt}`;
+  if (reopen) {
+    return `Open · ${closePart} · Reopens ${fmtTime(reopen.hour, reopen.minute)}`;
+  }
+  return `Open · ${closePart}`;
+}
+
 module.exports = {
   nextOpenString,
   closedTodayString,
+  currentOpenString,
   sgtNow,
   fmtTime,
   SGT_OFFSET_MIN

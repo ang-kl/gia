@@ -133,3 +133,88 @@ describe('closedTodayString', () => {
     expect(oh.closedTodayString(periods, now)).toBe('Closed today · Opens Thu 12:00 PM');
   });
 });
+
+// v0.61.246 — operator: "if currently is open, state the closing
+// time like what time and next open (especially for resturants that
+// have fix lunch and dinner timing)."
+describe('currentOpenString', () => {
+  it('returns null when periods missing or empty', () => {
+    expect(oh.currentOpenString(null)).toBe(null);
+    expect(oh.currentOpenString([])).toBe(null);
+  });
+
+  it('returns null when currently outside any period', () => {
+    // Mon 09:30, period is Mon 11:30-22:00 → before open → null
+    const now = sgtDate(2026, 5, 4, 9, 30);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 22, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe(null);
+  });
+
+  it('single-session venue: "Open · Closes 10:00 PM"', () => {
+    // Mon 14:30, period is Mon 11:30-22:00 → inside, no reopen
+    const now = sgtDate(2026, 5, 4, 14, 30);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 22, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 10:00 PM');
+  });
+
+  it('lunch-dinner split: "Open · Closes 3:00 PM · Reopens 6:00 PM"', () => {
+    // Mon 12:30, lunch period 11:30-15:00, dinner period 18:00-22:30
+    const now = sgtDate(2026, 5, 4, 12, 30);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 22, minute: 30 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 3:00 PM · Reopens 6:00 PM');
+  });
+
+  it('in dinner session of a lunch+dinner venue: no further reopen, just "Closes 10:30 PM"', () => {
+    // Mon 19:00, in dinner period (18:00-22:30); no further reopen today
+    const now = sgtDate(2026, 5, 4, 19, 0);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 22, minute: 30 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 10:30 PM');
+  });
+
+  it('24-hour venue: "Open · 24 hours"', () => {
+    const now = sgtDate(2026, 5, 4, 14, 30);
+    const periods = [
+      { open: { day: 1, hour: 0, minute: 0 } } // no close → 24h
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · 24 hours');
+  });
+
+  it('midnight crosser opened yesterday, still open early today', () => {
+    // Tue 01:30, period is Mon 22:00 → Tue 03:00
+    const now = sgtDate(2026, 5, 5, 1, 30);
+    const periods = [
+      { open: { day: 1, hour: 22, minute: 0 }, close: { day: 2, hour: 3, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 3:00 AM');
+  });
+
+  it('midnight crosser starting today, closes tomorrow', () => {
+    // Mon 23:30, period is Mon 22:00 → Tue 02:00
+    const now = sgtDate(2026, 5, 4, 23, 30);
+    const periods = [
+      { open: { day: 1, hour: 22, minute: 0 }, close: { day: 2, hour: 2, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes Tue 2:00 AM');
+  });
+
+  it('three-session venue (breakfast + lunch + dinner): picks the next reopen', () => {
+    // Mon 08:00 — inside breakfast 07:00-10:00; next reopen is lunch 11:30
+    const now = sgtDate(2026, 5, 4, 8, 0);
+    const periods = [
+      { open: { day: 1, hour: 7, minute: 0 }, close: { day: 1, hour: 10, minute: 0 } },
+      { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 22, minute: 30 } }
+    ];
+    expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 10:00 AM · Reopens 11:30 AM');
+  });
+});

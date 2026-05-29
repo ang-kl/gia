@@ -109,6 +109,7 @@ export default function ResultPanel({
         openNow: v.openNow,
         weekdayDescriptions: v.weekdayDescriptions,
         closedTodayLabel: v.closedTodayLabel,
+        openClosingLabel: v.openClosingLabel,
         websiteUri: v.websiteUri,
         phone: v.phone,
         dishes: v.dishes,
