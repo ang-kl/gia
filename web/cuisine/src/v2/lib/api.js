@@ -269,6 +269,18 @@ export async function saveCountryPref(countryCode) {
   catch { return null; }
 }
 
+// v0.61.243 — IATA-snap Gemini fallback for GPS outside the
+// iata-cities.js table coverage. Server-side proxies a Gemini
+// generateContent call with a strict "real IATA code only, no
+// invention" prompt, returns `{ iata, name, countryCode, lat, lng }`
+// or `{ iata: null }`. 24h Redis cache (keyed by lat/lng rounded
+// to 0.1°) keeps the paid-API hit rate low even for users who
+// repeatedly relaunch from the same out-of-scope GPS.
+export async function iataSnap({ lat, lng }) {
+  try { return await postJson('/api/cuisine/iata-snap', { lat, lng }); }
+  catch { return null; }
+}
+
 // v0.60.146 — Cuisine TMA per-session clipboard. startSession wipes the
 // session-seen + page-history Redis keys on mount; backOnePage returns
 // the previous result list (the one shown before the most recent

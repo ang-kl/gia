@@ -1,8 +1,8 @@
 counters:
-  commit: 455
-  build: 245
+  commit: 456
+  build: 246
   documents:
-    journal: 443
+    journal: 444
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,51 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 2
-last_anchor_time: 29-05 '26 07:10 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_241 (PR #744 merged 2026-05-28T23:33:10Z = 29-05 '26 07:33 SGT; v0.61.242 IATA-table PR being built minutes earlier ≈ 07:10 SGT)
-last_anchor_iso8601: 2026-05-29T07:10:00+08:00
-last_anchor_utc: 2026-05-28T23:10:00Z
+  current_chat_counter: 3
+last_anchor_time: 29-05 '26 09:50 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_242 (PR #745 merged 2026-05-29T01:37:45Z = 09:37 SGT; v0.61.243 GPS-snap PR being built minutes later ≈ 09:50 SGT)
+last_anchor_iso8601: 2026-05-29T09:50:00+08:00
+last_anchor_utc: 2026-05-29T01:50:00Z
+
+# v0.61.243 (commit 456 / journal 444 / build 246) — operator
+# 29-05 '26 morning: "if my location is Kuala Lumpur, and i just
+# launch the cuisine TMA (first time or again), you should detect
+# the location and change the location to Others and city code to
+# Kuala Lumpur … if not in the list then fire a gemini."
+#
+# Wires the GPS auto-detect + IATA-snap behaviour the v0.61.242
+# table was the prerequisite for:
+#
+# - web/cuisine/src/v2/App.jsx — new autoDetect useEffect declared
+#   immediately above the v0.58.4 warm-start effect. One-shot
+#   via `autoDetectedRef`. Skips when initialOverrides.location
+#   set (the bot deep-linked an anchor). Claims
+#   `initialSearchDone.current` so warm-start is suppressed; the
+#   auto-detect path fires its own runSearch with the corrected
+#   region. Calls `nearestIataCity` from the v0.61.242 table; if
+#   distance > 2000 km falls back to /api/cuisine/iata-snap
+#   (Gemini). Region routing: countryCode='SG' → SG; MY+JHB → JB;
+#   else OTHER + countryPref=detected.countryCode. Anchor
+#   lat/lng = GPS (per operator: "move my google view to my
+#   location"); anchor.name = canonical IATA-table name so
+#   LocationField's cityPick sync below picks up the right code.
+#
+# - web/cuisine/src/v2/components/LocationField.jsx — added a
+#   useEffect in OtherLocationPicker that syncs cityPick from
+#   anchor.name. When auto-detect sets anchor.name="Kuala Lumpur",
+#   the CityDropdown now shows "KUL" instead of "— —".
+#
+# - web/cuisine/src/v2/lib/api.js — new iataSnap client.
+#
+# - index.js — new /api/cuisine/iata-snap endpoint. Gemini 2.5
+#   Flash, thinkingBudget=0, responseMimeType='application/json',
+#   strict "real IATA, no invention" prompt with examples,
+#   per-call 15s timeout, 24h Redis cache keyed by lat/lng
+#   rounded to 0.1° (~11 km cells). Returns { iata, name,
+#   countryCode, lat, lng } on hit, { iata: null } on miss.
+#   Rate-limited at cap=200 per chat per window.
+
+
 
 # v0.61.242 (commit 455 / journal 443 / build 245) — operator
 # 29-05 '26 morning: "do a PR to collect all the airline city code

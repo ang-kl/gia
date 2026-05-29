@@ -508,6 +508,18 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // are inline in lib/cities.js).
   const [cityPick, setCityPick] = useState('');
   useEffect(() => { setCityPick(''); }, [country.code]);
+  // v0.61.243 — when App.jsx auto-detect sets `anchor.name` to a
+  // city present in citiesForCountry(country.code), sync cityPick
+  // so the CityDropdown shows the matching 3-letter code (KUL /
+  // BKK / TYO …) instead of "— —". Operator: *"city code to Kuala
+  // Lumpur"* (29-05 '26 morning).
+  useEffect(() => {
+    const nm = (anchor?.name || '').trim();
+    if (!nm) return;
+    const list = citiesForCountry(country.code);
+    const hit = list.find((c) => c.name === nm);
+    if (hit && hit.name !== cityPick) setCityPick(hit.name);
+  }, [anchor?.name, country.code]);
   function onCityPick(name) {
     if (!name) { setCityPick(''); return; }
     setCityPick(name);
