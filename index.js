@@ -2953,6 +2953,43 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.61.264 — durian Gemini-verify sub-menu.
+    //   dvg:menu                    — show options
+    //   dvg:run-<durian|pastry>     — confirm
+    //   dvg:go-<durian|pastry>      — fire
+    //   dvg:close                   — dismiss
+    if (data.startsWith('dvg:')) {
+      if (!isOwnerChat(chatId)) {
+        console.log(`[dvg:] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+        return;
+      }
+      const dvgMessageId = q.message?.message_id || null;
+      try {
+        if (data === 'dvg:menu') {
+          await ownerDurianGeminiMenu(chatId, dvgMessageId);
+          return;
+        }
+        if (data === 'dvg:close') {
+          if (dvgMessageId) { try { await bot.deleteMessage(chatId, dvgMessageId); } catch { /* ignore */ } }
+          return;
+        }
+        if (data.startsWith('dvg:run-')) {
+          const which = data.slice('dvg:run-'.length);
+          await ownerDurianGeminiConfirm(chatId, dvgMessageId, which);
+          return;
+        }
+        if (data.startsWith('dvg:go-')) {
+          const which = data.slice('dvg:go-'.length);
+          await ownerDurianGeminiRun(chatId, which);
+          return;
+        }
+      } catch (err) {
+        console.error('[Error] /dvg callback failed:', err.message);
+        await safeSend(chatId, 'Sorry, that Gemini-verify action hit an error.');
+      }
+      return;
+    }
+
     // v0.61.171 — chat free-text "Search 🔍 for more" + "↺ Start
     // over" callbacks. The hash points at the stored query text in
     // Redis; on `ft:more:<hash>` we just re-run runFreeTextSearch
@@ -4261,6 +4298,7 @@ async function ownerDurianVarianceMenu(chatId, messageId = null) {
     [{ text: '🥥 Durian only', callback_data: 'dv:run-durian' }],
     [{ text: '🍰 Durian Pastry only', callback_data: 'dv:run-pastry' }],
     [{ text: '🥥 + 🍰 Both modes', callback_data: 'dv:run-both' }],
+    [{ text: '🤖 Gemini verify (post-run)', callback_data: 'dvg:menu' }],
     [{ text: '✕ Close', callback_data: 'dv:close' }]
   ] } };
   if (messageId) {
@@ -4377,6 +4415,148 @@ async function ownerDurianVarianceRun(chatId, which) {
     return;
   }
   await _ownerDurianVarianceRunSingle(chatId, cfg.mode);
+}
+
+// v0.61.264 — Gemini cross-check the kept[] venues from the most
+// recent variance run (`dv:latest:<mode>` in Redis). Labels each as
+// specialist / occasional / unrelated. Addresses the v0.61.263
+// finding that 18 % keep-rate for DURIAN_PASTRY doesn't tell us the
+// precision of the kept list — we needed an independent classifier.
+const DVG_LABEL = {
+  'durian': { name: '🥥 Durian (fruit) verify', mode: 'durian' },
+  'pastry': { name: '🍰 Durian Pastry verify',  mode: 'durian-pastry' }
+};
+
+async function ownerDurianGeminiMenu(chatId, messageId = null) {
+  const text = `🤖 <b>Gemini cross-check</b>  ·  <i>v${pkgJson.version}</i>\n` +
+    `Reads the latest variance from Redis (<code>dv:latest:&lt;mode&gt;</code>) and asks Gemini Flash to label each kept venue as <b>specialist</b> / <b>occasional</b> / <b>unrelated</b>.\n` +
+    `Cost: ~$0.0005 USD per venue (~$0.08 USD for 1,668 venues). ETA ~1-3 min.\n` +
+    `Output: precision summary posted to this chat + labelled JSON as a document attachment.`;
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: [
+    [{ text: '🥥 Verify Durian (fruit)', callback_data: 'dvg:run-durian' }],
+    [{ text: '🍰 Verify Durian Pastry', callback_data: 'dvg:run-pastry' }],
+    [{ text: '✕ Close', callback_data: 'dvg:close' }]
+  ] } };
+  if (messageId) {
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through */ }
+  }
+  await bot.sendMessage(chatId, text, payload);
+}
+
+async function ownerDurianGeminiConfirm(chatId, messageId, which) {
+  const cfg = DVG_LABEL[which];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${which}`);
+    return;
+  }
+  const text = `🤖 <b>${cfg.name} — confirm</b>\n` +
+    `~$0.08 USD, ETA ~1-3 min. Uses Railway-stored <code>GEMINI_API_KEY</code>.\n` +
+    `Tap below to fire the cross-check.`;
+  const payload = { parse_mode: 'HTML', reply_markup: { inline_keyboard: [
+    [{ text: `▶️ Run ${cfg.name}`, callback_data: `dvg:go-${which}` }],
+    [{ text: '↩ Back', callback_data: 'dvg:menu' }, { text: '✕ Close', callback_data: 'dvg:close' }]
+  ] } };
+  if (messageId) {
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...payload }); return; }
+    catch { /* fall through */ }
+  }
+  await bot.sendMessage(chatId, text, payload);
+}
+
+async function ownerDurianGeminiRun(chatId, which) {
+  const cfg = DVG_LABEL[which];
+  if (!cfg) {
+    await safeSend(chatId, `⚠️ Unknown mode: ${which}`);
+    return;
+  }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    await safeSend(chatId, '⚠️ GEMINI_API_KEY not set on the server — cannot run.');
+    return;
+  }
+  // Pull the most recent variance report from Redis.
+  let report;
+  try {
+    if (!(redis && redis.isOpen)) {
+      await safeSend(chatId, '⚠️ Redis is offline; nothing cached at <code>dv:latest:*</code>.', { parse_mode: 'HTML' });
+      return;
+    }
+    const raw = await redis.get(`dv:latest:${cfg.mode}`);
+    if (!raw) {
+      await safeSend(chatId,
+        `⚠️ No cached variance run found for <b>${cfg.mode}</b>. ` +
+        `Run <code>/ver → 🥥 Durian variance → ${cfg.mode}</code> first, then come back.`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+    report = JSON.parse(raw);
+  } catch (err) {
+    await safeSend(chatId, `❌ Redis fetch failed: ${String(err?.message || err).slice(0, 200)}`);
+    return;
+  }
+  const keptCount = (report.totals && report.totals.kept) || 0;
+  await safeSend(chatId,
+    `⏳ <b>${cfg.name}</b> starting — ${keptCount} kept venues to label. ETA ~1-3 min.`,
+    { parse_mode: 'HTML' }
+  );
+  let lastProgressAt = Date.now();
+  const onProgress = async ({ done, total }) => {
+    if (Date.now() - lastProgressAt < 20000) return;
+    lastProgressAt = Date.now();
+    const pct = total === 0 ? '0' : ((done / total) * 100).toFixed(0);
+    await safeSend(chatId, `🤖 ${cfg.mode}: ${done}/${total} batches (${pct}%)`).catch(() => {});
+  };
+  const { verifyKeptVenues } = require('./durian-gemini-verifier');
+  let result;
+  try {
+    result = await verifyKeptVenues({
+      report, mode: cfg.mode, apiKey, onProgress
+    });
+  } catch (err) {
+    await safeSend(chatId, `❌ Gemini verify failed: ${String(err?.message || err).slice(0, 300)}`);
+    return;
+  }
+  // Persist labelled result to Redis (60 d) for any follow-up.
+  try {
+    if (redis && redis.isOpen) {
+      await redis.setEx(`dvg:latest:${cfg.mode}`, 60 * 24 * 60 * 60, JSON.stringify(result)).catch(() => {});
+    }
+  } catch { /* non-fatal */ }
+  // Build summary text.
+  const lines = [];
+  const t = result.totals;
+  const pct = (n, d) => d === 0 ? '—' : `${((n / d) * 100).toFixed(1)}%`;
+  lines.push(`✅ <b>${cfg.name} complete.</b>`);
+  lines.push(`<b>Duration:</b> ${(result.durationMs / 1000).toFixed(1)} s  ·  <b>Batches:</b> ${t.batches} (${t.batchFailures} failed)`);
+  lines.push('');
+  lines.push(`<b>Total kept venues:</b> ${t.venues}`);
+  lines.push(`  <code>specialist</code>  ${String(t.specialist).padStart(4)}   <b>${pct(t.specialist, t.venues)}</b>  ← strict precision`);
+  lines.push(`  <code>occasional</code>  ${String(t.occasional).padStart(4)}   ${pct(t.occasional, t.venues)}`);
+  lines.push(`  <code>unrelated </code>  ${String(t.unrelated).padStart(4)}   ${pct(t.unrelated, t.venues)}`);
+  lines.push(`  <b>lenient (spec + occ):</b> ${pct(t.specialistPlusOccasional, t.venues)}`);
+  lines.push('');
+  lines.push('<b>By region (strict / lenient):</b>');
+  for (const [region, r] of Object.entries(result.byRegion)) {
+    lines.push(`  <code>${region.padEnd(14)}</code> n=${String(r.venues).padStart(4)}  spec ${String(r.specialist).padStart(3)} occ ${String(r.occasional).padStart(3)} unr ${String(r.unrelated).padStart(3)}  ${pct(r.specialist, r.venues).padStart(7)} / ${pct(r.specialist + r.occasional, r.venues).padStart(7)}`);
+  }
+  await bot.sendMessage(chatId, lines.join('\n'), { parse_mode: 'HTML' }).catch(() => {});
+  // Send the labelled JSON as a Telegram document.
+  try {
+    const buf = Buffer.from(JSON.stringify(result, null, 2));
+    const ymd = new Date().toISOString().slice(0, 10);
+    await bot.sendDocument(
+      chatId,
+      buf,
+      { caption: `${cfg.mode} Gemini-verified labels (${ymd})` },
+      { filename: `${cfg.mode}-gemini-verified-${ymd}.json`, contentType: 'application/json' }
+    ).catch((err) => {
+      console.warn('[dvg] sendDocument failed:', err.message);
+    });
+  } catch (err) {
+    console.warn('[dvg] document build failed:', err.message);
+  }
 }
 
 async function setVerboseMode(chatId, action) {
