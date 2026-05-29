@@ -557,19 +557,28 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // directly to that city's centroid (no geocode round-trip — coords
   // are inline in lib/cities.js).
   const [cityPick, setCityPick] = useState('');
-  useEffect(() => { setCityPick(''); }, [country.code]);
-  // v0.61.243 — when App.jsx auto-detect sets `anchor.name` to a
-  // city present in citiesForCountry(country.code), sync cityPick
-  // so the CityDropdown shows the matching 3-letter code (KUL /
-  // BKK / TYO …) instead of "— —". Operator: *"city code to Kuala
-  // Lumpur"* (29-05 '26 morning).
+  // v0.61.250 — operator: *"Whenever I select a new country code,
+  // immediately change the city code to the capital don't leave it
+  // as '--' unless i am currently in the city change to the city
+  // the location is detected."*
+  // Strategy: on country change, prefer (a) the anchor's name when
+  // it's a city of the new country (GPS auto-detect fed it through),
+  // (b) the first cities.js entry for that country (capital
+  // convention — KUL for MY, BKK for TH, JKT for ID, etc.).
+  // Was: `useEffect(() => { setCityPick(''); }, [country.code])`
+  // which reset to "— —" until the user picked.
   useEffect(() => {
-    const nm = (anchor?.name || '').trim();
-    if (!nm) return;
     const list = citiesForCountry(country.code);
-    const hit = list.find((c) => c.name === nm);
-    if (hit && hit.name !== cityPick) setCityPick(hit.name);
-  }, [anchor?.name, country.code]);
+    if (!list.length) { setCityPick(''); return; }
+    // (a) anchor city is in this country's list → use it.
+    const anchorName = (anchor?.name || '').trim();
+    if (anchorName) {
+      const hit = list.find((c) => c.name === anchorName);
+      if (hit) { setCityPick(hit.name); return; }
+    }
+    // (b) default to the country's first list entry (capital).
+    setCityPick(list[0].name);
+  }, [country.code, anchor?.name]);
   function onCityPick(name) {
     if (!name) { setCityPick(''); return; }
     setCityPick(name);
