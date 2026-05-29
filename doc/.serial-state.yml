@@ -1,8 +1,8 @@
 counters:
-  commit: 463
-  build: 253
+  commit: 464
+  build: 254
   documents:
-    journal: 451
+    journal: 452
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,40 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 10
-last_anchor_time: 29-05 '26 14:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_249 (PR #752 merged 2026-05-29T05:47:14Z = 13:47 SGT; v0.61.250 capital auto-pick built minutes later)
-last_anchor_iso8601: 2026-05-29T14:00:00+08:00
-last_anchor_utc: 2026-05-29T06:00:00Z
+  current_chat_counter: 11
+last_anchor_time: 29-05 '26 14:15 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_250 (PR #753 merged 2026-05-29T05:55:47Z = 13:55 SGT; v0.61.251 nearest-by-distance built ~20 min later)
+last_anchor_iso8601: 2026-05-29T14:15:00+08:00
+last_anchor_utc: 2026-05-29T06:15:00Z
+
+# v0.61.251 (commit 464 / journal 452 / build 254) — operator
+# 29-05 '26 morning backlog: "(a) cities.js nearest-by-distance sync
+# — fix the HK / Sibu dropdown '— —' gap so the CityDropdown
+# reflects the detected city even when the canonical IATA name
+# isn't in cities.js."
+#
+# Both TMAs gain a middle branch in the country→cityPick effect
+# (replaces the v0.61.250 two-branch logic with three branches):
+#
+#   (a) anchor name matches a cities.js entry directly (unchanged)
+#   (b) NEW — anchor has lat/lng + at least one cities.js entry for
+#       this country → pick the entry nearest to the anchor by
+#       haversine. Covers HK (anchor "Hong Kong" doesn't match any
+#       cities.js[HK] district name, but the nearest district by
+#       coords becomes the dropdown selection); covers Sibu (no
+#       Sibu entry in cities.js[MY], so Kuching wins at ~150 km
+#       instead of KUL the capital at ~1000 km).
+#   (c) no anchor → fall back to first cities.js entry (capital,
+#       unchanged from v0.61.250)
+#
+# - web/cuisine/src/v2/components/LocationField.jsx — new module-
+#   scope `haversineKm` helper + updated useEffect with branch
+#   (b). Deps now include [anchor?.lat, anchor?.lng].
+# - web/menu/src/components/LocationFieldMenu.jsx — same branch
+#   (b) via local `_haversineKm` helper. Deps now include
+#   [currentAnchor?.lat, currentAnchor?.lng].
+
+
 
 # v0.61.250 (commit 463 / journal 451 / build 253) — operator
 # 29-05 '26: "Whenever I select a new country code, immediately
