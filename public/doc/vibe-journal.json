@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-25",
-  "count": 645,
+  "generated": "2026-05-29",
+  "count": 737,
   "records": [
     {
       "pr": 1,
@@ -18035,6 +18035,2738 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 654,
+      "status": "merged",
+      "merged": "2026-05-25 12:28:26",
+      "day": "2026-05-25",
+      "version": "0.61.153",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: docs — VibeCodingRecord ledger catch-up PRs #648-#653",
+      "approach": "Routine VCR cadence pickup.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.153: docs — VibeCodingRecord ledger catch-up PRs #648-#653",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 655,
+      "status": "merged",
+      "merged": "2026-05-25 13:03:08",
+      "day": "2026-05-25",
+      "version": "0.61.154",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: translate enrichment — Michelin path + chat /cuisine + DRY helper",
+      "approach": "Closes the remaining option-3 gaps from the v0.61.152 follow-up conversation (operator excluded /eat /drink).",
+      "codeImpact": "6 files — index.js, cuisine-review-language.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-review-language.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.154: translate enrichment — Michelin path + chat /cuisine + DRY helper",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 656,
+      "status": "merged",
+      "merged": "2026-05-25 22:50:56",
+      "day": "2026-05-25",
+      "version": "0.61.155",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: location-mode classifier (PR 1/5 of 10-rule location spec)",
+      "approach": "PR 1 of 5** in the phased build. Pure foundation module + unit tests; NO integration yet — PR 2 wires it into the set_location handler.",
+      "codeImpact": "5 files — location-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "location-mode.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.155: location-mode classifier (PR 1/5 of 10-rule location spec)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 657,
+      "status": "merged",
+      "merged": "2026-05-25 23:22:02",
+      "day": "2026-05-25",
+      "version": "0.61.156",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: set_location + feature gate + no-nag (PR 2/5 of 10-rule location spec)",
+      "approach": "PR 2 of 5** — wires the v0.61.155 classifier into a live integration.",
+      "codeImpact": "10 files — index.js, location-classify.js, location-locale.js, location-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "location-classify.js",
+        "location-locale.js",
+        "location-mode.js",
+        "package"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.156: set_location + feature gate + no-nag (PR 2/5 of 10-rule location spec)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 658,
+      "status": "merged",
+      "merged": "2026-05-25 23:37:28",
+      "day": "2026-05-25",
+      "version": "0.61.157",
+      "minor": "0.61",
+      "category": "prompt-tune",
+      "area": "Commands / chat UX",
+      "intent": "Add: boundary drift + single re-prompt (PR 3/5 of 10-rule location spec)",
+      "approach": "PR 3 of 5** — rule §2.7. Boundary = admin-area name AND radius (operator answer 4). Outside-boundary triggers a single bilingual EN/FR inline-keyboard prompt with Accept/Decline.",
+      "codeImpact": "10 files — index.js, location-boundary.js, location-classify.js, location-locale.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "location-boundary.js",
+        "location-classify.js",
+        "location-locale.js",
+        "package"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.157: boundary drift + single re-prompt (PR 3/5 of 10-rule location spec)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 659,
+      "status": "merged",
+      "merged": "2026-05-25 23:57:14",
+      "day": "2026-05-25",
+      "version": "0.61.158",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: carpark outside SG via Places + cuisine overlay backend (PR 4/5)",
+      "approach": "PR 4 of 5** — rule §2.8 + backend half of §2.9. LTA's `CarParkAvailability` is SG-only. PR 4 makes the carpark layer mode-aware: **SG** → LTA (live lots); **JB / OTHER** → Google Places `places:searchNearby` with `includedTypes:…",
+      "codeImpact": "6 files — index.js, carpark.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "carpark.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.158: carpark outside SG via Places + cuisine overlay backend (PR 4/5)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 660,
+      "status": "merged",
+      "merged": "2026-05-26 00:31:36",
+      "day": "2026-05-26",
+      "version": "0.61.159",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Putrajaya UI button + train default + scope-guard (PR 5/5 — FINAL)",
+      "approach": "FINAL PR 5 of 5** — closes the 10-rule location-classification phased build.",
+      "codeImpact": "9 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.159: Putrajaya UI button + train default + scope-guard (PR 5/5 — FINAL)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 661,
+      "status": "merged",
+      "merged": "2026-05-26 00:34:31",
+      "day": "2026-05-26",
+      "version": "0.61.160",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA LocationField — drop 2.5s auto-close + idempotent same-coord pick",
+      "approach": "Hotfix for the operator's bug report (screenshot of Hougang anchor + 6 venues with the field appearing to 'revert to current location' mid-typing).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.160: Cuisine TMA LocationField — drop 2.5s auto-close + idempotent same-coord pick",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 662,
+      "status": "merged",
+      "merged": "2026-05-26 00:43:31",
+      "day": "2026-05-26",
+      "version": "0.61.161",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: progressive nearby widening for cuisine search",
+      "approach": "Operator spec: *'the spread should prioritise the location set at least 3 with top rating >4, then open by enlarging the radius by 2km, then by 6km, by 8km, then 12km then 15km, 20km'*.",
+      "codeImpact": "6 files — index.js, cuisine-nearby-widen.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-nearby-widen.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.161: progressive nearby widening for cuisine search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 663,
+      "status": "merged",
+      "merged": "2026-05-26 01:07:55",
+      "day": "2026-05-26",
+      "version": "0.61.162",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: body.anchored flag bypasses lightShuffle gate for anchored cuisine searches",
+      "approach": "Debug session result for yesterday's screenshot bug ('venues not sorted by distance').",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.162: body.anchored flag bypasses lightShuffle gate for anchored cuisine searches",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 664,
+      "status": "merged",
+      "merged": "2026-05-26 01:41:01",
+      "day": "2026-05-26",
+      "version": "0.61.163",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine search cap 12→19; Results (X/Y) header; friendlier zero-state",
+      "approach": "Operator's pagination + indicator UX.",
+      "codeImpact": "5 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.163: cuisine search cap 12→19; Results (X/Y) header; friendlier zero-state",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 665,
+      "status": "merged",
+      "merged": "2026-05-26 01:42:47",
+      "day": "2026-05-26",
+      "version": "0.61.164",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Periodical count-history data layer (14 items, no UI yet)",
+      "approach": "PR 1 of 3** for the `/ver Periodical` owner sub-menu. Ships the persistence + recount primitives only — UI lands in v0.61.165, scheduler + TMA template wiring in v0.61.166.",
+      "codeImpact": "7 files — count-history.js, count-recount.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "count-history.js",
+        "count-recount.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.164: Periodical count-history data layer (14 items, no UI yet)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 666,
+      "status": "merged",
+      "merged": "2026-05-26 02:38:12",
+      "day": "2026-05-26",
+      "version": "0.61.165",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Commands / chat UX",
+      "intent": "Add: /ver Periodical sub-menu (PR 2/3 — UI for the v0.61.164 data layer)",
+      "approach": "PR 2 of 3** for the `/ver Periodical` admin lever. Ships the chat UI on top of the v0.61.164 data layer.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.165: /ver Periodical sub-menu (PR 2/3 — UI for the v0.61.164 data layer)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 667,
+      "status": "merged",
+      "merged": "2026-05-26 03:13:49",
+      "day": "2026-05-26",
+      "version": "0.61.166",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Commands / chat UX",
+      "intent": "Add: Periodical cadence + 6h scheduler tick (PR 3/3 — closes the admin lever)",
+      "approach": "PR 3 of 3** for the `/ver Periodical` admin lever. Closes the loop.",
+      "codeImpact": "8 files — index.js, count-cadence.js, count-scheduler.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "count-cadence.js",
+        "count-scheduler.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.166: Periodical cadence + 6h scheduler tick (PR 3/3 — closes the admin lever)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 668,
+      "status": "merged",
+      "merged": "2026-05-26 03:43:17",
+      "day": "2026-05-26",
+      "version": "0.61.167",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: autoResetOnLowCount — never auto-reset on a firstBatch response",
+      "approach": "Follow-up to v0.61.163 [KNOWN GAPS].",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.167: autoResetOnLowCount — never auto-reset on a firstBatch response",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 669,
+      "status": "merged",
+      "merged": "2026-05-26 05:11:10",
+      "day": "2026-05-26",
+      "version": "0.61.168",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA carpark map LAYER non-SG wiring",
+      "approach": "Closes the v0.61.158 [KNOWN GAPS] entry.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.168: Cuisine TMA carpark map LAYER non-SG wiring",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 670,
+      "status": "merged",
+      "merged": "2026-05-26 07:18:26",
+      "day": "2026-05-26",
+      "version": "0.61.169",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: live count templates + /api/cuisine/counts endpoint",
+      "approach": "Closes the v0.61.166 filed follow-up.",
+      "codeImpact": "7 files — index.js, count-display.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "count-display.js",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.169: live count templates + /api/cuisine/counts endpoint",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 671,
+      "status": "merged",
+      "merged": "2026-05-26 07:21:58",
+      "day": "2026-05-26",
+      "version": "0.61.170",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: TMA counter rewrite (24/12 split, cap 100, range labels)",
+      "approach": "Operator UX review of the v0.61.163 `Results (X/Y)` counter.",
+      "codeImpact": "8 files — index.js, cuisine-session.js, TMA:cuisine, doc, package",
+      "modules": [
+        "cuisine-session.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.170: TMA counter rewrite (24/12 split, cap 100, range labels)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 672,
+      "status": "merged",
+      "merged": "2026-05-26 08:24:49",
+      "day": "2026-05-26",
+      "version": "0.61.171",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: chat free-text — seen-set + 🔍 for more button + recycle",
+      "approach": "Mirrors the cuisine TMA's per-(chatId, criteria) dedup for the **chat free-text search** path.",
+      "codeImpact": "8 files — index.js, chat-freetext-seen.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "chat-freetext-seen.js",
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.171: chat free-text — seen-set + 🔍 for more button + recycle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 673,
+      "status": "merged",
+      "merged": "2026-05-26 08:48:38",
+      "day": "2026-05-26",
+      "version": "0.61.172",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "fix v0.61.166 recountTrainStations + recountTrainLines schema mismatch",
+      "approach": "Operator manual dry-run of the v0.61.166 Periodical recount caught **two of 14 items** silently returning `source: 'unavailable'` on every cadence tick since v0.61.164 — schema mismatches between the reader fns and `data/mrt-coords.json`.",
+      "codeImpact": "5 files — count-recount.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "count-recount.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.172: fix v0.61.166 recountTrainStations + recountTrainLines schema mismatch",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 674,
+      "status": "merged",
+      "merged": "2026-05-26 13:08:53",
+      "day": "2026-05-26",
+      "version": "0.61.173",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: cuisine-venue-counts standalone module + CLI runner (48 cuisines, manual)",
+      "approach": "Standalone module + CLI script to tabulate SG venue counts for the **48-cuisine subset** the operator confirmed (out of 67 in `cuisines-vault.js`).",
+      "codeImpact": "7 files — cuisine-venue-counts.js, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "cuisine-venue-counts.js",
+        "data",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.173: cuisine-venue-counts standalone module + CLI runner (48 cuisines, manual)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 675,
+      "status": "merged",
+      "merged": "2026-05-26 14:04:05",
+      "day": "2026-05-26",
+      "version": "0.61.174",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: TMA counter redesign + speech-bubble flash hint (5s)",
+      "approach": "Fixes the v0.61.170 counter copy that you screenshotted: header text \"Result 1-5 · click 🔍 for next more\" was crowding the [Copy all] / [Copy syntax] buttons + duplicating the footer's \"tap 🔍 Search to refine\" prompt (same icon,…",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.174: TMA counter redesign + speech-bubble flash hint (5s)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 676,
+      "status": "merged",
+      "merged": "2026-05-26 14:19:52",
+      "day": "2026-05-26",
+      "version": "0.61.175",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Periodical owner UI — cadence in buttons + Set all off + Run now",
+      "approach": "Per operator: *\"Periodically setting should show in the buttons like Cuisines (off) or Michelin (Yr); have a quick buttons like 'set all off' and 'run now'.\"* Two changes to `/ver` → 📊 Periodical owner menu: ### 1.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.175: Periodical owner UI — cadence in buttons + Set all off + Run now",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 677,
+      "status": "merged",
+      "merged": "2026-05-26 15:00:56",
+      "day": "2026-05-26",
+      "version": "0.61.176",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: visible running-version chip on /ver + Periodical menu",
+      "approach": "Operator pain point after PR #676: *\"still v0.61.174\"* — Railway's redeploy took ~15+ min and there was no chat-side way to confirm which version was live.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.176: visible running-version chip on /ver + Periodical menu",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 679,
+      "status": "merged",
+      "merged": "2026-05-26 15:06:52",
+      "day": "2026-05-26",
+      "version": "0.61.177",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: cuisine-venue-counts chat trigger + Redis persistence",
+      "approach": "Re-opened from closed #678 after PR #677 merged.",
+      "codeImpact": "6 files — index.js, cuisine-venue-counts.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-venue-counts.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.177: cuisine-venue-counts chat trigger + Redis persistence",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 680,
+      "status": "merged",
+      "merged": "2026-05-26 15:12:50",
+      "day": "2026-05-26",
+      "version": "0.61.178",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Commands / chat UX",
+      "intent": "Reword: {cuisine-venues} placeholder in /start marketing copy",
+      "approach": "Item #3 from the 1+2+3 shortlist.",
+      "codeImpact": "6 files — count-display.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "count-display.js",
+        "doc",
+        "i18n.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.178: {cuisine-venues} placeholder in /start marketing copy",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 681,
+      "status": "merged",
+      "merged": "2026-05-26 15:17:31",
+      "day": "2026-05-26",
+      "version": "0.61.179",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: 60-second debounce on chat-side Cuisine Venues Recount",
+      "approach": "Closes v0.61.177's known gap: an accidental double-tap on the **🔄 Recount now** button would fire TWO Places sweeps (~$7 instead of ~$3.45).",
+      "codeImpact": "6 files — index.js, cuisine-venue-counts.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-venue-counts.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.179: 60-second debounce on chat-side Cuisine Venues Recount",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 682,
+      "status": "merged",
+      "merged": "2026-05-26 15:22:00",
+      "day": "2026-05-26",
+      "version": "0.61.180",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: disable Cuisine TMA 🔍 FAB on pool exhaustion",
+      "approach": "Closes operator's earlier complaint from the v0.61.174 conversation: *'I insist on loading at least 5, and when there is only less than five, subsequent tap return zero because of the five near location.'* v0.61.174 surfaced the exhausted…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.180: disable Cuisine TMA 🔍 FAB on pool exhaustion",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 683,
+      "status": "merged",
+      "merged": "2026-05-26 15:46:52",
+      "day": "2026-05-26",
+      "version": "0.61.181",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: smart tile-search to break Places 60-cap (9 SG + 6 JB tiles)",
+      "approach": "Closes operator's question: *'do you have the true count for the Places 60 — gives true counts for Italian/Japanese/etc.",
+      "codeImpact": "5 files — cuisine-venue-counts.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-venue-counts.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.181: smart tile-search to break Places 60-cap (9 SG + 6 JB tiles)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 684,
+      "status": "merged",
+      "merged": "2026-05-26 15:54:11",
+      "day": "2026-05-26",
+      "version": "0.61.182",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine TMA footer build-time chip",
+      "approach": "Surfaces Vite's pre-existing `__BUILD_TIME__` constant in the TMA footer alongside `__BUILD_VERSION__`.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.182: cuisine TMA footer build-time chip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 685,
+      "status": "merged",
+      "merged": "2026-05-26 16:01:44",
+      "day": "2026-05-26",
+      "version": "0.61.183",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: per-cuisine detail dump on cv:menu",
+      "approach": "Closes v0.61.177 known gap.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.183: per-cuisine detail dump on cv:menu",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 686,
+      "status": "merged",
+      "merged": "2026-05-26 16:05:24",
+      "day": "2026-05-26",
+      "version": "0.61.184",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: data quality — resync mrt-coords.json _meta",
+      "approach": "Closes v0.61.172 known gap.",
+      "codeImpact": "4 files — doc, data, package",
+      "modules": [
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.184: data quality — resync mrt-coords.json _meta",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 687,
+      "status": "merged",
+      "merged": "2026-05-26 16:28:25",
+      "day": "2026-05-26",
+      "version": "0.61.185",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Maps / geo / location",
+      "intent": "Refactor: MY-PUT → OTHER rename + Putrajaya 20km cap + region-aware search",
+      "approach": "## Answer to your question first — 'criteria for Others' From `location-mode.js` rules §2.2 + §2.3 (since v0.61.155): - **Coarse gate (§2.2)**: >120 km from SG centroid (1.3521, 103.8198) → `OTHER` (no geocode call) - **Country mapping…",
+      "codeImpact": "14 files — index.js, location-cache.js, precincts.js, vibe-suggest.js, TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "precincts.js",
+        "vibe-suggest.js",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.185: MY-PUT → OTHER rename + Putrajaya 20km cap + region-aware search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 688,
+      "status": "merged",
+      "merged": "2026-05-26 16:51:19",
+      "day": "2026-05-26",
+      "version": "0.61.186",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA re-fetches user-location on visibility change",
+      "approach": "Operator: 'location → tap Putrajaya but results are zero.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.186: Cuisine TMA re-fetches user-location on visibility change",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 689,
+      "status": "merged",
+      "merged": "2026-05-26 16:58:19",
+      "day": "2026-05-26",
+      "version": "0.61.187",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine + Menu TMA LocationField — suppress UI when anchor is OTHER",
+      "approach": "Operator: *'location field in Menu TMA, Cuisine TMA should unhinch for others if others is selected, and should not have dropdown to select as it is too many.'* ## Behavior | State | Cuisine TMA LocationField | Menu TMA LocationFieldMenu…",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.187: Cuisine + Menu TMA LocationField — suppress UI when anchor is OTHER",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 690,
+      "status": "merged",
+      "merged": "2026-05-26 17:10:56",
+      "day": "2026-05-26",
+      "version": "0.61.188",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: OTHER LocationField — keep typing, suppress dropdowns",
+      "approach": "Operator: *'the location field suppressed cannot type anymore.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.188: OTHER LocationField — keep typing, suppress dropdowns",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 691,
+      "status": "merged",
+      "merged": "2026-05-26 21:57:46",
+      "day": "2026-05-26",
+      "version": "0.61.189",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: revert LocationField OTHER-suppression (full)",
+      "approach": "Operator: *'still doesn't work, turn back the dropdown.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.189: revert LocationField OTHER-suppression (full)",
+      "reworkCue": true,
+      "reworkOf": 689,
+      "burst": true
+    },
+    {
+      "pr": 692,
+      "status": "merged",
+      "merged": "2026-05-26 22:20:45",
+      "day": "2026-05-26",
+      "version": "0.61.190",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA result-panel title on two lines",
+      "approach": "Operator screenshot: title was crowding [Copy all] + [Copy syntax] on the right.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.190: Cuisine TMA result-panel title on two lines",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 693,
+      "status": "merged",
+      "merged": "2026-05-26 22:52:46",
+      "day": "2026-05-26",
+      "version": "0.61.191",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: OTHER country picker + Places search-by-country + confirmation list",
+      "approach": "Operator: *'the location field … for Others should not use Dropdown.",
+      "codeImpact": "10 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.191: OTHER country picker + Places search-by-country + confirmation list",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 694,
+      "status": "merged",
+      "merged": "2026-05-26 23:03:24",
+      "day": "2026-05-26",
+      "version": "0.61.192",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA OTHER picker mirrors v0.61.191",
+      "approach": "v0.61.191 shipped the Cuisine TMA half.",
+      "codeImpact": "7 files — index.js, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.192: Menu TMA OTHER picker mirrors v0.61.191",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 695,
+      "status": "merged",
+      "merged": "2026-05-26 23:11:15",
+      "day": "2026-05-26",
+      "version": "0.61.193",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: SG-only cuisine chip gating (fruits/durian/durian-pastry locked when region != SG)",
+      "approach": "Operator reminder from v0.61.191 conversation: *'turn off … cuisine like Durian, Durian Pastry are turn off'* when region != SG.",
+      "codeImpact": "7 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.193: SG-only cuisine chip gating (fruits/durian/durian-pastry locked when region != SG)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 696,
+      "status": "merged",
+      "merged": "2026-05-26 23:48:12",
+      "day": "2026-05-26",
+      "version": "0.61.194",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Catmull-Rom smoothing for LRT lines (BPL/SLRT/PLRT)",
+      "approach": "Operator: *'the lines ought to have curve?'* — but station markers must stay on the line.",
+      "codeImpact": "5 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.194: Catmull-Rom smoothing for LRT lines (BPL/SLRT/PLRT)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 697,
+      "status": "merged",
+      "merged": "2026-05-27 00:01:01",
+      "day": "2026-05-27",
+      "version": "0.61.195",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: /location chat command — 17-country picker + country-aware geocoding",
+      "approach": "Operator's earlier flow (`/location Times Square`) hard-coded `components=country:SG`, so a typed-in Kuala Lumpur address resolved to a Singapore shop — same class of bug v0.61.191 fixed for the Cuisine TMA's OTHER picker.",
+      "codeImpact": "6 files — index.js, country-pref.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "country-pref.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.195: /location chat command — 17-country picker + country-aware geocoding",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 698,
+      "status": "merged",
+      "merged": "2026-05-27 00:07:31",
+      "day": "2026-05-27",
+      "version": "0.61.196",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: TMA <-> chat country-pref sync via shared Redis key",
+      "approach": "v0.61.195 added `/lcountry` writing `country-pref:<chatId>` in Redis.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.196: TMA <-> chat country-pref sync via shared Redis key",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 699,
+      "status": "merged",
+      "merged": "2026-05-27 00:13:21",
+      "day": "2026-05-27",
+      "version": "0.61.197",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: recent-locations LRU + /lrecent chat drawer (10 entries)",
+      "approach": "Per-user, Redis-backed, 10-entry, newest-first LRU of resolved location anchors.",
+      "codeImpact": "6 files — index.js, recent-locations.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "recent-locations.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.197: recent-locations LRU + /lrecent chat drawer (10 entries)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 700,
+      "status": "merged",
+      "merged": "2026-05-27 00:28:28",
+      "day": "2026-05-27",
+      "version": "0.61.198",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: JB hybrid filter + first-batch-only nearby-widen (fixes \"12 then 0\" pagination)",
+      "approach": "Operator's log (South Key + Cantonese, JB region) showed **9 venues first batch then 0** on the next 🔍 tap.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.198: JB hybrid filter + first-batch-only nearby-widen (fixes \"12 then 0\" pagination)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 701,
+      "status": "merged",
+      "merged": "2026-05-27 00:33:51",
+      "day": "2026-05-27",
+      "version": "0.61.199",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: place-search 400 diagnostic + friendly OTHER-picker error copy",
+      "approach": "Debug follow-up to v0.61.198.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.199: place-search 400 diagnostic + friendly OTHER-picker error copy",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 702,
+      "status": "merged",
+      "merged": "2026-05-27 00:51:36",
+      "day": "2026-05-27",
+      "version": "0.61.200",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: /location country hints + 17-entry quick-pick with Others",
+      "approach": "Two operator-flagged /location UX bugs.",
+      "codeImpact": "6 files — index.js, country-hints.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "country-hints.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.200: /location country hints + 17-entry quick-pick with Others",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 703,
+      "status": "merged",
+      "merged": "2026-05-27 00:59:40",
+      "day": "2026-05-27",
+      "version": "0.61.201",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: OTHER picker — Places + Geocoding parallel merge, 6 fuzzy matches",
+      "approach": "Operator: \"select Others, type 'Times Square Kuala Lumpur' → error 502\" and \"select Vietnam, type 'Ho Chin Ming' → suggest 6 closest fuzzy\".",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.201: OTHER picker — Places + Geocoding parallel merge, 6 fuzzy matches",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 704,
+      "status": "merged",
+      "merged": "2026-05-27 01:17:13",
+      "day": "2026-05-27",
+      "version": "0.61.202",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Commands / chat UX",
+      "intent": "Add: grouped /location quick-pick — 6 top-level buttons + 2 SG submenus",
+      "approach": "Operator screenshot of v0.61.200's 17-button keyboard overflowed one mobile screen: *\"this is too many in one screen, group them and create further sub-menu\"*.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.202: grouped /location quick-pick — 6 top-level buttons + 2 SG submenus",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 705,
+      "status": "merged",
+      "merged": "2026-05-27 01:32:37",
+      "day": "2026-05-27",
+      "version": "0.61.203",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: TMA region auto-flip — close all four mount paths",
+      "approach": "Recurring operator complaint: *\"set IOI Resort City via chat → launch Cuisine TMA → pin lands on Putrajaya but pill stays on 🇸🇬 Singapore → 0 results\"*.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.61.203: TMA region auto-flip — close all four mount paths",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 706,
+      "status": "merged",
+      "merged": "2026-05-27 03:16:16",
+      "day": "2026-05-27",
+      "version": "0.61.204",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Johor + Putrajaya state-flag assets — TMA region pill only",
+      "approach": "Operator provided two state-flag assets and asked to use them on buttons in **both TMA and chat**.",
+      "codeImpact": "10 files — index.js, TMA:cuisine, doc, data, package, public/",
+      "modules": [
+        "data",
+        "doc",
+        "index.js",
+        "package",
+        "public/",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.204: Johor + Putrajaya state-flag assets — TMA region pill only",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 707,
+      "status": "merged",
+      "merged": "2026-05-27 05:30:41",
+      "day": "2026-05-27",
+      "version": "0.61.205",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Putrajaya flag PNG on OTHER region pill (IOI anchor only)",
+      "approach": "Operator uploaded `data/MY_Putrajaya_flag.PNG` (70 KB) via GitHub and asked it be used \"for putrajaya flag in the button\".",
+      "codeImpact": "6 files — TMA:cuisine, doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.205: Putrajaya flag PNG on OTHER region pill (IOI anchor only)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 708,
+      "status": "merged",
+      "merged": "2026-05-27 07:16:06",
+      "day": "2026-05-27",
+      "version": "0.61.206",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: stamp region='OTHER' at setUserLocation when coarse gate trips",
+      "approach": "Operator's recurring **\"TMA pin says Pahang but pill stays SG → 0 results\"**.",
+      "codeImpact": "5 files — index.js, location-cache.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "location-cache.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.206: stamp region='OTHER' at setUserLocation when coarse gate trips",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 709,
+      "status": "merged",
+      "merged": "2026-05-27 07:36:49",
+      "day": "2026-05-27",
+      "version": "0.61.207",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: smart place label + skip SG area-text filter for OTHER region",
+      "approach": "Two operator-flagged issues, both rooted in OTHER-region handling.",
+      "codeImpact": "6 files — index.js, smart-place-label.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "smart-place-label.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.207: smart place label + skip SG area-text filter for OTHER region",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 710,
+      "status": "merged",
+      "merged": "2026-05-27 08:45:19",
+      "day": "2026-05-27",
+      "version": "0.61.208",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: custom country dropdown (closed flag+CC, open flag+Name)",
+      "approach": "Operator: *\"Cuisine TMA, the dropdown should spell out the country name but after selection is back to `<flag>` + `<two characters>`.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.208: custom country dropdown (closed flag+CC, open flag+Name)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 711,
+      "status": "merged",
+      "merged": "2026-05-27 10:19:57",
+      "day": "2026-05-27",
+      "version": "0.61.208",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "vault snapshot (1114 files, 163 MB)",
+      "approach": "Frozen reproducible snapshot of main at **v0.61.208**, per operator request *\"vault\"* (28 May 2026 ~17:50 SGT).",
+      "codeImpact": "100 files — vault",
+      "modules": [
+        "vault"
+      ],
+      "nFiles": 100,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.208: vault snapshot (1114 files, 163 MB)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 712,
+      "status": "merged",
+      "merged": "2026-05-27 10:32:15",
+      "day": "2026-05-27",
+      "version": "0.61.209",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA country-pref sync + WP-state abbreviation",
+      "approach": "Two small follow-ups, bundled.",
+      "codeImpact": "6 files — smart-place-label.js, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "smart-place-label.js",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.209: Menu TMA country-pref sync + WP-state abbreviation",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 713,
+      "status": "merged",
+      "merged": "2026-05-27 11:05:43",
+      "day": "2026-05-27",
+      "version": "0.61.210",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: per-country fuzzy text filter for OTHER cuisine search",
+      "approach": "Defence layer for the OTHER region's cuisine post-filter.",
+      "codeImpact": "6 files — index.js, country-text-match.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "country-text-match.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.210: per-country fuzzy text filter for OTHER cuisine search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 714,
+      "status": "merged",
+      "merged": "2026-05-27 12:24:35",
+      "day": "2026-05-27",
+      "version": "0.61.211",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Commands / chat UX",
+      "intent": "Add: keyboard nav for custom country dropdown (both TMAs)",
+      "approach": "Polish item from v0.61.208's known-gaps.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.211: keyboard nav for custom country dropdown (both TMAs)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 715,
+      "status": "merged",
+      "merged": "2026-05-27 13:00:32",
+      "day": "2026-05-27",
+      "version": "0.61.212",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Core / misc",
+      "intent": "Add tests: place-search variance test scaffolding (1700 tests, operator-run)",
+      "approach": "Test scaffolding for *\"how different people type when searching for a place — and does our endpoint return the venue they actually meant?\"*.",
+      "codeImpact": "7 files — doc, package, scripts/",
+      "modules": [
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.212: place-search variance test scaffolding (1700 tests, operator-run)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 716,
+      "status": "merged",
+      "merged": "2026-05-27 13:29:44",
+      "day": "2026-05-27",
+      "version": "0.61.213",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Commands / chat UX",
+      "intent": "Add tests: /ver place-search variance test button",
+      "approach": "Operator: *\"i don't understand, I thought you would run them or you add to the /ver for me to run?\"* — closing that gap by wiring v0.61.212's scaffolding to a chat-side admin button.",
+      "codeImpact": "5 files — index.js, place-search-variance.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "place-search-variance.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.213: /ver place-search variance test button",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 717,
+      "status": "merged",
+      "merged": "2026-05-27 13:43:56",
+      "day": "2026-05-27",
+      "version": "0.61.214",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: psv:/cv: callback messageId ReferenceError hotfix",
+      "approach": "Hotfix for v0.61.213.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.214: psv:/cv: callback messageId ReferenceError hotfix",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 718,
+      "status": "merged",
+      "merged": "2026-05-27 13:56:59",
+      "day": "2026-05-27",
+      "version": "0.61.215",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: variance test field mask fix + chat error reporting",
+      "approach": "Operator ran smoke (50) + MY-only (500) sweeps.",
+      "codeImpact": "5 files — index.js, place-search-variance.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "place-search-variance.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.215: variance test field mask fix + chat error reporting",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 719,
+      "status": "merged",
+      "merged": "2026-05-27 14:30:06",
+      "day": "2026-05-27",
+      "version": "0.61.216",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Commands / chat UX",
+      "intent": "Add: city-preset variance buttons + /training command + Klang Valley venues",
+      "approach": "8-row `/ver psv:` menu** — Smoke (50) / Smoke at current city (100) / Johor (100) / KL+6 cities (450) / Penang (100) / Bangkok (100) / MY only (500) / Full sweep (1950). Each row shows cost + ETA up-front.",
+      "codeImpact": "6 files — index.js, place-search-variance.js, doc, package, scripts/",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "place-search-variance.js",
+        "scripts/"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.216: city-preset variance buttons + /training command + Klang Valley venues",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 720,
+      "status": "merged",
+      "merged": "2026-05-27 14:53:53",
+      "day": "2026-05-27",
+      "version": "0.61.217",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: drop unknown includedRegionCodes from Places searchText (fixes 50/50 400)",
+      "approach": "Root cause** revealed by v0.61.216's surfaced error: Google rejects `includedRegionCodes` on Places (New) `searchText` — *\"Invalid JSON payload received. Unknown name 'includedRegionCodes'.\"* That field is Autocomplete-only.",
+      "codeImpact": "5 files — index.js, place-search-variance.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "place-search-variance.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.217: drop unknown includedRegionCodes from Places searchText (fixes 50/50 400)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 721,
+      "status": "merged",
+      "merged": "2026-05-27 21:42:01",
+      "day": "2026-05-27",
+      "version": "0.61.218",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: /training city aliases (KL → Kuala Lumpur) + round-robin emission",
+      "approach": "Bug:** `/training 100 KL Putrajaya` on v0.61.217 ran 100 Putrajaya tests, 0 KL. Substring match `\"kuala lumpur\".includes(\"kl\")` is false.",
+      "codeImpact": "4 files — place-search-variance.js, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "place-search-variance.js"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.218: /training city aliases (KL → Kuala Lumpur) + round-robin emission",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 722,
+      "status": "merged",
+      "merged": "2026-05-27 23:44:51",
+      "day": "2026-05-27",
+      "version": "0.61.219",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA OTHER-region overlay disable + 'Closed now' prefix",
+      "approach": "Two operator-reported fixes from a Bukit Bintang KL session: 1.",
+      "codeImpact": "6 files — open-hours.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "open-hours.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.219: Cuisine TMA OTHER-region overlay disable + 'Closed now' prefix",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 723,
+      "status": "merged",
+      "merged": "2026-05-28 00:23:29",
+      "day": "2026-05-28",
+      "version": "0.61.220",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Catmull-Rom curves for all 6 MRT lines (stations stay on the line)",
+      "approach": "Operator: *\"Train Line: Like v0.61.194 for LRT, the rest of train lines ought to have curve?",
+      "codeImpact": "5 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.220: Catmull-Rom curves for all 6 MRT lines (stations stay on the line)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 724,
+      "status": "merged",
+      "merged": "2026-05-28 01:03:21",
+      "day": "2026-05-28",
+      "version": "0.61.221",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Menu hub",
+      "intent": "add SG at the bottom of Menu TMA country dropdown",
+      "approach": "Operator: *\"Add Singapore in part of the dropdown list at the bottom for Menu TMA only … When Select Singapore in the Menu TMA, and user type in the location it should behavior like what has been coded and not change.\"* -…",
+      "codeImpact": "5 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.221: add SG at the bottom of Menu TMA country dropdown",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 725,
+      "status": "merged",
+      "merged": "2026-05-28 01:21:48",
+      "day": "2026-05-28",
+      "version": "0.61.222",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Pipeline / discovery",
+      "intent": "Fix: OTHER picker — non-Latin fail-open + Places-path null fix",
+      "approach": "Two operator-reported KR bugs.",
+      "codeImpact": "6 files — index.js, country-text-match.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "country-text-match.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.222: OTHER picker — non-Latin fail-open + Places-path null fix",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 726,
+      "status": "merged",
+      "merged": "2026-05-28 01:39:23",
+      "day": "2026-05-28",
+      "version": "0.61.223",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA — always-visible quick-pick + flag dropdown mirrors anchor country",
+      "approach": "Operator (28-05 '26): 1.",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.223: Menu TMA — always-visible quick-pick + flag dropdown mirrors anchor country",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 727,
+      "status": "merged",
+      "merged": "2026-05-28 02:13:13",
+      "day": "2026-05-28",
+      "version": "0.61.224",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA map recenters to detected place anchor on free-text search",
+      "approach": "Operator (28-05 '26): *\"If I change my country to singapore and type in 'Geylang' and tap search, it should first move the centre of the google map to the location in Geylang then search.\"* **Diagnosis.** Server-side place-anchor…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.224: Cuisine TMA map recenters to detected place anchor on free-text search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 728,
+      "status": "merged",
+      "merged": "2026-05-28 02:52:01",
+      "day": "2026-05-28",
+      "version": "0.61.225",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: Durian + Durian Pastry full operator catalogues (41 + 41)",
+      "approach": "Operator (28-05 '26): supplied the full **41 durian-fruit varieties** + **41 durian-pastry items** as canonical reference.",
+      "codeImpact": "5 files — special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.225: Durian + Durian Pastry full operator catalogues (41 + 41)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 730,
+      "status": "merged",
+      "merged": "2026-05-28 05:25:24",
+      "day": "2026-05-28",
+      "version": "0.61.227",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA cascading city dropdown (16 countries / 133 cities; MY = 15 capitals)",
+      "approach": "Operator (28-05 '26): *\"we may need another field for common cities of the country (top 8 cities by tourism then population) next to the country, an child dropdown button related to the country dropdown button.",
+      "codeImpact": "6 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.227: Menu TMA cascading city dropdown (16 countries / 133 cities; MY = 15 capitals)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 731,
+      "status": "merged",
+      "merged": "2026-05-28 05:53:03",
+      "day": "2026-05-28",
+      "version": "0.61.228",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA cascading city dropdown (mirrors v0.61.227 Menu TMA)",
+      "approach": "Mirrors v0.61.227's cascading city dropdown into the Cuisine TMA's OTHER picker, completing the second half of the operator's *\"another field for common cities of the country, child dropdown button related to the country dropdown button\"*…",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.228: Cuisine TMA cascading city dropdown (mirrors v0.61.227 Menu TMA)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 732,
+      "status": "merged",
+      "merged": "2026-05-28 06:57:59",
+      "day": "2026-05-28",
+      "version": "0.61.229",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Core / misc",
+      "intent": "Refactor: Durian/Durian-Pastry correction — ACCEPT primaryType + variety-extract only + variance CLI",
+      "approach": "Operator (serious bug): *\"the results of Durians cuisine, and Durian Pastry cuisine are wrong.",
+      "codeImpact": "6 files — special-mode.js, tests, doc, package, scripts/",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "scripts/",
+        "special-mode.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.229: Durian/Durian-Pastry correction — ACCEPT primaryType + variety-extract only + variance CLI",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 733,
+      "status": "merged",
+      "merged": "2026-05-28 07:36:31",
+      "day": "2026-05-28",
+      "version": "0.61.230",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: /s chat search picks up the anchor's country (regionCode derived from loc)",
+      "approach": "Third item of the cascading-dropdown arc.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.230: /s chat search picks up the anchor's country (regionCode derived from loc)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 734,
+      "status": "merged",
+      "merged": "2026-05-28 07:49:32",
+      "day": "2026-05-28",
+      "version": "0.61.231",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: notebook aspect ratio — TMA caps 1280 → 1600 + remove Transport 960px double-cap",
+      "approach": "Operator (28-05 '26): *\"If I am using Notebook or web browser in Notebook other than Phone or tablet, the screen size for TMA should be expand to fill the notebook aspect ratio, currently is narrow especially the Train MTA.\"* Diagnosis:…",
+      "codeImpact": "9 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.231: notebook aspect ratio — TMA caps 1280 → 1600 + remove Transport 960px double-cap",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 735,
+      "status": "merged",
+      "merged": "2026-05-28 08:06:27",
+      "day": "2026-05-28",
+      "version": "0.61.232",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: social-profile row (re-ship from closed PR #729 on current main)",
+      "approach": "Re-ships the social-profile row work that was sitting in PR #729 (v0.61.226).",
+      "codeImpact": "10 files — social-profiles.js, venue-templates.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "social-profiles.js",
+        "venue-templates.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.232: social-profile row (re-ship from closed PR #729 on current main)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 736,
+      "status": "merged",
+      "merged": "2026-05-28 09:48:03",
+      "day": "2026-05-28",
+      "version": "0.61.233",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: city dropdown — shortform code closed (BKK / KUL / …), scrollable open, free-text input usable",
+      "approach": "Operator (28-05 '26): *\"when I select the city, there should have a location field to type in the free text in menu tma and cuisine tma, right now is remove.",
+      "codeImpact": "7 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.233: city dropdown — shortform code closed (BKK / KUL / …), scrollable open, free-text input usable",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 737,
+      "status": "merged",
+      "merged": "2026-05-28 10:38:19",
+      "day": "2026-05-28",
+      "version": "0.61.234",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: rare-cuisine fixes — drop Australasia catch-all + Georgian keywords/override + sparse-coverage hint",
+      "approach": "Three operator-selected fixes from the rare-cuisine investigation.",
+      "codeImpact": "10 files — index.js, cuisine-dish-keywords.js, cuisine-venue-counts.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-dish-keywords.js",
+        "cuisine-venue-counts.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.234: rare-cuisine fixes — drop Australasia catch-all + Georgian keywords/override + sparse-coverage hint",
+      "reworkCue": false,
+      "reworkOf": 736,
+      "burst": true
+    },
+    {
+      "pr": 738,
+      "status": "merged",
+      "merged": "2026-05-28 12:14:00",
+      "day": "2026-05-28",
+      "version": "0.61.235",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: widen Durian/Durian-Pastry ACCEPT primaryType lists from variance data",
+      "approach": "Operator ran `scripts/durian-variance.js` (28-05 '26) across SG/JB/Putrajaya × 12 languages.",
+      "codeImpact": "4 files — special-mode.js, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.235: widen Durian/Durian-Pastry ACCEPT primaryType lists from variance data",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 739,
+      "status": "merged",
+      "merged": "2026-05-28 12:36:19",
+      "day": "2026-05-28",
+      "version": "0.61.236",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA OTHER picker — compact resting pill (collapse to one-line after a city pick)",
+      "approach": "Operator screenshots (28-05 '26 20:15): - **SG mode** rests at `📍 Pattaya · 24 places nearby tap to change × 🔍` — one line, lots of room.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.236: Cuisine TMA OTHER picker — compact resting pill (collapse to one-line after a city pick)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 740,
+      "status": "merged",
+      "merged": "2026-05-28 12:54:58",
+      "day": "2026-05-28",
+      "version": "0.61.237",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: auto-fire search after OTHER city / JB place pick (explicit-anchor runSearch)",
+      "approach": "Operator (28-05 '26, Issue 1 of 5): *\"I select Others then select the country and city code, the google didn't set the location and search based on the new set location.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.237: auto-fire search after OTHER city / JB place pick (explicit-anchor runSearch)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 741,
+      "status": "merged",
+      "merged": "2026-05-28 13:21:47",
+      "day": "2026-05-28",
+      "version": "0.61.238",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — tryServerCache flips region → SG when cached anchor is SG (was sticky on OTHER)",
+      "approach": "Operator Issue 5 of 5: *\"if my location set to Geylang, I launch Cuisine TMA it still stick with 'Others' button being the last selection, why.\"* `tryServerCache()` had auto-flip branches for JB and OTHER/MY-PUT but no SG branch.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.238: Cuisine TMA — tryServerCache flips region → SG when cached anchor is SG (was sticky on OTHER)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 742,
+      "status": "merged",
+      "merged": "2026-05-28 13:28:14",
+      "day": "2026-05-28",
+      "version": "0.61.239",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: first-load cap 24 → 5 (curated first impression instead of 48/84 cumulative)",
+      "approach": "Operator Issue 4 of 5: *\"The first load of opening Cuisine TmA is always 5, right now is 48, 84 for Others.\"* One-constant change in `index.js`: ```js // v0.61.239 — was 24 (v0.61.170 split).",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.239: first-load cap 24 → 5 (curated first impression instead of 48/84 cumulative)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 743,
+      "status": "merged",
+      "merged": "2026-05-28 13:53:51",
+      "day": "2026-05-28",
+      "version": "0.61.240",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: combo criteria line under result title + #DCEBFF selected category cards",
+      "approach": "Operator Issue 3 of 5: 1.",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.240: combo criteria line under result title + #DCEBFF selected category cards",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 744,
+      "status": "merged",
+      "merged": "2026-05-28 23:33:10",
+      "day": "2026-05-28",
+      "version": "0.61.241",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: location pill — speech-bubble suffix + OTHER city-pick no-auto-fire",
+      "approach": "Speech bubble for the location pill** — the `· {suffix} tap to change` text moves off the inline button and into a downward-pointing bubble above the pill, mirroring the v0.61.174 🔍 FAB hint silhouette (`bg-tg-accent rounded-2xl` +…",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.241: location pill — speech-bubble suffix + OTHER city-pick no-auto-fire",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 745,
+      "status": "merged",
+      "merged": "2026-05-29 01:37:45",
+      "day": "2026-05-29",
+      "version": "0.61.242",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: IATA city-code reference table + cities.js audit (no behavior change)",
+      "approach": "Prerequisite data PR for v0.61.243** (the GPS-snap auto-detect: device GPS → nearest IATA city → flip region/country/cityPick + re-anchor map + load 5 venues; Gemini fallback for GPS outside the table). > Operator (29-05 '26 ~07:00 SGT):…",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.242: IATA city-code reference table + cities.js audit (no behavior change)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 746,
+      "status": "merged",
+      "merged": "2026-05-29 02:08:40",
+      "day": "2026-05-29",
+      "version": "0.61.243",
+      "minor": "0.61",
+      "category": "prompt-tune",
+      "area": "Cuisine Picker",
+      "intent": "Add: GPS auto-detect on mount → snap to nearest IATA city (+ Gemini fallback)",
+      "approach": "Wires the v0.61.242 IATA reference table into the Cuisine TMA mount flow.",
+      "codeImpact": "7 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.243: GPS auto-detect on mount → snap to nearest IATA city (+ Gemini fallback)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 747,
+      "status": "merged",
+      "merged": "2026-05-29 02:19:31",
+      "day": "2026-05-29",
+      "version": "0.61.244",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: JB/OTHER picks don't auto-fire + 6s idle \"Tap 🔍\" reminder",
+      "approach": "> Operator (29-05 '26 mid-morning): *\"remind: do not fire search from the location box for johor and others until user fire, remind users to click search after 6 seconds idle from typing the location field.\"* Two complementary tweaks to…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.244: JB/OTHER picks don't auto-fire + 6s idle \"Tap 🔍\" reminder",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }

@@ -1,8 +1,8 @@
 counters:
-  commit: 457
-  build: 247
+  commit: 458
+  build: 248
   documents:
-    journal: 445
+    journal: 446
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,40 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 4
-last_anchor_time: 29-05 '26 10:20 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_243 (PR #746 merged 2026-05-29T02:08:40Z = 10:08 SGT; v0.61.244 idle-reminder PR being built minutes later ≈ 10:20 SGT)
-last_anchor_iso8601: 2026-05-29T10:20:00+08:00
-last_anchor_utc: 2026-05-29T02:20:00Z
+  current_chat_counter: 5
+last_anchor_time: 29-05 '26 11:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_244 (PR #747 merged 2026-05-29T02:19:31Z = 10:19 SGT; v0.61.245 VibeCoding catch-up built ~40 min later ≈ 11:00 SGT)
+last_anchor_iso8601: 2026-05-29T11:00:00+08:00
+last_anchor_utc: 2026-05-29T03:00:00Z
+
+# v0.61.245 (commit 458 / journal 446 / build 248) — operator
+# 29-05 '26 morning: "vibe-journal" → "backfill ~94 missing PRs
+# into the Vibe Coding Record and regenerate it".
+#
+# Pure docs catch-up. No code change. The last regen on 25-05 '26
+# stopped at n=653 (v0.61.152). Main is now at v0.61.244 → 92
+# PRs (#654-#747) needed appending.
+#
+# - data/prs.ndjson: 92 rows appended via `gh pr list ... --json
+#   number,title,state,mergedAt,body --search 'merged:>=2026-05-25
+#   base:main'` + Python normalisation (body trimmed to 360 chars,
+#   newlines flattened). Total ndjson rows 646 → 738.
+# - data/pr-files.tsv: 92 rows appended via the same
+#   `gh pr list ... --json files` batch. (git log path was blocked
+#   by iCloud-stale-checkout I/O; the gh API path returned all 92
+#   in ~6 s.) tsv sorted ascending. Total tsv rows 436 → 528.
+# - generate.mjs: GEN_DATE bumped 2026-05-25 → 2026-05-29.
+# - Generator output (regenerated, overwritten):
+#     records.tsv               — 645 → 737 rows
+#     vibe-coding-record.md     — regenerated Markdown view
+#     public/doc/vibe-journal.html  — regenerated hosted page
+#     public/doc/vibe-journal.json  — regenerated flat JSON
+#
+# Generator categorisation counts after backfill:
+#   feature=474, fix=96, docs=59, copy=40, prompt-tune=33,
+#   refactor=20, test=9, infra=6, rework-flagged=64.
+
+
 
 # v0.61.244 (commit 457 / journal 445 / build 247) — operator
 # 29-05 '26 mid-morning, after merging v0.61.243: "do not fire
