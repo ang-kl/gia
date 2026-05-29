@@ -97,12 +97,23 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
           // v0.61.149 — only halal gets the special-mode grey-out;
           // every other chip stays full-opacity + togglable.
           const chipDisabled = specialModeActive && f.key === 'halal';
+          // v0.61.255 — operator: "For Halal button, use 'حلال' (bold)
+          // and remove both the mosque emoji + 'Halal' word, take note
+          // of the dark/light mode font". Display the Arabic glyph only;
+          // internal `halal` filter key + `filter.halal` i18n value
+          // stay unchanged so the search request + aria labels +
+          // combo-line render keep the Latin spelling.
+          const isHalal = f.key === 'halal';
           return (
             <span key={f.key} className={chipDisabled ? 'opacity-40 pointer-events-none' : ''}
               aria-disabled={chipDisabled || undefined}>
               <Chip active={!!filters[f.key]} onClick={() => toggle(f.key)}
                 ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}${chipDisabled ? ' — disabled in special mode' : ''}`}>
-                <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
+                {isHalal ? (
+                  <span lang="ar" dir="rtl" className="font-bold text-emerald-600">حلال</span>
+                ) : (
+                  <><span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}</>
+                )}
               </Chip>
             </span>
           );

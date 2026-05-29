@@ -48,9 +48,18 @@ export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCui
       ))}
       {filterChips.map((k) => {
         const label = tr(FILTER_KEYS[k].i18n, lang);
+        // v0.61.255 — operator: display Halal as Arabic 'حلال' (bold,
+        // emerald-600) in chip surfaces; keep the underlying filter
+        // key + i18n + removeLabel aria-text as 'Halal' so search
+        // behaviour and screen readers are unchanged.
+        const isHalal = k === 'halal';
         return (
           <ChipReadOnly key={'f-' + k} onRemove={() => onRemoveFilter(k)} removeLabel={`${removePrefix} ${label}`}>
-            <span className="mr-0.5" aria-hidden>{FILTER_KEYS[k].icon}</span>{label}
+            {isHalal ? (
+              <span lang="ar" dir="rtl" className="font-bold text-emerald-600">حلال</span>
+            ) : (
+              <><span className="mr-0.5" aria-hidden>{FILTER_KEYS[k].icon}</span>{label}</>
+            )}
           </ChipReadOnly>
         );
       })}

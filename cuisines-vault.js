@@ -138,6 +138,18 @@ const IMG_FLAG_BY_SLUG = {
   'durian': 'durian.jpeg'
 };
 
+// v0.61.255 — operator: *"Change the cuisine selection for 'Durian'
+// to 'Durian Fruits'"*. Display-name override keyed by slug. The
+// source file (doc/Feature/cuisines_js.MD) stays untouched per the
+// AU-1 accumulate-only rule — the rename happens at emit time only.
+// The slug remains `durian` so every downstream user (server search,
+// special-mode keys, i18n, tests) keeps working unchanged.
+// searchQuery + keywords also keep the original name for Places
+// query accuracy + fuzzy-match correctness.
+const DISPLAY_NAME_BY_SLUG = {
+  'durian': 'Durian Fruits'
+};
+
 // v0.59.2: regroup overlay. Source markdown (doc/Feature/cuisines_js.MD)
 // is left untouched per the doc/CLAUDE.md AU-1 accumulate-only rule;
 // the regrouping happens here as a post-parse remap. The original
@@ -267,6 +279,10 @@ function parseSource(text) {
         ? meta
         : (CATEGORY_META.find((c) => c.id === remappedId) || meta);
       const remappedLabel = CATEGORY_LABEL_OVERRIDE[remappedId] || label;
+      // v0.61.255 — display-name override (e.g. slug 'durian' → name
+      // 'Durian Fruits'). Falls through to the source `name` when no
+      // override is registered.
+      const displayName = DISPLAY_NAME_BY_SLUG[slug] || name;
       out.push({
         categoryId: remappedId,
         categoryLabel: remappedLabel,
@@ -277,7 +293,7 @@ function parseSource(text) {
         // would carry their source defaultOpen=true into the new
         // category, marking 6 of the 10 categories as defaultOpen.
         defaultOpen: remappedId === 'common-here',
-        name,
+        name: displayName,
         slug,
         flag: FLAG_BY_SLUG[slug] || '',
         // v0.61.142 — optional image-asset override. Cuisine
