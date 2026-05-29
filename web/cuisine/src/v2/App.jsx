@@ -1556,12 +1556,12 @@ export default function App() {
           📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
         </div>
       ) : (
-        /* v0.61.241 — extra top margin so the resting speech bubble
-           (rendered above the pill via `bottom-full` inside
-           LocationField) has room to overhang without colliding
-           with the region pill row above. ~28 px is the bubble's
-           overall height including its tail. */
-        <div className="mt-7">
+        /* v0.61.247 — reverted the v0.61.241 mt-7 wrapper (operator:
+           "don't have large UI spacing gaps between SG/JB/Others
+           button inside the Cuisine TMA"). The location-suffix
+           speech bubble was removed in this PR so the 28 px breathing
+           room is no longer needed; the region pill row sits tight
+           above the LocationField again. */
         <LocationField
           userLoc={userLoc}
           region={state.region}
@@ -1587,7 +1587,6 @@ export default function App() {
             saveCountryPref(code).catch(() => { /* non-fatal */ });
           }}
         />
-        </div>
       )}
 
       <MapPanel
