@@ -39,6 +39,24 @@ import { citiesForCountry } from '../lib/cities.js';
 // re-render, no server save) per the operator's "if the new
 // location set is same as current location, don't do anything"
 // instruction.
+// v0.61.268 — operator (29-05 '26 audit task, items #4 + #5):
+//   #4 — "if i click search without typing, select a focus point like
+//        Southkey." (AskUserQuestion → "Both Southkey + JB CBD as
+//        alternates" — toggle/swap chip)
+//   #5 — "if i select others, and the country and city isnt selected,
+//        revert back to the current location." (AskUserQuestion →
+//        "Both" first-paint AND explicit-clear cases)
+//
+// JB_FOCUS_POINTS: when the cuisine TMA region pill is on JB AND the
+// user has not explicitly anchored AND types nothing, tapping 🔍 fires
+// the search at the active focus point's coords. Default = Southkey
+// (operator's verbatim mention); JB CBD is the alternate, matches the
+// pre-v0.61.268 server-side default at index.js:12005.
+const JB_FOCUS_POINTS = {
+  southkey: { name: 'Mid Valley Southkey', lat: 1.4912, lng: 103.7665 },
+  cbd:      { name: 'JB CBD',              lat: 1.4927, lng: 103.7414 }
+};
+
 // v0.61.265 — operator (29-05 '26):
 //   "the location field box cannot be a country like singapore or
 //    malaysia. it has to be street number + building name +
@@ -87,6 +105,14 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  // v0.61.268 — operator #4: JB focus-point alternates. When the user
+  // is on the JB region pill with no anchor and no typed query and
+  // taps 🔍, search fires at JB_FOCUS_POINTS[jbFocusKey]. Default
+  // 'southkey' per the operator's verbatim wording; toggle to 'cbd'
+  // via the inline chip rendered below the compact pill (region === 'JB').
+  // Persistence: session-only — server sync deferred to a future PR
+  // if usage warrants it.
+  const [jbFocusKey, setJbFocusKey] = useState('southkey');
   const [suggestions, setSuggestions] = useState([]);
   // v0.59.12 (Codex review #216): track which query produced the
   // current suggestions array so the Enter handler can refuse to pick
@@ -273,6 +299,8 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   // v0.61.191 — OTHER region: branch to the dedicated picker that
   // uses country dropdown + free-text + confirmation list. The
   // SG/JB JSX below stays the same as v0.61.189.
+  // v0.61.268 — passes userLoc through so the picker's revert-to-GPS
+  // effect (operator #5) has GPS coords to emit on city-clear.
   if (region === 'OTHER') {
     return (
       <OtherLocationPicker
@@ -282,6 +310,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         anchor={anchor}
         suffix={suffix}
         onSearch={onSearch}
+        userLoc={userLoc}
       />
     );
   }
@@ -346,7 +375,22 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           ) : (
             <button
               type="button"
-              onClick={() => { clearIdleHint(); onSearch?.(); }}
+              onClick={() => {
+                clearIdleHint();
+                // v0.61.268 — operator #4: JB focus-point fallback.
+                // When the user is on JB region with no anchor and
+                // no typed query, anchor to JB_FOCUS_POINTS[jbFocusKey]
+                // before the search fires. Other regions and any
+                // anchored/pick-already state fall through to the
+                // existing onSearch wiring unchanged.
+                if (region === 'JB' && !anchorDiffers && !pickedLabel
+                    && !query.trim()) {
+                  const fp = JB_FOCUS_POINTS[jbFocusKey];
+                  onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name });
+                  return;
+                }
+                onSearch?.();
+              }}
               aria-label={tr('loc.searchHere', lang)}
               title={tr('loc.searchHere', lang)}
               className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
@@ -356,6 +400,33 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         {!open && suffix && (
           <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
             {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
+          </div>
+        )}
+        {/* v0.61.268 — operator #4: focus-point chip. Only renders when
+            the user is on JB region with no explicit anchor — i.e. the
+            fallback path is live. Two chips toggle jbFocusKey; toggling
+            does not fire a search, only updates which focus point the
+            🔍 button will use. */}
+        {!open && region === 'JB' && !anchorDiffers && !pickedLabel && (
+          <div className="text-[10px] text-tg-hint flex items-center gap-1.5 mt-0.5">
+            <span>{lang === 'fr' ? 'Défaut :' : 'Default focus:'}</span>
+            <button
+              type="button"
+              onClick={() => setJbFocusKey('southkey')}
+              aria-pressed={jbFocusKey === 'southkey'}
+              className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'southkey'
+                ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
+                : 'bg-tg-card text-tg-text border-tg-border'}`}
+            >Southkey</button>
+            <span>·</span>
+            <button
+              type="button"
+              onClick={() => setJbFocusKey('cbd')}
+              aria-pressed={jbFocusKey === 'cbd'}
+              className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'cbd'
+                ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
+                : 'bg-tg-card text-tg-text border-tg-border'}`}
+            >JB CBD</button>
           </div>
         )}
       </div>
@@ -431,7 +502,13 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 // 3-letter city code (BKK, KUL, TYO, …); open state lists every
 // city name with the code on the right. Scrollable (max-h-72)
 // so 15 Malaysia capitals fit on a phone viewport.
-function CityDropdown({ countryCode, value, onChange, ariaLabel }) {
+// v0.61.268 — operator #5: "if i select others, and the country and
+// city isnt selected, revert back to the current location." The
+// CityDropdown now renders a leading "— Clear —" row that emits an
+// empty value, telling OtherLocationPicker that the user intentionally
+// wants no city → revert to GPS. The clear row is suppressed when
+// `hideClearOption` is true (legacy callers that don't want it).
+function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption = false }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
   const list = citiesForCountry(countryCode);
@@ -470,6 +547,17 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel }) {
           role="listbox"
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[12rem] py-0.5"
         >
+          {/* v0.61.268 — "— Clear —" row emits '' so the OtherLocationPicker
+              can mark userClearedCity=true and revert the anchor to GPS. */}
+          {!hideClearOption && (
+            <li role="option" aria-selected={!current}>
+              <button
+                type="button"
+                onClick={() => pick('')}
+                className={`w-full text-left px-3 py-1.5 text-[13px] italic whitespace-nowrap text-tg-hint hover:bg-tg-bg focus:bg-tg-bg focus:outline-none border-b border-tg-border/40`}
+              >— Clear —</button>
+            </li>
+          )}
           {list.map((c) => {
             const sel = current && c.name === current.name;
             return (
@@ -614,9 +702,16 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 //     operator's #6 ("country and city but no street → centre of
 //     the city to search") still works: pick city → anchor at city
 //     centroid with noAutoFire; tap 🔍 → search at city centroid.
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch, userLoc }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
+  // v0.61.268 — operator #5: "if i select others, and the country and
+  // city isnt selected, revert back to the current location." When the
+  // user picks "— Clear —" in the city dropdown, this flag flips true
+  // and stays true until the country code mutates. The
+  // revert-to-GPS effect (further below) consumes it to emit
+  // onSelect({ lat: userLoc.lat, lng: userLoc.lng, label: '' }).
+  const [userClearedCity, setUserClearedCity] = useState(false);
   // v0.61.267 — JB-style autocomplete state. Suggestions stream in
   // on every keystroke; user picks a row → placeResolve → anchor.
   const [suggestions, setSuggestions] = useState([]);
@@ -685,6 +780,10 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   //   (c) the first cities.js entry (capital — only when there's no
   //       anchor at all)
   useEffect(() => {
+    // v0.61.268 — operator #5: when the user has explicitly cleared
+    // the city via "— Clear —", do NOT auto-re-pick. The cleared
+    // flag stays true until the country code mutates (reset below).
+    if (userClearedCity) return;
     const list = citiesForCountry(country.code);
     if (!list.length) { setCityPick(''); return; }
     // (a) anchor name matches a cities.js entry directly.
@@ -705,9 +804,45 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     }
     // (c) no anchor → capital (first entry).
     setCityPick(list[0].name);
-  }, [country.code, anchor?.name, anchor?.lat, anchor?.lng]);
+  }, [country.code, anchor?.name, anchor?.lat, anchor?.lng, userClearedCity]);
+  // v0.61.268 — reset userClearedCity on country flip so the auto-pick
+  // can run again for the newly-selected country. Operator's intent:
+  // "Clear" is scoped to the current country pick session.
+  useEffect(() => {
+    setUserClearedCity(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country.code]);
+  // v0.61.268 — revert-to-GPS effect. When the user has explicitly
+  // cleared the city AND device GPS is available, emit a revert
+  // pick so App.jsx onLocationSelect sees empty coords and clears
+  // locationAnchor. The condition also catches the defensive
+  // country.code === '__NONE__' sentinel (no UI currently sets it).
+  useEffect(() => {
+    const isCleared = cityPick === '' && userClearedCity;
+    const isNoneCountry = country.code === '__NONE__';
+    if (!isCleared && !isNoneCountry) return;
+    if (!userLoc || !Number.isFinite(userLoc.lat) || !Number.isFinite(userLoc.lng)) return;
+    onSelect?.({
+      lat: userLoc.lat,
+      lng: userLoc.lng,
+      label: '',
+      noAutoFire: true
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cityPick, userClearedCity, country.code, userLoc?.lat, userLoc?.lng]);
   function onCityPick(name) {
-    if (!name) { setCityPick(''); return; }
+    if (!name) {
+      // v0.61.268 — operator #5: "— Clear —" selection. Mark the
+      // city as user-cleared so the auto-pick effect above won't
+      // re-pick on the next render, and so the revert-to-GPS
+      // effect can detect the explicit-clear condition.
+      setCityPick('');
+      setUserClearedCity(true);
+      setQuery('');
+      setSuggestions([]);
+      setSuggestionsQuery('');
+      return;
+    }
     setCityPick(name);
     const list = citiesForCountry(country.code);
     const hit = list.find((c) => c.name === name);

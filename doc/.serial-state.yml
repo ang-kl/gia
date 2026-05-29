@@ -1,8 +1,8 @@
 counters:
-  commit: 480
-  build: 270
+  commit: 481
+  build: 271
   documents:
-    journal: 468
+    journal: 469
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,11 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 27
-last_anchor_time: 29-05 '26 20:45 SGT
-last_anchor_source: derived_from_v0_61_266_pr_open (PR #772 opened ~19:35 SGT; v0.61.267 OTHER-autocomplete refactor built ~70 min later)
-last_anchor_iso8601: 2026-05-29T20:45:00+08:00
-last_anchor_utc: 2026-05-29T12:45:00Z
+  current_chat_counter: 28
+last_anchor_time: 29-05 '26 21:00 SGT
+last_anchor_source: derived_from_v0_61_267_merge (PR #773 merged 2026-05-29T12:49:52Z = ~20:49 SGT; v0.61.268 location deferred-items built ~10 min later)
+last_anchor_iso8601: 2026-05-29T21:00:00+08:00
+last_anchor_utc: 2026-05-29T13:00:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
