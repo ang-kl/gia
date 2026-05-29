@@ -23,6 +23,8 @@ import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 import { citiesForCountry } from '../cities.js';
+// v0.61.269 — shared autocomplete helpers (mirrors Cuisine TMA).
+import { placeAutocomplete, placeResolve } from '../api.js';
 
 // v0.61.208 — same custom-dropdown pattern as the Cuisine TMA's
 // LocationField (closed = "<flag> <CC>", open = "<flag> <Name>").
@@ -287,12 +289,17 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   const [acOpen, setAcOpen] = useState(false);
   // v0.61.192 — OTHER-region country picker. countryPref is the
   // ISO 3166-1 alpha-2 code the user picked in the flag dropdown
-  // (defaults to MY). otherResults is the 5-row confirmation list
-  // returned by /api/cuisine/place-search-by-country.
+  // (defaults to MY).
+  // v0.61.269 — replaced the v0.61.192 placeSearchByCountry path with
+  // JB-style autocomplete-on-keystroke: otherSuggestions stream in
+  // every 250 ms while the user types, picking a row calls
+  // placeResolve → postSetLocation. otherResults/otherSearching/
+  // otherNoMatch state is gone.
   const [countryPref, setCountryPref] = useState(DEFAULT_OTHER_COUNTRY);
-  const [otherResults, setOtherResults] = useState([]);
-  const [otherSearching, setOtherSearching] = useState(false);
-  const [otherNoMatch, setOtherNoMatch] = useState(false);
+  const [otherSuggestions, setOtherSuggestions] = useState([]);
+  const [otherSuggestionsQuery, setOtherSuggestionsQuery] = useState('');
+  const [otherLoading, setOtherLoading] = useState(false);
+  const otherDebounceRef = useRef(null);
   // v0.61.226 — child city dropdown. Mirrors countryPref; cleared
   // whenever the country changes. When the user picks a city, the
   // form set-locations to that city's centroid directly (skips the
@@ -488,74 +495,72 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     // region === 'OTHER' — keep whatever the user explicitly picked.
   }, [currentAnchor?.region]);
 
-  // v0.61.192 — OTHER-region search. Calls the v0.61.191
-  // /api/cuisine/place-search-by-country endpoint with the
-  // selected country code; renders top 5 in a confirmation panel.
-  // Tap a row → postSetLocation with the picked lat/lng/label (no
-  // server-side geocode round-trip needed).
-  async function onOtherSearch(e) {
-    e?.preventDefault?.();
+  // v0.61.269 — OTHER autocomplete. Mirrors the Cuisine TMA's
+  // v0.61.267 OtherLocationPicker: debounced 250 ms placeAutocomplete
+  // on every keystroke, with the city centroid as the location bias
+  // and countryPref as the country filter. Picking a suggestion
+  // calls placeResolve → postSetLocation.
+  useEffect(() => {
     const text = textValue.trim();
-    if (text.length < 2) return;
-    const w = tg();
-    if (!w) { setErrorMsg(t('location.setErr', lang)); return; }
-    setOtherSearching(true); setOtherNoMatch(false); setOtherResults([]); setErrorMsg('');
+    if (text.length < 2 || busy || countryPref === 'SG') {
+      setOtherSuggestions([]); setOtherSuggestionsQuery('');
+      return;
+    }
+    if (otherDebounceRef.current) clearTimeout(otherDebounceRef.current);
+    // v0.61.269 — city centroid for the bias circle. Falls back to
+    // currentAnchor coords, then undefined (server treats absence as
+    // "country-wide search, no location bias").
+    const list = citiesForCountry(countryPref);
+    const cityHit = cityPick ? list.find((c) => c.name === cityPick) : null;
+    const biasLat = cityHit?.lat ?? currentAnchor?.lat ?? null;
+    const biasLng = cityHit?.lng ?? currentAnchor?.lng ?? null;
+    otherDebounceRef.current = setTimeout(async () => {
+      setOtherLoading(true);
+      try {
+        const r = await placeAutocomplete({
+          input: text,
+          lat: biasLat || undefined,
+          lng: biasLng || undefined,
+          countryCode: countryPref
+        });
+        setOtherSuggestions(Array.isArray(r?.suggestions) ? r.suggestions : []);
+        setOtherSuggestionsQuery(text);
+      } catch {
+        setOtherSuggestions([]); setOtherSuggestionsQuery('');
+      } finally { setOtherLoading(false); }
+    }, 250);
+    return () => otherDebounceRef.current && clearTimeout(otherDebounceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textValue, cityPick, countryPref, busy]);
+
+  // v0.61.269 — pick a suggestion → placeResolve → postSetLocation.
+  // Mirrors the Cuisine TMA's handlePick in OtherLocationPicker.
+  // Label resolution: _safeLabel filters 'Unnamed' / country-only
+  // (operator's v0.61.265 contract).
+  async function handlePickOther(s) {
+    setOtherSuggestions([]); setOtherSuggestionsQuery('');
     try {
-      // v0.61.199 — was: `res.ok ? res.json() : null` then treat null
-      // as "noMatch", which made HTTP 502 look identical to a clean
-      // zero-results response. Now distinguish: !res.ok → throw a
-      // typed error so the user sees a real failure message instead
-      // of "No match in Malaysia".
-      const res = await fetch('/api/cuisine/place-search-by-country', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: text, countryCode: countryPref, initData: w.initData || '' })
+      const r = await placeResolve({ placeId: s.placeId });
+      if (r?.lat == null || r?.lng == null) return;
+      const rawLabel = r.name || s.primaryText || '';
+      const labelOut = _safeLabel(rawLabel, s.secondaryText, textValue.trim())
+        || 'Pinned location';
+      const body = await postSetLocation({
+        lat: r.lat, lng: r.lng, label: labelOut, country: countryPref
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const r = await res.json();
-      const arr = Array.isArray(r?.results) ? r.results : [];
-      if (arr.length === 0) setOtherNoMatch(true);
-      setOtherResults(arr);
+      if (body?.ok) { setTextValue(''); setExpanded(false); }
     } catch (err) {
-      const raw = err?.message || String(err);
-      const countryName = findCountry(countryPref)?.name || countryPref;
-      const friendly = lang === 'fr'
-        ? `Recherche dans ${countryName} impossible. Réessayez ou changez de pays. (${raw})`
-        : `Couldn't search ${countryName}. Try again or pick a different country. (${raw})`;
-      setErrorMsg(friendly);
-    } finally {
-      setOtherSearching(false);
+      console.warn('[LocationFieldMenu] handlePickOther failed:', err.message);
     }
   }
 
-  function pickOtherResult(r) {
-    // v0.61.256 — operator (image 3): "Anchored at **Unnamed**" surfaced
-    // after a place pick. Root cause: when Places has no displayName,
-    // index.js /api/cuisine/place-search-by-country fills primaryText
-    // with the literal string 'Unnamed' (see line ~12055 / 12098). That
-    // string then gets POSTed as the anchor `label` here, persisted to
-    // Redis, and read back by every TMA. Guard at this seam: prefer
-    // r.secondaryText (the full formatted address) when primaryText is
-    // missing or the literal 'Unnamed' fallback; falls through to
-    // r.primaryText as last resort so we never persist 'Unnamed'.
-    // v0.61.265 — also strip bare country names (Singapore / Malaysia
-    // / …) so they never persist as the anchor label. Server-side
-    // fix lives in smart-place-label.js + the route fallback chain.
-    const labelOut = _safeLabel(r.primaryText, r.secondaryText, textValue.trim())
-      || 'Pinned location';
-    postSetLocation({ lat: r.lat, lng: r.lng, label: labelOut, country: countryPref })
-      .then((body) => {
-        if (body?.ok) {
-          setTextValue('');
-          setOtherResults([]);
-          setOtherNoMatch(false);
-          setExpanded(false);
-        }
-      });
-  }
-
-  function cancelOtherSearch() {
-    setOtherResults([]); setOtherNoMatch(false); setErrorMsg('');
+  function handleKeyOther(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (otherLoading) return;
+    if (otherSuggestions.length === 0) return;
+    if (otherSuggestionsQuery !== textValue.trim()) return;
+    handlePickOther(otherSuggestions[0]);
   }
 
   function onTextSubmit(e) {
@@ -770,19 +775,17 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               kept (Cuisine TMA value). The 🔍 button is now a bare
               text-tg-accent icon (Cuisine TMA style) — no background
               fill — so it doesn't visually compete with the dropdowns. */}
-          <form onSubmit={onOtherSearch} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-            {/* v0.61.208 — custom dropdown (open: flag + full name,
-                closed: flag + CC). Mirrors Cuisine TMA. */}
+          {/* v0.61.269 — autocomplete-on-keystroke. Mirrors the
+              Cuisine TMA's v0.61.267 OtherLocationPicker. The form
+              wrapper + 🔍 button + results panel are gone; the input
+              streams suggestions every 250 ms and a click on a
+              suggestion row commits the anchor. */}
+          <div className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
             <CountryDropdownMenu
               value={countryPref}
               onChange={(code) => updateCountryPref(code)}
               ariaLabel={t('loc.other.country', lang)}
             />
-            {/* v0.61.233 — cascading child city dropdown. Closed
-                state shows the 3-letter city code (BKK / KUL / …);
-                open state lists every full name with the code on
-                the right and scrolls (max-h-72). Narrow closed-state
-                leaves the free-text input usable. */}
             <CityDropdownMenu
               countryCode={countryPref}
               value={cityPick}
@@ -793,63 +796,47 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               type="text"
               value={textValue}
               onChange={(e) => setTextValue(e.target.value)}
+              onKeyDown={handleKeyOther}
+              enterKeyHint="search"
               placeholder={t('loc.other.placeholder', lang)}
-              disabled={busy || otherSearching}
+              disabled={busy}
               autoComplete="off"
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
             />
-            <button
-              type="submit"
-              disabled={busy || otherSearching || textValue.trim().length < 2}
-              className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
-              aria-label={t('loc.other.searchBtn', lang)}
-            >{otherSearching ? '…' : '🔍'}</button>
-          </form>
-          {otherSearching && (
-            <div className="text-[11px] text-tg-hint italic">
-              {t('loc.other.searching', lang).replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
-            </div>
-          )}
-          {otherNoMatch && (
-            <div className="text-[11px] text-tg-hint italic">
-              {t('loc.other.noMatch', lang).replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
-            </div>
-          )}
-          {otherResults.length > 0 && (
+            {otherLoading && <span className="text-tg-hint text-xs">…</span>}
+            <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+          </div>
+          {/* v0.61.269 — autocomplete suggestions popover. Mirrors the
+              Cuisine TMA OtherLocationPicker dropdown. */}
+          {otherSuggestions.length > 0 && (
             <div className="rounded border border-tg-border bg-tg-bg overflow-hidden">
-              <div className="px-2 py-1 text-[11px] text-tg-hint font-semibold border-b border-tg-border bg-tg-card">
-                {t('loc.other.confirmHeader', lang)
-                  .replace('{flag}', (findCountry(countryPref) || {}).flag || '')
-                  .replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
-              </div>
-              {otherResults.map((r) => {
-                // v0.61.265 — never show literal 'Unnamed' or a bare
-                // country name in the result row; fall back to
-                // secondaryText / user-typed query.
-                const primaryDisplay = _safeLabel(r.primaryText, r.secondaryText, textValue.trim())
-                  || 'Pinned location';
+              {otherSuggestions.map((s, i) => {
+                const primaryDisplay = _safeLabel(s.primaryText, s.secondaryText, textValue.trim())
+                  || s.primaryText;
                 return (
-                <button
-                  key={r.placeId}
-                  type="button"
-                  onClick={() => pickOtherResult(r)}
-                  disabled={busy}
-                  className="block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0"
-                >
-                  <div className="text-tg-text">{primaryDisplay}</div>
-                  {r.secondaryText && r.secondaryText !== primaryDisplay && (
-                    <div className="text-[11px] text-tg-hint">{r.secondaryText}</div>
-                  )}
-                </button>
+                  <button
+                    key={s.placeId}
+                    type="button"
+                    aria-selected={i === 0}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handlePickOther(s)}
+                    disabled={busy}
+                    className={`block w-full text-left px-2 py-1.5 text-[12px] hover:bg-tg-card border-b border-tg-border/40 last:border-b-0 ${i === 0 ? 'bg-tg-card/50' : ''}`}
+                  >
+                    <div className="text-tg-text">{primaryDisplay}</div>
+                    {s.secondaryText && s.secondaryText !== primaryDisplay && (
+                      <div className="text-[11px] text-tg-hint">{s.secondaryText}</div>
+                    )}
+                  </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={cancelOtherSearch}
-                className="block w-full text-left px-2 py-1 text-[11px] text-tg-hint italic bg-tg-card"
-              >
-                {t('loc.other.cancel', lang)}
-              </button>
+            </div>
+          )}
+          {!otherLoading && textValue.trim().length >= 2
+            && otherSuggestions.length === 0
+            && otherSuggestionsQuery === textValue.trim() && (
+            <div className="text-[11px] text-tg-hint italic">
+              {t('loc.other.noMatch', lang).replace('{country}', (findCountry(countryPref) || {}).name || countryPref)}
             </div>
           )}
         </>

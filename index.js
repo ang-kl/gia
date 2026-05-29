@@ -12366,6 +12366,13 @@ async function cacheBotUsername() {
         if (!text || text.length < 2 || text.length > 200) {
           return res.status(400).json({ error: 'input (2-200 chars) required' });
         }
+        // v0.61.269 — DEPRECATED. Both cuisine + menu TMAs now use
+        // /api/cuisine/place-autocomplete (v0.61.267 + v0.61.269).
+        // This endpoint stays alive for now so any pre-v0.61.269
+        // cached TMA bundle keeps working until users reload. The
+        // warning surfaces in prod logs so we can confirm zero
+        // non-deprecated callers before the v0.61.270 deletion PR.
+        console.warn(`[place-search-by-country] DEPRECATED v0.61.269 — caller cc=${countryCode || '?'} input="${text.slice(0, 40)}"`);
         const cc = typeof countryCode === 'string' ? countryCode.toUpperCase() : '';
         if (!OTHER_COUNTRY_CODES.has(cc)) {
           return res.status(400).json({ error: 'countryCode must be one of the 16 OTHER countries' });
