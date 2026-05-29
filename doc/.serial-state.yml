@@ -1,8 +1,8 @@
 counters:
-  commit: 474
-  build: 264
+  commit: 475
+  build: 265
   documents:
-    journal: 462
+    journal: 463
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,70 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 21
-last_anchor_time: 29-05 '26 17:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_260 (PR #765 merged 2026-05-29T08:33:42Z = 16:33 SGT; v0.61.261 data PR built ~40 min later)
-last_anchor_iso8601: 2026-05-29T17:15:00+08:00
-last_anchor_utc: 2026-05-29T09:15:00Z
+  current_chat_counter: 22
+last_anchor_time: 29-05 '26 17:30 SGT
+last_anchor_source: pr_progress_v0_61_261 (PR #766 still open; v0.61.262 recall + recency expansion built minutes later)
+last_anchor_iso8601: 2026-05-29T17:30:00+08:00
+last_anchor_utc: 2026-05-29T09:30:00Z
+
+# v0.61.262 (commit 475 / journal 463 / build 265) — operator
+# 29-05 '26 17:00 SGT, post-baseline:
+#   "too low, we should have 95% accuracy. people doesn't like 3/10
+#    are wrong. did you accurately check reviews (last 24 months)
+#    as durian are seasonal."
+#   "i expect durian pastry, durian cakes, durian dessert, durian
+#    drinks, durian snacks of such eateries to be in thousands
+#    across singapore and malaysia."
+#   "durians fruit stalls are fewer but during seasonal, they are
+#    many - so when are the seasonal. like now is seasonal until
+#    July or beginning August and then mid-november to december."
+#
+# Three structural changes target the v0.61.261 recall + precision
+# gap (70.6% baseline → headed for 90%+):
+#
+# 1) special-mode.js — restaurant family (restaurant / asian_
+#    restaurant / chinese_restaurant / diner) added to
+#    ACCEPT_PRIMARY_TYPES_DURIAN AND STRICT_NAME_TYPES_DURIAN.
+#    They pass DURIAN mode only when name contains durian. Catches
+#    the 15 false negatives from the variance run ("皇后镇榴莲档
+#    Durian Stall" asian_restaurant; "Durian Power Food Stall"
+#    chinese_restaurant; "Gerai Durian Kubur Cina" restaurant;
+#    "榴心花园 DuriYen Garden - Durian Store TRX" restaurant).
+#    Cuisine-specific restaurants (italian_/japanese_/french_/
+#    sushi_/etc.) remain OUT of accept → "Durian Pasta Bistro" +
+#    "Sushi & Durian Buffet" still reject.
+#
+# 2) special-mode.js — RECENCY-FILTERED REVIEW signal. Adds
+#    _countRecentDurianMentions (24-month window, requires
+#    reviews[].publishTime field) + canonical-for-reviews sets
+#    (DURIAN: fruit_and_vegetable_store / produce_market /
+#    wholesaler / food_store; DURIAN_PASTRY: bakery / cake_shop /
+#    pastry_shop / dessert_shop / dessert_restaurant /
+#    ice_cream_shop). When pt is canonical AND ≥2 recent durian
+#    mentions, accept. Catches variety-named shops ("Mao Shan
+#    Wang Stall" with no durian in name but multiple recent
+#    durian reviews). Operator's seasonal context: 24-month
+#    window covers 2 peak seasons (May-Jul/Aug + Nov-Dec).
+#
+# 3) durian-variance-runner.js — coverage expansion. pageSize 8 →
+#    20 (Places' searchText per-page max); RADIUS_M 8 km → 25 km
+#    (suburban venues now in scope); MAX_PAGES 1 → 3 (pagination
+#    via nextPageToken, ~60 results per query cap). DURIAN_PASTRY
+#    seeds widened to include durian shake / smoothie / ice cream
+#    / mochi / kueh / kuih / pancake / tart per the operator's
+#    "drinks / snacks / thousands" framing. placeToVenue now
+#    captures reviews[].publishTime + rating so the recency
+#    filter has data to work on.
+#
+# Cost note: per-mode call count grows by ~3x (pagination) ×
+# slightly wider seed set. Estimated ~$1.20-1.60 USD per mode now,
+# ~$3 USD total for /ver dv:go-both. Still pre-approved per the
+# v0.61.260 G4.
+#
+# Tests: 8 new + 4 reworked assertions, 189/189 in special-mode.test.js;
+# full suite 97 files / 2738 tests green.
+
+
 
 # v0.61.261 (commit 474 / journal 462 / build 264) — operator
 # 29-05 '26: operator ran the v0.61.260 /ver flow and posted the
