@@ -1,8 +1,8 @@
 counters:
-  commit: 470
-  build: 260
+  commit: 471
+  build: 261
   documents:
-    journal: 458
+    journal: 459
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,43 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 17
-last_anchor_time: 29-05 '26 16:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_256 (PR #760 merged 2026-05-29T07:45:09Z = 15:45 SGT; v0.61.257 durian-precision PR built ~15 min later)
-last_anchor_iso8601: 2026-05-29T16:00:00+08:00
-last_anchor_utc: 2026-05-29T08:00:00Z
+  current_chat_counter: 18
+last_anchor_time: 29-05 '26 16:20 SGT
+last_anchor_source: pr_progress_v0_61_257 (PR #761 v0.61.257 durian-precision still open at build time; v0.61.258 adds JSON output to durian-variance.js)
+last_anchor_iso8601: 2026-05-29T16:20:00+08:00
+last_anchor_utc: 2026-05-29T08:20:00Z
+
+# v0.61.258 (commit 471 / journal 459 / build 261) — operator
+# 29-05 '26 afternoon: "is the full test on durian and durian
+# pastry in a table or json" → answer: neither. "i want you to
+# run and store in the json output" → adds --json + --json-out
+# flags to scripts/durian-variance.js so the operator can run it
+# locally and commit the structured output.
+#
+# scripts/durian-variance.js changes:
+# - Two new CLI flags: --json (also dump to stdout) +
+#   --json-out=PATH (write to disk, mkdir -p the parent).
+# - REGIONS gains Kuala Lumpur (3.1390, 101.6869) as a 4th city
+#   so the run covers all four locations the operator's <20%
+#   accuracy complaint named.
+# - Per-query record carries: lang, query, placesReturned,
+#   keptCount, rejectedCount, precision, kept[], rejected[]
+#   (each row has name + primaryType + formattedAddress).
+# - Per-region totals + primaryTypeFrequency Map.
+# - Cross-region rollup: totals + per-region precision printout
+#   at the end of the run.
+# - JSON schema: { schemaVersion:1, scriptVersion, mode,
+#   ranAtIso, apiKey:{hashSha256First16}, regions:[{name,
+#   countryCode, lat, lng, queries, primaryTypeFrequency,
+#   totals}], seeds, config, totals }.
+#
+# Cost estimate (4 regions × 12 langs × 3-4 seeds): ~120-160
+# Places searchText calls per mode → ~$0.40-0.55 USD per mode.
+#
+# Operator will run locally (Path B) with their key + commit
+# the JSON output as a follow-up after the script PR merges.
+
+
 
 # v0.61.257 (commit 470 / journal 458 / build 260) — operator
 # 29-05 '26: "Have you tested on the durian fruits and durian
