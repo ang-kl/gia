@@ -494,6 +494,18 @@ export default function App() {
           // show the Putrajaya flag PNG when the anchor is IOI Resort
           // City (other OTHER anchors stay on 🌏).
           if (r.precinctId) setAnchorPrecinctId(r.precinctId);
+          // v0.61.270 — Phase 2 SSOT: sync state.countryPref from the
+          // cached anchor's `country` field (now surfaced by /api/
+          // cuisine/user-location since v0.61.270). Closes the
+          // round-trip: Menu TMA picks Thailand → Cuisine TMA's OTHER
+          // picker opens on TH the next time the user expands it,
+          // not the stale state.countryPref default. Only flips when
+          // we're effectively in OTHER mode, so SG/JB region pills
+          // don't fight the seeding.
+          if (r.country && (r.region === 'OTHER' || r.region === 'MY-PUT')) {
+            setState((s) => (s.countryPref === r.country ? s : { ...s, countryPref: r.country }));
+            console.log('[Cuisine-TMA-v2] tryServerCache: countryPref → ' + r.country);
+          }
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }
@@ -666,7 +678,13 @@ export default function App() {
         // v0.61.205 — keep precinctId in sync with the server cache
         // so the OTHER pill's flag swaps to Putrajaya when relevant.
         setAnchorPrecinctId(r.precinctId || null);
-        console.log('[Cuisine-TMA-v2] visibility-refresh: region=' + r.region + ' precinctId=' + (r.precinctId || '<none>'));
+        // v0.61.270 — mirror tryServerCache's countryPref sync on
+        // the visibility-restore path. User flips to Menu TMA, picks
+        // Thailand, flips back to Cuisine TMA → countryPref tracks.
+        if (r.country && (r.region === 'OTHER' || r.region === 'MY-PUT')) {
+          setState((s) => (s.countryPref === r.country ? s : { ...s, countryPref: r.country }));
+        }
+        console.log('[Cuisine-TMA-v2] visibility-refresh: region=' + r.region + ' country=' + (r.country || '<none>') + ' precinctId=' + (r.precinctId || '<none>'));
       } catch { /* defensive: network blip shouldn't crash the listener */ }
     }
     if (typeof document !== 'undefined') {
@@ -1498,7 +1516,22 @@ export default function App() {
       // An explicit pick (not a "× clear", which sends an empty label)
       // also updates the bot's /location cache so it sticks across
       // sessions and in chat.
-      if ((p.label || '').trim()) saveUserLocation({ lat: p.lat, lng: p.lng }).catch(() => {});
+      // v0.61.270 — Phase 2 SSOT: forward the full payload to
+      // /api/cuisine/set-location (route v0.61.270 brings it to
+      // parity with /api/menu/set-location). The Menu TMA will now
+      // see the cuisine pick's label/region/country on its next
+      // /api/cuisine/user-location read. The state.region tag is
+      // passed through so chat /location and the Menu TMA pick up
+      // the cuisine-side region flip too.
+      if ((p.label || '').trim()) {
+        saveUserLocation({
+          lat: p.lat,
+          lng: p.lng,
+          label: p.label,
+          region: state.region,
+          country: (state.region === 'OTHER' && state.countryPref) ? state.countryPref : undefined
+        }).catch(() => {});
+      }
       // v0.61.237 — auto-fire the search with the explicit new anchor.
       // Microtask deferral so the locationAnchor + searchCenter state
       // updates have committed before runSearch reads `state`.
