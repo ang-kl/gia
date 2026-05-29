@@ -1,8 +1,8 @@
 counters:
-  commit: 469
-  build: 259
+  commit: 470
+  build: 260
   documents:
-    journal: 457
+    journal: 458
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,56 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 16
-last_anchor_time: 29-05 '26 15:40 SGT
-last_anchor_source: pr_progress_v0_61_255 (PR #758 v0.61.255 halal+durian still open at build time; v0.61.256 picker-bugfix bundled the 3 image issues)
-last_anchor_iso8601: 2026-05-29T15:40:00+08:00
-last_anchor_utc: 2026-05-29T07:40:00Z
+  current_chat_counter: 17
+last_anchor_time: 29-05 '26 16:00 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_256 (PR #760 merged 2026-05-29T07:45:09Z = 15:45 SGT; v0.61.257 durian-precision PR built ~15 min later)
+last_anchor_iso8601: 2026-05-29T16:00:00+08:00
+last_anchor_utc: 2026-05-29T08:00:00Z
+
+# v0.61.257 (commit 470 / journal 458 / build 260) — operator
+# 29-05 '26: "Have you tested on the durian fruits and durian
+# pastry, I am getting less than 20% right for each results in
+# singapore, johor bahru, Kuala Lumpur, Putrajaya."
+#
+# Special-mode precision tightening for DURIAN + DURIAN_PASTRY:
+#
+# 1) STRONG-haystack-only keyword check (Durian + Durian Pastry).
+#    The v0.61.229 _haystack() joins name + area + formattedAddress
+#    + primaryType + googleSummary.overview + ALL review.text. A
+#    single review mentioning "durian" let any cafe/bakery pass —
+#    the dominant false-positive source identified from the
+#    operator's <20% accuracy report. New _strongHaystack() drops
+#    googleSummary + reviews; FRUITS keeps the full haystack (its
+#    test suite pins googleSummary + reviews matching).
+#
+# 2) STRICT_NAME_TYPES gate. v0.61.235 added broad accept types
+#    (food, store, market, farm, garden, coffee_shop,
+#    grocery_store, …) to catch durian sellers Places mis-typed.
+#    Those types now require the venue NAME to contain a durian
+#    keyword ("durian" / "榴莲" / "榴梿"). "99 Old Trees Durian"
+#    and "Hey!Durian 榴莲说" still pass — their names signal
+#    durian — but a generic 'food'-typed cafe with no durian in
+#    name no longer passes. Same gate for DURIAN_PASTRY against
+#    its broad types (food, restaurant, meal_delivery,
+#    snack_bar, grocery_store, food_court, hawker_centre).
+#
+# Trade-offs:
+# - A real durian shop whose name is a VARIETY only (e.g. "Mao
+#   Shan Wang Stall") with primaryType=food now misses — but
+#   already missed under v0.61.229 (variety names are extraction-
+#   only, see __tests__/special-mode.test.js v0.61.229 REGRESSION
+#   block).
+# - Canonical durian types (fruit_and_vegetable_store,
+#   produce_market, fruit_parlor, food_market, fresh_fruit_store,
+#   wholesaler) still pass via the standard haystack check — area
+#   or address mentioning durian still works for these.
+#
+# Tests: 8 new __tests__/special-mode.test.js assertions
+# documenting both the rejection cases (review-only mentions
+# rejected) and the kept cases ("99 Old Trees Durian" still
+# passes). All 31 file tests pass locally.
+
+
 
 # v0.61.256 (commit 469 / journal 457 / build 259) — operator
 # 29-05 '26 afternoon: operator sent 3 screenshots showing Menu/
