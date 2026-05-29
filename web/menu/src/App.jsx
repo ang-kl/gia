@@ -8,6 +8,7 @@ import { tg } from './tg.js';
 import { t, useLocale } from './i18n.js';
 import { IATA_CITIES, nearestIataCity } from './iata-cities.js';
 import { OTHER_COUNTRIES } from './countries.js';
+import { CITIES_BY_COUNTRY } from './cities.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -271,6 +272,34 @@ export default function App() {
         console.log(`[Menu-TMA] auto-detect: detected ${detected.iata}/${detected.countryCode} not in Menu TMA's country list; skip`);
         return;
       }
+      // v0.61.252 — operator: "My location is Malaysia, Putrajaya. I
+      // start the Menu TMA, it jump to Kuala LUmpur. this is wrong."
+      // Prefer a curated cities.js entry within 30 km of GPS over the
+      // IATA canonical name. KL metro's IATA name "Kuala Lumpur"
+      // covers KUL coords (3.14, 101.69) but the nearby cities.js
+      // entries (Putrajaya at 2.93, 101.70 ≈ 22 km; Shah Alam at
+      // 3.07, 101.52 ≈ 22 km; Seremban at 2.73, 101.94 ≈ 50 km) are
+      // the names the operator actually wants displayed.
+      let preferLabel = null;
+      const myList = (typeof CITIES_BY_COUNTRY !== 'undefined' ? CITIES_BY_COUNTRY[detected.countryCode] : null) || [];
+      let nearestCurated = null;
+      let nearestKm = Infinity;
+      for (const c of myList) {
+        const dLat = (c.lat - fresh.lat) * Math.PI / 180;
+        const dLng = (c.lng - fresh.lng) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(fresh.lat * Math.PI / 180) * Math.cos(c.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        if (km < nearestKm) { nearestKm = km; nearestCurated = c; }
+      }
+      if (nearestCurated && nearestKm < 30) {
+        preferLabel = nearestCurated.name;
+        console.log('[Menu-TMA] auto-detect: prefer curated cities.js entry',
+          preferLabel, `(${nearestKm.toFixed(1)} km)`,
+          'over IATA canonical', detected.name);
+      }
+      const labelOut = preferLabel
+        || (IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name);
+
       // POST set-location.
       try {
         const r = await fetch('/api/menu/set-location', {
@@ -279,7 +308,7 @@ export default function App() {
           body: JSON.stringify({
             lat: fresh.lat,
             lng: fresh.lng,
-            label: IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name,
+            label: labelOut,
             country: detected.countryCode,
             initData: w.initData || ''
           }),
