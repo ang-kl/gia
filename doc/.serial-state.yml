@@ -1,8 +1,8 @@
 counters:
-  commit: 458
-  build: 248
+  commit: 459
+  build: 249
   documents:
-    journal: 446
+    journal: 447
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,50 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 5
-last_anchor_time: 29-05 '26 11:00 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_244 (PR #747 merged 2026-05-29T02:19:31Z = 10:19 SGT; v0.61.245 VibeCoding catch-up built ~40 min later ≈ 11:00 SGT)
-last_anchor_iso8601: 2026-05-29T11:00:00+08:00
-last_anchor_utc: 2026-05-29T03:00:00Z
+  current_chat_counter: 6
+last_anchor_time: 29-05 '26 11:35 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_245 (PR #748 merged 2026-05-29T03:03:10Z = 11:03 SGT; v0.61.246 open-hours PR built ~30 min later ≈ 11:35 SGT)
+last_anchor_iso8601: 2026-05-29T11:35:00+08:00
+last_anchor_utc: 2026-05-29T03:35:00Z
+
+# v0.61.246 (commit 459 / journal 447 / build 249) — operator
+# 29-05 '26 morning: "if currently is open, state the closing time
+# like what time and next open (especially for resturants that have
+# fix lunch and dinner timing). Investigate."
+#
+# - open-hours.js — new `currentOpenString(periods, now)` sibling
+#   to the v0.61.219 `closedTodayString`. Algorithm:
+#     1. find the active period (now ∈ [open, close] in SGT,
+#        with midnight-crosser handling for both yesterday-into-
+#        today and today-into-tomorrow shapes)
+#     2. look for a same-day reopen later than the active period's
+#        close (the lunch+dinner split case)
+#     3. format:
+#        - lunch+dinner: "Open · Closes 3:00 PM · Reopens 6:00 PM"
+#        - single session: "Open · Closes 10:00 PM"
+#        - 24h: "Open · 24 hours"
+#        - crosses midnight to tomorrow: "Open · Closes Tue 2:00 AM"
+#     Returns null when periods is missing or now is outside any
+#     period (caller falls through to weekdayDescriptions / "Open").
+# - index.js (/api/cuisine/search & /api/cuisine/nl-query) — when
+#   openNow === true, attach `openClosingLabel = currentOpenString
+#   (regularPeriods)` to each venue payload, mirroring the existing
+#   closedTodayLabel hook for openNow === false.
+# - venue-templates.js formatHoursLine — prefer p.openClosingLabel
+#   when present (before the bare "Open now" fallback).
+# - web/cuisine/src/v2/components/ResultCard.jsx — when
+#   venue.openNow === true, surface venue.openClosingLabel as the
+#   "open" string; falls back to the old t('card.open') localised
+#   "Open now" when no label.
+# - web/cuisine/src/v2/components/ResultPanel.jsx — propagate the
+#   openClosingLabel field through the Copy-All / per-card data
+#   pipe so Copy-To-Chat carries the same line.
+# - __tests__/open-hours.test.js — 8 new tests for currentOpenString
+#   (null inputs, before-open, single session, lunch+dinner split,
+#   in-dinner-no-reopen, 24h, both midnight-crosser directions,
+#   three-session breakfast+lunch+dinner). All 23 file tests pass.
+
+
 
 # v0.61.245 (commit 458 / journal 446 / build 248) — operator
 # 29-05 '26 morning: "vibe-journal" → "backfill ~94 missing PRs

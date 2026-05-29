@@ -14391,10 +14391,15 @@ async function cacheBotUsername() {
         // for venues that are currently closed. Uses regularPeriods from
         // the Places field mask. nextOpenString returns null when periods
         // are missing, in which case the card falls back to plain "Closed".
-        const { closedTodayString } = require('./open-hours');
+        // v0.61.246 — also compute `openClosingLabel` for currently-open
+        // venues: "Open · Closes 3:00 PM · Reopens 6:00 PM" (split
+        // lunch+dinner) or "Open · Closes 10:00 PM" (single session).
+        const { closedTodayString, currentOpenString } = require('./open-hours');
         for (const v of top) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayString(v.regularPeriods);
+          } else if (v.openNow === true) {
+            v.openClosingLabel = currentOpenString(v.regularPeriods);
           }
           // v0.60.140 — restore the TMA result-card detail lines the
           // LLM-free /api/cuisine/search path was dropping: the cuisine
@@ -14855,12 +14860,15 @@ async function cacheBotUsername() {
           });
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
-        const { closedTodayString: closedTodayStringNL } = require('./open-hours');
+        // v0.61.246: open-now label too (mirrors /api/cuisine/search).
+        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         const topNL = venues.slice(0, 12);
         for (const v of topNL) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
+          } else if (v.openNow === true) {
+            v.openClosingLabel = currentOpenStringNL(v.regularPeriods);
           }
           delete v.regularPeriods;
         }

@@ -22,8 +22,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
     ? (lang === 'fr' ? `${venue.walkMinutes} min à pied` : `${venue.walkMinutes} min walk`)
     : '';
   // v0.58.55: localise Open / Closed.
+  // v0.61.246 — when the venue is currently open, prefer the
+  // server-attached openClosingLabel ("Open · Closes 3:00 PM ·
+  // Reopens 6:00 PM" from open-hours.js currentOpenString) over the
+  // bare "Open now" string — the operator wants to see the closing
+  // time AND the next reopen at a glance, especially for lunch/
+  // dinner-split restaurants.
   const open = venue.openNow === true
-    ? tr('card.open', lang)
+    ? (venue.openClosingLabel || tr('card.open', lang))
     : venue.openNow === false
       ? (venue.closedTodayLabel || tr('card.closed', lang))
       : '';
@@ -120,6 +126,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {} }) 
         priceLevel: venue.priceLevel,
         openNow: venue.openNow,
         closedTodayLabel: venue.closedTodayLabel,
+        openClosingLabel: venue.openClosingLabel,
         crowdLevel: venue.crowdLevel,
         weekdayDescriptions: venue.weekdayDescriptions,
         websiteUri: venue.websiteUri,

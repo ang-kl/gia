@@ -49,8 +49,16 @@ function sgtWeekday() {
 // Monday-first per their convention. If openNow is false and we have
 // a closedTodayLabel ("Closed today · Opens tomorrow 11:00 AM" from
 // open-hours.js v0.4 helper), prefer that — clearer for the user.
+// v0.61.246 — operator: "if currently is open, state the closing
+// time like what time and next open (especially for resturants that
+// have fix lunch and dinner timing)." When openNow is true and we
+// have a server-attached openClosingLabel ("Open · Closes 3:00 PM ·
+// Reopens 6:00 PM" from open-hours.js currentOpenString), surface
+// that as the primary line — the raw weekdayDescriptions string
+// makes the operator do the math themselves.
 function formatHoursLine(p, lang) {
   if (p.closedTodayLabel) return `🕰️ ${p.closedTodayLabel}`;
+  if (p.openClosingLabel) return `🕰️ ${p.openClosingLabel}`;
   // weekdayDescriptions is ordered Mon-Sun (Google convention) — JS
   // Date.getUTCDay() returns 0=Sun ... 6=Sat. Convert.
   const wd = Array.isArray(p.weekdayDescriptions) ? p.weekdayDescriptions : null;
