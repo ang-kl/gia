@@ -679,7 +679,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // box for johor and others until user fire". OTHER free-text
     // picks now set the anchor but the operator still presses 🔍
     // to fire. Matches v0.61.241 city-dropdown semantics.
-    onSelect?.({ lat: r.lat, lng: r.lng, label: r.primaryText, noAutoFire: true });
+    // v0.61.256 — operator (image 3 batch): the server's
+    // /api/cuisine/place-search-by-country fills primaryText with
+    // the literal string 'Unnamed' when Places has no displayName.
+    // Guard at this seam so we never persist that placeholder.
+    const labelOut = (r.primaryText && r.primaryText !== 'Unnamed')
+      ? r.primaryText
+      : (r.secondaryText || r.primaryText || 'Pinned location');
+    onSelect?.({ lat: r.lat, lng: r.lng, label: labelOut, noAutoFire: true });
     setResults([]); setQuery(''); setNoMatch(false);
     clearIdleHint();
     setExpanded(false); // v0.61.236 — collapse after a pick

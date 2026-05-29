@@ -852,6 +852,11 @@ export default function App() {
         } else {
           anchorName = IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name;
         }
+        // v0.61.256 — defensive: never let the literal 'Unnamed'
+        // placeholder string become the visible anchor name.
+        if (!anchorName || anchorName === 'Unnamed') {
+          anchorName = `${detected.countryCode || 'Pinned'} location`;
+        }
       }
       setLocationAnchor({ lat: target.lat, lng: target.lng, name: anchorName });
       setSearchCenter({ lat: target.lat, lng: target.lng });
