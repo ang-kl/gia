@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { placeAutocomplete, placeResolve, placeSearchByCountry, reverseGeocode } from '../lib/api.js';
+import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
 import { citiesForCountry } from '../lib/cities.js';
@@ -599,15 +599,34 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 // 🔍 Search button, then a 5-entry confirmation list returned by
 // /api/cuisine/place-search-by-country. No autocomplete dropdown
 // during typing (operator: "too many for a dropdown to be useful").
+//
+// v0.61.267 — operator: "can [Other], select {country +/- {city},
+// follow the same codes as Johor bahru." Refactored to use the
+// SAME autocomplete-on-keystroke flow as the SG/JB branch above:
+//   • debounced 250 ms placeAutocomplete with countryCode = country
+//     dropdown selection (server v0.61.267 accepts any 2-letter ISO).
+//   • locationBias.circle keyed on the city dropdown's centroid so
+//     "Pavilion" biased near KUL finds Pavilion KL, not Pavilion BKK.
+//   • Picking a suggestion calls placeResolve → onSelect, exactly
+//     like the JB handlePick. No more 🔍-button searchText step,
+//     no more 5-entry confirmation panel, no more placeSearchByCountry.
+//   • City pick keeps v0.61.241 commit-as-anchor semantics so the
+//     operator's #6 ("country and city but no street → centre of
+//     the city to search") still works: pick city → anchor at city
+//     centroid with noAutoFire; tap 🔍 → search at city centroid.
 function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);   // [{placeId, primaryText, secondaryText, lat, lng}, ...]
-  const [searching, setSearching] = useState(false);
+  // v0.61.267 — JB-style autocomplete state. Suggestions stream in
+  // on every keystroke; user picks a row → placeResolve → anchor.
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsQuery, setSuggestionsQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef(null);
   // v0.61.244 — 6 s idle reminder. Mirrors the SG/JB branch above.
   // Shows a small upward-pointing bubble next to the 🔍 button when
   // the user has typed something AND has been idle for 6 s without
-  // pressing 🔍. Dismissed on next keystroke, 🔍 tap, pick, or cancel.
+  // pressing 🔍. Dismissed on next keystroke, pick, or cancel.
   const [idleHintActive, setIdleHintActive] = useState(false);
   const idleTimerRef = useRef(null);
   function clearIdleHint() {
@@ -621,8 +640,6 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
     return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
   }, [query]);
-  const [noMatch, setNoMatch] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
   // v0.61.236 — collapsed/expanded toggle. Mirrors SG mode's resting
   // pill. When `anchor` is set, render a single-line "📍 {label} ·
@@ -635,8 +652,12 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // actually meaningful (not a stale country label, not the literal
   // 'Unnamed' placeholder). Otherwise the picker stays expanded so
   // the user can re-anchor cleanly.
+  // v0.61.267 — `results` state is gone; the autocomplete suggestions
+  // live inside the expanded form, not as a separate confirmation
+  // panel. Compact pill shows whenever the anchor is meaningful and
+  // the user hasn't tapped to expand.
   const showCompact = !!(anchor && anchor.name && !_isCountryOnly(anchor.name)
-    && anchor.name !== 'Unnamed') && !expanded && results.length === 0;
+    && anchor.name !== 'Unnamed') && !expanded;
   // v0.61.228 — child city dropdown. Mirrors v0.61.227 Menu TMA. The
   // cityPick value is reset whenever the country flips because each
   // country has its own catalogue. Picking a city sets the anchor
@@ -697,65 +718,88 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // skips the v0.61.237 Promise.resolve()→runSearch microtask. The
     // user must press 🔍 to fire.
     onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, noAutoFire: true });
-    setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
+    setQuery(''); setSuggestions([]); setSuggestionsQuery('');
     // v0.61.241 — keep cityPick set so the dropdown shows the picked
     // city code (e.g. "KUL") after collapse instead of reverting to
     // "— —". Previously we reset to '' which made the code disappear.
     setExpanded(false);
   }
 
-  async function doSearch() {
-    const text = query.trim();
-    if (text.length < 2) return;
-    clearIdleHint();
-    setSearching(true); setNoMatch(false); setErrorMsg(''); setResults([]);
-    try {
-      const r = await placeSearchByCountry({ input: text, countryCode: country.code });
-      const arr = Array.isArray(r?.results) ? r.results : [];
-      if (arr.length === 0) setNoMatch(true);
-      setResults(arr);
-    } catch (err) {
-      // v0.61.199 — operator log showed "HTTP 502" surfaced verbatim
-      // to the user, which is meaningless. Rewrite to a friendlier
-      // line so they know the anchor IS unchanged and what to try.
-      const raw = err?.message || String(err);
-      const friendly = lang === 'fr'
-        ? `Recherche dans ${country.name} impossible. Réessayez ou changez de pays. (${raw})`
-        : `Couldn't search ${country.name}. Try again or pick a different country. (${raw})`;
-      setErrorMsg(friendly);
-    } finally {
-      setSearching(false);
+  // v0.61.267 — city centroid for autocomplete bias. Mirrors the
+  // SG/JB branch's `lat/lng` arguments to placeAutocomplete — except
+  // here the bias point is the picked city, not the device GPS.
+  // Fall back to the anchor's lat/lng if no city is picked; falls
+  // through to undefined which the server treats as "no bias".
+  const list = citiesForCountry(country.code);
+  const cityHit = cityPick ? list.find((c) => c.name === cityPick) : null;
+  const biasLat = cityHit?.lat ?? anchor?.lat ?? null;
+  const biasLng = cityHit?.lng ?? anchor?.lng ?? null;
+
+  // v0.61.267 — debounced autocomplete on every keystroke. Mirrors
+  // the SG/JB branch's useEffect at the top of the file. The
+  // server (v0.61.267 /api/cuisine/place-autocomplete) accepts a
+  // 2-letter `countryCode` and uses it for both `regionCode` and
+  // `includedRegionCodes`.
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed || trimmed.length < 2) {
+      setSuggestions([]);
+      setSuggestionsQuery('');
+      return;
     }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const r = await placeAutocomplete({
+          input: trimmed,
+          lat: biasLat || undefined,
+          lng: biasLng || undefined,
+          countryCode: country.code
+        });
+        setSuggestions(r?.suggestions || []);
+        setSuggestionsQuery(trimmed);
+      } catch {
+        setSuggestions([]);
+        setSuggestionsQuery('');
+      } finally { setLoading(false); }
+    }, 250);
+    return () => debounceRef.current && clearTimeout(debounceRef.current);
+  }, [query, biasLat, biasLng, country.code]);
+
+  async function handlePick(s) {
+    setQuery('');
+    setSuggestions([]);
+    setSuggestionsQuery('');
+    clearIdleHint();
+    setLoading(true);
+    try {
+      const r = await placeResolve({ placeId: s.placeId });
+      if (r?.lat != null && r?.lng != null) {
+        // v0.61.265 — never persist 'Unnamed' or a bare country name
+        // as the anchor's label.
+        const rawLabel = r.name || s.primaryText || '';
+        const labelOut = _safeLabel(rawLabel, s.secondaryText, query.trim())
+          || 'Pinned location';
+        // v0.61.244 — OTHER picks set the anchor but wait for the
+        // user to press 🔍 on the compact pill to fire the search.
+        // Matches the v0.61.241 city-dropdown semantics.
+        onSelect?.({ lat: r.lat, lng: r.lng, label: labelOut, noAutoFire: true });
+        setExpanded(false);
+      }
+    } catch (err) {
+      console.warn('[OtherLocationPicker] resolve failed:', err.message);
+    } finally { setLoading(false); }
   }
 
   function handleKey(e) {
-    if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
-  }
-
-  function pickResult(r) {
-    // v0.61.244 — operator: "do not fire search from the location
-    // box for johor and others until user fire". OTHER free-text
-    // picks now set the anchor but the operator still presses 🔍
-    // to fire. Matches v0.61.241 city-dropdown semantics.
-    // v0.61.256 — operator (image 3 batch): the server's
-    // /api/cuisine/place-search-by-country fills primaryText with
-    // the literal string 'Unnamed' when Places has no displayName.
-    // v0.61.265 — operator: "always show 'unnamed' on whatever i
-    // typed in the other mode." Add the country-only filter on top
-    // of the v0.61.256 'Unnamed' guard so bare country picks fall
-    // through to the user's typed text rather than persisting
-    // "Singapore" or "Malaysia" as the anchor name.
-    const labelOut = _safeLabel(r.primaryText, r.secondaryText, query.trim())
-      || 'Pinned location';
-    onSelect?.({ lat: r.lat, lng: r.lng, label: labelOut, noAutoFire: true });
-    setResults([]); setQuery(''); setNoMatch(false);
-    clearIdleHint();
-    setExpanded(false); // v0.61.236 — collapse after a pick
-  }
-
-  function cancel() {
-    setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
-    clearIdleHint();
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (loading) return;
+    if (suggestions.length === 0) return;
+    // Drop stale suggestions (user typed past the last debounced fetch).
+    if (suggestionsQuery !== query.trim()) return;
+    handlePick(suggestions[0]);
   }
 
   // v0.61.265 — operator: "the location field box cannot be a country."
@@ -834,85 +878,72 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
             placeholder={anchorNameSafe || tr('loc.other.placeholder', lang)}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
           />
-          <button
-            type="button"
-            onClick={doSearch}
-            disabled={searching || query.trim().length < 2}
-            className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
-            aria-label={tr('loc.other.searchBtn', lang)}
-          >🔍</button>
+          {loading && <span className="text-tg-hint text-xs">…</span>}
+          {/* v0.61.267 — drop the explicit 🔍 search button; OTHER
+              now uses JB-style autocomplete-on-keystroke. The ✏️
+              icon mirrors the SG/JB expanded state so users know
+              they're in edit mode. Tap the compact pill's 🔍 (once
+              an anchor is set) to fire the search at the current
+              anchor; that path is unchanged. */}
+          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
         </div>
-        {/* v0.61.244 — 6 s idle reminder: small upward-pointing
-            bubble below the pill, near the 🔍 button. Pulses to
-            draw attention. */}
-        {idleHintActive && (
+        {/* v0.61.267 — JB-style autocomplete suggestions dropdown.
+            Mirrors the SG/JB branch's suggestion popover above.
+            Each row resolves via placeResolve on click. */}
+        {suggestions.length > 0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
+            {suggestions.map((s, i) => {
+              const primaryDisplay = _safeLabel(s.primaryText, s.secondaryText, query.trim())
+                || s.primaryText;
+              return (
+                <button
+                  key={s.placeId}
+                  type="button"
+                  aria-selected={i === 0}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handlePick(s)}
+                  className={`block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0 ${i === 0 ? 'bg-tg-bg/50' : ''}`}
+                >
+                  <div className="text-sm">{primaryDisplay}</div>
+                  {s.secondaryText && s.secondaryText !== primaryDisplay && (
+                    <div className="text-[11px] text-tg-hint truncate">{s.secondaryText}</div>
+                  )}
+                </button>
+              );
+            })}
+            <div className="px-3 py-1.5 text-[10px] text-tg-hint italic border-t border-tg-border bg-tg-bg/40">
+              {tr('loc.enterHint', lang)}
+            </div>
+          </div>
+        )}
+        {!loading && query.trim().length >= 2 && suggestions.length === 0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg px-3 py-2 text-xs text-tg-hint">
+            {tr('loc.noMatch', lang)}
+          </div>
+        )}
+        {/* v0.61.244 — 6 s idle reminder, repositioned for the
+            v0.61.267 autocomplete UI. Drives the user to keep
+            typing or tap a suggestion. */}
+        {idleHintActive && suggestions.length === 0 && (
           <div
             aria-hidden="true"
             className="absolute top-full right-2 mt-1.5 select-none pointer-events-none z-10 animate-pulse"
           >
             <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
               <span className="absolute right-3 -top-1 w-2 h-2 bg-tg-accent rotate-45" />
-              {lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}
+              {lang === 'fr' ? 'Tapez pour rechercher' : 'Type to search'}
             </div>
           </div>
         )}
       </div>
       )}
       {/* v0.61.236 — collapse back to compact pill after a city pick. */}
-      {/* Current anchor + suffix hint (only when expanded and no results
-          panel). The compact pill above shows this same info in resting. */}
-      {!showCompact && anchor?.name && results.length === 0 && !searching && (
+      {/* v0.61.267 — when expanded but the user has an anchor, surface
+          a hint row + "collapse" affordance below the form. */}
+      {!showCompact && anchor?.name && !_isCountryOnly(anchor.name) && anchor.name !== 'Unnamed' && (
         <div className="text-[11px] text-tg-hint truncate px-1">
           📍 {anchor.name}{suffix ? ` · ${suffix}` : ''}
           {' '}<button type="button" onClick={() => setExpanded(false)} className="text-tg-accent underline">collapse</button>
-        </div>
-      )}
-      {searching && (
-        <div className="text-[11px] text-tg-hint px-1 italic">
-          {tr('loc.other.searching', lang).replace('{country}', country.name)}
-        </div>
-      )}
-      {noMatch && (
-        <div className="text-[11px] text-tg-hint px-1 italic">
-          {tr('loc.other.noMatch', lang).replace('{country}', country.name)}
-        </div>
-      )}
-      {errorMsg && (
-        <div className="text-[11px] text-red-500 px-1">{errorMsg}</div>
-      )}
-      {results.length > 0 && (
-        <div className="rounded-md border border-tg-border bg-tg-card overflow-hidden">
-          <div className="px-3 py-1.5 text-[11px] text-tg-hint font-semibold border-b border-tg-border bg-tg-bg/40">
-            {tr('loc.other.confirmHeader', lang)
-              .replace('{flag}', country.flag)
-              .replace('{country}', country.name)}
-          </div>
-          {results.map((r) => {
-            // v0.61.265 — never render literal 'Unnamed' or a bare
-            // country name; fall back to secondaryText / typed query.
-            const primaryDisplay = _safeLabel(r.primaryText, r.secondaryText, query.trim())
-              || 'Pinned location';
-            return (
-            <button
-              key={r.placeId}
-              type="button"
-              onClick={() => pickResult(r)}
-              className="block w-full text-left px-3 py-2 hover:bg-tg-bg border-b border-tg-border last:border-0"
-            >
-              <div className="text-sm">{primaryDisplay}</div>
-              {r.secondaryText && r.secondaryText !== primaryDisplay && (
-                <div className="text-[11px] text-tg-hint truncate">{r.secondaryText}</div>
-              )}
-            </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={cancel}
-            className="block w-full text-left px-3 py-1.5 text-[11px] text-tg-hint italic bg-tg-bg/40"
-          >
-            {tr('loc.other.cancel', lang)}
-          </button>
         </div>
       )}
     </div>

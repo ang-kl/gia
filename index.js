@@ -12202,16 +12202,35 @@ async function cacheBotUsername() {
       makeRateLimiter(redis, { endpoint: 'place-autocomplete', cap: 500 }),
       async (req, res) => {
       try {
-        const { input, lat, lng, region = 'SG' } = req.body || {};
+        // v0.61.267 — operator: "can [Other], select {country +/-
+        // {city}, follow the same codes as Johor bahru." The OTHER
+        // picker now uses this same autocomplete-on-keystroke path
+        // (instead of the v0.61.191 /place-search-by-country
+        // confirmation-panel flow). To support any ISO country
+        // (not just the JB→MY / default→SG switch), accept an
+        // optional `countryCode` (ISO 3166-1 alpha-2). When valid,
+        // it overrides the legacy region→country mapping below.
+        const { input, lat, lng, region = 'SG', countryCode } = req.body || {};
         if (!input || typeof input !== 'string' || input.trim().length < 2) {
           return res.json({ suggestions: [] });
         }
         const cleanInput = input.trim().slice(0, 80).toLowerCase();
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        // v0.61.267 — country resolution. If client passed a valid
+        // 2-letter ISO code, use it; otherwise fall back to the
+        // legacy region→country shorthand (kept for backwards-compat
+        // with chat-bot callers and pre-v0.61.267 TMA bundles).
+        const ccRaw = typeof countryCode === 'string' ? countryCode.toUpperCase() : '';
+        const effectiveCountry = (/^[A-Z]{2}$/.test(ccRaw))
+          ? ccRaw
+          : (region === 'JB' ? 'MY' : 'SG');
         const gLat = Number.isFinite(lat) ? lat.toFixed(2) : 'x';
         const gLng = Number.isFinite(lng) ? lng.toFixed(2) : 'x';
-        const cacheKey = `placeauto:v1:${region}:${gLat}:${gLng}:${cleanInput}`;
+        // v0.61.267 — cache key now keyed on effectiveCountry instead
+        // of region so a "MY autocomplete biased near KL" doesn't
+        // share a slot with a "MY autocomplete biased near JB".
+        const cacheKey = `placeauto:v2:${effectiveCountry}:${gLat}:${gLng}:${cleanInput}`;
         try {
           if (redis.isOpen) {
             const cached = await redis.get(cacheKey);
@@ -12222,8 +12241,8 @@ async function cacheBotUsername() {
         const body = {
           input: cleanInput,
           languageCode: 'en',
-          regionCode: region === 'JB' ? 'MY' : 'SG',
-          includedRegionCodes: region === 'JB' ? ['MY'] : ['SG']
+          regionCode: effectiveCountry,
+          includedRegionCodes: [effectiveCountry]
         };
         if (Number.isFinite(lat) && Number.isFinite(lng)) {
           body.locationBias = {

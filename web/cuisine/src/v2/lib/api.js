@@ -180,11 +180,21 @@ export async function warmStart({ lat, lng, region, lang }) {
 }
 
 // v0.58.7: location-field autocomplete. POST { input, lat, lng,
-// region } → { suggestions: [{ placeId, primaryText, secondaryText }] }.
-// Server proxies Google Places Autocomplete (New) so the API key
-// stays off the wire. 5-min Redis cache keeps per-keystroke spend low.
-export async function placeAutocomplete({ input, lat, lng, region }) {
-  return postJson('/api/cuisine/place-autocomplete', { input, lat, lng, region });
+// region, countryCode } → { suggestions: [{ placeId, primaryText,
+// secondaryText }] }. Server proxies Google Places Autocomplete
+// (New) so the API key stays off the wire. 5-min Redis cache
+// keeps per-keystroke spend low.
+// v0.61.267 — operator unified the OTHER picker onto this same
+// autocomplete endpoint. `countryCode` (ISO 3166-1 alpha-2) is the
+// preferred field; pass any 2-letter code (MY, ID, TH, JP, ...) and
+// the server uses it for both regionCode + includedRegionCodes.
+// `region` ('SG' | 'JB') is kept for backwards-compat with the
+// legacy SG/JB toggle.
+export async function placeAutocomplete({ input, lat, lng, region, countryCode }) {
+  return postJson('/api/cuisine/place-autocomplete', {
+    input, lat, lng, region,
+    ...(countryCode ? { countryCode } : {})
+  });
 }
 
 // v0.58.7: resolve a picked autocomplete suggestion to coords. The
