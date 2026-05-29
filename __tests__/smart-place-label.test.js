@@ -1,4 +1,4 @@
-// __tests__/smart-place-label.test.js — v0.61.207
+// __tests__/smart-place-label.test.js — v0.61.265
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
@@ -57,13 +57,27 @@ describe('smartPlaceLabel — Singapore (no state)', () => {
 });
 
 describe('smartPlaceLabel — defensive', () => {
-  it('empty displayName + empty fa → Unnamed', () => {
-    expect(smartPlaceLabel('', '')).toBe('Unnamed');
+  // v0.61.265 — operator: "always show 'unnamed' on whatever i typed
+  // in the other mode." The literal 'Unnamed' fallback was masking
+  // the caller's own || text fallback chain. The helper now returns
+  // '' so callers can chain to formattedAddress / typed text /
+  // their own placeholder.
+  it('empty displayName + empty fa → empty string (caller decides placeholder)', () => {
+    expect(smartPlaceLabel('', '')).toBe('');
   });
-  it('null/undefined → Unnamed', () => {
-    expect(smartPlaceLabel(null, undefined)).toBe('Unnamed');
+  it('null/undefined → empty string (caller decides placeholder)', () => {
+    expect(smartPlaceLabel(null, undefined)).toBe('');
   });
   it('only displayName (no fa) and is a number → falls back to displayName', () => {
     expect(smartPlaceLabel('1', '')).toBe('1');
+  });
+  // v0.61.265 — country-only inputs collapse to empty, so the caller's
+  // || text fallback resolves to the user's typed text instead of
+  // the country name leaking back into the pill.
+  it('country-only displayName + matching fa → empty (country tail stripped, nothing left)', () => {
+    expect(smartPlaceLabel('Singapore', 'Singapore')).toBe('');
+  });
+  it('country-only fa, no displayName → empty', () => {
+    expect(smartPlaceLabel('', 'Malaysia')).toBe('');
   });
 });
