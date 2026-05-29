@@ -1,8 +1,8 @@
 counters:
-  commit: 456
-  build: 246
+  commit: 457
+  build: 247
   documents:
-    journal: 444
+    journal: 445
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,46 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 3
-last_anchor_time: 29-05 '26 09:50 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_242 (PR #745 merged 2026-05-29T01:37:45Z = 09:37 SGT; v0.61.243 GPS-snap PR being built minutes later ≈ 09:50 SGT)
-last_anchor_iso8601: 2026-05-29T09:50:00+08:00
-last_anchor_utc: 2026-05-29T01:50:00Z
+  current_chat_counter: 4
+last_anchor_time: 29-05 '26 10:20 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_243 (PR #746 merged 2026-05-29T02:08:40Z = 10:08 SGT; v0.61.244 idle-reminder PR being built minutes later ≈ 10:20 SGT)
+last_anchor_iso8601: 2026-05-29T10:20:00+08:00
+last_anchor_utc: 2026-05-29T02:20:00Z
+
+# v0.61.244 (commit 457 / journal 445 / build 247) — operator
+# 29-05 '26 mid-morning, after merging v0.61.243: "do not fire
+# search from the location box for johor and others until user
+# fire, remind users to click search after 6 seconds idle from
+# typing the location field."
+#
+# - web/cuisine/src/v2/components/LocationField.jsx — two related
+#   changes to the Cuisine TMA location field:
+#
+#   (a) JB and OTHER picks no longer auto-fire the search. SG
+#       keeps the v0.61.237 auto-fire (chat-bot default region;
+#       users expect a tap-pick to surface results). For JB and
+#       OTHER, both onSelect payloads now carry noAutoFire: true
+#       (SG/JB Autocomplete handlePick passes
+#       `noAutoFire: region !== 'SG'`; OTHER free-text pickResult
+#       passes noAutoFire: true unconditionally; the v0.61.241
+#       OTHER city-dropdown path already had this).
+#
+#   (b) New 6-second idle reminder. Two parallel implementations
+#       — one in the SG/JB branch, one in OtherLocationPicker —
+#       each tracking an `idleHintActive` boolean and an
+#       `idleTimerRef`. The useEffect on `query` (the typed text)
+#       resets the timer on each keystroke and arms a fresh 6s
+#       timer when the trimmed text length is >= 1. When the
+#       timer fires, a small upward-pointing speech bubble
+#       (bg-tg-accent rounded-2xl + rotated-square tail) appears
+#       below the pill near the 🔍 button with
+#       "Tap 🔍 to search" / "Touchez 🔍 pour rechercher".
+#       `animate-pulse` draws attention. The bubble is dismissed
+#       by clearIdleHint() called from handlePick / handleClear /
+#       pickResult / doSearch / cancel, and reset on next
+#       keystroke.
+
+
 
 # v0.61.243 (commit 456 / journal 444 / build 246) — operator
 # 29-05 '26 morning: "if my location is Kuala Lumpur, and i just

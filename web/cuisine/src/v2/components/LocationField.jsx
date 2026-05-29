@@ -60,6 +60,25 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const [pickedLabel, setPickedLabel] = useState('');
   const debounceRef = useRef(null);
   const inputRef = useRef(null);
+  // v0.61.244 — operator: "remind users to click search after 6
+  // seconds idle from typing the location field". Show a small
+  // upward-pointing speech bubble next to the 🔍 button when the
+  // user has typed something AND has been idle for 6 s without
+  // picking. The bubble disappears on next keystroke, pick, clear,
+  // submit, or blur.
+  const [idleHintActive, setIdleHintActive] = useState(false);
+  const idleTimerRef = useRef(null);
+  function clearIdleHint() {
+    if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+    setIdleHintActive(false);
+  }
+  useEffect(() => {
+    clearIdleHint();
+    const trimmed = query.trim();
+    if (!open || trimmed.length < 1) return;
+    idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
+    return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
+  }, [query, open]);
 
   // Reverse-geocode the user's GPS once so the field shows
   // "📍 Telok Blangah" as the placeholder rather than coordinates.
@@ -110,6 +129,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     setQuery('');
     setSuggestions([]);
     setSuggestionsQuery('');
+    clearIdleHint();
     setLoading(true);
     try {
       const r = await placeResolve({ placeId: s.placeId });
@@ -129,7 +149,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           && Math.abs(anchor.lng - r.lng) < 1e-4;
         if (!same) {
           setPickedLabel(label);
-          onSelect?.({ lat: r.lat, lng: r.lng, label });
+          // v0.61.244 — operator: "do not fire search from the
+          // location box for johor and others until user fire".
+          // SG keeps the v0.61.237 auto-fire (it's the chat-bot
+          // default region; users expect a tap-pick to surface
+          // results). JB and OTHER require an explicit 🔍 tap.
+          onSelect?.({ lat: r.lat, lng: r.lng, label, noAutoFire: region !== 'SG' });
         }
       }
     } catch (err) {
@@ -163,6 +188,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     setQuery('');
     setSuggestions([]);
     setSuggestionsQuery('');
+    clearIdleHint();
     if (userLoc?.lat && userLoc?.lng) {
       // Clearing snaps the search anchor back to the device / cached
       // pin. The parent re-runs the search there and resets
@@ -260,13 +286,29 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         ) : (
           <button
             type="button"
-            onClick={() => onSearch?.()}
+            onClick={() => { clearIdleHint(); onSearch?.(); }}
             aria-label={tr('loc.searchHere', lang)}
             title={tr('loc.searchHere', lang)}
             className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
           >🔍</button>
         )}
       </div>
+      {/* v0.61.244 — 6 s idle reminder: small upward-pointing speech
+          bubble below the pill, near the 🔍 button. Pulses to draw
+          attention. Mirrors the v0.61.241 location-suffix bubble
+          shape (rounded-2xl + rotated-square tail) but tail points
+          UP at the 🔍 icon instead of DOWN at the pill. */}
+      {idleHintActive && (
+        <div
+          aria-hidden="true"
+          className="absolute top-full right-2 mt-1.5 select-none pointer-events-none z-10 animate-pulse"
+        >
+          <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
+            <span className="absolute right-3 -top-1 w-2 h-2 bg-tg-accent rotate-45" />
+            {lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}
+          </div>
+        </div>
+      )}
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-tg-border bg-tg-card shadow-lg overflow-hidden">
           {suggestions.map((s, i) => (
@@ -490,6 +532,23 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);   // [{placeId, primaryText, secondaryText, lat, lng}, ...]
   const [searching, setSearching] = useState(false);
+  // v0.61.244 — 6 s idle reminder. Mirrors the SG/JB branch above.
+  // Shows a small upward-pointing bubble next to the 🔍 button when
+  // the user has typed something AND has been idle for 6 s without
+  // pressing 🔍. Dismissed on next keystroke, 🔍 tap, pick, or cancel.
+  const [idleHintActive, setIdleHintActive] = useState(false);
+  const idleTimerRef = useRef(null);
+  function clearIdleHint() {
+    if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+    setIdleHintActive(false);
+  }
+  useEffect(() => {
+    clearIdleHint();
+    const trimmed = query.trim();
+    if (trimmed.length < 1) return;
+    idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
+    return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
+  }, [query]);
   const [noMatch, setNoMatch] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
@@ -542,6 +601,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   async function doSearch() {
     const text = query.trim();
     if (text.length < 2) return;
+    clearIdleHint();
     setSearching(true); setNoMatch(false); setErrorMsg(''); setResults([]);
     try {
       const r = await placeSearchByCountry({ input: text, countryCode: country.code });
@@ -567,13 +627,19 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   }
 
   function pickResult(r) {
-    onSelect?.({ lat: r.lat, lng: r.lng, label: r.primaryText });
+    // v0.61.244 — operator: "do not fire search from the location
+    // box for johor and others until user fire". OTHER free-text
+    // picks now set the anchor but the operator still presses 🔍
+    // to fire. Matches v0.61.241 city-dropdown semantics.
+    onSelect?.({ lat: r.lat, lng: r.lng, label: r.primaryText, noAutoFire: true });
     setResults([]); setQuery(''); setNoMatch(false);
+    clearIdleHint();
     setExpanded(false); // v0.61.236 — collapse after a pick
   }
 
   function cancel() {
     setResults([]); setQuery(''); setNoMatch(false); setErrorMsg('');
+    clearIdleHint();
   }
 
   const restingLabel = (anchor && anchor.name) ? anchor.name : tr('loc.other.placeholder', lang);
@@ -609,44 +675,60 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           </div>
         </div>
       ) : (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-        {/* v0.61.208 — custom dropdown: closed shows "<flag> <CC>"
-            (compact), opened shows "<flag> <Name>" (descriptive).
-            Native <select> can't differentiate closed vs open
-            text, so we use a button + popover. */}
-        <CountryDropdown
-          value={country.code}
-          onChange={(code) => onCountryChange?.(code)}
-          ariaLabel={tr('loc.other.country', lang)}
-        />
-        {/* v0.61.233 — cascading child city dropdown, now a custom
-            CityDropdown: closed state shows the 3-letter city code
-            (BKK / KUL / …) mirroring the country flag's closed-CC
-            pattern; open state lists every full name + code on
-            the right and scrolls (max-h-72). Narrow closed-state
-            leaves the free-text input usable. */}
-        <CityDropdown
-          countryCode={country.code}
-          value={cityPick}
-          onChange={(name) => onCityPick(name)}
-          ariaLabel={tr('loc.other.city', lang) || 'City'}
-        />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKey}
-          enterKeyHint="search"
-          placeholder={anchor && anchor.name ? anchor.name : tr('loc.other.placeholder', lang)}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
-        />
-        <button
-          type="button"
-          onClick={doSearch}
-          disabled={searching || query.trim().length < 2}
-          className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
-          aria-label={tr('loc.other.searchBtn', lang)}
-        >🔍</button>
+      <div className="relative">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+          {/* v0.61.208 — custom dropdown: closed shows "<flag> <CC>"
+              (compact), opened shows "<flag> <Name>" (descriptive).
+              Native <select> can't differentiate closed vs open
+              text, so we use a button + popover. */}
+          <CountryDropdown
+            value={country.code}
+            onChange={(code) => onCountryChange?.(code)}
+            ariaLabel={tr('loc.other.country', lang)}
+          />
+          {/* v0.61.233 — cascading child city dropdown, now a custom
+              CityDropdown: closed state shows the 3-letter city code
+              (BKK / KUL / …) mirroring the country flag's closed-CC
+              pattern; open state lists every full name + code on
+              the right and scrolls (max-h-72). Narrow closed-state
+              leaves the free-text input usable. */}
+          <CityDropdown
+            countryCode={country.code}
+            value={cityPick}
+            onChange={(name) => onCityPick(name)}
+            ariaLabel={tr('loc.other.city', lang) || 'City'}
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKey}
+            enterKeyHint="search"
+            placeholder={anchor && anchor.name ? anchor.name : tr('loc.other.placeholder', lang)}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+          />
+          <button
+            type="button"
+            onClick={doSearch}
+            disabled={searching || query.trim().length < 2}
+            className="text-tg-accent text-sm leading-none flex-shrink-0 px-1 disabled:opacity-40"
+            aria-label={tr('loc.other.searchBtn', lang)}
+          >🔍</button>
+        </div>
+        {/* v0.61.244 — 6 s idle reminder: small upward-pointing
+            bubble below the pill, near the 🔍 button. Pulses to
+            draw attention. */}
+        {idleHintActive && (
+          <div
+            aria-hidden="true"
+            className="absolute top-full right-2 mt-1.5 select-none pointer-events-none z-10 animate-pulse"
+          >
+            <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
+              <span className="absolute right-3 -top-1 w-2 h-2 bg-tg-accent rotate-45" />
+              {lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}
+            </div>
+          </div>
+        )}
       </div>
       )}
       {/* v0.61.236 — collapse back to compact pill after a city pick. */}
