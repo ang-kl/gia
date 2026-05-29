@@ -1132,7 +1132,13 @@ export default function App() {
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
-        specialMode: snap.specialMode || null            // v0.61.126 — Fruits / Durian exclusive mode override
+        specialMode: snap.specialMode || null,           // v0.61.126 — Fruits / Durian exclusive mode override
+        // v0.61.271 — Phase 3 SSOT: forward state.countryPref so the
+        // server uses the user's explicit country pick instead of
+        // inferring from cached anchor (which may be stale). Only
+        // sent when region is OTHER/MY-PUT — SG/JB regions carry
+        // their country implicitly through `region`.
+        countryCode: (snap.region === 'OTHER' || snap.region === 'MY-PUT') ? snap.countryPref : undefined
       });
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
@@ -1365,7 +1371,14 @@ export default function App() {
     const mode = opts.mode === 'replace' ? 'replace' : 'merge';
     setLastPrompt(text); setLoading(true); setError(null);
     try {
-      const r = await nlQuery({ text, lat: userLoc?.lat, lng: userLoc?.lng, filters: state.filters, lang });
+      const r = await nlQuery({
+        text, lat: userLoc?.lat, lng: userLoc?.lng,
+        filters: state.filters, lang,
+        // v0.61.271 — forward region + countryCode so NL queries
+        // respect the user's location context (Phase 3 audit A5/D1).
+        region: state.region || 'SG',
+        countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
+      });
       setVenues(r.venues || []);
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);

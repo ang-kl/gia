@@ -74,13 +74,19 @@ export async function fetchCatalogue() {
 // so the next results begin fresh from the first ~60 again.
 // v0.60.126: freeText — the "Tell me" box content, passed through as a
 // search qualifier so it isn't dropped when a cuisine chip is selected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored }) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode }) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
   // `body.specialMode`; when set it overrides cuisines + dessert
   // detection + home-based and applies a mode-keyword post-filter.
-  if (specialMode === 'fruits' || specialMode === 'durian') body.specialMode = specialMode;
+  // v0.61.271 — added 'durian-pastry' here. The chip was already
+  // pluggable, but the early-allowlist gate at this seam was
+  // SG/JB-mode flavoured; explicitly enumerating the special modes
+  // closes the regression.
+  if (specialMode === 'fruits' || specialMode === 'durian' || specialMode === 'durian-pastry') {
+    body.specialMode = specialMode;
+  }
   // v0.61.162 — explicit-anchor flag. When the user has picked a
   // LocationField anchor (not just device GPS), the TMA sets this
   // so the server overrides the v0.59.46 lightShuffle gate for
@@ -89,11 +95,26 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region, lang,
   // count; without it (no anchor, generic browse), the rating-tier
   // shuffle continues to surface variety on re-tap.
   if (anchored === true) body.anchored = true;
+  // v0.61.271 — Phase 3 backend API sync. Forward the user's explicit
+  // countryCode so the server can prefer it over the Redis-cached
+  // value (which can be stale or absent on cold launches). Closes
+  // Phase 1 ledger items A5 / D1 / D3.
+  if (typeof countryCode === 'string' && /^[A-Z]{2}$/i.test(countryCode)) {
+    body.countryCode = countryCode.toUpperCase();
+  }
   return postJson('/api/cuisine/search', body);
 }
 
-export async function nlQuery({ text, lat, lng, filters, lang }) {
-  return postJson('/api/cuisine/nl-query', { text, lat, lng, filters, lang });
+export async function nlQuery({ text, lat, lng, filters, lang, region, countryCode }) {
+  const body = { text, lat, lng, filters, lang };
+  // v0.61.271 — forward region + countryCode so NL queries respect
+  // the user's location bounded context the same way searchCuisine
+  // does (Phase 3 audit items A5 / D1 / D3).
+  if (typeof region === 'string') body.region = region;
+  if (typeof countryCode === 'string' && /^[A-Z]{2}$/i.test(countryCode)) {
+    body.countryCode = countryCode.toUpperCase();
+  }
+  return postJson('/api/cuisine/nl-query', body);
 }
 
 // v0.57.32: server-driven "Copy all" — POST result venues, server
