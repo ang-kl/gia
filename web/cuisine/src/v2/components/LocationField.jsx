@@ -234,68 +234,82 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         onSelect={onSelect}
         anchor={anchor}
         suffix={suffix}
+        onSearch={onSearch}
       />
     );
   }
 
   return (
     <div className="relative">
-      {/* v0.61.247 — reverted the v0.61.241 location-suffix speech
-          bubble (operator: "isn't permanent there, disappear after 5
-          second … revert to earlier without the bubble about the
-          location"). The suffix + "tap to change" are back inline in
-          the button below. v0.61.244 6 s idle "Tap 🔍 to search"
-          reminder bubble (further down) is unaffected. */}
-      {/* v0.58.14: clearer affordance — accent-coloured pin, "Tap to
-          change" hint when resting, ✏️ pencil icon on the right so
-          users see this is editable, not a label. */}
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-        <span aria-hidden className="text-tg-accent">📍</span>
-        {open ? (
-          <input
-            ref={inputRef}
-            type="text"
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onBlur={() => setTimeout(() => setOpen(false), 200)}
-            onKeyDown={handleKeyDown}
-            enterKeyHint="search"
-            placeholder={resting}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
-          >
-            <span className="truncate">{resting}</span>
-            {suffix && (
-              <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>
-            )}
-            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
-          </button>
-        )}
-        {loading && <span className="text-tg-hint text-xs">…</span>}
-        {showClear && !open && (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label={tr('loc.clear', lang)}
-            className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
-          >×</button>
-        )}
-        {open ? (
-          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => { clearIdleHint(); onSearch?.(); }}
-            aria-label={tr('loc.searchHere', lang)}
-            title={tr('loc.searchHere', lang)}
-            className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
-          >🔍</button>
+      {/* v0.61.253 — operator: 2-row layout — line 1: "📍🇸🇬 Singapore"
+          (left) + 🔍 (right); line 2 (smaller, right-flush): "5
+          places nearby · tap to change 🔝" with the 🔝 directly
+          below the 🔍. SG/JB get a flag prefix: 🇸🇬 emoji for SG, the
+          MY_Johor_flag.png image for JB (mirrors the region-pill
+          row's flag-handling convention).
+          Open (input) state keeps the single-row layout (input + ✏️). */}
+      <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+        <div className="flex items-center gap-2">
+          <span aria-hidden className="text-tg-accent">📍</span>
+          {open ? (
+            <input
+              ref={inputRef}
+              type="text"
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onBlur={() => setTimeout(() => setOpen(false), 200)}
+              onKeyDown={handleKeyDown}
+              enterKeyHint="search"
+              placeholder={resting}
+              className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
+            >
+              {region === 'SG' && (
+                <span aria-hidden className="flex-shrink-0">🇸🇬</span>
+              )}
+              {region === 'JB' && (
+                <img
+                  src="MY_Johor_flag.png"
+                  alt=""
+                  width="16"
+                  height="11"
+                  className="rounded-sm border border-tg-border/40 flex-shrink-0"
+                />
+              )}
+              <span className="truncate">{resting}</span>
+            </button>
+          )}
+          {loading && <span className="text-tg-hint text-xs">…</span>}
+          {showClear && !open && (
+            <button
+              type="button"
+              onClick={handleClear}
+              aria-label={tr('loc.clear', lang)}
+              className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
+            >×</button>
+          )}
+          {open ? (
+            <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { clearIdleHint(); onSearch?.(); }}
+              aria-label={tr('loc.searchHere', lang)}
+              title={tr('loc.searchHere', lang)}
+              className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
+            >🔍</button>
+          )}
+        </div>
+        {!open && suffix && (
+          <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
+            {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
+          </div>
         )}
       </div>
       {/* v0.61.244 — 6 s idle reminder: small upward-pointing speech
@@ -532,7 +546,7 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 // 🔍 Search button, then a 5-entry confirmation list returned by
 // /api/cuisine/place-search-by-country. No autocomplete dropdown
 // during typing (operator: "too many for a dropdown to be useful").
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);   // [{placeId, primaryText, secondaryText, lat, lng}, ...]
@@ -681,22 +695,37 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   return (
     <div className="flex flex-col gap-1.5">
       {/* v0.61.236 — compact resting pill (anchor set, not expanded).
-          v0.61.247 — reverted the v0.61.241 speech-bubble. Suffix +
-          "tap to change" inline again to match the SG/JB pill's
-          new (post-revert) layout. */}
+          v0.61.253 — 2-row layout per operator spec: line 1 "📍🇲🇾
+          Kuala Lumpur" (left) + 🔍 (right); line 2 (smaller,
+          right-flush): "5 places nearby · tap to change 🔝" with
+          🔝 directly below 🔍. Tap the left-side body to expand
+          the picker; tap 🔍 to fire the search at the current
+          anchor (forwarded onSearch prop). */}
       {showCompact ? (
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-          <span aria-hidden className="text-tg-accent">📍</span>
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            className="flex-1 text-left text-sm truncate text-tg-text flex items-baseline gap-1.5"
-          >
-            <span className="truncate">{country.flag} {anchor.name}</span>
-            {suffix && <span className="text-[11px] text-tg-hint flex-shrink-0">· {suffix}</span>}
-            <span className="text-[10px] text-tg-hint italic flex-shrink-0">{lang === 'fr' ? 'touchez pour changer' : 'tap to change'}</span>
-          </button>
-          <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
+        <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="text-tg-accent">📍</span>
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
+            >
+              <span className="flex-shrink-0" aria-hidden>{country.flag}</span>
+              <span className="truncate">{anchor.name}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSearch?.()}
+              aria-label={tr('loc.searchHere', lang)}
+              title={tr('loc.searchHere', lang)}
+              className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
+            >🔍</button>
+          </div>
+          {suffix && (
+            <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
+              {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
+            </div>
+          )}
         </div>
       ) : (
       <div className="relative">

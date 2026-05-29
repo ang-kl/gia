@@ -1,8 +1,8 @@
 counters:
-  commit: 465
-  build: 255
+  commit: 466
+  build: 256
   documents:
-    journal: 453
+    journal: 454
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,47 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 12
-last_anchor_time: 29-05 '26 14:30 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_251 (PR #754 merged 2026-05-29T06:00:36Z = 14:00 SGT; v0.61.252 Putrajaya-fix PR built ~30 min later)
-last_anchor_iso8601: 2026-05-29T14:30:00+08:00
-last_anchor_utc: 2026-05-29T06:30:00Z
+  current_chat_counter: 13
+last_anchor_time: 29-05 '26 14:45 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_252 (PR #755 merged 2026-05-29T06:29:32Z = 14:29 SGT; v0.61.253 Cuisine TMA 2-row layout built minutes later)
+last_anchor_iso8601: 2026-05-29T14:45:00+08:00
+last_anchor_utc: 2026-05-29T06:45:00Z
+
+# v0.61.253 (commit 466 / journal 454 / build 256) — operator
+# 29-05 '26 afternoon: "For the Cuisine TMA: in the location
+# currently is wrong ('🇲🇾 Kuala Lu... 5 places nearby tap to
+# change') should be '📍🇲🇾 Kuala Lumpur'. '🔍' (right side).
+# next line (font size smaller by 2 pt, flush right so the '🔝'
+# is directly below 🔍). like this '5 places nearby · tap to
+# change 🔝' (below 🔍 or ✏️) same effect for '🇸🇬 Singapore'
+# pill and 'Johor Bahru'."
+#
+# Cuisine TMA LocationField rebuilt to a 2-row layout:
+#
+# - Row 1: 📍 + flag + city name (left-flush, truncates on
+#   overflow) + 🔍 (right-flush).
+# - Row 2 (text-[10px] italic, text-right, mt-0.5): suffix · "tap
+#   to change" · 🔝. The trailing 🔝 lands directly below the
+#   row-1 🔍 because both align to the container's right edge.
+#
+# Flags:
+#   region === 'SG' → 🇸🇬 emoji span
+#   region === 'JB' → MY_Johor_flag.png img (16×11 px, rounded-sm
+#                     border-tg-border/40) — mirrors the v0.61.204
+#                     region-pill row's flag-handling convention.
+#   OTHER compact → existing country.flag from countries.js.
+#
+# Compact pill (OTHER mode, anchor set, not expanded) gets the
+# same 2-row treatment. The trailing button on row 1 changed from
+# ✏️ to 🔍 per the operator's spec; tapping the body opens the
+# picker, tapping 🔍 fires the search at the current anchor
+# (forwarded onSearch prop into OtherLocationPicker).
+#
+# Open (input editing) state keeps the single-row layout: input +
+# ✏️. The meta row is hidden in this state — no suffix to show
+# while the user is mid-edit.
+
+
 
 # v0.61.252 (commit 465 / journal 453 / build 255) — operator
 # 29-05 '26 afternoon: "My location is Malaysia, Putrajaya. I
