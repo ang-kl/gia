@@ -39,6 +39,20 @@ import { citiesForCountry } from '../lib/cities.js';
 // re-render, no server save) per the operator's "if the new
 // location set is same as current location, don't do anything"
 // instruction.
+// v0.61.251 — module-scoped haversine helper for the v0.61.251
+// nearest-cities.js-entry sync. Returns km between two lat/lng
+// pairs; Earth radius 6371 km. Plain JS, no deps.
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+    * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
@@ -561,24 +575,44 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // immediately change the city code to the capital don't leave it
   // as '--' unless i am currently in the city change to the city
   // the location is detected."*
-  // Strategy: on country change, prefer (a) the anchor's name when
-  // it's a city of the new country (GPS auto-detect fed it through),
-  // (b) the first cities.js entry for that country (capital
-  // convention — KUL for MY, BKK for TH, JKT for ID, etc.).
-  // Was: `useEffect(() => { setCityPick(''); }, [country.code])`
-  // which reset to "— —" until the user picked.
+  // v0.61.251 — operator: *"cities.js nearest-by-distance sync —
+  // fix the HK / Sibu dropdown '— —' gap so the CityDropdown
+  // reflects the detected city even when the canonical IATA name
+  // isn't in cities.js."*
+  // Strategy: on country change, prefer in order:
+  //   (a) the anchor's name when it's a city in this country's list
+  //       (GPS auto-detect feeds it through: "Kuala Lumpur" →
+  //       cities.js[MY] hit → KUL)
+  //   (b) the cities.js entry NEAREST to anchor.lat/lng by haversine
+  //       (covers HK: anchor "Hong Kong" doesn't match cities.js[HK]
+  //       district names, but anchor coords are inside Tsim Sha Tsui
+  //       or Central → nearest district entry wins; covers Sibu: SBW
+  //       isn't in cities.js[MY], but Kuching KCH is the nearest
+  //       cities.js[MY] entry at ~150 km)
+  //   (c) the first cities.js entry (capital — only when there's no
+  //       anchor at all)
   useEffect(() => {
     const list = citiesForCountry(country.code);
     if (!list.length) { setCityPick(''); return; }
-    // (a) anchor city is in this country's list → use it.
+    // (a) anchor name matches a cities.js entry directly.
     const anchorName = (anchor?.name || '').trim();
     if (anchorName) {
       const hit = list.find((c) => c.name === anchorName);
       if (hit) { setCityPick(hit.name); return; }
     }
-    // (b) default to the country's first list entry (capital).
+    // (b) anchor has coords → pick nearest cities.js entry by haversine.
+    if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+      let best = null;
+      let bestD = Infinity;
+      for (const c of list) {
+        const d = haversineKm(anchor.lat, anchor.lng, c.lat, c.lng);
+        if (d < bestD) { bestD = d; best = c; }
+      }
+      if (best) { setCityPick(best.name); return; }
+    }
+    // (c) no anchor → capital (first entry).
     setCityPick(list[0].name);
-  }, [country.code, anchor?.name]);
+  }, [country.code, anchor?.name, anchor?.lat, anchor?.lng]);
   function onCityPick(name) {
     if (!name) { setCityPick(''); return; }
     setCityPick(name);

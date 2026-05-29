@@ -33,6 +33,20 @@ import { citiesForCountry } from '../cities.js';
 // city name. The list is scrollable (max-h-72 + overflow-y-auto)
 // so 15 capitals (Malaysia) fit on a phone viewport. Narrow
 // closed-state (~4rem) leaves the free-text input room.
+// v0.61.251 — module-scoped haversine helper for the cities.js
+// nearest-by-distance fallback inside LocationFieldMenu. Returns km
+// between two lat/lng pairs (Earth R = 6371 km). Plain JS, no deps.
+function _haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+    * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -336,21 +350,34 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // immediately change the city code to the capital don't leave it
   // as '--' unless i am currently in the city change to the city
   // the location is detected."*
-  // Strategy mirrors the Cuisine TMA (v0.61.250 in LocationField.jsx):
-  // on country change, prefer (a) the current anchor's label when it
-  // matches a city in this country's list (GPS auto-detect feeds it
-  // through), (b) the first cities.js entry (capital convention).
-  // Was: `setCityPick('')` which reset to "— —" until the user picked.
+  // v0.61.251 — operator: *"cities.js nearest-by-distance sync —
+  // fix the HK / Sibu dropdown '— --' gap so the CityDropdown
+  // reflects the detected city even when the canonical IATA name
+  // isn't in cities.js."* Falls back to nearest cities.js entry by
+  // haversine when the anchor name doesn't match. Mirrors the
+  // Cuisine TMA v0.61.251 in LocationField.jsx.
   useEffect(() => {
     const list = citiesForCountry(countryPref);
     if (!list.length) { setCityPick(''); return; }
+    // (a) anchor label matches a cities.js entry directly.
     const anchorName = (currentAnchor?.label || '').trim();
     if (anchorName) {
       const hit = list.find((c) => c.name === anchorName);
       if (hit) { setCityPick(hit.name); return; }
     }
+    // (b) anchor has coords → pick nearest cities.js entry by haversine.
+    if (currentAnchor && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
+      let best = null;
+      let bestD = Infinity;
+      for (const c of list) {
+        const d = _haversineKm(currentAnchor.lat, currentAnchor.lng, c.lat, c.lng);
+        if (d < bestD) { bestD = d; best = c; }
+      }
+      if (best) { setCityPick(best.name); return; }
+    }
+    // (c) no anchor → capital (first entry).
     setCityPick(list[0].name);
-  }, [countryPref, currentAnchor?.label]);
+  }, [countryPref, currentAnchor?.label, currentAnchor?.lat, currentAnchor?.lng]);
 
   // v0.61.226 — city picked from the cascading child dropdown. Sets
   // the Menu TMA anchor directly to the city's centroid (lat/lng) +
