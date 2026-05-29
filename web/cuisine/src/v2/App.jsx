@@ -448,6 +448,23 @@ export default function App() {
         const r = await fetchUserLocation();
         if (!cancelled && isValidCoord(r?.lat, r?.lng)) {
           setUserLoc({ lat: r.lat, lng: r.lng });
+          // v0.61.266 — operator (29-05 '26): "the transferred of
+          // {set_location} in Menu TMA isn't transfer to Cuisine TMA."
+          // Root cause: the prior code only read r.lat / r.lng and
+          // discarded r.label (the typed/picked name persisted by
+          // /api/menu/set-location via setUserLocation's `label` opt
+          // — see location-cache.js:28). The Cuisine TMA's pill then
+          // reverse-geocoded the coords back to a neighbourhood,
+          // silently overriding the user's pick. Now: when the cache
+          // includes a label, install it as locationAnchor so the
+          // pill + map both honor the Menu pick verbatim.
+          if (r.label && typeof r.label === 'string' && r.label.trim()) {
+            setLocationAnchor({
+              lat: r.lat,
+              lng: r.lng,
+              name: r.label.trim()
+            });
+          }
           // v0.61.124 — auto-flip the region toggle when the cached
           // anchor is Johor Bahru or IOI Resort City Putrajaya (set
           // via the chat /location quick-pick or Menu TMA dropdown).
@@ -628,6 +645,17 @@ export default function App() {
         const r = await fetchUserLocation();
         if (!r || !isValidCoord(r.lat, r.lng)) return;
         setUserLoc({ lat: r.lat, lng: r.lng });
+        // v0.61.266 — mirror the v0.61.266 tryServerCache fix on the
+        // visibility-refresh path. Without this, a user who switches
+        // from Menu TMA to chat to Cuisine TMA (visibility flip)
+        // would see the right coords but lose the Menu-set label.
+        if (r.label && typeof r.label === 'string' && r.label.trim()) {
+          setLocationAnchor({
+            lat: r.lat,
+            lng: r.lng,
+            name: r.label.trim()
+          });
+        }
         if (r.region === 'JB') {
           setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
         } else if (r.region === 'OTHER' || r.region === 'MY-PUT') {
