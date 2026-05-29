@@ -1,8 +1,8 @@
 counters:
-  commit: 464
-  build: 254
+  commit: 465
+  build: 255
   documents:
-    journal: 452
+    journal: 453
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,49 @@ counters:
     register: 123
 sessions:
   current_chat_id: 2026-05-29
-  current_chat_counter: 11
-last_anchor_time: 29-05 '26 14:15 SGT
-last_anchor_source: pr_merge_timestamp_v0_61_250 (PR #753 merged 2026-05-29T05:55:47Z = 13:55 SGT; v0.61.251 nearest-by-distance built ~20 min later)
-last_anchor_iso8601: 2026-05-29T14:15:00+08:00
-last_anchor_utc: 2026-05-29T06:15:00Z
+  current_chat_counter: 12
+last_anchor_time: 29-05 '26 14:30 SGT
+last_anchor_source: pr_merge_timestamp_v0_61_251 (PR #754 merged 2026-05-29T06:00:36Z = 14:00 SGT; v0.61.252 Putrajaya-fix PR built ~30 min later)
+last_anchor_iso8601: 2026-05-29T14:30:00+08:00
+last_anchor_utc: 2026-05-29T06:30:00Z
+
+# v0.61.252 (commit 465 / journal 453 / build 255) — operator
+# 29-05 '26 afternoon: "My location is Malaysia, Putrajaya. I
+# start the Menu TMA, it jump to Kuala LUmpur. this is wrong, can
+# you deconflict this?"
+#
+# Bug: both TMAs' v0.61.249 / v0.61.243 GPS auto-detect set the
+# anchor label to the IATA canonical name (`IATA_CITIES[].name`).
+# That worked for cities IATA names alone (KL → "Kuala Lumpur",
+# TYO → "Tokyo"), but the IATA table treats KL metro as one entry
+# (KUL at 3.14, 101.69). When the operator's GPS lands at
+# Putrajaya (2.93, 101.70 — 22 km from KUL coords), nearestIataCity
+# returns KUL, and the label became "Kuala Lumpur" — even though
+# cities.js[MY] HAS a Putrajaya entry already (code KUL post-
+# v0.61.242 audit) carrying the operator's intended name.
+#
+# Fix: BEFORE falling back to the IATA canonical name, scan
+# cities.js[detected.countryCode] for the entry NEAREST to the
+# GPS by haversine. If it's within 30 km, use that name. Otherwise
+# fall through to the IATA canonical. Threshold matches the
+# v0.61.243 cached-anchor drift rule.
+#
+# Cases:
+#   Putrajaya GPS → cities.js[MY] nearest = Putrajaya (0 km)
+#     → label = "Putrajaya"  (was: "Kuala Lumpur")
+#   Shah Alam GPS → nearest = Shah Alam (0 km)
+#     → label = "Shah Alam"  (was: "Kuala Lumpur")
+#   Sibu GPS → nearest = Kuching (~150 km, >30 km)
+#     → label = "Sibu" (IATA canonical SBW from iata-cities.js,
+#     unchanged from v0.61.249)
+#
+# - web/cuisine/src/v2/App.jsx autoDetect — adds 30 km scan, falls
+#   back to IATA canonical when no curated match. Imports
+#   CITIES_BY_COUNTRY from ./lib/cities.js.
+# - web/menu/src/App.jsx runAutoDetect — same fix, imports
+#   CITIES_BY_COUNTRY from ./cities.js.
+
+
 
 # v0.61.251 (commit 464 / journal 452 / build 254) — operator
 # 29-05 '26 morning backlog: "(a) cities.js nearest-by-distance sync

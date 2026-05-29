@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
+import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { stripSgOnly } from './lib/sg-only-slugs.js';
 import QuickFilters from './components/QuickFilters.jsx';
@@ -822,9 +823,36 @@ export default function App() {
       if (Object.keys(stateDelta).length) {
         setState((s) => ({ ...s, ...stateDelta }));
       }
-      const anchorName = detected
-        ? (IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name)
-        : '';
+      // v0.61.252 — operator: "My location is Malaysia, Putrajaya. I
+      // start the Menu TMA, it jump to Kuala LUmpur. this is wrong."
+      // The IATA table is sparse on satellites: KL metro covers KL +
+      // Putrajaya + Shah Alam + Seremban via KUL's coords (3.14,
+      // 101.69) but the canonical IATA name is "Kuala Lumpur".
+      // When a curated cities.js entry sits within 30 km of the GPS,
+      // PREFER its name over the IATA canonical so the operator sees
+      // "Putrajaya" / "Penang" / "Tsim Sha Tsui" instead of the
+      // metro umbrella. Same threshold as the v0.61.243 drift check.
+      let anchorName = '';
+      if (detected) {
+        const list = (typeof CITIES_BY_COUNTRY !== 'undefined' ? CITIES_BY_COUNTRY[detected.countryCode] : null) || [];
+        let nearestCurated = null;
+        let nearestKm = Infinity;
+        for (const c of list) {
+          const dLat = (c.lat - target.lat) * Math.PI / 180;
+          const dLng = (c.lng - target.lng) * Math.PI / 180;
+          const a = Math.sin(dLat / 2) ** 2 + Math.cos(target.lat * Math.PI / 180) * Math.cos(c.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+          const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          if (km < nearestKm) { nearestKm = km; nearestCurated = c; }
+        }
+        if (nearestCurated && nearestKm < 30) {
+          anchorName = nearestCurated.name;
+          console.log('[Cuisine-TMA-v2] auto-detect: prefer curated cities.js entry',
+            nearestCurated.name, `(${nearestKm.toFixed(1)} km from GPS)`,
+            'over IATA canonical', detected.name);
+        } else {
+          anchorName = IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name;
+        }
+      }
       setLocationAnchor({ lat: target.lat, lng: target.lng, name: anchorName });
       setSearchCenter({ lat: target.lat, lng: target.lng });
 
