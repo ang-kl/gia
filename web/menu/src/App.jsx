@@ -297,8 +297,15 @@ export default function App() {
           preferLabel, `(${nearestKm.toFixed(1)} km)`,
           'over IATA canonical', detected.name);
       }
-      const labelOut = preferLabel
+      // v0.61.256 — defensive: Gemini fallback may return a poor `name`
+      // (sometimes literally 'Unnamed' when no good lookup exists).
+      // Filter that out so we never persist the placeholder string as
+      // the anchor label.
+      let labelOut = preferLabel
         || (IATA_CITIES.find((c) => c.iata === detected.iata)?.name || detected.name);
+      if (!labelOut || labelOut === 'Unnamed') {
+        labelOut = `${detected.countryCode || 'Pinned'} location`;
+      }
 
       // POST set-location.
       try {
