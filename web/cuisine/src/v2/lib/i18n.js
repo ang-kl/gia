@@ -322,7 +322,14 @@ const STRINGS = {
   // to OTHER-country treatment. The user otherwise sees results
   // without knowing the system overrode their JB pick.
   'banner.jbFallbackToOther':  { en: 'Showing results near your location — Johor Bahru filter didn’t apply at this distance.',
-                                 fr: 'Affichage des résultats près de vous — le filtre Johor Bahru ne s’applique pas à cette distance.' }
+                                 fr: 'Affichage des résultats près de vous — le filtre Johor Bahru ne s’applique pas à cette distance.' },
+
+  // v0.61.280 — Register O-31: sparse notice rendered in the cuisine
+  // drawer when region !== 'SG'. The ✳️ Michelin chip is greyed (it
+  // ships with regionScope:'SG'); this caption explains why so the
+  // user doesn't read greyed-out as broken.
+  'drawer.michelinSgOnly':     { en: '✳️ Michelin is Singapore-only (greyed outside SG).',
+                                 fr: '✳️ Michelin uniquement à Singapour (grisé hors SG).' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];
