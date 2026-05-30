@@ -431,5 +431,110 @@ export default [
     "fr": "Les kueh kapit (« lettres d'amour ») sont des gaufrettes d'œuf croustillantes pliées en quarts. D'origine Hokkien et Peranakan, c'est une spécialité du Nouvel An chinois en Malaisie comme à Singapour.",
     "source": "Wikipedia",
     "sourceUrl": "https://en.wikipedia.org/wiki/Kuih_kapit"
+  },
+  // v0.61.297 — anti-repeat variety pass. Adds a second fact for 12
+  // popular cuisines that previously had only one Phase-1 / Phase-2A
+  // entry (laksa / nasi-lemak / satay / roti-prata / teh-tarik /
+  // kaya / durian / yong-tau-foo / popiah / nasi-kandar / murtabak /
+  // mee-goreng). With anti-repeat capped at 10 IDs, a single-fact
+  // cuisine cycled back to the same fact every search. Each new
+  // entry covers a distinct angle (technique / regional variant /
+  // etymology / cultural marker) so the modal feels fresh on repeat
+  // searches of the same cuisine.
+  {
+    "id": "laksa-katong-cut",
+    "tags": ["laksa", "katong", "peranakan", "SG"],
+    "en": "Katong laksa (Singapore) is famously eaten with just a spoon — the noodles are pre-cut into spoon-friendly lengths. Chunky cockles, dried shrimp, and a thick coconut-curry broth distinguish it from soup-laksa variants.",
+    "fr": "Le laksa de Katong (Singapour) se mange célèbrement à la cuillère seule — les nouilles sont pré-coupées en morceaux adaptés à la cuillère. Coques charnues, crevettes séchées et bouillon coco-curry épais le distinguent des laksas-soupe.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Laksa"
+  },
+  {
+    "id": "nasi-lemak-pandan-knots",
+    "tags": ["nasi-lemak", "malay", "SG", "MY"],
+    "en": "Nasi lemak's signature aroma comes from pandan leaves cooked with the rice. The leaves are tied into knots so the cook can lift them out cleanly before serving.",
+    "fr": "L'arôme caractéristique du nasi lemak vient des feuilles de pandan cuites avec le riz. Les feuilles sont nouées pour que le cuisinier puisse les retirer proprement avant de servir.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nasi_lemak"
+  },
+  {
+    "id": "satay-madura-origin",
+    "tags": ["satay", "malay", "indonesian", "SG", "MY"],
+    "en": "Satay's earliest written records are 19th-century Javanese — the dish is traced specifically to the Madurese of eastern Java. Skewered grilled meat spread to Malaya through Indonesian traders by the 1800s.",
+    "fr": "Les premières traces écrites du satay sont javanaises du XIXᵉ siècle — la recette est rattachée précisément aux Madurais de l'est de Java. La viande grillée en brochette a gagné la Malaisie via les commerçants indonésiens au XIXᵉ siècle.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Satay"
+  },
+  {
+    "id": "roti-prata-tisu",
+    "tags": ["roti-prata", "indian", "SG", "MY", "dessert"],
+    "en": "Roti tisu (\"tissue roti\") is a Singaporean variant — the dough is stretched paper-thin into a tall ~50 cm cone and served with kaya, condensed milk, or chocolate sauce for dipping.",
+    "fr": "Le roti tisu (« roti tissu ») est une variante singapourienne — la pâte est étirée si finement qu'on la dresse en cône d'environ 50 cm de haut, servi avec kaya, lait concentré ou sauce chocolat à tremper.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Roti_canai"
+  },
+  {
+    "id": "teh-tarik-pulling-distance",
+    "tags": ["teh-tarik", "mamak", "indian", "SG", "MY"],
+    "en": "The tarik pull is performed at up to a metre between two cups. The aeration produces teh tarik's signature thick foam — a barista trick that predates espresso milk foam by decades.",
+    "fr": "Le « tarik » s'effectue avec jusqu'à un mètre de distance entre deux tasses. L'aération crée la mousse épaisse caractéristique du teh tarik — une astuce de barista qui précède la mousse de lait à l'espresso de plusieurs décennies.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Teh_tarik"
+  },
+  {
+    "id": "kaya-pandan-vs-hainanese",
+    "tags": ["kaya", "kopitiam", "hainanese", "peranakan", "chinese", "SG", "MY"],
+    "en": "Two kaya styles coexist: Hainanese (caramel-brown, slow-cooked with coconut + eggs + sugar) and Nonya (bright green from pandan juice). The brown version is older; the green spread via Peranakan households.",
+    "fr": "Deux styles de kaya coexistent : hainanais (brun caramel, cuit lentement avec coco + œufs + sucre) et nyonya (vert vif grâce au jus de pandan). La version brune est la plus ancienne ; la verte s'est diffusée par les foyers peranakan.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kaya_(jam)"
+  },
+  {
+    "id": "durian-musang-king-civet",
+    "tags": ["durian", "MY", "fruit"],
+    "en": "Musang King (Mao Shan Wang) is the most prized Malaysian durian — golden flesh, bittersweet, with a deeper aroma than the more common D24. The name comes from the Musang (Asian palm civet) of the orchards.",
+    "fr": "Le Musang King (Mao Shan Wang) est le durian malaisien le plus prisé — chair dorée, doux-amer, à l'arôme plus profond que le D24, plus courant. Le nom vient du Musang (civette palmiste) des vergers.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Musang_King"
+  },
+  {
+    "id": "yong-tau-foo-pick-your-own",
+    "tags": ["yong-tau-foo", "hakka", "chinese", "SG"],
+    "en": "Singapore's yong tau foo evolved into a self-service hawker format — customers pick items from a tray and the stall assembles. The Hakka original was a more limited set of stuffed-tofu pieces.",
+    "fr": "Le yong tau foo singapourien a évolué vers un format de hawker en libre-service — les clients choisissent les pièces sur un plateau, le stand assemble. La version hakka originale était un assortiment plus restreint de morceaux de tofu farcis.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Yong_tau_foo"
+  },
+  {
+    "id": "popiah-cantonese-vs-hokkien",
+    "tags": ["popiah", "chinese", "fujian", "cantonese", "hokkien", "SG"],
+    "en": "Cantonese popiah is fried (crispy spring-roll style); Hokkien-Peranakan popiah is soft-wrapped fresh. Both descended from Fujian's bo bing tradition, diverging by community in 19th-century Southeast Asia.",
+    "fr": "Le popiah cantonais est frit (style rouleau de printemps croustillant) ; le popiah hokkien-peranakan est enroulé tendre et frais. Les deux descendent de la tradition du bo bing fujianais, divergeant par communauté en Asie du Sud-Est au XIXᵉ siècle.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Popiah"
+  },
+  {
+    "id": "nasi-kandar-banjir",
+    "tags": ["nasi-kandar", "penang", "MY", "indian"],
+    "en": "Nasi kandar's signature is \"banjir\" (\"flooded\") — multiple curries poured over the rice so they mix on the plate. Each customer dictates the curry combo at the counter.",
+    "fr": "La marque de fabrique du nasi kandar est le « banjir » (« inondé ») — plusieurs currys versés sur le riz pour qu'ils se mélangent dans l'assiette. Chaque client choisit la combinaison de currys au comptoir.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nasi_kandar"
+  },
+  {
+    "id": "murtabak-fold-technique",
+    "tags": ["murtabak", "indian", "MY", "SG"],
+    "en": "Murtabak's distinctive cook: dough is stretched on a hot plate, filling (egg + minced meat + onion) added, then folded into a square pocket and griddled on both sides until crisp.",
+    "fr": "La cuisson typique du murtabak : la pâte est étirée sur une plaque chauffante, la farce (œuf + viande hachée + oignon) ajoutée, puis pliée en pochette carrée et grillée des deux côtés jusqu'à devenir croustillante.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mutabbaq"
+  },
+  {
+    "id": "mee-goreng-mamak-tomato-base",
+    "tags": ["mee-goreng", "mamak", "indian", "MY", "SG"],
+    "en": "Mee goreng mamak's tomato-and-chilli base is the giveaway — a Malaysian-Indian invention NOT found in either ancestor cuisine. The dish dates to early 20th-century Malayan port cities.",
+    "fr": "La base tomate-et-piment du mee goreng mamak est révélatrice — une invention indo-malaisienne absente des cuisines ancestrales. Le plat remonte aux villes portuaires malaises du début du XXᵉ siècle.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mee_goreng_mamak"
   }
 ];

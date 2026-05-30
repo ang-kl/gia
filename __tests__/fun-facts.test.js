@@ -11,9 +11,9 @@ import {
 import facts from '../web/cuisine/src/v2/data/fun-facts.js';
 
 describe('fun-facts data contract', () => {
-  it('exports 52 facts (40 SG-NLB + 12 MY-regional)', () => {
-    expect(facts.length).toBe(52);
-    expect(totalFunFacts()).toBe(52);
+  it('exports 64 facts (40 SG-NLB + 12 MY-regional + 12 anti-repeat variety)', () => {
+    expect(facts.length).toBe(64);
+    expect(totalFunFacts()).toBe(64);
   });
 
   it('every fact has id + tags + EN + FR + source URL', () => {

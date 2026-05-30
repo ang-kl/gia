@@ -73,10 +73,19 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"
+      aria-busy="true"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 cursor-wait"
     >
-      {/* Light backdrop — non-blocking; the search keeps running underneath. */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+      {/* v0.61.297 — backdrop now ABSORBS pointer events so the page
+          underneath is non-clickable while the fact + search are in
+          flight (matches the rotating-titles overlay's prior
+          behaviour). The search continues running; only user
+          interaction with the underlying page is blocked. */}
+      <div
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={(e) => e.stopPropagation()}
+      />
       {/* v0.61.286 — operator: "for dark mode, the contrast in border
           for this wait message must be obvious." Default border-tg-border
           (1px) was barely visible against the dark-mode tg-bg → tg-card
