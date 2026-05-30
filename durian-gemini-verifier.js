@@ -46,6 +46,12 @@ function _flattenKeptVenues(report) {
       for (const v of (q?.kept || [])) {
         out.push({
           id: ++id,
+          // v0.61.275 — Plan B: surface placeId so the caller can
+          // join the labelled output back to a Redis cache keyed by
+          // placeId. Cuisine-search post-filter (v0.61.275) reads
+          // those labels at search time and drops 'unrelated' venues
+          // for durian / durian-pastry modes.
+          placeId: String(v?.placeId || ''),
           region: reg.name,
           name: String(v?.name || '').slice(0, 120),
           primaryType: String(v?.primaryType || '').slice(0, 64),
@@ -169,6 +175,9 @@ async function _processBatch({ apiKey, model, mode, batch, _genAIFactory }) {
     const p = byId.get(v.id);
     return {
       id: v.id,
+      // v0.61.275 — placeId carried through so the Redis label cache
+      // can key by it for the cuisine-search post-filter.
+      placeId: v.placeId || '',
       region: v.region,
       name: v.name,
       primaryType: v.primaryType,
@@ -224,7 +233,9 @@ async function verifyKeptVenues({
         // Still record the venues with "unrelated"/"low" so totals add up.
         for (const v of batches[idx]) {
           labelled.push({
-            id: v.id, region: v.region, name: v.name,
+            id: v.id,
+            placeId: v.placeId || '',
+            region: v.region, name: v.name,
             primaryType: v.primaryType, label: 'unrelated',
             confidence: 'low',
             reason: `gemini batch failed: ${res.error || 'unknown'}`.slice(0, 120)

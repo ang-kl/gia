@@ -248,3 +248,104 @@ describe('durian-gemini-verifier — verifyKeptVenues', () => {
     expect(out.totals.precisionLenient).toBeCloseTo(2 / 3, 5);
   });
 });
+
+// v0.61.275 — Plan B: placeId must flow through the flatten + labelled
+// pipeline so the cuisine-search post-filter can key its Redis label
+// cache by placeId. Pre-v0.61.275 the verifier dropped placeId on the
+// floor (only id, region, name, primaryType were forwarded).
+describe('durian-gemini-verifier — placeId flow (v0.61.275)', () => {
+  function makeReportWithPlaceIds(...venuesByRegion) {
+    return {
+      mode: 'durian-pastry',
+      regions: venuesByRegion.map((venues, i) => ({
+        name: `Region${i + 1}`,
+        queries: [{ seed: 'durian cake', lang: 'en', kept: venues, rejected: [] }],
+        totals: { placesReturned: venues.length, kept: venues.length, rejected: 0 },
+        primaryTypeFrequency: {}
+      })),
+      totals: { placesReturned: 0, kept: 0, rejected: 0 }
+    };
+  }
+
+  it('_flattenKeptVenues surfaces placeId on every output row', () => {
+    const r = makeReportWithPlaceIds([
+      { placeId: 'PID-AAA-001', name: 'Sunlife Durian Puffs', primaryType: 'bakery', formattedAddress: 'Toa Payoh', reviews: [] },
+      { placeId: 'PID-AAA-002', name: 'Emicakes', primaryType: 'cake_shop', formattedAddress: 'Bukit Batok', reviews: [] }
+    ]);
+    const flat = _flattenKeptVenues(r);
+    expect(flat[0].placeId).toBe('PID-AAA-001');
+    expect(flat[1].placeId).toBe('PID-AAA-002');
+  });
+
+  it('_flattenKeptVenues defaults placeId to empty string when source is missing it', () => {
+    const r = makeReportWithPlaceIds([
+      { name: 'Anonymous Bakery', primaryType: 'bakery', formattedAddress: 'Somewhere', reviews: [] }
+    ]);
+    const flat = _flattenKeptVenues(r);
+    expect(flat[0].placeId).toBe('');
+  });
+
+  it('verifyKeptVenues carries placeId through to labelled venues', async () => {
+    const r = makeReportWithPlaceIds([
+      { placeId: 'PID-BBB-001', name: 'Real Durian Specialist', primaryType: 'bakery', formattedAddress: 'X' },
+      { placeId: 'PID-BBB-002', name: 'Ritz Apple Strudel', primaryType: 'pastry_shop', formattedAddress: 'Y' }
+    ]);
+    const factory = () => ({
+      getGenerativeModel() {
+        return {
+          async generateContent(prompt) {
+            const m = 'Venues:';
+            const idx = prompt.lastIndexOf(m);
+            const tail = prompt.slice(idx + m.length);
+            const s = tail.indexOf('['), e = tail.lastIndexOf(']');
+            const venues = JSON.parse(tail.slice(s, e + 1));
+            return {
+              response: {
+                text: () => JSON.stringify(venues.map((v) => ({
+                  id: v.id,
+                  label: v.name === 'Real Durian Specialist' ? 'specialist' : 'unrelated',
+                  confidence: 'high',
+                  reason: 'mocked'
+                })))
+              }
+            };
+          }
+        };
+      }
+    });
+    const out = await verifyKeptVenues({
+      report: r, mode: 'durian-pastry', _genAIFactory: factory
+    });
+    expect(out.venues.length).toBe(2);
+    // Sorted by id; first row is the specialist
+    expect(out.venues[0].placeId).toBe('PID-BBB-001');
+    expect(out.venues[0].label).toBe('specialist');
+    expect(out.venues[1].placeId).toBe('PID-BBB-002');
+    expect(out.venues[1].label).toBe('unrelated');
+  });
+
+  it('failed-batch defaults still include placeId', async () => {
+    const r = makeReportWithPlaceIds([
+      { placeId: 'PID-CCC-001', name: 'A', primaryType: 'bakery', formattedAddress: 'X' },
+      { placeId: 'PID-CCC-002', name: 'B', primaryType: 'bakery', formattedAddress: 'Y' }
+    ]);
+    // Factory that throws on every call
+    const factory = () => ({
+      getGenerativeModel() {
+        return {
+          async generateContent() { throw new Error('forced batch failure'); }
+        };
+      }
+    });
+    const out = await verifyKeptVenues({
+      report: r, mode: 'durian-pastry', batchSize: 2, concurrency: 1, _genAIFactory: factory
+    });
+    expect(out.totals.batchFailures).toBe(1);
+    expect(out.venues.length).toBe(2);
+    expect(out.venues[0].placeId).toBe('PID-CCC-001');
+    expect(out.venues[1].placeId).toBe('PID-CCC-002');
+    // Failed venues default to unrelated/low.
+    expect(out.venues[0].label).toBe('unrelated');
+    expect(out.venues[0].reason).toMatch(/gemini batch failed/);
+  });
+});

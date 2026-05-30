@@ -4524,6 +4524,40 @@ async function ownerDurianGeminiRun(chatId, which) {
       await redis.setEx(`dvg:latest:${cfg.mode}`, 60 * 24 * 60 * 60, JSON.stringify(result)).catch(() => {});
     }
   } catch { /* non-fatal */ }
+  // v0.61.275 — Plan B: also persist per-placeId labels to a Redis
+  // hash so the cuisine-search post-filter (below at D703e) can look
+  // up each venue's verdict at search time. Hash key = dgv:labels:
+  // <mode>, field = placeId, value = JSON({ label, confidence, reason,
+  // verifiedAt }). 30-day TTL on the hash. Operator (30-05 '26) chose
+  // option B from the 1143/1142 Gemini verify analysis: cache labels
+  // so search-time post-filtering uses Gemini's per-venue verdict
+  // without per-search Gemini cost or latency.
+  try {
+    if (redis && redis.isOpen && Array.isArray(result.venues) && result.venues.length > 0) {
+      const labelsKey = `dgv:labels:${cfg.mode}`;
+      const verifiedAt = new Date().toISOString();
+      const entries = {};
+      let labeled = 0;
+      for (const v of result.venues) {
+        if (!v.placeId) continue;
+        entries[v.placeId] = JSON.stringify({
+          label: v.label || 'unrelated',
+          confidence: v.confidence || 'low',
+          reason: (v.reason || '').slice(0, 120),
+          verifiedAt
+        });
+        labeled++;
+      }
+      if (labeled > 0) {
+        // hSet accepts a single object of { field: value } pairs.
+        await redis.hSet(labelsKey, entries).catch(() => {});
+        await redis.expire(labelsKey, 30 * 24 * 60 * 60).catch(() => {});
+        console.log(`[Cuisine-TMA] dgv:labels:${cfg.mode} populated ${labeled} placeId → label entries (30d TTL)`);
+      }
+    }
+  } catch (err) {
+    console.warn(`[Cuisine-TMA] dgv:labels persist failed: ${err.message}`);
+  }
   // Build summary text.
   const lines = [];
   const t = result.totals;
@@ -14240,6 +14274,39 @@ async function cacheBotUsername() {
           venues = sm.filterByMode(venues, specialMode);
           if (venues.length !== beforeSpecial) {
             console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
+          }
+          // v0.61.275 — Plan B: cached-Gemini-label post-filter for
+          // durian + durian-pastry. Reads dgv:labels:<mode> hash
+          // (populated by /ver → 🤖 Gemini verify) and drops any
+          // venue Gemini classified as 'unrelated'. Unlabelled
+          // venues pass through (trust v0.61.262 heuristic). Modes
+          // that are not durian/pastry skip the lookup entirely.
+          // Operator chose this approach 30-05 '26 after the
+          // 11:42/11:43 Gemini verify: durian fruit already at
+          // 96.8 % strict precision (no gain expected), but pastry
+          // jumps from 18% keep-rate / 66% strict → effectively
+          // 100% of the labelled subset.
+          if (specialMode === 'durian' || specialMode === 'durian-pastry') {
+            try {
+              const before = venues.length;
+              const labelsKey = `dgv:labels:${specialMode}`;
+              const labelsMap = (redis && redis.isOpen) ? await redis.hGetAll(labelsKey).catch(() => null) : null;
+              if (labelsMap && Object.keys(labelsMap).length > 0) {
+                let dropped = 0, unlabeled = 0;
+                venues = venues.filter((v) => {
+                  const raw = labelsMap[v.placeId];
+                  if (!raw) { unlabeled++; return true; }
+                  try {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.label === 'unrelated') { dropped++; return false; }
+                  } catch { /* malformed entry: keep venue */ }
+                  return true;
+                });
+                console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${specialMode}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through)`);
+              }
+            } catch (err) {
+              console.warn(`[Cuisine-Search] D703e Gemini-label lookup failed: ${err.message}`);
+            }
           }
         }
         // v0.61.129 — O-23: progressive radius widening for special
