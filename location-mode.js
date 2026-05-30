@@ -58,6 +58,23 @@ const SG_CENTROID = Object.freeze({ lat: 1.3521, lng: 103.8198 });
 // so a fix beyond this is unambiguously OTHER.
 const COARSE_GATE_M = 120000;
 
+// v0.61.276 — JB CBD centroid. The cuisine-search JB-hybrid filter
+// (index.js D703b) uses this as the JB anchor, and the v0.61.276
+// region-coords sanity guards (search graceful exit + set-location
+// downgrade) measure distance against it.
+const JB_CBD = Object.freeze({ lat: 1.4927, lng: 103.7414 });
+
+// v0.61.276 — JB-fallback threshold. When a user picks region='JB'
+// but the request coordinates are >150 km from JB_CBD, both:
+//   • POST /api/cuisine/set-location downgrades region to OTHER
+//   • POST /api/cuisine/search (after the JB-hybrid filter wipes
+//     the pool) falls through to OTHER country-text-filter treatment
+// 150 km is slightly larger than the JB extent (~120 km from CBD)
+// so Pontian / Mersing / Desaru / Iskandar Puteri stay JB; only
+// mainland-MY (Putrajaya / KL / Ipoh) and SG-far-north hit the
+// fallback. v0.61.279 extracted from two inline copies (Register O-26).
+const JB_FALLBACK_THRESHOLD_M = 150000;
+
 // Substring match (case-insensitive). The Malaysian state name comes
 // back as "Johor" from the Google Geocode `administrative_area_level_1`
 // component; using `includes` survives stray punctuation / suffixes
@@ -79,6 +96,17 @@ function haversineMeters(a, b) {
   const lat2 = toRad(b.lat);
   const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+}
+
+// v0.61.279 — Register O-26. true ⇒ the request coordinates are far
+// enough from JB_CBD that a region='JB' pick is almost certainly
+// stale (the user expressed regional intent for JB but the coords
+// say they're not there). Used by the set-location sanity guard
+// and the cuisine-search graceful-exit guard.
+function isFarFromJB(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  const distM = haversineMeters(JB_CBD, { lat, lng });
+  return Number.isFinite(distM) && distM > JB_FALLBACK_THRESHOLD_M;
 }
 
 // Rule §2.2 — coarse radius gate. true ⇒ within SG_CENTROID +/- R.
@@ -254,11 +282,14 @@ function isFeatureAllowed(mode, feature) {
 module.exports = {
   SG_CENTROID,
   COARSE_GATE_M,
+  JB_CBD,
+  JB_FALLBACK_THRESHOLD_M,
   JB_ADMIN_KEYWORDS,
   FEATURE_KIND,
   ALWAYS_ALLOWED,
   SG_ONLY,
   haversineMeters,
+  isFarFromJB,
   coarseGate,
   classifyByCountry,
   classifyLocation,

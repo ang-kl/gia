@@ -119,10 +119,18 @@ export default function App() {
   // logic. Reuses /api/cuisine/user-location (existing initData-gated
   // read). Null when unset / stale.
   const [anchor, setAnchor] = useState(null);
+  // v0.61.279 — Register O-27: parity with Cuisine TMA v0.61.273
+  // `__NONE__` sentinel. Before the cached-anchor fetch resolves we
+  // don't know the user's region; rendering SG-mode UI by default
+  // ("no fallback leaks to Singapore" per PLATFORM REFRACTORING §3)
+  // would briefly show train + SG-only tiles to a Malaysia user.
+  // While `anchorLoading === true`, treat the region as unresolved
+  // and gate the SG-mode affordances (train panel + SG-only tiles).
+  const [anchorLoading, setAnchorLoading] = useState(true);
   useEffect(() => {
     let cancelled = false;
     const w = tg();
-    if (!w) return;
+    if (!w) { setAnchorLoading(false); return; }
     fetch('/api/cuisine/user-location', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -130,13 +138,17 @@ export default function App() {
     })
       .then((r) => r.ok ? r.json() : null)
       .then((b) => {
-        if (cancelled || !b) return;
-        if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
+        if (cancelled) return;
+        if (b && Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
           setAnchor({
             label: b.label || null,
             lat: b.lat,
             lng: b.lng,
-            region: b.region || 'SG',
+            // v0.61.279 — Register O-27: drop the `|| 'SG'` fallback.
+            // If the server's user-location echo omits region, leave
+            // it null instead of silently coercing to 'SG'. `isMy` /
+            // `anchorLoading` already handle the missing-region case.
+            region: b.region || null,
             radiusCapM: b.radiusCapM || null,
             // v0.61.139 — structured address parts persisted by
             // /api/menu/set-location for typed-text anchors (precinct
@@ -151,8 +163,9 @@ export default function App() {
             country: (typeof b.country === 'string' && /^[A-Z]{2}$/.test(b.country)) ? b.country : null
           });
         }
+        setAnchorLoading(false);
       })
-      .catch(() => { /* silent — anchor stays null */ });
+      .catch(() => { if (!cancelled) setAnchorLoading(false); });
     return () => { cancelled = true; };
   }, []);
 
@@ -335,7 +348,9 @@ export default function App() {
             label: body.label,
             lat: body.lat,
             lng: body.lng,
-            region: body.region || 'SG',
+            // v0.61.279 — Register O-27: drop the `|| 'SG'` fallback;
+            // see the user-location useEffect above for rationale.
+            region: body.region || null,
             radiusCapM: body.radiusCapM || null,
             street: body.street || null,
             building: body.building || null,
@@ -368,6 +383,13 @@ export default function App() {
 
   // v0.61.185 — accept 'OTHER' alongside legacy 'MY-PUT' (was Putrajaya-specific).
   const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT' || anchor.region === 'OTHER');
+  // v0.61.279 — Register O-27: while the initial anchor fetch is in
+  // flight we don't know the region, so gate the SG-mode affordances
+  // (train panel active + SG-only tiles enabled) on `anchorLoading`
+  // being false. Once the fetch resolves — whether to an SG anchor,
+  // an MY anchor, or no anchor at all — the gate releases and `isMy`
+  // takes over.
+  const regionUnresolved = anchorLoading || (anchor && !anchor.region);
 
   // v0.60.67 — fire-and-forget. Per Human Lead 2026-05-10, the TMA
   // wasn't closing immediately after a dispatch tap (Incidents,
@@ -541,7 +563,7 @@ export default function App() {
                  LocationFieldMenu moved out to its own section
                  (`section.id === 'location'` below). */
               <div
-                style={isMy ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+                style={(isMy || regionUnresolved) ? { opacity: 0.4, pointerEvents: 'none' } : {}}
                 title={isMy ? t('tile.disabledMy', lang) : undefined}
               >
                 <TrainPanel
@@ -569,7 +591,7 @@ export default function App() {
                 Malaysia anchor is set. */}
             <div className="grid grid-cols-2 gap-1.5">
               {section.tiles.map((tile) => {
-                const disabled = isMy && SG_ONLY_TILES.has(tile.id);
+                const disabled = (isMy || regionUnresolved) && SG_ONLY_TILES.has(tile.id);
                 return (
                   <Tile
                     key={tile.id}
