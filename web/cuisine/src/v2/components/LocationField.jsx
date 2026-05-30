@@ -142,12 +142,22 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     const id = setTimeout(() => setSuffixVisible(false), 8000);
     return () => clearTimeout(id);
   }, [suffix]);
+  // v0.61.284 — operator: *"i thought when i type in the location in
+  // cuisine tma like orchard, it wouldn't auto-fire, the message
+  // flush right 'tap to search 🔝' will be below the 🔍 until the
+  // user click any of the 3 search feature."* The v0.61.244 idle
+  // hint waited 6 s and cleared on every keystroke, so the user
+  // rarely saw it. Re-spec: show the "Tap 🔍 to search" bubble
+  // immediately when the user has typed 1+ chars AND the field is
+  // open; stays visible while typing; only clears on pick / clear /
+  // submit / blur (i.e. the existing clearIdleHint callers).
   useEffect(() => {
-    clearIdleHint();
     const trimmed = query.trim();
-    if (!open || trimmed.length < 1) return;
-    idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
-    return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
+    if (!open || trimmed.length < 1) {
+      clearIdleHint();
+      return;
+    }
+    setIdleHintActive(true);
   }, [query, open]);
 
   // Reverse-geocode the user's GPS once so the field shows
@@ -739,12 +749,17 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
     setIdleHintActive(false);
   }
+  // v0.61.284 — mirrors the SG/JB branch: show "Tap 🔍 to search"
+  // bubble immediately on type instead of after 6 s. Persists while
+  // typing; clears on pick / clear / submit (the clearIdleHint
+  // call sites).
   useEffect(() => {
-    clearIdleHint();
     const trimmed = query.trim();
-    if (trimmed.length < 1) return;
-    idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
-    return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
+    if (trimmed.length < 1) {
+      clearIdleHint();
+      return;
+    }
+    setIdleHintActive(true);
   }, [query]);
   // v0.61.281 — operator screenshot annotation: auto-hide the
   // "{N} places nearby · tap to change 🔝" line after 8 s. Mirrors
