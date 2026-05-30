@@ -50,7 +50,17 @@ function _writeLastSeen(arr) {
   } catch { /* swallow quota / disabled-storage errors */ }
 }
 
-// Pure helper exported for tests. Pass `lastSeen` + `now` for determinism.
+// v0.61.291 — region tags vs cuisine tags. The v0.61.290 vitest run
+// caught a real selector bug: when ctx = `{cuisines:['laksa'], region:
+// 'SG'}`, the prior any-tag-overlap logic treated 'sg' and 'laksa' as
+// equally weighted, so any of the 25-ish SG-tagged facts could win
+// over the single laksa-tagged fact. Operator's spec was "Search
+// 'laksa' → modal preferentially picks one of the laksa-tagged
+// facts". Tier the match: cuisine/community tags (the user's
+// expressed intent) beat region tags (the user's background context).
+const REGION_TAGS = new Set(['sg', 'my', 'jb', 'other', '__none__']);
+
+// Pure helper exported for tests. Pass `lastSeen` + `rng` for determinism.
 export function _pickFact({ ctxTags, lastSeen, factsList = facts, rng = Math.random }) {
   const safeTags = Array.isArray(ctxTags) ? ctxTags.map((t) => String(t).toLowerCase()) : [];
   const safeLastSeen = new Set(Array.isArray(lastSeen) ? lastSeen : []);
@@ -60,15 +70,26 @@ export function _pickFact({ ctxTags, lastSeen, factsList = facts, rng = Math.ran
   // reset and pick from the whole list.
   const pool = notSeen.length > 0 ? notSeen : factsList;
 
-  // First pass: facts whose tag set overlaps any ctx tag.
-  let matched = pool;
-  if (safeTags.length > 0) {
-    matched = pool.filter((f) => {
+  // v0.61.291 — tiered match. Cuisine/community tags first, region tags
+  // as fallback, full pool as last resort.
+  const cuisineCtxTags = safeTags.filter((t) => !REGION_TAGS.has(t));
+  const regionCtxTags = safeTags.filter((t) => REGION_TAGS.has(t));
+
+  function matchAny(subset, tags) {
+    if (tags.length === 0) return [];
+    return subset.filter((f) => {
       const ftags = Array.isArray(f.tags) ? f.tags.map((t) => String(t).toLowerCase()) : [];
-      return ftags.some((t) => safeTags.includes(t));
+      return ftags.some((t) => tags.includes(t));
     });
-    if (matched.length === 0) matched = pool;
   }
+
+  // Tier 1 — cuisine/community tag overlap.
+  let matched = matchAny(pool, cuisineCtxTags);
+  // Tier 2 — region tag overlap.
+  if (matched.length === 0) matched = matchAny(pool, regionCtxTags);
+  // Tier 3 — anything in the pool.
+  if (matched.length === 0) matched = pool;
+
   const idx = Math.floor(rng() * matched.length);
   return matched[idx] || null;
 }
