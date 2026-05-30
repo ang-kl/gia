@@ -74,6 +74,55 @@ jobs:
           fi
           echo "✅ All source .js files pass node --check"
 
+  empty-blob:
+    name: Empty-blob guardrail (Register O-37)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect 0-byte source files
+        # v0.61.289 — Register O-37 mitigation. macOS iCloud eviction
+        # can return 0-byte reads to Node / Git while file metadata
+        # still shows the original size, so a naive `git add` or
+        # `JSON.parse(readFileSync(...))` produces an empty payload
+        # that then commits / persists silently. Pre-v0.61.289 this
+        # happened twice in production: `smart-place-label.js` (an
+        # empty-blob since first commit; restored in v0.61.278) and
+        # `durian-variance-runner.js` (v0.61.260-287 silently shipped
+        # without placeId-carry, fixed in v0.61.288). This guardrail
+        # fails CI if ANY tracked *.js / *.jsx / *.json / *.mjs file
+        # in source paths is 0 bytes. Mirrors the syntax-job's
+        # path-prune rules so vault snapshots + vendored deps don't
+        # produce false positives.
+        run: |
+          set -euo pipefail
+          empty=$(find . \
+            \( \
+              -path './node_modules' -o \
+              -path './web/*/node_modules' -o \
+              -path './web/*/dist' -o \
+              -path './vault' -o \
+              -path './public/*/assets' -o \
+              -path './dist' -o \
+              -path './.vibe-journal/node_modules' -o \
+              -path './.git' \
+            \) -prune -o \
+            \( -name '*.js' -o -name '*.jsx' -o -name '*.json' -o -name '*.mjs' \) \
+            -type f -size 0 -print)
+          if [ -n "$empty" ]; then
+            echo "❌ Empty-blob detection — these files are 0 bytes:"
+            echo "$empty" | sed 's/^/  /'
+            echo
+            echo "This usually means an iCloud-stale-checkout artifact (Register O-37)."
+            echo "Restore content from the local working tree or git history before merging."
+            echo
+            echo "Quick fix:"
+            echo "  cat <(git show HEAD:'<path>')   # check what HEAD has"
+            echo "  cat ~/Path/to/working/tree/<path> > <path>   # repair from a known-good copy"
+            exit 1
+          fi
+          echo "✅ No empty *.js / *.jsx / *.json / *.mjs files in source paths"
+
   test:
     name: Vitest unit tests
     runs-on: ubuntu-latest
