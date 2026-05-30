@@ -315,7 +315,14 @@ const STRINGS = {
   'cat.european':              { en: 'European', fr: 'Européenne' },
   'cat.americas':              { en: 'Americas', fr: 'Amériques' },
   'cat.australasia':           { en: 'Australasia', fr: 'Australasie' },
-  'cat.african':               { en: 'African', fr: 'Africaine' }
+  'cat.african':               { en: 'African', fr: 'Africaine' },
+
+  // v0.61.278 — O-25: surfaced when the server's JB-hybrid filter
+  // wipes the pool (JB pill picked at non-JB coords) and falls back
+  // to OTHER-country treatment. The user otherwise sees results
+  // without knowing the system overrode their JB pick.
+  'banner.jbFallbackToOther':  { en: 'Showing results near your location — Johor Bahru filter didn’t apply at this distance.',
+                                 fr: 'Affichage des résultats près de vous — le filtre Johor Bahru ne s’applique pas à cette distance.' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];

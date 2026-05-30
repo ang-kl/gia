@@ -15184,6 +15184,15 @@ async function cacheBotUsername() {
           payload.placeAnchor = detectedPlaceAnchor;
           payload.placeAnchorQueryRemainder = ftRawIn;
         }
+        // v0.61.278 — O-25: surface the v0.61.276 graceful-exit signal so
+        // the TMA can render a brief toast/banner ("Showing results for
+        // your area — Johor Bahru filter didn't apply at this distance.")
+        // when the JB-hybrid filter wiped the pool and the server fell
+        // back to OTHER-country treatment. Server-only knowledge until
+        // now; the client had no way to tell the override happened.
+        if (jbFilterFellBackToOther) {
+          payload.jbFallbackToOther = true;
+        }
         // v0.61.129 — log the ORIGINAL typed text (`ftRawOriginal`),
         // not the post-strip `ftRawIn`, so freetext-log captures what
         // the user actually typed (Telemetry; identity-free).

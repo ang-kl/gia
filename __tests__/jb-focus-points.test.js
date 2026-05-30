@@ -12,7 +12,9 @@ const {
 
 describe('JB_FOCUS_POINTS — v0.61.277 shape', () => {
   it('exports both southkey + cbd keys', () => {
-    expect(JB_FOCUS_KEYS.sort()).toEqual(['cbd', 'southkey']);
+    // JB_FOCUS_KEYS is frozen, so use spread before sort to avoid
+    // 'Cannot assign to read only property' from in-place mutation.
+    expect([...JB_FOCUS_KEYS].sort()).toEqual(['cbd', 'southkey']);
   });
 
   it('southkey coords match operator-cited Mid Valley Southkey', () => {
