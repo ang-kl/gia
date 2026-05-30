@@ -329,7 +329,17 @@ const STRINGS = {
   // ships with regionScope:'SG'); this caption explains why so the
   // user doesn't read greyed-out as broken.
   'drawer.michelinSgOnly':     { en: '✳️ Michelin is Singapore-only (greyed outside SG).',
-                                 fr: '✳️ Michelin uniquement à Singapour (grisé hors SG).' }
+                                 fr: '✳️ Michelin uniquement à Singapour (grisé hors SG).' },
+
+  // v0.61.285 — FunFactModal strings. Replaces the static rotating
+  // "still loading" titles during the cuisine-search wait window
+  // with a floating NLB-sourced SG food-history fact (40 curated).
+  'funfact.header':            { en: 'Did you know?',
+                                 fr: 'Le saviez-vous ?' },
+  'funfact.curating':          { en: 'Still curating…',
+                                 fr: 'Recherche en cours…' },
+  'funfact.sourceLabel':       { en: 'Source',
+                                 fr: 'Source' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];
