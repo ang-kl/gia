@@ -1,8 +1,8 @@
 counters:
-  commit: 504
-  build: 293
+  commit: 505
+  build: 294
   documents:
-    journal: 491
+    journal: 492
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,11 @@ counters:
     register: 125
 sessions:
   current_chat_id: 2026-05-30
-  current_chat_counter: 21
-last_anchor_time: 30-05 '26 21:55 SGT
-last_anchor_source: derived_from_v0_61_289_merge (PR #795 merged 2026-05-30T13:52:58Z; v0.61.290 fun-facts JSON→JS port shipped ~10 min later after the v0.61.289 vitest fail surfaced the v0.61.285 ESM-JSON import bug)
-last_anchor_iso8601: 2026-05-30T21:55:00+08:00
-last_anchor_utc: 2026-05-30T13:55:00Z
+  current_chat_counter: 22
+last_anchor_time: 30-05 '26 22:05 SGT
+last_anchor_source: derived_from_v0_61_290_merge (PR #796 merged 2026-05-30T14:00:36Z; v0.61.291 cuisine-tag-priority shipped ~5 min later — the v0.61.290 fix narrowed vitest from many fails to one real selector bug)
+last_anchor_iso8601: 2026-05-30T22:05:00+08:00
+last_anchor_utc: 2026-05-30T14:05:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
