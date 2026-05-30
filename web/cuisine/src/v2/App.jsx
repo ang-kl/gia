@@ -5,6 +5,8 @@ import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
+// v0.61.277 — for the JB region-pill auto-anchor on tap.
+import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -709,16 +711,36 @@ export default function App() {
   // Prompt the user — same UX pattern as v0.61.274.
   const regionCoherenceCheckedRef = useRef(false);
   const [regionMismatch, setRegionMismatch] = useState(null);
+  // v0.61.277 — operator (30-05 '26): the v0.61.276 one-shot ref guard
+  // meant tapping JB pill mid-session never re-prompted (effect re-ran
+  // after the region flip but the ref was already true from the cold
+  // mount's no-JB pass). Reset the ref whenever state.region is NOT
+  // 'JB' — so a subsequent flip to JB at non-JB coords can fire the
+  // modal again.
+  useEffect(() => {
+    if (state.region !== 'JB') {
+      regionCoherenceCheckedRef.current = false;
+    }
+  }, [state.region]);
   useEffect(() => {
     if (regionCoherenceCheckedRef.current) return;
     if (!userLoc?.lat || !userLoc?.lng) return;
     if (state.region !== 'JB') return;  // only the JB-at-non-JB case
     if (isJbCoords(userLoc)) return;     // coords ARE in Johor, no mismatch
+    // v0.61.277 — also no-op when the resolved locationAnchor is
+    // already in JB (the v0.61.277 JB pill auto-anchor to Southkey
+    // means anchor.lat/.lng is JB even if userLoc is SG). Suppresses
+    // a stale prompt that the v0.61.277 pill onClick already
+    // resolved.
+    if (locationAnchor
+        && Number.isFinite(locationAnchor.lat)
+        && Number.isFinite(locationAnchor.lng)
+        && isJbCoords(locationAnchor)) return;
     const coordsCountry = coordsToCountry(userLoc);  // 'SG' / 'MY' / null
     setRegionMismatch({ coordsCountry });
     console.log(`[Cuisine-TMA-v2] region/coords MISMATCH: region=JB but coords=${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)} (country guess=${coordsCountry || '?'})`);
     regionCoherenceCheckedRef.current = true;
-  }, [userLoc?.lat, userLoc?.lng, state.region]);
+  }, [userLoc?.lat, userLoc?.lng, state.region, locationAnchor?.lat, locationAnchor?.lng]);
 
   function applyRegionCoherenceChoice(useCoords) {
     if (!regionMismatch) return;
@@ -1814,16 +1836,39 @@ export default function App() {
             const sel = (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
-                onClick={() => setState((s) => {
-                  // v0.60.199 — ✳️ Michelin list is SG-only; when the
-                  // user toggles to JB, drop a previously-selected
-                  // 'michelin' chip so the search request doesn't
-                  // carry an unsupported cuisine.
-                  const nextCuisines = r.id === 'JB'
-                    ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
-                    : s.cuisines;
-                  return { ...s, region: r.id, cuisines: nextCuisines };
-                })}
+                onClick={() => {
+                  setState((s) => {
+                    // v0.60.199 — ✳️ Michelin list is SG-only; when the
+                    // user toggles to JB, drop a previously-selected
+                    // 'michelin' chip so the search request doesn't
+                    // carry an unsupported cuisine.
+                    const nextCuisines = r.id === 'JB'
+                      ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                      : s.cuisines;
+                    return { ...s, region: r.id, cuisines: nextCuisines };
+                  });
+                  // v0.61.277 — operator (30-05 '26): "i switch to
+                  // Johor Bahru, and confirm my new loc is JB south
+                  // key as spec. why my loc still in south SG."
+                  // Tapping the JB pill auto-anchors to the default
+                  // focus point (Southkey) when the existing anchor
+                  // is missing OR outside JB extent. The user can
+                  // fine-tune via the v0.61.268 chip (Southkey ↔ JB
+                  // CBD). Map + pill label flip immediately.
+                  if (r.id === 'JB') {
+                    const anchorIsJb = locationAnchor
+                      && Number.isFinite(locationAnchor.lat)
+                      && Number.isFinite(locationAnchor.lng)
+                      && isJbCoords(locationAnchor);
+                    if (!anchorIsJb) {
+                      const fp = JB_FOCUS_POINTS[JB_FOCUS_DEFAULT];
+                      onLocationSelect({
+                        lat: fp.lat, lng: fp.lng, label: fp.name,
+                        noAutoFire: true
+                      });
+                    }
+                  }
+                }}
                 aria-pressed={sel}
                 className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
