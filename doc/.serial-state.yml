@@ -1,8 +1,8 @@
 counters:
-  commit: 494
-  build: 283
+  commit: 495
+  build: 284
   documents:
-    journal: 481
+    journal: 482
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,11 @@ counters:
     register: 124
 sessions:
   current_chat_id: 2026-05-30
-  current_chat_counter: 11
-last_anchor_time: 30-05 '26 15:30 SGT
-last_anchor_source: derived_from_v0_61_279_merge (PR #785 merged 2026-05-30T07:22:12Z; v0.61.280 Michelin-in-OTHER sparse notice shipped ~10 min later)
-last_anchor_iso8601: 2026-05-30T15:30:00+08:00
-last_anchor_utc: 2026-05-30T07:30:00Z
+  current_chat_counter: 12
+last_anchor_time: 30-05 '26 17:05 SGT
+last_anchor_source: derived_from_v0_61_280_merge (PR #786 merged 2026-05-30T08:50:14Z; v0.61.281 5-JB-chip row + 8s suffix auto-hide shipped ~135 min later)
+last_anchor_iso8601: 2026-05-30T17:05:00+08:00
+last_anchor_utc: 2026-05-30T09:05:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
