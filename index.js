@@ -14118,19 +14118,89 @@ async function cacheBotUsername() {
             try {
               const before = venues.length;
               const labelsKey = `dgv:labels:${specialMode}`;
-              const labelsMap = (redis && redis.isOpen) ? await redis.hGetAll(labelsKey).catch(() => null) : null;
-              if (labelsMap && Object.keys(labelsMap).length > 0) {
-                let dropped = 0, unlabeled = 0;
-                venues = venues.filter((v) => {
-                  const raw = labelsMap[v.placeId];
-                  if (!raw) { unlabeled++; return true; }
-                  try {
-                    const parsed = JSON.parse(raw);
-                    if (parsed.label === 'unrelated') { dropped++; return false; }
-                  } catch { /* malformed entry: keep venue */ }
+              const labelsMap = (redis && redis.isOpen) ? await redis.hGetAll(labelsKey).catch(() => null) : {};
+              let dropped = 0, unlabeled = 0;
+              const unlabeledVenues = [];
+              venues = venues.filter((v) => {
+                const raw = labelsMap && labelsMap[v.placeId];
+                if (!raw) {
+                  unlabeled++;
+                  if (v.placeId) unlabeledVenues.push(v);
                   return true;
-                });
-                console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${specialMode}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through)`);
+                }
+                try {
+                  const parsed = JSON.parse(raw);
+                  if (parsed.label === 'unrelated') { dropped++; return false; }
+                } catch { /* malformed entry: keep venue */ }
+                return true;
+              });
+              console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${specialMode}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through)`);
+
+              // v0.61.282 — online verify-then-cache. When the cache
+              // didn't cover all venues AND GEMINI_API_KEY is set, run
+              // the same `_processBatch` the /ver job uses (durian-
+              // gemini-verifier.js) inline on the unlabelled subset.
+              // Drops `unrelated` from the response and writes the
+              // verdicts back to dgv:labels:<mode> so future searches
+              // hitting the same placeIds are free. The 6 s timeout
+              // matches PER_CALL_TIMEOUT_MS in durian-gemini-verifier.
+              // Operator (30-05 '26 16:50 SGT): durian-pastry search
+              // in Surabaya returned a steak house — the heuristic
+              // post-filter passed everything through because no
+              // Indonesian placeIds were in the SG+JB+Putrajaya+KL
+              // bulk-/ver cache. This online path closes the gap.
+              const apiKey = process.env.GEMINI_API_KEY;
+              if (unlabeledVenues.length > 0 && apiKey) {
+                try {
+                  const { _processBatch } = require('./durian-gemini-verifier');
+                  const batch = unlabeledVenues.slice(0, 30).map((v, i) => ({
+                    id: i,
+                    placeId: v.placeId || '',
+                    region: v.area || '',
+                    name: v.name || '',
+                    primaryType: v.primaryType || '',
+                    address: v.formattedAddress || v.area || '',
+                    reviewSnippets: Array.isArray(v.reviewSnippets) ? v.reviewSnippets.slice(0, 3) : []
+                  }));
+                  const beforeOnline = venues.length;
+                  const res = await _processBatch({
+                    apiKey,
+                    model: 'gemini-2.5-flash-lite',
+                    mode: specialMode,
+                    batch
+                  });
+                  if (res.ok && Array.isArray(res.labelled) && res.labelled.length > 0) {
+                    const byPlaceId = new Map();
+                    const entriesToCache = {};
+                    const verifiedAt = new Date().toISOString();
+                    for (const lab of res.labelled) {
+                      if (!lab.placeId) continue;
+                      byPlaceId.set(lab.placeId, lab);
+                      entriesToCache[lab.placeId] = JSON.stringify({
+                        label: lab.label || 'unrelated',
+                        confidence: lab.confidence || 'low',
+                        reason: (lab.reason || '').slice(0, 120),
+                        verifiedAt,
+                        seededFrom: 'cuisine-search-online'
+                      });
+                    }
+                    let onlineDropped = 0;
+                    venues = venues.filter((v) => {
+                      const lab = byPlaceId.get(v.placeId);
+                      if (lab && lab.label === 'unrelated') { onlineDropped++; return false; }
+                      return true;
+                    });
+                    if (Object.keys(entriesToCache).length > 0 && redis && redis.isOpen) {
+                      await redis.hSet(labelsKey, entriesToCache).catch(() => {});
+                      await redis.expire(labelsKey, 30 * 24 * 60 * 60).catch(() => {});
+                    }
+                    console.log(`[Cuisine-Search] D703f online verify-then-cache (${specialMode}): batched=${batch.length}, labels written=${Object.keys(entriesToCache).length}, dropped=${onlineDropped} unrelated (${beforeOnline} → ${venues.length})`);
+                  } else if (!res.ok) {
+                    console.warn(`[Cuisine-Search] D703f online verify failed: ${res.error || 'unknown'}`);
+                  }
+                } catch (err) {
+                  console.warn(`[Cuisine-Search] D703f online verify exception: ${err.message}`);
+                }
               }
             } catch (err) {
               console.warn(`[Cuisine-Search] D703e Gemini-label lookup failed: ${err.message}`);

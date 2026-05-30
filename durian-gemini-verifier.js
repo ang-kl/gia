@@ -298,6 +298,13 @@ async function verifyKeptVenues({
 
 module.exports = {
   verifyKeptVenues,
+  // v0.61.282 — exposed for the inline cuisine-search verify-then-cache
+  // path. _processBatch is a stateless batch labeller that takes
+  // {apiKey, model, mode, batch} and returns {ok, labelled} or
+  // {ok:false, error}. Public so /api/cuisine/search can call it
+  // directly without going through verifyKeptVenues' report-shaped
+  // contract.
+  _processBatch,
   // exposed for tests
   _flattenKeptVenues,
   _buildPrompt,
