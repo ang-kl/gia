@@ -1,8 +1,8 @@
 counters:
-  commit: 509
-  build: 298
+  commit: 510
+  build: 299
   documents:
-    journal: 496
+    journal: 497
     builder: 3
     persona: 4
     feature: 49
@@ -10,12 +10,12 @@ counters:
     legal: 9
     register: 125
 sessions:
-  current_chat_id: 2026-05-30
-  current_chat_counter: 26
-last_anchor_time: 30-05 '26 23:30 SGT
-last_anchor_source: derived_from_v0_61_294_in_flight (PR #800 queued auto-merge ~23:12 SGT; v0.61.295 Phase-2A 12 MY/regional fun-facts shipped ~15 min later)
-last_anchor_iso8601: 2026-05-30T23:30:00+08:00
-last_anchor_utc: 2026-05-30T15:30:00Z
+  current_chat_id: 2026-05-31
+  current_chat_counter: 1
+last_anchor_time: 31-05 '26 00:05 SGT
+last_anchor_source: derived_from_v0_61_295_in_flight (PR #801 queued auto-merge ~23:30 SGT 30-05; v0.61.296 Phase-2B chat-surface fun-fact shipped ~35 min later, crossed into 31-05)
+last_anchor_iso8601: 2026-05-31T00:05:00+08:00
+last_anchor_utc: 2026-05-30T16:05:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
