@@ -77,8 +77,15 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
     >
       {/* Light backdrop — non-blocking; the search keeps running underneath. */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+      {/* v0.61.286 — operator: "for dark mode, the contrast in border
+          for this wait message must be obvious." Default border-tg-border
+          (1px) was barely visible against the dark-mode tg-bg → tg-card
+          delta. Bumped to a 2px tg-accent frame: pops clearly in dark
+          mode, still tasteful in light. ring offset adds an extra subtle
+          halo so the modal reads as "floating" per the operator's
+          v0.61.285 brief. */}
       <div
-        className="relative max-w-[360px] w-full rounded-2xl border border-tg-border bg-tg-card shadow-xl px-4 py-3.5 pointer-events-auto"
+        className="relative max-w-[360px] w-full rounded-2xl border-2 border-tg-accent bg-tg-card shadow-2xl ring-1 ring-tg-accent/30 ring-offset-2 ring-offset-transparent px-4 py-3.5 pointer-events-auto"
       >
         <div className="flex items-center gap-1.5 mb-1.5">
           <span aria-hidden="true" className="text-base leading-none">💡</span>
