@@ -2126,7 +2126,18 @@ export default function App() {
           'initial' → "loading random eateries…"; 'rotating' → "Loading…"
           + a title cycling through the 6 operator-specified variants;
           'refresh' → "Refreshing results with the same filters…". */}
-      {loading && (
+      {/* v0.61.297 — operator-reported overlap: FunFactModal + this
+          rotating-titles overlay both render at z-50, with the
+          rotating-titles on top blocking the fact text. Per the
+          v0.61.285 brief ("replace the current wait messages while
+          curating results"), the fact modal should REPLACE this
+          overlay once a fact has been picked, not coexist with it.
+          When `funFact` is truthy, suppress this overlay; the
+          FunFactModal takes over as the busy indicator. For the
+          first ~1.5 s of a 'rotating' search (before the fact
+          gets picked) and for 'initial' / 'refresh' (which never
+          pick a fact), this overlay still renders normally. */}
+      {loading && !funFact && (
         <div
           aria-busy="true"
           className="fixed inset-0 z-50 bg-tg-bg/60 flex items-center justify-center cursor-wait"
