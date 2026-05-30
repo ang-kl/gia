@@ -14103,18 +14103,22 @@ async function cacheBotUsername() {
           if (venues.length !== beforeSpecial) {
             console.log(`[Cuisine-Search] D779 specialMode=${specialMode} post-filter ${beforeSpecial} → ${venues.length}`);
           }
-          // v0.61.275 — Plan B: cached-Gemini-label post-filter for
-          // durian + durian-pastry. Reads dgv:labels:<mode> hash
-          // (populated by /ver → 🤖 Gemini verify) and drops any
-          // venue Gemini classified as 'unrelated'. Unlabelled
-          // venues pass through (trust v0.61.262 heuristic). Modes
-          // that are not durian/pastry skip the lookup entirely.
-          // Operator chose this approach 30-05 '26 after the
-          // 11:42/11:43 Gemini verify: durian fruit already at
-          // 96.8 % strict precision (no gain expected), but pastry
-          // jumps from 18% keep-rate / 66% strict → effectively
-          // 100% of the labelled subset.
-          if (specialMode === 'durian' || specialMode === 'durian-pastry') {
+          // v0.61.275 — Plan B: cached-Gemini-label post-filter.
+          // Reads dgv:labels:<mode> hash (populated by /ver → 🤖
+          // Gemini verify OR the v0.61.282 inline D703f path) and
+          // drops any venue Gemini classified as 'unrelated'.
+          // Unlabelled venues pass through (trust v0.61.262
+          // heuristic). Modes outside the GEMINI_CACHE_MODES set
+          // skip the lookup entirely.
+          //
+          // v0.61.294 — fruits added to GEMINI_CACHE_MODES. The
+          // bot /ver UI still only exposes durian + durian-pastry
+          // (DVG_LABEL); fruits is auto-warming-only for now —
+          // each /api/cuisine/search in fruits mode pays one
+          // Gemini batch on cache-miss venues (D703f) and the
+          // cache organically fills up over time.
+          const GEMINI_CACHE_MODES = new Set(['durian', 'durian-pastry', 'fruits']);
+          if (GEMINI_CACHE_MODES.has(specialMode)) {
             try {
               const before = venues.length;
               const labelsKey = `dgv:labels:${specialMode}`;

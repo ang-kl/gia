@@ -68,19 +68,50 @@ function _flattenKeptVenues(report) {
   return out;
 }
 
+// v0.61.294 — extracted per-mode prompt config so the durian / durian-
+// pastry / fruits branches share one prompt skeleton. Adding a future
+// mode (e.g. dessert, ice-cream) is now a single new entry in this map
+// + the corresponding `verifyKeptVenues` allow-list check below.
+const PROMPT_CONFIG = {
+  'durian': {
+    directory: 'Singapore + Malaysia durian directory',
+    sells: 'sells FRESH DURIAN FRUIT (whole fruits, fruit stalls, fruit shops, wholesalers, supermarkets/grocers that prominently sell whole durians)',
+    focusItem: 'durian items',
+    mentionContext: 'durian mention in reviews'
+  },
+  'durian-pastry': {
+    directory: 'Singapore + Malaysia durian directory',
+    sells: 'sells DURIAN-FLAVORED PASTRIES / DESSERTS / DRINKS / SNACKS (durian cake, puff, mochi, ice cream, smoothie, kueh, etc.)',
+    focusItem: 'durian items',
+    mentionContext: 'durian mention in reviews'
+  },
+  // v0.61.294 — operator: extend the v0.61.282 D703f auto-warming cache
+  // beyond durian. The fruits special mode (broader than durian — any
+  // fresh fruit including mango / orange / mangosteen / rambutan /
+  // jackfruit / etc.) was already in special-mode.js's SPECIAL_MODES
+  // but had no Gemini verify path. The fruits prompt is intentionally
+  // broad: a venue counts as specialist if fresh fruit is a core
+  // offering, even if the specific fruit varies.
+  'fruits': {
+    directory: 'Singapore + Malaysia fresh-fruit directory',
+    sells: 'sells FRESH FRUIT (any whole fruit — mangoes, apples, oranges, bananas, mangosteen, rambutan, jackfruit, papaya, durians, melons, etc. Fruit stalls, fruit shops, wholesalers, supermarkets / grocers with prominent fresh-fruit sections)',
+    focusItem: 'fresh fruit',
+    mentionContext: 'fruit mention in reviews'
+  }
+};
+
 function _buildPrompt(mode, batch) {
-  const modeLabel = mode === 'durian'
-    ? 'sells FRESH DURIAN FRUIT (whole fruits, fruit stalls, fruit shops, wholesalers, supermarkets/grocers that prominently sell whole durians)'
-    : 'sells DURIAN-FLAVORED PASTRIES / DESSERTS / DRINKS / SNACKS (durian cake, puff, mochi, ice cream, smoothie, kueh, etc.)';
+  const cfg = PROMPT_CONFIG[mode];
+  if (!cfg) throw new Error(`_buildPrompt: unsupported mode "${mode}"`);
   const lines = [];
-  lines.push(`You are classifying Google Maps venues for a Singapore + Malaysia durian directory.`);
+  lines.push(`You are classifying Google Maps venues for a ${cfg.directory}.`);
   lines.push('');
-  lines.push(`For each venue below, decide whether the business ${modeLabel}.`);
+  lines.push(`For each venue below, decide whether the business ${cfg.sells}.`);
   lines.push('');
   lines.push('Labels:');
-  lines.push('- "specialist": durian items are a core, signature offering of the business.');
-  lines.push('- "occasional": sells durian items rarely or only seasonally; not the focus.');
-  lines.push('- "unrelated": does NOT sell durian items; any durian mention in reviews is incidental.');
+  lines.push(`- "specialist": ${cfg.focusItem} are a core, signature offering of the business.`);
+  lines.push(`- "occasional": sells ${cfg.focusItem} rarely or only seasonally; not the focus.`);
+  lines.push(`- "unrelated": does NOT sell ${cfg.focusItem}; any ${cfg.mentionContext} is incidental.`);
   lines.push('');
   lines.push('Confidence: "high" / "medium" / "low".');
   lines.push('');
@@ -202,8 +233,13 @@ async function verifyKeptVenues({
   if (!report || !Array.isArray(report.regions)) {
     throw new Error('verifyKeptVenues: report.regions required');
   }
-  if (mode !== 'durian' && mode !== 'durian-pastry') {
-    throw new Error(`verifyKeptVenues: mode must be "durian" or "durian-pastry", got ${mode}`);
+  // v0.61.294 — fruits added to the allow-list so the inline D703f
+  // path in index.js cuisine-search can call _processBatch with
+  // mode='fruits'. The bulk /ver flow still only exposes durian +
+  // durian-pastry in the bot UI; fruits-mode verify is auto-warming-
+  // only for now.
+  if (!['durian', 'durian-pastry', 'fruits'].includes(mode)) {
+    throw new Error(`verifyKeptVenues: mode must be "durian", "durian-pastry", or "fruits", got ${mode}`);
   }
   if (!apiKey && !_genAIFactory) {
     throw new Error('GEMINI_API_KEY required');
