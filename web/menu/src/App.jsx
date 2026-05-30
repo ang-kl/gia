@@ -9,6 +9,9 @@ import { t, useLocale } from './i18n.js';
 import { IATA_CITIES, nearestIataCity } from './iata-cities.js';
 import { OTHER_COUNTRIES } from './countries.js';
 import { CITIES_BY_COUNTRY } from './cities.js';
+// v0.61.274 — coords-based country detector for the mount-time
+// coherence check. Mirrors web/cuisine/src/v2/lib/coords-to-country.js.
+import { coordsToCountry } from './coords-to-country.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -141,7 +144,11 @@ export default function App() {
             // pill falls back to the curated `label`).
             street: b.street || null,
             building: b.building || null,
-            postal: b.postal || null
+            postal: b.postal || null,
+            // v0.61.274 — surface the country code persisted by
+            // /api/cuisine/user-location (v0.61.270 round-trip).
+            // Used by the compact pill flag + coherence check.
+            country: (typeof b.country === 'string' && /^[A-Z]{2}$/.test(b.country)) ? b.country : null
           });
         }
       })
@@ -400,6 +407,54 @@ export default function App() {
     dispatchCmd(tile.id);
   };
 
+  // v0.61.274 — mount-time location coherence check. Operator
+  // (30-05 '26): screenshot showed "🇦🇺 Singapore" — anchor.label
+  // freshly resolved to "Singapore" but the flag came from a stale
+  // saved country code. Same option B (Prompt) as the Cuisine TMA.
+  const coherenceCheckedMenuRef = useRef(false);
+  const [coherenceMismatch, setCoherenceMismatch] = useState(null);
+  useEffect(() => {
+    if (coherenceCheckedMenuRef.current) return;
+    if (!anchor || !Number.isFinite(anchor.lat) || !Number.isFinite(anchor.lng)) return;
+    if (!anchor.country) return;  // no saved country to compare
+    const coordsCountry = coordsToCountry(anchor);
+    if (!coordsCountry) return;  // outside SG/MY bbox, trust the saved value
+    if (anchor.country !== coordsCountry) {
+      setCoherenceMismatch({ saved: anchor.country, coords: coordsCountry });
+      console.log(`[Menu-TMA] coherence MISMATCH saved=${anchor.country} coords=${coordsCountry}`);
+    }
+    coherenceCheckedMenuRef.current = true;
+  }, [anchor?.lat, anchor?.lng, anchor?.country]);
+
+  function applyCoherenceChoice(useCoords) {
+    if (!coherenceMismatch) return;
+    if (useCoords) {
+      // Rewrite the anchor in-memory + persist to Redis so the
+      // next session doesn't repeat the prompt. Country goes to
+      // SG / MY; region follows: SG → 'SG'; MY at JB-coords → 'JB';
+      // MY elsewhere → 'OTHER'.
+      const newCountry = coherenceMismatch.coords;
+      const newRegion = newCountry === 'SG' ? 'SG'
+        : (anchor && coordsToCountry(anchor) === 'MY' && anchor.lat < 1.55) ? 'JB'
+        : 'OTHER';
+      setAnchor((a) => a ? ({ ...a, country: newCountry, region: newRegion }) : a);
+      // Fire-and-forget — server-side rewrite. The route already
+      // accepts country + region in v0.61.270.
+      const w = tg();
+      if (w && anchor) {
+        fetch('/api/menu/set-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: anchor.lat, lng: anchor.lng, label: anchor.label || '',
+            country: newCountry, initData: w.initData || ''
+          })
+        }).catch(() => {});
+      }
+    }
+    setCoherenceMismatch(null);
+  }
+
   return (
     <div
       className="flex flex-col"
@@ -408,6 +463,49 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
+      {/* v0.61.274 — same coherence modal as the Cuisine TMA. */}
+      {coherenceMismatch && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+        >
+          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
+              <span aria-hidden>📍</span>
+              <h2 className="text-sm font-semibold flex-1">
+                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+              </h2>
+            </div>
+            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
+              {lang === 'fr'
+                ? `Vous aviez choisi ${coherenceMismatch.saved} précédemment, mais votre appareil est actuellement en ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}.`
+                : `You set your location to ${coherenceMismatch.saved} previously, but your device is now in ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}.`}
+            </div>
+            <div className="flex flex-col gap-2 px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => applyCoherenceChoice(true)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
+              >
+                {lang === 'fr'
+                  ? `Utiliser ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}`
+                  : `Use ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyCoherenceChoice(false)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
+              >
+                {lang === 'fr'
+                  ? `Garder ${coherenceMismatch.saved}`
+                  : `Keep ${coherenceMismatch.saved}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* v0.60.67 — hero rework: LocaleToggle moved out of the footer
           and lives at the right end of the subtitle row, so the
           language flip is reachable without scrolling to the bottom.

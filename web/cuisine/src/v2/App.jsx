@@ -4,6 +4,7 @@ import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
+import { coordsToCountry } from './lib/coords-to-country.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -646,6 +647,58 @@ export default function App() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // v0.61.274 — mount-time location coherence check. Operator
+  // (30-05 '26): "we keep circling back into first launch of TMA
+  // and the incoherent of location set versus saved". Root cause:
+  // saved `countryPref` (e.g., 'NZ' from a prior session) was
+  // overriding the freshly-resolved GPS coords. With option B
+  // (Prompt the user) we surface a modal when there's a real
+  // mismatch and let the user choose.
+  //
+  // Fires once per mount, after userLoc resolves AND state.countryPref
+  // has had a chance to load from Redis. Compares coords-derived
+  // country (SG / MY / null) against the saved countryPref.
+  const coherenceCheckedRef = useRef(false);
+  const [coherenceMismatch, setCoherenceMismatch] = useState(null);
+  useEffect(() => {
+    if (coherenceCheckedRef.current) return;
+    if (!userLoc?.lat || !userLoc?.lng) return;  // wait for resolution
+    if (!state.countryPref) return;  // nothing to compare against
+    const coordsCountry = coordsToCountry(userLoc);
+    if (!coordsCountry) return;  // coords outside SG/MY bbox; trust the saved pref
+    // Mismatch only matters when the user has region=OTHER (the
+    // picker that uses countryPref). If region is SG/JB the saved
+    // countryPref isn't surfaced in the UI.
+    const isUiPathUsingCountryPref = state.region === 'OTHER' || state.region === 'MY-PUT' || state.region === '__NONE__';
+    if (!isUiPathUsingCountryPref) {
+      coherenceCheckedRef.current = true;
+      return;
+    }
+    if (state.countryPref !== coordsCountry) {
+      setCoherenceMismatch({ saved: state.countryPref, coords: coordsCountry });
+      console.log(`[Cuisine-TMA-v2] coherence MISMATCH saved=${state.countryPref} coords=${coordsCountry}`);
+    }
+    coherenceCheckedRef.current = true;
+  }, [userLoc?.lat, userLoc?.lng, state.countryPref, state.region]);
+
+  // v0.61.274 — apply the modal choice. "Use {coords-country}"
+  // resets region + countryPref to the coords-derived values;
+  // "Keep {saved-country}" leaves state as-is.
+  function applyCoherenceChoice(useCoords) {
+    if (!coherenceMismatch) return;
+    if (useCoords) {
+      const target = coherenceMismatch.coords === 'SG' ? 'SG' : 'OTHER';
+      setState((s) => ({
+        ...s,
+        region: target,
+        countryPref: target === 'SG' ? null : coherenceMismatch.coords
+      }));
+      // Persist the discard so the next session doesn't repeat the prompt.
+      saveCountryPref(coherenceMismatch.coords).catch(() => {});
+    }
+    setCoherenceMismatch(null);
+  }
 
   // v0.61.186 — re-fetch the server-cached user-location when the
   // TMA becomes visible again. Operator pain point: setting the
@@ -1587,6 +1640,53 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
+      {/* v0.61.274 — location coherence modal (audit "first-paint
+          incoherent location set vs saved"). Renders when the saved
+          countryPref disagrees with the GPS-derived country. Two
+          buttons: Use {coords} / Keep {saved}. Sticky until user
+          picks one. */}
+      {coherenceMismatch && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+        >
+          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
+              <span aria-hidden>📍</span>
+              <h2 className="text-sm font-semibold flex-1">
+                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+              </h2>
+            </div>
+            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
+              {lang === 'fr'
+                ? `Vous aviez choisi ${coherenceMismatch.saved} précédemment, mais votre appareil est actuellement en ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}.`
+                : `You set your location to ${coherenceMismatch.saved} previously, but your device is now in ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}.`}
+            </div>
+            <div className="flex flex-col gap-2 px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => applyCoherenceChoice(true)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
+              >
+                {lang === 'fr'
+                  ? `Utiliser ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}`
+                  : `Use ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyCoherenceChoice(false)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
+              >
+                {lang === 'fr'
+                  ? `Garder ${coherenceMismatch.saved}`
+                  : `Keep ${coherenceMismatch.saved}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
