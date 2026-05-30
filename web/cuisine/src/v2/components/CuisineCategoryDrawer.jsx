@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
-// v0.61.193 — SG-only cuisine slugs (fruits / durian / durian-pastry).
-// When region !== 'SG', these chips are dimmed + disabled (operator's
-// guidance from v0.61.191 retrospective). Curated `searchQuery` strings
-// in cuisines-vault hardcode "Singapore" for these, so they degenerate
-// outside SG — disabling avoids confusing 0-result searches.
-import { SG_ONLY_SLUGS } from '../lib/sg-only-slugs.js';
+// v0.61.272 — Phase 4 cleanup: the v0.61.193 SG-only chip lock is
+// removed. Durian / Durian Pastry / Fruits chips are now selectable
+// in every region. The lib/sg-only-slugs.js module is deleted in
+// this PR. Country bias now comes from the v0.61.271 countryCode
+// plumbing + v0.61.267 OTHER autocomplete; if a region truly has
+// no results, the existing "no match" path surfaces that.
 
 // v0.59.6: keep in sync with CuisineDrawer's CATEGORY_LABEL_KEY map.
 const CATEGORY_LABEL_KEY = {
@@ -28,8 +28,9 @@ const CATEGORY_LABEL_KEY = {
 // grid of flag-prefixed pills. Tapping a pill toggles selection;
 // tapping back-arrow / scrim closes.
 export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG' }) {
-  // v0.61.193 — when region !== 'SG', the SG-only chip set is locked.
-  const sgOnlyLocked = region !== 'SG';
+  // v0.61.272 — `region` is still threaded through for future
+  // per-country UX hooks (e.g. flag preview, regional sort) but no
+  // longer gates chip selectability.
   const [lang] = useLocale();
   // ESC closes the overlay (desktop / Telegram-Web users).
   useEffect(() => {
@@ -76,22 +77,16 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
         <div className="grid grid-cols-2 gap-1.5">
           {category.cuisines.map((cu) => {
             const sel = selected.includes(cu.slug);
-            // v0.61.193 — SG-only chips (fruits / durian / durian-pastry)
-            // locked when region !== 'SG'. Always dim + disabled; never
-            // selectable while the lock is active.
-            const sgOnly = SG_ONLY_SLUGS.has(cu.slug);
-            const regionLocked = sgOnly && sgOnlyLocked;
-            const dim = (!sel && selected.length >= maxSelected) || regionLocked;
+            // v0.61.272 — no per-slug region lock; only the maxSelected
+            // dim-when-full state remains.
+            const dim = !sel && selected.length >= maxSelected;
             return (
               <button
                 key={cu.slug}
                 type="button"
                 onClick={() => onToggle(cu.slug)}
                 aria-pressed={sel}
-                disabled={(dim && !sel) || regionLocked}
-                title={regionLocked
-                  ? (lang === 'fr' ? 'Singapour uniquement — passez à la région SG.' : 'Singapore-only — switch region to SG.')
-                  : undefined}
+                disabled={dim && !sel}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${dim ? 'opacity-40' : 'hover:border-tg-accent'}`}`}
               >
                 {/* v0.61.142 — operator-supplied PNG icon for the
