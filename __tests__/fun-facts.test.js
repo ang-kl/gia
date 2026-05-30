@@ -1,17 +1,14 @@
-// __tests__/fun-facts.test.js — v0.61.285
+// __tests__/fun-facts.test.js — v0.61.290 (data path: .json → .js)
 
 import { describe, it, expect } from 'vitest';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const {
+import {
   _pickFact,
   pickFunFact,
   factBody,
   totalFunFacts,
   clearFunFactHistory
-} = require('../web/cuisine/src/v2/lib/fun-facts.js');
-const facts = require('../web/cuisine/src/v2/data/fun-facts.json');
+} from '../web/cuisine/src/v2/lib/fun-facts.js';
+import facts from '../web/cuisine/src/v2/data/fun-facts.js';
 
 describe('fun-facts data contract', () => {
   it('exports 40 facts', () => {

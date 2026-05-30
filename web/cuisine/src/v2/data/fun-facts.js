@@ -1,4 +1,16 @@
-[
+// web/cuisine/src/v2/data/fun-facts.js — v0.61.290
+//
+// 40 NLB-sourced SG food-history facts. Was fun-facts.json in
+// v0.61.285; converted to .js with export default in v0.61.290
+// because vitest's Node 20 ESM loader rejects bare JSON imports
+// (needs `with { type: 'json' }` attribute, which is awkward to
+// support across Vite + Node + vitest uniformly). A .js module
+// with export default works everywhere identically.
+//
+// Schema: array of { id, tags[], en, fr, source, sourceUrl }.
+// Curation methodology + source breakdown: see v0.61.285 journal.
+
+export default [
   {
     "id": "hainanese-chicken-rice-wenchang",
     "tags": ["hainanese-chicken-rice", "chicken-rice", "chinese", "hainanese", "SG"],
@@ -319,4 +331,4 @@
     "source": "NLB BiblioAsia",
     "sourceUrl": "https://biblioasia.nlb.gov.sg/vol-18/issue-1/apr-to-jun-2022/evolution-chinese-food-singapore/"
   }
-]
+];
