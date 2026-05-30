@@ -4,7 +4,7 @@ import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
-import { coordsToCountry } from './lib/coords-to-country.js';
+import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -698,6 +698,41 @@ export default function App() {
       saveCountryPref(coherenceMismatch.coords).catch(() => {});
     }
     setCoherenceMismatch(null);
+  }
+
+  // v0.61.276 — Expert C from the 30-05 investigation board: sibling
+  // of the v0.61.274 country-coords modal. When the user lands with
+  // state.region === 'JB' but their actual coords are NOT inside the
+  // Johor extent, the search filter (JB-hybrid-filter at index.js
+  // D703b) silently returns 0 venues. The operator hit this at
+  // Putrajaya and Ipoh with a sticky JB pill from a prior session.
+  // Prompt the user — same UX pattern as v0.61.274.
+  const regionCoherenceCheckedRef = useRef(false);
+  const [regionMismatch, setRegionMismatch] = useState(null);
+  useEffect(() => {
+    if (regionCoherenceCheckedRef.current) return;
+    if (!userLoc?.lat || !userLoc?.lng) return;
+    if (state.region !== 'JB') return;  // only the JB-at-non-JB case
+    if (isJbCoords(userLoc)) return;     // coords ARE in Johor, no mismatch
+    const coordsCountry = coordsToCountry(userLoc);  // 'SG' / 'MY' / null
+    setRegionMismatch({ coordsCountry });
+    console.log(`[Cuisine-TMA-v2] region/coords MISMATCH: region=JB but coords=${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)} (country guess=${coordsCountry || '?'})`);
+    regionCoherenceCheckedRef.current = true;
+  }, [userLoc?.lat, userLoc?.lng, state.region]);
+
+  function applyRegionCoherenceChoice(useCoords) {
+    if (!regionMismatch) return;
+    if (useCoords) {
+      // SG bbox → SG region; MY but outside Johor → OTHER region;
+      // unknown (outside SG+MY bbox) → OTHER as the safest fall-through.
+      const target = regionMismatch.coordsCountry === 'SG' ? 'SG' : 'OTHER';
+      setState((s) => ({
+        ...s,
+        region: target,
+        countryPref: (target === 'OTHER' && regionMismatch.coordsCountry === 'MY') ? 'MY' : s.countryPref
+      }));
+    }
+    setRegionMismatch(null);
   }
 
   // v0.61.186 — re-fetch the server-cached user-location when the
@@ -1682,6 +1717,51 @@ export default function App() {
                 {lang === 'fr'
                   ? `Garder ${coherenceMismatch.saved}`
                   : `Keep ${coherenceMismatch.saved}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* v0.61.276 — region-coords coherence modal (sibling of the
+          v0.61.274 country-coords modal). Fires when state.region
+          is 'JB' but coords are not inside the Johor extent — i.e.
+          the JB pill is sticky from a prior session and would
+          silently return 0 results from the JB-hybrid-filter. */}
+      {regionMismatch && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'fr' ? 'Conflit de région' : 'Region mismatch'}
+        >
+          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
+              <span aria-hidden>📍</span>
+              <h2 className="text-sm font-semibold flex-1">
+                {lang === 'fr' ? 'Conflit de région' : 'Region mismatch'}
+              </h2>
+            </div>
+            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
+              {lang === 'fr'
+                ? "La région Johor Bahru est sélectionnée, mais vous n'êtes pas à Johor. Les résultats de cuisine seront filtrés à vide."
+                : "Johor Bahru region is selected, but you're not in Johor — cuisine results will filter to empty."}
+            </div>
+            <div className="flex flex-col gap-2 px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => applyRegionCoherenceChoice(true)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
+              >
+                {lang === 'fr'
+                  ? (regionMismatch.coordsCountry === 'SG' ? 'Passer à Singapour' : 'Passer à Autres')
+                  : (regionMismatch.coordsCountry === 'SG' ? 'Switch to Singapore' : 'Switch to Others')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyRegionCoherenceChoice(false)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
+              >
+                {lang === 'fr' ? 'Rester sur JB' : 'Stay on JB'}
               </button>
             </div>
           </div>

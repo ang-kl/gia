@@ -13233,6 +13233,26 @@ async function cacheBotUsername() {
         }
         if (typeof region === 'string' && /^(SG|JB|OTHER|MY-PUT)$/.test(region.trim())) {
           opts.region = region.trim();
+          // v0.61.276 — Expert C from the 30-05 investigation board:
+          // server-side sanity guard. If client sent region='JB' but
+          // coords are nowhere near Johor, downgrade to OTHER instead
+          // of persisting the mismatch. Belt-and-braces with the
+          // v0.61.276 client-side region-coords coherence modal —
+          // catches chat-bot / legacy clients that don't surface the
+          // modal. JB centroid is the same one used by the cuisine-
+          // search filter (1.4927, 103.7414). Threshold 150 km =
+          // outside Johor state by a wide margin.
+          if (opts.region === 'JB') {
+            const dLat = (lat - 1.4927) * Math.PI / 180;
+            const dLng = (lng - 103.7414) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2
+              + Math.cos(lat * Math.PI / 180) * Math.cos(1.4927 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+            const distM = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            if (distM > 150000) {
+              console.warn(`[set-location] sanity guard: region=JB requested at coords ${lat.toFixed(2)},${lng.toFixed(2)} (${(distM/1000).toFixed(0)}km from JB CBD) — downgrading to OTHER`);
+              opts.region = 'OTHER';
+            }
+          }
         }
         if (typeof street === 'string' && street.trim()) opts.street = street.trim();
         if (typeof building === 'string' && building.trim()) opts.building = building.trim();
@@ -14463,6 +14483,14 @@ async function cacheBotUsername() {
         // region:'JB' (the formattedAddress filter below still pins
         // JB-mode results to "Johor Bahru" so we don't bleed into KL).
         venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
+        // v0.61.276 — Expert A from the 30-05 morning investigation
+        // board: when region=JB AND coords are far from Johor, the
+        // JB-hybrid-filter silently wipes every result. Operator hit
+        // this at Putrajaya (lat 2.93) and Ipoh (4.60) with JB pill
+        // stuck on from a prior session. Track this so we can fall
+        // through to OTHER treatment when the filter zeros everything
+        // out at non-JB coords.
+        let jbFilterFellBackToOther = false;
         if (isJB) {
           // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
           // JB region toggle covers ALL of Johor state (Pontian, Desaru,
@@ -14479,6 +14507,7 @@ async function cacheBotUsername() {
           // 60 km covers Pontian / Kulai / Desaru without leaking into KL.
           const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
           const beforeJb = venues.length;
+          const preJbVenues = venues.slice();
           venues = venues.filter((v) => {
             const text = `${v.area || ''} ${v.name || ''}`;
             if (/\bjohor\b/i.test(text)) return true;
@@ -14489,7 +14518,28 @@ async function cacheBotUsername() {
           if (venues.length !== beforeJb) {
             console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
           }
-        } else if (isOther) {
+          // v0.61.276 — graceful exit when the filter zeroed everything
+          // AND the request's coords are far from the JB extent. This
+          // catches the operator's exact bug class: JB pill sticky
+          // at Putrajaya / KL / Ipoh / Singapore-far-north. Restore
+          // the pre-filter pool and let the OTHER branch's country-
+          // text-filter handle it instead. Side effect: the search
+          // response below ought to include a flag so the TMA can
+          // hint "showing closest matches outside Johor"; that
+          // surface is queued for a follow-up UI PR.
+          if (venues.length === 0 && beforeJb >= 5) {
+            const distRequestToJB = haversine(JB_CENTROID, { lat, lng });
+            if (Number.isFinite(distRequestToJB) && distRequestToJB > 150000) {
+              console.warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${distRequestToJB.toFixed(0)}m from JB CBD. Treating request as OTHER.`);
+              venues = preJbVenues;
+              jbFilterFellBackToOther = true;
+              // Fall through to the OTHER country-text-filter logic
+              // below by flipping the effective branch via the
+              // `effectiveIsOther` guard added on the else-if line.
+            }
+          }
+        }
+        if (jbFilterFellBackToOther || isOther) {
           // v0.61.207 — operator: "first load is zero for location set
           // to others". The SG area-text filter was firing for OTHER
           // and collapsing the pool to 0. v0.61.207 fixed by skipping
@@ -14506,6 +14556,14 @@ async function cacheBotUsername() {
             ctxCountry = await getUserCountryPref(redis, csChatId);
           } catch (err) {
             console.warn('[Cuisine-Search] country-pref read failed (no defence filter):', err.message);
+          }
+          // v0.61.276 — when we arrived here via the JB-fallback path,
+          // default the country to MY so we still scope to Malaysia
+          // (the JB pill was the user's expressed-but-coords-mismatched
+          // intent; MY is the most charitable interpretation).
+          if (jbFilterFellBackToOther && !ctxCountry) {
+            ctxCountry = 'MY';
+            console.log('[Cuisine-Search] D703b JB-fallback default ctxCountry=MY');
           }
           if (ctxCountry && ctxCountry !== 'SG') {
             try {
