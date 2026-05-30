@@ -4,7 +4,12 @@ import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
-import { stripSgOnly } from './lib/sg-only-slugs.js';
+// v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
+// previously stripped Fruits / Durian / Durian Pastry from the chip
+// list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
+// spec demanded the strict whitelist be removed so durian / fruits
+// chips load globally — MY, ID, TH, VN, PH, JP, anywhere. The file
+// `lib/sg-only-slugs.js` is deleted in this PR.
 import QuickFilters from './components/QuickFilters.jsx';
 import ActiveFilters from './components/ActiveFilters.jsx';
 import CuisineDrawer from './components/CuisineDrawer.jsx';
@@ -706,19 +711,12 @@ export default function App() {
 
   useEffect(() => { writeToHash(state); }, [state]);
 
-  // v0.61.193 — when region flips away from SG, strip any SG-only
-  // cuisine slugs (fruits / durian / durian-pastry) from the
-  // selected chips. Otherwise the chips look selected but are
-  // locked in the drawer — confusing. Re-selecting requires
-  // toggling back to SG and re-picking.
-  useEffect(() => {
-    if (state.region === 'SG') return;
-    setState((s) => {
-      const stripped = stripSgOnly(s.cuisines || []);
-      if (stripped.length === (s.cuisines || []).length) return s;
-      return { ...s, cuisines: stripped };
-    });
-  }, [state.region]);
+  // v0.61.272 — Phase 4: the v0.61.193 SG-only chip strip is gone.
+  // Durian / Durian Pastry / Fruits chips stay selected across all
+  // regions; the search pipeline (v0.61.271 countryCode plumbing +
+  // v0.61.267 OTHER autocomplete) handles MY / ID / TH / VN / PH /
+  // JP / etc. correctly. If a region truly has no results, the
+  // existing "no match" notice already surfaces that to the user.
 
   // v0.61.243 — GPS auto-detect + snap to nearest IATA city. Operator
   // 29-05 '26 morning: *"if my location is Kuala Lumpur, and i just
