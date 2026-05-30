@@ -146,6 +146,11 @@ async function searchText(textQuery, region, langCode) {
 
 function placeToVenue(p) {
   return {
+    // v0.61.283 — surface placeId (Places API returns it as `p.id`).
+    // Without this the downstream Plan B cache (dgv:labels:<mode>)
+    // gets zero entries because every step from here on does
+    // `v.placeId || ''` and silently drops the venue.
+    placeId: p?.id || '',
     name: p?.displayName?.text || '',
     formattedAddress: p?.formattedAddress || '',
     area: p?.formattedAddress || '',
@@ -177,7 +182,16 @@ async function runRegion(region) {
         const v = placeToVenue(p);
         const pt = v.primaryType || '(no primaryType)';
         seenTypes.set(pt, (seenTypes.get(pt) || 0) + 1);
-        const row = { name: v.name, primaryType: pt, formattedAddress: v.formattedAddress };
+        // v0.61.283 — carry placeId through so the downstream Gemini
+        // verifier (_flattenKeptVenues) can join the labelled output
+        // back to a per-placeId Redis cache. Before v0.61.283 this row
+        // dropped placeId, which silently broke the v0.61.275 Plan B
+        // cache (dgv:labels:<mode>) — ownerDurianGeminiRun skipped
+        // every venue with !v.placeId, so the cache stayed empty in
+        // prod through v0.61.275-282. The v0.61.282 inline D703f path
+        // is unaffected (reads placeIds directly from the cuisine-
+        // search route), but bulk /ver runs were no-ops for the cache.
+        const row = { name: v.name, primaryType: pt, formattedAddress: v.formattedAddress, placeId: v.placeId || '' };
         if (sm.isRelevant(v, MODE)) kept.push(row);
         else rejected.push(row);
       }

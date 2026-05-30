@@ -1,8 +1,8 @@
 counters:
-  commit: 496
-  build: 285
+  commit: 497
+  build: 286
   documents:
-    journal: 483
+    journal: 484
     builder: 3
     persona: 4
     feature: 48
@@ -11,11 +11,11 @@ counters:
     register: 124
 sessions:
   current_chat_id: 2026-05-30
-  current_chat_counter: 13
-last_anchor_time: 30-05 '26 17:50 SGT
-last_anchor_source: derived_from_v0_61_281_merge (PR #787 merged 2026-05-30T09:25:27Z; v0.61.282 online verify-then-cache + seed script shipped ~25 min later)
-last_anchor_iso8601: 2026-05-30T17:50:00+08:00
-last_anchor_utc: 2026-05-30T09:50:00Z
+  current_chat_counter: 14
+last_anchor_time: 30-05 '26 17:55 SGT
+last_anchor_source: derived_from_v0_61_282_merge (PR #788 merged 2026-05-30T09:36:29Z; v0.61.283 durian-variance placeId-loss fix shipped ~20 min later)
+last_anchor_iso8601: 2026-05-30T17:55:00+08:00
+last_anchor_utc: 2026-05-30T09:55:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
