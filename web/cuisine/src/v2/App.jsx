@@ -95,6 +95,12 @@ export default function App() {
   // dropped the count below the spec's "8-12 relevant" target. Null
   // otherwise; "fruits" / "durian" when set.
   const [specialModeNotice, setSpecialModeNotice] = useState(null);
+  // v0.61.278 — O-25: server signals JB-hybrid filter wiped the pool
+  // and fell back to OTHER (the v0.61.276 graceful exit fired). The
+  // TMA renders an amber notice so the user knows their JB pick was
+  // overridden — without this, results just silently came from the
+  // OTHER path.
+  const [jbFallbackNotice, setJbFallbackNotice] = useState(false);
   // v0.61.130 — surfaces v0.61.129 O-23: when the special-mode
   // widening pass actually escalated the radius, render a small
   // " · widened to N km" caption next to the limited card.
@@ -1308,6 +1314,8 @@ export default function App() {
       // `specialModeLimited: true` when the post-filter dropped the
       // count below the spec's 8-12 target).
       setSpecialModeNotice(r.specialMode && r.specialModeLimited ? r.specialMode : null);
+      // v0.61.278 — O-25: JB-hybrid graceful-exit signal from server.
+      setJbFallbackNotice(r.jbFallbackToOther === true);
       // v0.61.130 — v0.61.129 O-23 backend metadata. `specialModeWidened`
       // is true when the server's radius-escalation loop fired at least
       // once; the from/final metres tell the user the search drew from
@@ -2152,6 +2160,15 @@ export default function App() {
               {' '}{tn('special.widened', lang, { km: (specialModeWidenedInfo.finalM / 1000).toFixed(1) })}
             </span>
           )}
+        </div>
+      )}
+
+      {/* v0.61.278 — O-25: JB→OTHER fallback notice. Fires when the
+          v0.61.276 server graceful exit triggered (JB pill at non-JB
+          coords; JB-hybrid filter wiped pool; fell back to OTHER). */}
+      {jbFallbackNotice && !loading && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {t('banner.jbFallbackToOther', lang)}
         </div>
       )}
 
