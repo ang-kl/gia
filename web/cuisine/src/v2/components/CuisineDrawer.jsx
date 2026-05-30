@@ -131,6 +131,16 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           <CategoryCard key={cat.id} cat={cat} />
         ))}
       </div>
+      {/* v0.61.280 — Register O-31: sparse notice when region !== 'SG'.
+          The Michelin chip is greyed (regionScope:'SG') and the v0.61.280
+          App.jsx strip clears any sticky selection on SG-leave. The
+          caption explains why so users don't misread the grey as a bug. */}
+      {region && String(region).toUpperCase() !== 'SG'
+        && catalogue.some((c) => c.regionScope && String(c.regionScope).toUpperCase() === 'SG') && (
+        <div className="text-[11px] text-tg-hint px-1 pt-0.5">
+          {tr('drawer.michelinSgOnly', lang)}
+        </div>
+      )}
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>

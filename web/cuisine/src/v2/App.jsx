@@ -1847,10 +1847,15 @@ export default function App() {
                 onClick={() => {
                   setState((s) => {
                     // v0.60.199 — ✳️ Michelin list is SG-only; when the
-                    // user toggles to JB, drop a previously-selected
-                    // 'michelin' chip so the search request doesn't
-                    // carry an unsupported cuisine.
-                    const nextCuisines = r.id === 'JB'
+                    // user toggles away from SG, drop a previously-
+                    // selected 'michelin' chip so the search request
+                    // doesn't carry an unsupported cuisine.
+                    // v0.61.280 — Register O-31: extended from JB-only
+                    // to any non-SG region (JB + OTHER + MY-PUT). The
+                    // Michelin chip is greyed in the drawer for these
+                    // regions; this strip clears any chip that was
+                    // sticky from a prior SG session.
+                    const nextCuisines = r.id !== 'SG'
                       ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
                       : s.cuisines;
                     return { ...s, region: r.id, cuisines: nextCuisines };
