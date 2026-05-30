@@ -33,6 +33,18 @@ const SG_LAT_MAX = 1.47;
 const SG_LNG_MIN = 103.55;
 const SG_LNG_MAX = 104.10;
 
+// v0.61.281 — west-of-strait carve-out. In the western half (lng <
+// 103.70) the SG-MY border drops to ~lat 1.36 (Tuas Second Link)
+// and the actual SG northern mainland tip at that longitude is
+// ~1.358 (Tuas). The previous flat SG_LAT_MAX=1.47 was correct for
+// the central/east half (Woodlands/Sembawang/Pulau Ubin/Tekong) but
+// over-claimed Iskandar Puteri / Legoland for SG. Split the SG
+// bbox so coords west of lng 103.70 get a tighter SG_LAT_MAX of
+// 1.42, leaving Legoland (1.4296, 103.6321) and Iskandar Puteri /
+// Pendas / Bukit Indah correctly classified as JB.
+const SG_LNG_WEST_THRESHOLD = 103.70;
+const SG_LAT_MAX_WEST = 1.42;
+
 // Johor state extent (the chunk of Malaysia adjacent to SG). The
 // southernmost MY land mass: Pontian → Kulai → Mersing → Desaru +
 // JB CBD. Picked from Johor admin-area roughly.
@@ -61,6 +73,17 @@ function _inBbox({ lat, lng }, latMin, latMax, lngMin, lngMax) {
     && lng >= lngMin && lng <= lngMax;
 }
 
+// v0.61.281 — split SG-bbox check. Uses the carve-out west of lng
+// 103.70 so Legoland / Iskandar Puteri / Pendas / Bukit Indah are
+// NOT mis-claimed as SG by the rectangular bbox.
+function _inSgBbox({ lat, lng }) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat < SG_LAT_MIN) return false;
+  if (lng < SG_LNG_MIN || lng > SG_LNG_MAX) return false;
+  const latMax = (lng < SG_LNG_WEST_THRESHOLD) ? SG_LAT_MAX_WEST : SG_LAT_MAX;
+  return lat <= latMax;
+}
+
 // Returns 'SG' / 'MY' / null. The caller treats null as
 // "I don't know — don't prompt for coherence."
 export function coordsToCountry(input) {
@@ -70,7 +93,9 @@ export function coordsToCountry(input) {
   // SG checked first because the SG bbox is a subset of the JB
   // bbox (the JB extent overlaps the SG bbox by a few km of
   // straits-crossing). The order matters.
-  if (_inBbox({ lat, lng }, SG_LAT_MIN, SG_LAT_MAX, SG_LNG_MIN, SG_LNG_MAX)) {
+  // v0.61.281 — uses the split-bbox check so the west-of-strait
+  // carve-out applies (lng < 103.70 → SG_LAT_MAX_WEST=1.42).
+  if (_inSgBbox({ lat, lng })) {
     return 'SG';
   }
   if (_inBbox({ lat, lng }, JB_LAT_MIN, JB_LAT_MAX, JB_LNG_MIN, JB_LNG_MAX)) {
@@ -93,6 +118,8 @@ export function isJbCoords(input) {
   if (!input || typeof input !== 'object') return false;
   const { lat, lng } = input;
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
-  if (_inBbox({ lat, lng }, SG_LAT_MIN, SG_LAT_MAX, SG_LNG_MIN, SG_LNG_MAX)) return false;
+  // v0.61.281 — uses _inSgBbox (split-bbox west-of-strait carve-out)
+  // so Legoland (1.4296, 103.6321) classifies as JB, not SG.
+  if (_inSgBbox({ lat, lng })) return false;
   return _inBbox({ lat, lng }, JB_LAT_MIN, JB_LAT_MAX, JB_LNG_MIN, JB_LNG_MAX);
 }

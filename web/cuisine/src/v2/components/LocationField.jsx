@@ -4,7 +4,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
 import { citiesForCountry } from '../lib/cities.js';
 // v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
-import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from '../lib/jb-focus-points.js';
+import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT, JB_FOCUS_KEYS, JB_FOCUS_CHIP_LABELS } from '../lib/jb-focus-points.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -131,6 +131,17 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
     setIdleHintActive(false);
   }
+  // v0.61.281 — operator screenshot annotation: auto-hide the
+  // "{N} places nearby · tap to change 🔝" line after 8 s. Useful as
+  // a first-launch affordance; visual noise once seen. Resets to
+  // visible whenever `suffix` changes (next search / new location).
+  const [suffixVisible, setSuffixVisible] = useState(true);
+  useEffect(() => {
+    if (!suffix) return undefined;
+    setSuffixVisible(true);
+    const id = setTimeout(() => setSuffixVisible(false), 8000);
+    return () => clearTimeout(id);
+  }, [suffix]);
   useEffect(() => {
     clearIdleHint();
     const trimmed = query.trim();
@@ -392,47 +403,41 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             >🔍</button>
           )}
         </div>
-        {!open && suffix && (
+        {!open && suffix && suffixVisible && (
           <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
             {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
           </div>
         )}
         {/* v0.61.268 — operator #4: focus-point chip.
-            v0.61.277 — operator (30-05 '26): "i switch to Johor Bahru,
-            and confirm my new loc is JB south key as spec. why my loc
-            still in south SG." Tapping the chip now COMMITS the anchor
-            via onSelect (not just `jbFocusKey` state). The map +
-            resting pill label flip to "Mid Valley Southkey" or "JB CBD"
-            immediately — matching the user's mental model of
-            "I confirmed Southkey, so my location IS Southkey." */}
+            v0.61.277 — chip tap COMMITS the anchor via onSelect (not
+            just `jbFocusKey` state).
+            v0.61.281 — operator screenshot annotation: replace the
+            2-chip "Default focus: Southkey · JB CBD" with a flat 5-chip
+            row in this order: Legoland, Bukit Indah, CBD, Southkey,
+            Mt Austin. "Default focus:" prefix dropped. Small pill font
+            (text-[10px] preserved). Chip keys + labels live in
+            jb-focus-points.js so the order can be tuned in one place. */}
         {!open && region === 'JB' && (
-          <div className="text-[10px] text-tg-hint flex items-center gap-1.5 mt-0.5">
-            <span>{lang === 'fr' ? 'Défaut :' : 'Default focus:'}</span>
-            <button
-              type="button"
-              onClick={() => {
-                setJbFocusKey('southkey');
-                const fp = JB_FOCUS_POINTS.southkey;
-                onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name, noAutoFire: true });
-              }}
-              aria-pressed={jbFocusKey === 'southkey'}
-              className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'southkey'
-                ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
-                : 'bg-tg-card text-tg-text border-tg-border'}`}
-            >Southkey</button>
-            <span>·</span>
-            <button
-              type="button"
-              onClick={() => {
-                setJbFocusKey('cbd');
-                const fp = JB_FOCUS_POINTS.cbd;
-                onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name, noAutoFire: true });
-              }}
-              aria-pressed={jbFocusKey === 'cbd'}
-              className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'cbd'
-                ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
-                : 'bg-tg-card text-tg-text border-tg-border'}`}
-            >JB CBD</button>
+          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+            {JB_FOCUS_KEYS.map((key) => {
+              const fp = JB_FOCUS_POINTS[key];
+              const label = JB_FOCUS_CHIP_LABELS[key] || fp.name;
+              const active = jbFocusKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setJbFocusKey(key);
+                    onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name, noAutoFire: true });
+                  }}
+                  aria-pressed={active}
+                  className={`text-[10px] px-1.5 py-0.5 rounded border ${active
+                    ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
+                    : 'bg-tg-card text-tg-hint border-tg-border'}`}
+                >{label}</button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -741,6 +746,17 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     idleTimerRef.current = setTimeout(() => { setIdleHintActive(true); }, 6000);
     return () => { if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; } };
   }, [query]);
+  // v0.61.281 — operator screenshot annotation: auto-hide the
+  // "{N} places nearby · tap to change 🔝" line after 8 s. Mirrors
+  // the SG/JB LocationField above. Resets visible when `suffix`
+  // changes (new search / new location).
+  const [suffixVisible, setSuffixVisible] = useState(true);
+  useEffect(() => {
+    if (!suffix) return undefined;
+    setSuffixVisible(true);
+    const id = setTimeout(() => setSuffixVisible(false), 8000);
+    return () => clearTimeout(id);
+  }, [suffix]);
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);
   // v0.61.236 — collapsed/expanded toggle. Mirrors SG mode's resting
   // pill. When `anchor` is set, render a single-line "📍 {label} ·
@@ -980,7 +996,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
               className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
             >🔍</button>
           </div>
-          {suffix && (
+          {suffix && suffixVisible && (
             <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
               {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
             </div>
