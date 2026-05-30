@@ -12417,205 +12417,16 @@ async function cacheBotUsername() {
       }
     });
 
-    // v0.61.191 — country-constrained Places search for the OTHER
-    // region's location picker. Operator's bug: typing "Times Square
-    // Kuala Lumpur" in the Cuisine TMA's OTHER-region location field
-    // returned a Singapore shop because the existing /place-autocomplete
-    // endpoint hardcoded regionCode='SG' for non-JB anchors. This
-    // endpoint takes an explicit countryCode (one of the 16 OTHER
-    // countries — see web/cuisine/src/v2/lib/countries.js) and pins
-    // Places to that country via includedRegionCodes. Returns the top
-    // 5 matches with name + address + coords so the TMA can render a
-    // confirmation list (no autocomplete dropdown for OTHER per
-    // operator).
-    const OTHER_COUNTRY_CODES = new Set([
-      'MY','ID','TH','VN','PH','BN','KH','LA','MM',  // ASEAN sans SG
-      'AU','NZ',                                      // Oceania
-      'JP','KR','CN','HK','TW'                        // North Asia
-    ]);
-    app.post('/api/cuisine/place-search-by-country',
-      makeRateLimiter(redis, { endpoint: 'place-search-by-country', cap: 500 }),
-      async (req, res) => {
-      try {
-        const { input, countryCode } = req.body || {};
-        const text = typeof input === 'string' ? input.trim() : '';
-        if (!text || text.length < 2 || text.length > 200) {
-          return res.status(400).json({ error: 'input (2-200 chars) required' });
-        }
-        // v0.61.269 — DEPRECATED. Both cuisine + menu TMAs now use
-        // /api/cuisine/place-autocomplete (v0.61.267 + v0.61.269).
-        // This endpoint stays alive for now so any pre-v0.61.269
-        // cached TMA bundle keeps working until users reload. The
-        // warning surfaces in prod logs so we can confirm zero
-        // non-deprecated callers before the v0.61.270 deletion PR.
-        console.warn(`[place-search-by-country] DEPRECATED v0.61.269 — caller cc=${countryCode || '?'} input="${text.slice(0, 40)}"`);
-        const cc = typeof countryCode === 'string' ? countryCode.toUpperCase() : '';
-        if (!OTHER_COUNTRY_CODES.has(cc)) {
-          return res.status(400).json({ error: 'countryCode must be one of the 16 OTHER countries' });
-        }
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-        if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
-        // v0.61.201 — cache key bump to v2 because the schema below
-        // changed (Geocoding fallback added; result count 5 → 6).
-        const cacheKey = `placesearchbycountry:v2:${cc}:${text.toLowerCase()}`;
-        try {
-          if (redis && redis.isOpen) {
-            const hit = await redis.get(cacheKey).catch(() => null);
-            if (hit) {
-              try { return res.json({ ...JSON.parse(hit), cached: true }); } catch { /* fall through */ }
-            }
-          }
-        } catch { /* fall through */ }
-        const axios = require('axios');
-        // v0.61.201 — operator: "Times Square Kuala Lumpur → error 502"
-        // and "select Vietnam and type 'Ho Chin Ming' should suggest …
-        // 6 closest fuzzy". Two issues with the v0.61.191 single-call
-        // approach: (1) Places (New) `searchText` returned non-2xx for
-        // some queries (root cause TBD; v0.61.199 logging captures the
-        // body but doesn't *fix* the failure), (2) typo tolerance was
-        // weak. Fix: fire Places searchText AND Geocoding API in
-        // parallel, merge + dedup the results, return up to 6. Each
-        // path's failure is isolated; we only 502 when BOTH come back
-        // empty. Geocoding is older, more forgiving on typos ("Ho Chin
-        // Ming" → Ho Chi Minh); Places is sharper on venue names
-        // ("Times Square" → Berjaya Times Square).
-        const RESULT_CAP = 6;
-
-        // v0.61.207 — smart label helper. Drops bare building-number
-        // displayNames (e.g. "1" for "1, Jln Imbi …") and synthesises
-        // "<Street/Building>, <City>, <State>" from formattedAddress.
-        const { smartPlaceLabel } = require('./smart-place-label');
-        async function runPlacesText() {
-          const body = {
-            textQuery: text,
-            includedRegionCodes: [cc],
-            pageSize: RESULT_CAP,
-            languageCode: 'en'
-          };
-          try {
-            const r = await axios.post(
-              'https://places.googleapis.com/v1/places:searchText',
-              body,
-              {
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-Goog-Api-Key': apiKey,
-                  'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
-                },
-                timeout: 8000
-              }
-            );
-            return (Array.isArray(r.data?.places) ? r.data.places : [])
-              .map((p) => ({
-                placeId: p?.id || '',
-                // v0.61.222 — Bug B: `smartPlaceLabel` can return null/empty
-                // on edge-case Places results (building-only entries, bare
-                // numbers, etc.). Without a fallback, the JSON shipped to
-                // the TMA carried `primaryText: null`, which JSX rendered
-                // as the literal string "null" (operator-seen on KR + "LG").
-                // Mirror the Geocoding-path fallback at line ~11966.
-                primaryText: smartPlaceLabel(p?.displayName?.text || '', p?.formattedAddress || '')
-                  || p?.formattedAddress || text || 'Unnamed',
-                secondaryText: p?.formattedAddress || '',
-                lat: p?.location?.latitude ?? null,
-                lng: p?.location?.longitude ?? null,
-                source: 'places'
-              }))
-              .filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
-          } catch (err) {
-            const status = err.response?.status ?? '?';
-            const bodyTxt = (() => {
-              try {
-                if (!err.response?.data) return '';
-                const s = typeof err.response.data === 'string'
-                  ? err.response.data
-                  : JSON.stringify(err.response.data);
-                return s.slice(0, 600);
-              } catch { return ''; }
-            })();
-            const reqTxt = (() => {
-              try { return JSON.stringify(body).slice(0, 400); } catch { return ''; }
-            })();
-            console.warn(`[place-search-by-country] Places searchText failed: status=${status} msg=${err.message} body=${bodyTxt} req=${reqTxt}`);
-            return [];
-          }
-        }
-
-        async function runGeocoding() {
-          const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(text)}&components=country:${cc}&key=${apiKey}`;
-          try {
-            const r = await axios.get(url, { timeout: 8000 });
-            if (r.data?.status && r.data.status !== 'OK' && r.data.status !== 'ZERO_RESULTS') {
-              console.warn(`[place-search-by-country] Geocoding non-OK status=${r.data.status} error_message=${r.data.error_message || ''}`);
-              return [];
-            }
-            const arr = Array.isArray(r.data?.results) ? r.data.results : [];
-            return arr.map((g) => {
-              const fa = g.formatted_address || '';
-              // v0.61.207 — use the smart label helper; Geocoding doesn't
-              // give us a displayName so the helper falls back to parsing
-              // formattedAddress.
-              const primary = smartPlaceLabel('', fa);
-              return {
-                placeId: g.place_id || '',
-                primaryText: primary || 'Unnamed',
-                secondaryText: fa,
-                lat: g.geometry?.location?.lat ?? null,
-                lng: g.geometry?.location?.lng ?? null,
-                source: 'geocode'
-              };
-            }).filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng));
-          } catch (err) {
-            console.warn(`[place-search-by-country] Geocoding failed: msg=${err.message}`);
-            return [];
-          }
-        }
-
-        const [placesRes, geocodeRes] = await Promise.all([runPlacesText(), runGeocoding()]);
-
-        // Merge: Places results first (sharper on venue names), then
-        // Geocoding results that aren't already present. Dedup by
-        // placeId; if a Geocoding result shares a placeId with a Places
-        // hit, skip it. Falls back to (lat,lng)-rounded equality when
-        // placeId is missing.
-        const seenIds = new Set();
-        const seenCoords = new Set();
-        const merged = [];
-        for (const list of [placesRes, geocodeRes]) {
-          for (const x of list) {
-            if (merged.length >= RESULT_CAP) break;
-            const id = x.placeId || '';
-            const coordKey = `${(x.lat ?? 0).toFixed(4)}|${(x.lng ?? 0).toFixed(4)}`;
-            if (id && seenIds.has(id)) continue;
-            if (seenCoords.has(coordKey)) continue;
-            if (id) seenIds.add(id);
-            seenCoords.add(coordKey);
-            merged.push(x);
-          }
-          if (merged.length >= RESULT_CAP) break;
-        }
-
-        console.log(`[place-search-by-country] cc=${cc} input="${text.slice(0, 60)}" places=${placesRes.length} geocode=${geocodeRes.length} merged=${merged.length}`);
-
-        const payload = { results: merged, countryCode: cc };
-        try {
-          if (redis && redis.isOpen) {
-            // Only cache non-empty payloads — operator typos should
-            // not lock in "no results" for 1 h.
-            if (merged.length > 0) {
-              await redis.set(cacheKey, JSON.stringify(payload), { EX: 3600 }).catch(() => {});
-            }
-          }
-        } catch { /* */ }
-        // 200 with empty `results` array on no-matches (TMA renders
-        // its existing "No match in <country>" line). Reserve non-2xx
-        // for actual API/auth failures so the TMA can distinguish.
-        res.json({ ...payload, cached: false, notFound: merged.length === 0 });
-      } catch (err) {
-        console.error('[Error] /api/cuisine/place-search-by-country failed:', err.message);
-        res.status(500).json({ error: err.message });
-      }
-    });
+    // v0.61.279 — Register O-28: /api/cuisine/place-search-by-country
+    // deleted. Was v0.61.191's country-constrained Places search for
+    // the OTHER region picker. Both cuisine + menu TMAs migrated to
+    // /api/cuisine/place-autocomplete (v0.61.267 + v0.61.269); the
+    // route was kept deprecated through v0.61.269-278 so cached TMA
+    // bundles continued to work. 24h log-clear window passed with
+    // zero non-deprecated callers — safe to delete. Historical detail
+    // (Places searchText + Geocoding parallel-merge with smartPlaceLabel
+    // formatting) lives in the v0.61.201 / v0.61.207 / v0.61.269
+    // journals and the v0.61.278 Removed-Features table.
 
     // v0.61.243 — Gemini-backed IATA city snap for the Cuisine TMA
     // GPS auto-detect. The client (web/cuisine/src/v2/App.jsx) first
@@ -13239,16 +13050,13 @@ async function cacheBotUsername() {
           // of persisting the mismatch. Belt-and-braces with the
           // v0.61.276 client-side region-coords coherence modal —
           // catches chat-bot / legacy clients that don't surface the
-          // modal. JB centroid is the same one used by the cuisine-
-          // search filter (1.4927, 103.7414). Threshold 150 km =
-          // outside Johor state by a wide margin.
+          // modal. v0.61.279 (Register O-26): the JB-distance check
+          // is now `isFarFromJB` in location-mode.js (shared with the
+          // /api/cuisine/search graceful-exit guard).
           if (opts.region === 'JB') {
-            const dLat = (lat - 1.4927) * Math.PI / 180;
-            const dLng = (lng - 103.7414) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) ** 2
-              + Math.cos(lat * Math.PI / 180) * Math.cos(1.4927 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-            const distM = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            if (distM > 150000) {
+            const { isFarFromJB, haversineMeters, JB_CBD } = require('./location-mode');
+            if (isFarFromJB(lat, lng)) {
+              const distM = haversineMeters(JB_CBD, { lat, lng });
               console.warn(`[set-location] sanity guard: region=JB requested at coords ${lat.toFixed(2)},${lng.toFixed(2)} (${(distM/1000).toFixed(0)}km from JB CBD) — downgrading to OTHER`);
               opts.region = 'OTHER';
             }
@@ -14523,13 +14331,15 @@ async function cacheBotUsername() {
           // catches the operator's exact bug class: JB pill sticky
           // at Putrajaya / KL / Ipoh / Singapore-far-north. Restore
           // the pre-filter pool and let the OTHER branch's country-
-          // text-filter handle it instead. Side effect: the search
-          // response below ought to include a flag so the TMA can
-          // hint "showing closest matches outside Johor"; that
-          // surface is queued for a follow-up UI PR.
+          // text-filter handle it instead. v0.61.278 surfaces this
+          // via payload.jbFallbackToOther (the TMA renders an amber
+          // banner). v0.61.279 (Register O-26): the JB-distance check
+          // is now `isFarFromJB` in location-mode.js (shared with the
+          // /api/cuisine/set-location sanity guard).
           if (venues.length === 0 && beforeJb >= 5) {
-            const distRequestToJB = haversine(JB_CENTROID, { lat, lng });
-            if (Number.isFinite(distRequestToJB) && distRequestToJB > 150000) {
+            const { isFarFromJB, haversineMeters: hm, JB_CBD: jbCbd } = require('./location-mode');
+            if (isFarFromJB(lat, lng)) {
+              const distRequestToJB = hm(jbCbd, { lat, lng });
               console.warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${distRequestToJB.toFixed(0)}m from JB CBD. Treating request as OTHER.`);
               venues = preJbVenues;
               jbFilterFellBackToOther = true;
