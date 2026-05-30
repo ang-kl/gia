@@ -330,5 +330,106 @@ export default [
     "fr": "Le riz au poulet hainanais moderne du Restaurant Labyrinth a détenu une étoile Michelin de 2017 à 2020 — sous la direction du chef Han Li Guang.",
     "source": "NLB BiblioAsia",
     "sourceUrl": "https://biblioasia.nlb.gov.sg/vol-18/issue-1/apr-to-jun-2022/evolution-chinese-food-singapore/"
+  },
+  // v0.61.295 — Phase 2A: 12 MY/regional facts. Sourced from Wikipedia
+  // (verifiable, well-cited regional culinary articles) rather than
+  // NLB — NLB's coverage skews Singapore. Tagged with MY + the city
+  // (penang / kl / klang / JB) so the selector preferentially
+  // surfaces them for users searching from those regions.
+  {
+    "id": "penang-char-kway-teow",
+    "tags": ["char-kway-teow", "penang", "MY", "chinese"],
+    "en": "Penang char kway teow is wok-charred with Chinese chives, cockles, and prawns. The dish keeps sauce light so the wok hei dominates — distinct from KL's sweeter dark-soy style.",
+    "fr": "Le char kway teow de Penang est saisi au wok avec ciboulette chinoise, coques et crevettes. La sauce reste légère pour laisser dominer le wok hei — distinct du style plus sucré de KL.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Char_kway_teow"
+  },
+  {
+    "id": "kl-char-kway-teow",
+    "tags": ["char-kway-teow", "kl", "MY", "chinese"],
+    "en": "Kuala Lumpur char kway teow tilts darker and sweeter than Penang's — more dark soy sauce, slightly less prawn-stock body. Locals call it \"kway teow KL-style\" to distinguish.",
+    "fr": "Le char kway teow de Kuala Lumpur penche vers le foncé et le sucré, par rapport à celui de Penang — plus de sauce soja noire, un peu moins de bouillon de crevettes. Les locaux l'appellent « kway teow style KL ».",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Char_kway_teow"
+  },
+  {
+    "id": "klang-bak-kut-teh-origin",
+    "tags": ["bak-kut-teh", "klang", "MY", "chinese", "hokkien"],
+    "en": "Klang in Selangor is widely cited as the origin city of Malaysian-style bak kut teh. The dark, herbal Hokkien broth was a labourer's morning meal in the 19th-century Klang port.",
+    "fr": "Klang, dans le Selangor, est largement citée comme la ville d'origine du bak kut teh malaisien. Ce bouillon Hokkien sombre et herbacé était le petit-déjeuner des ouvriers du port de Klang au XIXᵉ siècle.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bak_kut_teh"
+  },
+  {
+    "id": "asam-laksa-penang",
+    "tags": ["laksa", "asam-laksa", "penang", "MY"],
+    "en": "Penang asam laksa is a tamarind + mackerel soup, distinct from the SG/JB coconut-curry laksa. CNN once ranked it #7 in the world's 50 best foods (2011).",
+    "fr": "Le laksa asam de Penang est une soupe au tamarin et au maquereau, distincte du laksa au lait de coco de SG/JB. CNN l'a classé 7ᵉ des 50 meilleurs plats du monde (2011).",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Asam_laksa"
+  },
+  {
+    "id": "nasi-kandar-tamil-muslim",
+    "tags": ["nasi-kandar", "penang", "MY", "indian"],
+    "en": "Nasi kandar originated with Tamil-Muslim hawkers in 19th-century Penang. The \"kandar\" pole was used to carry the rice + curries on the shoulders; the name preserves the technique.",
+    "fr": "Le nasi kandar trouve ses origines chez les marchands tamouls musulmans dans le Penang du XIXᵉ siècle. Le « kandar » était la perche utilisée pour porter le riz et les currys sur les épaules ; le nom conserve la technique.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nasi_kandar"
+  },
+  {
+    "id": "my-durian-seasons",
+    "tags": ["durian", "MY", "JB"],
+    "en": "Peninsular Malaysia's main durian seasons are June–August and November–January. Pahang's Musang King harvest peaks in late June; smaller crops continue year-round.",
+    "fr": "Les principales saisons du durian en Malaisie péninsulaire sont juin–août et novembre–janvier. La récolte du Musang King à Pahang culmine fin juin ; des récoltes plus modestes continuent toute l'année.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Durian"
+  },
+  {
+    "id": "jb-mamak-24-7",
+    "tags": ["mamak", "JB", "MY", "indian"],
+    "en": "Johor Bahru's mamak stalls run 24/7 because of the cross-border trade rhythm with Singapore. Many serve teh tarik and roti canai to truck drivers on the AH2 highway.",
+    "fr": "Les stands mamak de Johor Bahru fonctionnent 24h/24 grâce au rythme du commerce transfrontalier avec Singapour. Beaucoup servent du teh tarik et du roti canai aux camionneurs de l'autoroute AH2.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mamak_stall"
+  },
+  {
+    "id": "kl-hokkien-mee",
+    "tags": ["hokkien-mee", "kl", "MY", "chinese", "hokkien"],
+    "en": "Kuala Lumpur hokkien mee is a thick, dark stir-fry — yellow noodles, crispy pork lard, and dark soy. Distinct from Singapore's lighter prawn-stock version of the same name.",
+    "fr": "Le hokkien mee de Kuala Lumpur est un sauté épais et sombre — nouilles jaunes, lardons croustillants et sauce soja noire. Distinct de la version singapourienne plus légère, au bouillon de crevettes.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Hokkien_mee"
+  },
+  {
+    "id": "murtabak-yemeni-arab",
+    "tags": ["murtabak", "indian", "MY", "SG"],
+    "en": "Murtabak's roots are Yemeni / Arab — the word means \"folded\" in Arabic. Tamil-Muslim hawkers in Penang and Singapore adapted the stuffed flatbread by the early 1900s.",
+    "fr": "Les origines du murtabak sont yéménites / arabes — le mot signifie « plié » en arabe. Des marchands tamouls musulmans à Penang et Singapour ont adapté la galette farcie au début des années 1900.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mutabbaq"
+  },
+  {
+    "id": "pasar-malam-tradition",
+    "tags": ["pasar-malam", "hawker", "MY", "SG"],
+    "en": "Pasar malam (\"night markets\") are a weekly tradition across MY and SG. They began as ad-hoc food + goods sellers in 19th-century kampungs; many cities now run formal weekly rotations.",
+    "fr": "Le pasar malam (« marché de nuit ») est une tradition hebdomadaire en MY et à SG. Il a commencé par des vendeurs informels de nourriture et de biens dans les kampungs du XIXᵉ siècle ; de nombreuses villes organisent désormais des rotations hebdomadaires.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Pasar_malam"
+  },
+  {
+    "id": "mee-goreng-mamak",
+    "tags": ["mee-goreng", "mamak", "indian", "MY"],
+    "en": "Mee goreng mamak is a Malaysian-Indian invention — Indian-Muslim hawkers stir-fried Chinese yellow noodles with curry powder, tomatoes, and sambal. A 20th-century cross-cultural fusion.",
+    "fr": "Le mee goreng mamak est une invention indo-malaisienne — des marchands indo-musulmans ont sauté des nouilles jaunes chinoises avec de la poudre de curry, des tomates et du sambal. Une fusion interculturelle du XXᵉ siècle.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mee_goreng_mamak"
+  },
+  {
+    "id": "kueh-kapit-love-letters",
+    "tags": ["kueh-kapit", "peranakan", "chinese", "hokkien", "MY", "SG", "dessert"],
+    "en": "Kueh kapit (\"love letters\") are crispy egg wafers folded into quarters. Hokkien + Peranakan in origin; a Chinese New Year specialty across both Malaysia and Singapore.",
+    "fr": "Les kueh kapit (« lettres d'amour ») sont des gaufrettes d'œuf croustillantes pliées en quarts. D'origine Hokkien et Peranakan, c'est une spécialité du Nouvel An chinois en Malaisie comme à Singapour.",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kuih_kapit"
   }
 ];

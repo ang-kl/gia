@@ -11,9 +11,9 @@ import {
 import facts from '../web/cuisine/src/v2/data/fun-facts.js';
 
 describe('fun-facts data contract', () => {
-  it('exports 40 facts', () => {
-    expect(facts.length).toBe(40);
-    expect(totalFunFacts()).toBe(40);
+  it('exports 52 facts (40 SG-NLB + 12 MY-regional)', () => {
+    expect(facts.length).toBe(52);
+    expect(totalFunFacts()).toBe(52);
   });
 
   it('every fact has id + tags + EN + FR + source URL', () => {
@@ -38,10 +38,16 @@ describe('fun-facts data contract', () => {
     expect(set.size).toBe(ids.length);
   });
 
-  it('every source URL points to nlb.gov.sg (per operator NLB-only spec)', () => {
+  it('every source URL points to nlb.gov.sg OR wikipedia.org (Phase 1 + 2A sourcing)', () => {
     for (const f of facts) {
-      expect(f.sourceUrl.includes('nlb.gov.sg')).toBe(true);
+      const ok = f.sourceUrl.includes('nlb.gov.sg') || f.sourceUrl.includes('wikipedia.org');
+      expect(ok).toBe(true);
     }
+  });
+
+  it('Phase 2A: at least 10 MY-tagged facts (v0.61.295 extension)', () => {
+    const myFacts = facts.filter((f) => f.tags.includes('MY'));
+    expect(myFacts.length).toBeGreaterThanOrEqual(10);
   });
 });
 
