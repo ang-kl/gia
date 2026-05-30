@@ -186,6 +186,7 @@ async function runVariance(opts = {}) {
       primaryTypeFrequency: {}
     };
     for (const [lang, queries] of Object.entries(seeds)) {
+      if (log) log(`\n--- lang=${lang} ---`);
       for (const q of queries) {
         const places = await _searchText(q, region, lang, apiKey, limit, radiusM, maxPages, log);
         const kept = [];
@@ -203,6 +204,21 @@ async function runVariance(opts = {}) {
           const row = { name: v.name, primaryType: pt, formattedAddress: v.formattedAddress, placeId: v.placeId || '' };
           if (sm.isRelevant(v, mode)) kept.push(row);
           else rejected.push(row);
+        }
+        // v0.61.293 — per-query log lines (CLI-style detail). Only fires
+        // when caller passes a `log` callback. The bot's /ver path
+        // doesn't pass one, so its chat surface is unchanged; the CLI
+        // wrapper (scripts/durian-variance.js) passes `console.log`.
+        if (log) {
+          const keptLine = kept.length
+            ? kept.slice(0, 3).map((x) => `${x.name} [${x.primaryType}]`).join(' · ')
+            : '(none)';
+          const rejLine = rejected.length
+            ? rejected.slice(0, 3).map((x) => `${x.name} [${x.primaryType}]`).join(' · ')
+            : '(none)';
+          log(`  q="${q}" places=${places.length} kept=${kept.length} rejected=${rejected.length}`);
+          log(`    kept(top3): ${keptLine}`);
+          log(`    rejected(top3): ${rejLine}`);
         }
         regionRecord.queries.push({
           lang,
@@ -223,6 +239,11 @@ async function runVariance(opts = {}) {
     }
     const sorted = [...seenTypes.entries()].sort((a, b) => b[1] - a[1]);
     for (const [pt, n] of sorted) regionRecord.primaryTypeFrequency[pt] = n;
+    // v0.61.293 — per-region primaryType frequency dump (CLI-style).
+    if (log) {
+      log(`\n>>> ${region.name} primaryType frequency:`);
+      for (const [pt, n] of sorted) log(`     ${String(pt).padEnd(36)} ${n}`);
+    }
     const totalPlaces = regionRecord.queries.reduce((s, q) => s + q.placesReturned, 0);
     const totalKept = regionRecord.queries.reduce((s, q) => s + q.keptCount, 0);
     regionRecord.totals = {
@@ -237,7 +258,7 @@ async function runVariance(opts = {}) {
   const allKept = reportRegions.reduce((s, r) => s + (r.totals?.kept || 0), 0);
   const report = {
     schemaVersion: 1,
-    scriptVersion: '0.61.288',
+    scriptVersion: '0.61.293',
     mode,
     ranAtIso: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
