@@ -7,6 +7,9 @@ import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writ
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
+// v0.61.285 — fun-fact modal for the rotating-search wait window.
+import FunFactModal from './components/FunFactModal.jsx';
+import { pickFunFact } from './lib/fun-facts.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -135,6 +138,27 @@ export default function App() {
     const id = setInterval(() => setRotatingIndex((i) => (i + 1) % 6), 1500);
     return () => clearInterval(id);
   }, [loading, loadingReason]);
+  // v0.61.285 — pick a NLB-sourced SG food-history fact 1.5 s after a
+  // rotating-search starts. Skips fast searches (the 1.5 s gate
+  // avoids a flash for sub-1.5 s round-trips), boot warm-start
+  // ('initial'), and same-criteria refreshes ('refresh'). Cleared on
+  // loading→false; FunFactModal enforces a 3 s minimum on-screen.
+  const [funFact, setFunFact] = useState(null);
+  useEffect(() => {
+    if (!loading) { setFunFact(null); return undefined; }
+    if (loadingReason !== 'rotating') { setFunFact(null); return undefined; }
+    const id = setTimeout(() => {
+      try {
+        const fact = pickFunFact({
+          cuisines: state.cuisines,
+          region: state.region,
+          countryPref: state.countryPref
+        });
+        if (fact) setFunFact(fact);
+      } catch { /* swallow — never break the search on a modal-pick error */ }
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [loading, loadingReason, state.cuisines, state.region, state.countryPref]);
   // v0.60.32 — first-load indicator. Set to true on mount, cleared
   // after the first venues array arrives. Drives the "Please wait
   // while loading list…" banner so the user knows the longer initial
@@ -1705,6 +1729,14 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
+      {/* v0.61.285 — fun-fact modal during the rotating-search wait
+          window. NLB-sourced food-history facts replace the generic
+          "still loading" rotating-titles. Visible only when a fact
+          has been picked (1.5 s into a rotating search); the modal
+          itself enforces a 3 s on-screen minimum so a fast search
+          doesn't yank it mid-sentence. */}
+      <FunFactModal fact={funFact} visible={loading && !!funFact} />
+
       {/* v0.61.274 — location coherence modal (audit "first-paint
           incoherent location set vs saved"). Renders when the saved
           countryPref disagrees with the GPS-derived country. Two
