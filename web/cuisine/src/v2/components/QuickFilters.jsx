@@ -104,13 +104,23 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
           // stay unchanged so the search request + aria labels +
           // combo-line render keep the Latin spelling.
           const isHalal = f.key === 'halal';
+          const isActive = !!filters[f.key];
           return (
             <span key={f.key} className={chipDisabled ? 'opacity-40 pointer-events-none' : ''}
               aria-disabled={chipDisabled || undefined}>
-              <Chip active={!!filters[f.key]} onClick={() => toggle(f.key)}
-                ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}${chipDisabled ? ' — disabled in special mode' : ''}`}>
+              <Chip active={isActive} onClick={() => toggle(f.key)}
+                ariaLabel={`${labelFor(f.key, f.i18n)} ${isActive ? '(on)' : '(off)'}${chipDisabled ? ' — disabled in special mode' : ''}`}>
                 {isHalal ? (
-                  <span lang="ar" dir="rtl" className="font-bold text-emerald-600">حلال</span>
+                  // v0.61.284 — operator: "the halal background selected,
+                  // the text should be contrast." When the chip is inactive
+                  // the resting emerald-600 reads well on bg-tg-card; when
+                  // ACTIVE the Chip wrapper flips to bg-tg-accent (cyan/
+                  // blue in light mode), and emerald-600 on cyan has poor
+                  // luminance contrast. Inherit the Chip's active text
+                  // colour (tg-accent-text) in that state so the glyph
+                  // reads white-on-cyan instead of green-on-cyan.
+                  <span lang="ar" dir="rtl"
+                    className={`font-bold ${isActive ? 'text-tg-accent-text' : 'text-emerald-600'}`}>حلال</span>
                 ) : (
                   <><span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}</>
                 )}
