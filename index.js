@@ -1383,6 +1383,23 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
         console.warn('[runCuisineFlow] translate-enrich failed:', err.message);
       }
       await deliverPicks(chatId, meal.label, venues);
+      // v0.61.296 — Phase 2B: chat-surface fun-fact. After the
+      // venue list lands in DM, fire a separate "💡 Did you know?"
+      // message tagged to the cuisine the user searched. Mirrors
+      // the Cuisine TMA modal (v0.61.285 + v0.61.295). Best-effort;
+      // a failure here MUST NOT block the cuisine result.
+      try {
+        const { resolveLang } = require('./user-prefs');
+        const ffLang = await resolveLang(redis, chatId, null).catch(() => 'en') || 'en';
+        const { sendFunFactReply } = require('./bot-fun-facts');
+        await sendFunFactReply({
+          bot, redis, chatId, lang: ffLang,
+          cuisines: cuisineType ? [String(cuisineType).toLowerCase()] : [],
+          region: null, countryPref: null
+        });
+      } catch (err) {
+        console.warn('[runCuisineFlow] funfact append failed:', err && err.message ? err.message : err);
+      }
       return;
     }
     try {
