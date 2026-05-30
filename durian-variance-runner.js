@@ -79,6 +79,14 @@ const DEFAULT_MAX_PAGES = 3;             // v0.61.262 — walk nextPageToken up 
 // durian are seasonal").
 function _placeToVenue(p) {
   return {
+    // v0.61.288 — surface placeId (Places API returns it as `p.id`).
+    // The v0.61.283 fix to scripts/durian-variance.js missed this
+    // bot-side runner module, so /ver runs from v0.61.260-287 still
+    // produced placeId-less reports and the dgv:labels:<mode> Redis
+    // cache stayed empty in prod. Operator confirmed via two JSON
+    // downloads (16:57 + 21:10 SGT runs) that placeId was empty
+    // even on v0.61.286 deploy.
+    placeId: p?.id || '',
     name: p?.displayName?.text || '',
     formattedAddress: p?.formattedAddress || '',
     area: p?.formattedAddress || '',
@@ -186,7 +194,13 @@ async function runVariance(opts = {}) {
           const v = _placeToVenue(p);
           const pt = v.primaryType || '(no primaryType)';
           seenTypes.set(pt, (seenTypes.get(pt) || 0) + 1);
-          const row = { name: v.name, primaryType: pt, formattedAddress: v.formattedAddress };
+          // v0.61.288 — carry placeId through; mirrors the v0.61.283
+          // fix in scripts/durian-variance.js. Without this the
+          // downstream Gemini verify (durian-gemini-verifier.js
+          // _flattenKeptVenues) reads `v?.placeId` as '' and
+          // ownerDurianGeminiRun's `if (!v.placeId) continue;` skips
+          // every venue, leaving dgv:labels:<mode> empty.
+          const row = { name: v.name, primaryType: pt, formattedAddress: v.formattedAddress, placeId: v.placeId || '' };
           if (sm.isRelevant(v, mode)) kept.push(row);
           else rejected.push(row);
         }
@@ -223,7 +237,7 @@ async function runVariance(opts = {}) {
   const allKept = reportRegions.reduce((s, r) => s + (r.totals?.kept || 0), 0);
   const report = {
     schemaVersion: 1,
-    scriptVersion: '0.61.260',
+    scriptVersion: '0.61.288',
     mode,
     ranAtIso: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
