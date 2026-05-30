@@ -3,6 +3,8 @@ import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
 import { citiesForCountry } from '../lib/cities.js';
+// v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
+import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from '../lib/jb-focus-points.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -47,15 +49,8 @@ import { citiesForCountry } from '../lib/cities.js';
 //        revert back to the current location." (AskUserQuestion →
 //        "Both" first-paint AND explicit-clear cases)
 //
-// JB_FOCUS_POINTS: when the cuisine TMA region pill is on JB AND the
-// user has not explicitly anchored AND types nothing, tapping 🔍 fires
-// the search at the active focus point's coords. Default = Southkey
-// (operator's verbatim mention); JB CBD is the alternate, matches the
-// pre-v0.61.268 server-side default at index.js:12005.
-const JB_FOCUS_POINTS = {
-  southkey: { name: 'Mid Valley Southkey', lat: 1.4912, lng: 103.7665 },
-  cbd:      { name: 'JB CBD',              lat: 1.4927, lng: 103.7414 }
-};
+// v0.61.277 — JB_FOCUS_POINTS lifted to lib/jb-focus-points.js so App.jsx
+// can use the same constants for the region-pill auto-anchor on JB tap.
 
 // v0.61.265 — operator (29-05 '26):
 //   "the location field box cannot be a country like singapore or
@@ -402,17 +397,24 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
           </div>
         )}
-        {/* v0.61.268 — operator #4: focus-point chip. Only renders when
-            the user is on JB region with no explicit anchor — i.e. the
-            fallback path is live. Two chips toggle jbFocusKey; toggling
-            does not fire a search, only updates which focus point the
-            🔍 button will use. */}
-        {!open && region === 'JB' && !anchorDiffers && !pickedLabel && (
+        {/* v0.61.268 — operator #4: focus-point chip.
+            v0.61.277 — operator (30-05 '26): "i switch to Johor Bahru,
+            and confirm my new loc is JB south key as spec. why my loc
+            still in south SG." Tapping the chip now COMMITS the anchor
+            via onSelect (not just `jbFocusKey` state). The map +
+            resting pill label flip to "Mid Valley Southkey" or "JB CBD"
+            immediately — matching the user's mental model of
+            "I confirmed Southkey, so my location IS Southkey." */}
+        {!open && region === 'JB' && (
           <div className="text-[10px] text-tg-hint flex items-center gap-1.5 mt-0.5">
             <span>{lang === 'fr' ? 'Défaut :' : 'Default focus:'}</span>
             <button
               type="button"
-              onClick={() => setJbFocusKey('southkey')}
+              onClick={() => {
+                setJbFocusKey('southkey');
+                const fp = JB_FOCUS_POINTS.southkey;
+                onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name, noAutoFire: true });
+              }}
               aria-pressed={jbFocusKey === 'southkey'}
               className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'southkey'
                 ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
@@ -421,7 +423,11 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             <span>·</span>
             <button
               type="button"
-              onClick={() => setJbFocusKey('cbd')}
+              onClick={() => {
+                setJbFocusKey('cbd');
+                const fp = JB_FOCUS_POINTS.cbd;
+                onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name, noAutoFire: true });
+              }}
               aria-pressed={jbFocusKey === 'cbd'}
               className={`px-1.5 py-0.5 rounded border ${jbFocusKey === 'cbd'
                 ? 'bg-tg-accent text-tg-bg border-tg-accent font-semibold'
