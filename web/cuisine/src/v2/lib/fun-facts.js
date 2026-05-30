@@ -13,7 +13,20 @@
 
 'use strict';
 
-import facts from '../data/fun-facts.json';
+// v0.61.290 — operator-merged vitest in PR #795 surfaced that the
+// v0.61.285 `import facts from '../data/fun-facts.json'` fails on
+// Node 20 ESM (needs `with { type: 'json' }`). Vite's browser
+// bundler handles bare JSON imports fine, but vitest's Node ESM
+// loader doesn't — so the test suite was silently failing on
+// v0.61.285 + v0.61.286 (auto-merge bypassed it because the repo's
+// branch protection rules don't require vitest to pass).
+//
+// Fix: data file converted from `fun-facts.json` → `fun-facts.js`
+// with `export default [...]`. Now the import is a regular ESM
+// statement that works identically in Node, vitest, and the Vite
+// browser bundle. No import attributes, no createRequire, no
+// per-environment branching.
+import facts from '../data/fun-facts.js';
 
 const LS_KEY = 'gia.funfact.lastSeen';
 const LS_MAX = 10;
