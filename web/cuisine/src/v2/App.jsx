@@ -1126,7 +1126,11 @@ export default function App() {
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
         cuisines: snap.cuisines, filters: snap.filters,
-        region: snap.region || 'SG',
+        // v0.61.273 — first-paint '__NONE__' sentinel: omit region
+        // from the request so the server resolves it from cache /
+        // coarseGate, not from a stale 'SG' fallback. Existing
+        // resolved values (SG/JB/OTHER) forward as before.
+        region: (snap.region && snap.region !== '__NONE__') ? snap.region : undefined,
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
@@ -1374,7 +1378,9 @@ export default function App() {
         filters: state.filters, lang,
         // v0.61.271 — forward region + countryCode so NL queries
         // respect the user's location context (Phase 3 audit A5/D1).
-        region: state.region || 'SG',
+        // v0.61.273 — omit region when the first-paint sentinel is
+        // still in place so the server resolves from cache/coords.
+        region: (state.region && state.region !== '__NONE__') ? state.region : undefined,
         countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
       });
       setVenues(r.venues || []);
@@ -1539,7 +1545,9 @@ export default function App() {
           lat: p.lat,
           lng: p.lng,
           label: p.label,
-          region: state.region,
+          // v0.61.273 — don't persist the first-paint '__NONE__'
+          // sentinel; only forward a resolved region.
+          region: (state.region && state.region !== '__NONE__') ? state.region : undefined,
           country: (state.region === 'OTHER' && state.countryPref) ? state.countryPref : undefined
         }).catch(() => {});
       }

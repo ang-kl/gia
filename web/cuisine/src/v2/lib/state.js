@@ -39,13 +39,22 @@ export function defaultState() {
       petFriendly: false,
       prices: []
     },
-    region: 'SG',
+    // v0.61.273 — Phase 1 audit item A1 (PLATFORM REFRACTORING spec
+    // §3 "no fallback leaks to Singapore"). First-paint sentinel:
+    // region is unresolved until tryServerCache / tryGps /
+    // applyRegionFromAnchor / the v0.61.243 GPS auto-detect promotes
+    // it to a real region. Pre-v0.61.273 the default was 'SG', so a
+    // user in Bangkok briefly saw SG-biased results before GPS
+    // resolved. Now the pill row shows no highlight until the
+    // session has a real anchor.
+    region: '__NONE__',
     // v0.61.191 — for OTHER region only: ISO 3166-1 alpha-2 country
     // code (MY/ID/TH/...) the user picked via the LocationField's
     // flag dropdown. Constrains Places search to that country.
-    // Defaults to 'MY' (operator's primary OTHER target at ship time).
-    // Unused when region !== 'OTHER'.
-    countryPref: 'MY',
+    // v0.61.273 — also nulled at first-paint; the OTHER picker
+    // backfills from the GPS auto-detect or the v0.61.196 server
+    // country-pref load.
+    countryPref: null,
     promptText: '',
     // v0.61.126 — Fruits / Durian exclusive special mode. When set
     // (one of 'fruits' / 'durian'), it overrides cuisines + Michelin
@@ -97,7 +106,10 @@ export function writeToHash(s) {
     if (s.filters[k]) params.set(k, '1');
   }
   if (s.filters.prices.length) params.set('prices', s.filters.prices.join(','));
-  if (s.region && s.region !== 'SG') params.set('region', s.region);
+  // v0.61.273 — write any explicit region (SG / JB / OTHER) to the
+  // hash so a refresh preserves the user's pick. Skip the '__NONE__'
+  // sentinel (first-paint, pre-resolution).
+  if (s.region && s.region !== '__NONE__') params.set('region', s.region);
   history.replaceState(null, '', '#' + params.toString());
 }
 

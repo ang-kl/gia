@@ -11986,7 +11986,17 @@ async function cacheBotUsername() {
       makeRateLimiter(redis, { endpoint: 'warm-start', cap: 200 }),
       async (req, res) => {
       try {
-        const { lat, lng, region = 'SG', lang: langIn } = req.body || {};
+        // v0.61.273 — same '__NONE__' sentinel handling as
+        // /api/cuisine/search below. The TMA's first-paint sentinel
+        // arrives as `undefined` (client omits) or the literal
+        // string; either way we resolve from cache / coarseGate
+        // instead of falling through to 'SG'.
+        const { lat, lng, lang: langIn } = req.body || {};
+        const wsRegionIn = req.body?.region;
+        let region = (typeof wsRegionIn === 'string'
+                       && wsRegionIn !== '__NONE__'
+                       && /^(SG|JB|OTHER|MY-PUT)$/.test(wsRegionIn))
+          ? wsRegionIn : null;
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
@@ -11995,6 +12005,26 @@ async function cacheBotUsername() {
         // summaries when the TMA is in French.
         const verifiedW = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         const wsChatId = verifiedW?.user?.id ? String(verifiedW.user.id) : null;
+        if (!region) {
+          let cachedRegion = null;
+          if (wsChatId) {
+            try {
+              const cached = await getUserLocation(redis, wsChatId).catch(() => null);
+              cachedRegion = (cached && typeof cached.region === 'string') ? cached.region : null;
+            } catch { /* non-fatal */ }
+          }
+          if (cachedRegion && /^(SG|JB|OTHER|MY-PUT)$/.test(cachedRegion)) {
+            region = cachedRegion;
+          } else {
+            try {
+              const { coarseGate } = require('./location-mode');
+              region = coarseGate({ lat, lng }) ? 'SG' : 'OTHER';
+            } catch {
+              region = 'SG';
+            }
+          }
+          console.log(`[WarmStart] A1 region resolved: client=${wsRegionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
+        }
         const { resolveLang } = require('./user-prefs');
         const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
@@ -13330,7 +13360,23 @@ async function cacheBotUsername() {
         // city only, not the whole state of Johor or Malaysia). For JB
         // the search centres on JB CBD with regionCode 'MY' + a hard
         // formattedAddress filter for "Johor Bahru".
-        const { lat, lng, cuisines = [], filters = {}, region = 'SG', radius: clientRadius, lang: langIn } = req.body || {};
+        // v0.61.273 — Phase 1 audit item A1. The TMA's first-paint
+        // sentinel '__NONE__' is intentionally omitted by the client;
+        // it lands here as `undefined` or as the literal sentinel
+        // string. Either way we treat it as "no region was specified"
+        // and resolve below from (a) Redis cache, (b) coarseGate.
+        // Pre-v0.61.273 the destructure defaulted to 'SG', which
+        // leaked Singapore results to users physically in Bangkok /
+        // KL / Jakarta whose TMA had just opened.
+        const { lat, lng, cuisines = [], filters = {}, radius: clientRadius, lang: langIn } = req.body || {};
+        const regionIn = req.body?.region;
+        // `let` because the cache/coords resolution below may
+        // mutate it. Validate against the closed set so a bad
+        // client value can't poison the downstream branches.
+        let region = (typeof regionIn === 'string'
+                       && regionIn !== '__NONE__'
+                       && /^(SG|JB|OTHER|MY-PUT)$/.test(regionIn))
+          ? regionIn : null;
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'missing lat/lng' });
         }
@@ -13360,6 +13406,33 @@ async function cacheBotUsername() {
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         const csChatId = verifiedSearch?.user?.id ? String(verifiedSearch.user.id) : null;
+        // v0.61.273 — resolve `region` when the client omitted it
+        // (first-paint '__NONE__' sentinel) or sent an invalid value.
+        // Priority: (a) Redis-cached region from /api/cuisine/set-location
+        // or /api/menu/set-location; (b) coarseGate against the request
+        // coords — SG inside the SG bbox, OTHER elsewhere. JB cannot
+        // be inferred from coords alone (SG-bbox-adjacent) so it
+        // requires an explicit anchor or pill pick.
+        if (!region) {
+          let cachedRegion = null;
+          if (csChatId) {
+            try {
+              const cached = await getUserLocation(redis, csChatId).catch(() => null);
+              cachedRegion = (cached && typeof cached.region === 'string') ? cached.region : null;
+            } catch { /* non-fatal */ }
+          }
+          if (cachedRegion && /^(SG|JB|OTHER|MY-PUT)$/.test(cachedRegion)) {
+            region = cachedRegion;
+          } else {
+            try {
+              const { coarseGate } = require('./location-mode');
+              region = coarseGate({ lat, lng }) ? 'SG' : 'OTHER';
+            } catch {
+              region = 'SG';  // last-resort fallback if location-mode crashes
+            }
+          }
+          console.log(`[Cuisine-TMA] D-A1 region resolved: client=${regionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
+        }
         const { resolveLang: resolveLangSearch } = require('./user-prefs');
         const csBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
