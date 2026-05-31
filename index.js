@@ -49,13 +49,15 @@ const {
   getUserCountryPref,
   setUserCountryPref
 } = require('./country-pref');
-// v0.61.197 — recent-locations LRU (10 entries/user, Redis-backed).
-// Hooked into the chat /location <text> success paths + the TMA's
-// /api/cuisine/set-location endpoint; surfaced via /lrecent.
+// v0.61.197 — recent-locations LRU (20 entries/user as of v0.61.305,
+// Redis-backed). Hooked into the chat /location <text> success paths
+// + the TMA's /api/cuisine/set-location endpoint; surfaced via
+// /lrecent (chat) and /api/cuisine/recent-locations (TMA drawer).
 const {
   listRecentLocations,
   addRecentLocation,
-  removeRecentLocationAt: removeRecentLocationAtIdx
+  removeRecentLocationAt: removeRecentLocationAtIdx,
+  MAX_ENTRIES: RECENT_LOCATIONS_MAX
 } = require('./recent-locations');
 // v0.61.200 — city/country token detection in /location <text>.
 // Override the SG default when "Times Square KL", "Bangkok",
@@ -1955,10 +1957,10 @@ bot.onText(/^\/(?:lcountry|lc)(?:@\w+)?$/i, async (msg) => {
 });
 
 // v0.61.197 — /lrecent (alias /lr) opens the recent-locations drawer
-// (up to 10 most-recently-resolved anchors). Each row is a tappable
-// inline-keyboard button that re-applies the anchor via setUserLocation
-// (and bubbles it back to the top of the LRU via addRecentLocation,
-// so frequently-used spots stay sticky).
+// (up to 20 most-recently-resolved anchors, v0.61.305). Each row is a
+// tappable inline-keyboard button that re-applies the anchor via
+// setUserLocation (and bubbles it back to the top of the LRU via
+// addRecentLocation, so frequently-used spots stay sticky).
 bot.onText(/^\/(?:lrecent|lr)(?:@\w+)?$/i, async (msg) => {
   const chatId = msg.chat.id;
   try {
@@ -1966,7 +1968,7 @@ bot.onText(/^\/(?:lrecent|lr)(?:@\w+)?$/i, async (msg) => {
     if (!list.length) {
       await safeSend(chatId,
         '🕓 *No recent locations yet.*\n\n' +
-        'Set one via `/location <place>`, the share-pin button, or the Cuisine TMA. The 10 most-recent will appear here.',
+        `Set one via \`/location <place>\`, the share-pin button, or the Cuisine TMA. The ${RECENT_LOCATIONS_MAX} most-recent will appear here.`,
         { parse_mode: 'Markdown' });
       return;
     }
@@ -1987,7 +1989,7 @@ bot.onText(/^\/(?:lrecent|lr)(?:@\w+)?$/i, async (msg) => {
       { text: '✖ Close', callback_data: 'lr:close' }
     ]);
     await safeSend(chatId,
-      `🕓 *Recent locations* (${list.length}/${10}). Tap to re-anchor.`,
+      `🕓 *Recent locations* (${list.length}/${RECENT_LOCATIONS_MAX}). Tap to re-anchor.`,
       { parse_mode: 'Markdown', reply_markup: { inline_keyboard: rows } });
   } catch (err) {
     console.warn('[/lrecent] failed:', err.message);
@@ -13025,6 +13027,42 @@ async function cacheBotUsername() {
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
         res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.61.305 — recent-locations LRU for the in-TMA drawer. Mirrors
+    // /lrecent chat surface but returns JSON for the Cuisine TMA's 📍
+    // tap drawer. Cap of 20 (RECENT_LOCATIONS_MAX, raised from 10 in
+    // this version). initData-gated; no body params besides initData.
+    app.post('/api/cuisine/recent-locations', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const list = await listRecentLocations(redis, String(userId));
+        res.json({ items: Array.isArray(list) ? list : [], max: RECENT_LOCATIONS_MAX });
+      } catch (err) {
+        console.warn('[recent-locations API] failed:', err && err.message);
+        res.status(500).json({ error: 'internal' });
+      }
+    });
+
+    // v0.61.305 — clear the recent-locations LRU from the in-TMA
+    // drawer's 🗑 Clear all button. Same auth contract; reuses the
+    // chat-side clearRecentLocations helper.
+    app.post('/api/cuisine/recent-locations/clear', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+        const userId = verified.user?.id;
+        if (!userId) return res.status(400).json({ error: 'no user id' });
+        const { clearRecentLocations } = require('./recent-locations');
+        await clearRecentLocations(redis, String(userId));
+        res.json({ ok: true });
+      } catch (err) {
+        console.warn('[recent-locations clear API] failed:', err && err.message);
+        res.status(500).json({ error: 'internal' });
       }
     });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { placeAutocomplete, placeResolve, reverseGeocode } from '../lib/api.js';
+import { placeAutocomplete, placeResolve, reverseGeocode, fetchRecentLocations, clearRecentLocationsRemote } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
 import { citiesForCountry } from '../lib/cities.js';
@@ -100,6 +100,15 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const [lang] = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  // v0.61.305 — recents drawer state. Tap on 📍 opens the in-TMA
+  // drawer (icon flips to 🧭). Lazy-load: items only fetched when
+  // the drawer first opens, so users who never tap 📍 don't pay the
+  // round-trip. `recentsMax` mirrors the server's MAX_ENTRIES so the
+  // header "(N/20)" stays in sync if the cap is bumped again.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [recents, setRecents] = useState([]);
+  const [recentsMax, setRecentsMax] = useState(20);
+  const [recentsLoading, setRecentsLoading] = useState(false);
   // v0.61.268 — operator #4: JB focus-point alternates. When the user
   // is on the JB region pill with no anchor and no typed query and
   // taps 🔍, search fires at JB_FOCUS_POINTS[jbFocusKey]. Default
@@ -229,12 +238,14 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           && Math.abs(anchor.lng - r.lng) < 1e-4;
         if (!same) {
           setPickedLabel(label);
-          // v0.61.244 — operator: "do not fire search from the
-          // location box for johor and others until user fire".
-          // SG keeps the v0.61.237 auto-fire (it's the chat-bot
-          // default region; users expect a tap-pick to surface
-          // results). JB and OTHER require an explicit 🔍 tap.
-          onSelect?.({ lat: r.lat, lng: r.lng, label, noAutoFire: region !== 'SG' });
+          // v0.61.305 — auto-fire on autocomplete pick for ALL regions.
+          // Previously (v0.61.244) only SG auto-fired; JB and OTHER
+          // required an explicit 🔍 tap to avoid burning a search call
+          // when the user misjudged the pick. The new in-TMA recents
+          // drawer (📍 → 🧭) is the revert affordance — picking the
+          // wrong row is now one tap to undo, so the round-trip cost
+          // of auto-fire is acceptable everywhere.
+          onSelect?.({ lat: r.lat, lng: r.lng, label });
         }
       }
     } catch (err) {
@@ -275,6 +286,38 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
       // locationAnchor accordingly.
       onSelect?.({ lat: userLoc.lat, lng: userLoc.lng, label: '' });
     }
+  }
+
+  // v0.61.305 — recents drawer handlers. openDrawer fetches the LRU
+  // lazily and flips drawerOpen. handleRecentPick re-anchors via the
+  // existing onSelect callback (auto-fires search; the drawer is the
+  // operator's "back to previous" affordance). handleClearRecents
+  // wipes the LRU server-side then resets local state.
+  async function openDrawer() {
+    clearIdleHint();
+    if (open) setOpen(false);
+    setDrawerOpen(true);
+    setRecentsLoading(true);
+    try {
+      const r = await fetchRecentLocations();
+      setRecents(Array.isArray(r?.items) ? r.items : []);
+      if (r?.max) setRecentsMax(r.max);
+    } catch {
+      setRecents([]);
+    } finally {
+      setRecentsLoading(false);
+    }
+  }
+  function handleRecentPick(entry) {
+    if (!entry || !Number.isFinite(entry.lat) || !Number.isFinite(entry.lng)) return;
+    setDrawerOpen(false);
+    const label = (typeof entry.label === 'string' && entry.label.trim()) || '';
+    if (label) setPickedLabel(label);
+    onSelect?.({ lat: entry.lat, lng: entry.lng, label });
+  }
+  async function handleClearRecents() {
+    await clearRecentLocationsRemote();
+    setRecents([]);
   }
 
   // v0.60.119: is the locked-in anchor actually a *different* place
@@ -341,8 +384,72 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           row's flag-handling convention).
           Open (input) state keeps the single-row layout (input + ✏️). */}
       <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+        {drawerOpen ? (
+          <div>
+            <div className="flex items-center justify-between py-0.5">
+              <span className="text-tg-text text-sm inline-flex items-center gap-1.5">
+                <span aria-hidden className="text-tg-accent">🧭</span>
+                <span>{lang === 'fr' ? 'Récents' : 'Recent'} ({recents.length}/{recentsMax})</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label={tr('loc.close', lang)}
+                className="text-tg-hint hover:text-tg-text text-xs leading-none px-1"
+              >✕</button>
+            </div>
+            <div className="border-t border-tg-border/40 mt-1 max-h-[280px] overflow-y-auto">
+              {recentsLoading ? (
+                <div className="text-tg-hint text-xs py-2 text-center">…</div>
+              ) : recents.length === 0 ? (
+                <div className="text-tg-hint text-xs py-2 text-center italic">
+                  {lang === 'fr' ? 'Aucun emplacement récent' : 'No recent locations yet'}
+                </div>
+              ) : (
+                recents.map((e, i) => {
+                  const flag = (e.country && findCountry(e.country)?.flag) || '🌍';
+                  const isCurrent = anchor
+                    && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)
+                    && Math.abs(anchor.lat - e.lat) < 1e-4
+                    && Math.abs(anchor.lng - e.lng) < 1e-4;
+                  const label = (typeof e.label === 'string' && e.label.trim())
+                    || `${Number(e.lat).toFixed(4)}, ${Number(e.lng).toFixed(4)}`;
+                  return (
+                    <button
+                      key={`${e.lat},${e.lng},${i}`}
+                      type="button"
+                      onClick={() => handleRecentPick(e)}
+                      className="flex w-full items-center gap-2 py-1 px-0.5 text-left text-sm text-tg-text hover:bg-tg-bg/50"
+                      title={label}
+                    >
+                      <span aria-hidden className="flex-shrink-0">{flag}</span>
+                      <span className="truncate flex-1">{label}</span>
+                      {isCurrent && <span aria-hidden className="text-tg-accent text-xs flex-shrink-0">✓</span>}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            {recents.length > 0 && (
+              <div className="border-t border-tg-border/40 mt-1 pt-1">
+                <button
+                  type="button"
+                  onClick={handleClearRecents}
+                  className="text-tg-hint hover:text-tg-text text-xs inline-flex items-center gap-1"
+                >🗑 {lang === 'fr' ? 'Tout effacer' : 'Clear all'}</button>
+              </div>
+            )}
+          </div>
+        ) : (
+        <>
         <div className="flex items-center gap-2">
-          <span aria-hidden className="text-tg-accent">📍</span>
+          <button
+            type="button"
+            onClick={openDrawer}
+            aria-label={tr('loc.recent', lang)}
+            title={tr('loc.recent', lang)}
+            className="text-tg-accent text-sm leading-none flex-shrink-0"
+          >📍</button>
           {open ? (
             <input
               ref={inputRef}
@@ -449,6 +556,8 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               );
             })}
           </div>
+        )}
+        </>
         )}
       </div>
       {/* v0.61.244 — 6 s idle reminder: small upward-pointing speech
