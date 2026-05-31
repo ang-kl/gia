@@ -1,21 +1,21 @@
 counters:
-  commit: 519
-  build: 308
+  commit: 520
+  build: 309
   documents:
-    journal: 506
+    journal: 507
     builder: 3
     persona: 4
-    feature: 49
+    feature: 50
     technical: 51
     legal: 9
     register: 126
 sessions:
   current_chat_id: 2026-05-31
-  current_chat_counter: 10
-last_anchor_time: 31-05 '26 18:30 SGT
-last_anchor_source: derived_from_v0_61_305_in_session (operator "draft the in-TMA drawer + auto-fire flip as v0.61.305" + mockup approval — recents drawer + LRU cap bump 10→20 + auto-fire-on-pick all regions, off main at v0.61.304 merge)
-last_anchor_iso8601: 2026-05-31T18:30:00+08:00
-last_anchor_utc: 2026-05-31T10:30:00Z
+  current_chat_counter: 11
+last_anchor_time: 31-05 '26 20:45 SGT
+last_anchor_source: derived_from_v0_61_306_doc_upkeep (operator "Doc-upkeep — vault / journal / features" post v0.61.304 + v0.61.305 merges — PR A: feature RF-16 addition + post-merge journal for both shipped PRs; PR B vault snapshot to follow)
+last_anchor_iso8601: 2026-05-31T20:45:00+08:00
+last_anchor_utc: 2026-05-31T12:45:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
