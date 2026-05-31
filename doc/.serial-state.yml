@@ -1,8 +1,8 @@
 counters:
-  commit: 516
-  build: 305
+  commit: 517
+  build: 306
   documents:
-    journal: 503
+    journal: 504
     builder: 3
     persona: 4
     feature: 49
@@ -11,11 +11,11 @@ counters:
     register: 126
 sessions:
   current_chat_id: 2026-05-31
-  current_chat_counter: 7
-last_anchor_time: 31-05 '26 09:35 SGT
-last_anchor_source: derived_from_v0_61_301_in_flight (PR #807 queued ~09:20 SGT; v0.61.302 variance-runner unit tests + test seam shipped ~20 min later — Register O-41 closure)
-last_anchor_iso8601: 2026-05-31T09:35:00+08:00
-last_anchor_utc: 2026-05-31T01:35:00Z
+  current_chat_counter: 8
+last_anchor_time: 31-05 '26 10:45 SGT
+last_anchor_source: derived_from_v0_61_302_in_flight (PR #808 in-flight with test-fix commit on top; v0.61.303 21-cuisine Gemini-cache extension shipped post operator "do the same" ask + v0.61.300 variance re-run analysis)
+last_anchor_iso8601: 2026-05-31T10:45:00+08:00
+last_anchor_utc: 2026-05-31T02:45:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

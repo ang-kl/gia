@@ -14142,9 +14142,18 @@ async function cacheBotUsername() {
         // slug is in GEMINI_CACHE_KEYS. Multi-cuisine searches and
         // freetext searches skip — those have looser intent so the
         // raw Places ranking is acceptable.
+        // v0.61.303 — extended with 21 more cuisines: Japanese/Korean
+        // (East Asian), North/South Indian + Bengali/Gujarati/Nepalese/
+        // Sri Lankan/Pakistani (South Asian), Italian/Spanish/Greek/
+        // French/British/German/Austrian/Swiss/Portuguese/Scandinavian/
+        // European/Mediterranean (European, incl. broad catch-alls).
         const GEMINI_CACHE_KEYS = new Set([
           'durian', 'durian-pastry', 'fruits',
-          'russian', 'polish', 'ukrainian', 'czech', 'hungarian', 'bulgarian', 'romanian'
+          'russian', 'polish', 'ukrainian', 'czech', 'hungarian', 'bulgarian', 'romanian',
+          'japanese', 'korean',
+          'north-indian', 'south-indian', 'bengali', 'gujarati', 'nepalese', 'sri-lankan', 'pakistani',
+          'italian', 'spanish', 'greek', 'french', 'british', 'german', 'austrian', 'swiss',
+          'portuguese', 'scandinavian', 'european', 'mediterranean'
         ]);
         let geminiCacheKey = null;
         if (specialMode && GEMINI_CACHE_KEYS.has(specialMode)) {
