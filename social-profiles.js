@@ -112,7 +112,7 @@ const FALLBACK_CHAIN = [
   { model: 'gemini-2.5-flash-lite', tool: { googleSearch: {} } }
 ];
 
-async function callGemini({ name, address, websiteUri, _genAIFactory }) {
+async function callGemini({ name, address, websiteUri, _genAIFactory, _onUsage = null }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) throw new Error('GEMINI_API_KEY unset');
   const factory = _genAIFactory || (() => {
@@ -153,6 +153,13 @@ async function callGemini({ name, address, websiteUri, _genAIFactory }) {
       const text = await Promise.race([
         (async () => {
           const r = await m.generateContent(prompt);
+          // v0.61.307 — record token usage for /cost summary. The
+          // callback is wired by getSocialProfiles (it has redis); we
+          // forward model + usageMetadata. Fire-and-forget; never
+          // throw from here.
+          if (_onUsage) {
+            try { _onUsage(attempt.model, r.response?.usageMetadata); } catch {}
+          }
           const t = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
           if (!t || !t.trim()) throw new Error('empty response');
           return t;
@@ -218,7 +225,11 @@ async function getSocialProfiles(redis, { placeId, name, address, websiteUri, _g
   }
   let raw = null;
   try {
-    const text = await callGemini({ name, address, websiteUri, _genAIFactory });
+    // v0.61.307 — wire api-cost recorder so callGemini's usage
+    // callback bumps Redis counters for /cost.
+    const { recordGeminiUsage } = require('./api-cost');
+    const _onUsage = (model, usage) => { recordGeminiUsage(redis, model, usage); };
+    const text = await callGemini({ name, address, websiteUri, _genAIFactory, _onUsage });
     raw = parseJsonResponse(text);
   } catch (err) {
     console.warn(`[social-profiles] lookup "${String(name).slice(0, 60)}" failed:`, err.message);
