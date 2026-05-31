@@ -50,22 +50,31 @@ const CITIES = [
 
 // Per-cuisine seed queries. EN + native script. Dish-named not
 // restaurant-typed because Places' fuzzy matching prefers dish words.
+// v0.61.300 — seed-tuning pass after the v0.61.297 variance analysis.
+// Key finding: native-language generic phrases like Hungarian's
+// `magyar étterem` (80 hits) and Bulgarian's `българска кухня` (80
+// hits) dominated their respective per-seed productivity tables —
+// 2-5× any specific dish name. Operator hypothesis: venues brand as
+// "<cuisine> restaurant" more than they list specific dishes in
+// their names. v0.61.300 adds the same form to Russian, Polish,
+// Ukrainian, and Czech. Drops `holubtsi` from Ukrainian (4 hits,
+// dead weight). Romanian was already tuned in v0.61.298.
 const CUISINES = {
   russian: {
     label: 'Russian',
-    seeds: ['borscht', 'pelmeni', 'blini', 'пельмени', 'блины']
+    seeds: ['borscht', 'pelmeni', 'blini', 'пельмени', 'блины', 'русский ресторан']
   },
   polish: {
     label: 'Polish',
-    seeds: ['pierogi', 'kielbasa', 'bigos', 'pierogi ruskie']
+    seeds: ['pierogi', 'kielbasa', 'bigos', 'pierogi ruskie', 'restauracja polska']
   },
   ukrainian: {
     label: 'Ukrainian',
-    seeds: ['varenyky', 'salo', 'holubtsi', 'вареники']
+    seeds: ['varenyky', 'salo', 'вареники', 'український ресторан']
   },
   czech: {
     label: 'Czech',
-    seeds: ['svíčková', 'knedlík', 'česká kuchyně', 'goulash czech']
+    seeds: ['svíčková', 'knedlík', 'česká kuchyně', 'goulash czech', 'restaurace česká']
   },
   hungarian: {
     label: 'Hungarian',
