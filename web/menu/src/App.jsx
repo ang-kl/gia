@@ -169,6 +169,56 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
+  // v0.61.304 — visibility / viewportChanged re-fetch, mirroring the
+  // Cuisine TMA's v0.61.186 listener. Without this, Menu TMA's anchor
+  // is read once on mount and never refreshes — if the user flips to
+  // Cuisine (or chat /location), changes the anchor, then returns,
+  // Menu still shows the stale value. Reuses /api/cuisine/user-location
+  // (the SSOT since v0.61.270) so any TMA's write propagates here.
+  useEffect(() => {
+    async function refetchAnchor() {
+      if (typeof document !== 'undefined' && document.visibilityState && document.visibilityState !== 'visible') return;
+      const w = tg();
+      if (!w) return;
+      try {
+        const r = await fetch('/api/cuisine/user-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: w.initData || '' })
+        });
+        if (!r.ok) return;
+        const b = await r.json();
+        if (!b || !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) return;
+        setAnchor({
+          label: b.label || null,
+          lat: b.lat,
+          lng: b.lng,
+          region: b.region || null,
+          radiusCapM: b.radiusCapM || null,
+          street: b.street || null,
+          building: b.building || null,
+          postal: b.postal || null,
+          country: (typeof b.country === 'string' && /^[A-Z]{2}$/.test(b.country)) ? b.country : null
+        });
+      } catch { /* network blip — leave prior anchor in place */ }
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', refetchAnchor);
+    }
+    const w = tg();
+    if (w && typeof w.onEvent === 'function') {
+      w.onEvent('viewportChanged', refetchAnchor);
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', refetchAnchor);
+      }
+      if (w && typeof w.offEvent === 'function') {
+        w.offEvent('viewportChanged', refetchAnchor);
+      }
+    };
+  }, []);
+
   // v0.61.249 — GPS auto-detect on mount, mirroring Cuisine TMA
   // v0.61.243. Operator (29-05 '26): *"If the location isn't the
   // current selection in Menu TMA, should change to the location as
@@ -423,7 +473,12 @@ export default function App() {
 
   const handle = (tile) => {
     if (tile.kind === 'navigate') {
-      window.location.href = tile.path + (window.location.search || '');
+      // v0.61.304 — preserve `window.location.hash`. Telegram's WebApp
+      // SDK reads initData from the URL fragment (`#tgWebAppData=…`)
+      // at script load. Without this, same-origin nav to /app/cuisine
+      // loads with empty initData; gated API calls 401; the container
+      // ends up bouncing the user back to chat on some clients.
+      window.location.href = tile.path + (window.location.search || '') + (window.location.hash || '');
       return;
     }
     dispatchCmd(tile.id);
