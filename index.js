@@ -4791,6 +4791,28 @@ bot.onText(/^\/ver(?:@\w+)?$/, async (msg) => {
   }
 });
 
+// v0.61.307 — /cost [days] — owner-only API-spend summary. Mirrors
+// the /ver gating (silent no-op for non-owners). Reads Redis counters
+// populated by api-cost.js's recordGeminiUsage + recordMapsCall and
+// formats a per-model / per-endpoint summary with USD estimates from a
+// static rate card. Default window: 1 day (today). Max: 60.
+bot.onText(/^\/cost(?:@\w+)?(?:\s+(\d{1,2}))?$/, async (msg, match) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/cost] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
+  try {
+    const days = Math.max(1, Math.min(60, Number(match?.[1]) || 1));
+    const { getCostSummary, formatCostSummary } = require('./api-cost');
+    const summary = await getCostSummary(redis, days);
+    const text = formatCostSummary(summary);
+    await safeSend(msg.chat.id, text, { parse_mode: 'Markdown' });
+  } catch (err) {
+    console.warn('[/cost] failed:', err && err.message);
+    await safeSend(msg.chat.id, '⚠️ /cost: error reading summary.');
+  }
+});
+
 // v0.60.131 — /ftlog [N] — owner-only dump of the recent free-text
 // query log (identity-free; see freetext-log.js). Silent no-op for
 // non-owners (and when TELEGRAM_OWNER_CHAT_ID is unset it's open, like
@@ -12356,6 +12378,9 @@ async function cacheBotUsername() {
             timeout: 5000
           }
         );
+        // v0.61.307 — record Maps spend (only on actual API hits;
+        // cached responses returned earlier). Fire-and-forget.
+        try { require('./api-cost').recordMapsCall(redis, 'placeAutocomplete'); } catch {}
         const suggestions = (data?.suggestions || [])
           .map((s) => {
             const p = s.placePrediction;
@@ -12416,6 +12441,8 @@ async function cacheBotUsername() {
             timeout: 5000
           }
         );
+        // v0.61.307 — record Maps spend (only on actual API hits).
+        try { require('./api-cost').recordMapsCall(redis, 'placeResolve'); } catch {}
         if (!data?.location) {
           return res.status(404).json({ error: 'no coords for placeId' });
         }
