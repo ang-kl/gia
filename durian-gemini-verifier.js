@@ -97,6 +97,59 @@ const PROMPT_CONFIG = {
     sells: 'sells FRESH FRUIT (any whole fruit — mangoes, apples, oranges, bananas, mangosteen, rambutan, jackfruit, papaya, durians, melons, etc. Fruit stalls, fruit shops, wholesalers, supermarkets / grocers with prominent fresh-fruit sections)',
     focusItem: 'fresh fruit',
     mentionContext: 'fruit mention in reviews'
+  },
+  // v0.61.299 — Slavic / EE cuisine prompts. The v0.61.297 variance
+  // run flagged high false-positive rates for these cuisines (Places
+  // surfaces Italian / Georgian / Russian-themed venues for related
+  // search terms). Same auto-warming-cache model as durian/fruits:
+  // first search for a given placeId pays one Gemini batch, all
+  // subsequent searches in any region see the cached verdict.
+  // Note: dish overlap between neighbouring cuisines (borscht is
+  // Russian AND Ukrainian; goulash is Hungarian AND Czech) is
+  // handled by Gemini deciding venue-by-venue whether the kitchen
+  // is THAT cuisine specifically — not just whether the menu has
+  // one borderline dish.
+  'russian': {
+    directory: 'Russian cuisine directory',
+    sells: 'serves RUSSIAN CUISINE specifically (borscht, pelmeni, blini, beef stroganoff, smoked fish, vodka pairings — a kitchen that identifies as Russian, not a Ukrainian / Eastern-European general restaurant or a Russian-themed cafe with no Russian food)',
+    focusItem: 'Russian food',
+    mentionContext: 'Russian mention in reviews'
+  },
+  'polish': {
+    directory: 'Polish cuisine directory',
+    sells: 'serves POLISH CUISINE specifically (pierogi, kielbasa, bigos, żurek, gołąbki, placki ziemniaczane — a kitchen that identifies as Polish, not a Central-European general restaurant)',
+    focusItem: 'Polish food',
+    mentionContext: 'Polish mention in reviews'
+  },
+  'ukrainian': {
+    directory: 'Ukrainian cuisine directory',
+    sells: 'serves UKRAINIAN CUISINE specifically (varenyky, borscht with pampushky, salo, holubtsi, deruny — a kitchen that identifies as Ukrainian, not a generic Eastern-European or Russian restaurant)',
+    focusItem: 'Ukrainian food',
+    mentionContext: 'Ukrainian mention in reviews'
+  },
+  'czech': {
+    directory: 'Czech cuisine directory',
+    sells: 'serves CZECH CUISINE specifically (svíčková, knedlíky, vepřo-knedlo-zelo, smažený sýr, Czech-style goulash, trdelník — a kitchen that identifies as Czech, not a generic Central-European or Slovak restaurant)',
+    focusItem: 'Czech food',
+    mentionContext: 'Czech mention in reviews'
+  },
+  'hungarian': {
+    directory: 'Hungarian cuisine directory',
+    sells: 'serves HUNGARIAN CUISINE specifically (gulyás, paprikás, lángos, halászlé, töltött káposzta — a kitchen that identifies as Hungarian, not a Central-European general restaurant with one paprika dish)',
+    focusItem: 'Hungarian food',
+    mentionContext: 'Hungarian mention in reviews'
+  },
+  'bulgarian': {
+    directory: 'Bulgarian cuisine directory',
+    sells: 'serves BULGARIAN CUISINE specifically (shopska salad, banitsa, kavarma, tarator, kebapche, lyutenitsa — a kitchen that identifies as Bulgarian, not a generic Balkan or Mediterranean restaurant)',
+    focusItem: 'Bulgarian food',
+    mentionContext: 'Bulgarian mention in reviews'
+  },
+  'romanian': {
+    directory: 'Romanian cuisine directory',
+    sells: 'serves ROMANIAN CUISINE specifically (mămăligă, sarmale, mici / mititei, ciorbă, papanași, zacuscă, cozonac — a kitchen that identifies as Romanian, not a generic Balkan or Moldovan restaurant)',
+    focusItem: 'Romanian food',
+    mentionContext: 'Romanian mention in reviews'
   }
 };
 
@@ -238,8 +291,13 @@ async function verifyKeptVenues({
   // mode='fruits'. The bulk /ver flow still only exposes durian +
   // durian-pastry in the bot UI; fruits-mode verify is auto-warming-
   // only for now.
-  if (!['durian', 'durian-pastry', 'fruits'].includes(mode)) {
-    throw new Error(`verifyKeptVenues: mode must be "durian", "durian-pastry", or "fruits", got ${mode}`);
+  // v0.61.299 — 7 Slavic / EE cuisines added (auto-warming only).
+  const ALLOWED_MODES = new Set([
+    'durian', 'durian-pastry', 'fruits',
+    'russian', 'polish', 'ukrainian', 'czech', 'hungarian', 'bulgarian', 'romanian'
+  ]);
+  if (!ALLOWED_MODES.has(mode)) {
+    throw new Error(`verifyKeptVenues: mode must be one of ${[...ALLOWED_MODES].join(', ')}, got ${mode}`);
   }
   if (!apiKey && !_genAIFactory) {
     throw new Error('GEMINI_API_KEY required');
