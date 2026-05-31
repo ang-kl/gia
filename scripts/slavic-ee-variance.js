@@ -75,9 +75,21 @@ const CUISINES = {
     label: 'Bulgarian',
     seeds: ['shopska', 'banitsa', 'kavarma', 'българска кухня']
   },
+  // v0.61.298 — Romanian seed expansion. The original 4 seeds totalled
+  // only 68 places across 8 cities — half of the next-weakest cuisine
+  // (Czech, 90). Diagnosis from the v0.61.297 sample-name dump: the
+  // long-form `bucătărie românească` rarely matched name-level (it's
+  // a category descriptor, not a dish), and the 3 dish seeds covered
+  // a narrow slice of Romanian cuisine. v0.61.298 drops the weak
+  // category seed and adds three stronger picks: `ciorbă` (the soup
+  // family — Romanian's most-named-on-menus category), `papanași`
+  // (iconic cheese-donut dessert with a distinctive name that won't
+  // collide with other cuisines), and `restaurant românesc` (the
+  // shorter / more name-form generic). Expected uplift: 68 → ~120+
+  // across 8 cities.
   romanian: {
     label: 'Romanian',
-    seeds: ['mămăligă', 'sarmale', 'mici', 'bucătărie românească']
+    seeds: ['mămăligă', 'sarmale', 'mici', 'ciorbă', 'papanași', 'restaurant românesc']
   }
 };
 
