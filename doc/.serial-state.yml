@@ -1,8 +1,8 @@
 counters:
-  commit: 515
-  build: 304
+  commit: 516
+  build: 305
   documents:
-    journal: 502
+    journal: 503
     builder: 3
     persona: 4
     feature: 49
@@ -11,11 +11,11 @@ counters:
     register: 126
 sessions:
   current_chat_id: 2026-05-31
-  current_chat_counter: 6
-last_anchor_time: 31-05 '26 09:15 SGT
-last_anchor_source: derived_from_v0_61_300_in_flight (PR #806 queued ~09:05 SGT; v0.61.301 master Register refresh shipped ~10 min later — closes 8 Open items from v0.61.276 ledger via 24-decision append)
-last_anchor_iso8601: 2026-05-31T09:15:00+08:00
-last_anchor_utc: 2026-05-31T01:15:00Z
+  current_chat_counter: 7
+last_anchor_time: 31-05 '26 09:35 SGT
+last_anchor_source: derived_from_v0_61_301_in_flight (PR #807 queued ~09:20 SGT; v0.61.302 variance-runner unit tests + test seam shipped ~20 min later — Register O-41 closure)
+last_anchor_iso8601: 2026-05-31T09:35:00+08:00
+last_anchor_utc: 2026-05-31T01:35:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
