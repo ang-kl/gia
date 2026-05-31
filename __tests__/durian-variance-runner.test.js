@@ -170,8 +170,14 @@ describe('durian-variance-runner — runVariance shape + placeId carry-through',
   });
 
   it('every kept[] row in every region.query carries a non-empty placeId (v0.61.283/.288 contract)', async () => {
+    // mode='durian-pastry' matches the stub's bakery / "Durian Puffs"
+    // fixture (DURIAN_PASTRY accepts bakery + name contains durian).
+    // 'durian' mode requires food_store/wholesaler primaryTypes,
+    // which the stub doesn't return. The placeId-carry contract is
+    // mode-agnostic — any mode that produces kept[] rows is fine for
+    // this assertion.
     const report = await runVariance({
-      mode: 'durian',
+      mode: 'durian-pastry',
       apiKey: 'test-key',
       regions: ONE_REGION,
       _searchTextFn: makeSearchTextStub()
@@ -187,15 +193,15 @@ describe('durian-variance-runner — runVariance shape + placeId carry-through',
       }
     }
     // Sanity: the stub returns 1 durian-named place per call; with the
-    // default SEEDS_DURIAN (~30 query-language combos) we expect lots
-    // of kept rows. The exact count isn't important — what matters is
-    // EVERY kept row has a placeId.
+    // default SEEDS_DURIAN_PASTRY (~50+ query-language combos) we
+    // expect lots of kept rows. The exact count isn't important —
+    // what matters is EVERY kept row has a placeId.
     expect(keptTotal).toBeGreaterThan(0);
   });
 
   it('every rejected[] row also carries placeId — the contract is universal', async () => {
     const report = await runVariance({
-      mode: 'durian',
+      mode: 'durian-pastry',
       apiKey: 'test-key',
       regions: ONE_REGION,
       _searchTextFn: makeSearchTextStub()
