@@ -162,7 +162,15 @@ async function runVariance(opts = {}) {
     radiusM = DEFAULT_RADIUS_M,
     maxPages = DEFAULT_MAX_PAGES,
     onProgress = null,
-    log = null
+    log = null,
+    // v0.61.302 — test seam. Default: the real `_searchText` (axios →
+    // Places API). Tests inject a stub that returns canned responses
+    // so the runner is exercised without a real GOOGLE_MAPS_API_KEY
+    // or network. Mirrors the `_genAIFactory` pattern in
+    // durian-gemini-verifier.js. Signature must match `_searchText`
+    // exactly: (textQuery, region, langCode, apiKey, limit, radiusM,
+    // maxPages, log) → Promise<Place[]>.
+    _searchTextFn = _searchText
   } = opts;
   if (mode !== 'durian' && mode !== 'durian-pastry') {
     throw new Error(`runVariance: invalid mode "${mode}"`);
@@ -188,7 +196,7 @@ async function runVariance(opts = {}) {
     for (const [lang, queries] of Object.entries(seeds)) {
       if (log) log(`\n--- lang=${lang} ---`);
       for (const q of queries) {
-        const places = await _searchText(q, region, lang, apiKey, limit, radiusM, maxPages, log);
+        const places = await _searchTextFn(q, region, lang, apiKey, limit, radiusM, maxPages, log);
         const kept = [];
         const rejected = [];
         for (const p of places) {
@@ -281,5 +289,9 @@ module.exports = {
   REGIONS_DEFAULT,
   SEEDS_DURIAN,
   SEEDS_DURIAN_PASTRY,
-  PLACES_LANG
+  PLACES_LANG,
+  // v0.61.302 — exposed for tests. The placeId-carry contract here
+  // is the one that v0.61.283 + v0.61.288 missed; testing it
+  // directly guards against future regressions.
+  _placeToVenue
 };
