@@ -20,8 +20,10 @@ function makeRedisStub() {
 }
 
 describe('recent-locations — basic shape', () => {
-  it('MAX_ENTRIES is 10', () => {
-    expect(rl.MAX_ENTRIES).toBe(10);
+  it('MAX_ENTRIES is 20', () => {
+    // v0.61.305 — cap raised 10 → 20 to give the in-TMA recents drawer
+    // more room before items roll off.
+    expect(rl.MAX_ENTRIES).toBe(20);
   });
 });
 
@@ -57,14 +59,17 @@ describe('recent-locations — add / list', () => {
     expect(list[1].label).toBe('B');
   });
   it('addRecentLocation trims to MAX_ENTRIES (oldest drops off)', async () => {
+    // v0.61.305 — MAX_ENTRIES bumped 10 → 20, so we exceed the cap by
+    // inserting 25 to verify the trim still kicks in. Expect newest 20
+    // retained (L24 at top, L5 at bottom; L0…L4 dropped).
     const r = makeRedisStub();
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 25; i++) {
       await rl.addRecentLocation(r, 'chat-1', { lat: 1 + i * 0.01, lng: 103 + i * 0.01, label: `L${i}` });
     }
     const list = await rl.listRecentLocations(r, 'chat-1');
-    expect(list).toHaveLength(10);
-    expect(list[0].label).toBe('L14');
-    expect(list[9].label).toBe('L5');
+    expect(list).toHaveLength(20);
+    expect(list[0].label).toBe('L24');
+    expect(list[19].label).toBe('L5');
   });
   it('addRecentLocation persists optional country + region', async () => {
     const r = makeRedisStub();

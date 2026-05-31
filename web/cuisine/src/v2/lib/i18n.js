@@ -278,6 +278,8 @@ const STRINGS = {
                                  fr: '🔍 Recherche — cela prend plus de quelques secondes.' },
   'loc.searchHere':            { en: 'Search at this location', fr: 'Rechercher à cet endroit' },
   'loc.clear':                 { en: 'Clear location', fr: 'Effacer le lieu' },
+  'loc.recent':                { en: 'Recent locations', fr: 'Emplacements récents' },
+  'loc.close':                 { en: 'Close', fr: 'Fermer' },
 
   // ----- MapPanel InfoWindow -----
   'map.expand':                { en: 'Expand map', fr: 'Agrandir la carte' },

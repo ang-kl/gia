@@ -278,6 +278,30 @@ export async function fetchUserLocation() {
   }
 }
 
+// v0.61.305: fetch the recent-locations LRU (up to 20 entries,
+// newest-first). Surfaces the same data the chat /lr drawer uses,
+// returned as JSON so the in-TMA 📍 → 🧭 drawer can render rows.
+// Returns { items, max } on success or { items: [], max: 20 } on
+// failure so the caller can render an empty drawer.
+export async function fetchRecentLocations() {
+  try {
+    const r = await postJson('/api/cuisine/recent-locations', {});
+    return { items: Array.isArray(r?.items) ? r.items : [], max: r?.max || 20 };
+  } catch {
+    return { items: [], max: 20 };
+  }
+}
+
+// v0.61.305: clear the recent-locations LRU. Called by the drawer's
+// 🗑 Clear all button.
+export async function clearRecentLocationsRemote() {
+  try {
+    return await postJson('/api/cuisine/recent-locations/clear', {});
+  } catch {
+    return null;
+  }
+}
+
 // v0.60.120: persist a location the user picked in the TMA to the
 // bot's Redis cache (loc:{chatId}) — so it becomes the user's /location
 // and is honoured across sessions + by chat commands. Fire-and-forget;

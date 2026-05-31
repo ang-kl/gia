@@ -1,6 +1,6 @@
-// recent-locations.js — v0.61.197
+// recent-locations.js — v0.61.197, cap raised v0.61.305
 //
-// 10-entry per-user LRU of resolved locations. Backed by Redis at
+// 20-entry per-user LRU of resolved locations. Backed by Redis at
 // `recent-locations:<chatId>` as a JSON array, newest-first. Each
 // entry shape:
 //   { lat, lng, label, country?, region?, setAt }
@@ -10,13 +10,14 @@
 // the same anchor bubbles the existing row to the top instead of
 // duplicating.
 //
-// TTL: 180 days. The cap of 10 entries means stale rows naturally
+// TTL: 180 days. The cap of 20 entries means stale rows naturally
 // roll off as the user adds new ones; the TTL is a safety net for
-// abandoned accounts.
+// abandoned accounts. v0.61.305 doubled the cap (was 10) to give the
+// in-TMA recents drawer more room before items roll off.
 
 'use strict';
 
-const MAX_ENTRIES = 10;
+const MAX_ENTRIES = 20;
 const TTL_S = 180 * 24 * 60 * 60;
 
 function _key(chatId) {
