@@ -112,12 +112,26 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the popup in place without the map jumping (a result-card tap, by
   // contrast, still pans the map to bring the venue into view).
   const pinFocusRef = useRef(null);
+  // v0.61.310 — capture the registered Map ID from /maps-key so the
+  // Map constructor uses the operator's MAP_ID env var when set
+  // (custom vector styling + branding). Mirrors the Transport TMA's
+  // v0.60.87 pattern (MrtMapPanel.jsx). Falls back to Google's public
+  // DEMO_MAP_ID only when MAP_ID is unset or /maps-key returns the
+  // 'GIA_SANCTUARY' placeholder — required because AdvancedMarkerElement
+  // refuses to render without a registered mapId.
+  const mapIdRef = useRef('DEMO_MAP_ID');
 
   useEffect(() => {
     let cancelled = false;
     if (window.google?.maps) { initMap(); return; }
     fetch('/maps-key').then((r) => r.json()).then((d) => {
       if (cancelled || !d?.key) return;
+      // v0.61.310 — override the default 'DEMO_MAP_ID' when the server
+      // signals an env-sourced Map ID; covers the prod case where the
+      // operator has set MAP_ID on Railway.
+      if (d.mapIdSource === 'env:MAP_ID' && d.mapId) {
+        mapIdRef.current = d.mapId;
+      }
       const tag = document.createElement('script');
       tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async&callback=__giaMapsReady`;
       tag.async = true;
@@ -188,7 +202,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       cameraControl: true,
       cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
       keyboardShortcuts: true,
-      gestureHandling: 'greedy', mapId: 'DEMO_MAP_ID'
+      gestureHandling: 'greedy', mapId: mapIdRef.current
     });
     mapRef.current.addListener('idle', handleIdle);
     // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.

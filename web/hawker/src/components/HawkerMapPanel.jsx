@@ -111,6 +111,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // v0.61.10 — per-panel cache of /api/hawker/centre-transit results,
   // keyed by centre name, so the map-pin InfoWindow fetches transit once.
   const transitCacheRef = useRef({});
+  // v0.61.310 — capture the registered Map ID from /maps-key so the
+  // Map constructor uses the operator's MAP_ID env var when set
+  // (custom vector styling + branding). Mirrors Transport TMA's
+  // v0.60.87 + Cuisine TMA's v0.61.310 pattern. Falls back to Google's
+  // public DEMO_MAP_ID only when MAP_ID is unset or /maps-key returns
+  // the 'GIA_SANCTUARY' placeholder — required because
+  // AdvancedMarkerElement refuses to render without a registered mapId.
+  const mapIdRef = useRef('DEMO_MAP_ID');
 
   // One-time tablet media-query — same threshold as cuisine MapPanel.
   useEffect(() => {
@@ -130,6 +138,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     fetch('/maps-key').then((r) => r.json()).then((d) => {
       if (cancelled) return;
       if (!d?.key) { setMapsKeyState('nokey'); return; }
+      // v0.61.310 — override the default 'DEMO_MAP_ID' when the server
+      // signals an env-sourced Map ID; covers the prod case where the
+      // operator has set MAP_ID on Railway.
+      if (d.mapIdSource === 'env:MAP_ID' && d.mapId) {
+        mapIdRef.current = d.mapId;
+      }
       const existing = document.querySelector('script[data-gmaps]');
       if (existing) {
         // Another TMA already loaded the SDK; wait for ready.
@@ -174,9 +188,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       // v0.60.47 — mapId required by AdvancedMarkerElement since
       // 2024. Without it some browser/network combos throw the
       // "This page can't load Google Maps correctly" auth dialog
-      // instead of falling back to legacy markers. Mirrors the
-      // value used in cuisine MapPanel.jsx.
-      mapId: 'DEMO_MAP_ID',
+      // instead of falling back to legacy markers.
+      // v0.61.310 — mapIdRef.current = operator's MAP_ID env var when
+      // /maps-key returned `mapIdSource: 'env:MAP_ID'`; otherwise the
+      // 'DEMO_MAP_ID' fallback. Same pattern as Cuisine MapPanel +
+      // Transport MrtMapPanel.
+      mapId: mapIdRef.current,
       disableDefaultUI: true,
       zoomControl: false,
       // v0.61.18 — suppress Google's native POI/transit info cards so a
