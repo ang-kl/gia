@@ -1,21 +1,21 @@
 counters:
-  commit: 522
-  build: 311
+  commit: 523
+  build: 312
   documents:
-    journal: 509
+    journal: 510
     builder: 3
     persona: 4
-    feature: 50
+    feature: 51
     technical: 51
     legal: 9
     register: 126
 sessions:
   current_chat_id: 2026-06-01
-  current_chat_counter: 1
-last_anchor_time: 01-06 '26 07:45 SGT
-last_anchor_source: derived_from_v0_61_308_vault_snapshot (operator "resume" after v0.61.307 /cost merge — vault snapshot pass at the v0.61.305 → v0.61.307 arc tip, ~100 patches since the prior v0.61.208 vault)
-last_anchor_iso8601: 2026-06-01T07:45:00+08:00
-last_anchor_utc: 2026-05-31T23:45:00Z
+  current_chat_counter: 2
+last_anchor_time: 01-06 '26 08:30 SGT
+last_anchor_source: derived_from_v0_61_309_cuisine_places_first (operator: *"it has to be 100% non-inventive AND non-inventive. it has to be true source from Google."* — chat /cuisine searchCuisine() retires the LLM-invents-candidate-names path; now sources real venues via pipeline.discover() like the TMA 🔍 button)
+last_anchor_iso8601: 2026-06-01T08:30:00+08:00
+last_anchor_utc: 2026-06-01T00:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

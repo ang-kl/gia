@@ -7,12 +7,13 @@
 //   - signature_dish per candidate (the "recipe" surface)
 //   - sort: open_now first, then walk minutes asc, then rating desc
 
-const llm = require('./llm-client');
-const { withRetry } = require('./gemini-retry');
-const { validateWithPlaces, rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
+// v0.61.309 — removed `llm`, `withRetry`, `MODEL_NAME`, `validateWithPlaces`
+// imports. The previous LLM-invents-names-then-Places-validates pipeline
+// was retired in favour of `pipeline.discover()` direct from Places.
+// `validateWithPlaces` (and the `gemini-retry` + `llm-client` helpers it
+// depended on) is no longer called from this file.
+const { rankByWalkingTime, mealPeriodSGT } = require('./vibe-suggest');
 const holidays = require('./holidays');
-
-const MODEL_NAME = llm.DEFAULT_MODEL;
 
 const PRESETS = {
   'transit-efficiency': {
@@ -64,83 +65,11 @@ function whenToMealHint(when, presetForceMeal) {
   return { id: 'supper', label: 'supper', hint: 'late-night supper and drinks' };
 }
 
-function buildPrompt({ lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext, specialRequest }) {
-  const cuisineLine = cuisines.length
-    ? `Cuisines requested (any of these): ${cuisines.join(', ')}.`
-    : 'Any cuisine appropriate to the period.';
-  const radiusLine = `Within ${radius} m of latitude ${lat}, longitude ${lng} (transport mode: ${mode}).`;
-  const recencyLine = recencyDays
-    ? `Bias toward venues opened or significantly refreshed within the last ${recencyDays} day(s).`
-    : '';
-  const queueLine = `User's max queue tolerance: ${queueMaxMin} minutes. Estimate queue minutes for each pick honestly (use venue type + day of week + meal period); flag venues you expect to exceed the tolerance with queue_min_estimate, but still include them so the server can filter.`;
-  // v0.30.0: free-form qualifier from NL chat search ("Michelin-starred",
-  // "halal", "kid-friendly", etc.). Surfaced verbatim so Gemini honours
-  // the user's intent across languages without us pre-coding categories.
-  const specialLine = specialRequest && specialRequest.trim()
-    ? `Distinctive user qualifier (HONOUR THIS): ${specialRequest.trim()}.`
-    : '';
-  const presetCfg = PRESETS[preset] || null;
-  let presetLine = '';
-  if (preset === 'holiday-special') {
-    if (holidayContext?.isToday) {
-      presetLine = `Today is a Singapore public holiday (${holidayContext.name}). Surface venues well-known to remain open on PHs and "newly opened" venues.`;
-    } else if (holidayContext?.next) {
-      presetLine = `The next Singapore public holiday is ${holidayContext.next.name} on ${holidayContext.next.date}. Surface venues well-known to remain open on PHs and "newly opened" venues.`;
-    } else {
-      presetLine = 'Surface venues well-known to remain open on Singapore public holidays.';
-    }
-  } else if (presetCfg?.promptHint) {
-    presetLine = presetCfg.promptHint;
-  }
-
-  return `You are Gia, a Singapore food concierge. Suggest "Sanctuary" venues for a solo diner.
-Period: ${meal.label} (${meal.hint}).
-${cuisineLine}
-${radiusLine}
-${recencyLine}
-${queueLine}
-${specialLine}
-${presetLine}
-
-Return EXACTLY a JSON array of 15 candidate venues. Each item has the keys:
-  "name"                 — the venue's exact common name
-  "area"                 — the street or building it sits on
-  "vibe"                 — one short phrase about why it suits a solo diner
-  "signature_dish"       — one specific dish or item to order
-  "queue_min_estimate"   — integer minutes you'd expect to queue at this venue at the requested period (best-effort)
-  "booking_required"     — boolean, true if reservations are usually needed at peak
-
-Do NOT include lat/lng — those will be looked up authoritatively.
-Return ONLY the JSON array, no preamble.`;
-}
-
-async function geminiCandidates15(promptArgs) {
-  if (!llm.isReady()) return [];
-  try {
-    const prompt = buildPrompt(promptArgs);
-    const result = await withRetry(
-      () => llm.generate({ prompt, model: MODEL_NAME, json: true, jsonShape: 'array', maxTokens: 4096 }),
-      { label: 'Cuisine-Search' }
-    );
-    const parsed = JSON.parse(result.response.text());
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((c) => c && typeof c.name === 'string')
-      .slice(0, 12) // v0.59.29: 16 → 12 (keep within Telegram's 4096-char message limit per Human Lead).
-      .map((c) => ({
-        name: c.name,
-        area: c.area || '',
-        vibe: c.vibe || '',
-        signatureDish: c.signature_dish || c.signatureDish || '',
-        queueMinEstimate: Number.isFinite(Number(c.queue_min_estimate))
-          ? Math.round(Number(c.queue_min_estimate)) : null,
-        bookingRequired: c.booking_required === true || c.booking_required === 'true'
-      }));
-  } catch (err) {
-    console.error('[Cuisine-Search] Gemini failed:', err.message);
-    return [];
-  }
-}
+// v0.61.309 — removed `buildPrompt` + `geminiCandidates15` (the
+// LLM-invents-candidate-names path). searchCuisine now sources venues
+// directly from Google Places via `pipeline.discover()`. The deleted
+// helpers were the only callers of `llm.generate` + `withRetry` from
+// this file, so their imports were also removed above.
 
 function applyPostFilters(venues, preset) {
   const cfg = PRESETS[preset] || {};
@@ -233,108 +162,69 @@ async function searchCuisine({
     holidayContext = { isToday: !!today, name: today?.name || null, next };
   }
 
-  // v0.26.0: Reason–Fetch–Refine pipeline. Behind PIPELINE_ENABLED env
-  // flag (default ON). When disabled or pipeline returns nothing,
-  // falls back to the legacy geminiCandidates15 path.
-  const pipelineEnabled = process.env.PIPELINE_ENABLED !== 'false';
-  let candidates = [];
-  let pipelineDiag = null;
-  if (pipelineEnabled && redis) {
-    const { runPipeline } = require('./pipeline');
-    const draftRun = await runPipeline({
-      redis,
-      lat, lng,
-      query: {
-        label: meal.label, detail: meal.hint,
-        cuisines, recencyDays, queueMaxMin, radius,
-        specialRequest // threaded through pipeline.reason()
-      },
-      validatedVenues: null,
-      // v0.59.29: cap reduced 16 → 12 per Human Lead 2026-05-07.
-      // Reason: Copy-all body assembled from 16 detail blocks
-      // (~350 chars each) was overflowing Telegram's 4096-char
-      // message cap and throwing "Couldn't send to chat". 12 keeps
-      // the body within budget without chunking machinery.
-      count: 12
-    });
-    candidates = draftRun.candidates;
-    pipelineDiag = draftRun.diag;
-  }
-  if (!candidates.length) {
-    // Legacy fallback (pipeline disabled, no Redis, or empty draft).
-    candidates = await geminiCandidates15({
-      lat, lng, cuisines, radius, recencyDays, queueMaxMin, mode, meal, preset, holidayContext, specialRequest
-    });
-  }
-  if (!candidates.length) {
-    return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
+  // v0.61.309 — PLACES-FIRST SOURCING. The v0.26.0 Reason–Fetch–Refine
+  // pipeline (Claude Sonnet generating candidate venue names) + the
+  // v0.30.0 geminiCandidates15 fallback (Gemini inventing names) were
+  // the operator-flagged "inventive" path: an LLM produced a JSON list
+  // of *names* that validateWithPlaces then tried to resolve against
+  // Places — hallucinated names that happened to match a real venue
+  // would slip through, so the *selection* of venues was effectively
+  // LLM-driven. Operator (31-05 '26 → 01-06 '26): *"it has to be 100%
+  // non-inventive ... true source from Google."*
+  //
+  // Path B (this function) now routes through pipeline.discover() —
+  // the same Google-Places-searchText path the TMA 🔍 button has used
+  // since v0.26.x. Real venues only; no LLM in the venue-selection
+  // loop. The Refine pass (which LLM-rewrote travel-advice / queue-
+  // minutes / cost from weather/traffic context) is also retired —
+  // weather + rain alerts still attach via deliverPicks downstream,
+  // no LLM in the loop.
+  //
+  // Inputs `specialRequest`, `recencyDays`, `queueMaxMin` were LLM-
+  // only constraints; they survive in the function signature for
+  // back-compat but no longer steer venue selection. The pre-existing
+  // queueMaxMin post-filter is a no-op now (Places doesn't return a
+  // queue estimate); we keep the filter wired in case a future signal
+  // populates `v.queueMinEstimate` from a Google-side source.
+  const pipeline = require('./pipeline');
+  const discoveredVenues = await pipeline.discover({
+    lat, lng,
+    cuisines,
+    radius,
+    mealPeriod: when,
+    maxResults: 12,
+    regionCode: 'SG'
+  });
+  if (!discoveredVenues.length) {
+    return { venues: [], meal, holidayContext, recencyDays, queueMaxMin };
   }
 
-  // v0.30.3: place-validate phase parallelised. Was sequential
-  // (~1s × 15 candidates = ~15s); now Promise.allSettled fans out and
-  // typically completes in ~2-3s. This was the dominant slow phase
-  // pushing total pipeline latency past the 25s TMA timeout.
-  const validateLimit = Math.min(candidates.length, 12); // v0.59.29: 16 → 12.
-  const settled = await Promise.allSettled(
-    candidates.slice(0, validateLimit).map((c) => validateWithPlaces(c, { lat, lng }, radius))
-  );
-  const validated = [];
-  // v0.59.24: drinks filter — applied to signatureDish + dishes
-  // when the user's cuisine list does NOT include dessert/fusion.
-  // Per Human Lead 2026-05-07.
-  const pipelineMod = require('./pipeline');
-  const dropDrinks = pipelineMod.shouldFilterDrinks(cuisines);
-  settled.forEach((s, i) => {
-    if (s.status !== 'fulfilled' || !s.value) return;
-    const v = s.value;
-    const c = candidates[i];
-    let sig = c.signatureDish || '';
-    if (dropDrinks && sig && pipelineMod.isDrink(sig)) sig = '';
-    v.signatureDish    = sig;
-    v.queueMinEstimate = c.queueMinEstimate != null ? c.queueMinEstimate : null;
-    v.bookingRequired  = !!c.bookingRequired;
-    const rawDishes    = Array.isArray(c.dishes) ? c.dishes : (sig ? [sig] : []);
-    v.dishes           = dropDrinks ? pipelineMod.filterOutDrinks(rawDishes) : rawDishes;
-    v.costEstimateSgd  = c.costEstimateSgd || null;
-    // v0.30.3 GEOSPATIAL_CULINARY_ANALYST fields. Note: Places URL
-    // remains authoritative — verifiedGoogleMapsUrl is purely the
-    // model's claimed reference and shown as supporting evidence.
-    v.verifiedOpeningDate    = c.verifiedOpeningDate || null;
-    v.verifiedGoogleMapsUrl  = c.verifiedGoogleMapsUrl || null;
-    validated.push(v);
-  });
-  if (!validated.length) {
-    return { venues: [], meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
-  }
+  // v0.61.309 — venues already carry placeId / name / coords / rating /
+  // openNow / etc. from Places. Set the formerly-LLM-asserted fields
+  // to neutral defaults so downstream formatters render no fabricated
+  // signature dish / queue estimate / cost / opening-date.
+  const validated = discoveredVenues.map((v) => ({
+    ...v,
+    signatureDish: '',
+    queueMinEstimate: null,
+    bookingRequired: false,
+    dishes: [],
+    costEstimateSgd: null,
+    verifiedOpeningDate: null,
+    verifiedGoogleMapsUrl: ''
+  }));
 
   const ranked = await rankByWalkingTime(lat, lng, validated);
 
-  // v0.26.0: Refine pass — fetches per-cluster context (weather/traffic/
-  // carpark) and rewrites travel advice + queue minutes + cost based on
-  // what's happening on the ground right now.
-  let postRefine = ranked;
-  if (pipelineEnabled && redis) {
-    try {
-      const { fetchContext, refine } = require('./pipeline');
-      const diag = (code, label, ok, detail) => {
-        if (!pipelineDiag) pipelineDiag = [];
-        pipelineDiag.push({ code, label, ok, detail, t: Date.now() });
-      };
-      const context = await fetchContext(ranked, diag);
-      postRefine = await refine({ draft: ranked, context, query: { label: meal.label }, diag });
-    } catch (err) {
-      console.error('[Cuisine-Search] Refine pass failed (using ranked draft):', err.message);
-    }
-  }
-
-  let filtered = applyPostFilters(postRefine, preset);
+  let filtered = applyPostFilters(ranked, preset);
   filtered = filtered.filter((v) => v.queueMinEstimate == null || v.queueMinEstimate <= queueMaxMin);
-  // v0.30.6: defense-in-depth — drop any fast-food chain that slipped
-  // past Gemini's negative-constraint compliance.
+  // v0.30.6: defense-in-depth — drop any fast-food chain. Kept post-
+  // v0.61.309 since Places searchText for a cuisine slug ("italian
+  // restaurant near me") still surfaces global chains.
   filtered = excludeChains(filtered);
   const sorted = sortVenues(filtered);
 
-  return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin, pipelineDiag };
+  return { venues: sorted, meal, holidayContext, recencyDays, queueMaxMin };
 }
 
 module.exports = { searchCuisine, PRESETS };
