@@ -1,0 +1,55 @@
+{
+    "value": {
+        "evLocationsData": [
+            {
+                "address": "129A BUKIT MERAH VIEW SINGAPORE 151129",
+                "name": "BLK 129A BUKIT MERAH VIEW MULTI STOREY CAR PARK",
+                "longitude": 103.823376,
+                "latitude": 1.283493,
+                "locationId": "823376151129",
+                "status": "",
+                "chargingPoints": [
+                    {
+                        "status": "100",
+                        "operatingHours": "",
+                        "operator": "TOTALENERGIES CHARGING SERVICES SINGAPORE PTE. LTD.",
+                        "position": "L2 -",
+                        "name": "BLK 129A BUKIT MERAH VIEW MULTI STOREY CAR PARK",
+                        "id": "",
+                        "plugTypes": [
+                            {
+                                "plugType": "Type 2",
+                                "powerRating": "AC",
+                                "chargingSpeed": "3.7",
+                                "price": "",
+                                "priceType": "",
+                                "evIds": [
+                                    {
+                                        "id": "",
+                                        "evCpId": "R102014C-002",
+                                        "status": ""
+                                    },
+                                    {
+                                        "id": "",
+                                        "evCpId": "R102014C-001",
+                                        "status": ""
+                                    },
+                                    {
+                                        "id": "",
+                                        "evCpId": "R102015G-002",
+                                        "status": ""
+                                    },
+                                    {
+                                        "id": "",
+                                        "evCpId": "R102015G-001",
+                                        "status": ""
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,8 +1,8 @@
 counters:
-  commit: 521
-  build: 310
+  commit: 522
+  build: 311
   documents:
-    journal: 508
+    journal: 509
     builder: 3
     persona: 4
     feature: 50
@@ -10,12 +10,12 @@ counters:
     legal: 9
     register: 126
 sessions:
-  current_chat_id: 2026-05-31
-  current_chat_counter: 12
-last_anchor_time: 31-05 '26 21:30 SGT
-last_anchor_source: derived_from_v0_61_307_api_cost_tracking (operator "/cost only for same chatid like /ver" — new api-cost.js + Redis daily counters + owner-gated /cost handler + initial instrumentation of place-autocomplete + place-resolve + social-profiles Gemini)
-last_anchor_iso8601: 2026-05-31T21:30:00+08:00
-last_anchor_utc: 2026-05-31T13:30:00Z
+  current_chat_id: 2026-06-01
+  current_chat_counter: 1
+last_anchor_time: 01-06 '26 07:45 SGT
+last_anchor_source: derived_from_v0_61_308_vault_snapshot (operator "resume" after v0.61.307 /cost merge — vault snapshot pass at the v0.61.305 → v0.61.307 arc tip, ~100 patches since the prior v0.61.208 vault)
+last_anchor_iso8601: 2026-06-01T07:45:00+08:00
+last_anchor_utc: 2026-05-31T23:45:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
