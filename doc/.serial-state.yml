@@ -1,8 +1,8 @@
 counters:
-  commit: 524
-  build: 313
+  commit: 525
+  build: 314
   documents:
-    journal: 511
+    journal: 512
     builder: 3
     persona: 4
     feature: 51
@@ -11,11 +11,11 @@ counters:
     register: 126
 sessions:
   current_chat_id: 2026-06-01
-  current_chat_counter: 3
-last_anchor_time: 01-06 '26 09:30 SGT
-last_anchor_source: derived_from_v0_61_310_mapid_wiring (operator: "do I need DEMO_MAP_ID" → "A" — wire Cuisine + Hawker MapPanel to MAP_ID env via /maps-key, mirroring Transport's v0.60.87 pattern; DEMO_MAP_ID retained as unset-env fallback)
-last_anchor_iso8601: 2026-06-01T09:30:00+08:00
-last_anchor_utc: 2026-06-01T01:30:00Z
+  current_chat_counter: 4
+last_anchor_time: 01-06 '26 11:20 SGT
+last_anchor_source: derived_from_v0_61_311_region_flip_on_pick (operator screenshot: "Taman Melodies" in JB but pill showed 🇸🇬 — onLocationSelect was setting anchor + searchCenter but never flipping state.region. Fix: infer region from picked coords via coordsToCountry/isJbCoords synchronously, mirroring the v0.61.186 visibility-refresh logic)
+last_anchor_iso8601: 2026-06-01T11:20:00+08:00
+last_anchor_utc: 2026-06-01T03:20:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
