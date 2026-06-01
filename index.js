@@ -6085,6 +6085,15 @@ const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|par
 // (replacing the user's GPS), and pass the same constraint to Gemini.
 // Validation rejects garbage like `/hidden ramen` with a bilingual hint.
 async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
+  // v0.61.312 — operator restricted /hidden to themselves only.
+  // Silent no-op for non-owners; same gating pattern as /ver / /cost /
+  // /ftlog. Covers every entry point (slash command, pending-location
+  // resume, Menu TMA dispatch, NL-resolver hidden kind) since they
+  // all funnel through this function or runSurpriseCommand below.
+  if (!isOwnerChat(chatId)) {
+    console.log(`[/hidden-freetext] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -6278,6 +6287,13 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
 }
 
 async function runSurpriseCommand(chatId, lang = 'en') {
+  // v0.61.312 — operator restricted /hidden to themselves only.
+  // Silent no-op for non-owners. Mirrors runSurpriseCommandWithFreeText
+  // above; together they cover every reachable entry point.
+  if (!isOwnerChat(chatId)) {
+    console.log(`[/hidden] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
