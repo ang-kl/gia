@@ -1672,6 +1672,38 @@ export default function App() {
       // at the picked place and the Search button (runSearch(state),
       // no explicit anchor) doesn't fall back to the stale searchCenter.
       setSearchCenter({ lat: p.lat, lng: p.lng });
+      // v0.61.311 — operator (01-06 '26) screenshot: picking
+      // "Taman Melodies" (a JB suburb, lat 1.4912 / lng 103.7665)
+      // while on the SG region pill left the 🇸🇬 flag in place even
+      // though the map + server agreed on JB. Root cause: this
+      // handler updated `locationAnchor` + `searchCenter` but never
+      // touched `state.region`. The v0.61.186 visibility-refresh
+      // (lines 798-833) DID flip region from the server's response —
+      // but only on viewport flip, so the pill stayed stale until
+      // the user switched away and back. Flip region synchronously
+      // here based on the picked coords, mirroring the visibility-
+      // refresh logic.
+      //
+      // `noSyncRegion` opt-out: callers like the JB focus-point
+      // chips already know their region; passing `noSyncRegion: true`
+      // skips the flip so we don't ping-pong region state during
+      // chip-driven anchor moves inside JB.
+      if (!p.noSyncRegion) {
+        const c = coordsToCountry({ lat: p.lat, lng: p.lng });
+        if (c === 'SG') {
+          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+        } else if (c === 'MY') {
+          const target = isJbCoords({ lat: p.lat, lng: p.lng }) ? 'JB' : 'OTHER';
+          setState((s) => {
+            if (s.region === target) return s;
+            const next = { ...s, region: target };
+            if (target === 'OTHER') next.countryPref = 'MY';
+            return next;
+          });
+        }
+        // c === null → unknown coverage (e.g. user picked Bangkok).
+        // Leave region untouched so OTHER + countryPref persist.
+      }
       // An explicit pick (not a "× clear", which sends an empty label)
       // also updates the bot's /location cache so it sticks across
       // sessions and in chat.
@@ -1682,15 +1714,30 @@ export default function App() {
       // /api/cuisine/user-location read. The state.region tag is
       // passed through so chat /location and the Menu TMA pick up
       // the cuisine-side region flip too.
+      // v0.61.311 — prefer the coords-inferred region over the
+      // possibly-stale state.region so the bot's set-location gets
+      // the right tag on a cross-country jump's FIRST pick (not just
+      // after the visibility-refresh round-trip).
       if ((p.label || '').trim()) {
+        let inferredRegion;
+        if (!p.noSyncRegion) {
+          const c = coordsToCountry({ lat: p.lat, lng: p.lng });
+          if (c === 'SG') inferredRegion = 'SG';
+          else if (c === 'MY') inferredRegion = isJbCoords({ lat: p.lat, lng: p.lng }) ? 'JB' : 'OTHER';
+        }
+        const persistRegion = inferredRegion
+          || ((state.region && state.region !== '__NONE__') ? state.region : undefined);
+        const persistCountry = (inferredRegion === 'OTHER' || (state.region === 'OTHER' && state.countryPref))
+          ? (inferredRegion === 'OTHER' ? 'MY' : state.countryPref)
+          : undefined;
         saveUserLocation({
           lat: p.lat,
           lng: p.lng,
           label: p.label,
           // v0.61.273 — don't persist the first-paint '__NONE__'
           // sentinel; only forward a resolved region.
-          region: (state.region && state.region !== '__NONE__') ? state.region : undefined,
-          country: (state.region === 'OTHER' && state.countryPref) ? state.countryPref : undefined
+          region: persistRegion,
+          country: persistCountry
         }).catch(() => {});
       }
       // v0.61.237 — auto-fire the search with the explicit new anchor.
