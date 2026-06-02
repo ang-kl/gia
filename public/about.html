@@ -360,8 +360,12 @@
     .compare__pill--soleat  { background: var(--accent); color: var(--accent-fg); }
     .compare__list { list-style: none; margin: 0; padding: 0; }
     .compare__list li {
-      display: grid;
-      grid-template-columns: 24px 1fr;
+      /* v0.61.314 — switched from CSS grid to flex. Grid-with-::before
+         left the raw text node unplaced on some Safari builds and the
+         glyph overlapped the marker (operator screenshot). Flex wraps
+         raw text into an anonymous flex item, so the ::before marker
+         and the text content sit side-by-side cleanly. */
+      display: flex;
       gap: var(--sp-3);
       padding-block: var(--sp-3);
       border-block-start: 1px solid var(--border);
@@ -370,7 +374,8 @@
     }
     .compare__list li:first-child { border-block-start: 0; }
     .compare__list li::before {
-      grid-column: 1;
+      flex-shrink: 0;
+      width: 16px;
       margin-block-start: 3px;
       font-weight: 700;
     }
@@ -468,9 +473,85 @@
       .reveal { opacity: 1; transform: none; transition: none; }
     }
 
+    /* ─── Picture placeholders (v0.61.314) ──────────────────────
+     * Reserved slots for operator-supplied imagery. Each <figure
+     * class="placeholder"> renders a dashed-accent box with a slot
+     * label + size hint, so the layout is final-shape before the
+     * real images drop in. data-slot identifies the slot in the
+     * markup so the operator can reference it ("put image X in
+     * slot-hero"). aspect-ratio prevents layout-jump on swap.
+     * ─────────────────────────────────────────────────────────── */
+    .placeholder {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: var(--sp-5);
+      border-radius: var(--r-lg);
+      border: 2px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+      background:
+        repeating-linear-gradient(135deg,
+          color-mix(in srgb, var(--accent) 8%, transparent) 0,
+          color-mix(in srgb, var(--accent) 8%, transparent) 1px,
+          transparent 1px,
+          transparent 14px),
+        linear-gradient(135deg,
+          color-mix(in srgb, var(--accent) 14%, var(--bg-elev)) 0%,
+          var(--bg-elev) 80%);
+      color: color-mix(in srgb, var(--accent) 65%, var(--fg));
+      text-align: center;
+      overflow: hidden;
+      margin: 0;
+    }
+    .placeholder__label {
+      font-size: var(--fs-sm);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .placeholder__icon {
+      font-size: 36px;
+      line-height: 1;
+      margin-block-end: var(--sp-2);
+      opacity: 0.85;
+    }
+    .placeholder__hint {
+      margin-block-start: var(--sp-2);
+      font-size: var(--fs-xs);
+      font-weight: 500;
+      color: var(--fg-muted);
+    }
+    .placeholder__slot {
+      position: absolute;
+      top: var(--sp-2);
+      left: var(--sp-3);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--accent) 80%, var(--fg-muted));
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    /* Variants */
+    .placeholder--hero  { aspect-ratio: 4 / 3; }
+    .placeholder--phone { aspect-ratio: 9 / 16; max-width: 280px; margin-inline: auto; }
+    .placeholder--wide  { aspect-ratio: 16 / 9; margin-block-end: var(--sp-6); }
+
+    /* Hero 2-column grid (copy + image) */
+    .hero__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-7);
+      align-items: center;
+    }
+    @media (min-width: 920px) {
+      .hero__grid { grid-template-columns: 1.15fr 1fr; gap: var(--sp-8); }
+    }
+
     /* ─── Print stylesheet — strip chrome, keep substance ───────── */
     @media print {
       .topnav, .hero__cta, .final-cta, footer { display: none; }
+      .placeholder { display: none; }
       body { color: #000; background: #fff; }
       a { color: #000; text-decoration: underline; }
       .compare__col--soleat { box-shadow: none; }
@@ -503,16 +584,26 @@
 
     <!-- ╔═════════════════════════ HERO ═════════════════════════╗ -->
     <section class="hero" aria-labelledby="hero-title">
-      <div class="container">
-        <p class="hero__eyebrow"><span>Live on Telegram</span></p>
-        <h1 id="hero-title" class="reveal">A food concierge for Singapore <em>and</em> Johor Bahru — sourced from Google, curated for humans.</h1>
-        <p class="hero__lede reveal">
-          Soleat is a Telegram-native picker that takes the venue list straight from Google Places and re-shapes it around how people actually decide where to eat — by region, by cuisine specialism, by walking time, by what they last picked, by what they have not seen yet.
-        </p>
-        <div class="hero__cta reveal">
-          <a class="btn btn--primary" href="https://t.me/soleat_bot" rel="noopener">Open the bot on Telegram <span aria-hidden="true">→</span></a>
-          <a class="btn btn--ghost" href="#two-ways">See how it searches</a>
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <p class="hero__eyebrow"><span>Live on Telegram</span></p>
+          <h1 id="hero-title" class="reveal">A food concierge for Singapore <em>and</em> Johor Bahru — sourced from Google, curated for humans.</h1>
+          <p class="hero__lede reveal">
+            Soleat is a Telegram-native picker that takes the venue list straight from Google Places and re-shapes it around how people actually decide where to eat — by region, by cuisine specialism, by walking time, by what they last picked, by what they have not seen yet.
+          </p>
+          <div class="hero__cta reveal">
+            <a class="btn btn--primary" href="https://t.me/soleat_bot" rel="noopener">Open the bot on Telegram <span aria-hidden="true">→</span></a>
+            <a class="btn btn--ghost" href="#two-ways">See how it searches</a>
+          </div>
         </div>
+        <figure class="placeholder placeholder--hero reveal" data-slot="hero" aria-label="Hero image placeholder">
+          <span class="placeholder__slot">slot · hero</span>
+          <div>
+            <div class="placeholder__icon" aria-hidden="true">🖼</div>
+            <div class="placeholder__label">Hero image</div>
+            <div class="placeholder__hint">4 : 3 · ≥ 1280 × 960 · operator to supply</div>
+          </div>
+        </figure>
       </div>
     </section>
 
@@ -531,6 +622,14 @@
           <article class="way reveal" aria-labelledby="way-1-title">
             <div class="way__num" aria-hidden="true">1</div>
             <h3 id="way-1-title">Cuisine Mini App — the 🔍 button</h3>
+            <figure class="placeholder placeholder--phone" data-slot="way-cuisine-tma" aria-label="Cuisine TMA screenshot placeholder" style="margin-block: var(--sp-4);">
+              <span class="placeholder__slot">slot · cuisine-tma</span>
+              <div>
+                <div class="placeholder__icon" aria-hidden="true">📱</div>
+                <div class="placeholder__label">Cuisine TMA</div>
+                <div class="placeholder__hint">9 : 16 phone · screenshot of map + chips + 🔍</div>
+              </div>
+            </figure>
             <p>Map-first, criteria-rich. You set anchor, cuisines, radius, mode, and a few quality filters — the app runs one Places query, post-filters in memory, and renders pins on a styled vector map.</p>
             <ol class="way__steps">
               <li>Pick anchor — current GPS, a recent location, or a typed Place.</li>
@@ -543,6 +642,14 @@
           <article class="way reveal" aria-labelledby="way-2-title">
             <div class="way__num" aria-hidden="true">2</div>
             <h3 id="way-2-title">Chat — <code>/cuisine</code> or free text</h3>
+            <figure class="placeholder placeholder--phone" data-slot="way-chat-cuisine" aria-label="Chat /cuisine screenshot placeholder" style="margin-block: var(--sp-4);">
+              <span class="placeholder__slot">slot · chat-cuisine</span>
+              <div>
+                <div class="placeholder__icon" aria-hidden="true">💬</div>
+                <div class="placeholder__label">Chat result</div>
+                <div class="placeholder__hint">9 : 16 phone · Telegram chat with /cuisine reply cards</div>
+              </div>
+            </figure>
             <p>Conversational. Type the command (or just describe what you want) and Soleat returns a short ranked card-stack in the chat — no app to open. Same Places-first source as the 🔍 path; the wrapper is the only thing that differs.</p>
             <ol class="way__steps">
               <li>Send <code>/cuisine</code> for a quick pick, or free-text like <em>“halal lunch near Bedok”</em>.</li>
@@ -565,6 +672,15 @@
             Google Maps is a database with a search box. Soleat is a decision aid built on top of that database, tuned for one specific decision: <em>where should I eat right now?</em>
           </p>
         </header>
+
+        <figure class="placeholder placeholder--wide reveal" data-slot="vs-gm-comparison" aria-label="Side-by-side comparison image placeholder">
+          <span class="placeholder__slot">slot · vs-gm</span>
+          <div>
+            <div class="placeholder__icon" aria-hidden="true">🆚</div>
+            <div class="placeholder__label">Side-by-side comparison</div>
+            <div class="placeholder__hint">16 : 9 · two phone screenshots (Google Maps result vs Soleat result) for the same query</div>
+          </div>
+        </figure>
 
         <div class="compare">
           <div class="compare__col reveal">
@@ -658,6 +774,15 @@
           <h2 id="hood-title">Boring tech doing serious work.</h2>
           <p class="section-head__sub">No magic. Plain Express + Redis + Telegram WebApp. The interesting bit is how the pieces are arranged.</p>
         </header>
+
+        <figure class="placeholder placeholder--wide reveal" data-slot="under-the-hood-diagram" aria-label="Architecture diagram placeholder">
+          <span class="placeholder__slot">slot · architecture</span>
+          <div>
+            <div class="placeholder__icon" aria-hidden="true">🗺</div>
+            <div class="placeholder__label">Architecture diagram</div>
+            <div class="placeholder__hint">16 : 9 · flow: Telegram → Express → Redis cache + Google Places / Routes / Gemini classifier</div>
+          </div>
+        </figure>
 
         <div class="stack-items">
           <article class="stack-item reveal">
