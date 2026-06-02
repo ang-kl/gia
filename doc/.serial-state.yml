@@ -1,8 +1,8 @@
 counters:
-  commit: 527
-  build: 316
+  commit: 528
+  build: 317
   documents:
-    journal: 514
+    journal: 515
     builder: 3
     persona: 4
     feature: 52
@@ -11,11 +11,11 @@ counters:
     register: 126
 sessions:
   current_chat_id: 2026-06-02
-  current_chat_counter: 2
-last_anchor_time: 02-06 '26 10:15 SGT
-last_anchor_source: derived_from_v0_61_313_about_page (operator: build soleat.net/about to explain the two search surfaces vs Google Maps; HTML/CSS3/vanilla JS; WCAG 2.1 AA; responsive notebook + touch)
-last_anchor_iso8601: 2026-06-02T10:15:00+08:00
-last_anchor_utc: 2026-06-02T02:15:00Z
+  current_chat_counter: 3
+last_anchor_time: 02-06 '26 17:30 SGT
+last_anchor_source: derived_from_v0_61_314_about_placeholders (operator screenshot showed text overlap in comparison list + "too text-centric, give me picture placeholders"; fixed Safari grid-with-::before overlap by switching to flex; added 5 labelled figure.placeholder slots — hero, way-cuisine-tma, way-chat-cuisine, vs-gm, under-the-hood)
+last_anchor_iso8601: 2026-06-02T17:30:00+08:00
+last_anchor_utc: 2026-06-02T09:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
