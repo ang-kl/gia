@@ -1,8 +1,8 @@
 counters:
-  commit: 529
-  build: 318
+  commit: 530
+  build: 319
   documents:
-    journal: 516
+    journal: 517
     builder: 3
     persona: 4
     feature: 53
@@ -10,12 +10,12 @@ counters:
     legal: 9
     register: 126
 sessions:
-  current_chat_id: 2026-06-02
-  current_chat_counter: 4
-last_anchor_time: 02-06 '26 19:55 SGT
-last_anchor_source: derived_from_v0_61_315_canonical_spec_pr818 (operator-directed sub-agent + post-audit AU-7 amendment pass — full feature spec at PR #818 cutoff, 797-row ledger, RF-19→RF-22 additions, voided RF-21 corrected to live /admin/* routes in §H.1)
-last_anchor_iso8601: 2026-06-02T19:55:00+08:00
-last_anchor_utc: 2026-06-02T11:55:00Z
+  current_chat_id: 2026-06-03
+  current_chat_counter: 1
+last_anchor_time: 03-06 '26 21:00 SGT
+last_anchor_source: derived_from_v0_61_316_vibe_journal_regen (operator "merge then vibe-journal" — 76-PR catch-up regen #748-#823 since the prior regen on 29-05; 3 closed-without-merge skipped: #759/762/767; GEN_DATE bumped 2026-05-29 → 2026-06-03)
+last_anchor_iso8601: 2026-06-03T21:00:00+08:00
+last_anchor_utc: 2026-06-03T13:00:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
