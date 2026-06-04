@@ -13180,9 +13180,45 @@ async function cacheBotUsername() {
         // (no label); we record an empty label which the chat /lrecent
         // surface renders as "<lat>, <lng>" so the row is still tappable.
         // v0.61.270 — if a label was passed, persist it in the LRU too.
-        addRecentLocation(redis, String(userId), {
-          lat, lng, label: opts.label || ''
-        }).catch(() => {});
+        // v0.61.317 — operator screenshot (04-06 '26): coords-only saves
+        // (GPS auto-detect, map tap, "search this area") rendered as a
+        // bare "1.2722, 103.8113" row in the recents drawer — meaningless
+        // to the user. When no label was supplied, reverse-geocode the
+        // coords into a human-readable name (reverseGeocodeAddress is 24h-
+        // cached on a ~10m grid, so the cost is bounded) before storing.
+        // Also forward country/region so the drawer row shows the correct
+        // flag instead of the generic 🌍 globe. Fire-and-forget in an IIFE
+        // so the HTTP 200 isn't delayed by the geocode round-trip.
+        (async () => {
+          let lruLabel = opts.label || '';
+          let lruCountry = opts.country || '';
+          if (!lruLabel) {
+            try {
+              const geo = await reverseGeocodeAddress(lat, lng);
+              // Reject a bare country name ("Singapore" / "Malaysia") —
+              // reverseGeocodeAddress falls back to the country when no
+              // finer feature is found, and that's just as meaningless as
+              // raw coords. Leave the label empty in that case.
+              const gname = (geo?.name || '').trim();
+              const isBareCountry = gname && (
+                /^(singapore|malaysia)$/i.test(gname)
+                || (geo.country && gname.toLowerCase() === String(geo.country).toLowerCase())
+              );
+              if (gname && !isBareCountry) lruLabel = gname;
+              if (!lruCountry && geo?.country) {
+                const cc = geo.country === 'Singapore' ? 'SG'
+                  : geo.country === 'Malaysia' ? 'MY' : '';
+                if (cc) lruCountry = cc;
+              }
+            } catch { /* leave label empty → drawer falls back to coords */ }
+          }
+          addRecentLocation(redis, String(userId), {
+            lat, lng,
+            label: lruLabel,
+            country: lruCountry || undefined,
+            region: opts.region || undefined
+          }).catch(() => {});
+        })();
         console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)} ${opts.label ? `label="${opts.label.slice(0, 40)}"` : ''} ${opts.country || ''} ${opts.region || ''}`);
         res.json({ ok: true, persisted: opts });
       } catch (err) {
