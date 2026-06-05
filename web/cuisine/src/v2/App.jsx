@@ -39,6 +39,45 @@ function fabBgFg(active) {
   return { backgroundColor: s.background, color: s.color };
 }
 
+// v0.61.325 — specific place labels for the anchor-coherence modal.
+// Operator (05-06 '26): the v0.61.321 mismatch prompt named neither
+// place — "your saved spot" vs "somewhere else" was too vague. Build
+// a concrete human label from coords (+ an optional reverse-geocoded
+// street/area name): prefer "{name}, {city}, {country}", falling back
+// to "{name}, {country}" / "{city}, {country}" / just the name.
+//
+// City + country come from nearestIataCity(lat,lng), which is fully
+// synchronous (haversine over the frozen IATA table) and returns
+// { city: { name, country, countryCode, ... }, distanceKm }. So a
+// useful "City, Country" label is always available immediately, with
+// no API call; the caller optionally upgrades the device label with a
+// reverse-geocoded street/area name when that async result lands.
+function placeLabel({ lat, lng, name } = {}) {
+  const clean = (s) => (typeof s === 'string' ? s.trim() : '');
+  const name0 = clean(name);
+  let city = '';
+  let country = '';
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    const near = nearestIataCity(lat, lng);
+    if (near?.city) {
+      city = clean(near.city.name);
+      country = clean(near.city.country);
+    }
+  }
+  // De-dupe: if the reverse-geocoded name equals the city (e.g. "Singapore"
+  // resolved as both), don't repeat it.
+  const parts = [];
+  if (name0) parts.push(name0);
+  if (city && city.toLowerCase() !== name0.toLowerCase()) parts.push(city);
+  if (country) parts.push(country);
+  if (parts.length) return parts.join(', ');
+  // Last resort — no name, no IATA hit: a coarse coord string beats blank.
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+  }
+  return name0 || '';
+}
+
 // v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 // v0.61.182 — ISO-8601 build timestamp from vite.config.js. Surfaced
@@ -841,10 +880,37 @@ export default function App() {
       + Math.cos(toRad(userLoc.lat)) * Math.cos(toRad(a.lat)) * Math.sin(dLng / 2) ** 2;
     const km = 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
     if (km <= 150) { anchorCoherenceCheckedRef.current = true; return; }
-    setAnchorMismatch({ anchorName: a.name.trim(), deviceCountry: coordsToCountry(userLoc) });
+    // v0.61.325 — name BOTH places specifically (operator: "be specific
+    // which part of JP — Fukuoka, Japan / street + city + country / or
+    // current location street + city + country"). Build both labels from
+    // the synchronous IATA table up-front (always shows City, Country at
+    // minimum), then upgrade the DEVICE label with a reverse-geocoded
+    // street/area name when that async call lands. The saved-anchor label
+    // already carries the anchor's own display name (a.name) so it's
+    // specific from the first paint.
+    const anchorLabel = placeLabel({ lat: a.lat, lng: a.lng, name: a.name.trim() });
+    const deviceLabel0 = placeLabel({ lat: userLoc.lat, lng: userLoc.lng });
+    setAnchorMismatch({
+      anchorName: a.name.trim(),
+      deviceCountry: coordsToCountry(userLoc),
+      anchorLabel,
+      deviceLabel: deviceLabel0
+    });
     modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
     console.log(`[Cuisine-TMA-v2] anchor/device MISMATCH: anchor="${a.name}" (${a.lat.toFixed(2)},${a.lng.toFixed(2)}) is ${km.toFixed(0)}km from device (${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)})`);
     anchorCoherenceCheckedRef.current = true;
+    // Async upgrade: resolve the device's street/area name and fold it
+    // into the device label. Same call class the locationName banner
+    // already makes (App.jsx:388). On failure we keep the IATA-only
+    // "City, Country" label — never blank, never loading-forever.
+    reverseGeocode({ lat: userLoc.lat, lng: userLoc.lng })
+      .then((r) => {
+        const street = (r && typeof r.name === 'string') ? r.name.trim() : '';
+        if (!street) return;
+        const upgraded = placeLabel({ lat: userLoc.lat, lng: userLoc.lng, name: street });
+        setAnchorMismatch((m) => (m ? { ...m, deviceLabel: upgraded } : m));
+      })
+      .catch(() => { /* keep the IATA-only device label */ });
   }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
 
   // v0.61.322 — splash-gate opener. Declared AFTER all three coherence
@@ -2096,25 +2162,25 @@ export default function App() {
                 {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
               </h2>
             </div>
-            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
+            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text break-words">
               {lang === 'fr'
-                ? `Votre lieu enregistré est « ${anchorMismatch.anchorName} », mais votre appareil se trouve ailleurs${anchorMismatch.deviceCountry === 'SG' ? ' (Singapour)' : anchorMismatch.deviceCountry === 'MY' ? ' (Malaisie)' : ''}.`
-                : `Your saved spot is "${anchorMismatch.anchorName}", but your device is somewhere else${anchorMismatch.deviceCountry === 'SG' ? ' (Singapore)' : anchorMismatch.deviceCountry === 'MY' ? ' (Malaysia)' : ''}.`}
+                ? `Votre lieu enregistré est ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, mais vous semblez vous trouver à ${anchorMismatch.deviceLabel}.`
+                : `Your saved spot is ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, but you appear to be at ${anchorMismatch.deviceLabel}.`}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
               <button
                 type="button"
                 onClick={() => applyAnchorCoherenceChoice(true)}
-                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
+                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold break-words line-clamp-2"
               >
-                {lang === 'fr' ? 'Utiliser ma position actuelle' : 'Use my current location'}
+                {lang === 'fr' ? `Utiliser ${anchorMismatch.deviceLabel}` : `Use ${anchorMismatch.deviceLabel}`}
               </button>
               <button
                 type="button"
                 onClick={() => applyAnchorCoherenceChoice(false)}
-                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
+                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm break-words line-clamp-2"
               >
-                {lang === 'fr' ? `Garder « ${anchorMismatch.anchorName} »` : `Keep "${anchorMismatch.anchorName}"`}
+                {lang === 'fr' ? `Garder ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : `Keep ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}`}
               </button>
             </div>
           </div>
