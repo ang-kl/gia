@@ -700,6 +700,15 @@ export default function App() {
   // currently demanding a user choice, so the gate stays shut behind it.
   const [locationGateOpen, setLocationGateOpen] = useState(false);
   const modalPendingRef = useRef(false);
+  // v0.61.323 — initial-load deferral. v0.61.322 gated only the VISUALS
+  // (locationGateOpen hides the body) but the boot venue load still fired
+  // underneath the splash at the raw device/GPS location — so a user who
+  // entered with a stale overseas anchor saw 5 SG venues load before the
+  // anchor-coherence check had even resolved. This ref ensures the boot
+  // venue list is populated EXACTLY ONCE, and only after the gate opens:
+  // the gate-opener fires runInitialLoad() on the no-mismatch path; the
+  // apply* fns set this ref true so their own runSearch isn't doubled.
+  const initialLoadFiredRef = useRef(false);
 
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
@@ -853,10 +862,26 @@ export default function App() {
     if (!ran) return;
     if (modalPendingRef.current) return;                        // a modal is up → stay gated
     setLocationGateOpen(true);
+    // v0.61.323 — the gate is now the single place the boot venue list is
+    // populated. On the common no-mismatch path no apply* ran, so fire the
+    // ONE initial load here (deferred from the auto-detect / warm-start
+    // effects, which now only resolve location state). On a mismatch path
+    // the user's apply* choice already fired the correct search and set
+    // initialLoadFiredRef → we skip, so there is no second / SG load.
+    if (!initialLoadFiredRef.current) {
+      initialLoadFiredRef.current = true;
+      runInitialLoad();
+    }
   }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
+    // v0.61.323 — this fn fires its own runSearch in BOTH branches (device
+    // / kept-anchor), so claim the boot-load ref up-front: when the gate
+    // opener subsequently runs (modal dismissed → gate opens) it must NOT
+    // also fire runInitialLoad(), or the kept-JP/use-current search would
+    // be followed by a stray device-location load.
+    initialLoadFiredRef.current = true;
     if (useDevice) {
       // Drop the stale overseas anchor and re-anchor on the device; flip
       // region to match the device coords. Banner re-resolves the real
@@ -1192,11 +1217,15 @@ export default function App() {
       saveUserLocation({ lat: target.lat, lng: target.lng }).catch(() => {});
       if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
 
-      // 6) Fire the 5-place load. Explicit state object so we don't
-      //    race the queued setState.
-      const snap = { ...state, ...stateDelta };
-      runSearch(snap, { lat: target.lat, lng: target.lng });
-      console.log('[Cuisine-TMA-v2] auto-detect applied',
+      // 6) v0.61.323 — DO NOT fire the venue load here anymore. The boot
+      //    load is deferred to the gate-opener's runInitialLoad() so no
+      //    search runs until location is confirmed (operator: "check
+      //    BEFORE load"). This effect now only RESOLVES location state
+      //    (region/countryPref/locationAnchor/searchCenter) + persists it;
+      //    runInitialLoad() reads the committed state/searchCenter when the
+      //    gate opens. autoDetectedRef/initialSearchDone stay claimed above
+      //    so warm-start remains suppressed on the auto-detect path.
+      console.log('[Cuisine-TMA-v2] auto-detect applied (load deferred to gate)',
         { region: targetRegion || '(unchanged)', country: detected?.countryCode || null, city: anchorName });
     })();
   }, [userLoc?.lat, userLoc?.lng]);
@@ -1209,16 +1238,37 @@ export default function App() {
   // the dirty-indicator baseline.
   //
   // v0.61.243 — the autoDetect effect (declared above) now claims
-  // initialSearchDone.current before this effect runs, so warm-start
-  // is suppressed on the auto-detect path. This branch still owns
-  // the URL-hash deep-link case (initialOverrides.location) and the
-  // pathological "no GPS, no cache" path where autoDetect noops.
-  useEffect(() => {
+  // initialSearchDone.current so warm-start is suppressed on the
+  // auto-detect path. This logic still owns the URL-hash deep-link
+  // case (initialOverrides.location) and the pathological "no GPS,
+  // no cache" path where autoDetect noops.
+  //
+  // v0.61.323 — this body was an eager useEffect that fired the boot
+  // venue load the moment userLoc resolved (UNDER the v0.61.322 splash),
+  // racing the anchor-coherence check and showing stale SG venues. It is
+  // now a function called EXACTLY ONCE by the splash-gate opener, after
+  // location is confirmed. It reads the CURRENT resolved center
+  // (searchCenter || locationAnchor || userLoc) and the committed state,
+  // so by the time it runs the auto-detect effect has already set
+  // region/countryPref/locationAnchor/searchCenter. All prior behavior
+  // (deep-link runSearch, warmStart seeding + setPages, generic fallback)
+  // is preserved. Guarded by initialSearchDone.current as a belt-and-
+  // braces re-entry guard (the gate-opener also gates on
+  // initialLoadFiredRef).
+  function runInitialLoad() {
     if (!userLoc || initialSearchDone.current) return;
     initialSearchDone.current = true;
+    // Resolve the confirmed center: an explicit anchor (deep-link or
+    // auto-detect) wins, then any committed searchCenter, then device.
+    const center = (locationAnchor?.lat != null && locationAnchor?.lng != null)
+      ? { lat: locationAnchor.lat, lng: locationAnchor.lng }
+      : (searchCenter?.lat != null && searchCenter?.lng != null)
+        ? { lat: searchCenter.lat, lng: searchCenter.lng }
+        : { lat: userLoc.lat, lng: userLoc.lng };
     // v0.58.10: when the bot's /cuisine tokeniser pre-anchored via the
-    // hash (lat/lng/place), skip warm-start and run a real search at
-    // that anchor so the user lands on the exact deep-linked state.
+    // hash (lat/lng/place), OR auto-detect resolved an anchor, skip
+    // warm-start and run a real search at that anchor so the user lands
+    // on the exact confirmed/deep-linked location (never raw GPS).
     if (locationAnchor?.lat != null && locationAnchor?.lng != null) {
       setSearchCenter({ lat: locationAnchor.lat, lng: locationAnchor.lng });
       runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng });
@@ -1231,15 +1281,15 @@ export default function App() {
     // runSearch when venues is empty too.
     (async () => {
       setLoading(true); setError(null);
-      console.log('[Cuisine-TMA-v2] warm-start: requesting', { lat: userLoc.lat, lng: userLoc.lng, region: state.region });
+      console.log('[Cuisine-TMA-v2] warm-start: requesting', { lat: center.lat, lng: center.lng, region: state.region });
       try {
-        const r = await warmStart({ lat: userLoc.lat, lng: userLoc.lng, region: state.region, lang });
+        const r = await warmStart({ lat: center.lat, lng: center.lng, region: state.region, lang });
         console.log('[Cuisine-TMA-v2] warm-start: response', { venues: r?.venues?.length || 0, seed: r?.seed, cached: r?.cached });
         if (r?.venues?.length) {
           setVenues(r.venues);
           setFirstLoadPending(false);
           setWarmStartSeed(r.seed || null);
-          setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+          setSearchCenter({ lat: center.lat, lng: center.lng });
           // v0.60.154 — warm-start populates the first entry of the
           // client-side history cache so a subsequent ⇠ Back can land
           // on it. Without this, the user's first explicit search
@@ -1262,7 +1312,7 @@ export default function App() {
             criteriaState: state ? JSON.parse(JSON.stringify(state)) : null,
             freeText: (typeof nlText === 'string') ? nlText : '',
             locationAnchor: locationAnchor ? { ...locationAnchor } : null,
-            searchCenter: { lat: userLoc.lat, lng: userLoc.lng },
+            searchCenter: { lat: center.lat, lng: center.lng },
             isMichelin: false
           }]);
           setCursor(0);
@@ -1286,8 +1336,8 @@ export default function App() {
       } catch (err) {
         console.warn('[Cuisine-TMA-v2] warm-start failed:', err.message);
       }
-      // Fallback: a generic /api/cuisine/search at the user's GPS with
-      // no cuisine constraint. The full pipeline always returns ≥ a
+      // Fallback: a generic /api/cuisine/search at the resolved center
+      // with no cuisine constraint. The full pipeline always returns ≥ a
       // few candidates anywhere in SG/JB.
       try {
         await runSearch(state);
@@ -1297,8 +1347,7 @@ export default function App() {
         setLoading(false);
       }
     })().finally(() => setLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLoc?.lat, userLoc?.lng]);
+  }
 
   // v0.58.27 → v0.59.18: auto re-search effect REMOVED per Human Lead.
   // Search now fires only on explicit triggers — the 🔍 Search button,
@@ -1329,6 +1378,13 @@ export default function App() {
     function onPageShow(e) {
       if (e.persisted) {
         initialSearchDone.current = false;
+        // v0.61.323 — also release the deferred-load guard + re-shut the
+        // gate so the gate-opener re-fires runInitialLoad() to refill the
+        // list cleared on pagehide. The coherence *CheckedRefs persist, so
+        // with userLoc still resolved the gate re-opens on the next effect
+        // pass (no modal pending → no splash flash) and the one load runs.
+        initialLoadFiredRef.current = false;
+        setLocationGateOpen(false);
       }
     }
     window.addEventListener('pagehide', onPageHide);
