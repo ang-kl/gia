@@ -6084,6 +6084,137 @@ const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|par
 // that text to a lat/lng anchor, search 200m-3km around THAT anchor
 // (replacing the user's GPS), and pass the same constraint to Gemini.
 // Validation rejects garbage like `/hidden ramen` with a bilingual hint.
+// v0.61.319 — render /hidden picks as the SAME rich venue card as /search
+// free-text (formatTechniqueVenueBlock) PLUS a "📝 Latest review ·" line,
+// and WITHOUT Gemini's "💎 Why a gem" prose (the one fabricable field —
+// dropped per operator). The card fields ride the existing Places verifier
+// call (hidden-verify.lookupVenue); enrichTravelTimes + social profiles are
+// best-effort (already used on the /search path). No new paid API calls.
+//
+// `verifiedVenues` each carry, from hidden-verify.lookupVenue:
+//   id, name, displayHeading, address, lat, lng, rating, userRatingCount,
+//   googleMapsUri, primaryType, primaryTypeDisplayName, weekdayDescriptions,
+//   websiteUri, nationalPhoneNumber, priceLevel, editorialSummary,
+//   newestReviewIso, distanceM.
+async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, anchorLng, verifiedText) {
+  const { t } = require('./i18n');
+  const { googleMapsUrl } = require('./maps-url');
+  const list = Array.isArray(verifiedVenues) ? verifiedVenues.filter(Boolean) : [];
+  if (!list.length) return;
+
+  // Parse the Gemini-surfaced "🍲 Try ·" / "Order this" dishes per venue so
+  // we can carry the (non-fabricable) dish onto the card. Match block.name
+  // to the venue's displayHeading case-insensitively.
+  let dishByName = new Map();
+  try {
+    const { parseBlocks } = require('./hidden-verify');
+    const { blocks } = parseBlocks(verifiedText || '');
+    for (const b of blocks) {
+      let dish = '';
+      for (const line of b.lines) {
+        // "🍲 Try · X" / "🍴 Order this: X" / FR "Essayez · X"
+        const m = /^[🍲🍴]\s*(?:Try|Essayez|Order this)\s*[·:]\s*(.+)$/u.exec(String(line).trim());
+        if (m) { dish = m[1].split(/\s*[—–]\s*/)[0].split(/\s*,\s*/)[0].replace(/\.\s*$/, '').trim(); break; }
+      }
+      if (b.name) dishByName.set(String(b.name).toLowerCase(), dish);
+    }
+  } catch (err) {
+    console.warn('[/hidden] dish-parse for cards failed (continuing):', err.message);
+  }
+
+  // Map each verified venue → a venue object shaped for the shared formatter.
+  // Mirror the /search Places→venue key names (index.js searchVenuesByDish).
+  const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
+  const venues = list.map((v) => {
+    const heading = v.displayHeading || v.name || '';
+    return {
+      name: heading,
+      placeId: v.id || '',
+      area: v.address || '',
+      restaurantType: humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType),
+      rating: typeof v.rating === 'number' ? v.rating : null,
+      userRatingCount: typeof v.userRatingCount === 'number' ? v.userRatingCount : null,
+      lat: Number.isFinite(v.lat) ? v.lat : null,
+      lng: Number.isFinite(v.lng) ? v.lng : null,
+      weekdayDescriptions: Array.isArray(v.weekdayDescriptions) && v.weekdayDescriptions.length
+        ? v.weekdayDescriptions : null,
+      websiteUri: v.websiteUri || '',
+      phone: v.nationalPhoneNumber || '',
+      priceLevel: PRICE_NUM[v.priceLevel] || null,
+      url: v.googleMapsUri || '',
+      // carry-throughs used below (not consumed by formatTechniqueVenueBlock)
+      _dishPhrase: dishByName.get(heading.toLowerCase()) || '',
+      _newestReviewIso: v.newestReviewIso || null
+    };
+  });
+
+  // Enrichers — best-effort, same surfaces as the /search path.
+  try {
+    const { enrichTravelTimes } = require('./travel-times');
+    await enrichTravelTimes(anchorLat, anchorLng, venues);
+  } catch (err) {
+    console.warn('[/hidden] enrichTravelTimes failed (continuing):', err.message);
+  }
+  try {
+    const { attachSocialsToVenues } = require('./social-profiles');
+    await attachSocialsToVenues(redis, venues, { concurrency: 4 });
+  } catch (err) {
+    console.warn('[/hidden] attachSocialsToVenues failed (continuing):', err.message);
+  }
+
+  const reviewLabel = t('hidden.latestReviewLabel', lang);
+  const cards = venues.map((venue, i) => {
+    try {
+      let card = formatTechniqueVenueBlock(venue, {
+        number: i + 1,
+        lang,
+        googleMapsUrlFn: googleMapsUrl,
+        dishPhrase: venue._dishPhrase
+      });
+      // Insert "📝 Latest review · DD MMM YYYY" right after the 🌟 rating line
+      // (parity with the old /hidden card position). Skip when no review date.
+      if (venue._newestReviewIso) {
+        const d = new Date(venue._newestReviewIso);
+        if (!Number.isNaN(d.getTime())) {
+          const dateStr = d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Singapore'
+          });
+          const reviewLine = `${reviewLabel} ${dateStr}`;
+          const cardLines = card.split('\n');
+          const ratingIdx = cardLines.findIndex((l) => /^🌟/.test(l));
+          if (ratingIdx >= 0) cardLines.splice(ratingIdx + 1, 0, reviewLine);
+          else cardLines.push(reviewLine); // no rating line → append
+          card = cardLines.join('\n');
+        }
+      }
+      return card;
+    } catch (err) {
+      // One bad card must not blank the whole reply (preflight §3).
+      console.warn('[/hidden] card render failed for', venue && venue.name, '→', err.message);
+      const vt = require('./venue-templates');
+      return `${i + 1}. <b>${vt.escapeHtmlForTelegram((venue && venue.name) || '')}</b>`;
+    }
+  });
+
+  // Chunk on per-card boundaries to stay under Telegram's 4096-char cap.
+  // NOTE: do NOT route through chunkHiddenGemsOutput here — that helper
+  // escapes/strips/re-bolds raw Gemini text, which would DOUBLE-escape the
+  // already-HTML cards (formatTechniqueVenueBlock emits <b>/<i> + entities).
+  // These cards are final HTML; we only need to pack them into ≤3800-char
+  // messages on card boundaries (one card never spans two messages).
+  const MAX = 3800;
+  const chunks = [];
+  let buf = '';
+  for (const card of cards) {
+    if (buf && (buf.length + 2 + card.length) > MAX) { chunks.push(buf); buf = ''; }
+    buf = buf ? `${buf}\n\n${card}` : card;
+  }
+  if (buf) chunks.push(buf);
+  for (const c of chunks) {
+    await safeSend(chatId, c, { parse_mode: 'HTML', disable_web_page_preview: true });
+  }
+}
+
 async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
   // v0.61.312 — operator restricted /hidden to themselves only.
   // Silent no-op for non-owners; same gating pattern as /ver / /cost /
@@ -6246,10 +6377,10 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       await safeSend(chatId, t('hidden.allClosed', lang));
       return;
     }
-    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
-    for (const c of chunks) {
-      await safeSend(chatId, c, { parse_mode: 'HTML', disable_web_page_preview: true });
-    }
+    // v0.61.319 — render the SAME rich venue card as /search free-text
+    // (+ "📝 Latest review", − "💎 Why a gem"). Anchor = the geocoded
+    // free-text lat/lng.
+    await renderHiddenVenueCards(chatId, lang, verifiedVenues, geo.lat, geo.lng, verifiedText);
     // One-map button (mirrors the GPS-anchored path).
     try {
       const plottable = verifiedVenues.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng));
@@ -6677,16 +6808,11 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     } catch (err) {
       console.warn('[/hidden] distance-rewrite failed (keeping original):', err.message);
     }
-    // Telegram message limit is 4096 chars. Chunk on per-result
-    // boundaries (lines starting "/^\d+\. /") so a single venue
-    // never spans messages.
-    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
-    for (const c of chunks) {
-      await safeSend(chatId, c, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      });
-    }
+    // v0.61.319 — render the SAME rich venue card as /search free-text
+    // (+ "📝 Latest review", − "💎 Why a gem"). Anchor = the cached GPS
+    // lat/lng. The distance-rewrite above keeps verifiedText's prose in
+    // sync for dish-parsing; the card itself shows travel time, not prose.
+    await renderHiddenVenueCards(chatId, lang, verifiedVenues, cached.lat, cached.lng, verifiedText);
     // v0.59.6: one-map button for all 5 picks (post-list). Reuses the
     // Places-API lat/lng captured during verification — only renders
     // when at least 2 picks resolved (single venue is already its own
