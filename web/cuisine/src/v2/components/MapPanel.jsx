@@ -388,6 +388,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // (a userLoc / searchCenter change with the same `venues`) keeps the
   // user's zoom. `lastFitVenuesRef` tracks the venues array last fitted.
   const lastFitVenuesRef = useRef(null);
+  // v0.61.320 — track the last searchCenter we centred on. A city pick in
+  // OTHER mode is noAutoFire: it moves `searchCenter` but NOT `venues`, so
+  // the centroid-of-venues branch below kept the camera on the prior area's
+  // pins and the map never followed the pick. When searchCenter changes
+  // without a new `venues` array, recentre on the picked anchor directly.
+  const lastSearchCenterRef = useRef(null);
   function syncMarkers() {
     if (!mapRef.current || !window.google?.maps) return;
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
@@ -590,14 +596,33 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       }
       if (!center) center = searchCenter || userLoc;
 
+      // v0.61.320 — did the search anchor move since our last sync? (OTHER
+      // city pick / /location override with the SAME venues array.)
+      const scLat = searchCenter?.lat;
+      const scLng = searchCenter?.lng;
+      const searchCenterChanged = Number.isFinite(scLat) && Number.isFinite(scLng)
+        && (lastSearchCenterRef.current?.lat !== scLat || lastSearchCenterRef.current?.lng !== scLng);
+
       if (center) {
         if (lastFitVenuesRef.current !== venues) {
+          // New result set → frame its centroid at z11 (existing behaviour).
           lastFitVenuesRef.current = venues;
           mapRef.current.setCenter(center);
           mapRef.current.setZoom(11);
+        } else if (searchCenterChanged) {
+          // v0.61.320 — anchor picked but no fresh search yet: follow the
+          // pick to the city centre instead of sitting on the stale venue
+          // centroid. City-level zoom so the user sees they've moved.
+          mapRef.current.setCenter({ lat: scLat, lng: scLng });
+          if (mapRef.current.getZoom && mapRef.current.getZoom() > 13) {
+            mapRef.current.setZoom(13);
+          }
         } else {
           mapRef.current.panTo(center);
         }
+      }
+      if (Number.isFinite(scLat) && Number.isFinite(scLng)) {
+        lastSearchCenterRef.current = { lat: scLat, lng: scLng };
       }
     }
   }

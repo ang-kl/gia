@@ -1197,22 +1197,27 @@ export default function App() {
   }, []);
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
-    if (!userLoc) return;
-    // v0.60.119 — locationAnchor (the location the user explicitly
-    // picked in the Search-criteria builder, or a /cuisine deep-link)
-    // wins over the device / cached /location pin. Without it, a
-    // searchCenter that got nulled (e.g. on a TMA background/restore)
-    // silently fell back to userLoc, so the user's chosen location
-    // "reset" itself. Now an explicit pick sticks until the user
-    // clears it or picks another.
+    // v0.61.320 — SINGLE SOURCE OF TRUTH for the search location, and
+    // never a silent no-op. Previously this opened with `if (!userLoc)
+    // return` — device GPS was the gate. In OTHER mode (foreign city
+    // picked via the Country/City cascade) device GPS is often null, so
+    // the 🔍 tap returned with no request, no loading, no error — a
+    // silent dead search. The user's CHOSEN location lives in
+    // searchCenter / locationAnchor, not userLoc. Resolve the center from
+    // those first (device GPS is only the last fallback) and proceed
+    // whenever ANY of them is valid; only bail with a VISIBLE error when
+    // nothing is resolvable.
+    // v0.60.119 — an explicit pick (locationAnchor) wins over the cached
+    // device pin so a nulled searchCenter (TMA background/restore) can't
+    // reset the user's chosen location.
     const center = anchor || searchCenter || locationAnchor || userLoc;
-    // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}. Server
-    // now 400s on zero-coord but the user would see a confusing error;
-    // surfacing a clearer message client-side is friendlier.
+    // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}.
     if (!Number.isFinite(center?.lat) || !Number.isFinite(center?.lng)
         || (Math.abs(center.lat) < 0.001 && Math.abs(center.lng) < 0.001)) {
-      console.warn('[Cuisine-TMA-v2] runSearch: refusing zero/invalid center', center);
-      setError('Location not yet resolved — share a pin via /location and reopen.');
+      console.warn('[Cuisine-TMA-v2] runSearch: no resolvable location', { center, userLoc, searchCenter, locationAnchor });
+      setError(state.region === 'OTHER'
+        ? 'Pick a country and city above, then tap 🔍.'
+        : 'Location not yet resolved — share a pin via /location and reopen.');
       return;
     }
     // v0.60.188 — operator: when the previous search returned fewer

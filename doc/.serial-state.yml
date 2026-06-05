@@ -1,8 +1,8 @@
 counters:
-  commit: 533
-  build: 320
+  commit: 534
+  build: 321
   documents:
-    journal: 520
+    journal: 521
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 05-06 '26 16:53 SGT
-last_anchor_source: derived_from_v0_61_319_hidden_rich_card (operator 05-06 '26: "make /hidden render the SAME rich venue card as /search free-text … PLUS a 📝 latest-review-date line, and DROP the 💎 Why a gem prose"; /hidden now builds formatTechniqueVenueBlock from the existing Places verifier fields + newestReviewIso, stops sending Gemini's "Why a gem" prose)
-last_anchor_iso8601: 2026-06-05T16:53:00+08:00
-last_anchor_utc: 2026-06-05T08:53:00Z
+last_anchor_time: 05-06 '26 17:11 SGT
+last_anchor_source: derived_from_v0_61_320_cuisine_other_mode_location_bugs (operator 05-06 '26 bug report: OTHER-mode map doesn't recentre on a city pick, and a second search silently no-ops; fixed MapPanel to recentre on searchCenter when the anchor moves without a fresh result set, and removed runSearch's silent `if(!userLoc) return` so search runs on the resolved SSOT center with a visible error otherwise)
+last_anchor_iso8601: 2026-06-05T17:11:00+08:00
+last_anchor_utc: 2026-06-05T09:11:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
