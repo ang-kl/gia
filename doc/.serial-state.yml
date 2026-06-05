@@ -1,8 +1,8 @@
 counters:
-  commit: 536
-  build: 323
+  commit: 537
+  build: 324
   documents:
-    journal: 523
+    journal: 524
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 05-06 '26 18:13 SGT
-last_anchor_source: derived_from_v0_61_322_splash_gate (operator 05-06 '26: confirmed the FULL SPLASH GATE — "check before load" — so the TMA body never renders under a coherence modal; early-return splash + extracted locationModals + gate-opener effect; also closed the v0.61.321 "Keep + overseas flag" gap so applyAnchorCoherenceChoice("Keep") flips region/flag/countryPref to the kept spot's true country and fires a fresh search — no more JP-name-under-SG-flag)
-last_anchor_iso8601: 2026-06-05T18:13:00+08:00
-last_anchor_utc: 2026-06-05T10:13:00Z
+last_anchor_time: 05-06 '26 18:35 SGT
+last_anchor_source: derived_from_v0_61_323_boot_load_defer (operator 05-06 '26: live bug — entered Cuisine TMA via Menu TMA, anchor modal appeared, chose "Keep JP" but the list showed 5 SG venues; Railway log shows a region=SG search at device GPS fired BEFORE /api/cuisine/user-location loaded the JP anchor. Root cause: v0.61.322 gated only the visuals — the boot venue load still fired at raw GPS under the splash. Fix: removed the auto-detect effect's direct runSearch, extracted the warm-start/deep-link/fallback body into runInitialLoad(), added initialLoadFiredRef; the gate-opener now fires the single boot load after the gate opens; applyAnchorCoherenceChoice claims the ref so Keep-JP / Use-current never double-fire and never load SG)
+last_anchor_iso8601: 2026-06-05T18:35:00+08:00
+last_anchor_utc: 2026-06-05T10:35:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
