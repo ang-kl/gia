@@ -33,8 +33,59 @@ const axios = require('axios');
 const { filterDishNames } = require('./dish-name');
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
-const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus';
+// v0.61.318 — added places.reviews so we can read each review's publishTime
+// and refute false "newly opened" claims (see oldestReviewMonths + the
+// newness-refute step in verifyHiddenGemsOutput).
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.reviews';
 const REQUEST_TIMEOUT_MS = 6000;
+
+// v0.61.318 — newness-refute thresholds (operator: new = opened 3 months
+// or less). A Google review can only be posted AFTER a venue opens, so if
+// the OLDEST review Places returns is older than this, the venue is not
+// newly opened — Gemini's C1 claim is false. This only *refutes* newness;
+// recent-only reviews prove nothing (Places returns ≤5 reviews).
+const NEW_CLAIM_MAX_REVIEW_MONTHS = 3;
+// A venue with this many reviews can only have survived the "300+ reviews
+// UNLESS newly opened" exclusion via the C1 (new) exception. If newness is
+// then refuted, it is neither new nor under-reviewed → drop it.
+const WELL_KNOWN_REVIEW_FLOOR = 300;
+const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30.44;
+
+// Oldest of the (≤5) reviews Places returns, expressed in months-ago.
+// Returns null when there are no parseable review timestamps.
+function oldestReviewMonths(reviews) {
+  if (!Array.isArray(reviews) || !reviews.length) return null;
+  let oldestMs = null;
+  for (const r of reviews) {
+    const t = r && r.publishTime ? Date.parse(r.publishTime) : NaN;
+    if (Number.isFinite(t) && (oldestMs === null || t < oldestMs)) oldestMs = t;
+  }
+  if (oldestMs === null) return null;
+  return Math.max(0, (Date.now() - oldestMs) / MS_PER_MONTH);
+}
+
+// Remove a refuted "newly opened" claim from a prose line without mangling
+// the rest of the sentence. No-ops (returns the line unchanged) when no
+// opening claim is present, so it is safe to run on every line.
+function stripOpeningClaim(line) {
+  if (typeof line !== 'string') return line;
+  let out = line
+    // "opened in March 2026", "opened March 2026", "opened in 2026",
+    // "opened in early 2026", "opened 3 months ago", "opened earlier this year"
+    .replace(/,?\s*(?:newly|recently|just)?\s*opened(?:\s+in)?\s+(?:(?:early|mid|late)\s+)?(?:[A-Z][a-z]+\s+\d{4}|\d{4}|\d+\s+(?:weeks?|months?)\s+ago|earlier this (?:month|year))/gi, '')
+    // bare "newly/recently/just opened"
+    .replace(/,?\s*(?:newly|recently|just)\s+opened\b/gi, '')
+    .replace(/,?\s*new opening\b/gi, '');
+  // tidy the seams a strip can leave behind
+  out = out
+    .replace(/\s{2,}/g, ' ')
+    .replace(/,\s*,/g, ',')
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*\./g, '.')
+    .replace(/\(\s*\)/g, '')
+    .trim();
+  return out;
+}
 
 // Look up a single venue by name + (optional) address. Returns
 // { id, name, rating, userRatingCount } or null.
@@ -170,6 +221,9 @@ async function lookupVenue(name, address = '') {
       lng: chosen.location?.longitude ?? null,
       rating: typeof chosen.rating === 'number' ? chosen.rating : null,
       userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null,
+      // v0.61.318: oldest of the returned reviews in months-ago (null when
+      // none parseable). Used to refute false "newly opened" claims.
+      oldestReviewMonths: oldestReviewMonths(chosen.reviews),
       // v0.59.7: status field used by verifyHiddenGemsOutput to drop
       // venues that Gemini's grounded search included despite being
       // CLOSED_TEMPORARILY / CLOSED_PERMANENTLY. Treat absence as
@@ -302,6 +356,14 @@ function applyVerified(block, verified) {
     return proseLine;
   });
   }
+  // v0.61.318 — if the venue's oldest review refutes a "newly opened"
+  // claim, strip that wording. A venue kept here still qualified via C3 /
+  // C2 / C4, but it is not new — so we must not show a false opening claim.
+  // stripOpeningClaim no-ops on lines without an opening claim.
+  const om = verified && verified.oldestReviewMonths;
+  if (Number.isFinite(om) && om > NEW_CLAIM_MAX_REVIEW_MONTHS) {
+    lines = lines.map(stripOpeningClaim);
+  }
   // DF-111 — dish-validate the "🍴 Try ·" line; drop it if no real
   // dish name survives.
   return lines.map(filterTryLine).filter((l) => l !== null);
@@ -365,6 +427,19 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
       const status = lookup.businessStatus || 'OPERATIONAL';
       if (status !== 'OPERATIONAL') {
         console.log(`[hidden-verify] dropping non-OPERATIONAL venue: "${lookup.name}" (${status})`);
+        return false;
+      }
+      // v0.61.318 — newness-refute drop. A venue with 300+ reviews can only
+      // have survived the "300+ reviews UNLESS newly opened" exclusion via
+      // the C1 (new) exception. If its OLDEST returned review predates the
+      // 3-month window, C1 is false → it is neither new nor under-reviewed,
+      // so drop it. Feeds allDropped + the Tier-2/Tier-3 retry ladder, same
+      // as the distance/closed filters.
+      const om = lookup.oldestReviewMonths;
+      if (Number.isFinite(om) && om > NEW_CLAIM_MAX_REVIEW_MONTHS
+          && Number.isFinite(lookup.userRatingCount)
+          && lookup.userRatingCount >= WELL_KNOWN_REVIEW_FLOOR) {
+        console.log(`[hidden-verify] newness-refuted drop: "${lookup.name}" oldestReview=${om.toFixed(1)}mo reviews=${lookup.userRatingCount} (not new, not under-reviewed)`);
         return false;
       }
       return true;
@@ -497,5 +572,8 @@ module.exports = {
   dropBlocksByName,
   lookupVenue,
   rewriteDistanceClaims,
-  formatHumanDistance
+  formatHumanDistance,
+  // v0.61.318 — exported for unit tests of the newness-refute logic.
+  oldestReviewMonths,
+  stripOpeningClaim
 };
