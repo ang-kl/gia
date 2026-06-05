@@ -1,8 +1,8 @@
 counters:
-  commit: 535
-  build: 322
+  commit: 536
+  build: 323
   documents:
-    journal: 522
+    journal: 523
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 05-06 '26 17:36 SGT
-last_anchor_source: derived_from_v0_61_321_anchor_device_coherence (operator 05-06 '26: live repro of the stale-name bug — "Naka Ward" Japanese ward shown with a 🇸🇬 flag while the server searched SG coords; added a third coherence check, sibling of v0.61.274/276, that prompts the user when the saved locationAnchor sits >150 km from the device, instead of silently showing a mismatched name+flag)
-last_anchor_iso8601: 2026-06-05T17:36:00+08:00
-last_anchor_utc: 2026-06-05T09:36:00Z
+last_anchor_time: 05-06 '26 18:13 SGT
+last_anchor_source: derived_from_v0_61_322_splash_gate (operator 05-06 '26: confirmed the FULL SPLASH GATE — "check before load" — so the TMA body never renders under a coherence modal; early-return splash + extracted locationModals + gate-opener effect; also closed the v0.61.321 "Keep + overseas flag" gap so applyAnchorCoherenceChoice("Keep") flips region/flag/countryPref to the kept spot's true country and fires a fresh search — no more JP-name-under-SG-flag)
+last_anchor_iso8601: 2026-06-05T18:13:00+08:00
+last_anchor_utc: 2026-06-05T10:13:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
