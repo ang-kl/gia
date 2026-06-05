@@ -691,6 +691,16 @@ export default function App() {
   // Fires once per mount, after userLoc resolves AND state.countryPref
   // has had a chance to load from Redis. Compares coords-derived
   // country (SG / MY / null) against the saved countryPref.
+  // v0.61.322 — FULL SPLASH GATE. The TMA body must not render until all
+  // three coherence checks below have evaluated and any mismatch modal the
+  // user must answer has been dismissed. `locationGateOpen` flips true once
+  // checks have run with no modal pending; until then the early-return at
+  // the bottom shows a "Confirming your location…" splash (+ the modal, if
+  // a mismatch is up). `modalPendingRef` tracks whether a coherence modal is
+  // currently demanding a user choice, so the gate stays shut behind it.
+  const [locationGateOpen, setLocationGateOpen] = useState(false);
+  const modalPendingRef = useRef(false);
+
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
   useEffect(() => {
@@ -709,6 +719,7 @@ export default function App() {
     }
     if (state.countryPref !== coordsCountry) {
       setCoherenceMismatch({ saved: state.countryPref, coords: coordsCountry });
+      modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
       console.log(`[Cuisine-TMA-v2] coherence MISMATCH saved=${state.countryPref} coords=${coordsCountry}`);
     }
     coherenceCheckedRef.current = true;
@@ -729,6 +740,7 @@ export default function App() {
       // Persist the discard so the next session doesn't repeat the prompt.
       saveCountryPref(coherenceMismatch.coords).catch(() => {});
     }
+    modalPendingRef.current = false;  // v0.61.322 — release the splash gate
     setCoherenceMismatch(null);
   }
 
@@ -768,6 +780,7 @@ export default function App() {
         && isJbCoords(locationAnchor)) return;
     const coordsCountry = coordsToCountry(userLoc);  // 'SG' / 'MY' / null
     setRegionMismatch({ coordsCountry });
+    modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
     console.log(`[Cuisine-TMA-v2] region/coords MISMATCH: region=JB but coords=${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)} (country guess=${coordsCountry || '?'})`);
     regionCoherenceCheckedRef.current = true;
   }, [userLoc?.lat, userLoc?.lng, state.region, locationAnchor?.lat, locationAnchor?.lng]);
@@ -784,6 +797,7 @@ export default function App() {
         countryPref: (target === 'OTHER' && regionMismatch.coordsCountry === 'MY') ? 'MY' : s.countryPref
       }));
     }
+    modalPendingRef.current = false;  // v0.61.322 — release the splash gate
     setRegionMismatch(null);
   }
 
@@ -819,9 +833,27 @@ export default function App() {
     const km = 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
     if (km <= 150) { anchorCoherenceCheckedRef.current = true; return; }
     setAnchorMismatch({ anchorName: a.name.trim(), deviceCountry: coordsToCountry(userLoc) });
+    modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
     console.log(`[Cuisine-TMA-v2] anchor/device MISMATCH: anchor="${a.name}" (${a.lat.toFixed(2)},${a.lng.toFixed(2)}) is ${km.toFixed(0)}km from device (${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)})`);
     anchorCoherenceCheckedRef.current = true;
   }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
+
+  // v0.61.322 — splash-gate opener. Declared AFTER all three coherence
+  // checks above so their one-shot *CheckedRefs are already set (synchronously,
+  // same commit) by the time this runs. Opens the gate once the device coords
+  // are known, all applicable checks have evaluated, and no mismatch modal is
+  // pending a choice. The mismatch states are in deps so dismissing a modal
+  // (which clears modalPendingRef in the apply* fns) re-runs this and opens
+  // the gate → the TMA body finally renders, with location already reconciled.
+  useEffect(() => {
+    if (locationGateOpen) return;
+    if (!userLoc?.lat || !userLoc?.lng) return;                 // wait for device
+    const ran = coherenceCheckedRef.current && anchorCoherenceCheckedRef.current
+      && (state.region === 'JB' ? regionCoherenceCheckedRef.current : true);
+    if (!ran) return;
+    if (modalPendingRef.current) return;                        // a modal is up → stay gated
+    setLocationGateOpen(true);
+  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
@@ -834,25 +866,67 @@ export default function App() {
       if (userLoc && Number.isFinite(userLoc.lat) && Number.isFinite(userLoc.lng)) {
         setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
         const c = coordsToCountry(userLoc);
+        // v0.61.322 — build an explicit state delta so we can fire a fresh
+        // search at the device location WITHOUT racing the queued setState
+        // (mirrors the auto-detect `snap = {...state, ...stateDelta}` pattern).
+        const stateDelta = {};
         if (c === 'SG') {
-          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+          stateDelta.region = 'SG';
         } else if (c === 'MY') {
           const target = isJbCoords(userLoc) ? 'JB' : 'OTHER';
-          setState((s) => {
-            if (s.region === target) return s;
-            const next = { ...s, region: target };
-            if (target === 'OTHER') next.countryPref = 'MY';
-            return next;
-          });
+          stateDelta.region = target;
+          if (target === 'OTHER') stateDelta.countryPref = 'MY';
         }
+        if (Object.keys(stateDelta).length) setState((s) => ({ ...s, ...stateDelta }));
         saveUserLocation({ lat: userLoc.lat, lng: userLoc.lng }).catch(() => {});
+        if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
+        // v0.61.322 — fire a fresh search for the device location so the
+        // 5 venues match the new region (previously only searchCenter moved;
+        // the result list could stay on the stale-anchor search).
+        const snap = { ...state, ...stateDelta };
+        runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng });
       }
     } else if (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng)) {
-      // "Keep saved spot" → align the search centre to the kept anchor so
-      // the displayed name and the results agree (region left as-is; the
-      // user explicitly chose to keep the overseas spot).
-      setSearchCenter({ lat: locationAnchor.lat, lng: locationAnchor.lng });
+      // v0.61.322 — "Keep saved spot" now commits FULLY to the kept spot.
+      // Operator: *"if i keep to JP, the location should change, but still
+      // show Downtown Cove. it is confusing."* Previously this only moved
+      // searchCenter and left region/flag = SG, so a JP place rendered under
+      // a 🇸🇬 flag (name says Japan, flag says SG → incoherent). Keep the
+      // anchor name (correct to display) but flip region/flag/countryPref to
+      // the kept spot's actual country, and fire a fresh search there so
+      // name + flag + map + results all agree.
+      const anchor = locationAnchor;
+      setSearchCenter({ lat: anchor.lat, lng: anchor.lng });
+      const c = coordsToCountry(anchor);  // 'SG' / 'MY' / null
+      const stateDelta = {};
+      if (c === 'SG') {
+        stateDelta.region = 'SG';
+      } else if (c === 'MY') {
+        const target = isJbCoords(anchor) ? 'JB' : 'OTHER';
+        stateDelta.region = target;
+        if (target === 'OTHER') stateDelta.countryPref = 'MY';
+      } else {
+        // Overseas (coordsToCountry returns null outside SG/MY bbox) — resolve
+        // the kept spot's country from the nearest IATA city so the OTHER
+        // picker shows the right flag (e.g. JP for "Naka Ward"/"Downtown Cove").
+        const near = nearestIataCity(anchor.lat, anchor.lng);
+        const cc = near?.city?.countryCode;
+        const OTHER_SUPPORTED = new Set(OTHER_COUNTRIES.map((o) => o.code));
+        if (cc && OTHER_SUPPORTED.has(cc)) {
+          stateDelta.region = 'OTHER';
+          stateDelta.countryPref = cc;
+        } else {
+          // Unresolvable country → still leave SG behind; OTHER is the safest
+          // non-SG fallback so the 🇸🇬 flag never sits over an overseas name.
+          stateDelta.region = 'OTHER';
+        }
+      }
+      setState((s) => ({ ...s, ...stateDelta }));
+      if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
+      const snap = { ...state, ...stateDelta };
+      runSearch(snap, { lat: anchor.lat, lng: anchor.lng });
     }
+    modalPendingRef.current = false;  // v0.61.322 — release the splash gate
     setAnchorMismatch(null);
   }
 
@@ -1838,26 +1912,15 @@ export default function App() {
   // variants for grid columns, side-by-side map+results, etc.
   // v0.60.49 — bumped 1024 → 1280 in lock-step with #root cap in
   // styles.css so wide windows actually use the extra width.
-  return (
-    <div
-      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
-      style={{
-        // v0.59.20: use Telegram's stable viewport variable so the
-        // container tracks the *visible* iframe height, not the buggy
-        // 100vh that iPad WebView resolves to the full sheet (including
-        // Telegram's bottom chrome) and leaves a drag-up gap.
-        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)'
-      }}
-    >
-      {/* v0.61.285 — fun-fact modal during the rotating-search wait
-          window. NLB-sourced food-history facts replace the generic
-          "still loading" rotating-titles. Visible only when a fact
-          has been picked (1.5 s into a rotating search); the modal
-          itself enforces a 3 s on-screen minimum so a fast search
-          doesn't yank it mid-sentence. */}
-      <FunFactModal fact={funFact} visible={loading && !!funFact} />
 
+  // v0.61.322 — the three coherence-modal blocks, extracted into a single
+  // fragment so both the splash-gate early-return AND the main return can
+  // render them. Operator-confirmed FULL SPLASH GATE: until the location is
+  // confirmed, the user sees ONLY the "Confirming your location…" splash
+  // (+ any mismatch modal that needs a choice) — never a half-loaded TMA
+  // sitting under the modal.
+  const locationModals = (
+    <>
       {/* v0.61.274 — location coherence modal (audit "first-paint
           incoherent location set vs saved"). Renders when the saved
           countryPref disagrees with the GPS-derived country. Two
@@ -1992,6 +2055,53 @@ export default function App() {
           </div>
         </div>
       )}
+    </>
+  );
+
+  // v0.61.322 — splash gate. Until location is confirmed, render ONLY the
+  // splash + (if needed) the coherence modal. EXACT same outer className +
+  // style as the main return so the layout is identical and there's no flash.
+  if (!locationGateOpen) {
+    return (
+      <div
+        className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
+        style={{
+          minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0)'
+        }}
+      >
+        {locationModals}
+        <div className="flex flex-col items-center justify-center gap-3 py-24 text-center" role="status" aria-live="polite">
+          <div className="h-8 w-8 rounded-full border-2 border-tg-hint/30 border-t-tg-accent animate-spin" aria-hidden />
+          <div className="text-sm text-tg-hint">{lang === 'fr' ? 'Confirmation de votre position…' : 'Confirming your location…'}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
+      style={{
+        // v0.59.20: use Telegram's stable viewport variable so the
+        // container tracks the *visible* iframe height, not the buggy
+        // 100vh that iPad WebView resolves to the full sheet (including
+        // Telegram's bottom chrome) and leaves a drag-up gap.
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
+    >
+      {/* v0.61.285 — fun-fact modal during the rotating-search wait
+          window. NLB-sourced food-history facts replace the generic
+          "still loading" rotating-titles. Visible only when a fact
+          has been picked (1.5 s into a rotating search); the modal
+          itself enforces a 3 s on-screen minimum so a fast search
+          doesn't yank it mid-sentence. */}
+      <FunFactModal fact={funFact} visible={loading && !!funFact} />
+
+      {/* v0.61.322 — the three coherence modals (extracted above into
+          `locationModals`, shared with the splash-gate early-return). */}
+      {locationModals}
       <header className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
