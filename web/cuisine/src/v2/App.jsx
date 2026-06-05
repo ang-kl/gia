@@ -857,9 +857,18 @@ export default function App() {
   useEffect(() => {
     if (locationGateOpen) return;
     if (!userLoc?.lat || !userLoc?.lng) return;                 // wait for device
-    const ran = coherenceCheckedRef.current && anchorCoherenceCheckedRef.current
-      && (state.region === 'JB' ? regionCoherenceCheckedRef.current : true);
-    if (!ran) return;
+    // v0.61.324 — HANG FIX. This previously hard-required the three
+    // coherence *CheckedRefs, but those checks `return` early WITHOUT
+    // setting their ref on legitimate "nothing to flag" paths: no
+    // countryPref, no saved anchor, or device coords outside the SG/MY
+    // bbox (e.g. the user is physically in Japan → coordsToCountry null).
+    // Any of those left a ref false forever → the gate never opened → the
+    // splash hung and, after v0.61.323 deferred the search to the gate, NO
+    // search ever fired (operator: "currently is hang"). The three checks
+    // are declared BEFORE this effect, so on the commit where userLoc
+    // resolves they run first and set modalPendingRef synchronously if they
+    // raise a modal. Gating on userLoc + modalPendingRef alone is therefore
+    // sufficient to wait for a genuine mismatch and can never deadlock.
     if (modalPendingRef.current) return;                        // a modal is up → stay gated
     setLocationGateOpen(true);
     // v0.61.323 — the gate is now the single place the boot venue list is
