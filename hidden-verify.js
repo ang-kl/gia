@@ -36,7 +36,14 @@ const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
 // v0.61.318 — added places.reviews so we can read each review's publishTime
 // and refute false "newly opened" claims (see oldestReviewMonths + the
 // newness-refute step in verifyHiddenGemsOutput).
-const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.reviews';
+// v0.61.319 — /hidden now renders the SAME rich venue card as /search
+// free-text (formatTechniqueVenueBlock). The extra card fields ride this
+// EXISTING places:searchText verifier call (no new request): googleMapsUri,
+// primaryType(+DisplayName), opening hours, website, phone, price level,
+// editorialSummary. We also read the NEWEST review's publishTime for the
+// "📝 Latest review ·" card line (places.reviews already requested for the
+// newness-refute step below).
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.reviews,places.googleMapsUri,places.primaryType,places.primaryTypeDisplayName,places.regularOpeningHours.weekdayDescriptions,places.websiteUri,places.nationalPhoneNumber,places.priceLevel,places.editorialSummary';
 const REQUEST_TIMEOUT_MS = 6000;
 
 // v0.61.318 — newness-refute thresholds (operator: new = opened 3 months
@@ -62,6 +69,20 @@ function oldestReviewMonths(reviews) {
   }
   if (oldestMs === null) return null;
   return Math.max(0, (Date.now() - oldestMs) / MS_PER_MONTH);
+}
+
+// v0.61.319 — newest (most recent) review publishTime across the (≤5)
+// reviews Places returns, as an ISO string. Powers the "📝 Latest review ·"
+// card line. Returns null when there are no parseable review timestamps.
+function newestReviewIso(reviews) {
+  if (!Array.isArray(reviews) || !reviews.length) return null;
+  let newestMs = null;
+  for (const r of reviews) {
+    const t = r && r.publishTime ? Date.parse(r.publishTime) : NaN;
+    if (Number.isFinite(t) && (newestMs === null || t > newestMs)) newestMs = t;
+  }
+  if (newestMs === null) return null;
+  return new Date(newestMs).toISOString();
 }
 
 // Remove a refuted "newly opened" claim from a prose line without mangling
@@ -224,6 +245,19 @@ async function lookupVenue(name, address = '') {
       // v0.61.318: oldest of the returned reviews in months-ago (null when
       // none parseable). Used to refute false "newly opened" claims.
       oldestReviewMonths: oldestReviewMonths(chosen.reviews),
+      // v0.61.319 — newest review timestamp (ISO) for the "📝 Latest review ·"
+      // card line; null when no parseable review timestamps.
+      newestReviewIso: newestReviewIso(chosen.reviews),
+      // v0.61.319 — extra fields for the shared rich venue card
+      // (formatTechniqueVenueBlock). All ride this existing call.
+      googleMapsUri: chosen.googleMapsUri || '',
+      primaryType: chosen.primaryType || '',
+      primaryTypeDisplayName: chosen.primaryTypeDisplayName?.text || '',
+      weekdayDescriptions: chosen.regularOpeningHours?.weekdayDescriptions || [],
+      websiteUri: chosen.websiteUri || '',
+      nationalPhoneNumber: chosen.nationalPhoneNumber || '',
+      priceLevel: chosen.priceLevel || '',
+      editorialSummary: chosen.editorialSummary?.text || '',
       // v0.59.7: status field used by verifyHiddenGemsOutput to drop
       // venues that Gemini's grounded search included despite being
       // CLOSED_TEMPORARILY / CLOSED_PERMANENTLY. Treat absence as
@@ -575,5 +609,7 @@ module.exports = {
   formatHumanDistance,
   // v0.61.318 — exported for unit tests of the newness-refute logic.
   oldestReviewMonths,
-  stripOpeningClaim
+  stripOpeningClaim,
+  // v0.61.319 — exported for unit tests of the latest-review-date line.
+  newestReviewIso
 };

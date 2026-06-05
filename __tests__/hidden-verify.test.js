@@ -560,3 +560,38 @@ describe('newness-refute (v0.61.318)', () => {
     expect(result.text).toMatch(/opened in January 2026/i);
   });
 });
+
+// v0.61.319 — /hidden now renders the SAME rich venue card as /search, with
+// a "📝 Latest review ·" line derived from the NEWEST review publishTime, and
+// the fabricable "💎 Why a gem" prose DROPPED (we no longer send Gemini text).
+describe('newestReviewIso (v0.61.319)', () => {
+  const { newestReviewIso } = require('../hidden-verify.js');
+
+  it('returns the MAX (newest) publishTime across mixed reviews', () => {
+    const reviews = [
+      { publishTime: '2026-01-10T00:00:00Z' },
+      { publishTime: '2026-05-20T00:00:00Z' }, // newest
+      { publishTime: '2026-03-01T00:00:00Z' }
+    ];
+    expect(newestReviewIso(reviews)).toBe(new Date('2026-05-20T00:00:00Z').toISOString());
+  });
+
+  it('returns null when there are no reviews', () => {
+    expect(newestReviewIso([])).toBeNull();
+    expect(newestReviewIso(null)).toBeNull();
+    expect(newestReviewIso(undefined)).toBeNull();
+  });
+
+  it('ignores unparseable timestamps and uses the newest valid one', () => {
+    const reviews = [
+      { publishTime: 'not-a-date' },
+      { publishTime: '2026-02-14T00:00:00Z' },
+      {}
+    ];
+    expect(newestReviewIso(reviews)).toBe(new Date('2026-02-14T00:00:00Z').toISOString());
+  });
+
+  it('returns null when no timestamp is parseable', () => {
+    expect(newestReviewIso([{ publishTime: 'x' }, {}])).toBeNull();
+  });
+});
