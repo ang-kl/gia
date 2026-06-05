@@ -787,6 +787,75 @@ export default function App() {
     setRegionMismatch(null);
   }
 
+  // v0.61.321 — anchor/device coherence (third sibling of the v0.61.274
+  // country-coords + v0.61.276 region-coords checks). Operator report
+  // (05-06 '26): the location showed "Naka Ward" (a Japanese ward) with a
+  // 🇸🇬 flag while the server searched SG coords. Root cause: a stale
+  // locationAnchor cached from a prior overseas session (name + coords)
+  // survived a GPS/region flip to SG — the banner name comes from
+  // locationAnchor.name verbatim (App.jsx:386), so name says Japan while
+  // region/flag/search are SG. The v0.61.274/276 checks compare coords vs
+  // region/countryPref and miss this (coords=SG and region=SG agree). Here
+  // we compare the ANCHOR's own location against the device: if the saved
+  // anchor sits far from where the device actually is, prompt the user
+  // (same modal UX as v0.61.274) instead of silently showing a mismatched
+  // name+flag. Distance-gated >150 km so the daily SG↔JB border crossing
+  // (its own v0.61.276 check) never triggers this, and fires once per
+  // mount so a deliberate mid-session overseas pick isn't nagged.
+  const anchorCoherenceCheckedRef = useRef(false);
+  const [anchorMismatch, setAnchorMismatch] = useState(null);
+  useEffect(() => {
+    if (anchorCoherenceCheckedRef.current) return;
+    if (!userLoc?.lat || !userLoc?.lng) return;       // wait for device resolution
+    const a = locationAnchor;
+    if (!a || !Number.isFinite(a.lat) || !Number.isFinite(a.lng)) return;  // no anchor yet
+    if (!(a.name || '').trim()) return;               // no displayed name → nothing misleading
+    // Great-circle distance anchor↔device (km).
+    const toRad = (d) => d * Math.PI / 180;
+    const dLat = toRad(a.lat - userLoc.lat);
+    const dLng = toRad(a.lng - userLoc.lng);
+    const h = Math.sin(dLat / 2) ** 2
+      + Math.cos(toRad(userLoc.lat)) * Math.cos(toRad(a.lat)) * Math.sin(dLng / 2) ** 2;
+    const km = 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+    if (km <= 150) { anchorCoherenceCheckedRef.current = true; return; }
+    setAnchorMismatch({ anchorName: a.name.trim(), deviceCountry: coordsToCountry(userLoc) });
+    console.log(`[Cuisine-TMA-v2] anchor/device MISMATCH: anchor="${a.name}" (${a.lat.toFixed(2)},${a.lng.toFixed(2)}) is ${km.toFixed(0)}km from device (${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)})`);
+    anchorCoherenceCheckedRef.current = true;
+  }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
+
+  function applyAnchorCoherenceChoice(useDevice) {
+    if (!anchorMismatch) return;
+    if (useDevice) {
+      // Drop the stale overseas anchor and re-anchor on the device; flip
+      // region to match the device coords. Banner re-resolves the real
+      // name (anchorActive=false → reverse-geocode userLoc); map + search
+      // follow searchCenter=userLoc.
+      setLocationAnchor(null);
+      if (userLoc && Number.isFinite(userLoc.lat) && Number.isFinite(userLoc.lng)) {
+        setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
+        const c = coordsToCountry(userLoc);
+        if (c === 'SG') {
+          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+        } else if (c === 'MY') {
+          const target = isJbCoords(userLoc) ? 'JB' : 'OTHER';
+          setState((s) => {
+            if (s.region === target) return s;
+            const next = { ...s, region: target };
+            if (target === 'OTHER') next.countryPref = 'MY';
+            return next;
+          });
+        }
+        saveUserLocation({ lat: userLoc.lat, lng: userLoc.lng }).catch(() => {});
+      }
+    } else if (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng)) {
+      // "Keep saved spot" → align the search centre to the kept anchor so
+      // the displayed name and the results agree (region left as-is; the
+      // user explicitly chose to keep the overseas spot).
+      setSearchCenter({ lat: locationAnchor.lat, lng: locationAnchor.lng });
+    }
+    setAnchorMismatch(null);
+  }
+
   // v0.61.186 — re-fetch the server-cached user-location when the
   // TMA becomes visible again. Operator pain point: setting the
   // location to Putrajaya via chat /location, then switching back
@@ -1876,6 +1945,48 @@ export default function App() {
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
               >
                 {lang === 'fr' ? 'Rester sur JB' : 'Stay on JB'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* v0.61.321 — anchor/device coherence modal. Fires once on mount
+          when the saved locationAnchor sits >150 km from the device — the
+          "Naka Ward (Japan) with a 🇸🇬 flag" stale-cache case. Lets the
+          user use their real current location or keep the saved spot. */}
+      {anchorMismatch && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+        >
+          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
+              <span aria-hidden>📍</span>
+              <h2 className="text-sm font-semibold flex-1">
+                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+              </h2>
+            </div>
+            <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
+              {lang === 'fr'
+                ? `Votre lieu enregistré est « ${anchorMismatch.anchorName} », mais votre appareil se trouve ailleurs${anchorMismatch.deviceCountry === 'SG' ? ' (Singapour)' : anchorMismatch.deviceCountry === 'MY' ? ' (Malaisie)' : ''}.`
+                : `Your saved spot is "${anchorMismatch.anchorName}", but your device is somewhere else${anchorMismatch.deviceCountry === 'SG' ? ' (Singapore)' : anchorMismatch.deviceCountry === 'MY' ? ' (Malaysia)' : ''}.`}
+            </div>
+            <div className="flex flex-col gap-2 px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => applyAnchorCoherenceChoice(true)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
+              >
+                {lang === 'fr' ? 'Utiliser ma position actuelle' : 'Use my current location'}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyAnchorCoherenceChoice(false)}
+                className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
+              >
+                {lang === 'fr' ? `Garder « ${anchorMismatch.anchorName} »` : `Keep "${anchorMismatch.anchorName}"`}
               </button>
             </div>
           </div>
