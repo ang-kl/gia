@@ -9655,7 +9655,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     exhausted,
     sessionFull: false,
     _vlog: vlogMichelinOn || undefined,
-    // v0.60.195 — michelinSummary shipped with remaining=0 so:
+    // v0.60.195 — michelinSummary always ships (object, never null) so:
     //   1. TMA's `michelinRemaining` state goes truthy (non-null) →
     //      v0.60.194's `&& !michelinRemaining` gate continues to
     //      suppress the <12 autoReset + visible hint for combo
@@ -9663,10 +9663,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     //      (Michelin + Korean might yield 4 starred entries; without
     //      this gate the TMA would loop the hint forever).
     //   2. The "📚 N more to explore — Tap 🔍 for next batch of 12"
-    //      indicator auto-hides because `remaining > 0` is false.
+    //      indicator shows iff `remaining > 0`.
+    // v0.61.335 — BUGFIX: `remaining` was hardcoded `0` in v0.60.195 when
+    // the seen-set walk was OFF, but v0.60.198 RESTORED the walk and never
+    // updated this line. The walk advanced server-side (recordWalk above)
+    // while the TMA hint stayed hidden, so a re-tap silently paged past the
+    // already-served 3-star slice — reading to the operator as "the list
+    // stopped starting from 3 stars / where are the paging controls". Now
+    // surface the TRUE remaining over the tier-ordered `ordered` pool the
+    // walk paginates, zeroed when `exhausted` so the <3-result / walk-end
+    // recycle UX is unchanged.
     michelinSummary: {
       total: allEntries.length,
-      remaining: 0,                  // walk-through disabled in v0.60.195
+      remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
       threeStar: michelin.STARS_THREE.length,
       twoStar: michelin.STARS_TWO.length,
       oneStar: michelin.STARS_ONE.length,
