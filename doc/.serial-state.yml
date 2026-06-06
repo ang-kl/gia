@@ -1,8 +1,8 @@
 counters:
-  commit: 547
-  build: 333
+  commit: 548
+  build: 334
   documents:
-    journal: 534
+    journal: 535
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 17:11 SGT
-last_anchor_source: derived_from_v0_61_334_thailand_michelin (operator 06-06 '26: Thailand Michelin — load the operator's curated instruction/Thailand.js (180 venues, already venue-centric, 2025 160 @ 1/7/28/124, 2026 180 @ 2/8/33/137, awards-sum 340) VERBATIM into TH-michelin.js (was the empty v0.61.333 stub). Add the 13 TH guide cities the data spans (Nonthaburi, Phang-Nga, Chon Buri, Khon Kaen, Ko Samui, Nakhon Pathom, Nakhon Ratchasima, Pathum Thani, Phra Nakhon Si Ayutthaya, Samut Sakhon, Surat Thani, Ubon Ratchathani, Udon Thani) to BOTH cities.js copies (web/cuisine + web/menu) and the loader CITY_IATA, and register a TH COUNTRY_MANIFEST (2025 160 / 2026 180). Side-effect: 3 new airport codes (DMK, NAK, UBP) added to both iata-cities.js copies to satisfy the cities.js→iata-cities invariant test. Full national TH coverage; loader loads clean (no dup id, every TH city resolves, manifest passes 160/180/340). Full suite 2931 green. Left OPEN for review (no auto-merge). Anchor advanced 16:38 → 17:11 SGT same day; commit/journal/build advanced 546/533/332 → 547/534/333. Version 0.61.333 → 0.61.334.)
-last_anchor_iso8601: 2026-06-06T17:11:00+08:00
-last_anchor_utc: 2026-06-06T09:11:00Z
+last_anchor_time: 06-06 '26 17:30 SGT
+last_anchor_source: derived_from_v0_61_335_michelin_paging_fix (operator 06-06 '26: "the sg michelin listing didnt start from 3 stars, also where is the paging controls?" then "2" = fix. Investigation (read-only first): BOTH complaints trace to ONE stale line — michelinSummary.remaining hardcoded 0 at index.js (set in v0.60.195 when the seen-set walk was OFF, never updated when v0.60.198 RESTORED the walk). The walk advanced server-side (recordWalk) while the TMA paging hint stayed hidden (App.jsx gate remaining>0), so a re-tap silently paged past the already-served 3-star slice — looking like the list dropped the 3 stars. Fix: remaining = exhausted ? 0 : max(0, ordered.length - totalServedThisWalk). Server-side only; no TMA build (TMA already reads remaining>0). node --check clean, michelin-data 36 tests green. Left OPEN for review. Anchor 17:11 -> 17:30 SGT same day; commit/journal/build 547/534/333 -> 548/535/334. Version 0.61.334 -> 0.61.335.)
+last_anchor_iso8601: 2026-06-06T17:30:00+08:00
+last_anchor_utc: 2026-06-06T09:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
