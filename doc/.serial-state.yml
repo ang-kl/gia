@@ -1,8 +1,8 @@
 counters:
-  commit: 545
-  build: 331
+  commit: 546
+  build: 332
   documents:
-    journal: 532
+    journal: 533
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 15:55 SGT
-last_anchor_source: derived_from_v0_61_331_venue_award_schema (operator 06-06 '26: ship venue-award-schema.v0_1 — venue-centric Michelin loader keyed on a stable `id` (dup throws) with an `awards[]` history, year/edition views, closed-venue exclusion, and an awardsDiff promotion/demotion/debut derivation; the loader normalises flat SG rows + venue-centric country files; michelin/my.js stays EMPTY pending the operator's curated 130 rows; the per-(country,year) MANIFEST count-check is GATED on a non-empty table so empty files do not break boot. ABSOLUTE guardrail: no real Michelin venue data generated — all tests use synthetic Test Cafe A style fixtures. Anchor advanced 14:15 → 15:55 SGT same day; commit/journal/build advanced 544/531/330 → 545/532/331.)
-last_anchor_iso8601: 2026-06-06T15:55:00+08:00
-last_anchor_utc: 2026-06-06T07:55:00Z
+last_anchor_time: 06-06 '26 16:38 SGT
+last_anchor_source: derived_from_v0_61_333_sg_michelin_revert (operator 06-06 '26: take Singapore Michelin 100% back to original — restore pre-v0.61.330 michelin-2025.js content (no city/country/year stamping), rename it to SG-michelin.js, and DECOUPLE it from the unified loader so it keeps its fast direct path. Rename the per-country tables to {CC}-michelin.js at the repo root and delete the michelin/ folder. Migrate the operator's curated flat Malaysia file (130 rows) into a venue-centric MY-michelin.js (70 venues; 2025 63 @ 0/1/6/56, 2026 67 @ 0/1/8/58, awards-sum 130; Sri Nirwana Maju→Nirwana rename, Heun Kee Pudu closed). Loader is venue-centric only; hasMichelinData('Singapore') is now FALSE there by design. SG stays 2025-only pending the official 2026 edition. PR #841 superseded/closed. Left OPEN for review (touches the heavily-imported SG file). Anchor advanced 15:55 → 16:38 SGT same day; commit/journal/build advanced 545/532/331 → 546/533/332. Version 0.61.331 → 0.61.333.)
+last_anchor_iso8601: 2026-06-06T16:38:00+08:00
+last_anchor_utc: 2026-06-06T08:38:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

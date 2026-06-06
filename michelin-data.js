@@ -1,27 +1,27 @@
-// michelin-data.js — v0.61.331
+// michelin-data.js — v0.61.333
 //
-// Unified Michelin loader. Merges the hand-curated Singapore dataset
-// (michelin-2025.js, FLAT rows) with the per-country tables under
-// michelin/ (venue-centric; all EMPTY today — the curator fills them
-// from the official Michelin Guide) into one validated VENUE pool, and
-// exposes city/country lookups, year/edition views, an awards-history
-// diff, and a `hasMichelinData(cityOrCountry)` gate the search/cuisine
-// layer can use to light the Michelin option only where curated rows
-// exist.
+// Venue-centric Michelin loader (venue-award-schema.v0_1). Loads the
+// per-country tables ({CC}-michelin.js at the repo root; venue-centric)
+// into one validated VENUE pool, and exposes city/country lookups,
+// year/edition views, an awards-history diff, and a
+// `hasMichelinData(cityOrCountry)` gate the search/cuisine layer can use
+// to light the Michelin option only where curated rows exist.
+//
+// ── SINGAPORE IS DECOUPLED ───────────────────────────────────────────
+// As of v0.61.333 the loader NO LONGER ingests the Singapore dataset.
+// SG lives in its own standalone `SG-michelin.js` (the original flat
+// curated list + its annotation helpers) and the /cuisine "✳️ Michelin
+// List" card uses that file DIRECTLY on a fast path. Consequently
+// `hasMichelinData('Singapore')` is now FALSE from THIS loader — that is
+// intentional: the loader is venue-centric only, and SG is handled by its
+// own module. The country tables here are the new {CC}-michelin.js files
+// at the repo root (all empty today except MY).
 //
 // ── venue-award-schema.v0_1 ──────────────────────────────────────────
-// Two shapes are accepted, and BOTH normalise to one Venue shape:
-//
-//   FLAT row (Singapore / michelin-2025.js):
-//     { city, country, name, address, postal?, category, year,
-//       cuisine?, vegetarian, halal }
-//   → normalised to a Venue with a synthesised id and a single-award
-//     history: awards:[{ year, category }].
-//
-//   VENUE row (per-country tables, michelin/<cc>.js):
-//     { id, city, country, name, formerNames?, address, postal?,
-//       cuisine?, vegetarian, halal, status?, awards:[{year,category}] }
-//   → used as-is (validated).
+// Each country table exports { COUNTRY, ENTRIES:[Venue] } where a Venue is:
+//   { id, city, country, name, formerNames?, address, postal?,
+//     cuisine?, vegetarian, halal, status?, awards:[{year,category}] }
+//   → validated and used as-is.
 //
 // Unified Venue shape (the loaded pool):
 //   { id, city, country, name, formerNames?, address, postal?,
@@ -31,10 +31,9 @@
 //                   (cc = lowercased ISO-2; iata = lowercased cities.js
 //                   `code` for the venue's city). UNIQUE — a duplicate id
 //                   at load THROWS (never a silent skip).
-//     - city      : string; for venue-centric country rows it must exist
-//                   in the curated cities table (throw if not). SG is the
-//                   canonical home dataset and is always accepted.
-//     - country   : ISO-2 string (e.g. 'SG', 'MY', 'JP').
+//     - city      : string; must exist in the curated cities table
+//                   (throw if not).
+//     - country   : ISO-2 string (e.g. 'MY', 'JP').
 //     - name      : non-empty string.
 //     - address   : string (may be '' for hawker-centre Bib entries).
 //     - status    : 'open' | 'closed' (default 'open'). Closed venues are
@@ -43,27 +42,25 @@
 //     - awards    : Array<{ year:2025|2026, category:<enum> }>, length ≥ 1.
 //
 // Validation runs at load and FAILS LOUD: a bad category, a missing
-// required field, a bad country/year, a city not in the curated table
-// (venue-centric rows), or a DUPLICATE id all THROW — but every check is
-// SAFE for empty files (an empty ENTRIES array loads cleanly). The
-// per-(country, year) manifest count check is GATED on non-empty, so the
-// empty michelin/my.js does NOT break boot.
+// required field, a bad country/year, a city not in the curated table, or
+// a DUPLICATE id all THROW — but every check is SAFE for empty files (an
+// empty ENTRIES array loads cleanly). The per-(country, year) manifest
+// count check is GATED on non-empty, so empty country files do NOT break
+// boot.
 
 'use strict';
 
-const sg = require('./michelin-2025');
-
-// Per-country table modules. Each exports { COUNTRY, ENTRIES:[] }.
-// All empty today; the curator adds venue-centric rows by hand.
+// Per-country table modules. Each exports { COUNTRY, ENTRIES:[Venue] }.
+// All empty today EXCEPT MY (70 venues); the curator adds the rest by hand.
 const COUNTRY_TABLES = [
-  require('./michelin/my'),
-  require('./michelin/th'),
-  require('./michelin/vn'),
-  require('./michelin/jp'),
-  require('./michelin/kr'),
-  require('./michelin/cn'),
-  require('./michelin/hk'),
-  require('./michelin/tw'),
+  require('./MY-michelin'),
+  require('./TH-michelin'),
+  require('./VN-michelin'),
+  require('./JP-michelin'),
+  require('./KR-michelin'),
+  require('./CN-michelin'),
+  require('./HK-michelin'),
+  require('./TW-michelin'),
 ];
 
 const CATEGORIES = new Set(['three-star', 'two-star', 'one-star', 'bib-gourmand']);
@@ -76,13 +73,8 @@ const VALID_YEARS = new Set([2025, 2026]);
 // an iCloud-synced web/ tree. Rather than cross that boundary with a
 // runtime ESM require at boot, the { city name → IATA code } map for the
 // eight guide countries is embedded here, mirrored verbatim from
-// cities.js (v0.61.242). Used for (a) city-membership validation of
-// venue-centric rows and (b) the iata segment of synthesised SG ids.
-// Keep in sync with cities.js if curated cities change.
-//
-// NOTE: Singapore is NOT a curated city in cities.js (no SG key) — the
-// SG dataset is the canonical home pool, so SG flat rows are accepted
-// without a city-table lookup and synthesise their id with iata 'sg'.
+// cities.js (v0.61.242). Used for city-membership validation of
+// venue-centric rows. Keep in sync with cities.js if curated cities change.
 const CITY_IATA = Object.freeze({
   // Malaysia
   'kuala lumpur': 'KUL', 'putrajaya': 'KUL', 'shah alam': 'KUL', 'johor': 'JHB',
@@ -116,7 +108,7 @@ const CITY_IATA = Object.freeze({
 // Per-(country, year) MANIFEST. The expected per-tier + total counts the
 // curated tables must satisfy ONCE non-empty (gated — empty files skip).
 // MY pre-registered from the official Malaysia guide (2025 + 2026); the
-// curator's eventual 130-row table must match exactly or load throws.
+// curator's 130-award table must match exactly or load throws.
 const COUNTRY_MANIFEST = Object.freeze({
   MY: {
     2025: { 'two-star': 1, 'one-star': 6, 'bib-gourmand': 56, total: 63 },
@@ -142,68 +134,19 @@ function _cityIata(city) {
   return CITY_IATA[String(city || '').trim().toLowerCase()] || null;
 }
 
-// Synthesise a stable id for a normalised venue when one is not supplied
-// (FLAT SG rows). cc = lowercased ISO-2; iata = lowercased cities.js code
-// for the city, or 'sg' / the lowercased cc when the city is not curated
-// (SG has no cities.js row by design).
+// Synthesise a stable id for a venue from its country/city/name (the same
+// slug the curated tables use). cc = lowercased ISO-2; iata = lowercased
+// cities.js code for the city, or the lowercased cc when uncurated.
 function synthId(country, city, name) {
   const cc = String(country || '').toLowerCase();
-  const iata = (_cityIata(city) || (cc === 'sg' ? 'sg' : cc) || 'xx').toLowerCase();
+  const iata = (_cityIata(city) || cc || 'xx').toLowerCase();
   return `${cc}-${iata}-${kebab(name)}`;
-}
-
-// ── flat-row validation (legacy SG shape) ────────────────────────────
-// Kept for backward compatibility: `validateEntry` validates a FLAT row
-// (the SG schema). Throws on any contract breach.
-const FLAT_REQUIRED = ['city', 'country', 'name', 'address', 'category', 'year'];
-
-function validateEntry(entry, source = 'unknown') {
-  const where = `[michelin-data] ${source}`;
-  if (!entry || typeof entry !== 'object') {
-    throw new Error(`${where}: entry is not an object`);
-  }
-  for (const k of FLAT_REQUIRED) {
-    if (entry[k] === undefined || entry[k] === null) {
-      throw new Error(`${where}: missing required field "${k}" on ${JSON.stringify(entry.name || entry)}`);
-    }
-  }
-  if (typeof entry.name !== 'string' || !entry.name.trim()) {
-    throw new Error(`${where}: "name" must be a non-empty string`);
-  }
-  if (typeof entry.address !== 'string') {
-    throw new Error(`${where}: "address" must be a string (may be empty) on "${entry.name}"`);
-  }
-  if (typeof entry.city !== 'string' || !entry.city.trim()) {
-    throw new Error(`${where}: "city" must be a non-empty string on "${entry.name}"`);
-  }
-  if (!_isIso2(entry.country)) {
-    throw new Error(`${where}: "country" must be an ISO-2 code on "${entry.name}", got ${JSON.stringify(entry.country)}`);
-  }
-  if (!CATEGORIES.has(entry.category)) {
-    throw new Error(`${where}: invalid category ${JSON.stringify(entry.category)} on "${entry.name}" — must be one of ${[...CATEGORIES].join(', ')}`);
-  }
-  if (!VALID_YEARS.has(entry.year)) {
-    throw new Error(`${where}: "year" must be 2025 or 2026 on "${entry.name}", got ${JSON.stringify(entry.year)}`);
-  }
-  if (entry.postal !== undefined && typeof entry.postal !== 'string') {
-    throw new Error(`${where}: "postal" must be a string when present on "${entry.name}"`);
-  }
-  if (entry.cuisine !== undefined && typeof entry.cuisine !== 'string') {
-    throw new Error(`${where}: "cuisine" must be a string when present on "${entry.name}"`);
-  }
-  for (const flag of ['vegetarian', 'halal']) {
-    if (entry[flag] !== undefined && typeof entry[flag] !== 'boolean') {
-      throw new Error(`${where}: "${flag}" must be a boolean when present on "${entry.name}"`);
-    }
-  }
-  return true;
 }
 
 // ── venue validation (venue-award-schema.v0_1) ───────────────────────
 // Validates an ALREADY-NORMALISED venue (id present, awards[] present).
 // `requireCuratedCity` = true for venue-centric country rows (city must
-// be in CITY_IATA); false for SG (canonical home pool — city not in the
-// curated table by design).
+// be in CITY_IATA); false only for synthetic fixtures in tests.
 function validateVenue(v, source = 'unknown', requireCuratedCity = true) {
   const where = `[michelin-data] ${source}`;
   if (!v || typeof v !== 'object') {
@@ -263,28 +206,6 @@ function validateVenue(v, source = 'unknown', requireCuratedCity = true) {
 }
 
 // ── normalisation ────────────────────────────────────────────────────
-// Normalise a FLAT SG row → Venue. Synthesises the id (sg-<iata>-<kebab>)
-// and folds { year, category } into a single-element awards[] history.
-// The boolean flags default to false. Does NOT mutate the source object
-// (the curated SG literals stay byte-stable).
-function flatToVenue(entry) {
-  const v = {
-    id: synthId(entry.country, entry.city, entry.name),
-    city: entry.city,
-    country: entry.country,
-    name: entry.name,
-    address: entry.address,
-    cuisine: entry.cuisine,
-    vegetarian: entry.vegetarian === true,
-    halal: entry.halal === true,
-    status: entry.status === 'closed' ? 'closed' : 'open',
-    awards: [{ year: entry.year, category: entry.category }],
-  };
-  if (entry.postal !== undefined) v.postal = entry.postal;
-  if (entry.formerNames !== undefined) v.formerNames = entry.formerNames;
-  return v;
-}
-
 // Normalise a VENUE-centric country row → Venue. Used as-is, with the
 // boolean flags + status defaulted and a shallow copy of awards[].
 function venueToVenue(entry) {
@@ -303,17 +224,6 @@ function venueToVenue(entry) {
   if (entry.postal !== undefined) v.postal = entry.postal;
   if (entry.formerNames !== undefined) v.formerNames = entry.formerNames;
   return v;
-}
-
-// Legacy export name kept for compatibility — a flat→full shallow copy
-// with the boolean flags defaulted (NOT venue-centric). Some external
-// callers/tests may import this; preserve its v0.61.330 behaviour.
-function normalizeEntry(entry) {
-  return {
-    ...entry,
-    vegetarian: entry.vegetarian === true,
-    halal: entry.halal === true,
-  };
 }
 
 // ── pure merge / dedup ───────────────────────────────────────────────
@@ -340,22 +250,6 @@ function dedupById(venues, target, byId, source = 'unknown') {
 // ── load: build the venue pool once ──────────────────────────────────
 const VENUES = [];           // normalised venue pool
 const _byId = new Map();     // id → venue (dup detection)
-
-// Ingest the FLAT SG rows → venues (canonical home pool: city not checked
-// against the curated cities table).
-function _ingestFlat(entries, source) {
-  if (!Array.isArray(entries)) {
-    throw new Error(`[michelin-data] ${source}: ENTRIES is not an array`);
-  }
-  const out = [];
-  for (const e of entries) {
-    validateEntry(e, source);                 // flat-shape contract
-    const v = flatToVenue(e);
-    validateVenue(v, source, /* requireCuratedCity */ false);
-    out.push(v);
-  }
-  dedupById(out, VENUES, _byId, source);
-}
 
 // Ingest a venue-centric country table → venues (city MUST be curated).
 function _ingestVenues(entries, source) {
@@ -419,22 +313,20 @@ function assertManifest(cc, venues, source = 'unknown', manifestOverride) {
   }
 }
 
-// SG (flat) first, then the venue-centric country tables.
-_ingestFlat(sg.getAll(), 'SG (michelin-2025.js)');
+// Ingest the venue-centric country tables.
 for (const tbl of COUNTRY_TABLES) {
   const cc = String(tbl.COUNTRY || '').toUpperCase();
-  const source = `country=${cc} (michelin/${cc.toLowerCase()}.js)`;
+  const source = `country=${cc} (${cc}-michelin.js)`;
   _ingestVenues(tbl.ENTRIES, source);
   const ccVenues = VENUES.filter((v) => String(v.country).toUpperCase() === cc);
   assertManifest(cc, ccVenues, source);
 }
 
 // ── back-compat flat view ────────────────────────────────────────────
-// The legacy consumers (index.js Michelin card, michelin-walk) expect a
-// FLAT entry list: { city, country, name, address, postal?, category,
-// year, cuisine?, vegetarian, halal }. Derive one flat row PER AWARD from
-// the venue pool so `getAll` / `michelinForCity` / `michelinForCountry`
-// keep their v0.61.330 contract (130 SG rows, each with category + year).
+// Some consumers expect a FLAT entry list: { city, country, name, address,
+// postal?, category, year, cuisine?, vegetarian, halal }. Derive one flat
+// row PER AWARD from the venue pool so `getAll` / `michelinForCity` /
+// `michelinForCountry` keep a flat contract over the country venues.
 function _venueToFlatRows(v) {
   return v.awards.map((a) => {
     const row = {
@@ -585,11 +477,8 @@ module.exports = {
   // id / normalisation helpers
   kebab,
   synthId,
-  flatToVenue,
   venueToVenue,
-  normalizeEntry,
   // validation
-  validateEntry,    // flat-shape (legacy)
   validateVenue,    // venue-centric (venue-award-schema.v0_1)
   dedupById,        // pure dup-id merge (throws on collision)
   assertManifest,   // pure per-(country,year) manifest check (gated on non-empty)

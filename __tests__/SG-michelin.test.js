@@ -1,4 +1,4 @@
-// __tests__/michelin-2025.test.js — v0.60.14
+// __tests__/SG-michelin.test.js — v0.60.14
 //
 // Validates the Singapore Michelin Guide 2025 dataset shape +
 // helper functions.
@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const m = require('../michelin-2025.js');
+const m = require('../SG-michelin.js');
 
 describe('Michelin Singapore 2025 — shape', () => {
   it('has 2 three-star entries', () => {
@@ -213,21 +213,16 @@ describe('formatMichelinLine — rendered annotation', () => {
   });
 });
 
-describe('Unified schema migration (v0.61.330) — SG locality tags', () => {
-  it('migration preserved the entry count (130 = 2+7+32+89)', () => {
+describe('SG Michelin dataset — entry count + byte-stable content', () => {
+  // v0.61.333 — SG-michelin.js reverted to its pre-v0.61.330 standalone
+  // form (no per-entry city/country/year stamping). SG is decoupled from
+  // the unified venue loader and consumed directly on its own fast path.
+  it('the curated dataset has the expected count (130 = 2+7+32+89)', () => {
     expect(m.ALL.length).toBe(130);
     expect(m.STARS_THREE.length).toBe(2);
     expect(m.STARS_TWO.length).toBe(7);
     expect(m.STARS_ONE.length).toBe(32);
     expect(m.BIB_GOURMAND.length).toBe(89);
-  });
-
-  it('every entry now carries city:"Singapore", country:"SG", year:2025', () => {
-    for (const e of m.ALL) {
-      expect(e.city).toBe('Singapore');
-      expect(e.country).toBe('SG');
-      expect(e.year).toBe(2025);
-    }
   });
 
   it('original name/address/category are still present (byte-stable)', () => {

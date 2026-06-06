@@ -5,14 +5,9 @@
 // edition. Used by /cuisine "✳️ Michelin List" criteria card to seed
 // search results from this curated set instead of free-form Places.
 //
-// Schema (v0.61.330 — unified, additive):
-//   { city, country, name, address, postal?, category, year,
-//     cuisine?, vegetarian, halal }
-// where category ∈ { 'three-star', 'two-star', 'one-star', 'bib-gourmand' },
-// country is ISO-2, year ∈ { 2025, 2026 }. The literal entries below
-// carry { name, address, postal?, category, cuisine?, vegetarian? } and
-// are stamped with city:'Singapore', country:'SG', year:2025 in place
-// (see SG_GROUPS loop) so the curated data stays byte-stable.
+// Schema:
+//   { name, address, postal?, category }
+// where category ∈ { 'three-star', 'two-star', 'one-star', 'bib-gourmand' }.
 //
 // Some Bib Gourmand entries don't carry a precise street address — they
 // reference a hawker centre (e.g. "Amoy Street Food Centre"). For those
@@ -197,26 +192,6 @@ const BIB_GOURMAND = [
   { name: 'Zhi Wei Xian Zion Road Big Prawn Noodle', address: 'Zion Riverside Food Centre', category: 'bib-gourmand' },
   { name: 'Zhup Zhup', address: '', category: 'bib-gourmand' }
 ];
-
-// v0.61.330 — unified Michelin schema. Every curated SG entry above is
-// stamped (in place, additively) with `city: 'Singapore'`,
-// `country: 'SG'`, `year: 2025`. The literal objects above are left
-// byte-unchanged on purpose — the three locality tags are applied here
-// so the hand-curated venue data (name / address / postal / category /
-// cuisine / vegetarian / halal) is never edited by tooling. The result
-// is the unified per-entry shape consumed by `michelin-data.js`:
-//   { city, country, name, address, postal?, category, year,
-//     cuisine?, vegetarian, halal }
-// where category ∈ { 'three-star','two-star','one-star','bib-gourmand' },
-// country is ISO-2, year is 2025|2026.
-const SG_GROUPS = [STARS_THREE, STARS_TWO, STARS_ONE, BIB_GOURMAND];
-for (const group of SG_GROUPS) {
-  for (const entry of group) {
-    entry.city = 'Singapore';
-    entry.country = 'SG';
-    entry.year = 2025;
-  }
-}
 
 const ALL = [...STARS_THREE, ...STARS_TWO, ...STARS_ONE, ...BIB_GOURMAND];
 

@@ -8182,7 +8182,7 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // the maps URL. v0.60.193 — DF-91: cross-ref logic factored into
   // michelin-2025's appendMichelinAnnotation helper. Shared with
   // formatVenueBlock + /api/cuisine/search post-loop annotation.
-  require('./michelin-2025').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
+  require('./SG-michelin').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
   // v0.62.0 — HPB Healthier Choice + "inside a building complex" rows.
   require('./healthier-eateries').appendHealthierChoiceLine(lines, venue, 'formatTechniqueVenueBlock');
   require('./buildings').appendBuildingLine(lines, venue, 'formatTechniqueVenueBlock');
@@ -8894,7 +8894,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
     }
   }
-  const michelin = require('./michelin-2025');
+  const michelin = require('./SG-michelin');
   const michelinWalk = require('./michelin-walk');
   // v0.60.198 — surface req.body.prices early so the walk-hash can
   // include it (otherwise toggling a price tier wouldn't reset the walk).
@@ -10792,7 +10792,7 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       }
       // Composite score: rating + Michelin + rarity + (1 - crowdCost)
       const rs = require('./rarity-score');
-      const { findMichelinMatch } = require('./michelin-2025');
+      const { findMichelinMatch } = require('./SG-michelin');
       const { crowdCost } = require('./crowd-signal');
       const sortedRatings = venues.map((c) => Number(c.rating)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
       const sortedReviews = venues.map((c) => Number(c.userRatingCount)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
@@ -11656,7 +11656,7 @@ async function cacheBotUsername() {
         // sub-drawer. Server-side, /api/cuisine/search detects the
         // 'michelin' slug and branches to handleMichelinSearch which
         // serves the curated Singapore Michelin Guide 2025 list.
-        const michelin = require('./michelin-2025');
+        const michelin = require('./SG-michelin');
         categories.push({
           id: 'michelin',
           label: '🇸🇬 Michelin, Bib Gourmand',
@@ -15338,7 +15338,7 @@ async function cacheBotUsername() {
         // annotateVenueObject helper (sibling to appendMichelinAnnotation
         // which pushes a chat-message line; this site mutates the venue
         // object instead so the React TMA card consumer can render it).
-        const michelinObjAnnotator = require('./michelin-2025').annotateVenueObject;
+        const michelinObjAnnotator = require('./SG-michelin').annotateVenueObject;
         // v0.62.0 — also annotate HPB Healthier Choice + inside-building
         // so the React TMA card can render the rows from the venue object.
         const healthierObjAnnotator = require('./healthier-eateries').annotateVenueObject;
