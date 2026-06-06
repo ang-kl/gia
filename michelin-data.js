@@ -100,7 +100,8 @@ const CITY_IATA = Object.freeze({
   // China
   'shanghai': 'SHA', 'beijing': 'BJS', 'guangzhou': 'CAN', 'shenzhen': 'SZX',
   'chengdu': 'CTU', 'hangzhou': 'HGH', "xi'an": 'XIY', 'suzhou': 'SHA',
-  // Hong Kong districts
+  // Hong Kong (territory + districts)
+  'hong kong': 'HKG',
   'tsim sha tsui': 'HKG', 'central': 'HKG', 'causeway bay': 'HKG', 'mong kok': 'HKG',
   'wan chai': 'HKG', 'sha tin': 'HKG', 'aberdeen': 'HKG', 'tung chung': 'HKG',
   'tuen mun': 'HKG', 'yuen long': 'HKG', 'tai po': 'HKG', 'tseung kwan o': 'HKG',
@@ -141,6 +142,11 @@ const COUNTRY_MANIFEST = Object.freeze({
     // Vietnam has no two-/three-star venues in either edition.
     2025: { 'one-star': 9, total: 9 },
     2026: { 'one-star': 11, 'bib-gourmand': 72, total: 83 },
+  },
+  HK: {
+    // 2025 PARTIAL — source captured upper tiers only (no Bib Gourmand).
+    2025: { 'three-star': 7, 'two-star': 11, 'one-star': 1, total: 19 },
+    2026: { 'three-star': 7, 'two-star': 13, 'one-star': 57, 'bib-gourmand': 70, total: 147 },
   },
 });
 

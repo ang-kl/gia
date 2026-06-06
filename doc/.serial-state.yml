@@ -1,8 +1,8 @@
 counters:
-  commit: 554
-  build: 340
+  commit: 555
+  build: 341
   documents:
-    journal: 541
+    journal: 542
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 19:44 SGT
-last_anchor_source: derived_from_v0_61_341_vietnam_michelin (operator 06-06 '26: "vietnam" -> instruction/Vietnam.js. Load curated Vietnam dataset (83 venues, venue-centric, 3 cities HCMC/Hanoi/Da Nang all pre-mapped) VERBATIM into VN-michelin.js (was empty stub). JP/KR pattern: 2025 PARTIAL (9, one-star only, no Bib) ADDED AS-IS + flagged; 2026 full (83). Vietnam has NO 2/3-star venues (one-star + Bib only). No native-name field. No city/iata changes. Register VN manifest. Loader clean: global 1235 venues (1152+83) unique, VN manifest passes, awards-sum 92. 14/14 sandbox assertions + node --check green. Flipped test false-gate Hanoi/VN -> Shanghai/CN. With VN done, only CN + HK stubs remain empty. Left OPEN for review. Anchor 19:42 -> 19:44 SGT; commit/journal/build 553/540/339 -> 554/541/340. Version 0.61.340 -> 0.61.341.)
-last_anchor_iso8601: 2026-06-06T19:44:00+08:00
-last_anchor_utc: 2026-06-06T11:44:00Z
+last_anchor_time: 06-06 '26 19:48 SGT
+last_anchor_source: derived_from_v0_61_342_hongkong_michelin (operator 06-06 '26: "hongkong/macau" -> instruction/HongKong.js. Load curated dataset (147 venues, 1 city 'Hong Kong', country HK) VERBATIM into HK-michelin.js (was empty stub). FLAG: despite the 'Hong Kong/Macau' guide name, the file has NO Macau venues — Hong Kong only. JP/KR pattern: 2025 PARTIAL (19, upper tiers, no Bib) + 2026 full (147). Added 'hong kong':'HKG' to loader CITY_IATA (only districts were mapped, data uses the whole-territory 'Hong Kong'). No native-name/postal fields. Register HK manifest. Loader clean: global 1382 venues (1235+147) unique, HK manifest passes, awards-sum 166. 14/14 sandbox assertions + node --check green. Flipped test false-gate 'Hong Kong' -> 'Macau' (Macau genuinely not loaded) + added an explicit no-Macau test. Only CN stub remains empty. Left OPEN for review. Anchor 19:44 -> 19:48 SGT; commit/journal/build 554/541/340 -> 555/542/341. Version 0.61.341 -> 0.61.342.)
+last_anchor_iso8601: 2026-06-06T19:48:00+08:00
+last_anchor_utc: 2026-06-06T11:48:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
