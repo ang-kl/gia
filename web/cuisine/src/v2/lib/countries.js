@@ -22,9 +22,6 @@ export const OTHER_COUNTRIES = Object.freeze([
   { code: 'VN', flag: '🇻🇳', name: 'Vietnam' },
   { code: 'PH', flag: '🇵🇭', name: 'Philippines' },
   { code: 'BN', flag: '🇧🇳', name: 'Brunei' },
-  { code: 'KH', flag: '🇰🇭', name: 'Cambodia' },
-  { code: 'LA', flag: '🇱🇦', name: 'Laos' },
-  { code: 'MM', flag: '🇲🇲', name: 'Myanmar' },
   // Oceania.
   { code: 'AU', flag: '🇦🇺', name: 'Australia' },
   { code: 'NZ', flag: '🇳🇿', name: 'New Zealand' },
