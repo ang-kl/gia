@@ -48,8 +48,16 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
+  // v0.61.346 — current country for per-country chip gating (e.g. the
+  // Michelin chip enables wherever its `michelinCountries` list covers).
+  // SG pill → SG; MY-PUT (Putrajaya) → MY; JB stays its own (Michelin
+  // disabled there); OTHER → the picked country code.
+  const currentMichCountry = region === 'SG' ? 'SG'
+    : region === 'MY-PUT' ? 'MY'
+    : region === 'JB' ? 'JB'
+    : String(countryPref || '').toUpperCase();
   const [lang] = useLocale();
 
   if (!catalogue) return null;
@@ -84,8 +92,15 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
     // out and ignores taps. App.jsx also strips 'michelin' from
     // state.cuisines on JB toggle so a previously-selected chip
     // doesn't linger.
-    const regionDisabled =
-      cat.regionScope && region && cat.regionScope.toUpperCase() !== String(region).toUpperCase();
+    // v0.61.346 — chips with a `michelinCountries` list (the Michelin
+    // chip) enable when the current country is in that list; otherwise
+    // fall back to the legacy single-region `regionScope` gate.
+    const michChipCountries = Array.isArray(cat.michelinCountries)
+      ? cat.michelinCountries.map((c) => String(c).toUpperCase())
+      : null;
+    const regionDisabled = michChipCountries
+      ? !michChipCountries.includes(currentMichCountry)
+      : (cat.regionScope && region && cat.regionScope.toUpperCase() !== String(region).toUpperCase());
     return (
       <button
         type="button"
@@ -103,7 +118,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           }
         }}
         title={regionDisabled
-          ? `${label} — ${lang === 'fr' ? 'Singapour uniquement' : 'Singapore only'}`
+          ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
           : label}
         className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-[#DCEBFF] border-tg-accent text-[#0c2540]' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}
       >
@@ -135,12 +150,20 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           The Michelin chip is greyed (regionScope:'SG') and the v0.61.280
           App.jsx strip clears any sticky selection on SG-leave. The
           caption explains why so users don't misread the grey as a bug. */}
-      {region && String(region).toUpperCase() !== 'SG'
-        && catalogue.some((c) => c.regionScope && String(c.regionScope).toUpperCase() === 'SG') && (
-        <div className="text-[11px] text-tg-hint px-1 pt-0.5">
-          {tr('drawer.michelinSgOnly', lang)}
-        </div>
-      )}
+      {(() => {
+        // v0.61.346 — the Michelin chip now works in any country with a
+        // curated list. Show the "no list here" caption only when the
+        // current country is NOT covered by its michelinCountries set.
+        const m = catalogue.find((c) => c.id === 'michelin' && Array.isArray(c.michelinCountries));
+        if (!m) return null;
+        const list = m.michelinCountries.map((c) => String(c).toUpperCase());
+        if (list.includes(currentMichCountry)) return null;
+        return (
+          <div className="text-[11px] text-tg-hint px-1 pt-0.5">
+            {tr('drawer.michelinSgOnly', lang)}
+          </div>
+        );
+      })()}
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>

@@ -8882,7 +8882,7 @@ async function setVariantIdx(chatId, criteriaHash, idx) {
 // to get live coords + ratings + hours, applies per-chatId dedup so
 // consecutive clicks return different slices, and falls back to
 // reset+full-list when every venue has been seen.
-async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [], detectedPlaceAnchor = null }) {
+async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [], detectedPlaceAnchor = null, michelinCountry = 'SG' }) {
   if (isJB) {
     // v0.60.161 — tag _vlog so the TMA can opportunistically learn the
     // toggle state even on this early-exit path.
@@ -8902,6 +8902,18 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+  }
+  // v0.61.346 — per-country Michelin. SG uses the standalone SG-michelin.js
+  // (unchanged); every other country pulls from the venue-award loader
+  // (michelin-data.js). `michelinCountry` is the ISO-2 the route resolved
+  // (SG pill → 'SG'; OTHER picker → its country; JB → null, already bailed).
+  const michCC = String(michelinCountry || '').toUpperCase();
+  const isSGMich = michCC === '' || michCC === 'SG';
+  if (!isSGMich) {
+    const mdChk = require('./michelin-data');
+    if (!mdChk.hasMichelinData(michCC)) {
+      return res.json({ venues: [], cached: false, reason: `Michelin: no curated list for ${michCC}` });
+    }
   }
 
   // v0.60.195 — operator: drop the seen-set pagination. Michelin always
@@ -8937,7 +8949,28 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // cuisine tag) fall through to the v0.60.17 primaryType post-
   // filter so the cuisine constraint still applies.
   const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
-  const allEntries = michelin.getAll();
+  // v0.61.346 — build the tier pool from the right source. SG: the
+  // standalone list (entries already carry a single `category`). Other
+  // countries: the loader's visitable venues for that country, mapped to
+  // the same flat shape the rest of this handler expects, with the
+  // edition merged across years (operator: "both years merged") — each
+  // venue is shown once at its LATEST award standing.
+  const mdMich = isSGMich ? null : require('./michelin-data');
+  const latestMichCat = (v) => { let best = null; for (const a of v.awards) { if (!best || a.year > best.year) best = a; } return best ? best.category : null; };
+  const allEntries = isSGMich
+    ? michelin.getAll()
+    : mdMich.visitableVenues().filter((v) => v.country === michCC).map((v) => ({
+        name: v.name, address: v.address, postal: v.postal || '',
+        category: latestMichCat(v), cuisine: v.cuisine || '',
+        vegetarian: v.vegetarian === true, halal: v.halal === true,
+        city: v.city, country: v.country
+      }));
+  // Places query + regionCode adapt to the country (SG keeps the curated
+  // name+postal disambiguation; others use name + city).
+  const buildMichQuery = isSGMich
+    ? (e) => michelin.buildPlacesQuery(e)
+    : (e) => `${e.name} ${e.city || ''}`.trim();
+  const placesRegionCode = isSGMich ? 'SG' : michCC;
 
   // v0.60.20 — parent-cuisine expansion. When the user picks an
   // umbrella cuisine like "Chinese", the curated Michelin entries
@@ -9086,8 +9119,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       const { data } = await axios.post(
         PLACES_URL,
         {
-          textQuery: michelin.buildPlacesQuery(entry),
-          regionCode: 'SG',
+          textQuery: buildMichQuery(entry),
+          regionCode: placesRegionCode,
           languageCode: csLang === 'fr' ? 'fr' : 'en',
           maxResultCount: 1
         },
@@ -9676,10 +9709,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     michelinSummary: {
       total: allEntries.length,
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
-      threeStar: michelin.STARS_THREE.length,
-      twoStar: michelin.STARS_TWO.length,
-      oneStar: michelin.STARS_ONE.length,
-      bibGourmand: michelin.BIB_GOURMAND.length
+      threeStar: allEntries.filter((e) => e.category === 'three-star').length,
+      twoStar: allEntries.filter((e) => e.category === 'two-star').length,
+      oneStar: allEntries.filter((e) => e.category === 'one-star').length,
+      bibGourmand: allEntries.filter((e) => e.category === 'bib-gourmand').length
     },
     // v0.61.134 — surface the v0.61.129 place anchor on Michelin responses
     // too (the non-Michelin path's payload.placeAnchor write at the bottom
@@ -11666,6 +11699,13 @@ async function cacheBotUsername() {
         // 'michelin' slug and branches to handleMichelinSearch which
         // serves the curated Singapore Michelin Guide 2025 list.
         const michelin = require('./SG-michelin');
+        // v0.61.346 — countries whose Michelin list is searchable: SG
+        // (standalone) + every country in the venue-award loader. The TMA
+        // enables the chip when the current country is in this set.
+        const michelinCountries = ['SG', ...(() => {
+          try { return [...new Set(require('./michelin-data').getAllVenues().map((v) => v.country))]; }
+          catch { return []; }
+        })()];
         categories.push({
           id: 'michelin',
           label: 'Michelin, Bib Gourmand',
@@ -11675,6 +11715,7 @@ async function cacheBotUsername() {
           // Singapore Michelin Guide 2025. The TMA disables this chip
           // when region=JB (no equivalent JB list ships today).
           regionScope: 'SG',
+          michelinCountries,
           cuisines: [{
             categoryId: 'michelin',
             categoryLabel: 'Michelin, Bib Gourmand',
@@ -13841,9 +13882,18 @@ async function cacheBotUsername() {
           const otherCuisineSlugs = (cuisines || [])
             .map((s) => String(s || '').toLowerCase())
             .filter((s) => s && s !== 'michelin');
+          // v0.61.346 — resolve the Michelin country for the loader.
+          // SG pill → 'SG'; OTHER picker → its ISO-2 (requestCountry);
+          // JB → null (operator: keep the chip disabled under JB).
+          const michelinCountry = isJB
+            ? null
+            : ((typeof isOther !== 'undefined' && isOther)
+                ? (requestCountry ? String(requestCountry).toUpperCase() : null)
+                : 'SG');
           return await handleMichelinSearch({
             req, res, csChatId, csLang,
             searchCenter, searchRadius,
+            michelinCountry,
             // v0.61.134 — pass the v0.61.129 post-strip `ftRawIn` (not
             // the raw body) so Michelin + place-anchor combinations
             // ("ramen in Tiong Bahru" with the Michelin chip on) get
