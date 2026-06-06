@@ -60,6 +60,7 @@ const COUNTRY_TABLES = [
   require('./KR-michelin'),
   require('./CN-michelin'),
   require('./HK-michelin'),
+  require('./MO-michelin'),
   require('./TW-michelin'),
 ];
 
@@ -102,6 +103,8 @@ const CITY_IATA = Object.freeze({
   'chengdu': 'CTU', 'hangzhou': 'HGH', "xi'an": 'XIY', 'suzhou': 'SHA',
   // Hong Kong (territory + districts)
   'hong kong': 'HKG',
+  // Macau
+  'macau': 'MFM',
   'tsim sha tsui': 'HKG', 'central': 'HKG', 'causeway bay': 'HKG', 'mong kok': 'HKG',
   'wan chai': 'HKG', 'sha tin': 'HKG', 'aberdeen': 'HKG', 'tung chung': 'HKG',
   'tuen mun': 'HKG', 'yuen long': 'HKG', 'tai po': 'HKG', 'tseung kwan o': 'HKG',
@@ -147,6 +150,11 @@ const COUNTRY_MANIFEST = Object.freeze({
     // 2025 PARTIAL — source captured upper tiers only (no Bib Gourmand).
     2025: { 'three-star': 7, 'two-star': 11, 'one-star': 1, total: 19 },
     2026: { 'three-star': 7, 'two-star': 13, 'one-star': 57, 'bib-gourmand': 70, total: 147 },
+  },
+  MO: {
+    // 2025 PARTIAL — source captured the stars only (no one-star, no Bib).
+    2025: { 'three-star': 2, 'two-star': 6, total: 8 },
+    2026: { 'three-star': 2, 'two-star': 6, 'one-star': 13, 'bib-gourmand': 13, total: 34 },
   },
 });
 

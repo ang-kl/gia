@@ -1,8 +1,8 @@
 counters:
-  commit: 555
-  build: 341
+  commit: 556
+  build: 342
   documents:
-    journal: 542
+    journal: 543
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 19:48 SGT
-last_anchor_source: derived_from_v0_61_342_hongkong_michelin (operator 06-06 '26: "hongkong/macau" -> instruction/HongKong.js. Load curated dataset (147 venues, 1 city 'Hong Kong', country HK) VERBATIM into HK-michelin.js (was empty stub). FLAG: despite the 'Hong Kong/Macau' guide name, the file has NO Macau venues — Hong Kong only. JP/KR pattern: 2025 PARTIAL (19, upper tiers, no Bib) + 2026 full (147). Added 'hong kong':'HKG' to loader CITY_IATA (only districts were mapped, data uses the whole-territory 'Hong Kong'). No native-name/postal fields. Register HK manifest. Loader clean: global 1382 venues (1235+147) unique, HK manifest passes, awards-sum 166. 14/14 sandbox assertions + node --check green. Flipped test false-gate 'Hong Kong' -> 'Macau' (Macau genuinely not loaded) + added an explicit no-Macau test. Only CN stub remains empty. Left OPEN for review. Anchor 19:44 -> 19:48 SGT; commit/journal/build 554/541/340 -> 555/542/341. Version 0.61.341 -> 0.61.342.)
-last_anchor_iso8601: 2026-06-06T19:48:00+08:00
-last_anchor_utc: 2026-06-06T11:48:00Z
+last_anchor_time: 06-06 '26 19:54 SGT
+last_anchor_source: derived_from_v0_61_343_macau_michelin (operator 06-06 '26: "macau" -> instruction/Macau.js (operator just uploaded it + China.js). Macau is a NEW country (ISO-2 'MO', 34 venues, 1 city 'Macau') — FIRST brand-new country table (vs filling an existing stub): created MO-michelin.js, registered require('./MO-michelin') in COUNTRY_TABLES, added 'macau':'MFM' to CITY_IATA, registered MO COUNTRY_MANIFEST. JP/KR pattern: 2025 PARTIAL (8, stars only, no one-star/Bib) + 2026 full (34). REVERTED the v0.61.342 HK PR's no-Macau assertions (Macau now loaded): false-gate Macau/MO lines removed; 'is false for Macau' test -> MO-true test; HK 'no Macau venues' test -> 'HK is HK-only, Macau separate MO table'. Loader clean: global 1416 venues (1382+34) unique, MO manifest passes, awards-sum 42. 13/13 sandbox assertions + node --check green. Only CN stub remains. Left OPEN for review. Anchor 19:48 -> 19:54 SGT; commit/journal/build 555/542/341 -> 556/543/342. Version 0.61.342 -> 0.61.343.)
+last_anchor_iso8601: 2026-06-06T19:54:00+08:00
+last_anchor_utc: 2026-06-06T11:54:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
