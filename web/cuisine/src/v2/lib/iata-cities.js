@@ -227,6 +227,12 @@ export const IATA_CITIES = Object.freeze([
   { iata: 'SYX', name: 'Sanya',         country: 'China', countryCode: 'CN', lat: 18.2528, lng: 109.5119 },
   { iata: 'HAK', name: 'Haikou',        country: 'China', countryCode: 'CN', lat: 20.0440, lng: 110.1989 },
 
+  { iata: 'HYN', name: 'Taizhou',       country: 'China', countryCode: 'CN', lat: 28.6563, lng: 121.4205 },
+  { iata: 'WNZ', name: 'Wenzhou',       country: 'China', countryCode: 'CN', lat: 27.9939, lng: 120.6994 },
+  { iata: 'JJN', name: 'Quanzhou',      country: 'China', countryCode: 'CN', lat: 24.8741, lng: 118.6757 },
+  { iata: 'YTY', name: 'Yangzhou',      country: 'China', countryCode: 'CN', lat: 32.3942, lng: 119.4127 },
+  { iata: 'CZX', name: 'Changzhou',     country: 'China', countryCode: 'CN', lat: 31.7969, lng: 119.9742 },
+
   // Hong Kong / Macau / Taiwan
   { iata: 'HKG', name: 'Hong Kong',     country: 'Hong Kong', countryCode: 'HK', lat: 22.3193, lng: 114.1694 },
   { iata: 'MFM', name: 'Macau',         country: 'Macau',     countryCode: 'MO', lat: 22.1987, lng: 113.5439 },

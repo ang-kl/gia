@@ -34,6 +34,7 @@ export const OTHER_COUNTRIES = Object.freeze([
   { code: 'KR', flag: '🇰🇷', name: 'South Korea' },
   { code: 'CN', flag: '🇨🇳', name: 'China' },
   { code: 'HK', flag: '🇭🇰', name: 'Hong Kong' },
+  { code: 'MO', flag: '🇲🇴', name: 'Macau' },
   { code: 'TW', flag: '🇹🇼', name: 'Taiwan' },
   // v0.61.221 — Singapore at the bottom, Menu TMA only.
   { code: 'SG', flag: '🇸🇬', name: 'Singapore' }
