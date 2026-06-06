@@ -84,12 +84,89 @@ describe('michelin-data — Malaysia (MY-michelin.js) load', () => {
   });
 });
 
+describe('michelin-data — Thailand (TH-michelin.js) load', () => {
+  const TH_CITIES = [
+    'Bangkok', 'Chiang Mai', 'Chon Buri', 'Khon Kaen', 'Ko Samui',
+    'Nakhon Pathom', 'Nakhon Ratchasima', 'Nonthaburi', 'Pathum Thani',
+    'Phang-Nga', 'Phra Nakhon Si Ayutthaya', 'Phuket', 'Samut Sakhon',
+    'Surat Thani', 'Ubon Ratchathani', 'Udon Thani',
+  ];
+
+  it('loads 180 venues with sum(awards) === 340', () => {
+    const th = data.venuesForCountry('TH');
+    expect(th.length).toBe(180);
+    const sum = th.reduce((n, v) => n + v.awards.length, 0);
+    expect(sum).toBe(340);
+  });
+
+  it('160 venues hold a 2025 award, 180 hold a 2026 award', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'TH');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'TH');
+    expect(y25.length).toBe(160);
+    expect(y26.length).toBe(180);
+  });
+
+  it('matches the per-tier manifest for both editions', () => {
+    function tiers(year) {
+      const t = {};
+      for (const v of data.venuesForCountry('TH')) {
+        for (const a of v.awards) {
+          if (a.year === year) t[a.category] = (t[a.category] || 0) + 1;
+        }
+      }
+      return t;
+    }
+    expect(tiers(2025)).toEqual({ 'three-star': 1, 'two-star': 7, 'one-star': 28, 'bib-gourmand': 124 });
+    expect(tiers(2026)).toEqual({ 'three-star': 2, 'two-star': 8, 'one-star': 33, 'bib-gourmand': 137 });
+  });
+
+  it('every TH venue has a unique id, a curated city, and the full venue shape', () => {
+    const th = data.venuesForCountry('TH');
+    const ids = new Set(th.map((v) => v.id));
+    expect(ids.size).toBe(th.length);          // no dup ids
+    for (const v of th) {
+      expect(v.id.startsWith('th-')).toBe(true);
+      // city must be in the curated cities table (CITY_IATA) — this is the
+      // load-time gate the 13 new TH cities were added to satisfy.
+      expect(TH_CITIES).toContain(v.city);
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBeTruthy();
+      expect(v.country).toBe('TH');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries Sorn as the 3-star both editions and resolves a newly-curated city', () => {
+    const sorn = data.venueById('th-bkk-sorn');
+    expect(sorn).not.toBeNull();
+    expect(sorn.name).toBe('Sorn');
+    expect(data.categoryForYear(sorn, 2026)).toBe('three-star');
+    // a venue in one of the 13 freshly-added cities loads (would throw
+    // pre-fix because its city was not in CITY_IATA).
+    const akkee = data.venueById('th-nonthaburi-akkee');
+    expect(akkee).not.toBeNull();
+    expect(akkee.city).toBe('Nonthaburi');
+  });
+});
+
 describe('michelin-data — hasMichelinData gate', () => {
   it('is true where MY venues exist (country + curated cities)', () => {
     expect(data.hasMichelinData('MY')).toBe(true);
     expect(data.hasMichelinData('my')).toBe(true);
     expect(data.hasMichelinData('Kuala Lumpur')).toBe(true);
     expect(data.hasMichelinData('George Town')).toBe(true);
+  });
+
+  it('is true where TH venues exist (country + curated cities, incl. new ones)', () => {
+    expect(data.hasMichelinData('TH')).toBe(true);
+    expect(data.hasMichelinData('th')).toBe(true);
+    expect(data.hasMichelinData('Bangkok')).toBe(true);
+    expect(data.hasMichelinData('Nonthaburi')).toBe(true);
+    expect(data.hasMichelinData('Udon Thani')).toBe(true);
   });
 
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
@@ -112,7 +189,7 @@ describe('michelin-data — hasMichelinData gate', () => {
 
 describe('michelin-data — country tables', () => {
   it('the empty guide country tables ship zero rows (curator fills by hand)', () => {
-    for (const cc of ['TH', 'VN', 'JP', 'KR', 'CN', 'HK', 'TW']) {
+    for (const cc of ['VN', 'JP', 'KR', 'CN', 'HK', 'TW']) {
       const tbl = require(`../${cc}-michelin.js`);
       expect(Array.isArray(tbl.ENTRIES)).toBe(true);
       expect(tbl.ENTRIES.length).toBe(0);
@@ -125,6 +202,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('TH-michelin.js is venue-centric with 180 curated rows', () => {
+    const th = require('../TH-michelin.js');
+    expect(th.COUNTRY).toBe('TH');
+    expect(Array.isArray(th.ENTRIES)).toBe(true);
+    expect(th.ENTRIES.length).toBe(180);
   });
 });
 

@@ -84,6 +84,10 @@ const CITY_IATA = Object.freeze({
   // Thailand
   'bangkok': 'BKK', 'chiang mai': 'CNX', 'phuket': 'HKT', 'pattaya': 'UTP',
   'hua hin': 'HHQ', 'krabi': 'KBV', 'ayutthaya': 'BKK', 'koh samui': 'USM',
+  'nonthaburi': 'DMK', 'phang-nga': 'HKT', 'chon buri': 'UTP', 'khon kaen': 'KKC',
+  'ko samui': 'USM', 'nakhon pathom': 'DMK', 'nakhon ratchasima': 'NAK',
+  'pathum thani': 'DMK', 'phra nakhon si ayutthaya': 'DMK', 'samut sakhon': 'BKK',
+  'surat thani': 'URT', 'ubon ratchathani': 'UBP', 'udon thani': 'UTH',
   // Vietnam
   'ho chi minh city': 'SGN', 'hanoi': 'HAN', 'da nang': 'DAD', 'hoi an': 'DAD',
   'nha trang': 'CXR', 'hue': 'HUI', 'phu quoc': 'PQC', 'dalat': 'DLI',
@@ -113,6 +117,10 @@ const COUNTRY_MANIFEST = Object.freeze({
   MY: {
     2025: { 'two-star': 1, 'one-star': 6, 'bib-gourmand': 56, total: 63 },
     2026: { 'two-star': 1, 'one-star': 8, 'bib-gourmand': 58, total: 67 },
+  },
+  TH: {
+    2025: { 'three-star': 1, 'two-star': 7, 'one-star': 28, 'bib-gourmand': 124, total: 160 },
+    2026: { 'three-star': 2, 'two-star': 8, 'one-star': 33, 'bib-gourmand': 137, total: 180 },
   },
 });
 
