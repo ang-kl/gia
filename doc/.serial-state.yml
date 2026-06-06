@@ -1,8 +1,8 @@
 counters:
-  commit: 541
-  build: 327
+  commit: 542
+  build: 328
   documents:
-    journal: 528
+    journal: 529
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 09:41 SGT
-last_anchor_source: v0_61_327_rename_johor_bahru_to_johor (OTHER-mode Malaysia cities table: renamed the entry name 'Johor Bahru' -> 'Johor' in both web/cuisine/src/v2/lib/cities.js and web/menu/src/cities.js so the entry represents the wider Johor; code 'JHB' and lat/lng 1.4927/103.7414 unchanged; the JB region pill + i18n 'region.johor' label untouched)
-last_anchor_iso8601: 2026-06-06T09:41:36+08:00
-last_anchor_utc: 2026-06-06T01:41:36Z
+last_anchor_time: 06-06 '26 10:20 SGT
+last_anchor_source: v0_61_328_other_mode_radius_cap (OTHER-mode geofence Step 1: per-city search-radius cap. Added cityRadiusCapM(name) helper -> 120000 for Johor else 40000 in web/cuisine/src/v2/lib/cities.js + web/menu/src/cities.js; OTHER city picks now stamp radiusCapM onto the pick (LocationField.jsx onCityPick) which round-trips via saveUserLocation -> /api/cuisine/set-location -> Redis; /api/cuisine/search adds an isOther-gated default-40km ceiling (D781). SG/JB radius logic byte-unchanged; out-of-bounds modal + SG-flip deferred)
+last_anchor_iso8601: 2026-06-06T10:20:41+08:00
+last_anchor_utc: 2026-06-06T02:20:41Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

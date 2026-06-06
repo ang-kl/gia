@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { placeAutocomplete, placeResolve, reverseGeocode, fetchRecentLocations, clearRecentLocationsRemote } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
-import { citiesForCountry } from '../lib/cities.js';
+import { citiesForCountry, cityRadiusCapM } from '../lib/cities.js';
 // v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT, JB_FOCUS_KEYS, JB_FOCUS_CHIP_LABELS } from '../lib/jb-focus-points.js';
 
@@ -998,7 +998,11 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // Pass noAutoFire so App.jsx.onLocationSelect sets the anchor but
     // skips the v0.61.237 Promise.resolve()→runSearch microtask. The
     // user must press 🔍 to fire.
-    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, noAutoFire: true });
+    // v0.61.328 — OTHER-mode geofence Step 1: stamp the picked city's
+    // radius cap (40 km cities / 120 km Johor) onto the pick so the
+    // anchor + set-location carry it and the server clamps the OTHER
+    // search radius. SG/JB picks never reach this branch.
+    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, noAutoFire: true, radiusCapM: cityRadiusCapM(hit.name) });
     setQuery(''); setSuggestions([]); setSuggestionsQuery('');
     // v0.61.241 — keep cityPick set so the dropdown shows the picked
     // city code (e.g. "KUL") after collapse instead of reverting to

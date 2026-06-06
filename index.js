@@ -13719,6 +13719,26 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
+        // v0.61.328 — OTHER-mode geofence Step 1: hard radius ceiling for
+        // the OTHER cascade so a curated-city search can't roam the whole
+        // country. City picks persist a per-city `radiusCapM` (40 km
+        // cities / 120 km Johor) which the anchor-cap block above already
+        // honours; but the OTHER autocomplete / free-text pick path stores
+        // NO cap, so without this guard those OTHER searches fell back to
+        // the 20 km DEFAULT_RADIUS yet could be widened by the slider up to
+        // 100 km. Apply a default 40 km ceiling whenever region is OTHER and
+        // no stricter per-anchor cap was found. SG / JB are excluded — this
+        // branch is gated on `isOther`, so their radius logic is untouched.
+        if (isOther) {
+          const OTHER_DEFAULT_CAP_M = 40000;
+          const effectiveOtherCap = (Number.isFinite(anchorCap) && anchorCap > 0)
+            ? anchorCap
+            : OTHER_DEFAULT_CAP_M;
+          if (searchRadius > effectiveOtherCap) {
+            console.log(`[Cuisine-TMA] D781 OTHER radius ceiling ${searchRadius}m → ${effectiveOtherCap}m (region=OTHER, anchorCap=${anchorCap || 'none'})`);
+            searchRadius = effectiveOtherCap;
+          }
+        }
         // v0.61.129 — O-20: Tell-me box place-anchor detection. When
         // the typed text names a Singapore place (MRT, hawker centre,
         // STB precinct, or a geocodable landmark) — either standalone

@@ -221,6 +221,18 @@ export const CITIES_BY_COUNTRY = Object.freeze({
   ]
 });
 
+// v0.61.328 — OTHER-mode geofence Step 1: per-city search-radius cap.
+// The OTHER cascade (16-country curated cities) must not roam the whole
+// country, so each pick carries a `radiusCapM` the server clamps the
+// search radius to (see index.js `/api/cuisine/search` + set-location).
+// 40 km for every curated city; 120 km for the Johor entry (its single
+// row covers all of Johor state). SG / JB region pills are unaffected —
+// only `region === 'OTHER'` picks read this. Kept as a helper rather
+// than a field on all ~110 rows to avoid touching every line.
+export function cityRadiusCapM(name) {
+  return String(name || '').trim().toLowerCase() === 'johor' ? 120000 : 40000;
+}
+
 // Get the cities array for a country (returns [] for unknown codes).
 export function citiesForCountry(code) {
   if (!code) return [];

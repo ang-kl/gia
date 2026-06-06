@@ -1946,7 +1946,12 @@ export default function App() {
       // race against the stale anchor; the fix is to pass the new
       // anchor to runSearch EXPLICITLY (the `anchor` arg, not via
       // state) so it doesn't matter when React commits the update.
-      setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '' });
+      // v0.61.328 — OTHER-mode geofence Step 1: carry the picked
+      // city's radius cap (40 km / 120 km Johor) on the anchor so a
+      // subsequent search can read it. Only OTHER city picks supply
+      // radiusCapM; SG/JB/autocomplete picks omit it (unchanged).
+      setLocationAnchor({ lat: p.lat, lng: p.lng, name: p.label || '',
+        ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {}) });
       // v0.60.170 — also setSearchCenter on pick, so the map re-renders
       // at the picked place and the Search button (runSearch(state),
       // no explicit anchor) doesn't fall back to the stale searchCenter.
@@ -2016,7 +2021,13 @@ export default function App() {
           // v0.61.273 — don't persist the first-paint '__NONE__'
           // sentinel; only forward a resolved region.
           region: persistRegion,
-          country: persistCountry
+          country: persistCountry,
+          // v0.61.328 — persist the OTHER per-city radius cap so the
+          // server's /api/cuisine/search clamps the search radius to it
+          // (40 km curated cities / 120 km Johor). Only present on OTHER
+          // city picks; SG/JB picks pass nothing here, so their stored
+          // anchor stays cap-free and their radius logic is unchanged.
+          ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {})
         }).catch(() => {});
       }
       // v0.61.237 — auto-fire the search with the explicit new anchor.

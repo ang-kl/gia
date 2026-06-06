@@ -311,7 +311,7 @@ export async function clearRecentLocationsRemote() {
 // (server route v0.61.270 brings them to parity with /api/menu/
 // set-location). Pre-v0.61.270 callers (lat/lng only) keep working —
 // the server treats the missing fields as "don't persist".
-export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal }) {
+export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal, radiusCapM }) {
   const body = { lat, lng };
   if (label) body.label = label;
   if (country) body.country = country;
@@ -319,6 +319,8 @@ export async function saveUserLocation({ lat, lng, label, country, region, stree
   if (street) body.street = street;
   if (building) body.building = building;
   if (postal) body.postal = postal;
+  // v0.61.328 — OTHER per-city radius cap (40 km / 120 km Johor).
+  if (Number.isFinite(radiusCapM) && radiusCapM > 0) body.radiusCapM = radiusCapM;
   return postJson('/api/cuisine/set-location', body);
 }
 
