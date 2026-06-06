@@ -1703,7 +1703,13 @@ export default function App() {
         setMichelinRemaining({
           shown: r.michelinSummary.shown || 0,
           remaining: r.michelinSummary.remaining,
-          total: r.michelinSummary.total || 0
+          total: r.michelinSummary.total || 0,
+          // v0.61.350/.351 — country-aware edition label + city-aware counts.
+          label: r.michelinSummary.label || null,
+          city: r.michelinSummary.city || null,
+          cityRemaining: Number.isFinite(r.michelinSummary.cityRemaining) ? r.michelinSummary.cityRemaining : null,
+          countryName: r.michelinSummary.countryName || null,
+          countryFlag: r.michelinSummary.countryFlag || ''
         });
       } else {
         setMichelinRemaining(null);
@@ -2731,11 +2737,21 @@ export default function App() {
              user sees this batch is a slice of the whole list. null on
              non-Michelin searches → header falls back to "Results (12)". */
           totalCount={michelinRemaining ? (michelinRemaining.total || null) : null}
-          michelinHint={(michelinRemaining && michelinRemaining.remaining > 0 && !loading)
-            ? (lang === 'fr'
-              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
-              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap 🔍 for the next batch of 12.`)
-            : null}
+          michelinHint={(() => {
+            const mr = michelinRemaining;
+            if (!(mr && mr.remaining > 0 && !loading)) return null;
+            // v0.61.351 — city-aware hint: "Explore N more in <City> · M across 🇰🇷 <Country>"
+            // when the picked city resolved to a curated Michelin city; else the national hint.
+            if (mr.city && Number.isFinite(mr.cityRemaining)) {
+              const fc = `${mr.countryFlag ? mr.countryFlag + ' ' : ''}${mr.countryName || ''}`.trim();
+              return lang === 'fr'
+                ? `📚 Explorez ${mr.cityRemaining} de plus à ${mr.city} · ${mr.total} dans ${fc}`
+                : `📚 Explore ${mr.cityRemaining} more in ${mr.city} · ${mr.total} across ${fc}`;
+            }
+            return lang === 'fr'
+              ? `📚 Liste Michelin organisée — ${mr.remaining} de plus à découvrir (${mr.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
+              : `📚 Curated Michelin list — ${mr.remaining} more to explore (${mr.total} in total). Tap 🔍 for the next batch of 12.`;
+          })()}
           // v0.60.153 — Michelin-specific "please wait" copy. The
           // handler runs review-extract + LLM narrate + per-venue
           // enrichment-cache fill; cold catalogue takes 5–10 s.
