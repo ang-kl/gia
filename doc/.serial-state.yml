@@ -1,8 +1,8 @@
 counters:
-  commit: 548
-  build: 334
+  commit: 549
+  build: 335
   documents:
-    journal: 535
+    journal: 536
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 17:30 SGT
-last_anchor_source: derived_from_v0_61_335_michelin_paging_fix (operator 06-06 '26: "the sg michelin listing didnt start from 3 stars, also where is the paging controls?" then "2" = fix. Investigation (read-only first): BOTH complaints trace to ONE stale line — michelinSummary.remaining hardcoded 0 at index.js (set in v0.60.195 when the seen-set walk was OFF, never updated when v0.60.198 RESTORED the walk). The walk advanced server-side (recordWalk) while the TMA paging hint stayed hidden (App.jsx gate remaining>0), so a re-tap silently paged past the already-served 3-star slice — looking like the list dropped the 3 stars. Fix: remaining = exhausted ? 0 : max(0, ordered.length - totalServedThisWalk). Server-side only; no TMA build (TMA already reads remaining>0). node --check clean, michelin-data 36 tests green. Left OPEN for review. Anchor 17:11 -> 17:30 SGT same day; commit/journal/build 547/534/333 -> 548/535/334. Version 0.61.334 -> 0.61.335.)
-last_anchor_iso8601: 2026-06-06T17:30:00+08:00
-last_anchor_utc: 2026-06-06T09:30:00Z
+last_anchor_time: 06-06 '26 18:22 SGT
+last_anchor_source: derived_from_v0_61_336_japan_michelin (operator 06-06 '26: pointed to instruction/Japan.js, "mindful of the japanese resturant name and addresses to be added". Load the curated Japan dataset (589 venues, already venue-centric + native nameJa/addressJa on every row, 4 cities Tokyo/Kyoto/Osaka/Nara all already mapped) VERBATIM into JP-michelin.js (was the empty v0.61.333 stub). Register JP COUNTRY_MANIFEST. Operator decisions via AskUserQuestion: (1) 2025 is PARTIAL — 85 venues, NO Bib Gourmand vs 2026's full 588 — ADD AS-IS + flag the gap (manifest matches file verbatim); (2) nameJa/addressJa STORED now (verbatim, kanji byte-for-byte), DISPLAY is a later follow-up (venueToVenue projects them out for now). No city/iata/CITY_IATA changes needed. Loader loads clean: global 839 venues (250 prev + 589 JP) unique, JP manifest 85/588 passes, awards-sum 673; SÉZANNE diacritic + closed status intact, kanji 祇園 さゝ木 preserved. 19/19 sandbox assertions + node --check on all files green. Left OPEN for review. Anchor 17:30 -> 18:22 SGT same day; commit/journal/build 548/535/334 -> 549/536/335. Version 0.61.335 -> 0.61.336.)
+last_anchor_iso8601: 2026-06-06T18:22:00+08:00
+last_anchor_utc: 2026-06-06T10:22:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
