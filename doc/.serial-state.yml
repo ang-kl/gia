@@ -1,8 +1,8 @@
 counters:
-  commit: 560
-  build: 346
+  commit: 561
+  build: 347
   documents:
-    journal: 547
+    journal: 548
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 20:55 SGT
-last_anchor_source: derived_from_v0_61_347_remove_3_no_michelin_countries (operator 06-06 '26: "remove: Laos, Cambodia, Myanmar" from the OTHER-mode picker — none has a Michelin guide. Removed KH/LA/MM from countries.js (OTHER_COUNTRIES 16->13) + their city blocks from cities.js, in BOTH web/cuisine + web/menu copies. Left untouched: cuisine-i18n.js (Burmese/Laotian are cuisine TYPES, not the picker), iata-cities.js + coords-to-country.js (geo-detection reference, separate from the picker). web build clean (iata invariant holds — fewer cities to check); full suite 2985 green (3 parametrized per-country iterations dropped, 0 failures). Left OPEN for review. Part 2 of the operator's 3-part request (after v0.61.346 search wiring); part 3 = expand picker cities to Michelin-listed ones — still due. Anchor 20:48 -> 20:55 SGT; commit/journal/build 559/546/345 -> 560/547/346. Version 0.61.346 -> 0.61.347.)
-last_anchor_iso8601: 2026-06-06T20:55:00+08:00
-last_anchor_utc: 2026-06-06T12:55:00Z
+last_anchor_time: 06-06 '26 21:11 SGT
+last_anchor_source: derived_from_v0_61_348_expand_picker_michelin_cities (operator 06-06 '26: "expand the cities of countries to include those where Michelin is listed" + decisions: I SOURCE coords from public data; CLEAN names, no duplicates. Part 3 of the 3-part request (after v0.61.346 search wiring + v0.61.347 country removal). Gap analysis: MY/TH/VN/JP/KR already complete; added to BOTH cuisine+menu cities.js: CN +9 (Xiamen/Nanjing/Taizhou/Fuzhou/Wenzhou/Quanzhou/Yangzhou/Changzhou/Ningde), HK +'Hong Kong' top-level, TW +'New Taipei', PH +'Cavite' (Metro Manila districts already covered by 'Manila', Cebu by 'Cebu City'), + a new Macau (MO) city block, + MO to BOTH countries.js (OTHER_COUNTRIES 13->14). Added 5 China airport codes (HYN/WNZ/JJN/YTY/CZX) to BOTH iata-cities.js with city-centre coords (FOC/NKG/XMN already present) to satisfy the cities.js->iata invariant. CLEAN-NAMES decision: did NOT add 'Hsinchu City/County' (picker keeps 'Hsinchu') or the compound '- Metro Manila' labels. All city-centre + airport coords sourced from public data. Coverage verified: CN/MO/HK all michelin cities covered. web build clean (invariant holds); full suite 2986 green. All new OTHER cities auto-inherit the 40km radius-cap (cityRadiusCapM). Left OPEN for review. 3-part Michelin live-search request now COMPLETE. Anchor 20:55 -> 21:11 SGT; commit/journal/build 560/547/346 -> 561/548/347. Version 0.61.347 -> 0.61.348.)
+last_anchor_iso8601: 2026-06-06T21:11:00+08:00
+last_anchor_utc: 2026-06-06T13:11:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

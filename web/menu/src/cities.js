@@ -107,7 +107,8 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Davao City',       code: 'DVO', lat:  7.1907, lng: 125.4553 },
     { name: 'Tagaytay',         code: 'MNL', lat: 14.1095, lng: 120.9601 },
     { name: 'Baguio',           code: 'BAG', lat: 16.4023, lng: 120.5960 },
-    { name: 'Iloilo City',      code: 'ILO', lat: 10.7202, lng: 122.5621 }
+    { name: 'Iloilo City',      code: 'ILO', lat: 10.7202, lng: 122.5621 },
+    { name: 'Cavite',           code: 'MNL', lat: 14.4791, lng: 120.8970 }
   ],
   // Brunei.
   BN: [
@@ -171,10 +172,20 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Chengdu',          code: 'CTU', lat: 30.5728, lng: 104.0668 },
     { name: 'Hangzhou',         code: 'HGH', lat: 30.2741, lng: 120.1551 },
     { name: "Xi'an",            code: 'XIY', lat: 34.3416, lng: 108.9398 },
-    { name: 'Suzhou',           code: 'SHA', lat: 31.2989, lng: 120.5853 }
+    { name: 'Suzhou',           code: 'SHA', lat: 31.2989, lng: 120.5853 },
+    { name: 'Xiamen',           code: 'XMN', lat: 24.4798, lng: 118.0894 },
+    { name: 'Nanjing',          code: 'NKG', lat: 32.0603, lng: 118.7969 },
+    { name: 'Taizhou',          code: 'HYN', lat: 28.6563, lng: 121.4205 },
+    { name: 'Fuzhou',           code: 'FOC', lat: 26.0745, lng: 119.2965 },
+    { name: 'Wenzhou',          code: 'WNZ', lat: 27.9939, lng: 120.6994 },
+    { name: 'Quanzhou',         code: 'JJN', lat: 24.8741, lng: 118.6757 },
+    { name: 'Yangzhou',         code: 'YTY', lat: 32.3942, lng: 119.4127 },
+    { name: 'Changzhou',        code: 'CZX', lat: 31.7969, lng: 119.9742 },
+    { name: 'Ningde',           code: 'FOC', lat: 26.6659, lng: 119.5479 }
   ],
   // Hong Kong districts.
   HK: [
+    { name: 'Hong Kong',        code: 'HKG', lat: 22.3193, lng: 114.1694 },
     { name: 'Tsim Sha Tsui',    code: 'HKG', lat: 22.2978, lng: 114.1722 },
     { name: 'Central',          code: 'HKG', lat: 22.2819, lng: 114.1582 },
     { name: 'Causeway Bay',     code: 'HKG', lat: 22.2783, lng: 114.1813 },
@@ -188,6 +199,10 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Tai Po',           code: 'HKG', lat: 22.4501, lng: 114.1644 },
     { name: 'Tseung Kwan O',    code: 'HKG', lat: 22.3076, lng: 114.2590 }
   ],
+  // Macau.
+  MO: [
+    { name: 'Macau',            code: 'MFM', lat: 22.1987, lng: 113.5439 }
+  ],
   // Taiwan.
   TW: [
     { name: 'Taipei',           code: 'TPE', lat: 25.0330, lng: 121.5654 },
@@ -197,7 +212,8 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Hsinchu',          code: 'HSZ', lat: 24.8138, lng: 120.9675 },
     { name: 'Keelung',          code: 'TPE', lat: 25.1276, lng: 121.7392 },
     { name: 'Jiufen',           code: 'TPE', lat: 25.1097, lng: 121.8439 },
-    { name: 'Sun Moon Lake',    code: 'TXG', lat: 23.8569, lng: 120.9152 }
+    { name: 'Sun Moon Lake',    code: 'TXG', lat: 23.8569, lng: 120.9152 },
+    { name: 'New Taipei',       code: 'TPE', lat: 25.0169, lng: 121.4628 }
   ]
 });
 
