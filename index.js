@@ -8909,6 +8909,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // (SG pill → 'SG'; OTHER picker → its country; JB → null, already bailed).
   const michCC = String(michelinCountry || '').toUpperCase();
   const isSGMich = michCC === '' || michCC === 'SG';
+  // v0.61.350 — country-aware result label (operator bug: a Seoul search
+  // still read "Michelin Singapore 2025"). SG keeps its 2025-edition label;
+  // other countries show the NATIONAL list name — the search is country-wide
+  // (the picked city is only the map anchor), so the count is the whole
+  // country, not the city. Years are omitted off-SG because editions are merged.
+  const MICH_CC_NAME = { MY: 'Malaysia', TH: 'Thailand', JP: 'Japan', KR: 'South Korea', CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', VN: 'Vietnam', MO: 'Macau', PH: 'Philippines' };
+  const michelinEditionLabel = isSGMich ? 'Michelin Singapore 2025' : `Michelin ${MICH_CC_NAME[michCC] || michCC}`;
   if (!isSGMich) {
     const mdChk = require('./michelin-data');
     if (!mdChk.hasMichelinData(michCC)) {
@@ -9707,6 +9714,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // walk paginates, zeroed when `exhausted` so the <3-result / walk-end
     // recycle UX is unchanged.
     michelinSummary: {
+      label: michelinEditionLabel,
       total: allEntries.length,
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,

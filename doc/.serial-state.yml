@@ -1,8 +1,8 @@
 counters:
-  commit: 562
-  build: 348
+  commit: 563
+  build: 349
   documents:
-    journal: 549
+    journal: 550
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 21:59 SGT
-last_anchor_source: derived_from_v0_61_349_new_pill_hidden_logic (operator 06-06 '26: "delete logic of New pill, use the /hidden logic". Decision (AskUserQuestion): REVIEW-TIME REFUTE, Places-only. Removed the v0.57.6 cuisine 'New' pill filter (userRatingCount<=150 proxy) and replaced it with /hidden's review-time refute: when filters.newlyOpened is on, fetch each candidate's reviews via Places Details (reviews-only field mask, gated so the cost applies ONLY to New searches), compute hidden-verify.oldestReviewMonths(), and DROP venues whose oldest Google review is >3 months (a review can only post after opening, so an older review proves not-new). Kept venues = no review older than 3mo OR no reviews at all (review-time can only refute, not confirm — Places returns <=5 reviews). The 'newly opened' query modifier still biases Google recall. Logs the before->after count (no silent drops). Server-only (index.js); no web build. node --check clean, full suite 2986 green, no test asserted the <=150 behaviour. Left OPEN for review. Anchor 21:11 -> 21:59 SGT; commit/journal/build 561/548/347 -> 562/549/348. Version 0.61.348 -> 0.61.349.)
-last_anchor_iso8601: 2026-06-06T21:59:00+08:00
-last_anchor_utc: 2026-06-06T13:59:00Z
+last_anchor_time: 07-06 '26 05:53 SGT
+last_anchor_source: derived_from_v0_61_350_michelin_country_label_and_hint (operator 07-06 '26 [screenshot IMG_1042]: bug — Seoul Michelin search still labelled 'Michelin Singapore 2025' (search was correct: returned Bicena/Seoul), and the 'N more to explore' hint sat ABOVE the card; should be BELOW the edition line. Also clarified non-inventively that '117 in total' = whole of South Korea (Seoul 93 + Busan 24), not Seoul — the v0.61.346 search is country-wide. Fixes: (1) handler returns michelinSummary.label = country-aware edition label (SG -> 'Michelin Singapore 2025'; others -> 'Michelin <CountryName>' via a CC->name map; years omitted off-SG since editions merged); App.jsx comboLine uses michelinRemaining.label for the michelin slug instead of the static catalogue name. (2) Moved the Michelin hint from above the ResultPanel into it as a michelinHint prop, rendered full-width below the '· Michelin <country>' header line. Server+TMA; web build clean; full suite 2986 green. Left OPEN for review. NOTE: gia-web full-parity port (operator's prior request) paused for this bug; resume after. Anchor 06-06 21:59 -> 07-06 05:53 SGT; commit/journal/build 562/549/348 -> 563/550/349. Version 0.61.349 -> 0.61.350.)
+last_anchor_iso8601: 2026-06-07T05:53:00+08:00
+last_anchor_utc: 2026-06-06T21:53:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
