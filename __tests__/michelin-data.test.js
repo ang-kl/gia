@@ -6,7 +6,7 @@
 // the Singapore flat dataset (SG lives standalone in SG-michelin.js on its
 // own fast path). This suite therefore covers:
 //   - the real MY-michelin.js load (63@2025 / 67@2026 / awards-sum 130),
-//   - the empty {CC}-michelin.js country tables (VN/CN/HK/TW),
+//   - the empty {CC}-michelin.js country tables (VN/CN/HK),
 //   - hasMichelinData (true for MY/KL/George Town, false for SG + empties),
 //   - the synthetic-fixture venue-centric suites (dup id, year views,
 //     categoryForYear, closed-venue exclusion, awardsDiff, manifest gating).
@@ -293,6 +293,62 @@ describe('michelin-data — South Korea (KR-michelin.js) load', () => {
   });
 });
 
+describe('michelin-data — Taiwan (TW-michelin.js) load', () => {
+  const TW_CITIES = ['Taipei', 'New Taipei', 'Taichung', 'Tainan', 'Kaohsiung', 'Hsinchu City', 'Hsinchu County'];
+
+  it('loads 196 venues with sum(awards) === 196 (2025-only)', () => {
+    const tw = data.venuesForCountry('TW');
+    expect(tw.length).toBe(196);
+    expect(tw.reduce((n, v) => n + v.awards.length, 0)).toBe(196);
+  });
+
+  it('196 venues hold a 2025 award, 0 hold a 2026 award (2025-only edition)', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'TW');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'TW');
+    expect(y25.length).toBe(196);
+    expect(y26.length).toBe(0);
+  });
+
+  it('matches the per-tier 2025 manifest', () => {
+    const t = {};
+    for (const v of data.venuesForCountry('TW')) {
+      for (const a of v.awards) {
+        if (a.year === 2025) t[a.category] = (t[a.category] || 0) + 1;
+      }
+    }
+    expect(t).toEqual({ 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143 });
+  });
+
+  it('every TW venue has a unique id, a curated city, and the full venue shape', () => {
+    const tw = data.venuesForCountry('TW');
+    expect(new Set(tw.map((v) => v.id)).size).toBe(tw.length);
+    for (const v of tw) {
+      expect(v.id.startsWith('tw-')).toBe(true);
+      // city must resolve in CITY_IATA — incl. the 3 freshly-added keys
+      // (New Taipei, Hsinchu City, Hsinchu County).
+      expect(TW_CITIES).toContain(v.city);
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBeTruthy();
+      expect(v.country).toBe('TW');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries JL STUDIO as a 2025 three-star and resolves the freshly-added cities', () => {
+    const jl = data.venueById('tw-txg-jl-studio');
+    expect(jl).not.toBeNull();
+    expect(jl.name).toBe('JL STUDIO');
+    expect(data.categoryForYear(jl, 2025)).toBe('three-star');
+    // venues in the 3 newly-mapped cities load (would throw pre-fix).
+    expect(data.venuesForCountry('TW').some((v) => v.city === 'New Taipei')).toBe(true);
+    expect(data.venuesForCountry('TW').some((v) => v.city === 'Hsinchu County')).toBe(true);
+  });
+});
+
 describe('michelin-data — hasMichelinData gate', () => {
   it('is true where MY venues exist (country + curated cities)', () => {
     expect(data.hasMichelinData('MY')).toBe(true);
@@ -324,14 +380,22 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('Busan')).toBe(true);
   });
 
+  it('is true where TW venues exist (country + curated cities, incl. new ones)', () => {
+    expect(data.hasMichelinData('TW')).toBe(true);
+    expect(data.hasMichelinData('tw')).toBe(true);
+    expect(data.hasMichelinData('Taipei')).toBe(true);
+    expect(data.hasMichelinData('New Taipei')).toBe(true);
+    expect(data.hasMichelinData('Hsinchu City')).toBe(true);
+  });
+
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
     expect(data.hasMichelinData('Singapore')).toBe(false);
     expect(data.hasMichelinData('SG')).toBe(false);
   });
 
   it('is false for the empty guide cities/countries', () => {
-    expect(data.hasMichelinData('Taipei')).toBe(false);
-    expect(data.hasMichelinData('TW')).toBe(false);
+    expect(data.hasMichelinData('Hanoi')).toBe(false);
+    expect(data.hasMichelinData('VN')).toBe(false);
     expect(data.hasMichelinData('Hong Kong')).toBe(false);
   });
 
@@ -344,7 +408,7 @@ describe('michelin-data — hasMichelinData gate', () => {
 
 describe('michelin-data — country tables', () => {
   it('the empty guide country tables ship zero rows (curator fills by hand)', () => {
-    for (const cc of ['VN', 'CN', 'HK', 'TW']) {
+    for (const cc of ['VN', 'CN', 'HK']) {
       const tbl = require(`../${cc}-michelin.js`);
       expect(Array.isArray(tbl.ENTRIES)).toBe(true);
       expect(tbl.ENTRIES.length).toBe(0);
@@ -357,6 +421,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('TW-michelin.js is venue-centric with 196 curated rows', () => {
+    const tw = require('../TW-michelin.js');
+    expect(tw.COUNTRY).toBe('TW');
+    expect(Array.isArray(tw.ENTRIES)).toBe(true);
+    expect(tw.ENTRIES.length).toBe(196);
   });
 
   it('KR-michelin.js is venue-centric with 117 curated rows', () => {
