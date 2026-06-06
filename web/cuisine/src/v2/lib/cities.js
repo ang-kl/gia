@@ -202,7 +202,11 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Wan Chai',         code: 'HKG', lat: 22.2779, lng: 114.1731 },
     { name: 'Sha Tin',          code: 'HKG', lat: 22.3868, lng: 114.1947 },
     { name: 'Aberdeen',         code: 'HKG', lat: 22.2486, lng: 114.1551 },
-    { name: 'Tung Chung',       code: 'HKG', lat: 22.2914, lng: 113.9434 }
+    { name: 'Tung Chung',       code: 'HKG', lat: 22.2914, lng: 113.9434 },
+    { name: 'Tuen Mun',         code: 'HKG', lat: 22.3908, lng: 113.9725 },
+    { name: 'Yuen Long',        code: 'HKG', lat: 22.4445, lng: 114.0225 },
+    { name: 'Tai Po',           code: 'HKG', lat: 22.4501, lng: 114.1644 },
+    { name: 'Tseung Kwan O',    code: 'HKG', lat: 22.3076, lng: 114.2590 }
   ],
   // Taiwan.
   TW: [

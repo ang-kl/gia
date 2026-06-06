@@ -1,8 +1,8 @@
 counters:
-  commit: 539
-  build: 326
+  commit: 540
+  build: 327
   documents:
-    journal: 526
+    journal: 527
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 10:15 SGT
-last_anchor_source: derived_from_v0_61_325_anchor_mismatch_modal_labels (operator 05-06 '26: "if ask if I want JP or change, you have to be specific which part of JP, it should be Fukuoka, Japan or even the street name + City + Country or current location which is street/building + city + country". The v0.61.321 anchor-coherence modal said "your saved spot {name} ... your device is somewhere else (Singapore)" — too vague. Fix: new placeLabel({lat,lng,name}) helper builds "{name}, {city}, {country}" from nearestIataCity (synchronous IATA table, full country name in-table) with name/country/city/coord fallbacks; the modal now names BOTH places — anchorLabel + deviceLabel — and upgrades the device label with ONE reverse-geocode (same call class as the locationName banner) for the street/area name; EN + FR copy + both buttons updated; labels only, no apply*/gate change)
-last_anchor_iso8601: 2026-06-06T10:15:00+08:00
-last_anchor_utc: 2026-06-06T02:15:00Z
+last_anchor_time: 06-06 '26 10:30 SGT
+last_anchor_source: v0_61_326_hk_new_territories_cities (added 4 New Territories city centres — Tuen Mun, Yuen Long, Tai Po, Tseung Kwan O — to the HK OTHER-mode cities tables in both web/cuisine/src/v2/lib/cities.js and web/menu/src/cities.js, HK 8->12; code stays the shared IATA "HKG" per v0.61.242 non-inventive-code rule, only name+lat/lng are per-city)
+last_anchor_iso8601: 2026-06-06T10:30:00+08:00
+last_anchor_utc: 2026-06-06T02:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
