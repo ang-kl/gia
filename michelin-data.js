@@ -102,6 +102,9 @@ const CITY_IATA = Object.freeze({
   // China
   'shanghai': 'SHA', 'beijing': 'BJS', 'guangzhou': 'CAN', 'shenzhen': 'SZX',
   'chengdu': 'CTU', 'hangzhou': 'HGH', "xi'an": 'XIY', 'suzhou': 'SHA',
+  'xiamen': 'XMN', 'nanjing': 'NKG', 'taizhou': 'HYN', 'fuzhou': 'FOC',
+  'wenzhou': 'WNZ', 'quanzhou': 'JJN', 'yangzhou': 'YTY', 'changzhou': 'CZX',
+  'ningde': 'FOC',
   // Hong Kong (territory + districts)
   'hong kong': 'HKG',
   // Macau
@@ -164,6 +167,11 @@ const COUNTRY_MANIFEST = Object.freeze({
   PH: {
     // 2026-ONLY — the Philippines guide launched with the 2026 edition.
     2026: { 'two-star': 1, 'one-star': 8, 'bib-gourmand': 25, total: 34 },
+  },
+  CN: {
+    // 2025 PARTIAL — source captured upper tiers + some Bib (no three-star).
+    2025: { 'two-star': 3, 'one-star': 17, 'bib-gourmand': 44, total: 64 },
+    2026: { 'three-star': 3, 'two-star': 22, 'one-star': 104, 'bib-gourmand': 282, total: 411 },
   },
 });
 

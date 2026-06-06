@@ -1,8 +1,8 @@
 counters:
-  commit: 557
-  build: 343
+  commit: 558
+  build: 344
   documents:
-    journal: 544
+    journal: 545
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 19:59 SGT
-last_anchor_source: derived_from_v0_61_344_philippines_michelin (operator 06-06 '26: "philippines" -> instruction/Philippines.js. NEW country (ISO-2 'PH', 34 venues, 7 city labels). Created PH-michelin.js, registered require('./PH-michelin') in COUNTRY_TABLES, added PH MANIFEST + 7 CITY_IATA keys (Metro Manila districts 'Makati/Taguig/Quezon/Parañaque/Manila - Metro Manila' -> MNL incl. the ñ diacritic key; Cavite -> MNL; Cebu -> CEB). 2026-ONLY (the PH guide launched in 2026, no 2025): 34 @ 2★1/1★8/Bib25, no three-star. No native-name field; has postal. Loader clean: global 1450 venues (1416+34) unique, PH manifest passes, awards-sum 34. 14/14 sandbox assertions + node --check green (incl. ñ city key). CN still the only empty stub. Left OPEN for review. Anchor 19:54 -> 19:59 SGT; commit/journal/build 556/543/342 -> 557/544/343. Version 0.61.343 -> 0.61.344.)
-last_anchor_iso8601: 2026-06-06T19:59:00+08:00
-last_anchor_utc: 2026-06-06T11:59:00Z
+last_anchor_time: 06-06 '26 20:16 SGT
+last_anchor_source: derived_from_v0_61_345_china_michelin (operator 06-06 '26: "china" -> instruction/China.js. Fill the existing CN stub (CN was already in COUNTRY_TABLES + empty-loop): 475 venues (2nd biggest), 15 cities, native nameZh/addressZh on every row. JP/KR pattern: 2025 PARTIAL (64, no three-star) + 2026 full (411). Added 9 missing China cities to CITY_IATA (Xiamen XMN, Nanjing NKG, Taizhou HYN, Fuzhou FOC, Wenzhou WNZ, Quanzhou JJN, Yangzhou YTY, Changzhou CZX, Ningde FOC); 6 were pre-mapped. Register CN manifest. MILESTONE: filling CN means ALL 10 country tables (MY/TH/VN/JP/KR/CN/HK/TW/MO/PH) are now non-empty — removed the empty-tables test + flipped the false-gate from Shanghai/CN to India/IN + France/FR (genuinely-absent countries). nameZh stored, display later. Loader clean: global 1925 venues (1450+475) unique, CN manifest passes, awards-sum 475; hanzi 潮上潮/朝阳区 preserved. 16/16 sandbox assertions + node --check green. Left OPEN for review. Anchor 19:59 -> 20:16 SGT; commit/journal/build 557/544/343 -> 558/545/344. Version 0.61.344 -> 0.61.345.)
+last_anchor_iso8601: 2026-06-06T20:16:00+08:00
+last_anchor_utc: 2026-06-06T12:16:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
