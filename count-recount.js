@@ -82,7 +82,7 @@ async function recountCuisines(redis, opts = {}) {
 async function recountMichelin(redis, opts = {}) {
   let n = null;
   try {
-    const m = require('./michelin-2025');
+    const m = require('./SG-michelin');
     if (typeof m.getAll === 'function') n = m.getAll().length;
   } catch { /* */ }
   const source = n == null ? 'unavailable' : (opts.source || 'manual');

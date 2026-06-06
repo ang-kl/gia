@@ -1,4 +1,4 @@
-// michelin/th.js — v0.61.330
+// TH-michelin.js — v0.61.333
 //
 // Fill by hand from the official Michelin Guide (Stars + Bib Gourmand only). Sourced by Human Lead — DO NOT auto-generate or AI-fabricate. Tag the edition year per entry.
 //

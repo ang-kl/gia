@@ -290,7 +290,7 @@ function formatVenueBlock(p, opts = {}) {
   // v0.60.193 — DF-91: cross-ref logic factored into michelin-2025's
   // appendMichelinAnnotation helper; same body shared by all three
   // call sites (venue-templates, formatTechniqueVenueBlock, /api/cuisine/search).
-  require('./michelin-2025').appendMichelinAnnotation(lines, p, 'formatVenueBlock');
+  require('./SG-michelin').appendMichelinAnnotation(lines, p, 'formatVenueBlock');
   // v0.62.0 — HPB Healthier Choice + "inside a building complex" rows,
   // appended after the Michelin row (standalone when no Michelin).
   require('./healthier-eateries').appendHealthierChoiceLine(lines, p, 'formatVenueBlock');

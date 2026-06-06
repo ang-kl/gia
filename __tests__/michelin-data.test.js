@@ -1,64 +1,105 @@
-// __tests__/michelin-data.test.js — v0.61.331
+// __tests__/michelin-data.test.js — v0.61.333
 //
-// Validates the unified Michelin loader: SG migration count + tags,
-// empty per-city tables, hasMichelinData gate, city/country filters,
-// and schema validation (rejects bad category / missing field).
+// Validates the venue-centric Michelin loader (venue-award-schema.v0_1).
 //
-// v0.61.331 — venue-award-schema.v0_1: appended SYNTHETIC-fixture suites
-// for the venue-centric layer (dup id throws, year views + categoryForYear,
-// closed-venue exclusion, awardsDiff promotion/debut/dropped, manifest
-// gating on a fake country, flat SG → venue normalisation). All fixtures
-// use made-up names ('Test Cafe A', 'Test Stall B', …) — NO real venue.
+// As of v0.61.333 the loader is VENUE-CENTRIC ONLY and no longer ingests
+// the Singapore flat dataset (SG lives standalone in SG-michelin.js on its
+// own fast path). This suite therefore covers:
+//   - the real MY-michelin.js load (63@2025 / 67@2026 / awards-sum 130),
+//   - the empty {CC}-michelin.js country tables (TH/VN/JP/KR/CN/HK/TW),
+//   - hasMichelinData (true for MY/KL/George Town, false for SG + empties),
+//   - the synthetic-fixture venue-centric suites (dup id, year views,
+//     categoryForYear, closed-venue exclusion, awardsDiff, manifest gating).
+// All non-MY fixtures use made-up names ('Test Cafe A', …) — NO fabricated
+// real venue. The MY assertions read the operator's curated table.
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const data = require('../michelin-data.js');
-const sg = require('../michelin-2025.js');
 
-describe('michelin-data — merged pool', () => {
-  it('contains exactly the 130 curated SG entries (per-city tables empty)', () => {
-    expect(data.getAll().length).toBe(130);
-    expect(sg.ALL.length).toBe(130);
+describe('michelin-data — Malaysia (MY-michelin.js) load', () => {
+  it('loads 70 venues with sum(awards) === 130', () => {
+    const my = data.venuesForCountry('MY');
+    expect(my.length).toBe(70);
+    const sum = my.reduce((n, v) => n + v.awards.length, 0);
+    expect(sum).toBe(130);
   });
 
-  it('every merged entry has the full unified shape', () => {
-    for (const e of data.getAll()) {
-      expect(typeof e.city).toBe('string');
-      expect(e.city.length).toBeGreaterThan(0);
-      expect(/^[A-Z]{2}$/.test(e.country)).toBe(true);
-      expect(typeof e.name).toBe('string');
-      expect(typeof e.address).toBe('string');
-      expect(data.CATEGORIES.has(e.category)).toBe(true);
-      expect([2025, 2026]).toContain(e.year);
-      expect(typeof e.vegetarian).toBe('boolean');
-      expect(typeof e.halal).toBe('boolean');
+  it('63 venues hold a 2025 award, 67 hold a 2026 award', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'MY');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'MY');
+    expect(y25.length).toBe(63);
+    expect(y26.length).toBe(67);
+  });
+
+  it('matches the per-tier manifest for both editions', () => {
+    function tiers(year) {
+      const t = {};
+      for (const v of data.venuesForCountry('MY')) {
+        for (const a of v.awards) {
+          if (a.year === year) t[a.category] = (t[a.category] || 0) + 1;
+        }
+      }
+      return t;
+    }
+    expect(tiers(2025)).toEqual({ 'two-star': 1, 'one-star': 6, 'bib-gourmand': 56 });
+    expect(tiers(2026)).toEqual({ 'two-star': 1, 'one-star': 8, 'bib-gourmand': 58 });
+  });
+
+  it('every MY venue has a unique id and the full venue shape', () => {
+    const my = data.venuesForCountry('MY');
+    const ids = new Set(my.map((v) => v.id));
+    expect(ids.size).toBe(my.length);          // no dup ids
+    for (const v of my) {
+      expect(v.id.startsWith('my-')).toBe(true);
+      expect(['Kuala Lumpur', 'George Town']).toContain(v.city);
+      expect(v.country).toBe('MY');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
     }
   });
 
-  it('boolean flags default to false when the source omits them', () => {
-    const lesAmis = data.michelinForCity('Singapore').find((e) => e.name === 'Les Amis');
-    expect(lesAmis.vegetarian).toBe(false);
-    expect(lesAmis.halal).toBe(false);
-    const thevar = data.getAll().find((e) => e.name === 'Thevar');
-    expect(thevar.vegetarian).toBe(true);   // source-set true preserved
+  it('carries the Sri Nirwana Maju → Nirwana rename as one venue', () => {
+    const nirwana = data.venueById('my-kul-nirwana');
+    expect(nirwana).not.toBeNull();
+    expect(nirwana.name).toBe('Nirwana');
+    expect(nirwana.formerNames).toEqual(['Sri Nirwana Maju']);
+    expect(nirwana.awards.length).toBe(2);     // 2025 + 2026
+  });
+
+  it("marks Heun Kee Claypot Chicken Rice (Pudu) as status:'closed'", () => {
+    const heun = data.venueById('my-kul-heun-kee-claypot-chicken-rice-pudu');
+    expect(heun).not.toBeNull();
+    expect(heun.status).toBe('closed');
+    // Closed → excluded from the visitable surface, included in editions.
+    expect(data.visitableVenues(data.venuesForCountry('MY')).map((v) => v.id))
+      .not.toContain(heun.id);
+    expect(data.editionVenues(2025).map((v) => v.id)).toContain(heun.id);
   });
 });
 
 describe('michelin-data — hasMichelinData gate', () => {
-  it('is true for Singapore / SG (curated)', () => {
-    expect(data.hasMichelinData('Singapore')).toBe(true);
-    expect(data.hasMichelinData('singapore')).toBe(true);
-    expect(data.hasMichelinData('SG')).toBe(true);
-    expect(data.hasMichelinData('sg')).toBe(true);
+  it('is true where MY venues exist (country + curated cities)', () => {
+    expect(data.hasMichelinData('MY')).toBe(true);
+    expect(data.hasMichelinData('my')).toBe(true);
+    expect(data.hasMichelinData('Kuala Lumpur')).toBe(true);
+    expect(data.hasMichelinData('George Town')).toBe(true);
+  });
+
+  it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
+    expect(data.hasMichelinData('Singapore')).toBe(false);
+    expect(data.hasMichelinData('SG')).toBe(false);
   });
 
   it('is false for the empty guide cities/countries', () => {
     expect(data.hasMichelinData('Tokyo')).toBe(false);
     expect(data.hasMichelinData('JP')).toBe(false);
-    expect(data.hasMichelinData('Kuala Lumpur')).toBe(false);
-    expect(data.hasMichelinData('MY')).toBe(false);
     expect(data.hasMichelinData('Hong Kong')).toBe(false);
   });
 
@@ -69,74 +110,64 @@ describe('michelin-data — hasMichelinData gate', () => {
   });
 });
 
-describe('michelin-data — city/country filters', () => {
-  it('michelinForCity("Singapore") returns all 130 SG entries', () => {
-    expect(data.michelinForCity('Singapore').length).toBe(130);
-  });
-
-  it('michelinForCountry("SG") returns all 130 SG entries', () => {
-    expect(data.michelinForCountry('SG').length).toBe(130);
-    expect(data.michelinForCountry('sg').length).toBe(130);
-  });
-
-  it('empty result for an unpopulated city/country', () => {
-    expect(data.michelinForCity('Tokyo')).toEqual([]);
-    expect(data.michelinForCountry('JP')).toEqual([]);
-  });
-});
-
-describe('michelin-data — schema validation rejects bad rows', () => {
-  it('rejects an invalid category', () => {
-    expect(() => data.validateEntry({
-      city: 'Tokyo', country: 'JP', name: 'Bad Venue', address: '1 Foo St',
-      category: 'four-star', year: 2025,
-    }, 'test')).toThrow(/invalid category/);
-  });
-
-  it('rejects a missing required field', () => {
-    expect(() => data.validateEntry({
-      city: 'Tokyo', country: 'JP', name: 'No Category', address: '1 Foo St',
-      year: 2025,
-    }, 'test')).toThrow(/missing required field "category"/);
-  });
-
-  it('rejects a non-ISO-2 country', () => {
-    expect(() => data.validateEntry({
-      city: 'Tokyo', country: 'Japan', name: 'Bad CC', address: '1 Foo St',
-      category: 'one-star', year: 2025,
-    }, 'test')).toThrow(/ISO-2/);
-  });
-
-  it('rejects a bad year', () => {
-    expect(() => data.validateEntry({
-      city: 'Tokyo', country: 'JP', name: 'Bad Year', address: '1 Foo St',
-      category: 'one-star', year: 2099,
-    }, 'test')).toThrow(/year/);
-  });
-
-  it('accepts a well-formed unified row', () => {
-    expect(data.validateEntry({
-      city: 'Tokyo', country: 'JP', name: 'Good Venue', address: '1 Foo St',
-      postal: '1000001', category: 'one-star', year: 2026,
-      cuisine: 'japanese', vegetarian: false, halal: false,
-    }, 'test')).toBe(true);
-  });
-});
-
-describe('michelin-data — per-country tables are EMPTY', () => {
-  it('every guide country table ships zero rows (curator fills by hand)', () => {
-    for (const cc of ['my', 'th', 'vn', 'jp', 'kr', 'cn', 'hk', 'tw']) {
-      const tbl = require(`../michelin/${cc}.js`);
+describe('michelin-data — country tables', () => {
+  it('the empty guide country tables ship zero rows (curator fills by hand)', () => {
+    for (const cc of ['TH', 'VN', 'JP', 'KR', 'CN', 'HK', 'TW']) {
+      const tbl = require(`../${cc}-michelin.js`);
       expect(Array.isArray(tbl.ENTRIES)).toBe(true);
       expect(tbl.ENTRIES.length).toBe(0);
-      expect(/^[A-Z]{2}$/.test(tbl.COUNTRY)).toBe(true);
+      expect(tbl.COUNTRY).toBe(cc);
     }
   });
 
-  it('michelin/my.js is venue-centric + EMPTY (no real data fabricated)', () => {
-    const my = require('../michelin/my.js');
+  it('MY-michelin.js is venue-centric with 70 curated rows', () => {
+    const my = require('../MY-michelin.js');
     expect(my.COUNTRY).toBe('MY');
-    expect(my.ENTRIES).toEqual([]);   // operator pastes the curated 130 rows later
+    expect(Array.isArray(my.ENTRIES)).toBe(true);
+    expect(my.ENTRIES.length).toBe(70);
+  });
+});
+
+describe('michelin-data — venue validation rejects bad rows', () => {
+  it('rejects an invalid award category', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-bad', city: 'Tokyo', country: 'JP', name: 'Bad Venue',
+      address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
+      awards: [{ year: 2025, category: 'four-star' }],
+    }, 'test')).toThrow(/invalid award category/);
+  });
+
+  it('rejects a missing required field (no awards)', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-no-awards', city: 'Tokyo', country: 'JP', name: 'No Awards',
+      address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
+      awards: [],
+    }, 'test')).toThrow(/"awards" must be a non-empty array/);
+  });
+
+  it('rejects a non-ISO-2 country', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-badcc', city: 'Tokyo', country: 'Japan', name: 'Bad CC',
+      address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
+      awards: [{ year: 2025, category: 'one-star' }],
+    }, 'test')).toThrow(/ISO-2/);
+  });
+
+  it('rejects a bad award year', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-badyear', city: 'Tokyo', country: 'JP', name: 'Bad Year',
+      address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
+      awards: [{ year: 2099, category: 'one-star' }],
+    }, 'test')).toThrow(/year/);
+  });
+
+  it('accepts a well-formed venue (curated city)', () => {
+    expect(data.validateVenue({
+      id: 'jp-tokyo-good', city: 'Tokyo', country: 'JP', name: 'Good Venue',
+      address: '1 Foo St', postal: '1000001', cuisine: 'japanese',
+      vegetarian: false, halal: false, status: 'open',
+      awards: [{ year: 2026, category: 'one-star' }],
+    }, 'test')).toBe(true);
   });
 });
 
@@ -144,7 +175,7 @@ describe('michelin-data — per-country tables are EMPTY', () => {
 // venue-award-schema.v0_1 — SYNTHETIC fixtures only (made-up names).
 // No real Michelin venue appears below; these exercise the venue-centric
 // loader logic (dup id, year views, categoryForYear, status exclusion,
-// awardsDiff, manifest gating, flat→venue normalisation) in isolation.
+// awardsDiff, manifest gating) in isolation.
 // ──────────────────────────────────────────────────────────────
 
 // A made-up open KL one-star (2025) → two-star (2026): a promotion + debut.
@@ -281,32 +312,5 @@ describe('venue-award-schema — manifest gating (synthetic country)', () => {
     const manifest = { 2025: { 'one-star': 1, total: 1 }, 2026: { 'two-star': 1, total: 1 } };
     const pool = normFixtures([FX_PROMOTED]);   // 1×one-star 2025 + 1×two-star 2026
     expect(() => data.assertManifest('ZZ', pool, 'fixture', manifest)).not.toThrow();
-  });
-});
-
-describe('venue-award-schema — flat SG normalisation', () => {
-  it('a flat SG row becomes a venue with one award + a synthesised id', () => {
-    const flat = {
-      city: 'Singapore', country: 'SG', name: 'Les Amis',
-      address: '1 Scotts Road', postal: '228208',
-      category: 'three-star', year: 2025, cuisine: 'french',
-      vegetarian: false, halal: false,
-    };
-    const v = data.flatToVenue(flat);
-    expect(v.id).toBe('sg-sg-les-amis');         // sg-<iata|sg>-<kebab(name)>
-    expect(v.awards).toEqual([{ year: 2025, category: 'three-star' }]);
-    expect(v.status).toBe('open');               // defaulted
-    expect(v.city).toBe('Singapore');
-  });
-
-  it('the loaded SG pool is venue-centric: 130 venues, each ≥1 award, unique ids', () => {
-    const venues = data.getAllVenues().filter((v) => v.country === 'SG');
-    expect(venues.length).toBe(130);
-    const ids = new Set(venues.map((v) => v.id));
-    expect(ids.size).toBe(130);                  // all unique
-    for (const v of venues) {
-      expect(v.awards.length).toBeGreaterThanOrEqual(1);
-      expect(v.id.startsWith('sg-')).toBe(true);
-    }
   });
 });
