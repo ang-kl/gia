@@ -459,9 +459,64 @@ describe('michelin-data — Hong Kong (HK-michelin.js) load', () => {
     expect(data.categoryForYear(b, 2026)).toBe('three-star');
   });
 
-  it('has NO Macau venues (Hong Kong dataset only)', () => {
-    expect(data.venuesForCountry('HK').every((v) => v.city === 'Hong Kong')).toBe(true);
-    expect(data.venuesForCountry('MO').length).toBe(0);
+  it('is Hong Kong only — Macau is a separate MO table, not in HK', () => {
+    expect(data.venuesForCountry('HK').every((v) => v.country === 'HK' && v.city === 'Hong Kong')).toBe(true);
+    // Macau lives in its own MO table now (loaded separately), never under HK.
+    expect(data.venuesForCountry('HK').some((v) => v.city === 'Macau')).toBe(false);
+  });
+});
+
+describe('michelin-data — Macau (MO-michelin.js) load', () => {
+  it('loads 34 venues with sum(awards) === 42', () => {
+    const mo = data.venuesForCountry('MO');
+    expect(mo.length).toBe(34);
+    expect(mo.reduce((n, v) => n + v.awards.length, 0)).toBe(42);
+  });
+
+  it('8 venues hold a 2025 award, 34 hold a 2026 award (2025 is partial)', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'MO');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'MO');
+    expect(y25.length).toBe(8);
+    expect(y26.length).toBe(34);
+  });
+
+  it('matches the per-tier manifest for both editions (2025 = stars only)', () => {
+    function tiers(year) {
+      const t = {};
+      for (const v of data.venuesForCountry('MO')) {
+        for (const a of v.awards) {
+          if (a.year === year) t[a.category] = (t[a.category] || 0) + 1;
+        }
+      }
+      return t;
+    }
+    expect(tiers(2025)).toEqual({ 'three-star': 2, 'two-star': 6 });
+    expect(tiers(2026)).toEqual({ 'three-star': 2, 'two-star': 6, 'one-star': 13, 'bib-gourmand': 13 });
+  });
+
+  it('every MO venue has a unique id, the curated city, and the full venue shape', () => {
+    const mo = data.venuesForCountry('MO');
+    expect(new Set(mo.map((v) => v.id)).size).toBe(mo.length);
+    for (const v of mo) {
+      expect(v.id.startsWith('mo-')).toBe(true);
+      expect(v.city).toBe('Macau');
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBe('MFM');
+      expect(v.country).toBe('MO');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries Jade Dragon as a 3-star both editions', () => {
+    const jd = data.venueById('mo-mfm-jade-dragon');
+    expect(jd).not.toBeNull();
+    expect(jd.name).toBe('Jade Dragon');
+    expect(data.categoryForYear(jd, 2025)).toBe('three-star');
+    expect(data.categoryForYear(jd, 2026)).toBe('three-star');
   });
 });
 
@@ -518,9 +573,10 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('Hong Kong')).toBe(true);
   });
 
-  it('is false for Macau (NOT in the Hong Kong dataset)', () => {
-    expect(data.hasMichelinData('Macau')).toBe(false);
-    expect(data.hasMichelinData('MO')).toBe(false);
+  it('is true where MO venues exist (Macau — its own ISO-2 table)', () => {
+    expect(data.hasMichelinData('MO')).toBe(true);
+    expect(data.hasMichelinData('mo')).toBe(true);
+    expect(data.hasMichelinData('Macau')).toBe(true);
   });
 
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
@@ -531,8 +587,6 @@ describe('michelin-data — hasMichelinData gate', () => {
   it('is false for the empty guide cities/countries', () => {
     expect(data.hasMichelinData('Shanghai')).toBe(false);
     expect(data.hasMichelinData('CN')).toBe(false);
-    expect(data.hasMichelinData('Macau')).toBe(false);
-    expect(data.hasMichelinData('MO')).toBe(false);
   });
 
   it('is false for empty / nullish input', () => {
@@ -557,6 +611,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('MO-michelin.js is venue-centric with 34 curated rows', () => {
+    const mo = require('../MO-michelin.js');
+    expect(mo.COUNTRY).toBe('MO');
+    expect(Array.isArray(mo.ENTRIES)).toBe(true);
+    expect(mo.ENTRIES.length).toBe(34);
   });
 
   it('HK-michelin.js is venue-centric with 147 curated rows', () => {
