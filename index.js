@@ -9047,7 +9047,28 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // isJB / freeText), and the seen set auto-resets after 1h of
   // inactivity. Places-cache stays dropped (v0.60.195a) — only the
   // pagination half is restored. See michelin-walk.js for the helper.
-  const ordered = [...stars, ...bib];
+  let ordered = [...stars, ...bib];
+  // v0.61.351 — city-aware Michelin (operator: "Explore 81 more in Seoul ·
+  // 117 across 🇰🇷 South Korea"). For a non-SG country, resolve the picked
+  // city from the search anchor (nearestCityForAnchor, distance-guarded to
+  // ≤25 km so only a confident same-city match counts) and, when it matches a
+  // curated city in this country's pool, surface that city's venues FIRST
+  // (tier order preserved within the city + the rest). Falls back to plain
+  // national ordering/hint when there's no confident city match.
+  let michSelectedCity = null;
+  if (!isSGMich && searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
+    try {
+      const near = require('./place-search-variance').nearestCityForAnchor(searchCenter.lat, searchCenter.lng);
+      if (near && near.distanceKm <= 25
+          && ordered.some((e) => String(e.city || '').toLowerCase() === near.city.toLowerCase())) {
+        michSelectedCity = near.city;
+      }
+    } catch { /* national fallback */ }
+  }
+  if (michSelectedCity) {
+    const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
+    ordered = [...ordered.filter(_inCity), ...ordered.filter((e) => !_inCity(e))];
+  }
   const walkHash = michelinWalk.computeCriteriaHash({
     otherCuisineSlugs,
     filters,
@@ -9667,6 +9688,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const newKeys = slice.map((e) => michelinWalk.entryKey(e)).filter(Boolean);
   await michelinWalk.recordWalk(redis, csChatId, walkHash, newKeys);
   const totalServedThisWalk = walkState.seen.size + newKeys.length;
+  // v0.61.351 — city vs country counts for the city-aware hint.
+  let michCityRemaining = null, michCityName = null, michCountryName = null, michCountryFlag = '';
+  if (michSelectedCity) {
+    const _cityKeys = new Set(
+      ordered.filter((e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase())
+        .map((e) => michelinWalk.entryKey(e)).filter(Boolean)
+    );
+    let cityShown = 0;
+    for (const k of walkState.seen) if (_cityKeys.has(k)) cityShown++;
+    for (const k of newKeys) if (_cityKeys.has(k)) cityShown++;
+    michCityRemaining = Math.max(0, _cityKeys.size - cityShown);
+    michCityName = michSelectedCity;
+    michCountryName = MICH_CC_NAME[michCC] || michCC;
+    michCountryFlag = michCC.length === 2
+      ? String.fromCodePoint(...[...michCC].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65))
+      : '';
+  }
   const walkExhausted = totalServedThisWalk >= ordered.length;
   const exhausted = filteredVenues.length < 3 || walkExhausted;
   const handlerMs = Date.now() - handlerStart;
@@ -9717,6 +9755,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       label: michelinEditionLabel,
       total: allEntries.length,
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
+      ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining, countryName: michCountryName, countryFlag: michCountryFlag } : {}),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
       oneStar: allEntries.filter((e) => e.category === 'one-star').length,

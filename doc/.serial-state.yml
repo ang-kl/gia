@@ -1,8 +1,8 @@
 counters:
-  commit: 563
-  build: 349
+  commit: 564
+  build: 350
   documents:
-    journal: 550
+    journal: 551
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 05:53 SGT
-last_anchor_source: derived_from_v0_61_350_michelin_country_label_and_hint (operator 07-06 '26 [screenshot IMG_1042]: bug — Seoul Michelin search still labelled 'Michelin Singapore 2025' (search was correct: returned Bicena/Seoul), and the 'N more to explore' hint sat ABOVE the card; should be BELOW the edition line. Also clarified non-inventively that '117 in total' = whole of South Korea (Seoul 93 + Busan 24), not Seoul — the v0.61.346 search is country-wide. Fixes: (1) handler returns michelinSummary.label = country-aware edition label (SG -> 'Michelin Singapore 2025'; others -> 'Michelin <CountryName>' via a CC->name map; years omitted off-SG since editions merged); App.jsx comboLine uses michelinRemaining.label for the michelin slug instead of the static catalogue name. (2) Moved the Michelin hint from above the ResultPanel into it as a michelinHint prop, rendered full-width below the '· Michelin <country>' header line. Server+TMA; web build clean; full suite 2986 green. Left OPEN for review. NOTE: gia-web full-parity port (operator's prior request) paused for this bug; resume after. Anchor 06-06 21:59 -> 07-06 05:53 SGT; commit/journal/build 562/549/348 -> 563/550/349. Version 0.61.349 -> 0.61.350.)
-last_anchor_iso8601: 2026-06-07T05:53:00+08:00
-last_anchor_utc: 2026-06-06T21:53:00Z
+last_anchor_time: 07-06 '26 06:19 SGT
+last_anchor_source: derived_from_v0_61_351_city_aware_michelin_hint (operator 07-06 '26: "If location is Seoul then the Hint position should be determined for Seoul as this: 📚 Explore 81 more in Seoul · 117 across 🇰🇷 South Korea". Implemented city-aware Michelin: handler resolves the picked city from searchCenter via place-search-variance.nearestCityForAnchor (distance-guarded <=25km; must match a curated city in the country pool), surfaces that city's venues FIRST (tier order preserved within city + rest), and returns michelinSummary.{city, cityRemaining, countryName, countryFlag}. App.jsx builds the city-aware hint 'Explore N more in <City> · M across <flag> <Country>' (en/fr), else the national hint. ALSO fixed a v0.61.350 regression: setMichelinRemaining never carried `label` (so the country-aware subtitle was still showing the static name) — now wired (+ city fields). LIMITATION: nearestCityForAnchor's centroid table covers ~19 major cities (Seoul/Busan/Tokyo/Osaka/Bangkok/Phuket/Chiang Mai/KL/Penang/...) — cities outside it (most CN cities, Macau, Metro Manila, Kyoto/Nara) fall back to the national hint until centroids are added. Server+TMA; web build clean; full suite 2986 green. Left OPEN for review. Anchor 05:53 -> 06:19 SGT 07-06; commit/journal/build 563/550/349 -> 564/551/350. Version 0.61.350 -> 0.61.351.)
+last_anchor_iso8601: 2026-06-07T06:19:00+08:00
+last_anchor_utc: 2026-06-06T22:19:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
