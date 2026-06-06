@@ -6,7 +6,7 @@
 // the Singapore flat dataset (SG lives standalone in SG-michelin.js on its
 // own fast path). This suite therefore covers:
 //   - the real MY-michelin.js load (63@2025 / 67@2026 / awards-sum 130),
-//   - the empty {CC}-michelin.js country tables (VN/KR/CN/HK/TW),
+//   - the empty {CC}-michelin.js country tables (VN/CN/HK/TW),
 //   - hasMichelinData (true for MY/KL/George Town, false for SG + empties),
 //   - the synthetic-fixture venue-centric suites (dup id, year views,
 //     categoryForYear, closed-venue exclusion, awardsDiff, manifest gating).
@@ -226,6 +226,73 @@ describe('michelin-data — Japan (JP-michelin.js) load', () => {
   });
 });
 
+describe('michelin-data — South Korea (KR-michelin.js) load', () => {
+  const KR_CITIES = ['Seoul', 'Busan'];
+
+  it('loads 117 venues with sum(awards) === 127', () => {
+    const kr = data.venuesForCountry('KR');
+    expect(kr.length).toBe(117);
+    expect(kr.reduce((n, v) => n + v.awards.length, 0)).toBe(127);
+  });
+
+  it('10 venues hold a 2025 award, 117 hold a 2026 award (2025 is partial)', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'KR');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'KR');
+    expect(y25.length).toBe(10);
+    expect(y26.length).toBe(117);
+  });
+
+  it('matches the per-tier manifest for both editions (2025 has no Bib Gourmand)', () => {
+    function tiers(year) {
+      const t = {};
+      for (const v of data.venuesForCountry('KR')) {
+        for (const a of v.awards) {
+          if (a.year === year) t[a.category] = (t[a.category] || 0) + 1;
+        }
+      }
+      return t;
+    }
+    expect(tiers(2025)).toEqual({ 'three-star': 1, 'two-star': 8, 'one-star': 1 });
+    expect(tiers(2026)).toEqual({ 'three-star': 1, 'two-star': 10, 'one-star': 35, 'bib-gourmand': 71 });
+  });
+
+  it('every KR venue has a unique id, a curated city, and the full venue shape', () => {
+    const kr = data.venuesForCountry('KR');
+    expect(new Set(kr.map((v) => v.id)).size).toBe(kr.length);
+    for (const v of kr) {
+      expect(v.id.startsWith('kr-')).toBe(true);
+      expect(KR_CITIES).toContain(v.city);
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBeTruthy();
+      expect(v.country).toBe('KR');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries Mingles as the 3-star both editions; Busan venues resolve', () => {
+    const mingles = data.venueById('kr-sel-mingles');
+    expect(mingles).not.toBeNull();
+    expect(mingles.name).toBe('Mingles');
+    expect(data.categoryForYear(mingles, 2025)).toBe('three-star');
+    expect(data.categoryForYear(mingles, 2026)).toBe('three-star');
+    const busan = data.venuesForCountry('KR').filter((v) => v.city === 'Busan');
+    expect(busan.length).toBe(24);
+  });
+
+  it('stores native Korean name + address verbatim in the source file (hangul preserved)', () => {
+    const src = require('../KR-michelin.js').ENTRIES;
+    expect(src.length).toBe(117);
+    const mingles = src.find((e) => e.id === 'kr-sel-mingles');
+    expect(mingles.nameKo).toBe('밍글스');
+    expect(mingles.addressKo).toContain('강남구');
+    expect(src.every((e) => typeof e.nameKo === 'string' && typeof e.addressKo === 'string')).toBe(true);
+  });
+});
+
 describe('michelin-data — hasMichelinData gate', () => {
   it('is true where MY venues exist (country + curated cities)', () => {
     expect(data.hasMichelinData('MY')).toBe(true);
@@ -250,14 +317,21 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('Nara')).toBe(true);
   });
 
+  it('is true where KR venues exist (country + curated cities)', () => {
+    expect(data.hasMichelinData('KR')).toBe(true);
+    expect(data.hasMichelinData('kr')).toBe(true);
+    expect(data.hasMichelinData('Seoul')).toBe(true);
+    expect(data.hasMichelinData('Busan')).toBe(true);
+  });
+
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
     expect(data.hasMichelinData('Singapore')).toBe(false);
     expect(data.hasMichelinData('SG')).toBe(false);
   });
 
   it('is false for the empty guide cities/countries', () => {
-    expect(data.hasMichelinData('Seoul')).toBe(false);
-    expect(data.hasMichelinData('KR')).toBe(false);
+    expect(data.hasMichelinData('Taipei')).toBe(false);
+    expect(data.hasMichelinData('TW')).toBe(false);
     expect(data.hasMichelinData('Hong Kong')).toBe(false);
   });
 
@@ -270,7 +344,7 @@ describe('michelin-data — hasMichelinData gate', () => {
 
 describe('michelin-data — country tables', () => {
   it('the empty guide country tables ship zero rows (curator fills by hand)', () => {
-    for (const cc of ['VN', 'KR', 'CN', 'HK', 'TW']) {
+    for (const cc of ['VN', 'CN', 'HK', 'TW']) {
       const tbl = require(`../${cc}-michelin.js`);
       expect(Array.isArray(tbl.ENTRIES)).toBe(true);
       expect(tbl.ENTRIES.length).toBe(0);
@@ -283,6 +357,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('KR-michelin.js is venue-centric with 117 curated rows', () => {
+    const kr = require('../KR-michelin.js');
+    expect(kr.COUNTRY).toBe('KR');
+    expect(Array.isArray(kr.ENTRIES)).toBe(true);
+    expect(kr.ENTRIES.length).toBe(117);
   });
 
   it('JP-michelin.js is venue-centric with 589 curated rows', () => {
