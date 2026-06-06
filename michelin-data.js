@@ -136,6 +136,12 @@ const COUNTRY_MANIFEST = Object.freeze({
     // 2025-ONLY — source carries the full 2025 edition; 2026 not yet curated.
     2025: { 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143, total: 196 },
   },
+  VN: {
+    // 2025 PARTIAL — source captured one-stars only (no Bib Gourmand).
+    // Vietnam has no two-/three-star venues in either edition.
+    2025: { 'one-star': 9, total: 9 },
+    2026: { 'one-star': 11, 'bib-gourmand': 72, total: 83 },
+  },
 });
 
 // kebab-case a venue name for the id slug: lowercase, strip accents /
