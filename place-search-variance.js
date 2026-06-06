@@ -127,27 +127,11 @@ function _haversineKm(a, b) {
 // City-centroid table — coarse but sufficient to pick the right
 // city for a "Smoke (current location)" run. Coords are city
 // centres of the 14 cities we curate venues for.
-const CITY_CENTROIDS = Object.freeze({
-  'Kuala Lumpur': { lat: 3.139, lng: 101.687 },
-  'Putrajaya':    { lat: 2.926, lng: 101.696 },
-  'Penang':       { lat: 5.414, lng: 100.329 },
-  'Melaka':       { lat: 2.196, lng: 102.247 },
-  'Johor Bahru':  { lat: 1.493, lng: 103.741 },
-  'Petaling Jaya':{ lat: 3.107, lng: 101.607 },
-  'Shah Alam':    { lat: 3.073, lng: 101.518 },
-  'Kajang':       { lat: 2.993, lng: 101.787 },
-  'Klang':        { lat: 3.044, lng: 101.445 },
-  'Subang Jaya':  { lat: 3.044, lng: 101.580 },
-  'Tokyo':        { lat: 35.681, lng: 139.767 },
-  'Osaka':        { lat: 34.694, lng: 135.502 },
-  'Seoul':        { lat: 37.566, lng: 126.978 },
-  'Busan':        { lat: 35.180, lng: 129.075 },
-  'Jakarta':      { lat: -6.208, lng: 106.846 },
-  'Bali':         { lat: -8.339, lng: 115.092 },
-  'Bangkok':      { lat: 13.756, lng: 100.501 },
-  'Phuket':       { lat: 7.880, lng: 98.398 },
-  'Chiang Mai':   { lat: 18.788, lng: 98.985 }
-});
+// v0.61.352 — replaced the legacy 19-row inline table with the geocoded
+// 139-city centroid table (city-centroids.js). nearestCityForAnchor reads
+// each entry's lat/lng exactly as before; the richer fields (zoom, label,
+// labelLocal, radiusM, source, fallback) feed the TMA location-state model.
+const { CITY_CENTROIDS } = require('./city-centroids');
 
 function nearestCityForAnchor(lat, lng) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
