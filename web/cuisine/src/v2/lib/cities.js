@@ -39,7 +39,7 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Kuala Lumpur',     code: 'KUL', lat: 3.1390,  lng: 101.6869 },
     { name: 'Putrajaya',        code: 'KUL', lat: 2.9264,  lng: 101.6964 },
     { name: 'Shah Alam',        code: 'KUL', lat: 3.0738,  lng: 101.5183 },
-    { name: 'Johor Bahru',      code: 'JHB', lat: 1.4927,  lng: 103.7414 },
+    { name: 'Johor',            code: 'JHB', lat: 1.4927,  lng: 103.7414 },
     { name: 'Alor Setar',       code: 'AOR', lat: 6.1248,  lng: 100.3678 },
     { name: 'Kota Kinabalu',    code: 'BKI', lat: 5.9788,  lng: 116.0753 },
     { name: 'Kuching',          code: 'KCH', lat: 1.5535,  lng: 110.3593 },
