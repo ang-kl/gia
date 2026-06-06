@@ -109,6 +109,22 @@ function isFarFromJB(lat, lng) {
   return Number.isFinite(distM) && distM > JB_FALLBACK_THRESHOLD_M;
 }
 
+// v0.61.329 — coordinate-only Johor (state) bbox test. true ⇒ the
+// point falls inside the Johor administrative extent (lat 1.20–2.55,
+// lng 102.50–104.50). Used by /api/menu/set-location's text path to
+// re-derive region from the RESOLVED geocode coords (not the
+// request/cached region), so a "legoland" hit in Johor stores
+// region='JB' instead of inheriting an SG anchor's region. This is a
+// pure coordinate gate (no geocode), complementing classifyByCountry
+// (which needs the admin-area string). The caller checks coarseGate
+// (SG) first; isJbCoords resolves the remaining MY/Johor case.
+function isJbCoords(input) {
+  if (input == null) return false;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  return lat >= 1.20 && lat <= 2.55 && lng >= 102.50 && lng <= 104.50;
+}
+
 // Rule §2.2 — coarse radius gate. true ⇒ within SG_CENTROID +/- R.
 function coarseGate(input) {
   if (input == null) return false;
@@ -290,6 +306,7 @@ module.exports = {
   SG_ONLY,
   haversineMeters,
   isFarFromJB,
+  isJbCoords,
   coarseGate,
   classifyByCountry,
   classifyLocation,

@@ -13002,18 +13002,25 @@ async function cacheBotUsername() {
                 : 'could not resolve text to a Malaysia location'
             });
           }
-          // Preserve the prior region + radiusCapM when the new
-          // resolved point stays in the same region (so a JB anchor
-          // picking another JB hotel keeps the 30 km cap; switching
-          // explicitly to SG clears it).
-          // v0.61.185 — accept legacy 'MY-PUT' alongside 'OTHER' when
-          // checking whether to preserve the cached region's cap.
-          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT' || cached?.region === 'OTHER')
-            && effectiveRegion === cached.region;
-          const setOpts = { label: r.name || text.trim() };
-          if (preserveRegion) {
-            setOpts.region = cached.region;
-            if (Number.isFinite(cached.radiusCapM)) setOpts.radiusCapM = cached.radiusCapM;
+          // v0.61.329 — re-derive region + country from the RESOLVED coords,
+          // not the request/cached region. Operator bug: typing "legoland"
+          // with an SG anchor resolved to LEGOLAND Malaysia (Johor) but was
+          // stored region=SG, so the Menu pill showed 🇸🇬 over a Malaysian
+          // address. The resolved point is the source of truth: SG bbox → SG,
+          // Johor extent → JB, else → OTHER (with country MY for the
+          // SG/MY-biased text geocode).
+          const { coarseGate, isJbCoords } = require('./location-mode');
+          let resolvedRegion;
+          if (coarseGate({ lat: r.lat, lng: r.lng })) resolvedRegion = 'SG';
+          else if (isJbCoords({ lat: r.lat, lng: r.lng })) resolvedRegion = 'JB';
+          else resolvedRegion = 'OTHER';
+          const setOpts = { label: r.name || text.trim(), region: resolvedRegion };
+          if (resolvedRegion !== 'SG') {
+            setOpts.country = (typeof r.country === 'string' && r.country) ? r.country.toUpperCase() : 'MY';
+          }
+          // Preserve the cached radius cap only when the region is unchanged.
+          if (cached?.region === resolvedRegion && Number.isFinite(cached?.radiusCapM)) {
+            setOpts.radiusCapM = cached.radiusCapM;
           }
           // v0.61.139 — pass through the structured address parts from
           // geocodeQueryRegion (Places addressComponents parser) so the
@@ -13026,7 +13033,7 @@ async function cacheBotUsername() {
           if (typeof r.building === 'string' && r.building) setOpts.building = r.building;
           if (typeof r.postal === 'string' && r.postal) setOpts.postal = r.postal;
           await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
-          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" bias=${effectiveRegion} stored=${resolvedRegion} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
           return res.json({
             ok: true,
             label: r.name || text.trim(),
