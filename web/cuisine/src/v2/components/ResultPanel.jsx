@@ -79,7 +79,10 @@ export default function ResultPanel({
   cumulativeCap = null,
   // v0.61.255 — forward specialMode so ResultCard can render the
   // "Inquire for seasonal durian pastry" hint.
-  specialMode = null
+  specialMode = null,
+  // v0.61.350 — Michelin "N more to explore" hint, rendered full-width below
+  // the header (under the "· Michelin <country>" line). null hides it.
+  michelinHint = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -304,6 +307,11 @@ export default function ResultPanel({
           )}
         </div>
       </div>
+      {michelinHint && (
+        <div className="text-[11px] text-tg-hint italic px-1 pb-1.5 leading-snug">
+          {michelinHint}
+        </div>
+      )}
       {warmStartSeed && SEED_LABEL[warmStartSeed] && (
         <div className="text-[11px] text-tg-hint px-1 pb-1.5">
           {/* v0.60.47 — explicit count first ("✨ 5 suggestions") so

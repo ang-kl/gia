@@ -2685,13 +2685,9 @@ export default function App() {
             v0.60.185 — glyph ▶ → 🔍 to match the actual Search button
             the user is tapping. The ▶ metaphor was confusing because
             no ▶ button exists on the TMA. */}
-        {michelinRemaining && michelinRemaining.remaining > 0 && !loading && (
-          <div className="text-[11px] text-tg-hint italic text-center mb-1 px-2">
-            {lang === 'fr'
-              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
-              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap 🔍 for the next batch of 12.`}
-          </div>
-        )}
+        {/* v0.61.350 — the Michelin "N more to explore" hint moved INTO
+            ResultPanel (rendered below the "· Michelin <country>" line) per
+            operator: it belongs below the edition line, not above the card. */}
         <ResultPanel
           venues={venues}
           loading={loading}
@@ -2709,7 +2705,10 @@ export default function App() {
               const all = [].concat(...catalogue.map((c) => c.cuisines || []));
               for (const slug of state.cuisines) {
                 const m = all.find((c) => c.slug === slug);
-                if (m) parts.push(m.name);
+                // v0.61.350 — Michelin: show the country-aware edition label
+                // (server michelinSummary.label) not the static catalogue name.
+                if (slug === 'michelin' && michelinRemaining?.label) parts.push(michelinRemaining.label);
+                else if (m) parts.push(m.name);
                 else parts.push(slug);
               }
             }
@@ -2732,6 +2731,11 @@ export default function App() {
              user sees this batch is a slice of the whole list. null on
              non-Michelin searches → header falls back to "Results (12)". */
           totalCount={michelinRemaining ? (michelinRemaining.total || null) : null}
+          michelinHint={(michelinRemaining && michelinRemaining.remaining > 0 && !loading)
+            ? (lang === 'fr'
+              ? `📚 Liste Michelin organisée — ${michelinRemaining.remaining} de plus à découvrir (${michelinRemaining.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
+              : `📚 Curated Michelin list — ${michelinRemaining.remaining} more to explore (${michelinRemaining.total} in total). Tap 🔍 for the next batch of 12.`)
+            : null}
           // v0.60.153 — Michelin-specific "please wait" copy. The
           // handler runs review-extract + LLM narrate + per-venue
           // enrichment-cache fill; cold catalogue takes 5–10 s.
