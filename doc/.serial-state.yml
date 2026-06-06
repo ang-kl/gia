@@ -1,8 +1,8 @@
 counters:
-  commit: 543
-  build: 329
+  commit: 544
+  build: 330
   documents:
-    journal: 530
+    journal: 531
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 13:05 SGT
-last_anchor_source: v0_61_329_menu_setlocation_region_from_resolved_coords (Menu TMA showed a SG flag over a Malaysian address: typing "legoland" with an SG anchor resolved to LEGOLAND Malaysia / Johor 1.4272,103.6295 but stored region=SG. /api/menu/set-location text path never re-derived region from the resolved coords. Fix: resolved point is the source of truth -> coarseGate SG, isJbCoords JB-bbox, else OTHER, with country MY for non-SG; radius cap preserved only when derived region == cached region. Added + exported isJbCoords in location-mode.js. Menu client App.jsx:435 already follows anchor.region -> no client change)
-last_anchor_iso8601: 2026-06-06T13:05:07+08:00
-last_anchor_utc: 2026-06-06T05:05:07Z
+last_anchor_time: 06-06 '26 14:15 SGT
+last_anchor_source: v0_61_330_michelin_unified_schema (Unify the Michelin dataset on a deterministic per-city schema. michelin-2025.js: stamped every curated SG entry in place (SG_GROUPS loop) with city=Singapore/country=SG/year=2025 - venue literals + exports byte-unchanged so index.js/venue-templates.js/michelin-walk.js consume it identically and the SG /cuisine Michelin List card is unbroken (130 entries: 2/7/32/89). Added 8 EMPTY per-country tables michelin/{my,th,vn,jp,kr,cn,hk,tw}.js (curator fills by hand - NO data fabricated) + a michelin-data.js loader that merges+validates the pool and exposes hasMichelinData(cityOrCountry) [SG/SG true; empty cities false], michelinForCity/michelinForCountry. Live gating deferred. PR left OPEN, auto-merge NOT armed - operator gates the hand-curated Michelin data)
+last_anchor_iso8601: 2026-06-06T14:15:34+08:00
+last_anchor_utc: 2026-06-06T06:15:34Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
