@@ -61,6 +61,7 @@ const COUNTRY_TABLES = [
   require('./CN-michelin'),
   require('./HK-michelin'),
   require('./MO-michelin'),
+  require('./PH-michelin'),
   require('./TW-michelin'),
 ];
 
@@ -105,6 +106,10 @@ const CITY_IATA = Object.freeze({
   'hong kong': 'HKG',
   // Macau
   'macau': 'MFM',
+  // Philippines (Metro Manila districts → MNL; Cebu → CEB; Cavite → MNL)
+  'makati - metro manila': 'MNL', 'taguig - metro manila': 'MNL',
+  'quezon - metro manila': 'MNL', 'parañaque - metro manila': 'MNL',
+  'manila - metro manila': 'MNL', 'cavite': 'MNL', 'cebu': 'CEB',
   'tsim sha tsui': 'HKG', 'central': 'HKG', 'causeway bay': 'HKG', 'mong kok': 'HKG',
   'wan chai': 'HKG', 'sha tin': 'HKG', 'aberdeen': 'HKG', 'tung chung': 'HKG',
   'tuen mun': 'HKG', 'yuen long': 'HKG', 'tai po': 'HKG', 'tseung kwan o': 'HKG',
@@ -155,6 +160,10 @@ const COUNTRY_MANIFEST = Object.freeze({
     // 2025 PARTIAL — source captured the stars only (no one-star, no Bib).
     2025: { 'three-star': 2, 'two-star': 6, total: 8 },
     2026: { 'three-star': 2, 'two-star': 6, 'one-star': 13, 'bib-gourmand': 13, total: 34 },
+  },
+  PH: {
+    // 2026-ONLY — the Philippines guide launched with the 2026 edition.
+    2026: { 'two-star': 1, 'one-star': 8, 'bib-gourmand': 25, total: 34 },
   },
 });
 

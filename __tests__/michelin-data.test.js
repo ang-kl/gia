@@ -520,6 +520,61 @@ describe('michelin-data — Macau (MO-michelin.js) load', () => {
   });
 });
 
+describe('michelin-data — Philippines (PH-michelin.js) load', () => {
+  const PH_CITIES = ['Makati - Metro Manila', 'Taguig - Metro Manila', 'Quezon - Metro Manila', 'Parañaque - Metro Manila', 'Manila - Metro Manila', 'Cebu', 'Cavite'];
+
+  it('loads 34 venues with sum(awards) === 34 (2026-only)', () => {
+    const ph = data.venuesForCountry('PH');
+    expect(ph.length).toBe(34);
+    expect(ph.reduce((n, v) => n + v.awards.length, 0)).toBe(34);
+  });
+
+  it('0 venues hold a 2025 award, 34 hold a 2026 award (2026-only edition)', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'PH');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'PH');
+    expect(y25.length).toBe(0);
+    expect(y26.length).toBe(34);
+  });
+
+  it('matches the per-tier 2026 manifest (no three-star)', () => {
+    const t = {};
+    for (const v of data.venuesForCountry('PH')) {
+      for (const a of v.awards) {
+        if (a.year === 2026) t[a.category] = (t[a.category] || 0) + 1;
+      }
+    }
+    expect(t).toEqual({ 'two-star': 1, 'one-star': 8, 'bib-gourmand': 25 });
+  });
+
+  it('every PH venue has a unique id, a curated city, and the full venue shape', () => {
+    const ph = data.venuesForCountry('PH');
+    expect(new Set(ph.map((v) => v.id)).size).toBe(ph.length);
+    for (const v of ph) {
+      expect(v.id.startsWith('ph-')).toBe(true);
+      // city must resolve in CITY_IATA — incl. the compound "- Metro Manila"
+      // labels and the ñ in "Parañaque".
+      expect(PH_CITIES).toContain(v.city);
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBeTruthy();
+      expect(v.country).toBe('PH');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries Helm as a 2026 two-star and resolves the ñ + compound cities', () => {
+    const helm = data.venueById('ph-mnl-helm');
+    expect(helm).not.toBeNull();
+    expect(helm.name).toBe('Helm');
+    expect(data.categoryForYear(helm, 2026)).toBe('two-star');
+    expect(data.CITY_IATA['parañaque - metro manila']).toBe('MNL');
+    expect(data.venuesForCountry('PH').some((v) => v.city === 'Cebu')).toBe(true);
+  });
+});
+
 describe('michelin-data — hasMichelinData gate', () => {
   it('is true where MY venues exist (country + curated cities)', () => {
     expect(data.hasMichelinData('MY')).toBe(true);
@@ -579,6 +634,14 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('Macau')).toBe(true);
   });
 
+  it('is true where PH venues exist (country + curated cities)', () => {
+    expect(data.hasMichelinData('PH')).toBe(true);
+    expect(data.hasMichelinData('ph')).toBe(true);
+    expect(data.hasMichelinData('Makati - Metro Manila')).toBe(true);
+    expect(data.hasMichelinData('Cebu')).toBe(true);
+    expect(data.hasMichelinData('Parañaque - Metro Manila')).toBe(true);
+  });
+
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
     expect(data.hasMichelinData('Singapore')).toBe(false);
     expect(data.hasMichelinData('SG')).toBe(false);
@@ -611,6 +674,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('PH-michelin.js is venue-centric with 34 curated rows', () => {
+    const ph = require('../PH-michelin.js');
+    expect(ph.COUNTRY).toBe('PH');
+    expect(Array.isArray(ph.ENTRIES)).toBe(true);
+    expect(ph.ENTRIES.length).toBe(34);
   });
 
   it('MO-michelin.js is venue-centric with 34 curated rows', () => {
