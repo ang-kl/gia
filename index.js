@@ -14885,12 +14885,38 @@ async function cacheBotUsername() {
             return false;
           });
         }
-        // v0.57.6: "newly opened" is a soft filter: prefer venues with
-        // ≤150 reviews (proxy for "opened recently in Singapore"). The
-        // searchText query already biases toward Google's own
-        // recency signal via the "newly opened" modifier.
+        // v0.61.349 — the "New" pill now uses /hidden's review-time
+        // refute instead of the v0.57.6 ≤150-review proxy (operator:
+        // "delete logic of New pill, use the /hidden logic"). A Google
+        // review can only be posted AFTER a venue opens, so a review
+        // older than 3 months proves the venue is NOT newly opened.
+        // Fetch each candidate's reviews (Places Details, reviews-only
+        // mask — gated on the pill so the extra cost applies only here)
+        // and drop the proven-old ones. Review-time can only REFUTE, not
+        // confirm, newness (Places returns ≤5 reviews), so venues with no
+        // review older than 3 months — or no reviews at all — are kept.
+        // The "newly opened" query modifier still biases Google's recall.
         if (filters.newlyOpened) {
-          venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
+          const { oldestReviewMonths } = require('./hidden-verify');
+          const NEW_MAX_MONTHS = 3;
+          const newApiKey = process.env.GOOGLE_MAPS_API_KEY;
+          if (newApiKey) {
+            const axiosNew = require('axios');
+            await Promise.all(venues.map(async (v) => {
+              if (!v.placeId) { v._oldestReviewMonths = null; return; }
+              try {
+                const { data } = await axiosNew.get(
+                  `https://places.googleapis.com/v1/places/${v.placeId}`,
+                  { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
+                );
+                v._oldestReviewMonths = oldestReviewMonths(data?.reviews);
+              } catch { v._oldestReviewMonths = null; }
+            }));
+          }
+          const beforeNew = venues.length;
+          venues = venues.filter((v) => v._oldestReviewMonths == null || v._oldestReviewMonths <= NEW_MAX_MONTHS);
+          for (const v of venues) delete v._oldestReviewMonths;
+          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (no review older than ${NEW_MAX_MONTHS}mo)`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
