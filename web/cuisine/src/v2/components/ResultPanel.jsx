@@ -244,8 +244,20 @@ export default function ResultPanel({
           }
           const line1 = tr('panel.line1', lang).replace('{known}', known);
           // Build line 2 per state.
+          // v0.61.338 — Michelin paginates SERVER-side: the TMA only ever
+          // holds one 12-venue batch, so the client `page` is always 1 and
+          // the "Showing first/range N" sub-line would be a static,
+          // misleading "Showing first 12" even on the server's 2nd/3rd
+          // batch. The top "📚 N more to explore … Tap 🔍 for the next batch
+          // of 12" hint is the real pager, so for Michelin we suppress this
+          // sub-line entirely (the hint replaces it). `totalCount` is passed
+          // ONLY on Michelin responses (App.jsx michelinSummary.total), so
+          // gating on it can't affect ordinary client-paginated searches.
+          const isMichelin = Number.isFinite(totalCount) && totalCount > 0;
           let line2;
-          if (cap && known >= cap && isExhaustedNow) {
+          if (isMichelin) {
+            line2 = '';
+          } else if (cap && known >= cap && isExhaustedNow) {
             line2 = tr('panel.line2.limit', lang);
           } else if (venues.length <= PAGE_SIZE && known === venues.length) {
             line2 = tr('panel.line2.all', lang);
@@ -260,7 +272,7 @@ export default function ResultPanel({
           return (
             <>
               <div>{line1}</div>
-              <div className="text-tg-hint font-normal">{line2}</div>
+              {line2 && <div className="text-tg-hint font-normal">{line2}</div>}
               {comboLine && (
                 <div className="text-[10px] text-tg-hint italic font-normal leading-tight mt-0.5">
                   · {comboLine}

@@ -1,8 +1,8 @@
 counters:
-  commit: 550
-  build: 336
+  commit: 551
+  build: 337
   documents:
-    journal: 537
+    journal: 538
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 18:33 SGT
-last_anchor_source: derived_from_v0_61_337_korea_michelin (operator 06-06 '26: "next korea" -> instruction/Korea.js. Load the curated Korea dataset (117 venues, venue-centric + native nameKo/addressKo on every row, 2 cities Seoul/Busan both already mapped in CITY_IATA+cities.js+iata-cities) VERBATIM into KR-michelin.js (was empty stub). Register KR COUNTRY_MANIFEST. SAME decisions as Japan precedent (not re-asked): 2025 PARTIAL (10 venues, NO Bib Gourmand vs 2026's full 117) ADDED AS-IS + flagged; nameKo/addressKo STORED now (hangul byte-for-byte), DISPLAY later (venueToVenue projects them out). No city/iata changes. Loader clean: global 956 venues (250+589+117) unique, KR manifest 10/117 passes, awards-sum 127; hangul 밍글스 / 강남구 preserved. 18/18 sandbox assertions + node --check green. Also flipped the test false-gate from Seoul/KR (now non-empty) to Taipei/TW. Left OPEN for review. Anchor 18:22 -> 18:33 SGT; commit/journal/build 549/536/335 -> 550/537/336. Version 0.61.336 -> 0.61.337.)
-last_anchor_iso8601: 2026-06-06T18:33:00+08:00
-last_anchor_utc: 2026-06-06T10:33:00Z
+last_anchor_time: 06-06 '26 19:18 SGT
+last_anchor_source: derived_from_v0_61_338_michelin_results_line2 (operator 06-06 '26 [screenshot IMG_2308]: confirmed v0.61.335 paging hint works ("94 more to explore (130 in total)"); the redundant "Showing first 12" header sub-line should be REPLACED by that hint. Logic check: Michelin paginates server-side — the TMA holds one 12-venue batch, so client page is always 1 and "Showing first 12" is static + misleading even on the server's 2nd/3rd batch; the top hint is the real pager. Fix in ResultPanel.jsx: for Michelin (totalCount finite>0, Michelin-exclusive) suppress the line2 'Showing first/range N' sub-line entirely + only render line2 when truthy. Keep 'Results: 130' + '· Michelin Singapore 2025'. Non-Michelin (client-paginated) untouched. TMA source-only change; public/cuisine rebuilt by Railway postinstall (gitignored) — local vite build validated clean (79 modules). Left OPEN for review. Anchor 18:33 -> 19:18 SGT; commit/journal/build 550/537/336 -> 551/538/337. Version 0.61.337 -> 0.61.338.)
+last_anchor_iso8601: 2026-06-06T19:18:00+08:00
+last_anchor_utc: 2026-06-06T11:18:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
