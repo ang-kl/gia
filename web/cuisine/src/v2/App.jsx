@@ -2490,6 +2490,7 @@ export default function App() {
                 lift state up to App.jsx. */}
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
+              countryPref={state.countryPref}
               specialMode={state.specialMode || null}
               onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
