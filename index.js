@@ -11668,7 +11668,7 @@ async function cacheBotUsername() {
         const michelin = require('./SG-michelin');
         categories.push({
           id: 'michelin',
-          label: '🇸🇬 Michelin, Bib Gourmand',
+          label: 'Michelin, Bib Gourmand',
           emoji: '✳️',
           defaultOpen: false,
           // v0.60.199 — SG-only marker: the curated dataset is the
@@ -11677,7 +11677,7 @@ async function cacheBotUsername() {
           regionScope: 'SG',
           cuisines: [{
             categoryId: 'michelin',
-            categoryLabel: '🇸🇬 Michelin, Bib Gourmand',
+            categoryLabel: 'Michelin, Bib Gourmand',
             categoryEmoji: '✳️',
             defaultOpen: false,
             name: 'Michelin Singapore 2025',
