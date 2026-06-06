@@ -1,8 +1,8 @@
 counters:
-  commit: 546
-  build: 332
+  commit: 547
+  build: 333
   documents:
-    journal: 533
+    journal: 534
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 06-06 '26 16:38 SGT
-last_anchor_source: derived_from_v0_61_333_sg_michelin_revert (operator 06-06 '26: take Singapore Michelin 100% back to original — restore pre-v0.61.330 michelin-2025.js content (no city/country/year stamping), rename it to SG-michelin.js, and DECOUPLE it from the unified loader so it keeps its fast direct path. Rename the per-country tables to {CC}-michelin.js at the repo root and delete the michelin/ folder. Migrate the operator's curated flat Malaysia file (130 rows) into a venue-centric MY-michelin.js (70 venues; 2025 63 @ 0/1/6/56, 2026 67 @ 0/1/8/58, awards-sum 130; Sri Nirwana Maju→Nirwana rename, Heun Kee Pudu closed). Loader is venue-centric only; hasMichelinData('Singapore') is now FALSE there by design. SG stays 2025-only pending the official 2026 edition. PR #841 superseded/closed. Left OPEN for review (touches the heavily-imported SG file). Anchor advanced 15:55 → 16:38 SGT same day; commit/journal/build advanced 545/532/331 → 546/533/332. Version 0.61.331 → 0.61.333.)
-last_anchor_iso8601: 2026-06-06T16:38:00+08:00
-last_anchor_utc: 2026-06-06T08:38:00Z
+last_anchor_time: 06-06 '26 17:11 SGT
+last_anchor_source: derived_from_v0_61_334_thailand_michelin (operator 06-06 '26: Thailand Michelin — load the operator's curated instruction/Thailand.js (180 venues, already venue-centric, 2025 160 @ 1/7/28/124, 2026 180 @ 2/8/33/137, awards-sum 340) VERBATIM into TH-michelin.js (was the empty v0.61.333 stub). Add the 13 TH guide cities the data spans (Nonthaburi, Phang-Nga, Chon Buri, Khon Kaen, Ko Samui, Nakhon Pathom, Nakhon Ratchasima, Pathum Thani, Phra Nakhon Si Ayutthaya, Samut Sakhon, Surat Thani, Ubon Ratchathani, Udon Thani) to BOTH cities.js copies (web/cuisine + web/menu) and the loader CITY_IATA, and register a TH COUNTRY_MANIFEST (2025 160 / 2026 180). Side-effect: 3 new airport codes (DMK, NAK, UBP) added to both iata-cities.js copies to satisfy the cities.js→iata-cities invariant test. Full national TH coverage; loader loads clean (no dup id, every TH city resolves, manifest passes 160/180/340). Full suite 2931 green. Left OPEN for review (no auto-merge). Anchor advanced 16:38 → 17:11 SGT same day; commit/journal/build advanced 546/533/332 → 547/534/333. Version 0.61.333 → 0.61.334.)
+last_anchor_iso8601: 2026-06-06T17:11:00+08:00
+last_anchor_utc: 2026-06-06T09:11:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

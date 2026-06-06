@@ -72,7 +72,20 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Hua Hin',          code: 'HHQ', lat: 12.5684, lng:  99.9577 },
     { name: 'Krabi',            code: 'KBV', lat:  8.0863, lng:  98.9063 },
     { name: 'Ayutthaya',        code: 'BKK', lat: 14.3692, lng: 100.5877 },
-    { name: 'Koh Samui',        code: 'USM', lat:  9.5120, lng: 100.0136 }
+    { name: 'Koh Samui',        code: 'USM', lat:  9.5120, lng: 100.0136 },
+    { name: 'Nonthaburi',       code: 'DMK', lat: 13.8622, lng: 100.5144 },
+    { name: 'Phang-Nga',        code: 'HKT', lat:  8.4510, lng:  98.5298 },
+    { name: 'Chon Buri',        code: 'UTP', lat: 13.3611, lng: 100.9847 },
+    { name: 'Khon Kaen',        code: 'KKC', lat: 16.4419, lng: 102.8360 },
+    { name: 'Ko Samui',         code: 'USM', lat:  9.5120, lng: 100.0136 },
+    { name: 'Nakhon Pathom',    code: 'DMK', lat: 13.8196, lng: 100.0644 },
+    { name: 'Nakhon Ratchasima', code: 'NAK', lat: 14.9799, lng: 102.0978 },
+    { name: 'Pathum Thani',     code: 'DMK', lat: 14.0208, lng: 100.5251 },
+    { name: 'Phra Nakhon Si Ayutthaya', code: 'DMK', lat: 14.3692, lng: 100.5877 },
+    { name: 'Samut Sakhon',     code: 'BKK', lat: 13.5475, lng: 100.2745 },
+    { name: 'Surat Thani',      code: 'URT', lat:  9.1382, lng:  99.3215 },
+    { name: 'Ubon Ratchathani', code: 'UBP', lat: 15.2448, lng: 104.8473 },
+    { name: 'Udon Thani',       code: 'UTH', lat: 17.4138, lng: 102.7870 }
   ],
   // Vietnam.
   VN: [

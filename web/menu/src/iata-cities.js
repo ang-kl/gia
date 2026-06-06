@@ -71,6 +71,9 @@ export const IATA_CITIES = Object.freeze([
   { iata: 'URT', name: 'Surat Thani',   country: 'Thailand', countryCode: 'TH', lat:  9.1383, lng:  99.3217 },
   { iata: 'PHS', name: 'Phitsanulok',   country: 'Thailand', countryCode: 'TH', lat: 16.8211, lng: 100.2659 },
   { iata: 'HHQ', name: 'Hua Hin',       country: 'Thailand', countryCode: 'TH', lat: 12.5684, lng:  99.9577 },
+  { iata: 'DMK', name: 'Bangkok (Don Mueang)', country: 'Thailand', countryCode: 'TH', lat: 13.9126, lng: 100.6068 },
+  { iata: 'NAK', name: 'Nakhon Ratchasima', country: 'Thailand', countryCode: 'TH', lat: 14.9495, lng: 102.3134 },
+  { iata: 'UBP', name: 'Ubon Ratchathani', country: 'Thailand', countryCode: 'TH', lat: 15.2513, lng: 104.8703 },
 
   // Vietnam
   { iata: 'SGN', name: 'Ho Chi Minh City', country: 'Vietnam', countryCode: 'VN', lat: 10.8231, lng: 106.6297 },
