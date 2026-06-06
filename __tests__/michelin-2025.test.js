@@ -213,6 +213,40 @@ describe('formatMichelinLine — rendered annotation', () => {
   });
 });
 
+describe('Unified schema migration (v0.61.330) — SG locality tags', () => {
+  it('migration preserved the entry count (130 = 2+7+32+89)', () => {
+    expect(m.ALL.length).toBe(130);
+    expect(m.STARS_THREE.length).toBe(2);
+    expect(m.STARS_TWO.length).toBe(7);
+    expect(m.STARS_ONE.length).toBe(32);
+    expect(m.BIB_GOURMAND.length).toBe(89);
+  });
+
+  it('every entry now carries city:"Singapore", country:"SG", year:2025', () => {
+    for (const e of m.ALL) {
+      expect(e.city).toBe('Singapore');
+      expect(e.country).toBe('SG');
+      expect(e.year).toBe(2025);
+    }
+  });
+
+  it('original name/address/category are still present (byte-stable)', () => {
+    // Spot-check representative entries across every tier.
+    const lesAmis = m.findByName('Les Amis');
+    expect(lesAmis.address).toBe('1 Scotts Road, #01-16 Shaw Centre, Singapore 228208');
+    expect(lesAmis.category).toBe('three-star');
+
+    const thevar = m.findByName('Thevar');
+    expect(thevar.category).toBe('two-star');
+    expect(thevar.cuisine).toBe('north-indian');
+    expect(thevar.vegetarian).toBe(true);
+
+    const tianTian = m.findByName('Tian Tian Hainanese Chicken Rice');
+    expect(tianTian.address).toBe('Maxwell Food Centre');
+    expect(tianTian.category).toBe('bib-gourmand');
+  });
+});
+
 describe('Michelin signature venues sanity', () => {
   it('includes both three-star icons (Les Amis, Odette)', () => {
     const names = m.STARS_THREE.map((e) => e.name);
