@@ -122,6 +122,11 @@ const COUNTRY_MANIFEST = Object.freeze({
     2025: { 'three-star': 1, 'two-star': 7, 'one-star': 28, 'bib-gourmand': 124, total: 160 },
     2026: { 'three-star': 2, 'two-star': 8, 'one-star': 33, 'bib-gourmand': 137, total: 180 },
   },
+  JP: {
+    // 2025 PARTIAL — source captured only upper tiers (no Bib Gourmand).
+    2025: { 'three-star': 20, 'two-star': 57, 'one-star': 8, total: 85 },
+    2026: { 'three-star': 21, 'two-star': 61, 'one-star': 278, 'bib-gourmand': 228, total: 588 },
+  },
 });
 
 // kebab-case a venue name for the id slug: lowercase, strip accents /

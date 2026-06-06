@@ -6,7 +6,7 @@
 // the Singapore flat dataset (SG lives standalone in SG-michelin.js on its
 // own fast path). This suite therefore covers:
 //   - the real MY-michelin.js load (63@2025 / 67@2026 / awards-sum 130),
-//   - the empty {CC}-michelin.js country tables (TH/VN/JP/KR/CN/HK/TW),
+//   - the empty {CC}-michelin.js country tables (VN/KR/CN/HK/TW),
 //   - hasMichelinData (true for MY/KL/George Town, false for SG + empties),
 //   - the synthetic-fixture venue-centric suites (dup id, year views,
 //     categoryForYear, closed-venue exclusion, awardsDiff, manifest gating).
@@ -153,6 +153,79 @@ describe('michelin-data — Thailand (TH-michelin.js) load', () => {
   });
 });
 
+describe('michelin-data — Japan (JP-michelin.js) load', () => {
+  const JP_CITIES = ['Tokyo', 'Kyoto', 'Osaka', 'Nara'];
+
+  it('loads 589 venues with sum(awards) === 673', () => {
+    const jp = data.venuesForCountry('JP');
+    expect(jp.length).toBe(589);
+    const sum = jp.reduce((n, v) => n + v.awards.length, 0);
+    expect(sum).toBe(673);
+  });
+
+  it('85 venues hold a 2025 award, 588 hold a 2026 award (2025 is partial)', () => {
+    const y25 = data.venuesForYear(2025).filter((v) => v.country === 'JP');
+    const y26 = data.venuesForYear(2026).filter((v) => v.country === 'JP');
+    expect(y25.length).toBe(85);
+    expect(y26.length).toBe(588);
+  });
+
+  it('matches the per-tier manifest for both editions (2025 has no Bib Gourmand)', () => {
+    function tiers(year) {
+      const t = {};
+      for (const v of data.venuesForCountry('JP')) {
+        for (const a of v.awards) {
+          if (a.year === year) t[a.category] = (t[a.category] || 0) + 1;
+        }
+      }
+      return t;
+    }
+    expect(tiers(2025)).toEqual({ 'three-star': 20, 'two-star': 57, 'one-star': 8 });
+    expect(tiers(2026)).toEqual({ 'three-star': 21, 'two-star': 61, 'one-star': 278, 'bib-gourmand': 228 });
+  });
+
+  it('every JP venue has a unique id, a curated city, and the full venue shape', () => {
+    const jp = data.venuesForCountry('JP');
+    const ids = new Set(jp.map((v) => v.id));
+    expect(ids.size).toBe(jp.length);          // no dup ids
+    for (const v of jp) {
+      expect(v.id.startsWith('jp-')).toBe(true);
+      expect(JP_CITIES).toContain(v.city);
+      expect(data.CITY_IATA[v.city.toLowerCase()]).toBeTruthy();
+      expect(v.country).toBe('JP');
+      expect(typeof v.name).toBe('string');
+      expect(typeof v.address).toBe('string');
+      expect(typeof v.vegetarian).toBe('boolean');
+      expect(typeof v.halal).toBe('boolean');
+      expect(['open', 'closed']).toContain(v.status);
+      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('carries Gion Sasaki as a 3-star both editions; SÉZANNE keeps its diacritic + closed status', () => {
+    const sasaki = data.venueById('jp-uky-gion-sasaki');
+    expect(sasaki).not.toBeNull();
+    expect(sasaki.name).toBe('Gion Sasaki');
+    expect(data.categoryForYear(sasaki, 2025)).toBe('three-star');
+    expect(data.categoryForYear(sasaki, 2026)).toBe('three-star');
+    const sez = data.venueById('jp-tyo-sezanne');
+    expect(sez).not.toBeNull();
+    expect(sez.name).toBe('SÉZANNE');
+    expect(sez.status).toBe('closed');
+  });
+
+  it('stores native Japanese name + address verbatim in the source file (kanji preserved)', () => {
+    // venueToVenue projects nameJa/addressJa OUT (store-now, display-later) —
+    // assert preservation against the source table, not the loaded Venue.
+    const src = require('../JP-michelin.js').ENTRIES;
+    expect(src.length).toBe(589);
+    const sasaki = src.find((e) => e.id === 'jp-uky-gion-sasaki');
+    expect(sasaki.nameJa).toBe('祇園 さゝ木');
+    expect(sasaki.addressJa).toContain('京都市東山区');
+    expect(src.every((e) => typeof e.nameJa === 'string' && typeof e.addressJa === 'string')).toBe(true);
+  });
+});
+
 describe('michelin-data — hasMichelinData gate', () => {
   it('is true where MY venues exist (country + curated cities)', () => {
     expect(data.hasMichelinData('MY')).toBe(true);
@@ -169,14 +242,22 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('Udon Thani')).toBe(true);
   });
 
+  it('is true where JP venues exist (country + curated cities)', () => {
+    expect(data.hasMichelinData('JP')).toBe(true);
+    expect(data.hasMichelinData('jp')).toBe(true);
+    expect(data.hasMichelinData('Tokyo')).toBe(true);
+    expect(data.hasMichelinData('Kyoto')).toBe(true);
+    expect(data.hasMichelinData('Nara')).toBe(true);
+  });
+
   it('is false for Singapore (SG is decoupled — handled by SG-michelin.js)', () => {
     expect(data.hasMichelinData('Singapore')).toBe(false);
     expect(data.hasMichelinData('SG')).toBe(false);
   });
 
   it('is false for the empty guide cities/countries', () => {
-    expect(data.hasMichelinData('Tokyo')).toBe(false);
-    expect(data.hasMichelinData('JP')).toBe(false);
+    expect(data.hasMichelinData('Seoul')).toBe(false);
+    expect(data.hasMichelinData('KR')).toBe(false);
     expect(data.hasMichelinData('Hong Kong')).toBe(false);
   });
 
@@ -189,7 +270,7 @@ describe('michelin-data — hasMichelinData gate', () => {
 
 describe('michelin-data — country tables', () => {
   it('the empty guide country tables ship zero rows (curator fills by hand)', () => {
-    for (const cc of ['VN', 'JP', 'KR', 'CN', 'HK', 'TW']) {
+    for (const cc of ['VN', 'KR', 'CN', 'HK', 'TW']) {
       const tbl = require(`../${cc}-michelin.js`);
       expect(Array.isArray(tbl.ENTRIES)).toBe(true);
       expect(tbl.ENTRIES.length).toBe(0);
@@ -202,6 +283,13 @@ describe('michelin-data — country tables', () => {
     expect(my.COUNTRY).toBe('MY');
     expect(Array.isArray(my.ENTRIES)).toBe(true);
     expect(my.ENTRIES.length).toBe(70);
+  });
+
+  it('JP-michelin.js is venue-centric with 589 curated rows', () => {
+    const jp = require('../JP-michelin.js');
+    expect(jp.COUNTRY).toBe('JP');
+    expect(Array.isArray(jp.ENTRIES)).toBe(true);
+    expect(jp.ENTRIES.length).toBe(589);
   });
 
   it('TH-michelin.js is venue-centric with 180 curated rows', () => {
