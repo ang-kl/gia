@@ -106,7 +106,7 @@ const CITY_IATA = Object.freeze({
   'tuen mun': 'HKG', 'yuen long': 'HKG', 'tai po': 'HKG', 'tseung kwan o': 'HKG',
   // Taiwan
   'taipei': 'TPE', 'kaohsiung': 'KHH', 'taichung': 'TXG', 'tainan': 'TNN',
-  'hsinchu': 'HSZ', 'keelung': 'TPE', 'jiufen': 'TPE', 'sun moon lake': 'TXG',
+  'hsinchu': 'HSZ', 'hsinchu city': 'HSZ', 'hsinchu county': 'HSZ', 'new taipei': 'TPE', 'keelung': 'TPE', 'jiufen': 'TPE', 'sun moon lake': 'TXG',
 });
 
 // Per-(country, year) MANIFEST. The expected per-tier + total counts the
@@ -131,6 +131,10 @@ const COUNTRY_MANIFEST = Object.freeze({
     // 2025 PARTIAL — source captured only upper tiers (no Bib Gourmand).
     2025: { 'three-star': 1, 'two-star': 8, 'one-star': 1, total: 10 },
     2026: { 'three-star': 1, 'two-star': 10, 'one-star': 35, 'bib-gourmand': 71, total: 117 },
+  },
+  TW: {
+    // 2025-ONLY — source carries the full 2025 edition; 2026 not yet curated.
+    2025: { 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143, total: 196 },
   },
 });
 
