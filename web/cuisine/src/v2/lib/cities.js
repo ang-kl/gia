@@ -118,39 +118,6 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Tutong',              code: 'BWN', lat:  4.8000, lng: 114.6500 },
     { name: 'Bangar (Temburong)',  code: 'BWN', lat:  4.7000, lng: 115.0667 }
   ],
-  // Cambodia.
-  KH: [
-    { name: 'Phnom Penh',       code: 'PNH', lat: 11.5564, lng: 104.9282 },
-    { name: 'Siem Reap',        code: 'REP', lat: 13.3633, lng: 103.8564 },
-    { name: 'Sihanoukville',    code: 'KOS', lat: 10.6276, lng: 103.5222 },
-    { name: 'Battambang',       code: 'BBM', lat: 13.0957, lng: 103.2022 },
-    { name: 'Kampot',           code: 'KOS', lat: 10.6104, lng: 104.1810 },
-    { name: 'Kep',              code: 'KOS', lat: 10.4827, lng: 104.3158 },
-    { name: 'Koh Rong',         code: 'KOS', lat: 10.7167, lng: 103.2333 },
-    { name: 'Kratié',           code: 'KTI', lat: 12.4881, lng: 106.0179 }
-  ],
-  // Laos.
-  LA: [
-    { name: 'Vientiane',        code: 'VTE', lat: 17.9757, lng: 102.6331 },
-    { name: 'Luang Prabang',    code: 'LPQ', lat: 19.8845, lng: 102.1348 },
-    { name: 'Vang Vieng',       code: 'VTE', lat: 18.9237, lng: 102.4476 },
-    { name: 'Pakse',            code: 'PKZ', lat: 15.1202, lng: 105.7997 },
-    { name: 'Savannakhet',      code: 'ZVK', lat: 16.5667, lng: 104.7500 },
-    { name: 'Phonsavan',        code: 'XKH', lat: 19.4500, lng: 103.2000 },
-    { name: 'Champasak',        code: 'PKZ', lat: 14.8848, lng: 105.8689 },
-    { name: '4000 Islands',     code: 'PKZ', lat: 13.9333, lng: 105.8667 }
-  ],
-  // Myanmar.
-  MM: [
-    { name: 'Yangon',           code: 'RGN', lat: 16.8409, lng:  96.1735 },
-    { name: 'Mandalay',         code: 'MDL', lat: 21.9588, lng:  96.0891 },
-    { name: 'Naypyidaw',        code: 'NYT', lat: 19.7633, lng:  96.0785 },
-    { name: 'Bagan',            code: 'NYU', lat: 21.1717, lng:  94.8585 },
-    { name: 'Inle Lake',        code: 'HEH', lat: 20.6600, lng:  96.9300 },
-    { name: 'Mawlamyine',       code: 'MNU', lat: 16.4904, lng:  97.6282 },
-    { name: 'Pyin Oo Lwin',     code: 'MDL', lat: 22.0333, lng:  96.4667 },
-    { name: 'Hpa-An',           code: 'MNU', lat: 16.8901, lng:  97.6334 }
-  ],
   // Australia.
   AU: [
     { name: 'Sydney',           code: 'SYD', lat: -33.8688, lng: 151.2093 },
