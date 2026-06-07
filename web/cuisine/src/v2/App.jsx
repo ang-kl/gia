@@ -123,6 +123,10 @@ export default function App() {
   // flies it back without touching the search anchor.
   const [mapViewLocation, setMapViewLocation] = useState(null);
   const [flyTarget, setFlyTarget] = useState(null);
+  // v0.61.358 — debounce the city-preview map fly so rapid city switches don't
+  // make the map jump unpredictably; only the latest pick (after a short quiet)
+  // flies. selectedCityLocation + the Back button still update immediately.
+  const cityFlyDebounceRef = useRef(null);
   // v0.61.354 — selectedCityLocation: a PREVIEWED city (from the OTHER city
   // dropdown). It flies the map but does NOT move the confirmed search anchor
   // (= locationAnchor) until the user taps 🔍 (commit in triggerSearch) or ↩
@@ -2014,7 +2018,11 @@ export default function App() {
       if (p.cityPreview) {
         setSelectedCityLocation({ lat: p.lat, lng: p.lng, name: p.label || '',
           ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {}) });
-        setFlyTarget({ lat: p.lat, lng: p.lng, zoom: 13, _k: Date.now() });
+        // v0.61.358 — debounce the fly (350 ms): rapid switches only fly to the last.
+        if (cityFlyDebounceRef.current) clearTimeout(cityFlyDebounceRef.current);
+        cityFlyDebounceRef.current = setTimeout(() => {
+          setFlyTarget({ lat: p.lat, lng: p.lng, zoom: 13, _k: Date.now() });
+        }, 350);
         return;
       }
       // v0.61.237 — operator: city / precinct picks in the OTHER
