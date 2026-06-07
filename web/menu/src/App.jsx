@@ -20,6 +20,11 @@ import { startLocationSync } from './location-sync.js';
 // `tile.disabledMy` tooltip.
 const SG_ONLY_TILES = new Set(['hawker', 'incidents', 'busnearest', 'weather']);
 
+// v0.61.362 — countries the Menu flag/picker can show (SG + the OTHER
+// list). The 20 s location-sync only flips the flag to a country in this
+// set; outside it, the prior flag is kept.
+const MENU_FLAG_COUNTRIES = new Set(OTHER_COUNTRIES.map((c) => c.code));
+
 // v0.60.55 — hub redesign per Human Lead 2026-05-09 ("still big,
 // half the size"). Tiles drop sub-text and switch to a 3-column
 // grid; section gaps tighten. The Train tile is replaced by an
@@ -146,11 +151,25 @@ export default function App() {
       onLocation: (loc) => {
         const cur = anchorRef.current;
         if (cur && Number.isFinite(cur.lat) && havM(cur, loc) < 1500) return;
-        const country = coordsToCountry(loc) || (cur && cur.country) || null;
+        // v0.61.362 — operator: the 20 s sync must detect the location AND
+        // the flag. The old path resolved the country with coordsToCountry
+        // (SG/MY-only bbox), so moving into any of the other ~13 Menu
+        // countries (TH/JP/KR/ID/VN/PH/AU/NZ/CN/HK/MO/TW/BN) kept the stale
+        // flag. Now: SG/MY use the cheap bbox; everywhere else falls back to
+        // the same global nearestIataCity detector the mount auto-detect
+        // uses, filtered to the countries the Menu flag can actually show.
+        let country = coordsToCountry(loc);
+        if (!country) {
+          const near = nearestIataCity(loc.lat, loc.lng);
+          const cc = near && near.city && near.city.countryCode;
+          if (cc && MENU_FLAG_COUNTRIES.has(cc)) country = cc;
+        }
+        if (!country) country = (cur && cur.country) || null;
         const region = country === 'SG' ? 'SG'
           : (country === 'MY' && loc.lat < 1.55) ? 'JB'
-          : (country === 'MY' ? 'OTHER' : (cur && cur.region) || null);
-        console.log('[Menu-LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
+          : country ? 'OTHER'
+          : (cur && cur.region) || null;
+        console.log('[Menu-LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')', country || '?');
         setAnchor((a) => ({ ...(a || {}), lat: loc.lat, lng: loc.lng, country, region }));
         try {
           const w = tg();
@@ -159,6 +178,14 @@ export default function App() {
             body: JSON.stringify({ lat: loc.lat, lng: loc.lng, country, region, initData: (w && w.initData) || '' }),
             keepalive: true,
           }).catch(() => {});
+          // Mirror the mount auto-detect: keep the chat / picker country-pref
+          // in step so the flag and the OTHER picker agree after a follow.
+          if (country && country !== 'SG') {
+            fetch('/api/cuisine/country-pref', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ countryCode: country, initData: (w && w.initData) || '' }),
+            }).catch(() => {});
+          }
         } catch { /* non-fatal */ }
       },
     });
@@ -438,6 +465,10 @@ export default function App() {
             // v0.61.279 — Register O-27: drop the `|| 'SG'` fallback;
             // see the user-location useEffect above for rationale.
             region: body.region || null,
+            // v0.61.362 — carry the detected country so the compact-pill
+            // flag (which now reads currentAnchor.country) is correct on
+            // the auto-detect path too, not just the user-location echo.
+            country: detected.countryCode || null,
             radiusCapM: body.radiusCapM || null,
             street: body.street || null,
             building: body.building || null,
