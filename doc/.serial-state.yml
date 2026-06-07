@@ -1,8 +1,8 @@
 counters:
-  commit: 568
-  build: 354
+  commit: 569
+  build: 355
   documents:
-    journal: 555
+    journal: 556
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 09:00 SGT
-last_anchor_source: derived_from_v0_61_355_location_sync_poller (operator 07-06 '26: "the flag for the location is very sensitive... do a loop for 20 seconds to check if user has changed location by telegram or device... change the location and flag accordingly. recurring challenge." Decisions (AskUserQuestion): FOLLOW DEVICE (flag+location+anchor); ALL TMAs (shared lib); FRESHER source wins. Root cause confirmed: TMAs resolve location ONCE on mount (cache->Telegram->GPS) and never refresh, so the country flag goes stale after you physically move. NEW shared module location-sync.js: startLocationSync() polls device GPS (navigator.geolocation) + Telegram LocationManager every 4s for 20s, the FRESHER reading wins, reports onLocation when it moves >1.5km from the last point (jitter/stationary-pick guard). Wired into the CUISINE TMA mount: a meaningful device move -> setUserLoc + region/flag via coordsToCountry (SG/JB/OTHER+countryPref) + locationAnchor + searchCenter + flyTarget + saveUserLocation persist (full follow). build clean, full suite 2992 green. SCOPE: this PR ships the shared module + CUISINE wiring (foundation); menu + hawker/transport/oversight wiring is the immediate next step (the module is shared verbatim). NOT live-E2E tested (no browser, no real GPS movement) — operator must field-test by moving + reopening. Anchor 08:30 -> 09:00 SGT 07-06; commit/journal/build 567/554/353 -> 568/555/354. Version 0.61.354 -> 0.61.355.)
-last_anchor_iso8601: 2026-06-07T09:00:00+08:00
-last_anchor_utc: 2026-06-07T01:00:00Z
+last_anchor_time: 07-06 '26 09:30 SGT
+last_anchor_source: derived_from_v0_61_356_location_sync_menu (operator 07-06 '26 "Go" = roll the v0.61.355 location-sync poller into the other TMAs. PR = MENU wiring. Copied location-sync.js verbatim to web/menu/src/; wired the Menu App mount: anchorRef mirror + a once-on-mount effect starting startLocationSync(current:anchor) that, on a >1.5km device move, FOLLOWS the device — setAnchor({lat,lng,country:coordsToCountry,region:SG/JB(lat<1.55)/OTHER}) + POST /api/menu/set-location persist (mirrors applyCoherenceChoice but auto, no prompt). tg() confirmed callable. Now BOTH flag-bearing TMAs (cuisine + menu) auto-correct the flag/location on load whichever opens first. build clean (menu bundle compiled), full suite 2992 green. SG-only TMAs (hawker/transport/oversight) have no country flag — the sync's flag-follow is moot there; their location is already kept via the shared server set-location, so wiring them is optional/low-value (noted, not done). coordsToCountry only resolves SG/MY, so the flag-follow is precise for SG<->JB<->MY (the common cross-border case); other countries keep region via the OTHER picker. NOT live-E2E tested. Anchor 09:00 -> 09:30 SGT 07-06; commit/journal/build 568/555/354 -> 569/556/355. Version 0.61.355 -> 0.61.356.)
+last_anchor_iso8601: 2026-06-07T09:30:00+08:00
+last_anchor_utc: 2026-06-07T01:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
