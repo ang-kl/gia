@@ -12,6 +12,7 @@ import { CITIES_BY_COUNTRY } from './cities.js';
 // v0.61.274 — coords-based country detector for the mount-time
 // coherence check. Mirrors web/cuisine/src/v2/lib/coords-to-country.js.
 import { coordsToCountry } from './coords-to-country.js';
+import { startLocationSync } from './location-sync.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -127,6 +128,42 @@ export default function App() {
   // While `anchorLoading === true`, treat the region as unresolved
   // and gate the SG-mode affordances (train panel + SG-only tiles).
   const [anchorLoading, setAnchorLoading] = useState(true);
+  // v0.61.356 — location-sync (shared): on load, poll device GPS + Telegram for
+  // ~20 s and FOLLOW the device (flag/region + anchor + persist) on a >1.5 km
+  // move, so the Menu flag stops going stale after you've moved. Mirrors cuisine.
+  const anchorRef = useRef(anchor);
+  useEffect(() => { anchorRef.current = anchor; }, [anchor]);
+  const menuSyncStartedRef = useRef(false);
+  useEffect(() => {
+    if (menuSyncStartedRef.current) return;
+    menuSyncStartedRef.current = true;
+    const havM = (a, b) => { const R = 6371000, r = (d) => d * Math.PI / 180;
+      const dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng);
+      const x = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(x)); };
+    const stop = startLocationSync({
+      current: anchorRef.current,
+      onLocation: (loc) => {
+        const cur = anchorRef.current;
+        if (cur && Number.isFinite(cur.lat) && havM(cur, loc) < 1500) return;
+        const country = coordsToCountry(loc) || (cur && cur.country) || null;
+        const region = country === 'SG' ? 'SG'
+          : (country === 'MY' && loc.lat < 1.55) ? 'JB'
+          : (country === 'MY' ? 'OTHER' : (cur && cur.region) || null);
+        console.log('[Menu-LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
+        setAnchor((a) => ({ ...(a || {}), lat: loc.lat, lng: loc.lng, country, region }));
+        try {
+          const w = tg();
+          fetch('/api/menu/set-location', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: loc.lat, lng: loc.lng, country, region, initData: (w && w.initData) || '' }),
+            keepalive: true,
+          }).catch(() => {});
+        } catch { /* non-fatal */ }
+      },
+    });
+    return stop;
+  }, []); // eslint-disable-line
   useEffect(() => {
     let cancelled = false;
     const w = tg();
