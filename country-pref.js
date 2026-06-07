@@ -77,23 +77,39 @@ function buildCountryPickerKeyboard() {
 
 const PREF_TTL = 365 * 24 * 60 * 60; // 365 days
 
-async function getUserCountryPref(redis, chatId) {
+// v0.61.363 — per-device country pref. Same multi-device rationale as
+// the location cache: one chatId, several devices each in a different
+// country. A device token routes to `country-pref:<chatId>:dev:<id>`;
+// reads fall back to the chatId-level key (bot-chat default + seed).
+function _sanitizeDeviceId(deviceId) {
+  if (!deviceId) return null;
+  const clean = String(deviceId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  return clean || null;
+}
+
+async function getUserCountryPref(redis, chatId, deviceId) {
   if (!redis) return DEFAULT_COUNTRY;
   try {
     if (!redis.isOpen) await redis.connect();
-    const raw = await redis.get(`country-pref:${chatId}`).catch(() => null);
+    const dev = _sanitizeDeviceId(deviceId);
+    let raw = dev ? await redis.get(`country-pref:${chatId}:dev:${dev}`).catch(() => null) : null;
+    if (!raw) raw = await redis.get(`country-pref:${chatId}`).catch(() => null);
     if (raw && ALL_CODES.has(String(raw).toUpperCase())) return String(raw).toUpperCase();
   } catch { /* non-fatal — default */ }
   return DEFAULT_COUNTRY;
 }
 
-async function setUserCountryPref(redis, chatId, code) {
+async function setUserCountryPref(redis, chatId, code, deviceId) {
   if (!redis) return false;
   const cc = String(code || '').toUpperCase();
   if (!ALL_CODES.has(cc)) return false;
   try {
     if (!redis.isOpen) await redis.connect();
+    // Write the chatId-level key (bot-chat default + seed) and, when a
+    // device token is present, the per-device key too.
     await redis.setEx(`country-pref:${chatId}`, PREF_TTL, cc);
+    const dev = _sanitizeDeviceId(deviceId);
+    if (dev) await redis.setEx(`country-pref:${chatId}:dev:${dev}`, PREF_TTL, cc);
     return true;
   } catch (err) {
     console.warn('[country-pref] set failed:', err && err.message);

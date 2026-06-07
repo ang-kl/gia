@@ -5,6 +5,7 @@ import { initData } from '../../api/tg.js';
 // shim flips on and starts reporting subsequent fetch timings + window
 // errors to /api/vlog (Railway logs as `[VLOG-CLIENT <chatId>] …`).
 import * as vlog from './vlog.js';
+import { deviceId } from './device-id.js';
 
 // v0.61.361 — Option B device currency. Derive the phone's HOME region
 // (ISO-3166 alpha-2) from the device locale — NOT from where the user
@@ -40,10 +41,11 @@ async function postJson(url, body) {
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
     const dr = deviceRegion();
+    const did = deviceId();
     const r = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, ...(dr ? { deviceRegion: dr } : {}), initData: initData() })
+      body: JSON.stringify({ ...body, ...(dr ? { deviceRegion: dr } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const json = await r.json();
@@ -72,7 +74,8 @@ async function getJson(url) {
     const r = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        'X-Telegram-Init-Data': initData() || ''
+        'X-Telegram-Init-Data': initData() || '',
+        'X-Device-Id': deviceId() || ''
       }
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);

@@ -7,8 +7,31 @@ function hashChatId(chatId) {
   return crypto.createHash('sha256').update(String(chatId)).digest('hex').slice(0, 16);
 }
 
+// v0.61.363 — per-device location keys. One Telegram account (chatId)
+// can run the TMA on several devices at once, each in a different place;
+// keying location by chatId alone made them clobber each other's cache
+// (last writer wins). The TMA now sends a stable per-device token
+// (localStorage UUID) so each device gets its own slot. Bot-chat flows
+// (no device) keep the chatId-level key, which a per-device read also
+// falls back to when that device has no slot yet (seed on first open).
+function sanitizeDeviceId(deviceId) {
+  if (!deviceId) return null;
+  const clean = String(deviceId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  return clean || null;
+}
+
+function locKey(chatId, deviceId) {
+  const base = `loc:${hashChatId(chatId)}`;
+  const dev = sanitizeDeviceId(deviceId);
+  return dev ? `${base}:dev:${dev}` : base;
+}
+
 async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   if (!redis.isOpen) await redis.connect();
+  const deviceId = opts && sanitizeDeviceId(opts.deviceId);
+  // Always write the chatId-level key (bot-chat default + new-device
+  // seed); when a device token is present, ALSO write its per-device key
+  // so concurrent devices don't overwrite each other.
   const key = `loc:${hashChatId(chatId)}`;
   // v0.30.2: stamp setAt so callers can compute staleness for the
   // 15-min "your location is old, refresh?" reminder.
@@ -67,12 +90,20 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
       // silently skip the stamp.
     }
   }
-  await redis.setEx(key, LOC_TTL, JSON.stringify(payload));
+  const serialized = JSON.stringify(payload);
+  await redis.setEx(key, LOC_TTL, serialized);
+  if (deviceId) await redis.setEx(`${key}:dev:${deviceId}`, LOC_TTL, serialized);
 }
 
-async function getUserLocation(redis, chatId) {
+// getUserLocation(redis, chatId, deviceId?) — when a device token is
+// given, read that device's slot first and fall back to the chatId-level
+// key (so a fresh device seeds from the last-known, then diverges).
+async function getUserLocation(redis, chatId, deviceId) {
   if (!redis.isOpen) await redis.connect();
-  const cached = await redis.get(`loc:${hashChatId(chatId)}`);
+  const dev = sanitizeDeviceId(deviceId);
+  let cached = null;
+  if (dev) cached = await redis.get(`loc:${hashChatId(chatId)}:dev:${dev}`);
+  if (!cached) cached = await redis.get(`loc:${hashChatId(chatId)}`);
   if (!cached) return null;
   try {
     const parsed = JSON.parse(cached);
@@ -139,6 +170,8 @@ async function clearProcessing(redis, chatId) {
 
 module.exports = {
   hashChatId,
+  sanitizeDeviceId,
+  locKey,
   setUserLocation,
   getUserLocation,
   getLocationAgeMinutes,

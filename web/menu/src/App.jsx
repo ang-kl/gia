@@ -13,6 +13,7 @@ import { CITIES_BY_COUNTRY } from './cities.js';
 // coherence check. Mirrors web/cuisine/src/v2/lib/coords-to-country.js.
 import { coordsToCountry } from './coords-to-country.js';
 import { startLocationSync } from './location-sync.js';
+import { deviceId } from './device-id.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -175,7 +176,7 @@ export default function App() {
           const w = tg();
           fetch('/api/menu/set-location', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat: loc.lat, lng: loc.lng, country, region, initData: (w && w.initData) || '' }),
+            body: JSON.stringify({ lat: loc.lat, lng: loc.lng, country, region, deviceId: deviceId(), initData: (w && w.initData) || '' }),
             keepalive: true,
           }).catch(() => {});
           // Mirror the mount auto-detect: keep the chat / picker country-pref
@@ -183,7 +184,7 @@ export default function App() {
           if (country && country !== 'SG') {
             fetch('/api/cuisine/country-pref', {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ countryCode: country, initData: (w && w.initData) || '' }),
+              body: JSON.stringify({ countryCode: country, deviceId: deviceId(), initData: (w && w.initData) || '' }),
             }).catch(() => {});
           }
         } catch { /* non-fatal */ }
@@ -198,7 +199,7 @@ export default function App() {
     fetch('/api/cuisine/user-location', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: w.initData || '' })
+      body: JSON.stringify({ deviceId: deviceId(), initData: w.initData || '' })
     })
       .then((r) => r.ok ? r.json() : null)
       .then((b) => {
@@ -248,7 +249,7 @@ export default function App() {
         const r = await fetch('/api/cuisine/user-location', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: w.initData || '' })
+          body: JSON.stringify({ deviceId: deviceId(), initData: w.initData || '' })
         });
         if (!r.ok) return;
         const b = await r.json();
@@ -451,6 +452,7 @@ export default function App() {
             lng: fresh.lng,
             label: labelOut,
             country: detected.countryCode,
+            deviceId: deviceId(),
             initData: w.initData || ''
           }),
           keepalive: true
@@ -480,7 +482,7 @@ export default function App() {
             fetch('/api/cuisine/country-pref', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ countryCode: detected.countryCode, initData: w.initData || '' })
+              body: JSON.stringify({ countryCode: detected.countryCode, deviceId: deviceId(), initData: w.initData || '' })
             }).catch(() => { /* non-fatal */ });
           }
         }
@@ -592,7 +594,7 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             lat: anchor.lat, lng: anchor.lng, label: anchor.label || '',
-            country: newCountry, initData: w.initData || ''
+            country: newCountry, deviceId: deviceId(), initData: w.initData || ''
           })
         }).catch(() => {});
       }

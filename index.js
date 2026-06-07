@@ -314,6 +314,22 @@ async function resolveUserCountry(chatId) {
 // per the operator spec. Called at every search-path enrichment site
 // (alongside enrichTravelTimes) so formatVenueBlock + formatTechniqueVenueBlock
 // stay synchronous downstream.
+// v0.61.363 — per-device cache token. One Telegram account (chatId) can
+// run the TMA on several devices at once, each in a different place; the
+// TMA sends a stable localStorage token so location + country-pref keys
+// don't clobber across devices. Sent in the JSON body (postJson) or the
+// X-Device-Id header (getJson). Returns a sanitized token or null (bot-
+// chat has no device → chatId-level keys, the prior behaviour).
+function readDeviceId(req) {
+  const raw = (req && (
+    (req.body && req.body.deviceId) ||
+    (req.headers && (req.headers['x-device-id'] || req.headers['X-Device-Id'])) ||
+    (req.query && req.query.deviceId)
+  )) || null;
+  try { return require('./location-cache').sanitizeDeviceId(raw); }
+  catch { return null; }
+}
+
 // v0.61.361 — Option B (operator: convert to the user's *device* home
 // currency, not the location-based country). `deviceCountry` is the
 // ISO-3166 alpha-2 the Cuisine TMA derives from the phone's locale
@@ -13034,6 +13050,7 @@ async function cacheBotUsername() {
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
         const chatId = String(userId);
+        const deviceId = readDeviceId(req); // v0.61.363 per-device key
         const { precinctId, text, lat, lng, label, country } = req.body || {};
         const precincts = require('./precincts');
         // v0.61.192 — direct lat/lng/label path for the Menu TMA's
@@ -13052,6 +13069,7 @@ async function cacheBotUsername() {
             region: 'OTHER',
             radiusCapM: 20000,
             label: label.trim(),
+            deviceId,
             ...(cc ? { country: cc } : {})
           });
           console.log(`[menu/set-location] D776 chat=${chatId} OTHER lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} country=${cc || '?'} label="${label.slice(0, 60)}"`);
@@ -13072,7 +13090,8 @@ async function cacheBotUsername() {
             region: p.region,
             radiusCapM: p.radiusCapM || null,
             label: p.label,
-            precinctId: p.id
+            precinctId: p.id,
+            deviceId
           });
           console.log(`[menu/set-location] D776 chat=${chatId} precinctId=${p.id} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
           return res.json({
@@ -13101,7 +13120,7 @@ async function cacheBotUsername() {
           // to override (e.g. when the user just toggled the region
           // toggle but hasn't picked a precinct yet).
           const { geocodeQueryRegion } = require('./vibe-suggest');
-          const cached = await getUserLocation(redis, chatId).catch(() => null);
+          const cached = await getUserLocation(redis, chatId, deviceId).catch(() => null);
           const requestedRegion = (typeof req.body?.region === 'string' && req.body.region) ? req.body.region : null;
           const effectiveRegion = requestedRegion || cached?.region || 'SG';
           const biasCenter = (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng))
@@ -13145,6 +13164,7 @@ async function cacheBotUsername() {
           if (typeof r.street === 'string' && r.street) setOpts.street = r.street;
           if (typeof r.building === 'string' && r.building) setOpts.building = r.building;
           if (typeof r.postal === 'string' && r.postal) setOpts.postal = r.postal;
+          setOpts.deviceId = deviceId;
           await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
           console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" bias=${effectiveRegion} stored=${resolvedRegion} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
           return res.json({
@@ -13270,7 +13290,7 @@ async function cacheBotUsername() {
           console.warn('[user-location] 400 no user id in verified initData');
           return res.status(400).json({ error: 'no user id' });
         }
-        const cached = await getUserLocation(redis, String(userId));
+        const cached = await getUserLocation(redis, String(userId), readDeviceId(req));
         if (!cached?.lat || !cached?.lng) {
           return res.status(404).json({ error: 'no cached location' });
         }
@@ -13421,6 +13441,7 @@ async function cacheBotUsername() {
         if (typeof building === 'string' && building.trim()) opts.building = building.trim();
         if (typeof postal === 'string' && postal.trim()) opts.postal = postal.trim();
         if (Number.isFinite(radiusCapM) && radiusCapM > 0) opts.radiusCapM = radiusCapM;
+        opts.deviceId = readDeviceId(req); // v0.61.363 per-device key
         await setUserLocation(redis, String(userId), lat, lng, opts);
         // v0.61.197 — recent-locations LRU. The TMA POSTs only lat/lng
         // (no label); we record an empty label which the chat /lrecent
@@ -13487,7 +13508,7 @@ async function cacheBotUsername() {
           if (!verified) return res.status(401).json({ error: 'invalid initData' });
           const userId = verified.user?.id;
           if (!userId) return res.status(400).json({ error: 'no user id' });
-          const code = await getUserCountryPref(redis, String(userId));
+          const code = await getUserCountryPref(redis, String(userId), readDeviceId(req));
           res.json({ countryCode: code });
         } catch (err) {
           console.error('[country-pref GET] 500', err.message);
@@ -13505,7 +13526,7 @@ async function cacheBotUsername() {
           if (!userId) return res.status(400).json({ error: 'no user id' });
           const code = String(req.body?.countryCode || '').toUpperCase();
           if (!isValidCountryPref(code)) return res.status(400).json({ error: 'invalid countryCode' });
-          const ok = await setUserCountryPref(redis, String(userId), code);
+          const ok = await setUserCountryPref(redis, String(userId), code, readDeviceId(req));
           if (!ok) return res.status(503).json({ error: 'set failed' });
           console.log(`[country-pref] chat=${userId} → ${code}`);
           res.json({ ok: true, countryCode: code });
@@ -13646,6 +13667,7 @@ async function cacheBotUsername() {
         // independent of where they're searching.
         const deviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
         const deviceRegion = /^[A-Z]{2}$/.test(deviceRegionRaw) ? deviceRegionRaw : null;
+        const searchDeviceId = readDeviceId(req); // v0.61.363 per-device cache
         // v0.61.126 — Fruits / Durian exclusive special mode. When
         // set, the request body's `cuisines` / `filters.michelin` /
         // `filters.dessert` / Tell-me text are all IGNORED in favour
@@ -13676,7 +13698,7 @@ async function cacheBotUsername() {
           let cachedRegion = null;
           if (csChatId) {
             try {
-              const cached = await getUserLocation(redis, csChatId).catch(() => null);
+              const cached = await getUserLocation(redis, csChatId, searchDeviceId).catch(() => null);
               cachedRegion = (cached && typeof cached.region === 'string') ? cached.region : null;
             } catch { /* non-fatal */ }
           }
