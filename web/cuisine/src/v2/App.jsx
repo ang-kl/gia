@@ -114,6 +114,14 @@ export default function App() {
   const [catalogue, setCatalogue] = useState(null);
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
+  // v0.61.353 — location-state model (subset): the live map centre + an
+  // imperative fly target. activeSearchLocation = locationAnchor || userLoc
+  // (the confirmed anchor the search uses); previousSearch/selectedCity land
+  // in the follow-up. The map view can drift from the active anchor (manual
+  // pan / city preview) — the orange "↩ Back to last search area" helper
+  // flies it back without touching the search anchor.
+  const [mapViewLocation, setMapViewLocation] = useState(null);
+  const [flyTarget, setFlyTarget] = useState(null);
   const [venues, setVenues] = useState([]);
   // v0.60.82 — server's AND/OR combo metadata for multi-cuisine
   // searches. { attempted: bool, matched: bool }. When attempted &&
@@ -2393,6 +2401,34 @@ export default function App() {
         />
       )}
 
+      {(() => {
+        // v0.61.353 — "↩ Back to last search area". Shows when the map view
+        // has drifted meaningfully (>600 m) from the confirmed search anchor
+        // (manual pan / city preview). Low-weight orange helper (operator's
+        // no-red accessibility rule); flies the map back WITHOUT changing the
+        // search anchor (positive control — the aircraft-handoff model).
+        const anchor = (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng))
+          ? locationAnchor : userLoc;
+        if (!anchor || !mapViewLocation) return null;
+        const R = 6371000, toRad = (d) => d * Math.PI / 180;
+        const dLat = toRad(mapViewLocation.lat - anchor.lat), dLng = toRad(mapViewLocation.lng - anchor.lng);
+        const hav = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(anchor.lat)) * Math.cos(toRad(mapViewLocation.lat)) * Math.sin(dLng / 2) ** 2;
+        const distM = 2 * R * Math.asin(Math.sqrt(hav));
+        if (distM < 600) return null;
+        return (
+          <div className="px-1 -mt-0.5 mb-1">
+            <button
+              type="button"
+              onClick={() => setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() })}
+              className="text-[11px] px-2.5 py-0.5 rounded-full border border-[#f59e0b] text-[#d97706] bg-transparent leading-tight whitespace-nowrap"
+              title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
+            >
+              ↩ {lang === 'fr' ? 'Retour à la dernière zone de recherche' : 'Back to last search area'}
+            </button>
+          </div>
+        );
+      })()}
+
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
@@ -2403,6 +2439,8 @@ export default function App() {
         overlayLayers={overlayLayers}
         onOverlayChange={setOverlayLayers}
         region={state.region}
+        onMapMove={setMapViewLocation}
+        flyTo={flyTarget}
       />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per

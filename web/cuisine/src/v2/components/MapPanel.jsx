@@ -64,7 +64,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -205,6 +205,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       gestureHandling: 'greedy', mapId: mapIdRef.current
     });
     mapRef.current.addListener('idle', handleIdle);
+    // v0.61.353 — report the live map centre so App can track mapViewLocation
+    // (the "↩ Back to last search area" helper compares it to the confirmed
+    // search anchor). Separate listener so handleIdle's marker logic is untouched.
+    mapRef.current.addListener('idle', () => {
+      const c = mapRef.current && mapRef.current.getCenter && mapRef.current.getCenter();
+      if (c && onMapMove) onMapMove({ lat: c.lat(), lng: c.lng() });
+    });
     // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
     setZoomLevel(mapRef.current.getZoom());
     mapRef.current.addListener('zoom_changed', () => {
@@ -337,6 +344,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
     }
   }, [focusedPlaceId]);
+
+  // v0.61.353 — imperative fly-to: App sets `flyTo` ({lat,lng,zoom?,_k})
+  // to pan the map (e.g. the "↩ Back to last search area" helper flies back
+  // to the confirmed search anchor). `_k` forces a re-fly to the same point.
+  useEffect(() => {
+    if (!flyTo || !mapRef.current) return;
+    if (!Number.isFinite(flyTo.lat) || !Number.isFinite(flyTo.lng)) return;
+    mapRef.current.panTo({ lat: flyTo.lat, lng: flyTo.lng });
+    if (Number.isFinite(flyTo.zoom)) mapRef.current.setZoom(flyTo.zoom);
+  }, [flyTo && flyTo.lat, flyTo && flyTo.lng, flyTo && flyTo._k]); // eslint-disable-line
 
   // v0.61.10 — traffic accidents within 250 m of the search anchor,
   // drawn as ⚠️ markers while results are showing. Best-effort: needs
