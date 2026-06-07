@@ -6,6 +6,7 @@ import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from './lib/location-sync.js';
+import { shouldFollowDevice } from './lib/location-follow.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
@@ -149,31 +150,35 @@ export default function App() {
   // a name) from an implicit device-GPS anchor (name ''). Kept in sync by
   // an effect after locationAnchor is declared.
   const locationAnchorRef = useRef(null);
+  // v0.61.372 — flips true when the mount-time location resolution
+  // (tryServerCache / GPS / centroid) has settled. The follow-device sync
+  // must not fire before this, or its first GPS tick overwrites the
+  // server-cached Menu pick before it's installed (the Wellington race).
+  const initialResolveDoneRef = useRef(false);
   const syncStartedRef = useRef(false);
   useEffect(() => {
     if (syncStartedRef.current) return;
     syncStartedRef.current = true;
-    const havM = (a, b) => { const R = 6371000, r = (d) => d * Math.PI / 180;
-      const dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng);
-      const x = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2;
-      return 2 * R * Math.asin(Math.sqrt(x)); };
+    // v0.61.372 — the move/jitter math now lives in the unit-tested
+    // shouldFollowDevice (location-follow.js); no inline havM here.
     const stop = startLocationSync({
       current: userLocRef.current,
       onLocation: (loc) => {
-        // v0.61.371 — operator: pick Tokyo in Menu while physically in SG →
-        // Cuisine loaded SG. Root cause: this "follow device" sync overrode
-        // the Menu-picked Tokyo anchor (set by tryServerCache from the loc
-        // table) with the SG device GPS. An EXPLICIT pick (a Menu / deep-link
-        // anchor carries a `name`; a device-followed anchor has name '') must
-        // win until the user clears or changes it — so don't follow the device
-        // away from it.
-        const explicitAnchor = locationAnchorRef.current;
-        if (explicitAnchor && (explicitAnchor.name || '').trim()) {
-          console.log('[LocationSync] holding explicit pick "' + explicitAnchor.name + '" — not following device');
-          return;
-        }
+        // v0.61.371/372 — operator: a Menu pick (e.g. Wellington / Tokyo) was
+        // overwritten by the SG device GPS. The pure shouldFollowDevice rule
+        // (location-follow.js, unit-tested) gates this: don't follow until the
+        // mount resolution settled (initialResolveDoneRef — closes the race
+        // where the first GPS tick clobbered the not-yet-installed cached
+        // pick), and never follow off an EXPLICIT named anchor (Menu /
+        // deep-link / LocationField). Sub-threshold jitter is ignored too.
         const cur = userLocRef.current;
-        if (cur && Number.isFinite(cur.lat) && havM(cur, loc) < 1500) return;
+        const anchorNow = locationAnchorRef.current;
+        if (!shouldFollowDevice({
+          initialResolveDone: initialResolveDoneRef.current,
+          explicitAnchorName: anchorNow && anchorNow.name,
+          current: cur,
+          loc,
+        })) return;
         console.log('[LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
         setUserLoc({ lat: loc.lat, lng: loc.lng });
         const c = coordsToCountry({ lat: loc.lat, lng: loc.lng });
@@ -789,6 +794,10 @@ export default function App() {
           if (r?.precinctId) setAnchorPrecinctId(r.precinctId);
         } catch { /* non-fatal */ }
       }
+      // v0.61.372 — the mount-time location resolution has settled; the
+      // follow-device sync may now adopt real device moves (it was gated
+      // until here so it couldn't clobber a server-cached pick).
+      initialResolveDoneRef.current = true;
     })();
     return () => { cancelled = true; };
   }, []);
