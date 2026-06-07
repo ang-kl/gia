@@ -24,6 +24,7 @@ import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 import { citiesForCountry } from '../cities.js';
 import { nearestIataCity } from '../iata-cities.js';
+import { coordsToCountry, isJbCoords } from '../coords-to-country.js';
 import { deviceId } from '../device-id.js';
 // v0.61.269 — shared autocomplete helpers (mirrors Cuisine TMA).
 import { placeAutocomplete, placeResolve } from '../api.js';
@@ -690,17 +691,27 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // ·} tap to change 🔝". Body tap → expand.
   if (currentAnchor && !expanded) {
     let flagEl;
-    if (currentAnchor.region === 'SG') {
+    // v0.61.369 — derive the flag from the anchor's COORDS (ground truth),
+    // NOT the stored region/country, which goes stale across country moves
+    // (operator: a Bukit Merah / Singapore anchor showed a 🇻🇳 flag — leftover
+    // OTHER/VN from a prior Hanoi session). coordsToCountry handles the SG/MY
+    // bbox; everywhere else nearestIataCity resolves the country from the
+    // coords; the stored country / countryPref is only the last-resort fallback
+    // (e.g. coords missing). The anchor's coords always reflect the real place,
+    // whether GPS-detected or manually picked, so the flag stays coherent.
+    const bboxCC = coordsToCountry(currentAnchor); // 'SG' | 'MY' | null
+    if (bboxCC === 'SG') {
       flagEl = <span aria-hidden className="flex-shrink-0">🇸🇬</span>;
-    } else if (currentAnchor.region === 'JB') {
+    } else if (bboxCC === 'MY' && isJbCoords(currentAnchor)) {
       flagEl = <img src="MY_Johor_flag.png" alt="" width="16" height="11" className="rounded-sm border border-tg-border/40 flex-shrink-0" />;
     } else {
-      // v0.61.362 — prefer the live anchor country (the 20 s location-sync
-      // updates currentAnchor.country as you move) over the once-seeded
-      // countryPref, so the pill flag follows the device into any supported
-      // country, not just whatever was loaded on mount.
-      const cc = findCountry(currentAnchor.country || countryPref);
-      flagEl = <span aria-hidden className="flex-shrink-0">{cc?.flag || '🌏'}</span>;
+      let cc = null;
+      if (Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
+        const near = nearestIataCity(currentAnchor.lat, currentAnchor.lng);
+        cc = (near && near.city && near.city.countryCode) || null;
+      }
+      const found = findCountry(cc || currentAnchor.country || countryPref);
+      flagEl = <span aria-hidden className="flex-shrink-0">{found?.flag || '🌏'}</span>;
     }
     const metaLeftRaw = capStr || '';
     const tapStr = lang === 'fr' ? 'touchez pour changer' : 'tap to change';
