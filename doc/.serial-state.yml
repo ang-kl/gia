@@ -1,8 +1,8 @@
 counters:
-  commit: 571
-  build: 357
+  commit: 572
+  build: 358
   documents:
-    journal: 558
+    journal: 559
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 10:30 SGT
-last_anchor_source: derived_from_v0_61_358_city_fly_debounce_pr5 (operator 07-06 '26 "PR 5" (declined the clarify question -> proceeded with the most-likely, low-risk remaining spec item). The location-state spec's last un-done safeguard: "Debounce rapid city changes so the map does not jump unpredictably." Added cityFlyDebounceRef + a 350ms debounce on the city-PREVIEW map fly (App.onLocationSelect cityPreview branch): rapid OTHER city switches now only fly the map to the LAST pick after a short quiet; selectedCityLocation + the ↩ Back button still update immediately so 🔍 commits the latest. Surgical, cuisine only, additive. build clean, full suite 2992 green. The other spec safeguards (persist-previous, stale-guard, labels-reflect-real-search) were already covered by the v0.61.354 decouple. Anchor 10:00 -> 10:30 SGT 07-06; commit/journal/build 570/557/356 -> 571/558/357. Version 0.61.357 -> 0.61.358.)
-last_anchor_iso8601: 2026-06-07T10:30:00+08:00
-last_anchor_utc: 2026-06-07T02:30:00Z
+last_anchor_time: 07-06 '26 11:00 SGT
+last_anchor_source: derived_from_v0_61_359_native_script_names (operator 07-06 '26: add a {local script} line in '( )' after the venue name across Result Card / Copy / Copy-To / Free-Text, with RULE A (en + foreign-script -> append native script e.g. Tokyo Station (東京駅)) + RULE B redundancy filter (skip when the script's language == the user's display lang). Decision (operator chose '2'): per-venue LOCAL FETCH (exact, ~2x Places cost) over extraction. NEW local-name.js: LOCAL_LANG_BY_CC {JP:ja,KR:ko,CN:zh-CN,TW/HK/MO:zh-TW,TH:th}; localLangForCountry(cc,displayLang) applies RULE B; fetchLocalName(placeId,lang) = Places Details GET fields=displayName&languageCode=local; attachLocalNames(venues,cc,displayLang,apiKey) fetches in parallel + attaches v.nameLocal only when it carries CJK/Hangul/Thai script + differs from the name. Wired into the general /api/cuisine/search response (searchRegionCode,csLang) + handleMichelinSearch (michCC,csLang). Render: venue-templates.formatVenueBlock (powers Copy/Copy-To/free-text) + ResultCard.jsx both add '(nameLocal)' after the name; nameLocal threaded through the Copy-all (ResultPanel enriched) + Copy-one (ResultCard) payloads -> server slim passes it through to formatVenueBlock. build clean, full suite 2992 green. CAVEATS: RULE B uses csLang (resolved UI lang en/fr) not the raw device_display_lang, so for a ja/ko/zh/th DEVICE user on the en UI the filter may not suppress (refinement: read initData.language_code). ONBOARDING flow (first-time welcome in device lang) NOT done (separate, operator didn't scope it in). NOT live-E2E tested (no browser, no foreign Places to confirm the fetch). Anchor 10:30 -> 11:00 SGT 07-06; commit/journal/build 571/558/357 -> 572/559/358. Version 0.61.358 -> 0.61.359.)
+last_anchor_iso8601: 2026-06-07T11:00:00+08:00
+last_anchor_utc: 2026-06-07T03:00:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

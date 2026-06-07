@@ -215,6 +215,9 @@ function formatVenueBlock(p, opts = {}) {
   const lines = [];
   const headPrefix = (number == null) ? '' : `${number}. `;
   lines.push(`${headPrefix}<b>${escapeHtml(p.name)}</b>`);
+  // v0.61.359 — native-script name line, e.g. "(東京駅)" / "(서울역)", added
+  // after the bold name when the server resolved one (RULE A/B applied upstream).
+  if (p.nameLocal) lines.push(`(${escapeHtml(p.nameLocal)})`);
   // v0.60.45 — restaurant type line below the bold name. Mirrors the
   // TMA result card. Sourced from michelinCuisineLabel (when present)
   // or Places primaryTypeDisplayName, with the trailing "restaurant"

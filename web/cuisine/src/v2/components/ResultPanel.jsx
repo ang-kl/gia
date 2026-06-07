@@ -104,6 +104,7 @@ export default function ResultPanel({
       // copied chat message within Telegram's 4096-char limit.
       const enriched = venues.slice(0, 12).map((v) => ({
         name: v.name || '',
+        nameLocal: v.nameLocal || '',
         placeId: v.placeId || '',
         lat: v.lat,
         lng: v.lng,
