@@ -501,15 +501,22 @@ export default function App() {
     }
   }, [anchor?.lat, anchor?.lng]);
 
+  // v0.61.370 — operator: when the anchor coords are clearly in Singapore,
+  // re-enable the SG-only tiles even if the STORED region is a stale 'OTHER'
+  // from a prior overseas session (a Bukit Merah anchor was wrongly greying
+  // Hawker / Train / Incidents / Bus stops / Weather). Coords are the ground
+  // truth — same principle as the v0.61.369 flag fix. `anchorInSG` overrides
+  // both the `isMy` disable and the unresolved-region disable.
+  const anchorInSG = anchor && coordsToCountry(anchor) === 'SG';
   // v0.61.185 — accept 'OTHER' alongside legacy 'MY-PUT' (was Putrajaya-specific).
-  const isMy = anchor && (anchor.region === 'JB' || anchor.region === 'MY-PUT' || anchor.region === 'OTHER');
+  const isMy = anchor && !anchorInSG && (anchor.region === 'JB' || anchor.region === 'MY-PUT' || anchor.region === 'OTHER');
   // v0.61.279 — Register O-27: while the initial anchor fetch is in
   // flight we don't know the region, so gate the SG-mode affordances
   // (train panel active + SG-only tiles enabled) on `anchorLoading`
   // being false. Once the fetch resolves — whether to an SG anchor,
   // an MY anchor, or no anchor at all — the gate releases and `isMy`
-  // takes over.
-  const regionUnresolved = anchorLoading || (anchor && !anchor.region);
+  // takes over. v0.61.370 — a coords-in-SG anchor is never "unresolved".
+  const regionUnresolved = anchorLoading || (anchor && !anchor.region && !anchorInSG);
 
   // v0.60.67 — fire-and-forget. Per Human Lead 2026-05-10, the TMA
   // wasn't closing immediately after a dispatch tap (Incidents,
