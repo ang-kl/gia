@@ -314,10 +314,18 @@ async function resolveUserCountry(chatId) {
 // per the operator spec. Called at every search-path enrichment site
 // (alongside enrichTravelTimes) so formatVenueBlock + formatTechniqueVenueBlock
 // stay synchronous downstream.
-async function enrichPriceRangeDisplay(chatId, venues) {
+// v0.61.361 — Option B (operator: convert to the user's *device* home
+// currency, not the location-based country). `deviceCountry` is the
+// ISO-3166 alpha-2 the Cuisine TMA derives from the phone's locale
+// (Intl region) and forwards on every request. When present + valid it
+// wins; otherwise we fall back to the location-based resolveUserCountry
+// (bot-chat flows, or an older TMA build that doesn't send it).
+async function enrichPriceRangeDisplay(chatId, venues, deviceCountry) {
   if (!Array.isArray(venues) || !venues.length) return;
   const cf = require('./currency-format');
-  const userCountry = await resolveUserCountry(chatId);
+  const userCountry = (typeof deviceCountry === 'string' && /^[A-Z]{2}$/.test(deviceCountry))
+    ? deviceCountry
+    : await resolveUserCountry(chatId);
   await Promise.all(venues.map(async (v) => {
     try {
       const display = await cf.formatPriceRangeForVenue(v.priceRange, v.country, userCountry, redis);
@@ -9401,7 +9409,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // search-result enrichment site (line ~10467). Best-effort — a
   // failure here strips the price line silently but doesn't break
   // the rest of the response.
-  try { await enrichPriceRangeDisplay(csChatId, filteredVenues); } catch (err) {
+  // v0.61.361 — Option B: same device-currency override as the general
+  // search path. `req` is in scope here; read the TMA-forwarded region.
+  const michDeviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
+  const michDeviceRegion = /^[A-Z]{2}$/.test(michDeviceRegionRaw) ? michDeviceRegionRaw : null;
+  try { await enrichPriceRangeDisplay(csChatId, filteredVenues, michDeviceRegion); } catch (err) {
     console.warn('[Michelin] enrichPriceRangeDisplay failed:', err.message);
   }
   try { await enrichSanctuaryRead(filteredVenues, csLang); } catch (err) {
@@ -13628,6 +13640,12 @@ async function cacheBotUsername() {
         // the existing seam ~line 14289). ISO 3166-1 alpha-2 only.
         const requestCountryRaw = typeof req.body?.countryCode === 'string' ? req.body.countryCode.toUpperCase() : '';
         const requestCountry = /^[A-Z]{2}$/.test(requestCountryRaw) ? requestCountryRaw : null;
+        // v0.61.361 — Option B device currency. The TMA forwards the
+        // phone's locale region (Intl) as `deviceRegion`; it drives the
+        // venue-card price conversion (→ the user's HOME currency),
+        // independent of where they're searching.
+        const deviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
+        const deviceRegion = /^[A-Z]{2}$/.test(deviceRegionRaw) ? deviceRegionRaw : null;
         // v0.61.126 — Fruits / Durian exclusive special mode. When
         // set, the request body's `cuisines` / `filters.michelin` /
         // `filters.dessert` / Tell-me text are all IGNORED in favour
@@ -15420,7 +15438,7 @@ async function cacheBotUsername() {
           await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
         } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
         // v0.60.183 — venue-card price-range pre-resolution.
-        try { await enrichPriceRangeDisplay(csChatId, top); } catch (err) {
+        try { await enrichPriceRangeDisplay(csChatId, top, deviceRegion); } catch (err) {
           console.warn('[Cuisine-Search] enrichPriceRangeDisplay failed:', err.message);
         }
         try { await enrichSanctuaryRead(top, csLang); } catch (err) {
