@@ -1,8 +1,8 @@
 counters:
-  commit: 569
-  build: 355
+  commit: 570
+  build: 356
   documents:
-    journal: 556
+    journal: 557
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 09:30 SGT
-last_anchor_source: derived_from_v0_61_356_location_sync_menu (operator 07-06 '26 "Go" = roll the v0.61.355 location-sync poller into the other TMAs. PR = MENU wiring. Copied location-sync.js verbatim to web/menu/src/; wired the Menu App mount: anchorRef mirror + a once-on-mount effect starting startLocationSync(current:anchor) that, on a >1.5km device move, FOLLOWS the device — setAnchor({lat,lng,country:coordsToCountry,region:SG/JB(lat<1.55)/OTHER}) + POST /api/menu/set-location persist (mirrors applyCoherenceChoice but auto, no prompt). tg() confirmed callable. Now BOTH flag-bearing TMAs (cuisine + menu) auto-correct the flag/location on load whichever opens first. build clean (menu bundle compiled), full suite 2992 green. SG-only TMAs (hawker/transport/oversight) have no country flag — the sync's flag-follow is moot there; their location is already kept via the shared server set-location, so wiring them is optional/low-value (noted, not done). coordsToCountry only resolves SG/MY, so the flag-follow is precise for SG<->JB<->MY (the common cross-border case); other countries keep region via the OTHER picker. NOT live-E2E tested. Anchor 09:00 -> 09:30 SGT 07-06; commit/journal/build 568/555/354 -> 569/556/355. Version 0.61.355 -> 0.61.356.)
-last_anchor_iso8601: 2026-06-07T09:30:00+08:00
-last_anchor_utc: 2026-06-07T01:30:00Z
+last_anchor_time: 07-06 '26 10:00 SGT
+last_anchor_source: derived_from_v0_61_357_picker_reorder_pr4 (operator 07-06 '26 "Pr 4" = the location-state refactor's picker reorder: 'capital first then next larger city'. Reordered every OTHER-mode country block in BOTH cities.js copies (cuisine + menu) capital-first, then by city population descending. Permutation-safe script (asserts each country's new order is the same set as before — no city dropped/dup). Capital-first moves verified: VN->Hanoi (over HCMC), AU->Canberra (over Sydney), NZ->Wellington (over Auckland), CN->Beijing (over Shanghai), TW->Taipei; others (JP/KR/TH/ID/PH/MY/BN) capital already largest-ish. LA/KH/MM already excluded from the picker (v0.61.347) so untouched. HK: 'Hong Kong' (territory) first then districts. CAVEAT: capital-first is exact; the secondary-city size ranking is best-effort from public population data (approximate for some peripheral cities) — operator can correct specifics. NOTE pre-existing picker dupes left in place (TH 'Ayutthaya'/'Phra Nakhon Si Ayutthaya' + 'Koh Samui'/'Ko Samui' are the same place under two names, from the v0.61.348 michelin-city expansion) — flagged, not deduped (out of reorder scope; michelin matching uses the long names). build clean (both bundles), full suite 2992 green. Completes the 4-part location-state refactor (centroids/back-button/decouple/reorder). Anchor 09:30 -> 10:00 SGT 07-06; commit/journal/build 569/556/355 -> 570/557/356. Version 0.61.356 -> 0.61.357.)
+last_anchor_iso8601: 2026-06-07T10:00:00+08:00
+last_anchor_utc: 2026-06-07T02:00:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
