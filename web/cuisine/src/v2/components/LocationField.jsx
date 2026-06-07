@@ -1002,7 +1002,11 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // radius cap (40 km cities / 120 km Johor) onto the pick so the
     // anchor + set-location carry it and the server clamps the OTHER
     // search radius. SG/JB picks never reach this branch.
-    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, noAutoFire: true, radiusCapM: cityRadiusCapM(hit.name) });
+    // v0.61.354 — city change is a PREVIEW (fly the map; the search anchor
+    // stays put until 🔍). `cityPreview` routes App.onLocationSelect to its
+    // preview branch. Replaces the v0.61.241 `noAutoFire` (no longer needed —
+    // the preview branch never commits/searches).
+    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, cityPreview: true, radiusCapM: cityRadiusCapM(hit.name) });
     setQuery(''); setSuggestions([]); setSuggestionsQuery('');
     // v0.61.241 — keep cityPick set so the dropdown shows the picked
     // city code (e.g. "KUL") after collapse instead of reverting to
