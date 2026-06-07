@@ -1,8 +1,8 @@
 counters:
-  commit: 566
-  build: 352
+  commit: 567
+  build: 353
   documents:
-    journal: 553
+    journal: 554
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 08:05 SGT
-last_anchor_source: derived_from_v0_61_353_map_tracking_back_button_pr2 (operator 07-06 '26 "1, 2" = location-state model + Back button. PR 2 = the additive, low-risk core: MapPanel reports its live centre on 'idle' (onMapMove -> App mapViewLocation) + accepts an imperative flyTo prop (panTo + optional zoom, _k nonce to re-fly same point); App adds mapViewLocation + flyTarget state and the orange '↩ Back to last search area' helper below the LocationField — shows when the map view drifts >600m from the confirmed search anchor (locationAnchor||userLoc), tap flies the map back via flyTarget WITHOUT changing the search anchor (positive-control handoff). Orange outline (#f59e0b/#d97706), small/low-weight per the no-red accessibility rule. searchCenter/search wiring UNCHANGED (search still uses the existing anchor) — minimal risk. Layered on existing userLoc/locationAnchor, not a rewrite of the fragile init effects. node build clean (cuisine bundle compiled), full suite 2992 green. STILL PENDING (next PR): the city-pick decouple (city pick -> selectedCityLocation + fly, don't touch active search) + previousSearchLocation + debounce + 'Set this location for search' confirm + picker reorder. Anchor 07:46 -> 08:05 SGT 07-06; commit/journal/build 565/552/351 -> 566/553/352. Version 0.61.352 -> 0.61.353.)
-last_anchor_iso8601: 2026-06-07T08:05:00+08:00
-last_anchor_utc: 2026-06-07T00:05:00Z
+last_anchor_time: 07-06 '26 08:30 SGT
+last_anchor_source: derived_from_v0_61_354_city_pick_decouple_pr3 (operator 07-06 '26 "go" after honest validation showed PR2 only did mapViewLocation+button. PR 3 = the behavioural core of the 4-location model: city changes are now a PREVIEW, not a commit. LocationField.onCityPick now sends cityPreview:true (was noAutoFire:true); App.onLocationSelect early-returns into a preview branch (set selectedCityLocation + flyTarget, DON'T touch locationAnchor/searchCenter); triggerSearch (🔍) COMMITS the pending selectedCityLocation by re-calling onLocationSelect WITHOUT cityPreview (full anchor+searchCenter+region+server-persist+auto-fire), else searches the existing anchor; ↩ Back to last search area now also clears the pending preview (cancel). Net: picking an OTHER city flies the map (Back button appears) but the search stays anchored until 🔍 — positive control. Slot mapping: mapViewLocation✅, selectedCityLocation✅(new), activeSearchLocation=locationAnchor✅, previousSearchLocation=implicit (locationAnchor unchanged in preview). Behaviours 1-7 all satisfied; safeguards: stale-guard✅/persist-previous✅/button-until-restored✅/labels-reflect-real-search✅; DEBOUNCE of rapid city changes NOT added (panTo handles smoothly) — noted. Surgical (only the OTHER city dropdown path changed; typed/GPS/chip picks untouched). build clean, full suite 2992 green. NOT live-E2E tested (no browser) — operator must eyeball. Picker reorder still a later PR. Anchor 08:05 -> 08:30 SGT 07-06; commit/journal/build 566/553/352 -> 567/554/353. Version 0.61.353 -> 0.61.354.)
+last_anchor_iso8601: 2026-06-07T08:30:00+08:00
+last_anchor_utc: 2026-06-07T00:30:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

@@ -122,6 +122,12 @@ export default function App() {
   // flies it back without touching the search anchor.
   const [mapViewLocation, setMapViewLocation] = useState(null);
   const [flyTarget, setFlyTarget] = useState(null);
+  // v0.61.354 — selectedCityLocation: a PREVIEWED city (from the OTHER city
+  // dropdown). It flies the map but does NOT move the confirmed search anchor
+  // (= locationAnchor) until the user taps 🔍 (commit in triggerSearch) or ↩
+  // Back cancels it. activeSearchLocation = locationAnchor‖userLoc;
+  // previousSearchLocation is implicitly locationAnchor (unchanged in preview).
+  const [selectedCityLocation, setSelectedCityLocation] = useState(null);
   const [venues, setVenues] = useState([]);
   // v0.60.82 — server's AND/OR combo metadata for multi-cuisine
   // searches. { attempted: bool, matched: bool }. When attempted &&
@@ -1909,6 +1915,17 @@ export default function App() {
   // to eat" button, and the location-field's own 🔍 button.
   function triggerSearch() {
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
+    // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
+    // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
+    // so the full commit runs (anchor + searchCenter + region + server persist
+    // + auto-fire). Otherwise search at the existing confirmed anchor.
+    if (selectedCityLocation && Number.isFinite(selectedCityLocation.lat) && Number.isFinite(selectedCityLocation.lng)) {
+      const sc = selectedCityLocation;
+      setSelectedCityLocation(null);
+      onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '',
+        ...(Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0 ? { radiusCapM: sc.radiusCapM } : {}) });
+      return;
+    }
     runSearch(state);
   }
   // v0.60.166 — v0.60.165 added petFriendly to QUICK_FILTERS + state
@@ -1953,6 +1970,16 @@ export default function App() {
   // of inside the collapsed Search-criteria section.
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+      // v0.61.354 — a city change from the OTHER dropdown is a PREVIEW:
+      // set selectedCityLocation + fly the map there, but DON'T commit the
+      // search anchor (positive control). The search re-anchors only on 🔍
+      // (triggerSearch commits) or is cancelled by ↩ Back to last search area.
+      if (p.cityPreview) {
+        setSelectedCityLocation({ lat: p.lat, lng: p.lng, name: p.label || '',
+          ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {}) });
+        setFlyTarget({ lat: p.lat, lng: p.lng, zoom: 13, _k: Date.now() });
+        return;
+      }
       // v0.61.237 — operator: city / precinct picks in the OTHER
       // cascade weren't auto-refreshing the result list ("the google
       // didn't set the location and search based on the new set
@@ -2419,7 +2446,7 @@ export default function App() {
           <div className="px-1 -mt-0.5 mb-1">
             <button
               type="button"
-              onClick={() => setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() })}
+              onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
               className="text-[11px] px-2.5 py-0.5 rounded-full border border-[#f59e0b] text-[#d97706] bg-transparent leading-tight whitespace-nowrap"
               title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
             >
