@@ -1174,7 +1174,11 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
             onKeyDown={handleKey}
             enterKeyHint="search"
             placeholder={anchorNameSafe || tr('loc.other.placeholder', lang)}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+            /* v0.61.372 — min-w-0 so the input can shrink below its
+               placeholder's intrinsic width; without it a long city name
+               ("Wellington") pushed the trailing ✏️ off-screen. Matches the
+               SG/JB branch input (line ~464). */
+            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-tg-hint"
           />
           {loading && <span className="text-tg-hint text-xs">…</span>}
           {/* v0.61.267 — drop the explicit 🔍 search button; OTHER
