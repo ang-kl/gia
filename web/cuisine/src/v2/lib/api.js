@@ -6,33 +6,30 @@ import { initData } from '../../api/tg.js';
 // errors to /api/vlog (Railway logs as `[VLOG-CLIENT <chatId>] …`).
 import * as vlog from './vlog.js';
 import { deviceId } from './device-id.js';
+import { pickDeviceRegion } from './device-region.js';
 
 // v0.61.361 — Option B device currency. Derive the phone's HOME region
-// (ISO-3166 alpha-2) from the device locale — NOT from where the user
-// is searching — so venue prices convert into the currency they actually
-// spend. `Intl.Locale(...).maximize().region` turns "en" → "US",
-// "zh" → "CN", "en-SG" → "SG"; we fall back to the explicit region in
-// navigator.language ("en-GB" → "GB") for older WebViews. Computed once
-// and forwarded on every request body; the server validates + ignores
-// it where price conversion doesn't apply.
+// (ISO-3166 alpha-2) so venue prices convert into the currency the user
+// actually spends — NOT where they're searching.
+// v0.61.376 — operator: a phone with Language=English (UK) but Region=
+// Singapore was converting to GBP; it must follow the iOS REGION (SGD).
+// navigator.language only carries the LANGUAGE; iOS encodes the Region as a
+// Unicode `-u-…-rg-<cc>` override inside the RESOLVED locale. pickDeviceRegion
+// (device-region.js, unit-tested) prefers that override, then the language.
+// Computed once and forwarded on every request body; the server validates +
+// ignores it where price conversion doesn't apply.
 let _deviceRegion;
 function deviceRegion() {
   if (_deviceRegion !== undefined) return _deviceRegion;
   let region = null;
   try {
-    const lang = (typeof navigator !== 'undefined' && (navigator.language || (navigator.languages && navigator.languages[0]))) || '';
-    if (lang) {
-      try {
-        const loc = new Intl.Locale(lang);
-        const max = typeof loc.maximize === 'function' ? loc.maximize() : loc;
-        if (max && /^[A-Za-z]{2}$/.test(max.region || '')) region = max.region.toUpperCase();
-      } catch { /* Intl.Locale unsupported — fall through */ }
-      if (!region) {
-        const m = /[-_]([A-Za-z]{2})\b/.exec(lang);
-        if (m) region = m[1].toUpperCase();
-      }
-    }
-  } catch { /* navigator unavailable */ }
+    const resolvedLocales = [];
+    try { resolvedLocales.push(Intl.DateTimeFormat().resolvedOptions().locale); } catch { /* noop */ }
+    try { resolvedLocales.push(Intl.NumberFormat().resolvedOptions().locale); } catch { /* noop */ }
+    const navigatorLanguage = (typeof navigator !== 'undefined'
+      && (navigator.language || (navigator.languages && navigator.languages[0]))) || '';
+    region = pickDeviceRegion({ resolvedLocales, navigatorLanguage });
+  } catch { /* navigator / Intl unavailable */ }
   _deviceRegion = region;
   return _deviceRegion;
 }
