@@ -163,6 +163,17 @@ async function runVariance(opts = {}) {
     maxPages = DEFAULT_MAX_PAGES,
     onProgress = null,
     log = null,
+    // v0.61.378 — optional language filter (array of seed-lang keys, e.g.
+    // ['en','ja']). When set, only those languages' seeds are fired — used
+    // by scripts/durian-city-coverage.js to run a per-city probe in the
+    // LOCAL language + English instead of the full ~12-language fan-out
+    // (operator's cost choice). null/empty → all languages (unchanged).
+    langs = null,
+    // v0.61.378 — optional per-mode seed override (array of strings under a
+    // single 'en' key, or a {lang:[...]} map). Lets the city-coverage scan
+    // use a tiny CORE seed set for cheap existence detection. null → the
+    // canonical SEEDS_DURIAN / SEEDS_DURIAN_PASTRY for the mode.
+    seedsOverride = null,
     // v0.61.302 — test seam. Default: the real `_searchText` (axios →
     // Places API). Tests inject a stub that returns canned responses
     // so the runner is exercised without a real GOOGLE_MAPS_API_KEY
@@ -176,7 +187,12 @@ async function runVariance(opts = {}) {
     throw new Error(`runVariance: invalid mode "${mode}"`);
   }
   if (!apiKey) throw new Error('runVariance: apiKey required');
-  const seeds = mode === 'durian-pastry' ? SEEDS_DURIAN_PASTRY : SEEDS_DURIAN;
+  let seeds = seedsOverride || (mode === 'durian-pastry' ? SEEDS_DURIAN_PASTRY : SEEDS_DURIAN);
+  // v0.61.378 — restrict to the requested languages when a filter is given.
+  if (Array.isArray(langs) && langs.length) {
+    const want = new Set(langs);
+    seeds = Object.fromEntries(Object.entries(seeds).filter(([lang]) => want.has(lang)));
+  }
   const totalQueries = regions.length * Object.values(seeds).reduce((s, a) => s + a.length, 0);
   let done = 0;
   const startedAt = Date.now();
