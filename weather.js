@@ -385,10 +385,89 @@ async function attachRainAlerts(redis, venues, lang, isRainSensitive, tnFn) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// v0.61.380 — GLOBAL weather (operator: the weather feature must follow the
+// country expansion — NEA / data.gov.sg covers Singapore ONLY, so a Tokyo
+// user got Singapore's reading). Source: Open-Meteo — free, no API key,
+// worldwide. The server routes SG coords to NEA (authoritative local) and
+// everywhere else to Open-Meteo, so the SG path is untouched.
+// ─────────────────────────────────────────────────────────────────────
+const OPEN_METEO_BASE = 'https://api.open-meteo.com/v1/forecast';
+
+// WMO weather-interpretation code → a short condition label. (Open-Meteo
+// returns the WMO code, not an NEA-style phrase.)
+function wmoToText(code) {
+  const c = Number(code);
+  if (!Number.isFinite(c)) return null;
+  if (c === 0) return 'Clear';
+  if (c === 1) return 'Mainly Clear';
+  if (c === 2) return 'Partly Cloudy';
+  if (c === 3) return 'Cloudy';
+  if (c === 45 || c === 48) return 'Fog';
+  if (c >= 51 && c <= 57) return 'Drizzle';
+  if (c >= 61 && c <= 67) return 'Rain';
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 'Snow';
+  if (c >= 80 && c <= 82) return 'Showers';
+  if (c >= 95 && c <= 99) return 'Thunderstorm';
+  return null;
+}
+
+// WMO code → emoji directly (the NEA forecastEmoji matcher keys off NEA
+// phrases, so map the code straight to a glyph here).
+function wmoToEmoji(code) {
+  const c = Number(code);
+  if (!Number.isFinite(c)) return '🌡️';
+  if (c === 0 || c === 1) return '☀️';
+  if (c === 2) return '⛅';
+  if (c === 3) return '☁️';
+  if (c === 45 || c === 48) return '🌫️';
+  if ((c >= 51 && c <= 57) || (c >= 80 && c <= 82)) return '🌦️';
+  if (c >= 61 && c <= 67) return '🌧️';
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return '🌨️';
+  if (c >= 95 && c <= 99) return '⛈️';
+  return '🌡️';
+}
+
+// fetchOpenMeteo(lat,lng) → { tempC, humidityPct, weatherCode } | null.
+// `_getFn` is an axios.get-shaped test seam (mocked in unit tests).
+async function fetchOpenMeteo(lat, lng, _getFn = axios.get) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const url = `${OPEN_METEO_BASE}?latitude=${lat}&longitude=${lng}`
+    + `&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto`;
+  try {
+    const { data } = await _getFn(url, { timeout: 6000 });
+    const cur = data?.current;
+    if (!cur) return null;
+    return {
+      tempC: Number.isFinite(cur.temperature_2m) ? cur.temperature_2m : null,
+      humidityPct: Number.isFinite(cur.relative_humidity_2m) ? cur.relative_humidity_2m : null,
+      weatherCode: cur.weather_code
+    };
+  } catch {
+    return null;
+  }
+}
+
+// summaryGlobal(lat,lng) → the same shape /api/weather/summary emits, but
+// sourced from Open-Meteo (any coords on Earth). null when unreachable.
+async function summaryGlobal(lat, lng, _getFn = axios.get) {
+  const w = await fetchOpenMeteo(lat, lng, _getFn);
+  if (!w || !Number.isFinite(w.tempC)) return null;
+  return {
+    tempC: w.tempC,
+    humidityPct: w.humidityPct,
+    condition: wmoToText(w.weatherCode),
+    emoji: wmoToEmoji(w.weatherCode),
+    source: 'open-meteo'
+  };
+}
+
 module.exports = {
   summary, fetchV2Realtime, fetchV1Realtime, fetchRealtime, fetchTwoHourForecast,
   // v0.60.118
   fetch24hForecast, getNowcastCached, getRainfallCached, get24hCached,
   WEATHER_ZONE_CENTROIDS, inSgBounds, zoneKeyFor, zoneLabelFor,
-  resolveArea, rainAlertFor, headOutLine, tonightOutlookFor, attachRainAlerts
+  resolveArea, rainAlertFor, headOutLine, tonightOutlookFor, attachRainAlerts,
+  // v0.61.380 — global (Open-Meteo)
+  summaryGlobal, fetchOpenMeteo, wmoToText, wmoToEmoji
 };
