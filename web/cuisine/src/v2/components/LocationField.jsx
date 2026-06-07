@@ -666,7 +666,9 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
+        /* v0.61.364 — operator: shrink the closed CITY pill font by 2px
+           (text-sm → text-xs). The open picker-list items below keep text-[13px]. */
+        className="text-xs bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
         style={{ minWidth: '3.5rem' }}
       >
         <span className="font-mono tracking-tight">{current ? current.code : '— —'}</span>
@@ -776,7 +778,9 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="bg-transparent text-sm outline-none whitespace-nowrap inline-flex items-center gap-0.5"
+        /* v0.61.364 — operator: shrink the closed COUNTRY pill font by 2px
+           (text-sm → text-xs). The open picker-list items below keep text-sm. */
+        className="bg-transparent text-xs outline-none whitespace-nowrap inline-flex items-center gap-0.5"
         style={{ minWidth: '4.5rem' }}
       >
         <span aria-hidden>{current.flag}</span>
@@ -1141,23 +1145,28 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
               (compact), opened shows "<flag> <Name>" (descriptive).
               Native <select> can't differentiate closed vs open
               text, so we use a button + popover. */}
-          <CountryDropdown
-            value={country.code}
-            onChange={(code) => onCountryChange?.(code)}
-            ariaLabel={tr('loc.other.country', lang)}
-          />
-          {/* v0.61.233 — cascading child city dropdown, now a custom
-              CityDropdown: closed state shows the 3-letter city code
-              (BKK / KUL / …) mirroring the country flag's closed-CC
-              pattern; open state lists every full name + code on
-              the right and scrolls (max-h-72). Narrow closed-state
-              leaves the free-text input usable. */}
-          <CityDropdown
-            countryCode={country.code}
-            value={cityPick}
-            onChange={(name) => onCityPick(name)}
-            ariaLabel={tr('loc.other.city', lang) || 'City'}
-          />
+          {/* v0.61.364 — operator: city flush to the country pill's right
+              border. Wrap both pills in a gap-0 group so they butt together,
+              while the outer row keeps its gap-1.5 before the input. */}
+          <div className="flex items-center flex-shrink-0">
+            <CountryDropdown
+              value={country.code}
+              onChange={(code) => onCountryChange?.(code)}
+              ariaLabel={tr('loc.other.country', lang)}
+            />
+            {/* v0.61.233 — cascading child city dropdown, now a custom
+                CityDropdown: closed state shows the 3-letter city code
+                (BKK / KUL / …) mirroring the country flag's closed-CC
+                pattern; open state lists every full name + code on
+                the right and scrolls (max-h-72). Narrow closed-state
+                leaves the free-text input usable. */}
+            <CityDropdown
+              countryCode={country.code}
+              value={cityPick}
+              onChange={(name) => onCityPick(name)}
+              ariaLabel={tr('loc.other.city', lang) || 'City'}
+            />
+          </div>
           <input
             type="text"
             value={query}
