@@ -23,6 +23,7 @@ import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 import { citiesForCountry } from '../cities.js';
+import { nearestIataCity } from '../iata-cities.js';
 import { deviceId } from '../device-id.js';
 // v0.61.269 — shared autocomplete helpers (mirrors Cuisine TMA).
 import { placeAutocomplete, placeResolve } from '../api.js';
@@ -425,6 +426,30 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // isn't in cities.js."* Falls back to nearest cities.js entry by
   // haversine when the anchor name doesn't match. Mirrors the
   // Cuisine TMA v0.61.251 in LocationField.jsx.
+  // v0.61.366 — operator (physically in Hanoi, picker showed JP · FUK):
+  // the country picker must FOLLOW the detected anchor's country, not the
+  // once-seeded (stale) countryPref. With a stale JP pref, the cityPick
+  // effect below then picked the nearest JP city to Hanoi (Fukuoka) — so
+  // BOTH the country and the city were wrong. Sync countryPref ← the
+  // anchor's country (prefer anchor.country, else derive from its coords
+  // via nearestIataCity) whenever the anchor moves. The deps are the
+  // anchor fields ONLY, so a manual country pick (which changes countryPref
+  // but not the anchor) is never overridden.
+  const otherCodeSet = useRef(new Set(OTHER_COUNTRIES.map((c) => c.code))).current;
+  useEffect(() => {
+    if (!currentAnchor) return;
+    let cc = (typeof currentAnchor.country === 'string' && /^[A-Z]{2}$/.test(currentAnchor.country))
+      ? currentAnchor.country.toUpperCase() : null;
+    if (!cc && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
+      const near = nearestIataCity(currentAnchor.lat, currentAnchor.lng);
+      cc = (near && near.city && near.city.countryCode) || null;
+    }
+    if (cc && cc !== 'SG' && otherCodeSet.has(cc) && cc !== countryPref) {
+      setCountryPref(cc);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAnchor?.country, currentAnchor?.lat, currentAnchor?.lng]);
+
   useEffect(() => {
     const list = citiesForCountry(countryPref);
     if (!list.length) { setCityPick(''); return; }
