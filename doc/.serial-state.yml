@@ -1,8 +1,8 @@
 counters:
-  commit: 572
+  commit: 573
   build: 358
   documents:
-    journal: 559
+    journal: 560
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 11:00 SGT
-last_anchor_source: derived_from_v0_61_359_native_script_names (operator 07-06 '26: add a {local script} line in '( )' after the venue name across Result Card / Copy / Copy-To / Free-Text, with RULE A (en + foreign-script -> append native script e.g. Tokyo Station (東京駅)) + RULE B redundancy filter (skip when the script's language == the user's display lang). Decision (operator chose '2'): per-venue LOCAL FETCH (exact, ~2x Places cost) over extraction. NEW local-name.js: LOCAL_LANG_BY_CC {JP:ja,KR:ko,CN:zh-CN,TW/HK/MO:zh-TW,TH:th}; localLangForCountry(cc,displayLang) applies RULE B; fetchLocalName(placeId,lang) = Places Details GET fields=displayName&languageCode=local; attachLocalNames(venues,cc,displayLang,apiKey) fetches in parallel + attaches v.nameLocal only when it carries CJK/Hangul/Thai script + differs from the name. Wired into the general /api/cuisine/search response (searchRegionCode,csLang) + handleMichelinSearch (michCC,csLang). Render: venue-templates.formatVenueBlock (powers Copy/Copy-To/free-text) + ResultCard.jsx both add '(nameLocal)' after the name; nameLocal threaded through the Copy-all (ResultPanel enriched) + Copy-one (ResultCard) payloads -> server slim passes it through to formatVenueBlock. build clean, full suite 2992 green. CAVEATS: RULE B uses csLang (resolved UI lang en/fr) not the raw device_display_lang, so for a ja/ko/zh/th DEVICE user on the en UI the filter may not suppress (refinement: read initData.language_code). ONBOARDING flow (first-time welcome in device lang) NOT done (separate, operator didn't scope it in). NOT live-E2E tested (no browser, no foreign Places to confirm the fetch). Anchor 10:30 -> 11:00 SGT 07-06; commit/journal/build 571/558/357 -> 572/559/358. Version 0.61.358 -> 0.61.359.)
-last_anchor_iso8601: 2026-06-07T11:00:00+08:00
-last_anchor_utc: 2026-06-07T03:00:00Z
+last_anchor_time: 07-06 '26 11:45 SGT
+last_anchor_source: derived_from_v0_61_360_fx_usd_pivot (operator 07-06 '26: "I added ALPHAVANTAGE_API_KEY for foreign exchange rate, as currently only in Malaysia that is rigid with fixed foreign currency exchange rate. Use real time only once … 15 days, therefore have a table for these countries in the picker and the exchange rate to local device. users can be across 170 nations." Decisions: 1=Option B device currency, 2=use USD as base, 3=lazy fetch; "markup: 2.8% across all, round up to 2 decimal places for currency that uses cents" + whole numbers for no-cents (JPY/KRW/VND/IDR) + "≈" marker. THIS PR (PR 1 of 2) = the FX ENGINE only: currency-format.js rewritten to a USD-pivot table. NEW usdRate(cur,redis) = USD per 1 unit, primary Alpha Vantage CURRENCY_EXCHANGE_RATE (process.env.ALPHAVANTAGE_API_KEY; rate-limit Information/Note envelope -> miss), fallback Frankfurter (from=cur&to=USD), 15-day cache fx:usd:<CUR> TTL 15*24*3600, USD short-circuit 1.0. fetchFxRate(a,b) rewritten = usdRate(a)/usdRate(b) -> any-to-any cross rate (fixes the TWD/VND/MOP/BND gap Frankfurter omitted = the 'rigid' cause). convAmount() applies FX_MARKUP 1.028 then Math.ceil (whole for NO_CENTS set, else 2dp); conversion prefixed '≈'. Native menu price never marked up. 6 new/rewritten unit tests; full suite 106 files / 2998 green. KEEPS the existing location-based userCountry (Option A behaviour) as a testable drop-in this PR; Option B (device-currency plumbing from the TMA via Intl region -> ~170-country map) is PR 2. Server-only (no web build -> build counter held at 358). NOT live-E2E tested (no live Alpha Vantage call here). Anchor 11:00 -> 11:45 SGT 07-06; commit/journal 572/559 -> 573/560 (build held 358). Version 0.61.359 -> 0.61.360.)
+last_anchor_iso8601: 2026-06-07T11:45:00+08:00
+last_anchor_utc: 2026-06-07T03:45:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:
