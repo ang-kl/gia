@@ -118,6 +118,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       await copyOneToChat({
         placeId: venue.placeId,
         name: venue.name,
+        nameLocal: venue.nameLocal,
         area: venue.area,
         lat: venue.lat,
         lng: venue.lng,
@@ -179,6 +180,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
+          {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
+              applied server-side; absent when redundant with the device lang). */}
+          {venue.nameLocal && (
+            <div className="text-xs text-tg-hint leading-tight truncate">({venue.nameLocal})</div>
+          )}
           {/* v0.60.45 — restaurant type line. Sourced from
               michelinCuisineLabel (when present) or Places API
               primaryTypeDisplayName, with the trailing "restaurant"

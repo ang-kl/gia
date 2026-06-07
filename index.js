@@ -9726,6 +9726,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       walkHash
     });
   }
+  // v0.61.359 — attach native-script names to Michelin results too.
+  try {
+    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
+  } catch (e) { /* non-fatal */ }
   return res.json({
     venues: filteredVenues,
     cached: false,
@@ -15576,6 +15580,12 @@ async function cacheBotUsername() {
             cached: false
           });
         }
+        // v0.61.359 — RULE A/B native-script names: for a foreign-script
+        // country, fetch each venue's local-language name (Places Details) and
+        // attach `nameLocal` (skipped when it matches the user's display lang).
+        try {
+          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
+        } catch (e) { /* non-fatal — names just stay English */ }
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
