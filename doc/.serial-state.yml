@@ -1,8 +1,8 @@
 counters:
-  commit: 567
-  build: 353
+  commit: 568
+  build: 354
   documents:
-    journal: 554
+    journal: 555
     builder: 3
     persona: 4
     feature: 53
@@ -12,10 +12,10 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 07-06 '26 08:30 SGT
-last_anchor_source: derived_from_v0_61_354_city_pick_decouple_pr3 (operator 07-06 '26 "go" after honest validation showed PR2 only did mapViewLocation+button. PR 3 = the behavioural core of the 4-location model: city changes are now a PREVIEW, not a commit. LocationField.onCityPick now sends cityPreview:true (was noAutoFire:true); App.onLocationSelect early-returns into a preview branch (set selectedCityLocation + flyTarget, DON'T touch locationAnchor/searchCenter); triggerSearch (🔍) COMMITS the pending selectedCityLocation by re-calling onLocationSelect WITHOUT cityPreview (full anchor+searchCenter+region+server-persist+auto-fire), else searches the existing anchor; ↩ Back to last search area now also clears the pending preview (cancel). Net: picking an OTHER city flies the map (Back button appears) but the search stays anchored until 🔍 — positive control. Slot mapping: mapViewLocation✅, selectedCityLocation✅(new), activeSearchLocation=locationAnchor✅, previousSearchLocation=implicit (locationAnchor unchanged in preview). Behaviours 1-7 all satisfied; safeguards: stale-guard✅/persist-previous✅/button-until-restored✅/labels-reflect-real-search✅; DEBOUNCE of rapid city changes NOT added (panTo handles smoothly) — noted. Surgical (only the OTHER city dropdown path changed; typed/GPS/chip picks untouched). build clean, full suite 2992 green. NOT live-E2E tested (no browser) — operator must eyeball. Picker reorder still a later PR. Anchor 08:05 -> 08:30 SGT 07-06; commit/journal/build 566/553/352 -> 567/554/353. Version 0.61.353 -> 0.61.354.)
-last_anchor_iso8601: 2026-06-07T08:30:00+08:00
-last_anchor_utc: 2026-06-07T00:30:00Z
+last_anchor_time: 07-06 '26 09:00 SGT
+last_anchor_source: derived_from_v0_61_355_location_sync_poller (operator 07-06 '26: "the flag for the location is very sensitive... do a loop for 20 seconds to check if user has changed location by telegram or device... change the location and flag accordingly. recurring challenge." Decisions (AskUserQuestion): FOLLOW DEVICE (flag+location+anchor); ALL TMAs (shared lib); FRESHER source wins. Root cause confirmed: TMAs resolve location ONCE on mount (cache->Telegram->GPS) and never refresh, so the country flag goes stale after you physically move. NEW shared module location-sync.js: startLocationSync() polls device GPS (navigator.geolocation) + Telegram LocationManager every 4s for 20s, the FRESHER reading wins, reports onLocation when it moves >1.5km from the last point (jitter/stationary-pick guard). Wired into the CUISINE TMA mount: a meaningful device move -> setUserLoc + region/flag via coordsToCountry (SG/JB/OTHER+countryPref) + locationAnchor + searchCenter + flyTarget + saveUserLocation persist (full follow). build clean, full suite 2992 green. SCOPE: this PR ships the shared module + CUISINE wiring (foundation); menu + hawker/transport/oversight wiring is the immediate next step (the module is shared verbatim). NOT live-E2E tested (no browser, no real GPS movement) — operator must field-test by moving + reopening. Anchor 08:30 -> 09:00 SGT 07-06; commit/journal/build 567/554/353 -> 568/555/354. Version 0.61.354 -> 0.61.355.)
+last_anchor_iso8601: 2026-06-07T09:00:00+08:00
+last_anchor_utc: 2026-06-07T01:00:00Z
 
 # v0.61.262 (commit 475 / journal 463 / build 265) — operator
 # 29-05 '26 17:00 SGT, post-baseline:

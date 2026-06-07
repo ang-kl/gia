@@ -5,6 +5,7 @@ import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
+import { startLocationSync } from './lib/location-sync.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
@@ -128,6 +129,42 @@ export default function App() {
   // Back cancels it. activeSearchLocation = locationAnchor‖userLoc;
   // previousSearchLocation is implicitly locationAnchor (unchanged in preview).
   const [selectedCityLocation, setSelectedCityLocation] = useState(null);
+  // v0.61.355 — recurring stale-flag fix: on load, poll device GPS + Telegram
+  // location for ~20 s and FOLLOW the device (operator) — update flag/region,
+  // userLoc, the anchor, and persist — when the user has physically moved
+  // (>1.5 km, so GPS jitter or a stationary city pick is never yanked).
+  const userLocRef = useRef(userLoc);
+  useEffect(() => { userLocRef.current = userLoc; }, [userLoc]);
+  const syncStartedRef = useRef(false);
+  useEffect(() => {
+    if (syncStartedRef.current) return;
+    syncStartedRef.current = true;
+    const havM = (a, b) => { const R = 6371000, r = (d) => d * Math.PI / 180;
+      const dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng);
+      const x = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(x)); };
+    const stop = startLocationSync({
+      current: userLocRef.current,
+      onLocation: (loc) => {
+        const cur = userLocRef.current;
+        if (cur && Number.isFinite(cur.lat) && havM(cur, loc) < 1500) return;
+        console.log('[LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
+        setUserLoc({ lat: loc.lat, lng: loc.lng });
+        const c = coordsToCountry({ lat: loc.lat, lng: loc.lng });
+        if (c === 'SG') {
+          setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+        } else if (c === 'MY') {
+          const target = isJbCoords({ lat: loc.lat, lng: loc.lng }) ? 'JB' : 'OTHER';
+          setState((s) => { if (s.region === target) return s; const n = { ...s, region: target }; if (target === 'OTHER') n.countryPref = 'MY'; return n; });
+        }
+        setLocationAnchor({ lat: loc.lat, lng: loc.lng, name: '' });
+        setSearchCenter({ lat: loc.lat, lng: loc.lng });
+        setFlyTarget({ lat: loc.lat, lng: loc.lng, zoom: 13, _k: Date.now() });
+        saveUserLocation({ lat: loc.lat, lng: loc.lng }).catch(() => {});
+      },
+    });
+    return stop;
+  }, []); // eslint-disable-line
   const [venues, setVenues] = useState([]);
   // v0.60.82 — server's AND/OR combo metadata for multi-cuisine
   // searches. { attempted: bool, matched: bool }. When attempted &&
