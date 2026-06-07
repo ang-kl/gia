@@ -820,11 +820,6 @@ export default function App() {
   // the gate-opener fires runInitialLoad() on the no-mismatch path; the
   // apply* fns set this ref true so their own runSearch isn't doubled.
   const initialLoadFiredRef = useRef(false);
-  // v0.61.367 — one-shot guard for the v0.61.365 gate settle timer. Ensures
-  // the 300 ms settle is scheduled exactly once per clean window and is NOT
-  // restarted by dep churn (the apply* runSearch mutates state mid-load),
-  // which otherwise kept clearing the timer → the gate never opened → hang.
-  const gateSettleScheduledRef = useRef(false);
 
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
@@ -1013,56 +1008,29 @@ export default function App() {
     // raise a modal. Gating on userLoc + modalPendingRef alone is therefore
     // sufficient to wait for a genuine mismatch and can never deadlock.
     if (modalPendingRef.current) return;                        // a modal is up → stay gated
-    // v0.61.365 — operator: "don't auto-load 5 cuisine's eateries if location
-    // is detected different … give 0.3 second pause to ensure it is resolved …
-    // write to user's table of location then fire the auto-load." The 300 ms
-    // SETTLE lets the async countryPref load + the three coherence checks raise
-    // a modal BEFORE the boot load fires (Image-1 double-state fix), then we
-    // re-check modalPendingRef and persist the confirmed location.
-    //
-    // v0.61.367 — HANG FIX. The v0.61.365 timer had a `clearTimeout` cleanup +
-    // `state.region`/`state.countryPref` deps. On the conflict-RESOLVE path the
-    // apply*'s runSearch churns those state fields WHILE it loads, so the effect
-    // re-ran on every churn, cleared the just-started timer, and rescheduled —
-    // the gate never opened, leaving the "Confirming your location…" splash
-    // hung over an already-running search (operator: "hang as it tries to load
-    // 5 after resolve the location"). Fix: schedule the settle EXACTLY ONCE via
-    // gateSettleScheduledRef and DON'T clear it on dep churn; drop the churning
-    // state.* deps (the mismatch-state deps already re-run this on dismiss). If
-    // a modal raises during the settle, the timer bails and clears the ref so
-    // the post-dismiss re-run reschedules.
-    if (gateSettleScheduledRef.current) return;                 // a settle is already pending — dep churn must not restart it
-    gateSettleScheduledRef.current = true;
-    setTimeout(() => {
-      if (modalPendingRef.current) { gateSettleScheduledRef.current = false; return; }  // mismatch raised mid-settle → reschedule after dismiss
-      setLocationGateOpen(true);
-      // v0.61.323 — the gate is the single place the boot venue list is
-      // populated. On a mismatch path the user's apply* choice already fired
-      // the correct search and set initialLoadFiredRef → we skip here.
-      if (!initialLoadFiredRef.current) {
-        initialLoadFiredRef.current = true;
-        const center = (locationAnchor?.lat != null && locationAnchor?.lng != null)
-          ? { lat: locationAnchor.lat, lng: locationAnchor.lng }
-          : (searchCenter?.lat != null && searchCenter?.lng != null)
-            ? { lat: searchCenter.lat, lng: searchCenter.lng }
-            : { lat: userLoc.lat, lng: userLoc.lng };
-        // Resolve + persist the confirmed location to the user's (per-device)
-        // table, then auto-load. Fire-and-forget so the load isn't blocked on
-        // the network (mirrors the apply* paths' saveUserLocation().catch()).
-        (async () => {
-          try {
-            let label = (locationAnchor?.name || '').trim();
-            if (!label) {
-              const rg = await reverseGeocode({ lat: center.lat, lng: center.lng }).catch(() => null);
-              label = (rg && (rg.name || rg.formatted) || '').trim();   // actual street+building+city
-            }
-            await saveUserLocation({ lat: center.lat, lng: center.lng, ...(label ? { label } : {}) });
-          } catch { /* best-effort — never block the boot load */ }
-        })();
-        runInitialLoad();
-      }
-    }, 300);
-  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, locationGateOpen]);
+    // v0.61.368 — REVERT the v0.61.365 0.3 s settle + persist-before-load.
+    // That settle (and the v0.61.367 one-shot follow-up) kept HANGING the boot
+    // on the Menu→Cuisine path: the timer either deadlocked against mid-load
+    // state churn or opened the gate without the search ever reaching the
+    // server (Railway showed the set-location persist firing but NO cuisine
+    // search). The async settle was too fragile around the coherence + sync +
+    // search state churn. Back to the v0.61.323/324 SYNCHRONOUS open: no timer,
+    // no persist — open the gate the instant userLoc resolves and no modal is
+    // pending, and fire the one boot load. The Image-1 "modal over a loading
+    // body" cosmetic returns; a hung TMA is far worse. A deterministic
+    // countryPref-loaded gate is the proper follow-up if the operator wants the
+    // Image-1 fix back.
+    setLocationGateOpen(true);
+    // v0.61.323 — the gate is the single place the boot venue list is
+    // populated. On the common no-mismatch path no apply* ran, so fire the
+    // ONE initial load here. On a mismatch path the user's apply* choice
+    // already fired the correct search and set initialLoadFiredRef → we skip,
+    // so there is no second / stale-region load.
+    if (!initialLoadFiredRef.current) {
+      initialLoadFiredRef.current = true;
+      runInitialLoad();
+    }
+  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
