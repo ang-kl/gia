@@ -144,6 +144,11 @@ export default function App() {
   // (>1.5 km, so GPS jitter or a stationary city pick is never yanked).
   const userLocRef = useRef(userLoc);
   useEffect(() => { userLocRef.current = userLoc; }, [userLoc]);
+  // v0.61.371 — track the current locationAnchor so the "follow device"
+  // sync can tell an EXPLICIT pick (Menu / deep-link anchor, which carries
+  // a name) from an implicit device-GPS anchor (name ''). Kept in sync by
+  // an effect after locationAnchor is declared.
+  const locationAnchorRef = useRef(null);
   const syncStartedRef = useRef(false);
   useEffect(() => {
     if (syncStartedRef.current) return;
@@ -155,6 +160,18 @@ export default function App() {
     const stop = startLocationSync({
       current: userLocRef.current,
       onLocation: (loc) => {
+        // v0.61.371 — operator: pick Tokyo in Menu while physically in SG →
+        // Cuisine loaded SG. Root cause: this "follow device" sync overrode
+        // the Menu-picked Tokyo anchor (set by tryServerCache from the loc
+        // table) with the SG device GPS. An EXPLICIT pick (a Menu / deep-link
+        // anchor carries a `name`; a device-followed anchor has name '') must
+        // win until the user clears or changes it — so don't follow the device
+        // away from it.
+        const explicitAnchor = locationAnchorRef.current;
+        if (explicitAnchor && (explicitAnchor.name || '').trim()) {
+          console.log('[LocationSync] holding explicit pick "' + explicitAnchor.name + '" — not following device');
+          return;
+        }
         const cur = userLocRef.current;
         if (cur && Number.isFinite(cur.lat) && havM(cur, loc) < 1500) return;
         console.log('[LocationSync] following device →', loc.lat.toFixed(4), loc.lng.toFixed(4), '(' + loc.source + ')');
@@ -317,6 +334,10 @@ export default function App() {
   // /cuisine command can deep-link the recipient back to the same
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
+  // v0.61.371 — keep locationAnchorRef in sync so the mount-time location
+  // sync (declared above, before this state) can read the CURRENT anchor and
+  // hold an explicit pick instead of following the device off it.
+  useEffect(() => { locationAnchorRef.current = locationAnchor; }, [locationAnchor]);
   // v0.61.205 — track the server-cached anchor's precinctId so the
   // OTHER region pill can show the Putrajaya flag PNG specifically
   // for the IOI Resort City anchor (other OTHER anchors — KL,
