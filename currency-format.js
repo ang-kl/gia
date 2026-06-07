@@ -40,6 +40,7 @@
 // ISO 3166-1 alpha-2 country → display prefix.
 const COUNTRY_PREFIX = {
   SG: 'S$',  MY: 'M$',  US: 'US$', CA: 'C$',  HK: 'HK$', TW: 'NT$',
+  MO: 'MOP$', BN: 'B$',
   AU: 'A$',  NZ: 'NZ$', JP: '¥',   CN: '¥',   KR: '₩',   TH: '฿',
   VN: '₫',   ID: 'Rp',  PH: '₱',   IN: '₹',   GB: '£',   CH: 'CHF ',
   // EU zone — pre-2025 callers using ISO-3166 will pass DE/FR/IT/…
@@ -53,7 +54,12 @@ const CURRENCY_PREFIX = {
   SGD: 'S$',  MYR: 'M$',  USD: 'US$', CAD: 'C$',  HKD: 'HK$', TWD: 'NT$',
   AUD: 'A$',  NZD: 'NZ$', JPY: '¥',   CNY: '¥',   KRW: '₩',   THB: '฿',
   VND: '₫',   IDR: 'Rp',  PHP: '₱',   INR: '₹',   GBP: '£',   CHF: 'CHF ',
-  EUR: '€'
+  EUR: '€',
+  // v0.61.361 — Option B device currencies: a few widely-recognised
+  // symbols so a traveller's home currency renders cleanly. Everything
+  // else falls back to the "CODE " prefix (e.g. "SEK 320").
+  MOP: 'MOP$', BND: 'B$',  BRL: 'R$',  RUB: '₽',   TRY: '₺',   ILS: '₪',
+  AED: 'AED ', SAR: 'SAR ', ZAR: 'R',  MXN: 'Mex$', NGN: '₦'
 };
 
 function prefixForCountry(countryCode) {
@@ -68,14 +74,47 @@ function prefixForCurrency(currencyCode) {
   return CURRENCY_PREFIX[cc] || `${cc} `;
 }
 
-// Map an ISO-3166 country → ISO-4217 currency code (used to look up FX
-// rates from the user's country). Falls back to null for unknowns.
+// Map an ISO-3166-1 alpha-2 country → ISO-4217 currency code. Used to
+// resolve BOTH the venue currency and — for Option B (v0.61.361) — the
+// user's *device* home currency, which can be any of ~170 nations.
+// Falls back to null for unknowns (caller then drops the conversion).
 const COUNTRY_TO_CURRENCY = {
-  SG: 'SGD', MY: 'MYR', US: 'USD', CA: 'CAD', HK: 'HKD', TW: 'TWD',
-  AU: 'AUD', NZ: 'NZD', JP: 'JPY', CN: 'CNY', KR: 'KRW', TH: 'THB',
-  VN: 'VND', ID: 'IDR', PH: 'PHP', IN: 'INR', GB: 'GBP', CH: 'CHF',
+  // — Asia-Pacific (picker + neighbours) —
+  SG: 'SGD', MY: 'MYR', HK: 'HKD', TW: 'TWD', MO: 'MOP', BN: 'BND',
+  JP: 'JPY', CN: 'CNY', KR: 'KRW', TH: 'THB', VN: 'VND', ID: 'IDR',
+  PH: 'PHP', IN: 'INR', AU: 'AUD', NZ: 'NZD', KH: 'KHR', LA: 'LAK',
+  MM: 'MMK', BD: 'BDT', LK: 'LKR', NP: 'NPR', PK: 'PKR', BT: 'BTN',
+  MV: 'MVR', MN: 'MNT', FJ: 'FJD', PG: 'PGK',
+  // — North America —
+  US: 'USD', CA: 'CAD', MX: 'MXN',
+  // — Central America & Caribbean —
+  GT: 'GTQ', BZ: 'BZD', SV: 'USD', HN: 'HNL', NI: 'NIO', CR: 'CRC',
+  PA: 'USD', CU: 'CUP', DO: 'DOP', JM: 'JMD', TT: 'TTD', BS: 'BSD',
+  BB: 'BBD', HT: 'HTG',
+  // — South America —
+  BR: 'BRL', AR: 'ARS', CL: 'CLP', CO: 'COP', PE: 'PEN', VE: 'VES',
+  EC: 'USD', BO: 'BOB', PY: 'PYG', UY: 'UYU', GY: 'GYD', SR: 'SRD',
+  // — Eurozone —
   DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', PT: 'EUR', NL: 'EUR',
-  BE: 'EUR', AT: 'EUR', IE: 'EUR', FI: 'EUR', GR: 'EUR', LU: 'EUR'
+  BE: 'EUR', AT: 'EUR', IE: 'EUR', FI: 'EUR', GR: 'EUR', LU: 'EUR',
+  SK: 'EUR', SI: 'EUR', EE: 'EUR', LV: 'EUR', LT: 'EUR', CY: 'EUR',
+  MT: 'EUR', HR: 'EUR', AD: 'EUR', MC: 'EUR', SM: 'EUR', VA: 'EUR',
+  ME: 'EUR', XK: 'EUR',
+  // — Rest of Europe —
+  GB: 'GBP', CH: 'CHF', NO: 'NOK', SE: 'SEK', DK: 'DKK', IS: 'ISK',
+  PL: 'PLN', CZ: 'CZK', HU: 'HUF', RO: 'RON', BG: 'BGN', RS: 'RSD',
+  UA: 'UAH', RU: 'RUB', BY: 'BYN', MD: 'MDL', MK: 'MKD', BA: 'BAM',
+  AL: 'ALL', TR: 'TRY', GE: 'GEL', AM: 'AMD', AZ: 'AZN', LI: 'CHF',
+  // — Middle East —
+  AE: 'AED', SA: 'SAR', QA: 'QAR', KW: 'KWD', BH: 'BHD', OM: 'OMR',
+  JO: 'JOD', LB: 'LBP', IL: 'ILS', IQ: 'IQD', IR: 'IRR', YE: 'YER',
+  SY: 'SYP',
+  // — Africa —
+  EG: 'EGP', ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', MA: 'MAD',
+  TN: 'TND', DZ: 'DZD', ET: 'ETB', TZ: 'TZS', UG: 'UGX', RW: 'RWF',
+  ZM: 'ZMW', ZW: 'ZWL', MU: 'MUR', BW: 'BWP', NA: 'NAD', AO: 'AOA',
+  MZ: 'MZN', SN: 'XOF', CI: 'XOF', CM: 'XAF', GA: 'XAF', LY: 'LYD',
+  SD: 'SDG'
 };
 
 function currencyForCountry(countryCode) {

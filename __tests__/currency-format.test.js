@@ -65,6 +65,21 @@ describe('currency-format — prefix lookups', () => {
     expect(currencyForCountry('FR')).toBe('EUR');
     expect(currencyForCountry('XX')).toBeNull();
   });
+
+  it('covers the Option-B device long tail (~170 nations)', () => {
+    // Picker neighbours the old ECB map omitted.
+    expect(currencyForCountry('MO')).toBe('MOP');
+    expect(currencyForCountry('BN')).toBe('BND');
+    // Common traveller home currencies across continents.
+    expect(currencyForCountry('GB')).toBe('GBP');
+    expect(currencyForCountry('AE')).toBe('AED');
+    expect(currencyForCountry('BR')).toBe('BRL');
+    expect(currencyForCountry('SE')).toBe('SEK');
+    expect(currencyForCountry('ZA')).toBe('ZAR');
+    expect(currencyForCountry('SA')).toBe('SAR');
+    // Eurozone member added in the expansion.
+    expect(currencyForCountry('HR')).toBe('EUR');
+  });
 });
 
 describe('currency-format — usdRate (Alpha Vantage primary)', () => {
@@ -267,5 +282,24 @@ describe('currency-format — formatPriceRangeForVenue', () => {
       { currencyCode: 'SGD', start: null, end: 30 }, 'SG', 'SG', mockRedis
     );
     expect(r).toBe('S$30');
+  });
+
+  it('Option B: converts into a device currency in the long tail (GB → £)', async () => {
+    // usd(SGD)=0.74, usd(GBP)=1.27 → GBP per SGD = 0.582677
+    // 25*…=14.5669 *1.028 → 14.98 ; 40*…=23.3071 *1.028 → 23.96
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, GBP: 1.27 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'GB', mockRedis
+    );
+    expect(r).toBe('S$25–40 (≈£14.98–23.96)');
+  });
+
+  it('Option B: unknown-symbol device currency uses the "CODE " prefix (AE → AED)', async () => {
+    globalThis.fetch = mockFrankfurter({ SGD: 0.74, AED: 0.272 });
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'AE', mockRedis
+    );
+    // AED resolves via CURRENCY_PREFIX ("AED "); marked up + "≈".
+    expect(r).toMatch(/^S\$25–40 \(≈AED \d/);
   });
 });
