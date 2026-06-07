@@ -76,10 +76,27 @@ const SEED_TEMPLATES = {
   ]
 };
 
+// v0.61.377 — operator: the special modes were keyworded from a SG/MY
+// lens (EN + Malay + simplified Chinese), so a durian/fruit venue named
+// only in Japanese / Korean / Thai / traditional-Chinese script was
+// dropped by the relevance filter when searching JP / KR / TH / TW. The
+// CORE durian word is now defined ONCE here and reused by the keyword
+// loop, the strict-name gate (_nameHasDurian) and the recency review
+// counter, so a local-script durian venue passes all three.
+//   ja: ドリアン   ko: 두리안   th: ทุเรียน   zh-trad (TW/HK): 榴槤 / 榴蓮
+const DURIAN_CORE_TERMS = Object.freeze([
+  'durian', 'durians',          // Latin (also Indonesian/Malay)
+  '榴莲', '榴梿',                  // Chinese (simplified + variant)
+  '榴槤', '榴蓮',                  // Chinese (traditional — Taiwan / Hong Kong)
+  'ドリアン',                      // Japanese
+  '두리안',                        // Korean
+  'ทุเรียน'                        // Thai
+]);
+
 // Per-mode relevance keywords (lowercased). A venue is considered
 // "relevant" when its name, primaryType, area/address, editorial
 // summary, OR a review snippet contains at least one of these.
-// Includes Malay + Chinese terms per spec.
+// Includes Malay + Chinese + (v0.61.377) JP/KR/TH/TW terms per spec.
 const KEYWORDS = {
   [SPECIAL_MODES.FRUITS]: [
     // Latin / English
@@ -92,7 +109,11 @@ const KEYWORDS = {
     // Malay
     'buah', 'jus buah', 'buah-buahan', 'pasar buah',
     // Chinese
-    '水果', '果汁', '鲜果', '鲜榨', '果园'
+    '水果', '果汁', '鲜果', '鲜榨', '果园',
+    // v0.61.377 — Japanese / Korean / Thai "fruit"
+    'フルーツ', '果物',             // ja: furūtsu / kudamono
+    '과일',                         // ko: gwail
+    'ผลไม้'                         // th: phonlamai
   ],
   // v0.61.229 — DURIAN now matches via:
   //   (a) primaryType ∈ ACCEPT_PRIMARY_TYPES_DURIAN (operator's positive
@@ -107,12 +128,9 @@ const KEYWORDS = {
   // primary inclusion. Old behaviour (v0.61.225) caused a French /
   // Italian restaurant whose review mentioned "Mao Shan Wang reduction"
   // to surface under DURIAN.
-  [SPECIAL_MODES.DURIAN]: [
-    // Latin / English — core durian word (singular + plural).
-    'durian', 'durians',
-    // Chinese — core word.
-    '榴莲', '榴梿'
-  ],
+  // v0.61.377 — the core durian word across all supported locales
+  // (EN / zh-simp / zh-trad / ja / ko / th). Single source of truth.
+  [SPECIAL_MODES.DURIAN]: [...DURIAN_CORE_TERMS],
   // v0.61.225 — DURIAN_PASTRY keyword list expanded to the operator's
   // full 41-dessert catalogue (was 12 entries). Mirrors the fruit-
   // catalogue split: each operator entry becomes a lower-cased keyword.
@@ -142,7 +160,14 @@ const KEYWORDS = {
     'black thorn', 'golden phoenix', 'jin feng',
     // Chinese — pastry / cake variants + variety
     '榴莲泡芙', '榴莲蛋糕', '榴莲麻糬', '榴莲班戟',
-    '猫山王', '金凤', '红虾'
+    '猫山王', '金凤', '红虾',
+    // v0.61.377 — local-script CORE durian word (JP/KR/TH/TW). The
+    // pastry/bakery accept-type already constrains "is it a dessert
+    // shop"; this lets a durian-pastry venue named only in local
+    // script (e.g. ドリアンケーキ / 두리안 케이크 / 榴槤泡芙) survive the
+    // filter. Generic local "cake/pastry" words are deliberately NOT
+    // added — they'd match non-durian desserts.
+    '榴槤', '榴蓮', 'ドリアン', '두리안', 'ทุเรียน'
   ]
 };
 
@@ -434,8 +459,15 @@ function _strongHaystack(v) {
 // support.
 function _nameHasDurian(venue) {
   const n = String(venue?.name || '').toLowerCase();
-  return n.includes('durian') || n.includes('榴莲') || n.includes('榴梿');
+  // v0.61.377 — all supported locales (EN/zh/ja/ko/th), shared with the
+  // keyword loop + recency counter via DURIAN_CORE_TERMS.
+  return DURIAN_CORE_TERMS.some((t) => n.includes(t.toLowerCase()));
 }
+
+// v0.61.377 — single regex of the core durian word across locales, used
+// by the recency review counter. Built from DURIAN_CORE_TERMS so the
+// three durian-detection sites can never drift apart.
+const DURIAN_CORE_RE = new RegExp(DURIAN_CORE_TERMS.map((t) => t.toLowerCase()).join('|'), 'g');
 
 // v0.61.262 — recency-filtered review signal. Operator (29-05 '26):
 // *"did you accurately check reviews (last 24 months) as durian are
@@ -457,7 +489,10 @@ function _countRecentDurianMentions(venue) {
     if (!Number.isFinite(pubMs)) continue;
     if (now - pubMs > REVIEW_RECENCY_MS) continue;
     const text = String(r.text || '').toLowerCase();
-    const matches = text.match(/durian|榴莲|榴梿/g);
+    // v0.61.377 — match the core durian word in any supported locale
+    // (String.match with a /g regex returns all hits; it doesn't use
+    // lastIndex, so reusing DURIAN_CORE_RE here is safe).
+    const matches = text.match(DURIAN_CORE_RE);
     if (matches) count += matches.length;
   }
   return count;

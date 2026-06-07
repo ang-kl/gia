@@ -674,3 +674,59 @@ describe('special-mode — v0.61.225 pastry names REJECTED from DURIAN', () => {
     });
   }
 });
+
+// v0.61.377 — operator: include translated locale text so durian / fruit
+// venues named only in Japanese / Korean / Thai / traditional-Chinese
+// (JP / KR / TH / TW) aren't dropped by the relevance filter.
+describe('special-mode — local-locale keyword coverage (v0.61.377)', () => {
+  const durianKept = [
+    { name: 'ドリアン専門店', primaryType: 'food_store', locale: 'ja' },       // Japanese
+    { name: '두리안 가게', primaryType: 'food_store', locale: 'ko' },          // Korean
+    { name: 'ทุเรียนหมอนทอง', primaryType: 'market', locale: 'th' },          // Thai (Monthong durian)
+    { name: '榴槤大王', primaryType: 'food_store', locale: 'zh-TW (榴槤)' },    // Taiwan traditional
+    { name: '榴蓮世家', primaryType: 'fruit_and_vegetable_store', locale: 'zh-TW (榴蓮)' },
+  ];
+  for (const c of durianKept) {
+    it(`DURIAN keeps ${c.locale} "${c.name}"`, () => {
+      expect(sm.isRelevant({ name: c.name, primaryType: c.primaryType }, 'durian')).toBe(true);
+    });
+  }
+
+  const fruitsKept = [
+    { name: 'フルーツショップ', primaryType: 'market', locale: 'ja (フルーツ)' },
+    { name: '果物市場', primaryType: 'market', locale: 'ja (果物)' },
+    { name: '과일 가게', primaryType: 'market', locale: 'ko (과일)' },
+    { name: 'ร้านผลไม้สด', primaryType: 'market', locale: 'th (ผลไม้)' },
+  ];
+  for (const c of fruitsKept) {
+    it(`FRUITS keeps ${c.locale} "${c.name}"`, () => {
+      expect(sm.isRelevant({ name: c.name, primaryType: c.primaryType }, 'fruits')).toBe(true);
+    });
+  }
+
+  it('DURIAN_PASTRY keeps a local-script durian dessert shop', () => {
+    expect(sm.isRelevant({ name: 'ドリアンケーキ専門店', primaryType: 'bakery' }, 'durian-pastry')).toBe(true);
+    expect(sm.isRelevant({ name: '榴槤泡芙', primaryType: 'cafe' }, 'durian-pastry')).toBe(true);
+  });
+
+  it('still drops a non-durian local venue (no over-match)', () => {
+    // Japanese "fruit" word must NOT pull a generic Japanese bakery into DURIAN.
+    expect(sm.isRelevant({ name: 'パン屋さん', primaryType: 'bakery' }, 'durian')).toBe(false);
+    // A Thai noodle stall is not a fruit seller.
+    expect(sm.isRelevant({ name: 'ก๋วยเตี๋ยว', primaryType: 'food_court' }, 'fruits')).toBe(false);
+  });
+
+  it('recency review counter recognises a Thai durian mention', () => {
+    const recent = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(); // ~1 month ago
+    const venue = {
+      name: 'ร้านขายผลไม้',                    // generic "fruit shop" name (no durian word)
+      primaryType: 'food_store',
+      reviews: [
+        { text: 'ทุเรียน อร่อยมาก', publishTime: recent },   // "durian very tasty"
+        { text: 'ทุเรียน สดใหม่', publishTime: recent },      // "durian fresh"
+      ],
+    };
+    // food_store is canonical-for-reviews; 2 recent Thai durian mentions → kept.
+    expect(sm.isRelevant(venue, 'durian')).toBe(true);
+  });
+});
