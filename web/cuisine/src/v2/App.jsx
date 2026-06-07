@@ -1008,18 +1008,56 @@ export default function App() {
     // raise a modal. Gating on userLoc + modalPendingRef alone is therefore
     // sufficient to wait for a genuine mismatch and can never deadlock.
     if (modalPendingRef.current) return;                        // a modal is up → stay gated
-    setLocationGateOpen(true);
-    // v0.61.323 — the gate is now the single place the boot venue list is
-    // populated. On the common no-mismatch path no apply* ran, so fire the
-    // ONE initial load here (deferred from the auto-detect / warm-start
-    // effects, which now only resolve location state). On a mismatch path
-    // the user's apply* choice already fired the correct search and set
-    // initialLoadFiredRef → we skip, so there is no second / SG load.
-    if (!initialLoadFiredRef.current) {
-      initialLoadFiredRef.current = true;
-      runInitialLoad();
-    }
-  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
+    // v0.61.365 — operator: "don't auto-load 5 cuisine's eateries if location
+    // is detected different … give 0.3 second pause to ensure it is resolved …
+    // write to user's table of location then fire the auto-load."
+    //
+    // Root cause of the operator's Image-1 double-state ("⏳ loading random
+    // eateries…" UNDER the Location-mismatch modal): the coherence checks
+    // depend on state.countryPref, which loads ASYNC from the server. On the
+    // commit where userLoc first resolves, countryPref can still be null → the
+    // v0.61.274 check returns early WITHOUT raising a modal → the gate opened
+    // and the boot load fired → then countryPref landed, the check re-ran, and
+    // the modal popped over an already-loading body.
+    //
+    // Fix: a 300 ms SETTLE before opening the gate. countryPref + the three
+    // coherence checks (declared above) get a beat to raise a modal first;
+    // we then RE-CHECK modalPendingRef and bail if one did (the effect re-runs
+    // when it's dismissed). state.countryPref is in the deps so a late load
+    // restarts this timer. On the clean no-mismatch path we resolve the
+    // confirmed centre to a real street+building+city and PERSIST it to the
+    // (per-device, v0.61.363) location table before the auto-load.
+    const settleTimer = setTimeout(() => {
+      if (modalPendingRef.current) return;                      // a mismatch raised during the settle → stay gated
+      setLocationGateOpen(true);
+      // v0.61.323 — the gate is the single place the boot venue list is
+      // populated. On a mismatch path the user's apply* choice already fired
+      // the correct search and set initialLoadFiredRef → we skip here.
+      if (!initialLoadFiredRef.current) {
+        initialLoadFiredRef.current = true;
+        const center = (locationAnchor?.lat != null && locationAnchor?.lng != null)
+          ? { lat: locationAnchor.lat, lng: locationAnchor.lng }
+          : (searchCenter?.lat != null && searchCenter?.lng != null)
+            ? { lat: searchCenter.lat, lng: searchCenter.lng }
+            : { lat: userLoc.lat, lng: userLoc.lng };
+        // Resolve + persist the confirmed location to the user's (per-device)
+        // table, then auto-load. Fire-and-forget so the load isn't blocked on
+        // the network (mirrors the apply* paths' saveUserLocation().catch()).
+        (async () => {
+          try {
+            let label = (locationAnchor?.name || '').trim();
+            if (!label) {
+              const rg = await reverseGeocode({ lat: center.lat, lng: center.lng }).catch(() => null);
+              label = (rg && (rg.name || rg.formatted) || '').trim();   // actual street+building+city
+            }
+            await saveUserLocation({ lat: center.lat, lng: center.lng, ...(label ? { label } : {}) });
+          } catch { /* best-effort — never block the boot load */ }
+        })();
+        runInitialLoad();
+      }
+    }, 300);
+    return () => clearTimeout(settleTimer);
+  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, state.countryPref, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
