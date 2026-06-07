@@ -1,20 +1,41 @@
-// currency-format.js — v0.60.183 venue-card price-range formatter.
+// currency-format.js — v0.61.360 venue-card price-range formatter.
 //
 // Operator: don't use the 💲 emoji on venue cards. Use the country
 // currency prefix ("S$", "M$", "US$", "¥", "€" …) followed by the
 // numeric price range. When the user's region differs from the
-// venue's, append a parenthetical conversion to 2 decimal places.
+// venue's, append a parenthetical, marked-up, approximate ("≈")
+// conversion into the user's currency.
 //
 // Examples:
 //   SG user, SG venue: "S$25–40"
-//   US user, SG venue: "S$25–40 (US$18.50–29.60)"
-//   SG user, MY venue: "M$50–80 (S$14.50–23.20)"
+//   US user, SG venue: "S$25–40 (≈US$19.02–30.43)"
+//   SG user, MY venue: "M$50–80 (≈S$14.91–23.85)"
 //   priceRange missing: null  (caller drops the line)
 //
-// FX rates via Frankfurter (api.frankfurter.app) — free, no API key,
-// ECB-sourced, daily-updated. Cached in Redis at fx:<from>:<to> with
-// 12 h TTL. Network failure → returns null and the caller silently
-// drops the conversion-in-parens.
+// FX architecture (v0.61.360) — operator: "currently only in Malaysia
+// that is rigid with fixed foreign currency exchange rate". The old
+// Frankfurter-only path (ECB, ~33 majors) did NOT cover TWD / VND /
+// MOP / BND, so those picker countries fell back to no-conversion.
+//
+// New model: a USD-pivot rate table.
+//   • usdRate(CUR) = USD per 1 unit of CUR, fetched ONCE then cached
+//     15 days (operator: "real time only once … 15 days").
+//     Primary source  : Alpha Vantage CURRENCY_EXCHANGE_RATE
+//                       (process.env.ALPHAVANTAGE_API_KEY; 25 req/day
+//                        free tier — hence the long cache + lazy fetch).
+//     Fallback source : Frankfurter (no key) when Alpha Vantage is
+//                       rate-limited / unreachable.
+//   • fetchFxRate(a,b) = usdRate(a) / usdRate(b)  → any-to-any cross
+//     rate, so every picker currency converts even if one leg is a
+//     "rigid" currency the ECB feed omits.
+//
+// Traveller honesty (operator): the converted value is an ESTIMATE, so
+//   • apply a +2.8% markup (real card/cash spreads), and
+//   • round UP — to 2 dp for currencies with cents, to a whole number
+//     for no-cents currencies (JPY / KRW / VND / IDR …), and
+//   • prefix the parenthetical with "≈" to mark it approximate.
+// The native venue-currency range is the real menu price — never
+// marked up. Any FX failure → silently drop the parenthetical.
 
 // ISO 3166-1 alpha-2 country → display prefix.
 const COUNTRY_PREFIX = {
@@ -62,18 +83,69 @@ function currencyForCountry(countryCode) {
   return COUNTRY_TO_CURRENCY[String(countryCode).toUpperCase()] || null;
 }
 
-// fetchFxRate(from, to, redis) → Promise<number|null>.
-//   from/to: 3-letter ISO-4217 codes (e.g. "SGD", "USD").
-//   redis:   optional ioredis client; when present, cache for 12 h.
-// Returns the rate as a number (e.g. fetchFxRate('SGD', 'USD') ≈ 0.74)
-// or null on failure (network, non-JSON, unknown code). Same currencies
-// short-circuit to 1.0.
-async function fetchFxRate(from, to, redis) {
-  if (!from || !to) return null;
-  const a = String(from).toUpperCase();
-  const b = String(to).toUpperCase();
-  if (a === b) return 1.0;
-  const cacheKey = `fx:${a}:${b}`;
+// 15-day cache TTL for the USD-pivot table (operator: "real time only
+// once … 15 days"). Long TTL is also what keeps us inside Alpha
+// Vantage's 25-req/day free tier.
+const USD_RATE_TTL_S = 15 * 24 * 3600;
+const FX_TIMEOUT_MS = 8000;
+
+function fxTimeout() {
+  // 8 s upper bound so a degraded FX API never stalls venue rendering.
+  return AbortSignal.timeout ? AbortSignal.timeout(FX_TIMEOUT_MS) : undefined;
+}
+
+// fetchUsdRateAlphaVantage(cur) → Promise<number|null>
+//   USD per 1 unit of `cur`, via Alpha Vantage CURRENCY_EXCHANGE_RATE.
+//   Returns null when: no API key, network/parse failure, or the
+//   rate-limit envelope (`Information` / `Note`) — so the caller falls
+//   through to Frankfurter and/or keeps the cached value.
+async function fetchUsdRateAlphaVantage(cur) {
+  const key = process.env.ALPHAVANTAGE_API_KEY;
+  if (!key) return null;
+  try {
+    const url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE`
+      + `&from_currency=${encodeURIComponent(cur)}&to_currency=USD`
+      + `&apikey=${encodeURIComponent(key)}`;
+    const res = await fetch(url, { signal: fxTimeout() });
+    if (!res.ok) return null;
+    const json = await res.json();
+    // Free-tier throttle / informational envelope → treat as a miss.
+    if (json && (json.Information || json.Note || json['Error Message'])) return null;
+    const r = json?.['Realtime Currency Exchange Rate']?.['5. Exchange Rate'];
+    const n = Number(r);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+// fetchUsdRateFrankfurter(cur) → Promise<number|null>
+//   USD per 1 unit of `cur`, via Frankfurter (no key). Fallback only.
+//   Frankfurter omits the "rigid" currencies (TWD/VND/MOP/BND); for
+//   those this also returns null and the parenthetical is dropped.
+async function fetchUsdRateFrankfurter(cur) {
+  try {
+    const res = await fetch(`https://api.frankfurter.app/latest?from=${encodeURIComponent(cur)}&to=USD`, {
+      signal: fxTimeout()
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const r = json?.rates?.USD;
+    return Number.isFinite(r) && r > 0 ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+// usdRate(cur, redis) → Promise<number|null>
+//   USD per 1 unit of `cur`. USD short-circuits to 1.0. Reads the
+//   15-day Redis cache (fx:usd:<CUR>) first; on miss tries Alpha
+//   Vantage, then Frankfurter; writes the cache on success.
+async function usdRate(cur, redis) {
+  const c = String(cur || '').toUpperCase();
+  if (!c) return null;
+  if (c === 'USD') return 1.0;
+  const cacheKey = `fx:usd:${c}`;
   if (redis) {
     try {
       const cached = await redis.get(cacheKey);
@@ -83,37 +155,57 @@ async function fetchFxRate(from, to, redis) {
       }
     } catch { /* cache miss is non-fatal */ }
   }
-  try {
-    const res = await fetch(`https://api.frankfurter.app/latest?from=${encodeURIComponent(a)}&to=${encodeURIComponent(b)}`, {
-      // 8 s timeout — Frankfurter usually responds in < 200 ms; this
-      // is a belt-and-braces upper bound to keep venue-render latency
-      // bounded if the API is degraded.
-      signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const rate = json?.rates?.[b];
-    if (!Number.isFinite(rate) || rate <= 0) return null;
-    if (redis) {
-      try { await redis.setex(cacheKey, 12 * 3600, String(rate)); }
-      catch { /* setex failure is non-fatal */ }
-    }
-    return rate;
-  } catch {
-    return null;
+  let rate = await fetchUsdRateAlphaVantage(c);
+  if (rate == null) rate = await fetchUsdRateFrankfurter(c);
+  if (!Number.isFinite(rate) || rate <= 0) return null;
+  if (redis) {
+    try { await redis.setex(cacheKey, USD_RATE_TTL_S, String(rate)); }
+    catch { /* setex failure is non-fatal */ }
   }
+  return rate;
 }
 
-function fmt2(n) {
+// fetchFxRate(from, to, redis) → Promise<number|null>.
+//   from/to: 3-letter ISO-4217 codes (e.g. "SGD", "USD").
+//   redis:   optional ioredis client; when present, caches the USD legs
+//            for 15 days.
+// Cross-rate via the USD pivot: (USD per 1 `from`) / (USD per 1 `to`),
+// which equals how many `to` units 1 `from` unit buys. Same currencies
+// short-circuit to 1.0; any failed leg → null.
+async function fetchFxRate(from, to, redis) {
+  if (!from || !to) return null;
+  const a = String(from).toUpperCase();
+  const b = String(to).toUpperCase();
+  if (a === b) return 1.0;
+  const ra = await usdRate(a, redis); // USD per 1 a
+  const rb = await usdRate(b, redis); // USD per 1 b
+  if (!Number.isFinite(ra) || ra <= 0 || !Number.isFinite(rb) || rb <= 0) return null;
+  return ra / rb;
+}
+
+// Traveller FX markup (operator: "2.8% across all"). Applied to the
+// converted (parenthetical) value only — never to the native price.
+const FX_MARKUP = 1.028;
+
+// Currencies with no minor (fractional) unit — render & round to whole
+// numbers. Operator-named JPY/KRW/VND/IDR plus the ISO 4217 zero-decimal
+// set, so the 170-nation long tail rounds sensibly too. (IDR is
+// nominally 2-decimal but is quoted whole in practice — operator's call.)
+const NO_CENTS = new Set([
+  'JPY', 'KRW', 'VND', 'IDR',
+  'BIF', 'CLP', 'DJF', 'GNF', 'ISK', 'KMF', 'PYG', 'RWF',
+  'UGX', 'VUV', 'XAF', 'XOF', 'XPF'
+]);
+
+// convAmount(n, userCurrency) — apply the +2.8% markup and ROUND UP:
+// whole numbers for no-cents currencies, otherwise to 2 dp. Returns the
+// formatted string for the parenthetical conversion.
+function convAmount(n, userCurrency) {
   if (!Number.isFinite(n)) return '';
-  // No decimals when the value is a whole number AND the magnitude
-  // suggests an integer-friendly currency (KRW, JPY, IDR, VND have no
-  // fractional units; everywhere else, render as integer when both
-  // bounds happen to round trivially, otherwise show 2 decimals).
-  // Keep this simple: 2 decimals when in parens (conversion), no
-  // decimals for the native venue-currency range (matches operator
-  // examples "S$25–40" and "(US$18.50–29.60)").
-  return n.toFixed(2);
+  const m = n * FX_MARKUP;
+  const cur = String(userCurrency || '').toUpperCase();
+  if (NO_CENTS.has(cur)) return String(Math.ceil(m));
+  return (Math.ceil(m * 100) / 100).toFixed(2);
 }
 
 function fmtNative(n) {
@@ -157,13 +249,15 @@ async function formatPriceRangeForVenue(priceRange, venueCountry, userCountry, r
   if (!Number.isFinite(rate) || rate <= 0) return native;     // FX unreachable → silently drop parens
   const uPrefix = prefixForCountry(userCountry) || prefixForCurrency(userCurrency);
   if (!uPrefix) return native;
-  const cs = start != null ? start * rate : null;
-  const ce = end   != null ? end   * rate : null;
-  const conv = (cs != null && ce != null && cs !== ce) ? `${uPrefix}${fmt2(cs)}–${fmt2(ce)}`
-             : (cs != null) ? `${uPrefix}${fmt2(cs)}`
-             : (ce != null) ? `${uPrefix}${fmt2(ce)}`
+  const cs = start != null ? convAmount(start * rate, userCurrency) : null;
+  const ce = end   != null ? convAmount(end   * rate, userCurrency) : null;
+  // "≈" marks the marked-up estimate (operator). Range collapses to a
+  // single value when the two bounds round equal.
+  const conv = (cs != null && ce != null && cs !== ce) ? `${uPrefix}${cs}–${ce}`
+             : (cs != null) ? `${uPrefix}${cs}`
+             : (ce != null) ? `${uPrefix}${ce}`
              : null;
-  return conv ? `${native} (${conv})` : native;
+  return conv ? `${native} (≈${conv})` : native;
 }
 
 module.exports = {
@@ -173,6 +267,9 @@ module.exports = {
   prefixForCountry,
   prefixForCurrency,
   currencyForCountry,
+  usdRate,
   fetchFxRate,
-  formatPriceRangeForVenue
+  formatPriceRangeForVenue,
+  NO_CENTS,
+  FX_MARKUP
 };
