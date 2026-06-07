@@ -31,6 +31,11 @@ import { useLocale, t, tn } from './lib/i18n.js';
 import { tg } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
 
+// v0.61.362 — countries the Cuisine OTHER picker can represent. The
+// 20 s location-sync only follows the device into one of these (else it
+// leaves region/countryPref untouched).
+const CUISINE_OTHER_CODES = new Set(OTHER_COUNTRIES.map((c) => c.code));
+
 // v0.61.51 — operator CR7: floating FABs must not use green
 // (washed-out against the Google Map). The bg/colour come from the
 // shared giaToggleStyle palette (theme-aware amber-on-white / dark
@@ -160,6 +165,18 @@ export default function App() {
         } else if (c === 'MY') {
           const target = isJbCoords({ lat: loc.lat, lng: loc.lng }) ? 'JB' : 'OTHER';
           setState((s) => { if (s.region === target) return s; const n = { ...s, region: target }; if (target === 'OTHER') n.countryPref = 'MY'; return n; });
+        } else {
+          // v0.61.362 — outside the SG/MY bbox, resolve the real country
+          // globally (same nearestIataCity detector the mount auto-detect
+          // uses) and follow it into the OTHER picker, so region + the
+          // country flag track the device beyond SG/MY (operator: "the
+          // 20 seconds codes will detect the location and the flag").
+          const near = nearestIataCity(loc.lat, loc.lng);
+          const cc = near && near.city && near.city.countryCode;
+          if (cc && CUISINE_OTHER_CODES.has(cc)) {
+            setState((s) => (s.region === 'OTHER' && s.countryPref === cc ? s : { ...s, region: 'OTHER', countryPref: cc }));
+            saveCountryPref(cc).catch(() => {});
+          }
         }
         setLocationAnchor({ lat: loc.lat, lng: loc.lng, name: '' });
         setSearchCenter({ lat: loc.lat, lng: loc.lng });

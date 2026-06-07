@@ -668,7 +668,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     } else if (currentAnchor.region === 'JB') {
       flagEl = <img src="MY_Johor_flag.png" alt="" width="16" height="11" className="rounded-sm border border-tg-border/40 flex-shrink-0" />;
     } else {
-      const cc = findCountry(countryPref);
+      // v0.61.362 — prefer the live anchor country (the 20 s location-sync
+      // updates currentAnchor.country as you move) over the once-seeded
+      // countryPref, so the pill flag follows the device into any supported
+      // country, not just whatever was loaded on mount.
+      const cc = findCountry(currentAnchor.country || countryPref);
       flagEl = <span aria-hidden className="flex-shrink-0">{cc?.flag || '🌏'}</span>;
     }
     const metaLeftRaw = capStr || '';
