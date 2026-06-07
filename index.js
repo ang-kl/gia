@@ -9717,7 +9717,18 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   await michelinWalk.recordWalk(redis, csChatId, walkHash, newKeys);
   const totalServedThisWalk = walkState.seen.size + newKeys.length;
   // v0.61.351 — city vs country counts for the city-aware hint.
-  let michCityRemaining = null, michCityName = null, michCountryName = null, michCountryFlag = '';
+  // v0.61.374 — operator (fix A): the new "📚 Explore N … across <flag>
+  // <Country>" hint now applies to EVERY Michelin search, including
+  // Singapore (a city-state) which previously fell back to the legacy
+  // "Curated Michelin list …" string. Country fields are computed
+  // unconditionally; the CITY block stays only for multi-city countries
+  // (so SG, where city == country, doesn't read "Singapore" twice).
+  let michCityRemaining = null, michCityName = null;
+  const michCountryCC = isSGMich ? 'SG' : michCC;
+  const michCountryName = isSGMich ? 'Singapore' : (MICH_CC_NAME[michCC] || michCC);
+  const michCountryFlag = (michCountryCC && michCountryCC.length === 2)
+    ? String.fromCodePoint(...[...michCountryCC].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65))
+    : '';
   if (michSelectedCity) {
     const _cityKeys = new Set(
       ordered.filter((e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase())
@@ -9728,10 +9739,6 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     for (const k of newKeys) if (_cityKeys.has(k)) cityShown++;
     michCityRemaining = Math.max(0, _cityKeys.size - cityShown);
     michCityName = michSelectedCity;
-    michCountryName = MICH_CC_NAME[michCC] || michCC;
-    michCountryFlag = michCC.length === 2
-      ? String.fromCodePoint(...[...michCC].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65))
-      : '';
   }
   const walkExhausted = totalServedThisWalk >= ordered.length;
   const exhausted = filteredVenues.length < 3 || walkExhausted;
@@ -9787,7 +9794,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       label: michelinEditionLabel,
       total: allEntries.length,
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
-      ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining, countryName: michCountryName, countryFlag: michCountryFlag } : {}),
+      ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining } : {}),
+      ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
       oneStar: allEntries.filter((e) => e.category === 'one-star').length,
