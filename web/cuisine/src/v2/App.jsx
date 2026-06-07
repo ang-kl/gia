@@ -820,6 +820,11 @@ export default function App() {
   // the gate-opener fires runInitialLoad() on the no-mismatch path; the
   // apply* fns set this ref true so their own runSearch isn't doubled.
   const initialLoadFiredRef = useRef(false);
+  // v0.61.367 — one-shot guard for the v0.61.365 gate settle timer. Ensures
+  // the 300 ms settle is scheduled exactly once per clean window and is NOT
+  // restarted by dep churn (the apply* runSearch mutates state mid-load),
+  // which otherwise kept clearing the timer → the gate never opened → hang.
+  const gateSettleScheduledRef = useRef(false);
 
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
@@ -1010,25 +1015,26 @@ export default function App() {
     if (modalPendingRef.current) return;                        // a modal is up → stay gated
     // v0.61.365 — operator: "don't auto-load 5 cuisine's eateries if location
     // is detected different … give 0.3 second pause to ensure it is resolved …
-    // write to user's table of location then fire the auto-load."
+    // write to user's table of location then fire the auto-load." The 300 ms
+    // SETTLE lets the async countryPref load + the three coherence checks raise
+    // a modal BEFORE the boot load fires (Image-1 double-state fix), then we
+    // re-check modalPendingRef and persist the confirmed location.
     //
-    // Root cause of the operator's Image-1 double-state ("⏳ loading random
-    // eateries…" UNDER the Location-mismatch modal): the coherence checks
-    // depend on state.countryPref, which loads ASYNC from the server. On the
-    // commit where userLoc first resolves, countryPref can still be null → the
-    // v0.61.274 check returns early WITHOUT raising a modal → the gate opened
-    // and the boot load fired → then countryPref landed, the check re-ran, and
-    // the modal popped over an already-loading body.
-    //
-    // Fix: a 300 ms SETTLE before opening the gate. countryPref + the three
-    // coherence checks (declared above) get a beat to raise a modal first;
-    // we then RE-CHECK modalPendingRef and bail if one did (the effect re-runs
-    // when it's dismissed). state.countryPref is in the deps so a late load
-    // restarts this timer. On the clean no-mismatch path we resolve the
-    // confirmed centre to a real street+building+city and PERSIST it to the
-    // (per-device, v0.61.363) location table before the auto-load.
-    const settleTimer = setTimeout(() => {
-      if (modalPendingRef.current) return;                      // a mismatch raised during the settle → stay gated
+    // v0.61.367 — HANG FIX. The v0.61.365 timer had a `clearTimeout` cleanup +
+    // `state.region`/`state.countryPref` deps. On the conflict-RESOLVE path the
+    // apply*'s runSearch churns those state fields WHILE it loads, so the effect
+    // re-ran on every churn, cleared the just-started timer, and rescheduled —
+    // the gate never opened, leaving the "Confirming your location…" splash
+    // hung over an already-running search (operator: "hang as it tries to load
+    // 5 after resolve the location"). Fix: schedule the settle EXACTLY ONCE via
+    // gateSettleScheduledRef and DON'T clear it on dep churn; drop the churning
+    // state.* deps (the mismatch-state deps already re-run this on dismiss). If
+    // a modal raises during the settle, the timer bails and clears the ref so
+    // the post-dismiss re-run reschedules.
+    if (gateSettleScheduledRef.current) return;                 // a settle is already pending — dep churn must not restart it
+    gateSettleScheduledRef.current = true;
+    setTimeout(() => {
+      if (modalPendingRef.current) { gateSettleScheduledRef.current = false; return; }  // mismatch raised mid-settle → reschedule after dismiss
       setLocationGateOpen(true);
       // v0.61.323 — the gate is the single place the boot venue list is
       // populated. On a mismatch path the user's apply* choice already fired
@@ -1056,8 +1062,7 @@ export default function App() {
         runInitialLoad();
       }
     }, 300);
-    return () => clearTimeout(settleTimer);
-  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, state.countryPref, locationGateOpen]);
+  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
