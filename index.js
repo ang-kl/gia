@@ -16566,25 +16566,53 @@ async function cacheBotUsername() {
     // posture as /maps-key) so any Mini App can show a live Singapore
     // weather emoji. SG centroid (TMAs want an island-wide read, not
     // per-user precision); Redis-cached 5 min to spare the NEA feeds.
-    app.get('/api/weather/summary', async (_req, res) => {
-      const CACHE_KEY = 'weather:tma-summary';
+    app.get('/api/weather/summary', async (req, res) => {
+      // v0.61.380 — operator: weather must follow the country expansion.
+      // The TMA now sends the user's lat/lng; coords inside Singapore use
+      // NEA (authoritative local), everywhere else uses Open-Meteo (free,
+      // global). No coords → SG centroid (legacy behaviour). Cache is keyed
+      // per ~11 km grid cell so Tokyo and Singapore don't share one entry.
+      const qLat = Number(req.query.lat);
+      const qLng = Number(req.query.lng);
+      const hasCoords = Number.isFinite(qLat) && Number.isFinite(qLng)
+        && !(Math.abs(qLat) < 0.001 && Math.abs(qLng) < 0.001);
+      const useSG = !hasCoords || weather.inSgBounds(qLat, qLng);
+      const lat = hasCoords ? qLat : 1.3521;
+      const lng = hasCoords ? qLng : 103.8198;
+      const CACHE_KEY = `weather:tma-summary:${lat.toFixed(1)}:${lng.toFixed(1)}`;
       try {
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
         const { forecastEmoji, toFahrenheit } = require('./weather-emoji');
-        const w = await weather.summary(1.3521, 103.8198);
-        const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
-        const payload = {
-          ok: true,
-          tempC,
-          tempF: tempC != null ? Math.round(toFahrenheit(tempC) * 10) / 10 : null,
-          humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
-          condition: w?.forecast || null,
-          emoji: forecastEmoji(w?.forecast)
-        };
-        if (redis.isOpen) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
+        let payload;
+        if (useSG) {
+          const w = await weather.summary(lat, lng);
+          const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
+          payload = {
+            ok: tempC != null,
+            tempC,
+            tempF: tempC != null ? Math.round(toFahrenheit(tempC) * 10) / 10 : null,
+            humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
+            condition: w?.forecast || null,
+            emoji: forecastEmoji(w?.forecast),
+            source: 'nea'
+          };
+        } else {
+          const w = await weather.summaryGlobal(lat, lng);
+          const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
+          payload = tempC == null ? { ok: false } : {
+            ok: true,
+            tempC,
+            tempF: Math.round(toFahrenheit(tempC) * 10) / 10,
+            humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
+            condition: w?.condition || null,
+            emoji: w?.emoji || '🌡️',
+            source: 'open-meteo'
+          };
+        }
+        if (redis.isOpen && payload.ok) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
         res.json(payload);
       } catch (err) {
         console.error('[Error] /api/weather/summary failed:', err.message);

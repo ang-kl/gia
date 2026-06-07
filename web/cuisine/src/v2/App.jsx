@@ -2409,9 +2409,14 @@ export default function App() {
           <div className="flex items-center gap-3 shrink-0">
             <LocaleToggle />
             {/* v0.60.219 — operator: drop the "Nc · Nf" count badge,
-                show a live Singapore weather emoji beside the locale
-                toggle instead. */}
-            <WeatherBadge className="text-[11px] text-tg-hint" />
+                show a live weather emoji beside the locale toggle.
+                v0.61.380 — pass the active location (anchor → search centre →
+                device) so the weather follows where you are, not always SG. */}
+            <WeatherBadge
+              className="text-[11px] text-tg-hint"
+              lat={(locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null}
+              lng={(locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null}
+            />
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.
