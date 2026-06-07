@@ -7,6 +7,7 @@ import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writ
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from './lib/location-sync.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
+import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
@@ -1445,14 +1446,19 @@ export default function App() {
   // initialLoadFiredRef).
   function runInitialLoad() {
     if (!userLoc || initialSearchDone.current) return;
+    // v0.61.373 — region-aware SINGLE SOURCE OF TRUTH (search-location.js).
+    // An explicit anchor / committed searchCenter wins; the device GPS is a
+    // valid centre ONLY in SG. In OTHER / JB with no pick yet, `center` is
+    // null → we DON'T boot-load the device's city (the old `… : userLoc`
+    // fallback loaded 5 SG venues under an OTHER region); the user picks a
+    // country + city and the search fires from there. The done-flag is set
+    // only once we actually load, so a late anchor can still fire.
+    const center = resolveSearchCenter({ region: state.region, searchCenter, locationAnchor, userLoc });
+    if (!center) {
+      console.log('[Cuisine-TMA-v2] runInitialLoad: no coherent centre for region', state.region, '— awaiting a country+city pick');
+      return;
+    }
     initialSearchDone.current = true;
-    // Resolve the confirmed center: an explicit anchor (deep-link or
-    // auto-detect) wins, then any committed searchCenter, then device.
-    const center = (locationAnchor?.lat != null && locationAnchor?.lng != null)
-      ? { lat: locationAnchor.lat, lng: locationAnchor.lng }
-      : (searchCenter?.lat != null && searchCenter?.lng != null)
-        ? { lat: searchCenter.lat, lng: searchCenter.lng }
-        : { lat: userLoc.lat, lng: userLoc.lng };
     // v0.58.10: when the bot's /cuisine tokeniser pre-anchored via the
     // hash (lat/lng/place), OR auto-detect resolved an anchor, skip
     // warm-start and run a real search at that anchor so the user lands
@@ -1597,7 +1603,11 @@ export default function App() {
     // v0.60.119 — an explicit pick (locationAnchor) wins over the cached
     // device pin so a nulled searchCenter (TMA background/restore) can't
     // reset the user's chosen location.
-    const center = anchor || searchCenter || locationAnchor || userLoc;
+    // v0.61.373 — region-aware SINGLE SOURCE OF TRUTH (search-location.js,
+    // unit-tested). Crucially, in OTHER / JB the device GPS is NEVER the
+    // centre, so an "Others" search can't silently run at the user's
+    // physical SG location (the over-compression bug). null → visible error.
+    const center = resolveSearchCenter({ region: snap.region, anchor, searchCenter, locationAnchor, userLoc });
     // v0.58.26: defence-in-depth — never POST {lat:0, lng:0}.
     if (!Number.isFinite(center?.lat) || !Number.isFinite(center?.lng)
         || (Math.abs(center.lat) < 0.001 && Math.abs(center.lng) < 0.001)) {
