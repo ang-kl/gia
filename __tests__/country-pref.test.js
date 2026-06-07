@@ -110,3 +110,25 @@ describe('country-pref — Redis get/set', () => {
     expect(code).toBe('SG');
   });
 });
+
+// v0.61.363 — per-device country pref. One chatId, several devices each
+// in a different country.
+describe('country-pref — per-device keys (v0.61.363)', () => {
+  it('keeps two devices on one chatId isolated', async () => {
+    const r = makeRedisStub();
+    await cp.setUserCountryPref(r, 'chat-9', 'JP', 'phoneA');
+    await cp.setUserCountryPref(r, 'chat-9', 'TH', 'phoneB');
+    expect(await cp.getUserCountryPref(r, 'chat-9', 'phoneA')).toBe('JP');
+    expect(await cp.getUserCountryPref(r, 'chat-9', 'phoneB')).toBe('TH');
+  });
+  it('a device with no slot falls back to the chatId-level pref (seed)', async () => {
+    const r = makeRedisStub();
+    await cp.setUserCountryPref(r, 'chat-9', 'KR'); // chatId-level only
+    expect(await cp.getUserCountryPref(r, 'chat-9', 'newPhone')).toBe('KR');
+  });
+  it('a per-device write also refreshes the chatId-level pref', async () => {
+    const r = makeRedisStub();
+    await cp.setUserCountryPref(r, 'chat-9', 'VN', 'tab1');
+    expect(await cp.getUserCountryPref(r, 'chat-9')).toBe('VN');
+  });
+});

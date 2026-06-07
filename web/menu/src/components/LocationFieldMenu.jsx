@@ -23,6 +23,7 @@ import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 import { citiesForCountry } from '../cities.js';
+import { deviceId } from '../device-id.js';
 // v0.61.269 — shared autocomplete helpers (mirrors Cuisine TMA).
 import { placeAutocomplete, placeResolve } from '../api.js';
 
@@ -319,7 +320,8 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     fetch('/api/cuisine/country-pref', {
       headers: {
         Accept: 'application/json',
-        'X-Telegram-Init-Data': w.initData || ''
+        'X-Telegram-Init-Data': w.initData || '',
+        'X-Device-Id': deviceId() || ''
       }
     }).then((r) => r.ok ? r.json() : null)
       .then((body) => {
@@ -350,7 +352,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     fetch('/api/cuisine/country-pref', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ countryCode: code, initData: w.initData || '' })
+      body: JSON.stringify({ countryCode: code, deviceId: deviceId(), initData: w.initData || '' })
     }).catch(() => { /* non-fatal */ });
   }
 
@@ -384,7 +386,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       const r = await fetch('/api/menu/set-location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, initData: w.initData || '' }),
+        body: JSON.stringify({ ...payload, deviceId: deviceId(), initData: w.initData || '' }),
         keepalive: true
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);

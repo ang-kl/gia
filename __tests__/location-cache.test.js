@@ -131,3 +131,44 @@ describe('setUserLocation — country opt persistence (v0.61.270)', () => {
     expect(c.radiusCapM).toBe(25000);
   });
 });
+
+// v0.61.363 — per-device keys. One chatId, several devices each in a
+// different place: a device token routes writes/reads to its own slot so
+// devices don't clobber each other; reads fall back to the chatId-level
+// key (bot-chat default + new-device seed).
+describe('setUserLocation / getUserLocation — per-device keys (v0.61.363)', () => {
+  let redis;
+  beforeEach(() => { redis = createStub(); });
+
+  it('keeps two devices on the same chatId isolated (no clobber)', async () => {
+    await setUserLocation(redis, 777, 1.3521, 103.8198, { region: 'SG', country: 'SG', deviceId: 'phoneA' });
+    await setUserLocation(redis, 777, 35.6762, 139.6503, { region: 'OTHER', country: 'JP', deviceId: 'phoneB' });
+    const a = await getUserLocation(redis, 777, 'phoneA');
+    const b = await getUserLocation(redis, 777, 'phoneB');
+    expect(a.country).toBe('SG');
+    expect(a.lat).toBeCloseTo(1.3521, 3);
+    expect(b.country).toBe('JP');
+    expect(b.lat).toBeCloseTo(35.6762, 3);
+  });
+
+  it('a fresh device falls back to the chatId-level key (seed), then diverges', async () => {
+    // Only a chatId-level write so far (e.g. a bot-chat share-pin).
+    await setUserLocation(redis, 888, 1.3521, 103.8198, { region: 'SG', country: 'SG' });
+    // New device with no slot yet → seeds from chatId-level.
+    const seed = await getUserLocation(redis, 888, 'newPhone');
+    expect(seed.country).toBe('SG');
+    // Once the device writes its own slot, it diverges.
+    await setUserLocation(redis, 888, 13.7563, 100.5018, { region: 'OTHER', country: 'TH', deviceId: 'newPhone' });
+    const own = await getUserLocation(redis, 888, 'newPhone');
+    expect(own.country).toBe('TH');
+    // The chatId-level (bot-chat) read still reflects the latest write.
+    const chatLevel = await getUserLocation(redis, 888);
+    expect(chatLevel.country).toBe('TH');
+  });
+
+  it('a per-device write also refreshes the chatId-level key', async () => {
+    await setUserLocation(redis, 999, 37.5665, 126.9780, { region: 'OTHER', country: 'KR', deviceId: 'tab1' });
+    const chatLevel = await getUserLocation(redis, 999);
+    expect(chatLevel.country).toBe('KR');
+  });
+});
