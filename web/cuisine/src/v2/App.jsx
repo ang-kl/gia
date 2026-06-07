@@ -2918,14 +2918,23 @@ export default function App() {
           michelinHint={(() => {
             const mr = michelinRemaining;
             if (!(mr && mr.remaining > 0 && !loading)) return null;
+            const fc = `${mr.countryFlag ? mr.countryFlag + ' ' : ''}${mr.countryName || ''}`.trim();
             // v0.61.351 — city-aware hint: "Explore N more in <City> · M across 🇰🇷 <Country>"
-            // when the picked city resolved to a curated Michelin city; else the national hint.
+            // when the picked city resolved to a curated Michelin city (multi-city countries).
             if (mr.city && Number.isFinite(mr.cityRemaining)) {
-              const fc = `${mr.countryFlag ? mr.countryFlag + ' ' : ''}${mr.countryName || ''}`.trim();
               return lang === 'fr'
                 ? `📚 Explorez ${mr.cityRemaining} de plus à ${mr.city} · ${mr.total} dans ${fc}`
                 : `📚 Explore ${mr.cityRemaining} more in ${mr.city} · ${mr.total} across ${fc}`;
             }
+            // v0.61.374 — country-only NEW format (fix A): used for city-states
+            // like Singapore (city == country → no redundant "in <City>"):
+            // "📚 Explore 69 more · 117 across 🇸🇬 Singapore".
+            if (fc) {
+              return lang === 'fr'
+                ? `📚 Explorez ${mr.remaining} de plus · ${mr.total} dans ${fc}`
+                : `📚 Explore ${mr.remaining} more · ${mr.total} across ${fc}`;
+            }
+            // Legacy fallback only when no country info resolved at all.
             return lang === 'fr'
               ? `📚 Liste Michelin organisée — ${mr.remaining} de plus à découvrir (${mr.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
               : `📚 Curated Michelin list — ${mr.remaining} more to explore (${mr.total} in total). Tap 🔍 for the next batch of 12.`;
