@@ -8934,12 +8934,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const michCC = String(michelinCountry || '').toUpperCase();
   const isSGMich = michCC === '' || michCC === 'SG';
   // v0.61.350 — country-aware result label (operator bug: a Seoul search
-  // still read "Michelin Singapore 2025"). SG keeps its 2025-edition label;
-  // other countries show the NATIONAL list name — the search is country-wide
-  // (the picked city is only the map anchor), so the count is the whole
-  // country, not the city. Years are omitted off-SG because editions are merged.
+  // still read "Michelin Singapore 2025"). The label shows the NATIONAL list
+  // name — the search is country-wide (the picked city is only the map anchor),
+  // so the count is the whole country, not the city.
+  // v0.61.375 — operator (fix B): drop the hard-coded "2025" from the SG
+  // label. It went stale at the year roll-over, and a dynamic current-year
+  // would be WRONG (the curated data is the 2025 edition, not the live year);
+  // the honest fix is to omit the year entirely, matching every other
+  // country ("Michelin Japan", "Michelin South Korea", …).
   const MICH_CC_NAME = { MY: 'Malaysia', TH: 'Thailand', JP: 'Japan', KR: 'South Korea', CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', VN: 'Vietnam', MO: 'Macau', PH: 'Philippines' };
-  const michelinEditionLabel = isSGMich ? 'Michelin Singapore 2025' : `Michelin ${MICH_CC_NAME[michCC] || michCC}`;
+  const michelinEditionLabel = isSGMich ? 'Michelin Singapore' : `Michelin ${MICH_CC_NAME[michCC] || michCC}`;
   if (!isSGMich) {
     const mdChk = require('./michelin-data');
     if (!mdChk.hasMichelinData(michCC)) {
@@ -11808,12 +11812,16 @@ async function cacheBotUsername() {
             categoryLabel: 'Michelin, Bib Gourmand',
             categoryEmoji: '✳️',
             defaultOpen: false,
-            name: 'Michelin Singapore 2025',
+            // v0.61.375 — operator (fix B): drop the hard-coded "2025"
+            // here too. This `name` leaks into the result criteria line
+            // before the server's michelinSummary.label loads, so the
+            // year-stamp showed there. Year-less, matching the label.
+            name: 'Michelin, Bib Gourmand',
             slug: 'michelin',
             flag: '✳️',
             searchQuery: 'Michelin Singapore restaurant',
             keywords: ['michelin', 'star', 'bib gourmand'],
-            description: `Singapore Michelin Guide 2025: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
+            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
           }]
         });
         res.json({ categories });
