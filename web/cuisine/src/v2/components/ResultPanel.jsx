@@ -359,24 +359,11 @@ export default function ResultPanel({
         </div>
       )}
       {loading ? (
-        /* v0.61.403 — unobtrusive, bottom-anchored loading toast (parity with
-           gia-web v0.1.151): narrow, fixed to the viewport bottom, non-blocking
-           (pointer-events-none wrapper so it never intercepts taps). Replaces
-           the inline "Loading…" block; self-dismisses the moment the first card
-           paints (loading flips false → the cards branch renders). */
-        <div
-          aria-live="polite"
-          className="pointer-events-none fixed inset-x-0 bottom-3 z-40 flex justify-center px-3"
-        >
-          <div className="pointer-events-auto inline-flex max-w-[20rem] items-center gap-2 rounded-full border border-tg-border bg-tg-card/95 px-3.5 py-2 text-xs shadow-lg backdrop-blur">
-            <span
-              aria-hidden
-              className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-tg-accent border-t-transparent"
-            />
-            <span className="truncate font-medium text-tg-text">
-              {loadingHint || (lang === 'fr' ? 'Chargement…' : 'Loading…')}
-            </span>
-          </div>
+        /* v0.61.405 — operator: the v0.61.403 bottom toast was a mistake.
+           Drop the relocated message entirely — just an animated hourglass,
+           inline where the loading state always sat. No text, non-blocking. */
+        <div className="px-2 py-6 text-center" aria-live="polite" aria-label={loadingHint || 'Loading'}>
+          <span aria-hidden className="inline-block animate-spin text-2xl leading-none">⏳</span>
         </div>
       ) : !venues?.length ? (
         specialModeBlocked ? (
