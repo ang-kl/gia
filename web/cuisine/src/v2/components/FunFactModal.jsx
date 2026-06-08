@@ -17,7 +17,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
-import { factBody } from '../lib/fun-facts.js';
+import { factBody, deviceFactLang } from '../lib/fun-facts.js';
 
 const DEFAULT_MIN_MS = 3000;
 
@@ -66,7 +66,10 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
 
   if (!shown || !fact) return null;
 
-  const body = factBody(fact, lang);
+  // v0.61.383 — the fact BODY localises to the device-region language
+  // (e.g. a JP device shows the Japanese text), independent of the app's
+  // en/fr UI chrome (header / "curating" / source labels stay on `lang`).
+  const body = factBody(fact, deviceFactLang());
   const sourceLabel = fact.source || 'NLB';
 
   return (

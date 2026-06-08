@@ -278,10 +278,14 @@ export default function App() {
   // ('initial'), and same-criteria refreshes ('refresh'). Cleared on
   // loading→false; FunFactModal enforces a 3 s minimum on-screen.
   const [funFact, setFunFact] = useState(null);
+  // v0.61.383 — operator Task 1: the wait can run up to ~60 s, so ROTATE
+  // the fact every 15 s (was a single fact for the whole wait). First fact
+  // after the 1.5 s flash-guard, then a fresh one every 15 s until the
+  // search lands. Each pick avoids the last-10 seen this session.
   useEffect(() => {
     if (!loading) { setFunFact(null); return undefined; }
     if (loadingReason !== 'rotating') { setFunFact(null); return undefined; }
-    const id = setTimeout(() => {
+    const pick = () => {
       try {
         const fact = pickFunFact({
           cuisines: state.cuisines,
@@ -290,8 +294,13 @@ export default function App() {
         });
         if (fact) setFunFact(fact);
       } catch { /* swallow — never break the search on a modal-pick error */ }
+    };
+    let intervalId = null;
+    const startId = setTimeout(() => {
+      pick();
+      intervalId = setInterval(pick, 15000); // re-trigger every 15 s
     }, 1500);
-    return () => clearTimeout(id);
+    return () => { clearTimeout(startId); if (intervalId) clearInterval(intervalId); };
   }, [loading, loadingReason, state.cuisines, state.region, state.countryPref]);
   // v0.60.32 — first-load indicator. Set to true on mount, cleared
   // after the first venues array arrives. Drives the "Please wait

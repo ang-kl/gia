@@ -1,19 +1,20 @@
 // __tests__/fun-facts.test.js — v0.61.290 (data path: .json → .js)
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll, vi } from 'vitest';
 import {
   _pickFact,
   pickFunFact,
   factBody,
   totalFunFacts,
-  clearFunFactHistory
+  clearFunFactHistory,
+  deviceFactLang
 } from '../web/cuisine/src/v2/lib/fun-facts.js';
 import facts from '../web/cuisine/src/v2/data/fun-facts.js';
 
 describe('fun-facts data contract', () => {
-  it('exports 64 facts (40 SG-NLB + 12 MY-regional + 12 anti-repeat variety)', () => {
-    expect(facts.length).toBe(64);
-    expect(totalFunFacts()).toBe(64);
+  it('exports 72 facts (40 SG-NLB + 12 MY-regional + 12 anti-repeat variety + 8 v0.61.383 global)', () => {
+    expect(facts.length).toBe(72);
+    expect(totalFunFacts()).toBe(72);
   });
 
   it('every fact has id + tags + EN + FR + source URL', () => {
@@ -176,5 +177,80 @@ describe('pickFunFact — public selector with localStorage', () => {
     expect(store.has('gia.funfact.lastSeen')).toBe(true);
     clearFunFactHistory();
     expect(store.has('gia.funfact.lastSeen')).toBe(false);
+  });
+});
+
+// ── v0.61.383 — global facts + device-language localisation ──────────────
+
+describe('global facts (v0.61.383)', () => {
+  const LANGS = ['en', 'fr', 'zh', 'ms', 'ta', 'ja', 'ko', 'th'];
+  const globals = facts.filter((f) => f.tags.includes('global'));
+
+  it('adds at least 8 facts tagged "global"', () => {
+    expect(globals.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it('every global fact carries all 8 localisations + the "other" region tag', () => {
+    for (const f of globals) {
+      for (const l of LANGS) {
+        expect(typeof f[l]).toBe('string');
+        expect(f[l].length).toBeGreaterThan(5);
+      }
+      expect(f.tags).toContain('other'); // so OTHER-region searches surface them
+    }
+  });
+});
+
+describe('factBody — device-language resolution (v0.61.383)', () => {
+  const ramen = facts.find((f) => f.id === 'g-ramen-china-origin');
+
+  it('returns the Japanese body for lang=ja', () => {
+    expect(factBody(ramen, 'ja')).toBe(ramen.ja);
+  });
+  it('returns the Korean body for lang=ko', () => {
+    expect(factBody(ramen, 'ko')).toBe(ramen.ko);
+  });
+  it('returns the Thai body for lang=th', () => {
+    expect(factBody(ramen, 'th')).toBe(ramen.th);
+  });
+  it('falls back to EN for a language the fact lacks (SG fact, lang=ja)', () => {
+    const sgFact = facts.find((f) => f.tags.includes('SG') && !f.ja);
+    expect(factBody(sgFact, 'ja')).toBe(sgFact.en);
+  });
+});
+
+describe('deviceFactLang — navigator.language → fact language (v0.61.383)', () => {
+  const setLang = (l) => { vi.stubGlobal('navigator', { language: l, languages: [l] }); };
+  afterAll(() => { vi.unstubAllGlobals(); });
+
+  it('maps a supported device language (ja-JP → ja)', () => {
+    setLang('ja-JP');
+    expect(deviceFactLang()).toBe('ja');
+  });
+  it('maps ko-KR → ko and th-TH → th', () => {
+    setLang('ko-KR'); expect(deviceFactLang()).toBe('ko');
+    setLang('th-TH'); expect(deviceFactLang()).toBe('th');
+  });
+  it('falls back to en for an unsupported device language (de-DE)', () => {
+    setLang('de-DE');
+    expect(deviceFactLang()).toBe('en');
+  });
+});
+
+describe('_pickFact — surfaces global facts for non-SG context (v0.61.383)', () => {
+  it('a Tokyo search (countryPref jp) can pick a jp-tagged global fact', () => {
+    // Force selection deterministically with rng → 0 over the jp-matched tier.
+    const jpMatched = facts.filter((f) => f.tags.includes('jp'));
+    expect(jpMatched.length).toBeGreaterThan(0);
+    const result = _pickFact({ ctxTags: ['jp', 'other'], lastSeen: [], factsList: facts, rng: () => 0 });
+    expect(result).not.toBeNull();
+    expect(result.tags).toContain('jp');
+  });
+
+  it('an OTHER-region search with no country match falls to a "other"-tagged global fact', () => {
+    const result = _pickFact({ ctxTags: ['other'], lastSeen: [], factsList: facts, rng: () => 0 });
+    expect(result).not.toBeNull();
+    expect(result.tags).toContain('other');
+    expect(result.tags).toContain('global');
   });
 });
