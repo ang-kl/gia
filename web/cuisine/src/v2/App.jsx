@@ -903,18 +903,52 @@ export default function App() {
   // "Keep {saved-country}" leaves state as-is.
   function applyCoherenceChoice(useCoords) {
     if (!coherenceMismatch) return;
+    // The country the user committed to: "Use" adopts the detected coords-
+    // country; "Keep" retains the saved countryPref.
+    const cc = useCoords ? coherenceMismatch.coords : state.countryPref;
     if (useCoords) {
-      const target = coherenceMismatch.coords === 'SG' ? 'SG' : 'OTHER';
+      const target = cc === 'SG' ? 'SG' : 'OTHER';
       setState((s) => ({
         ...s,
         region: target,
-        countryPref: target === 'SG' ? null : coherenceMismatch.coords
+        countryPref: target === 'SG' ? null : cc
       }));
       // Persist the discard so the next session doesn't repeat the prompt.
-      saveCountryPref(coherenceMismatch.coords).catch(() => {});
+      saveCountryPref(cc).catch(() => {});
     }
     modalPendingRef.current = false;  // v0.61.322 — release the splash gate
     setCoherenceMismatch(null);
+    // v0.61.396 — operator: committing to a non-SG country (e.g. JP) must
+    // ROUTE the map there and FIRE the first 5. Without this, resolveSearchCenter
+    // returns null for OTHER (device GPS is SG-only) so runInitialLoad bails
+    // ("awaiting a country+city pick") → no reroute, no venues, and the city
+    // isn't shown. Set an explicit anchor at the country (the device coords for
+    // "Use", else the capital centroid), fly the map there, and fire runSearch
+    // with a corrected OTHER snapshot — mirroring the country-city pick flow.
+    // SG keeps its existing device-GPS anchor (unchanged). We set
+    // initialLoadFiredRef so the gate-opener doesn't also fire a boot load.
+    if (cc && cc !== 'SG') {
+      let pt = null;
+      let name = '';
+      const _validPt = (p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng)
+        && Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001;
+      if (useCoords && _validPt(userLoc)) {
+        pt = { lat: userLoc.lat, lng: userLoc.lng };
+        const near = nearestIataCity(userLoc.lat, userLoc.lng);
+        name = (near && near.city && near.city.name) || cc;
+      } else {
+        const cap = (CITIES_BY_COUNTRY[cc] || [])[0];
+        if (cap) { pt = { lat: cap.lat, lng: cap.lng }; name = cap.name || cc; }
+      }
+      if (pt) {
+        setLocationAnchor({ lat: pt.lat, lng: pt.lng, name });
+        setSearchCenter({ lat: pt.lat, lng: pt.lng });
+        setFlyTarget({ lat: pt.lat, lng: pt.lng, zoom: 11, _k: Date.now() });
+        initialLoadFiredRef.current = true;
+        initialSearchDone.current = true;
+        runSearch({ ...state, region: 'OTHER', countryPref: cc }, pt);
+      }
+    }
   }
 
   // v0.61.276 — Expert C from the 30-05 investigation board: sibling
