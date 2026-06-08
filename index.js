@@ -15254,16 +15254,20 @@ async function cacheBotUsername() {
           ? (typeof r.text.text === 'string' ? r.text.text : '')
           : (typeof r?.text === 'string' ? r.text : '');
         function extractDishes(reviews, venueName) {
-          const recent = (reviews || [])
-            .filter((r) => reviewText(r))
-            .filter((r) => {
-              if (!r.publishTime) return true; // keep undated
-              const t = new Date(r.publishTime).getTime();
-              return Number.isFinite(t) ? (now - t) <= FOUR_MONTHS_MS : true;
-            })
-            .slice(0, 3);
-          if (!recent.length) return { dishes: [], snippet: null };
-          const allText = recent.map((r) => reviewText(r)).join(' . ');
+          const withText = (reviews || []).filter((r) => reviewText(r));
+          const recent = withText.filter((r) => {
+            if (!r.publishTime) return true; // keep undated
+            const t = new Date(r.publishTime).getTime();
+            return Number.isFinite(t) ? (now - t) <= FOUR_MONTHS_MS : true;
+          });
+          // v0.61.390 — operator: the 💬 quote was blank whenever a venue's
+          // Google reviews were ALL older than 4 months (Places returns its
+          // "most relevant" reviews, often not recent). Fall back to the best
+          // available review so the quote shows whenever Google has ANY
+          // review; recent reviews are still preferred when present.
+          const pool = (recent.length ? recent : withText).slice(0, 3);
+          if (!pool.length) return { dishes: [], snippet: null };
+          const allText = pool.map((r) => reviewText(r)).join(' . ');
           const patterns = [
             /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
             /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
@@ -15299,7 +15303,7 @@ async function cacheBotUsername() {
               dishes.add(candidate);
             }
           }
-          return { dishes: [...dishes].slice(0, 3), snippet: reviewText(recent[0]).slice(0, 200).trim() };
+          return { dishes: [...dishes].slice(0, 3), snippet: reviewText(pool[0]).slice(0, 200).trim() };
         }
         // v0.59.24: drinks filter for "🍴 Try ·" — per Human Lead
         // 2026-05-07. Skip for Dessert/Fusion cuisines (drinks are
