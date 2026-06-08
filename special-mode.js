@@ -38,6 +38,17 @@ const SPECIAL_MODES = Object.freeze({
 
 const SPECIAL_MODE_VALUES = new Set(Object.values(SPECIAL_MODES));
 
+// v0.61.397 — operator: the durian / fruits / durian-pastry special modes
+// only make sense in the SE-Asian durian belt. Outside it they return wrong
+// answers (e.g. Hong Kong generic desserts mislabelled as durian results), so
+// they are GATED to these countries (SG via region pill, MY via JB/OTHER, the
+// rest via the OTHER picker). The picker itself stays global — only the
+// special modes are blocked elsewhere.
+const SPECIAL_MODE_COUNTRIES = Object.freeze(new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN']));
+function specialModeAllowed(country) {
+  return SPECIAL_MODE_COUNTRIES.has(String(country || '').toUpperCase());
+}
+
 function isSpecialMode(mode) {
   return typeof mode === 'string' && SPECIAL_MODE_VALUES.has(mode);
 }
@@ -709,6 +720,8 @@ function filterByMode(venues, mode) {
 module.exports = {
   SPECIAL_MODES,
   isSpecialMode,
+  specialModeAllowed,
+  SPECIAL_MODE_COUNTRIES,
   buildSeeds,
   localNewlyOpened,
   LOCAL_SEEDS,

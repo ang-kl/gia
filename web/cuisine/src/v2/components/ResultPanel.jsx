@@ -82,7 +82,12 @@ export default function ResultPanel({
   specialMode = null,
   // v0.61.350 — Michelin "N more to explore" hint, rendered full-width below
   // the header (under the "· Michelin <country>" line). null hides it.
-  michelinHint = null
+  michelinHint = null,
+  // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
+  // outside the SE-Asian durian belt; the server returns { mode, country }.
+  // When set the empty-state shows "only available in …" instead of the
+  // generic "No results" copy (the empty list is intentional, not a miss).
+  specialModeBlocked = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -328,17 +333,28 @@ export default function ResultPanel({
           {loadingHint || 'Loading…'}
         </div>
       ) : !venues?.length ? (
-        /* v0.61.163 — operator's friendlier zero-state copy. The
-           prior "No matches yet — pick a cuisine…" assumed the user
-           hadn't yet tried. After a real search returning 0 (which
-           the header now states as `Results (0/0)` per the new
-           format), the message explicitly suggests two paths
-           forward: change the criteria, or clear them. */
-        <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
-          {lang === 'fr'
-            ? 'Aucun résultat. Modifiez vos critères de recherche ou laissez-les vides.'
-            : 'No results. Suggest changing the search criteria, or leaving it blank.'}
-        </div>
+        specialModeBlocked ? (
+          /* v0.61.397 — durian / fruits / durian-pastry blocked outside the
+             SE-Asian durian belt (SG/MY/ID/TH/PH/BN). The empty list is
+             intentional, so show WHY ("only available in …") rather than the
+             generic "change your criteria" copy — there's nothing to adjust.
+             Amber border + icon + text (no red/green-only signalling). */
+          <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+            {tr(`special.${specialModeBlocked.mode}.blocked`, lang)}
+          </div>
+        ) : (
+          /* v0.61.163 — operator's friendlier zero-state copy. The
+             prior "No matches yet — pick a cuisine…" assumed the user
+             hadn't yet tried. After a real search returning 0 (which
+             the header now states as `Results (0/0)` per the new
+             format), the message explicitly suggests two paths
+             forward: change the criteria, or clear them. */
+          <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
+            {lang === 'fr'
+              ? 'Aucun résultat. Modifiez vos critères de recherche ou laissez-les vides.'
+              : 'No results. Suggest changing the search criteria, or leaving it blank.'}
+          </div>
+        )
       ) : (
         <div className="flex flex-col gap-1.5">
           {/* v0.60.82 — combo fallback banner. When the user picked 2+

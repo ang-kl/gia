@@ -146,6 +146,15 @@ const STRINGS = {
                                  fr: '🍉 Peu de résultats à proximité. Affichage des établissements liés aux fruits les plus proches.' },
   'special.durian.limited':    { en: '🥥 Limited durian sellers nearby. Showing the closest relevant matches.',
                                  fr: '🥥 Peu de vendeurs de durian à proximité. Affichage des résultats les plus proches.' },
+  // v0.61.397 — operator: durian / fruits / durian-pastry only make sense in
+  // the SE-Asian durian belt; the server blocks them elsewhere and the panel
+  // shows this in place of the generic empty-state. Belt = SG/MY/ID/TH/PH/BN.
+  'special.fruits.blocked':    { en: '🍉 Fruit search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines and Brunei.',
+                                 fr: '🍉 La recherche de fruits n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines et au Brunei.' },
+  'special.durian.blocked':    { en: '🥥 Durian search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines and Brunei.',
+                                 fr: '🥥 La recherche de durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines et au Brunei.' },
+  'special.durian-pastry.blocked': { en: '🥐 Durian-pastry search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines and Brunei.',
+                                 fr: '🥐 La recherche de pâtisseries au durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines et au Brunei.' },
   // v0.61.130 — UI surface for v0.61.129 O-23 backend. When the
   // special-mode widening pass actually fired (radius escalated from
   // X to Y), append "· widened to Y km" below the limited card so
