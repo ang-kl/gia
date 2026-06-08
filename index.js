@@ -15008,8 +15008,23 @@ async function cacheBotUsername() {
               const { filterVenuesByCountry, hasKeywordsFor } = require('./country-text-match');
               if (hasKeywordsFor(ctxCountry)) {
                 const beforeOther = venues.length;
-                venues = filterVenuesByCountry(venues, ctxCountry);
-                console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
+                const filtered = filterVenuesByCountry(venues, ctxCountry);
+                // v0.61.401 — operator: cuisine searches returned 0 when the
+                // country-pref was STALE vs the actual pin (e.g. country=MY but
+                // the pin sits in Singapore → every SG venue fails the MY
+                // keyword filter, so durian/american/etc. collapse to 0 while a
+                // big no-cuisine pool leaks a few through). The locationBias.
+                // circle already pinned the pool to the user's REAL coords, and
+                // this keyword filter is belt-and-braces (fail-open by design),
+                // so when it would EMPTY the page, keep the coord-pinned pool
+                // instead of returning 0. Mirrors the JB-fallback (D703b) + the
+                // v0.61.399 review-refute floor.
+                if (filtered.length === 0 && beforeOther > 0) {
+                  console.log(`[Cuisine-Search] D703d country-text-filter cc=${ctxCountry} ${beforeOther}→0 → FLOOR: kept coord-pinned pool (country-pref stale vs pin)`);
+                } else {
+                  venues = filtered;
+                  console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
+                }
               } else {
                 console.log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${venues.length}`);
               }
