@@ -14440,7 +14440,19 @@ async function cacheBotUsername() {
         let cuisineSearchHash = '';
         let cuisineVariantIdx = 0;
         let cuisineVariantCount = 1;
-        const isMultiCuisine = cuisineQueries.length >= 2;
+        // v0.61.398 — the AND-combo phase is for 2+ REAL cuisines (find a
+        // venue serving both). Gate it on `cuisineNames` (actual picks), NOT
+        // `cuisineQueries` — the latter is inflated by modifier prefixes and,
+        // since v0.61.395 Track B, by the local-language "newly opened" seed.
+        // A bare New search in a foreign-script country produced
+        // cuisineQueries=["newly opened","새로 오픈"] (length 2) and was wrongly
+        // AND-combined into "newly opened 새로 오픈" — Google then required BOTH
+        // phrases in one venue, collapsing recall to a handful (which the
+        // 3-month review-refute trimmed to ~0 → "no results" in Tokyo/Kyoto/
+        // Seoul). Routing it through the single path lets pipeline.discover
+        // join the seeds with " OR " (pipeline.js:1018) — the broad recall
+        // Track B intended; the review-refute still decides newness soundly.
+        const isMultiCuisine = cuisineNames.length >= 2;
 
         if (isMultiCuisine) {
           comboInfo.attempted = true;
