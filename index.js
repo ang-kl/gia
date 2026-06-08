@@ -14232,6 +14232,19 @@ async function cacheBotUsername() {
         // carry a mode keyword.
         if (specialMode) {
           const sm = require('./special-mode');
+          // v0.61.397 — operator: BLOCK the durian / fruits / durian-pastry
+          // modes outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN) — they
+          // returned wrong answers elsewhere (e.g. HK generic desserts). The
+          // effective country: SG pill → SG, JB / MY-PUT → MY, OTHER → the
+          // picked requestCountry. Return an empty result + a flag the TMA
+          // surfaces as "not available here".
+          const smCountry = region === 'SG' ? 'SG'
+            : (region === 'JB' || region === 'MY-PUT') ? 'MY'
+            : (requestCountry || null);
+          if (!sm.specialModeAllowed(smCountry)) {
+            console.log(`[Cuisine-TMA] D778-BLOCK specialMode=${specialMode} region=${region} country=${smCountry || '?'} → blocked (outside the durian belt)`);
+            return res.json({ venues: [], specialModeBlocked: { mode: specialMode, country: smCountry || null }, cached: false });
+          }
           // v0.61.271 — Phase 3 fix (audit ledger C3). The pre-v0.61.271
           // binary "JB suffix or default SG suffix" silently bound
           // every non-JB special-mode search to Singapore. Now the

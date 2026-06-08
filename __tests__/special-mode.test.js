@@ -34,6 +34,39 @@ describe('special-mode — mode constants + guard', () => {
   });
 });
 
+describe('special-mode — specialModeAllowed (v0.61.397 durian-belt gate)', () => {
+  // v0.61.397 — operator: block durian / fruits / durian-pastry outside the
+  // SE-Asian durian belt. The belt is exactly SG, MY, ID, TH, PH, BN (Brunei
+  // explicitly unblocked on the operator's word).
+  it('allows every belt country, case-insensitively', () => {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+      expect(sm.specialModeAllowed(cc)).toBe(true);
+      expect(sm.specialModeAllowed(cc.toLowerCase())).toBe(true);
+    }
+  });
+
+  it('blocks countries outside the belt (the wrong-answer cases)', () => {
+    // HK / JP / KR / CN / TW were the live failures (generic desserts
+    // mislabelled as durian) — all must be blocked.
+    for (const cc of ['HK', 'JP', 'KR', 'CN', 'TW', 'US', 'GB', 'IN', 'AU', 'VN']) {
+      expect(sm.specialModeAllowed(cc)).toBe(false);
+    }
+  });
+
+  it('blocks empty / nullish country (no country resolved → not the belt)', () => {
+    expect(sm.specialModeAllowed(null)).toBe(false);
+    expect(sm.specialModeAllowed(undefined)).toBe(false);
+    expect(sm.specialModeAllowed('')).toBe(false);
+  });
+
+  it('exposes the belt as a frozen 6-country set', () => {
+    expect(sm.SPECIAL_MODE_COUNTRIES).toBeInstanceOf(Set);
+    expect(sm.SPECIAL_MODE_COUNTRIES.size).toBe(6);
+    expect(Object.isFrozen(sm.SPECIAL_MODE_COUNTRIES)).toBe(true);
+    expect([...sm.SPECIAL_MODE_COUNTRIES].sort()).toEqual(['BN', 'ID', 'MY', 'PH', 'SG', 'TH']);
+  });
+});
+
 describe('special-mode — buildSeeds (v0.61.271 contract — no silent SG suffix)', () => {
   // v0.61.271 — Phase 3 audit fix. Pre-v0.61.271 the default suffix
   // was ' Singapore'; that silent geofence leak made every durian/

@@ -230,6 +230,12 @@ export default function App() {
   // dropped the count below the spec's "8-12 relevant" target. Null
   // otherwise; "fruits" / "durian" when set.
   const [specialModeNotice, setSpecialModeNotice] = useState(null);
+  // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
+  // outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN). The server
+  // returns { mode, country } in `specialModeBlocked`; the result panel
+  // swaps the generic "No results" copy for a "only available in …" note
+  // so the empty list reads as intentional, not as a failed search.
+  const [specialModeBlocked, setSpecialModeBlocked] = useState(null);
   // v0.61.278 — O-25: server signals JB-hybrid filter wiped the pool
   // and fell back to OTHER (the v0.61.276 graceful exit fired). The
   // TMA renders an amber notice so the user knows their JB pick was
@@ -481,6 +487,7 @@ export default function App() {
     // venues so back/forward navigation re-renders the right context.
     setPlaceAnchor(p.placeAnchor || null);
     setSpecialModeNotice(p.specialModeNotice || null);
+    setSpecialModeBlocked(p.specialModeBlocked || null);   // v0.61.397 — clear/restore the block banner
     setSpecialModeWidenedInfo(p.specialModeWidenedInfo || null);
     setSessionFull(!!p.sessionFull);
     setPageStackDepth(Number.isFinite(p.pageStackDepth) ? p.pageStackDepth : 0);
@@ -1706,7 +1713,11 @@ export default function App() {
       const isRetryCall = opts?.resetSeen === true;
       const isZeroResult = Array.isArray(r.venues) && r.venues.length === 0;
       const currentSig = stateSig(snap);
-      if (isZeroResult && !isRetryCall && lastZeroRetrySnapRef.current !== currentSig) {
+      // v0.61.397 — a special-mode block (durian/fruits outside the belt)
+      // comes back as an empty list ON PURPOSE. Skip the zero-result retry +
+      // criteria-builder pop below — there's nothing to adjust; the panel
+      // shows the "only available in …" banner instead.
+      if (isZeroResult && !r.specialModeBlocked && !isRetryCall && lastZeroRetrySnapRef.current !== currentSig) {
         lastZeroRetrySnapRef.current = currentSig;
         // Schedule the retry in a microtask so the current `finally`
         // (setLoading(false)) runs first, then the retry's setLoading(true)
@@ -1714,7 +1725,7 @@ export default function App() {
         Promise.resolve().then(() => runSearch(snap, anchor, { resetSeen: true }));
         // Fall through to the regular zero-result setters below; the
         // retry will overwrite them on success.
-      } else if (isZeroResult && isRetryCall) {
+      } else if (isZeroResult && isRetryCall && !r.specialModeBlocked) {
         // The retry came back zero too — show the CTA + open criteria.
         setZeroRetried(true);
         setCriteriaOpen(true);
@@ -1735,6 +1746,9 @@ export default function App() {
       // `specialModeLimited: true` when the post-filter dropped the
       // count below the spec's 8-12 target).
       setSpecialModeNotice(r.specialMode && r.specialModeLimited ? r.specialMode : null);
+      // v0.61.397 — server blocked the durian/fruits/durian-pastry mode for
+      // a country outside the SE-Asian durian belt. { mode, country } or null.
+      setSpecialModeBlocked(r.specialModeBlocked || null);
       // v0.61.278 — O-25: JB-hybrid graceful-exit signal from server.
       setJbFallbackNotice(r.jbFallbackToOther === true);
       // v0.61.130 — v0.61.129 O-23 backend metadata. `specialModeWidened`
@@ -2961,6 +2975,7 @@ export default function App() {
           onCardTap={setFocusedPlaceId}
           warmStartSeed={warmStartSeed}
           comboInfo={comboInfo}
+          specialModeBlocked={specialModeBlocked}
           copyState={{
             cuisines: state.cuisines,
             filters: state.filters,
