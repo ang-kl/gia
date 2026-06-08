@@ -88,18 +88,10 @@ function placeLabel({ lat, lng, name } = {}) {
 
 // v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
-// v0.61.182 — ISO-8601 build timestamp from vite.config.js. Surfaced
-// in the footer alongside BUILD_VERSION so the operator can spot a
-// stale-cached bundle (same version but old timestamp) without
-// opening the Network tab.
-const BUILD_TIME = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : '';
-// Compact "YYYY-MM-DD HH:MM" form for the footer; full ISO would
-// blow out the 9pt line. Strips the trailing Z + seconds.
-function _formatBuildTimeShort(iso) {
-  if (!iso || typeof iso !== 'string') return '';
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  return m ? `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}` : '';
-}
+// v0.61.392 — the v0.61.182 build-timestamp chip (BUILD_TIME +
+// _formatBuildTimeShort) was dropped from the footer per the operator;
+// only the version is shown now. The `__BUILD_TIME__` vite define is left
+// in place (harmless) so the chip can be reinstated easily if ever needed.
 
 // v0.57.3: Singapore-wide search (no radius constraint).
 // v0.58.1: layout — filter strip below map, active-filter chips below
@@ -3171,18 +3163,18 @@ export default function App() {
           v0.60.217 — no border; font +1pt; region restored. */}
       <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
         <div>{t('footer.howto', lang)}</div>
-        {/* v0.61.182 — append the build timestamp so a stale-cached
-            bundle is identifiable at a glance (same version + old
-            timestamp = browser/Telegram cache). */}
         {/* v0.61.186 — footer now resolves all three pill states.
             Was missing 'OTHER' (introduced in v0.61.185); operator
             on Putrajaya would see "Singapore" in the footer even
             with the 🌏 Others pill selected. */}
+        {/* v0.61.392 — operator: drop the "built <date> <time> UTC" chip
+            from the Cuisine footer (it was never removed since v0.61.182);
+            keep just the version, which is enough to identify a deploy. */}
         <div>{t('footer.experimental', lang)} · {
           state.region === 'JB' ? t('region.johor', lang)
           : state.region === 'OTHER' ? t('region.others', lang)
           : t('region.singapore', lang)
-        } · v{BUILD_VERSION}{BUILD_TIME ? ` · built ${_formatBuildTimeShort(BUILD_TIME)} UTC` : ''}</div>
+        } · v{BUILD_VERSION}</div>
       </footer>
 
       {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
