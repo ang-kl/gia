@@ -823,33 +823,25 @@ export default function App() {
   // chat /lcountry (v0.61.195) command (or in a prior TMA session).
   // Falls back to the v0.61.191 default ('MY') silently on any
   // network failure or 401.
-  // v0.61.391 — `countryPrefResolved`: the splash gate must wait until
-  // this fetch has RESOLVED (value OR null) before opening, so the
-  // coherence check below has run first. Otherwise the gate opens on the
-  // userLoc commit while countryPref is still null-loading, the boot
-  // search fires, THEN countryPref lands and the mismatch modal pops over
-  // the already-loading body — the operator's "Location mismatch + loading
-  // random eateries" double-state. This is the deterministic gate the
-  // v0.61.368 revert flagged as the proper fix — a ONE-SHOT flag (not the
-  // reverted v0.61.365 settle timer), with a 3 s backstop so a slow/failed
-  // fetch can only ever UNBLOCK the gate, never hang it.
-  const [countryPrefResolved, setCountryPrefResolved] = useState(false);
+  // v0.61.393 — REVERT v0.61.391. The countryPrefResolved gate HUNG the
+  // first load in prod (Railway: set-location persisted but NO cuisine
+  // search ever fired → "loading first 5" hung) — same failure class as the
+  // v0.61.365/367 settle timer → v0.61.368 revert. Back to the simple
+  // mount-time seed; the "modal over a loading body" cosmetic returns
+  // (acceptable — a hung TMA is far worse). A safer double-state fix needs
+  // its own careful pass.
   useEffect(() => {
     let cancelled = false;
-    const backstop = setTimeout(() => { if (!cancelled) setCountryPrefResolved(true); }, 3000);
     (async () => {
-      let r = null;
-      try { r = await fetchCountryPref(); } catch { /* network / 401 → silent */ }
-      if (cancelled) return;
-      // Treat 'SG' as "no OTHER pref" — the SG region pill has its own
-      // anchor, so we don't overwrite state.countryPref with SG. The
-      // state.countryPref slot is dedicated to the OTHER picker.
-      if (r?.countryCode && r.countryCode !== 'SG') {
-        setState((s) => (s.countryPref === r.countryCode ? s : { ...s, countryPref: r.countryCode }));
-      }
-      setCountryPrefResolved(true);
+      const r = await fetchCountryPref();
+      if (cancelled || !r?.countryCode) return;
+      // Treat 'SG' as "no OTHER pref" — the SG region pill has its
+      // own anchor, so we don't overwrite state.countryPref with SG.
+      // The state.countryPref slot is dedicated to the OTHER picker.
+      if (r.countryCode === 'SG') return;
+      setState((s) => (s.countryPref === r.countryCode ? s : { ...s, countryPref: r.countryCode }));
     })();
-    return () => { cancelled = true; clearTimeout(backstop); };
+    return () => { cancelled = true; };
   }, []);
 
   // v0.61.274 — mount-time location coherence check. Operator
@@ -1056,12 +1048,6 @@ export default function App() {
   useEffect(() => {
     if (locationGateOpen) return;
     if (!userLoc?.lat || !userLoc?.lng) return;                 // wait for device
-    // v0.61.391 — wait for the countryPref fetch to RESOLVE before opening,
-    // so the coherence check (which compares against countryPref) has run
-    // and set modalPendingRef synchronously if there's a mismatch. A 3 s
-    // backstop guarantees this flips true even on a slow/failed fetch, so it
-    // can never deadlock. Closes the "modal over a loading body" double-state.
-    if (!countryPrefResolved) return;
     // v0.61.324 — HANG FIX. This previously hard-required the three
     // coherence *CheckedRefs, but those checks `return` early WITHOUT
     // setting their ref on legitimate "nothing to flag" paths: no
@@ -1097,7 +1083,7 @@ export default function App() {
       initialLoadFiredRef.current = true;
       runInitialLoad();
     }
-  }, [userLoc?.lat, userLoc?.lng, countryPrefResolved, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
+  }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
 
   function applyAnchorCoherenceChoice(useDevice) {
     if (!anchorMismatch) return;
