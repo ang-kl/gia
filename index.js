@@ -14249,7 +14249,7 @@ async function cacheBotUsername() {
           const smCountry = region === 'SG' ? 'SG'
             : (region === 'JB' || region === 'MY-PUT') ? 'MY'
             : (requestCountry || null);
-          if (!sm.specialModeAllowed(smCountry)) {
+          if (!sm.specialModeAllowed(smCountry, specialMode)) {
             console.log(`[Cuisine-TMA] D778-BLOCK specialMode=${specialMode} region=${region} country=${smCountry || '?'} → blocked (outside the durian belt)`);
             return res.json({ venues: [], specialModeBlocked: { mode: specialMode, country: smCountry || null }, cached: false });
           }
