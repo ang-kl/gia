@@ -1490,79 +1490,18 @@ export default function App() {
       runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng });
       return;
     }
-    // v0.59.1: previously the picker showed an empty list whenever
-    // warm-start returned HTTP 200 with `venues: []` (all rotating
-    // seeds yielded zero Places-API candidates). The .catch only
-    // handled network/HTTP failures. Now we explicitly fall back to
-    // runSearch when venues is empty too.
-    (async () => {
-      setLoading(true); setError(null);
-      console.log('[Cuisine-TMA-v2] warm-start: requesting', { lat: center.lat, lng: center.lng, region: state.region });
-      try {
-        const r = await warmStart({ lat: center.lat, lng: center.lng, region: state.region, lang });
-        console.log('[Cuisine-TMA-v2] warm-start: response', { venues: r?.venues?.length || 0, seed: r?.seed, cached: r?.cached });
-        if (r?.venues?.length) {
-          setVenues(r.venues);
-          setFirstLoadPending(false);
-          setWarmStartSeed(r.seed || null);
-          setSearchCenter({ lat: center.lat, lng: center.lng });
-          // v0.60.154 — warm-start populates the first entry of the
-          // client-side history cache so a subsequent ⇠ Back can land
-          // on it. Without this, the user's first explicit search
-          // would write the only cached page and ⇠ Back would never
-          // light up against the warm-start view.
-          setPages([{
-            venues: r.venues,
-            comboInfo: null,
-            misrepNote: null,
-            cookMethodPivot: null,
-            sessionFull: false,
-            pageStackDepth: 0,
-            michelinRemaining: null,
-            exhausted: false,
-            poolCount: 0,
-            criteriaSnap: stateSig(state),
-            // v0.60.154 — match the runSearch push: snapshot the current
-            // state / freeText / anchor so Back to the warm-start page
-            // also restores the criteria builder, not just the venues.
-            criteriaState: state ? JSON.parse(JSON.stringify(state)) : null,
-            freeText: (typeof nlText === 'string') ? nlText : '',
-            locationAnchor: locationAnchor ? { ...locationAnchor } : null,
-            searchCenter: { lat: center.lat, lng: center.lng },
-            isMichelin: false
-          }]);
-          setCursor(0);
-          // v0.59.18 (Codex review #223): seed lastRunSnap with the
-          // current state signature so the dirty ring lights up the
-          // moment the user toggles a filter / cuisine / region after
-          // warm-start. Without this, dirty stays false until the user's
-          // first manual 🔍 — they'd see no visible cue that pressing
-          // Search would do something different.
-          setLastRunSnap(stateSig(state));
-          // v0.60.47 — pulse the "Edit search" pill for 3s so the
-          // user discovers the entry-point to the criteria builder
-          // (which is collapsed on first load — see criteriaOpen
-          // initial state above).
-          setEditSearchPulse(true);
-          setTimeout(() => setEditSearchPulse(false), 3000);
-          console.log(`[Cuisine-TMA-v2] warm-start ok seed=${r.seed} count=${r.venues.length}`);
-          return;
-        }
-        console.warn('[Cuisine-TMA-v2] warm-start returned empty venues; falling back to runSearch');
-      } catch (err) {
-        console.warn('[Cuisine-TMA-v2] warm-start failed:', err.message);
-      }
-      // Fallback: a generic /api/cuisine/search at the resolved center
-      // with no cuisine constraint. The full pipeline always returns ≥ a
-      // few candidates anywhere in SG/JB.
-      try {
-        await runSearch(state);
-      } catch (err) {
-        console.warn('[Cuisine-TMA-v2] runSearch fallback failed:', err.message);
-      } finally {
-        setLoading(false);
-      }
-    })().finally(() => setLoading(false));
+    // v0.61.394 — operator (urgent): the first load now runs the FULL search,
+    // not the lean warm-start. warm-start deliberately skipped the
+    // review / type / price / social enrichment for speed, so the very first
+    // card came up WITHOUT the full template ("there isn't the full card").
+    // runSearch is already the boot path for an explicit anchor (above) and
+    // was the warm-start empty-fallback, so it is proven boot-safe — and it
+    // clears firstLoadPending the same way. Accepts a slower first load
+    // (operator: "first load just ask user to wait"). This is in
+    // runInitialLoad ONLY — it does NOT touch the splash-gate / coherence
+    // effects (the hang-prone area).
+    setSearchCenter({ lat: center.lat, lng: center.lng });
+    runSearch(state, { lat: center.lat, lng: center.lng });
   }
 
   // v0.58.27 → v0.59.18: auto re-search effect REMOVED per Human Lead.
