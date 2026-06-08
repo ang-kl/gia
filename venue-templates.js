@@ -218,6 +218,11 @@ function formatVenueBlock(p, opts = {}) {
   // v0.61.359 — native-script name line, e.g. "(東京駅)" / "(서울역)", added
   // after the bold name when the server resolved one (RULE A/B applied upstream).
   if (p.nameLocal) lines.push(`(${escapeHtml(p.nameLocal)})`);
+  // v0.61.382 — readable foreign-name line, e.g. "🔤 Jongno Eunhaengnamu-jip
+  // (City Hall branch)". A device-language romanisation + brief gloss for a
+  // name in a script the reader can't read (Gemini, resolved server-side).
+  // Sits alongside the native name — never replaces it.
+  if (p.nameReading) lines.push(`🔤 ${escapeHtml(p.nameReading)}`);
   // v0.60.45 — restaurant type line below the bold name. Mirrors the
   // TMA result card. Sourced from michelinCuisineLabel (when present)
   // or Places primaryTypeDisplayName, with the trailing "restaurant"

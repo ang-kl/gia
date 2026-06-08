@@ -9769,6 +9769,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   try {
     await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
   } catch (e) { /* non-fatal */ }
+  // v0.61.382 — and the readable foreign-name line (Gemini romanisation).
+  try {
+    await require('./translate-name').attachNameReadings(filteredVenues, michCC, csLang, redis);
+  } catch (e) { /* non-fatal */ }
   return res.json({
     venues: filteredVenues,
     cached: false,
@@ -15642,6 +15646,13 @@ async function cacheBotUsername() {
         try {
           await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
         } catch (e) { /* non-fatal — names just stay English */ }
+        // v0.61.382 — readable foreign-name line: when the name is in a
+        // script the user can't read, attach `nameReading` (device-language
+        // romanisation + brief gloss, via Gemini). Same RULE A/B gating as
+        // attachLocalNames; kept ALONGSIDE the native name, never replacing it.
+        try {
+          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, csLang, redis);
+        } catch (e) { /* non-fatal — names just stay in native script */ }
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
         console.error('[Error] /api/cuisine/search failed:', err.message);
