@@ -122,6 +122,17 @@ export default function App() {
   // flies it back without touching the search anchor.
   const [mapViewLocation, setMapViewLocation] = useState(null);
   const [flyTarget, setFlyTarget] = useState(null);
+  // v0.61.404 — operator: when the location-mismatch modal is resolved, show a
+  // brief bottom toast narrating the move ("moved to …, 📍 to return to …") or,
+  // when a far spot is KEPT, "tap 🔍 to search here". { text }.
+  const [locMoveNote, setLocMoveNote] = useState(null);
+  const locMoveTimerRef = useRef(null);
+  // v0.61.404 — auto-dismiss the move toast after ~7 s.
+  useEffect(() => {
+    if (!locMoveNote) return undefined;
+    const id = setTimeout(() => setLocMoveNote(null), 7000);
+    return () => clearTimeout(id);
+  }, [locMoveNote]);
   // v0.61.358 — debounce the city-preview map fly so rapid city switches don't
   // make the map jump unpredictably; only the latest pick (after a short quiet)
   // flies. selectedCityLocation + the Back button still update immediately.
@@ -1141,6 +1152,9 @@ export default function App() {
       // follow searchCenter=userLoc.
       setLocationAnchor(null);
       if (userLoc && Number.isFinite(userLoc.lat) && Number.isFinite(userLoc.lng)) {
+        // v0.61.404 — centre the map on the chosen (device) spot FIRST, then
+        // commit + search (sequential, not parallel — operator's spec).
+        setFlyTarget({ lat: userLoc.lat, lng: userLoc.lng, zoom: 12, _k: Date.now() });
         setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
         const c = coordsToCountry(userLoc);
         // v0.61.322 — build an explicit state delta so we can fire a fresh
@@ -1157,11 +1171,24 @@ export default function App() {
         if (Object.keys(stateDelta).length) setState((s) => ({ ...s, ...stateDelta }));
         saveUserLocation({ lat: userLoc.lat, lng: userLoc.lng }).catch(() => {});
         if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
-        // v0.61.322 — fire a fresh search for the device location so the
-        // 5 venues match the new region (previously only searchCenter moved;
-        // the result list could stay on the stale-anchor search).
+        // v0.61.404 — message that the location moved to the device spot
+        // (the OLD saved spot stays in the 📍 recents drawer to return to).
+        setLocMoveNote({
+          text: (lang === 'fr'
+            ? `Position déplacée vers ${anchorMismatch.deviceLabel}`
+            : `Location moved to ${anchorMismatch.deviceLabel}`)
+            + (anchorMismatch.anchorLabel
+              ? (lang === 'fr' ? ` · 📍 pour revenir à ${anchorMismatch.anchorLabel}` : ` · 📍 to return to ${anchorMismatch.anchorLabel}`)
+              : ''),
+        });
+        // v0.61.404 — device == set here, so DO load — but pause ~1 s so the
+        // map-fly + message land first, THEN the 5 stream in. Single timer,
+        // explicit snapshot (no state-settle race → safe in the gate area).
         const snap = { ...state, ...stateDelta };
-        runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng });
+        if (locMoveTimerRef.current) clearTimeout(locMoveTimerRef.current);
+        locMoveTimerRef.current = setTimeout(() => {
+          runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng });
+        }, 1000);
       }
     } else if (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng)) {
       // v0.61.322 — "Keep saved spot" now commits FULLY to the kept spot.
@@ -1173,6 +1200,8 @@ export default function App() {
       // the kept spot's actual country, and fire a fresh search there so
       // name + flag + map + results all agree.
       const anchor = locationAnchor;
+      // v0.61.404 — centre the map on the KEPT spot FIRST (sequential).
+      setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 12, _k: Date.now() });
       setSearchCenter({ lat: anchor.lat, lng: anchor.lng });
       const c = coordsToCountry(anchor);  // 'SG' / 'MY' / null
       const stateDelta = {};
@@ -1200,8 +1229,18 @@ export default function App() {
       }
       setState((s) => ({ ...s, ...stateDelta }));
       if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
-      const snap = { ...state, ...stateDelta };
-      runSearch(snap, { lat: anchor.lat, lng: anchor.lng });
+      // v0.61.404 — operator: when the user KEEPS a far spot, the set-location
+      // (kept) ≠ the device location, so DON'T auto-load the 5 — stop here and
+      // let the user tap 🔍 (or 📍 to use their real location). Crucially clear
+      // the splash gate + loading so the TMA isn't stuck on the boot spinner
+      // (runSearch normally clears firstLoadPending — but no search runs here).
+      setFirstLoadPending(false);
+      setLoading(false);
+      setLocMoveNote({
+        text: lang === 'fr'
+          ? `Conservé ${anchorMismatch.anchorLabel}. Vous êtes à ${anchorMismatch.deviceLabel} — touchez 🔍 pour rechercher ici.`
+          : `Kept ${anchorMismatch.anchorLabel}. You're at ${anchorMismatch.deviceLabel} — tap 🔍 to search here.`,
+      });
     }
     modalPendingRef.current = false;  // v0.61.322 — release the splash gate
     setAnchorMismatch(null);
@@ -2322,6 +2361,21 @@ export default function App() {
           when the saved locationAnchor sits >150 km from the device — the
           "Naka Ward (Japan) with a 🇸🇬 flag" stale-cache case. Lets the
           user use their real current location or keep the saved spot. */}
+      {/* v0.61.404 — post-mismatch move toast: narrow, bottom-anchored,
+          non-blocking; narrates "moved to …" (auto-loads after a 1 s pause) or
+          "kept … — tap 🔍" (stopped, no auto-load). Tap to dismiss; auto-hides
+          after 7 s. */}
+      {locMoveNote && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-3">
+          <button
+            type="button"
+            onClick={() => setLocMoveNote(null)}
+            className="pointer-events-auto max-w-sm rounded-2xl border border-amber-500/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
+          >
+            {locMoveNote.text}
+          </button>
+        </div>
+      )}
       {anchorMismatch && (
         <div
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
