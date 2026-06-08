@@ -34,15 +34,35 @@ function deviceRegion() {
   return _deviceRegion;
 }
 
+// v0.61.385 — the device's LANGUAGE (primary subtag of navigator.language,
+// e.g. en-GB → 'en', fr-FR → 'fr'). Distinct from deviceRegion (the country).
+// Forwarded so the server can gloss a foreign venue name into the user's own
+// language — e.g. a Chinese name in Japan → "Japanese (English)" for an
+// English device, "(French)" for a French device.
+let _deviceLang;
+function deviceLang() {
+  if (_deviceLang !== undefined) return _deviceLang;
+  let lang = '';
+  try {
+    const raw = (typeof navigator !== 'undefined'
+      && (navigator.language || (navigator.languages && navigator.languages[0]))) || '';
+    const two = String(raw).toLowerCase().split(/[-_]/)[0];
+    lang = /^[a-z]{2,3}$/.test(two) ? two : '';
+  } catch { /* navigator unavailable */ }
+  _deviceLang = lang;
+  return _deviceLang;
+}
+
 async function postJson(url, body) {
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
     const dr = deviceRegion();
+    const dl = deviceLang();
     const did = deviceId();
     const r = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, ...(dr ? { deviceRegion: dr } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
+      body: JSON.stringify({ ...body, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const json = await r.json();

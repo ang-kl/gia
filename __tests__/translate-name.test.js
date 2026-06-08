@@ -1,13 +1,13 @@
-// __tests__/translate-name.test.js — v0.61.382
+// __tests__/translate-name.test.js — v0.61.385
 // Readable foreign-name line. Gemini is mocked via _genAIFactory, so no
-// live network. Covers: isValidReading guard, translateName (romanise a
-// Korean name / skip a Latin name / drop a bad reading), and the
-// attachNameReadings RULE A/B country gating.
+// live network. Covers nameScriptLang, the target-aware isValidReading
+// guard, translateName (two-part "<local> (<gloss>)"), and the
+// attachNameReadings country-language gating.
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { translateName, attachNameReadings, isValidReading } = require('../translate-name.js');
+const { translateName, attachNameReadings, isValidReading, nameScriptLang } = require('../translate-name.js');
 
 // A fake GoogleGenerativeAI whose model returns `out` for every call.
 function mockFactory(out) {
@@ -18,77 +18,90 @@ function mockFactory(out) {
   });
 }
 
-describe('translate-name — isValidReading guard', () => {
-  it('accepts a romanised reading with a gloss', () => {
-    expect(isValidReading('Jongno Eunhaengnamu-jip (City Hall branch)', '종로은행나무집 시청점')).toBe(true);
-  });
-  it('rejects output still in the foreign script', () => {
-    expect(isValidReading('종로은행나무집', '종로은행나무집 시청점')).toBe(false);
-  });
-  it('rejects an unchanged echo', () => {
-    expect(isValidReading('종로은행나무집 시청점', '종로은행나무집 시청점')).toBe(false);
-  });
-  it('rejects model meta-talk', () => {
-    expect(isValidReading("I cannot romanize this without more context.", '東京駅')).toBe(false);
-    expect(isValidReading("Here's the romanization: Tokyo Eki", '東京駅')).toBe(false);
-  });
-  it('rejects empty / non-string', () => {
-    expect(isValidReading('', '東京駅')).toBe(false);
-    expect(isValidReading(null, '東京駅')).toBe(false);
+describe('translate-name — nameScriptLang', () => {
+  it('detects the script-language of a name', () => {
+    expect(nameScriptLang('丝绸之路 新疆菜')).toBe('zh'); // Han, no kana → Chinese
+    expect(nameScriptLang('종로은행나무집 시청점')).toBe('ko'); // Hangul
+    expect(nameScriptLang('ラーメン 一蘭')).toBe('ja'); // has kana → Japanese
+    expect(nameScriptLang('ทิปปลิง')).toBe('th'); // Thai
+    expect(nameScriptLang('Tippling Club')).toBeNull(); // Latin → readable
   });
 });
 
-describe('translate-name — translateName', () => {
-  it('romanises a Korean name via the (mocked) model', async () => {
+describe('translate-name — isValidReading (target-aware)', () => {
+  it('accepts a Japanese two-part reading for a ja local language', () => {
+    expect(isValidReading('シルクロード 新疆料理 (Silk Road Xinjiang Cuisine)', '丝绸之路 新疆菜', 'ja')).toBe(true);
+  });
+  it('rejects a ja reading that leaked Hangul or Thai', () => {
+    expect(isValidReading('서울 (Seoul)', '丝绸之路', 'ja')).toBe(false);
+  });
+  it('requires romanisation for a Latin gloss target', () => {
+    expect(isValidReading('Silk Road Xinjiang Cuisine', '丝绸之路 新疆菜', 'en')).toBe(true);
+    expect(isValidReading('丝绸之路', '丝绸之路', 'en')).toBe(false); // echo + still CJK
+  });
+  it('rejects an unchanged echo and model meta-talk', () => {
+    expect(isValidReading('丝绸之路 新疆菜', '丝绸之路 新疆菜', 'ja')).toBe(false);
+    expect(isValidReading("I cannot romanize this.", '東京駅', 'en')).toBe(false);
+  });
+});
+
+describe('translate-name — translateName (two-part)', () => {
+  it('returns "<Japanese> (English)" for a Chinese name in Japan', async () => {
+    const out = 'シルクロード 新疆料理 (Silk Road Xinjiang Cuisine)';
     const reading = await translateName({
-      name: '종로은행나무집 시청점', targetLang: 'en', placeId: 'p1',
-      _genAIFactory: mockFactory('Jongno Eunhaengnamu-jip (City Hall branch)')
+      name: '丝绸之路 新疆菜', localLang: 'ja', glossLang: 'en', placeId: 'p1',
+      _genAIFactory: mockFactory(out)
     });
-    expect(reading).toBe('Jongno Eunhaengnamu-jip (City Hall branch)');
+    expect(reading).toBe(out);
   });
 
-  it('returns null for a name with no foreign script (nothing to read)', async () => {
+  it('returns null for a Latin name (nothing foreign to read)', async () => {
     const reading = await translateName({
-      name: 'Tippling Club', targetLang: 'en', placeId: 'p2',
-      _genAIFactory: mockFactory('SHOULD NOT BE CALLED')
+      name: 'Tippling Club', localLang: 'ja', glossLang: 'en', placeId: 'p2',
+      _genAIFactory: mockFactory('SHOULD NOT BE USED')
     });
     expect(reading).toBeNull();
   });
 
-  it('drops a reading the model left in the original script', async () => {
+  it('drops a reading the model left identical to the original', async () => {
     const reading = await translateName({
-      name: '東京駅', targetLang: 'en', placeId: 'p3',
-      _genAIFactory: mockFactory('東京駅') // model echoed the script back
+      name: '丝绸之路 新疆菜', localLang: 'ja', glossLang: 'en', placeId: 'p3',
+      _genAIFactory: mockFactory('丝绸之路 新疆菜') // echoed back
     });
     expect(reading).toBeNull();
   });
-
-  it('keeps only the first line of a chatty multi-line reply', async () => {
-    const reading = await translateName({
-      name: 'ทิปปลิง', targetLang: 'en', placeId: 'p4',
-      _genAIFactory: mockFactory('Tippling\nLet me know if you need more!')
-    });
-    expect(reading).toBe('Tippling');
-  });
 });
 
-describe('translate-name — attachNameReadings gating (RULE A/B)', () => {
-  it('attaches readings for a foreign-script country viewed in another language', async () => {
-    const venues = [{ placeId: 'p1', name: '종로은행나무집 시청점' }, { placeId: 'p2', name: 'Some English Name' }];
-    await attachNameReadings(venues, 'KR', 'en', null, mockFactory('Jongno Eunhaengnamu-jip'));
-    expect(venues[0].nameReading).toBe('Jongno Eunhaengnamu-jip');
-    expect(venues[1].nameReading).toBeUndefined(); // Latin name → skipped
+describe('translate-name — attachNameReadings (country-language gating)', () => {
+  it('reads a Chinese name in Japan into Japanese + English', async () => {
+    const out = 'シルクロード 新疆料理 (Silk Road Xinjiang Cuisine)';
+    const venues = [
+      { placeId: 'p1', name: '丝绸之路 新疆菜' },        // Chinese name in JP → reading
+      { placeId: 'p2', name: 'ラーメン 一蘭' },          // already Japanese → skip
+      { placeId: 'p3', name: 'Le Marrakech' }            // Latin → skip
+    ];
+    await attachNameReadings(venues, 'JP', 'en', null, mockFactory(out));
+    expect(venues[0].nameReading).toBe(out);
+    expect(venues[1].nameReading).toBeUndefined();
+    expect(venues[2].nameReading).toBeUndefined();
   });
 
-  it('skips entirely when the display language IS the local script (RULE B)', async () => {
-    const venues = [{ placeId: 'p1', name: '종로은행나무집 시청점' }];
-    await attachNameReadings(venues, 'KR', 'ko', null, mockFactory('SHOULD NOT BE CALLED'));
+  it('skips a venue that already has nameLocal (no duplicate line)', async () => {
+    const venues = [{ placeId: 'p1', name: '丝绸之路 新疆菜', nameLocal: 'モロッコ料理店' }];
+    await attachNameReadings(venues, 'JP', 'en', null, mockFactory('SHOULD NOT BE USED'));
     expect(venues[0].nameReading).toBeUndefined();
   });
 
-  it('skips a non-foreign-script country (e.g. SG)', async () => {
-    const venues = [{ placeId: 'p1', name: 'Tippling Club' }];
-    await attachNameReadings(venues, 'SG', 'en', null, mockFactory('SHOULD NOT BE CALLED'));
+  it('reads a Chinese name in Korea into Korean + English', async () => {
+    const out = '실크로드 신장요리 (Silk Road Xinjiang Cuisine)';
+    const venues = [{ placeId: 'p1', name: '丝绸之路 新疆菜' }];
+    await attachNameReadings(venues, 'KR', 'en', null, mockFactory(out));
+    expect(venues[0].nameReading).toBe(out);
+  });
+
+  it('skips a Latin-script country (no local foreign script)', async () => {
+    const venues = [{ placeId: 'p1', name: '丝绸之路 新疆菜' }];
+    await attachNameReadings(venues, 'FR', 'en', null, mockFactory('SHOULD NOT BE USED'));
     expect(venues[0].nameReading).toBeUndefined();
   });
 });
