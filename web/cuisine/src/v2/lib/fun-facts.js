@@ -30,7 +30,26 @@ import facts from '../data/fun-facts.js';
 
 const LS_KEY = 'gia.funfact.lastSeen';
 const LS_MAX = 10;
-const SUPPORTED_LANGS = new Set(['en', 'fr']);
+// v0.61.383 — fact bodies are now localised beyond the app's en/fr UI:
+// the global facts carry zh/ms/ta/ja/ko/th too. `factBody` resolves the
+// requested language against this set and falls back to en (the SG facts
+// only carry en/fr, so they degrade to en for other languages — fine,
+// they're SG-tagged and mostly shown to SG users).
+const SUPPORTED_LANGS = new Set(['en', 'fr', 'zh', 'ms', 'ta', 'ja', 'ko', 'th']);
+
+// v0.61.383 — the DEVICE language for the fact body. The app UI locale
+// (useLocale) is only en|fr, but the operator wants the fact in the user's
+// device-region language (Task 1, e.g. a JP device → Japanese fact). Read
+// navigator.language's primary subtag; use it when we have facts for it,
+// else 'en'. Independent of the app UI locale, which stays en/fr.
+export function deviceFactLang() {
+  try {
+    if (typeof navigator === 'undefined') return 'en';
+    const raw = navigator.language || (Array.isArray(navigator.languages) ? navigator.languages[0] : '') || '';
+    const two = String(raw).toLowerCase().split(/[-_]/)[0];
+    return SUPPORTED_LANGS.has(two) ? two : 'en';
+  } catch { return 'en'; }
+}
 
 function _readLastSeen() {
   try {

@@ -536,5 +536,123 @@ export default [
     "fr": "La base tomate-et-piment du mee goreng mamak est révélatrice — une invention indo-malaisienne absente des cuisines ancestrales. Le plat remonte aux villes portuaires malaises du début du XXᵉ siècle.",
     "source": "Wikipedia",
     "sourceUrl": "https://en.wikipedia.org/wiki/Mee_goreng_mamak"
+  },
+  // ── v0.61.383 — GLOBAL food facts (operator Task 1: a Tokyo/Seoul/Bangkok
+  // user should get relevant facts, not Singapore trivia). Tagged "global" +
+  // "other" (the non-SG region fallback) + a country code where specific.
+  // Localised into en/fr/zh/ms/ta/ja/ko/th. The facts are well-known truths;
+  // the zh/ms/ta/ja/ko/th PHRASING is machine-authored and PROVISIONAL —
+  // flagged for a native-speaker review pass (see the v0.61.383 journal).
+  {
+    "id": "g-ramen-china-origin",
+    "tags": ["global", "other", "jp", "japanese", "ramen", "noodles"],
+    "en": "Ramen came to Japan from China and only became a beloved national dish in the 20th century.",
+    "fr": "Le ramen est arrivé au Japon depuis la Chine et n'est devenu un plat national adoré qu'au XXᵉ siècle.",
+    "zh": "拉面从中国传入日本，直到20世纪才成为广受喜爱的国民美食。",
+    "ms": "Ramen dibawa ke Jepun dari China dan hanya menjadi hidangan kebangsaan yang digemari pada abad ke-20.",
+    "ta": "ரமன் சீனாவிலிருந்து ஜப்பானுக்கு வந்தது; 20ஆம் நூற்றாண்டில்தான் அது விரும்பப்படும் தேசிய உணவாக மாறியது.",
+    "ja": "ラーメンは中国から日本に伝わり、国民的な人気料理になったのは20世紀になってからです。",
+    "ko": "라면은 중국에서 일본으로 전해졌고, 20세기에 이르러서야 사랑받는 국민 음식이 되었습니다.",
+    "th": "ราเมงเข้ามาในญี่ปุ่นจากจีน และเพิ่งกลายเป็นอาหารยอดนิยมประจำชาติในศตวรรษที่ 20",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Ramen"
+  },
+  {
+    "id": "g-sushi-fermented-rice",
+    "tags": ["global", "other", "jp", "japanese", "sushi"],
+    "en": "Sushi began as a way to preserve fish in fermented rice — at first, the rice was thrown away.",
+    "fr": "Le sushi est né comme une méthode pour conserver le poisson dans du riz fermenté — au début, on jetait le riz.",
+    "zh": "寿司最初是用发酵米饭保存鱼的方法——起初米饭是被丢弃的。",
+    "ms": "Sushi bermula sebagai cara mengawet ikan dalam nasi yang ditapai — pada mulanya, nasi itu dibuang.",
+    "ta": "சூஷி, புளித்த அரிசியில் மீனைப் பாதுகாக்கும் வழியாகத் தொடங்கியது — முதலில் அந்த அரிசி தூக்கி எறியப்பட்டது.",
+    "ja": "寿司はもともと発酵させた米で魚を保存する方法で、最初は米は捨てられていました。",
+    "ko": "초밥은 본래 발효시킨 밥에 생선을 보존하는 방법이었고, 처음에는 밥을 버렸습니다.",
+    "th": "ซูชิเริ่มต้นจากวิธีถนอมปลาในข้าวหมัก โดยตอนแรกจะทิ้งข้าวไป",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sushi"
+  },
+  {
+    "id": "g-kimchi-winter-jars",
+    "tags": ["global", "other", "kr", "korean", "kimchi"],
+    "en": "Koreans once buried jars of kimchi underground to keep them fermenting slowly through the winter.",
+    "fr": "Autrefois, les Coréens enterraient des jarres de kimchi pour les laisser fermenter lentement tout l'hiver.",
+    "zh": "韩国人过去会把泡菜坛子埋在地下，让它们在整个冬天缓慢发酵。",
+    "ms": "Dahulu, orang Korea menanam tempayan kimchi di dalam tanah supaya ia ditapai perlahan-lahan sepanjang musim sejuk.",
+    "ta": "முன்பு கொரியர்கள், கிம்சி ஜாடிகளை நிலத்தடியில் புதைத்து, குளிர்காலம் முழுவதும் மெதுவாகப் புளிக்க வைத்தனர்.",
+    "ja": "韓国ではかつて、キムチの甕を地中に埋め、冬の間ゆっくりと発酵させていました。",
+    "ko": "예전에 한국인들은 김치 항아리를 땅에 묻어 겨우내 천천히 발효시켰습니다.",
+    "th": "ชาวเกาหลีเคยฝังไหกิมจิไว้ใต้ดิน เพื่อให้หมักช้า ๆ ตลอดฤดูหนาว",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kimchi"
+  },
+  {
+    "id": "g-chilli-thai-portuguese",
+    "tags": ["global", "other", "th", "thai"],
+    "en": "Chillies are not native to Thailand — Portuguese traders brought them from the Americas about 500 years ago.",
+    "fr": "Le piment n'est pas originaire de Thaïlande — des marchands portugais l'ont apporté des Amériques il y a environ 500 ans.",
+    "zh": "辣椒并非原产于泰国——大约500年前由葡萄牙商人从美洲带来。",
+    "ms": "Cili bukan tumbuhan asli Thailand — pedagang Portugis membawanya dari benua Amerika kira-kira 500 tahun lalu.",
+    "ta": "மிளகாய் தாய்லாந்தின் சொந்த பயிர் அல்ல — சுமார் 500 ஆண்டுகளுக்கு முன் போர்த்துகீசிய வணிகர்கள் அமெரிக்காவிலிருந்து கொண்டுவந்தனர்.",
+    "ja": "唐辛子はタイ原産ではなく、約500年前にポルトガルの商人が南北アメリカから持ち込みました。",
+    "ko": "고추는 태국이 원산지가 아니라, 약 500년 전 포르투갈 상인들이 아메리카에서 들여왔습니다.",
+    "th": "พริกไม่ใช่พืชพื้นเมืองของไทย — พ่อค้าชาวโปรตุเกสนำเข้ามาจากทวีปอเมริกาเมื่อราว 500 ปีก่อน",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bird%27s_eye_chili"
+  },
+  {
+    "id": "g-tea-china-ancient",
+    "tags": ["global", "other", "cn", "chinese", "tea"],
+    "en": "Tea was first drunk in China more than 2,000 years ago, long before it reached the rest of the world.",
+    "fr": "Le thé a été bu pour la première fois en Chine il y a plus de 2 000 ans, bien avant d'atteindre le reste du monde.",
+    "zh": "茶最早在2000多年前的中国被饮用，远早于它传到世界其他地方。",
+    "ms": "Teh mula-mula diminum di China lebih 2,000 tahun lalu, jauh sebelum ia sampai ke seluruh dunia.",
+    "ta": "தேநீர் முதன்முதலில் 2,000 ஆண்டுகளுக்கு முன் சீனாவில் அருந்தப்பட்டது; உலகின் பிற பகுதிகளை அது அடைவதற்கு வெகு காலம் முன்பே.",
+    "ja": "お茶は2,000年以上前に中国で初めて飲まれ、世界の他の地域に伝わるよりずっと前のことでした。",
+    "ko": "차는 2,000여 년 전 중국에서 처음 마셨으며, 세계 다른 지역에 전해지기 훨씬 전이었습니다.",
+    "th": "ชาถูกดื่มครั้งแรกในจีนเมื่อกว่า 2,000 ปีก่อน นานก่อนที่จะแพร่ไปยังส่วนอื่นของโลก",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/History_of_tea"
+  },
+  {
+    "id": "g-noodles-oldest-china",
+    "tags": ["global", "other", "cn", "chinese", "noodles"],
+    "en": "The oldest known bowl of noodles is about 4,000 years old, found in north-west China.",
+    "fr": "Le plus ancien bol de nouilles connu a environ 4 000 ans ; il a été découvert dans le nord-ouest de la Chine.",
+    "zh": "已知最古老的一碗面条约有4000年历史，发现于中国西北部。",
+    "ms": "Mangkuk mi tertua yang diketahui berusia kira-kira 4,000 tahun, ditemui di barat laut China.",
+    "ta": "அறியப்பட்ட மிகப் பழமையான நூடுல்ஸ் கிண்ணம் சுமார் 4,000 ஆண்டுகள் பழமையானது; வடமேற்கு சீனாவில் கண்டுபிடிக்கப்பட்டது.",
+    "ja": "知られている最古の麺は約4,000年前のもので、中国北西部で見つかりました。",
+    "ko": "알려진 가장 오래된 국수 한 그릇은 약 4,000년 전의 것으로, 중국 북서부에서 발견되었습니다.",
+    "th": "ชามก๋วยเตี๋ยวที่เก่าแก่ที่สุดเท่าที่ทราบมีอายุราว 4,000 ปี พบทางตะวันตกเฉียงเหนือของจีน",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Noodle"
+  },
+  {
+    "id": "g-coffee-ethiopia-yemen",
+    "tags": ["global", "other", "coffee"],
+    "en": "Coffee was first brewed in Ethiopia and Yemen, centuries before it ever reached Europe.",
+    "fr": "Le café a d'abord été préparé en Éthiopie et au Yémen, des siècles avant d'arriver en Europe.",
+    "zh": "咖啡最早在埃塞俄比亚和也门被冲泡，比它传入欧洲早了几个世纪。",
+    "ms": "Kopi mula-mula diseduh di Ethiopia dan Yaman, beberapa abad sebelum ia sampai ke Eropah.",
+    "ta": "காபி முதலில் எத்தியோப்பியா மற்றும் யேமனில் தயாரிக்கப்பட்டது; அது ஐரோப்பாவை அடைவதற்கு பல நூற்றாண்டுகள் முன்பே.",
+    "ja": "コーヒーは最初にエチオピアとイエメンで淹れられ、ヨーロッパに伝わる何世紀も前のことでした。",
+    "ko": "커피는 에티오피아와 예멘에서 처음 끓여졌으며, 유럽에 전해지기 수 세기 전이었습니다.",
+    "th": "กาแฟถูกชงครั้งแรกในเอธิโอเปียและเยเมน หลายศตวรรษก่อนจะไปถึงยุโรป",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/History_of_coffee"
+  },
+  {
+    "id": "g-umami-1908-kombu",
+    "tags": ["global", "other", "jp", "japanese"],
+    "en": "Umami, the savoury 'fifth taste', was identified in Japan in 1908 from kombu seaweed broth.",
+    "fr": "L'umami, la « cinquième saveur », a été identifié au Japon en 1908 à partir d'un bouillon d'algue kombu.",
+    "zh": "鲜味——“第五种味道”——于1908年在日本从昆布海带高汤中被发现。",
+    "ms": "Umami, 'rasa kelima', dikenal pasti di Jepun pada tahun 1908 daripada kaldu rumpai laut kombu.",
+    "ta": "உமாமி எனப்படும் 'ஐந்தாவது சுவை', 1908ல் ஜப்பானில் கொம்பு கடற்பாசி குழம்பிலிருந்து கண்டறியப்பட்டது.",
+    "ja": "うま味（第五の味）は、1908年に日本で昆布のだしから発見されました。",
+    "ko": "감칠맛, 즉 '다섯 번째 맛'은 1908년 일본에서 다시마 국물로부터 밝혀졌습니다.",
+    "th": "อูมามิ หรือ 'รสที่ห้า' ถูกค้นพบในญี่ปุ่นเมื่อปี 1908 จากน้ำสต๊อกสาหร่ายคอมบุ",
+    "source": "Wikipedia",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Umami"
   }
 ];
