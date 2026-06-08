@@ -11409,6 +11409,16 @@ async function cacheBotUsername() {
 
     app.get('/health', (_req, res) => res.send('ok'));
 
+    // v0.61.386 — the bare apex `/` had no handler, so soleat.net/ returned
+    // 404 (a monitor/script — clientUa axios — was hitting it). Now: a real
+    // browser is sent into the Cuisine TMA; a script / health probe (no
+    // text/html in Accept) gets a plain 200 so the apex stops 404-ing.
+    app.get('/', (req, res) => {
+      const accept = String(req.headers.accept || '');
+      if (accept.includes('text/html')) return res.redirect(302, '/app/cuisine');
+      return res.status(200).type('text/plain').send('ok');
+    });
+
     // v0.59.10: hosted privacy policy page. Same content as the
     // chat-side /privacy command — both render from i18n.privacy.body.
     // Single source of truth, locale-aware via ?lang=fr (default 'en').
