@@ -204,7 +204,7 @@ async function reverseGeocodeAddress(lat, lng) {
   if (!apiKey) return null;
   const gLat = lat.toFixed(4);
   const gLng = lng.toFixed(4);
-  const cacheKey = `revgeo:addr:v2:${gLat}:${gLng}`;
+  const cacheKey = `revgeo:addr:v3:${gLat}:${gLng}`;
   try {
     if (redis.isOpen) {
       const cached = await redis.get(cacheKey);
@@ -258,9 +258,15 @@ async function reverseGeocodeAddress(lat, lng) {
     // v0.61.156 — surface country + admin_area_level_1 so the
     // location-mode classifier (rule §2.3) can map the fix into
     // SG / JB / OTHER without a second geocode call.
-    const country = findComp('country') || null;
+    // v0.61.400 — also surface the country's ISO-3166 short_name (the
+    // address component's `short_name` IS the 2-letter code) so the
+    // recents drawer can show the right flag for EVERY country, not just
+    // the SG/MY long-name mapping the recents writer hard-coded before.
+    const countryComp = components.find((c) => c.types?.includes('country'));
+    const country = countryComp?.long_name || findComp('country') || null;
+    const countryCode = countryComp?.short_name || null;
     const adminAreaLevel1 = findComp('administrative_area_level_1') || null;
-    const payload = { name, formatted, country, adminAreaLevel1 };
+    const payload = { name, formatted, country, countryCode, adminAreaLevel1 };
     try {
       if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
     } catch { /* cache-write fail is non-fatal */ }
@@ -270,6 +276,10 @@ async function reverseGeocodeAddress(lat, lng) {
     return null;
   }
 }
+
+// v0.61.400 — tidyRecentLabel (full street+building+city display string
+// for the recents drawer) lives in ./recent-label so it's unit-testable.
+const { tidyRecentLabel } = require('./recent-label');
 
 // v0.60.183 — resolve the user's ISO-3166 country code, cached for 30
 // days at `user:<chatId>:country`. Drives the venue-card price-range
@@ -13491,28 +13501,26 @@ async function cacheBotUsername() {
         // flag instead of the generic 🌍 globe. Fire-and-forget in an IIFE
         // so the HTTP 200 isn't delayed by the geocode round-trip.
         (async () => {
+          // v0.61.400 — operator: every recents row must read as a FULL
+          // address (street number + street/building name, city, state)
+          // with the right country flag — not a bare city, coords, or the
+          // SG/MY-only flag mapping this used before. Always reverse-geocode
+          // (24h-cached on a ~10m grid, fire-and-forget) and PREFER the
+          // tidied formatted_address over the client's short label / city
+          // pick; fall back to the client label, then the short geo name.
           let lruLabel = opts.label || '';
           let lruCountry = opts.country || '';
-          if (!lruLabel) {
-            try {
-              const geo = await reverseGeocodeAddress(lat, lng);
-              // Reject a bare country name ("Singapore" / "Malaysia") —
-              // reverseGeocodeAddress falls back to the country when no
-              // finer feature is found, and that's just as meaningless as
-              // raw coords. Leave the label empty in that case.
-              const gname = (geo?.name || '').trim();
-              const isBareCountry = gname && (
-                /^(singapore|malaysia)$/i.test(gname)
-                || (geo.country && gname.toLowerCase() === String(geo.country).toLowerCase())
-              );
-              if (gname && !isBareCountry) lruLabel = gname;
-              if (!lruCountry && geo?.country) {
-                const cc = geo.country === 'Singapore' ? 'SG'
-                  : geo.country === 'Malaysia' ? 'MY' : '';
-                if (cc) lruCountry = cc;
-              }
-            } catch { /* leave label empty → drawer falls back to coords */ }
-          }
+          try {
+            const geo = await reverseGeocodeAddress(lat, lng);
+            if (geo) {
+              const full = tidyRecentLabel(geo);
+              if (full) lruLabel = full;
+              else if (!lruLabel && (geo.name || '').trim()) lruLabel = geo.name.trim();
+              // Country flag for EVERY country (ISO-2 short_name from the
+              // geocode), not just the old SG/MY long-name special case.
+              if (!lruCountry && geo.countryCode) lruCountry = geo.countryCode;
+            }
+          } catch { /* keep the client label → drawer still has a row */ }
           addRecentLocation(redis, String(userId), {
             lat, lng,
             label: lruLabel,
