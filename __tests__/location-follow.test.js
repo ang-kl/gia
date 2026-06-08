@@ -67,4 +67,19 @@ describe('shouldFollowDevice', () => {
       initialResolveDone: true, explicitAnchorName: null, current: null, loc: { lat: NaN, lng: 0 },
     })).toBe(false);
   });
+
+  // v0.61.387 — operator: "first load just ask user to wait". The follow-sync
+  // must not re-search over an in-flight boot load (the re-search also pops a
+  // fact card on the first load).
+  it('does NOT follow while the first load is still pending', () => {
+    expect(shouldFollowDevice({
+      initialResolveDone: true, firstLoadPending: true, explicitAnchorName: '', current: WLG, loc: SG,
+    })).toBe(false);
+  });
+
+  it('resumes following once the first load has landed', () => {
+    expect(shouldFollowDevice({
+      initialResolveDone: true, firstLoadPending: false, explicitAnchorName: '', current: WLG, loc: SG,
+    })).toBe(true);
+  });
 });

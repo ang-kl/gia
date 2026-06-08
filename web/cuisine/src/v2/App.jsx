@@ -156,6 +156,11 @@ export default function App() {
   // must not fire before this, or its first GPS tick overwrites the
   // server-cached Menu pick before it's installed (the Wellington race).
   const initialResolveDoneRef = useRef(false);
+  // v0.61.387 — operator: "first load just ask user to wait". Mirrors the
+  // firstLoadPending state so the 20 s follow-sync (closure below) can hold
+  // off re-searching until the boot load lands — a mid-load re-search also
+  // pops a fact card on the first load, which the operator doesn't want.
+  const firstLoadPendingRef = useRef(true);
   const syncStartedRef = useRef(false);
   useEffect(() => {
     if (syncStartedRef.current) return;
@@ -176,6 +181,7 @@ export default function App() {
         const anchorNow = locationAnchorRef.current;
         if (!shouldFollowDevice({
           initialResolveDone: initialResolveDoneRef.current,
+          firstLoadPending: firstLoadPendingRef.current, // v0.61.387 — don't re-search over the boot load
           explicitAnchorName: anchorNow && anchorNow.name,
           current: cur,
           loc,
@@ -284,6 +290,11 @@ export default function App() {
   // search lands. Each pick avoids the last-10 seen this session.
   useEffect(() => {
     if (!loading) { setFunFact(null); return undefined; }
+    // v0.61.387 — operator: the FIRST load shows ONLY the "please wait"
+    // message, never a fact card. (A 20 s-sync re-search over a slow boot
+    // load used to count as 'rotating' and pop one.) Fact cards are for
+    // genuine subsequent searches only.
+    if (firstLoadPendingRef.current) { setFunFact(null); return undefined; }
     if (loadingReason !== 'rotating') { setFunFact(null); return undefined; }
     const pick = () => {
       try {
@@ -310,6 +321,9 @@ export default function App() {
   // the same TMA session are fast enough that the regular spinner
   // suffices.
   const [firstLoadPending, setFirstLoadPending] = useState(true);
+  // v0.61.387 — keep firstLoadPendingRef (read by the follow-sync guard +
+  // the fact-card gate, both declared above) in sync with the state.
+  useEffect(() => { firstLoadPendingRef.current = firstLoadPending; }, [firstLoadPending]);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out

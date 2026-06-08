@@ -25,22 +25,29 @@ export function haversineMeters(a, b) {
   return 2 * R * Math.asin(Math.sqrt(x));
 }
 
-// shouldFollowDevice({ initialResolveDone, explicitAnchorName, current, loc, thresholdM })
+// shouldFollowDevice({ initialResolveDone, firstLoadPending, explicitAnchorName, current, loc, thresholdM })
 //   → boolean. True only when ALL hold:
 //     1. the mount-time location resolution has finished (so the sync
 //        can't clobber the server-cached pick before it's installed),
-//     2. there is NO explicit named pick to hold (Menu / deep-link /
+//     2. the FIRST load has finished (v0.61.387 — operator: "first load
+//        just ask user to wait". A slow boot load that crosses the 20 s
+//        sync window must not be re-centred / re-searched mid-flight; that
+//        re-search also counts as 'rotating', which would pop a fact card
+//        on top of the first load. Hold the follow until the load lands.),
+//     3. there is NO explicit named pick to hold (Menu / deep-link /
 //        LocationField anchors carry a name; device-followed anchors do not),
-//     3. the device has moved at least `thresholdM` from `current`
+//     4. the device has moved at least `thresholdM` from `current`
 //        (GPS jitter / a stationary city pick is never yanked).
 export function shouldFollowDevice({
   initialResolveDone,
+  firstLoadPending = false,
   explicitAnchorName,
   current,
   loc,
   thresholdM = 1500,
 } = {}) {
   if (!initialResolveDone) return false;
+  if (firstLoadPending) return false;
   if (explicitAnchorName && String(explicitAnchorName).trim()) return false;
   if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) return false;
   if (current && Number.isFinite(current.lat) && Number.isFinite(current.lng)
