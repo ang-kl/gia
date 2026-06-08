@@ -1065,40 +1065,17 @@ export default function App() {
     // street/area name when that async call lands. The saved-anchor label
     // already carries the anchor's own display name (a.name) so it's
     // specific from the first paint.
-    // v0.61.406 — operator: NEVER ASK ("i thought previous PR is not to ask").
-    // A stale saved anchor far from the device (caught once per mount) is now
-    // SILENTLY resolved to the DEVICE location — re-anchor + recentre + load.
-    // No keep/use modal (it was a full-screen overlay that blocked the results
-    // until the user picked). This is the v0.61.404 "Use {device}" path applied
-    // automatically; the OLD saved spot stays in the 📍 recents drawer to
-    // return to, and a brief toast says which location is in use.
+    // v0.61.407 — operator: the SHARED set-location is AUTHORITATIVE. When a
+    // saved anchor (e.g. Menu TMA set to Kuala Lumpur) differs from the device
+    // GPS, KEEP the set-location — do NOT override to the device (the v0.61.406
+    // behaviour forced the device over a Menu-set KL, which was exactly wrong)
+    // and do NOT ask. tryServerCache (App.jsx:670) has already aligned the
+    // region + country to the cached set-location, and runInitialLoad centres
+    // the boot load on the anchor — so this check is now a no-op that lets the
+    // set-location win. (The keep/use modal stays gone — anchorMismatch is never
+    // set; the gate-opener fires the one boot load at the anchor.)
+    console.log(`[Cuisine-TMA-v2] anchor/device differ (${km.toFixed(0)}km) → keeping the SET-LOCATION (authoritative); device GPS not overriding`);
     anchorCoherenceCheckedRef.current = true;
-    initialLoadFiredRef.current = true;   // own the boot load (gate won't double-fire)
-    initialSearchDone.current = true;
-    const deviceLabel = placeLabel({ lat: userLoc.lat, lng: userLoc.lng });
-    console.log(`[Cuisine-TMA-v2] anchor/device mismatch (${km.toFixed(0)}km) → auto-using device location ${deviceLabel} (no modal)`);
-    setLocationAnchor(null);              // drop the stale far anchor
-    setFlyTarget({ lat: userLoc.lat, lng: userLoc.lng, zoom: 12, _k: Date.now() });
-    setSearchCenter({ lat: userLoc.lat, lng: userLoc.lng });
-    const c = coordsToCountry(userLoc);
-    const stateDelta = {};
-    if (c === 'SG') {
-      stateDelta.region = 'SG';
-    } else if (c === 'MY') {
-      const target = isJbCoords(userLoc) ? 'JB' : 'OTHER';
-      stateDelta.region = target;
-      if (target === 'OTHER') stateDelta.countryPref = 'MY';
-    }
-    if (Object.keys(stateDelta).length) setState((s) => ({ ...s, ...stateDelta }));
-    saveUserLocation({ lat: userLoc.lat, lng: userLoc.lng }).catch(() => {});
-    if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
-    setLocMoveNote({
-      text: lang === 'fr'
-        ? `Utilisation de votre position : ${deviceLabel} · 📍 pour en changer`
-        : `Using your current location: ${deviceLabel} · 📍 to change`,
-    });
-    const snap = { ...state, ...stateDelta };
-    runSearch(snap, { lat: userLoc.lat, lng: userLoc.lng });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
 
