@@ -9433,6 +9433,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // search path. `req` is in scope here; read the TMA-forwarded region.
   const michDeviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
   const michDeviceRegion = /^[A-Z]{2}$/.test(michDeviceRegionRaw) ? michDeviceRegionRaw : null;
+  // v0.61.385 — device LANGUAGE for the foreign-name gloss bracket.
+  const michDeviceLangRaw = typeof req.body?.deviceLang === 'string' ? req.body.deviceLang.toLowerCase() : '';
+  const michDeviceLang = /^[a-z]{2,3}$/.test(michDeviceLangRaw) ? michDeviceLangRaw : null;
   try { await enrichPriceRangeDisplay(csChatId, filteredVenues, michDeviceRegion); } catch (err) {
     console.warn('[Michelin] enrichPriceRangeDisplay failed:', err.message);
   }
@@ -9769,9 +9772,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   try {
     await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
   } catch (e) { /* non-fatal */ }
-  // v0.61.382 — and the readable foreign-name line (Gemini romanisation).
+  // v0.61.382 — and the readable foreign-name line (Gemini); v0.61.385
+  // two-part: place language + device-language gloss in brackets.
   try {
-    await require('./translate-name').attachNameReadings(filteredVenues, michCC, csLang, redis);
+    await require('./translate-name').attachNameReadings(filteredVenues, michCC, michDeviceLang, redis);
   } catch (e) { /* non-fatal */ }
   return res.json({
     venues: filteredVenues,
@@ -13687,6 +13691,11 @@ async function cacheBotUsername() {
         // independent of where they're searching.
         const deviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
         const deviceRegion = /^[A-Z]{2}$/.test(deviceRegionRaw) ? deviceRegionRaw : null;
+        // v0.61.385 — the device's LANGUAGE (en/fr/…), separate from its
+        // region. Used to gloss a foreign venue name into the user's own
+        // language: "<place language> (<device language>)".
+        const deviceLangRaw = typeof req.body?.deviceLang === 'string' ? req.body.deviceLang.toLowerCase() : '';
+        const deviceLang = /^[a-z]{2,3}$/.test(deviceLangRaw) ? deviceLangRaw : null;
         const searchDeviceId = readDeviceId(req); // v0.61.363 per-device cache
         // v0.61.126 — Fruits / Durian exclusive special mode. When
         // set, the request body's `cuisines` / `filters.michelin` /
@@ -15647,11 +15656,13 @@ async function cacheBotUsername() {
           await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
         } catch (e) { /* non-fatal — names just stay English */ }
         // v0.61.382 — readable foreign-name line: when the name is in a
-        // script the user can't read, attach `nameReading` (device-language
-        // romanisation + brief gloss, via Gemini). Same RULE A/B gating as
-        // attachLocalNames; kept ALONGSIDE the native name, never replacing it.
+        // script foreign to where the venue IS, attach `nameReading` via
+        // Gemini, kept ALONGSIDE the native name (never replacing it).
+        // v0.61.385 — two-part "<place language> (<device language>)": the
+        // first part is the venue COUNTRY's language (searchRegionCode), the
+        // bracket the user's DEVICE language (deviceLang, ← en/fr/…).
         try {
-          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, csLang, redis);
+          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
