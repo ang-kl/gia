@@ -15082,9 +15082,20 @@ async function cacheBotUsername() {
             }));
           }
           const beforeNew = venues.length;
-          venues = venues.filter((v) => v._oldestReviewMonths == null || v._oldestReviewMonths <= NEW_MAX_MONTHS);
+          const preRefute = venues;
+          const refuted = venues.filter((v) => v._oldestReviewMonths == null || v._oldestReviewMonths <= NEW_MAX_MONTHS);
+          // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
+          // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
+          // established market (Osaka fruit shops — and EVERY cuisine: the
+          // operator's log shows `american` going 2→0 too) all candidates have
+          // reviews >3mo, so the v0.61.349 hard cut zeroed the page. Pre-v0.61.349
+          // the ≤150-review proxy didn't ("last time I didn't have this issue").
+          // Floor: when refuting would drop everything, keep the "newly opened"-
+          // biased recall pool so New still returns its best-effort newest set.
+          const flooredToBias = refuted.length === 0 && preRefute.length > 0;
+          venues = refuted.length ? refuted : preRefute;
           for (const v of venues) delete v._oldestReviewMonths;
-          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (no review older than ${NEW_MAX_MONTHS}mo)`);
+          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (≤${NEW_MAX_MONTHS}mo${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
