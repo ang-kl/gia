@@ -535,12 +535,65 @@ function _canonicalForReviews(mode) {
 // parameters, which the v0.61.267 pipeline already plumbs. Callers
 // that explicitly want a textual suffix (e.g. " Johor Bahru Malaysia"
 // for very specific Places disambiguation) keep doing so.
+// v0.61.395 — Track A/B of the 08-06 diagnostic: localise the SEED set for
+// OTHER (non-SG/JB) countries whose venues are described in a non-English
+// script. The English SEED_TEMPLATES under-recall in e.g. Tokyo (durian
+// pastry shops are named ドリアン…); the v0.61.262 durian-variance probe found
+// those venues only because it searched with local-language seeds. The
+// v0.61.377 FILTER already accepts the local-script names — RECALL (the
+// seeds) was the only gap. Latin-script OTHER countries keep English (Google
+// cross-matches "durian" fine there). The durian / durian-pastry terms are
+// the cost-guarded subset of the probe's VALIDATED seeds (durian-variance-
+// runner.js, which found venues in the live run); the fruits terms + the
+// "newly opened" recall term are simpler additions (PROVISIONAL — flag for a
+// native-speaker review).
+const LOCAL_SEED_LANG_BY_CC = Object.freeze({
+  JP: 'ja', KR: 'ko', CN: 'zh-CN', TW: 'zh-TW', HK: 'zh-TW', MO: 'zh-TW', TH: 'th'
+});
+const LOCAL_SEEDS = Object.freeze({
+  [SPECIAL_MODES.DURIAN]: {
+    ja: ['ドリアン店', 'ドリアン専門店'], ko: ['두리안 가게', '두리안 전문점'],
+    'zh-CN': ['榴莲店', '鲜榴莲'], 'zh-TW': ['榴梿店'], th: ['ร้านทุเรียน', 'ทุเรียน']
+  },
+  [SPECIAL_MODES.DURIAN_PASTRY]: {
+    ja: ['ドリアンパフ', 'ドリアンケーキ'], ko: ['두리안 케이크', '두리안 디저트'],
+    'zh-CN': ['榴莲泡芙', '榴莲蛋糕'], 'zh-TW': ['榴梿泡芙', '榴梿蛋糕'], th: ['พัฟทุเรียน', 'เค้กทุเรียน']
+  },
+  [SPECIAL_MODES.FRUITS]: {
+    ja: ['果物店', 'フルーツ店'], ko: ['과일 가게'],
+    'zh-CN': ['水果店'], 'zh-TW': ['水果店'], th: ['ร้านผลไม้']
+  }
+});
+// Track B: local-language "newly opened" recall term for the New pill in a
+// foreign-script country (the English modifier under-recalls). PROVISIONAL.
+const LOCAL_NEWLY_OPENED = Object.freeze({
+  ja: '新しくオープン', ko: '새로 오픈', 'zh-CN': '新开张', 'zh-TW': '新開幕', th: 'เปิดใหม่'
+});
+
+function _localSeedLang(country) {
+  return LOCAL_SEED_LANG_BY_CC[String(country || '').toUpperCase()] || null;
+}
+
 function buildSeeds(mode, opts = {}) {
   if (!isSpecialMode(mode)) return [];
   const tmpl = SEED_TEMPLATES[mode];
   const raw = (opts && typeof opts.regionSuffix === 'string') ? opts.regionSuffix.trim() : '';
   const suffix = raw ? ` ${raw}` : '';
-  return tmpl.map((s) => `${s}${suffix}`);
+  const seeds = tmpl.map((s) => `${s}${suffix}`);
+  // v0.61.395 — append the country's local-language seeds (NO suffix — the
+  // script + Places regionCode already bind them to the country) so a non-
+  // English-described venue is recalled. Foreign-script OTHER only; SG/JB +
+  // Latin-script countries map to no lang → unchanged English-only seeds.
+  const lang = _localSeedLang(opts && opts.country);
+  const local = lang && LOCAL_SEEDS[mode] && LOCAL_SEEDS[mode][lang];
+  return Array.isArray(local) && local.length ? [...seeds, ...local] : seeds;
+}
+
+// Track B: the local-language "newly opened" query to OR into the recall for
+// the New pill in a foreign-script country (null for SG/JB/Latin-script).
+function localNewlyOpened(country) {
+  const lang = _localSeedLang(country);
+  return (lang && LOCAL_NEWLY_OPENED[lang]) || null;
 }
 
 function _haystack(v) {
@@ -657,6 +710,9 @@ module.exports = {
   SPECIAL_MODES,
   isSpecialMode,
   buildSeeds,
+  localNewlyOpened,
+  LOCAL_SEEDS,
+  LOCAL_SEED_LANG_BY_CC,
   filterByMode,
   isRelevant,
   // v0.61.229 — variety / accept-list exports for review-snippet
