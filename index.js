@@ -14212,6 +14212,16 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.61.395 — Track B: for the New pill in a foreign-script country
+        // the English "newly opened" modifier under-recalls (Tokyo venues are
+        // described in Japanese). OR in a local-language "newly opened" query
+        // as a SEPARATE recall seed (not mixed into the English one, which
+        // would over-constrain). The review-time refute below still decides
+        // newness language-agnostically.
+        if (filters.newlyOpened) {
+          const nlo = require('./special-mode').localNewlyOpened(requestCountry);
+          if (nlo && !cuisineQueries.includes(nlo)) cuisineQueries = [...cuisineQueries, nlo];
+        }
         // v0.61.126 — special-mode override. When Fruits or Durian
         // is on, replace cuisineQueries entirely with the per-mode
         // seeds (`special-mode.buildSeeds`) suffixed for the right
@@ -14234,8 +14244,11 @@ async function cacheBotUsername() {
           else if (region === 'SG') regionSuffix = 'Singapore';
           // OTHER / MY-PUT → empty suffix (country comes from
           // requestCountry / cache.country / Places regionCode below).
-          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix });
-          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}…`);
+          // v0.61.395 — Track A: pass the venue country so buildSeeds appends
+          // the local-language durian seeds for foreign-script countries
+          // (ドリアンパフ etc. in Tokyo) that the English-only seeds under-recall.
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: requestCountry });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
         }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens

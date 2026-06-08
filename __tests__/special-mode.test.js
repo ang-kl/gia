@@ -86,6 +86,44 @@ describe('special-mode — buildSeeds (v0.61.271 contract — no silent SG suffi
     expect(sm.buildSeeds('')).toEqual([]);
     expect(sm.buildSeeds('michelin')).toEqual([]);
   });
+
+  // v0.61.395 — Track A: local-language seed augmentation for foreign-script
+  // countries (the English seeds under-recall in e.g. Tokyo).
+  it('appends Japanese durian-pastry seeds for country=JP (keeps English)', () => {
+    const jp = sm.buildSeeds('durian-pastry', { country: 'JP' });
+    expect(jp.some((s) => s === 'durian puff')).toBe(true);       // English kept
+    expect(jp.some((s) => s === 'ドリアンパフ')).toBe(true);        // JP added
+    expect(jp.some((s) => s === 'ドリアンケーキ')).toBe(true);
+  });
+
+  it('appends Thai durian seeds for country=TH; Chinese for CN/TW', () => {
+    expect(sm.buildSeeds('durian', { country: 'TH' }).some((s) => s === 'ร้านทุเรียน')).toBe(true);
+    expect(sm.buildSeeds('durian-pastry', { country: 'CN' }).some((s) => s === '榴莲泡芙')).toBe(true);
+    expect(sm.buildSeeds('durian-pastry', { country: 'TW' }).some((s) => s === '榴梿泡芙')).toBe(true);
+    expect(sm.buildSeeds('durian', { country: 'KR' }).some((s) => s === '두리안 가게')).toBe(true);
+  });
+
+  it('does NOT add local seeds for SG / JB / Latin-script countries', () => {
+    expect(sm.buildSeeds('durian-pastry', { country: 'SG' })).toEqual(sm.buildSeeds('durian-pastry'));
+    expect(sm.buildSeeds('durian-pastry', { country: 'MY' })).toEqual(sm.buildSeeds('durian-pastry'));
+    expect(sm.buildSeeds('durian-pastry', { country: 'FR' })).toEqual(sm.buildSeeds('durian-pastry'));
+    expect(sm.buildSeeds('durian-pastry', { country: 'ID' })).toEqual(sm.buildSeeds('durian-pastry'));
+  });
+
+  it('local seeds carry NO region suffix even when one is set', () => {
+    const jp = sm.buildSeeds('durian-pastry', { country: 'JP', regionSuffix: 'Tokyo' });
+    expect(jp.some((s) => s === 'durian puff Tokyo')).toBe(true);  // English gets the suffix
+    expect(jp.some((s) => s === 'ドリアンパフ')).toBe(true);          // local stays bare
+  });
+
+  // v0.61.395 — Track B: local "newly opened" recall term.
+  it('localNewlyOpened maps foreign-script countries, null otherwise', () => {
+    expect(sm.localNewlyOpened('JP')).toBe('新しくオープン');
+    expect(sm.localNewlyOpened('TH')).toBe('เปิดใหม่');
+    expect(sm.localNewlyOpened('SG')).toBeNull();
+    expect(sm.localNewlyOpened('US')).toBeNull();
+    expect(sm.localNewlyOpened(null)).toBeNull();
+  });
 });
 
 describe('special-mode — isRelevant (Fruits)', () => {
