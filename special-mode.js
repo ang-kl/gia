@@ -38,14 +38,21 @@ const SPECIAL_MODES = Object.freeze({
 
 const SPECIAL_MODE_VALUES = new Set(Object.values(SPECIAL_MODES));
 
-// v0.61.397 — operator: the durian / fruits / durian-pastry special modes
-// only make sense in the SE-Asian durian belt. Outside it they return wrong
-// answers (e.g. Hong Kong generic desserts mislabelled as durian results), so
-// they are GATED to these countries (SG via region pill, MY via JB/OTHER, the
-// rest via the OTHER picker). The picker itself stays global — only the
-// special modes are blocked elsewhere.
+// v0.61.397 — operator: durian / durian-pastry only make sense in the SE-Asian
+// durian belt. Outside it they return wrong answers (e.g. Hong Kong generic
+// desserts mislabelled as durian results), so they are GATED to these countries
+// (SG via region pill, MY via JB/OTHER, the rest via the OTHER picker). The
+// picker itself stays global — only these modes are blocked elsewhere.
 const SPECIAL_MODE_COUNTRIES = Object.freeze(new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN']));
-function specialModeAllowed(country) {
+// v0.61.402 — operator: UNLOCK fruits everywhere. Fruit sellers exist worldwide
+// (Japan's premium fruit parlours, etc.) and returned sensible results; only
+// durian + durian-pastry are SE-Asian-specific. So the belt gate applies ONLY
+// to these two modes; fruits (and any future non-belt mode) is allowed globally.
+const BELT_GATED_MODES = Object.freeze(new Set([SPECIAL_MODES.DURIAN, SPECIAL_MODES.DURIAN_PASTRY]));
+function specialModeAllowed(country, mode) {
+  // Only durian / durian-pastry are belt-gated; fruits is allowed everywhere.
+  // (mode omitted → conservative belt check, preserves the v0.61.397 contract.)
+  if (mode != null && !BELT_GATED_MODES.has(mode)) return true;
   return SPECIAL_MODE_COUNTRIES.has(String(country || '').toUpperCase());
 }
 

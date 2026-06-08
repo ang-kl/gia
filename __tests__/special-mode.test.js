@@ -65,6 +65,29 @@ describe('special-mode — specialModeAllowed (v0.61.397 durian-belt gate)', () 
     expect(Object.isFrozen(sm.SPECIAL_MODE_COUNTRIES)).toBe(true);
     expect([...sm.SPECIAL_MODE_COUNTRIES].sort()).toEqual(['BN', 'ID', 'MY', 'PH', 'SG', 'TH']);
   });
+
+  // v0.61.402 — operator: UNLOCK fruits everywhere; keep durian + durian-pastry
+  // belt-gated. The gate is now mode-aware.
+  it('allows FRUITS in any country (unlocked globally)', () => {
+    for (const cc of ['JP', 'KR', 'HK', 'US', 'GB', 'SG', null, '']) {
+      expect(sm.specialModeAllowed(cc, 'fruits')).toBe(true);
+    }
+  });
+
+  it('still belt-gates durian + durian-pastry by mode', () => {
+    for (const mode of ['durian', 'durian-pastry']) {
+      expect(sm.specialModeAllowed('SG', mode)).toBe(true);
+      expect(sm.specialModeAllowed('MY', mode)).toBe(true);
+      expect(sm.specialModeAllowed('JP', mode)).toBe(false);
+      expect(sm.specialModeAllowed('HK', mode)).toBe(false);
+      expect(sm.specialModeAllowed(null, mode)).toBe(false);
+    }
+  });
+
+  it('with mode omitted, falls back to the conservative belt check', () => {
+    expect(sm.specialModeAllowed('SG')).toBe(true);
+    expect(sm.specialModeAllowed('JP')).toBe(false);
+  });
 });
 
 describe('special-mode — buildSeeds (v0.61.271 contract — no silent SG suffix)', () => {
