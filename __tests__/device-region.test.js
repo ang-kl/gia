@@ -43,11 +43,11 @@ describe('pickDeviceRegion — Region override beats Language', () => {
       navigatorLanguage: 'en-GB',
     })).toBe('SG');
   });
-  it('falls back to the language region when there is no override', () => {
+  it('v0.61.388 — NO language fallback: no Region override → null (never GB off en-GB)', () => {
     expect(pickDeviceRegion({
       resolvedLocales: ['en-GB'],
       navigatorLanguage: 'en-GB',
-    })).toBe('GB');
+    })).toBeNull();
   });
   it('scans multiple resolved locales for the override', () => {
     expect(pickDeviceRegion({

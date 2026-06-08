@@ -12,7 +12,13 @@
 // Note: `new Intl.Locale("en-GB-u-rg-sgzzzz").region` still returns "GB", so
 // the `rg` override must be string-parsed.
 //
-// Precedence: the Region override (rg) wins; fall back to the language region.
+// Precedence: the Region override (rg) is the ONLY trustworthy "home country"
+// signal. v0.61.388 (operator, 08-06 '26) — do NOT fall back to the language
+// region: a phone with Language English(UK) but Region Singapore must never
+// resolve to GB/£ off the language. No override → null, and the server then
+// keys the currency off the SEARCH LOCATION (resolveUserCountry): no
+// conversion at home, and an abroad conversion only when the real Region is
+// known. The forex must follow the COUNTRY, never the language.
 
 // regionFromUnicodeRg("en-GB-u-rg-sgzzzz") → "SG"  (null when absent)
 export function regionFromUnicodeRg(localeString) {
@@ -39,10 +45,12 @@ export function regionFromLanguageTag(lang) {
 //   resolvedLocales: e.g. [Intl.DateTimeFormat().resolvedOptions().locale,
 //                          Intl.NumberFormat().resolvedOptions().locale]
 //   navigatorLanguage: navigator.language
-export function pickDeviceRegion({ resolvedLocales = [], navigatorLanguage = '' } = {}) {
+export function pickDeviceRegion({ resolvedLocales = [] } = {}) {
   for (const loc of resolvedLocales) {
     const rg = regionFromUnicodeRg(loc);
     if (rg) return rg;                       // iOS Settings → Region wins
   }
-  return regionFromLanguageTag(navigatorLanguage); // fall back to the language
+  return null; // v0.61.388 — NO language fallback (currency must follow the
+               // device REGION, never navigator.language). Absent → the server
+               // uses the search location for currency.
 }
