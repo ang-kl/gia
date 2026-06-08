@@ -1,26 +1,32 @@
-// social-profiles.js — v0.61.225
+// social-profiles.js — v0.61.389
 //
 // Look up a restaurant's official social-media profile URLs (Instagram,
-// TikTok, X, Facebook, YouTube, Threads) via a Gemini grounded Google
-// Search call. Google Places API does not expose these fields — they
-// live only in Google Search's Knowledge Panel — so we mirror the
-// gemini-client.js fallback-chain pattern and ask Gemini to surface
-// them via the `googleSearch` tool.
+// TikTok, Facebook, X, YouTube, Threads) WITHOUT Gemini.
 //
-// Two safeguards against hallucinated URLs:
-//   1. Prompt explicitly instructs Gemini to return null for any
-//      platform it cannot verify via Search grounding.
-//   2. Each returned URL is regex-validated against the expected
-//      domain + path shape. Invalid URLs are dropped silently.
+// v0.61.389 — operator: "I mentioned in a previous PR to use Places / Google
+// Search, why search via Gemini?" Correct. Google Places has no social field,
+// but the venue's WEBSITE (which Places gives us as `websiteUri`) usually
+// links its socials, and a plain Google Search returns the canonical profile.
+// So this module now:
+//   1. SCRAPES the venue's own website for the six platform URLs (free, no
+//      key — the same approach as scripts/fetch-attraction-details.js).
+//   2. FALLS BACK to the Google Custom Search JSON API for anything still
+//      missing — reusing the EXISTING GOOGLE_MAPS_API_KEY (no new key), and
+//      only when GOOGLE_CSE_ID (a free, non-secret Programmable-Search engine
+//      id) is set. Without it, the module stays scrape-only — zero new config.
+//   Gemini is gone (the 30 s + token cost with it).
 //
-// Cached in Redis under `social:<placeId>` with a 30-day TTL. Empty
-// results are cached too (same TTL) so we don't hammer the API for
-// venues that genuinely have no public profiles.
+// Every URL is regex-validated against the expected domain + handle shape,
+// so a junk/share link never renders. Cached in Redis `social:<placeId>`
+// (30-day TTL); empty results cache only once a complete lookup ran (so
+// adding GOOGLE_CSE_ID later re-tries the scrape-only blanks).
+
+const axios = require('axios');
 
 const PRIORITY = ['instagram', 'tiktok', 'facebook', 'x', 'youtube', 'threads'];
 
-// Per-platform URL shape. The patterns are deliberately strict — we'd
-// rather drop a legitimate edge-case URL than render a hallucination.
+// Per-platform URL shape (validation). Deliberately strict — we'd rather drop
+// a legitimate edge-case URL than render a wrong one.
 const URL_PATTERNS = {
   instagram: /^https?:\/\/(?:www\.)?instagram\.com\/[A-Za-z0-9_.][A-Za-z0-9_.-]{0,29}\/?$/,
   tiktok:    /^https?:\/\/(?:www\.)?tiktok\.com\/@[A-Za-z0-9_.][A-Za-z0-9_.-]{0,23}\/?$/,
@@ -30,60 +36,69 @@ const URL_PATTERNS = {
   threads:   /^https?:\/\/(?:www\.)?threads\.(?:net|com)\/@[A-Za-z0-9_.][A-Za-z0-9_.-]{0,29}\/?$/
 };
 
+// Broad scanners (find candidate URLs anywhere in a blob of HTML / a list of
+// search-result links), plus the first-path-segment values that are NOT a
+// profile handle (share dialogs, posts, etc.) and must be skipped.
+const DOMAIN_SCAN = {
+  instagram: /https?:\/\/(?:www\.)?instagram\.com\/[^\s"'<>)]+/gi,
+  tiktok:    /https?:\/\/(?:www\.)?tiktok\.com\/@[^\s"'<>)]+/gi,
+  facebook:  /https?:\/\/(?:www\.|m\.|business\.)?facebook\.com\/[^\s"'<>)]+/gi,
+  x:         /https?:\/\/(?:www\.)?(?:x|twitter)\.com\/[^\s"'<>)]+/gi,
+  youtube:   /https?:\/\/(?:www\.)?youtube\.com\/[^\s"'<>)]+/gi,
+  threads:   /https?:\/\/(?:www\.)?threads\.(?:net|com)\/@[^\s"'<>)]+/gi
+};
+const RESERVED = {
+  instagram: new Set(['p', 'reel', 'reels', 'explore', 'accounts', 'about', 'developer', 'legal', 'directory', 'tv', 'stories']),
+  tiktok:    new Set([]),
+  facebook:  new Set(['sharer', 'sharer.php', 'dialog', 'plugins', 'tr', 'login', 'login.php', 'help', 'policies', 'privacy', 'events', 'watch', 'groups', 'profile.php']),
+  x:         new Set(['share', 'intent', 'home', 'i', 'hashtag', 'search', 'compose', 'privacy', 'tos', 'settings', 'login']),
+  youtube:   new Set([]),
+  threads:   new Set([])
+};
+
 const REDIS_KEY = (placeId) => `social:${placeId}`;
 const REDIS_TTL_S = 30 * 24 * 60 * 60; // 30 days
+const SCRAPE_TIMEOUT_MS = 10_000;
+const CSE_TIMEOUT_MS = 8_000;
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-
-// Per-attempt timeout — social lookups are simple grounded queries
-// (one venue, one JSON object), so they should finish well under 15s.
-// Anything longer means we're better off failing fast and rendering
-// the venue without socials.
-const PER_ATTEMPT_MS = 15_000;
-
-function buildPrompt({ name, address, websiteUri }) {
-  const lines = [
-    `Find the OFFICIAL social-media profile URLs for this restaurant.`,
-    ``,
-    `Restaurant: ${name}`,
-    address ? `Address: ${address}` : null,
-    websiteUri ? `Website: ${websiteUri}` : null,
-    ``,
-    `Use Google Search to verify each URL. Return a JSON object with`,
-    `keys: instagram, tiktok, facebook, x, youtube, threads.`,
-    ``,
-    `Rules:`,
-    `1. Each value must be a FULL URL ending at the profile (e.g.`,
-    `   "https://www.instagram.com/handle"), or null if you cannot`,
-    `   verify an official profile for that platform.`,
-    `2. Do NOT invent URLs. If Google Search does not confirm an`,
-    `   official profile, return null for that platform.`,
-    `3. Return ONLY the JSON object, no prose, no markdown fence.`,
-    `4. Do not include profiles for unrelated venues with the same name.`,
-    ``,
-    `Example output (with some fields filled, others null):`,
-    `{"instagram":"https://www.instagram.com/example","tiktok":null,"facebook":"https://www.facebook.com/example","x":null,"youtube":null,"threads":null}`
-  ].filter(Boolean);
-  return lines.join('\n');
+// Strip query/fragment/trailing punctuation+slash off a scanned URL.
+function cleanUrl(u) {
+  return String(u || '').split(/[?#]/)[0].replace(/[).,'"]+$/, '').replace(/\/+$/, '');
+}
+// First path segment after the domain (with a leading @ removed) — used to
+// reject share/dialog/post links that aren't a profile handle.
+function firstSegment(url) {
+  const path = String(url || '').replace(/^https?:\/\/[^/]+\/?/, '');
+  return path.split('/')[0].replace(/^@/, '').toLowerCase();
 }
 
-// Cheap JSON extraction. The prompt asks for a bare JSON object but
-// Gemini sometimes wraps in fences anyway — accept either shape.
-function parseJsonResponse(text) {
-  if (!text || typeof text !== 'string') return null;
-  let body = text.trim();
-  const fenced = body.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fenced) body = fenced[1].trim();
-  const braceStart = body.indexOf('{');
-  const braceEnd = body.lastIndexOf('}');
-  if (braceStart < 0 || braceEnd <= braceStart) return null;
-  try {
-    return JSON.parse(body.slice(braceStart, braceEnd + 1));
-  } catch {
-    return null;
+// Find the first VALID profile URL for `platform` inside a blob of HTML or a
+// newline-joined list of links. Returns a canonical URL string or null.
+function firstSocialUrl(blob, platform) {
+  const re = DOMAIN_SCAN[platform];
+  if (!re) return null;
+  re.lastIndex = 0;
+  let m;
+  while ((m = re.exec(String(blob || '')))) {
+    const url = cleanUrl(m[0]);
+    if (!url) continue;
+    if (RESERVED[platform] && RESERVED[platform].has(firstSegment(url))) continue;
+    if (URL_PATTERNS[platform].test(url)) return url;
   }
+  return null;
 }
 
+// Extract all six socials from a blob (website HTML or search-result links).
+function socialsFromHtml(blob) {
+  const out = {};
+  for (const key of PRIORITY) {
+    const url = firstSocialUrl(blob, key);
+    if (url) out[key] = url;
+  }
+  return out;
+}
+
+// Keep only string values that pass the strict per-platform pattern.
 function validateProfiles(raw) {
   if (!raw || typeof raw !== 'object') return {};
   const out = {};
@@ -91,92 +106,48 @@ function validateProfiles(raw) {
     const v = raw[key];
     if (typeof v !== 'string') continue;
     const trimmed = v.trim();
-    if (!trimmed) continue;
-    const pattern = URL_PATTERNS[key];
-    if (!pattern.test(trimmed)) continue;
-    out[key] = trimmed;
+    if (trimmed && URL_PATTERNS[key].test(trimmed)) out[key] = trimmed;
   }
   return out;
 }
 
-function searchToolForModel(model) {
-  const m = String(model || '');
-  if (/-latest\b/i.test(m)) return { googleSearch: {} };
-  if (/^gemini-([2-9]|\d{2,})/i.test(m)) return { googleSearch: {} };
-  return { googleSearchRetrieval: {} };
+// 1. Scrape the venue's own website for socials (free, no key).
+async function scrapeSocials(websiteUri, _getFn = axios.get) {
+  if (!websiteUri || typeof websiteUri !== 'string') return {};
+  const url = /^https?:\/\//.test(websiteUri) ? websiteUri : `https://${websiteUri}`;
+  try {
+    const { data } = await _getFn(url, {
+      timeout: SCRAPE_TIMEOUT_MS,
+      maxRedirects: 4,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SoleatBot/1.0)' },
+      responseType: 'text',
+      transformResponse: [(d) => d]
+    });
+    return socialsFromHtml(data);
+  } catch {
+    return {};
+  }
 }
 
-const FALLBACK_CHAIN = [
-  { model: 'gemini-flash-latest',   tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-flash',      tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-flash-lite', tool: { googleSearch: {} } }
-];
-
-async function callGemini({ name, address, websiteUri, _genAIFactory, _onUsage = null }) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey && !_genAIFactory) throw new Error('GEMINI_API_KEY unset');
-  const factory = _genAIFactory || (() => {
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    return new GoogleGenerativeAI(apiKey);
-  });
-  const genAI = factory();
-  const prompt = buildPrompt({ name, address, websiteUri });
-  const primaryTool = searchToolForModel(DEFAULT_MODEL);
-  const oppositeTool = primaryTool.googleSearch
-    ? { googleSearchRetrieval: {} }
-    : { googleSearch: {} };
-  const attempts = [
-    { model: DEFAULT_MODEL, tool: primaryTool },
-    { model: DEFAULT_MODEL, tool: oppositeTool },
-    ...FALLBACK_CHAIN
-  ];
-  const seen = new Set();
-  const deduped = attempts.filter((a) => {
-    const k = `${a.model}|${Object.keys(a.tool)[0]}`;
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
-  const errors = [];
-  for (const attempt of deduped) {
-    try {
-      const m = genAI.getGenerativeModel({
-        model: attempt.model,
-        tools: [attempt.tool],
-        generationConfig: {
-          temperature: 0.1,
-          topP: 0.8,
-          maxOutputTokens: 512,
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      });
-      const text = await Promise.race([
-        (async () => {
-          const r = await m.generateContent(prompt);
-          // v0.61.307 — record token usage for /cost summary. The
-          // callback is wired by getSocialProfiles (it has redis); we
-          // forward model + usageMetadata. Fire-and-forget; never
-          // throw from here.
-          if (_onUsage) {
-            try { _onUsage(attempt.model, r.response?.usageMetadata); } catch {}
-          }
-          const t = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
-          if (!t || !t.trim()) throw new Error('empty response');
-          return t;
-        })(),
-        new Promise((_, reject) => setTimeout(
-          () => reject(new Error(`per-attempt timeout ${PER_ATTEMPT_MS / 1000}s`)),
-          PER_ATTEMPT_MS
-        ))
-      ]);
-      return text;
-    } catch (err) {
-      errors.push(`${attempt.model}/${Object.keys(attempt.tool)[0]}: ${err.message}`);
-    }
+// 2. Google Custom Search fallback. Reuses GOOGLE_MAPS_API_KEY; runs ONLY when
+// GOOGLE_CSE_ID (the free Programmable-Search engine id) is set — otherwise a
+// no-op, so the module is pure-scrape with zero new config. One query per
+// venue; the canonical social URLs appear among the result links.
+async function customSearchSocials(query, _getFn = axios.get) {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  const cx = process.env.GOOGLE_CSE_ID;
+  if (!key || !cx || !query) return {};
+  try {
+    const { data } = await _getFn('https://www.googleapis.com/customsearch/v1', {
+      params: { key, cx, q: query, num: 8 },
+      timeout: CSE_TIMEOUT_MS
+    });
+    const items = Array.isArray(data && data.items) ? data.items : [];
+    const links = items.map((it) => String((it && it.link) || '')).join('\n');
+    return socialsFromHtml(links);
+  } catch {
+    return {};
   }
-  const e = new Error(`social-profiles: all ${deduped.length} Gemini attempts failed | ${errors.join(' | ')}`);
-  e.attemptErrors = errors;
-  throw e;
 }
 
 async function readCache(redis, placeId) {
@@ -194,10 +165,7 @@ async function readCache(redis, placeId) {
 async function writeCache(redis, placeId, profiles) {
   if (!redis || !placeId) return;
   try {
-    const payload = JSON.stringify({
-      ...profiles,
-      _fetchedAt: new Date().toISOString()
-    });
+    const payload = JSON.stringify({ ...profiles, _fetchedAt: new Date().toISOString() });
     if (typeof redis.setEx === 'function') {
       await redis.setEx(REDIS_KEY(placeId), REDIS_TTL_S, payload);
     } else if (typeof redis.set === 'function') {
@@ -208,45 +176,41 @@ async function writeCache(redis, placeId, profiles) {
   }
 }
 
-// Strip cache-only fields before returning to callers.
 function stripMeta(cached) {
   if (!cached) return {};
   const { _fetchedAt: _ignored, ...rest } = cached;
   return rest;
 }
 
-// Public — single venue. Returns an object that may be empty {} (which
-// is a perfectly valid "no profiles found" result, also cached).
-async function getSocialProfiles(redis, { placeId, name, address, websiteUri, _genAIFactory } = {}) {
+// Public — single venue. Scrape the website, then Custom-Search the gaps.
+// Returns an object that may be empty {} (a valid "none found" result).
+async function getSocialProfiles(redis, { placeId, name, address, websiteUri, _getFn } = {}) {
   if (!name) return {};
   if (placeId) {
     const cached = await readCache(redis, placeId);
     if (cached) return stripMeta(cached);
   }
-  let raw = null;
-  try {
-    // v0.61.307 — wire api-cost recorder so callGemini's usage
-    // callback bumps Redis counters for /cost.
-    const { recordGeminiUsage } = require('./api-cost');
-    const _onUsage = (model, usage) => { recordGeminiUsage(redis, model, usage); };
-    const text = await callGemini({ name, address, websiteUri, _genAIFactory, _onUsage });
-    raw = parseJsonResponse(text);
-  } catch (err) {
-    console.warn(`[social-profiles] lookup "${String(name).slice(0, 60)}" failed:`, err.message);
-    // Don't cache transient failures — let the next call retry.
-    return {};
+  const get = _getFn || axios.get;
+  // 1. Scrape the venue's own website (operator's attraction approach).
+  const found = validateProfiles(await scrapeSocials(websiteUri, get));
+  // 2. Custom Search only for the gaps, and only when configured.
+  const cseConfigured = !!process.env.GOOGLE_CSE_ID;
+  if (cseConfigured && PRIORITY.some((k) => !found[k])) {
+    const area = address ? ` ${String(address).split(',')[0]}` : '';
+    const viaSearch = validateProfiles(await customSearchSocials(`${name}${area}`, get));
+    for (const k of PRIORITY) if (!found[k] && viaSearch[k]) found[k] = viaSearch[k];
   }
-  const validated = validateProfiles(raw);
-  if (placeId) await writeCache(redis, placeId, validated);
-  return validated;
+  // Cache when we found something OR ran a complete (CSE-configured) lookup —
+  // so scrape-only blanks re-try if GOOGLE_CSE_ID is added later.
+  if (placeId && (PRIORITY.some((k) => found[k]) || cseConfigured)) {
+    await writeCache(redis, placeId, found);
+  }
+  return found;
 }
 
-// Public — fan-out helper. Resolves to an array of profile objects in
-// the same order as `venues`. Caps in-flight Gemini calls at
-// `concurrency` to keep latency + spend bounded under /copy-all and
-// the /s technique fan-out (12 venues × ~1.5s ≈ 4.5s wall-clock at
-// concurrency 4).
-async function fetchSocialProfilesForVenues(redis, venues, { concurrency = 4, _genAIFactory } = {}) {
+// Public — fan-out helper. Resolves to an array of profile objects in the same
+// order as `venues`. Caps in-flight lookups at `concurrency` to bound latency.
+async function fetchSocialProfilesForVenues(redis, venues, { concurrency = 4, _getFn } = {}) {
   if (!Array.isArray(venues) || !venues.length) return [];
   const out = new Array(venues.length);
   let cursor = 0;
@@ -260,7 +224,7 @@ async function fetchSocialProfilesForVenues(redis, venues, { concurrency = 4, _g
         name: v.name || v.displayName?.text,
         address: v.area || v.formattedAddress,
         websiteUri: v.websiteUri,
-        _genAIFactory
+        _getFn
       });
     }
   }
@@ -269,15 +233,13 @@ async function fetchSocialProfilesForVenues(redis, venues, { concurrency = 4, _g
   return out;
 }
 
-// Public — fetch socials for an array of venues and attach the result
-// to each venue as `venue.socialProfiles` (an array of full URL
-// strings, priority-ordered, capped at `max`). Errors are swallowed
-// per-venue: a failed lookup leaves `socialProfiles` unset, and the
-// templates' `Array.isArray && length` guard skips the 📱 row.
-async function attachSocialsToVenues(redis, venues, { concurrency = 4, max = 6, _genAIFactory } = {}) {
+// Public — fetch socials for an array of venues and attach `venue.socialProfiles`
+// (priority-ordered full-URL strings, capped at `max`). Per-venue failures are
+// swallowed; the templates' `Array.isArray && length` guard skips the 📱 row.
+async function attachSocialsToVenues(redis, venues, { concurrency = 4, max = 6, _getFn } = {}) {
   if (!Array.isArray(venues) || !venues.length) return;
   try {
-    const all = await fetchSocialProfilesForVenues(redis, venues, { concurrency, _genAIFactory });
+    const all = await fetchSocialProfilesForVenues(redis, venues, { concurrency, _getFn });
     venues.forEach((v, i) => {
       if (!v) return;
       const top = pickTopProfiles(all[i], max).map((p) => p.url);
@@ -289,8 +251,6 @@ async function attachSocialsToVenues(redis, venues, { concurrency = 4, max = 6, 
 }
 
 // Public — pick top-N priority-ordered URLs from a profiles object.
-// Used by the TMA card (max 3 brand buttons) and as a sort helper for
-// the chat templates (no cap, but consistent order).
 function pickTopProfiles(profiles, max = Infinity) {
   if (!profiles || typeof profiles !== 'object') return [];
   const out = [];
@@ -312,8 +272,10 @@ module.exports = {
     URL_PATTERNS,
     REDIS_KEY,
     REDIS_TTL_S,
-    buildPrompt,
-    parseJsonResponse,
-    validateProfiles
+    socialsFromHtml,
+    scrapeSocials,
+    customSearchSocials,
+    validateProfiles,
+    firstSocialUrl
   }
 };
