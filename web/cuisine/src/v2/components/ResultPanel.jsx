@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
@@ -217,6 +217,36 @@ export default function ResultPanel({
     if (typeof onPageChange === 'function') onPageChange(pagedVenues);
   }, [pagedVenues, onPageChange]);
 
+  // v0.61.403 — progressive reveal of the FIRST impression (parity with
+  // gia-web v0.1.151): paint the curated first batch one card at a time
+  // instead of the whole set at once. `revealCount` walks 0→N once the batch
+  // is in (first card immediate, each next ~220 ms later). ONLY the first
+  // batch streams; paging / subsequent searches render in full. This is
+  // presentation-only — the boot load + location gate in App.jsx (the
+  // hang-prone area) are untouched.
+  const [revealCount, setRevealCount] = useState(0);
+  const revealKeyRef = useRef('');
+  useEffect(() => {
+    if (!firstBatch) return;
+    const key = (pagedVenues || []).map((v) => v.placeId || v.name).join('|');
+    if (key !== revealKeyRef.current) {
+      revealKeyRef.current = key;
+      setRevealCount(0);
+    }
+  }, [pagedVenues, firstBatch]);
+  useEffect(() => {
+    if (!firstBatch || loading) return;
+    if (revealCount >= pagedVenues.length) return;
+    const id = setTimeout(
+      () => setRevealCount((n) => n + 1),
+      revealCount === 0 ? 0 : 220,
+    );
+    return () => clearTimeout(id);
+  }, [firstBatch, loading, revealCount, pagedVenues.length]);
+  const cardsToShow = firstBatch ? pagedVenues.slice(0, revealCount) : pagedVenues;
+  const streamingMore =
+    firstBatch && !loading && pagedVenues.length > 0 && revealCount < pagedVenues.length;
+
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
@@ -329,8 +359,24 @@ export default function ResultPanel({
         </div>
       )}
       {loading ? (
-        <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
-          {loadingHint || 'Loading…'}
+        /* v0.61.403 — unobtrusive, bottom-anchored loading toast (parity with
+           gia-web v0.1.151): narrow, fixed to the viewport bottom, non-blocking
+           (pointer-events-none wrapper so it never intercepts taps). Replaces
+           the inline "Loading…" block; self-dismisses the moment the first card
+           paints (loading flips false → the cards branch renders). */
+        <div
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 bottom-3 z-40 flex justify-center px-3"
+        >
+          <div className="pointer-events-auto inline-flex max-w-[20rem] items-center gap-2 rounded-full border border-tg-border bg-tg-card/95 px-3.5 py-2 text-xs shadow-lg backdrop-blur">
+            <span
+              aria-hidden
+              className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-tg-accent border-t-transparent"
+            />
+            <span className="truncate font-medium text-tg-text">
+              {loadingHint || (lang === 'fr' ? 'Chargement…' : 'Loading…')}
+            </span>
+          </div>
         </div>
       ) : !venues?.length ? (
         specialModeBlocked ? (
@@ -371,9 +417,16 @@ export default function ResultPanel({
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
             </div>
           )}
-          {pagedVenues.map((v, i) => (
+          {cardsToShow.map((v, i) => (
             <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
           ))}
+          {/* v0.61.403 — subtle "more coming" cue while the first batch streams
+              in one card at a time (parity with gia-web v0.1.151). */}
+          {streamingMore && (
+            <div className="px-2 py-1 text-center text-[11px] leading-snug text-tg-hint animate-pulse">
+              {lang === 'fr' ? 'chargement…' : 'loading more…'}
+            </div>
+          )}
           {/* v0.60.22 — pagination strip. Only renders when the result
               set exceeds one PAGE_SIZE chunk. v0.60.28 (Human Lead
               2026-05-08): trimmed to ◀ 📄 N/T ▶ alone — the in-strip
