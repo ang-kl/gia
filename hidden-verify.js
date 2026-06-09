@@ -71,6 +71,21 @@ function oldestReviewMonths(reviews) {
   return Math.max(0, (Date.now() - oldestMs) / MS_PER_MONTH);
 }
 
+// v0.61.424 — oldest of the (≤5) Places reviews expressed in DAYS-ago. The
+// cuisine "New" pill uses a days-precise window (operator: "new = last 121
+// days"); oldestReviewMonths stays for /hidden's month-based newness rule.
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+function oldestReviewDays(reviews) {
+  if (!Array.isArray(reviews) || !reviews.length) return null;
+  let oldestMs = null;
+  for (const r of reviews) {
+    const t = r && r.publishTime ? Date.parse(r.publishTime) : NaN;
+    if (Number.isFinite(t) && (oldestMs === null || t < oldestMs)) oldestMs = t;
+  }
+  if (oldestMs === null) return null;
+  return Math.max(0, (Date.now() - oldestMs) / MS_PER_DAY);
+}
+
 // v0.61.319 — newest (most recent) review publishTime across the (≤5)
 // reviews Places returns, as an ISO string. Powers the "📝 Latest review ·"
 // card line. Returns null when there are no parseable review timestamps.
@@ -609,6 +624,7 @@ module.exports = {
   formatHumanDistance,
   // v0.61.318 — exported for unit tests of the newness-refute logic.
   oldestReviewMonths,
+  oldestReviewDays,
   stripOpeningClaim,
   // v0.61.319 — exported for unit tests of the latest-review-date line.
   newestReviewIso

@@ -15243,45 +15243,48 @@ async function cacheBotUsername() {
         // refute instead of the v0.57.6 ≤150-review proxy (operator:
         // "delete logic of New pill, use the /hidden logic"). A Google
         // review can only be posted AFTER a venue opens, so a review
-        // older than 3 months proves the venue is NOT newly opened.
+        // older than the window proves the venue is NOT newly opened.
         // Fetch each candidate's reviews (Places Details, reviews-only
         // mask — gated on the pill so the extra cost applies only here)
         // and drop the proven-old ones. Review-time can only REFUTE, not
         // confirm, newness (Places returns ≤5 reviews), so venues with no
-        // review older than 3 months — or no reviews at all — are kept.
+        // review older than the window — or no reviews at all — are kept.
         // The "newly opened" query modifier still biases Google's recall.
+        // v0.61.424 — operator: "new = last 121 days". Days-precise window
+        // (was 3 months) via oldestReviewDays. /hidden keeps its month rule.
         if (filters.newlyOpened) {
-          const { oldestReviewMonths } = require('./hidden-verify');
-          const NEW_MAX_MONTHS = 3;
+          const { oldestReviewDays } = require('./hidden-verify');
+          const NEW_MAX_DAYS = 121;
           const newApiKey = process.env.GOOGLE_MAPS_API_KEY;
           if (newApiKey) {
             const axiosNew = require('axios');
             await Promise.all(venues.map(async (v) => {
-              if (!v.placeId) { v._oldestReviewMonths = null; return; }
+              if (!v.placeId) { v._oldestReviewDays = null; return; }
               try {
                 const { data } = await axiosNew.get(
                   `https://places.googleapis.com/v1/places/${v.placeId}`,
                   { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
                 );
-                v._oldestReviewMonths = oldestReviewMonths(data?.reviews);
-              } catch { v._oldestReviewMonths = null; }
+                v._oldestReviewDays = oldestReviewDays(data?.reviews);
+              } catch { v._oldestReviewDays = null; }
             }));
           }
           const beforeNew = venues.length;
           const preRefute = venues;
-          const refuted = venues.filter((v) => v._oldestReviewMonths == null || v._oldestReviewMonths <= NEW_MAX_MONTHS);
+          const refuted = venues.filter((v) => v._oldestReviewDays == null || v._oldestReviewDays <= NEW_MAX_DAYS);
           // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
           // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
           // established market (Osaka fruit shops — and EVERY cuisine: the
           // operator's log shows `american` going 2→0 too) all candidates have
-          // reviews >3mo, so the v0.61.349 hard cut zeroed the page. Pre-v0.61.349
-          // the ≤150-review proxy didn't ("last time I didn't have this issue").
-          // Floor: when refuting would drop everything, keep the "newly opened"-
-          // biased recall pool so New still returns its best-effort newest set.
+          // reviews older than the window, so the v0.61.349 hard cut zeroed the
+          // page. Pre-v0.61.349 the ≤150-review proxy didn't ("last time I didn't
+          // have this issue"). Floor: when refuting would drop everything, keep
+          // the "newly opened"-biased recall pool so New still returns its
+          // best-effort newest set.
           const flooredToBias = refuted.length === 0 && preRefute.length > 0;
           venues = refuted.length ? refuted : preRefute;
-          for (const v of venues) delete v._oldestReviewMonths;
-          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (≤${NEW_MAX_MONTHS}mo${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
+          for (const v of venues) delete v._oldestReviewDays;
+          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (≤${NEW_MAX_DAYS}d${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
