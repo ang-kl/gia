@@ -106,6 +106,41 @@ describe('recent-locations — removeAt / clear', () => {
   });
 });
 
+// v0.61.415 — operator: "Clear all except current". Keep only the current row.
+describe('recent-locations — clearRecentLocationsExcept', () => {
+  async function seed(r) {
+    await rl.addRecentLocation(r, 'chat-1', { lat: 1.30, lng: 103.80, label: 'A' });
+    await rl.addRecentLocation(r, 'chat-1', { lat: 1.40, lng: 103.90, label: 'B' });
+    await rl.addRecentLocation(r, 'chat-1', { lat: 1.50, lng: 103.95, label: 'C' }); // C is newest = [0]
+  }
+  it('keeps ONLY the matching coord, drops the rest', async () => {
+    const r = makeRedisStub();
+    await seed(r);
+    const kept = await rl.clearRecentLocationsExcept(r, 'chat-1', 1.40, 103.90); // keep B
+    expect(kept).toMatchObject({ label: 'B' });
+    const list = await rl.listRecentLocations(r, 'chat-1');
+    expect(list).toHaveLength(1);
+    expect(list[0].label).toBe('B');
+  });
+  it('falls back to the most-recent row [0] when no coord is given', async () => {
+    const r = makeRedisStub();
+    await seed(r);
+    const kept = await rl.clearRecentLocationsExcept(r, 'chat-1'); // no coord
+    expect(kept.label).toBe('C');
+    expect(await rl.listRecentLocations(r, 'chat-1')).toHaveLength(1);
+  });
+  it('falls back to [0] when the coord matches nothing', async () => {
+    const r = makeRedisStub();
+    await seed(r);
+    const kept = await rl.clearRecentLocationsExcept(r, 'chat-1', 99, 99);
+    expect(kept.label).toBe('C');
+  });
+  it('returns null + no-op on an empty list', async () => {
+    const r = makeRedisStub();
+    expect(await rl.clearRecentLocationsExcept(r, 'chat-1', 1.3, 103.8)).toBeNull();
+  });
+});
+
 describe('recent-locations — defensive', () => {
   it('listRecentLocations returns [] when null redis', async () => {
     expect(await rl.listRecentLocations(null, 'chat-1')).toEqual([]);

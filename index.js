@@ -2780,15 +2780,19 @@ bot.on('callback_query', async (q) => {
           return;
         }
         if (arg === 'clear') {
-          const { clearRecentLocations } = require('./recent-locations');
-          await clearRecentLocations(redis, chatId);
+          // v0.61.415 — operator: don't clear the CURRENT location. Keep the
+          // active set-location row, drop the rest.
+          const { clearRecentLocationsExcept } = require('./recent-locations');
+          const cur = await getUserLocation(redis, chatId).catch(() => null);
+          await clearRecentLocationsExcept(redis, chatId, cur?.lat, cur?.lng);
+          const clearedMsg = '🕓 _Recent locations cleared — kept your current spot._';
           if (q.message?.message_id) {
             try {
-              await bot.editMessageText('🕓 _Recent locations cleared._',
+              await bot.editMessageText(clearedMsg,
                 { chat_id: chatId, message_id: q.message.message_id, parse_mode: 'Markdown' });
-            } catch { await safeSend(chatId, '🕓 Recent locations cleared.'); }
+            } catch { await safeSend(chatId, '🕓 Recent locations cleared — kept your current spot.'); }
           } else {
-            await safeSend(chatId, '🕓 Recent locations cleared.');
+            await safeSend(chatId, '🕓 Recent locations cleared — kept your current spot.');
           }
           return;
         }
@@ -13494,8 +13498,17 @@ async function cacheBotUsername() {
         if (!verified) return res.status(401).json({ error: 'invalid initData' });
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ error: 'no user id' });
-        const { clearRecentLocations } = require('./recent-locations');
-        await clearRecentLocations(redis, String(userId));
+        // v0.61.415 — operator: "Clear all except current". When the drawer
+        // passes the current spot's coords, keep that one row and drop the rest;
+        // with no coords, fall back to the legacy full wipe.
+        const { clearRecentLocations, clearRecentLocationsExcept } = require('./recent-locations');
+        const keepLat = Number(req.body?.keepLat);
+        const keepLng = Number(req.body?.keepLng);
+        if (Number.isFinite(keepLat) && Number.isFinite(keepLng)) {
+          await clearRecentLocationsExcept(redis, String(userId), keepLat, keepLng);
+        } else {
+          await clearRecentLocations(redis, String(userId));
+        }
         res.json({ ok: true });
       } catch (err) {
         console.warn('[recent-locations clear API] failed:', err && err.message);

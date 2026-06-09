@@ -344,10 +344,16 @@ export async function fetchRecentLocations() {
 }
 
 // v0.61.305: clear the recent-locations LRU. Called by the drawer's
-// 🗑 Clear all button.
-export async function clearRecentLocationsRemote() {
+// 🗑 Clear-all button.
+// v0.61.415 — operator: "Clear all except current". Pass the current spot's
+// { lat, lng } so the server keeps that one row and drops the rest; omit it for
+// the legacy full wipe.
+export async function clearRecentLocationsRemote(keep) {
   try {
-    return await postJson('/api/cuisine/recent-locations/clear', {});
+    const body = (keep && Number.isFinite(keep.lat) && Number.isFinite(keep.lng))
+      ? { keepLat: keep.lat, keepLng: keep.lng }
+      : {};
+    return await postJson('/api/cuisine/recent-locations/clear', body);
   } catch {
     return null;
   }

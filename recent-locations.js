@@ -107,11 +107,36 @@ async function clearRecentLocations(redis, chatId) {
   }
 }
 
+// v0.61.415 — operator: "clear locations include current location which should
+// not." Clear-all in the recents drawer used to wipe the WHOLE LRU, the active
+// (current) location included. This keeps ONLY the current entry and drops the
+// rest. "Current" is the row matching (lat, lng) within ~11 m; when no coord is
+// supplied or none matches, it falls back to the most-recent row [0] (which is
+// the current set-location). Returns the kept entry (or null when none).
+async function clearRecentLocationsExcept(redis, chatId, lat, lng) {
+  if (!(await _connect(redis))) return null;
+  try {
+    const existing = await listRecentLocations(redis, chatId);
+    if (existing.length === 0) return null;
+    let keep = null;
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      keep = existing.find((e) => _sameCoord(e, { lat, lng })) || null;
+    }
+    if (!keep) keep = existing[0];   // fallback: most-recent = the current spot
+    await redis.setEx(_key(chatId), TTL_S, JSON.stringify([keep]));
+    return keep;
+  } catch (err) {
+    console.warn('[recent-locations] clearExcept failed:', err && err.message);
+    return null;
+  }
+}
+
 module.exports = {
   MAX_ENTRIES,
   TTL_S,
   listRecentLocations,
   addRecentLocation,
   removeRecentLocationAt,
-  clearRecentLocations
+  clearRecentLocations,
+  clearRecentLocationsExcept
 };
