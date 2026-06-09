@@ -14291,6 +14291,18 @@ async function cacheBotUsername() {
           let michelinCountry;
           if (isJB) {
             michelinCountry = null;
+          } else if (insideSG) {
+            // v0.61.433 — the search anchor is physically inside the Singapore
+            // bbox (the SG region pill resolves to an SG coordinate). Michelin
+            // MUST be the Singapore list, regardless of a drifted `OTHER`
+            // region or a stale cached `location.country` left over from a
+            // prior MY/VN pick. Since #949 (v0.61.432) the OTHER branch below
+            // falls back to that cached country (or to 'unresolved' → empty),
+            // so an SG-pill search could surface a foreign country's Michelin
+            // (operator: "I selected Singapore … Michelin get corrupted").
+            // The SG anchor wins — picking a foreign guide-city sets foreign
+            // coords (insideSG=false), so this never blocks browsing abroad.
+            michelinCountry = 'SG';
           } else if (typeof isOther !== 'undefined' && isOther) {
             michelinCountry = requestCountry ? String(requestCountry).toUpperCase() : null;
             if (!michelinCountry && csChatId) {
