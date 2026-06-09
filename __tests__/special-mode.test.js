@@ -38,8 +38,9 @@ describe('special-mode — specialModeAllowed (v0.61.397 durian-belt gate)', () 
   // v0.61.397 — operator: block durian / fruits / durian-pastry outside the
   // SE-Asian durian belt. The belt is exactly SG, MY, ID, TH, PH, BN (Brunei
   // explicitly unblocked on the operator's word).
+  // v0.61.413 — operator: added Vietnam (VN) → seven belt countries.
   it('allows every belt country, case-insensitively', () => {
-    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN', 'VN']) {
       expect(sm.specialModeAllowed(cc)).toBe(true);
       expect(sm.specialModeAllowed(cc.toLowerCase())).toBe(true);
     }
@@ -47,8 +48,9 @@ describe('special-mode — specialModeAllowed (v0.61.397 durian-belt gate)', () 
 
   it('blocks countries outside the belt (the wrong-answer cases)', () => {
     // HK / JP / KR / CN / TW were the live failures (generic desserts
-    // mislabelled as durian) — all must be blocked.
-    for (const cc of ['HK', 'JP', 'KR', 'CN', 'TW', 'US', 'GB', 'IN', 'AU', 'VN']) {
+    // mislabelled as durian) — all must be blocked. (VN moved INTO the belt
+    // in v0.61.413, so it is no longer here.)
+    for (const cc of ['HK', 'JP', 'KR', 'CN', 'TW', 'US', 'GB', 'IN', 'AU']) {
       expect(sm.specialModeAllowed(cc)).toBe(false);
     }
   });
@@ -59,11 +61,11 @@ describe('special-mode — specialModeAllowed (v0.61.397 durian-belt gate)', () 
     expect(sm.specialModeAllowed('')).toBe(false);
   });
 
-  it('exposes the belt as a frozen 6-country set', () => {
+  it('exposes the belt as a frozen 7-country set', () => {
     expect(sm.SPECIAL_MODE_COUNTRIES).toBeInstanceOf(Set);
-    expect(sm.SPECIAL_MODE_COUNTRIES.size).toBe(6);
+    expect(sm.SPECIAL_MODE_COUNTRIES.size).toBe(7);
     expect(Object.isFrozen(sm.SPECIAL_MODE_COUNTRIES)).toBe(true);
-    expect([...sm.SPECIAL_MODE_COUNTRIES].sort()).toEqual(['BN', 'ID', 'MY', 'PH', 'SG', 'TH']);
+    expect([...sm.SPECIAL_MODE_COUNTRIES].sort()).toEqual(['BN', 'ID', 'MY', 'PH', 'SG', 'TH', 'VN']);
   });
 
   // v0.61.402 — operator: UNLOCK fruits everywhere; keep durian + durian-pastry

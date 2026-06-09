@@ -188,7 +188,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
              chips (fruits / durian / durian-pastry) when region != SG. */
           region={region}
           /* v0.61.411 — effective country for the durian-belt gate: durian +
-             durian-pastry chips disable outside SG/MY/ID/TH/PH/BN. */
+             durian-pastry chips disable outside SG/MY/ID/TH/PH/BN/VN. */
           beltCountry={beltCountry}
         />
       )}

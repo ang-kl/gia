@@ -178,13 +178,13 @@ describe('applyChipToggle — special ↔ non-special boundary', () => {
 });
 
 // v0.61.411 — operator: durian + durian-pastry must DISABLE in the picker
-// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN); fruits stays everywhere.
+// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN); fruits stays everywhere.
 describe('durian belt gate (isSlugCountryAllowed)', () => {
-  it('belt set = exactly the six SE-Asian belt countries', () => {
-    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+  it('belt set = exactly the seven SE-Asian belt countries', () => {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN', 'VN']) {
       expect(DURIAN_BELT_COUNTRIES.has(cc)).toBe(true);
     }
-    expect(DURIAN_BELT_COUNTRIES.size).toBe(6);
+    expect(DURIAN_BELT_COUNTRIES.size).toBe(7);
   });
 
   it('belt-gated slugs = durian + durian-pastry only (NOT fruits)', () => {
@@ -194,14 +194,15 @@ describe('durian belt gate (isSlugCountryAllowed)', () => {
   });
 
   it('durian + durian-pastry allowed INSIDE the belt', () => {
-    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN', 'VN']) {
       expect(isSlugCountryAllowed('durian', cc)).toBe(true);
       expect(isSlugCountryAllowed('durian-pastry', cc)).toBe(true);
     }
   });
 
-  it('durian + durian-pastry BLOCKED outside the belt (JP, KR, VN, US…)', () => {
-    for (const cc of ['JP', 'KR', 'VN', 'US', 'AU', 'CN', 'IN']) {
+  // v0.61.413 — VN moved INTO the belt; it is no longer an "outside" case.
+  it('durian + durian-pastry BLOCKED outside the belt (JP, KR, US…)', () => {
+    for (const cc of ['JP', 'KR', 'US', 'AU', 'CN', 'IN']) {
       expect(isSlugCountryAllowed('durian', cc)).toBe(false);
       expect(isSlugCountryAllowed('durian-pastry', cc)).toBe(false);
     }

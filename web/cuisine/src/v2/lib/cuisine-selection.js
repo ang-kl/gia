@@ -34,13 +34,14 @@ export function isSpecialSlug(slug) {
 }
 
 // v0.61.411 — operator: durian + durian-pastry must be DISABLED in the picker
-// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN); 'fruits' stays allowed
+// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN); 'fruits' stays allowed
 // everywhere (v0.61.402). v0.61.397 only blocked them server-side (on search) —
 // the chips themselves stayed tappable, so in e.g. Japan the user could still
 // pick Durian. This mirrors the server gate (special-mode.js
 // SPECIAL_MODE_COUNTRIES / BELT_GATED_MODES) so the chip greys out BEFORE a
 // search. Keep this Set in sync with the server's.
-export const DURIAN_BELT_COUNTRIES = new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN']);
+// v0.61.413 — operator: added Vietnam (VN) → seven belt countries.
+export const DURIAN_BELT_COUNTRIES = new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN', 'VN']);
 export const BELT_GATED_SLUGS = new Set(['durian', 'durian-pastry']);
 
 // True when `slug` may be selected for `country` (an ISO-2 code like 'SG'/'JP').

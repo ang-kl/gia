@@ -242,7 +242,7 @@ export default function App() {
   // otherwise; "fruits" / "durian" when set.
   const [specialModeNotice, setSpecialModeNotice] = useState(null);
   // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
-  // outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN). The server
+  // outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN). The server
   // returns { mode, country } in `specialModeBlocked`; the result panel
   // swaps the generic "No results" copy for a "only available in …" note
   // so the empty list reads as intentional, not as a failed search.

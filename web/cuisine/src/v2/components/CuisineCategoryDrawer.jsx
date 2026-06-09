@@ -85,7 +85,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
             // dim-when-full state remains.
             const dim = !sel && selected.length >= maxSelected;
             // v0.61.411 — durian / durian-pastry disable outside the belt
-            // (SG/MY/ID/TH/PH/BN). Already-selected chips stay tappable so the
+            // (SG/MY/ID/TH/PH/BN/VN). Already-selected chips stay tappable so the
             // user can still DESELECT a stale pick after switching country.
             const beltBlocked = !sel && !isSlugCountryAllowed(cu.slug, beltCountry);
             const disabled = (dim && !sel) || beltBlocked;
