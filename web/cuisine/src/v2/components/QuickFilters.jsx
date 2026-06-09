@@ -34,13 +34,24 @@ const RATING_PRESET = '3.7';
 const RATING_MIN = 1.0;
 const RATING_MAX = 5.0;
 
-// Clamp a custom-field entry to 1.0–5.0 and snap to 1 decimal. Returns
-// null for non-numeric input so Save can fall back to the preset.
+// Parse a custom-field entry. v0.61.438 (code review F10/F11):
+//   ''/whitespace → null (Number('') is 0, which silently became '1.0' —
+//                   an accidental floor-off; Save now falls back to the
+//                   3.7 preset instead)
+//   0 / 0.0       → 'any' (the documented /rating convention "0 = any
+//                   rating"; the old clamp turned 0 into a ≥1.0 floor —
+//                   the OPPOSITE of what the user asked)
+//   1.0–5.0       → that value, 1 decimal
+//   out-of-range / junk → null (REJECTED, not clamped — typing 9 used to
+//                   silently save a ≥5.0 floor; chat /rating rejects it)
 function normalizeCustomRating(raw) {
-  const n = Number(String(raw == null ? '' : raw).replace(',', '.').trim());
+  const str = String(raw == null ? '' : raw).replace(',', '.').trim();
+  if (!str) return null;
+  const n = Number(str);
   if (!Number.isFinite(n)) return null;
-  const clamped = Math.min(RATING_MAX, Math.max(RATING_MIN, n));
-  return (Math.round(clamped * 10) / 10).toFixed(1);
+  if (n === 0) return 'any';
+  if (n < RATING_MIN || n > RATING_MAX) return null;
+  return (Math.round(n * 10) / 10).toFixed(1);
 }
 
 // Map a stored rating value to the panel's radio selection. Any numeric
