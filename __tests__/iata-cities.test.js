@@ -140,6 +140,10 @@ describe('cities.js — every code is a real IATA code present in iata-cities.js
   for (const [countryCode, list] of Object.entries(CITIES_BY_COUNTRY)) {
     it(`${countryCode} entries all reference real IATA codes`, () => {
       for (const city of list) {
+        // v0.61.420 — operator-sanctioned exception (issue "1b"): the Johor
+        // whole-STATE row uses code 'JOHOR' (not an IATA airport code), wired to
+        // the entire Johor state. Every OTHER code must still be a real IATA code.
+        if (city.code === 'JOHOR') continue;
         expect(iataCodes.has(city.code),
           `cities.js[${countryCode}] entry "${city.name}" has code "${city.code}" which is NOT in iata-cities.js`
         ).toBe(true);
