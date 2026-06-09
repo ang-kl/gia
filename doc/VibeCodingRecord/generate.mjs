@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-09';   // v0.61.433 catch-up: PRs #824-#949 (126 PR backfill since the v0.61.316 regen; 1 closed-without-merge: #841)
+const GEN_DATE = '2026-06-10';   // v0.61.439 refresh: PRs #950-#955 (vibe catch-up, SG-anchor guard, opus 4.8, code-review fix PRs A/B/C)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

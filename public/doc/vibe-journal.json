@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-09",
-  "count": 936,
+  "generated": "2026-06-10",
+  "count": 942,
   "records": [
     {
       "pr": 1,
@@ -26651,6 +26651,180 @@
       "title": "v0.61.432: Michelin abroad — country resolution + country-wide primary + cuisine pinned to top",
       "reworkCue": false,
       "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 950,
+      "status": "merged",
+      "merged": "2026-06-09 22:09:19",
+      "day": "2026-06-09",
+      "version": "0.61.433",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Search / free-text",
+      "intent": "Update docs: Vibe Journal catch-up — regen PRs #824→#949",
+      "approach": "## What & why You asked to catch up the **Vibe Journal** (`soleat.net/doc/vibe-journal.html`).",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.433: Vibe Journal catch-up — regen PRs #824→#949",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 951,
+      "status": "merged",
+      "merged": "2026-06-09 22:30:39",
+      "day": "2026-06-09",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: an in-Singapore search anchor always returns SG Michelin",
+      "approach": "## What broke Picking **Singapore** (the SG region pill) + **Michelin** could return a **wrong-country** Michelin list (e.g.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "Fix: an in-Singapore search anchor always returns SG Michelin",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 952,
+      "status": "merged",
+      "merged": "2026-06-09 22:19:04",
+      "day": "2026-06-09",
+      "version": "0.61.434",
+      "minor": "0.61",
+      "category": "prompt-tune",
+      "area": "Infra / setup",
+      "intent": "Add: Claude Opus tier migrated claude-opus-4-7 → claude-opus-4-8",
+      "approach": "## What & why `/claude-api migrate` — you confirmed **\"Opus → 4.8, live files only.\"** **Survey:** `llm-client.js` is the bot's single Claude integration point.",
+      "codeImpact": "5 files — llm-client.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "llm-client.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.434: Claude Opus tier migrated claude-opus-4-7 → claude-opus-4-8",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 953,
+      "status": "merged",
+      "merged": "2026-06-09 23:26:53",
+      "day": "2026-06-09",
+      "version": "0.61.436",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Search / free-text",
+      "intent": "Fix: code-review fixes A — rating sync + floor coverage (findings 1,3,4,8,9)",
+      "approach": "## PR A of 3 — \"fix all 15\" code-review findings (rating feature) **1 — Device key shadowed /rating (worst rating bug).** The TMA Save wrote a 365-day device-scoped key that the TMA + search read FIRST, while chat `/rating` wrote only the…",
+      "codeImpact": "6 files — index.js, rating-pref.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "rating-pref.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.436: code-review fixes A — rating sync + floor coverage (findings 1,3,4,8,9)",
+      "reworkCue": false,
+      "reworkOf": 950,
+      "burst": true
+    },
+    {
+      "pr": 954,
+      "status": "merged",
+      "merged": "2026-06-09 23:37:37",
+      "day": "2026-06-09",
+      "version": "0.61.437",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: code-review fixes B — Michelin holes (findings 5,6,7,12,13)",
+      "approach": "## PR B of 3 — \"fix all 15\" (Michelin) **6+13 — wrong/missing country.** Michelin's country came from `body countryCode || cached location` — a stale cached 'MY' beat a fresh Hanoi anchor, and a cached 'SG'/missing country returned a…",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.437: code-review fixes B — Michelin holes (findings 5,6,7,12,13)",
+      "reworkCue": false,
+      "reworkOf": 951,
+      "burst": false
+    },
+    {
+      "pr": 955,
+      "status": "merged",
+      "merged": "2026-06-09 23:45:58",
+      "day": "2026-06-09",
+      "version": "0.61.438",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: code-review fixes C — client races + custom box (findings 2,10,11,14)",
+      "approach": "## PR C of 3 (final) — \"fix all 15\" **2 — Location-follow was being killed by its own automation (top location bug).** The v0.61.430 latch fired on ANY region change to OTHER/JB — including ones the device-follow itself made from raw GPS…",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.438: code-review fixes C — client races + custom box (findings 2,10,11,14)",
+      "reworkCue": false,
+      "reworkOf": 954,
       "burst": true
     }
   ]

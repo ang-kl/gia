@@ -1,23 +1,23 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-09 from a snapshot of all 936 pull requests (#1–#936).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-10 from a snapshot of all 942 pull requests (#1–#942).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 936 total — 926 merged, 10 closed without merge.
+- **PRs:** 942 total — 932 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #949 · 2026-06-09 15:13:13 · _v0.61.432: Michelin abroad — country resolution + country-wide primary + cuisine pinned to top_
+- **Latest:** #955 · 2026-06-09 23:45:58 · _v0.61.438: code-review fixes C — client races + custom box (findings 2,10,11,14)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
 | feature | 621 |
-| fix | 120 |
-| docs | 61 |
+| fix | 124 |
+| docs | 62 |
 | copy | 43 |
-| prompt-tune | 41 |
+| prompt-tune | 42 |
 | refactor | 25 |
 | test | 15 |
 | infra | 10 |
@@ -30,11 +30,11 @@
 | Core / misc | 138 |
 | Docs / vault | 78 |
 | Transport / carpark | 61 |
+| Search / free-text | 52 |
 | Hawker NEA | 52 |
-| Search / free-text | 50 |
+| Recognised lists | 42 |
 | /hidden surprise | 41 |
-| Recognised lists | 39 |
-| Infra / setup | 29 |
+| Infra / setup | 30 |
 | Pipeline / discovery | 26 |
 | /eat /drink flow | 20 |
 | Weather | 19 |
@@ -988,6 +988,12 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 947 | merged | 2026-06-09 14:08:57 | 0.61.430 | fix | Cuisine Picker | Fix: explicit pick wins — fixes country-drift + the MY Michelin grey-out | ## What & why — your "michelin drift + country drift", confirmed in the log Traced `log/logs.1781012660221.json`: **Country drift (confirmed):** at `23:25:22` you set **Kuala Lumpur** → search ran `region=OTHER center=KL`. | 6 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 948 | merged | 2026-06-09 14:59:03 |  | fix | Search / free-text | Fix: region-aware nation-iconic & cooking-method venue search | ## What broke Searching for a Singaporean dish while your country is set to **Malaysia, Indonesia, or Thailand** (or any non-SG anchor like a Bangkok/Tokyo pin) returned *"Sorry, no Singapore venues found…"* — even though Google Maps… | 6 files — index.js, region-code.js, tests, doc, package | — | tests; doc/vault |
 | 949 | merged | 2026-06-09 15:13:13 | 0.61.432 | feature | Cuisine Picker | Add: Michelin abroad — country resolution + country-wide primary + cuisine pinned to top | ## Your report: "Malaysia + Michelin → zero (same Vietnam)" + "the city selected does not have Michelin" + pin matched to top A read-only sub-agent traced it. | 5 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 950 | merged | 2026-06-09 22:09:19 | 0.61.433 | docs | Search / free-text | Update docs: Vibe Journal catch-up — regen PRs #824→#949 | ## What & why You asked to catch up the **Vibe Journal** (`soleat.net/doc/vibe-journal.html`). | 10 files — doc, package, public/ | — | doc/vault |
+| 951 | merged | 2026-06-09 22:30:39 |  | fix | Recognised lists | Fix: an in-Singapore search anchor always returns SG Michelin | ## What broke Picking **Singapore** (the SG region pill) + **Michelin** could return a **wrong-country** Michelin list (e.g. | 4 files — index.js, doc, package | — | doc/vault |
+| 952 | merged | 2026-06-09 22:19:04 | 0.61.434 | prompt-tune | Infra / setup | Add: Claude Opus tier migrated claude-opus-4-7 → claude-opus-4-8 | ## What & why `/claude-api migrate` — you confirmed **"Opus → 4.8, live files only."** **Survey:** `llm-client.js` is the bot's single Claude integration point. | 5 files — llm-client.js, tests, doc, package | — | tests; doc/vault |
+| 953 | merged | 2026-06-09 23:26:53 | 0.61.436 | fix | Search / free-text | Fix: code-review fixes A — rating sync + floor coverage (findings 1,3,4,8,9) | ## PR A of 3 — "fix all 15" code-review findings (rating feature) **1 — Device key shadowed /rating (worst rating bug).** The TMA Save wrote a 365-day device-scoped key that the TMA + search read FIRST, while chat `/rating` wrote only the… | 6 files — index.js, rating-pref.js, tests, doc, package | — | Redis/state; privacy; tests; doc/vault |
+| 954 | merged | 2026-06-09 23:37:37 | 0.61.437 | fix | Recognised lists | Fix: code-review fixes B — Michelin holes (findings 5,6,7,12,13) | ## PR B of 3 — "fix all 15" (Michelin) **6+13 — wrong/missing country.** Michelin's country came from `body countryCode \|\| cached location` — a stale cached 'MY' beat a fresh Hanoi anchor, and a cached 'SG'/missing country returned a… | 6 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 955 | merged | 2026-06-09 23:45:58 | 0.61.438 | fix | Recognised lists | Fix: code-review fixes C — client races + custom box (findings 2,10,11,14) | ## PR C of 3 (final) — "fix all 15" **2 — Location-follow was being killed by its own automation (top location bug).** The v0.61.430 latch fired on ANY region change to OTHER/JB — including ones the device-follow itself made from raw GPS… | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 
