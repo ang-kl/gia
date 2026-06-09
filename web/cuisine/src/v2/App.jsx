@@ -38,6 +38,25 @@ import { giaToggleStyle } from './lib/mapOverlays.js';
 // leaves region/countryPref untouched).
 const CUISINE_OTHER_CODES = new Set(OTHER_COUNTRIES.map((c) => c.code));
 
+// v0.61.437 — ONE rule for "does the Michelin chip make sense here" (code
+// review F5/F15: the region pill and the country dropdown each had their own
+// — or no — rule, and the pill's stripped a valid selection while the
+// catalogue was still loading). Returns:
+//   true  → Michelin valid (SG, or a country in the catalogue's list)
+//   false → provably NOT valid (JB; or a country known to lack a list)
+//   null  → UNKNOWN (catalogue not loaded / country not yet resolved)
+// Callers must strip the chip ONLY on `false` — never on `null` (fail-open;
+// the server answers honestly via reasonCode when it truly has no list).
+function michelinAllowedFor(region, countryPref, catalogue) {
+  if (region === 'SG') return true;
+  if (region === 'JB') return false;
+  const cc = region === 'MY-PUT' ? 'MY' : String(countryPref || '').toUpperCase();
+  if (!cc) return null;
+  const michCat = Array.isArray(catalogue) ? catalogue.find((c) => c.id === 'michelin') : null;
+  if (!michCat || !Array.isArray(michCat.michelinCountries)) return null;
+  return michCat.michelinCountries.map((x) => String(x).toUpperCase()).includes(cc);
+}
+
 // v0.61.51 — operator CR7: floating FABs must not use green
 // (washed-out against the Google Map). The bg/colour come from the
 // shared giaToggleStyle palette (theme-aware amber-on-white / dark
@@ -441,6 +460,12 @@ export default function App() {
   // has genuinely few SG matches in Places (African / Georgian).
   // Operator-recommended set after the rare-cuisine investigation.
   const [sparseNotice, setSparseNotice] = useState(null);
+  // v0.61.437 — Michelin zero/miss notice (code review F5/F6/F7): the
+  // server's empty-Michelin responses carry a machine reasonCode, and a
+  // combo page with zero cuisine matches carries cuisineMatched: 0 — both
+  // previously rendered as an unexplained empty/wrong list. Holds an
+  // i18n KEY (rendered through t() so locale switches re-translate).
+  const [michelinNotice, setMichelinNotice] = useState(null);
   // v0.60.191 — sticky flag: did the last server response come back
   // as the planned 6-venue first batch? Used to suppress the v0.60.188
   // <12 auto-reset (which would otherwise loop 6 venues forever — see
@@ -1999,6 +2024,11 @@ export default function App() {
       // /api/cuisine/search response.
       setSessionFull(r?.sessionFull === true);
       setPageStackDepth(Number.isFinite(r?.pageStackDepth) ? r.pageStackDepth : 0);
+      // v0.61.437 — surface Michelin zero/miss reasons (code review F5/F6/F7).
+      if (r?.reasonCode === 'michelin_no_list') setMichelinNotice('michelin.noList');
+      else if (r?.reasonCode === 'michelin_unresolved') setMichelinNotice('michelin.unresolved');
+      else if (r?.michelinSummary && r.michelinSummary.cuisineMatched === 0) setMichelinNotice('michelin.comboMiss');
+      else setMichelinNotice(null);
       // v0.60.149 — Michelin remaining-count indicator.
       if (r?.michelinSummary && Number.isFinite(r.michelinSummary.remaining)) {
         setMichelinRemaining({
@@ -2672,17 +2702,15 @@ export default function App() {
                     // 'michelin' when the TARGET region still supports it —
                     // SG always; OTHER iff the current countryPref is in the
                     // catalogue's michelinCountries; JB never (no JB list).
-                    const michCat = Array.isArray(catalogue)
-                      ? catalogue.find((c) => c.id === 'michelin') : null;
-                    const michSet = Array.isArray(michCat?.michelinCountries)
-                      ? new Set(michCat.michelinCountries.map((x) => String(x).toUpperCase()))
-                      : null;
-                    const michelinOk = r.id === 'SG'
-                      || (r.id === 'OTHER' && michSet
-                          && michSet.has(String(s.countryPref || '').toUpperCase()));
-                    const nextCuisines = michelinOk
-                      ? s.cuisines
-                      : (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin');
+                    // v0.61.437 — shared 3-state rule; strip ONLY on a
+                    // provable `false` (code review F15: the old check also
+                    // stripped while the catalogue was still loading or
+                    // countryPref hadn't resolved — a race that silently
+                    // dropped a valid MY/VN Michelin selection).
+                    const allowed = michelinAllowedFor(r.id, s.countryPref, catalogue);
+                    const nextCuisines = allowed === false
+                      ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                      : s.cuisines;
                     return { ...s, region: r.id, cuisines: nextCuisines };
                   });
                   // v0.61.277 — operator (30-05 '26): "i switch to
@@ -2768,7 +2796,19 @@ export default function App() {
             // selected. Re-assert region in the SAME setState as countryPref so
             // no concurrent effect can transiently flip the pill away. (MY-PUT
             // legacy is preserved; anything else snaps to OTHER.)
-            setState((s) => ({ ...s, countryPref: code, region: s.region === 'MY-PUT' ? 'MY-PUT' : 'OTHER' }));
+            // v0.61.437 — code review F5: switching to a country with NO
+            // curated Michelin list (AU/NZ/ID/BN/…) kept a selected
+            // 'michelin' chip → the next search returned an unexplained
+            // zero. Strip it here too (the same 3-state rule as the region
+            // pill; only on a provable `false` — never while the catalogue
+            // is still loading).
+            setState((s) => {
+              const allowed = michelinAllowedFor('OTHER', code, catalogue);
+              const nextCuisines = allowed === false
+                ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                : s.cuisines;
+              return { ...s, countryPref: code, cuisines: nextCuisines, region: s.region === 'MY-PUT' ? 'MY-PUT' : 'OTHER' };
+            });
             // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
             // so the chat /location (v0.61.195) picks up the same value.
             saveCountryPref(code).catch(() => { /* non-fatal */ });
@@ -3085,6 +3125,17 @@ export default function App() {
           {lang === 'fr'
             ? `Cuisine peu représentée à Singapour — Google Maps répertorie peu d'établissements ${sparseNotice}. Affichage de toutes les correspondances.`
             : `Limited coverage in Singapore — Google Maps has few ${sparseNotice} restaurants listed. Showing all matches.`}
+        </div>
+      )}
+
+      {/* v0.61.437 — Michelin zero/miss notice (code review F5/F6/F7):
+          explains an empty Michelin result (no curated list for the picked
+          country / country unresolved) or a combo page with zero cuisine
+          matches, instead of an unexplained blank. Amber border per the
+          operator's no-red rule; ✳️ marks the Michelin context. */}
+      {michelinNotice && !loading && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          <span aria-hidden className="mr-1">✳️</span>{t(michelinNotice, lang)}
         </div>
       )}
 

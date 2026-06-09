@@ -196,6 +196,14 @@ const STRINGS = {
   'rating.save':               { en: 'Save', fr: 'Enregistrer' },
   'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'No rating', fr: 'Sans note' },
+
+  // ----- Michelin zero/miss notices (v0.61.437) -----
+  'michelin.noList':           { en: 'No Michelin Guide covers this country yet — pick another country or deselect ✳️ Michelin.',
+                                 fr: "Aucun Guide Michelin ne couvre encore ce pays — choisissez un autre pays ou désélectionnez ✳️ Michelin." },
+  'michelin.unresolved':       { en: 'Could not work out which country to load the Michelin list for — pick a city or country, then search again.',
+                                 fr: "Impossible de déterminer le pays pour la liste Michelin — choisissez une ville ou un pays, puis relancez la recherche." },
+  'michelin.comboMiss':        { en: 'No match for your selected cuisine in this Michelin list — showing the full Michelin list instead.',
+                                 fr: "Aucune correspondance pour la cuisine choisie dans cette liste Michelin — affichage de la liste Michelin complète." },
   'rating.pillAny':            { en: 'Any', fr: 'Toutes' },
 
   // ----- Map overlay layers (v0.61.0) -----
