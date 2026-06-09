@@ -81,7 +81,8 @@ const SEED_TEMPLATES = {
     'durian stall',
     'durian seller',
     'durian delivery',
-    'durian specialist'
+    'durian specialist',
+    'sầu riêng'                  // v0.61.414 — Vietnamese, so Places surfaces VN-named sellers
   ],
   // v0.61.141 — durian-pastry seeds. Targets bakery + dessert-shop
   // queries that surface durian puffs / mochi / pancakes / cakes,
@@ -91,7 +92,8 @@ const SEED_TEMPLATES = {
     'durian pastry',
     'durian mochi',
     'durian cake',
-    'durian dessert bakery'
+    'durian dessert bakery',
+    'bánh sầu riêng'             // v0.61.414 — Vietnamese "durian cake/pastry"
   ]
 };
 
@@ -103,8 +105,17 @@ const SEED_TEMPLATES = {
 // loop, the strict-name gate (_nameHasDurian) and the recency review
 // counter, so a local-script durian venue passes all three.
 //   ja: ドリアン   ko: 두리안   th: ทุเรียน   zh-trad (TW/HK): 榴槤 / 榴蓮
+//   vi: sầu riêng (v0.61.414 — Vietnam joined the belt in v0.61.413)
+// v0.61.414 — operator: "why is vietnam returned zero for durians when it is
+// also a produce of durian". ROOT: Vietnamese durian sellers are named
+// "Sầu riêng …" — the strict name-gate (_nameHasDurian) + keyword loop both
+// key off this list, so without the Vietnamese word every VN durian venue was
+// rejected → 0 results even though the belt gate (v0.61.413) now allows VN.
+// Both the diacritic ("sầu riêng") and the bare ("sau rieng") forms are listed
+// because Google listings / reviews use either.
 const DURIAN_CORE_TERMS = Object.freeze([
   'durian', 'durians',          // Latin (also Indonesian/Malay)
+  'sầu riêng', 'sau rieng',     // Vietnamese (diacritic + bare)
   '榴莲', '榴梿',                  // Chinese (simplified + variant)
   '榴槤', '榴蓮',                  // Chinese (traditional — Taiwan / Hong Kong)
   'ドリアン',                      // Japanese
@@ -186,7 +197,10 @@ const KEYWORDS = {
     // script (e.g. ドリアンケーキ / 두리안 케이크 / 榴槤泡芙) survive the
     // filter. Generic local "cake/pastry" words are deliberately NOT
     // added — they'd match non-durian desserts.
-    '榴槤', '榴蓮', 'ドリアン', '두리안', 'ทุเรียน'
+    '榴槤', '榴蓮', 'ドリアン', '두리안', 'ทุเรียน',
+    // v0.61.414 — Vietnamese: the core durian word + explicit "durian cake".
+    // Same rationale as above; gated by the pastry accept-type.
+    'sầu riêng', 'sau rieng', 'bánh sầu riêng', 'banh sau rieng'
   ]
 };
 

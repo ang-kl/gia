@@ -230,6 +230,10 @@ describe('special-mode — isRelevant (Durian)', () => {
     { name: 'Combat Durian', primaryType: 'meal_takeaway', expect: true },
     { name: '99 Old Trees Durian', primaryType: 'food_store', expect: true },
     { name: '榴莲专卖店', primaryType: 'food_store', expect: true },           // Chinese
+    // v0.61.414 — Vietnamese durian sellers ("Sầu riêng …"). Without the
+    // Vietnamese term in DURIAN_CORE_TERMS these were rejected → VN returned 0.
+    { name: 'Sầu Riêng Chín Cây', primaryType: 'food_store', expect: true },   // Vietnamese (diacritic)
+    { name: 'Sau Rieng Cai Mon', primaryType: 'meal_takeaway', expect: true }, // Vietnamese (bare)
     // Rejected — variety in name but no "durian" word (v0.61.229).
     { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway', expect: false },
     { name: 'Black Thorn King', primaryType: 'meal_takeaway', expect: false },
