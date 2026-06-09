@@ -36,18 +36,26 @@ export function haversineMeters(a, b) {
 //        on top of the first load. Hold the follow until the load lands.),
 //     3. there is NO explicit named pick to hold (Menu / deep-link /
 //        LocationField anchors carry a name; device-followed anchors do not),
+//     3b. (v0.61.430) the user has not made an EXPLICIT pick this session —
+//        `explicitPick` is set once they deliberately choose a city / country
+//        / foreign region (OTHER / JB). Operator: "explicit pick wins." This
+//        is the robust backstop for the case where an inherited foreign pick
+//        (Menu handoff) lands WITHOUT an anchor name, so rule 3 alone misses
+//        it and the SG device GPS would otherwise drag region back to SG.
 //     4. the device has moved at least `thresholdM` from `current`
 //        (GPS jitter / a stationary city pick is never yanked).
 export function shouldFollowDevice({
   initialResolveDone,
   firstLoadPending = false,
   explicitAnchorName,
+  explicitPick = false,
   current,
   loc,
   thresholdM = 1500,
 } = {}) {
   if (!initialResolveDone) return false;
   if (firstLoadPending) return false;
+  if (explicitPick) return false;
   if (explicitAnchorName && String(explicitAnchorName).trim()) return false;
   if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) return false;
   if (current && Number.isFinite(current.lat) && Number.isFinite(current.lng)
