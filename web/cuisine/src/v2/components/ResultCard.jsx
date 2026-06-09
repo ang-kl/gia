@@ -148,6 +148,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         signatureDish: venue.signatureDish,
         vibe: venue.vibe,
         recentReview: venue.recentReview,
+        recentReviewAgo: venue.recentReviewAgo,   // v0.61.417 — review "X ago" date
         michelinCategory: venue.michelinCategory,
         michelinYear: venue.michelinYear,
         // v0.58.53: include the v0.58.52 travel-time fields so the
@@ -310,6 +311,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               <span aria-hidden="true">💬</span>
               <span>
                 "{venue.recentReview}"
+                {/* v0.61.417 — operator: the review's date ("X ago", Google's
+                    own relative time) a few spaces after the closing quote, as
+                    dated evidence for the review. */}
+                {typeof venue.recentReviewAgo === 'string' && venue.recentReviewAgo && (
+                  <span className="not-italic ml-2 text-tg-hint">{venue.recentReviewAgo}</span>
+                )}
                 {/* v0.61.151 — nationality-language review tag. Backend
                     sets recentReviewTranslatedFlag when the surfaced
                     review is in the cuisine nationality's language

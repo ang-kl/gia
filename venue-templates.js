@@ -257,7 +257,11 @@ function formatVenueBlock(p, opts = {}) {
   // ResultCard.jsx render.
   if (typeof p.recentReview === 'string' && p.recentReview.trim()
       && typeof p.recentReviewTranslatedFlag === 'string' && p.recentReviewTranslatedFlag) {
-    lines.push(`💬 <i>"${escapeHtml(p.recentReview.trim())}"</i> ( ${p.recentReviewTranslatedFlag} translated)`);
+    // v0.61.417 — review "X ago" date (Google relative time) a few spaces after
+    // the closing quote, before the translated flag.
+    const ago = (typeof p.recentReviewAgo === 'string' && p.recentReviewAgo.trim())
+      ? `  ${escapeHtml(p.recentReviewAgo.trim())}` : '';
+    lines.push(`💬 <i>"${escapeHtml(p.recentReview.trim())}"</i>${ago} ( ${p.recentReviewTranslatedFlag} translated)`);
   }
   if (includeSanct && sanctuaryRead && sanctuaryRead.trim()) {
     // v0.60.209 — drop the "🌿 Sanctuary read for <name>" header; the
