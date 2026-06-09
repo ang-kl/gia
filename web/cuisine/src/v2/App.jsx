@@ -1083,7 +1083,15 @@ export default function App() {
     const h = Math.sin(dLat / 2) ** 2
       + Math.cos(toRad(userLoc.lat)) * Math.cos(toRad(a.lat)) * Math.sin(dLng / 2) ** 2;
     const km = 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-    if (km <= 150) { anchorCoherenceCheckedRef.current = true; return; }
+    // v0.61.410 — operator: COUNTRY-STRICT. A different country is a mismatch
+    // even UNDER the 150 km distance gate (e.g. saved Johor MY but the device is
+    // in Singapore — ~30 km, but a different country → don't auto-load).
+    // coordsToCountry → 'SG' / 'MY' / null; null (outside the SG/MY bbox) can't
+    // be compared, so distance alone decides there.
+    const anchorCC = coordsToCountry(a);
+    const deviceCC = coordsToCountry(userLoc);
+    const countryDiffers = !!anchorCC && !!deviceCC && anchorCC !== deviceCC;
+    if (km <= 150 && !countryDiffers) { anchorCoherenceCheckedRef.current = true; return; }
     // v0.61.325 — name BOTH places specifically (operator: "be specific
     // which part of JP — Fukuoka, Japan / street + city + country / or
     // current location street + city + country"). Build both labels from
@@ -1105,8 +1113,8 @@ export default function App() {
     // (saved ≠ device), DON'T auto-load. No popup, no device-override — just open
     // the TMA empty and let the user tap 🔍. (Supersedes the v0.61.407 no-op,
     // which kept loading at the set-location.)
-    console.log(`[Cuisine-TMA-v2] anchor/device differ (${km.toFixed(0)}km > 150) → no popup, suppress boot load (empty TMA, tap 🔍)`);
-    haltBootLoadForMismatch(`anchor ${km.toFixed(0)}km from device`);
+    console.log(`[Cuisine-TMA-v2] anchor/device mismatch (${km.toFixed(0)}km${countryDiffers ? `, country ${anchorCC}≠${deviceCC}` : ' > 150'}) → no popup, suppress boot load (empty TMA, tap 🔍)`);
+    haltBootLoadForMismatch(countryDiffers ? `anchor country ${anchorCC}≠device ${deviceCC}` : `anchor ${km.toFixed(0)}km from device`);
     anchorCoherenceCheckedRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
