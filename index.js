@@ -14323,7 +14323,7 @@ async function cacheBotUsername() {
         if (specialMode) {
           const sm = require('./special-mode');
           // v0.61.397 — operator: BLOCK the durian / fruits / durian-pastry
-          // modes outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN) — they
+          // modes outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN) — they
           // returned wrong answers elsewhere (e.g. HK generic desserts). The
           // effective country: SG pill → SG, JB / MY-PUT → MY, OTHER → the
           // picked requestCountry. Return an empty result + a flag the TMA

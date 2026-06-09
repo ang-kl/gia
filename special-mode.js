@@ -43,7 +43,8 @@ const SPECIAL_MODE_VALUES = new Set(Object.values(SPECIAL_MODES));
 // desserts mislabelled as durian results), so they are GATED to these countries
 // (SG via region pill, MY via JB/OTHER, the rest via the OTHER picker). The
 // picker itself stays global — only these modes are blocked elsewhere.
-const SPECIAL_MODE_COUNTRIES = Object.freeze(new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN']));
+// v0.61.413 — operator: add Vietnam (VN) to the durian belt → seven countries.
+const SPECIAL_MODE_COUNTRIES = Object.freeze(new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN', 'VN']));
 // v0.61.402 — operator: UNLOCK fruits everywhere. Fruit sellers exist worldwide
 // (Japan's premium fruit parlours, etc.) and returned sensible results; only
 // durian + durian-pastry are SE-Asian-specific. So the belt gate applies ONLY

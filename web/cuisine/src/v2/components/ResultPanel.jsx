@@ -381,7 +381,7 @@ export default function ResultPanel({
       ) : !venues?.length ? (
         specialModeBlocked ? (
           /* v0.61.397 — durian / fruits / durian-pastry blocked outside the
-             SE-Asian durian belt (SG/MY/ID/TH/PH/BN). The empty list is
+             SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN). The empty list is
              intentional, so show WHY ("only available in …") rather than the
              generic "change your criteria" copy — there's nothing to adjust.
              Amber border + icon + text (no red/green-only signalling). */
