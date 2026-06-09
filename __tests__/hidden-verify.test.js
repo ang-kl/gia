@@ -595,3 +595,33 @@ describe('newestReviewIso (v0.61.319)', () => {
     expect(newestReviewIso([{ publishTime: 'x' }, {}])).toBeNull();
   });
 });
+
+// v0.61.424 — the cuisine "New" pill's days-precise window (operator: "new =
+// last 121 days"). oldestReviewDays returns the OLDEST review's age in days;
+// a venue is "new" when that is ≤ 121 (or it has no parseable reviews).
+describe('oldestReviewDays (cuisine "New" 121-day window)', () => {
+  const { oldestReviewDays, oldestReviewMonths } = require('../hidden-verify.js');
+  const daysAgoIso = (d) => new Date(Date.now() - d * 86400000).toISOString();
+
+  it('returns null for no reviews / no parseable timestamps', () => {
+    expect(oldestReviewDays([])).toBeNull();
+    expect(oldestReviewDays(null)).toBeNull();
+    expect(oldestReviewDays([{ text: 'x' }])).toBeNull();
+  });
+  it('returns the OLDEST review age in days', () => {
+    const d = oldestReviewDays([{ publishTime: daysAgoIso(30) }, { publishTime: daysAgoIso(200) }]);
+    expect(d).toBeGreaterThan(195);
+    expect(d).toBeLessThan(205);
+  });
+  it('a 60-day-old oldest review is WITHIN the 121-day "new" window', () => {
+    expect(oldestReviewDays([{ publishTime: daysAgoIso(60) }])).toBeLessThanOrEqual(121);
+  });
+  it('a 200-day-old oldest review is OUTSIDE the 121-day window (refuted)', () => {
+    expect(oldestReviewDays([{ publishTime: daysAgoIso(200) }])).toBeGreaterThan(121);
+  });
+  it('oldestReviewMonths is unchanged (still backs /hidden)', () => {
+    const m = oldestReviewMonths([{ publishTime: daysAgoIso(91) }]);
+    expect(m).toBeGreaterThan(2.5);
+    expect(m).toBeLessThan(3.3);
+  });
+});
