@@ -2211,6 +2211,12 @@ export default function App() {
       // at the picked place and the Search button (runSearch(state),
       // no explicit anchor) doesn't fall back to the stale searchCenter.
       setSearchCenter({ lat: p.lat, lng: p.lng });
+      // v0.61.422 — `fly` (a deliberate country-change capital commit): MapPanel
+      // only pans on flyTo, so a searchCenter change won't move the map. Pan
+      // explicitly. (Other committed picks omit `fly` → behaviour unchanged.)
+      if (p.fly) {
+        setFlyTarget({ lat: p.lat, lng: p.lng, zoom: 12, _k: Date.now() });
+      }
       // v0.61.311 — operator (01-06 '26) screenshot: picking
       // "Taman Melodies" (a JB suburb, lat 1.4912 / lng 103.7665)
       // while on the SG region pill left the 🇸🇬 flag in place even
@@ -2277,7 +2283,10 @@ export default function App() {
           // map / country+city), so the server fires the "Search area set to …"
           // chat message. The boot / auto-detect saveUserLocation calls omit
           // this flag, so they stay silent.
-          notify: true,
+          // v0.61.422 — the country-change auto-commit passes `silent` (it
+          // persists the capital so searches work, but shouldn't fire a chat
+          // message just for browsing countries — only a real city pick / search does).
+          notify: !p.silent,
           // v0.61.273 — don't persist the first-paint '__NONE__'
           // sentinel; only forward a resolved region.
           region: persistRegion,

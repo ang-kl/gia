@@ -982,16 +982,24 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     }
     if (!picked) picked = list[0];   // capital
     setCityPick(picked.name);
-    // v0.61.418 — when the USER just switched country (the country dropdown set
-    // the ref below; boot / server-cache hydration does NOT, so the saved set-
-    // location is never overridden), fly the map to + anchor on the pre-selected
-    // city (the capital, via the guard above) WITHOUT firing a search.
-    // `cityPreview` routes App.onLocationSelect to its preview branch (no commit,
-    // no search, no region change), so the user still presses 🔍. Per operator:
-    // "I selected the country, changed the Google map to the capital … don't fire yet."
+    // v0.61.418 / v0.61.422 — when the USER just switched country (the country
+    // dropdown set the ref below; boot / server-cache hydration does NOT, so the
+    // saved set-location is never overridden), COMMIT the pre-selected capital as
+    // the active search location (anchor + map centre + region + persist) but do
+    // NOT fire a search.
+    // v0.61.422 — operator: "I selected Manila but the location shows Osaka …
+    // durian in manila resulted in zero results." The v0.61.418 `cityPreview`
+    // only FLEW the map (no commit), so the field + the search stayed on the old
+    // country (Osaka/JP, not in the durian belt → 0). Use `noAutoFire` instead:
+    // App.onLocationSelect's COMMITTED branch sets the anchor + searchCenter
+    // (map re-centres) + the set-location, and its `!noAutoFire` gate keeps the
+    // search from firing — so "select country → location IS the capital, map
+    // moves there, don't fire yet" all hold.
     if (userChangedCountryRef.current && picked) {
       userChangedCountryRef.current = false;
-      onSelect?.({ lat: picked.lat, lng: picked.lng, label: picked.name, cityPreview: true, radiusCapM: cityRadiusCapM(picked, country.code) });
+      // `fly: true` — MapPanel only pans on flyTo, so ask the committed branch to
+      // pan the map to the capital (a searchCenter change alone doesn't move it).
+      onSelect?.({ lat: picked.lat, lng: picked.lng, label: picked.name, noAutoFire: true, fly: true, silent: true, radiusCapM: cityRadiusCapM(picked, country.code) });
     }
   }, [country.code, anchor?.name, anchor?.lat, anchor?.lng, userClearedCity]);
   // v0.61.268 — reset userClearedCity on country flip so the auto-pick
