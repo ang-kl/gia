@@ -2659,7 +2659,14 @@ export default function App() {
              country call constrains to the right country. */
           countryPref={state.countryPref || 'MY'}
           onCountryChange={(code) => {
-            setState((s) => ({ ...s, countryPref: code }));
+            // v0.61.421 — operator: "I change from Japan to Hanoi it reset the
+            // OTHER mode and unhinged the others button. Ensure others/sg/johor
+            // bahru isn't easily unhinged." The country dropdown only ever shows
+            // in OTHER mode, so changing the country must KEEP the OTHER pill
+            // selected. Re-assert region in the SAME setState as countryPref so
+            // no concurrent effect can transiently flip the pill away. (MY-PUT
+            // legacy is preserved; anything else snaps to OTHER.)
+            setState((s) => ({ ...s, countryPref: code, region: s.region === 'MY-PUT' ? 'MY-PUT' : 'OTHER' }));
             // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
             // so the chat /location (v0.61.195) picks up the same value.
             saveCountryPref(code).catch(() => { /* non-fatal */ });
