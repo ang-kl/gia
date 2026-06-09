@@ -224,8 +224,36 @@ export const CITIES_BY_COUNTRY = Object.freeze({
 // row covers all of Johor state). SG / JB region pills are unaffected —
 // only `region === 'OTHER'` picks read this. Kept as a helper rather
 // than a field on all ~110 rows to avoid touching every line.
-export function cityRadiusCapM(name) {
-  return String(name || '').trim().toLowerCase() === 'johor' ? 120000 : 40000;
+// v0.61.419 — kept in sync with web/cuisine/src/v2/lib/cities.js. Operator: "The
+// radius for Kuala Lumpur and Putrajaya should not overlap." Cap each city at
+// HALF the distance to its nearest sibling (clamped [8 km, 40 km]) so no two
+// curated cities' search circles overlap. Johor stays 120 km. Accepts the city
+// OBJECT { name, lat, lng } + country code; a legacy name-only call → 40 km.
+const RADIUS_DEFAULT_M = 40000;
+const RADIUS_FLOOR_M = 8000;
+function _cityHavKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+export function cityRadiusCapM(cityOrName, countryCode) {
+  const name = typeof cityOrName === 'string' ? cityOrName : (cityOrName && cityOrName.name) || '';
+  if (String(name).trim().toLowerCase() === 'johor') return 120000;
+  const city = (cityOrName && typeof cityOrName === 'object') ? cityOrName : null;
+  if (!city || !Number.isFinite(city.lat) || !Number.isFinite(city.lng)) return RADIUS_DEFAULT_M;
+  const list = citiesForCountry(countryCode);
+  let nearestKm = Infinity;
+  for (const c of list) {
+    if (!c || c.name === city.name || !Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
+    const d = _cityHavKm(city.lat, city.lng, c.lat, c.lng);
+    if (d > 0.5 && d < nearestKm) nearestKm = d;
+  }
+  if (!Number.isFinite(nearestKm)) return RADIUS_DEFAULT_M;
+  return Math.max(RADIUS_FLOOR_M, Math.min(RADIUS_DEFAULT_M, Math.round((nearestKm / 2) * 1000)));
 }
 
 // Get the cities array for a country (returns [] for unknown codes).

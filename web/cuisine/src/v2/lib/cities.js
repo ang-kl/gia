@@ -224,8 +224,41 @@ export const CITIES_BY_COUNTRY = Object.freeze({
 // row covers all of Johor state). SG / JB region pills are unaffected —
 // only `region === 'OTHER'` picks read this. Kept as a helper rather
 // than a field on all ~110 rows to avoid touching every line.
-export function cityRadiusCapM(name) {
-  return String(name || '').trim().toLowerCase() === 'johor' ? 120000 : 40000;
+// v0.61.419 — operator: "The radius for Kuala Lumpur and Putrajaya should not
+// overlap." Cap each curated city's search radius at HALF the distance to its
+// NEAREST sibling in the same country, clamped to [FLOOR, 40 km]. Because every
+// city's radius ≤ half its nearest-neighbour distance, any two circles' radii
+// sum to ≤ their separation → they touch at most, never overlap (Klang Valley:
+// KL ~10 km / Putrajaya ~12 km / Shah Alam ~10 km). Isolated cities keep 40 km;
+// the FLOOR (8 km) keeps ultra-dense district lists (HK / Brunei) usable even
+// though that re-introduces a small overlap there — a usability trade-off.
+// Johor stays a 120 km whole-state cap. Accepts the city OBJECT { name, lat,
+// lng } + its country code; a legacy name-only call returns the old 40 km.
+const RADIUS_DEFAULT_M = 40000;
+const RADIUS_FLOOR_M = 8000;
+function _cityHavKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+export function cityRadiusCapM(cityOrName, countryCode) {
+  const name = typeof cityOrName === 'string' ? cityOrName : (cityOrName && cityOrName.name) || '';
+  if (String(name).trim().toLowerCase() === 'johor') return 120000;
+  const city = (cityOrName && typeof cityOrName === 'object') ? cityOrName : null;
+  if (!city || !Number.isFinite(city.lat) || !Number.isFinite(city.lng)) return RADIUS_DEFAULT_M;
+  const list = citiesForCountry(countryCode);
+  let nearestKm = Infinity;
+  for (const c of list) {
+    if (!c || c.name === city.name || !Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
+    const d = _cityHavKm(city.lat, city.lng, c.lat, c.lng);
+    if (d > 0.5 && d < nearestKm) nearestKm = d;   // ignore <0.5 km (same point)
+  }
+  if (!Number.isFinite(nearestKm)) return RADIUS_DEFAULT_M;   // isolated → 40 km
+  return Math.max(RADIUS_FLOOR_M, Math.min(RADIUS_DEFAULT_M, Math.round((nearestKm / 2) * 1000)));
 }
 
 // Get the cities array for a country (returns [] for unknown codes).
