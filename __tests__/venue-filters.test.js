@@ -318,3 +318,41 @@ describe('applyRatingFloor — guarded 3.7 minimum', () => {
     expect(applyRatingFloor(null)).toEqual([]);
   });
 });
+
+describe('applyRatingFloor — per-chat modes (v0.61.426)', () => {
+  const names = (arr) => arr.map((v) => v.name);
+  const POOL = [
+    { name: 'A', rating: 4.8, userRatingCount: 300 },   // high, many reviews
+    { name: 'B', rating: 3.2, userRatingCount: 200 },   // low, many reviews
+    { name: 'C', rating: 0, userRatingCount: 0 },       // unrated
+    { name: 'D', rating: 4.9, userRatingCount: 2 },     // few reviews
+  ];
+
+  it("mode 'off' keeps every venue (operator: any rating)", () => {
+    expect(applyRatingFloor(POOL, { mode: 'off' })).toBe(POOL);
+  });
+  it("mode 'any' is an alias for off", () => {
+    expect(names(applyRatingFloor(POOL, { mode: 'any' }))).toEqual(['A', 'B', 'C', 'D']);
+  });
+  it("mode 'unrated' keeps ONLY venues with no rating (operator: no rating)", () => {
+    expect(names(applyRatingFloor(POOL, { mode: 'unrated' }))).toEqual(['C']);
+  });
+  it("mode 'unrated' never empties — all-rated pool returns the input", () => {
+    const allRated = [
+      { name: 'X', rating: 4.5, userRatingCount: 100 },
+      { name: 'Y', rating: 4.1, userRatingCount: 50 },
+    ];
+    expect(applyRatingFloor(allRated, { mode: 'unrated' })).toBe(allRated);
+  });
+  it("mode 'floor' with a custom floor drops below that floor", () => {
+    const out = applyRatingFloor(POOL, { mode: 'floor', floor: 4.5 });
+    // A (4.8/300) kept; B (3.2) dropped; C (unrated) exempt; D (4.9 but <5 reviews) exempt
+    expect(names(out).sort()).toEqual(['A', 'C', 'D']);
+  });
+  it('no opts (legacy callers) still apply the guarded 3.7 floor', () => {
+    expect(names(applyRatingFloor(POOL)).sort()).toEqual(['A', 'C', 'D']);
+  });
+  it('an unknown mode falls back to the guarded floor', () => {
+    expect(names(applyRatingFloor(POOL, { mode: 'bogus' })).sort()).toEqual(['A', 'C', 'D']);
+  });
+});

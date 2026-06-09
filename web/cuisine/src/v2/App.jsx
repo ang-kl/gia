@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
+import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
 import { CITIES_BY_COUNTRY } from './lib/cities.js';
@@ -347,6 +347,14 @@ export default function App() {
   // calm; once warm-start finishes we briefly pulse the "Edit search"
   // pill so the builder is discoverable without forcing it open.
   const [criteriaOpen, setCriteriaOpen] = useState(false);
+  // v0.61.426 — per-chat minimum-rating preference, shared with the
+  // chat-side /rating (/ra) command via one Redis key. Kept as a dedicated
+  // hook (NOT in `state`) so the filter-reset paths (`{...defaultState()}`)
+  // never clobber the user's saved rating. Seeded '3.7' so the pill reads
+  // "≥3.7" on first paint (the v0.61.425 guarded default = toggled-on); the
+  // mount effect below overwrites it with the server value. The server reads
+  // the floor from Redis on every search, so this value is display-only.
+  const [ratingPref, setRatingPref] = useState('3.7');
   // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
   // delivers the first 5 suggestions. Mirrors the searchHintActive
   // pattern below for the floating 🔍 FAB.
@@ -858,6 +866,19 @@ export default function App() {
       // The state.countryPref slot is dedicated to the OTHER picker.
       if (r.countryCode === 'SG') return;
       setState((s) => (s.countryPref === r.countryCode ? s : { ...s, countryPref: r.countryCode }));
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // v0.61.426 — seed the rating pill from the server on mount so it shows
+  // whatever the user last set in chat (/rating) or a prior TMA session.
+  // Falls back silently to the '3.7' default on any network failure / 401.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await fetchRatingPref();
+      if (cancelled || !r?.ratingPref) return;
+      setRatingPref((prev) => (prev === r.ratingPref ? prev : r.ratingPref));
     })();
     return () => { cancelled = true; };
   }, []);
@@ -2811,6 +2832,14 @@ export default function App() {
               filters={state.filters}
               onChange={(f) => setState((s) => ({ ...s, filters: f }))}
               specialModeActive={!!state.specialMode}
+              ratingPref={ratingPref}
+              onRatingSave={(value) => {
+                // v0.61.426 — commit the rating pill choice: relabel locally
+                // + persist to Redis (shared with /rating). The server reads
+                // the floor from Redis on the next search, so no body forward.
+                setRatingPref(value);
+                saveRatingPref(value).catch(() => {});
+              }}
             />
             {/* v0.61.29 — LocationField moved out of this collapsed
                 section to the banner slot above the map; see the

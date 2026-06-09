@@ -27,11 +27,69 @@ const OVERFLOW = [
 ];
 const PRICES = ['$', '$$', '$$$'];
 
+// v0.61.426 — rating pill. The standard preset floor (matches
+// venue-filters.RATING_FLOOR + rating-pref.DEFAULT_RATING). The pill is
+// "toggled on" at this value out of the box.
+const RATING_PRESET = '3.7';
+const RATING_MIN = 1.0;
+const RATING_MAX = 5.0;
+
+// Clamp a custom-field entry to 1.0–5.0 and snap to 1 decimal. Returns
+// null for non-numeric input so Save can fall back to the preset.
+function normalizeCustomRating(raw) {
+  const n = Number(String(raw == null ? '' : raw).replace(',', '.').trim());
+  if (!Number.isFinite(n)) return null;
+  const clamped = Math.min(RATING_MAX, Math.max(RATING_MIN, n));
+  return (Math.round(clamped * 10) / 10).toFixed(1);
+}
+
+// Map a stored rating value to the panel's radio selection. Any numeric
+// value that isn't the preset lands on the custom field.
+function ratingSelectionFor(value) {
+  if (value === 'unrated' || value === 'any' || value === RATING_PRESET) {
+    return { sel: value, custom: '' };
+  }
+  return { sel: 'custom', custom: typeof value === 'string' ? value : '' };
+}
+
+// Short pill label for the current saved value.
+function ratingPillLabel(value, lang, t) {
+  if (value === 'unrated') return t('rating.pillNoRating', lang);
+  if (value === 'any') return t('rating.pillAny', lang);
+  return `≥${value}`;
+}
+
 function Chip({ active, onClick, children, ariaLabel }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={active} aria-label={ariaLabel}
       className={`px-2 py-1 rounded-full border text-xs whitespace-nowrap transition-colors ${active ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
       {children}
+    </button>
+  );
+}
+
+// v0.61.426 — radio indicator for the rating panel. Selection is shown
+// by SHAPE (filled vs empty dot) + border weight, not colour alone, so a
+// red-green colour-blind user can still tell the active option apart.
+function RadioDot({ checked }) {
+  return (
+    <span aria-hidden
+      className={`inline-flex shrink-0 items-center justify-center w-4 h-4 rounded-full border-2 ${checked ? 'border-tg-accent' : 'border-tg-border'}`}>
+      {checked && <span className="w-2 h-2 rounded-full bg-tg-accent" />}
+    </span>
+  );
+}
+
+// One mutually-exclusive rating choice — a full-width ≥44px tappable row.
+function RatingOption({ checked, onSelect, label, hint }) {
+  return (
+    <button type="button" role="radio" aria-checked={checked} onClick={onSelect}
+      className={`flex items-center gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border text-left transition-colors ${checked ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+      <RadioDot checked={checked} />
+      <span className="flex flex-col">
+        <span className={`text-sm text-tg-text ${checked ? 'font-medium' : ''}`}>{label}</span>
+        {hint && <span className="text-xs text-tg-hint">{hint}</span>}
+      </span>
     </button>
   );
 }
@@ -47,9 +105,18 @@ function Chip({ active, onClick, children, ariaLabel }) {
 // The auto-off useEffect below also clears any pre-existing
 // filters.halal when special mode activates so the request body
 // doesn't carry a stale modifier.
-export default function QuickFilters({ filters, onChange, specialModeActive = false }) {
+export default function QuickFilters({ filters, onChange, specialModeActive = false, ratingPref = RATING_PRESET, onRatingSave }) {
   const [lang] = useLocale();
   const [moreOpen, setFiltersOpen] = useState(false);
+  // v0.61.426 — rating pill panel. `ratingOpen` toggles the 4-option
+  // panel just below the pill; `ratingSel` / `ratingCustom` hold the
+  // in-progress draft (committed only on Save). The panel and the
+  // ⚙ Filters overflow are mutually exclusive (opening one closes the
+  // other) so two stacked panels never overlap.
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const initialDraft = ratingSelectionFor(ratingPref);
+  const [ratingSel, setRatingSel] = useState(initialDraft.sel);
+  const [ratingCustom, setRatingCustom] = useState(initialDraft.custom);
 
   // v0.61.149 — auto-clear halal when special mode flips on. Runs once
   // per specialModeActive transition; the !filters.halal short-circuit
@@ -74,7 +141,35 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
     onChange({ ...filters, prices: has ? filters.prices.filter((x) => x !== p) : [...(filters.prices || []), p] });
   }
 
-  function openFilters()  { setFiltersOpen((o) => !o); }
+  function openFilters()  { setFiltersOpen((o) => { const n = !o; if (n) setRatingOpen(false); return n; }); }
+
+  // v0.61.426 — open/close the rating panel. On open, re-sync the draft
+  // to the current saved value (it may have changed since mount via the
+  // chat /rating command) and close the ⚙ Filters overflow.
+  function openRating() {
+    setRatingOpen((o) => {
+      const next = !o;
+      if (next) {
+        const d = ratingSelectionFor(ratingPref);
+        setRatingSel(d.sel);
+        setRatingCustom(d.custom);
+        setFiltersOpen(false);
+      }
+      return next;
+    });
+  }
+  function chooseRating(sel) {
+    setRatingSel(sel);
+    // Picking a non-custom option clears any stale custom entry.
+    if (sel !== 'custom') setRatingCustom('');
+  }
+  function saveRating() {
+    const value = ratingSel === 'custom'
+      ? (normalizeCustomRating(ratingCustom) || RATING_PRESET)
+      : ratingSel;                                   // 'unrated' | 'any' | '3.7'
+    if (typeof onRatingSave === 'function') onRatingSave(value);
+    setRatingOpen(false);
+  }
 
   const overflowActiveCount = OVERFLOW.filter((f) => !!filters[f.key]).length;
   const selectedPrices = filters.prices || [];
@@ -135,6 +230,14 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
             <span className="ml-1" aria-label={`${overflowActiveCount + selectedPrices.length} more active`}>·{overflowActiveCount + selectedPrices.length}</span>
           )}
         </Chip>
+        {/* v0.61.426 — rating pill, AFTER ⚙ Filters. Default "≥3.7"
+            (toggled on). Tap opens the 4-option panel below the row. The
+            pill shows neutral (not active) only for "Any" — every floor /
+            "No rating" choice keeps it highlighted. */}
+        <Chip active={ratingOpen || ratingPref !== 'any'} onClick={openRating}
+          ariaLabel={`${tr('rating.title', lang)}: ${ratingPillLabel(ratingPref, lang, tr)} — ${ratingOpen ? tr('rating.closePanel', lang) : tr('rating.openPanel', lang)}`}>
+          <span className="mr-0.5" aria-hidden>⭐</span>{ratingPillLabel(ratingPref, lang, tr)}
+        </Chip>
       </div>
       {moreOpen && (
         // v0.60.188 — operator: the previous "💲 Price ▾" dropdown
@@ -155,6 +258,45 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
             <Chip key={p} active={selectedPrices.includes(p)} onClick={() => togglePrice(p)}
               ariaLabel={`${tr('filter.price', lang)} ${p}`}>{p}</Chip>
           ))}
+        </div>
+      )}
+      {ratingOpen && (
+        // v0.61.426 — rating options panel, just below the pill. Four
+        // mutually-exclusive choices (radiogroup) + a custom 1.0–5.0
+        // field + Save. Nothing commits until Save (then the pill
+        // relabels and the value persists to Redis, shared with /rating).
+        <div role="radiogroup" aria-label={tr('rating.title', lang)}
+          className="flex flex-col gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
+          <RatingOption checked={ratingSel === 'unrated'} onSelect={() => chooseRating('unrated')}
+            label={tr('rating.noRating', lang)} hint={tr('rating.noRatingHint', lang)} />
+          <RatingOption checked={ratingSel === 'any'} onSelect={() => chooseRating('any')}
+            label={tr('rating.anyRating', lang)} hint={tr('rating.anyRatingHint', lang)} />
+          <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
+            label={`≥ ${RATING_PRESET}`} hint={null} />
+          {/* Option 4 — custom floor. Tapping the row OR focusing the
+              field selects it; the number input is constrained 1.0–5.0. */}
+          <div className={`flex items-center gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+            <button type="button" role="radio" aria-checked={ratingSel === 'custom'}
+              onClick={() => chooseRating('custom')}
+              className="flex items-center gap-2 flex-1 text-left">
+              <RadioDot checked={ratingSel === 'custom'} />
+              <span className={`text-sm text-tg-text ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.custom', lang)}</span>
+            </button>
+            <span aria-hidden className="text-sm text-tg-hint">≥</span>
+            <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
+              value={ratingCustom}
+              placeholder={tr('rating.customHint', lang)}
+              onFocus={() => chooseRating('custom')}
+              onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); }}
+              aria-label={`${tr('rating.custom', lang)} — ${tr('rating.customHint', lang)}`}
+              className="w-16 px-2 py-2 rounded-md border border-tg-border bg-tg-bg text-tg-text text-sm" />
+          </div>
+          <div className="flex justify-end pt-1">
+            <button type="button" onClick={saveRating}
+              className="px-5 py-2 min-h-[44px] rounded-full bg-tg-accent text-tg-accent-text text-sm font-medium border border-tg-accent">
+              {tr('rating.save', lang)}
+            </button>
+          </div>
         </div>
       )}
     </div>

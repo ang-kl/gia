@@ -183,6 +183,20 @@ const STRINGS = {
   'filter.openMore':           { en: 'Open more filters', fr: 'Ouvrir plus de filtres' },
   'filter.closeMore':          { en: 'Close more filters', fr: 'Fermer plus de filtres' },
 
+  // ----- Rating pill + panel (v0.61.426) -----
+  'rating.title':              { en: 'Minimum rating', fr: 'Note minimale' },
+  'rating.openPanel':          { en: 'Open rating options', fr: 'Ouvrir les options de note' },
+  'rating.closePanel':         { en: 'Close rating options', fr: 'Fermer les options de note' },
+  'rating.noRating':           { en: 'No rating', fr: 'Sans note' },
+  'rating.noRatingHint':       { en: 'Only brand-new / unrated places', fr: 'Uniquement les lieux nouveaux / sans note' },
+  'rating.anyRating':          { en: 'Any rating', fr: 'Toutes les notes' },
+  'rating.anyRatingHint':      { en: 'No minimum', fr: 'Aucun minimum' },
+  'rating.custom':             { en: 'Custom', fr: 'Personnalisée' },
+  'rating.customHint':         { en: '1.0 to 5.0', fr: '1.0 à 5.0' },
+  'rating.save':               { en: 'Save', fr: 'Enregistrer' },
+  'rating.pillNoRating':       { en: 'No rating', fr: 'Sans note' },
+  'rating.pillAny':            { en: 'Any', fr: 'Toutes' },
+
   // ----- Map overlay layers (v0.61.0) -----
   'layer.parks':               { en: 'Park', fr: 'Parc' },
   'layer.attractions':         { en: 'Attractions', fr: 'Attractions' },
