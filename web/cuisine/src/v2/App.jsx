@@ -164,6 +164,13 @@ export default function App() {
   // off re-searching until the boot load lands — a mid-load re-search also
   // pops a fact card on the first load, which the operator doesn't want.
   const firstLoadPendingRef = useRef(true);
+  // v0.61.430 — "explicit pick wins". Flips true once the user deliberately
+  // chooses a location / country / foreign region (a city pick, the country
+  // dropdown, or an inherited Menu pick that lands in OTHER/JB). While true,
+  // the 20 s device-follow yields — it must NOT drag a foreign pick back to
+  // the SG device GPS (the country-drift bug). Resets to false on reload, so
+  // device-follow still works on a plain GPS start with no pick.
+  const explicitPickRef = useRef(false);
   const syncStartedRef = useRef(false);
   useEffect(() => {
     if (syncStartedRef.current) return;
@@ -186,6 +193,7 @@ export default function App() {
           initialResolveDone: initialResolveDoneRef.current,
           firstLoadPending: firstLoadPendingRef.current, // v0.61.387 — don't re-search over the boot load
           explicitAnchorName: anchorNow && anchorNow.name,
+          explicitPick: explicitPickRef.current,          // v0.61.430 — explicit pick wins over device GPS
           current: cur,
           loc,
         })) return;
@@ -891,6 +899,39 @@ export default function App() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // v0.61.430 — "explicit pick wins" (operator: Michelin greyed for MY +
+  // country drifting itself). Whenever the user is in a deliberately-chosen
+  // foreign region (OTHER / JB):
+  //   (a) LOCK device-follow off (explicitPickRef) so the 20 s GPS sync can't
+  //       drag the country back to the SG device location — the drift bug; and
+  //   (b) BACKFILL state.countryPref from the committed coords when it's
+  //       missing (the Menu→Cuisine handoff sets region=OTHER but left
+  //       countryPref empty → the Michelin chip read '' and greyed out, and
+  //       the server logged "no country-pref"). Deriving MY here re-enables
+  //       the Michelin chip and scopes the country-text-filter.
+  // Only fills when EMPTY, so it never overrides an explicit country pick.
+  useEffect(() => {
+    if (state.region !== 'OTHER' && state.region !== 'JB') return;
+    explicitPickRef.current = true;
+    if (state.region === 'OTHER' && !state.countryPref) {
+      const c = searchCenter || locationAnchor || userLoc;
+      if (c && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+        const cc = coordsToCountry(c) === 'MY'
+          ? 'MY'
+          : (() => {
+              const near = nearestIataCity(c.lat, c.lng);
+              const code = near && near.city && near.city.countryCode;
+              return code && CUISINE_OTHER_CODES.has(code) ? code : null;
+            })();
+        if (cc) {
+          setState((s) => (s.countryPref ? s : { ...s, countryPref: cc }));
+          saveCountryPref(cc).catch(() => {});
+          console.log('[Cuisine-TMA-v2] explicit-pick backfill countryPref →', cc);
+        }
+      }
+    }
+  }, [state.region, state.countryPref, searchCenter, locationAnchor, userLoc]);
 
   // v0.61.274 — mount-time location coherence check. Operator
   // (30-05 '26): "we keep circling back into first launch of TMA
