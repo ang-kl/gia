@@ -316,8 +316,15 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
     onSelect?.({ lat: entry.lat, lng: entry.lng, label });
   }
   async function handleClearRecents() {
-    await clearRecentLocationsRemote();
-    setRecents([]);
+    // v0.61.415 — operator: "Clear all except current". Keep the CURRENT row
+    // (the one matching the active anchor — the ✓ row — else the most-recent),
+    // drop the rest. The server keeps the matching coord; we mirror it locally.
+    const current = recents.find((e) => anchor
+      && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)
+      && Math.abs(anchor.lat - e.lat) < 1e-4 && Math.abs(anchor.lng - e.lng) < 1e-4)
+      || recents[0] || null;
+    await clearRecentLocationsRemote(current ? { lat: current.lat, lng: current.lng } : null);
+    setRecents(current ? [current] : []);
   }
 
   // v0.60.119: is the locked-in anchor actually a *different* place
@@ -436,7 +443,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   type="button"
                   onClick={handleClearRecents}
                   className="text-tg-hint hover:text-tg-text text-xs inline-flex items-center gap-1"
-                >🗑 {lang === 'fr' ? 'Tout effacer' : 'Clear all'}</button>
+                >🗑 {lang === 'fr' ? "Tout effacer sauf l'actuel" : 'Clear all except current'}</button>
               </div>
             )}
           </div>
