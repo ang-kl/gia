@@ -254,6 +254,35 @@ describe('special-mode — isRelevant (Durian)', () => {
   }
 });
 
+// v0.61.416 — operator: generic-term fallback. When the strict durian search
+// returns 0, the caller re-runs filterByMode(..., { relax: true }), which skips
+// the accept-type + strict-name gates and matches a durian word anywhere in the
+// full haystack — but STILL requires a durian word (no random food).
+describe('special-mode — isRelevant relax (generic-term fallback)', () => {
+  it('relax accepts a durian-named venue whose primaryType is NOT in the accept-list', () => {
+    const v = { name: 'Durian Farm Brunei', primaryType: 'tourist_attraction' }; // ∉ accept-list
+    expect(sm.isRelevant(v, 'durian')).toBe(false);                   // strict: accept-type reject
+    expect(sm.isRelevant(v, 'durian', { relax: true })).toBe(true);   // relax: durian in name
+  });
+  it('relax accepts a broad-type venue with durian ONLY in the address (strict name-gate skipped)', () => {
+    const v = { name: 'Kedai Buah', primaryType: 'food_store', formattedAddress: 'Lorong Durian, BSB' };
+    expect(sm.isRelevant(v, 'durian')).toBe(false);                   // strict: name lacks durian
+    expect(sm.isRelevant(v, 'durian', { relax: true })).toBe(true);   // relax: durian in address
+  });
+  it('relax STILL requires a durian word — random food is rejected', () => {
+    const v = { name: 'Random Cafe', primaryType: 'cafe', formattedAddress: 'Main Street' };
+    expect(sm.isRelevant(v, 'durian', { relax: true })).toBe(false);
+  });
+  it('filterByMode forwards the relax option', () => {
+    const pool = [
+      { name: 'Durian Farm Brunei', primaryType: 'tourist_attraction' },  // relax-only
+      { name: 'Random Cafe', primaryType: 'cafe' }                        // never (no durian word)
+    ];
+    expect(sm.filterByMode(pool, 'durian')).toHaveLength(0);
+    expect(sm.filterByMode(pool, 'durian', { relax: true })).toHaveLength(1);
+  });
+});
+
 describe('special-mode — filterByMode preserves order, drops irrelevant', () => {
   const venues = [
     { name: 'Sushi Tei', primaryType: 'japanese_restaurant' },

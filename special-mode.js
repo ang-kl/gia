@@ -648,8 +648,17 @@ function _haystack(v) {
 // in its haystack. The reject-list check is what guards against
 // "Italian restaurant whose review mentions fresh fruit dessert" — the
 // spec explicitly rejects those.
-function isRelevant(venue, mode) {
+function isRelevant(venue, mode, opts = {}) {
   if (!venue || !isSpecialMode(mode)) return false;
+  // v0.61.416 — operator: generic-term fallback ("if our FIXED DURIAN TERMS
+  // cannot [be] satisfied, use generic terms to search"). When the strict
+  // durian / durian-pastry search returns 0, the caller re-runs with
+  // { relax: true }, which skips the accept-type + strict-name gates and matches
+  // a durian keyword anywhere in the FULL haystack (name/area/address/type/
+  // review/summary). Still durian-only — a durian word MUST appear — just more
+  // inclusive, so belt countries with sparse / oddly-typed listings (Brunei,
+  // etc.) stop returning 0. Applies to all seven belt countries, not Brunei only.
+  const relax = opts && opts.relax === true;
   const pt = String(venue.primaryType || '').toLowerCase();
   const nameLc = String(venue.name || '').toLowerCase();
 
@@ -659,7 +668,7 @@ function isRelevant(venue, mode) {
   // is not in it → reject. When the mode has a reject list AND the
   // type is in it → reject. When primaryType is absent (Places
   // returned no type), fall through to name / keyword matching.
-  if (pt) {
+  if (pt && !relax) {   // v0.61.416 — relax skips the accept-type hard-reject
     const accepts = _acceptTypesFor(mode);
     if (accepts && accepts.size > 0) {
       if (!accepts.has(pt)) return false;
@@ -707,7 +716,7 @@ function isRelevant(venue, mode) {
   // generic cafes / supermarkets with a single review mention from
   // polluting the result list.
   const strictNameTypes = _strictNameTypesFor(mode);
-  if (pt && strictNameTypes && strictNameTypes.has(pt)) {
+  if (!relax && pt && strictNameTypes && strictNameTypes.has(pt)) {   // v0.61.416 — relax skips the strict-name gate
     if (!_nameHasDurian(venue)) return false;
   }
   // v0.61.257 — DURIAN + DURIAN_PASTRY keyword check restricted to
@@ -721,7 +730,9 @@ function isRelevant(venue, mode) {
   // review text 'fresh fruit juice'; durian's keyword set is
   // tighter so the same loophole doesn't apply).
   const kws = KEYWORDS[mode];
-  const useStrong = (mode === SPECIAL_MODES.DURIAN || mode === SPECIAL_MODES.DURIAN_PASTRY);
+  // v0.61.416 — relax widens the keyword check to the FULL haystack (so a durian
+  // word in the address / review / summary counts), not just name+type.
+  const useStrong = (mode === SPECIAL_MODES.DURIAN || mode === SPECIAL_MODES.DURIAN_PASTRY) && !relax;
   const hay = useStrong ? _strongHaystack(venue) : _haystack(venue);
   for (const kw of kws) {
     if (kw && hay.includes(kw.toLowerCase())) return true;
@@ -733,10 +744,10 @@ function isRelevant(venue, mode) {
 // Returns a NEW array; never mutates input. When mode is invalid /
 // null, returns the input unchanged (lets callers pass through when
 // no special mode is active).
-function filterByMode(venues, mode) {
+function filterByMode(venues, mode, opts = {}) {
   if (!isSpecialMode(mode)) return Array.isArray(venues) ? venues.slice() : [];
   if (!Array.isArray(venues)) return [];
-  return venues.filter((v) => isRelevant(v, mode));
+  return venues.filter((v) => isRelevant(v, mode, opts));   // v0.61.416 — opts.relax forwarded
 }
 
 module.exports = {
