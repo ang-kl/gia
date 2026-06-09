@@ -8276,7 +8276,10 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // that don't trigger the nationality preference render unchanged.
   if (typeof venue.recentReview === 'string' && venue.recentReview.trim()
       && typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag) {
-    lines.push(`💬 <i>"${vt.escapeHtmlForTelegram(venue.recentReview.trim())}"</i> ( ${venue.recentReviewTranslatedFlag} translated)`);
+    // v0.61.417 — review "X ago" date a few spaces after the closing quote.
+    const ago = (typeof venue.recentReviewAgo === 'string' && venue.recentReviewAgo.trim())
+      ? `  ${vt.escapeHtmlForTelegram(venue.recentReviewAgo.trim())}` : '';
+    lines.push(`💬 <i>"${vt.escapeHtmlForTelegram(venue.recentReview.trim())}"</i>${ago} ( ${venue.recentReviewTranslatedFlag} translated)`);
   }
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
@@ -9759,7 +9762,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   }
 
   // Strip the heavy review payload before responding.
-  for (const v of filteredVenues) { delete v.reviews; }
+  // v0.61.417 — first capture the review's "X ago" (Google relative time) onto
+  // recentReviewAgo so the card / copy can show it after the quote.
+  for (const v of filteredVenues) {
+    if (!v.recentReviewAgo && v.recentReview && Array.isArray(v.reviews)) {
+      const rr = String(v.recentReview);
+      const m = v.reviews.find((r) => {
+        const t = reviewText(r);
+        return t && rr.includes(t.replace(/\s+/g, ' ').trim().slice(0, 40));
+      }) || v.reviews[0];
+      if (m && m.relative) v.recentReviewAgo = m.relative;
+    }
+    delete v.reviews;
+  }
 
   // v0.60.146 — Michelin path joins the per-session clipboard so the
   // ⇠ Prev FAB navigation works across Michelin taps. skipCap=true
@@ -15711,6 +15726,18 @@ async function cacheBotUsername() {
             // v0.60.156 — same Places v1 .text.text unwrap as extractDishes above.
             const txt = reviewText(v.reviews[0]);
             if (txt) v.recentReview = txt.replace(/\s+/g, ' ').trim().slice(0, 160);
+          }
+          // v0.61.417 — operator: show the review's date ("X ago") a few spaces
+          // after the closing quote. Capture Google's relative time of the review
+          // whose text became recentReview (matched by text prefix), else the
+          // most-recent review. Must run BEFORE `delete v.reviews`.
+          if (!v.recentReviewAgo && v.recentReview && Array.isArray(v.reviews)) {
+            const rr = String(v.recentReview);
+            const m = v.reviews.find((r) => {
+              const t = reviewText(r);
+              return t && rr.includes(t.replace(/\s+/g, ' ').trim().slice(0, 40));
+            }) || v.reviews[0];
+            if (m && m.relative) v.recentReviewAgo = m.relative;
           }
           delete v.primaryTypeDisplayName;
           delete v.regularPeriods;

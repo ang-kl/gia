@@ -1158,7 +1158,11 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           reviews: Array.isArray(p.reviews) ? p.reviews.map((r) => ({
             text: r?.text?.text || r?.originalText?.text || '',
             rating: r?.rating ?? null,
-            publishTime: r?.publishTime || r?.relativePublishTimeDescription || null
+            publishTime: r?.publishTime || r?.relativePublishTimeDescription || null,
+            // v0.61.417 — keep Google's relative "X ago" SEPARATELY (publishTime
+            // above conflates ISO + relative). Used to show the review's date a
+            // few spaces after the closing quote on the card / copy / chat.
+            relative: r?.relativePublishTimeDescription || ''
           })).filter((r) => r.text) : [],
           // v0.60.165 — pet-friendly attribute pass-through. Places
           // returns true / false / undefined; treat undefined as
