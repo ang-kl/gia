@@ -1177,7 +1177,10 @@ const LOCATION_REQUEST_KEYBOARD = {
   reply_markup: {
     keyboard: [
       [{ text: '📍 Share my location', request_location: true }],
-      [{ text: '⛔ Use Raffles Place default' }]
+      // v0.61.408 — was '⛔ Use Raffles Place default'. The button now reuses the
+      // user's LAST SET LOCATION (recents drawer top); Raffles Place is only the
+      // silent floor for a true first-timer with no recents. Relabelled to match.
+      [{ text: '🕘 Use my last location' }]
     ],
     resize_keyboard: true,
     one_time_keyboard: true
@@ -1186,18 +1189,49 @@ const LOCATION_REQUEST_KEYBOARD = {
 
 const KEYBOARD_TEXTS = new Set([
   '📍 Share my location',
-  '⛔ Use Raffles Place default'
+  '🕘 Use my last location'
 ]);
 
 const ACK_SENSING_VIBE = '🌿 Sensing the vibe…';
 const MANUAL_FALLBACK_PROMPT =
   "I'm having a bit of trouble pinning your exact location. Could you type the name of the building or area you are at?";
 
-async function startSanctuaryFlow(chatId, category, prompt) {
+// v0.61.408 — operator: *"in the codebase that suggest 'Raffles Place' as
+// default, change to last set location drawer as default."* The hardcoded
+// Raffles Place coords (1.2839, 103.8517) were the universal floor whenever a
+// user had no fresh shared pin. We now prefer, in order:
+//   (1) the live set-location cache  — getUserLocation (~24 h TTL, the active pin),
+//   (2) the top of the recents drawer — listRecentLocations()[0] (the LAST SET
+//       LOCATION; a 180-day LRU that OUTLIVES the cache), then only
+//   (3) Raffles Place as the true first-timer floor (no cache AND no recents).
+// Returns { lat, lng, label, source: 'set-location' | 'recents' | 'raffles' }.
+const RAFFLES_PLACE_FALLBACK = { lat: 1.2839, lng: 103.8517, label: 'Raffles Place' };
+
+async function resolveDefaultCenter(chatId) {
   const cached = await getUserLocation(redis, chatId);
-  if (cached) {
+  if (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng)) {
+    return { lat: cached.lat, lng: cached.lng, label: cached.label || null, source: 'set-location' };
+  }
+  try {
+    const recents = await listRecentLocations(redis, chatId);
+    const last = Array.isArray(recents) ? recents[0] : null;
+    if (last && Number.isFinite(last.lat) && Number.isFinite(last.lng)) {
+      return { lat: last.lat, lng: last.lng, label: last.label || null, source: 'recents' };
+    }
+  } catch (err) {
+    console.warn('[default-center] recents lookup failed:', err && err.message);
+  }
+  return { ...RAFFLES_PLACE_FALLBACK, source: 'raffles' };
+}
+
+async function startSanctuaryFlow(chatId, category, prompt) {
+  // v0.61.408 — default to the last set location (drawer top) before asking.
+  // Only a true first-timer (no cache AND no recents) still sees the share prompt.
+  const def = await resolveDefaultCenter(chatId);
+  if (def.source !== 'raffles') {
+    console.log(`[default-center] chat=${chatId} sanctuary default via ${def.source}${def.label ? ` (${def.label})` : ''}`);
     await safeSend(chatId, ACK_SENSING_VIBE);
-    await runFlow(chatId, cached.lat, cached.lng, category);
+    await runFlow(chatId, def.lat, def.lng, category);
     return;
   }
   await setPendingMeal(redis, chatId, category);
@@ -2576,17 +2610,21 @@ bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   await runSearchCommand(msg.chat.id, arg, lang);
 });
 
-bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
+bot.onText(/^🕘 Use my last location$/, async (msg) => {
   try {
     const pending = await consumePendingMeal(redis, msg.chat.id);
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
+    // v0.61.408 — use the LAST SET LOCATION (set-location cache → recents drawer
+    // top → Raffles Place floor) instead of the old hardcoded Raffles coords.
+    const def = await resolveDefaultCenter(msg.chat.id);
+    console.log(`[default-center] chat=${msg.chat.id} last-location button via ${def.source}${def.label ? ` (${def.label})` : ''}`);
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     if (resolved.kind === 'cuisine') {
-      await runCuisineFlow(msg.chat.id, 1.2839, 103.8517, resolved.cuisineType);
+      await runCuisineFlow(msg.chat.id, def.lat, def.lng, resolved.cuisineType);
     } else if (resolved.kind === 'nl') {
-      await runNLFlow(msg.chat.id, 1.2839, 103.8517, resolved);
+      await runNLFlow(msg.chat.id, def.lat, def.lng, resolved);
     } else {
-      await runFlow(msg.chat.id, 1.2839, 103.8517, resolved.category);
+      await runFlow(msg.chat.id, def.lat, def.lng, resolved.category);
     }
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
@@ -3734,8 +3772,9 @@ bot.on('location', async (msg) => {
     } else {
       console.warn(`[location] coords missing/malformed chatId=${msg.chat.id} location=${JSON.stringify(msg.location)}`);
     }
-    // v0.56.1: dismiss the persistent "Share my location / Use Raffles
-    // Place default" reply keyboard once we've received a location.
+    // v0.56.1: dismiss the persistent "Share my location / Use my last
+    // location" reply keyboard once we've received a location.
+    // (v0.61.408 — the second button was "Use Raffles Place default".)
     // Per Human Lead — the buttons "keep on at iOS" until removed.
     const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
@@ -5149,9 +5188,11 @@ async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
       if (!resolved) { await safeSend(chatId, t('weather.areaUnknown', lang)); return; }
       lat = resolved.lat; lng = resolved.lng; areaLabel = resolved.name;
     } else {
-      const cached = await getUserLocation(redis, chatId);
-      lat = cached?.lat ?? 1.2839;
-      lng = cached?.lng ?? 103.8517;
+      // v0.61.408 — default to the last set location (cache → recents drawer →
+      // Raffles Place floor) rather than hardcoding Raffles Place.
+      const def = await resolveDefaultCenter(chatId);
+      lat = def.lat;
+      lng = def.lng;
     }
     const [w, rainfall, fc24] = await Promise.all([
       weather.summary(lat, lng),
