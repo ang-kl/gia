@@ -13,7 +13,10 @@ import {
   isSpecialSlug,
   hasSpecialSlug,
   getActiveSpecialSlug,
-  applyChipToggle
+  applyChipToggle,
+  DURIAN_BELT_COUNTRIES,
+  BELT_GATED_SLUGS,
+  isSlugCountryAllowed
 } from '../web/cuisine/src/v2/lib/cuisine-selection.js';
 
 describe('SPECIAL_SLUGS', () => {
@@ -171,6 +174,59 @@ describe('applyChipToggle — special ↔ non-special boundary', () => {
     // 8. User taps Fruits again → deselect
     sel = applyChipToggle({ slug: 'fruits', selected: sel });
     expect(sel).toEqual([]);
+  });
+});
+
+// v0.61.411 — operator: durian + durian-pastry must DISABLE in the picker
+// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN); fruits stays everywhere.
+describe('durian belt gate (isSlugCountryAllowed)', () => {
+  it('belt set = exactly the six SE-Asian belt countries', () => {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+      expect(DURIAN_BELT_COUNTRIES.has(cc)).toBe(true);
+    }
+    expect(DURIAN_BELT_COUNTRIES.size).toBe(6);
+  });
+
+  it('belt-gated slugs = durian + durian-pastry only (NOT fruits)', () => {
+    expect(BELT_GATED_SLUGS.has('durian')).toBe(true);
+    expect(BELT_GATED_SLUGS.has('durian-pastry')).toBe(true);
+    expect(BELT_GATED_SLUGS.has('fruits')).toBe(false);
+  });
+
+  it('durian + durian-pastry allowed INSIDE the belt', () => {
+    for (const cc of ['SG', 'MY', 'ID', 'TH', 'PH', 'BN']) {
+      expect(isSlugCountryAllowed('durian', cc)).toBe(true);
+      expect(isSlugCountryAllowed('durian-pastry', cc)).toBe(true);
+    }
+  });
+
+  it('durian + durian-pastry BLOCKED outside the belt (JP, KR, VN, US…)', () => {
+    for (const cc of ['JP', 'KR', 'VN', 'US', 'AU', 'CN', 'IN']) {
+      expect(isSlugCountryAllowed('durian', cc)).toBe(false);
+      expect(isSlugCountryAllowed('durian-pastry', cc)).toBe(false);
+    }
+  });
+
+  it('fruits is allowed EVERYWHERE (never belt-gated)', () => {
+    for (const cc of ['SG', 'JP', 'US', 'VN', '']) {
+      expect(isSlugCountryAllowed('fruits', cc)).toBe(true);
+    }
+  });
+
+  it('non-special slugs are always allowed', () => {
+    expect(isSlugCountryAllowed('italian', 'JP')).toBe(true);
+    expect(isSlugCountryAllowed('dessert', 'US')).toBe(true);
+  });
+
+  it('unknown / empty country does NOT block (server still guards)', () => {
+    expect(isSlugCountryAllowed('durian', '')).toBe(true);
+    expect(isSlugCountryAllowed('durian', null)).toBe(true);
+    expect(isSlugCountryAllowed('durian', undefined)).toBe(true);
+  });
+
+  it('country is case-insensitive', () => {
+    expect(isSlugCountryAllowed('durian', 'jp')).toBe(false);
+    expect(isSlugCountryAllowed('durian', 'sg')).toBe(true);
   });
 });
 

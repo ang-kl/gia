@@ -58,6 +58,12 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
     : region === 'MY-PUT' ? 'MY'
     : region === 'JB' ? 'JB'
     : String(countryPref || '').toUpperCase();
+  // v0.61.411 — effective ISO-2 country for the durian-belt gate. Unlike the
+  // Michelin map above, JB is Malaysia for belt purposes (Johor IS in the belt),
+  // and so is MY-PUT; OTHER uses the picked countryPref; SG → SG.
+  const beltCountry = region === 'SG' ? 'SG'
+    : (region === 'JB' || region === 'MY-PUT') ? 'MY'
+    : String(countryPref || '').toUpperCase();
   const [lang] = useLocale();
 
   if (!catalogue) return null;
@@ -181,6 +187,9 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           /* v0.61.193 — region prop so the drawer can lock SG-only
              chips (fruits / durian / durian-pastry) when region != SG. */
           region={region}
+          /* v0.61.411 — effective country for the durian-belt gate: durian +
+             durian-pastry chips disable outside SG/MY/ID/TH/PH/BN. */
+          beltCountry={beltCountry}
         />
       )}
     </div>

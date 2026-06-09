@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
+// v0.61.411 — durian-belt gate for the special slugs (durian / durian-pastry).
+import { isSlugCountryAllowed } from '../lib/cuisine-selection.js';
 // v0.61.272 — Phase 4 cleanup: the v0.61.193 SG-only chip lock is
 // removed. Durian / Durian Pastry / Fruits chips are now selectable
 // in every region. The lib/sg-only-slugs.js module is deleted in
@@ -27,10 +29,12 @@ const CATEGORY_LABEL_KEY = {
 // fixed full-screen overlay with a back-arrow header and a 2-column
 // grid of flag-prefixed pills. Tapping a pill toggles selection;
 // tapping back-arrow / scrim closes.
-export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG' }) {
+export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG', beltCountry = '' }) {
   // v0.61.272 — `region` is still threaded through for future
   // per-country UX hooks (e.g. flag preview, regional sort) but no
   // longer gates chip selectability.
+  // v0.61.411 — `beltCountry` DOES gate the durian / durian-pastry chips: they
+  // disable (grey + non-tappable) outside the SE-Asian durian belt.
   const [lang] = useLocale();
   // ESC closes the overlay (desktop / Telegram-Web users).
   useEffect(() => {
@@ -80,14 +84,21 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
             // v0.61.272 — no per-slug region lock; only the maxSelected
             // dim-when-full state remains.
             const dim = !sel && selected.length >= maxSelected;
+            // v0.61.411 — durian / durian-pastry disable outside the belt
+            // (SG/MY/ID/TH/PH/BN). Already-selected chips stay tappable so the
+            // user can still DESELECT a stale pick after switching country.
+            const beltBlocked = !sel && !isSlugCountryAllowed(cu.slug, beltCountry);
+            const disabled = (dim && !sel) || beltBlocked;
             return (
               <button
                 key={cu.slug}
                 type="button"
-                onClick={() => onToggle(cu.slug)}
+                onClick={() => { if (!disabled) onToggle(cu.slug); }}
                 aria-pressed={sel}
-                disabled={dim && !sel}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${dim ? 'opacity-40' : 'hover:border-tg-accent'}`}`}
+                aria-disabled={disabled || undefined}
+                disabled={disabled}
+                title={beltBlocked ? tr('special.beltOnly', lang) : undefined}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${(dim || beltBlocked) ? 'opacity-40 cursor-not-allowed' : 'hover:border-tg-accent'}`}`}
               >
                 {/* v0.61.142 — operator-supplied PNG icon for the
                     durian chip (cuisines-vault.IMG_FLAG_BY_SLUG ships

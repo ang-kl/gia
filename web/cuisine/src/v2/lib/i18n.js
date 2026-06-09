@@ -155,6 +155,11 @@ const STRINGS = {
                                  fr: '🥥 La recherche de durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines et au Brunei.' },
   'special.durian-pastry.blocked': { en: '🥐 Durian-pastry search is only available in Singapore, Malaysia, Indonesia, Thailand, the Philippines and Brunei.',
                                  fr: '🥐 La recherche de pâtisseries au durian n’est disponible qu’à Singapour, en Malaisie, en Indonésie, en Thaïlande, aux Philippines et au Brunei.' },
+  // v0.61.411 — short tooltip on a durian / durian-pastry chip that's disabled
+  // because the current country is outside the belt (the chip is greyed, not
+  // tappable; the full sentence above only shows after a server-blocked search).
+  'special.beltOnly':          { en: 'Only available in SG, MY, ID, TH, PH, BN',
+                                 fr: 'Disponible uniquement en SG, MY, ID, TH, PH, BN' },
   // v0.61.130 — UI surface for v0.61.129 O-23 backend. When the
   // special-mode widening pass actually fired (radius escalated from
   // X to Y), append "· widened to Y km" below the limited card so
