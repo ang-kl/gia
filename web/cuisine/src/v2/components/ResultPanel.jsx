@@ -87,7 +87,10 @@ export default function ResultPanel({
   // outside the SE-Asian durian belt; the server returns { mode, country }.
   // When set the empty-state shows "only available in …" instead of the
   // generic "No results" copy (the empty list is intentional, not a miss).
-  specialModeBlocked = null
+  specialModeBlocked = null,
+  // v0.61.409 — true when the boot load was suppressed because the saved
+  // location ≠ the device location; the empty-state shows a "tap 🔍" note.
+  bootMismatchHalt = false
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -359,11 +362,21 @@ export default function ResultPanel({
         </div>
       )}
       {loading ? (
-        /* v0.61.405 — operator: the v0.61.403 bottom toast was a mistake.
-           Drop the relocated message entirely — just an animated hourglass,
-           inline where the loading state always sat. No text, non-blocking. */
-        <div className="px-2 py-6 text-center" aria-live="polite" aria-label={loadingHint || 'Loading'}>
-          <span aria-hidden className="inline-block animate-spin text-2xl leading-none">⏳</span>
+        /* v0.61.409 — operator: "kill the bottom spinning hourglass". The
+           single loading indicator is now the SPINNING hourglass WITHIN the
+           "Please wait… loading random eateries" overlay message (App.jsx
+           z-50). This results-panel branch renders nothing while loading —
+           the overlay already covers the body. */
+        null
+      ) : bootMismatchHalt && !venues?.length ? (
+        /* v0.61.409 — boot load was suppressed because the saved location
+           differs from where the device is (operator: don't auto-load on a
+           mismatch). Don't show the "No results / change criteria" copy — the
+           user never searched. Tell them to tap 🔍. Amber (no red/green-only). */
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {lang === 'fr'
+            ? 'Votre lieu enregistré diffère de votre position actuelle. Touchez 🔍 Rechercher pour chercher ici.'
+            : 'Your saved area differs from where you are now. Tap 🔍 Search to look here.'}
         </div>
       ) : !venues?.length ? (
         specialModeBlocked ? (

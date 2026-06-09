@@ -268,8 +268,11 @@ const STRINGS = {
   // ----- Location field -----
   'loc.searchLocation':        { en: 'Search location', fr: 'Rechercher un lieu' },
   // v0.61.50 — loading-overlay messages (operator-specified copy).
-  'loading.initial':           { en: '⏳ Please wait while loading random eateries…',
-                                 fr: '⏳ Chargement de restaurants aléatoires…' },
+  // v0.61.409 — leading ⏳ removed; the overlay card now renders a SPINNING
+  // hourglass within the message (operator: "the spinning hourglass be within
+  // the message"). Keeping it in the string too would double the glyph.
+  'loading.initial':           { en: 'Please wait while loading random eateries…',
+                                 fr: 'Chargement de restaurants aléatoires…' },
   'loading.refresh':           { en: '📑 Refreshing results with the same filters…',
                                  fr: '📑 Actualisation des résultats avec les mêmes filtres…' },
   'loading.head':              { en: 'Loading…', fr: 'Chargement…' },

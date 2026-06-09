@@ -892,6 +892,31 @@ export default function App() {
   // apply* fns set this ref true so their own runSearch isn't doubled.
   const initialLoadFiredRef = useRef(false);
 
+  // v0.61.409 — operator: "you should NOT load the first 5 at all if there is a
+  // location mismatch … if it is equal to device's location then load 5 or else
+  // stop loading just display the cuisine tma" + "kill the popup". The three
+  // coherence checks below no longer pop a blocking modal — they RAISE this ref
+  // (synchronously, on the same commit they evaluate). The gate-opener then
+  // SKIPS the boot load and opens the TMA empty (the user taps 🔍). If a check
+  // fires LATE (countryPref/anchor landed after the boot load already started —
+  // the known race), haltBootLoadForMismatch() stops that stray load. NO timer,
+  // NO new wait → can't deadlock the hang-prone gate.
+  const bootMismatchRef = useRef(false);
+  const [bootMismatchHalt, setBootMismatchHalt] = useState(false);
+  function haltBootLoadForMismatch(reason) {
+    bootMismatchRef.current = true;
+    // Only ever touch the BOOT load — never a user-initiated 🔍 search
+    // (firstLoadPending is already false by the time the user can tap).
+    if (!firstLoadPendingRef.current) return;
+    console.log(`[Cuisine-TMA-v2] boot load HALTED — ${reason} (saved≠device; no popup, empty TMA, tap 🔍)`);
+    initialSearchDone.current = true;
+    initialLoadFiredRef.current = true;
+    setBootMismatchHalt(true);
+    setVenues([]);
+    setFirstLoadPending(false);
+    setLoading(false);
+  }
+
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
   useEffect(() => {
@@ -909,9 +934,10 @@ export default function App() {
       return;
     }
     if (state.countryPref !== coordsCountry) {
-      setCoherenceMismatch({ saved: state.countryPref, coords: coordsCountry });
-      modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
-      console.log(`[Cuisine-TMA-v2] coherence MISMATCH saved=${state.countryPref} coords=${coordsCountry}`);
+      // v0.61.409 — operator: kill the popup; on a mismatch DON'T auto-load.
+      // (was: setCoherenceMismatch(...) + modalPendingRef = true.)
+      console.log(`[Cuisine-TMA-v2] coherence MISMATCH saved=${state.countryPref} coords=${coordsCountry} → no popup, suppress boot load`);
+      haltBootLoadForMismatch('coherence (saved country ≠ coords country)');
     }
     coherenceCheckedRef.current = true;
   }, [userLoc?.lat, userLoc?.lng, state.countryPref, state.region]);
@@ -1004,9 +1030,10 @@ export default function App() {
         && Number.isFinite(locationAnchor.lng)
         && isJbCoords(locationAnchor)) return;
     const coordsCountry = coordsToCountry(userLoc);  // 'SG' / 'MY' / null
-    setRegionMismatch({ coordsCountry });
-    modalPendingRef.current = true;  // v0.61.322 — hold the splash gate shut
-    console.log(`[Cuisine-TMA-v2] region/coords MISMATCH: region=JB but coords=${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)} (country guess=${coordsCountry || '?'})`);
+    // v0.61.409 — operator: kill the popup; on a mismatch DON'T auto-load.
+    // (was: setRegionMismatch(...) + modalPendingRef = true.)
+    console.log(`[Cuisine-TMA-v2] region/coords MISMATCH: region=JB but coords=${userLoc.lat.toFixed(2)},${userLoc.lng.toFixed(2)} (country guess=${coordsCountry || '?'}) → no popup, suppress boot load`);
+    haltBootLoadForMismatch('region (JB pill but coords outside Johor)');
     regionCoherenceCheckedRef.current = true;
   }, [userLoc?.lat, userLoc?.lng, state.region, locationAnchor?.lat, locationAnchor?.lng]);
 
@@ -1074,7 +1101,12 @@ export default function App() {
     // the boot load on the anchor — so this check is now a no-op that lets the
     // set-location win. (The keep/use modal stays gone — anchorMismatch is never
     // set; the gate-opener fires the one boot load at the anchor.)
-    console.log(`[Cuisine-TMA-v2] anchor/device differ (${km.toFixed(0)}km) → keeping the SET-LOCATION (authoritative); device GPS not overriding`);
+    // v0.61.409 — operator: when the saved anchor sits >150 km from the device
+    // (saved ≠ device), DON'T auto-load. No popup, no device-override — just open
+    // the TMA empty and let the user tap 🔍. (Supersedes the v0.61.407 no-op,
+    // which kept loading at the set-location.)
+    console.log(`[Cuisine-TMA-v2] anchor/device differ (${km.toFixed(0)}km > 150) → no popup, suppress boot load (empty TMA, tap 🔍)`);
+    haltBootLoadForMismatch(`anchor ${km.toFixed(0)}km from device`);
     anchorCoherenceCheckedRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoc?.lat, userLoc?.lng, locationAnchor?.lat, locationAnchor?.lng, locationAnchor?.name]);
@@ -1122,7 +1154,18 @@ export default function App() {
     // so there is no second / stale-region load.
     if (!initialLoadFiredRef.current) {
       initialLoadFiredRef.current = true;
-      runInitialLoad();
+      // v0.61.409 — operator: NEVER auto-load the boot 5 on a location mismatch.
+      // If a coherence check already flagged saved≠device, open the TMA EMPTY
+      // (no search, no hourglass) and let the user tap 🔍. Only load when the
+      // saved location agrees with where the device is.
+      if (bootMismatchRef.current) {
+        console.log('[Cuisine-TMA-v2] gate open: boot load SKIPPED — saved≠device mismatch (empty TMA, tap 🔍)');
+        setBootMismatchHalt(true);
+        setFirstLoadPending(false);
+        setLoading(false);
+      } else {
+        runInitialLoad();
+      }
     }
   }, [userLoc?.lat, userLoc?.lng, coherenceMismatch, regionMismatch, anchorMismatch, state.region, locationGateOpen]);
 
@@ -1556,7 +1599,7 @@ export default function App() {
     // on the exact confirmed/deep-linked location (never raw GPS).
     if (locationAnchor?.lat != null && locationAnchor?.lng != null) {
       setSearchCenter({ lat: locationAnchor.lat, lng: locationAnchor.lng });
-      runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng });
+      runSearch(state, { lat: locationAnchor.lat, lng: locationAnchor.lng }, { boot: true });
       return;
     }
     // v0.61.394 — operator (urgent): the first load now runs the FULL search,
@@ -1570,7 +1613,7 @@ export default function App() {
     // runInitialLoad ONLY — it does NOT touch the splash-gate / coherence
     // effects (the hang-prone area).
     setSearchCenter({ lat: center.lat, lng: center.lng });
-    runSearch(state, { lat: center.lat, lng: center.lng });
+    runSearch(state, { lat: center.lat, lng: center.lng }, { boot: true });
   }
 
   // v0.58.27 → v0.59.18: auto re-search effect REMOVED per Human Lead.
@@ -1714,6 +1757,19 @@ export default function App() {
         // their country implicitly through `region`.
         countryCode: (snap.region === 'OTHER' || snap.region === 'MY-PUT') ? snap.countryPref : undefined
       });
+      // v0.61.409 — boot-load race guard. If a coherence check flagged
+      // saved≠device AFTER this boot search fired (countryPref/anchor landed
+      // late), DROP the results — on a mismatch the TMA must stay empty
+      // (operator: "NOT load the first 5 at all"). opts.boot is set ONLY by
+      // runInitialLoad, so a user-initiated 🔍 search is never affected. The
+      // finally{} below still clears `loading`, so no stray hourglass.
+      if (opts?.boot && bootMismatchRef.current) {
+        console.log('[Cuisine-TMA-v2] boot search returned but saved≠device → discarding results (empty TMA, tap 🔍)');
+        setBootMismatchHalt(true);
+        setVenues([]);
+        setFirstLoadPending(false);
+        return;
+      }
       // v0.60.131 — server says the "Tell me" text was a question, not a
       // dish/cuisine: show the decline note, no result list.
       if (r && r.questionDeclined === true) {
@@ -2809,7 +2865,13 @@ export default function App() {
             ) : loadingReason === 'refresh' ? (
               t('loading.refresh', lang)
             ) : (
-              t('loading.initial', lang)
+              /* v0.61.409 — operator: "the spinning hourglass be within the
+                 message". The ⏳ now animates inline beside the loading copy;
+                 the separate bottom hourglass in the results list is removed. */
+              <div className="flex items-center justify-center gap-2">
+                <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
+                <span>{t('loading.initial', lang)}</span>
+              </div>
             )}
           </div>
         </div>
@@ -3019,6 +3081,7 @@ export default function App() {
           warmStartSeed={warmStartSeed}
           comboInfo={comboInfo}
           specialModeBlocked={specialModeBlocked}
+          bootMismatchHalt={bootMismatchHalt}
           copyState={{
             cuisines: state.cuisines,
             filters: state.filters,
