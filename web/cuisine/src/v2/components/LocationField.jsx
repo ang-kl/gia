@@ -90,6 +90,13 @@ function haversineKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// v0.61.418 — the OTHER-picker's "nearest curated city" auto-pick (tier b) only
+// applies when the anchor is plausibly IN the selected country. Beyond this, the
+// anchor is treated as cross-country (stale pin) and the picker defaults to the
+// capital. 500 km clears every in-country gap (HK districts ~30 km, Sibu→Kuching
+// ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
+const NEAREST_CITY_MAX_KM = 500;
+
 export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
@@ -846,6 +853,10 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch, userLoc }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
+  // v0.61.418 — set true by the country dropdown's onChange so the auto-pick
+  // effect knows the country change was USER-initiated (vs boot / server-cache
+  // hydration) and may fly the map to the capital. Cleared after it fires.
+  const userChangedCountryRef = useRef(false);
   // v0.61.268 — operator #5: "if i select others, and the country and
   // city isnt selected, revert back to the current location." When the
   // user picks "— Clear —" in the city dropdown, this flag flips true
@@ -940,27 +951,46 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // v0.61.268 — operator #5: when the user has explicitly cleared
     // the city via "— Clear —", do NOT auto-re-pick. The cleared
     // flag stays true until the country code mutates (reset below).
-    if (userClearedCity) return;
+    if (userClearedCity) { userChangedCountryRef.current = false; return; }
     const list = citiesForCountry(country.code);
-    if (!list.length) { setCityPick(''); return; }
-    // (a) anchor name matches a cities.js entry directly.
+    if (!list.length) { setCityPick(''); userChangedCountryRef.current = false; return; }
+    // Resolve the city to pre-select, in order:
+    //   (a) the anchor's name when it's a city in this country's list (restore).
+    //   (b) the NEAREST cities.js entry — but ONLY when the anchor is plausibly
+    //       IN this country (≤ 500 km — covers HK districts, Sibu→Kuching).
+    //   (c) the capital (first entry). v0.61.418 — operator: "Why did I select
+    //       JAPAN? It doesn't select Tokyo as the first choice." A leftover
+    //       CROSS-COUNTRY pin (e.g. SG when switching to Japan) made (b) snap to
+    //       the nearest JP city to SG (Fukuoka) instead of Tokyo; the > 500 km
+    //       guard now falls through to the capital.
+    let picked = null;
     const anchorName = (anchor?.name || '').trim();
     if (anchorName) {
       const hit = list.find((c) => c.name === anchorName);
-      if (hit) { setCityPick(hit.name); return; }
+      if (hit) picked = hit;
     }
-    // (b) anchor has coords → pick nearest cities.js entry by haversine.
-    if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+    if (!picked && anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
       let best = null;
       let bestD = Infinity;
       for (const c of list) {
         const d = haversineKm(anchor.lat, anchor.lng, c.lat, c.lng);
         if (d < bestD) { bestD = d; best = c; }
       }
-      if (best) { setCityPick(best.name); return; }
+      if (best && bestD <= NEAREST_CITY_MAX_KM) picked = best;
     }
-    // (c) no anchor → capital (first entry).
-    setCityPick(list[0].name);
+    if (!picked) picked = list[0];   // capital
+    setCityPick(picked.name);
+    // v0.61.418 — when the USER just switched country (the country dropdown set
+    // the ref below; boot / server-cache hydration does NOT, so the saved set-
+    // location is never overridden), fly the map to + anchor on the pre-selected
+    // city (the capital, via the guard above) WITHOUT firing a search.
+    // `cityPreview` routes App.onLocationSelect to its preview branch (no commit,
+    // no search, no region change), so the user still presses 🔍. Per operator:
+    // "I selected the country, changed the Google map to the capital … don't fire yet."
+    if (userChangedCountryRef.current && picked) {
+      userChangedCountryRef.current = false;
+      onSelect?.({ lat: picked.lat, lng: picked.lng, label: picked.name, cityPreview: true, radiusCapM: cityRadiusCapM(picked.name) });
+    }
   }, [country.code, anchor?.name, anchor?.lat, anchor?.lng, userClearedCity]);
   // v0.61.268 — reset userClearedCity on country flip so the auto-pick
   // can run again for the newly-selected country. Operator's intent:
@@ -1158,7 +1188,12 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           <div className="flex items-center flex-shrink-0">
             <CountryDropdown
               value={country.code}
-              onChange={(code) => onCountryChange?.(code)}
+              onChange={(code) => {
+                // v0.61.418 — mark this as a USER country change so the auto-pick
+                // effect flies the map to the new country's capital.
+                userChangedCountryRef.current = true;
+                onCountryChange?.(code);
+              }}
               ariaLabel={tr('loc.other.country', lang)}
             />
             {/* v0.61.233 — cascading child city dropdown, now a custom
