@@ -27,7 +27,7 @@
 //   ANTHROPIC_MODEL        — primary model    (default claude-sonnet-4-6)
 //   ANTHROPIC_HAIKU_MODEL  — cheap classifier (default claude-haiku-4-5-20251001)
 //   ANTHROPIC_SONNET_MODEL — mid-tier alias   (default claude-sonnet-4-6)
-//   ANTHROPIC_OPUS_MODEL   — heavy reasoning  (default claude-opus-4-7)
+//   ANTHROPIC_OPUS_MODEL   — heavy reasoning  (default claude-opus-4-8)
 //   ANTHROPIC_API_KEY      — required for any LLM call to succeed
 
 const Anthropic = require('@anthropic-ai/sdk');
@@ -35,7 +35,9 @@ const Anthropic = require('@anthropic-ai/sdk');
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 const HAIKU_MODEL = process.env.ANTHROPIC_HAIKU_MODEL || 'claude-haiku-4-5-20251001';
 const SONNET_MODEL = process.env.ANTHROPIC_SONNET_MODEL || 'claude-sonnet-4-6';
-const OPUS_MODEL = process.env.ANTHROPIC_OPUS_MODEL || 'claude-opus-4-7';
+// v0.61.434 — Opus tier migrated claude-opus-4-7 → claude-opus-4-8 (current
+// top model; same API surface as 4.7, no breaking changes — ID swap only).
+const OPUS_MODEL = process.env.ANTHROPIC_OPUS_MODEL || 'claude-opus-4-8';
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 const client = apiKey ? new Anthropic({ apiKey, maxRetries: 0 }) : null;
