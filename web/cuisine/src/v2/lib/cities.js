@@ -40,7 +40,11 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'George Town',      code: 'PEN', lat: 5.4145,  lng: 100.3293 },
     { name: 'Ipoh',             code: 'IPH', lat: 4.5975,  lng: 101.0901 },
     { name: 'Shah Alam',        code: 'KUL', lat: 3.0738,  lng: 101.5183 },
-    { name: 'Johor',            code: 'JHB', lat: 1.4927,  lng: 103.7414 },
+    // v0.61.420 — operator: Johor is a STATE row, not a city. Display "Johor
+    // state" (italic in the picker), code JOHOR, centred so the 120 km cap
+    // (cityRadiusCapM) covers the ENTIRE state (Muar/Segamat NW → Desaru E, all
+    // < 120 km from this centroid).
+    { name: 'Johor state',      code: 'JOHOR', lat: 1.93, lng: 103.34 },
     { name: 'Malacca City',     code: 'MKZ', lat: 2.1896,  lng: 102.2501 },
     { name: 'Kota Kinabalu',    code: 'BKI', lat: 5.9788,  lng: 116.0753 },
     { name: 'Kuching',          code: 'KCH', lat: 1.5535,  lng: 110.3593 },
@@ -247,7 +251,11 @@ function _cityHavKm(lat1, lng1, lat2, lng2) {
 }
 export function cityRadiusCapM(cityOrName, countryCode) {
   const name = typeof cityOrName === 'string' ? cityOrName : (cityOrName && cityOrName.name) || '';
-  if (String(name).trim().toLowerCase() === 'johor') return 120000;
+  // v0.61.420 — Johor is a whole STATE row (code JOHOR, name "Johor state"); keep
+  // its 120 km cap so the search covers the entire state, not a single city.
+  const _code = (cityOrName && typeof cityOrName === 'object') ? String(cityOrName.code || '').toUpperCase() : '';
+  const _nm = String(name).trim().toLowerCase();
+  if (_code === 'JOHOR' || _nm === 'johor' || _nm === 'johor state') return 120000;
   const city = (cityOrName && typeof cityOrName === 'object') ? cityOrName : null;
   if (!city || !Number.isFinite(city.lat) || !Number.isFinite(city.lng)) return RADIUS_DEFAULT_M;
   const list = citiesForCountry(countryCode);

@@ -713,7 +713,9 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
                   onClick={() => pick(c.name)}
                   className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
-                  <span>{c.name}</span>
+                  {/* v0.61.420 — operator: the Johor whole-STATE row shows
+                      "Johor state" in italics to distinguish it from a city. */}
+                  <span className={c.code === 'JOHOR' ? 'italic' : ''}>{c.name}</span>
                   <span className="font-mono text-[11px] text-tg-hint">{c.code}</span>
                 </button>
               </li>

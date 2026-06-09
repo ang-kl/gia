@@ -36,6 +36,24 @@ describe('cityRadiusCapM', () => {
     expect((capKL + capPJ) / 1000).toBeLessThanOrEqual(havKm(kl, pj));
   });
 
+  it('Johor is a whole-state row: code JOHOR, "Johor state", 120 km covering the state', () => {
+    const j = citiesForCountry('MY').find((c) => c.code === 'JOHOR');
+    expect(j).toBeTruthy();
+    expect(j.name).toBe('Johor state');
+    expect(cityRadiusCapM(j, 'MY')).toBe(120000);
+    // the 120 km cap must reach Johor's far corners from the centroid
+    const corners = [
+      { lat: 2.05, lng: 102.57 }, // Muar (NW)
+      { lat: 2.51, lng: 102.81 }, // Segamat (N)
+      { lat: 2.43, lng: 103.84 }, // Mersing (NE)
+      { lat: 1.55, lng: 104.27 }, // Desaru (SE)
+      { lat: 1.36, lng: 103.55 }, // Pontian / south
+    ];
+    for (const c of corners) {
+      expect(havKm(j, c), `${c.lat},${c.lng}`).toBeLessThanOrEqual(120);
+    }
+  });
+
   it('an isolated city keeps the 40 km default', () => {
     // Kuching (Sarawak/Borneo) is ~735 km from every peninsular/Sabah sibling,
     // so half-distance > 40 km → the 40 km ceiling applies.
@@ -53,7 +71,7 @@ describe('cityRadiusCapM', () => {
           const distKm = havKm(A.c, B.c);
           if (distKm <= 0.5) continue;                 // same point (e.g. Johor row dup)
           if (A.cap === FLOOR_M && B.cap === FLOOR_M) continue; // accepted dense-district floor
-          if (A.c.name === 'Johor' || B.c.name === 'Johor') continue; // 120 km state cap is intentional
+          if (A.c.code === 'JOHOR' || B.c.code === 'JOHOR') continue; // Johor's 120 km whole-state cap is intentional
           expect((A.cap + B.cap) / 1000,
             `${A.c.name}+${B.c.name} (${code})`).toBeLessThanOrEqual(distKm + 0.001);
         }
