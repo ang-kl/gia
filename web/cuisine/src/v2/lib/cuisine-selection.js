@@ -33,6 +33,27 @@ export function isSpecialSlug(slug) {
   return typeof slug === 'string' && SPECIAL_SLUGS.has(slug);
 }
 
+// v0.61.411 — operator: durian + durian-pastry must be DISABLED in the picker
+// outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN); 'fruits' stays allowed
+// everywhere (v0.61.402). v0.61.397 only blocked them server-side (on search) —
+// the chips themselves stayed tappable, so in e.g. Japan the user could still
+// pick Durian. This mirrors the server gate (special-mode.js
+// SPECIAL_MODE_COUNTRIES / BELT_GATED_MODES) so the chip greys out BEFORE a
+// search. Keep this Set in sync with the server's.
+export const DURIAN_BELT_COUNTRIES = new Set(['SG', 'MY', 'ID', 'TH', 'PH', 'BN']);
+export const BELT_GATED_SLUGS = new Set(['durian', 'durian-pastry']);
+
+// True when `slug` may be selected for `country` (an ISO-2 code like 'SG'/'JP').
+// Non-belt-gated slugs are always allowed. Belt-gated slugs are allowed only in
+// the belt. An unknown/empty country is NOT blocked here (the server still
+// guards) so we never grey a chip on a half-resolved location.
+export function isSlugCountryAllowed(slug, country) {
+  if (!BELT_GATED_SLUGS.has(slug)) return true;
+  const cc = String(country || '').toUpperCase();
+  if (!cc) return true;
+  return DURIAN_BELT_COUNTRIES.has(cc);
+}
+
 // Returns true when the current selection contains any of the three
 // special slugs. Useful for UI conditionals.
 export function hasSpecialSlug(selected) {
