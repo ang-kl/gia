@@ -82,4 +82,21 @@ describe('shouldFollowDevice', () => {
       initialResolveDone: true, firstLoadPending: false, explicitAnchorName: '', current: WLG, loc: SG,
     })).toBe(true);
   });
+
+  // v0.61.430 — operator: "explicit pick wins". Once the user deliberately
+  // picks a foreign region/country, the SG device GPS must NOT drag them back
+  // (the country-drift bug), even when the inherited pick carries no name.
+  it('does NOT follow after an explicit pick, even with a blank anchor name', () => {
+    expect(shouldFollowDevice({
+      initialResolveDone: true, firstLoadPending: false,
+      explicitAnchorName: '', explicitPick: true, current: WLG, loc: SG,
+    })).toBe(false);
+  });
+
+  it('still follows a real move when no explicit pick has been made', () => {
+    expect(shouldFollowDevice({
+      initialResolveDone: true, firstLoadPending: false,
+      explicitAnchorName: '', explicitPick: false, current: WLG, loc: SG,
+    })).toBe(true);
+  });
 });
