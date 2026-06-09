@@ -14878,6 +14878,7 @@ async function cacheBotUsername() {
         let specialModeWidened = false;
         let specialModeWidenedFromM = null;
         let specialModeFinalRadiusM = searchRadius;
+        let specialModeRelaxed = false;   // v0.61.416 — generic-term fallback fired
         if (specialMode) {
           try {
             const { widenSpecialMode } = require('./cuisine-special-mode-widen');
@@ -14930,6 +14931,58 @@ async function cacheBotUsername() {
           });
           if (venues.length !== beforeNameDedup) {
             console.log(`[Cuisine-Search] D782 specialMode=${specialMode} name-dedup ${beforeNameDedup} → ${venues.length}`);
+          }
+          // v0.61.416 — operator: "if our FIXED DURIAN TERMS cannot [be]
+          // satisfied, use generic terms to search." For ALL seven belt
+          // countries (Brunei etc. returned 0 on recall / over-strict filtering,
+          // not just the belt gate). When the strict durian / durian-pastry
+          // search + widen yield ZERO, retry ONCE with a bare generic query
+          // ("durian") and a RELAXED filterByMode (skips the accept-type +
+          // strict-name gates; matches a durian word anywhere in the full
+          // haystack). Still durian-only — a durian word must appear. Fruits is
+          // excluded (global + already broad). Fires only on 0, so working
+          // searches are untouched.
+          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0) {
+            try {
+              const smFb = require('./special-mode');
+              const vfFb = require('./venue-filters');
+              const fbSeeds = specialMode === 'durian-pastry'
+                ? ['durian dessert', 'durian pastry']
+                : ['durian'];
+              const fbRadius = Math.min(
+                searchRadius * 2,
+                (Number.isFinite(anchorCap) && anchorCap > 0) ? anchorCap : 30000
+              );
+              const perSeed = await Promise.all(fbSeeds.map((q) =>
+                pipeline.discover({
+                  lat: searchCenter.lat, lng: searchCenter.lng,
+                  radius: fbRadius, cuisines: [q], maxResults: 15,
+                  regionCode: searchRegionCode, lang: csLang, expandSingaporean: false
+                }).catch(() => [])
+              ));
+              let pool = perSeed.map((r) => Array.isArray(r) ? r : (r && r.venues) || []).flat();
+              const fbSeen = new Set();
+              pool = pool.filter((v) => v && v.placeId && !fbSeen.has(v.placeId) && fbSeen.add(v.placeId));
+              pool = pool.filter(vfFb.passesVenueFilter);
+              let relaxed = smFb.filterByMode(pool, specialMode, { relax: true });
+              const fbNameSeen = new Set();   // chain name-dedup, parity with D782
+              relaxed = relaxed.filter((v) => {
+                const k = String(v?.name || '').toLowerCase().trim();
+                if (!k) return true;
+                if (fbNameSeen.has(k)) return false;
+                fbNameSeen.add(k);
+                return true;
+              });
+              if (relaxed.length > 0) {
+                venues = relaxed;
+                specialModeRelaxed = true;
+                console.log(`[Cuisine-Search] D783 specialMode=${specialMode} GENERIC fallback (strict=0) → ${venues.length} at ${fbRadius}m`);
+              } else {
+                console.log(`[Cuisine-Search] D783 specialMode=${specialMode} generic fallback also 0`);
+              }
+            } catch (err) {
+              console.warn(`[Cuisine-Search] specialMode generic fallback failed (non-fatal): ${err.message}`);
+            }
           }
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
@@ -15763,6 +15816,9 @@ async function cacheBotUsername() {
             payload.specialModeWidenedFromM = specialModeWidenedFromM;
             payload.specialModeFinalRadiusM = specialModeFinalRadiusM;
           }
+          // v0.61.416 — surface the generic-term fallback so the TMA / logs can
+          // note results came from a broadened "durian" search (strict was 0).
+          if (specialModeRelaxed) payload.specialModeRelaxed = true;
         }
         // v0.61.129 — O-20: surface the Tell-me-detected place anchor
         // so the TMA can render "Searching near <X>" above the result
