@@ -20,7 +20,7 @@ describe('llm-client.DEFAULT_MODEL', () => {
     expect(typeof llm.HAIKU_MODEL).toBe('string');
     expect(typeof llm.SONNET_MODEL).toBe('string');
     expect(typeof llm.OPUS_MODEL).toBe('string');
-    expect(llm.OPUS_MODEL).toBe(process.env.ANTHROPIC_OPUS_MODEL || 'claude-opus-4-7');
+    expect(llm.OPUS_MODEL).toBe(process.env.ANTHROPIC_OPUS_MODEL || 'claude-opus-4-8');
   });
 
   it('isReady() is false when ANTHROPIC_API_KEY is missing in test env', () => {
