@@ -851,29 +851,42 @@ async function handleBuddyCallback(data, chatId, q) {
   }
 }
 
+// v0.61.436 — ONE seam for the per-chat guarded rating floor (code review:
+// the read-pref/apply-floor/log block was duplicated between deliverPicks
+// and the cuisine-search route, and several surfaces missed it entirely).
+// Reads the chat's /rating-or-pill pref (default guarded ≥3.7), applies
+// venue-filters.applyRatingFloor (never empties), logs only when it drops.
+// Redis errors fall back to the default — delivery must never block on the
+// pref read.
+async function applyChatRatingFloor(chatId, venues, label = 'rating-floor') {
+  if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
+  let pref = null;
+  if (chatId) {
+    try { pref = await ratingPrefLib.getUserRatingPref(redis, String(chatId)); }
+    catch { pref = null; }
+  }
+  const before = venues.length;
+  const out = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(pref));
+  if (out.length !== before) {
+    console.log(`[${label}] rating-floor ${ratingPrefLib.describeRatingPref(pref)}: ${before} → ${out.length}`);
+  }
+  return out;
+}
+
+// v0.61.436 — deliverPicks now RETURNS the picks it actually delivered
+// (post-floor), so callers that maintain seen-sets / "more results"
+// pagination (the free-text path) can mark only what the user saw. All
+// other callers ignore the return value — behaviour unchanged.
 async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // v0.61.425 — operator: uniform minimum Google rating of 3.7 across EVERY
   // eatery surface. deliverPicks is the shared bot renderer (/s, free-text,
-  // sanctuary, cuisine flow), so the guarded floor applies here once. It drops
-  // < 3.7 but exempts unrated / very-few-review venues and never empties the
-  // list (see venue-filters.applyRatingFloor). The Cuisine TMA API path floors
-  // its own pool separately.
-  // v0.61.426 — the floor is now per-chat (rating-pref.js): the user's
-  // /rating choice (or the TMA rating pill, same Redis key) selects the mode
-  // (≥floor / any / unrated-only). Defaults to the guarded ≥3.7 when unset.
-  {
-    let ratingPrefVal = null;
-    try { ratingPrefVal = await ratingPrefLib.getUserRatingPref(redis, String(chatId)); }
-    catch { ratingPrefVal = null; }
-    const beforeFloor = picks.length;
-    picks = require('./venue-filters').applyRatingFloor(picks, ratingPrefLib.ratingPrefToFloorOpts(ratingPrefVal));
-    if (picks.length !== beforeFloor) {
-      console.log(`[deliverPicks] rating-floor ${ratingPrefLib.describeRatingPref(ratingPrefVal)}: ${beforeFloor} → ${picks.length}`);
-    }
-  }
+  // sanctuary, cuisine flow), so the guarded floor applies here once.
+  // v0.61.426 — the floor is per-chat (rating-pref.js): /rating or the TMA
+  // pill selects the mode (≥floor / any / unrated-only); default ≥3.7.
+  picks = await applyChatRatingFloor(chatId, picks, 'deliverPicks');
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
-    return;
+    return [];
   }
   // v0.27.1: track for /share. Fire-and-forget; never blocks delivery.
   try {
@@ -1118,6 +1131,9 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // v0.60.113 — the "👥 Buddy: …" state footer (v0.34.1) is retired
   // per operator 2026-05-11. formatBuddyFooter() kept defined below
   // (dead) for re-enable.
+  // v0.61.436 — return what was actually delivered (post-floor) for
+  // seen-set-maintaining callers.
+  return picks;
 }
 
 // v0.34.1: render a single-line buddy state footer. Reads opt-in flag
@@ -7972,7 +7988,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } else {
     try {
       venues = await searchVenuesByDish(intent.searchTerm, intent.cuisine || null, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       });
     } catch (err) {
       console.warn('[Search] searchVenuesByDish failed:', err.message);
@@ -8209,7 +8225,7 @@ function humaniseRestaurantType(displayText, primaryTypeEnum) {
 // method fan-outs that haven't been threaded yet). When the user's
 // anchor is non-SG, callers pass the resolved alpha-2 (e.g. 'MY',
 // 'JP', 'KR') so Places biases its search to that country.
-async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey, regionCode = 'SG' }) {
+async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey, regionCode = 'SG', chatId = null }) {
   if (!mapsApiKey) return [];
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   // v0.60.2: expanded field mask so the rich card template can
@@ -8282,7 +8298,13 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
     if (kept.length !== mapped.length) {
       console.log(`[Search-FanOut] venue-filter dropped ${mapped.length - kept.length} directory/non-food result(s) for "${String(textQuery).slice(0, 40)}"`);
     }
-    return kept;
+    // v0.61.436 — apply the per-chat guarded rating floor here, the ONE
+    // seam every /s render path shares (handleSearchTurn + the technique /
+    // nation-iconic / cooking-method fan-outs render these venues via
+    // formatTechniqueVenueBlock, NOT deliverPicks — code review: they
+    // skipped the floor entirely, contradicting /rating's "applies to
+    // every eatery search"). Guarded: never empties.
+    return applyChatRatingFloor(chatId, kept, 'Search-FanOut');
   } catch (err) {
     console.warn(`[Search-FanOut] Places searchText "${String(textQuery).slice(0, 60)}" failed:`, err.message);
     return [];
@@ -8482,7 +8504,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     // locationBias.circle constrain Places to the right country.
     // Drop the hardcoded "Singapore" suffix so the textQuery doesn't
     // pull SG-only matches.
-    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey, regionCode };
+    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey, regionCode, chatId };
     const placeSuffix = regionCode === 'SG' ? ' restaurant Singapore' : ' restaurant';
     const variantSearches = variants.map((v) => {
       const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
@@ -8692,7 +8714,7 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
 
   try {
     const venues = await searchVenuesByDish(textQuery, cuisineLabel, {
-      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
+      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
     });
     if (!venues.length) {
       await wait.finish();
@@ -8837,7 +8859,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
     const gcDescribe = require('./gemini-client');
     const [venues, methodDesc] = await Promise.all([
       searchVenuesByDish(textQuery, hit.cuisineLabel, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       }),
       gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
         .catch(() => ({ explainer: '', exampleDish: '' }))
@@ -8950,7 +8972,12 @@ function computeCriteriaHash(parts) {
     prices: Array.isArray(parts.prices) ? [...parts.prices].sort() : [],
     radius: parts.radius || null,
     region: parts.region || 'SG',
-    freeText: String(parts.freeText || '').trim().toLowerCase()
+    freeText: String(parts.freeText || '').trim().toLowerCase(),
+    // v0.61.436 — the rating mode is a search criterion: a different
+    // floor/mode gets its own seen-set bucket (code review: a shared
+    // bucket let 'No rating' searches burn established venues into the
+    // seen-set that a later ≥3.7 search then skipped).
+    ratingPref: parts.ratingPref || null
   });
   return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16);
 }
@@ -10881,7 +10908,12 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         ? `🔎 Résultats pour "${headerDishEsc}"`
         : `🔎 Results for "${headerDishEsc}"`;
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
-      await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
+      // v0.61.436 — capture what deliverPicks ACTUALLY delivered (it floors
+      // internally per the chat's rating pref). Code review: marking the
+      // pre-floor list as seen permanently hid venues the user never saw
+      // from "🔍 Search for more".
+      const delivered = await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
+      const deliveredList = Array.isArray(delivered) ? delivered : venues;
       // v0.61.171 — chat free-text seen-set: record the placeIds we
       // just showed for this (chatId, criteria) pair, then send the
       // follow-up inline keyboard. "🔍 Search for more" while
@@ -10891,11 +10923,14 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       try {
         const ftSeenMod = require('./chat-freetext-seen');
         const ftHash = ftSeenMod.hashCriteria(chatId, text);
-        const shownIds = venues.map((v) => v && v.placeId).filter(Boolean);
+        const shownIds = deliveredList.map((v) => v && v.placeId).filter(Boolean);
         await ftSeenMod.setQuery(redis, ftHash, text);
         await ftSeenMod.addSeen(redis, chatId, ftHash, shownIds);
         const seenSizeAfter = ftSeenSize + shownIds.length;
-        const exhausted = shownIds.length < 8 || seenSizeAfter >= ftSeenMod.SEEN_CAP;
+        // v0.61.436 — exhausted = the FETCH came back short (venues is the
+        // pre-floor batch), not the post-floor shown count: the floor
+        // dropping venues doesn't mean the upstream pool is dry.
+        const exhausted = venues.length < 8 || seenSizeAfter >= ftSeenMod.SEEN_CAP;
         const { t: trBotKB } = require('./i18n');
         if (exhausted) {
           await bot.sendMessage(chatId, trBotKB('freetext.noMore', ftLang), {
@@ -12759,6 +12794,10 @@ async function cacheBotUsername() {
         // v0.60.47 (Human Lead 2026-05-09): 8 → 5. The first-load wait
         // was still ~4s; capping at 5 brings it under 3s and aligns
         // with the new "✨ 5 suggestions" caption in the TMA.
+        // v0.61.436 — apply the per-chat guarded rating floor (code
+        // review: warm-start ignored the /rating pill entirely and even
+        // rating-rank-sorted in the opposite direction of 'No rating').
+        venues = await applyChatRatingFloor(wsChatId, venues, 'Warm-Start');
         let top = pickTopN(venues, 5);
         let resolvedSeed = seed.id;
 
@@ -13803,7 +13842,7 @@ async function cacheBotUsername() {
           if (!verified) return res.status(401).json({ error: 'invalid initData' });
           const userId = verified.user?.id;
           if (!userId) return res.status(400).json({ error: 'no user id' });
-          const value = await ratingPrefLib.getUserRatingPref(redis, String(userId), readDeviceId(req));
+          const value = await ratingPrefLib.getUserRatingPref(redis, String(userId));
           res.json({ ratingPref: value });
         } catch (err) {
           console.error('[rating-pref GET] 500', err.message);
@@ -13821,7 +13860,7 @@ async function cacheBotUsername() {
           if (!userId) return res.status(400).json({ error: 'no user id' });
           const value = ratingPrefLib.normalizeRatingPref(req.body?.ratingPref);
           if (!value) return res.status(400).json({ error: 'invalid ratingPref' });
-          const ok = await ratingPrefLib.setUserRatingPref(redis, String(userId), value, readDeviceId(req));
+          const ok = await ratingPrefLib.setUserRatingPref(redis, String(userId), value);
           if (!ok) return res.status(503).json({ error: 'set failed' });
           console.log(`[rating-pref] chat=${userId} → ${value} (tma)`);
           res.json({ ok: true, ratingPref: value });
@@ -13991,6 +14030,18 @@ async function cacheBotUsername() {
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         const csChatId = verifiedSearch?.user?.id ? String(verifiedSearch.user.id) : null;
+        // v0.61.436 — resolve the chat's EFFECTIVE rating pref ONCE, up
+        // front (request override → Redis → guarded default), so that (a)
+        // it can be part of the criteria hash — the rating mode is a search
+        // criterion, and sharing a seen-set across modes let one mode's
+        // served venues poison another's pagination (code review) — and
+        // (b) the floor seam below reuses it without a second Redis read.
+        let effRatingPref = requestRatingPref;
+        if (!effRatingPref && csChatId) {
+          try { effRatingPref = await ratingPrefLib.getUserRatingPref(redis, csChatId); }
+          catch { effRatingPref = null; }
+        }
+        effRatingPref = effRatingPref || ratingPrefLib.DEFAULT_RATING;
         // v0.61.273 — resolve `region` when the client omitted it
         // (first-paint '__NONE__' sentinel) or sent an invalid value.
         // Priority: (a) Redis-cached region from /api/cuisine/set-location
@@ -14247,7 +14298,8 @@ async function cacheBotUsername() {
           try {
             await resetSeenSet(csChatId, computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
-              radius: searchRadius, region, freeText: req.body?.freeText || ''
+              radius: searchRadius, region, freeText: req.body?.freeText || '',
+              ratingPref: effRatingPref
             }));
             console.log(`[Cuisine-Search] resetSeen for chat ${csChatId}`);
           } catch (err) { console.warn('[Cuisine-Search] resetSeen failed:', err.message); }
@@ -14853,7 +14905,8 @@ async function cacheBotUsername() {
             if (escalationOn) {
               cuisineSearchHash = computeCriteriaHash({
                 cuisines, filters, prices: req.body?.prices || [],
-                radius: searchRadius, region, freeText: req.body?.freeText || ''
+                radius: searchRadius, region, freeText: req.body?.freeText || '',
+                ratingPref: effRatingPref
               });
               cuisineVariantIdx = await readVariantIdx(csChatId, cuisineSearchHash);
             }
@@ -15553,7 +15606,8 @@ async function cacheBotUsername() {
           if (!dedupHash) {
             dedupHash = computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
-              radius: searchRadius, region, freeText: req.body?.freeText || ''
+              radius: searchRadius, region, freeText: req.body?.freeText || '',
+              ratingPref: effRatingPref
             });
           }
           seen = await readSeenSet(csChatId, dedupHash);
@@ -15610,19 +15664,15 @@ async function cacheBotUsername() {
         // top-N backfills from the qualifying pool). Guarded: exempts unrated /
         // very-few-review venues (so the New pill survives) and never empties
         // the list (see venue-filters.applyRatingFloor).
-        // v0.61.426 — the floor is now per-chat (rating-pref.js): prefer the
-        // request override, else the Redis value, else the guarded ≥3.7
-        // default. The mode selects ≥floor / any (off) / unrated-only.
+        // v0.61.426 — the floor is per-chat (rating-pref.js); v0.61.436 —
+        // the pref was resolved ONCE up front (effRatingPref: request
+        // override → Redis → guarded default) so it matches the criteria
+        // hash exactly and costs no second Redis read here.
         {
-          let ratingPrefVal = requestRatingPref;
-          if (!ratingPrefVal && csChatId) {
-            try { ratingPrefVal = await ratingPrefLib.getUserRatingPref(redis, csChatId, searchDeviceId); }
-            catch { ratingPrefVal = null; }
-          }
           const beforeFloor = venues.length;
-          venues = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(ratingPrefVal));
+          venues = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(effRatingPref));
           if (venues.length !== beforeFloor) {
-            console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(ratingPrefVal)}: ${beforeFloor} → ${venues.length}`);
+            console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
           }
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
@@ -16420,6 +16470,9 @@ async function cacheBotUsername() {
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
+        // v0.61.436 — per-chat guarded rating floor (code review: the
+        // Tell-me NL path ignored the rating pill).
+        venues = await applyChatRatingFloor(chatId, venues, 'NL-Query');
         const topNL = venues.slice(0, 12);
         for (const v of topNL) {
           if (v.openNow === false) {
