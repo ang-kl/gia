@@ -9092,7 +9092,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // (michelin-data.js). `michelinCountry` is the ISO-2 the route resolved
   // (SG pill → 'SG'; OTHER picker → its country; JB → null, already bailed).
   const michCC = String(michelinCountry || '').toUpperCase();
-  const isSGMich = michCC === '' || michCC === 'SG';
+  // v0.61.431 — an EMPTY/unresolved country must NOT fall back to the SG list
+  // (operator: MY/VN Michelin returned 0 because the SG names were queried near
+  // a foreign anchor). Only an EXPLICIT 'SG' uses the SG curated list; an
+  // unresolved country returns "unresolved" instead of leaking SG abroad.
+  if (!michCC) {
+    return res.json({ venues: [], cached: false, reason: 'Michelin: country unresolved' });
+  }
+  const isSGMich = michCC === 'SG';
   // v0.61.350 — country-aware result label (operator bug: a Seoul search
   // still read "Michelin Singapore 2025"). The label shows the NATIONAL list
   // name — the search is country-wide (the picked city is only the map anchor),
@@ -9201,9 +9208,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     return cuisineSlugSet.has(String(e.cuisine).toLowerCase());
   };
   // v0.60.195 — no seen-set: every Michelin tap rebuilds the same
-  // tier-ordered top-12 pool. Cuisine filter still applies for combo
-  // chip searches (e.g. Michelin + Japanese).
-  const pool = allEntries.filter(cuisineTagMatches);
+  // tier-ordered top-12 pool.
+  // v0.61.431 — operator: "Michelin is the FIRST criterion, then the other
+  // cuisine." The curated MY/VN entries are ALL tagged, so a Michelin +
+  // <cuisine> combo would hard-intersect the tag-filter to 0.
+  // v0.61.432 — operator: PIN the matched cuisine to the TOP (not filter-only).
+  // Keep the FULL country Michelin pool (Michelin PRIMARY, never zero); the
+  // selected cuisine is applied as a RANKING signal below (matched entries
+  // pinned ahead of the rest, surviving the top-N slice).
+  const pool = allEntries;
 
   // Sort star tiers explicitly; shuffle bib gourmand so each click
   // surfaces a different slice without re-paying the full Places bill.
@@ -9256,6 +9269,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   if (michSelectedCity) {
     const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
     ordered = [...ordered.filter(_inCity), ...ordered.filter((e) => !_inCity(e))];
+  }
+  // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
+  // is combined with Michelin, surface the curated-tag matches FIRST (stable,
+  // preserving the tier / city order within each group), then the rest of the
+  // country's Michelin list. This keeps Michelin PRIMARY (never zero) while
+  // the cuisine ranks its matches to the front so they survive the top-N slice.
+  if (cuisineSlugSet.size > 0) {
+    const _tagMatch = (e) => e.cuisine && cuisineSlugSet.has(String(e.cuisine).toLowerCase());
+    const _matched = ordered.filter(_tagMatch);
+    if (_matched.length) {
+      ordered = [..._matched, ...ordered.filter((e) => !_tagMatch(e))];
+      console.log(`[Michelin] pinned ${_matched.length} ${[...cuisineSlugSet].join('/')} entries to the top of the ${michCC} Michelin list`);
+    }
   }
   const walkHash = michelinWalk.computeCriteriaHash({
     otherCuisineSlugs,
@@ -9515,19 +9541,20 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       if (types) types.forEach((t) => allowed.add(t));
     }
     if (allowed.size > 0) {
-      const matched = venues.filter((v) => {
+      const isMatch = (v) => {
         // v0.60.18 — accept either curated cuisine-tag match (set in
         // the slice loop) OR Places primaryType match. Bib Gourmand
         // entries have no curated tag so still rely on primaryType.
         if (v.michelinCuisine && cuisineSlugSet.has(String(v.michelinCuisine).toLowerCase())) return true;
         return v.primaryType && allowed.has(v.primaryType);
-      });
-      if (matched.length > 0) {
-        filteredVenues = matched;
-      } else {
-        console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')} (expanded=${[...expandedSlugs].join(',')}); returning empty rather than wrong cuisine`);
-        filteredVenues = [];
-      }
+      };
+      // v0.61.431 → v0.61.432 — operator: Michelin PRIMARY, the layered cuisine
+      // PINNED to the top (not a hard filter). Surface the cuisine matches
+      // first, keep the rest of the Michelin list below — never zero.
+      const matched = venues.filter(isMatch);
+      const rest = venues.filter((v) => !isMatch(v));
+      filteredVenues = [...matched, ...rest];
+      console.log(`[Michelin] cuisine layer: pinned ${matched.length} match(es) to top, ${rest.length} other Michelin below (cuisines=${otherCuisineSlugs.join(',')})`);
     }
   }
 
@@ -14253,11 +14280,29 @@ async function cacheBotUsername() {
           // v0.61.346 — resolve the Michelin country for the loader.
           // SG pill → 'SG'; OTHER picker → its ISO-2 (requestCountry);
           // JB → null (operator: keep the chip disabled under JB).
-          const michelinCountry = isJB
-            ? null
-            : ((typeof isOther !== 'undefined' && isOther)
-                ? (requestCountry ? String(requestCountry).toUpperCase() : null)
-                : 'SG');
+          // v0.61.431 — operator: "select Malaysia, Michelin, why return zero".
+          // Root cause: for an OTHER search WITHOUT an explicit body countryCode
+          // (cold launch / region resolved server-side), requestCountry was null
+          // → michelinCountry null → the handler leaked to the SG list and
+          // queried Singapore names near a KL/Hanoi anchor → 0. Fall back to the
+          // CACHED location country (the persisted KL→MY / Hanoi→VN pick). We do
+          // NOT use getUserCountryPref here — it defaults to 'SG' when unset,
+          // which would re-introduce the leak.
+          let michelinCountry;
+          if (isJB) {
+            michelinCountry = null;
+          } else if (typeof isOther !== 'undefined' && isOther) {
+            michelinCountry = requestCountry ? String(requestCountry).toUpperCase() : null;
+            if (!michelinCountry && csChatId) {
+              try {
+                const cachedLoc = await getUserLocation(redis, csChatId, searchDeviceId);
+                const lc = cachedLoc && cachedLoc.country ? String(cachedLoc.country).toUpperCase() : '';
+                if (/^[A-Z]{2}$/.test(lc) && lc !== 'SG') michelinCountry = lc;
+              } catch { /* non-fatal — leave null → handler reports 'unresolved' */ }
+            }
+          } else {
+            michelinCountry = 'SG';
+          }
           return await handleMichelinSearch({
             req, res, csChatId, csLang,
             searchCenter, searchRadius,
