@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-03",
-  "count": 810,
+  "generated": "2026-06-09",
+  "count": 936,
   "records": [
     {
       "pr": 1,
@@ -22912,6 +22912,3746 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 824,
+      "status": "merged",
+      "merged": "2026-06-03 12:44:43",
+      "day": "2026-06-03",
+      "version": "0.61.316",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #748-#823)",
+      "approach": "Doc-system upkeep per `doc/CLAUDE.md` standing rule — regenerate `doc/VibeCodingRecord/` so the ledger + the hosted page at `/doc/vibe-journal` reflect main.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.316: VibeCodingRecord catch-up regen (PRs #748-#823)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 825,
+      "status": "merged",
+      "merged": "2026-06-04 13:45:42",
+      "day": "2026-06-04",
+      "version": "0.61.317",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: recents drawer — resolve coords → place name on save",
+      "approach": "Operator screenshot (04-06 '26): the Cuisine TMA recents drawer showed bare coordinate rows — `1.2722, 103.8113`, `1.4912, 103.7665` — meaningless to the user.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.317: recents drawer — resolve coords → place name on save",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 826,
+      "status": "merged",
+      "merged": "2026-06-05 08:38:34",
+      "day": "2026-06-05",
+      "version": "0.61.318",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "/hidden surprise",
+      "intent": "Add: /hidden: newness 4→3mo, rating floor 4.0→3.9, Places review-time refute",
+      "approach": "## What Operator tuned how `/hidden` decides a hidden gem: - **New = opened ≤ 3 months** (was 4) — *\"3 months or less are new\"* - **Rating floor 3.9** (was 4.0) — *\"rating be 3.9 and above\"* - **Places review-time refute** of false \"newly…",
+      "codeImpact": "6 files — gemini-client.js, hidden-verify.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "gemini-client.js",
+        "hidden-verify.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.318 — /hidden: newness 4→3mo, rating floor 4.0→3.9, Places review-time refute",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 827,
+      "status": "merged",
+      "merged": "2026-06-05 08:58:17",
+      "day": "2026-06-05",
+      "version": "0.61.319",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Search / free-text",
+      "intent": "Add tests: /hidden renders the same rich card as /search (+📝 latest review, −💎 Why a gem)",
+      "approach": "## What changed Make `/hidden` render the **same rich venue card** as `/search` free-text (`formatTechniqueVenueBlock`) — so copy / copy-to behave identically — **PLUS** a `📝 Latest review · <date>` line, and **DROP** the `💎 Why a gem`…",
+      "codeImpact": "7 files — index.js, hidden-verify.js, i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "hidden-verify.js",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.319 — /hidden renders the same rich card as /search (+📝 latest review, −💎 Why a gem)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 828,
+      "status": "merged",
+      "merged": "2026-06-05 09:14:24",
+      "day": "2026-06-05",
+      "version": "0.61.320",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA OTHER mode: map recentre on city pick + never-silent search",
+      "approach": "## Bugs (operator report — OTHER mode Country/City cascade) 1.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.320 — Cuisine TMA OTHER mode: map recentre on city pick + never-silent search",
+      "reworkCue": false,
+      "reworkOf": 825,
+      "burst": false
+    },
+    {
+      "pr": 829,
+      "status": "merged",
+      "merged": "2026-06-05 09:39:15",
+      "day": "2026-06-05",
+      "version": "0.61.321",
+      "minor": "0.61",
+      "category": "prompt-tune",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: anchor/device coherence prompt (kill \"Naka Ward 🇸🇬\")",
+      "approach": "## Bug (operator live repro on v0.61.320) Location showed **\"Naka Ward\"** (a Japanese ward) with a **🇸🇬 flag**, while the server actually searched SG coords (`region=SG center=1.2820,103.8525`).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.321 — Cuisine TMA: anchor/device coherence prompt (kill \"Naka Ward 🇸🇬\")",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 830,
+      "status": "merged",
+      "merged": "2026-06-05 10:16:07",
+      "day": "2026-06-05",
+      "version": "0.61.322",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: FULL splash gate before body + Keep full-commit",
+      "approach": "## What **Part A — FULL SPLASH GATE (\"check before load\").** The TMA confirms location BEFORE the body renders.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.322 — Cuisine TMA: FULL splash gate before body + Keep full-commit",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 831,
+      "status": "merged",
+      "merged": "2026-06-05 10:38:03",
+      "day": "2026-06-05",
+      "version": "0.61.323",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: defer boot venue load to the splash gate (no SG-under-splash)",
+      "approach": "## What Live bug (v0.61.322): operator entered the Cuisine TMA via the Menu TMA, the anchor-coherence modal appeared, they chose **Keep JP** — but the result list showed the first 5 venues in **Singapore**.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.323 — Cuisine TMA: defer boot venue load to the splash gate (no SG-under-splash)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 832,
+      "status": "merged",
+      "merged": "2026-06-05 10:52:11",
+      "day": "2026-06-05",
+      "version": "0.61.324",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA splash-gate HANG fix (open gate without the per-check refs)",
+      "approach": "## Bug (operator, live v0.61.323): \"currently is hang\" Cuisine TMA stuck on the \"Confirming your location…\" splash; Railway log shows user-location fetched + set-location, but **no `cuisine-search` ever fired**.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.324 — Cuisine TMA splash-gate HANG fix (open gate without the per-check refs)",
+      "reworkCue": false,
+      "reworkOf": 831,
+      "burst": true
+    },
+    {
+      "pr": 833,
+      "status": "merged",
+      "merged": "2026-06-05 21:51:29",
+      "day": "2026-06-05",
+      "version": "0.61.325",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA: specific place labels in the location-mismatch modal",
+      "approach": "## Operator request The v0.61.321 anchor-mismatch modal said vague \"Use my current location\" / \"Keep {name}\".",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.325 — Cuisine TMA: specific place labels in the location-mismatch modal",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 834,
+      "status": "merged",
+      "merged": "2026-06-05 21:52:16",
+      "day": "2026-06-05",
+      "version": "0.61.325",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA anchor-mismatch modal names both places specifically",
+      "approach": "## What Make the Cuisine TMA's v0.61.321 anchor-coherence mismatch modal name **both** places specifically, per operator (05-06 '26): *\"if ask if I want JP or change, you have to be specific which part of JP, it should be Fukuoka, Japan…",
+      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": 0,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.325 — Cuisine TMA anchor-mismatch modal names both places specifically",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 835,
+      "status": "merged",
+      "merged": "2026-06-06 00:41:38",
+      "day": "2026-06-06",
+      "version": "0.61.326",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: HK cities: add 4 New Territories centres (Tuen Mun, Yuen Long, Tai Po, Tseung Kwan O)",
+      "approach": "## What Adds 4 New Territories Hong Kong city centres to the OTHER-mode HK cities tables (operator-approved data).",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.326 — HK cities: add 4 New Territories centres (Tuen Mun, Yuen Long, Tai Po, Tseung Kwan O)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 836,
+      "status": "merged",
+      "merged": "2026-06-06 01:43:49",
+      "day": "2026-06-06",
+      "version": "0.61.327",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Cuisine Picker",
+      "intent": "Refactor: OTHER cities: rename Malaysia 'Johor Bahru' → 'Johor'",
+      "approach": "## Change OTHER-mode Malaysia cities table: rename the entry name **`Johor Bahru` → `Johor`** so it represents the wider Johor.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.327 — OTHER cities: rename Malaysia 'Johor Bahru' → 'Johor'",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 837,
+      "status": "merged",
+      "merged": "2026-06-06 04:04:04",
+      "day": "2026-06-06",
+      "version": "0.61.328",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: OTHER-mode geofence Step 1 — per-city radius cap (40km cities / 120km Johor)",
+      "approach": "## OTHER-mode geofence — Step 1: per-city radius clamp Operator: lock OTHER-mode (the 16-country curated-city cascade) search to a per-city radius cap so it can't roam the whole country.",
+      "codeImpact": "9 files — index.js, TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.328: OTHER-mode geofence Step 1 — per-city radius cap (40km cities / 120km Johor)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 838,
+      "status": "merged",
+      "merged": "2026-06-06 05:10:33",
+      "day": "2026-06-06",
+      "version": "0.61.329",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Menu hub",
+      "intent": "Fix: Menu set-location re-derives region from RESOLVED coords (🇸🇬-over-MY-address fix)",
+      "approach": "## The bug (live v0.61.328, Railway log as proof) ``` [menu/set-location] D776 ...",
+      "codeImpact": "5 files — index.js, location-mode.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "location-mode.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.329: Menu set-location re-derives region from RESOLVED coords (🇸🇬-over-MY-address fix)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 839,
+      "status": "merged",
+      "merged": "2026-06-06 06:31:36",
+      "day": "2026-06-06",
+      "version": "0.61.330",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: unify Michelin schema (city/country/year) + EMPTY per-city tables + loader",
+      "approach": "## What & why Unify the Michelin layer on a deterministic **per-city** schema so the curated SG list and the (future) regional lists share one shape.",
+      "codeImpact": "15 files — michelin-2025.js, michelin-data.js, tests, doc, package, michelin/",
+      "modules": [
+        "tests",
+        "doc",
+        "michelin-2025.js",
+        "michelin-data.js",
+        "michelin/",
+        "package"
+      ],
+      "nFiles": 15,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.330: unify Michelin schema (city/country/year) + EMPTY per-city tables + loader",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 840,
+      "status": "merged",
+      "merged": "2026-06-06 08:07:18",
+      "day": "2026-06-06",
+      "version": "0.61.331",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: venue-award-schema.v0_1 — venue-centric Michelin loader (stable id + awards[] history)",
+      "approach": "## venue-award-schema.v0_1 — venue-centric Michelin loader Re-bases the Michelin loader on a **venue-centric** shape keyed on a stable `id` (`${cc}-${iata}-${kebab(name)}`) that carries an `awards[]` history, so one venue spans multiple…",
+      "codeImpact": "6 files — michelin-data.js, tests, doc, package, michelin/",
+      "modules": [
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "michelin/",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.331: venue-award-schema.v0_1 — venue-centric Michelin loader (stable id + awards[] history)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 841,
+      "status": "closed (unmerged)",
+      "merged": "",
+      "day": "",
+      "version": "0.61.332",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Michelin Malaysia data (KL + George Town): 70 venues, 2025+2026",
+      "approach": "Operator-curated Malaysia (official guide, 2025+2026) migrated to venue-award-schema.v0_1.",
+      "codeImpact": "(pre-squash convention — not tracked)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [],
+      "title": "v0.61.332 — Michelin Malaysia data (KL + George Town): 70 venues, 2025+2026",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 842,
+      "status": "merged",
+      "merged": "2026-06-06 08:48:34",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "2 files — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 843,
+      "status": "merged",
+      "merged": "2026-06-06 08:55:03",
+      "day": "2026-06-06",
+      "version": "0.61.333",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: SG Michelin -> standalone SG-michelin.js (decoupled); {CC}-michelin.js root tables; Malaysia -> MY-michelin.js (70 venues / 130 awards)",
+      "approach": "Take Singapore Michelin **100% back to its original standalone form** and reorganise the regional Michelin tables.",
+      "codeImpact": "19 files — index.js, CN-michelin.js, HK-michelin.js, JP-michelin.js, KR-michelin.js, MY-michelin.js, SG-michelin.js, +6 more, tests, doc, package, michelin/",
+      "modules": [
+        "CN-michelin.js",
+        "HK-michelin.js",
+        "JP-michelin.js",
+        "KR-michelin.js",
+        "MY-michelin.js",
+        "SG-michelin.js",
+        "TH-michelin.js",
+        "TW-michelin.js",
+        "VN-michelin.js",
+        "tests",
+        "count-recount.js",
+        "doc",
+        "index.js",
+        "michelin-data.js",
+        "michelin/",
+        "package",
+        "venue-templates.js"
+      ],
+      "nFiles": 19,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.333: SG Michelin -> standalone SG-michelin.js (decoupled); {CC}-michelin.js root tables; Malaysia -> MY-michelin.js (70 venues / 130 awards)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 844,
+      "status": "merged",
+      "merged": "2026-06-06 09:22:00",
+      "day": "2026-06-06",
+      "version": "0.61.334",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Thailand Michelin — 180 curated venues into TH-michelin.js; +13 TH cities + manifest",
+      "approach": "## Thailand Michelin — full national coverage (v0.61.334) Loads the operator's curated `instruction/Thailand.js` (**180 venues**, already venue-centric) **verbatim** into `TH-michelin.js` (was the empty v0.61.333 stub), and registers…",
+      "codeImpact": "10 files — TH-michelin.js, michelin-data.js, TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "TH-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.334: Thailand Michelin — 180 curated venues into TH-michelin.js; +13 TH cities + manifest",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 845,
+      "status": "merged",
+      "merged": "2026-06-06 09:33:12",
+      "day": "2026-06-06",
+      "version": "0.61.335",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: Michelin paging fix — un-hardcode michelinSummary.remaining",
+      "approach": "## What The SG Michelin listing (a) appeared not to start from 3★ and (b) showed no paging controls.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.335: Michelin paging fix — un-hardcode michelinSummary.remaining",
+      "reworkCue": false,
+      "reworkOf": 841,
+      "burst": false
+    },
+    {
+      "pr": 846,
+      "status": "merged",
+      "merged": "2026-06-06 10:07:51",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Delete instruction/Japan.js",
+      "approach": "Delete instruction/Japan.js",
+      "codeImpact": "1 file — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Delete instruction/Japan.js",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 847,
+      "status": "merged",
+      "merged": "2026-06-06 10:09:30",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 848,
+      "status": "merged",
+      "merged": "2026-06-06 10:24:28",
+      "day": "2026-06-06",
+      "version": "0.61.336",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Japan Michelin — 589 curated venues + native kanji name/address",
+      "approach": "## What Loads the operator's curated `instruction/Japan.js` into the empty `JP-michelin.js` stub — **589 venues** across Tokyo / Kyoto / Osaka / Nara, both editions, **with native `nameJa` + `addressJa` on every row** (kanji preserved…",
+      "codeImpact": "6 files — JP-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "JP-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.336: Japan Michelin — 589 curated venues + native kanji name/address",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 849,
+      "status": "merged",
+      "merged": "2026-06-06 10:29:30",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 850,
+      "status": "merged",
+      "merged": "2026-06-06 10:35:12",
+      "day": "2026-06-06",
+      "version": "0.61.337",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: South Korea Michelin — 117 curated venues + native hangul name/address",
+      "approach": "## What Loads the operator's curated `instruction/Korea.js` into the empty `KR-michelin.js` stub — **117 venues** (Seoul 93, Busan 24), both editions, **with native `nameKo` + `addressKo` on every row** (hangul preserved byte-for-byte:…",
+      "codeImpact": "6 files — KR-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "KR-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.337: South Korea Michelin — 117 curated venues + native hangul name/address",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 851,
+      "status": "merged",
+      "merged": "2026-06-06 11:20:46",
+      "day": "2026-06-06",
+      "version": "0.61.338",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin results — paging hint replaces the redundant \"Showing first 12\"",
+      "approach": "## What The Michelin result card showed paging **twice** — the v0.61.335 hint above the card *and* the header's \"Showing first 12\".",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.338: Michelin results — paging hint replaces the redundant \"Showing first 12\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 852,
+      "status": "merged",
+      "merged": "2026-06-06 11:26:36",
+      "day": "2026-06-06",
+      "version": "0.61.339",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin chip — drop the 🇸🇬 flag, just \"Michelin, Bib Gourmand\"",
+      "approach": "## What Removes the leading 🇸🇬 from the Michelin cuisine chip label → just **\"Michelin, Bib Gourmand\"**.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.339: Michelin chip — drop the 🇸🇬 flag, just \"Michelin, Bib Gourmand\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 853,
+      "status": "merged",
+      "merged": "2026-06-06 11:26:57",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "4 files — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 854,
+      "status": "merged",
+      "merged": "2026-06-06 11:33:39",
+      "day": "2026-06-06",
+      "version": "0.61.340",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Taiwan Michelin — 196 curated venues (2025-only) + 3 CITY_IATA keys",
+      "approach": "## What Loads the operator's curated `instruction/Taiwan.js` into the empty `TW-michelin.js` stub — **196 venues** across 7 cities (Taipei 80, Tainan 30, Taichung 28, Kaohsiung 28, New Taipei 15, Hsinchu County 8, Hsinchu City 7).",
+      "codeImpact": "6 files — TW-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "TW-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.340: Taiwan Michelin — 196 curated venues (2025-only) + 3 CITY_IATA keys",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 855,
+      "status": "merged",
+      "merged": "2026-06-06 11:43:15",
+      "day": "2026-06-06",
+      "version": "0.61.341",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Vietnam Michelin — 83 curated venues + VN manifest",
+      "approach": "## What Loads the operator's curated `instruction/Vietnam.js` into the empty `VN-michelin.js` stub — **83 venues** (HCMC 32, Hanoi 27, Da Nang 24).",
+      "codeImpact": "6 files — VN-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "VN-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.341: Vietnam Michelin — 83 curated venues + VN manifest",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 856,
+      "status": "merged",
+      "merged": "2026-06-06 11:50:14",
+      "day": "2026-06-06",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "2 files — instruction/",
+      "modules": [
+        "instruction/"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 857,
+      "status": "merged",
+      "merged": "2026-06-06 11:50:54",
+      "day": "2026-06-06",
+      "version": "0.61.342",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Hong Kong Michelin — 147 curated venues + CITY_IATA key (no Macau)",
+      "approach": "## What Loads the operator's curated `instruction/HongKong.js` into the empty `HK-michelin.js` stub — **147 venues**, single city \"Hong Kong\".",
+      "codeImpact": "6 files — HK-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "HK-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.342: Hong Kong Michelin — 147 curated venues + CITY_IATA key (no Macau)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 858,
+      "status": "merged",
+      "merged": "2026-06-06 11:56:26",
+      "day": "2026-06-06",
+      "version": "0.61.343",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Macau Michelin — NEW MO-michelin.js (34 venues) + loader registration",
+      "approach": "## What Macau is now loaded — but it's a **new ISO-2 country (`MO`)**, so unlike the others (which filled existing stubs) this **creates** `MO-michelin.js` and registers it.",
+      "codeImpact": "6 files — MO-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "MO-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.343: Macau Michelin — NEW MO-michelin.js (34 venues) + loader registration",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 859,
+      "status": "merged",
+      "merged": "2026-06-06 12:01:34",
+      "day": "2026-06-06",
+      "version": "0.61.344",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Philippines Michelin — NEW PH-michelin.js (34 venues, 2026-only)",
+      "approach": "## What The Philippines' inaugural Michelin edition — a **new ISO-2 country (`PH`)**, so this **creates** `PH-michelin.js` and registers it (like Macau).",
+      "codeImpact": "6 files — PH-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "PH-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.344: Philippines Michelin — NEW PH-michelin.js (34 venues, 2026-only)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 860,
+      "status": "merged",
+      "merged": "2026-06-06 12:19:08",
+      "day": "2026-06-06",
+      "version": "0.61.345",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Mainland China Michelin — 475 curated venues (last stub) + 9 CITY_IATA cities",
+      "approach": "## What Fills the **last empty stub** with the operator's curated `instruction/China.js` — **475 venues** (2nd-biggest after Japan), 15 cities, native `nameZh`/`addressZh` on every row (hanzi preserved: 潮上潮 (朝阳) / 朝阳区金和东路…).",
+      "codeImpact": "6 files — CN-michelin.js, michelin-data.js, tests, doc, package",
+      "modules": [
+        "CN-michelin.js",
+        "tests",
+        "doc",
+        "michelin-data.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.345: Mainland China Michelin — 475 curated venues (last stub) + 9 CITY_IATA cities",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 861,
+      "status": "merged",
+      "merged": "2026-06-06 12:51:02",
+      "day": "2026-06-06",
+      "version": "0.61.346",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin live search goes multi-country (wire the loader)",
+      "approach": "## What Connects the 1925-venue `michelin-data.js` loader (10 countries) to the **live** Michelin search.",
+      "codeImpact": "7 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.346: Michelin live search goes multi-country (wire the loader)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 862,
+      "status": "merged",
+      "merged": "2026-06-06 12:57:21",
+      "day": "2026-06-06",
+      "version": "0.61.347",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: remove Laos / Cambodia / Myanmar from the OTHER picker",
+      "approach": "## What Removes **Laos, Cambodia, Myanmar** from the OTHER-mode location picker — none has a Michelin guide.",
+      "codeImpact": "7 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.347: remove Laos / Cambodia / Myanmar from the OTHER picker",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 863,
+      "status": "merged",
+      "merged": "2026-06-06 13:14:17",
+      "day": "2026-06-06",
+      "version": "0.61.348",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: expand the OTHER picker to every Michelin guide-city",
+      "approach": "## What Part 3 (final) of the Michelin live-search request — make the OTHER picker offer every city where a Michelin venue exists.",
+      "codeImpact": "9 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.348: expand the OTHER picker to every Michelin guide-city",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 864,
+      "status": "merged",
+      "merged": "2026-06-06 14:01:54",
+      "day": "2026-06-06",
+      "version": "0.61.349",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: New pill uses /hidden review-time newness (drop ≤150-review proxy)",
+      "approach": "## What The Cuisine TMA **🆕 New** pill stops using the crude **≤150-review proxy** (v0.57.6) and adopts **`/hidden`'s review-time refute**.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.349: New pill uses /hidden review-time newness (drop ≤150-review proxy)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 865,
+      "status": "merged",
+      "merged": "2026-06-06 21:56:22",
+      "day": "2026-06-06",
+      "version": "0.61.350",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin result label country-aware + hint below edition line",
+      "approach": "## Bug (operator screenshot) Searched **Seoul** → results were correct (Korean venues) **but the subtitle read \"Michelin Singapore 2025\"**, and the \"N more to explore\" hint sat *above* the card.",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.350: Michelin result label country-aware + hint below edition line",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 866,
+      "status": "merged",
+      "merged": "2026-06-06 22:22:21",
+      "day": "2026-06-06",
+      "version": "0.61.351",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: city-aware Michelin hint (Explore N more in <City> · M across <Country>)",
+      "approach": "## What Operator: picking **Seoul** should make the hint read **`📚 Explore 81 more in Seoul · 117 across 🇰🇷 South Korea`** — lead with the city, give the national list as context.",
+      "codeImpact": "5 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.351: city-aware Michelin hint (Explore N more in <City> · M across <Country>)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 867,
+      "status": "merged",
+      "merged": "2026-06-06 23:51:43",
+      "day": "2026-06-06",
+      "version": "0.61.352",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Recognised lists",
+      "intent": "Refactor: centroid-table refactor PR 1 — geocoded 139-city table",
+      "approach": "## What (PR 1 of the location-state refactor) Replaces the legacy **19-row** inline `CITY_CENTROIDS` with your full **139-city** centroid list — each the principal central transit station / historic centre — in a new `city-centroids.js`.",
+      "codeImpact": "7 files — city-centroids.js, place-search-variance.js, tests, doc, package, scripts/",
+      "modules": [
+        "tests",
+        "city-centroids.js",
+        "doc",
+        "package",
+        "place-search-variance.js",
+        "scripts/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.352: centroid-table refactor PR 1 — geocoded 139-city table",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 868,
+      "status": "merged",
+      "merged": "2026-06-07 00:30:08",
+      "day": "2026-06-07",
+      "version": "0.61.353",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: location-state PR 2 — map tracking + ↩ Back to last search area",
+      "approach": "## What (PR 2 of the location-state refactor — the additive core of \"1, 2\") - **Map-view tracking** — `MapPanel` reports its live centre on `idle` → App `mapViewLocation`.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.353: location-state PR 2 — map tracking + ↩ Back to last search area",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 869,
+      "status": "merged",
+      "merged": "2026-06-07 01:02:17",
+      "day": "2026-06-07",
+      "version": "0.61.354",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: location-state PR 3 — city pick previews; search commits on 🔍",
+      "approach": "## What (the behavioural core of \"1\") An **OTHER city change is now a PREVIEW** — it flies the map but **doesn't move the search** until you confirm.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.354: location-state PR 3 — city pick previews; search commits on 🔍",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 870,
+      "status": "merged",
+      "merged": "2026-06-07 02:02:02",
+      "day": "2026-06-07",
+      "version": "0.61.355",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Oversight / usage stats",
+      "intent": "Fix: location-sync poller — follow the device on load (stale-flag fix)",
+      "approach": "## What Fixes the **recurring stale-flag** problem: TMAs resolve location once on mount and never refresh, so the country flag stays wrong after you physically move.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.355: location-sync poller — follow the device on load (stale-flag fix)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 871,
+      "status": "merged",
+      "merged": "2026-06-07 02:10:10",
+      "day": "2026-06-07",
+      "version": "0.61.356",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: location-sync rollout — Menu TMA follows the device on load",
+      "approach": "## What Rolls the v0.61.355 stale-flag poller into the **Menu** TMA.",
+      "codeImpact": "5 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.356: location-sync rollout — Menu TMA follows the device on load",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 872,
+      "status": "merged",
+      "merged": "2026-06-07 02:21:57",
+      "day": "2026-06-07",
+      "version": "0.61.357",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: location-state PR 4 — OTHER picker capital-first reorder",
+      "approach": "## What (PR 4 of the location-state refactor) Reorders every OTHER-mode country block in **both** `cities.js` copies **capital-first, then by city size**.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.357: location-state PR 4 — OTHER picker capital-first reorder",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 873,
+      "status": "merged",
+      "merged": "2026-06-07 02:32:57",
+      "day": "2026-06-07",
+      "version": "0.61.358",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: location-state safeguard — debounce the city-preview map fly",
+      "approach": "The spec's last open safeguard.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.358: location-state safeguard — debounce the city-preview map fly",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 874,
+      "status": "merged",
+      "merged": "2026-06-07 03:08:38",
+      "day": "2026-06-07",
+      "version": "0.61.359",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: native-script venue names — Name (local script) across all surfaces",
+      "approach": "## What Adds a `(local script)` line after the venue name — **Tokyo Station (東京駅)** — across **Result Card · Copy · Copy-To · Free-text**.",
+      "codeImpact": "8 files — index.js, local-name.js, venue-templates.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "local-name.js",
+        "package",
+        "venue-templates.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.359: native-script venue names — Name (local script) across all surfaces",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 875,
+      "status": "merged",
+      "merged": "2026-06-07 03:43:52",
+      "day": "2026-06-07",
+      "version": "0.61.360",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: FX USD-pivot table — Alpha Vantage + Frankfurter fallback, 15-day cache, +2.8% markup, \"≈\"",
+      "approach": "## FX engine — PR 1 of 2 Operator added `ALPHAVANTAGE_API_KEY` for real FX rates because *\"only in Malaysia that is rigid with fixed foreign currency exchange rate\"*.",
+      "codeImpact": "5 files — currency-format.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "currency-format.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.360: FX USD-pivot table — Alpha Vantage + Frankfurter fallback, 15-day cache, +2.8% markup, \"≈\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 876,
+      "status": "merged",
+      "merged": "2026-06-07 03:54:28",
+      "day": "2026-06-07",
+      "version": "0.61.361",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: FX Option B — convert venue prices into the user's DEVICE home currency",
+      "approach": "## FX feature — PR 2 of 2 (Option B) Builds on the v0.61.360 USD-pivot engine.",
+      "codeImpact": "7 files — index.js, currency-format.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "currency-format.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.361: FX Option B — convert venue prices into the user's DEVICE home currency",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 877,
+      "status": "merged",
+      "merged": "2026-06-07 04:58:09",
+      "day": "2026-06-07",
+      "version": "0.61.362",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: location-sync follows the flag globally — not just SG/MY",
+      "approach": "## Fix — the 20 s location-sync now flips the flag everywhere, not just SG/MY Operator: *\"i thought the 20 seconds codes will detect the location and the flag.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.362: location-sync follows the flag globally — not just SG/MY",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 878,
+      "status": "merged",
+      "merged": "2026-06-07 05:45:07",
+      "day": "2026-06-07",
+      "version": "0.61.363",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: per-device location + country keys — one chatId, many devices",
+      "approach": "## Fix — concurrent devices no longer clobber each other's location Operator: *\"i can have one telegram ChatID, but 5 devices (correct?) and each device's location set is different\"* → chose **option 1** (per-device key).",
+      "codeImpact": "13 files — index.js, country-pref.js, location-cache.js, TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "country-pref.js",
+        "doc",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.363: per-device location + country keys — one chatId, many devices",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 879,
+      "status": "merged",
+      "merged": "2026-06-07 05:59:51",
+      "day": "2026-06-07",
+      "version": "0.61.364",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: LocationField OTHER-picker pill polish — font −2 + city flush to country",
+      "approach": "## PR 1 of 2 — the low-risk UI half From the operator's multi-part request (screenshots VN/PQC + JP/OSA).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.364: LocationField OTHER-picker pill polish — font −2 + city flush to country",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 880,
+      "status": "merged",
+      "merged": "2026-06-07 06:09:21",
+      "day": "2026-06-07",
+      "version": "0.61.365",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: mismatch/auto-load gate — 0.3s settle + persist before load",
+      "approach": "## PR 2 of 2 — the behavioural half Operator: *\"don't auto-load 5 cuisine's eateries if location is detected different … give 0.3 second pause to ensure it is resolved (solution should be actual street+building+city) and write to user's…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.365: mismatch/auto-load gate — 0.3s settle + persist before load",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 881,
+      "status": "merged",
+      "merged": "2026-06-07 06:36:41",
+      "day": "2026-06-07",
+      "version": "0.61.366",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Menu hub",
+      "intent": "Fix: Menu picker country follows the detected anchor (fixes JP·FUK in Hanoi)",
+      "approach": "## Fix — Menu picker showed JP · FUK while physically in Hanoi Operator (in Hanoi): the Menu location picker read **JP · FUK** instead of **VN · Hanoi**, and noted the default city should be the capital.",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.366: Menu picker country follows the detected anchor (fixes JP·FUK in Hanoi)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 882,
+      "status": "merged",
+      "merged": "2026-06-07 06:54:10",
+      "day": "2026-06-07",
+      "version": "0.61.367",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: HOTFIX gate-settle hang on conflict-resolve → new centroid",
+      "approach": "## Hotfix — hang regression from v0.61.365 Operator: *\"pick a new country+city in Menu, launch Cuisine; if the location conflict is resolved it should go to the new place centroid.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.367: HOTFIX gate-settle hang on conflict-resolve → new centroid",
+      "reworkCue": false,
+      "reworkOf": 880,
+      "burst": true
+    },
+    {
+      "pr": 883,
+      "status": "merged",
+      "merged": "2026-06-07 07:11:09",
+      "day": "2026-06-07",
+      "version": "0.61.368",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: REVERT the 0.3s gate settle — un-hang Menu→Cuisine boot",
+      "approach": "## Revert — un-hang the boot Operator: *\"still hung.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.368: REVERT the 0.3s gate settle — un-hang Menu→Cuisine boot",
+      "reworkCue": true,
+      "reworkOf": 882,
+      "burst": true
+    },
+    {
+      "pr": 884,
+      "status": "merged",
+      "merged": "2026-06-07 08:00:50",
+      "day": "2026-06-07",
+      "version": "0.61.369",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: Menu pill flag derives from anchor coords (fixes Bukit Merah + VN flag)",
+      "approach": "## Fix — Menu showed Bukit Merah (SG) with a 🇻🇳 flag Operator [Image 7]: the Menu location pill rendered **Bukit Merah** (Singapore) under a **🇻🇳 VN flag**.",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.369: Menu pill flag derives from anchor coords (fixes Bukit Merah + VN flag)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 885,
+      "status": "merged",
+      "merged": "2026-06-07 08:08:58",
+      "day": "2026-06-07",
+      "version": "0.61.370",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Menu SG-only tiles re-enable from anchor coords (not stale region)",
+      "approach": "## Fix — SG tiles greyed in Singapore due to a stale saved region Operator chose **option 1** (reconcile region from coords).",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.370: Menu SG-only tiles re-enable from anchor coords (not stale region)",
+      "reworkCue": true,
+      "reworkOf": 884,
+      "burst": false
+    },
+    {
+      "pr": 886,
+      "status": "merged",
+      "merged": "2026-06-07 08:25:20",
+      "day": "2026-06-07",
+      "version": "0.61.371",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine holds an explicit pick — stop device-sync overriding a Menu location",
+      "approach": "## Fix — Menu location pick ignored by Cuisine (loads device's city instead) Operator: pick a different location in Menu (Tokyo), launch Cuisine — but the map + first 5 stay **Singapore** (the device's physical location).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.371: Cuisine holds an explicit pick — stop device-sync overriding a Menu location",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 887,
+      "status": "merged",
+      "merged": "2026-06-07 08:44:49",
+      "day": "2026-06-07",
+      "version": "0.61.372",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Cuisine Picker",
+      "intent": "Add tests: follow-sync race gate (tested) + OTHER-picker ✏️ overflow",
+      "approach": "## Verified two root causes (code verification per request) + fixed both, with tests ### (A) \"Other mode, still searching Singapore\" — the search centre Railway: `[menu/set-location] Wellington -41.2865,174.7762` + `country-pref → NZ`,…",
+      "codeImpact": "7 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.372: follow-sync race gate (tested) + OTHER-picker ✏️ overflow",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 888,
+      "status": "merged",
+      "merged": "2026-06-07 09:05:07",
+      "day": "2026-06-07",
+      "version": "0.61.373",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: decompress stage 1 — region-coherent search-centre single source",
+      "approach": "## \"Fix the over-compress\" — stage 1 (the highest-impact, tested, bounded piece) The recurring \"Other mode, still searching Singapore\" bug class comes from the **search centre and the region being resolved separately**.",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.373: decompress stage 1 — region-coherent search-centre single source",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 889,
+      "status": "merged",
+      "merged": "2026-06-07 09:22:10",
+      "day": "2026-06-07",
+      "version": "0.61.374",
+      "minor": "0.61",
+      "category": "refactor",
+      "area": "Recognised lists",
+      "intent": "Refactor: Singapore Michelin gets the new city-aware hint (de-duped)",
+      "approach": "## Fix A — Singapore Michelin now uses the new display hint Operator investigated the stale Michelin strings → chose **fix A**.",
+      "codeImpact": "5 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.374: Singapore Michelin gets the new city-aware hint (de-duped)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 890,
+      "status": "merged",
+      "merged": "2026-06-07 09:38:46",
+      "day": "2026-06-07",
+      "version": "0.61.375",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: drop the hard-coded \"Michelin Singapore 2025\" year (fix B)",
+      "approach": "## Fix B — de-stale the \"Michelin Singapore 2025\" label Operator chose **fix B** (after A).",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.375: drop the hard-coded \"Michelin Singapore 2025\" year (fix B)",
+      "reworkCue": false,
+      "reworkOf": 888,
+      "burst": true
+    },
+    {
+      "pr": 891,
+      "status": "merged",
+      "merged": "2026-06-07 12:17:09",
+      "day": "2026-06-07",
+      "version": "0.61.376",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: device currency follows the iOS Region, not the Language",
+      "approach": "## Fix — GBP shown for a Singapore-Region phone Operator (IMG_2322 + IMG_2323): a Japan venue's **¥10000** converted to **≈£47.79 (GBP)** while physically in Singapore.",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.376: device currency follows the iOS Region, not the Language",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 892,
+      "status": "merged",
+      "merged": "2026-06-07 12:39:08",
+      "day": "2026-06-07",
+      "version": "0.61.377",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: durian/fruit special modes include JP/KR/TH/TW locale text",
+      "approach": "## Build — durian/fruit matching now recognises Japanese / Korean / Thai / Taiwan script Operator: *\"if it is in japan, korea, thai, indonesia, china, taiwan, would you include translated locale text?\"* → build.",
+      "codeImpact": "5 files — special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.377: durian/fruit special modes include JP/KR/TH/TW locale text",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 893,
+      "status": "merged",
+      "merged": "2026-06-07 14:12:43",
+      "day": "2026-06-07",
+      "version": "0.61.378",
+      "minor": "0.61",
+      "category": "test",
+      "area": "/eat /drink flow",
+      "intent": "Add tests: durian/durian-pastry per-picker-city coverage probe (result: no zeros)",
+      "approach": "## Probe — \"which picker city gives zero durian / durian-pastry?\" Operator asked for a 3-fire-per-city coverage audit of both durian modes.",
+      "codeImpact": "6 files — durian-variance-runner.js, tests, doc, package, scripts/",
+      "modules": [
+        "tests",
+        "doc",
+        "durian-variance-runner.js",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.378: durian/durian-pastry per-picker-city coverage probe (result: no zeros)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 894,
+      "status": "merged",
+      "merged": "2026-06-07 15:10:57",
+      "day": "2026-06-07",
+      "version": "0.61.379",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "vault snapshot — vault/v0.61.378/ (append-only)",
+      "approach": "## Vault snapshot — `vault/v0.61.378/` Operator: **\"vault\"**.",
+      "codeImpact": "1370 files — doc, vault, package",
+      "modules": [
+        "doc",
+        "package",
+        "vault"
+      ],
+      "nFiles": 1370,
+      "tmas": [],
+      "impactTags": [
+        "legal",
+        "doc/vault"
+      ],
+      "title": "v0.61.379: vault snapshot — vault/v0.61.378/ (append-only)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 895,
+      "status": "merged",
+      "merged": "2026-06-07 23:29:36",
+      "day": "2026-06-07",
+      "version": "0.61.380",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: global weather — Open-Meteo follows the country expansion",
+      "approach": "## Why Operator: **\"build weather\"** — the live weather chip was **Singapore-only**.",
+      "codeImpact": "8 files — index.js, weather.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "weather.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.380: global weather — Open-Meteo follows the country expansion",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 896,
+      "status": "merged",
+      "merged": "2026-06-08 00:12:28",
+      "day": "2026-06-08",
+      "version": "0.61.381",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "fix Sanctuary-read leaking Gemini's chat refusal onto cards",
+      "approach": "## The bug (operator screenshot) A Seoul venue card (**종로은행나무집 시청점**) printed Gemini's **chat refusal** as its \"Sanctuary read\": > *I don't have any reviews provided in your message to analyze… Could you please share the actual Google…",
+      "codeImpact": "5 files — vibe-summary.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "vibe-summary.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.381: fix Sanctuary-read leaking Gemini's chat refusal onto cards",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 897,
+      "status": "merged",
+      "merged": "2026-06-08 00:20:34",
+      "day": "2026-06-08",
+      "version": "0.61.382",
+      "minor": "0.61",
+      "category": "prompt-tune",
+      "area": "Cuisine Picker",
+      "intent": "Add: readable foreign-name line (Gemini romanisation, kept beside native name)",
+      "approach": "## Why A foreign-script venue name (Seoul: **종로은행나무집 시청점**) is unreadable to a non-Korean user.",
+      "codeImpact": "8 files — index.js, translate-name.js, venue-templates.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "translate-name.js",
+        "venue-templates.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.382: readable foreign-name line (Gemini romanisation, kept beside native name)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 898,
+      "status": "merged",
+      "merged": "2026-06-08 00:41:25",
+      "day": "2026-06-08",
+      "version": "0.61.383",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: global + device-localized fact cards, rotating every 15s",
+      "approach": "## Why **Task 1** — during the up-to-60s search wait, the fact card showed **Singapore** trivia in **English only**, as a **single** fact.",
+      "codeImpact": "8 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.383: global + device-localized fact cards, rotating every 15s",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 899,
+      "status": "merged",
+      "merged": "2026-06-08 00:54:26",
+      "day": "2026-06-08",
+      "version": "0.61.384",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Core / misc",
+      "intent": "Reword: fact-card translation review pass (3 corrections)",
+      "approach": "## Why Operator chose **\"1\"** — native-review the v0.61.383 global fact-card translations (flagged provisional).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.384: fact-card translation review pass (3 corrections)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 900,
+      "status": "merged",
+      "merged": "2026-06-08 01:14:14",
+      "day": "2026-06-08",
+      "version": "0.61.385",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: foreign-name reading = place language (device language)",
+      "approach": "## Why (operator screenshot, Osaka) **丝绸之路 新疆菜** (a Chinese restaurant in Osaka) showed its reading as **pinyin + English** — `Sichou Zhilu Xinjiang Cai (Silk Road Xinjiang Cuisine)`.",
+      "codeImpact": "7 files — index.js, translate-name.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "translate-name.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.385: foreign-name reading = place language (device language)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 901,
+      "status": "merged",
+      "merged": "2026-06-08 01:37:28",
+      "day": "2026-06-08",
+      "version": "0.61.386",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "add apex / route so soleat.net/ stops 404-ing",
+      "approach": "## Why Operator pasted an edge log: `GET /` on `soleat.net` → **404** (clientUa `axios/0.19.2`, a monitor/script).",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.386: add apex / route so soleat.net/ stops 404-ing",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 902,
+      "status": "merged",
+      "merged": "2026-06-08 02:13:21",
+      "day": "2026-06-08",
+      "version": "0.61.387",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: first load keeps the wait banner — no fact card, no 20s re-search",
+      "approach": "## Why Operator: *\"first load cross 20 seconds threshold\"* → *\"first load just ask user to wait, **don't need fact card** — only subsequent results\"* → *\"keep to current display message and not use fact card\"*.",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.387: first load keeps the wait banner — no fact card, no 20s re-search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 903,
+      "status": "merged",
+      "merged": "2026-06-08 02:34:18",
+      "day": "2026-06-08",
+      "version": "0.61.388",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: forex follows the device REGION, never the language",
+      "approach": "## Why (operator, 100% traced) A phone with **Language = English(UK)** but **Region = Singapore** was converting to **£**.",
+      "codeImpact": "5 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.388: forex follows the device REGION, never the language",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 904,
+      "status": "merged",
+      "merged": "2026-06-08 03:34:56",
+      "day": "2026-06-08",
+      "version": "0.61.389",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: social links from the website + Custom Search, not Gemini",
+      "approach": "## Why The 📱 social row looked up Instagram/etc.",
+      "codeImpact": "5 files — social-profiles.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "social-profiles.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.389: social links from the website + Custom Search, not Gemini",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 905,
+      "status": "merged",
+      "merged": "2026-06-08 04:26:51",
+      "day": "2026-06-08",
+      "version": "0.61.390",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: review quote falls back past the 4-month recency filter",
+      "approach": "## Why Cards showed **no 💬 review quote** on many SG venues.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.390: review quote falls back past the 4-month recency filter",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 906,
+      "status": "merged",
+      "merged": "2026-06-08 05:09:12",
+      "day": "2026-06-08",
+      "version": "0.61.391",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: kill the mismatch-modal-over-loading double-state (deterministic countryPref gate)",
+      "approach": "## Why (operator: \"this problem again\") The **Location-mismatch modal** rendered **at the same time** as **\"Please wait while loading random eateries…\"** (+ \"Showing 0 results · Loading…\").",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.391: kill the mismatch-modal-over-loading double-state (deterministic countryPref gate)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 907,
+      "status": "merged",
+      "merged": "2026-06-08 05:22:48",
+      "day": "2026-06-08",
+      "version": "0.61.392",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: drop the build date/time from the Cuisine footer",
+      "approach": "## Why Operator: the Cuisine footer still showed `· built 2026-06-08 04:28 UTC` — believed handled in a previous PR.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.392: drop the build date/time from the Cuisine footer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 908,
+      "status": "merged",
+      "merged": "2026-06-08 05:28:54",
+      "day": "2026-06-08",
+      "version": "0.61.393",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: REVERT v0.61.391 — the countryPref gate hung the first load (critical)",
+      "approach": "## CRITICAL — emergency revert Prod (v0.61.391) **hung** \"loading first 5\".",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.393: REVERT v0.61.391 — the countryPref gate hung the first load (critical)",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 909,
+      "status": "merged",
+      "merged": "2026-06-08 05:47:30",
+      "day": "2026-06-08",
+      "version": "0.61.394",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: first load runs the full search (full card), not the lean warm-start",
+      "approach": "## Why (operator, urgent) First load came up **without the full card** (no review/type/price/social).",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.394: first load runs the full search (full card), not the lean warm-start",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 910,
+      "status": "merged",
+      "merged": "2026-06-08 07:23:13",
+      "day": "2026-06-08",
+      "version": "0.61.395",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Track A/B seed-localisation (durian-pastry + New-pill recall in non-English cities)",
+      "approach": "## Why The 08-06 diagnostic verdicts: **Track A** durian-pastry=0-in-Tokyo = **localisation/seed-language** (live searched English seeds; the \"138-city\" probe used local seeds → found data, never validated production).",
+      "codeImpact": "6 files — index.js, special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.395: Track A/B seed-localisation (durian-pastry + New-pill recall in non-English cities)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 911,
+      "status": "merged",
+      "merged": "2026-06-08 07:32:43",
+      "day": "2026-06-08",
+      "version": "0.61.396",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: mismatch → non-SG country routes the map + fires the first 5",
+      "approach": "## Why (operator, urgent) Resolving the location-mismatch modal to **JP** did **nothing** — no map reroute, no first-5, the JP city wasn't shown.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.396: mismatch → non-SG country routes the map + fires the first 5",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 912,
+      "status": "merged",
+      "merged": "2026-06-08 08:19:37",
+      "day": "2026-06-08",
+      "version": "0.61.397",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: block durian / fruits / durian-pastry outside the SE-Asian durian belt",
+      "approach": "## What Block the **Durian / Fruits / Durian-pastry** special modes outside the SE-Asian durian belt — they returned wrong answers elsewhere (e.g.",
+      "codeImpact": "9 files — index.js, special-mode.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.397: block durian / fruits / durian-pastry outside the SE-Asian durian belt",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 913,
+      "status": "merged",
+      "merged": "2026-06-08 08:37:52",
+      "day": "2026-06-08",
+      "version": "0.61.398",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: New filter returns 0 in foreign-script countries — OR the language seeds, don't AND-combine them",
+      "approach": "## Bug The **New** (newly-opened) filter returns **\"no results\"** in foreign-script OTHER countries — **Tokyo, Kyoto** (operator), and the Railway logs show the same in **Incheon / Seoul / Daejeon**.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.398: New filter returns 0 in foreign-script countries — OR the language seeds, don't AND-combine them",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 914,
+      "status": "merged",
+      "merged": "2026-06-08 09:28:53",
+      "day": "2026-06-08",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 915,
+      "status": "merged",
+      "merged": "2026-06-08 09:38:03",
+      "day": "2026-06-08",
+      "version": "0.61.399",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "/hidden surprise",
+      "intent": "Add: New filter over-compresses to 0 in established markets — floor the review-time refute",
+      "approach": "## Urgent bug With the **New** pill on in **Osaka / Tokyo**, **Fruits returns 0** — and the operator's log (`log/logs.1780910707621.json`) shows it's **every cuisine**, not just fruits.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.399: New filter over-compresses to 0 in established markets — floor the review-time refute",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 916,
+      "status": "merged",
+      "merged": "2026-06-08 09:52:16",
+      "day": "2026-06-08",
+      "version": "0.61.400",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: recents drawer stores the FULL street address + correct country flag for every country",
+      "approach": "## Urgent bug The **recents drawer** (📍) shows **city-only / numeric / weird** labels and a generic 🌍 for non-SG/MY countries.",
+      "codeImpact": "6 files — index.js, recent-label.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "recent-label.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.400: recents drawer stores the FULL street address + correct country flag for every country",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 917,
+      "status": "merged",
+      "merged": "2026-06-08 11:13:09",
+      "day": "2026-06-08",
+      "version": "0.61.401",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine returns 0 on country/pin mismatch — floor the OTHER country-text-filter",
+      "approach": "## Bug With a cuisine selected, **\"so many return zero except no filter.\"** ## Root cause (from the operator's log — NOT a cuisine gate) The anchor was pinned at **VivoCity, Singapore** (`1.2647,103.8232`) but **country-pref = MY** →…",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.401: cuisine returns 0 on country/pin mismatch — floor the OTHER country-text-filter",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 918,
+      "status": "merged",
+      "merged": "2026-06-08 11:21:15",
+      "day": "2026-06-08",
+      "version": "0.61.402",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: unlock the Fruits pill everywhere; keep durian + durian-pastry belt-gated",
+      "approach": "## What Operator: **\"fruits unlock\"**.",
+      "codeImpact": "6 files — index.js, special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.402: unlock the Fruits pill everywhere; keep durian + durian-pastry belt-gated",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 919,
+      "status": "merged",
+      "merged": "2026-06-08 14:15:20",
+      "day": "2026-06-08",
+      "version": "0.61.403",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: bot TMA first impression streams one-by-one + bottom loading toast (parity with gia-web v0.1.151)",
+      "approach": "## What Operator **\"1\"** — port the gia-web v0.1.151 first-load treatment to the bot Cuisine TMA.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.403: bot TMA first impression streams one-by-one + bottom loading toast (parity with gia-web v0.1.151)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 920,
+      "status": "merged",
+      "merged": "2026-06-08 14:47:59",
+      "day": "2026-06-08",
+      "version": "0.61.404",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: location-mismatch modal — sequence the move + don't auto-load when a far spot is kept",
+      "approach": "## What Operator **\"go\"** to the proposed flow for the location-mismatch modal: centre the map on the chosen spot **first**, commit, message, then load the first 5 **only if `device == set-location`, else stop.** The quoted *\"Your saved…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.404: location-mismatch modal — sequence the move + don't auto-load when a far spot is kept",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 921,
+      "status": "merged",
+      "merged": "2026-06-08 15:05:07",
+      "day": "2026-06-08",
+      "version": "0.61.405",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: loading indicator — drop the bottom toast, just an animated hourglass",
+      "approach": "## What Operator: *\"my mistake to move the loading message to the bottom, remove it instead animate the hourglass.\"* The v0.61.403 bottom-anchored loading toast was the wrong call.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.405: loading indicator — drop the bottom toast, just an animated hourglass",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 922,
+      "status": "merged",
+      "merged": "2026-06-08 15:15:34",
+      "day": "2026-06-08",
+      "version": "0.61.406",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: location mismatch — never ask, auto-use the current device location",
+      "approach": "## What Operator chose **\"1\"**: never ask — auto-use where you are.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.406: location mismatch — never ask, auto-use the current device location",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 923,
+      "status": "merged",
+      "merged": "2026-06-08 23:49:44",
+      "day": "2026-06-08",
+      "version": "0.61.407",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: shared set-location is authoritative — Menu TMA → Cuisine TMA aligns (revert v0.61.406 device-override)",
+      "approach": "## What Operator: set **Malaysia / Kuala Lumpur** in **Menu TMA** → open **Cuisine TMA** → it should be **Others** at **KL**, aligned **before** loading.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.407: shared set-location is authoritative — Menu TMA → Cuisine TMA aligns (revert v0.61.406 device-override)",
+      "reworkCue": true,
+      "reworkOf": 922,
+      "burst": true
+    },
+    {
+      "pr": 924,
+      "status": "merged",
+      "merged": "2026-06-09 00:17:15",
+      "day": "2026-06-09",
+      "version": "0.61.408",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: default location → last set location drawer, not hardcoded Raffles Place",
+      "approach": "Operator:** *\"in the codebase that suggest 'Raffles Place' as default, change to last set location drawer as default.\"*",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.408: default location → last set location drawer, not hardcoded Raffles Place",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 925,
+      "status": "merged",
+      "merged": "2026-06-09 01:00:55",
+      "day": "2026-06-09",
+      "version": "0.61.409",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — kill the location-mismatch popup, never auto-load on a mismatch, one inline hourglass",
+      "approach": "Operator** (free-text launch, screenshot): *\"it still shows the Location Mismatch. you should NOT load the first 5 at all if there is a location mismatch … if it is equal to device's location then load 5 or else stop loading just display…",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.409: Cuisine TMA — kill the location-mismatch popup, never auto-load on a mismatch, one inline hourglass",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 926,
+      "status": "merged",
+      "merged": "2026-06-09 01:07:32",
+      "day": "2026-06-09",
+      "version": "0.61.410",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — country-strict mismatch (different country ≠ same place even under 150 km)",
+      "approach": "Operator** (follow-up to v0.61.409): chose **country-strict** — *\"Treat a different COUNTRY as a mismatch even if it's under 150 km (e.g. saved Johor MY but device Singapore → no auto-load).\"*",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.410: Cuisine TMA — country-strict mismatch (different country ≠ same place even under 150 km)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 927,
+      "status": "merged",
+      "merged": "2026-06-09 01:39:13",
+      "day": "2026-06-09",
+      "version": "0.61.411",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — disable durian/durian-pastry chips outside the belt (not just block on search)",
+      "approach": "Operator** (urgent, screenshot — region **Others → JP / Fukuoka**): *\"The durian, durian pastry are not [properly] disable for out of six countries. Why?\"*",
+      "codeImpact": "8 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.411: Cuisine TMA — disable durian/durian-pastry chips outside the belt (not just block on search)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 928,
+      "status": "merged",
+      "merged": "2026-06-09 01:59:44",
+      "day": "2026-06-09",
+      "version": "0.61.412",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: \"Search area set to …\" chat message on a deliberate Cuisine-TMA location pick",
+      "approach": "Operator** (parked item, resolved via two questions): trigger **1** (on set-location change) → **\"Only when I pick a place\"** (a deliberate pick **and** an actual area change; never on app-open / auto-detect). Text is operator-specified.",
+      "codeImpact": "7 files — index.js, i18n.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.412: \"Search area set to …\" chat message on a deliberate Cuisine-TMA location pick",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 929,
+      "status": "merged",
+      "merged": "2026-06-09 02:16:53",
+      "day": "2026-06-09",
+      "version": "0.61.413",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "add Vietnam (VN) to the durian belt → seven countries",
+      "approach": "Operator:** *\"add vietnam to the list of six belt countries\"* The SE-Asian durian belt becomes **seven**: 🇸🇬 SG · 🇲🇾 MY · 🇮🇩 ID · 🇹🇭 TH · 🇵🇭 PH · 🇧🇳 BN · 🇻🇳 **VN**.",
+      "codeImpact": "13 files — index.js, special-mode.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.413: add Vietnam (VN) to the durian belt → seven countries",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 930,
+      "status": "merged",
+      "merged": "2026-06-09 02:28:25",
+      "day": "2026-06-09",
+      "version": "0.61.414",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Vietnam durian search returned 0 — add Vietnamese durian vocabulary (\"sầu riêng\")",
+      "approach": "Operator:** *\"why is vietnam returned zero for durians when it is also a produce of durian and durian paste\"*",
+      "codeImpact": "5 files — special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.414: Vietnam durian search returned 0 — add Vietnamese durian vocabulary (\"sầu riêng\")",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 931,
+      "status": "merged",
+      "merged": "2026-06-09 03:24:53",
+      "day": "2026-06-09",
+      "version": "0.61.415",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: recents \"Clear all\" → \"Clear all except current\" (keep the active location)",
+      "approach": "Operator:** *\"clear locations include current location which should not, please all 'Clear all except current'\"* The recents-drawer **🗑 Clear all** wiped the **whole** LRU — the **current** location included — so it vanished from the…",
+      "codeImpact": "8 files — index.js, recent-locations.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "recent-locations.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.415: recents \"Clear all\" → \"Clear all except current\" (keep the active location)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 932,
+      "status": "merged",
+      "merged": "2026-06-09 04:00:03",
+      "day": "2026-06-09",
+      "version": "0.61.416",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: durian/durian-pastry generic-term fallback (all 7 belt countries) — Brunei stops returning 0",
+      "approach": "Operator:** *\"I tested Brunei and no durian … if our FIXED DURIAN TERMS cannot satisfied, use generic terms to search.\"* → chose **all seven belt countries, not just Brunei**.",
+      "codeImpact": "6 files — index.js, special-mode.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "special-mode.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.416: durian/durian-pastry generic-term fallback (all 7 belt countries) — Brunei stops returning 0",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 933,
+      "status": "merged",
+      "merged": "2026-06-09 05:03:13",
+      "day": "2026-06-09",
+      "version": "0.61.417",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "Search / free-text",
+      "intent": "Reword: review date \"X ago\" after the closing quote — card + copy + chat",
+      "approach": "Operator:** *\"the result card, copy to, copy, free-text's result if review field row is included — it must have the date/day past … a few spacing after the closed quote … day past based on google map review.\"* → chose **Google \"X ago\"**.",
+      "codeImpact": "7 files — index.js, pipeline.js, venue-templates.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "pipeline.js",
+        "venue-templates.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.417: review date \"X ago\" after the closing quote — card + copy + chat",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 934,
+      "status": "merged",
+      "merged": "2026-06-09 05:25:19",
+      "day": "2026-06-09",
+      "version": "0.61.418",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: OTHER picker — select a country → default to its capital (Japan→Tokyo) + fly the map",
+      "approach": "Operator:** *\"Why did I select JAPAN? It doesn't select Tokyo as the first choice. … I selected the country, changed the Google map to the capital … but don't fire yet.\"*",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.418: OTHER picker — select a country → default to its capital (Japan→Tokyo) + fly the map",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 935,
+      "status": "merged",
+      "merged": "2026-06-09 05:39:20",
+      "day": "2026-06-09",
+      "version": "0.61.419",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: city search radius — nearest-neighbour cap so KL & Putrajaya don't overlap",
+      "approach": "Operator:** *\"The radius for Kuala Lumpur and Putrajaya should not overlap. please check.\"* (confirmed ~12 km)",
+      "codeImpact": "7 files — TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.419: city search radius — nearest-neighbour cap so KL & Putrajaya don't overlap",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 936,
+      "status": "merged",
+      "merged": "2026-06-09 05:52:57",
+      "day": "2026-06-09",
+      "version": "0.61.420",
+      "minor": "0.61",
+      "category": "test",
+      "area": "Cuisine Picker",
+      "intent": "Add tests: Johor as a STATE row — \"Johor state\" (italic) / code JOHOR / whole-state coverage",
+      "approach": "Operator** (issue 1b, confirmed the IATA-rule exception): *\"Johor should be display as 'Johor state' (italics) and the city code is 'JOHOR' and wired to boundary on entire state of Johor.\"*",
+      "codeImpact": "8 files — TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.420: Johor as a STATE row — \"Johor state\" (italic) / code JOHOR / whole-state coverage",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 937,
+      "status": "merged",
+      "merged": "2026-06-09 06:04:05",
+      "day": "2026-06-09",
+      "version": "0.61.421",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Menu hub",
+      "intent": "Add: region pill sticky — a country switch keeps the OTHER pill selected",
+      "approach": "Operator** (issue #4): *\"I change from Japan to Hanoi it reset the OTHER mode and unhinged the others button. Ensure others/sg/johor bahru isn't easily unhinged.\"*",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.421: region pill sticky — a country switch keeps the OTHER pill selected",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 938,
+      "status": "merged",
+      "merged": "2026-06-09 06:49:23",
+      "day": "2026-06-09",
+      "version": "0.61.422",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: country change COMMITS the capital — fixes \"selected Manila but location shows Osaka\"",
+      "approach": "Operator** (screenshot — map = Manila, location field = \"Osaka\", Others pill not lit): *\"I selected Manila but the location shows Osaka … durian in manila resulted in zero results. The mode isn't locked as Others.\"*",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.422: country change COMMITS the capital — fixes \"selected Manila but location shows Osaka\"",
+      "reworkCue": false,
+      "reworkOf": 936,
+      "burst": true
+    },
+    {
+      "pr": 939,
+      "status": "merged",
+      "merged": "2026-06-09 07:14:29",
+      "day": "2026-06-09",
+      "version": "0.61.423",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: OTHER picker — location field shows the PREVIEWED city, not the stale anchor",
+      "approach": "Operator:** *\"If I select the new city, the location erases the current address and is blank. That is the cause of confusion as country+city+location(old).\"*",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.423: OTHER picker — location field shows the PREVIEWED city, not the stale anchor",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 940,
+      "status": "merged",
+      "merged": "2026-06-09 08:43:03",
+      "day": "2026-06-09",
+      "version": "0.61.424",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "/hidden surprise",
+      "intent": "Add: \"New\" pill = last 121 days (days-precise), via review-time refute",
+      "approach": "Operator:** *\"are we wiring 'new' as last 121 days that Google can reply?\"* → chose **change to 121 days**; will verify on the deployed TMA.",
+      "codeImpact": "6 files — index.js, hidden-verify.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "hidden-verify.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.424: \"New\" pill = last 121 days (days-precise), via review-time refute",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 941,
+      "status": "merged",
+      "merged": "2026-06-09 09:07:55",
+      "day": "2026-06-09",
+      "version": "0.61.425",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: guarded 3.7 minimum-rating floor across all eatery surfaces",
+      "approach": "Operator:** *\"the minimum Google rating is 3.7 for all telegram '/' commands, queries, or cuisine TMA. Investigate whether this over-compresses.\"* → investigated; chose **guarded 3.7 floor**.",
+      "codeImpact": "6 files — index.js, venue-filters.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "venue-filters.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.425: guarded 3.7 minimum-rating floor across all eatery surfaces",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 942,
+      "status": "merged",
+      "merged": "2026-06-09 10:53:53",
+      "day": "2026-06-09",
+      "version": "0.61.426",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: per-chat rating preference — Cuisine TMA \"≥3.7\" pill + /rating command",
+      "approach": "## What & why Makes the v0.61.425 guarded **3.7 rating floor** user-configurable **and shared** across the chat and the Cuisine TMA.",
+      "codeImpact": "12 files — index.js, rating-pref.js, venue-filters.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "rating-pref.js",
+        "venue-filters.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.426: per-chat rating preference — Cuisine TMA \"≥3.7\" pill + /rating command",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 943,
+      "status": "merged",
+      "merged": "2026-06-09 11:08:36",
+      "day": "2026-06-09",
+      "version": "0.61.427",
+      "minor": "0.61",
+      "category": "copy",
+      "area": "/hidden surprise",
+      "intent": "Reword: add /rating to the public slash menu (EN + FR)",
+      "approach": "## What & why Follow-up to #942.",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.427: add /rating to the public slash menu (EN + FR)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 944,
+      "status": "merged",
+      "merged": "2026-06-09 11:20:35",
+      "day": "2026-06-09",
+      "version": "0.61.428",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: rating = real search criterion + compact 2-up panel + red→green Save",
+      "approach": "## What & why — fixes your 3 points on #942 ### 1.",
+      "codeImpact": "7 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.61.428: rating = real search criterion + compact 2-up panel + red→green Save",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 945,
+      "status": "merged",
+      "merged": "2026-06-09 13:39:52",
+      "day": "2026-06-09",
+      "version": "0.61.429",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin disables rating · \"No rating\" = new-or-null (>0) · panel re-arrange + smaller fonts",
+      "approach": "## What & why — your feedback on #944 ### 1.",
+      "codeImpact": "9 files — rating-pref.js, venue-filters.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "rating-pref.js",
+        "venue-filters.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.429: Michelin disables rating · \"No rating\" = new-or-null (>0) · panel re-arrange + smaller fonts",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 946,
+      "status": "merged",
+      "merged": "2026-06-09 13:46:26",
+      "day": "2026-06-09",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: 9 JUN 2026 - 2145",
+      "approach": "9 JUN 2026 - 2145",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "9 JUN 2026 - 2145",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 947,
+      "status": "merged",
+      "merged": "2026-06-09 14:08:57",
+      "day": "2026-06-09",
+      "version": "0.61.430",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: explicit pick wins — fixes country-drift + the MY Michelin grey-out",
+      "approach": "## What & why — your \"michelin drift + country drift\", confirmed in the log Traced `log/logs.1781012660221.json`: **Country drift (confirmed):** at `23:25:22` you set **Kuala Lumpur** → search ran `region=OTHER center=KL`.",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.430: explicit pick wins — fixes country-drift + the MY Michelin grey-out",
+      "reworkCue": false,
+      "reworkOf": 945,
+      "burst": true
+    },
+    {
+      "pr": 948,
+      "status": "merged",
+      "merged": "2026-06-09 14:59:03",
+      "day": "2026-06-09",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Search / free-text",
+      "intent": "Fix: region-aware nation-iconic & cooking-method venue search",
+      "approach": "## What broke Searching for a Singaporean dish while your country is set to **Malaysia, Indonesia, or Thailand** (or any non-SG anchor like a Bangkok/Tokyo pin) returned *\"Sorry, no Singapore venues found…\"* — even though Google Maps…",
+      "codeImpact": "6 files — index.js, region-code.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "region-code.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Fix: region-aware nation-iconic & cooking-method venue search",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 949,
+      "status": "merged",
+      "merged": "2026-06-09 15:13:13",
+      "day": "2026-06-09",
+      "version": "0.61.432",
+      "minor": "0.61",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Michelin abroad — country resolution + country-wide primary + cuisine pinned to top",
+      "approach": "## Your report: \"Malaysia + Michelin → zero (same Vietnam)\" + \"the city selected does not have Michelin\" + pin matched to top A read-only sub-agent traced it.",
+      "codeImpact": "5 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.432: Michelin abroad — country resolution + country-wide primary + cuisine pinned to top",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
