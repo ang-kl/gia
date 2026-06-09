@@ -194,6 +194,7 @@ const STRINGS = {
   'rating.custom':             { en: 'Custom', fr: 'Personnalisée' },
   'rating.customHint':         { en: '1.0 to 5.0', fr: '1.0 à 5.0' },
   'rating.save':               { en: 'Save', fr: 'Enregistrer' },
+  'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'No rating', fr: 'Sans note' },
   'rating.pillAny':            { en: 'Any', fr: 'Toutes' },
 

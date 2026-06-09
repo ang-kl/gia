@@ -352,9 +352,14 @@ export default function App() {
   // hook (NOT in `state`) so the filter-reset paths (`{...defaultState()}`)
   // never clobber the user's saved rating. Seeded '3.7' so the pill reads
   // "≥3.7" on first paint (the v0.61.425 guarded default = toggled-on); the
-  // mount effect below overwrites it with the server value. The server reads
-  // the floor from Redis on every search, so this value is display-only.
+  // mount effect below overwrites it with the server value.
   const [ratingPref, setRatingPref] = useState('3.7');
+  // v0.61.428 — forward the rating as an explicit search criterion. Gate
+  // it on having an AUTHORITATIVE value (mount-fetch succeeded OR the user
+  // saved) so the boot auto-load can't override a chat /rating value with
+  // the '3.7' default before the fetch resolves. While false, the search
+  // omits ratingPref and the server falls back to the Redis pref.
+  const [ratingLoaded, setRatingLoaded] = useState(false);
   // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
   // delivers the first 5 suggestions. Mirrors the searchHintActive
   // pattern below for the floating 🔍 FAB.
@@ -873,12 +878,16 @@ export default function App() {
   // v0.61.426 — seed the rating pill from the server on mount so it shows
   // whatever the user last set in chat (/rating) or a prior TMA session.
   // Falls back silently to the '3.7' default on any network failure / 401.
+  // v0.61.428 — on SUCCESS, mark the value authoritative so the search can
+  // forward it. On failure we deliberately leave ratingLoaded=false so the
+  // search omits it and the server uses its own Redis read.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const r = await fetchRatingPref();
       if (cancelled || !r?.ratingPref) return;
       setRatingPref((prev) => (prev === r.ratingPref ? prev : r.ratingPref));
+      setRatingLoaded(true);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -1784,7 +1793,13 @@ export default function App() {
         // inferring from cached anchor (which may be stale). Only
         // sent when region is OTHER/MY-PUT — SG/JB regions carry
         // their country implicitly through `region`.
-        countryCode: (snap.region === 'OTHER' || snap.region === 'MY-PUT') ? snap.countryPref : undefined
+        countryCode: (snap.region === 'OTHER' || snap.region === 'MY-PUT') ? snap.countryPref : undefined,
+        // v0.61.428 — forward the rating pill value as an explicit search
+        // criterion (server prefers it over the Redis pref). Makes the
+        // choice register on THIS search instead of only via the
+        // fire-and-forget Save POST. Gated on ratingLoaded so the boot
+        // load can't send the '3.7' default over a chat /rating value.
+        ratingPref: ratingLoaded ? ratingPref : undefined
       });
       // v0.61.409 — boot-load race guard. If a coherence check flagged
       // saved≠device AFTER this boot search fired (countryPref/anchor landed
@@ -2835,9 +2850,11 @@ export default function App() {
               ratingPref={ratingPref}
               onRatingSave={(value) => {
                 // v0.61.426 — commit the rating pill choice: relabel locally
-                // + persist to Redis (shared with /rating). The server reads
-                // the floor from Redis on the next search, so no body forward.
+                // + persist to Redis (shared with /rating).
+                // v0.61.428 — the value is now authoritative (the user chose
+                // it), so mark it loaded and forward it on the next search.
                 setRatingPref(value);
+                setRatingLoaded(true);
                 saveRatingPref(value).catch(() => {});
               }}
             />
