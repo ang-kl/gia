@@ -761,6 +761,13 @@ export default function App() {
             setState((s) => (s.countryPref === r.country ? s : { ...s, countryPref: r.country }));
             console.log('[Cuisine-TMA-v2] tryServerCache: countryPref → ' + r.country);
           }
+          // v0.61.438 — code review F2: an inherited LABELLED pick (a
+          // deliberate Menu/chat /location choice persisted server-side)
+          // counts as explicit — without this, the v0.61.430 drift case
+          // (KL pick yanked back to SG GPS) would regress now that the
+          // region-watching latch is gone. Plain GPS-shaped cache entries
+          // (no label) do NOT latch, so device-follow keeps working.
+          if (r.label && String(r.label).trim()) explicitPickRef.current = true;
           console.log('[Cuisine-TMA-v2] tryServerCache: HIT', r);
           return true;
         }
@@ -903,7 +910,12 @@ export default function App() {
       // own anchor, so we don't overwrite state.countryPref with SG.
       // The state.countryPref slot is dedicated to the OTHER picker.
       if (r.countryCode === 'SG') return;
-      setState((s) => (s.countryPref === r.countryCode ? s : { ...s, countryPref: r.countryCode }));
+      // v0.61.438 — code review F14: the server seed must only FILL an
+      // empty slot, never overwrite a value something fresher already set
+      // (the v0.61.430 backfill or an explicit dropdown pick). A slow GET
+      // resolving with last week's country was clobbering a just-picked
+      // one, and the backfill couldn't self-heal (it only fills empties).
+      setState((s) => (!s.countryPref ? { ...s, countryPref: r.countryCode } : s));
     })();
     return () => { cancelled = true; };
   }, []);
@@ -925,20 +937,21 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
-  // v0.61.430 — "explicit pick wins" (operator: Michelin greyed for MY +
-  // country drifting itself). Whenever the user is in a deliberately-chosen
-  // foreign region (OTHER / JB):
-  //   (a) LOCK device-follow off (explicitPickRef) so the 20 s GPS sync can't
-  //       drag the country back to the SG device location — the drift bug; and
-  //   (b) BACKFILL state.countryPref from the committed coords when it's
-  //       missing (the Menu→Cuisine handoff sets region=OTHER but left
-  //       countryPref empty → the Michelin chip read '' and greyed out, and
-  //       the server logged "no country-pref"). Deriving MY here re-enables
-  //       the Michelin chip and scopes the country-text-filter.
-  // Only fills when EMPTY, so it never overrides an explicit country pick.
+  // v0.61.430 — countryPref BACKFILL: when the user is in an OTHER region
+  // with no countryPref (the Menu→Cuisine handoff sets region=OTHER but
+  // leaves countryPref empty → the Michelin chip read '' and greyed out,
+  // and the server logged "no country-pref"), derive it from the committed
+  // coords. Only fills when EMPTY, so it never overrides an explicit pick.
+  // v0.61.438 — code review F2: this effect NO LONGER latches
+  // explicitPickRef. Inferring "explicit pick" from the RESULTING region
+  // misclassified automatic transitions — the 20 s device-follow callback
+  // and the mount auto-detect both set region OTHER/JB from raw GPS, which
+  // tripped the latch and permanently disabled device-follow for any user
+  // physically outside SG who never picked anything. The latch is now set
+  // ONLY at genuine pick gestures (onLocationSelect commits, the country
+  // dropdown, the region pills, an inherited labelled Menu pick).
   useEffect(() => {
     if (state.region !== 'OTHER' && state.region !== 'JB') return;
-    explicitPickRef.current = true;
     if (state.region === 'OTHER' && !state.countryPref) {
       const c = searchCenter || locationAnchor || userLoc;
       if (c && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
@@ -2301,6 +2314,11 @@ export default function App() {
         }, 350);
         return;
       }
+      // v0.61.438 — code review F2: a COMMITTED pick (autocomplete, map,
+      // country-capital commit, JB focus point — anything past the
+      // preview early-return) is a genuine user gesture: latch
+      // "explicit pick wins" HERE, not from the resulting region.
+      explicitPickRef.current = true;
       // v0.61.237 — operator: city / precinct picks in the OTHER
       // cascade weren't auto-refreshing the result list ("the google
       // didn't set the location and search based on the new set
@@ -2688,6 +2706,7 @@ export default function App() {
             return (
               <button key={r.id} type="button"
                 onClick={() => {
+                  explicitPickRef.current = true;   // v0.61.438 — F2: a pill tap is explicit
                   setState((s) => {
                     // v0.60.199 — ✳️ Michelin list is SG-only; when the
                     // user toggles away from SG, drop a previously-
@@ -2802,6 +2821,7 @@ export default function App() {
             // zero. Strip it here too (the same 3-state rule as the region
             // pill; only on a provable `false` — never while the catalogue
             // is still loading).
+            explicitPickRef.current = true;   // v0.61.438 — F2: dropdown pick is explicit
             setState((s) => {
               const allowed = michelinAllowedFor('OTHER', code, catalogue);
               const nextCuisines = allowed === false
