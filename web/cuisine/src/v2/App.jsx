@@ -2273,6 +2273,11 @@ export default function App() {
           lat: p.lat,
           lng: p.lng,
           label: p.label,
+          // v0.61.412 — this is the DELIBERATE user-pick path (LocationField /
+          // map / country+city), so the server fires the "Search area set to …"
+          // chat message. The boot / auto-detect saveUserLocation calls omit
+          // this flag, so they stay silent.
+          notify: true,
           // v0.61.273 — don't persist the first-paint '__NONE__'
           // sentinel; only forward a resolved region.
           region: persistRegion,
