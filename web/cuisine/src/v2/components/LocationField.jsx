@@ -989,7 +989,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // "I selected the country, changed the Google map to the capital … don't fire yet."
     if (userChangedCountryRef.current && picked) {
       userChangedCountryRef.current = false;
-      onSelect?.({ lat: picked.lat, lng: picked.lng, label: picked.name, cityPreview: true, radiusCapM: cityRadiusCapM(picked.name) });
+      onSelect?.({ lat: picked.lat, lng: picked.lng, label: picked.name, cityPreview: true, radiusCapM: cityRadiusCapM(picked, country.code) });
     }
   }, [country.code, anchor?.name, anchor?.lat, anchor?.lng, userClearedCity]);
   // v0.61.268 — reset userClearedCity on country flip so the auto-pick
@@ -1047,7 +1047,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     // stays put until 🔍). `cityPreview` routes App.onLocationSelect to its
     // preview branch. Replaces the v0.61.241 `noAutoFire` (no longer needed —
     // the preview branch never commits/searches).
-    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, cityPreview: true, radiusCapM: cityRadiusCapM(hit.name) });
+    onSelect?.({ lat: hit.lat, lng: hit.lng, label: hit.name, cityPreview: true, radiusCapM: cityRadiusCapM(hit, country.code) });
     setQuery(''); setSuggestions([]); setSuggestionsQuery('');
     // v0.61.241 — keep cityPick set so the dropdown shows the picked
     // city code (e.g. "KUL") after collapse instead of reverting to
