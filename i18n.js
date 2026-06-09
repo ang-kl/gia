@@ -120,6 +120,11 @@ const STRINGS = {
                                  fr: '🗺 <b>Sélection rapide</b> — touchez un quartier ou une ville malaisienne ci-dessous, ou partagez votre position en direct :' },
   'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
                                  fr: '📍 Position définie sur <b>{label}</b>.{cap}' },
+  // v0.61.412 — operator: when the user PICKS a new search area in a TMA and
+  // returns to chat, confirm it. Fires only on a deliberate pick AND an actual
+  // area change (never on app-open / auto-detect). {label} is HTML-escaped.
+  'loc.searchArea.set':        { en: '📍 Search area set to: <b>{label}</b>.\nUse /location to change it or return to your previous search area.',
+                                 fr: '📍 Zone de recherche définie sur : <b>{label}</b>.\nUtilisez /location pour la changer ou revenir à votre zone de recherche précédente.' },
   'loc.set.capNote':           { en: ' Searches anchored here are capped to {km} km.',
                                  fr: ' Les recherches sont limitées à {km} km autour de ce point.' },
   'loc.set.unknown':           { en: "⚠️ I don't recognise that quick-pick. Tap one of the buttons or share a pin.",

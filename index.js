@@ -1224,6 +1224,38 @@ async function resolveDefaultCenter(chatId) {
   return { ...RAFFLES_PLACE_FALLBACK, source: 'raffles' };
 }
 
+// v0.61.412 — operator: when the user PICKS a new search area in a TMA (typed
+// place / country+city / map tap) and returns to chat, fire ONE message naming
+// the area. Trigger = a DELIBERATE pick (the client sends `notify:true`; boot /
+// GPS auto-detect writes do NOT) AND the area ACTUALLY changed vs the previous
+// set-location (so re-picking the same spot stays quiet). Never fires on app
+// open. `prev` is the set-location read BEFORE the new one was persisted.
+async function notifySearchAreaSet({ chatId, prev, lat, lng, label }) {
+  try {
+    const { haversineMeters } = require('./location-mode');
+    const movedFar = !prev || !Number.isFinite(prev.lat) || !Number.isFinite(prev.lng)
+      || haversineMeters({ lat: prev.lat, lng: prev.lng }, { lat, lng }) > 1000;
+    const labelChanged = !!label && !!prev && prev.label && prev.label !== label;
+    if (!movedFar && !labelChanged) return;   // same area → stay quiet
+    let name = (label || '').trim();
+    if (!name) {
+      const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
+      name = (geo && (geo.name || geo.formatted)) || `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+    }
+    const { resolveLang } = require('./user-prefs');
+    const { tn } = require('./i18n');
+    const lang = await resolveLang(redis, chatId);
+    await bot.sendMessage(
+      chatId,
+      tn('loc.searchArea.set', lang, { label: escapeHtmlForTelegram(name) }),
+      { parse_mode: 'HTML' }
+    );
+    console.log(`[set-location] search-area notify chat=${chatId} label="${name.slice(0, 40)}"`);
+  } catch (err) {
+    console.warn('[set-location] search-area notify failed:', err && err.message);
+  }
+}
+
 async function startSanctuaryFlow(chatId, category, prompt) {
   // v0.61.408 — default to the last set location (drawer top) before asking.
   // Only a true first-timer (no cache AND no recents) still sees the share prompt.
@@ -13527,7 +13559,16 @@ async function cacheBotUsername() {
         if (typeof postal === 'string' && postal.trim()) opts.postal = postal.trim();
         if (Number.isFinite(radiusCapM) && radiusCapM > 0) opts.radiusCapM = radiusCapM;
         opts.deviceId = readDeviceId(req); // v0.61.363 per-device key
+        // v0.61.412 — read the PREVIOUS set-location before overwriting, so the
+        // "Search area set to …" notify can fire only on an actual area change.
+        const prevLoc = await getUserLocation(redis, String(userId), opts.deviceId).catch(() => null);
         await setUserLocation(redis, String(userId), lat, lng, opts);
+        // v0.61.412 — operator: confirm a DELIBERATE pick in chat (client sends
+        // notify:true; boot / auto-detect writes don't). Fire-and-forget so the
+        // HTTP 200 isn't delayed by the geocode / sendMessage round-trip.
+        if (req.body?.notify === true) {
+          notifySearchAreaSet({ chatId: String(userId), prev: prevLoc, lat, lng, label: opts.label || '' });
+        }
         // v0.61.197 — recent-locations LRU. The TMA POSTs only lat/lng
         // (no label); we record an empty label which the chat /lrecent
         // surface renders as "<lat>, <lng>" so the row is still tappable.

@@ -362,8 +362,12 @@ export async function clearRecentLocationsRemote() {
 // (server route v0.61.270 brings them to parity with /api/menu/
 // set-location). Pre-v0.61.270 callers (lat/lng only) keep working —
 // the server treats the missing fields as "don't persist".
-export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal, radiusCapM }) {
+export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal, radiusCapM, notify }) {
   const body = { lat, lng };
+  // v0.61.412 — `notify:true` is sent ONLY by a deliberate user pick (not the
+  // boot / auto-detect saves), so the server fires the "Search area set to …"
+  // chat message only when the user actually chose a place.
+  if (notify === true) body.notify = true;
   if (label) body.label = label;
   if (country) body.country = country;
   if (region) body.region = region;
