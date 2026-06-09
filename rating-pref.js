@@ -84,36 +84,39 @@ function describeRatingPref(value) {
   return `≥${v}`;
 }
 
-// ---- per-device Redis plumbing (mirrors country-pref.js) ----
+// ---- Redis plumbing ----
+//
+// v0.61.436 — the per-device layer (copied from country-pref.js in
+// v0.61.426) is REMOVED. Code review: the chat /rating command writes only
+// the chat-level key, while the TMA + search seam read the device key
+// FIRST (365-day TTL) — so one TMA Save permanently shadowed every later
+// chat-side /rating change on that device, breaking the advertised
+// two-way sync. Rating is a per-CHAT preference (unlike country, there is
+// no "different device in a different country" rationale), so ONE
+// chat-level key is the whole contract. Old `:dev:` keys are simply no
+// longer read and age out via TTL.
+//
+// getUserRatingPref returns DEFAULT_RATING when the pref is genuinely
+// UNSET (no redis configured / no chatId / key absent) — that default is
+// authoritative. Redis OPERATION errors now PROPAGATE (v0.61.436): the
+// /api/cuisine/rating-pref GET must answer 5xx (so the TMA does not mark
+// a fallback default as the user's authoritative value), while the search
+// floor seams catch and fall back to the default themselves.
 
-function _sanitizeDeviceId(deviceId) {
-  if (!deviceId) return null;
-  const clean = String(deviceId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
-  return clean || null;
-}
-
-async function getUserRatingPref(redis, chatId, deviceId) {
+async function getUserRatingPref(redis, chatId) {
   if (!redis || !chatId) return DEFAULT_RATING;
-  try {
-    if (!redis.isOpen) await redis.connect();
-    const dev = _sanitizeDeviceId(deviceId);
-    let raw = dev ? await redis.get(`rating-pref:${chatId}:dev:${dev}`).catch(() => null) : null;
-    if (!raw) raw = await redis.get(`rating-pref:${chatId}`).catch(() => null);
-    const norm = normalizeRatingPref(raw);
-    if (norm) return norm;
-  } catch { /* non-fatal — default */ }
-  return DEFAULT_RATING;
+  if (!redis.isOpen) await redis.connect();
+  const raw = await redis.get(`rating-pref:${chatId}`);
+  return normalizeRatingPref(raw) || DEFAULT_RATING;
 }
 
-async function setUserRatingPref(redis, chatId, value, deviceId) {
+async function setUserRatingPref(redis, chatId, value) {
   if (!redis || !chatId) return false;
   const norm = normalizeRatingPref(value);
   if (!norm) return false;
   try {
     if (!redis.isOpen) await redis.connect();
     await redis.setEx(`rating-pref:${chatId}`, PREF_TTL, norm);
-    const dev = _sanitizeDeviceId(deviceId);
-    if (dev) await redis.setEx(`rating-pref:${chatId}:dev:${dev}`, PREF_TTL, norm);
     return true;
   } catch (err) {
     console.warn('[rating-pref] set failed:', err && err.message);

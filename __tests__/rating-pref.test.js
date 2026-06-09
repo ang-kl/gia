@@ -131,20 +131,31 @@ describe('getUserRatingPref / setUserRatingPref', () => {
     expect(await setUserRatingPref(redis, '123', 'banana')).toBe(false);
     expect(redis._store.has('rating-pref:123')).toBe(false);
   });
-  it('a per-device value shadows the chat-level value', async () => {
+  it('v0.61.436 — NO per-device layer: one chat-level key serves every surface', async () => {
     const redis = fakeRedis();
-    // Device A write also seeds the chat-level key (mirrors country-pref).
-    await setUserRatingPref(redis, '123', '4.8', 'devA');   // chat=4.8, devA=4.8
-    // A later chat-level write (no device) leaves devA's key intact.
-    await setUserRatingPref(redis, '123', '3.7');           // chat=3.7, devA still 4.8
-    expect(await getUserRatingPref(redis, '123', 'devA')).toBe('4.8'); // devA shadows
-    expect(await getUserRatingPref(redis, '123', 'devB')).toBe('3.7'); // unknown device → chat-level
-    expect(await getUserRatingPref(redis, '123')).toBe('3.7');         // chat-level
+    // A TMA-style save followed by a chat-style /rating save: the LATEST
+    // write wins for every reader (code review: the old device key
+    // permanently shadowed later chat-side /rating changes).
+    await setUserRatingPref(redis, '123', '4.8');
+    await setUserRatingPref(redis, '123', '3.7');
+    expect(await getUserRatingPref(redis, '123')).toBe('3.7');
+    expect(redis._store.has('rating-pref:123:dev:devA')).toBe(false); // no dev keys written
   });
-  it('no redis / no chatId → default, never throws', async () => {
+  it('no redis / no chatId → default (unset is authoritative)', async () => {
     expect(await getUserRatingPref(null, '123')).toBe('3.7');
     expect(await getUserRatingPref(fakeRedis(), null)).toBe('3.7');
     expect(await setUserRatingPref(null, '123', '4.0')).toBe(false);
+  });
+  it('v0.61.436 — Redis OPERATION errors propagate from getUserRatingPref', async () => {
+    const broken = {
+      isOpen: true,
+      async connect() {},
+      async get() { throw new Error('redis down'); },
+      async setEx() { throw new Error('redis down'); },
+    };
+    await expect(getUserRatingPref(broken, '123')).rejects.toThrow('redis down');
+    // set still swallows (returns false) — the POST endpoint 503s on false.
+    expect(await setUserRatingPref(broken, '123', '4.0')).toBe(false);
   });
 });
 
