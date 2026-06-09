@@ -847,6 +847,13 @@ async function handleBuddyCallback(data, chatId, q) {
 }
 
 async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
+  // v0.61.425 — operator: uniform minimum Google rating of 3.7 across EVERY
+  // eatery surface. deliverPicks is the shared bot renderer (/s, free-text,
+  // sanctuary, cuisine flow), so the guarded floor applies here once. It drops
+  // < 3.7 but exempts unrated / very-few-review venues and never empties the
+  // list (see venue-filters.applyRatingFloor). The Cuisine TMA API path floors
+  // its own pool separately.
+  picks = require('./venue-filters').applyRatingFloor(picks);
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
     return;
@@ -15420,6 +15427,18 @@ async function cacheBotUsername() {
         // (cuisine:seen:<chatId>:<hash>) which is the INNER dedup.
         const sessionSeen = await cuisineSession.getSeen(redis, csChatId);
         const sessionFull = csChatId ? (sessionSeen.size >= cuisineSession._SEEN_CAP) : false;
+        // v0.61.425 — operator: uniform minimum Google rating of 3.7. Floor the
+        // pool BEFORE pagination so < 3.7 venues never enter any page (and the
+        // top-N backfills from the qualifying pool). Guarded: exempts unrated /
+        // very-few-review venues (so the New pill survives) and never empties
+        // the list (see venue-filters.applyRatingFloor).
+        {
+          const beforeFloor = venues.length;
+          venues = require('./venue-filters').applyRatingFloor(venues);
+          if (venues.length !== beforeFloor) {
+            console.log(`[Cuisine-Search] rating-floor ≥3.7: ${beforeFloor} → ${venues.length}`);
+          }
+        }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
         const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
