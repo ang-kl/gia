@@ -11246,6 +11246,7 @@ async function registerCommandsMenu() {
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
       { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
+      { command: 'rating',     description: 'Min rating filter · /rating 0–5 (0 = any), shared with Cuisine (or /ra)' },
       { command: 'clipboard',  description: '📋 Saved cuisine clips · latest from /cuisine Copy-all / per-card Copy (or /clip)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
@@ -11262,6 +11263,7 @@ async function registerCommandsMenu() {
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       // v0.60.113 — /buddy retiré du menu (fonctionnalité supprimée).
       { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
+      { command: 'rating',     description: 'Filtre de note min. · /rating 0–5 (0 = toutes), partagé avec Cuisine (ou /ra)' },
       { command: 'clipboard',  description: '📋 Clips de cuisine enregistrés · les plus récents depuis /cuisine (ou /clip)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
