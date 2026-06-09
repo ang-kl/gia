@@ -125,7 +125,7 @@ export async function fetchCatalogue() {
 // so the next results begin fresh from the first ~60 again.
 // v0.60.126: freeText — the "Tell me" box content, passed through as a
 // search qualifier so it isn't dropped when a cuisine chip is selected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode }) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
@@ -152,6 +152,16 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region, lang,
   // Phase 1 ledger items A5 / D1 / D3.
   if (typeof countryCode === 'string' && /^[A-Z]{2}$/i.test(countryCode)) {
     body.countryCode = countryCode.toUpperCase();
+  }
+  // v0.61.428 — forward the rating pill's value as an EXPLICIT search
+  // criterion. Previously the floor only travelled via Redis (set by the
+  // Save POST), which (a) made the choice look cosmetic and (b) raced the
+  // fire-and-forget Save when the user tapped 🔍 immediately. Sending it
+  // with the request makes the rating register on THIS search; the server
+  // prefers body.ratingPref over the Redis value. Token: 'unrated' | 'any'
+  // | '1.0'..'5.0'.
+  if (typeof ratingPref === 'string' && ratingPref) {
+    body.ratingPref = ratingPref;
   }
   return postJson('/api/cuisine/search', body);
 }
