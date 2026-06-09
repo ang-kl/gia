@@ -724,3 +724,9 @@
 947	__tests__/location-follow.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_430-09_06_26-2206.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/location-follow.js
 948	__tests__/region-code.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_431-09_06_26-2239.md,index.js,package.json,region-code.js
 949	doc/.serial-state.yml,doc/Journal/journal-0_61_432-09_06_26-2311.md,index.js,package.json,web/cuisine/src/v2/App.jsx
+950	doc/.serial-state.yml,doc/Journal/journal-0_61_433-10_06_26-0606.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+951	doc/.serial-state.yml,doc/Journal/journal-0_61_435-10_06_26-0612.md,index.js,package.json
+952	__tests__/llm-client.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_434-10_06_26-0616.md,llm-client.js,package.json
+953	__tests__/rating-pref.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_436-10_06_26-0724.md,index.js,package.json,rating-pref.js
+954	doc/.serial-state.yml,doc/Journal/journal-0_61_437-10_06_26-0734.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/i18n.js
+955	doc/.serial-state.yml,doc/Journal/journal-0_61_438-10_06_26-0743.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/QuickFilters.jsx
