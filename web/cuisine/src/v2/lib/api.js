@@ -399,6 +399,20 @@ export async function saveCountryPref(countryCode) {
   catch { return null; }
 }
 
+// v0.61.426 — TMA <-> chat rating-pref sync. The chat-side /rating (/ra)
+// command writes the same Redis key (`rating-pref:<chatId>`). The rating
+// pill reads this on mount to label itself and writes it on Save; the
+// server reads the floor per-chat on every search, so one value drives
+// both surfaces. Value is one token: 'unrated' | 'any' | '1.0'..'5.0'.
+export async function fetchRatingPref() {
+  try { return await getJson('/api/cuisine/rating-pref'); }
+  catch { return null; }
+}
+export async function saveRatingPref(ratingPref) {
+  try { return await postJson('/api/cuisine/rating-pref', { ratingPref }); }
+  catch { return null; }
+}
+
 // v0.61.243 — IATA-snap Gemini fallback for GPS outside the
 // iata-cities.js table coverage. Server-side proxies a Gemini
 // generateContent call with a strict "real IATA code only, no

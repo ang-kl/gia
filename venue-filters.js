@@ -150,10 +150,34 @@ function isRainSensitiveVenue(v) {
 //   • NEVER empty the list — if every venue is below the floor, return the
 //     input unchanged (best-effort), mirroring the v0.61.399 New-filter floor.
 // /hidden is already stricter (≥ 3.9 in its Gemini prompt) so it isn't routed here.
+//
+// v0.61.426 — the floor is now per-chat configurable via the Cuisine TMA's
+// rating pill + the `/rating` command (rating-pref.js). `opts.mode` selects:
+//   • 'floor' (default) → the guarded ≥opts.floor behaviour above. Existing
+//     callers that pass no mode keep the v0.61.425 contract unchanged.
+//   • 'off' / 'any'     → no minimum at all; keep every venue (operator's
+//     "any rating").
+//   • 'unrated'         → INVERT: keep ONLY unrated venues (no rating / 0) —
+//     the operator's "no rating" (brand-new / unreviewed). Still guarded
+//     (never empties: a thin area with no unrated venues keeps the input).
 const RATING_FLOOR = 3.7;
 const RATING_FLOOR_EXEMPT_MAX_REVIEWS = 5;
 function applyRatingFloor(venues, opts = {}) {
   if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
+  const mode = opts.mode || 'floor';
+  // "any rating" — operator's no-minimum mode. Keep everything.
+  if (mode === 'off' || mode === 'any') return venues;
+  // "no rating" — operator's unrated-only mode. Keep ONLY venues with no
+  // Google rating yet. Guarded: never empty the list (a thin area with no
+  // brand-new venues falls back to the input, mirroring the floor guard).
+  if (mode === 'unrated') {
+    const onlyUnrated = venues.filter((v) => {
+      const r = Number(v && v.rating);
+      return !Number.isFinite(r) || r <= 0;
+    });
+    return onlyUnrated.length ? onlyUnrated : venues;
+  }
+  // 'floor' (default) — guarded ≥floor with unrated/few-review exemptions.
   const floor = Number.isFinite(opts.floor) ? opts.floor : RATING_FLOOR;
   const exemptMax = Number.isFinite(opts.exemptMaxReviews) ? opts.exemptMaxReviews : RATING_FLOOR_EXEMPT_MAX_REVIEWS;
   const qualifies = (v) => {

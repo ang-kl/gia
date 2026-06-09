@@ -49,6 +49,11 @@ const {
   getUserCountryPref,
   setUserCountryPref
 } = require('./country-pref');
+// v0.61.426 — per-chat minimum-rating preference, shared by the Cuisine
+// TMA's "≥3.7" rating pill and the `/rating` (alias `/ra`) command. One
+// Redis key (`rating-pref:<chatId>`) drives the guarded rating floor on
+// every eatery surface (replaces the hardcoded 3.7 in venue-filters calls).
+const ratingPrefLib = require('./rating-pref');
 // v0.61.197 — recent-locations LRU (20 entries/user as of v0.61.305,
 // Redis-backed). Hooked into the chat /location <text> success paths
 // + the TMA's /api/cuisine/set-location endpoint; surfaced via
@@ -853,7 +858,19 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // < 3.7 but exempts unrated / very-few-review venues and never empties the
   // list (see venue-filters.applyRatingFloor). The Cuisine TMA API path floors
   // its own pool separately.
-  picks = require('./venue-filters').applyRatingFloor(picks);
+  // v0.61.426 — the floor is now per-chat (rating-pref.js): the user's
+  // /rating choice (or the TMA rating pill, same Redis key) selects the mode
+  // (≥floor / any / unrated-only). Defaults to the guarded ≥3.7 when unset.
+  {
+    let ratingPrefVal = null;
+    try { ratingPrefVal = await ratingPrefLib.getUserRatingPref(redis, String(chatId)); }
+    catch { ratingPrefVal = null; }
+    const beforeFloor = picks.length;
+    picks = require('./venue-filters').applyRatingFloor(picks, ratingPrefLib.ratingPrefToFloorOpts(ratingPrefVal));
+    if (picks.length !== beforeFloor) {
+      console.log(`[deliverPicks] rating-floor ${ratingPrefLib.describeRatingPref(ratingPrefVal)}: ${beforeFloor} → ${picks.length}`);
+    }
+  }
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
     return;
@@ -2416,6 +2433,41 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   // Michelin SG list; gate it when the registered locale is non-SG.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'recognised', lang))) return;
   await runRecognisedCommand(msg.chat.id, lang);
+});
+
+// v0.61.426 — /rating (alias /ra): per-chat minimum Google-rating floor,
+// shared with the Cuisine TMA's "≥3.7" rating pill via one Redis key
+// (`rating-pref:<chatId>`). Operator spec:
+//   /rating          → show the current setting + how to change it
+//   /rating 0        → any rating (no minimum / floor off)
+//   /rating 1.0–5.0  → that minimum floor
+//   /rating <other>  → invalid; suggest 3.7
+// NOTE: /r stays bound to /recognised; /ra is the rating alias (operator pick).
+// Applies to every eatery surface (the floor is read per-chat in deliverPicks
+// + /api/cuisine/search). Not country-gated — rating is universal.
+bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, chatId, msg).catch(() => 'en');
+  const arg = match && match[1] ? String(match[1]).trim() : '';
+  // No argument → status + usage.
+  if (!arg) {
+    const current = await ratingPrefLib.getUserRatingPref(redis, String(chatId)).catch(() => ratingPrefLib.DEFAULT_RATING);
+    await safeSend(chatId, ratingPrefLib.ratingStatusMessage(current, lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  const parsed = ratingPrefLib.parseRatingCommand(arg);
+  if (!parsed) {
+    await safeSend(chatId, ratingPrefLib.ratingInvalidMessage(lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  const ok = await ratingPrefLib.setUserRatingPref(redis, String(chatId), parsed).catch(() => false);
+  if (!ok) {
+    await safeSend(chatId, ratingPrefLib.ratingInvalidMessage(lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  console.log(`[rating-pref] chat=${chatId} → ${parsed} (command)`);
+  await safeSend(chatId, ratingPrefLib.ratingSavedMessage(parsed, lang), { parse_mode: 'Markdown' });
 });
 
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
@@ -13695,6 +13747,48 @@ async function cacheBotUsername() {
         }
       });
 
+    // v0.61.426 — TMA <-> chat rating-pref sync. The Cuisine TMA's
+    // "≥3.7" rating pill reads this on mount to seed its label, and
+    // writes it on Save; the chat-side /rating (/ra) command writes the
+    // same Redis key (`rating-pref:<chatId>`). Either surface changes the
+    // value and the other picks it up — one floor drives every search.
+    app.get('/api/cuisine/rating-pref',
+      makeRateLimiter(redis, { endpoint: 'rating-pref-read', cap: 300 }),
+      async (req, res) => {
+        try {
+          const initStr = req.headers['x-telegram-init-data'] || '';
+          const verified = verifyInitData(initStr, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const value = await ratingPrefLib.getUserRatingPref(redis, String(userId), readDeviceId(req));
+          res.json({ ratingPref: value });
+        } catch (err) {
+          console.error('[rating-pref GET] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
+    app.post('/api/cuisine/rating-pref',
+      makeRateLimiter(redis, { endpoint: 'rating-pref-write', cap: 100 }),
+      async (req, res) => {
+        try {
+          const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const value = ratingPrefLib.normalizeRatingPref(req.body?.ratingPref);
+          if (!value) return res.status(400).json({ error: 'invalid ratingPref' });
+          const ok = await ratingPrefLib.setUserRatingPref(redis, String(userId), value, readDeviceId(req));
+          if (!ok) return res.status(503).json({ error: 'set failed' });
+          console.log(`[rating-pref] chat=${userId} → ${value} (tma)`);
+          res.json({ ok: true, ratingPref: value });
+        } catch (err) {
+          console.error('[rating-pref POST] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
     // v0.58.10: copy-syntax — emit a re-runnable /cuisine command
     // built from the current TMA state. Mirrors /api/cuisine/copy-all
     // (auth via initData → sends to the user's chat). The recipient
@@ -13820,6 +13914,10 @@ async function cacheBotUsername() {
         // the existing seam ~line 14289). ISO 3166-1 alpha-2 only.
         const requestCountryRaw = typeof req.body?.countryCode === 'string' ? req.body.countryCode.toUpperCase() : '';
         const requestCountry = /^[A-Z]{2}$/.test(requestCountryRaw) ? requestCountryRaw : null;
+        // v0.61.426 — optional client override of the per-chat rating pref
+        // (TMA may forward its pill value for immediacy). Validated; falls
+        // back to the Redis value (getUserRatingPref) at the floor seam.
+        const requestRatingPref = ratingPrefLib.normalizeRatingPref(req.body?.ratingPref);
         // v0.61.361 — Option B device currency. The TMA forwards the
         // phone's locale region (Intl) as `deviceRegion`; it drives the
         // venue-card price conversion (→ the user's HOME currency),
@@ -15432,11 +15530,19 @@ async function cacheBotUsername() {
         // top-N backfills from the qualifying pool). Guarded: exempts unrated /
         // very-few-review venues (so the New pill survives) and never empties
         // the list (see venue-filters.applyRatingFloor).
+        // v0.61.426 — the floor is now per-chat (rating-pref.js): prefer the
+        // request override, else the Redis value, else the guarded ≥3.7
+        // default. The mode selects ≥floor / any (off) / unrated-only.
         {
+          let ratingPrefVal = requestRatingPref;
+          if (!ratingPrefVal && csChatId) {
+            try { ratingPrefVal = await ratingPrefLib.getUserRatingPref(redis, csChatId, searchDeviceId); }
+            catch { ratingPrefVal = null; }
+          }
           const beforeFloor = venues.length;
-          venues = require('./venue-filters').applyRatingFloor(venues);
+          venues = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(ratingPrefVal));
           if (venues.length !== beforeFloor) {
-            console.log(`[Cuisine-Search] rating-floor ≥3.7: ${beforeFloor} → ${venues.length}`);
+            console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(ratingPrefVal)}: ${beforeFloor} → ${venues.length}`);
           }
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
