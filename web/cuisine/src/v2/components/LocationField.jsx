@@ -97,7 +97,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
 const NEAREST_CITY_MAX_KM = 500;
 
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
   // OTHER picker is wholly its own sub-component; the SG/JB path
@@ -381,6 +381,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         onCountryChange={onCountryChange}
         onSelect={onSelect}
         anchor={anchor}
+        selectedCity={selectedCity}
         suffix={suffix}
         onSearch={onSearch}
         userLoc={userLoc}
@@ -852,7 +853,7 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 //     operator's #6 ("country and city but no street → centre of
 //     the city to search") still works: pick city → anchor at city
 //     centroid with noAutoFire; tap 🔍 → search at city centroid.
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, suffix, onSearch, userLoc }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
   // v0.61.418 — set true by the country dropdown's onChange so the auto-pick
@@ -921,8 +922,19 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // live inside the expanded form, not as a separate confirmation
   // panel. Compact pill shows whenever the anchor is meaningful and
   // the user hasn't tapped to expand.
-  const showCompact = !!(anchor && anchor.name && !_isCountryOnly(anchor.name)
-    && anchor.name !== 'Unnamed') && !expanded;
+  // v0.61.423 — operator: "If I select the new city, the location erases the
+  // current address and is blank … confusion as country+city+location(old)."
+  // A city-dropdown pick is a PREVIEW (selectedCity) that doesn't commit the
+  // anchor, so the field used to read the stale committed anchor (old/blank).
+  // Prefer the PREVIEWED city so the field always reflects the current
+  // selection; fall back to the committed anchor when there's no preview.
+  const _committedName = (anchor && anchor.name && !_isCountryOnly(anchor.name)
+    && anchor.name !== 'Unnamed') ? anchor.name : '';
+  const _previewName = (selectedCity && typeof selectedCity.name === 'string'
+    && selectedCity.name.trim() && !_isCountryOnly(selectedCity.name)
+    && selectedCity.name !== 'Unnamed') ? selectedCity.name.trim() : '';
+  const displayLocName = _previewName || _committedName;
+  const showCompact = !!displayLocName && !expanded;
   // v0.61.228 — child city dropdown. Mirrors v0.61.227 Menu TMA. The
   // cityPick value is reset whenever the country flips because each
   // country has its own catalogue. Picking a city sets the anchor
@@ -1142,13 +1154,9 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     handlePick(suggestions[0]);
   }
 
-  // v0.61.265 — operator: "the location field box cannot be a country."
-  // Guard the resting label so a stale country-named anchor (e.g.
-  // server returned just "Singapore" pre-v0.61.265) falls back to
-  // the i18n placeholder rather than the bare country.
-  const anchorNameSafe = (anchor && anchor.name && !_isCountryOnly(anchor.name)
-    && anchor.name !== 'Unnamed') ? anchor.name : '';
-  const restingLabel = anchorNameSafe || tr('loc.other.placeholder', lang);
+  // v0.61.265 — operator: "the location field box cannot be a country." The
+  // country-name guard now lives in displayLocName (above); the field shows the
+  // previewed city / committed anchor, else the i18n placeholder.
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -1169,7 +1177,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
               className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
             >
               <span className="flex-shrink-0" aria-hidden>{country.flag}</span>
-              <span className="truncate">{anchor.name}</span>
+              <span className="truncate">{displayLocName}</span>
             </button>
             <button
               type="button"
@@ -1225,7 +1233,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             enterKeyHint="search"
-            placeholder={anchorNameSafe || tr('loc.other.placeholder', lang)}
+            placeholder={displayLocName || tr('loc.other.placeholder', lang)}
             /* v0.61.372 — min-w-0 so the input can shrink below its
                placeholder's intrinsic width; without it a long city name
                ("Wellington") pushed the trailing ✏️ off-screen. Matches the
