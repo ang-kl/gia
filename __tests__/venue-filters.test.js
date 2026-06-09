@@ -334,10 +334,19 @@ describe('applyRatingFloor — per-chat modes (v0.61.426)', () => {
   it("mode 'any' is an alias for off", () => {
     expect(names(applyRatingFloor(POOL, { mode: 'any' }))).toEqual(['A', 'B', 'C', 'D']);
   });
-  it("mode 'unrated' keeps ONLY venues with no rating (operator: no rating)", () => {
-    expect(names(applyRatingFloor(POOL, { mode: 'unrated' }))).toEqual(['C']);
+  it("mode 'unrated' keeps NEW or null-rating venues (v0.61.429)", () => {
+    // C = null rating; D = new (4.9 but only 2 reviews < 10) → both kept.
+    // A (300 reviews) + B (200 reviews) are established → dropped.
+    expect(names(applyRatingFloor(POOL, { mode: 'unrated' })).sort()).toEqual(['C', 'D']);
   });
-  it("mode 'unrated' never empties — all-rated pool returns the input", () => {
+  it("mode 'unrated' keeps a brand-new venue even with a rating > 0", () => {
+    const pool = [
+      { name: 'New', rating: 4.6, userRatingCount: 3 },     // new (< 10 reviews) → kept
+      { name: 'Old', rating: 4.6, userRatingCount: 4000 },  // established → dropped
+    ];
+    expect(names(applyRatingFloor(pool, { mode: 'unrated' }))).toEqual(['New']);
+  });
+  it("mode 'unrated' never empties — all-established pool returns the input (>0)", () => {
     const allRated = [
       { name: 'X', rating: 4.5, userRatingCount: 100 },
       { name: 'Y', rating: 4.1, userRatingCount: 50 },

@@ -89,8 +89,8 @@ function RatingOption({ checked, onSelect, label, hint }) {
       className={`flex items-start gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border text-left transition-colors ${checked ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
       <span className="mt-0.5"><RadioDot checked={checked} /></span>
       <span className="flex flex-col">
-        <span className={`text-sm text-tg-text ${checked ? 'font-medium' : ''}`}>{label}</span>
-        {hint && <span className="text-[0.65rem] leading-snug text-tg-hint">{hint}</span>}
+        <span className={`text-xs text-tg-text ${checked ? 'font-medium' : ''}`}>{label}</span>
+        {hint && <span className="text-[0.6rem] leading-snug text-tg-hint">{hint}</span>}
       </span>
     </button>
   );
@@ -107,7 +107,7 @@ function RatingOption({ checked, onSelect, label, hint }) {
 // The auto-off useEffect below also clears any pre-existing
 // filters.halal when special mode activates so the request body
 // doesn't carry a stale modifier.
-export default function QuickFilters({ filters, onChange, specialModeActive = false, ratingPref = RATING_PRESET, onRatingSave }) {
+export default function QuickFilters({ filters, onChange, specialModeActive = false, ratingPref = RATING_PRESET, onRatingSave, ratingDisabled = false }) {
   const [lang] = useLocale();
   const [moreOpen, setFiltersOpen] = useState(false);
   // v0.61.426 — rating pill panel. `ratingOpen` toggles the 4-option
@@ -124,6 +124,12 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
   // colour — the operator is red-green colour-blind). Auto-closes shortly
   // after so the confirmation is visible first.
   const [ratingSaved, setRatingSaved] = useState(false);
+
+  // v0.61.429 — when the rating control is disabled (Michelin / Bib
+  // Gourmand selected), close the panel if it was left open.
+  useEffect(() => {
+    if (ratingDisabled && ratingOpen) setRatingOpen(false);
+  }, [ratingDisabled, ratingOpen]);
 
   // v0.61.149 — auto-clear halal when special mode flips on. Runs once
   // per specialModeActive transition; the !filters.halal short-circuit
@@ -154,6 +160,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
   // to the current saved value (it may have changed since mount via the
   // chat /rating command) and close the ⚙ Filters overflow.
   function openRating() {
+    if (ratingDisabled) return;          // v0.61.429 — N/A for Michelin
     setRatingOpen((o) => {
       const next = !o;
       if (next) {
@@ -244,11 +251,16 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
         {/* v0.61.426 — rating pill, AFTER ⚙ Filters. Default "≥3.7"
             (toggled on). Tap opens the 4-option panel below the row. The
             pill shows neutral (not active) only for "Any" — every floor /
-            "No rating" choice keeps it highlighted. */}
-        <Chip active={ratingOpen || ratingPref !== 'any'} onClick={openRating}
-          ariaLabel={`${tr('rating.title', lang)}: ${ratingPillLabel(ratingPref, lang, tr)} — ${ratingOpen ? tr('rating.closePanel', lang) : tr('rating.openPanel', lang)}`}>
-          <span className="mr-0.5" aria-hidden>⭐</span>{ratingPillLabel(ratingPref, lang, tr)}
-        </Chip>
+            "No rating" choice keeps it highlighted.
+            v0.61.429 — greyed + non-interactive when Michelin / Bib Gourmand
+            is selected (rating doesn't apply to the curated awards list). */}
+        <span className={ratingDisabled ? 'opacity-40 pointer-events-none' : ''}
+          aria-disabled={ratingDisabled || undefined}>
+          <Chip active={!ratingDisabled && (ratingOpen || ratingPref !== 'any')} onClick={openRating}
+            ariaLabel={`${tr('rating.title', lang)}: ${ratingPillLabel(ratingPref, lang, tr)}${ratingDisabled ? ' — n/a for Michelin / Bib Gourmand' : ` — ${ratingOpen ? tr('rating.closePanel', lang) : tr('rating.openPanel', lang)}`}`}>
+            <span className="mr-0.5" aria-hidden>⭐</span>{ratingPillLabel(ratingPref, lang, tr)}
+          </Chip>
+        </span>
       </div>
       {moreOpen && (
         // v0.60.188 — operator: the previous "💲 Price ▾" dropdown
@@ -277,47 +289,41 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
         // field + Save. Nothing commits until Save (then the pill
         // relabels + the value persists to Redis, shared with /rating).
         // v0.61.428 — operator: pair the choices two-per-row to shorten the
-        // panel (No rating | Any rating, then ≥3.7 | Custom) with the
-        // explanations wrapped in a smaller font.
+        // panel, explanations wrapped in a smaller font.
+        // v0.61.429 — operator layout: row 1 = No rating | Any ⭐ rating;
+        // row 2 = ⭐ ≥ 3.7 | [custom box]. The ⭐ marks the star-rating
+        // options; "No rating" (the no-star choice) carries none. The custom
+        // cell is just the input box (tap / focus selects it).
         <div role="radiogroup" aria-label={tr('rating.title', lang)}
           className="flex flex-col gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
           <div className="grid grid-cols-2 gap-1.5">
             <RatingOption checked={ratingSel === 'unrated'} onSelect={() => chooseRating('unrated')}
               label={tr('rating.noRating', lang)} hint={tr('rating.noRatingHint', lang)} />
             <RatingOption checked={ratingSel === 'any'} onSelect={() => chooseRating('any')}
-              label={tr('rating.anyRating', lang)} hint={tr('rating.anyRatingHint', lang)} />
+              label={`${tr('rating.anyRating', lang)} ⭐`} hint={tr('rating.anyRatingHint', lang)} />
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
-              label={`≥ ${RATING_PRESET}`} hint={null} />
-            {/* Custom floor. Tapping the cell OR focusing the field selects
-                it; the number input is constrained 1.0–5.0. flex-wrap lets
-                the input drop below the label on a narrow phone. */}
-            <div className={`flex flex-wrap items-center gap-1.5 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
-              <button type="button" role="radio" aria-checked={ratingSel === 'custom'}
-                onClick={() => chooseRating('custom')}
-                className="flex items-center gap-1.5 text-left">
-                <RadioDot checked={ratingSel === 'custom'} />
-                <span className={`text-sm text-tg-text ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.custom', lang)}</span>
-              </button>
-              <span className="flex items-center gap-1">
-                <span aria-hidden className="text-sm text-tg-hint">≥</span>
-                <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
-                  value={ratingCustom}
-                  placeholder={tr('rating.customHint', lang)}
-                  onFocus={() => chooseRating('custom')}
-                  onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); }}
-                  aria-label={`${tr('rating.custom', lang)} — ${tr('rating.customHint', lang)}`}
-                  className="w-14 px-2 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-sm" />
-              </span>
-            </div>
+              label={`⭐ ≥ ${RATING_PRESET}`} hint={null} />
+            {/* Custom floor = just the input box (⭐ ≥ [ ]). Tapping the cell
+                OR focusing the field selects it; constrained 1.0–5.0. */}
+            <label className={`flex items-center gap-1 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+              <span aria-hidden className="text-xs text-tg-hint whitespace-nowrap">⭐ ≥</span>
+              <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
+                value={ratingCustom}
+                placeholder={tr('rating.customHint', lang)}
+                onFocus={() => chooseRating('custom')}
+                onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
+                aria-label={`${tr('rating.custom', lang)} — ${tr('rating.customHint', lang)}`}
+                className="w-full min-w-0 px-2 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
+            </label>
           </div>
           {/* Save — red "Save" until tapped, then bright green "✓ Saved".
               The label change carries the state without relying on colour
               (operator is red-green colour-blind). Small rounded rectangle. */}
           <div className="flex justify-end pt-1">
             <button type="button" onClick={saveRating} aria-live="polite"
-              className={`px-4 py-1.5 min-h-[40px] rounded-md text-sm font-semibold text-white transition-colors ${ratingSaved ? 'bg-green-500' : 'bg-red-600'}`}>
+              className={`px-3 py-1 rounded-md text-xs font-semibold text-white transition-colors ${ratingSaved ? 'bg-green-500' : 'bg-red-600'}`}>
               {ratingSaved ? `✓ ${tr('rating.saved', lang)}` : tr('rating.save', lang)}
             </button>
           </div>

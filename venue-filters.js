@@ -157,25 +157,39 @@ function isRainSensitiveVenue(v) {
 //     callers that pass no mode keep the v0.61.425 contract unchanged.
 //   • 'off' / 'any'     → no minimum at all; keep every venue (operator's
 //     "any rating").
-//   • 'unrated'         → INVERT: keep ONLY unrated venues (no rating / 0) —
-//     the operator's "no rating" (brand-new / unreviewed). Still guarded
-//     (never empties: a thin area with no unrated venues keeps the input).
+//   • 'unrated'         → INVERT: keep the operator's "No rating" set =
+//     NEW or NULL-rating venues. v0.61.429 (operator: "No rating should be
+//     searching for new nor null rating, still appear >0"): a venue counts
+//     when it has NO rating (null / 0) OR is NEW / barely-reviewed
+//     (userRatingCount < UNRATED_MODE_MAX_REVIEWS) — so a brand-new place
+//     with a small rating > 0 still appears. Still guarded (never empties:
+//     a thin area with no such venues falls back to the input → >0).
 const RATING_FLOOR = 3.7;
 const RATING_FLOOR_EXEMPT_MAX_REVIEWS = 5;
+// "New / unreviewed" proxy for the unrated-only mode. A venue with fewer
+// than this many Google reviews has no settled rating yet — it's effectively
+// new, regardless of whatever provisional rating it shows. Broader than the
+// floor's 5-review exemption because here we WANT to surface the new ones,
+// not merely spare them from the floor.
+const UNRATED_MODE_MAX_REVIEWS = 10;
 function applyRatingFloor(venues, opts = {}) {
   if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
   const mode = opts.mode || 'floor';
   // "any rating" — operator's no-minimum mode. Keep everything.
   if (mode === 'off' || mode === 'any') return venues;
-  // "no rating" — operator's unrated-only mode. Keep ONLY venues with no
-  // Google rating yet. Guarded: never empty the list (a thin area with no
-  // brand-new venues falls back to the input, mirroring the floor guard).
+  // "No rating" — operator's new-or-unrated mode. Keep venues with no
+  // Google rating (null / 0) OR that are new / barely-reviewed (few
+  // reviews, even if a provisional rating > 0 shows). Guarded: never empty
+  // the list (a thin area with none falls back to the input → still >0).
   if (mode === 'unrated') {
-    const onlyUnrated = venues.filter((v) => {
+    const newOrUnrated = venues.filter((v) => {
       const r = Number(v && v.rating);
-      return !Number.isFinite(r) || r <= 0;
+      if (!Number.isFinite(r) || r <= 0) return true;                  // null / no rating
+      const n = Number(v && v.userRatingCount);
+      if (Number.isFinite(n) && n < UNRATED_MODE_MAX_REVIEWS) return true; // new / barely-reviewed
+      return false;
     });
-    return onlyUnrated.length ? onlyUnrated : venues;
+    return newOrUnrated.length ? newOrUnrated : venues;
   }
   // 'floor' (default) — guarded ≥floor with unrated/few-review exemptions.
   const floor = Number.isFinite(opts.floor) ? opts.floor : RATING_FLOOR;
