@@ -3250,9 +3250,7 @@ bot.on('callback_query', async (q) => {
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
         // v0.61.230 — derive regionCode from anchor, parallel to /s.
-        let cbRegionCode = 'SG';
-        if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) cbRegionCode = loc.country;
-        else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') cbRegionCode = 'MY';
+        const cbRegionCode = resolveRegionCode(loc);
         const sc = require('./search-conversation');
         try { await sc.setLastCuisine(redis, chatId, 'cooking-method', hit.slug, hit.term); }
         catch (err) { console.warn('[cookm] setLastCuisine failed:', err.message); }
@@ -7768,6 +7766,13 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   }
 }
 
+// v0.61.231 — single source of truth for the Places regionCode derived
+// from a cached user location (region-code.js). loc.country (ISO alpha-2)
+// wins; legacy JB / MY-PUT regions map to 'MY'; default 'SG'. Replaces the
+// inline derivation that handleSearchTurn / the cooking-method callback grew
+// independently, so every fan-out biases Places to the same country.
+const { resolveRegionCode } = require('./region-code');
+
 // One round-trip: take user text, ask Gemini to classify intent, then
 // either reply with a clarifying question OR dispatch a Places search
 // and stream back top venues.
@@ -7804,12 +7809,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   //   loc.region === 'JB'        → 'MY'
   //   loc.region === 'MY-PUT'    → 'MY'
   //   default                    → 'SG'
-  let regionCode = 'SG';
-  if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) {
-    regionCode = loc.country;
-  } else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') {
-    regionCode = 'MY';
-  }
+  const regionCode = resolveRegionCode(loc);
 
   // ── v0.60.134 — R.E.D disambiguation runs FIRST ─────────────────────
   // Deterministic, no LLM. When the term is in AMBIGUOUS_DISHES
@@ -7914,7 +7914,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (niHit) {
     try { await sc.setLastCuisine(redis, chatId, 'nation', niHit.slug, niHit.dish); }
     catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
-    return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
+    return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc, regionCode });
   }
   // v0.60.12 — Cooking-method detection. 70 cuisines × 30 methods
   // (~2,100 entries) curated by Human Lead. Catches /s queries that
@@ -8665,18 +8665,25 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
 // template as runTechniqueFanOut so users get full venue details
 // (address, hours, website, phone, rating, transit, "Try X" line, maps)
 // instead of the thin deliverPicks / runFreeTextSearch fallback.
-async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }) {
+async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, regionCode = 'SG' }) {
   const overlay = require('./nation-overlay');
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // Refined query — anchor by SG context + venue type so Places ranks
-  // hawker/kopitiam stalls above unrelated literals (e.g. "dinosaur Milo"
-  // matching theme parks).
+  // Refined query — anchor by venue type so Places ranks hawker/kopitiam
+  // stalls above unrelated literals (e.g. "dinosaur Milo" matching theme
+  // parks).
+  // v0.61.231 — region-aware: only append the "Singapore" literal when the
+  // user's anchor is SG. Abroad (e.g. country=MY/ID/TH, or a Bangkok/Tokyo
+  // anchor) the "Singapore" word + the SG-default regionCode together
+  // forced Places to search Singapore, returning zero results even though
+  // the dish's restaurants exist locally. Now regionCode + locationBias do
+  // the geographic work, mirroring runTechniqueFanOut / runCookingMethodFanOut.
   const venueType = hit.kind === 'drink'
     ? 'kopitiam OR hawker OR coffee shop'
     : 'hawker OR restaurant';
-  const textQuery = `"${hit.dish}" Singapore ${venueType}`;
+  const placeSuffix = regionCode === 'SG' ? ' Singapore' : '';
+  const textQuery = `"${hit.dish}"${placeSuffix} ${venueType}`;
 
   // v0.60.112 — kind progressive "please wait" status (15 s reassurance
   // rotation + 60 s "did you mean something else?" nudge).
@@ -8685,13 +8692,15 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
 
   try {
     const venues = await searchVenuesByDish(textQuery, cuisineLabel, {
-      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
     });
     if (!venues.length) {
       await wait.finish();
+      // v0.61.231 — region-neutral copy: locationBias already scopes the
+      // search to the user's anchor, so don't hardcode "Singapore".
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b> à Singapour. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
-        : `Sorry, no Singapore venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
+        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
+        : `Sorry, no venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -8828,16 +8837,18 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
     const gcDescribe = require('./gemini-client');
     const [venues, methodDesc] = await Promise.all([
       searchVenuesByDish(textQuery, hit.cuisineLabel, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
       }),
       gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
         .catch(() => ({ explainer: '', exampleDish: '' }))
     ]);
     if (!venues.length) {
       await wait.finish();
+      // v0.61.231 — region-neutral copy: regionCode + locationBias scope
+      // the search to the user's anchor, so don't hardcode "Singapore".
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé à Singapour pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
-        : `Sorry, no Singapore <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
+        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
+        : `Sorry, no <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -10380,11 +10391,13 @@ bot.on('message', async (msg) => {
         const loc = await getUserLocation(redis, msg.chat.id).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+        // v0.61.231 — bias the iconic fan-out to the user's anchor country.
+        const regionCode = resolveRegionCode(loc);
         try { await sc.setLastCuisine(redis, msg.chat.id, 'nation', niHit.slug, niHit.dish); }
         catch (err) { console.warn('[free-text] setLastCuisine failed:', err.message); }
         await runNationIconicFanOut({
           chatId: msg.chat.id, userText: text, hit: niHit,
-          lang: userLang, center, sc
+          lang: userLang, center, sc, regionCode
         });
         return;
       }
