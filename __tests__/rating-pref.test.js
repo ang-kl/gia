@@ -101,7 +101,7 @@ describe('ratingPrefToFloorOpts', () => {
 
 describe('describeRatingPref', () => {
   it('renders a short log label', () => {
-    expect(describeRatingPref('unrated')).toBe('unrated-only');
+    expect(describeRatingPref('unrated')).toBe('new-or-unrated');
     expect(describeRatingPref('any')).toBe('any (off)');
     expect(describeRatingPref('4.0')).toBe('≥4.0');
     expect(describeRatingPref(null)).toBe('≥3.7');

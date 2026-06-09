@@ -2848,6 +2848,11 @@ export default function App() {
               onChange={(f) => setState((s) => ({ ...s, filters: f }))}
               specialModeActive={!!state.specialMode}
               ratingPref={ratingPref}
+              // v0.61.429 — Michelin / Bib Gourmand is a curated awards list;
+              // a rating floor makes no sense there (and the server already
+              // routes it through handleMichelinSearch, which never applies
+              // the floor). Disable the rating pill so it's clearly N/A.
+              ratingDisabled={(state.cuisines || []).includes('michelin')}
               onRatingSave={(value) => {
                 // v0.61.426 — commit the rating pill choice: relabel locally
                 // + persist to Redis (shared with /rating).

@@ -79,7 +79,7 @@ function ratingPrefToFloorOpts(value) {
 // Short machine label for logs ("≥3.7", "any", "unrated").
 function describeRatingPref(value) {
   const v = normalizeRatingPref(value) || DEFAULT_RATING;
-  if (v === 'unrated') return 'unrated-only';
+  if (v === 'unrated') return 'new-or-unrated';
   if (v === 'any') return 'any (off)';
   return `≥${v}`;
 }
