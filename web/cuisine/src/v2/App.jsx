@@ -2653,6 +2653,10 @@ export default function App() {
           userLoc={userLoc}
           region={state.region}
           anchor={locationAnchor}
+          /* v0.61.423 — the previewed city (an OTHER city-dropdown pick that
+             hasn't been committed via 🔍 yet) so the picker's field shows the
+             SELECTION instead of the stale committed anchor. */
+          selectedCity={selectedCityLocation}
           suffix={loading
             ? t('banner.locating.suffix', lang)
             : (!venues.length
