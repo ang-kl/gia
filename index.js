@@ -9100,9 +9100,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     try {
       const vlogEarly = require('./verbose-log');
       const _on = await vlogEarly.isOn(redis, csChatId);
-      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', _vlog: _on || undefined });
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', reasonCode: 'michelin_no_list', _vlog: _on || undefined });
     } catch {
-      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', reasonCode: 'michelin_no_list' });
     }
   }
   const michelin = require('./SG-michelin');
@@ -9124,7 +9124,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // a foreign anchor). Only an EXPLICIT 'SG' uses the SG curated list; an
   // unresolved country returns "unresolved" instead of leaking SG abroad.
   if (!michCC) {
-    return res.json({ venues: [], cached: false, reason: 'Michelin: country unresolved' });
+    return res.json({ venues: [], cached: false, reason: 'Michelin: country unresolved', reasonCode: 'michelin_unresolved' });
   }
   const isSGMich = michCC === 'SG';
   // v0.61.350 — country-aware result label (operator bug: a Seoul search
@@ -9141,7 +9141,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   if (!isSGMich) {
     const mdChk = require('./michelin-data');
     if (!mdChk.hasMichelinData(michCC)) {
-      return res.json({ venues: [], cached: false, reason: `Michelin: no curated list for ${michCC}` });
+      return res.json({ venues: [], cached: false, reason: `Michelin: no curated list for ${michCC}`, reasonCode: 'michelin_no_list', reasonCountry: michCC });
     }
   }
 
@@ -9509,6 +9509,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // (user's screenshot showed Hong Kong Yummy Soup / Sin Heng
   // Claypot Bak Koot Teh appearing under Japanese+Michelin).
   let filteredVenues = venues;
+  // v0.61.437 — set inside the cuisine-layer block below; lets the summary
+  // count how many of the FINAL page actually match the layered cuisine
+  // (code review F7/F12: the pin never empties, so the TMA needs a signal
+  // when zero matches survive the dietary/price filters).
+  let comboIsMatch = null;
   if (otherCuisineSlugs.length > 0) {
     // Map cuisine slugs to Places primaryType strings. The list is
     // intentionally narrow — only the primary types Google issues
@@ -9581,6 +9586,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       const matched = venues.filter(isMatch);
       const rest = venues.filter((v) => !isMatch(v));
       filteredVenues = [...matched, ...rest];
+      comboIsMatch = isMatch;   // v0.61.437 — re-counted on the FINAL page for michelinSummary.cuisineMatched
       console.log(`[Michelin] cuisine layer: pinned ${matched.length} match(es) to top, ${rest.length} other Michelin below (cuisines=${otherCuisineSlugs.join(',')})`);
     }
   }
@@ -10031,6 +10037,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     michelinSummary: {
       label: michelinEditionLabel,
       total: allEntries.length,
+      // v0.61.437 — combo honesty (code review F7/F12): how many venues on
+      // THIS page match the layered cuisine. 0 → the TMA shows a "no
+      // <cuisine> match — showing the full Michelin list" notice instead of
+      // silently serving wrong-cuisine venues. Omitted for pure-Michelin.
+      ...(otherCuisineSlugs.length ? {
+        cuisineMatched: comboIsMatch ? filteredVenues.filter(comboIsMatch).length : 0
+      } : {}),
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
       ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining } : {}),
       ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
@@ -14365,6 +14378,29 @@ async function cacheBotUsername() {
             michelinCountry = 'SG';
           } else if (typeof isOther !== 'undefined' && isOther) {
             michelinCountry = requestCountry ? String(requestCountry).toUpperCase() : null;
+            // v0.61.437 — code review F13/F6: derive the country from the
+            // request's OWN anchor coords BEFORE consulting the persisted
+            // location cache. The cache is a PREVIOUS pick (≤24 h old) and
+            // can disagree with a fresh foreign anchor (stale 'MY' + a
+            // Hanoi anchor queried the Malaysia list), and a cached 'SG' /
+            // missing country left michelinCountry null → a silent
+            // 'unresolved' empty for a user standing in KL. The nearest
+            // curated city centroid (≤300 km, same table the city-pin
+            // uses) resolves the anchor's real country; 'SG' is skipped
+            // here too (the insideSG branch above already owns SG anchors).
+            if (!michelinCountry) {
+              try {
+                const { nearestCityForAnchor } = require('./place-search-variance');
+                const { CITY_CENTROIDS } = require('./city-centroids');
+                const near = nearestCityForAnchor(lat, lng);
+                const cc = (near && near.distanceKm <= 300)
+                  ? String(CITY_CENTROIDS[near.city]?.country || '').toUpperCase() : '';
+                if (/^[A-Z]{2}$/.test(cc) && cc !== 'SG') {
+                  michelinCountry = cc;
+                  console.log(`[Michelin] country from anchor coords: ${cc} (${near.city}, ${near.distanceKm.toFixed(0)} km)`);
+                }
+              } catch { /* fall through to the cached-location fallback */ }
+            }
             if (!michelinCountry && csChatId) {
               try {
                 const cachedLoc = await getUserLocation(redis, csChatId, searchDeviceId);
