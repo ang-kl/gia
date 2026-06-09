@@ -14,7 +14,9 @@ import {
   isRainSensitiveVenue,
   NON_FOOD_TYPES,
   BUILDING_NAME_PATTERNS,
-  DIRECTORY_BUILDINGS
+  DIRECTORY_BUILDINGS,
+  applyRatingFloor,
+  RATING_FLOOR
 } from '../venue-filters.js';
 
 describe('isBuildingItself — building names (user wants these EXCLUDED)', () => {
@@ -270,5 +272,49 @@ describe('BUILDING_NAME_PATTERNS sanity', () => {
     for (const p of BUILDING_NAME_PATTERNS) {
       expect(p).toBeInstanceOf(RegExp);
     }
+  });
+});
+
+// v0.61.425 — operator: uniform minimum Google rating of 3.7 across all eatery
+// surfaces, GUARDED so it never over-compresses.
+describe('applyRatingFloor — guarded 3.7 minimum', () => {
+  const names = (arr) => arr.map((v) => v.name);
+
+  it('the floor is 3.7', () => {
+    expect(RATING_FLOOR).toBe(3.7);
+  });
+  it('drops rated venues below 3.7 (with enough reviews)', () => {
+    const out = applyRatingFloor([
+      { name: 'Good', rating: 4.2, userRatingCount: 200 },
+      { name: 'Bad', rating: 3.4, userRatingCount: 200 },
+      { name: 'Edge', rating: 3.7, userRatingCount: 200 },
+    ]);
+    expect(names(out).sort()).toEqual(['Edge', 'Good']);
+  });
+  it('EXEMPTS unrated venues (New pill survives)', () => {
+    const out = applyRatingFloor([
+      { name: 'NewNoRating', rating: null, userRatingCount: 0 },
+      { name: 'NewZero', rating: 0, userRatingCount: 0 },
+      { name: 'Good', rating: 4.0, userRatingCount: 50 },
+    ]);
+    expect(names(out).sort()).toEqual(['Good', 'NewNoRating', 'NewZero']);
+  });
+  it('EXEMPTS very-few-review venues even when rated below 3.7', () => {
+    const out = applyRatingFloor([
+      { name: 'FewReviews', rating: 3.0, userRatingCount: 2 },   // < 5 reviews → kept
+      { name: 'ManyLow', rating: 3.0, userRatingCount: 80 },     // dropped
+    ]);
+    expect(names(out)).toEqual(['FewReviews']);
+  });
+  it('NEVER empties the list — all-below-floor returns the input unchanged', () => {
+    const all = [
+      { name: 'A', rating: 3.1, userRatingCount: 90 },
+      { name: 'B', rating: 3.4, userRatingCount: 120 },
+    ];
+    expect(applyRatingFloor(all)).toBe(all);
+  });
+  it('handles empty / non-array input', () => {
+    expect(applyRatingFloor([])).toEqual([]);
+    expect(applyRatingFloor(null)).toEqual([]);
   });
 });

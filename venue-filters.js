@@ -138,14 +138,45 @@ function isRainSensitiveVenue(v) {
   return RAIN_SENSITIVE_TEXT_RE.test(hay);
 }
 
+// v0.61.425 — operator: enforce a MINIMUM Google rating of 3.7 across every
+// eatery surface (cuisine TMA, /s, free-text, sanctuary, cuisine flow), all
+// cities incl. SG/JB. GUARDED so it can't over-compress (the investigation
+// showed a hard floor would zero results in thin markets / with the New +
+// durian filters):
+//   • EXEMPT unrated venues (no rating / 0) — newly-opened places have no stable
+//     rating yet, and the "New" pill depends on them.
+//   • EXEMPT very-few-review venues (< RATING_FLOOR_EXEMPT_MAX_REVIEWS) — a 4.8
+//     from 2 reviews, or a 3.2 from 1, isn't a reliable signal to drop on.
+//   • NEVER empty the list — if every venue is below the floor, return the
+//     input unchanged (best-effort), mirroring the v0.61.399 New-filter floor.
+// /hidden is already stricter (≥ 3.9 in its Gemini prompt) so it isn't routed here.
+const RATING_FLOOR = 3.7;
+const RATING_FLOOR_EXEMPT_MAX_REVIEWS = 5;
+function applyRatingFloor(venues, opts = {}) {
+  if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
+  const floor = Number.isFinite(opts.floor) ? opts.floor : RATING_FLOOR;
+  const exemptMax = Number.isFinite(opts.exemptMaxReviews) ? opts.exemptMaxReviews : RATING_FLOOR_EXEMPT_MAX_REVIEWS;
+  const qualifies = (v) => {
+    const r = Number(v && v.rating);
+    if (!Number.isFinite(r) || r <= 0) return true;          // unrated → keep (New venues)
+    const n = Number(v && v.userRatingCount);
+    if (Number.isFinite(n) && n < exemptMax) return true;     // too-few reviews → keep
+    return r >= floor;
+  };
+  const kept = venues.filter(qualifies);
+  return kept.length ? kept : venues;                         // never empty the list
+}
+
 module.exports = {
   NON_FOOD_TYPES,
   BUILDING_NAME_PATTERNS,
   DIRECTORY_BUILDINGS,
   RAIN_SENSITIVE_TYPES,
   RAIN_SENSITIVE_TEXT_RE,
+  RATING_FLOOR,
   isDirectoryBuilding,
   isBuildingItself,
   passesVenueFilter,
-  isRainSensitiveVenue
+  isRainSensitiveVenue,
+  applyRatingFloor
 };
