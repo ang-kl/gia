@@ -2664,13 +2664,25 @@ export default function App() {
                     // selected 'michelin' chip so the search request
                     // doesn't carry an unsupported cuisine.
                     // v0.61.280 — Register O-31: extended from JB-only
-                    // to any non-SG region (JB + OTHER + MY-PUT). The
-                    // Michelin chip is greyed in the drawer for these
-                    // regions; this strip clears any chip that was
-                    // sticky from a prior SG session.
-                    const nextCuisines = r.id !== 'SG'
-                      ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
-                      : s.cuisines;
+                    // to any non-SG region (JB + OTHER + MY-PUT).
+                    // v0.61.431 — operator: "MY + Michelin returns zero".
+                    // One contributor: tapping the OTHER pill silently
+                    // dropped 'michelin' even though MY/VN/JP… have curated
+                    // lists (the v0.61.346 multi-country Michelin). Keep
+                    // 'michelin' when the TARGET region still supports it —
+                    // SG always; OTHER iff the current countryPref is in the
+                    // catalogue's michelinCountries; JB never (no JB list).
+                    const michCat = Array.isArray(catalogue)
+                      ? catalogue.find((c) => c.id === 'michelin') : null;
+                    const michSet = Array.isArray(michCat?.michelinCountries)
+                      ? new Set(michCat.michelinCountries.map((x) => String(x).toUpperCase()))
+                      : null;
+                    const michelinOk = r.id === 'SG'
+                      || (r.id === 'OTHER' && michSet
+                          && michSet.has(String(s.countryPref || '').toUpperCase()));
+                    const nextCuisines = michelinOk
+                      ? s.cuisines
+                      : (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin');
                     return { ...s, region: r.id, cuisines: nextCuisines };
                   });
                   // v0.61.277 — operator (30-05 '26): "i switch to
