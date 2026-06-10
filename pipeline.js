@@ -953,6 +953,18 @@ function extractCountryCode(addressComponents) {
 // summaries, and primary-type display labels come back in the user's
 // language. Venue display names stay the actual brand (Google doesn't
 // translate proper nouns), which is what we want for SG iconic stalls.
+// v0.62.x — how many Text Search New pages to walk for a request. One page
+// caps at 20 results, so a caller asking for `maxResults` needs ceil(/20)
+// pages; an explicit `maxPages` can ask for more. Both are clamped to 1..3
+// (Google's ~3-page / ~60-result text-search ceiling). The fix for "fewer
+// results than Google Maps" lives here: Maps is richer and elastic, Places
+// API New is structured and page-capped, so we paginate to fill the request
+// rather than raise the timeout. Pure — unit-tested in pipeline-pagination.
+function pagesForRequest(maxResults, maxPages) {
+  const neededPages = Math.ceil((Number(maxResults) || 20) / 20);
+  return Math.max(1, Math.min(Math.max(Number(maxPages) || 1, neededPages), 3));
+}
+
 async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -1050,7 +1062,10 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         strictTypeFiltering: false,
         regionCode,
         languageCode,                                    // v0.59.0
-        maxResultCount: Math.min(maxResults, 20),
+        // Places API New Text Search: `pageSize` is the current field (1–20;
+        // `maxResultCount` is its deprecated alias). One page caps at 20; the
+        // nextPageToken walk below fetches the rest up to `wantPages`.
+        pageSize: Math.min(maxResults, 20),
         locationBias: {
           circle: {
             center: { latitude: lat, longitude: lng },
@@ -1063,7 +1078,14 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
       data = textData;
       let pageToken = textData?.nextPageToken || null;
       let pagesFetched = 1;
-      const wantPages = Math.max(1, Math.min(Number(maxPages) || 1, 3));   // Google caps text-search at ~3 pages / 60 results
+      // v0.62.x — page deep enough to actually fill the caller's requested
+      // count. One page = 20, so a caller asking for 30/40 needs 2/3 pages.
+      // Honour an explicit maxPages too; both are clamped to Google's ~3-page
+      // (~60-result) text-search ceiling. Default maxResults≤20 → 1 page
+      // (unchanged). This is the fix for "fewer results than Google Maps":
+      // the gap is API page-capping, not a timeout — Maps is richer/elastic,
+      // Places API New is structured and capped, so we paginate + de-dup.
+      const wantPages = pagesForRequest(maxResults, maxPages);
       while (pageToken && pagesFetched < wantPages) {
         try {
           const { data: pageData } = await axios.post(
@@ -1072,7 +1094,11 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
             { headers: PLACES_PAGE_HEADERS, timeout: 8000 }
           );
           if (Array.isArray(pageData?.places) && pageData.places.length) {
-            data = { ...data, places: [...(data.places || []), ...pageData.places] };
+            // De-dup by places.id at the concat seam: Google's pages rarely
+            // overlap, but the rule is explicit — never append a duplicate id.
+            const haveIds = new Set((data.places || []).map((p) => p && p.id).filter(Boolean));
+            const fresh = pageData.places.filter((p) => p && p.id && !haveIds.has(p.id));
+            if (fresh.length) data = { ...data, places: [...(data.places || []), ...fresh] };
           }
           pageToken = pageData?.nextPageToken || null;
           pagesFetched++;
@@ -1926,5 +1952,7 @@ module.exports = {
   // v0.60.183 priceRangeDisplay + country fields populate on Michelin
   // venues too (Michelin has its own FIELD_MASK + venue construction).
   normalisePriceRange,
-  extractCountryCode
+  extractCountryCode,
+  // v0.62.x — exposed for unit tests of the Text Search New page-count rule.
+  pagesForRequest
 };
