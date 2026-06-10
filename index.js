@@ -9312,9 +9312,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
     } catch { /* national fallback */ }
   }
+  // v0.61.445 — scope the paginated walk to the SELECTED CITY only. Before,
+  // `ordered = [...inCity, ...everyOtherCity]` appended the rest of the
+  // country, so once the in-city venues were drained (taps 1–2) the walk
+  // paged into another city — e.g. Kuala Lumpur → George Town (Penang) — and
+  // the map could not frame two cities at once. Now the walk stays in-city;
+  // the other-city count rides the summary as a hint ("N more across 🇲🇾"),
+  // reachable by picking that city, not by paging the current one.
+  let michOtherCityRemaining = 0;
   if (michSelectedCity) {
     const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
-    ordered = [...ordered.filter(_inCity), ...ordered.filter((e) => !_inCity(e))];
+    const inCity = ordered.filter(_inCity);
+    michOtherCityRemaining = Math.max(0, ordered.length - inCity.length);
+    ordered = inCity;
   }
   // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
   // is combined with Michelin, surface the curated-tag matches FIRST (stable,
@@ -9403,30 +9413,66 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Slug shape unchanged: lowercase, non-alnum → '-', trimmed, ≤80 ch.
   let cacheHits = 0, cacheMisses = 0;
   const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  // v0.61.445 — curated metadata snapshot (michelin-meta.json), populated by
+  // `npm run michelin:refresh` (scripts/build-michelin-meta.mjs). Keyed by
+  // curated entry `id` → { placeId, lat, lng, … }. When a record carries a
+  // placeId we resolve by ID (reliable — no name+city text-search ambiguity,
+  // which was also mis-matching venues). Ships EMPTY ({}); until populated the
+  // text-search path below is used unchanged, so this is a no-op by default.
+  const michelinMeta = (() => { try { return require('./michelin-meta.json') || {}; } catch { return {}; } })();
+  // v0.61.445 — restore the per-entry Places cache (was v0.60.150; dropped in
+  // v0.60.195, which is why every tap re-hit Places ×12 and felt slow). 24h
+  // TTL keyed by the stable curated id. Operator wants faster loads; the
+  // ≤24h staleness is the accepted trade (the refresh job keeps meta current).
+  const MICH_PLACE_TTL_S = 24 * 60 * 60;
+  const FIELD_MASK_BY_ID = FIELD_MASK.replace(/places\./g, '');   // details GET drops the `places.` prefix
   async function resolveEntryPlace(entry) {
+    const cacheKey = `michelin:place:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
+    if (redis && redis.isOpen) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) { cacheHits++; return JSON.parse(cached); }
+      } catch { /* fall through to live resolve */ }
+    }
     cacheMisses++;
     let placesData = null;
+    const curatedPlaceId = michelinMeta[entry.id] && michelinMeta[entry.id].placeId;
     try {
-      const { data } = await axios.post(
-        PLACES_URL,
-        {
-          textQuery: buildMichQuery(entry),
-          regionCode: placesRegionCode,
-          languageCode: csLang === 'fr' ? 'fr' : 'en',
-          maxResultCount: 1
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': apiKey,
-            'X-Goog-FieldMask': FIELD_MASK
+      if (curatedPlaceId) {
+        const { data } = await axios.get(
+          `https://places.googleapis.com/v1/places/${encodeURIComponent(curatedPlaceId)}`,
+          {
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': FIELD_MASK_BY_ID },
+            params: { languageCode: csLang === 'fr' ? 'fr' : 'en' },
+            timeout: 4000
+          }
+        );
+        placesData = (data && data.id) ? data : null;
+      } else {
+        const { data } = await axios.post(
+          PLACES_URL,
+          {
+            textQuery: buildMichQuery(entry),
+            regionCode: placesRegionCode,
+            languageCode: csLang === 'fr' ? 'fr' : 'en',
+            maxResultCount: 1
           },
-          timeout: 4000
-        }
-      );
-      placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': FIELD_MASK
+            },
+            timeout: 4000
+          }
+        );
+        placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+      }
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
+    }
+    if (placesData && redis && redis.isOpen) {
+      try { await redis.setEx(cacheKey, MICH_PLACE_TTL_S, JSON.stringify(placesData)); } catch { /* best-effort */ }
     }
     return placesData;
   }
@@ -9516,7 +9562,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // has no curated label.
       restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true
+      michelinHalal: entry.halal === true,
+      // v0.61.445 — structural parity with the success path (which sets
+      // `reviews`): the dish/review-extract loop guards on Array.isArray,
+      // so an absent `reviews` is harmless, but keep the shape consistent.
+      reviews: null
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -9711,26 +9761,30 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     ];
     for (const v of filteredVenues) {
       if (!Array.isArray(v.reviews) || !v.reviews.length) continue;
-      const recent = v.reviews
-        .filter((r) => r?.text)
-        .filter((r) => {
-          if (!r.publishTime) return true;
-          const t = new Date(r.publishTime).getTime();
-          return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
-        })
-        .slice(0, 3);
-      if (!recent.length) continue;
       // v0.60.156 — Places v1 returns each review's `text` as a nested
       // object `{ text: '...', languageCode: 'en' }`, NOT a bare string.
-      // The previous reads (`r.text`, `recent[0].text`) String-coerced
-      // that object to the literal "[object Object]" — which then passed
-      // every typeof guard added in v0.60.154/.155 because "[object
-      // Object]" IS a string. Unwrap nested .text.text first; fall back
-      // to the bare value for any legacy/edge response shape.
+      // Unwrap nested .text.text first; fall back to the bare value for any
+      // legacy/edge response shape.
       const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
         ? (typeof r.text.text === 'string' ? r.text.text : '')
         : (typeof r?.text === 'string' ? r.text : '');
-      const allText = recent.map((r) => reviewText(r)).join(' . ');
+      const withText = v.reviews.filter((r) => reviewText(r));
+      const recent = withText.filter((r) => {
+        if (!r.publishTime) return true;
+        const t = new Date(r.publishTime).getTime();
+        return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
+      });
+      // v0.61.445 — mirror the cuisine path's v0.61.390 fix: when a venue's
+      // Google reviews are ALL older than 4 months (Places returns its "most
+      // relevant" reviews, often not recent), fall back to the best available
+      // review so the 💬 quote shows whenever Google has ANY review — instead
+      // of the "Bib Gourmand Guide … curated recommendation" placeholder.
+      // Recent is still preferred when present. (Established bib gourmands
+      // like Hor Poh have hundreds of reviews but few within the 4-month
+      // window, so the old `if (!recent.length) continue` left them blank.)
+      const pool = (recent.length ? recent : withText).slice(0, 3);
+      if (!pool.length) continue;
+      const allText = pool.map((r) => reviewText(r)).join(' . ');
       const dishes = new Set();
       for (const re of MICH_DISH_RES) {
         let m;
@@ -9747,7 +9801,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
       const dishList = [...dishes].slice(0, 3);
       if (dishList.length) v.dishes = dishList;
-      if (!v.recentReview) v.recentReview = reviewText(recent[0]).slice(0, 200).trim();
+      if (!v.recentReview) v.recentReview = reviewText(pool[0]).slice(0, 200).trim();
     }
   } catch (err) {
     console.warn('[Michelin] dish-extract failed:', err.message);
@@ -10077,6 +10131,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       } : {}),
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
       ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining } : {}),
+      // v0.61.445 — other-city Michelin count for the "N more across <country>"
+      // hint. The walk is city-scoped (no cross-city bleed); this is shown so
+      // the user knows more exist elsewhere in the country (pick that city).
+      ...(michSelectedCity && michOtherCityRemaining > 0 ? { nationRemaining: michOtherCityRemaining } : {}),
       ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
@@ -12124,7 +12182,29 @@ async function cacheBotUsername() {
             description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
           }]
         });
-        res.json({ categories });
+        // v0.61.445 — per-country+city Michelin cuisine coverage, so the TMA
+        // can GREY cuisine chips that have no star/bib venue under Michelin
+        // (operator: "Michelin + Japanese in KL hangs"). Map: cc → { all:[…],
+        // byCity:{ "<City>":[…] } } of cuisine slugs. ONLY the venue-award
+        // loader countries appear (MY/TH/VN/JP/KR/CN/HK/MO/PH/TW); SG Michelin
+        // lives in SG-michelin.js without routing-slug cuisine tags, so SG is
+        // intentionally ABSENT → the TMA fails OPEN (greys nothing) for SG.
+        // The special modes (durian/fruit/durian-pastry) are never Michelin →
+        // the TMA always greys them under Michelin, independent of this map.
+        let michelinCuisinesByCC = {};
+        try {
+          const md = require('./michelin-data');
+          for (const cc of michelinCountries) {
+            const all = md.availableCuisines(cc);
+            if (!all.length) continue;   // unknown coverage (e.g. SG) → omit → TMA fails open
+            const byCity = {};
+            for (const city of [...new Set(md.visitableVenues(md.venuesForCountry(cc)).map((v) => v.city))]) {
+              byCity[city] = md.availableCuisines(cc, city);
+            }
+            michelinCuisinesByCC[cc] = { all, byCity };
+          }
+        } catch (err) { console.warn('[catalogue] michelinCuisinesByCC build failed:', err.message); }
+        res.json({ categories, michelinCuisinesByCC });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
         res.status(500).json({ error: err.message });

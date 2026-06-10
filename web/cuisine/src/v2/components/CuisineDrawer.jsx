@@ -48,7 +48,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
@@ -190,6 +190,10 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           /* v0.61.411 — effective country for the durian-belt gate: durian +
              durian-pastry chips disable outside SG/MY/ID/TH/PH/BN/VN. */
           beltCountry={beltCountry}
+          /* v0.61.445 — allowed Michelin cuisine slugs for the picked
+             country+city (null = unknown → fail open); greys uncovered chips
+             when Michelin is in the selection. */
+          michelinCuisines={michelinCuisines}
         />
       )}
     </div>
