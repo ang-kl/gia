@@ -362,6 +362,19 @@ const STRINGS = {
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },
   'location.got':              { en: '📍 Got your location.', fr: '📍 Position reçue.' },
+  // v0.62.3 — first-share confirmation + desktop nudge. Telegram Desktop has
+  // no GPS: its "share" button is a map-pick that defaults to an IP/last point
+  // (operator: a first-load share on Mac stuck to "Muzium Negara, KL"). On the
+  // FIRST ever share we confirm the resolved place + offer a manual-set path.
+  'loc.confirm.firstShare':    { en: '📍 *Location set to:*\n{place}\n\n💻 On desktop, Telegram shares a *map-pinned point*, not live GPS — it can land on the wrong spot. Is this where you are?',
+                                 fr: '📍 *Position définie sur :*\n{place}\n\n💻 Sur ordinateur, Telegram partage un *point sur la carte*, pas le GPS — cela peut tomber au mauvais endroit. Est-ce bien là que vous êtes ?' },
+  'loc.confirm.yes':           { en: '✅ Yes, use it', fr: '✅ Oui, utiliser' },
+  'loc.confirm.no':            { en: '✏️ No, set manually', fr: '✏️ Non, saisir manuellement' },
+  'loc.confirm.okAck':         { en: '📍 *Confirmed:* {place}', fr: '📍 *Confirmé :* {place}' },
+  'loc.confirm.fixPrompt':     { en: 'Type your area — e.g. `/l Orchard Road` or `/l Bugis`. On desktop, typing is more reliable than the share button.',
+                                 fr: 'Saisissez votre lieu — p. ex. `/l Orchard Road` ou `/l Bugis`. Sur ordinateur, taper est plus fiable que le bouton de partage.' },
+  'loc.desktopNudge':          { en: '💻 On desktop? Telegram shares a map-pick, not GPS. If this is wrong, type /l <your area>.',
+                                 fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.' },
   // v0.59.6: ensureLocation prompts (the "two messages" /hidden bug).
   'location.shareLabel':       { en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
                                  fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' },
