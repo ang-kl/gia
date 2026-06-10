@@ -580,27 +580,37 @@ function _canonicalForReviews(mode) {
 // runner.js, which found venues in the live run); the fruits terms + the
 // "newly opened" recall term are simpler additions (PROVISIONAL — flag for a
 // native-speaker review).
+// v0.62.6 — operator (deployed VN bug): Durian search in Hanoi returned chè /
+// vegetarian / coconut venues. Vietnam was belt-allowed but ABSENT from the
+// local-seed map, so the search ran on mostly-English seeds + one bare
+// 'sầu riêng' term → thin strict pool → the loose fallback flooded in generic
+// dessert places. Add Vietnamese ('vi') shop-form seeds (reuse the forms from
+// durian-variance-runner.js) so Places returns actual durian/fruit shops.
 const LOCAL_SEED_LANG_BY_CC = Object.freeze({
-  JP: 'ja', KR: 'ko', CN: 'zh-CN', TW: 'zh-TW', HK: 'zh-TW', MO: 'zh-TW', TH: 'th'
+  JP: 'ja', KR: 'ko', CN: 'zh-CN', TW: 'zh-TW', HK: 'zh-TW', MO: 'zh-TW', TH: 'th', VN: 'vi'
 });
 const LOCAL_SEEDS = Object.freeze({
   [SPECIAL_MODES.DURIAN]: {
     ja: ['ドリアン店', 'ドリアン専門店'], ko: ['두리안 가게', '두리안 전문점'],
-    'zh-CN': ['榴莲店', '鲜榴莲'], 'zh-TW': ['榴梿店'], th: ['ร้านทุเรียน', 'ทุเรียน']
+    'zh-CN': ['榴莲店', '鲜榴莲'], 'zh-TW': ['榴梿店'], th: ['ร้านทุเรียน', 'ทุเรียน'],
+    vi: ['cửa hàng sầu riêng', 'quán sầu riêng']   // durian shop / durian stall
   },
   [SPECIAL_MODES.DURIAN_PASTRY]: {
     ja: ['ドリアンパフ', 'ドリアンケーキ'], ko: ['두리안 케이크', '두리안 디저트'],
-    'zh-CN': ['榴莲泡芙', '榴莲蛋糕'], 'zh-TW': ['榴梿泡芙', '榴梿蛋糕'], th: ['พัฟทุเรียน', 'เค้กทุเรียน']
+    'zh-CN': ['榴莲泡芙', '榴莲蛋糕'], 'zh-TW': ['榴梿泡芙', '榴梿蛋糕'], th: ['พัฟทุเรียน', 'เค้กทุเรียน'],
+    vi: ['bánh sầu riêng', 'kem sầu riêng']        // durian cake / durian ice cream
   },
   [SPECIAL_MODES.FRUITS]: {
     ja: ['果物店', 'フルーツ店'], ko: ['과일 가게'],
-    'zh-CN': ['水果店'], 'zh-TW': ['水果店'], th: ['ร้านผลไม้']
+    'zh-CN': ['水果店'], 'zh-TW': ['水果店'], th: ['ร้านผลไม้'],
+    vi: ['cửa hàng trái cây', 'sạp trái cây']      // fruit shop / fruit stall
   }
 });
 // Track B: local-language "newly opened" recall term for the New pill in a
 // foreign-script country (the English modifier under-recalls). PROVISIONAL.
 const LOCAL_NEWLY_OPENED = Object.freeze({
-  ja: '新しくオープン', ko: '새로 오픈', 'zh-CN': '新开张', 'zh-TW': '新開幕', th: 'เปิดใหม่'
+  ja: '新しくオープン', ko: '새로 오픈', 'zh-CN': '新开张', 'zh-TW': '新開幕', th: 'เปิดใหม่',
+  vi: 'mới khai trương'
 });
 
 function _localSeedLang(country) {
@@ -730,10 +740,28 @@ function isRelevant(venue, mode, opts = {}) {
   // review text 'fresh fruit juice'; durian's keyword set is
   // tighter so the same loophole doesn't apply).
   const kws = KEYWORDS[mode];
-  // v0.61.416 — relax widens the keyword check to the FULL haystack (so a durian
-  // word in the address / review / summary counts), not just name+type.
-  const useStrong = (mode === SPECIAL_MODES.DURIAN || mode === SPECIAL_MODES.DURIAN_PASTRY) && !relax;
-  const hay = useStrong ? _strongHaystack(venue) : _haystack(venue);
+  const isDurianMode = (mode === SPECIAL_MODES.DURIAN || mode === SPECIAL_MODES.DURIAN_PASTRY);
+  if (isDurianMode) {
+    // STRONG signal (strict AND relaxed): a durian keyword in
+    // name / area / formattedAddress / primaryType — the venue IS durian-named.
+    const strongHay = _strongHaystack(venue);
+    for (const kw of kws) {
+      if (kw && strongHay.includes(kw.toLowerCase())) return true;
+    }
+    // v0.62.6 — operator (VN bug): the relaxed fallback previously admitted a
+    // venue on a SINGLE durian word ANYWHERE in the full haystack (incl.
+    // reviews / googleSummary). Vietnamese chè / vegetarian / coconut venues
+    // routinely mention durian once in reviews and flooded the durian results.
+    // The relaxed path now requires ≥2 recency-filtered durian review mentions
+    // (the v0.61.262 signal — "two independent reviewers", same bar as the
+    // strict canonical-type path) so it still rescues sparse / oddly-typed real
+    // durian sellers in thin belt markets without re-opening the single-mention
+    // loophole. (Strict path unchanged: strong haystack only → false.)
+    if (relax) return _countRecentDurianMentions(venue) >= 2;
+    return false;
+  }
+  // FRUITS (broad by design) keeps the full-haystack single-keyword match.
+  const hay = _haystack(venue);
   for (const kw of kws) {
     if (kw && hay.includes(kw.toLowerCase())) return true;
   }

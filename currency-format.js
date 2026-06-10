@@ -176,10 +176,52 @@ async function fetchUsdRateFrankfurter(cur) {
   }
 }
 
+// v0.62.6 — USD-per-unit BASELINE table + plausibility guard. Operator
+// (deployed VN bug): ₫300000 rendered as ≈S$129162 — a corrupt/inverted FX
+// leg (VND is Frankfurter-OMITTED so it relies on Alpha Vantage + cache).
+// These approximate fixed rates (snapshot ~2026-06, USD per 1 unit) serve two
+// jobs: (1) authoritative fallback for the "rigid" Frankfurter-omitted
+// currencies (VND/TWD/MOP/BND) and the SE-Asian long tail; (2) a sanity
+// reference so a cached/fetched rate more than BASELINE_TOLERANCE× off the
+// baseline (a real FX move never is — only corruption/inversion) is rejected.
+const USD_RATE_BASELINE = Object.freeze({
+  USD: 1.0,
+  // SE-Asia (picker belt + neighbours)
+  SGD: 0.778, MYR: 0.246, THB: 0.0305, IDR: 0.0000557, PHP: 0.0163,
+  VND: 0.0000390, BND: 0.778, KHR: 0.000245, LAK: 0.0000462, MMK: 0.000476,
+  // East-Asia (Michelin picker)
+  JPY: 0.00624, KRW: 0.000656, CNY: 0.148, HKD: 0.128, TWD: 0.0315, MOP: 0.124,
+  // common home currencies
+  INR: 0.0105, AUD: 0.706, NZD: 0.584, CAD: 0.718, GBP: 1.340, EUR: 1.157,
+  CHF: 1.257, AED: 0.272, SAR: 0.267
+});
+const BASELINE_TOLERANCE = 5;      // accept a live rate within ±5× of baseline
+const RATE_ABS_MIN = 1e-7;         // loose absolute band for currencies w/o a baseline
+const RATE_ABS_MAX = 1e4;
+
+// sanitizeUsdRate(cur, val) → number | null
+//   Guards a candidate USD-per-unit rate. With a baseline: accept the candidate
+//   only when within ±BASELINE_TOLERANCE× (else fall back to the fixed baseline
+//   — this is what stops a corrupt/inverted VND or SGD leg rendering S$129k).
+//   Without a baseline: accept only within a loose absolute band, else null.
+function sanitizeUsdRate(cur, val) {
+  const c = String(cur || '').toUpperCase();
+  const base = USD_RATE_BASELINE[c];
+  const ok = Number.isFinite(val) && val > 0;
+  if (base != null) {
+    if (ok && val >= base / BASELINE_TOLERANCE && val <= base * BASELINE_TOLERANCE) return val;
+    return base;   // missing / implausibly-far candidate → the fixed baseline
+  }
+  if (ok && val >= RATE_ABS_MIN && val <= RATE_ABS_MAX) return val;
+  return null;     // no baseline + garbage candidate → drop (caller omits parens)
+}
+
 // usdRate(cur, redis) → Promise<number|null>
-//   USD per 1 unit of `cur`. USD short-circuits to 1.0. Reads the
-//   15-day Redis cache (fx:usd:<CUR>) first; on miss tries Alpha
-//   Vantage, then Frankfurter; writes the cache on success.
+//   USD per 1 unit of `cur`. USD short-circuits to 1.0. Reads the 15-day Redis
+//   cache (fx:usd:<CUR>); a cached value is used ONLY if it passes the
+//   plausibility guard (so a stale/corrupt cache can't render S$129k). On miss
+//   / rejection, tries Alpha Vantage then Frankfurter, guards the result
+//   (baseline fallback), and re-caches the sanitized value (self-healing).
 async function usdRate(cur, redis) {
   const c = String(cur || '').toUpperCase();
   if (!c) return null;
@@ -190,16 +232,21 @@ async function usdRate(cur, redis) {
       const cached = await redis.get(cacheKey);
       if (cached != null) {
         const n = Number(cached);
-        if (Number.isFinite(n) && n > 0) return n;
+        // Trust the cache only when it survives the guard unchanged; otherwise
+        // it's corrupt → fall through to re-fetch + heal.
+        if (Number.isFinite(n) && n > 0 && sanitizeUsdRate(c, n) === n) return n;
       }
     } catch { /* cache miss is non-fatal */ }
   }
   let rate = await fetchUsdRateAlphaVantage(c);
   if (rate == null) rate = await fetchUsdRateFrankfurter(c);
+  rate = sanitizeUsdRate(c, rate);   // reject inverted/garbage live value → baseline
   if (!Number.isFinite(rate) || rate <= 0) return null;
   if (redis) {
-    try { await redis.setex(cacheKey, USD_RATE_TTL_S, String(rate)); }
-    catch { /* setex failure is non-fatal */ }
+    // v0.62.6 — node-redis v4 is camelCase `setEx` (was `setex` → silently
+    // threw, so this module NEVER cached → every render re-hit Alpha Vantage).
+    try { await redis.setEx(cacheKey, USD_RATE_TTL_S, String(rate)); }
+    catch { /* setEx failure is non-fatal */ }
   }
   return rate;
 }
@@ -310,5 +357,7 @@ module.exports = {
   fetchFxRate,
   formatPriceRangeForVenue,
   NO_CENTS,
-  FX_MARKUP
+  FX_MARKUP,
+  USD_RATE_BASELINE,
+  sanitizeUsdRate
 };
