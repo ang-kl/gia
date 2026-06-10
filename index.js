@@ -9916,6 +9916,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Strip the heavy review payload before responding.
   // v0.61.417 — first capture the review's "X ago" (Google relative time) onto
   // recentReviewAgo so the card / copy can show it after the quote.
+  // v0.61.441 — FIX: this loop called `reviewText(r)`, but the only
+  // `reviewText` definition lived inside the dish-extract for-loop above
+  // (block-scoped), so here it was out of scope → ReferenceError
+  // "reviewText is not defined" → HTTP 500 on EVERY Michelin search since
+  // v0.61.417 shipped. Define the same Places-v1 nested-{text} unwrap helper
+  // at this scope.
+  const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
+    ? (typeof r.text.text === 'string' ? r.text.text : '')
+    : (typeof r?.text === 'string' ? r.text : '');
   for (const v of filteredVenues) {
     if (!v.recentReviewAgo && v.recentReview && Array.isArray(v.reviews)) {
       const rr = String(v.recentReview);
