@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-10';   // v0.61.439 refresh: PRs #950-#955 (vibe catch-up, SG-anchor guard, opus 4.8, code-review fix PRs A/B/C)
+const GEN_DATE = '2026-06-10';   // v0.62.4 refresh: PRs #956-#964 (per-location seen-set, cuisine 500s+concentric rings, geo-scoping redesign, Michelin overhaul + meta-snapshot refresh + geo-guard, location first-share confirm)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

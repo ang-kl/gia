@@ -730,3 +730,12 @@
 953	__tests__/rating-pref.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_436-10_06_26-0724.md,index.js,package.json,rating-pref.js
 954	doc/.serial-state.yml,doc/Journal/journal-0_61_437-10_06_26-0734.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/i18n.js
 955	doc/.serial-state.yml,doc/Journal/journal-0_61_438-10_06_26-0743.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/QuickFilters.jsx
+956	doc/.serial-state.yml,doc/Journal/journal-0_61_439-10_06_26-0755.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+957	__tests__/michelin-walk.test.js,doc/.serial-state.yml,doc/Journal/journal-0_61_440-10_06_26-1123.md,index.js,michelin-walk.js,package.json,web/cuisine/src/v2/App.jsx
+958	__tests__/city-centroids.test.js,__tests__/cuisine-nearby-refetch.test.js,__tests__/cuisine-nearby-widen.test.js,__tests__/error-classify.test.js,__tests__/pool-floor.test.js,city-centroids.js,cuisine-nearby-refetch.js,cuisine-nearby-widen.js,doc/.serial-state.yml,doc/Journal/journal-0_61_441-10_06_26-1345.md,error-classify.js,index.js,package.json,place-search-variance.js,pool-floor.js,web/cuisine/src/v2/App.jsx
+959	__tests__/cuisine-geo-scope.test.js,cuisine-geo-scope.js,doc/.serial-state.yml,doc/Journal/journal-0_61_443-10_06_26-1425.md,index.js,package.json
+960	__tests__/michelin-available-cuisines.test.js,doc/.serial-state.yml,doc/Journal/journal-0_62_0-10_06_26-1610.md,index.js,michelin-data.js,michelin-meta.json,package.json,scripts/build-michelin-meta.mjs,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/CuisineCategoryDrawer.jsx,web/cuisine/src/v2/components/CuisineDrawer.jsx
+961	doc/.serial-state.yml,doc/Journal/journal-0_62_0-10_06_26-1610.md
+962	doc/.serial-state.yml,doc/Journal/journal-0_62_1-10_06_26-1748.md,michelin-meta.json,package.json
+963	doc/.serial-state.yml,doc/Journal/journal-0_62_2-10_06_26-1829.md,michelin-meta.json,package.json,scripts/build-michelin-meta.mjs
+964	doc/.serial-state.yml,doc/Journal/journal-0_62_3-10_06_26-1903.md,i18n.js,index.js,package.json

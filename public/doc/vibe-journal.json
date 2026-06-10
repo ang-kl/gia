@@ -1,6 +1,6 @@
 {
   "generated": "2026-06-10",
-  "count": 942,
+  "count": 951,
   "records": [
     {
       "pr": 1,
@@ -26826,6 +26826,278 @@
       "reworkCue": false,
       "reworkOf": 954,
       "burst": true
+    },
+    {
+      "pr": 956,
+      "status": "merged",
+      "merged": "2026-06-09 23:57:01",
+      "day": "2026-06-09",
+      "version": "0.61.439",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: Vibe Journal refresh — PRs #950–#955",
+      "approach": "doc/Journal verified current; this refreshes the hosted ledger (was cut off at #949).",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.61.439: Vibe Journal refresh — PRs #950–#955",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 957,
+      "status": "merged",
+      "merged": "2026-06-10 03:25:44",
+      "day": "2026-06-10",
+      "version": "0.61.440",
+      "minor": "0.61",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: per-location seen-set — fixes Others-city 1-result / Michelin-0 / FAB-stuck",
+      "approach": "## Your 2 bugs (Others → Malaysia → KL) — one root cause The search's \"already-seen\" memory **ignored location**.",
+      "codeImpact": "7 files — index.js, michelin-walk.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "michelin-walk.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.61.440: per-location seen-set — fixes Others-city 1-result / Michelin-0 / FAB-stuck",
+      "reworkCue": false,
+      "reworkOf": 955,
+      "burst": true
+    },
+    {
+      "pr": 958,
+      "status": "merged",
+      "merged": "2026-06-10 06:21:13",
+      "day": "2026-06-10",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine search: kill the 500s + concentric rings (per-city tuned)",
+      "approach": "## What broke Operator (deployed, 3 days): *\"I keep getting HTTPS 500 these three days, the search compresses; especially common to get 1 result.",
+      "codeImpact": "16 files — index.js, city-centroids.js, cuisine-nearby-refetch.js, cuisine-nearby-widen.js, error-classify.js, place-search-variance.js, pool-floor.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "city-centroids.js",
+        "cuisine-nearby-refetch.js",
+        "cuisine-nearby-widen.js",
+        "doc",
+        "error-classify.js",
+        "index.js",
+        "package",
+        "place-search-variance.js",
+        "pool-floor.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Cuisine search: kill the 500s + concentric rings (per-city tuned)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 959,
+      "status": "merged",
+      "merged": "2026-06-10 06:55:12",
+      "day": "2026-06-10",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine search: geographic scoping redesign (concentric distance + per-city radius)",
+      "approach": "## What & why Supersedes the original pure-refactor on this branch.",
+      "codeImpact": "6 files — index.js, cuisine-geo-scope.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-geo-scope.js",
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Cuisine search: geographic scoping redesign (concentric distance + per-city radius)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 960,
+      "status": "merged",
+      "merged": "2026-06-10 08:39:45",
+      "day": "2026-06-10",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Recognised lists",
+      "intent": "Fix: Michelin overhaul: review fix, city-scoped walk, grey-out unavailable cuisines, curated metadata + refresh",
+      "approach": "Four operator-reviewed Michelin items, shipped as one PR (per your call).",
+      "codeImpact": "11 files — index.js, michelin-data.js, TMA:cuisine, tests, doc, package, michelin-meta.json, scripts/",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "michelin-data.js",
+        "michelin-meta.json",
+        "package",
+        "scripts/",
+        "TMA:cuisine"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "Michelin overhaul: review fix, city-scoped walk, grey-out unavailable cuisines, curated metadata + refresh",
+      "reworkCue": false,
+      "reworkOf": 957,
+      "burst": true
+    },
+    {
+      "pr": 961,
+      "status": "merged",
+      "merged": "2026-06-10 09:43:43",
+      "day": "2026-06-10",
+      "version": "0.62.0",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Recognised lists",
+      "intent": "Update docs: record PR #960 merge (v0.62.0 → PROD) per standing rule",
+      "approach": "Docs-only follow-up per the standing Journal rule (\"record after a PR merges\").",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "doc(journal): record PR #960 merge (v0.62.0 → PROD) per standing rule",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 962,
+      "status": "merged",
+      "merged": "2026-06-10 09:54:12",
+      "day": "2026-06-10",
+      "version": "0.62.1",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: populate michelin-meta.json (1,888/1,922) — closes #960 empty-snapshot gap",
+      "approach": "## What Commits the **populated** `michelin-meta.json` — `{}` → **1,888 entries**, every one carrying a `placeId`.",
+      "codeImpact": "4 files — doc, package, michelin-meta.json",
+      "modules": [
+        "doc",
+        "michelin-meta.json",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.1: populate michelin-meta.json (1,888/1,922) — closes #960 empty-snapshot gap",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 963,
+      "status": "merged",
+      "merged": "2026-06-10 10:32:13",
+      "day": "2026-06-10",
+      "version": "0.62.2",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Michelin refresh geo-guard — wrong-country 33→0 (CN/KR/TW re-run)",
+      "approach": "## Why Validation + live verification of the v0.62.1 snapshot (#962) found **33/1,888 venues (1.7%) resolved to the WRONG country** — short/generic East-Asian names matched data-rich SG/MY businesses: - Seoul Bib \"Subaru\" → **a Subaru car…",
+      "codeImpact": "5 files — doc, package, michelin-meta.json, scripts/",
+      "modules": [
+        "doc",
+        "michelin-meta.json",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.2: Michelin refresh geo-guard — wrong-country 33→0 (CN/KR/TW re-run)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 964,
+      "status": "merged",
+      "merged": "2026-06-10 11:06:08",
+      "day": "2026-06-10",
+      "version": "0.62.3",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Maps / geo / location",
+      "intent": "Fix: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix)",
+      "approach": "## Bug (operator, on Mac) `/location` → tap **📍 Share my current location** → it sticks on a wrong **\"Muzium Negara, KL\"** on first load.",
+      "codeImpact": "5 files — index.js, i18n.js, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.3: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }
