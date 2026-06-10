@@ -15409,140 +15409,27 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.57.8 (PR #125): 80 km hard gate from user location.
-        // v0.60.152 (Human Lead 2026-05-14): bumped 80 km → 120 km.
-        // Original 80 km covered SG + adjacent JB even from south SG;
-        // 120 km gives more headroom for JB-side venues + a sliver of
-        // Iskandar / Kulai when the user has explicitly opted into
-        // region:'JB' (the formattedAddress filter below still pins
-        // JB-mode results to "Johor Bahru" so we don't bleed into KL).
-        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
-        // v0.61.276 — Expert A from the 30-05 morning investigation
-        // board: when region=JB AND coords are far from Johor, the
-        // JB-hybrid-filter silently wipes every result. Operator hit
-        // this at Putrajaya (lat 2.93) and Ipoh (4.60) with JB pill
-        // stuck on from a prior session. Track this so we can fall
-        // through to OTHER treatment when the filter zeros everything
-        // out at non-JB coords.
+        // v0.61.444 — ONE geographic-scoping pass (cuisine-geo-scope.js).
+        // Redesign: scope by a CONCENTRIC DISTANCE from the set location,
+        // bounded by the per-city `anchorCap` (density-tiered radiusM), for
+        // every region — replacing the 120 km global gate, the SG fixed-
+        // centroid filter, and the OTHER country-keyword text filter with one
+        // distance cap. JB keeps its own 60 km near-cap + "Johor"-text rescue
+        // (≤120 km) + the JB→OTHER fallback; SG/JB keep a light cross-border
+        // text exclusion. distanceM was attached just above (from {lat,lng}).
+        // `jbFilterFellBackToOther` still rides the payload (TMA amber banner).
         let jbFilterFellBackToOther = false;
-        if (isJB) {
-          // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
-          // JB region toggle covers ALL of Johor state (Pontian, Desaru,
-          // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
-          // Puteri, …), not only the city named "Johor Bahru". KL +
-          // Selangor + Pahang addresses don't mention "Johor" so the
-          // word-boundary filter still keeps non-Johor MY venues out.
-          // v0.61.198 — operator's log (South Key + Cantonese): the strict
-          // word-boundary filter still drops ~74% of JB candidates because
-          // Places sometimes formats addresses as "Skudai, 81300, Malaysia"
-          // or "Iskandar Puteri, 79100" with no "Johor" word. Hybrid
-          // matches the SG branch below: accept "Johor" text OR within
-          // 60 km of a JB centroid AND NOT explicitly Singapore-tagged.
-          // 60 km covers Pontian / Kulai / Desaru without leaking into KL.
-          const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
-          const beforeJb = venues.length;
-          const preJbVenues = venues.slice();
-          venues = venues.filter((v) => {
-            const text = `${v.area || ''} ${v.name || ''}`;
-            if (/\bjohor\b/i.test(text)) return true;
-            if (/singapore/i.test(text)) return false;
-            const distFromJB = haversine(JB_CENTROID, v);
-            return Number.isFinite(distFromJB) && distFromJB <= 60000;
+        try {
+          const scoped = await require('./cuisine-geo-scope').scopeVenuesByRegion({
+            venues, isJB, isOther, lat, lng,
+            anchorCap, searchRadius,
+            locationMode: require('./location-mode'),
+            demoteNeverEmpty: require('./pool-floor').demoteNeverEmpty
           });
-          if (venues.length !== beforeJb) {
-            console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
-          }
-          // v0.61.276 — graceful exit when the filter zeroed everything
-          // AND the request's coords are far from the JB extent. This
-          // catches the operator's exact bug class: JB pill sticky
-          // at Putrajaya / KL / Ipoh / Singapore-far-north. Restore
-          // the pre-filter pool and let the OTHER branch's country-
-          // text-filter handle it instead. v0.61.278 surfaces this
-          // via payload.jbFallbackToOther (the TMA renders an amber
-          // banner). v0.61.279 (Register O-26): the JB-distance check
-          // is now `isFarFromJB` in location-mode.js (shared with the
-          // /api/cuisine/set-location sanity guard).
-          if (venues.length === 0 && beforeJb >= 5) {
-            const { isFarFromJB, haversineMeters: hm, JB_CBD: jbCbd } = require('./location-mode');
-            if (isFarFromJB(lat, lng)) {
-              const distRequestToJB = hm(jbCbd, { lat, lng });
-              console.warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${distRequestToJB.toFixed(0)}m from JB CBD. Treating request as OTHER.`);
-              venues = preJbVenues;
-              jbFilterFellBackToOther = true;
-              // Fall through to the OTHER country-text-filter logic
-              // below by flipping the effective branch via the
-              // `effectiveIsOther` guard added on the else-if line.
-            }
-          }
-        }
-        if (jbFilterFellBackToOther || isOther) {
-          // v0.61.207 — operator: "first load is zero for location set
-          // to others". The SG area-text filter was firing for OTHER
-          // and collapsing the pool to 0. v0.61.207 fixed by skipping
-          // the SG/JB area-text filter entirely.
-          // v0.61.210 — defence layer: read the user's country-pref
-          // (the OTHER-picker ISO 3166-1 alpha-2 code) and apply a
-          // soft per-country keyword filter (country name + state +
-          // major cities). Catches cross-border bleed when Places
-          // returns venues outside the user's chosen country.
-          // Fail-open: unknown country → no filter (same behaviour
-          // as v0.61.207).
-          let ctxCountry = null;
-          try {
-            ctxCountry = await getUserCountryPref(redis, csChatId);
-          } catch (err) {
-            console.warn('[Cuisine-Search] country-pref read failed (no defence filter):', err.message);
-          }
-          // v0.61.276 — when we arrived here via the JB-fallback path,
-          // default the country to MY so we still scope to Malaysia
-          // (the JB pill was the user's expressed-but-coords-mismatched
-          // intent; MY is the most charitable interpretation).
-          if (jbFilterFellBackToOther && !ctxCountry) {
-            ctxCountry = 'MY';
-            console.log('[Cuisine-Search] D703b JB-fallback default ctxCountry=MY');
-          }
-          if (ctxCountry && ctxCountry !== 'SG') {
-            try {
-              const { filterVenuesByCountry, hasKeywordsFor } = require('./country-text-match');
-              if (hasKeywordsFor(ctxCountry)) {
-                const beforeOther = venues.length;
-                const filtered = filterVenuesByCountry(venues, ctxCountry);
-                // v0.61.401 — operator: cuisine searches returned 0 when the
-                // country-pref was STALE vs the actual pin (e.g. country=MY but
-                // the pin sits in Singapore → every SG venue fails the MY
-                // keyword filter, so durian/american/etc. collapse to 0 while a
-                // big no-cuisine pool leaks a few through). The locationBias.
-                // circle already pinned the pool to the user's REAL coords, and
-                // this keyword filter is belt-and-braces (fail-open by design),
-                // so when it would EMPTY the page, keep the coord-pinned pool
-                // instead of returning 0. Mirrors the JB-fallback (D703b) + the
-                // v0.61.399 review-refute floor.
-                if (filtered.length === 0 && beforeOther > 0) {
-                  console.log(`[Cuisine-Search] D703d country-text-filter cc=${ctxCountry} ${beforeOther}→0 → FLOOR: kept coord-pinned pool (country-pref stale vs pin)`);
-                } else {
-                  venues = filtered;
-                  console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
-                }
-              } else {
-                console.log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${venues.length}`);
-              }
-            } catch (err) {
-              console.warn('[Cuisine-Search] country-text-match failed (skip filter):', err.message);
-            }
-          } else {
-            console.log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${venues.length})`);
-          }
-        } else {
-          // SG only: post-filter by Singapore mention OR proximity
-          // (some hawker centres' formattedAddress lacks "Singapore").
-          venues = venues.filter((v) => {
-            if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
-            // Within 30km of SG centroid still counts as SG even if
-            // the address text is missing the country word.
-            const SG = { lat: 1.3521, lng: 103.8198 };
-            const distFromSG = haversine(SG, v);
-            return distFromSG <= 30000;
-          });
+          venues = scoped.venues;
+          jbFilterFellBackToOther = scoped.jbFallbackToOther;
+        } catch (err) {
+          console.warn('[Cuisine-Search] geo-scope pass failed (keeping unscoped pool):', err.message);
         }
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
