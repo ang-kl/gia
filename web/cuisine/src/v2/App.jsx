@@ -3550,7 +3550,16 @@ export default function App() {
                 the button — a new query has its own pool. */}
             {(() => {
               const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
-              const isDisabled = loading || (poolExhausted && !dirty);
+              // v0.61.440 — a PREVIEWED city (Others dropdown / map pick that
+              // hasn't been committed yet) re-enables the FAB so the user can
+              // tap 🔍 to commit + search there. Operator bug: after a thin
+              // Others result left poolExhausted=true, picking a new city left
+              // the FAB stuck disabled (the preview doesn't change `dirty`,
+              // which ignores location) — so the new city could never be
+              // searched via the FAB. The server's per-location seen-set
+              // (v0.61.440) means that committed search returns a fresh
+              // non-final batch, clearing poolExhausted on its own afterwards.
+              const isDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
               return (
                 <button
                   type="button"

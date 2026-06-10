@@ -8960,6 +8960,22 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
   }
 }
 
+// v0.61.440 — a coarse per-LOCATION token for the seen-set / walk hash.
+// Operator bug: in Others mode every city (KL, Penang, Bangkok…) shared the
+// SAME seen-set because `region` ('OTHER') was the only location signal in
+// the hash — so a fresh KL search inherited a prior Others city's exhausted
+// dedup pool (→ 1 result; Michelin → 0; the 1-result finalBatch then stuck
+// the FAB disabled). Fold in the country + a ~11 km coord bucket so each
+// city gets its OWN bucket. Rounded to 1 dp so a stable city anchor stays
+// in one bucket (re-tap "more" still works) while distinct cities separate.
+function searchLocToken(lat, lng, countryCode) {
+  const cc = (typeof countryCode === 'string' && /^[A-Z]{2}$/i.test(countryCode))
+    ? countryCode.toUpperCase() : '';
+  const ll = (Number.isFinite(lat) && Number.isFinite(lng))
+    ? `${lat.toFixed(1)},${lng.toFixed(1)}` : '';
+  return `${cc}|${ll}`;
+}
+
 // v0.60.14 — Compute a stable hash of the search criteria for the
 // per-chatId seen-set Redis key. Same criteria → same hash → same
 // dedup bucket. Adding a new cuisine / filter / free-text resets
@@ -8977,7 +8993,10 @@ function computeCriteriaHash(parts) {
     // floor/mode gets its own seen-set bucket (code review: a shared
     // bucket let 'No rating' searches burn established venues into the
     // seen-set that a later ≥3.7 search then skipped).
-    ratingPref: parts.ratingPref || null
+    ratingPref: parts.ratingPref || null,
+    // v0.61.440 — per-location bucket (see searchLocToken). Without it
+    // every Others city collapsed into one seen-set.
+    loc: parts.loc || null
   });
   return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16);
 }
@@ -9316,7 +9335,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     prices: requestedPricesForWalk,
     radius: searchRadius,
     isJB,
-    freeText
+    freeText,
+    // v0.61.440 — country (+ coarse city) so the per-chat Michelin walk
+    // doesn't carry a prior country's "seen" set into a new country.
+    loc: `${michCC}|${michSelectedCity ? String(michSelectedCity).toLowerCase() : ''}`
   });
   const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
   const unseen = walkState.seen.size
@@ -14312,7 +14334,8 @@ async function cacheBotUsername() {
             await resetSeenSet(csChatId, computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
               radius: searchRadius, region, freeText: req.body?.freeText || '',
-              ratingPref: effRatingPref
+              ratingPref: effRatingPref,
+              loc: searchLocToken(lat, lng, requestCountry)
             }));
             console.log(`[Cuisine-Search] resetSeen for chat ${csChatId}`);
           } catch (err) { console.warn('[Cuisine-Search] resetSeen failed:', err.message); }
@@ -14942,7 +14965,8 @@ async function cacheBotUsername() {
               cuisineSearchHash = computeCriteriaHash({
                 cuisines, filters, prices: req.body?.prices || [],
                 radius: searchRadius, region, freeText: req.body?.freeText || '',
-                ratingPref: effRatingPref
+                ratingPref: effRatingPref,
+                loc: searchLocToken(lat, lng, requestCountry)
               });
               cuisineVariantIdx = await readVariantIdx(csChatId, cuisineSearchHash);
             }
@@ -15643,7 +15667,8 @@ async function cacheBotUsername() {
             dedupHash = computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
               radius: searchRadius, region, freeText: req.body?.freeText || '',
-              ratingPref: effRatingPref
+              ratingPref: effRatingPref,
+              loc: searchLocToken(lat, lng, requestCountry)
             });
           }
           seen = await readSeenSet(csChatId, dedupHash);
