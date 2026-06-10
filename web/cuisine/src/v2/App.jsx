@@ -131,6 +131,10 @@ export default function App() {
   // dispatched by LocaleToggle.
   const [lang] = useLocale();
   const [catalogue, setCatalogue] = useState(null);
+  // v0.61.445 — per-country+city Michelin cuisine coverage (from /catalogue):
+  // { cc: { all:[…], byCity:{ "<City>":[…] } } }. Greys uncovered cuisine
+  // chips under Michelin. Absent cc (e.g. SG) → fail open.
+  const [michelinCuisinesByCC, setMichelinCuisinesByCC] = useState({});
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
   // v0.61.353 — location-state model (subset): the live map centre + an
@@ -654,7 +658,10 @@ export default function App() {
     // attach.
     import('./lib/vlog.js').then((vlog) => vlog.installGlobalHandlers()).catch(() => {});
     fetchCatalogue()
-      .then((d) => setCatalogue(d.categories || []))
+      .then((d) => {
+        setCatalogue(d.categories || []);
+        setMichelinCuisinesByCC(d.michelinCuisinesByCC || {});
+      })
       .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
     // v0.60.146 — wipe the per-Cuisine-TMA session clipboard (the
     // 80-cap session-seen SET + the page-history LIST) on every TMA
@@ -2063,7 +2070,9 @@ export default function App() {
           city: r.michelinSummary.city || null,
           cityRemaining: Number.isFinite(r.michelinSummary.cityRemaining) ? r.michelinSummary.cityRemaining : null,
           countryName: r.michelinSummary.countryName || null,
-          countryFlag: r.michelinSummary.countryFlag || ''
+          countryFlag: r.michelinSummary.countryFlag || '',
+          // v0.61.445 — other-city Michelin count (walk is now city-scoped).
+          nationRemaining: Number.isFinite(r.michelinSummary.nationRemaining) ? r.michelinSummary.nationRemaining : null
         });
       } else {
         setMichelinRemaining(null);
@@ -2995,6 +3004,18 @@ export default function App() {
             <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
               region={state.region}
               countryPref={state.countryPref}
+              /* v0.61.445 — resolve the allowed Michelin cuisine slugs for the
+                 picked country+city (null = unknown coverage → fail open). */
+              michelinCuisines={(() => {
+                const cc = state.region === 'SG' ? 'SG'
+                  : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
+                  : String(state.countryPref || '').toUpperCase();
+                const byCC = michelinCuisinesByCC && michelinCuisinesByCC[cc];
+                if (!byCC) return null;
+                const city = selectedCityLocation?.name || locationAnchor?.name || null;
+                if (city && byCC.byCity && Array.isArray(byCC.byCity[city])) return byCC.byCity[city];
+                return Array.isArray(byCC.all) ? byCC.all : null;
+              })()}
               specialMode={state.specialMode || null}
               onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
               onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}

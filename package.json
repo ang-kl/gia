@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.61.442",
+  "version": "0.62.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -13,6 +13,7 @@
     "build:transport": "cd web/transport && npm install --no-audit --no-fund && npm run build",
     "build:oversight": "cd web/oversight && npm install --no-audit --no-fund && npm run build",
     "build:geo": "node scripts/build-geo-overlays.js",
+    "michelin:refresh": "node scripts/build-michelin-meta.mjs",
     "fetch:mrt-osm": "node scripts/fetch-mrt-lines-osm.js",
     "fetch:24hr-places": "node scripts/fetch-24hr-places.js",
     "count:cuisines": "node scripts/recount-cuisine-venues.js",

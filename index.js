@@ -9312,9 +9312,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
     } catch { /* national fallback */ }
   }
+  // v0.61.445 — scope the paginated walk to the SELECTED CITY only. Before,
+  // `ordered = [...inCity, ...everyOtherCity]` appended the rest of the
+  // country, so once the in-city venues were drained (taps 1–2) the walk
+  // paged into another city — e.g. Kuala Lumpur → George Town (Penang) — and
+  // the map could not frame two cities at once. Now the walk stays in-city;
+  // the other-city count rides the summary as a hint ("N more across 🇲🇾"),
+  // reachable by picking that city, not by paging the current one.
+  let michOtherCityRemaining = 0;
   if (michSelectedCity) {
     const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
-    ordered = [...ordered.filter(_inCity), ...ordered.filter((e) => !_inCity(e))];
+    const inCity = ordered.filter(_inCity);
+    michOtherCityRemaining = Math.max(0, ordered.length - inCity.length);
+    ordered = inCity;
   }
   // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
   // is combined with Michelin, surface the curated-tag matches FIRST (stable,
@@ -9403,30 +9413,66 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Slug shape unchanged: lowercase, non-alnum → '-', trimmed, ≤80 ch.
   let cacheHits = 0, cacheMisses = 0;
   const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  // v0.61.445 — curated metadata snapshot (michelin-meta.json), populated by
+  // `npm run michelin:refresh` (scripts/build-michelin-meta.mjs). Keyed by
+  // curated entry `id` → { placeId, lat, lng, … }. When a record carries a
+  // placeId we resolve by ID (reliable — no name+city text-search ambiguity,
+  // which was also mis-matching venues). Ships EMPTY ({}); until populated the
+  // text-search path below is used unchanged, so this is a no-op by default.
+  const michelinMeta = (() => { try { return require('./michelin-meta.json') || {}; } catch { return {}; } })();
+  // v0.61.445 — restore the per-entry Places cache (was v0.60.150; dropped in
+  // v0.60.195, which is why every tap re-hit Places ×12 and felt slow). 24h
+  // TTL keyed by the stable curated id. Operator wants faster loads; the
+  // ≤24h staleness is the accepted trade (the refresh job keeps meta current).
+  const MICH_PLACE_TTL_S = 24 * 60 * 60;
+  const FIELD_MASK_BY_ID = FIELD_MASK.replace(/places\./g, '');   // details GET drops the `places.` prefix
   async function resolveEntryPlace(entry) {
+    const cacheKey = `michelin:place:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
+    if (redis && redis.isOpen) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) { cacheHits++; return JSON.parse(cached); }
+      } catch { /* fall through to live resolve */ }
+    }
     cacheMisses++;
     let placesData = null;
+    const curatedPlaceId = michelinMeta[entry.id] && michelinMeta[entry.id].placeId;
     try {
-      const { data } = await axios.post(
-        PLACES_URL,
-        {
-          textQuery: buildMichQuery(entry),
-          regionCode: placesRegionCode,
-          languageCode: csLang === 'fr' ? 'fr' : 'en',
-          maxResultCount: 1
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': apiKey,
-            'X-Goog-FieldMask': FIELD_MASK
+      if (curatedPlaceId) {
+        const { data } = await axios.get(
+          `https://places.googleapis.com/v1/places/${encodeURIComponent(curatedPlaceId)}`,
+          {
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': FIELD_MASK_BY_ID },
+            params: { languageCode: csLang === 'fr' ? 'fr' : 'en' },
+            timeout: 4000
+          }
+        );
+        placesData = (data && data.id) ? data : null;
+      } else {
+        const { data } = await axios.post(
+          PLACES_URL,
+          {
+            textQuery: buildMichQuery(entry),
+            regionCode: placesRegionCode,
+            languageCode: csLang === 'fr' ? 'fr' : 'en',
+            maxResultCount: 1
           },
-          timeout: 4000
-        }
-      );
-      placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': FIELD_MASK
+            },
+            timeout: 4000
+          }
+        );
+        placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+      }
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
+    }
+    if (placesData && redis && redis.isOpen) {
+      try { await redis.setEx(cacheKey, MICH_PLACE_TTL_S, JSON.stringify(placesData)); } catch { /* best-effort */ }
     }
     return placesData;
   }
@@ -9516,7 +9562,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // has no curated label.
       restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true
+      michelinHalal: entry.halal === true,
+      // v0.61.445 — structural parity with the success path (which sets
+      // `reviews`): the dish/review-extract loop guards on Array.isArray,
+      // so an absent `reviews` is harmless, but keep the shape consistent.
+      reviews: null
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -9711,26 +9761,30 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     ];
     for (const v of filteredVenues) {
       if (!Array.isArray(v.reviews) || !v.reviews.length) continue;
-      const recent = v.reviews
-        .filter((r) => r?.text)
-        .filter((r) => {
-          if (!r.publishTime) return true;
-          const t = new Date(r.publishTime).getTime();
-          return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
-        })
-        .slice(0, 3);
-      if (!recent.length) continue;
       // v0.60.156 — Places v1 returns each review's `text` as a nested
       // object `{ text: '...', languageCode: 'en' }`, NOT a bare string.
-      // The previous reads (`r.text`, `recent[0].text`) String-coerced
-      // that object to the literal "[object Object]" — which then passed
-      // every typeof guard added in v0.60.154/.155 because "[object
-      // Object]" IS a string. Unwrap nested .text.text first; fall back
-      // to the bare value for any legacy/edge response shape.
+      // Unwrap nested .text.text first; fall back to the bare value for any
+      // legacy/edge response shape.
       const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
         ? (typeof r.text.text === 'string' ? r.text.text : '')
         : (typeof r?.text === 'string' ? r.text : '');
-      const allText = recent.map((r) => reviewText(r)).join(' . ');
+      const withText = v.reviews.filter((r) => reviewText(r));
+      const recent = withText.filter((r) => {
+        if (!r.publishTime) return true;
+        const t = new Date(r.publishTime).getTime();
+        return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
+      });
+      // v0.61.445 — mirror the cuisine path's v0.61.390 fix: when a venue's
+      // Google reviews are ALL older than 4 months (Places returns its "most
+      // relevant" reviews, often not recent), fall back to the best available
+      // review so the 💬 quote shows whenever Google has ANY review — instead
+      // of the "Bib Gourmand Guide … curated recommendation" placeholder.
+      // Recent is still preferred when present. (Established bib gourmands
+      // like Hor Poh have hundreds of reviews but few within the 4-month
+      // window, so the old `if (!recent.length) continue` left them blank.)
+      const pool = (recent.length ? recent : withText).slice(0, 3);
+      if (!pool.length) continue;
+      const allText = pool.map((r) => reviewText(r)).join(' . ');
       const dishes = new Set();
       for (const re of MICH_DISH_RES) {
         let m;
@@ -9747,7 +9801,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
       const dishList = [...dishes].slice(0, 3);
       if (dishList.length) v.dishes = dishList;
-      if (!v.recentReview) v.recentReview = reviewText(recent[0]).slice(0, 200).trim();
+      if (!v.recentReview) v.recentReview = reviewText(pool[0]).slice(0, 200).trim();
     }
   } catch (err) {
     console.warn('[Michelin] dish-extract failed:', err.message);
@@ -10077,6 +10131,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       } : {}),
       remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
       ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining } : {}),
+      // v0.61.445 — other-city Michelin count for the "N more across <country>"
+      // hint. The walk is city-scoped (no cross-city bleed); this is shown so
+      // the user knows more exist elsewhere in the country (pick that city).
+      ...(michSelectedCity && michOtherCityRemaining > 0 ? { nationRemaining: michOtherCityRemaining } : {}),
       ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
@@ -12124,7 +12182,29 @@ async function cacheBotUsername() {
             description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
           }]
         });
-        res.json({ categories });
+        // v0.61.445 — per-country+city Michelin cuisine coverage, so the TMA
+        // can GREY cuisine chips that have no star/bib venue under Michelin
+        // (operator: "Michelin + Japanese in KL hangs"). Map: cc → { all:[…],
+        // byCity:{ "<City>":[…] } } of cuisine slugs. ONLY the venue-award
+        // loader countries appear (MY/TH/VN/JP/KR/CN/HK/MO/PH/TW); SG Michelin
+        // lives in SG-michelin.js without routing-slug cuisine tags, so SG is
+        // intentionally ABSENT → the TMA fails OPEN (greys nothing) for SG.
+        // The special modes (durian/fruit/durian-pastry) are never Michelin →
+        // the TMA always greys them under Michelin, independent of this map.
+        let michelinCuisinesByCC = {};
+        try {
+          const md = require('./michelin-data');
+          for (const cc of michelinCountries) {
+            const all = md.availableCuisines(cc);
+            if (!all.length) continue;   // unknown coverage (e.g. SG) → omit → TMA fails open
+            const byCity = {};
+            for (const city of [...new Set(md.visitableVenues(md.venuesForCountry(cc)).map((v) => v.city))]) {
+              byCity[city] = md.availableCuisines(cc, city);
+            }
+            michelinCuisinesByCC[cc] = { all, byCity };
+          }
+        } catch (err) { console.warn('[catalogue] michelinCuisinesByCC build failed:', err.message); }
+        res.json({ categories, michelinCuisinesByCC });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
         res.status(500).json({ error: err.message });
@@ -15409,140 +15489,27 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.57.8 (PR #125): 80 km hard gate from user location.
-        // v0.60.152 (Human Lead 2026-05-14): bumped 80 km → 120 km.
-        // Original 80 km covered SG + adjacent JB even from south SG;
-        // 120 km gives more headroom for JB-side venues + a sliver of
-        // Iskandar / Kulai when the user has explicitly opted into
-        // region:'JB' (the formattedAddress filter below still pins
-        // JB-mode results to "Johor Bahru" so we don't bleed into KL).
-        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
-        // v0.61.276 — Expert A from the 30-05 morning investigation
-        // board: when region=JB AND coords are far from Johor, the
-        // JB-hybrid-filter silently wipes every result. Operator hit
-        // this at Putrajaya (lat 2.93) and Ipoh (4.60) with JB pill
-        // stuck on from a prior session. Track this so we can fall
-        // through to OTHER treatment when the filter zeros everything
-        // out at non-JB coords.
+        // v0.61.444 — ONE geographic-scoping pass (cuisine-geo-scope.js).
+        // Redesign: scope by a CONCENTRIC DISTANCE from the set location,
+        // bounded by the per-city `anchorCap` (density-tiered radiusM), for
+        // every region — replacing the 120 km global gate, the SG fixed-
+        // centroid filter, and the OTHER country-keyword text filter with one
+        // distance cap. JB keeps its own 60 km near-cap + "Johor"-text rescue
+        // (≤120 km) + the JB→OTHER fallback; SG/JB keep a light cross-border
+        // text exclusion. distanceM was attached just above (from {lat,lng}).
+        // `jbFilterFellBackToOther` still rides the payload (TMA amber banner).
         let jbFilterFellBackToOther = false;
-        if (isJB) {
-          // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
-          // JB region toggle covers ALL of Johor state (Pontian, Desaru,
-          // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
-          // Puteri, …), not only the city named "Johor Bahru". KL +
-          // Selangor + Pahang addresses don't mention "Johor" so the
-          // word-boundary filter still keeps non-Johor MY venues out.
-          // v0.61.198 — operator's log (South Key + Cantonese): the strict
-          // word-boundary filter still drops ~74% of JB candidates because
-          // Places sometimes formats addresses as "Skudai, 81300, Malaysia"
-          // or "Iskandar Puteri, 79100" with no "Johor" word. Hybrid
-          // matches the SG branch below: accept "Johor" text OR within
-          // 60 km of a JB centroid AND NOT explicitly Singapore-tagged.
-          // 60 km covers Pontian / Kulai / Desaru without leaking into KL.
-          const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
-          const beforeJb = venues.length;
-          const preJbVenues = venues.slice();
-          venues = venues.filter((v) => {
-            const text = `${v.area || ''} ${v.name || ''}`;
-            if (/\bjohor\b/i.test(text)) return true;
-            if (/singapore/i.test(text)) return false;
-            const distFromJB = haversine(JB_CENTROID, v);
-            return Number.isFinite(distFromJB) && distFromJB <= 60000;
+        try {
+          const scoped = await require('./cuisine-geo-scope').scopeVenuesByRegion({
+            venues, isJB, isOther, lat, lng,
+            anchorCap, searchRadius,
+            locationMode: require('./location-mode'),
+            demoteNeverEmpty: require('./pool-floor').demoteNeverEmpty
           });
-          if (venues.length !== beforeJb) {
-            console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
-          }
-          // v0.61.276 — graceful exit when the filter zeroed everything
-          // AND the request's coords are far from the JB extent. This
-          // catches the operator's exact bug class: JB pill sticky
-          // at Putrajaya / KL / Ipoh / Singapore-far-north. Restore
-          // the pre-filter pool and let the OTHER branch's country-
-          // text-filter handle it instead. v0.61.278 surfaces this
-          // via payload.jbFallbackToOther (the TMA renders an amber
-          // banner). v0.61.279 (Register O-26): the JB-distance check
-          // is now `isFarFromJB` in location-mode.js (shared with the
-          // /api/cuisine/set-location sanity guard).
-          if (venues.length === 0 && beforeJb >= 5) {
-            const { isFarFromJB, haversineMeters: hm, JB_CBD: jbCbd } = require('./location-mode');
-            if (isFarFromJB(lat, lng)) {
-              const distRequestToJB = hm(jbCbd, { lat, lng });
-              console.warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${distRequestToJB.toFixed(0)}m from JB CBD. Treating request as OTHER.`);
-              venues = preJbVenues;
-              jbFilterFellBackToOther = true;
-              // Fall through to the OTHER country-text-filter logic
-              // below by flipping the effective branch via the
-              // `effectiveIsOther` guard added on the else-if line.
-            }
-          }
-        }
-        if (jbFilterFellBackToOther || isOther) {
-          // v0.61.207 — operator: "first load is zero for location set
-          // to others". The SG area-text filter was firing for OTHER
-          // and collapsing the pool to 0. v0.61.207 fixed by skipping
-          // the SG/JB area-text filter entirely.
-          // v0.61.210 — defence layer: read the user's country-pref
-          // (the OTHER-picker ISO 3166-1 alpha-2 code) and apply a
-          // soft per-country keyword filter (country name + state +
-          // major cities). Catches cross-border bleed when Places
-          // returns venues outside the user's chosen country.
-          // Fail-open: unknown country → no filter (same behaviour
-          // as v0.61.207).
-          let ctxCountry = null;
-          try {
-            ctxCountry = await getUserCountryPref(redis, csChatId);
-          } catch (err) {
-            console.warn('[Cuisine-Search] country-pref read failed (no defence filter):', err.message);
-          }
-          // v0.61.276 — when we arrived here via the JB-fallback path,
-          // default the country to MY so we still scope to Malaysia
-          // (the JB pill was the user's expressed-but-coords-mismatched
-          // intent; MY is the most charitable interpretation).
-          if (jbFilterFellBackToOther && !ctxCountry) {
-            ctxCountry = 'MY';
-            console.log('[Cuisine-Search] D703b JB-fallback default ctxCountry=MY');
-          }
-          if (ctxCountry && ctxCountry !== 'SG') {
-            try {
-              const { filterVenuesByCountry, hasKeywordsFor } = require('./country-text-match');
-              if (hasKeywordsFor(ctxCountry)) {
-                const beforeOther = venues.length;
-                const filtered = filterVenuesByCountry(venues, ctxCountry);
-                // v0.61.401 — operator: cuisine searches returned 0 when the
-                // country-pref was STALE vs the actual pin (e.g. country=MY but
-                // the pin sits in Singapore → every SG venue fails the MY
-                // keyword filter, so durian/american/etc. collapse to 0 while a
-                // big no-cuisine pool leaks a few through). The locationBias.
-                // circle already pinned the pool to the user's REAL coords, and
-                // this keyword filter is belt-and-braces (fail-open by design),
-                // so when it would EMPTY the page, keep the coord-pinned pool
-                // instead of returning 0. Mirrors the JB-fallback (D703b) + the
-                // v0.61.399 review-refute floor.
-                if (filtered.length === 0 && beforeOther > 0) {
-                  console.log(`[Cuisine-Search] D703d country-text-filter cc=${ctxCountry} ${beforeOther}→0 → FLOOR: kept coord-pinned pool (country-pref stale vs pin)`);
-                } else {
-                  venues = filtered;
-                  console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
-                }
-              } else {
-                console.log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${venues.length}`);
-              }
-            } catch (err) {
-              console.warn('[Cuisine-Search] country-text-match failed (skip filter):', err.message);
-            }
-          } else {
-            console.log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${venues.length})`);
-          }
-        } else {
-          // SG only: post-filter by Singapore mention OR proximity
-          // (some hawker centres' formattedAddress lacks "Singapore").
-          venues = venues.filter((v) => {
-            if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
-            // Within 30km of SG centroid still counts as SG even if
-            // the address text is missing the country word.
-            const SG = { lat: 1.3521, lng: 103.8198 };
-            const distFromSG = haversine(SG, v);
-            return distFromSG <= 30000;
-          });
+          venues = scoped.venues;
+          jbFilterFellBackToOther = scoped.jbFallbackToOther;
+        } catch (err) {
+          console.warn('[Cuisine-Search] geo-scope pass failed (keeping unscoped pool):', err.message);
         }
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
