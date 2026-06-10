@@ -2800,6 +2800,29 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.62.3 — first-share location confirmation. `locconf:ok` confirms the
+    // auto-saved location; `locconf:fix` tells the user to type their area
+    // (the reliable path on Telegram Desktop, which has no device GPS).
+    if (data === 'locconf:ok' || data === 'locconf:fix') {
+      try {
+        const place = await redis.get(`locconf:${chatId}`).catch(() => null);
+        await redis.del(`locconf:${chatId}`).catch(() => {});
+        if (q.message?.message_id) {
+          try { await bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: q.message.message_id }); } catch { /* non-fatal */ }
+        }
+        if (data === 'locconf:ok') {
+          await safeSend(chatId, t('loc.confirm.okAck', cbLang).replace('{place}', place || '—'), { parse_mode: 'Markdown' });
+          console.log(`[locconf] confirmed chat=${chatId}`);
+        } else {
+          await safeSend(chatId, t('loc.confirm.fixPrompt', cbLang), { parse_mode: 'Markdown' });
+          console.log(`[locconf] manual-fix requested chat=${chatId}`);
+        }
+      } catch (err) {
+        console.warn('[locconf] callback failed:', err.message);
+      }
+      return;
+    }
+
     // v0.61.195 — `cp:<CODE>` / `cp:cancel` callbacks from the
     // /lcountry picker. Persists the chosen country in Redis so
     // /location <place> can geocode through the right country.
@@ -3815,7 +3838,15 @@ bot.on('location', async (msg) => {
         return;
       }
     }
+    // v0.62.3 — was a location registered BEFORE this share? If not, this is a
+    // first-ever share (no drift prompt can fire), so the bare-share path below
+    // confirms it back — Telegram Desktop has no GPS; its share is a map-pick.
+    let hadPriorLocation = false;
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      try {
+        const prior = await getUserLocation(redis, msg.chat.id);
+        hadPriorLocation = !!(prior && Number.isFinite(prior.lat) && Number.isFinite(prior.lng));
+      } catch { /* non-fatal — treat as first share */ }
       try {
         await setUserLocation(redis, msg.chat.id, lat, lng);
         console.log(`[location] setUserLocation OK chatId=${msg.chat.id} lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} elapsed=${Date.now() - locStartMs}ms`);
@@ -3910,9 +3941,30 @@ bot.on('location', async (msg) => {
           }
         }
       } catch { /* non-fatal — keep coord placeLine */ }
-      const body = locLang === 'fr'
+      // v0.62.3 — first-ever share: confirm the resolved place (Telegram
+      // Desktop sends a map-pick, not GPS, so it can land wrong) and offer a
+      // manual-set path. The share keyboard auto-collapses (one_time_keyboard).
+      if (!hadPriorLocation) {
+        try { await redis.setEx(`locconf:${msg.chat.id}`, 600, placeLine || '—').catch(() => {}); } catch { /* non-fatal */ }
+        try {
+          await bot.sendMessage(msg.chat.id, t('loc.confirm.firstShare', locLang).replace('{place}', placeLine || '—'), {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [[
+                { text: t('loc.confirm.yes', locLang), callback_data: 'locconf:ok' },
+                { text: t('loc.confirm.no', locLang),  callback_data: 'locconf:fix' }
+              ]]
+            }
+          });
+        } catch (err) { /* non-fatal */ }
+        return; // first-share confirmation sent
+      }
+      // Subsequent bare share — keep the saved-confirmation + a desktop nudge so
+      // a wrong map-pick stays correctable.
+      const body = (locLang === 'fr'
         ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /search, /carpark, /transport._`
-        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`;
+        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`)
+        + `\n\n${t('loc.desktopNudge', locLang)}`;
       try {
         await bot.sendMessage(msg.chat.id, body, {
           parse_mode: 'Markdown',
