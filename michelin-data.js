@@ -496,6 +496,17 @@ function categoryForYear(venue, year) {
   return hit ? hit.category : null;
 }
 
+// v0.62.x — distinction sort rank: three-star (0) → two-star (1) → one-star
+// (2) → bib-gourmand (3); anything unrecognised sorts last (9). Used to lead
+// the NATIONAL Michelin fallback with the highest distinctions first when the
+// set city has no curated Michelin (operator: a Fukuoka search shows Japan's
+// 3★ awardees first). Tie order is left to the caller's stable sort.
+const _DISTINCTION_RANK = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
+function distinctionRank(category) {
+  const r = _DISTINCTION_RANK[String(category || '').trim().toLowerCase()];
+  return Number.isInteger(r) ? r : 9;
+}
+
 // Default visitable surface: open venues only (excludes status:'closed').
 function visitableVenues(pool) {
   const src = Array.isArray(pool) ? pool : VENUES;
@@ -581,6 +592,7 @@ module.exports = {
   availableCuisines,
   venuesForYear,
   categoryForYear,
+  distinctionRank,
   visitableVenues,
   editionVenues,
   awardsDiff,
