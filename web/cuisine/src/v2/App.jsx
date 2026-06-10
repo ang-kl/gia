@@ -10,6 +10,7 @@ import { shouldFollowDevice } from './lib/location-follow.js';
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
+import { groupByAwardCity, initialFitPins, pinsOf } from './lib/michelin-city-groups.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
 import FunFactModal from './components/FunFactModal.jsx';
 import { pickFunFact } from './lib/fun-facts.js';
@@ -304,6 +305,13 @@ export default function App() {
   // shows only this slice so paging left/right also rotates the pins,
   // keeping the visual context aligned with what the user is reading.
   const [visibleVenues, setVisibleVenues] = useState([]);
+  // v0.62.6 — Michelin city-grouped display (display layer only). When the
+  // visible Michelin batch spans cities, the map either stays on the set
+  // city's pins (Case A) or fit-bounds across all visible pins (Case B), and
+  // a tapped city-jump row re-fits to that city's pins. `fitPins` is
+  // { pins:[{lat,lng}], token } — token forces the MapPanel effect to re-run
+  // on repeated taps of the same city. Null on non-Michelin pages.
+  const [fitPins, setFitPins] = useState(null);
   const [loading, setLoading] = useState(true);
   // v0.61.50 — loading-overlay message variant + rotating-title index.
   // 'initial' (boot) → "loading random eateries…"; 'rotating' (user
@@ -518,6 +526,23 @@ export default function App() {
   // is only a slice of the full ~130 curated list. Cleared on the next
   // non-Michelin search.
   const [michelinRemaining, setMichelinRemaining] = useState(null);  // null | { shown, remaining, total }
+  // v0.62.6 — Michelin city-grouped display: initial map state per visible
+  // batch. Case A (set city has ≥1 visible card) → fit the SET city's pins
+  // (map stays centred there, never zooms out to country level). Case B
+  // (zero in set city / no city resolved) → fit-bounds over ALL visible
+  // Michelin pins (country-level view). Non-Michelin pages (no awardCity on
+  // any card) clear fitPins → MapPanel behaviour unchanged. Display layer
+  // only: reads the already-curated batch, never re-orders or re-fetches.
+  useEffect(() => {
+    const page = visibleVenues.length ? visibleVenues : venues;
+    const hasAwardCities = Array.isArray(page) && page.some((v) => v && typeof v.awardCity === 'string' && v.awardCity);
+    if (!hasAwardCities) { setFitPins(null); return; }
+    const grouped = groupByAwardCity(page, michelinRemaining?.city || null);
+    const pins = initialFitPins(grouped);
+    setFitPins(pins.length
+      ? { pins, token: 'page:' + page.map((v) => v.placeId || v.name).join('|') }
+      : null);
+  }, [visibleVenues, venues, michelinRemaining]);
   // v0.60.115 — how many distinct venues the server has shown for the
   // current criteria-hash. Surfaced in the "that's all N" terminal note
   // when exhausted, so the user knows the pool size and stops re-tapping.
@@ -2895,6 +2920,10 @@ export default function App() {
         region={state.region}
         onMapMove={setMapViewLocation}
         flyTo={flyTarget}
+        /* v0.62.6 — Michelin city-grouping: fit-bounds over the given pins
+           (set-city pins in Case A, all visible pins in Case B, a tapped
+           city group's pins on jump-row tap). Null on non-Michelin pages. */
+        fitPins={fitPins}
       />
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
@@ -3328,6 +3357,17 @@ export default function App() {
           }
           focusedPlaceId={focusedPlaceId}
           onCardTap={setFocusedPlaceId}
+          /* v0.62.6 — Michelin city-grouped display. michelinCity = the
+             server-resolved set-location city (michelinSummary.city);
+             ResultPanel groups the visible batch by awardCity and renders
+             city-jump rows. Tapping a city name pans/fits the map to that
+             city's visible pins — no reload, no new search, no setLocation
+             change, no pagination change. */
+          michelinCity={michelinRemaining?.city || null}
+          onCityJump={(group) => {
+            const pins = pinsOf(group?.venues);
+            if (pins.length) setFitPins({ pins, token: 'jump:' + (group.city || '') + ':' + Date.now() });
+          }}
           warmStartSeed={warmStartSeed}
           comboInfo={comboInfo}
           specialModeBlocked={specialModeBlocked}
