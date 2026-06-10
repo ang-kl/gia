@@ -41,7 +41,7 @@ function entryKey(entry) {
 // SHA256 over the normalised filter set. Stable across object-key order,
 // case folds free-text, drops falsy filter flags so `{ halal: false }`
 // hashes identically to `{}`.
-function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = [], radius, isJB, freeText } = {}) {
+function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = [], radius, isJB, freeText, loc } = {}) {
   const norm = {
     cuisines: [...otherCuisineSlugs].filter(Boolean).sort(),
     filters: Object.keys(filters || {}).sort().reduce((acc, k) => {
@@ -51,7 +51,13 @@ function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = []
     prices: [...(prices || [])].map(Number).filter(Number.isFinite).sort((a, b) => a - b),
     radius: Number(radius) || 0,
     isJB: !!isJB,
-    freeText: String(freeText || '').trim().toLowerCase()
+    freeText: String(freeText || '').trim().toLowerCase(),
+    // v0.61.440 — per-country/city token so the Michelin walk (one
+    // seen-set per chat) doesn't bleed across countries: switching from
+    // SG to MY (or KL→Penang) starts a fresh walk instead of paginating
+    // past entries "seen" under a different country. Caller passes the
+    // resolved Michelin country (+ optional coarse city).
+    loc: loc || null
   };
   return crypto.createHash('sha256').update(JSON.stringify(norm)).digest('hex').slice(0, 16);
 }

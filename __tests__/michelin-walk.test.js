@@ -79,6 +79,20 @@ describe('computeCriteriaHash', () => {
     const b = mw.computeCriteriaHash({ prices: [3] });
     expect(a).not.toBe(b);
   });
+  // v0.61.440 — per-country/city loc token: switching country must NOT
+  // reuse the prior country's walk seen-set (operator: MY Michelin → 0).
+  it('changes when the loc (country/city) differs', () => {
+    const sg = mw.computeCriteriaHash({ loc: 'SG|' });
+    const my = mw.computeCriteriaHash({ loc: 'MY|kuala lumpur' });
+    const vn = mw.computeCriteriaHash({ loc: 'VN|hanoi' });
+    expect(sg).not.toBe(my);
+    expect(my).not.toBe(vn);
+  });
+  it('is stable for the same loc (re-tap "more" keeps the walk)', () => {
+    const a = mw.computeCriteriaHash({ loc: 'MY|kuala lumpur', radius: 40000 });
+    const b = mw.computeCriteriaHash({ radius: 40000, loc: 'MY|kuala lumpur' });
+    expect(a).toBe(b);
+  });
 });
 
 describe('readWalkState', () => {
