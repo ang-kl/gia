@@ -15604,11 +15604,18 @@ async function cacheBotUsername() {
         // confirm, newness (Places returns ≤5 reviews), so venues with no
         // review older than the window — or no reviews at all — are kept.
         // The "newly opened" query modifier still biases Google's recall.
-        // v0.61.424 — operator: "new = last 121 days". Days-precise window
-        // (was 3 months) via oldestReviewDays. /hidden keeps its month rule.
+        // v0.62.x — unified newness rule (newness-criteria.js): the SAME bar
+        // the /hidden refute + the curated new-openings list use. Recency is
+        // the mandatory first filter — oldest review ≤109 d is strict "new",
+        // 110..183 d is a fill band (rendered separated, only to top a short
+        // page up toward 12), >183 d is proven too old. Unrated venues pass
+        // (Places returns ≤5 reviews → absence can't refute). Rated venues must
+        // beat 3.0 — this OVERRIDES the global 3.7 floor on this surface (see
+        // the newlyOpened-aware floor passed to applyRatingFloor below). Review
+        // count is never a factor. (Was: ≤121 d only, no in-block rating bar.)
         if (filters.newlyOpened) {
           const { oldestReviewDays } = require('./hidden-verify');
-          const NEW_MAX_DAYS = 121;
+          const newness = require('./newness-criteria');
           const newApiKey = process.env.GOOGLE_MAPS_API_KEY;
           if (newApiKey) {
             const axiosNew = require('axios');
@@ -15625,7 +15632,13 @@ async function cacheBotUsername() {
           }
           const beforeNew = venues.length;
           const preRefute = venues;
-          const refuted = venues.filter((v) => v._oldestReviewDays == null || v._oldestReviewDays <= NEW_MAX_DAYS);
+          // Recency ≤183 d ceiling + rated>3.0 (count ignored); stamp the band
+          // ('strict' ≤109 d | 'fill' 110..183 d) so the card list can render
+          // strict and fill as separate, visually-divided groups.
+          const refuted = venues.filter((v) => {
+            v._recencyBand = newness.recencyBand(v._oldestReviewDays);
+            return newness.passesNewness({ oldestReviewDays: v._oldestReviewDays, rating: v.rating });
+          });
           // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
           // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
           // established market (Osaka fruit shops — and EVERY cuisine: the
@@ -15641,8 +15654,14 @@ async function cacheBotUsername() {
           // rule. Behaviour identical: refuted unless it would empty, then
           // the biased recall pool.
           venues = require('./pool-floor').demoteNeverEmpty(refuted, preRefute);
-          for (const v of venues) delete v._oldestReviewDays;
-          console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (≤${NEW_MAX_DAYS}d${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
+          // Keep _recencyBand for the card list's strict/fill grouping; drop
+          // the raw age. Floor survivors (none proven-new) get a 'strict' band
+          // so the best-effort biased pool still renders.
+          for (const v of venues) {
+            delete v._oldestReviewDays;
+            if (!v._recencyBand) v._recencyBand = 'strict';
+          }
+          console.log(`[Cuisine-New] newness refute: ${beforeNew} → ${venues.length} kept (≤${newness.NEW_FILL_DAYS}d, rated>${newness.NEW_RATING_FLOOR}${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
@@ -15783,7 +15802,16 @@ async function cacheBotUsername() {
         // hash exactly and costs no second Redis read here.
         {
           const beforeFloor = venues.length;
-          venues = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(effRatingPref));
+          // v0.62.x — the unified newness rule floors rated venues at >3.0 (see
+          // newness-criteria.js). On the New pill that >3.0 bar was already
+          // applied in-block, so cap the global floor at 3.0 here too — never
+          // let the stricter 3.7 default re-drop the 3.0..3.7 "new" venues the
+          // pill deliberately kept. Non-New searches keep the operator's floor.
+          let floorOpts = ratingPrefLib.ratingPrefToFloorOpts(effRatingPref);
+          if (filters.newlyOpened && floorOpts.mode === 'floor' && floorOpts.floor > require('./newness-criteria').NEW_RATING_FLOOR) {
+            floorOpts = { ...floorOpts, floor: require('./newness-criteria').NEW_RATING_FLOOR };
+          }
+          venues = require('./venue-filters').applyRatingFloor(venues, floorOpts);
           if (venues.length !== beforeFloor) {
             console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
           }
@@ -15795,8 +15823,18 @@ async function cacheBotUsername() {
         // out-of-order venues, so (re)sort here defensively. Skip for shuffle
         // paths (Dessert / no-cuisine warm-start) so the v0.59.46 lightShuffle
         // rotation survives — same gate as the upstream sort above.
+        // v0.62.x — on the New pill, recency band is the PRIMARY key: strict
+        // (≤109 d) venues page ahead of fill (110..183 d) ones, so the 3–6 mo
+        // fill band only surfaces once the strict band can't fill the page.
+        // Distance stays the within-band tiebreak. `_recencyBand` is undefined
+        // off the New pill → comparator collapses to pure distance (unchanged).
         if (!skipCacheForShuffle) {
-          trulyUnseen.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+          trulyUnseen.sort((a, b) => {
+            const ba = a._recencyBand === 'fill' ? 1 : 0;
+            const bb = b._recencyBand === 'fill' ? 1 : 0;
+            if (ba !== bb) return ba - bb;
+            return (a.distanceM || 0) - (b.distanceM || 0);
+          });
         }
         // v0.61.239 — first-tap page = 5 (a curated taste); follow-up taps
         // 12 (PAGE_SIZE-aligned). Hoisted above the re-fetch so its thinness
@@ -16257,6 +16295,11 @@ async function cacheBotUsername() {
           michelinObjAnnotator(v, 'Cuisine-Search');
           healthierObjAnnotator(v);
           buildingObjAnnotator(v);
+          // v0.62.x — expose the unified-newness recency band ('strict' ≤109 d
+          // | 'fill' 110..183 d) as a clean client field so the New-pill card
+          // list can render the two groups under separate dividers. Only set
+          // on the New pill (filters.newlyOpened); absent on other searches.
+          if (v._recencyBand) v.recencyBand = v._recencyBand;
         }
         const payload = {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull,

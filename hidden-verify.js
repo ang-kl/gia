@@ -46,17 +46,15 @@ const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
 const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.businessStatus,places.reviews,places.googleMapsUri,places.primaryType,places.primaryTypeDisplayName,places.regularOpeningHours.weekdayDescriptions,places.websiteUri,places.nationalPhoneNumber,places.priceLevel,places.editorialSummary';
 const REQUEST_TIMEOUT_MS = 6000;
 
-// v0.61.318 — newness-refute thresholds (operator: new = opened 3 months
-// or less). A Google review can only be posted AFTER a venue opens, so if
-// the OLDEST review Places returns is older than this, the venue is not
-// newly opened — Gemini's C1 claim is false. This only *refutes* newness;
-// recent-only reviews prove nothing (Places returns ≤5 reviews).
-const NEW_CLAIM_MAX_REVIEW_MONTHS = 3;
-// A venue with this many reviews can only have survived the "300+ reviews
-// UNLESS newly opened" exclusion via the C1 (new) exception. If newness is
-// then refuted, it is neither new nor under-reviewed → drop it.
-const WELL_KNOWN_REVIEW_FLOOR = 300;
+// v0.61.318 / DEPRECATED v0.62.x — the month-based refute thresholds. The
+// newness gate now lives in the shared newness-criteria.js (days-precise:
+// ≤109 d strict, ≤183 d ceiling, rated>3.0, review count IGNORED). These
+// constants are retained only for reference; the 300-review gate was removed
+// (count is no longer a factor) and the 3-month window superseded by 183 d.
+const NEW_CLAIM_MAX_REVIEW_MONTHS = 3;      // deprecated — see newness-criteria.js
+const WELL_KNOWN_REVIEW_FLOOR = 300;        // deprecated — count no longer gates
 const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30.44;
+void NEW_CLAIM_MAX_REVIEW_MONTHS; void WELL_KNOWN_REVIEW_FLOOR; // retained for reference
 
 // Oldest of the (≤5) reviews Places returns, expressed in months-ago.
 // Returns null when there are no parseable review timestamps.
@@ -258,8 +256,12 @@ async function lookupVenue(name, address = '') {
       rating: typeof chosen.rating === 'number' ? chosen.rating : null,
       userRatingCount: typeof chosen.userRatingCount === 'number' ? chosen.userRatingCount : null,
       // v0.61.318: oldest of the returned reviews in months-ago (null when
-      // none parseable). Used to refute false "newly opened" claims.
+      // none parseable). Kept for back-compat / display; the newness gate now
+      // runs off oldestReviewDays via the shared newness-criteria module.
       oldestReviewMonths: oldestReviewMonths(chosen.reviews),
+      // v0.62.x: oldest review age in DAYS — the unified newness rule
+      // (newness-criteria.js) is days-precise (≤109 d strict, ≤183 d ceiling).
+      oldestReviewDays: oldestReviewDays(chosen.reviews),
       // v0.61.319 — newest review timestamp (ISO) for the "📝 Latest review ·"
       // card line; null when no parseable review timestamps.
       newestReviewIso: newestReviewIso(chosen.reviews),
@@ -405,12 +407,16 @@ function applyVerified(block, verified) {
     return proseLine;
   });
   }
-  // v0.61.318 — if the venue's oldest review refutes a "newly opened"
-  // claim, strip that wording. A venue kept here still qualified via C3 /
-  // C2 / C4, but it is not new — so we must not show a false opening claim.
+  // v0.61.318 / v0.62.x — if the venue is not STRICTLY new (oldest review
+  // > 109 d, per the shared newness rule), strip any "newly opened" wording.
+  // A venue kept here still qualified via C3 / C2 / C4, but it is not new — so
+  // we must not show a false opening claim. Unrated / no-review venues are
+  // treated as strict-eligible (absence can't refute), so they keep the claim.
   // stripOpeningClaim no-ops on lines without an opening claim.
-  const om = verified && verified.oldestReviewMonths;
-  if (Number.isFinite(om) && om > NEW_CLAIM_MAX_REVIEW_MONTHS) {
+  if (verified && !require('./newness-criteria').isStrictNew({
+    oldestReviewDays: verified.oldestReviewDays,
+    rating: verified.rating,
+  })) {
     lines = lines.map(stripOpeningClaim);
   }
   // DF-111 — dish-validate the "🍴 Try ·" line; drop it if no real
@@ -478,17 +484,20 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
         console.log(`[hidden-verify] dropping non-OPERATIONAL venue: "${lookup.name}" (${status})`);
         return false;
       }
-      // v0.61.318 — newness-refute drop. A venue with 300+ reviews can only
-      // have survived the "300+ reviews UNLESS newly opened" exclusion via
-      // the C1 (new) exception. If its OLDEST returned review predates the
-      // 3-month window, C1 is false → it is neither new nor under-reviewed,
-      // so drop it. Feeds allDropped + the Tier-2/Tier-3 retry ladder, same
-      // as the distance/closed filters.
-      const om = lookup.oldestReviewMonths;
-      if (Number.isFinite(om) && om > NEW_CLAIM_MAX_REVIEW_MONTHS
-          && Number.isFinite(lookup.userRatingCount)
-          && lookup.userRatingCount >= WELL_KNOWN_REVIEW_FLOOR) {
-        console.log(`[hidden-verify] newness-refuted drop: "${lookup.name}" oldestReview=${om.toFixed(1)}mo reviews=${lookup.userRatingCount} (not new, not under-reviewed)`);
+      // v0.61.318 / v0.62.x — newness-refute drop, unified with the New pill +
+      // curated list (newness-criteria.js). Recency is the mandatory filter:
+      // drop a venue whose OLDEST returned review is past the 183 d (≈6 mo)
+      // ceiling — it is proven not new. Review COUNT is no longer a factor
+      // (was: only dropped when ≥300 reviews). Also drop rated venues that
+      // fail the >3.0 floor. Unrated / no-review venues survive (absence can't
+      // refute). Feeds allDropped + the Tier-2/Tier-3 retry ladder, same as
+      // the distance/closed filters.
+      const newness = require('./newness-criteria');
+      const provenOld = newness.recencyBand(lookup.oldestReviewDays) === null;
+      const ratedOut = !newness.passesRating(lookup.rating);
+      if (provenOld || ratedOut) {
+        const od = Number.isFinite(lookup.oldestReviewDays) ? `${Math.round(lookup.oldestReviewDays)}d` : 'n/a';
+        console.log(`[hidden-verify] newness-refuted drop: "${lookup.name}" oldestReview=${od} rating=${lookup.rating ?? 'n/a'} (${provenOld ? 'proven not new' : 'below 3.0 floor'})`);
         return false;
       }
       return true;

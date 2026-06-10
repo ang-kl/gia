@@ -417,9 +417,26 @@ export default function ResultPanel({
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
             </div>
           )}
-          {cardsToShow.map((v, i) => (
-            <ResultCard key={v.placeId || i} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
-          ))}
+          {cardsToShow.map((v, i) => {
+            // v0.62.x — unified-newness band separation. The server (New pill)
+            // sorts strict-band (opened ≤3 mo) ahead of fill-band (3–6 mo) and
+            // stamps each venue's recencyBand. Render a divider before the
+            // first fill-band card so the two groups read as separate
+            // "concentric" recency rings. Off the New pill no venue carries a
+            // band → no divider, list renders exactly as before.
+            const showFillDivider = v.recencyBand === 'fill'
+              && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
+            return (
+              <React.Fragment key={v.placeId || i}>
+                {showFillDivider && (
+                  <div className="px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20">
+                    {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
+                  </div>
+                )}
+                <ResultCard venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+              </React.Fragment>
+            );
+          })}
           {/* v0.61.403 — subtle "more coming" cue while the first batch streams
               in one card at a time (parity with gia-web v0.1.151). */}
           {streamingMore && (

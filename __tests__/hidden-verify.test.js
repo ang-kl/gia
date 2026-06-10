@@ -522,11 +522,13 @@ describe('newness-refute (v0.61.318)', () => {
     '📍 https://www.google.com/maps/search/?api=1&query=Grande+Bistro+Singapore'
   ].join('\n');
 
-  it('drops a 300+-review venue whose oldest review refutes "new"', async () => {
+  // v0.62.x — the refute is now days-precise (>183 d = proven not new) and
+  // review COUNT is no longer a factor (unified newness-criteria.js rule).
+  it('drops a venue whose oldest review proves it is not new (>183 d), regardless of review count', async () => {
     const result = await verify(SAMPLE, {
       _lookup: async (name) => ({
-        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90,  lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1.2 },
-        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 850, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 26 }
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90,  lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 36 },
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 850, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 800 }
       }[name] || null)
     });
     expect(result.text).not.toContain('GRANDE BISTRO');
@@ -534,30 +536,46 @@ describe('newness-refute (v0.61.318)', () => {
     expect(result.venues.length).toBe(1);
   });
 
-  it('keeps a genuinely new (recent-reviews) venue even at 300+ reviews', async () => {
+  it('drops an OLD venue even when it has FEW reviews (count is not a factor anymore)', async () => {
     const result = await verify(SAMPLE, {
       _lookup: async (name) => ({
-        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90,  lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1.2 },
-        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 420, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 2 }
+        // Under the old ≥300 gate GRANDE (80 reviews) would have survived;
+        // now its 800-day-old oldest review alone refutes newness → dropped.
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 36 },
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 80, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 800 }
       }[name] || null)
     });
-    expect(result.text).toContain('GRANDE BISTRO');
-    expect(result.venues.length).toBe(2);
+    expect(result.text).not.toContain('GRANDE BISTRO');
+    expect(result.venues.length).toBe(1);
   });
 
-  it('keeps a < 120-review venue but strips a refuted "newly opened" claim', async () => {
+  it('drops a rated venue that fails the >3.0 floor (unrated would survive)', async () => {
     const result = await verify(SAMPLE, {
       _lookup: async (name) => ({
-        // Aurora is under-reviewed (C3) so it stays, but its oldest review
-        // is 14 months old → the "newly opened in March 2026" line is false.
-        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 14 },
-        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 80, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1 }
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 30 },
+        // recent (new) but rated 2.9 → below the 3.0 floor → dropped.
+        'GRANDE BISTRO': { rating: 2.9, userRatingCount: 80, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 30 }
+      }[name] || null)
+    });
+    expect(result.text).toContain('AURORA TOAST');
+    expect(result.text).not.toContain('GRANDE BISTRO');
+    expect(result.venues.length).toBe(1);
+  });
+
+  it('keeps a fill-band venue (110..183 d) but strips its refuted "newly opened" claim', async () => {
+    const result = await verify(SAMPLE, {
+      _lookup: async (name) => ({
+        // Aurora is in the fill band (150 d ≤ 183) so it stays, but it is not
+        // STRICTLY new (>109 d) → the "newly opened in March 2026" line is false.
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 150 },
+        // Grande's oldest review is recent (30 d, strict) → claim NOT stripped.
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 80, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewDays: 30 }
       }[name] || null)
     });
     expect(result.text).toContain('AURORA TOAST');
     expect(result.text).not.toMatch(/newly opened in March 2026/i);
-    // Grande's oldest review is recent (1mo) → its claim is NOT stripped.
     expect(result.text).toMatch(/opened in January 2026/i);
+    expect(result.venues.length).toBe(2);
   });
 });
 
