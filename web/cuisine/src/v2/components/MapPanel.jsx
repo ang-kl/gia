@@ -64,7 +64,7 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -315,7 +315,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
-    // v0.64.0 — feed the map-centre anchor to the overlay controller so
+    // v0.62.6 — feed the map-centre anchor to the overlay controller so
     // radius-clipped layers re-filter on every pan/zoom.
     const ctr = mapRef.current?.getCenter?.();
     if (ctr) overlayControllerRef.current?.setAnchor?.(ctr.lat(), ctr.lng());
@@ -354,6 +354,33 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     mapRef.current.panTo({ lat: flyTo.lat, lng: flyTo.lng });
     if (Number.isFinite(flyTo.zoom)) mapRef.current.setZoom(flyTo.zoom);
   }, [flyTo && flyTo.lat, flyTo && flyTo.lng, flyTo && flyTo._k]); // eslint-disable-line
+
+  // v0.62.6 — Michelin city-grouping fit. App sets `fitPins`
+  // ({ pins:[{lat,lng}], token }) per the display spec: Case A fits the SET
+  // city's pins (map stays centred there), Case B fit-bounds across all
+  // visible Michelin pins (country-level view), and a tapped city-jump row
+  // re-fits to that city's pins. Display-only: no reload, no search, no
+  // setLocation change. <2 valid pins → setCenter + zoom 10 fallback (spec:
+  // "prefer fit-bounds; if not available, ~zoom 10"); a single-pin fitBounds
+  // would over-zoom, so the clamp below also caps post-fit zoom at 15.
+  useEffect(() => {
+    if (!fitPins || !mapRef.current || !window.google?.maps) return;
+    const pins = (fitPins.pins || []).filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    if (!pins.length) return;
+    if (pins.length === 1) {
+      mapRef.current.setCenter(pins[0]);
+      mapRef.current.setZoom(13);
+      return;
+    }
+    const bounds = new window.google.maps.LatLngBounds();
+    for (const p of pins) bounds.extend(p);
+    mapRef.current.fitBounds(bounds, 48);
+    // Clamp: two near-identical pins make fitBounds zoom in absurdly close.
+    const once = mapRef.current.addListener('idle', () => {
+      if (mapRef.current && mapRef.current.getZoom() > 15) mapRef.current.setZoom(15);
+      window.google.maps.event.removeListener(once);
+    });
+  }, [fitPins && fitPins.token]); // eslint-disable-line
 
   // v0.61.10 — traffic accidents within 250 m of the search anchor,
   // drawn as ⚠️ markers while results are showing. Best-effort: needs

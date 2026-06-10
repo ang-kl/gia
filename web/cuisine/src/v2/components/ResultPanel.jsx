@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
-import { useLocale, t as tr } from '../lib/i18n.js';
+import { useLocale, t as tr, tn } from '../lib/i18n.js';
+import { groupByAwardCity, groupNeedsJumpRow } from '../lib/michelin-city-groups.js';
 
 // v0.58.4: human-readable label for each warm-start seed id. Surfaces
 // as a muted caption above the result list so users know the initial
@@ -90,7 +91,15 @@ export default function ResultPanel({
   specialModeBlocked = null,
   // v0.61.409 — true when the boot load was suppressed because the saved
   // location ≠ the device location; the empty-state shows a "tap 🔍" note.
-  bootMismatchHalt = false
+  bootMismatchHalt = false,
+  // v0.62.6 — Michelin city-grouped display (display layer only). When the
+  // visible batch carries awardCity fields, the card list renders in city
+  // sections: the set-location city's cards first (no row), every other city
+  // group preceded by a tappable "{count} Michelin picks in {city}" row.
+  // michelinCity = server-resolved set-location city (michelinSummary.city);
+  // onCityJump(group) pans/fits the map to that city's visible pins.
+  michelinCity = null,
+  onCityJump = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -417,26 +426,62 @@ export default function ResultPanel({
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
             </div>
           )}
-          {cardsToShow.map((v, i) => {
-            // v0.62.x — unified-newness band separation. The server (New pill)
-            // sorts strict-band (opened ≤3 mo) ahead of fill-band (3–6 mo) and
-            // stamps each venue's recencyBand. Render a divider before the
-            // first fill-band card so the two groups read as separate
-            // "concentric" recency rings. Off the New pill no venue carries a
-            // band → no divider, list renders exactly as before.
-            const showFillDivider = v.recencyBand === 'fill'
-              && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
-            return (
-              <React.Fragment key={v.placeId || i}>
-                {showFillDivider && (
-                  <div className="px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20">
-                    {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
-                  </div>
-                )}
-                <ResultCard venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
-              </React.Fragment>
-            );
-          })}
+          {(() => {
+            // v0.62.6 — Michelin city-grouped display (display layer only).
+            // When the visible batch carries awardCity (Michelin, multi-city
+            // countries), render city sections: set-city cards first with NO
+            // row (Case A), every other city group preceded by a tappable
+            // "{count} Michelin picks in {city}" row — count is the number of
+            // visible cards in THIS batch for that city (never a ratio or a
+            // country total). Curated order is preserved inside each group;
+            // pagination is untouched (grouping runs on the visible page
+            // slice only). Tapping the city name pans/fits the map via
+            // onCityJump — no reload, no new search, no setLocation change.
+            const hasAwardCities = cardsToShow.some((v) => v && typeof v.awardCity === 'string' && v.awardCity);
+            if (hasAwardCities) {
+              const grouped = groupByAwardCity(cardsToShow, michelinCity);
+              return grouped.groups.map((g) => (
+                <React.Fragment key={'cityGrp:' + (g.city || '_none')}>
+                  {groupNeedsJumpRow(g, grouped.caseA) && (
+                    <div className="px-2 pt-2 pb-1 text-[12px] font-medium text-tg-text leading-snug border-t border-tg-hint/20">
+                      {tn('michelin.cityJump.before', lang, { count: g.venues.length })}
+                      <span
+                        role="button"
+                        className="text-blue-500 italic underline cursor-pointer"
+                        onClick={() => { if (onCityJump) onCityJump(g); }}
+                      >{g.city}</span>
+                    </div>
+                  )}
+                  {g.venues.map((v, i) => (
+                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                  ))}
+                </React.Fragment>
+              ));
+            }
+            return cardsToShow.map((v, i) => {
+              // v0.62.x — unified-newness band separation. The server (New pill)
+              // sorts strict-band (opened ≤3 mo) ahead of fill-band (3–6 mo) and
+              // stamps each venue's recencyBand. Render a divider before the
+              // first fill-band card so the two groups read as separate
+              // "concentric" recency rings. Off the New pill no venue carries a
+              // band → no divider, list renders exactly as before. (Mutually
+              // exclusive with the Michelin awardCity branch above — the
+              // Michelin handler never stamps recencyBand and the cuisine
+              // search never stamps awardCity.)
+              const showFillDivider = v.recencyBand === 'fill'
+                && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
+              return (
+                <React.Fragment key={v.placeId || i}>
+                  {showFillDivider && (
+                    <div className="px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20">
+                      {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
+                    </div>
+                  )}
+                  <ResultCard venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                </React.Fragment>
+              );
+            });
+          })()}
           {/* v0.61.403 — subtle "more coming" cue while the first batch streams
               in one card at a time (parity with gia-web v0.1.151). */}
           {streamingMore && (

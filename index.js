@@ -9568,6 +9568,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.62.6 — awardCity: the curated city this Michelin awardee belongs
+      // to (operator: display-layer city grouping — the TMA groups the
+      // visible batch into city sections with tappable city-jump rows).
+      // Pure annotation post-curation; SG entries carry no city → null and
+      // the grouping no-ops.
+      awardCity: entry.city || null,
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
       // (distinct from the routing slug). Surfaced via the unified
       // restaurantType line below.
@@ -9605,6 +9611,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.62.6 — awardCity parity with the success path (city grouping).
+      awardCity: entry.city || null,
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
       // (distinct from the routing slug). Surfaced via the unified
       // restaurantType line below.
@@ -16939,7 +16947,7 @@ async function cacheBotUsername() {
       }
       return mrtLinePathsCache;
     }
-    // v0.64.0 — when data/mrt-line-paths.json is absent, derive the
+    // v0.62.6 — when data/mrt-line-paths.json is absent, derive the
     // station-code geometry server-side (via the transport app's
     // buildLinePaths, dynamic-imported as an ESM module) so EVERY caller
     // — the Transport map AND the Cuisine/Hawker "Train" overlay — gets
