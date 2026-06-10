@@ -87,7 +87,7 @@ describe('currency-format — usdRate (Alpha Vantage primary)', () => {
   beforeEach(() => {
     mockRedis = {
       get: vi.fn().mockResolvedValue(null),
-      setex: vi.fn().mockResolvedValue('OK')
+      setEx: vi.fn().mockResolvedValue('OK')
     };
     globalThis.fetch = vi.fn();
   });
@@ -109,7 +109,7 @@ describe('currency-format — usdRate (Alpha Vantage primary)', () => {
     expect(r).toBe(0.74);
     expect(globalThis.fetch).toHaveBeenCalledOnce();
     expect(globalThis.fetch.mock.calls[0][0]).toContain('alphavantage.co');
-    expect(mockRedis.setex).toHaveBeenCalledWith('fx:usd:SGD', 15 * 24 * 3600, '0.74');
+    expect(mockRedis.setEx).toHaveBeenCalledWith('fx:usd:SGD', 15 * 24 * 3600, '0.74');
   });
 
   it('falls back to Frankfurter when Alpha Vantage is rate-limited (Information envelope)', async () => {
@@ -137,10 +137,37 @@ describe('currency-format — usdRate (Alpha Vantage primary)', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('returns null when both sources fail', async () => {
+  // v0.62.6 — baseline fallback: a baseline currency (SGD) now degrades to its
+  // fixed approximate rate instead of null when both live sources fail, so the
+  // parenthetical conversion survives an FX outage.
+  it('falls back to the baseline rate when both sources fail (baseline currency)', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('econnrefused'));
     const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.778);
+  });
+
+  it('returns null when both sources fail and no baseline exists (SEK)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('econnrefused'));
+    const r = await usdRate('SEK', mockRedis);
     expect(r).toBeNull();
+  });
+
+  // v0.62.6 — the VN bug class: a corrupt cached rate (e.g. an inverted leg)
+  // must be REJECTED by the plausibility guard and healed from the baseline,
+  // never used (deployed: ₫300000 rendered as ≈S$129162).
+  it('rejects a corrupt cached VND rate and self-heals the cache from the baseline', async () => {
+    mockRedis.get.mockResolvedValue('0.43');   // wildly wrong: real VND ≈ 0.0000390
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await usdRate('VND', mockRedis);
+    expect(r).toBe(0.0000390);
+    expect(mockRedis.setEx).toHaveBeenCalledWith('fx:usd:VND', 15 * 24 * 3600, '0.000039');
+  });
+
+  it('keeps a plausible cached value (guard does not over-reject)', async () => {
+    mockRedis.get.mockResolvedValue('0.74');   // within 5× of SGD baseline 0.778
+    const r = await usdRate('SGD', mockRedis);
+    expect(r).toBe(0.74);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 });
 
@@ -149,7 +176,7 @@ describe('currency-format — fetchFxRate (USD cross-rate)', () => {
   beforeEach(() => {
     mockRedis = {
       get: vi.fn().mockResolvedValue(null),
-      setex: vi.fn().mockResolvedValue('OK')
+      setEx: vi.fn().mockResolvedValue('OK')
     };
     globalThis.fetch = vi.fn();
   });
@@ -189,17 +216,34 @@ describe('currency-format — fetchFxRate (USD cross-rate)', () => {
     expect(r).toBeCloseTo(0.031 / 0.74, 6);
   });
 
-  it('returns null when a leg fails', async () => {
+  // v0.62.6 — baseline currencies cross via their fixed rates on FX outage.
+  it('crosses via baselines when live FX fails (SGD→MYR)', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
     const r = await fetchFxRate('SGD', 'MYR', mockRedis);
+    expect(r).toBeCloseTo(0.778 / 0.246, 6);
+  });
+
+  it('returns null when a leg has no baseline and live FX fails (SEK→MYR)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await fetchFxRate('SEK', 'MYR', mockRedis);
     expect(r).toBeNull();
+  });
+
+  // v0.62.6 — the deployed VN bug end-to-end at the rate level: even with a
+  // corrupt cached leg, VND→SGD must come out ~0.00005 (NOT ~0.43).
+  it('VND→SGD stays sane even with a corrupt cached VND leg', async () => {
+    mockRedis.get.mockImplementation((k) => Promise.resolve(k === 'fx:usd:VND' ? '0.43' : null));
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await fetchFxRate('VND', 'SGD', mockRedis);
+    expect(r).toBeCloseTo(0.0000390 / 0.778, 9);
+    expect(r).toBeLessThan(0.001);
   });
 });
 
 describe('currency-format — formatPriceRangeForVenue', () => {
   let mockRedis;
   beforeEach(() => {
-    mockRedis = { get: vi.fn().mockResolvedValue(null), setex: vi.fn() };
+    mockRedis = { get: vi.fn().mockResolvedValue(null), setEx: vi.fn() };
     globalThis.fetch = vi.fn();
   });
   afterEach(() => { vi.restoreAllMocks(); delete process.env.ALPHAVANTAGE_API_KEY; });
@@ -247,12 +291,33 @@ describe('currency-format — formatPriceRangeForVenue', () => {
     expect(r).toBe('S$25–40 (≈¥2839–4542)');
   });
 
-  it('falls back to no-parens when FX fetch fails', async () => {
+  // v0.62.6 — baseline currencies now keep an approximate conversion through an
+  // FX outage (0.246/0.778 cross, +2.8% markup, ceil 2dp).
+  it('keeps a baseline-approximate conversion when live FX fails (MYR→SGD)', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
     const r = await formatPriceRangeForVenue(
       { currencyCode: 'MYR', start: 50, end: 80 }, 'MY', 'SG', mockRedis
     );
-    expect(r).toBe('M$50–80');
+    expect(r).toBe('M$50–80 (≈S$16.26–26.01)');
+  });
+
+  it('falls back to no-parens when FX fails and the venue currency has no baseline', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('timeout'));
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'SEK', start: 50, end: 80 }, 'SE', 'SG', mockRedis
+    );
+    expect(r).toBe('SEK 50–80');
+  });
+
+  // v0.62.6 — the operator's deployed VN bug, end-to-end: ₫300000–400000 must
+  // render ≈S$15–21, NEVER ≈S$129162 (corrupt leg + missing guard).
+  it('VND venue renders a sane S$ conversion even with a corrupt cached rate', async () => {
+    mockRedis.get.mockImplementation((k) => Promise.resolve(k === 'fx:usd:VND' ? '0.43' : null));
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('offline'));
+    const r = await formatPriceRangeForVenue(
+      { currencyCode: 'VND', start: 300000, end: 400000 }, 'VN', 'SG', mockRedis
+    );
+    expect(r).toBe('₫300000–400000 (≈S$15.46–20.62)');
   });
 
   it('omits parens when user country is unknown (null)', async () => {
