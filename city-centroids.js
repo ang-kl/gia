@@ -9,7 +9,10 @@
 //   { country, lat, lng, zoom, label, labelLocal, radiusM, source, fallback }
 //   - label       : English centre name  (e.g. "Seoul Station")
 //   - labelLocal  : local-script name     (e.g. "서울역") or null
-//   - radiusM     : default OTHER-mode search-radius cap (40 km)
+//   - radiusM     : per-city search-radius ceiling, density-tuned (see the
+//                   tiering block at the bottom — Dense 30 km / Major metro
+//                   45 km / Sparse 60 km). The literal below carries a flat
+//                   placeholder; the exported table has the tuned value.
 //   - fallback    : ISO-2 to fall back to when this city can't resolve
 //
 // 139 cities across 18 countries/regions. Laos / Cambodia / Myanmar
@@ -21,7 +24,7 @@
 
 'use strict';
 
-const CITY_CENTROIDS = Object.freeze({
+const _RAW_CENTROIDS = Object.freeze({
   "Singapore": {"country":"SG","lat":1.293116,"lng":103.852013,"zoom":14,"label":"City Hall MRT Station","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"SG"},
   "Kuala Lumpur": {"country":"MY","lat":3.13417,"lng":101.68611,"zoom":14,"label":"Kuala Lumpur Sentral Station","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"MY"},
   "Putrajaya": {"country":"MY","lat":2.931557,"lng":101.670541,"zoom":14,"label":"Putrajaya Sentral","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"MY"},
@@ -162,5 +165,56 @@ const CITY_CENTROIDS = Object.freeze({
   "Keelung": {"country":"TW","lat":25.13306,"lng":121.739254,"zoom":14,"label":"Keelung Railway Station","labelLocal":"基隆車站","radiusM":40000,"source":"geocode:places-api","fallback":"TW"},
   "Macau": {"country":"MO","lat":22.197097,"lng":113.55905,"zoom":14,"label":"Outer Harbour Ferry Terminal Macau","labelLocal":"外港客運碼頭","radiusM":40000,"source":"geocode:places-api","fallback":"MO"},
 });
+
+// v0.61.441 — density-tuned per-city search-radius ceiling (replaces the
+// flat 40 km). Feeds the cuisine-search `anchorCap` city-default: when no
+// explicit per-anchor radiusCapM was picked, the concentric-ring fetch +
+// ladder are capped here. Three tiers:
+//   - DENSE   30 km — packed urban cores where 30 km already spans the
+//                     whole food scene (and keeps SG out of JB / vice-versa).
+//   - SPARSE  60 km — secondary / island / resort / border towns where the
+//                     nearest cluster of good venues can sit far out.
+//   - MAJOR   45 km — everything else (the default: large metros).
+// Tiering is applied programmatically so the 139-row literal above stays a
+// single source of coordinates; only the radiusM is overridden here.
+const DENSE_30KM = new Set([
+  'Singapore', 'Johor Bahru', 'Iskandar Puteri', 'Batam'
+]);
+const SPARSE_60KM = new Set([
+  // Malaysia (Borneo + island)
+  'Kuching', 'Kota Kinabalu', 'Labuan',
+  // Thailand (island / resort / secondary)
+  'Chiang Rai', 'Pattaya', 'Phuket', 'Ayutthaya', 'Krabi', 'Hua Hin', 'Koh Samui',
+  // Indonesia (resort / spread-out)
+  'Denpasar',
+  // Vietnam (secondary)
+  'Can Tho', 'Hue', 'Nha Trang', 'Da Lat', 'Hoi An', 'Phu Quoc',
+  // Cambodia (all but Phnom Penh)
+  'Siem Reap', 'Sihanoukville', 'Battambang', 'Kampot', 'Kep',
+  // Laos (all but Vientiane)
+  'Luang Prabang', 'Pakse', 'Savannakhet',
+  // Myanmar (spread-out / secondary)
+  'Naypyidaw', 'Mawlamyine',
+  // Philippines (resort / spread-out)
+  'Tagaytay', 'Davao',
+  // Australia (regional)
+  'Cairns', 'Hobart', 'Darwin', 'Gold Coast',
+  // New Zealand (regional / resort)
+  'Queenstown', 'Rotorua', 'Taupo', 'Napier', 'Dunedin', 'Tauranga',
+  // Korea (island)
+  'Jeju'
+]);
+
+function _radiusForCity(city) {
+  if (DENSE_30KM.has(city)) return 30000;
+  if (SPARSE_60KM.has(city)) return 60000;
+  return 45000;
+}
+
+const _tiered = {};
+for (const [city, c] of Object.entries(_RAW_CENTROIDS)) {
+  _tiered[city] = Object.freeze({ ...c, radiusM: _radiusForCity(city) });
+}
+const CITY_CENTROIDS = Object.freeze(_tiered);
 
 module.exports = { CITY_CENTROIDS };
