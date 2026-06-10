@@ -15848,7 +15848,9 @@ async function cacheBotUsername() {
         // 12 (PAGE_SIZE-aligned). Hoisted above the re-fetch so its thinness
         // check can read FIRST_TAP_SLICE. `firstBatch` rides in the payload
         // so the TMA's "🔍 to load more" / autoReset logic still keys on it.
-        const FIRST_TAP_SLICE = 5;
+        // v0.61.239 first-tap "taste" was 5; v0.62.x — bumped to 6 so a healthy
+        // search never reads as "less than six" on the first tap (operator).
+        const FIRST_TAP_SLICE = 6;
         const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
         const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
