@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-10 from a snapshot of all 942 pull requests (#1–#942).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-10 from a snapshot of all 951 pull requests (#1–#951).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 942 total — 932 merged, 10 closed without merge.
+- **PRs:** 951 total — 941 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #955 · 2026-06-09 23:45:58 · _v0.61.438: code-review fixes C — client races + custom box (findings 2,10,11,14)_
+- **Latest:** #964 · 2026-06-10 11:06:08 · _v0.62.3: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 621 |
-| fix | 124 |
-| docs | 62 |
+| feature | 625 |
+| fix | 127 |
+| docs | 64 |
 | copy | 43 |
 | prompt-tune | 42 |
 | refactor | 25 |
@@ -26,13 +26,13 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 308 |
+| Cuisine Picker | 310 |
 | Core / misc | 138 |
-| Docs / vault | 78 |
+| Docs / vault | 79 |
 | Transport / carpark | 61 |
 | Search / free-text | 52 |
 | Hawker NEA | 52 |
-| Recognised lists | 42 |
+| Recognised lists | 47 |
 | /hidden surprise | 41 |
 | Infra / setup | 30 |
 | Pipeline / discovery | 26 |
@@ -41,7 +41,7 @@
 | Commands / chat UX | 16 |
 | Language / i18n | 14 |
 | Menu hub | 13 |
-| Maps / geo / location | 11 |
+| Maps / geo / location | 12 |
 | Privacy / legal | 9 |
 | Oversight / usage stats | 7 |
 | Buddy / sharing | 5 |
@@ -994,6 +994,15 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 953 | merged | 2026-06-09 23:26:53 | 0.61.436 | fix | Search / free-text | Fix: code-review fixes A — rating sync + floor coverage (findings 1,3,4,8,9) | ## PR A of 3 — "fix all 15" code-review findings (rating feature) **1 — Device key shadowed /rating (worst rating bug).** The TMA Save wrote a 365-day device-scoped key that the TMA + search read FIRST, while chat `/rating` wrote only the… | 6 files — index.js, rating-pref.js, tests, doc, package | — | Redis/state; privacy; tests; doc/vault |
 | 954 | merged | 2026-06-09 23:37:37 | 0.61.437 | fix | Recognised lists | Fix: code-review fixes B — Michelin holes (findings 5,6,7,12,13) | ## PR B of 3 — "fix all 15" (Michelin) **6+13 — wrong/missing country.** Michelin's country came from `body countryCode \|\| cached location` — a stale cached 'MY' beat a fresh Hanoi anchor, and a cached 'SG'/missing country returned a… | 6 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
 | 955 | merged | 2026-06-09 23:45:58 | 0.61.438 | fix | Recognised lists | Fix: code-review fixes C — client races + custom box (findings 2,10,11,14) | ## PR C of 3 (final) — "fix all 15" **2 — Location-follow was being killed by its own automation (top location bug).** The v0.61.430 latch fired on ANY region change to OTHER/JB — including ones the device-follow itself made from raw GPS… | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 956 | merged | 2026-06-09 23:57:01 | 0.61.439 | docs | Docs / vault | Update docs: Vibe Journal refresh — PRs #950–#955 | doc/Journal verified current; this refreshes the hosted ledger (was cut off at #949). | 10 files — doc, package, public/ | — | doc/vault |
+| 957 | merged | 2026-06-10 03:25:44 | 0.61.440 | fix | Recognised lists | Fix: per-location seen-set — fixes Others-city 1-result / Michelin-0 / FAB-stuck | ## Your 2 bugs (Others → Malaysia → KL) — one root cause The search's "already-seen" memory **ignored location**. | 7 files — index.js, michelin-walk.js, TMA:cuisine, tests, doc, package | cuisine | privacy; tests; doc/vault |
+| 958 | merged | 2026-06-10 06:21:13 |  | feature | Cuisine Picker | Add: Cuisine search: kill the 500s + concentric rings (per-city tuned) | ## What broke Operator (deployed, 3 days): *"I keep getting HTTPS 500 these three days, the search compresses; especially common to get 1 result. | 16 files — index.js, city-centroids.js, cuisine-nearby-refetch.js, cuisine-nearby-widen.js, error-classify.js, place-search-variance.js, pool-floor.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 959 | merged | 2026-06-10 06:55:12 |  | feature | Cuisine Picker | Add: Cuisine search: geographic scoping redesign (concentric distance + per-city radius) | ## What & why Supersedes the original pure-refactor on this branch. | 6 files — index.js, cuisine-geo-scope.js, tests, doc, package | — | tests; doc/vault |
+| 960 | merged | 2026-06-10 08:39:45 |  | fix | Recognised lists | Fix: Michelin overhaul: review fix, city-scoped walk, grey-out unavailable cuisines, curated metadata + refresh | Four operator-reviewed Michelin items, shipped as one PR (per your call). | 11 files — index.js, michelin-data.js, TMA:cuisine, tests, doc, package, michelin-meta.json, scripts/ | cuisine | tests; doc/vault |
+| 961 | merged | 2026-06-10 09:43:43 | 0.62.0 | docs | Recognised lists | Update docs: record PR #960 merge (v0.62.0 → PROD) per standing rule | Docs-only follow-up per the standing Journal rule ("record after a PR merges"). | 2 files — doc | — | doc/vault |
+| 962 | merged | 2026-06-10 09:54:12 | 0.62.1 | feature | Recognised lists | Add: populate michelin-meta.json (1,888/1,922) — closes #960 empty-snapshot gap | ## What Commits the **populated** `michelin-meta.json` — `{}` → **1,888 entries**, every one carrying a `placeId`. | 4 files — doc, package, michelin-meta.json | — | doc/vault |
+| 963 | merged | 2026-06-10 10:32:13 | 0.62.2 | feature | Recognised lists | Add: Michelin refresh geo-guard — wrong-country 33→0 (CN/KR/TW re-run) | ## Why Validation + live verification of the v0.62.1 snapshot (#962) found **33/1,888 venues (1.7%) resolved to the WRONG country** — short/generic East-Asian names matched data-rich SG/MY businesses: - Seoul Bib "Subaru" → **a Subaru car… | 5 files — doc, package, michelin-meta.json, scripts/ | — | doc/vault |
+| 964 | merged | 2026-06-10 11:06:08 | 0.62.3 | fix | Maps / geo / location | Fix: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix) | ## Bug (operator, on Mac) `/location` → tap **📍 Share my current location** → it sticks on a wrong **"Muzium Negara, KL"** on first load. | 5 files — index.js, i18n.js, doc, package | — | doc/vault |
 
 ---
 
