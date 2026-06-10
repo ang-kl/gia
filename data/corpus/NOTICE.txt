@@ -1,4 +1,0 @@
-This directory contains venue base data derived from
-Foursquare Open Source Places (https://opensource.foursquare.com/os-places/),
-licensed under the Apache License 2.0. Foursquare is credited as the source.
-Ratings/recency are NOT from Foursquare; they are fetched separately from Google Places.
