@@ -15409,22 +15409,20 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.61.442 (gate audit P4) — ONE geographic-scoping pass. The
-        // former inline 120 km hard gate + JB-hybrid filter (+ its JB→OTHER
-        // graceful fallback) + OTHER country-keyword filter (+ its stale-pref
-        // floor) + SG mention/proximity filter now live in
-        // cuisine-geo-scope.js — a behaviour-preserving extraction (same
-        // thresholds, regexes, centroids, logs, and JB-fallback semantics;
-        // the OTHER stale-pref floor now routes through the shared
-        // pool-floor.js demoteNeverEmpty). distanceM was attached just above;
-        // the pass reads it for the hard ceiling. `jbFilterFellBackToOther`
-        // is surfaced on the payload (TMA amber banner) exactly as before.
+        // v0.61.444 — ONE geographic-scoping pass (cuisine-geo-scope.js).
+        // Redesign: scope by a CONCENTRIC DISTANCE from the set location,
+        // bounded by the per-city `anchorCap` (density-tiered radiusM), for
+        // every region — replacing the 120 km global gate, the SG fixed-
+        // centroid filter, and the OTHER country-keyword text filter with one
+        // distance cap. JB keeps its own 60 km near-cap + "Johor"-text rescue
+        // (≤120 km) + the JB→OTHER fallback; SG/JB keep a light cross-border
+        // text exclusion. distanceM was attached just above (from {lat,lng}).
+        // `jbFilterFellBackToOther` still rides the payload (TMA amber banner).
         let jbFilterFellBackToOther = false;
         try {
           const scoped = await require('./cuisine-geo-scope').scopeVenuesByRegion({
             venues, isJB, isOther, lat, lng,
-            resolveCtxCountry: () => getUserCountryPref(redis, csChatId),
-            countryTextMatch: require('./country-text-match'),
+            anchorCap, searchRadius,
             locationMode: require('./location-mode'),
             demoteNeverEmpty: require('./pool-floor').demoteNeverEmpty
           });

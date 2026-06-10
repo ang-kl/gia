@@ -1,58 +1,69 @@
-// cuisine-geo-scope.js — v0.61.442
+// cuisine-geo-scope.js — v0.61.444
 //
-// ONE geographic-scoping pass for /api/cuisine/search (gate audit P4 —
-// removes the D1 duplication where the same "is this venue in the right
-// place?" intent was answered five different ways inline).
+// ONE geographic-scoping pass for /api/cuisine/search.
 //
-// Before this module, the route ran four overlapping inline filters back
-// to back — a 120 km hard gate, the JB-hybrid filter (+ its JB→OTHER
-// graceful fallback), the OTHER country-keyword filter (+ its stale-pref
-// floor), and the SG mention/proximity filter — each added for a separate
-// incident, each with its own ad-hoc collapse handling. A venue had to
-// survive all of them, and the branching (JB fallback flips into the
-// OTHER branch; SG is the `else`) made the interactions hard to read.
+// Redesign (operator, v0.61.444): scope by a CONCENTRIC DISTANCE from the
+// user's SET LOCATION, bounded by the per-city `anchorCap` (the density-
+// tiered radiusM from v0.61.441 — Dense 30 / Major 45 / Sparse 60 km),
+// rather than by fixed city centroids + country-keyword text. This replaces
+// three legacy, overlapping filters:
+//   - the 120 km global hard gate,
+//   - the SG ≤30 km-of-fixed-centroid filter, and
+//   - the OTHER country-keyword (country-text-match) filter — which was
+//     "belt-and-braces" only (the Places locationBias circle is the real
+//     constraint) and caused the `cc=VN 59→0 → FLOOR` churn when a venue's
+//     address lacked a known keyword.
 //
-// This is a FAITHFUL extraction — zero behaviour change: same thresholds,
-// same regexes, same centroids, same logs, same JB-fallback semantics, and
-// the same control flow (the SG rule is the trailing `else` of the OTHER
-// `if`, so a JB-region search that did not fall back is still scoped by the
-// JB rule AND THEN the SG rule, exactly as before — see the SG branch note).
-// The only difference from the inline code is that the OTHER stale-pref
-// floor now goes through the shared pool-floor.js `demoteNeverEmpty`
-// (injected) instead of an inline `if (filtered.length === 0) keep pool`,
-// which is itself behaviour-identical.
+// `distanceM` is attached to every venue from the SET LOCATION upstream
+// (index.js, haversine({lat,lng}, v)) BEFORE this pass runs, so the cap is a
+// simple `v.distanceM <= cap` check — no centroids needed here.
 //
-// [Deferred] Collapsing the JB+SG double-filter into one rule per region
-// (so a JB search is scoped by the JB rule alone, surfacing far-Johor venues
-// that the SG ≤30 km re-filter currently drops) is a real behaviour change
-// and is left for its own operator-smoked PR.
+// Region rules (operator decisions):
+//   SG    : within cap of the set location, AND NOT "johor"-tagged
+//           (light cross-border exclusion — a 30 km circle from north SG
+//            reaches JB across the causeway).
+//   JB    : NOT "singapore"-tagged, AND ( within JB_NEAR_M of the set
+//           location OR "johor"-addressed up to the HARD_CAP_M backstop ).
+//           JB-as-a-region ≠ JB-as-a-city, so JB uses its own 60 km near-cap
+//           (Pontian ↔ Desaru ↔ Kulai), not the 30 km Dense city tier; any
+//           "Johor"-addressed venue is rescued up to 120 km. Keeps the
+//           JB→OTHER graceful fallback when the pill is stuck far from Johor.
+//   OTHER : within cap of the set location. No country-keyword text gate —
+//           the per-city anchorCap is the boundary.
 //
-// All IO is injected so the pass is unit-testable without redis / the
-// country-pref store:
-//   resolveCtxCountry  — async () => ISO-2 | null   (wraps getUserCountryPref)
-//   countryTextMatch   — { filterVenuesByCountry, hasKeywordsFor }
-//   locationMode       — { isFarFromJB, haversineMeters, JB_CBD }
-//   demoteNeverEmpty   — pool-floor.js
+// Every region's result goes through the shared pool-floor.js
+// `demoteNeverEmpty` (min 1, nearest-first), so a soft-bias pool that lands
+// just outside the cap keeps its nearest venues instead of returning 0 (this
+// subsumes the old OTHER stale-pref floor + the SG/JB no-empty intent).
 //
-// Returns { venues, jbFallbackToOther, ctxCountry } — the caller surfaces
+// IO injected (unit-testable without redis / location store):
+//   locationMode      — { isFarFromJB, haversineMeters, JB_CBD }  (JB fallback)
+//   demoteNeverEmpty  — pool-floor.js
+//
+// Returns { venues, jbFallbackToOther } — the caller surfaces
 // `jbFallbackToOther` on the payload (TMA amber banner) exactly as before.
 
 'use strict';
 
-const HARD_CAP_M = 120000;   // v0.60.152 — 120 km user-distance ceiling
-const JB_HYBRID_M = 60000;   // v0.61.198 — JB centroid radius (Pontian/Kulai/Desaru)
-const SG_PROX_M = 30000;     // SG centroid proximity fallback
-// Centroids preserved verbatim from the inline filters.
-const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
-const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
+const HARD_CAP_M = 120000;     // absolute backstop + "Johor"-text ceiling
+const JB_NEAR_M = 60000;       // JB-region near-cap (Pontian ↔ Desaru ↔ Kulai)
+const SG_DEFAULT_CAP_M = 30000;
+const OTHER_DEFAULT_CAP_M = 40000;
 
-function haversineM(a, b) {
-  if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(a.lng)
-      || !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) return NaN;
-  const R = 6371000, toRad = (d) => d * Math.PI / 180;
-  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
-  const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+const JOHOR_RE = /\bjohor\b/i;
+const SINGAPORE_RE = /singapore/i;
+
+const hay = (v) => `${(v && v.area) || ''} ${(v && v.name) || ''}`;
+// A venue with no distanceM (no lat/lng) can't be distance-scoped; keep it
+// (defensive — matches the legacy 120 km gate, which passed null distance).
+const withinCap = (v, cap) => v.distanceM == null || v.distanceM <= cap;
+
+// Resolve the concentric cap for non-JB regions: the per-city anchorCap when
+// set, else the (clamped) slider radius, else the region default.
+function resolveCap(anchorCap, searchRadius, regionDefault) {
+  if (Number.isFinite(anchorCap) && anchorCap > 0) return anchorCap;
+  if (Number.isFinite(searchRadius) && searchRadius > 0) return searchRadius;
+  return regionDefault;
 }
 
 async function scopeVenuesByRegion({
@@ -61,114 +72,75 @@ async function scopeVenuesByRegion({
   isOther = false,
   lat,
   lng,
-  hardCapM = HARD_CAP_M,
-  resolveCtxCountry,
-  countryTextMatch,
+  anchorCap = null,
+  searchRadius = null,
   locationMode,
   demoteNeverEmpty,
   logger = console
 } = {}) {
   const log = (m) => { if (logger && typeof logger.log === 'function') logger.log(m); };
   const warn = (m) => { if (logger && typeof logger.warn === 'function') logger.warn(m); };
+  const floor = (typeof demoteNeverEmpty === 'function')
+    ? (kept, pool) => demoteNeverEmpty(kept, pool, { min: 1, byDistance: true })
+    : (kept, pool) => (kept.length ? kept : pool);
+
   let out = Array.isArray(venues) ? venues.slice() : [];
   let jbFallbackToOther = false;
-  let ctxCountry = null;
 
-  // 1) Hard user-distance ceiling. Venues with no distanceM pass (defensive
-  //    — they're handled by the text rules below).
-  if (Number.isFinite(hardCapM) && hardCapM > 0) {
-    out = out.filter((v) => v.distanceM == null || v.distanceM <= hardCapM);
-  }
-
-  // 2) JB region — keep "johor" text OR within JB_HYBRID_M of the JB
-  //    centroid, but never a Singapore-tagged venue.
+  // 1) JB region — distance OR johor-text, never Singapore-tagged.
   if (isJB) {
     const beforeJb = out.length;
     const preJb = out.slice();
-    out = out.filter((v) => {
-      const text = `${v.area || ''} ${v.name || ''}`;
-      if (/\bjohor\b/i.test(text)) return true;
-      if (/singapore/i.test(text)) return false;
-      const d = haversineM(JB_CENTROID, v);
-      return Number.isFinite(d) && d <= JB_HYBRID_M;
+    const kept = out.filter((v) => {
+      const text = hay(v);
+      if (SINGAPORE_RE.test(text)) return false;            // cross-border exclusion
+      if (withinCap(v, JB_NEAR_M)) return true;             // ≤60 km of the set location
+      return JOHOR_RE.test(text) && withinCap(v, HARD_CAP_M); // far-Johor rescued by text ≤120 km
     });
+    out = floor(kept, preJb);
     if (out.length !== beforeJb) {
-      log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${out.length}`);
+      log(`[Cuisine-Search] D703b JB-scope ${beforeJb} → ${out.length} (≤${JB_NEAR_M}m OR johor-text ≤${HARD_CAP_M}m)`);
     }
-    // Graceful exit: the JB pill is sticky at coords far from Johor
-    // (Putrajaya / KL / Ipoh) and wiped the pool → restore + treat as OTHER.
-    if (out.length === 0 && beforeJb >= 5 && locationMode
-        && typeof locationMode.isFarFromJB === 'function' && locationMode.isFarFromJB(lat, lng)) {
+    // Graceful exit: JB pill stuck at coords far from Johor (Putrajaya / KL /
+    // Ipoh) wiped the pool → restore + treat as OTHER (distance cap below).
+    let far = false;
+    try {
+      far = !!(locationMode && typeof locationMode.isFarFromJB === 'function'
+        && locationMode.isFarFromJB(lat, lng));
+    } catch (err) { warn(`[Cuisine-Search] isFarFromJB threw (no JB fallback): ${err && err.message}`); }
+    if (kept.length === 0 && beforeJb >= 5 && far) {
       const dM = (typeof locationMode.haversineMeters === 'function')
         ? locationMode.haversineMeters(locationMode.JB_CBD, { lat, lng })
         : NaN;
-      warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${Number.isFinite(dM) ? dM.toFixed(0) : '?'}m from JB CBD. Treating request as OTHER.`);
+      warn(`[Cuisine-Search] D703b JB-fallback: scope wiped ${beforeJb}→0 at ${Number.isFinite(dM) ? dM.toFixed(0) : '?'}m from JB CBD. Treating as OTHER.`);
       out = preJb;
       jbFallbackToOther = true;
     }
   }
 
-  // 3) OTHER (or JB-fallback) — soft per-country keyword filter, fail-open,
-  //    with the stale-pref floor (keep the coord-pinned pool when the
-  //    keyword filter would empty it).
+  // 2) OTHER (or JB-fallback) — pure concentric distance cap.
   if (jbFallbackToOther || isOther) {
-    if (typeof resolveCtxCountry === 'function') {
-      try { ctxCountry = await resolveCtxCountry(); }
-      catch (err) { warn(`[Cuisine-Search] country-pref read failed (no defence filter): ${err && err.message}`); }
-    }
-    if (jbFallbackToOther && !ctxCountry) {
-      ctxCountry = 'MY';
-      log('[Cuisine-Search] D703b JB-fallback default ctxCountry=MY');
-    }
-    if (ctxCountry && ctxCountry !== 'SG' && countryTextMatch
-        && typeof countryTextMatch.filterVenuesByCountry === 'function') {
-      try {
-        if (countryTextMatch.hasKeywordsFor(ctxCountry)) {
-          const beforeOther = out.length;
-          const filtered = countryTextMatch.filterVenuesByCountry(out, ctxCountry);
-          const floored = filtered.length === 0 && beforeOther > 0;
-          out = (typeof demoteNeverEmpty === 'function')
-            ? demoteNeverEmpty(filtered, out)            // keep coord-pinned pool when empty
-            : (filtered.length ? filtered : out);
-          if (floored) {
-            log(`[Cuisine-Search] D703d country-text-filter cc=${ctxCountry} ${beforeOther}→0 → FLOOR: kept coord-pinned pool (country-pref stale vs pin)`);
-          } else {
-            log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${out.length}`);
-          }
-        } else {
-          log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${out.length}`);
-        }
-      } catch (err) {
-        warn(`[Cuisine-Search] country-text-match failed (skip filter): ${err && err.message}`);
-      }
-    } else {
-      log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${out.length})`);
-    }
-  } else {
-    // 4) SG — keep "singapore" text OR within SG_PROX_M of the SG centroid
-    //    (some hawker centres' formattedAddress lacks the country word).
-    //    NOTE (faithful extraction): this is the trailing `else` of the
-    //    OTHER `if`, so — exactly as in the original inline code — it ALSO
-    //    runs for a JB-region search that did NOT fall back. That means a JB
-    //    search is scoped by the JB rule AND THEN this SG rule (a venue must
-    //    sit ≤30 km of the SG centroid or carry "singapore" text). This
-    //    double-filter is preserved deliberately to keep P4 a zero-behaviour-
-    //    change refactor; revisiting it is a separate, operator-smoked change.
-    out = out.filter((v) => {
-      if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
-      const d = haversineM(SG_CENTROID, v);
-      return Number.isFinite(d) && d <= SG_PROX_M;
-    });
+    const cap = resolveCap(anchorCap, searchRadius, OTHER_DEFAULT_CAP_M);
+    const beforeOther = out.length;
+    const kept = out.filter((v) => withinCap(v, cap));
+    out = floor(kept, out);
+    log(`[Cuisine-Search] D703d OTHER-scope ${beforeOther} → ${out.length} (≤${cap}m of set location)`);
+  } else if (!isJB) {
+    // 3) SG — concentric distance cap, minus cross-border Johor bleed.
+    const cap = resolveCap(anchorCap, searchRadius, SG_DEFAULT_CAP_M);
+    const beforeSg = out.length;
+    const kept = out.filter((v) => withinCap(v, cap) && !JOHOR_RE.test(hay(v)));
+    out = floor(kept, out);
+    log(`[Cuisine-Search] D703s SG-scope ${beforeSg} → ${out.length} (≤${cap}m of set location, no johor)`);
   }
 
-  return { venues: out, jbFallbackToOther, ctxCountry };
+  return { venues: out, jbFallbackToOther };
 }
 
 module.exports = {
   scopeVenuesByRegion,
   HARD_CAP_M,
-  JB_HYBRID_M,
-  SG_PROX_M,
-  JB_CENTROID,
-  SG_CENTROID
+  JB_NEAR_M,
+  SG_DEFAULT_CAP_M,
+  OTHER_DEFAULT_CAP_M
 };

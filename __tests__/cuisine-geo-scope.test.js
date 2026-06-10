@@ -1,177 +1,149 @@
-// __tests__/cuisine-geo-scope.test.js — v0.61.442
+// __tests__/cuisine-geo-scope.test.js — v0.61.444
 //
-// Pins the behaviour of the single geographic-scoping pass extracted from
-// /api/cuisine/search (gate audit P4). Each test mirrors one of the four
-// former inline filters so the extraction is provably behaviour-preserving:
-// the 120 km hard gate, the JB-hybrid filter (+ JB→OTHER fallback), the
-// OTHER country-keyword filter (+ stale-pref floor), and the SG
-// mention/proximity filter.
+// The geographic-scoping pass is now CONCENTRIC-DISTANCE based: keep venues
+// within `anchorCap` (per-city radius) of the set location, with a light
+// SG↔JB cross-border text exclusion and a JB "Johor"-text rescue to 120 km.
+// Venues carry `distanceM` (the set-location distance) as the scope input.
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-const { scopeVenuesByRegion, SG_CENTROID, JB_CENTROID } = require('../cuisine-geo-scope');
+const {
+  scopeVenuesByRegion, HARD_CAP_M, JB_NEAR_M, SG_DEFAULT_CAP_M, OTHER_DEFAULT_CAP_M
+} = require('../cuisine-geo-scope');
 const { demoteNeverEmpty } = require('../pool-floor');
 
-function v(props) {
-  return { name: 'x', area: '', ...props };
+function v(distanceM, props = {}) {
+  return { name: 'x', area: '', distanceM, ...props };
 }
 
-// Real-ish injected deps; overridable per test.
 function deps(over = {}) {
   return {
     demoteNeverEmpty,
-    resolveCtxCountry: async () => null,
-    countryTextMatch: {
-      hasKeywordsFor: () => true,
-      filterVenuesByCountry: (vs) => vs
-    },
-    locationMode: {
-      isFarFromJB: () => false,
-      haversineMeters: () => 100000,
-      JB_CBD: { lat: 1.46, lng: 103.76 }
-    },
+    locationMode: { isFarFromJB: () => false, haversineMeters: () => 100000, JB_CBD: { lat: 1.46, lng: 103.76 } },
     logger: { log: () => {}, warn: () => {} },
     ...over
   };
 }
 
-describe('120 km hard gate', () => {
-  it('drops venues beyond 120 km, keeps within, keeps null distanceM', async () => {
-    // isOther with no country-pref → pool passes through after the gate only.
-    const venues = [
-      v({ name: 'near', distanceM: 50000 }),
-      v({ name: 'edge', distanceM: 120000 }),
-      v({ name: 'far', distanceM: 130000 }),
-      v({ name: 'nodist', distanceM: null })
-    ];
-    const r = await scopeVenuesByRegion({ venues, isOther: true, lat: 3.0, lng: 101.6, ...deps() });
-    const names = r.venues.map((x) => x.name).sort();
-    expect(names).toEqual(['edge', 'near', 'nodist']);
+describe('constants', () => {
+  it('JB near-cap 60 km, hard cap 120 km, SG 30 km, OTHER 40 km', () => {
+    expect(JB_NEAR_M).toBe(60000);
+    expect(HARD_CAP_M).toBe(120000);
+    expect(SG_DEFAULT_CAP_M).toBe(30000);
+    expect(OTHER_DEFAULT_CAP_M).toBe(40000);
   });
 });
 
-describe('SG region (default branch)', () => {
-  it('keeps singapore-text OR ≤30 km of the SG centroid; drops far non-SG', async () => {
-    const venues = [
-      v({ name: 'atCentroid', lat: SG_CENTROID.lat, lng: SG_CENTROID.lng }),
-      v({ name: 'sgText', area: 'Somewhere, Singapore', lat: 9, lng: 9 }),  // far coords but text
-      v({ name: 'klFar', lat: 3.139, lng: 101.687 })                        // KL, no text → drop
-    ];
-    const r = await scopeVenuesByRegion({ venues, isJB: false, isOther: false, lat: SG_CENTROID.lat, lng: SG_CENTROID.lng, ...deps() });
-    const names = r.venues.map((x) => x.name).sort();
-    expect(names).toEqual(['atCentroid', 'sgText']);
-    expect(r.jbFallbackToOther).toBe(false);
+describe('SG region — concentric distance, no Johor bleed', () => {
+  it('keeps within anchorCap, drops beyond', async () => {
+    const venues = [v(10000, { name: 'near' }), v(25000, { name: 'mid' }), v(40000, { name: 'far' })];
+    const r = await scopeVenuesByRegion({ venues, anchorCap: 30000, lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues.map((x) => x.name).sort()).toEqual(['mid', 'near']);
+  });
+
+  it('drops a Johor-tagged venue even within cap (cross-border)', async () => {
+    const venues = [v(10000, { name: 'sgVenue' }), v(8000, { name: 'jbVenue', area: 'Johor Bahru' })];
+    const r = await scopeVenuesByRegion({ venues, anchorCap: 30000, lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['sgVenue']);
+  });
+
+  it('cap precedence: anchorCap → searchRadius → SG default', async () => {
+    const mk = () => [v(15000, { name: 'a' }), v(25000, { name: 'b' })];
+    // searchRadius used when no anchorCap (20km → drops the 25km venue)
+    let r = await scopeVenuesByRegion({ venues: mk(), searchRadius: 20000, lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['a']);
+    // SG default 30km when neither set (keeps both)
+    r = await scopeVenuesByRegion({ venues: mk(), lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues.map((x) => x.name).sort()).toEqual(['a', 'b']);
   });
 });
 
-describe('JB region', () => {
-  it('keeps a JB venue only if it ALSO passes the SG re-filter (faithful double-filter)', async () => {
-    // Faithful to the original inline code: a JB-region search runs the JB
-    // rule AND THEN the SG rule (the trailing `else`). So a JB venue is kept
-    // only when it is johor/≤60km-JB AND (singapore-text OR ≤30km of the SG
-    // centroid). far-north-Johor venues >30km from SG are dropped — the
-    // preserved double-filter quirk (see the module's deferred note).
-    const venues = [
-      v({ name: 'nearJB', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }),        // ≤60km JB + ~18km SG → keep
-      v({ name: 'johorNearSG', area: 'Johor', lat: 1.40, lng: 103.80 }),        // johor text + ~6km SG → keep
-      v({ name: 'johorFarNorth', area: 'Pontian, Johor', lat: 1.48, lng: 103.39 }), // johor text but ~50km SG → DROP
-      v({ name: 'sgTagged', area: 'Singapore', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }), // SG-tagged → JB drops
-      v({ name: 'klFar', lat: 3.139, lng: 101.687 })                            // far, no johor → drop
-    ];
+describe('JB region — distance OR johor-text, never Singapore', () => {
+  it('keeps a venue within 60 km (no text needed)', async () => {
+    const r = await scopeVenuesByRegion({ venues: [v(50000, { name: 'jb50' })], isJB: true, lat: 1.46, lng: 103.76, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['jb50']);
+  });
+
+  it('rescues a Johor-addressed venue at 90 km (text arm ≤120 km)', async () => {
+    const venues = [v(90000, { name: 'mersing', area: 'Mersing, Johor' }), v(90000, { name: 'noText' })];
     const r = await scopeVenuesByRegion({ venues, isJB: true, lat: 1.46, lng: 103.76, ...deps() });
-    const names = r.venues.map((x) => x.name).sort();
-    expect(names).toEqual(['johorNearSG', 'nearJB']);
-    expect(r.jbFallbackToOther).toBe(false);
+    expect(r.venues.map((x) => x.name)).toEqual(['mersing']);   // noText (>60km, no johor) dropped
   });
 
-  it('JB→OTHER fallback: wiped at far coords restores the pool + defaults ctxCountry=MY', async () => {
-    // 5 KL venues, no johor text, not near JB → JB filter wipes to 0.
-    const venues = Array.from({ length: 5 }, (_, i) => v({ name: `kl${i}`, lat: 3.139, lng: 101.687 }));
+  it('drops a Singapore-tagged venue even at 5 km (cross-border)', async () => {
+    const venues = [v(5000, { name: 'sgSide', area: 'Singapore' }), v(5000, { name: 'jbSide' })];
+    const r = await scopeVenuesByRegion({ venues, isJB: true, lat: 1.46, lng: 103.76, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['jbSide']);
+  });
+
+  it('JB→OTHER fallback: wiped + isFarFromJB → restore pool, apply OTHER cap, jbFallback=true', async () => {
+    // 5 venues at 90 km, no johor text → JB rule wipes to 0.
+    const venues = Array.from({ length: 5 }, (_, i) => v(90000, { name: `kl${i}` }));
     const r = await scopeVenuesByRegion({
-      venues, isJB: true, lat: 3.13, lng: 101.68,
-      ...deps({ locationMode: { isFarFromJB: () => true, haversineMeters: () => 250000, JB_CBD: { lat: 1.46, lng: 103.76 } } })
+      venues, isJB: true, lat: 3.13, lng: 101.68, anchorCap: 100000,
+      ...deps({ locationMode: { isFarFromJB: () => true, haversineMeters: () => 250000, JB_CBD: {} } })
     });
     expect(r.jbFallbackToOther).toBe(true);
-    expect(r.ctxCountry).toBe('MY');
-    expect(r.venues.length).toBe(5);   // country filter (stub keeps all MY) on the restored pool
+    expect(r.venues.length).toBe(5);   // OTHER cap 100km keeps the 90km venues
   });
 
-  it('does NOT fall back when the JB filter keeps some venues', async () => {
-    // johorText carries "Johor" AND sits ~16km from the SG centroid, so it
-    // survives BOTH the JB rule and the trailing SG re-filter.
-    const venues = [
-      v({ name: 'johorText', area: 'Johor Bahru', lat: 1.46, lng: 103.76 }),
-      ...Array.from({ length: 5 }, (_, i) => v({ name: `kl${i}`, lat: 3.139, lng: 101.687 }))
-    ];
+  it('does NOT fall back when the JB rule keeps some', async () => {
+    const venues = [v(40000, { name: 'jbNear' }), ...Array.from({ length: 5 }, (_, i) => v(90000, { name: `far${i}` }))];
     const r = await scopeVenuesByRegion({
       venues, isJB: true, lat: 1.46, lng: 103.76,
       ...deps({ locationMode: { isFarFromJB: () => true, haversineMeters: () => 0, JB_CBD: {} } })
     });
     expect(r.jbFallbackToOther).toBe(false);
-    expect(r.venues.map((x) => x.name)).toEqual(['johorText']);
+    expect(r.venues.map((x) => x.name)).toEqual(['jbNear']);
   });
 });
 
-describe('OTHER region — country-keyword filter + stale-pref floor', () => {
-  it('applies the country filter when keywords exist', async () => {
-    const venues = [v({ name: 'a' }), v({ name: 'b' }), v({ name: 'c' })];
-    const r = await scopeVenuesByRegion({
-      venues, isOther: true, lat: 3, lng: 101,
-      ...deps({
-        resolveCtxCountry: async () => 'MY',
-        countryTextMatch: { hasKeywordsFor: () => true, filterVenuesByCountry: (vs) => vs.filter((x) => x.name !== 'c') }
-      })
-    });
-    expect(r.venues.map((x) => x.name)).toEqual(['a', 'b']);
-    expect(r.ctxCountry).toBe('MY');
+describe('OTHER region — pure distance cap, no country-keyword gate', () => {
+  it('keeps within anchorCap, drops beyond — regardless of address text', async () => {
+    const venues = [
+      v(20000, { name: 'near', area: 'somewhere unknown' }),
+      v(40000, { name: 'edge' }),
+      v(60000, { name: 'far' })
+    ];
+    const r = await scopeVenuesByRegion({ venues, isOther: true, anchorCap: 45000, lat: 3, lng: 101, ...deps() });
+    expect(r.venues.map((x) => x.name).sort()).toEqual(['edge', 'near']);   // no keyword needed; 'far' beyond 45km dropped
   });
 
-  it('stale-pref floor: keeps the coord-pinned pool when the filter would empty it', async () => {
-    const venues = [v({ name: 'a' }), v({ name: 'b' })];
-    const r = await scopeVenuesByRegion({
-      venues, isOther: true, lat: 3, lng: 101,
-      ...deps({
-        resolveCtxCountry: async () => 'MY',
-        countryTextMatch: { hasKeywordsFor: () => true, filterVenuesByCountry: () => [] }   // empties
-      })
-    });
-    expect(r.venues.map((x) => x.name)).toEqual(['a', 'b']);   // floored back to the pool
+  it('demoteNeverEmpty keeps the (nearest) pool when the cap would empty it', async () => {
+    const venues = [v(50000, { name: 'a' }), v(60000, { name: 'b' }), v(70000, { name: 'c' })];
+    const r = await scopeVenuesByRegion({ venues, isOther: true, anchorCap: 40000, lat: 3, lng: 101, ...deps() });
+    expect(r.venues.length).toBe(3);   // never empty — keeps the coord-pinned pool
   });
 
-  it('no keywords for the country → pool unchanged', async () => {
-    const venues = [v({ name: 'a' }), v({ name: 'b' })];
-    const r = await scopeVenuesByRegion({
-      venues, isOther: true, lat: 3, lng: 101,
-      ...deps({ resolveCtxCountry: async () => 'XX', countryTextMatch: { hasKeywordsFor: () => false, filterVenuesByCountry: () => [] } })
-    });
-    expect(r.venues.length).toBe(2);
-  });
-
-  it('ctxCountry === SG → country filter skipped (pool unchanged)', async () => {
-    const venues = [v({ name: 'a' }), v({ name: 'b' })];
-    const called = { n: 0 };
-    const r = await scopeVenuesByRegion({
-      venues, isOther: true, lat: 1.35, lng: 103.8,
-      ...deps({ resolveCtxCountry: async () => 'SG', countryTextMatch: { hasKeywordsFor: () => true, filterVenuesByCountry: () => { called.n++; return []; } } })
-    });
-    expect(r.venues.length).toBe(2);
-    expect(called.n).toBe(0);
+  it('falls back to OTHER default 40 km when no anchorCap/searchRadius', async () => {
+    const venues = [v(30000, { name: 'a' }), v(50000, { name: 'b' })];
+    const r = await scopeVenuesByRegion({ venues, isOther: true, lat: 3, lng: 101, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['a']);
   });
 });
 
 describe('defensive', () => {
-  it('non-array venues → empty result', async () => {
-    const r = await scopeVenuesByRegion({ venues: null, isOther: true, lat: 3, lng: 101, ...deps() });
+  it('non-array venues → empty', async () => {
+    const r = await scopeVenuesByRegion({ venues: null, isOther: true, anchorCap: 40000, lat: 3, lng: 101, ...deps() });
     expect(r.venues).toEqual([]);
   });
-  it('a thrown country-pref read does not crash the pass (SG-like fall-through)', async () => {
-    const venues = [v({ name: 'a' })];
+
+  it('a venue with null distanceM passes the cap (kept)', async () => {
+    const venues = [v(null, { name: 'noDist' }), v(10000, { name: 'near' })];
+    const r = await scopeVenuesByRegion({ venues, isOther: true, anchorCap: 40000, lat: 3, lng: 101, ...deps() });
+    expect(r.venues.map((x) => x.name).sort()).toEqual(['near', 'noDist']);
+  });
+
+  it('a thrown isFarFromJB does not crash the pass (no fallback)', async () => {
+    const venues = Array.from({ length: 5 }, (_, i) => v(90000, { name: `far${i}` }));   // JB rule wipes
     const r = await scopeVenuesByRegion({
-      venues, isOther: true, lat: 3, lng: 101,
-      ...deps({ resolveCtxCountry: async () => { throw new Error('redis down'); } })
+      venues, isJB: true, lat: 3.13, lng: 101.68,
+      ...deps({ locationMode: { isFarFromJB: () => { throw new Error('boom'); }, haversineMeters: () => 0, JB_CBD: {} } })
     });
-    expect(r.venues.length).toBe(1);   // no ctxCountry → no filter
+    expect(r.jbFallbackToOther).toBe(false);          // fallback skipped, no crash
+    // JB rule wiped to 0; demoteNeverEmpty floor keeps the nearest pool (never empty)
+    expect(r.venues.length).toBe(5);
   });
 });
