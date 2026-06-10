@@ -280,6 +280,7 @@ export default function App() {
   // overridden — without this, results just silently came from the
   // OTHER path.
   const [jbFallbackNotice, setJbFallbackNotice] = useState(false);
+  const [degradedNotice, setDegradedNotice] = useState(false);
   // v0.61.130 — surfaces v0.61.129 O-23: when the special-mode
   // widening pass actually escalated the radius, render a small
   // " · widened to N km" caption next to the limited card.
@@ -1932,8 +1933,12 @@ export default function App() {
         Promise.resolve().then(() => runSearch(snap, anchor, { resetSeen: true }));
         // Fall through to the regular zero-result setters below; the
         // retry will overwrite them on success.
-      } else if (isZeroResult && isRetryCall && !r.specialModeBlocked) {
+      } else if (isZeroResult && isRetryCall && !r.specialModeBlocked && !r.degraded) {
         // The retry came back zero too — show the CTA + open criteria.
+        // v0.61.441 — but NOT when the server flagged `degraded` (a transient
+        // network / upstream-5xx blip the new error-classify path turns into
+        // an empty-200): that's not the criteria's fault, so don't push the
+        // user to "adjust your search". The degraded banner below explains it.
         setZeroRetried(true);
         setCriteriaOpen(true);
       } else if (!isZeroResult) {
@@ -1958,6 +1963,11 @@ export default function App() {
       setSpecialModeBlocked(r.specialModeBlocked || null);
       // v0.61.278 — O-25: JB-hybrid graceful-exit signal from server.
       setJbFallbackNotice(r.jbFallbackToOther === true);
+      // v0.61.441 — `degraded` true when the server hit a transient blip
+      // (network reset / upstream 5xx / redis hiccup) and returned an
+      // empty-but-OK 200 instead of an HTTPS 500. Surface an honest "try
+      // again" note (cleared on any non-degraded response).
+      setDegradedNotice(r.degraded === true);
       // v0.61.130 — v0.61.129 O-23 backend metadata. `specialModeWidened`
       // is true when the server's radius-escalation loop fired at least
       // once; the from/final metres tell the user the search drew from
@@ -3133,6 +3143,17 @@ export default function App() {
       {jbFallbackNotice && !loading && (
         <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t('banner.jbFallbackToOther', lang)}
+        </div>
+      )}
+
+      {/* v0.61.441 — transient-blip note. The icon (↻) carries the meaning
+          alongside the amber border so it doesn't rely on colour alone. */}
+      {degradedNotice && !loading && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          <span aria-hidden="true">↻ </span>
+          {lang === 'fr'
+            ? 'Petit hic réseau lors de la recherche — réappuyez sur 🔍 pour réessayer.'
+            : 'Search hiccup — tap 🔍 to try again.'}
         </div>
       )}
 

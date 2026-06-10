@@ -37,3 +37,37 @@ describe('nearestCityForAnchor with the new table', () => {
     expect(n.city).toBe('Kyoto'); expect(n.distanceKm).toBeLessThan(2);
   });
 });
+
+describe('density-tiered radiusM (v0.61.441)', () => {
+  it('Dense cores cap at 30 km (SG / JB / Iskandar / Batam)', () => {
+    for (const city of ['Singapore', 'Johor Bahru', 'Iskandar Puteri', 'Batam']) {
+      expect(CITY_CENTROIDS[city].radiusM, city).toBe(30000);
+    }
+  });
+  it('Sparse / island / resort towns cap at 60 km', () => {
+    for (const city of ['Kuching', 'Kota Kinabalu', 'Labuan', 'Koh Samui', 'Phu Quoc', 'Jeju', 'Queenstown']) {
+      expect(CITY_CENTROIDS[city].radiusM, city).toBe(60000);
+    }
+  });
+  it('Major metros default to 45 km', () => {
+    for (const city of ['Kuala Lumpur', 'Bangkok', 'Jakarta', 'Seoul', 'Tokyo', 'Taipei', 'George Town']) {
+      expect(CITY_CENTROIDS[city].radiusM, city).toBe(45000);
+    }
+  });
+  it('no city keeps the old flat 40 km', () => {
+    for (const c of Object.values(CITY_CENTROIDS)) {
+      expect([30000, 45000, 60000]).toContain(c.radiusM);
+    }
+  });
+});
+
+describe('nearestCityRadiusM', () => {
+  it('returns the nearest curated city\'s density-tuned ceiling', () => {
+    expect(psv.nearestCityRadiusM(1.293, 103.852)).toBe(30000);   // Singapore → Dense
+    expect(psv.nearestCityRadiusM(3.134, 101.686)).toBe(45000);   // KL → Major
+    expect(psv.nearestCityRadiusM(1.4817, 110.3323)).toBe(60000); // Kuching → Sparse
+  });
+  it('returns null for invalid coords', () => {
+    expect(psv.nearestCityRadiusM(NaN, NaN)).toBe(null);
+  });
+});

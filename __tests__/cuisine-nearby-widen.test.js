@@ -1,8 +1,10 @@
-// __tests__/cuisine-nearby-widen.test.js — v0.61.161
+// __tests__/cuisine-nearby-widen.test.js — v0.61.441
 //
-// Tests for the post-fetch ladder filter that selects the smallest
-// radius surfacing ≥ 3 venues with rating > 4 (operator's
-// progressive widening spec).
+// Tests for the in-memory concentric-ring preference pass. v0.61.441
+// reworked the ladder to the operator's 5/10/15/25/45/60 km rings, sorts
+// each tier's subset nearest-first inside the function, and adds a
+// `minServed` (default 2) gate so a lone top-rated venue can't "satisfy"
+// a tier on its own.
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
@@ -12,21 +14,23 @@ const {
   LADDER_M,
   MIN_TOP_RATED,
   TOP_RATING_GT,
+  MIN_SERVED,
   countTopRated,
   widenAndPick
 } = require('../cuisine-nearby-widen');
 
-// Helper: build a venues array with synthetic distance + rating.
+// Helper: build a venue with synthetic distance + rating.
 function v(distanceM, rating) {
   return { name: `r${distanceM}`, distanceM, rating };
 }
 
 describe('constants', () => {
-  it('LADDER_M is [2,6,8,12,15,20] km in metres', () => {
-    expect([...LADDER_M]).toEqual([2000, 6000, 8000, 12000, 15000, 20000]);
+  it('LADDER_M is the concentric [5,10,15,25,45,60] km in metres', () => {
+    expect([...LADDER_M]).toEqual([5000, 10000, 15000, 25000, 45000, 60000]);
   });
   it('MIN_TOP_RATED = 3', () => { expect(MIN_TOP_RATED).toBe(3); });
   it('TOP_RATING_GT = 4.0', () => { expect(TOP_RATING_GT).toBe(4.0); });
+  it('MIN_SERVED = 2', () => { expect(MIN_SERVED).toBe(2); });
 });
 
 describe('countTopRated', () => {
@@ -34,9 +38,6 @@ describe('countTopRated', () => {
     expect(countTopRated([v(100, 4.0), v(200, 4.1), v(300, 4.5), v(400, 3.9)])).toBe(2);
   });
   it('handles missing / non-finite rating', () => {
-    // `Number('4.5')` coerces to 4.5 by design — Places returns
-    // numeric ratings, but a defensive coerce is cheap. The missing
-    // / NaN cases drop out.
     expect(countTopRated([{}, v(100, NaN), v(200, 4.1)])).toBe(1);
   });
   it('returns 0 for non-array / empty', () => {
@@ -50,65 +51,101 @@ describe('countTopRated', () => {
 });
 
 describe('widenAndPick — happy paths', () => {
-  it('picks the tightest tier when ≥3 top-rated already at 2 km', () => {
+  it('picks the tightest tier when ≥3 top-rated already within 5 km', () => {
     const venues = [
-      v(500, 4.5), v(800, 4.3), v(1200, 4.6),         // all within 2 km
-      v(3000, 4.7), v(5000, 4.2), v(10000, 4.1)
+      v(500, 4.5), v(800, 4.3), v(1200, 4.6),         // 3 within 5 km
+      v(6000, 4.7), v(10000, 4.2), v(20000, 4.1)      // beyond 5 km
     ];
     const out = widenAndPick({ venues });
-    expect(out.radiusM).toBe(2000);
+    expect(out.radiusM).toBe(5000);
     expect(out.satisfied).toBe(true);
     expect(out.tier).toBe(0);
     expect(out.venues).toHaveLength(3);
   });
 
-  it('widens to 6 km when 2 km has only 2 top-rated', () => {
+  it('widens to 10 km when 5 km has only 2 top-rated', () => {
     const venues = [
-      v(500, 4.5), v(1000, 4.3),                       // 2 in 2km
-      v(2500, 4.7), v(4000, 4.2), v(5500, 4.1),        // 3 in 6km (cumulative 5)
-      v(7000, 4.4)
+      v(500, 4.5), v(1000, 4.3),                       // 2 in 5 km
+      v(6000, 4.7), v(8000, 4.2), v(9000, 4.1),        // 3 more in 10 km (cum 5)
+      v(12000, 4.4)
     ];
     const out = widenAndPick({ venues });
-    expect(out.radiusM).toBe(6000);
+    expect(out.radiusM).toBe(10000);
     expect(out.satisfied).toBe(true);
     expect(out.tier).toBe(1);
-    expect(out.venues.length).toBe(5);   // venues within 6km
+    expect(out.venues.length).toBe(5);   // venues within 10 km
   });
 
-  it('widens through the full ladder; settles at the first satisfying tier', () => {
+  it('widens through the ladder; settles at the first satisfying tier (15 km)', () => {
     const venues = [
-      v(500, 4.5),                                     // 1 in 2km
-      v(4000, 4.5),                                    // 1 in 6km (cum 2)
-      v(7000, 4.5),                                    // 1 in 8km (cum 3) ← satisfies
-      v(10000, 3.9)                                    // not top-rated
+      v(500, 4.5),                                     // 1 in 5 km
+      v(8000, 4.5),                                    // 10 km tier: 2 venues, 2 top (<3)
+      v(13000, 4.5),                                   // 15 km tier: 3 venues, 3 top ← satisfies
+      v(20000, 3.9)                                    // not top-rated
     ];
     const out = widenAndPick({ venues });
-    expect(out.radiusM).toBe(8000);
+    expect(out.radiusM).toBe(15000);
     expect(out.satisfied).toBe(true);
     expect(out.tier).toBe(2);
   });
 
-  it('widens to 20 km when ratings are thin everywhere', () => {
+  it('widens to 60 km when good ratings sit far out', () => {
     const venues = [
-      v(500, 4.5),
-      v(15000, 4.5),
-      v(19000, 4.5)
+      v(500, 4.5),       // 5 km: 1
+      v(40000, 4.5),     // 45 km tier: 2 venues, 2 top (<3)
+      v(50000, 4.5),     // 60 km tier: 4 venues, 4 top ← satisfies
+      v(55000, 4.5)
     ];
     const out = widenAndPick({ venues });
-    expect(out.radiusM).toBe(20000);
+    expect(out.radiusM).toBe(60000);
     expect(out.satisfied).toBe(true);
     expect(out.tier).toBe(5);
   });
 });
 
-describe('widenAndPick — unsatisfied fallback', () => {
-  it('returns widest tier with all-in-cap venues when no tier reaches 3 top-rated', () => {
-    const venues = [
-      v(1000, 3.5), v(2000, 3.8), v(5000, 3.6)         // none > 4.0
-    ];
+describe('widenAndPick — nearest-first ordering', () => {
+  it('sorts each tier subset ascending by distanceM regardless of input order', () => {
+    // Shuffled input, all within 5 km, ≥3 top-rated → 5 km tier, sorted.
+    const venues = [v(4200, 4.5), v(300, 4.6), v(2500, 4.4), v(900, 4.7)];
+    const out = widenAndPick({ venues, minTopRated: 3, minServed: 2 });
+    expect(out.radiusM).toBe(5000);
+    expect(out.venues.map((x) => x.distanceM)).toEqual([300, 900, 2500, 4200]);
+  });
+
+  it('unsatisfied fallback is also nearest-first', () => {
+    const venues = [v(9000, 3.5), v(1000, 3.6), v(5000, 3.4)];   // none top-rated
     const out = widenAndPick({ venues });
     expect(out.satisfied).toBe(false);
-    expect(out.radiusM).toBe(20000);
+    expect(out.venues.map((x) => x.distanceM)).toEqual([1000, 5000, 9000]);
+  });
+});
+
+describe('widenAndPick — minServed gate', () => {
+  it('a lone top-rated venue does NOT satisfy a tier (minServed=2)', () => {
+    // minTopRated:1 isolates the minServed gate. A single 5★ in 5 km has
+    // ≥1 top-rated but only 1 venue, so it must widen.
+    const venues = [v(500, 4.9), v(8000, 3.0)];
+    const out = widenAndPick({ venues, minTopRated: 1 });
+    expect(out.radiusM).toBe(10000);   // 10 km has 2 venues → satisfies
+    expect(out.satisfied).toBe(true);
+    expect(out.tier).toBe(1);
+  });
+
+  it('respects minServed override (3)', () => {
+    const venues = [v(500, 4.9), v(900, 4.8)];   // 2 top-rated in 5 km
+    const out = widenAndPick({ venues, minTopRated: 1, minServed: 3 });
+    // Only 2 venues exist anywhere → never reaches minServed=3 → unsatisfied
+    expect(out.satisfied).toBe(false);
+    expect(out.radiusM).toBe(60000);
+  });
+});
+
+describe('widenAndPick — unsatisfied fallback', () => {
+  it('returns widest tier with all-in-cap venues when no tier reaches 3 top-rated', () => {
+    const venues = [v(1000, 3.5), v(2000, 3.8), v(5000, 3.6)];   // none > 4.0
+    const out = widenAndPick({ venues });
+    expect(out.satisfied).toBe(false);
+    expect(out.radiusM).toBe(60000);
     expect(out.venues.length).toBe(3);
   });
 
@@ -116,34 +153,31 @@ describe('widenAndPick — unsatisfied fallback', () => {
     const out = widenAndPick({ venues: [] });
     expect(out.venues).toEqual([]);
     expect(out.satisfied).toBe(false);
-    expect(out.radiusM).toBe(20000);
+    expect(out.radiusM).toBe(60000);
   });
 });
 
-describe('widenAndPick — anchor cap honoured', () => {
-  it('Putrajaya 15 km cap: ladder drops 20 km tier; 18 km venue excluded', () => {
-    // At 6 km: only 500m + 1000m count (rating 4.5 each), 7 km venue
-    // is beyond. 8 km tier picks up the 7 km venue (rating 4.2 > 4)
-    // → 3 top-rated total → satisfies at 8 km.
+describe('widenAndPick — per-city cap honoured', () => {
+  it('Dense 30 km cap drops the 45 + 60 km tiers; a 40 km venue is excluded', () => {
     const venues = [
-      v(500, 4.5), v(1000, 4.5),
-      v(7000, 4.2),
-      v(12000, 4.4),
-      v(18000, 4.5)
+      v(500, 4.5), v(1000, 4.5), v(7000, 4.2),   // satisfy by 10 km
+      v(40000, 4.5), v(50000, 4.5)               // beyond a 30 km cap
     ];
-    const out = widenAndPick({ venues, cap: 15000 });
-    expect(out.radiusM).toBe(8000);
+    const out = widenAndPick({ venues, cap: 30000 });
+    expect(out.radiusM).toBe(10000);
     expect(out.satisfied).toBe(true);
-    // The 18 km venue is beyond cap; not in any tier's subset.
-    expect(out.venues.find((x) => x.distanceM === 18000)).toBeUndefined();
+    expect(out.venues.find((x) => x.distanceM === 40000)).toBeUndefined();
+    expect(out.venues.find((x) => x.distanceM === 50000)).toBeUndefined();
   });
 
-  it('Putrajaya cap excludes the 18 km venue at the widest tier too', () => {
-    const venues = [v(2500, 3.5), v(18000, 4.5)];   // none top-rated within cap
-    const out = widenAndPick({ venues, cap: 15000 });
+  it('Major-metro 45 km cap keeps 45 km but drops the 60 km tier', () => {
+    const venues = [v(2500, 3.5), v(44000, 4.5), v(55000, 4.5)];
+    const out = widenAndPick({ venues, cap: 45000 });
+    // No 3-top-rated tier within cap → unsatisfied, widest in-cap tier = 45 km.
     expect(out.satisfied).toBe(false);
-    expect(out.radiusM).toBe(15000);
-    expect(out.venues.find((x) => x.distanceM === 18000)).toBeUndefined();
+    expect(out.radiusM).toBe(45000);
+    expect(out.venues.find((x) => x.distanceM === 44000)).toBeDefined();
+    expect(out.venues.find((x) => x.distanceM === 55000)).toBeUndefined();
   });
 
   it('tight cap (1 km) drops the entire ladder → returns input', () => {
@@ -154,10 +188,10 @@ describe('widenAndPick — anchor cap honoured', () => {
     expect(out.venues.length).toBe(1);
   });
 
-  it('cap = null behaves as full ladder', () => {
+  it('cap = null behaves as the full ladder', () => {
     const venues = [v(15000, 4.5), v(17000, 4.5), v(19000, 4.5)];
     const out = widenAndPick({ venues, cap: null });
-    expect(out.radiusM).toBe(20000);
+    expect(out.radiusM).toBe(25000);   // 25 km is the first tier holding all 3
     expect(out.satisfied).toBe(true);
   });
 });
@@ -165,24 +199,20 @@ describe('widenAndPick — anchor cap honoured', () => {
 describe('widenAndPick — custom thresholds', () => {
   it('respects a tighter ratingGt (4.5)', () => {
     const venues = [
-      v(500, 4.4),   // not >4.5
-      v(800, 4.6),
-      v(1200, 4.7),
-      v(1500, 4.5),  // 4.5 is NOT > 4.5 (strict)
-      v(3000, 4.6)
+      v(500, 4.4),                                     // 5 km: not > 4.5
+      v(8000, 4.6), v(9000, 4.7), v(9500, 4.6)         // 10 km: three > 4.5
     ];
-    // Only 4.6/4.7/4.6 count → need to widen to 6 km
     const out = widenAndPick({ venues, ratingGt: 4.5 });
-    expect(out.radiusM).toBe(6000);
+    expect(out.radiusM).toBe(10000);
   });
 
   it('respects a custom minTopRated (5)', () => {
     const venues = [
-      v(500, 4.5), v(800, 4.5), v(1200, 4.5),          // 3 in 2km
-      v(4000, 4.5), v(5000, 4.5)                       // +2 in 6km
+      v(500, 4.5), v(800, 4.5), v(1200, 4.5),          // 3 in 5 km
+      v(8000, 4.5), v(9000, 4.5)                        // +2 in 10 km
     ];
     const out = widenAndPick({ venues, minTopRated: 5 });
-    expect(out.radiusM).toBe(6000);   // only 6km has the full 5
+    expect(out.radiusM).toBe(10000);   // only 10 km has the full 5
   });
 
   it('respects a custom ladder', () => {
@@ -207,7 +237,7 @@ describe('widenAndPick — defensive', () => {
     ];
     const out = widenAndPick({ venues });
     expect(out.satisfied).toBe(true);
-    expect(out.radiusM).toBe(2000);
+    expect(out.radiusM).toBe(5000);
     expect(out.venues.find((x) => x.name === 'no-distance')).toBeUndefined();
   });
 });

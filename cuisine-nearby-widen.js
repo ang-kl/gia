@@ -1,40 +1,46 @@
-// cuisine-nearby-widen.js — v0.61.161
+// cuisine-nearby-widen.js — v0.61.441
 //
-// Operator (post v0.61.160 debug):
-//   "the spread should priortise the location set at least 3 with
-//    top rating >4, then open by enlarging the radius by 2km, then
-//    by 6km, by 8km, then 12km then 15km, 20 km."
+// Operator (v0.61.441 — "concentric circles" ask):
+//   "unhinge the search in concentric circles so the sort in cuisine TMA
+//    is first 5km, 10km, 15km, 25km, 45km, 60km — superior UX than
+//    Google Maps."
+//   (Superseding the v0.61.160 ladder [2,6,8,12,15,20].)
 //
-// Implementation note. The cuisine-search backend already fetches a
-// wide pool (up to ~30 venues at the 20 km default radius) and
-// computes `distanceM` per venue. Rather than make six fresh Places
-// calls — 6× API cost — we run the existing fetch once and apply a
-// post-filter ladder over the in-memory pool. The smallest radius
-// that surfaces ≥ MIN_TOP_RATED venues with rating > TOP_RATING_GT
-// wins; final fallback at the widest tier returns whatever exists.
+// Implementation note. The cuisine-search backend computes `distanceM`
+// per venue. This module is the in-memory RING-PREFERENCE pass: given a
+// distance-bearing pool, it finds the smallest ladder tier that already
+// surfaces a healthy set (≥ MIN_TOP_RATED with rating > TOP_RATING_GT
+// AND ≥ minServed venues total), and returns that tier's subset SORTED
+// nearest-first. The actual OUTER-ring fetch (45/60 km) lives in
+// cuisine-nearby-refetch.js — this module only filters/orders what is
+// already in memory.
 //
-// Side effect: callers who relied on "12 venues every search" may see
-// fewer when the ladder cuts to a tight tier — that's the operator's
-// intent (prefer nearer over further when ratings are good). The
-// downstream slice (`venues.slice(0, 12)`) still caps the response.
+// v0.61.441 — two correctness fixes folded in:
+//   - each tier's subset is sorted ASC by distanceM INSIDE the function
+//     so ordering no longer depends on the caller's upstream sort (the
+//     shuffle path had none);
+//   - `minServed` (default 2) stops a tier from "satisfying" with a
+//     single top-rated venue + nothing else behind it.
 //
 // Public surface:
-//   LADDER_M                — readonly [2000, 6000, 8000, 12000, 15000, 20000]
+//   LADDER_M                — readonly [5000, 10000, 15000, 25000, 45000, 60000]
 //   MIN_TOP_RATED           — 3 (operator's "at least 3")
 //   TOP_RATING_GT           — 4.0 (operator's "rating > 4")
+//   MIN_SERVED              — 2 (a tier must hold ≥2 venues to satisfy)
 //   countTopRated(venues, ratingGt)
-//   widenAndPick({ venues, ladder, cap, minTopRated, ratingGt })
+//   widenAndPick({ venues, ladder, cap, minTopRated, ratingGt, minServed })
 //                           → { venues, radiusM, satisfied, tier }
-//                             venues  = filtered subset (distance ≤ radius)
+//                             venues  = filtered subset (distance ≤ radius), nearest-first
 //                             radiusM = the chosen ladder tier
-//                             satisfied = true when ≥ minTopRated > ratingGt
+//                             satisfied = ≥minTopRated rated>ratingGt AND ≥minServed total
 //                             tier    = ladder index used (0-based)
 
 'use strict';
 
-const LADDER_M = Object.freeze([2000, 6000, 8000, 12000, 15000, 20000]);
+const LADDER_M = Object.freeze([5000, 10000, 15000, 25000, 45000, 60000]);
 const MIN_TOP_RATED = 3;
 const TOP_RATING_GT = 4.0;
+const MIN_SERVED = 2;
 
 function countTopRated(venues, ratingGt = TOP_RATING_GT) {
   if (!Array.isArray(venues)) return 0;
@@ -53,36 +59,46 @@ function countTopRated(venues, ratingGt = TOP_RATING_GT) {
 // If no tier satisfies, returns the widest available tier with all
 // in-cap venues (caller decides whether to surface the lower-rated
 // fallback or show "no matches").
+// Returns the subset of `arr` within radius `r`, sorted nearest-first.
+function subsetWithin(arr, r) {
+  return arr
+    .filter((v) => Number.isFinite(v?.distanceM) && v.distanceM <= r)
+    .sort((a, b) => a.distanceM - b.distanceM);
+}
+
 function widenAndPick({
   venues,
   ladder = LADDER_M,
   cap = null,
   minTopRated = MIN_TOP_RATED,
-  ratingGt = TOP_RATING_GT
+  ratingGt = TOP_RATING_GT,
+  minServed = MIN_SERVED
 } = {}) {
   const arr = Array.isArray(venues) ? venues : [];
   const ladderEffective = (Number.isFinite(cap) && cap > 0)
     ? ladder.filter((r) => r <= cap)
     : ladder.slice();
   // Defensive: caller passes an explicit ladder shorter than the
-  // default (e.g. test). When cap drops everything (cap < 2000),
+  // default (e.g. test). When cap drops everything (cap < smallest tier),
   // there's no ladder; return the input.
   if (!ladderEffective.length) {
     return { venues: arr, radiusM: 0, satisfied: false, tier: -1 };
   }
-  // Walk small → wide. Stop at the first tier that satisfies.
+  // Walk small → wide. A tier satisfies only when it holds ≥ minTopRated
+  // venues rated > ratingGt AND ≥ minServed venues total (so a lone
+  // 5-star doesn't "satisfy" a tier that has nothing behind it).
   for (let i = 0; i < ladderEffective.length; i++) {
     const r = ladderEffective[i];
-    const subset = arr.filter((v) => Number.isFinite(v?.distanceM) && v.distanceM <= r);
-    if (countTopRated(subset, ratingGt) >= minTopRated) {
+    const subset = subsetWithin(arr, r);
+    if (subset.length >= minServed && countTopRated(subset, ratingGt) >= minTopRated) {
       return { venues: subset, radiusM: r, satisfied: true, tier: i };
     }
   }
-  // No tier satisfied — return the widest tier's subset (which may
-  // still be empty if the venues pool was thin). Caller's downstream
-  // dedup + 12-cap slice handles the rest.
+  // No tier satisfied — return the widest tier's subset (nearest-first;
+  // may still be empty if the pool was thin). The caller's downstream
+  // dedup + slice + never-≤1 floor handles the rest.
   const wide = ladderEffective[ladderEffective.length - 1];
-  const subset = arr.filter((v) => Number.isFinite(v?.distanceM) && v.distanceM <= wide);
+  const subset = subsetWithin(arr, wide);
   return { venues: subset, radiusM: wide, satisfied: false, tier: ladderEffective.length - 1 };
 }
 
@@ -90,6 +106,7 @@ module.exports = {
   LADDER_M,
   MIN_TOP_RATED,
   TOP_RATING_GT,
+  MIN_SERVED,
   countTopRated,
   widenAndPick
 };

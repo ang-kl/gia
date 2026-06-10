@@ -9916,6 +9916,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Strip the heavy review payload before responding.
   // v0.61.417 — first capture the review's "X ago" (Google relative time) onto
   // recentReviewAgo so the card / copy can show it after the quote.
+  // v0.61.441 — FIX: this loop called `reviewText(r)`, but the only
+  // `reviewText` definition lived inside the dish-extract for-loop above
+  // (block-scoped), so here it was out of scope → ReferenceError
+  // "reviewText is not defined" → HTTP 500 on EVERY Michelin search since
+  // v0.61.417 shipped. Define the same Places-v1 nested-{text} unwrap helper
+  // at this scope.
+  const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
+    ? (typeof r.text.text === 'string' ? r.text.text : '')
+    : (typeof r?.text === 'string' ? r.text : '');
   for (const v of filteredVenues) {
     if (!v.recentReviewAgo && v.recentReview && Array.isArray(v.reviews)) {
       const rr = String(v.recentReview);
@@ -14257,6 +14266,26 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
+        // v0.61.441 — per-city default cap (concentric-ring fetch ceiling).
+        // When no explicit per-anchor radiusCapM was persisted (the common
+        // case for a plain current-location search), fall back to the
+        // nearest curated city's density-tuned radiusM (city-centroids.js:
+        // Dense 30 km / Major metro 45 km / Sparse 60 km) instead of leaving
+        // anchorCap unset. This is the single thread-point feeding the ladder
+        // widenCap + the thin-pool outer-ring re-fetch. A deliberately picked
+        // radiusCapM still wins (read above; this only fills the gap). Does
+        // NOT mutate searchRadius — it only raises the ceiling the ladder /
+        // re-fetch may reach on a thin pool.
+        if (!Number.isFinite(anchorCap) || anchorCap <= 0) {
+          try {
+            const { nearestCityRadiusM } = require('./place-search-variance');
+            const cityCap = nearestCityRadiusM(searchCenter.lat, searchCenter.lng);
+            if (Number.isFinite(cityCap) && cityCap > 0) {
+              anchorCap = cityCap;
+              console.log(`[Cuisine-TMA] D777b anchorCap city-default ${cityCap}m (nearest-city radiusM, no explicit cap)`);
+            }
+          } catch (err) { console.warn('[Cuisine-TMA] city-default cap failed:', err.message); }
+        }
         // v0.61.328 — OTHER-mode geofence Step 1: hard radius ceiling for
         // the OTHER cascade so a curated-city search can't roam the whole
         // country. City picks persist a per-city `radiusCapM` (40 km
@@ -15089,11 +15118,12 @@ async function cacheBotUsername() {
         if (geminiCacheKey) {
           try {
             const before = venues.length;
+            const prefilter = venues;
             const labelsKey = `dgv:labels:${geminiCacheKey}`;
             const labelsMap = (redis && redis.isOpen) ? await redis.hGetAll(labelsKey).catch(() => null) : {};
             let dropped = 0, unlabeled = 0;
             const unlabeledVenues = [];
-            venues = venues.filter((v) => {
+            const kept = prefilter.filter((v) => {
               const raw = labelsMap && labelsMap[v.placeId];
               if (!raw) {
                 unlabeled++;
@@ -15106,7 +15136,14 @@ async function cacheBotUsername() {
               } catch { /* malformed entry: keep venue */ }
               return true;
             });
-            console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${geminiCacheKey}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through)`);
+            // v0.61.441 — routed through the shared never-empty floor. The
+            // Gemini gate had NO floor: when every candidate was labelled
+            // `unrelated` it zeroed the page (a thin-cuisine "1 result" /
+            // empty cause). Demote-don't-empty: if the gate would clear the
+            // pool, keep the pre-filter set.
+            venues = require('./pool-floor').demoteNeverEmpty(kept, prefilter);
+            const gFloored = venues.length !== kept.length;
+            console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${geminiCacheKey}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through${gFloored ? '; floor — all unrelated, kept pre-filter pool' : ''})`);
 
             // v0.61.282 — online verify-then-cache. When the cache
             // didn't cover all venues AND GEMINI_API_KEY is set, run
@@ -15580,7 +15617,11 @@ async function cacheBotUsername() {
           // the "newly opened"-biased recall pool so New still returns its
           // best-effort newest set.
           const flooredToBias = refuted.length === 0 && preRefute.length > 0;
-          venues = refuted.length ? refuted : preRefute;
+          // v0.61.441 — routed through the shared never-empty floor (pool-
+          // floor.js) so this and the other anti-collapse guards speak one
+          // rule. Behaviour identical: refuted unless it would empty, then
+          // the biased recall pool.
+          venues = require('./pool-floor').demoteNeverEmpty(refuted, preRefute);
           for (const v of venues) delete v._oldestReviewDays;
           console.log(`[Cuisine-New] review-time refute: ${beforeNew} → ${venues.length} kept (≤${NEW_MAX_DAYS}d${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
@@ -15676,21 +15717,13 @@ async function cacheBotUsername() {
           console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
         }
         const isFirstBatchForWiden = (seen.size === 0);
-        try {
-          if (!skipCacheForShuffle && !specialMode && isFirstBatchForWiden) {
-            const { widenAndPick } = require('./cuisine-nearby-widen');
-            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
-              ? Math.min(anchorCap, searchRadius)
-              : searchRadius;
-            const widened = widenAndPick({ venues, cap: widenCap });
-            console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${venues.length} to=${widened.venues.length}`);
-            venues = widened.venues;
-          } else if (!skipCacheForShuffle && !specialMode) {
-            console.log(`[Cuisine-Search] D790 nearby-widen skipped (followUp tap, seen=${seen.size}); serving full anchor-capped pool=${venues.length}`);
-          }
-        } catch (err) {
-          console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
-        }
+        // v0.61.441 — the concentric-ring `widenAndPick` pass MOVED below
+        // the rating-floor + seen/session dedup (see D790 further down).
+        // Running it here (pre-floor) was the root of the "compressed to 1
+        // result" bug: a tier that "satisfied" with ≥3 rated>4 venues was
+        // then gutted by applyRatingFloor + the two dedup passes. It now
+        // runs on the already-floored, already-deduped set, and only when
+        // a tight tier can fill a whole page.
         // v0.60.27 — server cap raised 12 → 24 for in-response pagination.
         // v0.60.35 (Human Lead 2026-05-08) — reverted to 12. Each 🔍
         // Search tap now returns 12 venues, and consecutive taps with
@@ -15738,39 +15771,112 @@ async function cacheBotUsername() {
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
-        const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
-        const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
-        // v0.60.146 — never silently return already-seen venues (the
-        // "stuck on the same list" bug). If there's nothing fresh, the
-        // response is `{ venues: [], exhausted: true }` and the client
-        // surfaces the terminal "↺ Start over" / "you've seen the 80
-        // maximum" copy.
-        // v0.60.191 — operator: first 🔍 tap loaded 6 venues to halve
-        // travel-times + footfall enrichment latency; subsequent taps
-        // returned 12. v0.61.163 (operator's pagination ask) unifies
-        // both to 19 — the TMA's PAGE_SIZE=12 then paginates 12 + 7
-        // with the `Results (12/19) → (19/19)` indicator. Operator
-        // explicitly accepted the latency trade-off in the
-        // ~$0.04/search Routes Distance Matrix delta. Warm-start
-        // (`pickTopN(venues, 5)`) is a separate path and stays at 5.
-        //
-        // `firstBatch` is preserved in the response payload so the TMA
-        // can still distinguish the empty-seen-set initial tap (for
-        // the auto-reset suppression v0.60.191 added). The slice
-        // size is now the same on both branches.
-        // v0.61.239 — operator (Issue 4): "The first load of opening
-        // Cuisine TMA is always 5, right now is 48, 84 for Others."
-        // Tightened FIRST_TAP_SLICE 24 → 5 so the initial render is
-        // a curated taste of the best matches, not a multi-page wall.
-        // Subsequent taps still return 12 each (PAGE_SIZE-aligned).
-        // The TMA's "🔍 to load more" / autoReset logic keys on
-        // `firstBatch` + `finalBatch` + `cumulativeStart/End` which
-        // continue to work with the new ceiling.
+        // v0.61.441 — nearest-first ordering (concentric rings). The pool was
+        // distance-sorted upstream, but the outer-ring re-fetch below appends
+        // out-of-order venues, so (re)sort here defensively. Skip for shuffle
+        // paths (Dessert / no-cuisine warm-start) so the v0.59.46 lightShuffle
+        // rotation survives — same gate as the upstream sort above.
+        if (!skipCacheForShuffle) {
+          trulyUnseen.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+        }
+        // v0.61.239 — first-tap page = 5 (a curated taste); follow-up taps
+        // 12 (PAGE_SIZE-aligned). Hoisted above the re-fetch so its thinness
+        // check can read FIRST_TAP_SLICE. `firstBatch` rides in the payload
+        // so the TMA's "🔍 to load more" / autoReset logic still keys on it.
         const FIRST_TAP_SLICE = 5;
         const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
         const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
-        const top = trulyUnseen.slice(0, sliceCap);
+        // v0.61.441 — thin-pool OUTER-RING re-fetch. The base fetch only
+        // reached `searchRadius`; when the post-floor / post-dedup unseen
+        // count is below a full first page, fetch the next ladder tiers up to
+        // `anchorCap` (the per-city max — NOT searchRadius, which a tight
+        // slider may have clamped) to fuel the 25/45/60 km rings. Demand-
+        // driven: fires ONLY on the first tap of a thin, non-special, non-
+        // shuffle search, so healthy dense queries pay nothing. Bounded to
+        // ≤2 extra Places passes. I4 guard: the wider pool merges into THIS
+        // request's unseen list only — never written back to the per-variant
+        // `cuisine:pool:` cache (keyed on the base searchRadius).
+        if (!skipCacheForShuffle && !specialMode && isFirstBatch && trulyUnseen.length < FIRST_TAP_SLICE) {
+          try {
+            const { refetchOuterRings } = require('./cuisine-nearby-refetch');
+            const vf = require('./venue-filters');
+            const existingIds = [
+              ...venues.map((v) => v.placeId).filter(Boolean),
+              ...seen, ...sessionSeen
+            ];
+            const rf = await refetchOuterRings({
+              seeds: cuisinesForDiscover,
+              searchCenter,
+              searchRegionCode,
+              lang: csLang,
+              startRadius: searchRadius,
+              anchorCap,
+              existingPlaceIds: existingIds,
+              target: FIRST_TAP_SLICE,
+              expandSingaporean: !skipExpand,
+              discoverFn: pipeline.discover,
+              passesVenueFilter: vf.passesVenueFilter
+            });
+            if (rf.venues.length) {
+              // Fresh venues get the SAME rating-floor the base pool got,
+              // then dedup vs seen / sessionSeen / what we already hold.
+              let fresh = vf.applyRatingFloor(rf.venues, ratingPrefLib.ratingPrefToFloorOpts(effRatingPref));
+              const have = new Set(trulyUnseen.map((v) => v.placeId).filter(Boolean));
+              fresh = fresh.filter((v) => v.placeId
+                && !seen.has(v.placeId) && !sessionSeen.has(v.placeId) && !have.has(v.placeId));
+              for (const v of fresh) { unseenInCriteria.push(v); trulyUnseen.push(v); }
+              trulyUnseen.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+              console.log(`[Cuisine-Search] D791 outer-ring re-fetch +${fresh.length} fresh (fetches=${rf.fetches}, to ${rf.finalRadiusM}m); unseen now ${trulyUnseen.length}`);
+            }
+          } catch (err) {
+            console.warn('[Cuisine-Search] outer-ring re-fetch failed (non-fatal):', err.message);
+          }
+        }
+        const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
+        // v0.60.146 — never silently return already-seen venues (the "stuck
+        // on the same list" bug). When nothing is fresh the response is
+        // `{ venues: [], exhausted: true }` and the client shows the terminal
+        // "↺ Start over" / "you've seen the 80 maximum" copy. Computed AFTER
+        // the re-fetch so a thin-pool top-up clears the exhausted flag.
+        const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
+        // v0.61.441 — concentric ring preference. When a tight ladder tier
+        // already holds a full page of good venues, serve from it (don't show
+        // a 45 km venue when 5 km has five 4★ options); otherwise keep the
+        // full nearest-first pool so the slice naturally widens. Runs on the
+        // already-floored, already-deduped set — the v0.61.161 bug was running
+        // this BEFORE the floor + dedup, so a "satisfied" tier got gutted to 1.
+        let ringPool = trulyUnseen;
+        if (!skipCacheForShuffle && !specialMode && isFirstBatch) {
+          try {
+            const { widenAndPick } = require('./cuisine-nearby-widen');
+            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
+              ? Math.min(anchorCap, searchRadius)
+              : searchRadius;
+            const widened = widenAndPick({ venues: trulyUnseen, cap: widenCap });
+            console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${trulyUnseen.length} to=${widened.venues.length}`);
+            // Only honour the tighter tier when it can fill the page; else
+            // keep the full pool so we never thin ourselves below a page.
+            if (widened.venues.length >= sliceCap) ringPool = widened.venues;
+          } catch (err) {
+            console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
+          }
+        }
+        let top = ringPool.slice(0, sliceCap);
+        // v0.61.441 — never-≤1 floor (operator: "especially common to get 1
+        // result"). A lone survivor reads as a broken search; when the broader
+        // unseen pool has more, backfill the next nearest (even if lower-rated)
+        // up to two. `floored` is surfaced so the TMA can note it honestly.
+        let floored = false;
+        if (top.length <= 1 && trulyUnseen.length > top.length) {
+          try {
+            const { demoteNeverEmpty } = require('./pool-floor');
+            const backfilled = demoteNeverEmpty(top, trulyUnseen, { min: 2, byDistance: true });
+            if (backfilled.length > top.length) { top = backfilled; floored = true; }
+          } catch (err) {
+            console.warn('[Cuisine-Search] never-≤1 floor failed:', err.message);
+          }
+        }
         // v0.61.170 — cumulative range surfaced to the TMA counter.
         // start = seen.size + 1 (1-based for display).
         // end   = seen.size + top.length.
@@ -16138,6 +16244,10 @@ async function cacheBotUsername() {
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
+          // v0.61.441 — `floored` true when the never-≤1 backfill kicked in
+          // (a lone survivor was topped up with the next-nearest, possibly
+          // lower-rated, venues). Lets the TMA note the relaxation honestly.
+          floored,
           // v0.61.170 — counter-copy fields. TMA renders range labels
           // ("Showing first 24", "Result 25-36") from these instead of
           // the prior "Results (12/19)" slash format.
@@ -16254,6 +16364,19 @@ async function cacheBotUsername() {
           const vlog = require('./verbose-log');
           await vlog.vlogIf(redis, csChatId, { kind: 'cuisine-search-error', error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
         } catch { /* best-effort */ }
+        // v0.61.441 — classify before blanket-500. Every external await in
+        // the body is already individually guarded, so a throw reaching here
+        // is almost always a TRANSIENT blip (network reset, upstream 5xx,
+        // redis hiccup) — degrade it to an empty-but-OK response (the TMA
+        // already renders the zero-result UX) instead of the HTTPS 500 the
+        // operator was hitting. Genuine programmer bugs (Type/Reference/
+        // Syntax errors) — and anything we can't explain — stay a loud 500.
+        let _class = 'unknown';
+        try { _class = require('./error-classify').classifyError(err); } catch { /* fall back to 500 */ }
+        if (_class === 'transient') {
+          console.warn(`[Cuisine-Search] D705 degraded-200 (transient: ${err.code || err.name || 'n/a'})`);
+          return res.status(200).json({ venues: [], degraded: true, exhausted: false });
+        }
         res.status(500).json({ error: err.message });
       }
     });

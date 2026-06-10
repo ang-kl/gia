@@ -143,6 +143,21 @@ function nearestCityForAnchor(lat, lng) {
   return best;
 }
 
+// v0.61.441 — the per-city search-radius ceiling (metres) of the nearest
+// curated city. Feeds the cuisine-search `anchorCap` city-default
+// (index.js): when no explicit per-anchor radiusCapM was persisted, the
+// concentric-ring fetch + ladder are capped at the nearest city's
+// density-tuned `radiusM` from city-centroids.js (Dense 30 km / Major
+// metro 45 km / Sparse 60 km) instead of a flat default. Returns null
+// when coords are invalid or the centroid has no radiusM.
+function nearestCityRadiusM(lat, lng) {
+  const best = nearestCityForAnchor(lat, lng);
+  if (!best) return null;
+  const c = CITY_CENTROIDS[best.city];
+  const r = c && Number(c.radiusM);
+  return Number.isFinite(r) && r > 0 ? r : null;
+}
+
 async function fetchPlaces(apiKey, query, cc) {
   // v0.61.217 — v0.61.216 smoke surfaced Google's real error:
   // "Invalid JSON payload received. Unknown name 'includedRegionCodes'".
@@ -439,5 +454,6 @@ module.exports = {
   runVarianceTest,
   persistToRedis,
   loadFromRedis,
-  nearestCityForAnchor
+  nearestCityForAnchor,
+  nearestCityRadiusM
 };
