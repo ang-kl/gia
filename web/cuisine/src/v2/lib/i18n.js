@@ -204,12 +204,14 @@ const STRINGS = {
                                  fr: "Impossible de déterminer le pays pour la liste Michelin — choisissez une ville ou un pays, puis relancez la recherche." },
   'michelin.comboMiss':        { en: 'No match for your selected cuisine in this Michelin list — showing the full Michelin list instead.',
                                  fr: "Aucune correspondance pour la cuisine choisie dans cette liste Michelin — affichage de la liste Michelin complète." },
-  // ----- Michelin city-jump rows (v0.62.6) -----
-  // Text BEFORE the tappable city name in "{count} Michelin picks in {city}"
-  // (the city itself renders as a styled <span>, so the string stops at "in ").
-  // Count = visible cards for that city in the current batch (never a ratio).
-  'michelin.cityJump.before':  { en: '{count} Michelin picks in ',
-                                 fr: '{count} choix Michelin à ' },
+  // ----- Michelin city-jump rows (v0.62.6; v0.62.x — count/total ratio) -----
+  // Text BEFORE the tappable city name in "{count}/{total} Michelin picks in
+  // {city}" (the city itself renders as a styled <span>, so the string stops
+  // at "in "). count = cards for that city in the current visible batch;
+  // total = the visible batch size (e.g. 8/12). Operator (11-06) switched the
+  // copy from the bare count to the count/total ratio.
+  'michelin.cityJump.before':  { en: '{count}/{total} Michelin picks in ',
+                                 fr: '{count}/{total} choix Michelin à ' },
   'rating.pillAny':            { en: 'Any', fr: 'Toutes' },
 
   // ----- Map overlay layers (v0.61.0) -----

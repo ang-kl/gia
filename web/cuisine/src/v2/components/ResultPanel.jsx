@@ -431,9 +431,10 @@ export default function ResultPanel({
             // When the visible batch carries awardCity (Michelin, multi-city
             // countries), render city sections: set-city cards first with NO
             // row (Case A), every other city group preceded by a tappable
-            // "{count} Michelin picks in {city}" row — count is the number of
-            // visible cards in THIS batch for that city (never a ratio or a
-            // country total). Curated order is preserved inside each group;
+            // "{count}/{total} Michelin picks in {city}" row — count = cards
+            // for that city in THIS visible batch, total = the visible batch
+            // size (e.g. 8/12; operator 11-06 switched to the count/total
+            // ratio). Curated order is preserved inside each group;
             // pagination is untouched (grouping runs on the visible page
             // slice only). Tapping the city name pans/fits the map via
             // onCityJump — no reload, no new search, no setLocation change.
@@ -444,7 +445,7 @@ export default function ResultPanel({
                 <React.Fragment key={'cityGrp:' + (g.city || '_none')}>
                   {groupNeedsJumpRow(g, grouped.caseA) && (
                     <div className="px-2 pt-2 pb-1 text-[12px] font-medium text-tg-text leading-snug border-t border-tg-hint/20">
-                      {tn('michelin.cityJump.before', lang, { count: g.venues.length })}
+                      {tn('michelin.cityJump.before', lang, { count: g.venues.length, total: cardsToShow.length })}
                       <span
                         role="button"
                         className="text-blue-500 italic underline cursor-pointer"
