@@ -460,6 +460,30 @@ function venuesForCountry(cc) {
   return VENUES.filter((v) => String(v.country).toLowerCase() === target);
 }
 
+// v0.61.445 — the set of cuisine slugs that have ≥1 VISITABLE star/bib venue
+// in a country (optionally narrowed to a city). Powers the TMA's Michelin
+// grey-out: when Michelin is the active mode, cuisine chips NOT in this set —
+// and the durian / fruit / durian-pastry special modes, which are never
+// Michelin — are disabled, so a user can't run a Michelin+<cuisine> search
+// that yields nothing (the "Michelin + Japanese in KL hangs" report). Returns
+// lowercased slugs, sorted; venues with no `cuisine` tag are ignored (a
+// cuisine chip can't match them anyway).
+function availableCuisines(cc, city = null) {
+  if (!cc) return [];
+  const ccLower = String(cc).trim().toLowerCase();
+  const cityLower = city ? String(city).trim().toLowerCase() : null;
+  const pool = visitableVenues(VENUES).filter((v) =>
+    String(v.country).toLowerCase() === ccLower
+    && (!cityLower || String(v.city).toLowerCase() === cityLower));
+  const out = new Set();
+  for (const v of pool) {
+    if (typeof v.cuisine === 'string' && v.cuisine.trim()) {
+      out.add(v.cuisine.trim().toLowerCase());
+    }
+  }
+  return [...out].sort();
+}
+
 // All venues holding an award in year Y.
 function venuesForYear(year) {
   return VENUES.filter((v) => v.awards.some((a) => a.year === year));
@@ -554,6 +578,7 @@ module.exports = {
   venueById,
   venuesForCity,
   venuesForCountry,
+  availableCuisines,
   venuesForYear,
   categoryForYear,
   visitableVenues,
