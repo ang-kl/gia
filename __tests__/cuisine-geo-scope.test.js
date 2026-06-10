@@ -67,16 +67,22 @@ describe('SG region (default branch)', () => {
 });
 
 describe('JB region', () => {
-  it('keeps johor-text OR ≤60 km of the JB centroid; drops singapore-tagged', async () => {
+  it('keeps a JB venue only if it ALSO passes the SG re-filter (faithful double-filter)', async () => {
+    // Faithful to the original inline code: a JB-region search runs the JB
+    // rule AND THEN the SG rule (the trailing `else`). So a JB venue is kept
+    // only when it is johor/≤60km-JB AND (singapore-text OR ≤30km of the SG
+    // centroid). far-north-Johor venues >30km from SG are dropped — the
+    // preserved double-filter quirk (see the module's deferred note).
     const venues = [
-      v({ name: 'johorText', area: 'Skudai, 81300, Johor' }),
-      v({ name: 'nearJB', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }),
-      v({ name: 'sgTagged', area: 'Singapore', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }), // near but SG-tagged → drop
-      v({ name: 'klFar', lat: 3.139, lng: 101.687 })                                          // far, no johor → drop
+      v({ name: 'nearJB', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }),        // ≤60km JB + ~18km SG → keep
+      v({ name: 'johorNearSG', area: 'Johor', lat: 1.40, lng: 103.80 }),        // johor text + ~6km SG → keep
+      v({ name: 'johorFarNorth', area: 'Pontian, Johor', lat: 1.48, lng: 103.39 }), // johor text but ~50km SG → DROP
+      v({ name: 'sgTagged', area: 'Singapore', lat: JB_CENTROID.lat, lng: JB_CENTROID.lng }), // SG-tagged → JB drops
+      v({ name: 'klFar', lat: 3.139, lng: 101.687 })                            // far, no johor → drop
     ];
     const r = await scopeVenuesByRegion({ venues, isJB: true, lat: 1.46, lng: 103.76, ...deps() });
     const names = r.venues.map((x) => x.name).sort();
-    expect(names).toEqual(['johorText', 'nearJB']);
+    expect(names).toEqual(['johorNearSG', 'nearJB']);
     expect(r.jbFallbackToOther).toBe(false);
   });
 
@@ -93,8 +99,10 @@ describe('JB region', () => {
   });
 
   it('does NOT fall back when the JB filter keeps some venues', async () => {
+    // johorText carries "Johor" AND sits ~16km from the SG centroid, so it
+    // survives BOTH the JB rule and the trailing SG re-filter.
     const venues = [
-      v({ name: 'johorText', area: 'Johor Bahru' }),
+      v({ name: 'johorText', area: 'Johor Bahru', lat: 1.46, lng: 103.76 }),
       ...Array.from({ length: 5 }, (_, i) => v({ name: `kl${i}`, lat: 3.139, lng: 101.687 }))
     ];
     const r = await scopeVenuesByRegion({

@@ -12,19 +12,20 @@
 // survive all of them, and the branching (JB fallback flips into the
 // OTHER branch; SG is the `else`) made the interactions hard to read.
 //
-// This is a near-exact extraction: same thresholds, same regexes, same
-// centroids, same logs, same JB-fallback semantics. The OTHER stale-pref
+// This is a FAITHFUL extraction — zero behaviour change: same thresholds,
+// same regexes, same centroids, same logs, same JB-fallback semantics, and
+// the same control flow (the SG rule is the trailing `else` of the OTHER
+// `if`, so a JB-region search that did not fall back is still scoped by the
+// JB rule AND THEN the SG rule, exactly as before — see the SG branch note).
+// The only difference from the inline code is that the OTHER stale-pref
 // floor now goes through the shared pool-floor.js `demoteNeverEmpty`
-// (injected) instead of an inline `if (filtered.length === 0) keep pool`.
+// (injected) instead of an inline `if (filtered.length === 0) keep pool`,
+// which is itself behaviour-identical.
 //
-// ONE intentional behaviour delta (the reason P4 is "one pass keyed off
-// region" rather than a literal copy): in the old inline code the SG
-// filter was the trailing `else` of the OTHER `if`, so a JB-region search
-// that did NOT fall back ran the JB filter AND THEN the SG ≤30 km filter —
-// silently dropping legit far-Johor venues (Pontian / Kulai / Mersing) that
-// sit >30 km from the SG centroid. The merged pass dispatches to exactly
-// ONE region rule (OTHER / JB / SG are mutually exclusive), so a JB search
-// is scoped by the JB rule alone. SG and OTHER behaviour is unchanged.
+// [Deferred] Collapsing the JB+SG double-filter into one rule per region
+// (so a JB search is scoped by the JB rule alone, surfacing far-Johor venues
+// that the SG ≤30 km re-filter currently drops) is a real behaviour change
+// and is left for its own operator-smoked PR.
 //
 // All IO is injected so the pass is unit-testable without redis / the
 // country-pref store:
@@ -143,12 +144,16 @@ async function scopeVenuesByRegion({
     } else {
       log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${out.length})`);
     }
-  } else if (!isJB) {
+  } else {
     // 4) SG — keep "singapore" text OR within SG_PROX_M of the SG centroid
     //    (some hawker centres' formattedAddress lacks the country word).
-    //    `!isJB` makes the three region rules mutually exclusive: a JB
-    //    search that already ran the JB filter above (and did NOT fall back)
-    //    is NOT also SG-filtered — see the header note on the one delta.
+    //    NOTE (faithful extraction): this is the trailing `else` of the
+    //    OTHER `if`, so — exactly as in the original inline code — it ALSO
+    //    runs for a JB-region search that did NOT fall back. That means a JB
+    //    search is scoped by the JB rule AND THEN this SG rule (a venue must
+    //    sit ≤30 km of the SG centroid or carry "singapore" text). This
+    //    double-filter is preserved deliberately to keep P4 a zero-behaviour-
+    //    change refactor; revisiting it is a separate, operator-smoked change.
     out = out.filter((v) => {
       if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
       const d = haversineM(SG_CENTROID, v);
