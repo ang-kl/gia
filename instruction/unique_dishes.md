@@ -322,3 +322,14 @@ matcher, so Phở ↔ pho both verify).
   Phnom Penh.
 - 2 rows stay `[TO VERIFY]` and are **excluded from city-plates.js**: bún chả cá (Da Nang),
   bún sứa (Nha Trang).
+
+### 20.9 vi-language pass (operator: "did you include local language")
+- Names/local script were vi from the start (Vietnamese is Latin-script; diacritics preserved, the
+  matcher folds them so phở ↔ pho both verify). The SOURCE pass was initially English-only — the
+  vi pass then surfaced the stronger authorities, exactly as the ms/ja/th lesson predicted:
+  - **Phở Hà Nội** → **Quyết định số 2328/QĐ-BVHTTDL (9/8/2024)**, announced 29/11/2024 at the
+    Hanoi Culinary Culture Festival — [Sở VHTT Hà Nội](https://sovhtt.hanoi.gov.vn/cong-bo-quyet-dinh-ghi-danh-pho-ha-noi-la-di-san-van-hoa-phi-vat-the-quoc-gia/) (S, vi).
+  - **Bún bò Huế** → **Quyết định số 2203/QĐ-BVHTTDL (27/6/2025)**, "Tri thức dân gian về Bún bò
+    Huế" — [Cổng TTĐT Chính phủ](https://baochinhphu.vn/tri-thuc-dan-gian-ve-bun-bo-hue-duoc-cong-nhan-di-san-van-hoa-phi-vat-the-quoc-gia-102250705162116955.htm) (S, vi);
+    notes the Vân Cù / Ô Sa noodle-village craft lineage.
+  - Both registry rows now cite the vi decision FIRST, the en outlet second.

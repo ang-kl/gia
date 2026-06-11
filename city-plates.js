@@ -347,7 +347,10 @@ const CITY_PLATES = Object.freeze({
           en: 'Inscribed in Vietnam’s national intangible cultural heritage list (Aug 2024) alongside Phở Nam Định — the rival birthplace claim. The Hanoi style: a clear, restrained beef broth. Both claimants are named; neither wins here.',
           fr: 'Inscrit au patrimoine culturel immatériel national du Vietnam (août 2024) aux côtés du Phở Nam Định — la revendication rivale. Le style de Hanoï : un bouillon de bœuf clair et sobre.'
         },
-        sources: [{ name: 'MOCST national ICH (via VietnamPlus)', url: 'https://en.vietnamplus.vn/pho-of-hanoi-nam-dinh-recognised-as-national-intangible-cultural-heritage-post291802.vnp', lang: 'en' }] },
+        sources: [
+          { name: 'MOCST Quyết định 2328/QĐ-BVHTTDL (9/8/2024) — Sở VHTT Hà Nội', url: 'https://sovhtt.hanoi.gov.vn/cong-bo-quyet-dinh-ghi-danh-pho-ha-noi-la-di-san-van-hoa-phi-vat-the-quoc-gia/', lang: 'vi' },
+          { name: 'VietnamPlus (en)', url: 'https://en.vietnamplus.vn/pho-of-hanoi-nam-dinh-recognised-as-national-intangible-cultural-heritage-post291802.vnp', lang: 'en' }
+        ] },
       { dish: 'Bún chả', local: 'Bún chả', tier: 'city-icon', claim: 'style-home',
         history: {
           en: 'Hanoi’s lunchtime grill: charcoal pork patties and belly in a sweet-sour fish-sauce bath, rice vermicelli and herbs alongside. The dish Anthony Bourdain shared with President Obama in Hanoi, 2016.',
@@ -407,7 +410,10 @@ const CITY_PLATES = Object.freeze({
           en: 'The old imperial capital’s answer to phở: lemongrass-and-shrimp-paste beef broth, thick round noodles. “The Folk Knowledge of Bún Bò Huế” was inscribed in Vietnam’s national intangible cultural heritage list in June 2025.',
           fr: 'La réponse de l’ancienne capitale impériale au phở : bouillon de bœuf à la citronnelle et pâte de crevette, grosses nouilles rondes. Inscrit au patrimoine immatériel national en juin 2025.'
         },
-        sources: [{ name: 'MOCST national ICH (via VietnamPlus)', url: 'https://en.vietnamplus.vn/bun-bo-hue-recognised-as-national-intangible-cultural-heritage-post322757.vnp', lang: 'en' }] },
+        sources: [
+          { name: 'MOCST Quyết định 2203/QĐ-BVHTTDL (27/6/2025) — Cổng TTĐT Chính phủ', url: 'https://baochinhphu.vn/tri-thuc-dan-gian-ve-bun-bo-hue-duoc-cong-nhan-di-san-van-hoa-phi-vat-the-quoc-gia-102250705162116955.htm', lang: 'vi' },
+          { name: 'VietnamPlus (en)', url: 'https://en.vietnamplus.vn/bun-bo-hue-recognised-as-national-intangible-cultural-heritage-post322757.vnp', lang: 'en' }
+        ] },
       { dish: 'Cơm hến', local: 'Cơm hến', tier: 'city-icon', claim: 'birthplace (Cồn Hến islet)',
         history: {
           en: 'Cold leftover rice under a heap of tiny basket clams dredged from the Perfume River’s Cồn Hến islet, with fermented shrimp paste, peanuts, pork crackling and the clam broth on the side. Peasant food the court learned to love.',

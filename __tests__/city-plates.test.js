@@ -48,7 +48,10 @@ describe('city-plates — schema invariants (the source-of-truth rules)', () => 
     expect(pho.claim).toMatch(/Nam Định/);
     expect(pho.history.en).toMatch(/Nam Định/);
     const bbh = cp.platesForCity('Hue').dishes.find((d) => /Bún bò Huế/.test(d.dish));
-    expect(bbh.sources[0].name).toMatch(/ICH/);
+    // vi-language pass: the MOCST decision number is the FIRST source.
+    expect(bbh.sources[0].name).toMatch(/2203\/QĐ-BVHTTDL/);
+    expect(bbh.sources[0].lang).toBe('vi');
+    expect(pho.sources[0].name).toMatch(/2328\/QĐ-BVHTTDL/);
     const mam = cp.platesForCity('Phu Quoc').dishes.find((d) => /Nước mắm/.test(d.dish));
     expect(mam.claim).toMatch(/PDO/);
     const caolau = cp.platesForCity('Hoi An').dishes.find((d) => /Cao lầu/.test(d.dish));
