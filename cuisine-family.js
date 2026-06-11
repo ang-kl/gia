@@ -275,8 +275,46 @@ function venuePlausiblyServes(venue, { cuisineName, dishPhrase } = {}) {
   return false;
 }
 
+// v0.62.29 — foodie discovery: which cuisine FAMILIES count as "local /
+// everyday-safe" for each supported search country (the set location is the
+// operator's chosen home-cuisine signal). A searched cuisine whose family is
+// NOT local to the search country is "unfamiliar" → the discovery case (e.g.
+// a European cuisine searched from SG/CN). Only the countries the app
+// supports (SG/JB + the OTHER picker list); unknown country → never guess.
+const COUNTRY_LOCAL_FAMILIES = Object.freeze({
+  SG: [FAMILIES.SE_ASIAN, FAMILIES.EAST_ASIAN, FAMILIES.SOUTH_ASIAN], // SG's everyday trio
+  MY: [FAMILIES.SE_ASIAN, FAMILIES.EAST_ASIAN, FAMILIES.SOUTH_ASIAN],
+  ID: [FAMILIES.SE_ASIAN],
+  TH: [FAMILIES.SE_ASIAN],
+  PH: [FAMILIES.SE_ASIAN],
+  VN: [FAMILIES.SE_ASIAN],
+  BN: [FAMILIES.SE_ASIAN],
+  CN: [FAMILIES.EAST_ASIAN],
+  TW: [FAMILIES.EAST_ASIAN],
+  HK: [FAMILIES.EAST_ASIAN],
+  MO: [FAMILIES.EAST_ASIAN],
+  JP: [FAMILIES.EAST_ASIAN],
+  KR: [FAMILIES.EAST_ASIAN],
+  AU: [FAMILIES.EUROPEAN, FAMILIES.AMERICAN],   // Anglo-Western everyday
+  NZ: [FAMILIES.EUROPEAN, FAMILIES.AMERICAN]
+});
+
+// isUnfamiliar(cuisineSlugOrFamily, countryCode) — true ONLY when both sides
+// resolve and the cuisine's family is not local to the country. Unknown
+// cuisine family or unsupported country → false (never claim discovery on a
+// guess).
+function isUnfamiliar(cuisineSlugOrFamily, countryCode) {
+  const fam = cuisineFamily(cuisineSlugOrFamily);
+  if (!fam) return false;
+  const local = COUNTRY_LOCAL_FAMILIES[String(countryCode || '').toUpperCase()];
+  if (!Array.isArray(local)) return false;
+  return !local.includes(fam);
+}
+
 module.exports = {
   FAMILIES,
+  COUNTRY_LOCAL_FAMILIES,
+  isUnfamiliar,
   restaurantFamily,
   cuisineFamily,
   isLikelyMismatch,
