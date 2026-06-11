@@ -121,6 +121,7 @@
     "7. Rating floor: skipped for durian/pastry (soft 3.7); else applyRatingFloor(ratingPref); New relaxes numeric → 3.0; never empties.",
     "8. Sort: durian ≥3.7 first → recency band → distance. Slice (first tap 6, then 12).",
     "9. Overall 20s deadline guards the whole route — degraded-200 before any gateway 502.",
-    "10. JB anchoring rule (v0.62.18): a search is anchored by COORDINATES + a geofence, never the bare place name/phrase (a name can match a same-branded outfit elsewhere). A registered JB sub-location pick (Legoland/Bukit Indah/CBD/Southkey/Mt Austin, detected by coords) tightens the radius to ~6 km (≤12 km widen) so results are near the pick, not the 30 km metro; a region=JB anchor outside the Johor extent is flagged."
+    "10. JB anchoring rule (v0.62.18): a search is anchored by COORDINATES + a geofence, never the bare place name/phrase (a name can match a same-branded outfit elsewhere). A registered JB sub-location pick (Legoland/Bukit Indah/CBD/Southkey/Mt Austin, detected by coords) tightens the radius to ~6 km (≤12 km widen) so results are near the pick, not the 30 km metro; a region=JB anchor outside the Johor extent is flagged.",
+    "11. Try-line discovery rule (v0.62.29): the card's 🍲 Try dish is review-mined FIRST (cuisine-enrich extractDishes); when reviews yield nothing on a single-cuisine search, a curated national/iconic dish (NATION_OVERLAY, with COOKING_METHODS as a secondary term) fills the line ONLY if the venue's OWN reviews / editorial summary mention it — evidence-verified, never a blind claim. The unfamiliar-family case (cuisine family not local to the search country, e.g. European searched from SG) is the foodie-discovery emphasis; logged as D786. Special modes + Michelin excluded."
   ]
 }

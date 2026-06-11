@@ -16153,6 +16153,39 @@ async function cacheBotUsername() {
           humaniseRestaurantType, enrichPriceRangeDisplay, enrichSanctuaryRead
         };
         await cuisineEnrich.enrichFast(top, enrichCtx);
+        // v0.62.29 — foodie discovery: curated national-dish "Try" fill,
+        // EVIDENCE-VERIFIED (operator: "how would you know that eatery has
+        // the national dish?"). Reviews-first: only venues whose review-mined
+        // dishes came back EMPTY are considered; the curated dish is claimed
+        // ONLY when the venue's own reviews / editorial summary mention it
+        // (discovery-dish.findVerifiedDish — same pattern as the durian
+        // review-mention counter). Single-cuisine searches only (the slug is
+        // unambiguous); special modes excluded (durian/fruits have their own
+        // flows); Michelin never reaches here (early-return). The discovery
+        // emphasis (unfamiliar cuisine family for the search country, e.g. a
+        // European cuisine searched from SG) and high ratings are logged.
+        if (!specialMode && Array.isArray(cuisines) && cuisines.length === 1) {
+          try {
+            const dd = require('./discovery-dish');
+            const cfDisc = require('./cuisine-family');
+            const discSlug = String(cuisines[0] || '').toLowerCase();
+            const discUnfamiliar = cfDisc.isUnfamiliar(discSlug, searchRegionCode);
+            let discFilled = 0;
+            for (const v of top) {
+              if (!v) continue;
+              if ((Array.isArray(v.dishes) && v.dishes.length) || v.signatureDish) continue; // reviews win
+              const hit = dd.findVerifiedDish(v, discSlug);
+              if (hit) {
+                v.signatureDish = hit.dish;
+                v.dishSource = hit.source;
+                discFilled++;
+              }
+            }
+            if (discFilled > 0) {
+              console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length}`);
+            }
+          } catch (err) { console.warn('[Cuisine-Search] curated-try fill failed (non-fatal):', err.message); }
+        }
         // v0.62.x — progressive-results Stage 2: when the client opts in
         // (`body.stream === true`) flush a BASE event with the fast-only
         // venue cards NOW, before the slow (network/LLM) phase runs, so the
