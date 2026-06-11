@@ -197,6 +197,13 @@ const STRINGS = {
   'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'No rating', fr: 'Sans note' },
 
+  // ----- Zero-result reason notices (v0.62.13) — make an empty list EVIDENT -----
+  'zero.allSeen':              { en: 'No new places to show here — tap 🔍 again to refresh the list.',
+                                 fr: 'Plus de nouveaux lieux ici — touchez 🔍 pour rafraîchir la liste.' },
+  'zero.noMatchCriteria':      { en: 'No matches for this cuisine + filter combo — try removing a filter or a cuisine.',
+                                 fr: 'Aucune correspondance pour cette combinaison cuisine + filtre — retirez un filtre ou une cuisine.' },
+  'zero.noVenuesNearby':       { en: 'No rated places found nearby — try a wider area or a different spot.',
+                                 fr: 'Aucun lieu noté à proximité — élargissez la zone ou changez d’endroit.' },
   // ----- Michelin zero/miss notices (v0.61.437) -----
   'michelin.noList':           { en: 'No Michelin Guide covers this country yet — pick another country or deselect ✳️ Michelin.',
                                  fr: "Aucun Guide Michelin ne couvre encore ce pays — choisissez un autre pays ou désélectionnez ✳️ Michelin." },

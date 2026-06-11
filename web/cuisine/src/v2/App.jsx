@@ -273,6 +273,10 @@ export default function App() {
   // dropped the count below the spec's "8-12 relevant" target. Null
   // otherwise; "fruits" / "durian" when set.
   const [specialModeNotice, setSpecialModeNotice] = useState(null);
+  // v0.62.13 — operator: a zero result must be EVIDENT. The server tags WHY a
+  // search returned nothing (zeroReason); this holds the i18n key for the
+  // notice the result panel shows on a persistent empty list.
+  const [zeroReasonKey, setZeroReasonKey] = useState(null);
   // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
   // outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN). The server
   // returns { mode, country } in `specialModeBlocked`; the result panel
@@ -1959,25 +1963,41 @@ export default function App() {
       // shows the "only available in …" banner instead.
       if (isZeroResult && !r.specialModeBlocked && !isRetryCall && lastZeroRetrySnapRef.current !== currentSig) {
         lastZeroRetrySnapRef.current = currentSig;
+        // v0.62.13 — a retry is pending: don't show a zero-reason notice yet
+        // (the resetSeen retry will likely recover, e.g. the stale-seen case).
+        setZeroReasonKey(null);
         // Schedule the retry in a microtask so the current `finally`
         // (setLoading(false)) runs first, then the retry's setLoading(true)
         // re-fires the spinner. Without this the spinner appears to skip.
         Promise.resolve().then(() => runSearch(snap, anchor, { resetSeen: true }));
         // Fall through to the regular zero-result setters below; the
         // retry will overwrite them on success.
-      } else if (isZeroResult && isRetryCall && !r.specialModeBlocked && !r.degraded) {
-        // The retry came back zero too — show the CTA + open criteria.
+      } else if (isZeroResult && !r.specialModeBlocked && !r.degraded) {
+        // v0.62.13 — a PERSISTENT zero (the resetSeen retry also came back
+        // empty, OR the retry budget for this criteria signature was already
+        // spent): make the empty list evident with the server-classified
+        // reason. The criteria builder only pops on the actual retry-zero.
         // v0.61.441 — but NOT when the server flagged `degraded` (a transient
-        // network / upstream-5xx blip the new error-classify path turns into
-        // an empty-200): that's not the criteria's fault, so don't push the
-        // user to "adjust your search". The degraded banner below explains it.
-        setZeroRetried(true);
-        setCriteriaOpen(true);
+        // network / upstream-5xx blip the error-classify path turns into an
+        // empty-200): that's not the criteria's fault. The degraded banner
+        // below explains it.
+        if (isRetryCall) {
+          setZeroRetried(true);
+          setCriteriaOpen(true);
+        }
+        const zr = r.zeroReason;
+        setZeroReasonKey(
+          (zr === 'all-seen-criteria' || zr === 'all-seen-session') ? 'zero.allSeen'
+          : (zr === 'no-venues-nearby') ? 'zero.noVenuesNearby'
+          : (zr === 'no-match-criteria' || zr === 'filtered') ? 'zero.noMatchCriteria'
+          : null
+        );
       } else if (!isZeroResult) {
         // Non-zero result clears the flag + ref so a future criteria
         // signature that returns zero can get its own retry budget.
         setZeroRetried(false);
         lastZeroRetrySnapRef.current = null;
+        setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
@@ -2355,6 +2375,26 @@ export default function App() {
         if (cityFlyDebounceRef.current) clearTimeout(cityFlyDebounceRef.current);
         cityFlyDebounceRef.current = setTimeout(() => {
           setFlyTarget({ lat: p.lat, lng: p.lng, zoom: 13, _k: Date.now() });
+          // v0.62.13 — operator: a city PICK must PERSIST to the Telegram chat
+          // (location drawer + "Search area set to …" notify) so it stops
+          // drifting back to "set location". Fire it on the SAME debounce as
+          // the fly, so rapid city-flips only persist the final city. This stays
+          // a PREVIEW: it does NOT commit the search anchor (explicitPickRef
+          // stays false) and does NOT auto-search — the user taps 🔍 to search
+          // (respects the no-auto-fire + v0.61.354 preview rules).
+          if ((p.label || '').trim()) {
+            const c = coordsToCountry({ lat: p.lat, lng: p.lng });
+            let persistRegion;
+            if (c === 'SG') persistRegion = 'SG';
+            else if (c === 'MY') persistRegion = isJbCoords({ lat: p.lat, lng: p.lng }) ? 'JB' : 'OTHER';
+            else persistRegion = (state.region && state.region !== '__NONE__') ? state.region : 'OTHER';
+            const persistCountry = persistRegion === 'OTHER' ? (state.countryPref || undefined) : undefined;
+            saveUserLocation({
+              lat: p.lat, lng: p.lng, label: p.label, notify: true,
+              region: persistRegion, country: persistCountry,
+              ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {})
+            }).catch(() => {});
+          }
         }, 350);
         return;
       }
@@ -3172,6 +3212,14 @@ export default function App() {
           below the spec's 8-12 target. Per scripts/Create_2_buttons.MD
           the message is mode-specific and explicitly does NOT pad
           with unrelated cuisines. */}
+      {/* v0.62.13 — zero-result reason: an empty list now explains itself
+          (stale-seen "tap 🔍 again" vs a genuinely too-narrow combo vs nothing
+          rated nearby) instead of a silent blank. Hidden once results return. */}
+      {zeroReasonKey && !loading && venues.length === 0 && (
+        <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-hint">
+          {t(zeroReasonKey, lang)}
+        </div>
+      )}
       {specialModeNotice && !loading && (
         <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t(`special.${specialModeNotice}.limited`, lang)}
