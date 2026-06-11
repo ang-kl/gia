@@ -877,3 +877,33 @@ describe('special-mode — local-locale keyword coverage (v0.61.377)', () => {
     expect(sm.isRelevant(venue, 'durian')).toBe(true);
   });
 });
+
+// v0.62.19 — "Durian Fruits" type-priority ranking (DURIAN mode only).
+describe('special-mode — durianTypeTier (fruit sellers page first)', () => {
+  it('fruit sellers → tier 0', () => {
+    for (const t of ['fruit_and_vegetable_store', 'fruit_parlor', 'fresh_fruit_store', 'produce_market', 'greengrocer', 'market']) {
+      expect(sm.durianTypeTier({ primaryType: t })).toBe(0);
+    }
+  });
+  it('durian-themed eateries → tier 2 (ranked last)', () => {
+    for (const t of ['restaurant', 'asian_restaurant', 'chinese_restaurant', 'diner', 'cafe', 'bakery']) {
+      expect(sm.durianTypeTier({ primaryType: t })).toBe(2);
+    }
+  });
+  it('neutral / generic stores → tier 1', () => {
+    for (const t of ['food_store', 'store', 'meal_takeaway', 'food', 'xyz']) {
+      expect(sm.durianTypeTier({ primaryType: t })).toBe(1);
+    }
+    expect(sm.durianTypeTier({})).toBe(1);
+    expect(sm.durianTypeTier(null)).toBe(1);
+  });
+  it('orders a mixed pool fruit-first, eatery-last', () => {
+    const pool = [
+      { name: 'Durian Cafe', primaryType: 'cafe' },
+      { name: 'Fresh Durian Stall', primaryType: 'fruit_and_vegetable_store' },
+      { name: 'Durian Takeaway', primaryType: 'meal_takeaway' },
+    ];
+    const ordered = [...pool].sort((a, b) => sm.durianTypeTier(a) - sm.durianTypeTier(b));
+    expect(ordered.map((v) => v.name)).toEqual(['Fresh Durian Stall', 'Durian Takeaway', 'Durian Cafe']);
+  });
+});

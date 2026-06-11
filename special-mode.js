@@ -269,6 +269,32 @@ const ACCEPT_PRIMARY_TYPES_DURIAN = new Set([
   'restaurant', 'asian_restaurant', 'chinese_restaurant', 'diner'
 ]);
 
+// v0.62.19 — "Durian Fruits" TYPE PRIORITY (operator: KL durian returned a
+// list of restaurants & cafes; "Durian Fruits" must prioritise fruit stalls /
+// wholesalers / fruit-veg, the durian-as-a-FRUIT seller). ACCEPT_PRIMARY_
+// TYPES_DURIAN deliberately keeps restaurant/cafe/diner (Google mis-types many
+// real stalls as those), so this is a RANKING tier — NOT a filter — applied to
+// the DURIAN mode only (durian-pastry's intent IS the cafe/bakery): fruit
+// sellers page first (tier 0), neutral stores/takeaway next (tier 1),
+// durian-themed eateries last (tier 2). Mis-typed real stalls are kept, just
+// demoted below genuine fruit sellers.
+const DURIAN_FRUIT_SELLER_TYPES = new Set([
+  'fruit_and_vegetable_store', 'fruit_and_vegetable_shop',
+  'fruit_parlor', 'fresh_fruit_store', 'produce_market',
+  'greengrocer', 'market', 'farm', 'wholesaler'
+]);
+const DURIAN_EATERY_TYPES = new Set([
+  'restaurant', 'asian_restaurant', 'chinese_restaurant', 'diner',
+  'cafe', 'coffee_shop', 'bakery', 'dessert_restaurant',
+  'dessert_shop', 'ice_cream_shop'
+]);
+function durianTypeTier(venue) {
+  const t = String(venue?.primaryType || '').toLowerCase();
+  if (DURIAN_FRUIT_SELLER_TYPES.has(t)) return 0;   // fruit seller — page first
+  if (DURIAN_EATERY_TYPES.has(t)) return 2;          // durian-themed eatery — last
+  return 1;                                          // food_store / store / meal_takeaway / unknown
+}
+
 // v0.61.235 — same variance source. Durian PASTRY venues are widely
 // classified as 'cake_shop' (SG:19, JB:12, PUT:13 — Emicakes,
 // Temptations Cakes, Delcie's Desserts), 'pastry_shop' (SG:3, JB:5,
@@ -798,6 +824,7 @@ module.exports = {
   SPECIAL_MODES,
   isSpecialMode,
   specialModeAllowed,
+  durianTypeTier,
   SPECIAL_MODE_COUNTRIES,
   buildSeeds,
   localNewlyOpened,
