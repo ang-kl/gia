@@ -15921,8 +15921,19 @@ async function cacheBotUsername() {
           const r = Number(v.rating);
           return (!Number.isFinite(r) || r === 0 || r >= 3.7) ? 0 : 1;
         };
+        // v0.62.19 — "Durian Fruits" type priority (DURIAN mode only — NOT
+        // durian-pastry). Fruit sellers (stalls / wholesalers / fruit-veg) page
+        // first, durian-themed eateries (restaurant/cafe-typed) last. Primary
+        // key, ABOVE the rating order, per the operator's "the priority is
+        // fruit stalls". Ranking, not filtering — mis-typed real stalls stay.
+        const durianFruitFirst = (specialMode === 'durian');
+        const _durianTypeTier = durianFruitFirst ? require('./special-mode').durianTypeTier : null;
         if (!skipCacheForShuffle) {
           trulyUnseen.sort((a, b) => {
+            if (durianFruitFirst) {
+              const ta = _durianTypeTier(a), tb = _durianTypeTier(b);
+              if (ta !== tb) return ta - tb;
+            }
             if (durianSoftRating) {
               const pa = _durianPref(a), pb = _durianPref(b);
               if (pa !== pb) return pa - pb;

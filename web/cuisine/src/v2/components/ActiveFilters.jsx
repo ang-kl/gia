@@ -30,7 +30,7 @@ function ChipReadOnly({ children, onRemove, removeLabel }) {
   );
 }
 
-export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCuisine, onRemoveFilter, onResetAll }) {
+export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCuisine, onRemoveFilter, onResetAll, nameForCuisine = null }) {
   const [lang] = useLocale();
   const filterChips = Object.keys(FILTER_KEYS).filter((k) => !!filters[k]);
   const priceChips = filters.prices || [];
@@ -41,11 +41,19 @@ export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCui
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 px-0.5 pt-0.5">
-      {cuisines.map((slug) => (
-        <ChipReadOnly key={'c-' + slug} onRemove={() => onRemoveCuisine(slug)} removeLabel={`${removePrefix} ${slug}`}>
-          <span className="capitalize">{slug.replace(/-/g, ' ')}</span>
-        </ChipReadOnly>
-      ))}
+      {cuisines.map((slug) => {
+        // v0.62.19 — resolve the catalogue display name (e.g. 'durian' →
+        // "Durian Fruits", matching the drawer + result-header) instead of the
+        // raw slug. Fall back to the de-slugged form when no resolver/name.
+        const resolved = (typeof nameForCuisine === 'function' && nameForCuisine(slug)) || null;
+        return (
+          <ChipReadOnly key={'c-' + slug} onRemove={() => onRemoveCuisine(slug)} removeLabel={`${removePrefix} ${resolved || slug}`}>
+            {resolved
+              ? <span>{resolved}</span>
+              : <span className="capitalize">{slug.replace(/-/g, ' ')}</span>}
+          </ChipReadOnly>
+        );
+      })}
       {filterChips.map((k) => {
         const label = tr(FILTER_KEYS[k].i18n, lang);
         // v0.61.255 — operator: display Halal as Arabic 'حلال' (bold,
