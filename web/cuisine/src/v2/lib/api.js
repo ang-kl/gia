@@ -122,8 +122,9 @@ async function postJsonStream(url, body, { onBase, onPatch } = {}) {
       const baseEv = evs.find((e) => e && e.type === 'base');
       const doneEv = evs.find((e) => e && e.type === 'done');
       const patchEvs = evs.filter((e) => e && e.type === 'patch');
+      const appendEvs = evs.filter((e) => e && e.type === 'append');
       if (baseEv && onBase) { try { onBase(baseEv); } catch { /* UI best-effort */ } }
-      json = assembleFinal(baseEv, patchEvs, doneEv || {});
+      json = assembleFinal(baseEv, patchEvs, doneEv || {}, appendEvs);
     }
     vlog.noteServerHint(json);
     reportOk();
@@ -138,12 +139,18 @@ async function postJsonStream(url, body, { onBase, onPatch } = {}) {
   let doneEv = null;
   let venues = [];
   const patchEvs = [];
+  const appendEvs = [];
   const handle = (ev) => {
     if (!ev || !ev.type) return;
     if (ev.type === 'base') {
       baseEv = ev;
       venues = Array.isArray(ev.venues) ? ev.venues.map((v) => ({ ...v })) : [];
       if (onBase) { try { onBase(ev); } catch { /* UI best-effort */ } }
+    } else if (ev.type === 'append') {
+      // v0.62.x — Stage 3: second wave; grow the list (6 → 12) in place.
+      appendEvs.push(ev);
+      if (Array.isArray(ev.venues)) venues = venues.concat(ev.venues.map((v) => ({ ...v })));
+      if (onPatch) { try { onPatch(venues, ev); } catch { /* UI best-effort */ } }
     } else if (ev.type === 'patch') {
       patchEvs.push(ev);
       venues = applyPatchFields(venues, ev.placeId, ev.fields);
@@ -159,8 +166,8 @@ async function postJsonStream(url, body, { onBase, onPatch } = {}) {
   }
   for (const ev of dec.flush()) handle(ev);
 
-  // base ⊕ patches ⊕ done-metadata == the non-streamed payload.
-  const final = assembleFinal(baseEv, patchEvs, doneEv || {});
+  // base ⊕ appends ⊕ patches ⊕ done-metadata == the non-streamed payload.
+  const final = assembleFinal(baseEv, patchEvs, doneEv || {}, appendEvs);
   vlog.noteServerHint(final);
   reportOk();
   return final;
