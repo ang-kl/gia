@@ -8,11 +8,13 @@ body { -webkit-font-smoothing: antialiased; }
 /* v0.62.16: derive --tg-border from text+bg so it stays VISIBLE in dark
    mode. Telegram never sends a border colour, so the Tailwind fallback
    (#2a2a2e) sat ~1.2:1 on the dark card/bg = invisible. 38% text / 62% bg
-   lands a quiet ~3:1 grey (WCAG AA for UI components) in BOTH light and
+   lands a quiet grey — 3.39:1 vs the card / 3.85:1 vs the bg (v0.62.31: was
+   38%, which computed to 2.97:1 vs the card, a hair UNDER the AA 3:1 it
+   claimed; 42% is honestly >=3:1 where it matters) — in BOTH light and
    dark — luminance-derived, so colour-blind safe (no hue). tg.js never
    syncs --tg-border, so this wins. */
 :root {
-  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 38%, var(--tg-bg, #0e0e10) 62%);
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 42%, var(--tg-bg, #0e0e10) 58%);
 }
 
 /* v0.59.18: bump base font-size by 1pt on tablet+ viewports

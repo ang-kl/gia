@@ -134,6 +134,12 @@ export default function App() {
   // While `anchorLoading === true`, treat the region as unresolved
   // and gate the SG-mode affordances (train panel + SG-only tiles).
   const [anchorLoading, setAnchorLoading] = useState(true);
+  // v0.62.31 — stale-travel hint (operator: "hint, never auto"). Set by the
+  // auto-detect when device GPS is >50 km from a LABELLED pick it refused to
+  // move (the v0.62.30 explicit-pick rule); dismissible; cleared whenever the
+  // anchor changes (the user re-picked).
+  const [farFromPickHint, setFarFromPickHint] = useState(null);
+  useEffect(() => { setFarFromPickHint(null); }, [anchor?.lat, anchor?.lng, anchor?.label]);
   // v0.61.356 — location-sync (shared): on load, poll device GPS + Telegram for
   // ~20 s and FOLLOW the device (flag/region + anchor + persist) on a >1.5 km
   // move, so the Menu flag stops going stale after you've moved. Mirrors cuisine.
@@ -369,6 +375,11 @@ export default function App() {
         // v0.61.430 latch). The user re-anchors by picking a location.
         if (anchor.label && String(anchor.label).trim()) {
           console.log(`[Menu-TMA] auto-detect: cached anchor is a labelled pick ("${anchor.label}"), skip — explicit pick wins`);
+          // v0.62.31 — stale-travel recovery (operator: "hint, never auto"):
+          // when the device sits FAR (>50 km — genuine travel, not the daily
+          // SG↔JB hop) from the kept pick, surface a dismissible hint so the
+          // user knows the pick is held and how to update it.
+          if (drift > 50) setFarFromPickHint(String(anchor.label).trim());
           return;
         }
       }
@@ -722,11 +733,27 @@ export default function App() {
                  LocationFieldMenu was moved out of PLAN per operator
                  to give it equal visibility with eat / discover / plan
                  above. */
-              <LocationFieldMenu
-                lang={lang}
-                currentAnchor={anchor}
-                onAnchorChange={setAnchor}
-              />
+              <>
+                {/* v0.62.31 — stale-travel hint (dismissible): the auto-detect
+                    held a labelled pick while the device is >50 km away
+                    (operator: "hint, never auto"). Blue accent — colour-blind
+                    safe, no red/green. */}
+                {farFromPickHint && (
+                  <button
+                    type="button"
+                    onClick={() => setFarFromPickHint(null)}
+                    className="w-full text-left mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text"
+                    aria-label={t('loc.farFromPick', lang).replace('{label}', farFromPickHint)}
+                  >
+                    {t('loc.farFromPick', lang).replace('{label}', farFromPickHint)}
+                  </button>
+                )}
+                <LocationFieldMenu
+                  lang={lang}
+                  currentAnchor={anchor}
+                  onAnchorChange={setAnchor}
+                />
+              </>
             )}
             {/* v0.60.67 — each section now carries 2 tiles after the
                 operator slim, so grid drops from 3 cols to 2 cols

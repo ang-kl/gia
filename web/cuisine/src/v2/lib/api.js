@@ -477,12 +477,17 @@ export async function clearRecentLocationsRemote(keep) {
 // (server route v0.61.270 brings them to parity with /api/menu/
 // set-location). Pre-v0.61.270 callers (lat/lng only) keep working —
 // the server treats the missing fields as "don't persist".
-export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal, radiusCapM, notify }) {
+export async function saveUserLocation({ lat, lng, label, country, region, street, building, postal, radiusCapM, notify, ambient }) {
   const body = { lat, lng };
   // v0.61.412 — `notify:true` is sent ONLY by a deliberate user pick (not the
   // boot / auto-detect saves), so the server fires the "Search area set to …"
   // chat message only when the user actually chose a place.
   if (notify === true) body.notify = true;
+  // v0.62.31 — `ambient:true` marks an AUTOMATIC mover (the 20-s follow-device
+  // sync), never a user gesture. The server's D787 label-guard refuses an
+  // ambient write over a fresh LABELLED pick (defence-in-depth under the
+  // v0.62.30 client latch).
+  if (ambient === true) body.ambient = true;
   if (label) body.label = label;
   if (country) body.country = country;
   if (region) body.region = region;

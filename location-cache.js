@@ -33,6 +33,26 @@ async function setUserLocation(redis, chatId, lat, lng, opts = {}) {
   // seed); when a device token is present, ALSO write its per-device key
   // so concurrent devices don't overwrite each other.
   const key = `loc:${hashChatId(chatId)}`;
+  // v0.62.31 — SERVER-SIDE label guard (defence-in-depth under the v0.62.30
+  // client latch). An AMBIENT write (opts.ambient — sent only by automatic
+  // movers like the Cuisine TMA's 20-s follow-device sync, never by a user
+  // gesture) must NOT clobber a fresh LABELLED pick (a deliberate Menu /
+  // chat /location / TMA choice). Deliberate flows (chat share-pin, 📍
+  // use-current, /location, autocomplete picks) pass no flag and keep full
+  // overwrite semantics — back-compat safe. Returns { kept: true, label }
+  // when the guard holds so callers can log it.
+  if (opts && opts.ambient === true) {
+    try {
+      const existingRaw = await redis.get(key);
+      if (existingRaw) {
+        const existing = JSON.parse(existingRaw);
+        if (existing && typeof existing.label === 'string' && existing.label.trim()) {
+          console.log(`[location-cache] D787 label-guard: kept "${existing.label.slice(0, 40)}" over an ambient label-less write`);
+          return { kept: true, label: existing.label };
+        }
+      }
+    } catch { /* malformed cache — fall through to the write */ }
+  }
   // v0.30.2: stamp setAt so callers can compute staleness for the
   // 15-min "your location is old, refresh?" reminder.
   // v0.61.122: optional anchor metadata from /location precinct picks.

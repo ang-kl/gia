@@ -119,3 +119,47 @@ describe('discovery-dish — Malaysian patin tempoyak (v0.62.30)', () => {
     expect(list.length).toBeLessThanOrEqual(30);
   });
 });
+
+// v0.62.31 — native-script aliases (adversarial-review fix: JP/zh reviews
+// could never verify romanized curated names — 湯豆腐 ≠ yudofu class).
+describe('discovery-dish — native-script aliases (v0.62.31)', () => {
+  it('every alias key exists in its slug\'s unshared iconic list (no invented rows)', () => {
+    // Pull the map via the module's behavior: alias keys are dish names, so
+    // each must appear in iconicDishesFor(slug). Read the source map directly.
+    const src = require('fs').readFileSync(new URL('../discovery-dish.js', import.meta.url), 'utf8');
+    const block = src.slice(src.indexOf('const DISH_ALIASES'), src.indexOf('const CJK_RE'));
+    for (const slug of ['japanese', 'chinese', 'cantonese', 'sichuan']) {
+      const m = block.match(new RegExp(slug + ':\\s*{([\\s\\S]*?)\\n  }'));
+      expect(m, slug + ' block present').toBeTruthy();
+      const keys = [...m[1].matchAll(/'([^']+)':\s*\[/g)].map((k) => k[1]);
+      expect(keys.length).toBeGreaterThan(0);
+      const list = dd.iconicDishesFor(slug, { max: 200 });
+      for (const k of keys) expect(list, `${slug}: alias key "${k}" must be a real unshared dish`).toContain(k);
+    }
+  });
+
+  it('Japanese kana/kanji reviews verify (the Kyoto/Sapporo case)', () => {
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: 'ここの味噌ラーメンは絶品です' } }] }, 'japanese'))
+      .toEqual({ dish: 'miso ramen', source: 'curated-verified' });
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: '天ぷらがサクサク' } }] }, 'japanese'))
+      .toEqual({ dish: 'tempura', source: 'curated-verified' });
+    // 2-char CJK needle passes the script-aware floor (Latin floor stays 4).
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: '餃子も美味しい' } }] }, 'japanese'))
+      .toEqual({ dish: 'gyoza', source: 'curated-verified' });
+  });
+
+  it('Chinese simplified + traditional reviews verify', () => {
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: '麻婆豆腐很正宗' } }] }, 'sichuan'))
+      .toEqual({ dish: 'mapo tofu', source: 'curated-verified' });
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: '佢哋嘅叉燒一流' } }] }, 'cantonese'))
+      .toEqual({ dish: 'char siu', source: 'curated-verified' });
+  });
+
+  it('no-mention → still null; Latin matching unaffected; alias-less cuisines unchanged', () => {
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: '店内は綺麗でした' } }] }, 'japanese')).toBe(null);
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: 'best tonkotsu ramen in town' } }] }, 'japanese'))
+      .toEqual({ dish: 'tonkotsu ramen', source: 'curated-verified' });
+    expect(dd.findVerifiedDish({ reviews: [{ text: { text: 'patin tempoyak gravy, so rich' } }] }, 'malaysian'))
+      .toEqual({ dish: 'patin tempoyak', source: 'curated-verified' });
+  });
+});

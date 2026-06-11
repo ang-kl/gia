@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
@@ -245,7 +245,10 @@ export default function App() {
         setLocationAnchor({ lat: loc.lat, lng: loc.lng, name: '' });
         setSearchCenter({ lat: loc.lat, lng: loc.lng });
         setFlyTarget({ lat: loc.lat, lng: loc.lng, zoom: 13, _k: Date.now() });
-        saveUserLocation({ lat: loc.lat, lng: loc.lng }).catch(() => {});
+        // v0.62.31 — ambient: an AUTOMATIC follow-sync save; the server's
+        // D787 label-guard refuses it over a fresh labelled pick (defence-
+        // in-depth under the v0.62.30 explicit-pick latch).
+        saveUserLocation({ lat: loc.lat, lng: loc.lng, ambient: true }).catch(() => {});
       },
     });
     return stop;
@@ -532,6 +535,18 @@ export default function App() {
   // is only a slice of the full ~130 curated list. Cleared on the next
   // non-Michelin search.
   const [michelinRemaining, setMichelinRemaining] = useState(null);  // null | { shown, remaining, total }
+  // v0.62.31 — adversarial-review fix: the chip-name resolver used to
+  // re-flatten the whole catalogue on EVERY ActiveFilters render. Memoize a
+  // slug→name Map once per catalogue load instead.
+  const cuisineNameBySlug = useMemo(() => {
+    const map = new Map();
+    if (Array.isArray(catalogue)) {
+      for (const c of catalogue) for (const cu of (c.cuisines || [])) {
+        if (cu?.slug && cu?.name) map.set(cu.slug, cu.name);
+      }
+    }
+    return map;
+  }, [catalogue]);
   // v0.62.6 — Michelin city-grouped display: initial map state per visible
   // batch. Case A (set city has ≥1 visible card) → fit the SET city's pins
   // (map stays centred there, never zooms out to country level). Case B
@@ -3086,12 +3101,12 @@ export default function App() {
               onResetAll={clearAll}
               // v0.62.19 — resolve the catalogue display name so the criteria
               // chip matches the drawer ('durian' → "Durian Fruits"), not the
-              // raw slug. Mirrors the comboLine resolver below.
+              // raw slug. v0.62.31 — memoized Map (was an O(catalogue) flatten
+              // per chip per render) + Michelin parity: show the country-aware
+              // edition label exactly like comboLine does.
               nameForCuisine={(slug) => {
-                if (!Array.isArray(catalogue)) return null;
-                const all = [].concat(...catalogue.map((c) => c.cuisines || []));
-                const m = all.find((c) => c.slug === slug);
-                return m ? m.name : null;
+                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                return cuisineNameBySlug.get(slug) || null;
               }}
             />
           </div>

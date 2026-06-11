@@ -9,7 +9,7 @@ body { -webkit-font-smoothing: antialiased; }
 :root {
   --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
   /* v0.62.16: see note above --tg-hint — visible-in-dark border. */
-  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 38%, var(--tg-bg, #0e0e10) 62%);
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 42%, var(--tg-bg, #0e0e10) 58%);
 }
 
 /* v0.59.18: bump base font-size by 1pt on tablet+ viewports
