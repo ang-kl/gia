@@ -12064,7 +12064,9 @@ async function cacheBotUsername() {
     // set the variable to lock it.
     const VIBE_DOC_FILES = {
       'vibe-journal.html': 'text/html; charset=utf-8',
-      'vibe-journal.json': 'application/json; charset=utf-8'
+      'vibe-journal.json': 'application/json; charset=utf-8',
+      // v0.62.15 — the Search Decision Tree mind-map (doc/SearchStrategy).
+      'search-strategy.html': 'text/html; charset=utf-8'
     };
     function vibeJournalKeyFromReq(req) {
       const fromQuery = req.query && typeof req.query.key === 'string' ? req.query.key : '';
@@ -14147,6 +14149,25 @@ async function cacheBotUsername() {
       // catch-all; this layer kills machine-speed amplification.
       makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 500 }),
       async (req, res) => {
+      // v0.62.15 — OVERALL request deadline (operator: JB+durian "https 502").
+      // A 502 is a GATEWAY error: the route never returned before the proxy
+      // gave up (a hang past ~30-60s), not a thrown error — the catch below
+      // can't help it. JB+durian stacks sequential Places latency (3-page
+      // discover + special-mode widen + the zero-result generic fallback +
+      // the post-search local-name / name-reading enrichments). Self-cap at
+      // 20s: if the body is still running, answer with a degraded-200 (same
+      // shape as the D705 path) so the gateway always gets a response first →
+      // it can NEVER 502. The timer is unref'd (never holds the process) and
+      // every real exit is guarded by res.headersSent so we never double-send.
+      const _searchStart = Date.now();
+      const _elapsed = () => Date.now() - _searchStart;
+      const _SEARCH_DEADLINE_MS = 20000;
+      const _searchDeadline = setTimeout(() => {
+        if (res.headersSent) return;
+        console.warn(`[Cuisine-Search] D706 deadline-degraded (>${_SEARCH_DEADLINE_MS}ms — returning early to avoid a gateway 502)`);
+        try { res.status(200).json({ venues: [], degraded: true, exhausted: false }); } catch { /* response already in flight */ }
+      }, _SEARCH_DEADLINE_MS);
+      if (typeof _searchDeadline.unref === 'function') _searchDeadline.unref();
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
         // city only, not the whole state of Johor or Malaysia). For JB
@@ -14843,8 +14864,15 @@ async function cacheBotUsername() {
           // v0.61.395 — Track A: pass the venue country so buildSeeds appends
           // the local-language durian seeds for foreign-script countries
           // (ドリアンパフ etc. in Tokyo) that the English-only seeds under-recall.
-          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: requestCountry });
-          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
+          // v0.62.15 — use the RESOLVED special-mode country (smCountry), NOT
+          // the raw requestCountry. For a JB search requestCountry is often
+          // 'SG'/null (the device anchor), so the v0.62.14 Malay seeds
+          // (kedai/gerai/pasar durian) were never appended → JB durian
+          // under-recalled. smCountry is 'MY' for JB / MY-PUT, so JB + MY-PUT
+          // now correctly get the Malay local seeds.
+          const seedCountry = smCountry || requestCountry;
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: seedCountry });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${seedCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
         }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens
@@ -15370,6 +15398,14 @@ async function cacheBotUsername() {
         let specialModeFinalRadiusM = searchRadius;
         let specialModeRelaxed = false;   // v0.61.416 — generic-term fallback fired
         if (specialMode) {
+          // v0.62.15 — budget guard (A2): the widen fires EXTRA sequential
+          // Places passes. Skip it once we're past ~14s so the optional recall
+          // boost never pushes the request into the gateway-502 zone (the
+          // 20s deadline above is the hard backstop; this avoids ever hitting
+          // it). The base pool + name-dedup below still run.
+          if (_elapsed() > 14000) {
+            console.warn(`[Cuisine-Search] specialMode widen skipped (budget: ${_elapsed()}ms elapsed)`);
+          } else {
           try {
             const { widenSpecialMode } = require('./cuisine-special-mode-widen');
             const sm = require('./special-mode');
@@ -15397,6 +15433,7 @@ async function cacheBotUsername() {
           } catch (err) {
             console.warn(`[Cuisine-Search] specialMode widening failed (non-fatal): ${err.message}`);
           }
+          }   // v0.62.15 — end widen budget-guard else
           // v0.61.145 — operator-flagged regression: durian search
           // result list was showing the same chain (e.g. "Golden
           // Moments") multiple times. Root cause: Places returns
@@ -15432,7 +15469,7 @@ async function cacheBotUsername() {
           // haystack). Still durian-only — a durian word must appear. Fruits is
           // excluded (global + already broad). Fires only on 0, so working
           // searches are untouched.
-          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0) {
+          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0 && _elapsed() < 15000) {
             try {
               const smFb = require('./special-mode');
               const vfFb = require('./venue-filters');
@@ -16481,8 +16518,12 @@ async function cacheBotUsername() {
         try {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
+        clearTimeout(_searchDeadline);
+        if (res.headersSent) return;   // v0.62.15 — the 20s deadline already answered
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
+        clearTimeout(_searchDeadline);
+        if (res.headersSent) return;   // v0.62.15 — deadline-degraded already sent
         console.error('[Error] /api/cuisine/search failed:', err.message);
         try {
           const vlog = require('./verbose-log');
