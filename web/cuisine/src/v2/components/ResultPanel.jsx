@@ -99,7 +99,12 @@ export default function ResultPanel({
   // michelinCity = server-resolved set-location city (michelinSummary.city);
   // onCityJump(group) pans/fits the map to that city's visible pins.
   michelinCity = null,
-  onCityJump = null
+  onCityJump = null,
+  // v0.62.x — OTHER curated Michelin cities in this country ([{city,count}])
+  // + a tap handler that re-anchors to that city and searches. Rendered as
+  // tappable nudges so George Town (etc.) is reachable after the in-city walk.
+  michelinOtherCities = null,
+  onMichelinCityJump = null
 }) {
   const [lang] = useLocale();
   const [copying, setCopying] = useState(false);
@@ -358,6 +363,27 @@ export default function ResultPanel({
       {michelinHint && (
         <div className="text-[11px] text-tg-hint italic px-1 pb-1.5 leading-snug">
           {michelinHint}
+        </div>
+      )}
+      {/* v0.62.x — tappable jump to the OTHER curated Michelin city/cities in
+          this country (e.g. George Town when anchored at Kuala Lumpur). Shown
+          whenever the server reports other cities — INCLUDING when the current
+          city's walk is exhausted — so the second location is always reachable
+          without hunting through the location picker. */}
+      {Array.isArray(michelinOtherCities) && michelinOtherCities.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-1 pb-2">
+          {michelinOtherCities.map((oc) => (
+            <button
+              key={oc.city}
+              type="button"
+              onClick={() => onMichelinCityJump && onMichelinCityJump(oc.city)}
+              className="text-[11px] rounded-full border border-tg-hint/40 px-2.5 py-1 text-tg-text hover:bg-tg-hint/10 active:bg-tg-hint/20"
+            >
+              {lang === 'fr'
+                ? `📍 ${oc.count} de plus à ${oc.city} →`
+                : `📍 ${oc.count} more in ${oc.city} →`}
+            </button>
+          ))}
         </div>
       )}
       {warmStartSeed && SEED_LABEL[warmStartSeed] && (
