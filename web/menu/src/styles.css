@@ -40,3 +40,13 @@ body { -webkit-font-smoothing: antialiased; }
     background-color: var(--tg-bg);
   }
 }
+
+/* v0.62.24 — perimeter border framing the centred TMA column on tablet /
+   desktop / iPad-mini (operator: "border around the perimeter of TMA in dark
+   mode", chose desktop/tablet/iPad-mini). Uses the subtle ~3:1 --tg-border so
+   the app shell is delineated from the letterbox in BOTH light and dark
+   (luminance-derived → colour-blind safe). Mobile full-bleed is intentionally
+   left borderless (no awkward screen-edge line / Telegram-header clipping). */
+@media (min-width: 600px) {
+  #root { border: 1px solid var(--tg-border); }
+}
