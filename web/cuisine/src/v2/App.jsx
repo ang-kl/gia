@@ -918,6 +918,23 @@ export default function App() {
           if (r?.region) applyRegionFromAnchor(r.region);
           // v0.61.205 — track precinctId for the OTHER pill flag swap.
           if (r?.precinctId) setAnchorPrecinctId(r.precinctId);
+          // v0.62.30 — operator: "problem again to lock the location."
+          // Railway log: bare label-less device re-saves (the 20-s follow
+          // sync) overwrote a deliberate Putrajaya/Sapporo pick minutes
+          // after it was set. Chain: an initData-GPS boot SKIPS
+          // tryServerCache, so the v0.61.438 explicit-pick latch (set only
+          // inside tryServerCache when the cache carries a label) never
+          // arms → shouldFollowDevice sees explicitPick=false → the sync
+          // saves device GPS over the labelled pick. THIS fetch already
+          // reads the cached location on those boots — when it carries a
+          // LABEL (a deliberate Menu/chat/TMA pick), arm the latch here
+          // too. Coords/UX unchanged (no popup, no auto-load — the
+          // v0.61.409 policy stands); the sync just can no longer silently
+          // clobber a deliberate pick.
+          if (r?.label && String(r.label).trim()) {
+            explicitPickRef.current = true;
+            console.log('[Cuisine-TMA-v2] explicit-pick latch armed from cached label:', r.label);
+          }
         } catch { /* non-fatal */ }
       }
       // v0.61.372 — the mount-time location resolution has settled; the

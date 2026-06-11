@@ -820,7 +820,13 @@ const NATION_OVERLAY = {
       F('roti john malaysian'),
       F('asam pedas'),                                            // sour-spicy fish stew
       F('ayam masak merah'),                                      // tomato-chili chicken
-      F('beef rendang malaysian'),
+      // v0.62.30 — operator (Putrajaya trip): the river-fish speciality was
+      // missing, so the Try-line discovery fill had nothing to verify against
+      // Putrajaya/Pahang venue reviews. Substring form ("patin tempoyak")
+      // matches reviews writing either "patin tempoyak" or "ikan patin
+      // tempoyak". Replaces 'beef rendang malaysian' — a literal duplicate of
+      // 'rendang' above — to stay inside the ≤30 cap.
+      F('patin tempoyak'),                                        // fermented-durian river catfish — Pahang/Temerloh icon
       F('curry laksa kl'),
       F('penang char kway teow',       ['singaporean']),
       F('hokkien mee kl',              ['singaporean']),

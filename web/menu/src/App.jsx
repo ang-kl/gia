@@ -359,6 +359,18 @@ export default function App() {
           console.log(`[Menu-TMA] auto-detect: GPS within ${drift.toFixed(1)}km of cached anchor, skip`);
           return;
         }
+        // v0.62.30 — operator: "problem again to lock the location." Railway
+        // log 11:35: this auto-detect POSTed label="Singapore" over a
+        // deliberate Putrajaya pick (the step-4 comment above already says
+        // "skip when the cached anchor says I'm somewhere else explicitly" —
+        // but the code only skipped SG anchors). A LABELLED cached anchor is
+        // a deliberate Menu/chat/TMA pick → never auto-overwrite it with
+        // device GPS (same "explicit pick wins" rule as the Cuisine TMA's
+        // v0.61.430 latch). The user re-anchors by picking a location.
+        if (anchor.label && String(anchor.label).trim()) {
+          console.log(`[Menu-TMA] auto-detect: cached anchor is a labelled pick ("${anchor.label}"), skip — explicit pick wins`);
+          return;
+        }
       }
       // Local IATA lookup.
       let detected = null;

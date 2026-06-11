@@ -1,6 +1,6 @@
 {
   "name": "soleat",
-  "version": "0.62.29",
+  "version": "0.62.30",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
