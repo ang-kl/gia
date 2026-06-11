@@ -1510,6 +1510,11 @@ export default function App() {
         // v0.61.205 — keep precinctId in sync with the server cache
         // so the OTHER pill's flag swaps to Putrajaya when relevant.
         setAnchorPrecinctId(r.precinctId || null);
+        // v0.62.33 — the visibility-refresh synced anchor/region/country but
+        // never the Arrival Plate, so a city switch made in chat / Menu TMA
+        // (or one whose persist response was missed) kept the OLD city's
+        // "What to try here" card. Mirror the tryServerCache plate sync.
+        setArrivalPlate(r.plate || null);
         // v0.61.270 — mirror tryServerCache's countryPref sync on
         // the visibility-restore path. User flips to Menu TMA, picks
         // Thailand, flips back to Cuisine TMA → countryPref tracks.
@@ -2435,6 +2440,13 @@ export default function App() {
   // of inside the collapsed Search-criteria section.
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
+      // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
+      // try here is still the old dishes … the card should be wipe clean."
+      // Wipe the Arrival Plate SYNCHRONOUSLY on every pick — the old city's
+      // card must never linger while a switch is in flight. The persist
+      // response (.then below) re-fills it when the new city is curated;
+      // a failed/missed persist now leaves the card EMPTY, not stale.
+      setArrivalPlate(null);
       // v0.61.354 — a city change from the OTHER dropdown is a PREVIEW:
       // set selectedCityLocation + fly the map there, but DON'T commit the
       // search anchor (positive control). The search re-anchors only on 🔍
