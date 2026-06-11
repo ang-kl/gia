@@ -12858,11 +12858,10 @@ async function cacheBotUsername() {
         // discovery centred there. Operator 2026-05-14: "Can I set the
         // location at Pontian or Desaru? Apparently, jump to the
         // central area in Johor as set location."
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — split SG bbox (see the cuisine-search copy below):
+        // honours JB sub-location picks (Legoland / Bukit Indah / Southkey)
+        // instead of snapping them to JB_CBD.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.60.165 — JB default radius widened 18 km → 30 km per
         // operator request. Tight 18 km only covered JB city proper;
@@ -14385,11 +14384,14 @@ async function cacheBotUsername() {
         // the anchor do the geo work. Legacy 'MY-PUT' aliased to
         // 'OTHER' for back-compat with anchors written before v0.61.185.
         const isOther = region === 'OTHER' || region === 'MY-PUT';
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — use the SPLIT SG bbox (location-mode.insideSgBbox,
+        // mirroring the client's v0.61.281 carve-out) instead of the old
+        // inline flat box (lat 1.15–1.50 / lng 103.6–104.1). The flat box
+        // over-claimed JB sub-locations (Legoland / Bukit Indah / Southkey)
+        // as "inside SG", so picking those chips snapped the search to
+        // JB_CBD and the results landed far from the pin. The split box
+        // classifies them as JB → the picked coords are honoured.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         // v0.61.129 — O-20: the Tell-me box place-anchor detection
         // below may override searchCenter, so this is `let`.
         let searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };

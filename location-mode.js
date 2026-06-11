@@ -75,6 +75,30 @@ const JB_CBD = Object.freeze({ lat: 1.4927, lng: 103.7414 });
 // fallback. v0.61.279 extracted from two inline copies (Register O-26).
 const JB_FALLBACK_THRESHOLD_M = 150000;
 
+// v0.62.17 — server-side SPLIT Singapore bbox, mirroring the client
+// (web/cuisine/src/v2/lib/coords-to-country.js `_inSgBbox`, v0.61.281).
+// The cuisine-search route's old inline flat box (lat 1.15–1.50, lng
+// 103.6–104.1) over-claimed JB sub-locations (Legoland 1.4296/103.6321,
+// Bukit Indah 1.4773/103.6645, Southkey 1.4912/103.7665) as "inside SG",
+// so a region='JB' search snapped their picked coords to JB_CBD and the
+// results landed far from the chip. The west-of-strait carve-out fixes
+// it: west of lng 103.70 the SG north cap drops to lat 1.42 (Tuas), so
+// Iskandar Puteri / Legoland / Bukit Indah classify as JB, not SG.
+const SG_BBOX = Object.freeze({
+  LAT_MIN: 1.15, LAT_MAX: 1.47,          // east/central cap (Woodlands/Sembawang ~1.45)
+  LNG_MIN: 103.55, LNG_MAX: 104.10,
+  LNG_WEST_THRESHOLD: 103.70, LAT_MAX_WEST: 1.42  // west-of-strait tighter cap
+});
+function insideSgBbox(input) {
+  if (!input) return false;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat < SG_BBOX.LAT_MIN) return false;
+  if (lng < SG_BBOX.LNG_MIN || lng > SG_BBOX.LNG_MAX) return false;
+  const latMax = (lng < SG_BBOX.LNG_WEST_THRESHOLD) ? SG_BBOX.LAT_MAX_WEST : SG_BBOX.LAT_MAX;
+  return lat <= latMax;
+}
+
 // Substring match (case-insensitive). The Malaysian state name comes
 // back as "Johor" from the Google Geocode `administrative_area_level_1`
 // component; using `includes` survives stray punctuation / suffixes
@@ -301,6 +325,8 @@ module.exports = {
   JB_CBD,
   JB_FALLBACK_THRESHOLD_M,
   JB_ADMIN_KEYWORDS,
+  SG_BBOX,
+  insideSgBbox,
   FEATURE_KIND,
   ALWAYS_ALLOWED,
   SG_ONLY,
