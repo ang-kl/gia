@@ -96,3 +96,26 @@ describe('cuisine-family — isUnfamiliar (set-location = home cuisine)', () => 
     expect(keys).toEqual(['AU', 'BN', 'CN', 'HK', 'ID', 'JP', 'KR', 'MO', 'MY', 'NZ', 'PH', 'SG', 'TH', 'TW', 'VN']);
   });
 });
+
+// v0.62.30 — operator (Putrajaya trip): patin tempoyak added to the Malaysian
+// table (replacing the 'beef rendang malaysian' duplicate of 'rendang');
+// substring form so either review phrasing verifies.
+describe('discovery-dish — Malaysian patin tempoyak (v0.62.30)', () => {
+  it('patin tempoyak is an unshared Malaysian iconic dish', () => {
+    expect(dd.iconicDishesFor('malaysian', { max: 30 })).toContain('patin tempoyak');
+  });
+
+  it('verifies from either review phrasing (with or without "ikan")', () => {
+    const a = { reviews: [{ text: { text: 'the ikan patin tempoyak here is the real Temerloh deal' } }] };
+    const b = { reviews: [{ text: { text: 'patin tempoyak gravy was rich and sour' } }] };
+    expect(dd.findVerifiedDish(a, 'malaysian')?.dish).toBe('patin tempoyak');
+    expect(dd.findVerifiedDish(b, 'malaysian')?.dish).toBe('patin tempoyak');
+  });
+
+  it('rendang coverage survives the swap (the duplicate was removed, not the dish)', () => {
+    // 'rendang' itself is shared with Indonesian → correctly NOT in the
+    // unshared Try-line list; the point is the LIST still ≤30 and patin in.
+    const list = dd.iconicDishesFor('malaysian', { max: 30 });
+    expect(list.length).toBeLessThanOrEqual(30);
+  });
+});

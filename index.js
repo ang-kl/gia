@@ -16171,19 +16171,25 @@ async function cacheBotUsername() {
             const discSlug = String(cuisines[0] || '').toLowerCase();
             const discUnfamiliar = cfDisc.isUnfamiliar(discSlug, searchRegionCode);
             let discFilled = 0;
+            let discHadDishes = 0;   // v0.62.30 — reviews-first skips (visibility)
+            let discNoMatch = 0;     // v0.62.30 — eligible but nothing verified
             for (const v of top) {
               if (!v) continue;
-              if ((Array.isArray(v.dishes) && v.dishes.length) || v.signatureDish) continue; // reviews win
+              if ((Array.isArray(v.dishes) && v.dishes.length) || v.signatureDish) { discHadDishes++; continue; } // reviews win
               const hit = dd.findVerifiedDish(v, discSlug);
               if (hit) {
                 v.signatureDish = hit.dish;
                 v.dishSource = hit.source;
                 discFilled++;
+              } else {
+                discNoMatch++;
               }
             }
-            if (discFilled > 0) {
-              console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length}`);
-            }
+            // v0.62.30 — operator: "the Try line didn't surface" was
+            // undiagnosable because filled=0 logged NOTHING. Always log the
+            // breakdown so a silent zero is evident (had-review-dishes vs
+            // eligible-but-no-verified-mention).
+            console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length} (reviewDishes=${discHadDishes} noVerifiedMention=${discNoMatch})`);
           } catch (err) { console.warn('[Cuisine-Search] curated-try fill failed (non-fatal):', err.message); }
         }
         // v0.62.x — progressive-results Stage 2: when the client opts in

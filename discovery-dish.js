@@ -108,12 +108,16 @@ function famousMethodsFor(slug, { max = 8 } = {}) {
 function findVerifiedDish(venue, slug) {
   const haystack = venueEvidenceText(venue);
   if (!haystack) return null;
-  for (const dish of iconicDishesFor(slug)) {
+  // v0.62.30 — scan the FULL unshared list (the default max=8 silently
+  // skipped deeper entries like 'patin tempoyak', #17 in the Malaysian
+  // table — evidence in the venue text deserves the match wherever the
+  // dish sits in the curated order).
+  for (const dish of iconicDishesFor(slug, { max: 200 })) {
     const needle = norm(dish);
     if (needle.length < 4) continue;        // too short to trust containment
     if (haystack.includes(needle)) return { dish, source: 'curated-verified' };
   }
-  for (const term of famousMethodsFor(slug)) {
+  for (const term of famousMethodsFor(slug, { max: 50 })) {
     const needle = norm(term);
     if (needle.length < 5) continue;        // methods skew shorter — stricter floor
     if (haystack.includes(needle)) return { dish: term, source: 'method-verified' };
