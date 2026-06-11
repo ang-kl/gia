@@ -80,9 +80,23 @@ describe('city-plates — geo lookup (platesNear)', () => {
 
 describe('dish-name guard — plate dishes can never become place anchors', () => {
   it('every plate dish (romanised + local script) is a known dish name', () => {
+    const CJK = /[぀-ヿ㐀-鿿豈-﫿가-힣]/;
     for (const name of cp.allPlateDishNames()) {
+      // v0.62.38 — the guard's deliberate floor skips Latin names < 3 chars
+      // (Adelaide's "AB" can never be guarded — too ambiguous to block).
+      if (!CJK.test(name) && name.trim().length < 3) continue;
       expect(dd.isKnownDishName(name), name).toBe(true);
     }
+  });
+
+  it('v0.62.38 — coords-fallback geo + new-country classics', () => {
+    expect(cp.platesNear(11.9404, 108.4583)?.city).toBe('Dalat');          // no centroid → own coords
+    expect(cp.platesNear(22.2976, 114.1722)?.city).toBe('Hong Kong');      // district anchor → matchKm 35
+    expect(cp.platesNear(2.1896, 102.2501)?.city).toBe('Malacca City');
+    expect(cp.platesNear(34.6937, 135.5023)?.city).toBe('Osaka');
+    expect((cp.classicsForCountry('KR') || []).length).toBeGreaterThan(20);
+    expect((cp.classicsForCountry('MO') || []).length).toBeGreaterThan(10);
+    expect((cp.platesForCity('Jakarta').classics || []).length).toBeGreaterThan(20);
   });
 
   it('the operator log cases are guarded; genuine places are not', () => {

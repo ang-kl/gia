@@ -333,3 +333,45 @@ matcher, so Phở ↔ pho both verify).
     Huế" — [Cổng TTĐT Chính phủ](https://baochinhphu.vn/tri-thuc-dan-gian-ve-bun-bo-hue-duoc-cong-nhan-di-san-van-hoa-phi-vat-the-quoc-gia-102250705162116955.htm) (S, vi);
     notes the Vân Cù / Ô Sa noodle-village craft lineage.
   - Both registry rows now cite the vi decision FIRST, the en outlet second.
+
+## 21. Full curation pass (v0.62.38 — operator: "build up the remaining count… don't leave out any missing cities")
+
+**Scope:** all 105 remaining picker entries across 13 country groups, researched by 9 parallel
+local-language-first passes (ms/th/id/fil/ko/zh/ja/vi + AU/NZ official boards). Registry now
+**126 cities / 279 dish rows**, every row with tier, claim, en+fr history compiled from the cited
+sources, and ≥1 authorised or authorised-3rd-party source — local-language official sources first.
+
+**Tier-S anchors found this pass (highlights):**
+- **CN** 非遗 national/provincial ICH: Peking duck (Quanjude + Bianyifang lineages), Nanxiang
+  xiaolongbao, benbang cuisine, Fotiaoqiang (Juchunyuan 1865), Chen Mapo tofu (1862), West Lake
+  vinegar fish (Louwailou), Nanjing saltwater duck, Yangzhou Fuchun tea ritual (also in the 2022
+  UNESCO tea inscription); Yangzhou fried rice has an official 2015 city standard.
+- **ID** Kemendikbud WBTb registry: kerak telor, gado-gado + soto betawi (2016), rujak cingur
+  (2021), lumpia Semarang, coto Makassar (2015), babi guling (2011), betutu, gudeg, bakpia (2016),
+  bika ambon (2025).
+- **KR**: jajangmyeon born at Gonghwachun, Incheon (bldg = Registered Cultural Heritage No. 246);
+  Joseon royal court cuisine = National ICH No. 38; Gyodong-beopju = National ICH No. 86-3; Jeju
+  haenyeo = UNESCO ICH 2016; Daegu 10 Tastes (official city list); Busan Future Heritage.
+- **HK/MO/TW**: HK milk-tea technique on the HK ICH Representative List (2017); Macanese cuisine =
+  China national ICH 2021 + UNESCO gastronomy city 2017; bubble tea dispute (Chun Shui Tang 1987 ↔
+  Hanlin 1986) resolved by courts 2019 as no-owner — both named.
+- **TH**: GI registrations (durian non, Surat Thani oysters, khai khem Chaiya, som-o Nakhon Chai
+  Si); Phuket = UNESCO gastronomy city 2015.
+- **MY**: JKKN Pemetaan Budaya rows throughout; Sarawak laksa + nasi kerabu + budu + nasi dagang +
+  hinava national heritage foods; kek lapis Sarawak PGI 2010; Kuching = UNESCO gastronomy 2021.
+- **JP**: MAFF うちの郷土料理 rows (gyunabe, sanma-men, takoyaki, okonomiyaki both styles,
+  kushikatsu, kakinoha-zushi); Fukuoka's yatai protected by the 2013 city ordinance.
+- **AU/NZ**: pie floater + frog cake = National Trust SA Heritage Icons; flat-white dispute names
+  Sydney/Auckland/Wellington; Rotorua geothermal hāngī; cheese-roll Dunedin↔Southland dispute.
+
+**Honesty calls:** honestEmpty kept for thin cities (Shah Alam, Kota Kinabalu, Kota Bharu, Kangar,
+Pattaya, Hua Hin, Canberra, Gold Coast, Cairns, Christchurch, Hamilton, Napier, Kuala Belait,
+Seria, Muara); disputed origins name all claimants (bubble tea, okonomiyaki, dwaeji gukbap,
+tteokgalbi, boat noodles, bulalo, batchoy's three La Paz claimants, cheese roll, flat white, AB,
+bandeng presto, kek lapis, nasi dagang, sata, tao so); adapted-imports say so (chao long's
+misnomer, dim sim, pork chop bun). **Excluded as TO_VERIFY:** crocodile sisig (Palawan), shengjian
++ duck-blood soup (Shanghai/Nanjing — no official source found), per the standing rule.
+
+**Coverage check:** every picker entry now resolves to a plate — directly, via its own coords
+(Dalat, Malacca City, the BN towns, Ayutthaya/Koh Samui duplicates), or via the Hong Kong
+35 km district umbrella. Zero picker cities left out.

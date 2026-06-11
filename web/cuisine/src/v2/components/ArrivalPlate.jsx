@@ -27,7 +27,16 @@ const COUNTRY_LABEL = {
   JP: { en: 'Japanese',    fr: 'japonais' },
   VN: { en: 'Vietnamese',  fr: 'vietnamiens' },
   AU: { en: 'Australian',  fr: 'australiens' },
-  NZ: { en: 'New Zealand', fr: 'néo-zélandais' }
+  NZ: { en: 'New Zealand', fr: 'néo-zélandais' },
+  // v0.62.38 — the 8 markets lit up by the full curation pass.
+  ID: { en: 'Indonesian',  fr: 'indonésiens' },
+  PH: { en: 'Filipino',    fr: 'philippins' },
+  KR: { en: 'Korean',      fr: 'coréens' },
+  CN: { en: 'Chinese',     fr: 'chinois' },
+  TW: { en: 'Taiwanese',   fr: 'taïwanais' },
+  HK: { en: 'Hong Kong',   fr: 'hongkongais' },
+  MO: { en: 'Macanese',    fr: 'macanais' },
+  BN: { en: 'Bruneian',    fr: 'brunéiens' }
 };
 
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
