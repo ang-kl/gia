@@ -802,6 +802,32 @@ export default function App() {
             // anchor moved back to SG.
             setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
             console.log('[Cuisine-TMA-v2] tryServerCache: auto-flip region → SG');
+          } else {
+            // v0.62.35 — coords-only cache (a legacy bare write carried no
+            // region): derive it from the coords, mirroring the follow-sync
+            // (lines ~227-244). Without this, foreign cached coords booted
+            // under the SG default — a KL anchor wearing a 🇸🇬 flag.
+            const cc = coordsToCountry({ lat: r.lat, lng: r.lng });
+            if (cc === 'SG') {
+              setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
+              console.log('[Cuisine-TMA-v2] tryServerCache: region derived from coords → SG');
+            } else if (cc === 'MY') {
+              const target = isJbCoords({ lat: r.lat, lng: r.lng }) ? 'JB' : 'OTHER';
+              setState((s) => {
+                if (s.region === target) return s;
+                const n = { ...s, region: target };
+                if (target === 'OTHER') n.countryPref = 'MY';
+                return n;
+              });
+              console.log('[Cuisine-TMA-v2] tryServerCache: region derived from coords → ' + target);
+            } else {
+              const near = nearestIataCity(r.lat, r.lng);
+              const code = near && near.city && near.city.countryCode;
+              if (code && CUISINE_OTHER_CODES.has(code)) {
+                setState((s) => (s.region === 'OTHER' && s.countryPref === code ? s : { ...s, region: 'OTHER', countryPref: code }));
+                console.log('[Cuisine-TMA-v2] tryServerCache: region derived from coords → OTHER/' + code);
+              }
+            }
           }
           // v0.61.205 — track anchor precinctId so the OTHER pill can
           // show the Putrajaya flag PNG when the anchor is IOI Resort
@@ -1605,6 +1631,21 @@ export default function App() {
       autoDetectedRef.current = true;
       return;
     }
+    // v0.62.35 — operator's Railway log: this effect's bare persist (step 5)
+    // wrote label-less device coords (`[set-location] → 1.2722,103.8112`)
+    // over the labelled HCM pick on every boot — setUserLocation REPLACES
+    // the payload, so the pick's label/region/country were wiped and the
+    // next boot rendered the mixed "MY>KL with a 🇸🇬 flag" UI from a
+    // coords-only cache. A LABELLED cached pick is an explicit pick on
+    // EVERY boot path (the v0.62.30 rule) — auto-detect must respect it:
+    // skip the device re-anchor entirely (no GPS prompt, no Gemini, no
+    // persist). The boot load still fires at the cached anchor.
+    if (explicitPickRef.current && (locationAnchorRef.current?.name || '').trim()) {
+      autoDetectedRef.current = true;
+      console.log('[Cuisine-TMA-v2] auto-detect: SKIPPED — labelled cached pick "'
+        + locationAnchorRef.current.name + '" holds (explicit pick wins)');
+      return;
+    }
     autoDetectedRef.current = true;
     // Claim warm-start's ref so the regular warm-start effect (declared
     // immediately below) skips this mount. Auto-detect owns the first
@@ -1738,7 +1779,18 @@ export default function App() {
       setSearchCenter({ lat: target.lat, lng: target.lng });
 
       // 5) Persist to server (fire-and-forget).
-      saveUserLocation({ lat: target.lat, lng: target.lng }).catch(() => {});
+      // v0.62.35 — this is an AUTOMATIC mover (no user gesture), so it now
+      // carries `ambient: true` (the v0.62.31 D787 contract): the server
+      // refuses it over a fresh LABELLED pick — closes the initData-boot
+      // race where this fired before the explicit-pick latch armed. It also
+      // persists the resolved label/region/country so the cache is never a
+      // bare coords-only entry again (the root of the mixed-flag boot).
+      saveUserLocation({
+        lat: target.lat, lng: target.lng, ambient: true,
+        ...(anchorName ? { label: anchorName } : {}),
+        ...(stateDelta.region ? { region: stateDelta.region } : {}),
+        ...(stateDelta.countryPref ? { country: stateDelta.countryPref } : {})
+      }).catch(() => {});
       if (stateDelta.countryPref) saveCountryPref(stateDelta.countryPref).catch(() => {});
 
       // 6) v0.61.323 — DO NOT fire the venue load here anymore. The boot
