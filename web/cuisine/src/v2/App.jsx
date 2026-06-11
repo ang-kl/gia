@@ -277,6 +277,8 @@ export default function App() {
   // search returned nothing (zeroReason); this holds the i18n key for the
   // notice the result panel shows on a persistent empty list.
   const [zeroReasonKey, setZeroReasonKey] = useState(null);
+  // v0.62.14 — durian soft-rating: server surfaced a sub-3.7 / unrated stall.
+  const [durianRatingNote, setDurianRatingNote] = useState(false);
   // v0.61.397 — operator: durian / fruits / durian-pastry are blocked
   // outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN). The server
   // returns { mode, country } in `specialModeBlocked`; the result panel
@@ -2010,6 +2012,9 @@ export default function App() {
       // `specialModeLimited: true` when the post-filter dropped the
       // count below the spec's 8-12 target).
       setSpecialModeNotice(r.specialMode && r.specialModeLimited ? r.specialMode : null);
+      // v0.62.14 — durian soft-rating notice: the server included a below-3.7 /
+      // unrated stall, so explain we prefer 3.7★+ but still show the rest.
+      setDurianRatingNote(r.durianRatingNotice === true);
       // v0.61.397 — server blocked the durian/fruits/durian-pastry mode for
       // a country outside the SE-Asian durian belt. { mode, country } or null.
       setSpecialModeBlocked(r.specialModeBlocked || null);
@@ -3218,6 +3223,13 @@ export default function App() {
       {zeroReasonKey && !loading && venues.length === 0 && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-hint">
           {t(zeroReasonKey, lang)}
+        </div>
+      )}
+      {/* v0.62.14 — durian soft-rating: explain we prefer 3.7★+ but also show
+          lower-rated / unrated stalls (a durian stall is a durian stall). */}
+      {durianRatingNote && !loading && venues.length > 0 && (
+        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {t('special.durian.softRating', lang)}
         </div>
       )}
       {specialModeNotice && !loading && (

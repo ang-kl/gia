@@ -120,7 +120,15 @@ const DURIAN_CORE_TERMS = Object.freeze([
   '榴槤', '榴蓮',                  // Chinese (traditional — Taiwan / Hong Kong)
   'ドリアン',                      // Japanese
   '두리안',                        // Korean
-  'ทุเรียน'                        // Thai
+  'ทุเรียน',                       // Thai
+  // v0.62.14 — durian CULTIVAR names (operator: variety-named stalls like
+  // "Unforgettable Musang King" / "Black Thorn King" were dropped by the
+  // strict-name gate because they carry no "durian" word). A name naming the
+  // cultivar IS durian. ONLY durian-EXCLUSIVE multi-word names — terms that
+  // collide with other cuisines (red prawn/udang merah = seafood, golden
+  // phoenix = Chinese resto, tekka = sushi/market) are deliberately EXCLUDED
+  // and kept extraction-only in DURIAN_VARIETY_TERMS below.
+  'musang king', 'mao shan wang', 'black thorn'
 ]);
 
 // Per-mode relevance keywords (lowercased). A venue is considered
@@ -587,18 +595,26 @@ function _canonicalForReviews(mode) {
 // dessert places. Add Vietnamese ('vi') shop-form seeds (reuse the forms from
 // durian-variance-runner.js) so Places returns actual durian/fruit shops.
 const LOCAL_SEED_LANG_BY_CC = Object.freeze({
-  JP: 'ja', KR: 'ko', CN: 'zh-CN', TW: 'zh-TW', HK: 'zh-TW', MO: 'zh-TW', TH: 'th', VN: 'vi'
+  JP: 'ja', KR: 'ko', CN: 'zh-CN', TW: 'zh-TW', HK: 'zh-TW', MO: 'zh-TW', TH: 'th', VN: 'vi',
+  // v0.62.14 — operator: MY/ID/BN durian under-recalled on English-only seeds.
+  // Malay (MY + Brunei) + Indonesian local seeds so Places returns the local-
+  // named stalls ("Gerai Durian …", "Toko Durian …").
+  MY: 'ms', BN: 'ms', ID: 'id'
 });
 const LOCAL_SEEDS = Object.freeze({
   [SPECIAL_MODES.DURIAN]: {
     ja: ['ドリアン店', 'ドリアン専門店'], ko: ['두리안 가게', '두리안 전문점'],
     'zh-CN': ['榴莲店', '鲜榴莲'], 'zh-TW': ['榴梿店'], th: ['ร้านทุเรียน', 'ทุเรียน'],
-    vi: ['cửa hàng sầu riêng', 'quán sầu riêng']   // durian shop / durian stall
+    vi: ['cửa hàng sầu riêng', 'quán sầu riêng'],   // durian shop / durian stall
+    ms: ['kedai durian', 'gerai durian', 'pasar durian'],   // Malay (MY/BN): shop / stall / market
+    id: ['toko durian', 'warung durian', 'penjual durian']  // Indonesian: shop / stall / seller
   },
   [SPECIAL_MODES.DURIAN_PASTRY]: {
     ja: ['ドリアンパフ', 'ドリアンケーキ'], ko: ['두리안 케이크', '두리안 디저트'],
     'zh-CN': ['榴莲泡芙', '榴莲蛋糕'], 'zh-TW': ['榴梿泡芙', '榴梿蛋糕'], th: ['พัฟทุเรียน', 'เค้กทุเรียน'],
-    vi: ['bánh sầu riêng', 'kem sầu riêng']        // durian cake / durian ice cream
+    vi: ['bánh sầu riêng', 'kem sầu riêng'],        // durian cake / durian ice cream
+    ms: ['kek durian', 'pastri durian'],            // Malay durian cake / pastry
+    id: ['kue durian', 'pancake durian']            // Indonesian durian cake / pancake
   },
   [SPECIAL_MODES.FRUITS]: {
     ja: ['果物店', 'フルーツ店'], ko: ['과일 가게'],
