@@ -13988,10 +13988,19 @@ async function cacheBotUsername() {
         if (typeof postal === 'string' && postal.trim()) opts.postal = postal.trim();
         if (Number.isFinite(radiusCapM) && radiusCapM > 0) opts.radiusCapM = radiusCapM;
         opts.deviceId = readDeviceId(req); // v0.61.363 per-device key
+        // v0.62.31 — ambient flag (sent ONLY by the TMA's automatic movers,
+        // e.g. the 20-s follow-device sync — never by a user gesture).
+        // location-cache's D787 label-guard refuses an ambient write over a
+        // fresh LABELLED pick; deliberate flows keep full overwrite semantics.
+        if (req.body?.ambient === true) opts.ambient = true;
         // v0.61.412 — read the PREVIOUS set-location before overwriting, so the
         // "Search area set to …" notify can fire only on an actual area change.
         const prevLoc = await getUserLocation(redis, String(userId), opts.deviceId).catch(() => null);
-        await setUserLocation(redis, String(userId), lat, lng, opts);
+        const setOut = await setUserLocation(redis, String(userId), lat, lng, opts);
+        if (setOut && setOut.kept) {
+          // The guard held — report the kept pick so the client knows nothing moved.
+          return res.json({ ok: true, kept: true, label: setOut.label });
+        }
         // v0.61.412 — operator: confirm a DELIBERATE pick in chat (client sends
         // notify:true; boot / auto-detect writes don't). Fire-and-forget so the
         // HTTP 200 isn't delayed by the geocode / sendMessage round-trip.
@@ -14237,10 +14246,24 @@ async function cacheBotUsername() {
       const _searchStart = Date.now();
       const _elapsed = () => Date.now() - _searchStart;
       const _SEARCH_DEADLINE_MS = 20000;
+      // v0.62.31 — adversarial-review fixes on the v0.62.15 deadline:
+      //   (1) `_deadlineFired` lets the still-running body SKIP the seen-set
+      //       + session-page writes — the user got the degraded response, so
+      //       marking the never-shown venues as "seen" silently swallowed
+      //       them on the NEXT tap (the worst kind of zero). The 30s payload
+      //       cache write stays ON: with the seen-set unburned, an immediate
+      //       re-tap serves those venues fast — the correct recovery.
+      //   (2) `_gatheredRef` — the body parks `dedupedTop` here the moment it
+      //       exists, so a deadline that fires AFTER the pool was built
+      //       returns the real venues (degraded:true still set), not [].
+      let _deadlineFired = false;
+      const _gatheredRef = { venues: null };
       const _searchDeadline = setTimeout(() => {
         if (res.headersSent) return;
-        console.warn(`[Cuisine-Search] D706 deadline-degraded (>${_SEARCH_DEADLINE_MS}ms — returning early to avoid a gateway 502)`);
-        try { res.status(200).json({ venues: [], degraded: true, exhausted: false }); } catch { /* response already in flight */ }
+        _deadlineFired = true;
+        const gathered = Array.isArray(_gatheredRef.venues) ? _gatheredRef.venues : [];
+        console.warn(`[Cuisine-Search] D706 deadline-degraded (>${_SEARCH_DEADLINE_MS}ms — returning early with ${gathered.length} gathered venues to avoid a gateway 502)`);
+        try { res.status(200).json({ venues: gathered, degraded: true, exhausted: false }); } catch { /* response already in flight */ }
       }, _SEARCH_DEADLINE_MS);
       if (typeof _searchDeadline.unref === 'function') _searchDeadline.unref();
       try {
@@ -16153,6 +16176,11 @@ async function cacheBotUsername() {
           humaniseRestaurantType, enrichPriceRangeDisplay, enrichSanctuaryRead
         };
         await cuisineEnrich.enrichFast(top, enrichCtx);
+        // v0.62.31 — park the fast-enriched page for the D706 deadline: if
+        // the 20s cap fires during the slow phase below, the degraded-200
+        // returns THESE venues (renderable per the Stage-2 streaming design,
+        // which flushes exactly this snapshot) instead of an empty list.
+        _gatheredRef.venues = top;
         // v0.62.29 — foodie discovery: curated national-dish "Try" fill,
         // EVIDENCE-VERIFIED (operator: "how would you know that eatery has
         // the national dish?"). Reviews-first: only venues whose review-mined
@@ -16239,9 +16267,18 @@ async function cacheBotUsername() {
         // criteria change uses a different hash → empty seen-set →
         // fresh round immediately.
         const dedupedTop = top;
+        // v0.62.31 — adversarial-review fix: when the D706 deadline already
+        // answered (degraded, possibly partial), do NOT mark this batch as
+        // seen or record it as a session page — the user did not receive it
+        // as a normal page, and burning the seen-set made the NEXT tap skip
+        // venues the user never saw. Streaming is unaffected (_deadlineFired
+        // stays false there: headers are sent with the venues, so the user
+        // DID get them and the writes below are correct).
         try {
-          if (dedupHash) {
+          if (dedupHash && !_deadlineFired) {
             await appendSeenSet(csChatId, dedupHash, top.map((v) => v.placeId).filter(Boolean));
+          } else if (dedupHash && _deadlineFired) {
+            console.log('[Cuisine-Search] seen-set append skipped (deadline fired — venues not delivered as a page)');
           }
         } catch (err) {
           console.warn('[Cuisine-Search] seen-set append failed:', err.message);
@@ -16250,7 +16287,7 @@ async function cacheBotUsername() {
         // (80-cap) + the page-history list (cap 10) for the back-FAB.
         // Fire-and-forget; never blocks the response.
         let sessionPageDepth = 0;
-        if (csChatId && dedupedTop.length) {
+        if (csChatId && dedupedTop.length && !_deadlineFired) {   // v0.62.31 — see seen-set guard above
           try {
             const sessOut = await cuisineSession.recordPage(redis, csChatId, {
               ts: Date.now(),

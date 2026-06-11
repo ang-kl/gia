@@ -73,6 +73,13 @@ const STRINGS = {
   'chip.privacy':          { en: 'Privacy',   fr: 'Confidentialité' },
   'chip.forgetme':         { en: 'Forget me', fr: 'Oublier mes données' },
 
+  // v0.62.31 — stale-travel hint: when device GPS sits far (>50 km) from a
+  // LABELLED pick, the auto-detect no longer moves it (v0.62.30 explicit-pick
+  // rule) — this hint is the recovery path (operator: "hint, never auto").
+  // {label} is interpolated by the caller.
+  'loc.farFromPick':       { en: '📍 You seem far from {label} — tap the location field to update.',
+                             fr: '📍 Vous semblez loin de {label} — touchez le champ de lieu pour mettre à jour.' },
+
   // ----- Footer brand line -----
   'footer.brand':          { en: 'Soleat',    fr: 'Soleat' },
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
