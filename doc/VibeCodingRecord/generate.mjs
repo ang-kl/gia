@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-11';   // v0.62.27 refresh: PRs #965-#989 (unified newness rule, durian VND/soft-rating/seeds, JB focus-point radius + coords anchoring, Michelin city-grouping + George-Town jump + deadline-walk guard, progressive-streamed cuisine results Stages 1-3, country-pick→capital, Places-cost Michelin negative-cache)
+const GEN_DATE = '2026-06-12';   // v0.62.40 refresh: PRs #990-#1003 (foodie discovery Try-line, location lock + D787, adversarial-review hardening, the Arrival Plate arc [registry + E-split + fact-cards + dish-name guard], plate-wipe + D791 post-search check + boot label-wipe kill, VN curation, ⭐ Recommend filter + overlay classics, the 105-city full curation pass [126 cities/279 rows], vault v0.62.37, live-Hanoi affordance refinements)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
