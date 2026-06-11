@@ -15808,7 +15808,13 @@ async function cacheBotUsername() {
         // the pref was resolved ONCE up front (effRatingPref: request
         // override → Redis → guarded default) so it matches the criteria
         // hash exactly and costs no second Redis read here.
-        {
+        // v0.62.14 — DURIAN soft-rating (operator: "unhinge the 3.7"). A durian
+        // stall is a durian stall regardless of stars — Google shows 2.5★ ones.
+        // For durian / durian-pastry, DON'T hard-floor: keep ALL (incl. <3.7 +
+        // unrated); the >=3.7/unrated picks are ordered FIRST below and a notice
+        // explains "we look for 3.7★+ but also show lower-rated / unrated stalls".
+        const durianSoftRating = (specialMode === 'durian' || specialMode === 'durian-pastry');
+        if (!durianSoftRating) {
           const beforeFloor = venues.length;
           // v0.62.x — the unified newness rule floors rated venues at >3.0 (see
           // newness-criteria.js). On the New pill that >3.0 bar was already
@@ -15823,6 +15829,8 @@ async function cacheBotUsername() {
           if (venues.length !== beforeFloor) {
             console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
           }
+        } else {
+          console.log(`[Cuisine-Search] durian soft-rating: floor skipped, kept all ${venues.length} (>=3.7/unrated ordered first)`);
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
@@ -15836,8 +15844,19 @@ async function cacheBotUsername() {
         // fill band only surfaces once the strict band can't fill the page.
         // Distance stays the within-band tiebreak. `_recencyBand` is undefined
         // off the New pill → comparator collapses to pure distance (unchanged).
+        // v0.62.14 — durian soft-rating order: >=3.7 / unrated stalls page
+        // first, <3.7 stalls fill after (operator: prefer 3.7★+ but still show
+        // the rest). Pref 0 = keep-first, 1 = below-bar.
+        const _durianPref = (v) => {
+          const r = Number(v.rating);
+          return (!Number.isFinite(r) || r === 0 || r >= 3.7) ? 0 : 1;
+        };
         if (!skipCacheForShuffle) {
           trulyUnseen.sort((a, b) => {
+            if (durianSoftRating) {
+              const pa = _durianPref(a), pb = _durianPref(b);
+              if (pa !== pb) return pa - pb;
+            }
             const ba = a._recencyBand === 'fill' ? 1 : 0;
             const bb = b._recencyBand === 'fill' ? 1 : 0;
             if (ba !== bb) return ba - bb;
@@ -16371,6 +16390,15 @@ async function cacheBotUsername() {
           // v0.61.416 — surface the generic-term fallback so the TMA / logs can
           // note results came from a broadened "durian" search (strict was 0).
           if (specialModeRelaxed) payload.specialModeRelaxed = true;
+          // v0.62.14 — durian soft-rating notice: tell the user we preferred
+          // 3.7★+ but also surfaced lower-rated / unrated stalls (a durian stall
+          // is a durian stall). Only when the page actually holds a below-bar one.
+          if (durianSoftRating && dedupedTop.some((v) => {
+            const r = Number(v.rating);
+            return Number.isFinite(r) && r > 0 && r < 3.7;
+          })) {
+            payload.durianRatingNotice = true;
+          }
         }
         // v0.61.129 — O-20: surface the Tell-me-detected place anchor
         // so the TMA can render "Searching near <X>" above the result

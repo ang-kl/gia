@@ -161,11 +161,23 @@ describe('special-mode — buildSeeds (v0.61.271 contract — no silent SG suffi
     expect(sm.buildSeeds('durian', { country: 'KR' }).some((s) => s === '두리안 가게')).toBe(true);
   });
 
-  it('does NOT add local seeds for SG / JB / Latin-script countries', () => {
+  it('does NOT add local seeds for SG / FR (no mapped local language)', () => {
     expect(sm.buildSeeds('durian-pastry', { country: 'SG' })).toEqual(sm.buildSeeds('durian-pastry'));
-    expect(sm.buildSeeds('durian-pastry', { country: 'MY' })).toEqual(sm.buildSeeds('durian-pastry'));
     expect(sm.buildSeeds('durian-pastry', { country: 'FR' })).toEqual(sm.buildSeeds('durian-pastry'));
-    expect(sm.buildSeeds('durian-pastry', { country: 'ID' })).toEqual(sm.buildSeeds('durian-pastry'));
+  });
+
+  // v0.62.14 — durian belt recall: Malay (MY/BN) + Indonesian (ID) durian
+  // sellers under-recall on English seeds. Append local-language seeds
+  // (operator: "< 5 per city in the durian belt"). English seeds kept.
+  it('appends Malay durian seeds for MY/BN and Indonesian for ID (keeps English)', () => {
+    const my = sm.buildSeeds('durian', { country: 'MY' });
+    expect(my.some((s) => s === 'durian stall')).toBe(true);   // English kept
+    expect(my.some((s) => s === 'kedai durian')).toBe(true);   // Malay added
+    expect(sm.buildSeeds('durian', { country: 'BN' }).some((s) => s === 'kedai durian')).toBe(true);
+    const id = sm.buildSeeds('durian', { country: 'ID' });
+    expect(id.some((s) => s === 'toko durian')).toBe(true);    // Indonesian added
+    expect(sm.buildSeeds('durian-pastry', { country: 'MY' }).some((s) => s === 'kek durian')).toBe(true);
+    expect(sm.buildSeeds('durian-pastry', { country: 'ID' }).some((s) => s === 'kue durian')).toBe(true);
   });
 
   it('local seeds carry NO region suffix even when one is set', () => {
@@ -234,9 +246,12 @@ describe('special-mode — isRelevant (Durian)', () => {
     // Vietnamese term in DURIAN_CORE_TERMS these were rejected → VN returned 0.
     { name: 'Sầu Riêng Chín Cây', primaryType: 'food_store', expect: true },   // Vietnamese (diacritic)
     { name: 'Sau Rieng Cai Mon', primaryType: 'meal_takeaway', expect: true }, // Vietnamese (bare)
-    // Rejected — variety in name but no "durian" word (v0.61.229).
-    { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway', expect: false },
-    { name: 'Black Thorn King', primaryType: 'meal_takeaway', expect: false },
+    // v0.62.14 — durian-EXCLUSIVE cultivar names in the name now PASS on an
+    // accept-type venue (operator: variety-named stalls were being dropped).
+    // Only collision-free cultivars (musang king / mao shan wang / black thorn);
+    // ambiguous ones (red prawn/golden phoenix/tekka) stay extraction-only.
+    { name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway', expect: true },
+    { name: 'Black Thorn King', primaryType: 'meal_takeaway', expect: true },
     // Rejected — primaryType outside the accept list (v0.61.229).
     { name: 'Tasty D24 Stall', primaryType: 'market', expect: false },
     // Rejected — restaurant types
@@ -353,13 +368,15 @@ describe('special-mode — type rejection invariants', () => {
     expect(sm.isRelevant({ name: 'Durian Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
   });
 
-  it('Durian REJECTS variety-only name (no "durian" word) — extraction-only role', () => {
-    // v0.61.229 — variety names like "Mao Shan Wang", "Black Thorn"
-    // moved OUT of KEYWORDS[DURIAN] into DURIAN_VARIETY_TERMS for
-    // review-snippet extraction. A venue named only after a variety
-    // (with no "durian" word) no longer satisfies the filter.
-    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
-    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+  it('Durian ACCEPTS durian-exclusive cultivar name on an accept-type venue (v0.62.14)', () => {
+    // v0.62.14 — operator: variety-named stalls were dropped by the strict-name
+    // gate. Durian-EXCLUSIVE cultivars (musang king / mao shan wang / black
+    // thorn) now satisfy the name gate on an accept-type venue. Ambiguous
+    // cultivars (red prawn = seafood, golden phoenix = Chinese resto, tekka =
+    // sushi) stay extraction-only — see the regression tests below, which still
+    // reject non-durian RESTAURANT types regardless of review text.
+    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
   });
 
   it('Fruits rejects meal_takeaway even with juice in name (juice stalls are dine-in / counter)', () => {
@@ -653,12 +670,13 @@ describe('special-mode — DURIAN narrowed to fruit-only (v0.61.141)', () => {
     expect(sm.isRelevant({ name: 'Combat Durian', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
   });
 
-  // v0.61.229 — variety-only names no longer pass DURIAN (they're
-  // extraction-only signals now). See the v0.61.229 regression
-  // tests in the "type rejection invariants" block above.
-  it('REJECTS variety-only names (v0.61.229 update of v0.61.141 test)', () => {
-    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
-    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(false);
+  // v0.62.14 — durian-exclusive cultivar names now PASS DURIAN on an
+  // accept-type venue (operator recall fix, supersedes the v0.61.229
+  // reject). Non-durian restaurant types remain rejected — see the
+  // regression tests in the "type rejection invariants" block above.
+  it('ACCEPTS durian-exclusive cultivar names on accept-type venues (v0.62.14)', () => {
+    expect(sm.isRelevant({ name: 'Mao Shan Wang Express', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
+    expect(sm.isRelevant({ name: 'Black Thorn King', primaryType: 'meal_takeaway' }, 'durian')).toBe(true);
   });
 });
 
