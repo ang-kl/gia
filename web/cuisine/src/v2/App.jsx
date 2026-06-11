@@ -1918,6 +1918,24 @@ export default function App() {
         // fire-and-forget Save POST. Gated on ratingLoaded so the boot
         // load can't send the '3.7' default over a chat /rating value.
         ratingPref: ratingLoaded ? ratingPref : undefined
+      },
+      // v0.62.x — progressive-results Stage 2: for a USER-initiated search,
+      // opt into the NDJSON stream so verified base cards paint immediately
+      // and the slow fields (translated review, walk times, 🔤 readings,
+      // crowd, …) merge per-card as they land. Boot load keeps the single-
+      // shot path so the v0.61.409 boot-mismatch discard never flashes a
+      // half-painted list. The awaited `r` is still the full final payload,
+      // so all the post-processing below is unchanged.
+      opts?.boot ? undefined : {
+        onBase: (ev) => {
+          if (Array.isArray(ev?.venues)) {
+            setVenues(ev.venues);
+            setFirstLoadPending(false);
+          }
+        },
+        onPatch: (mergedVenues) => {
+          setVenues(mergedVenues.map((v) => ({ ...v })));
+        }
       });
       // v0.61.409 — boot-load race guard. If a coherence check flagged
       // saved≠device AFTER this boot search fired (countryPref/anchor landed

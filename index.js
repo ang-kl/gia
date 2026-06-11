@@ -16069,6 +16069,33 @@ async function cacheBotUsername() {
           humaniseRestaurantType, enrichPriceRangeDisplay, enrichSanctuaryRead
         };
         await cuisineEnrich.enrichFast(top, enrichCtx);
+        // v0.62.x — progressive-results Stage 2: when the client opts in
+        // (`body.stream === true`) flush a BASE event with the fast-only
+        // venue cards NOW, before the slow (network/LLM) phase runs, so the
+        // TMA paints verified cards immediately and merges per-card patches
+        // as the slow fields land. Flushing the base bytes also defuses the
+        // 20s→502 gateway risk: once headers are sent the deadline's
+        // degraded-200 path is skipped (it guards on res.headersSent) and a
+        // slow enrichSlow just finishes the stream a little late. The
+        // non-streamed path (no flag) is byte-identical to Stage 1.
+        const wantsStream = req.body?.stream === true;
+        const cuisineStream = wantsStream ? require('./cuisine-stream') : null;
+        let streamFastSnapshots = null;
+        if (wantsStream) {
+          streamFastSnapshots = new Map(
+            top.filter((v) => v && v.placeId).map((v) => [v.placeId, cuisineStream.snapshotVenue(v)])
+          );
+          res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-cache, no-transform');
+          res.setHeader('X-Accel-Buffering', 'no');   // disable nginx/proxy buffering
+          res.write(cuisineStream.encodeEvent(cuisineStream.baseEvent({
+            venues: top.map((v) => ({ ...v })),
+            firstBatch: isFirstBatch,
+            cumulativeStart, cumulativeEnd, finalBatch,
+            poolCount,
+          })));
+          if (typeof res.flush === 'function') res.flush();
+        }
         await cuisineEnrich.enrichSlow(top, enrichCtx);
         // v0.60.116 — `top` was already chosen above as the next 12
         // *unseen* venues from the ~3-page-deep pool (see the
@@ -16280,6 +16307,28 @@ async function cacheBotUsername() {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
         clearTimeout(_searchDeadline);
+        // v0.62.x — Stage 2: finish the NDJSON stream. The base event already
+        // went out (fast cards); now emit one patch per venue carrying ONLY
+        // the fields the slow phase + the name-enrichers added/changed/deleted
+        // (diffed against the fast snapshot taken before enrichSlow), then a
+        // done event with every non-venue payload field. base ⊕ patches is
+        // byte-identical to the non-streamed payload.venues.
+        if (wantsStream) {
+          if (res.writableEnded) return;
+          for (const v of (payload.venues || [])) {
+            if (!v || !v.placeId) continue;
+            const snap = streamFastSnapshots.get(v.placeId);
+            const fields = cuisineStream.diffVenue(snap || {}, v);
+            if (Object.keys(fields).length) {
+              res.write(cuisineStream.encodeEvent(cuisineStream.patchEvent(v.placeId, fields)));
+            }
+          }
+          const { venues: _omitVenues, ...meta } = payload;
+          res.write(cuisineStream.encodeEvent(cuisineStream.doneEvent({ ...meta, cached: false, _vlog: vlogOn || undefined })));
+          if (typeof res.flush === 'function') res.flush();
+          res.end();
+          return;
+        }
         if (res.headersSent) return;   // v0.62.15 — the 20s deadline already answered
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {

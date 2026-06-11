@@ -74,6 +74,73 @@ function createNdjsonDecoder() {
   };
 }
 
+// ── Server-side base/patch split ──────────────────────────────────────────
+//
+// The route flushes the BASE event right after the fast (pure/local)
+// enrichment, then runs the slow (network/LLM) enrichment which MUTATES the
+// same venue objects in place. snapshotVenue captures the fast state; once the
+// slow phase is done, diffVenue(snapshot, finalVenue) returns ONLY the
+// fields the slow phase added or changed (plus any the slow phase deleted,
+// surfaced as an explicit null so the client clears them). base ⊕ patches is
+// therefore byte-identical to the non-streamed payload's venue.
+//
+// Shallow by design: every slow field the enrichment writes (recentReview,
+// recentReviewAgo, dishes, travelMins, footfall, crowdLevel, nameLocal,
+// nameReading, …) is a top-level own property of the venue. A nested-object
+// field (e.g. footfall) is replaced wholesale by the slow phase, so a shallow
+// reference compare correctly flags it as changed.
+function snapshotVenue(v) {
+  return v && typeof v === 'object' ? { ...v } : {};
+}
+
+function diffVenue(snapshot, finalVenue) {
+  const snap = snapshot || {};
+  const fin = finalVenue || {};
+  const fields = {};
+  // Added or changed keys.
+  for (const k of Object.keys(fin)) {
+    if (snap[k] !== fin[k]) fields[k] = fin[k];
+  }
+  // Keys the slow phase deleted (e.g. `reviews`, `regularPeriods`,
+  // `primaryTypeDisplayName`): tell the client to drop them with null.
+  for (const k of Object.keys(snap)) {
+    if (!(k in fin)) fields[k] = null;
+  }
+  return fields;
+}
+
+// Client/buffered-fallback reassembly: fold a base event + the patch events
+// (in arrival order) into the final venue array, then return the full payload
+// the non-streamed route would have produced. `done` carries every non-venue
+// payload field. Used by the client reader AND the round-trip tests.
+function assembleFinal(baseEv, patchEvs, doneEv) {
+  let venues = Array.isArray(baseEv && baseEv.venues) ? baseEv.venues.map((v) => ({ ...v })) : [];
+  for (const p of (patchEvs || [])) {
+    if (!p || !p.placeId || !p.fields) continue;
+    venues = applyPatchFields(venues, p.placeId, p.fields);
+  }
+  const meta = { ...(doneEv || {}) };
+  delete meta.type;
+  return { ...meta, venues };
+}
+
+// Like mergePatch but honours null = delete (mirrors diffVenue's deletes).
+function applyPatchFields(venues, placeId, fields) {
+  if (!Array.isArray(venues) || !placeId || !fields) return venues;
+  let hit = false;
+  const next = venues.map((v) => {
+    if (!v || v.placeId !== placeId) return v;
+    hit = true;
+    const merged = { ...v };
+    for (const [k, val] of Object.entries(fields)) {
+      if (val === null) delete merged[k];
+      else merged[k] = val;
+    }
+    return merged;
+  });
+  return hit ? next : venues;
+}
+
 // Client-side merge: apply a patch's fields onto the venue with the matching
 // placeId, returning a NEW array (new object only for the touched venue) so a
 // React setState re-renders just that card. No-op when the placeId is absent.
@@ -95,4 +162,8 @@ module.exports = {
   parseNdjson,
   createNdjsonDecoder,
   mergePatch,
+  snapshotVenue,
+  diffVenue,
+  assembleFinal,
+  applyPatchFields,
 };
