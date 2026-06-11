@@ -15,7 +15,10 @@
 // where Places returned `allowsDogs === true`. Text-query fallback
 // when the strict filter yields < 3 venues — appends "pet friendly"
 // to the cuisine search query so Places fuzzy-matches review mentions.
-const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly'];
+// v0.62.37 — 'recommend' (⭐ Recommend, default OFF): wires the search to
+// the dish layer — cuisine special dishes (overlay) + the city's unique
+// dishes (city-plates) — and tags venues whose own evidence serves them.
+const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly', 'recommend'];
 const PRICE_LEVELS = ['$', '$$', '$$$'];
 // v0.61.159 — rule §2.7 boundary work demoted MY-PUT to a sub-case of
 // OTHER (operator answer 3), BUT the operator still wants a third
@@ -37,6 +40,7 @@ export function defaultState() {
       vegetarian: false,
       homeBased: false,
       petFriendly: false,
+      recommend: false,
       prices: []
     },
     // v0.61.273 — Phase 1 audit item A1 (PLATFORM REFRACTORING spec
@@ -76,6 +80,7 @@ export function clearedFilters() {
     vegetarian: false,
     homeBased: false,
     petFriendly: false,
+    recommend: false,
     prices: []
   };
 }

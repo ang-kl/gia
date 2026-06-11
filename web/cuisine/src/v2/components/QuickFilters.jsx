@@ -23,6 +23,10 @@ const PRIMARY = [
 const OVERFLOW = [
   { key: 'openNow',     i18n: 'filter.openNow',     icon: '🟢' },
   { key: 'vegetarian',  i18n: 'filter.vegetarian',  icon: '🥗' },
+  // v0.62.37 — ⭐ Recommend (operator: "checkbox 'Recommend' next to
+  // vegetarian, uncheck default"): wires the search to the dish layer —
+  // cuisine special dishes (overlay) + the city's unique dishes.
+  { key: 'recommend',   i18n: 'filter.recommend',   icon: '⭐' },
   { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' }
 ];
 const PRICES = ['$', '$$', '$$$'];
