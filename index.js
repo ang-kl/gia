@@ -13880,6 +13880,13 @@ async function cacheBotUsername() {
         // OTHER picker writes it; pre-v0.61.270 this was silently
         // dropped at the setUserLocation seam).
         if (cached.country) payload.country = cached.country;
+        // v0.62.32 — Arrival Plate: when the anchor sits within ~25 km of a
+        // curated city (city-plates.js, operator-reviewed sourced content),
+        // attach its what-to-try plate. Pure in-memory lookup; fail-open.
+        try {
+          const plate = require('./city-plates').platesNear(cached.lat, cached.lng);
+          if (plate) payload.plate = plate;
+        } catch { /* non-fatal — no plate */ }
         res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
@@ -14049,7 +14056,11 @@ async function cacheBotUsername() {
           }).catch(() => {});
         })();
         console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)} ${opts.label ? `label="${opts.label.slice(0, 40)}"` : ''} ${opts.country || ''} ${opts.region || ''}`);
-        res.json({ ok: true, persisted: opts });
+        // v0.62.32 — Arrival Plate: a fresh pick near a curated city returns
+        // its what-to-try plate immediately (in-memory, fail-open).
+        let plate = null;
+        try { plate = require('./city-plates').platesNear(lat, lng); } catch { /* non-fatal */ }
+        res.json({ ok: true, persisted: opts, ...(plate ? { plate } : {}) });
       } catch (err) {
         console.error('[set-location] 500', err.message);
         res.status(500).json({ error: err.message });
@@ -14408,6 +14419,15 @@ async function cacheBotUsername() {
         // is `let`, not `const`. The raw entry is captured separately
         // for the freetext-log call at the end of the handler.
         let ftRawIn = String(req.body?.freeText || '').trim();
+        // v0.62.32 — Arrival Plate E-split: when the typed free text IS a
+        // curated dish (a plate tap or a hand-typed dish name), remember it
+        // so the post-enrich pass can tag per-venue evidence
+        // (dishEvidence: 'name' | 'reviews' | null) for the Confirmed/Ask-
+        // first split. Captured BEFORE the anchor-detection strip.
+        let dishQueryTerm = null;
+        try {
+          if (ftRawIn && require('./discovery-dish').isKnownDishName(ftRawIn)) dishQueryTerm = ftRawIn;
+        } catch { /* fail-open */ }
         const ftRawOriginal = ftRawIn;
         const hadCuisineChip = Array.isArray(cuisines) && cuisines.length > 0;
         if (ftRawIn) {
@@ -14613,16 +14633,44 @@ async function cacheBotUsername() {
         try {
           const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
           const { detectAnchorFromFreeText } = require('./cuisine-tellme-anchor');
+          // v0.62.32 — DISH-NAME GUARD (operator log: "Ikan patin tempoyak"
+          // typed in Putrajaya was geocoded into a Yishun-SG place anchor;
+          // "Obanzai" in Kyoto pivoted to a SG izakaya). A typed CURATED DISH
+          // must never become a place pivot — it stays a food query at the
+          // set location. Guard wraps the place-detector with the dish check
+          // (the "<dish> in <place>" splitter still anchors the PLACE part —
+          // "ramen in tiong bahru" is unaffected). Fail-open; saves a paid
+          // geocode on every dish-text search.
+          const { isKnownDishName } = require('./discovery-dish');
+          const guardedDetect = async (candidate) => {
+            if (isKnownDishName(candidate)) {
+              console.log(`[Cuisine-TMA] D788 dish-name guard: "${String(candidate).slice(0, 50)}" is a curated dish — no place anchor`);
+              return null;
+            }
+            return detectPlaceName(candidate);
+          };
           const anchorResult = await detectAnchorFromFreeText({
-            text: ftRawIn, isJB, detectPlaceName,
+            text: ftRawIn, isJB, detectPlaceName: guardedDetect,
             nearbyRadiusM: NEARBY_RADIUS_M, anchorCap
           });
           if (anchorResult) {
-            detectedPlaceAnchor = anchorResult.anchor;
-            searchCenter = anchorResult.searchCenter;
-            searchRadius = anchorResult.searchRadius;
-            ftRawIn = anchorResult.queryRemainder;
-            console.log(`[Cuisine-TMA] D780 place anchor "${detectedPlaceAnchor.name}" (${detectedPlaceAnchor.kind}, source=${detectedPlaceAnchor.source}) — center=${detectedPlaceAnchor.lat.toFixed(4)},${detectedPlaceAnchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
+            // v0.62.32 — CROSS-COUNTRY backstop: an anchor pivot that lands
+            // far from the set location is a mis-resolution (the MOMOYA-in-
+            // SG-while-in-Kyoto case) — reject it, keep the set location.
+            const lmCC = require('./location-mode');
+            const anchorFar = lmCC.haversineMeters(
+              { lat: anchorResult.anchor.lat, lng: anchorResult.anchor.lng },
+              { lat, lng }
+            );
+            if (Number.isFinite(anchorFar) && anchorFar > 300000) {
+              console.warn(`[Cuisine-TMA] D789 anchor-pivot rejected: "${anchorResult.anchor.name}" is ${(anchorFar / 1000).toFixed(0)}km from the set location — keeping the set location`);
+            } else {
+              detectedPlaceAnchor = anchorResult.anchor;
+              searchCenter = anchorResult.searchCenter;
+              searchRadius = anchorResult.searchRadius;
+              ftRawIn = anchorResult.queryRemainder;
+              console.log(`[Cuisine-TMA] D780 place anchor "${detectedPlaceAnchor.name}" (${detectedPlaceAnchor.kind}, source=${detectedPlaceAnchor.source}) — center=${detectedPlaceAnchor.lat.toFixed(4)},${detectedPlaceAnchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
+            }
           }
         } catch (err) {
           console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
@@ -16220,6 +16268,29 @@ async function cacheBotUsername() {
             console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length} (reviewDishes=${discHadDishes} noVerifiedMention=${discNoMatch})`);
           } catch (err) { console.warn('[Cuisine-Search] curated-try fill failed (non-fatal):', err.message); }
         }
+        // v0.62.32 — Arrival Plate E-split: tag per-venue dish evidence for a
+        // curated-dish search. Honest ladder: 'name' (the venue is named
+        // after the dish) > 'reviews' (its own reviews/summary mention it,
+        // incl. native script via the same norm) > null ("ask first"). Pure
+        // in-memory text checks against already-fetched data — no API spend.
+        if (dishQueryTerm) {
+          try {
+            const ddEv = require('./discovery-dish');
+            const needle = ddEv._norm(dishQueryTerm);
+            let evName = 0, evReviews = 0;
+            for (const v of top) {
+              if (!v) continue;
+              if (ddEv._norm(v.name || '').includes(needle)) { v.dishEvidence = 'name'; evName++; continue; }
+              if (ddEv.venueEvidenceText(v).includes(needle)) { v.dishEvidence = 'reviews'; evReviews++; continue; }
+              v.dishEvidence = null;
+            }
+            // Confirmed venues (name/review evidence) page first; "ask first"
+            // fill after — the E-split order the TMA renders.
+            const evRank = (v) => (v.dishEvidence === 'name' ? 0 : v.dishEvidence === 'reviews' ? 1 : 2);
+            top.sort((a, b) => evRank(a) - evRank(b));
+            console.log(`[Cuisine-Search] D790b dish-evidence "${dishQueryTerm.slice(0, 40)}": name=${evName} reviews=${evReviews} askFirst=${top.length - evName - evReviews}`);
+          } catch (err) { console.warn('[Cuisine-Search] dish-evidence tag failed (non-fatal):', err.message); }
+        }
         // v0.62.x — progressive-results Stage 2: when the client opts in
         // (`body.stream === true`) flush a BASE event with the fast-only
         // venue cards NOW, before the slow (network/LLM) phase runs, so the
@@ -16350,6 +16421,10 @@ async function cacheBotUsername() {
         }
         const payload = {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
+          // v0.62.32 — set when the free text was a curated dish: tells the
+          // TMA to render the Confirmed/Ask-first (E) split using each
+          // venue's dishEvidence tag.
+          ...(dishQueryTerm ? { dishQuery: dishQueryTerm } : {}),
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
