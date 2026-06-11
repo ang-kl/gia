@@ -81,6 +81,91 @@ async function postJson(url, body) {
   }
 }
 
+// v0.62.x — progressive-results Stage 2. When the caller supplies onBase /
+// onPatch, request the NDJSON stream (`stream: true`): paint the BASE cards
+// the moment they arrive, merge per-card patches as the slow fields land, and
+// RESOLVE with the same full final payload the non-streamed route returns, so
+// every existing caller works unchanged. Degrades safely: a server that
+// answers with plain JSON (e.g. a 30s cache hit) — or a WebView/proxy that
+// buffers the whole NDJSON body into one chunk — both reassemble to the
+// identical payload.
+async function postJsonStream(url, body, { onBase, onPatch } = {}) {
+  const { createNdjsonDecoder, applyPatchFields, assembleFinal } = await import('./ndjson.js');
+  const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const dr = deviceRegion();
+  const dl = deviceLang();
+  const did = deviceId();
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/x-ndjson, application/json' },
+    body: JSON.stringify({ ...body, stream: true, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const ctype = (r.headers.get('Content-Type') || '').toLowerCase();
+  const reportOk = () => {
+    if (!vlog.isEnabled()) return;
+    const ms = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - start);
+    vlog.report({ kind: 'fetch', method: 'POST', url, ms, ok: true, stream: ctype.includes('ndjson') });
+  };
+
+  // Non-streamed response (plain JSON — cache hit, rollback, or old server):
+  // behave exactly like postJson.
+  if (!ctype.includes('ndjson') || !r.body || typeof r.body.getReader !== 'function') {
+    const text = await r.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      // A buffered NDJSON body delivered as one blob — reassemble it.
+      const dec = createNdjsonDecoder();
+      const evs = dec.push(text).concat(dec.flush());
+      const baseEv = evs.find((e) => e && e.type === 'base');
+      const doneEv = evs.find((e) => e && e.type === 'done');
+      const patchEvs = evs.filter((e) => e && e.type === 'patch');
+      if (baseEv && onBase) { try { onBase(baseEv); } catch { /* UI best-effort */ } }
+      json = assembleFinal(baseEv, patchEvs, doneEv || {});
+    }
+    vlog.noteServerHint(json);
+    reportOk();
+    return json;
+  }
+
+  // True streamed NDJSON: paint base, merge patches incrementally.
+  const reader = r.body.getReader();
+  const td = new TextDecoder();
+  const dec = createNdjsonDecoder();
+  let baseEv = null;
+  let doneEv = null;
+  let venues = [];
+  const patchEvs = [];
+  const handle = (ev) => {
+    if (!ev || !ev.type) return;
+    if (ev.type === 'base') {
+      baseEv = ev;
+      venues = Array.isArray(ev.venues) ? ev.venues.map((v) => ({ ...v })) : [];
+      if (onBase) { try { onBase(ev); } catch { /* UI best-effort */ } }
+    } else if (ev.type === 'patch') {
+      patchEvs.push(ev);
+      venues = applyPatchFields(venues, ev.placeId, ev.fields);
+      if (onPatch) { try { onPatch(venues, ev); } catch { /* UI best-effort */ } }
+    } else if (ev.type === 'done') {
+      doneEv = ev;
+    }
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    for (const ev of dec.push(td.decode(value, { stream: true }))) handle(ev);
+  }
+  for (const ev of dec.flush()) handle(ev);
+
+  // base ⊕ patches ⊕ done-metadata == the non-streamed payload.
+  const final = assembleFinal(baseEv, patchEvs, doneEv || {});
+  vlog.noteServerHint(final);
+  reportOk();
+  return final;
+}
+
 // v0.58.7: GET helper now forwards initData via the X-Telegram-Init-
 // Data header so requireInitData-gated GET endpoints (e.g.
 // /api/reverse-geocode) can authenticate identically to the POST
@@ -125,7 +210,11 @@ export async function fetchCatalogue() {
 // so the next results begin fresh from the first ~60 again.
 // v0.60.126: freeText — the "Tell me" box content, passed through as a
 // search qualifier so it isn't dropped when a cuisine chip is selected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }) {
+// v0.62.x — Stage 2: optional `onBase` / `onPatch` (2nd arg) opt into the
+// progressive NDJSON stream. Omitting them keeps the original single-shot
+// JSON behaviour. Either way the returned Promise resolves with the full
+// final payload, so existing call sites are unaffected.
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }, { onBase, onPatch } = {}) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
@@ -162,6 +251,9 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region, lang,
   // | '1.0'..'5.0'.
   if (typeof ratingPref === 'string' && ratingPref) {
     body.ratingPref = ratingPref;
+  }
+  if (onBase || onPatch) {
+    return postJsonStream('/api/cuisine/search', body, { onBase, onPatch });
   }
   return postJson('/api/cuisine/search', body);
 }
