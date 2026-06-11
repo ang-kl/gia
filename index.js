@@ -16311,8 +16311,32 @@ async function cacheBotUsername() {
           // on the New pill (filters.newlyOpened); absent on other searches.
           if (v._recencyBand) v.recencyBand = v._recencyBand;
         }
+        // v0.62.13 — operator: a zero result must be EVIDENT (justified by the
+        // criteria, not a silent empty). Classify WHY the page is empty so the
+        // TMA can explain it AND so a SPURIOUS zero (the per-criteria seen-set
+        // filtering the whole pool on the first tap) is distinguishable from a
+        // genuine "no match for this cuisine+filter combo".
+        let zeroReason = null;
+        if (dedupedTop.length === 0) {
+          const hasCriteria = (Array.isArray(cuisines) && cuisines.length > 0)
+            || (filters && Object.values(filters).some(Boolean))
+            || (typeof req.body?.freeText === 'string' && req.body.freeText.trim().length > 0);
+          if (venues.length === 0) {
+            // The post-floor pool itself is empty: genuinely nothing matched.
+            zeroReason = hasCriteria ? 'no-match-criteria' : 'no-venues-nearby';
+          } else if (unseenInCriteria.length === 0) {
+            // Pool HAD venues, but the per-criteria seen-set removed them all —
+            // the stale-seen first-tap bug (no criteria set, yet zero).
+            zeroReason = 'all-seen-criteria';
+          } else if (trulyUnseen.length === 0) {
+            zeroReason = 'all-seen-session';
+          } else {
+            zeroReason = 'filtered';
+          }
+          console.log(`[Cuisine-Search] ZERO reason=${zeroReason} pool=${venues.length} unseenCrit=${unseenInCriteria.length} trulyUnseen=${trulyUnseen.length} seen=${seen.size} sessionSeen=${sessionSeen.size} hasCriteria=${hasCriteria} cuisines=${(cuisines||[]).length} filters=${JSON.stringify(filters||{})}`);
+        }
         const payload = {
-          venues: dedupedTop, exhausted: dedupExhausted, sessionFull,
+          venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
