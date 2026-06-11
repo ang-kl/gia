@@ -15953,7 +15953,16 @@ async function cacheBotUsername() {
         const FIRST_TAP_SLICE = 6;
         const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
-        const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
+        // v0.62.x — Stage 3: when the client streams (progressive results), the
+        // first tap fetches a FULL page of 12 and reveals it in two waves (6
+        // base + 6 append) within the one response, so it auto-grows to 12
+        // without a second 🔍. The 6-card first paint is preserved by the
+        // wave split, not by a smaller fetch. Non-streaming first taps keep the
+        // cheaper 6-slice (the v0.61.239 "taste"); follow-up taps are 12 either
+        // way.
+        const wantsStream = req.body?.stream === true;
+        const sliceCap = (isFirstBatch && !wantsStream) ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
+        const FIRST_REVEAL = 6;   // base-wave size when streaming a >6 batch
         // v0.61.441 — thin-pool OUTER-RING re-fetch. The base fetch only
         // reached `searchRadius`; when the post-floor / post-dedup unseen
         // count is below a full first page, fetch the next ladder tiers up to
@@ -15980,7 +15989,10 @@ async function cacheBotUsername() {
               startRadius: searchRadius,
               anchorCap,
               existingPlaceIds: existingIds,
-              target: FIRST_TAP_SLICE,
+              // v0.62.x — fetch toward the effective page size (12 when
+              // streaming a first batch) so the two-wave reveal can fill to 12;
+              // the threshold above still keeps the re-fetch demand-driven.
+              target: sliceCap,
               expandSingaporean: !skipExpand,
               discoverFn: pipeline.discover,
               passesVenueFilter: vf.passesVenueFilter
@@ -16078,7 +16090,6 @@ async function cacheBotUsername() {
         // degraded-200 path is skipped (it guards on res.headersSent) and a
         // slow enrichSlow just finishes the stream a little late. The
         // non-streamed path (no flag) is byte-identical to Stage 1.
-        const wantsStream = req.body?.stream === true;
         const cuisineStream = wantsStream ? require('./cuisine-stream') : null;
         let streamFastSnapshots = null;
         if (wantsStream) {
@@ -16088,12 +16099,22 @@ async function cacheBotUsername() {
           res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
           res.setHeader('Cache-Control', 'no-cache, no-transform');
           res.setHeader('X-Accel-Buffering', 'no');   // disable nginx/proxy buffering
+          // v0.62.x — Stage 3: reveal the page in two waves. The base event
+          // carries the first 6 cards (the instant "taste"); the append event
+          // carries the rest (up to 12) so the list auto-grows within the same
+          // response. Both are fast-only (slow fields arrive as patches). A
+          // page of ≤6 sends no append.
+          const baseWave = top.slice(0, FIRST_REVEAL);
+          const appendWave = top.slice(FIRST_REVEAL);
           res.write(cuisineStream.encodeEvent(cuisineStream.baseEvent({
-            venues: top.map((v) => ({ ...v })),
+            venues: baseWave.map((v) => ({ ...v })),
             firstBatch: isFirstBatch,
             cumulativeStart, cumulativeEnd, finalBatch,
             poolCount,
           })));
+          if (appendWave.length) {
+            res.write(cuisineStream.encodeEvent(cuisineStream.appendEvent(appendWave.map((v) => ({ ...v })))));
+          }
           if (typeof res.flush === 'function') res.flush();
         }
         await cuisineEnrich.enrichSlow(top, enrichCtx);

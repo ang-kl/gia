@@ -30,6 +30,13 @@ function baseEvent(payload = {}) {
 function patchEvent(placeId, fields = {}) {
   return { type: 'patch', placeId, fields };
 }
+// v0.62.x — Stage 3: a second (or later) wave of venues APPENDED to the list
+// the base event seeded, so the first batch reveals 6 then auto-grows to 12
+// within the same response (no second 🔍). Venues carry their fast fields,
+// same as base; their slow fields arrive as patches like everyone else's.
+function appendEvent(venues = [], extra = {}) {
+  return { type: 'append', venues, ...extra };
+}
 function doneEvent(extra = {}) {
   return { type: 'done', ...extra };
 }
@@ -113,8 +120,14 @@ function diffVenue(snapshot, finalVenue) {
 // (in arrival order) into the final venue array, then return the full payload
 // the non-streamed route would have produced. `done` carries every non-venue
 // payload field. Used by the client reader AND the round-trip tests.
-function assembleFinal(baseEv, patchEvs, doneEv) {
+// `appendEvs` (Stage 3) are folded into the venue list after the base, in
+// arrival order, before patches apply — so base ⊕ appends ⊕ patches == the
+// full final list.
+function assembleFinal(baseEv, patchEvs, doneEv, appendEvs) {
   let venues = Array.isArray(baseEv && baseEv.venues) ? baseEv.venues.map((v) => ({ ...v })) : [];
+  for (const a of (appendEvs || [])) {
+    if (a && Array.isArray(a.venues)) venues = venues.concat(a.venues.map((v) => ({ ...v })));
+  }
   for (const p of (patchEvs || [])) {
     if (!p || !p.placeId || !p.fields) continue;
     venues = applyPatchFields(venues, p.placeId, p.fields);
@@ -158,6 +171,7 @@ module.exports = {
   encodeEvent,
   baseEvent,
   patchEvent,
+  appendEvent,
   doneEvent,
   parseNdjson,
   createNdjsonDecoder,

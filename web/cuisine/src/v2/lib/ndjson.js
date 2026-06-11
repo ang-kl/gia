@@ -66,8 +66,13 @@ export function applyPatchFields(venues, placeId, fields) {
 // Fold a base event + patch events + done event into the final payload the
 // non-streamed route would have returned (used as the buffered-fallback path
 // and as the resolved value of a streamed search).
-export function assembleFinal(baseEv, patchEvs, doneEv) {
+// `appendEvs` (Stage 3 second-wave venues) fold in after the base, in arrival
+// order, before patches apply.
+export function assembleFinal(baseEv, patchEvs, doneEv, appendEvs) {
   let venues = Array.isArray(baseEv && baseEv.venues) ? baseEv.venues.map((v) => ({ ...v })) : [];
+  for (const a of (appendEvs || [])) {
+    if (a && Array.isArray(a.venues)) venues = venues.concat(a.venues.map((v) => ({ ...v })));
+  }
   for (const p of (patchEvs || [])) {
     if (!p || !p.placeId || !p.fields) continue;
     venues = applyPatchFields(venues, p.placeId, p.fields);
