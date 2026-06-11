@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-10';   // v0.62.4 refresh: PRs #956-#964 (per-location seen-set, cuisine 500s+concentric rings, geo-scoping redesign, Michelin overhaul + meta-snapshot refresh + geo-guard, location first-share confirm)
+const GEN_DATE = '2026-06-11';   // v0.62.27 refresh: PRs #965-#989 (unified newness rule, durian VND/soft-rating/seeds, JB focus-point radius + coords anchoring, Michelin city-grouping + George-Town jump + deadline-walk guard, progressive-streamed cuisine results Stages 1-3, country-pick→capital, Places-cost Michelin negative-cache)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

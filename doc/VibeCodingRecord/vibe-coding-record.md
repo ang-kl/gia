@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-10 from a snapshot of all 951 pull requests (#1–#951).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-11 from a snapshot of all 976 pull requests (#1–#976).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 951 total — 941 merged, 10 closed without merge.
+- **PRs:** 976 total — 966 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #964 · 2026-06-10 11:06:08 · _v0.62.3: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix)_
+- **Latest:** #989 · 2026-06-11 08:19:18 · _v0.62.27: Places cost — negative-cache failed Michelin lookups + 7d success TTL_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 625 |
-| fix | 127 |
-| docs | 64 |
+| feature | 644 |
+| fix | 129 |
+| docs | 66 |
 | copy | 43 |
 | prompt-tune | 42 |
-| refactor | 25 |
+| refactor | 27 |
 | test | 15 |
 | infra | 10 |
 
@@ -26,16 +26,16 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 310 |
-| Core / misc | 138 |
-| Docs / vault | 79 |
+| Cuisine Picker | 314 |
+| Core / misc | 145 |
+| Docs / vault | 82 |
 | Transport / carpark | 61 |
+| Recognised lists | 53 |
 | Search / free-text | 52 |
 | Hawker NEA | 52 |
-| Recognised lists | 47 |
-| /hidden surprise | 41 |
-| Infra / setup | 30 |
-| Pipeline / discovery | 26 |
+| /hidden surprise | 42 |
+| Infra / setup | 32 |
+| Pipeline / discovery | 27 |
 | /eat /drink flow | 20 |
 | Weather | 19 |
 | Commands / chat UX | 16 |
@@ -43,7 +43,7 @@
 | Menu hub | 13 |
 | Maps / geo / location | 12 |
 | Privacy / legal | 9 |
-| Oversight / usage stats | 7 |
+| Oversight / usage stats | 8 |
 | Buddy / sharing | 5 |
 
 ## The ledger
@@ -1003,6 +1003,31 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 962 | merged | 2026-06-10 09:54:12 | 0.62.1 | feature | Recognised lists | Add: populate michelin-meta.json (1,888/1,922) — closes #960 empty-snapshot gap | ## What Commits the **populated** `michelin-meta.json` — `{}` → **1,888 entries**, every one carrying a `placeId`. | 4 files — doc, package, michelin-meta.json | — | doc/vault |
 | 963 | merged | 2026-06-10 10:32:13 | 0.62.2 | feature | Recognised lists | Add: Michelin refresh geo-guard — wrong-country 33→0 (CN/KR/TW re-run) | ## Why Validation + live verification of the v0.62.1 snapshot (#962) found **33/1,888 venues (1.7%) resolved to the WRONG country** — short/generic East-Asian names matched data-rich SG/MY businesses: - Seoul Bib "Subaru" → **a Subaru car… | 5 files — doc, package, michelin-meta.json, scripts/ | — | doc/vault |
 | 964 | merged | 2026-06-10 11:06:08 | 0.62.3 | fix | Maps / geo / location | Fix: first-share location confirmation + desktop nudge (Telegram-Desktop map-pick fix) | ## Bug (operator, on Mac) `/location` → tap **📍 Share my current location** → it sticks on a wrong **"Muzium Negara, KL"** on first load. | 5 files — index.js, i18n.js, doc, package | — | doc/vault |
+| 965 | merged | 2026-06-10 11:56:31 | 0.63.0 | feature | /hidden surprise | Add: one unified "newness" rule across the New pill, /hidden, and the curated cards | ## What & why Operator: the three "new" surfaces must judge newness **identically**. | 9 files — index.js, hidden-verify.js, newness-criteria.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 966 | merged | 2026-06-10 11:30:25 | 0.62.4 | docs | Recognised lists | Update docs: Vibe Journal refresh — PRs #956–#964 (942 → 951 records) | ## What Catches up the **VibeCodingRecord** ledger + hosted `/doc/vibe-journal.html` with the 9 PRs merged since the last refresh (#956): #956 vibe refresh · #957 per-location seen-set · #958 cuisine 500s+rings · #959 geo-scoping redesign… | 10 files — doc, package, public/ | — | doc/vault |
+| 967 | merged | 2026-06-10 12:07:09 | 0.63.0 | docs | Docs / vault | Update docs: record PR #965 merge (v0.63.0 → PROD) per standing rule | Journal № 650 amendment per the standing per-PR rule (`journal-0_63_0-10_06_26-1926.md`): PR #965 (v0.63.0 unified newness rule) squash-merged to `main` at `2e631ba` (2026-06-10 19:56 SGT) after resolving the v0.62.4 merge conflicts… | 2 files — doc | — | doc/vault |
+| 968 | merged | 2026-06-10 12:23:54 | 0.62.5 | feature | Docs / vault | Add: renumber #965 from v0.63.0 — no minor bump until 0.62.999 | ## Why Operator versioning policy: **never jump the minor — stay on the `0.62.PATCH` line until `0.62.999`.** PR #965 shipped as **v0.63.0** (commit `2e631ba`, 19:56 SGT) before the policy was set. | 3 files — doc, package | — | doc/vault |
+| 969 | merged | 2026-06-10 13:16:09 | 0.62.6 | feature | Recognised lists | Add: Michelin city-grouped display — awardCity sections, city-jump rows, set-city/fit-bounds map rule | ## What & why Operator spec (verbatim, in-session): when the visible Michelin Star / Bib Gourmand batch spans multiple cities (MY example: KL + Georgetown), group the cards into **city sections** so the user understands why some awardees… | 10 files — index.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 970 | merged | 2026-06-10 22:02:06 | 0.62.10 | refactor | Pipeline / discovery | Refactor: Places Text Search New — paginate to fill the request + id-dedup | ## What & why Operator diagnosis: *"Google Maps is richer and more elastic; Places API New is capped and structured. | 6 files — pipeline.js, tests, doc, package | — | tests; doc/vault |
+| 971 | merged | 2026-06-10 14:20:13 | 0.62.7 | feature | Infra / setup | Add: VN durian search returns durian + VND conversion sane (was ~8,000× off) | ## Bugs (operator screenshots, deployed, Hanoi) 1. | 6 files — currency-format.js, special-mode.js, tests, doc, package | — | tests; doc/vault |
+| 972 | merged | 2026-06-10 15:37:52 | 0.62.8 | feature | Infra / setup | Add: cuisine corpus Phase 1 — Bangkok data foundation (165k restaurants, unwired) | ## What (Phase 1 of the approved curated-corpus plan — the SAFE data foundation) Harvests the **free** Foursquare OS Places data into a per-city corpus the bot can serve from. | 11 files — corpus-cuisine-map.js, corpus-store.js, tests, doc, data, package, scripts/ | — | tests; doc/vault |
+| 973 | merged | 2026-06-10 15:49:49 | 0.62.9 | feature | Docs / vault | Add: remove the cuisine corpus (operator: too heavy / won't scale) | Reverts the UNWIRED Phase-1 corpus from #972 (v0.62.8): removes corpus-cuisine-map.js, corpus-store.js, scripts/build-cuisine-corpus.py, data/corpus/* (7.2MB Bangkok shard), + 2 tests. | 11 files — corpus-cuisine-map.js, corpus-store.js, tests, doc, data, package, scripts/ | — | tests; doc/vault |
+| 974 | merged | 2026-06-10 23:06:58 | 0.62.12 | feature | Recognised lists | Add: Michelin city-jump row → count/total (8/12); first-tap slice 5 → 6 | Two small display-layer changes on the session branch (plus the carried v0.62.10 doc record). | 8 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 975 | merged | 2026-06-11 05:50:15 | 0.62.20 | feature | Recognised lists | Add: withdraw no-op Michelin sort (Codex P2) + cuisine-stream NDJSON foundation | ## What this PR now contains This PR began as "Michelin national fallback leads with 3★ (Fukuoka & uncovered cities)". | 7 files — index.js, cuisine-stream.js, tests, doc, package | — | tests; doc/vault |
+| 976 | merged | 2026-06-11 01:03:53 | 0.62.13 | feature | Cuisine Picker | Add: Cuisine TMA — zero-results explain themselves + city pick persists to chat | Two deployed Cuisine-TMA bugs. | 6 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 977 | merged | 2026-06-11 01:55:26 | 0.62.14 | feature | Core / misc | Add: durian soft 3.7-rating + Malay/Indo seeds + cultivar name-gate | ## Why Durian special-mode returned **< 5 stalls per city** across the durian belt while Google shows many more (operator screenshots: Putrajaya / Johor). | 9 files — index.js, special-mode.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 978 | merged | 2026-06-11 04:04:45 | 0.62.15 | fix | Core / misc | Fix: JB durian 502 fix + Search Decision Tree (mind-map + 99% combo matrix) | ## Part A — JB durian "https 502" A 502 is a **gateway** failure (the route never returned in time), not a thrown error — the existing catch can't help a hang. | 12 files — index.js, search-precedence.js, tests, doc, package, public/ | — | tests; doc/vault |
+| 979 | merged | 2026-06-11 04:11:16 | 0.62.16 | feature | Oversight / usage stats | Add: visible dark-mode borders across all 5 TMAs (subtle ~3:1) | ## Why In dark mode, TMA card/panel/drawer borders were **invisible**. | 9 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package | cuisine+menu+hawker+transport+oversight | doc/vault |
+| 980 | merged | 2026-06-11 04:49:02 | 0.62.17 | feature | Core / misc | Add: JB sub-location picks centre the search on the picked spot | ## Problem 1 (fixed) — JB sub-location results far from the pick In JB mode, tapping **Legoland / Bukit Indah / Southkey** moved the pin but results stayed at **JB CBD / Mount Austin**. | 7 files — index.js, location-mode.js, tests, doc, package | — | tests; doc/vault |
+| 981 | merged | 2026-06-11 05:24:50 | 0.62.18 | feature | Core / misc | Add: JB focus-point picks search a tight radius; coords-not-name anchoring | Follow-up to v0.62.17 — operator: *"Legoland still spilt out as far away eateries … all resolution of address cannot be company name / phrase — may be confused with a similar outfit elsewhere. | 10 files — index.js, location-mode.js, tests, doc, package, public/ | — | tests; doc/vault |
+| 982 | merged | 2026-06-11 05:44:50 | 0.62.19 | feature | Core / misc | Add: criteria chip reads 'Durian Fruits'; durian ranks fruit sellers first | Operator (KL): picked **Durian Fruits** but the criteria chip showed **Durian**, and results were restaurants/cafes instead of fruit stalls. | 9 files — index.js, special-mode.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 983 | merged | 2026-06-11 06:24:32 | 0.62.21 | refactor | Cuisine Picker | Refactor: progressive-results Stage 1 — cuisine enrichment split fast/slow (pure refactor) | ## What & why Stage **1 of 3** of the approved progressive-results plan (operator: *"one stage per PR"*). | 7 files — index.js, cuisine-enrich.js, tests, doc, package | — | tests; doc/vault |
+| 984 | merged | 2026-06-11 06:51:26 | 0.62.22 | feature | Cuisine Picker | Add: progressive-results Stage 2 — opt-in NDJSON base→patch→done streaming | ## What & why Stage **2 of 3** of the approved progressive-results plan. | 10 files — index.js, cuisine-stream.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 985 | merged | 2026-06-11 07:05:30 | 0.62.23 | feature | Cuisine Picker | Add: progressive-results Stage 3 — first batch auto-grows 6→12 in two streamed waves | ## What & why Stage **3 of 3** (final) of the approved progressive-results plan. | 9 files — index.js, cuisine-stream.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 986 | merged | 2026-06-11 07:15:14 | 0.62.24 | feature | Core / misc | Add: perimeter border framing the TMA column (tablet/desktop/iPad-mini, dark mode) | Operator: *"Border around the perimeter of TMA in dark mode?"* — after v0.62.16 gave inner cards a visible `--tg-border`, the **outer app shell** had no frame, so the TMA edge blended into Telegram's dark chrome. | 9 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package | cuisine+menu+hawker+transport+oversight | doc/vault |
+| 987 | merged | 2026-06-11 07:25:58 | 0.62.25 | fix | Recognised lists | Fix: Michelin — reachable George Town jump + deadline no longer burns the walk | ## Two operator-reported Michelin defects, one PR ### (A) George Town unreachable after finishing Kuala Lumpur — *"I thought we settled this"* v0.61.445 deliberately scoped the Michelin walk to **one city** (so the map never has to frame… | 7 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 988 | merged | 2026-06-11 07:38:27 | 0.62.26 | feature | Core / misc | Add: explicit country pick anchors to the capital (not nearest city to a stale pin) | ## What & why You reported selecting a country should land on the **capital**, but saw **Johor** for Malaysia and **Fukuoka** for Japan — and asked if it was your ChatID. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 989 | merged | 2026-06-11 08:19:18 | 0.62.27 | feature | Recognised lists | Add: Places cost — negative-cache failed Michelin lookups + 7d success TTL | ## Context — Places (New) cost audit You asked to reduce Places spend, with Gemini's FieldMask / Session-Token / Cache suggestions. | 5 files — index.js, doc, package | — | Redis/state; doc/vault |
 
 ---
 
