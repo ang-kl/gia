@@ -1863,6 +1863,40 @@ export default function App() {
     };
   }, []);
 
+  // v0.62.34 — operator: "After the result is displayed, should check if
+  // location is still set to the location. Here i set to VN>HCM, the
+  // results are correct but it switch to hanoi (capital)." Root cause: the
+  // v0.61.186 visibility re-fetch (viewportChanged fires even on keyboard
+  // open/close) can pull a STALE server label over a fresh explicit pick
+  // when the pick's set-location was lost or out-raced. Fix (operator pick
+  // 1): after each search, compare the server's label against the committed
+  // pick; on mismatch RE-PUSH the pick. Silent (no chat notify, no map
+  // move); fire-and-forget; D791 in the console. Only acts while the
+  // explicit-pick latch is held, so plain GPS sessions are untouched.
+  async function reassertPickAfterSearch(snap) {
+    try {
+      if (!explicitPickRef.current) return;
+      const a = locationAnchorRef.current;
+      if (!a || !(a.name || '').trim() || !Number.isFinite(a.lat) || !Number.isFinite(a.lng)) return;
+      const r = await fetchUserLocation();
+      const serverLabel = (r?.label || '').trim();
+      if (serverLabel === a.name.trim()) return;   // server agrees — nothing to do
+      console.log(`[Cuisine-TMA-v2] D791 post-search location check: server="${serverLabel || '<none>'}" ≠ pick="${a.name}" — re-pushing the pick`);
+      const c = coordsToCountry({ lat: a.lat, lng: a.lng });
+      let region;
+      if (c === 'SG') region = 'SG';
+      else if (c === 'MY') region = isJbCoords({ lat: a.lat, lng: a.lng }) ? 'JB' : 'OTHER';
+      else region = (snap?.region && snap.region !== '__NONE__') ? snap.region : 'OTHER';
+      const country = region === 'OTHER' ? (snap?.countryPref || undefined) : undefined;
+      const resp = await saveUserLocation({
+        lat: a.lat, lng: a.lng, label: a.name, region, country,
+        ...(Number.isFinite(a.radiusCapM) && a.radiusCapM > 0 ? { radiusCapM: a.radiusCapM } : {})
+      });
+      // The Arrival Plate follows the re-asserted city too.
+      setArrivalPlate(resp?.plate || null);
+    } catch { /* fire-and-forget — never block or fail the search UI */ }
+  }
+
   async function runSearch(snap = state, anchor = null, opts = {}) {
     // v0.61.320 — SINGLE SOURCE OF TRUTH for the search location, and
     // never a silent no-op. Previously this opened with `if (!userLoc)
@@ -2261,6 +2295,8 @@ export default function App() {
           resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       }
+      // v0.62.34 — D791 post-search location consistency check (see helper).
+      reassertPickAfterSearch(snap);
     } catch (err) {
       setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setQuestionDeclined(false);
       // v0.61.130 — clear the v0.61.129 pills on error so a stale
@@ -2297,6 +2333,9 @@ export default function App() {
       setVenues(r.venues || []);
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
+      // v0.62.34 — D791 post-search location consistency check (the
+      // Tell-me path displays results too — same re-assert applies).
+      reassertPickAfterSearch(state);
       let nextState;
       if (mode === 'replace') {
         nextState = { ...defaultState(), region: state.region, cuisines: [], filters: clearedFilters() };
