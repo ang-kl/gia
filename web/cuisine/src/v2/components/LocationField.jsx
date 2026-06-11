@@ -977,20 +977,32 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
     //       CROSS-COUNTRY pin (e.g. SG when switching to Japan) made (b) snap to
     //       the nearest JP city to SG (Fukuoka) instead of Tokyo; the > 500 km
     //       guard now falls through to the capital.
+    // v0.62.x — operator: "selecting a country should select the capital."
+    // An EXPLICIT country-dropdown pick (userChangedCountryRef) always anchors
+    // to the capital (list[0]) — the nearest-city restore below is for GPS /
+    // boot hydration ONLY, when the device is genuinely in-country. Without
+    // this gate, a stale cross-country anchor made rule (b) win: a Singapore
+    // pin → Malaysia picked Johor (15 km) over Kuala Lumpur; a leftover
+    // near-Fukuoka pin → Japan picked Fukuoka over Tokyo. The 500 km guard
+    // could not tell "I'm standing in Johor" from "I have a pin next door", so
+    // an explicit pick now skips (a)/(b) entirely.
+    const explicitCountryPick = userChangedCountryRef.current;
     let picked = null;
-    const anchorName = (anchor?.name || '').trim();
-    if (anchorName) {
-      const hit = list.find((c) => c.name === anchorName);
-      if (hit) picked = hit;
-    }
-    if (!picked && anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
-      let best = null;
-      let bestD = Infinity;
-      for (const c of list) {
-        const d = haversineKm(anchor.lat, anchor.lng, c.lat, c.lng);
-        if (d < bestD) { bestD = d; best = c; }
+    if (!explicitCountryPick) {
+      const anchorName = (anchor?.name || '').trim();
+      if (anchorName) {
+        const hit = list.find((c) => c.name === anchorName);
+        if (hit) picked = hit;
       }
-      if (best && bestD <= NEAREST_CITY_MAX_KM) picked = best;
+      if (!picked && anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+        let best = null;
+        let bestD = Infinity;
+        for (const c of list) {
+          const d = haversineKm(anchor.lat, anchor.lng, c.lat, c.lng);
+          if (d < bestD) { bestD = d; best = c; }
+        }
+        if (best && bestD <= NEAREST_CITY_MAX_KM) picked = best;
+      }
     }
     if (!picked) picked = list[0];   // capital
     setCityPick(picked.name);
