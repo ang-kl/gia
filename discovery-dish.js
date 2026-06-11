@@ -215,3 +215,63 @@ module.exports = {
   venueEvidenceText,
   _norm: norm,
 };
+
+// ── dish-name guard (v0.62.32) ───────────────────────────────────────────────
+//
+// Operator bug (Railway log): typed dish names were geocoded into PLACE
+// anchors — "Ikan patin tempoyak" in Putrajaya pivoted the search to a
+// restaurant in Yishun, Singapore; "Obanzai" in Kyoto pivoted to a SG izakaya.
+// isKnownDishName() lets the free-text place-detector SKIP geocoding when the
+// candidate is a curated dish. Lazy build-once Set from: ALL NATION_OVERLAY
+// iconicDishes (including shared ones like laksa — for guarding, broad is
+// right) + sharedWithNeighbors + DISH_ALIASES native forms + city-plates
+// dishes. ~2k short strings, built once per process; fail-open on any error.
+let _dishNameSet = null;
+function _buildDishNameSet() {
+  const set = new Set();
+  const add = (s) => { const n = norm(s); if (n) set.add(n); };
+  try {
+    const { NATION_OVERLAY } = require('./nation-overlay');
+    for (const entry of Object.values(NATION_OVERLAY)) {
+      for (const d of (entry.iconicDishes || [])) if (d?.name) add(d.name);
+      for (const s of (entry.sharedWithNeighbors || [])) if (s?.dish) add(s.dish);
+    }
+  } catch { /* overlay unavailable — guard degrades gracefully */ }
+  for (const byDish of Object.values(DISH_ALIASES)) {
+    for (const [name, aliases] of Object.entries(byDish)) {
+      add(name);
+      for (const a of aliases) add(a);
+    }
+  }
+  try {
+    const { allPlateDishNames } = require('./city-plates');
+    for (const n of allPlateDishNames()) add(n);
+  } catch { /* city-plates unavailable */ }
+  return set;
+}
+
+// True when `text` IS a dish: exact normalized match, or contains a known
+// dish with ≤1 leftover token ("ikan patin tempoyak" → guarded; "Restoran
+// Dapur Mars patin tempoyak" → 3 extra tokens → plausibly a venue name →
+// NOT guarded). Fail-open: errors → false (place detection unchanged).
+function isKnownDishName(text) {
+  try {
+    const t = norm(text);
+    // Script-aware floor: CJK names are dense (叻沙 = 2 chars), Latin ≥3.
+    if (!t || (CJK_RE.test(t) ? t.length < 2 : t.length < 3)) return false;
+    if (!_dishNameSet) _dishNameSet = _buildDishNameSet();
+    if (_dishNameSet.has(t)) return true;
+    const tokens = t.split(/\s+/);
+    if (tokens.length < 2) return false;
+    // drop one token at a time; if the remainder is a known dish → guarded
+    for (let i = 0; i < tokens.length; i++) {
+      const rest = tokens.slice(0, i).concat(tokens.slice(i + 1)).join(' ');
+      if (_dishNameSet.has(rest)) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+module.exports.isKnownDishName = isKnownDishName;

@@ -27,6 +27,7 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
+import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
@@ -434,6 +435,9 @@ export default function App() {
   // /cuisine command can deep-link the recipient back to the same
   // anchor.
   const [locationAnchor, setLocationAnchor] = useState(initialOverrides?.location || null);
+  // v0.62.32 — Arrival Plate: the curated what-to-try card for the
+  // anchored city, supplied by the server alongside the saved location.
+  const [arrivalPlate, setArrivalPlate] = useState(null);
   // v0.61.371 — keep locationAnchorRef in sync so the mount-time location
   // sync (declared above, before this state) can read the CURRENT anchor and
   // hold an explicit pick instead of following the device off it.
@@ -803,6 +807,8 @@ export default function App() {
           // show the Putrajaya flag PNG when the anchor is IOI Resort
           // City (other OTHER anchors stay on 🌏).
           if (r.precinctId) setAnchorPrecinctId(r.precinctId);
+          // v0.62.32 — Arrival Plate from the cached location's city.
+          setArrivalPlate(r.plate || null);
           // v0.61.270 — Phase 2 SSOT: sync state.countryPref from the
           // cached anchor's `country` field (now surfaced by /api/
           // cuisine/user-location since v0.61.270). Closes the
@@ -933,6 +939,8 @@ export default function App() {
           if (r?.region) applyRegionFromAnchor(r.region);
           // v0.61.205 — track precinctId for the OTHER pill flag swap.
           if (r?.precinctId) setAnchorPrecinctId(r.precinctId);
+          // v0.62.32 — Arrival Plate on initData/GPS boots too.
+          if (!cancelled) setArrivalPlate(r?.plate || null);
           // v0.62.30 — operator: "problem again to lock the location."
           // Railway log: bare label-less device re-saves (the 20-s follow
           // sync) overwrote a deliberate Putrajaya/Sapporo pick minutes
@@ -1936,7 +1944,10 @@ export default function App() {
         region: (snap.region && snap.region !== '__NONE__') ? snap.region : undefined,
         lang,                                             // v0.59.0
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
-        freeText: (typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined,  // v0.60.126 — Tell-me box as a qualifier
+        // v0.60.126 — Tell-me box as a qualifier. v0.62.32 — an Arrival
+        // Plate dish tap passes freeTextOverride so the dish search fires
+        // on the SAME render (state.nlText hasn't committed yet).
+        freeText: (typeof opts?.freeTextOverride === 'string' && opts.freeTextOverride.trim()) ? opts.freeTextOverride.trim() : ((typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined),
         specialMode: snap.specialMode || null,           // v0.61.126 — Fruits / Durian exclusive mode override
         // v0.61.271 — Phase 3 SSOT: forward state.countryPref so the
         // server uses the user's explicit country pick instead of
@@ -2453,6 +2464,9 @@ export default function App() {
               lat: p.lat, lng: p.lng, label: p.label, notify: true,
               region: persistRegion, country: persistCountry,
               ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {})
+            }).then((resp) => {
+              // v0.62.32 — Arrival Plate rides the persist response.
+              setArrivalPlate(resp?.plate || null);
             }).catch(() => {});
           }
         }, 350);
@@ -2566,6 +2580,9 @@ export default function App() {
           // city picks; SG/JB picks pass nothing here, so their stored
           // anchor stays cap-free and their radius logic is unchanged.
           ...(Number.isFinite(p.radiusCapM) && p.radiusCapM > 0 ? { radiusCapM: p.radiusCapM } : {})
+        }).then((resp) => {
+          // v0.62.32 — Arrival Plate rides the persist response.
+          setArrivalPlate(resp?.plate || null);
         }).catch(() => {});
       }
       // v0.61.237 — auto-fire the search with the explicit new anchor.
@@ -2976,6 +2993,22 @@ export default function App() {
             // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
             // so the chat /location (v0.61.195) picks up the same value.
             saveCountryPref(code).catch(() => { /* non-fatal */ });
+          }}
+        />
+      )}
+
+      {/* v0.62.32 — Arrival Plate (operator UI pick A): compact collapsed
+          banner under the location field; expands to curated what-to-try
+          rows with 📜 fact-cards. Tapping a dish fires the dish search via
+          freeTextOverride (no state race). Hidden while a search streams. */}
+      {arrivalPlate && !loading && (
+        <ArrivalPlate
+          plate={arrivalPlate}
+          lang={lang}
+          onTryDish={(dish) => {
+            setNlText(dish);
+            setLoadingReason('rotating');
+            runSearch(state, null, { freeTextOverride: dish });
           }}
         />
       )}
