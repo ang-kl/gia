@@ -3044,6 +3044,15 @@ export default function App() {
               onRemoveCuisine={removeCuisine}
               onRemoveFilter={removeFilter}
               onResetAll={clearAll}
+              // v0.62.19 — resolve the catalogue display name so the criteria
+              // chip matches the drawer ('durian' → "Durian Fruits"), not the
+              // raw slug. Mirrors the comboLine resolver below.
+              nameForCuisine={(slug) => {
+                if (!Array.isArray(catalogue)) return null;
+                const all = [].concat(...catalogue.map((c) => c.cuisines || []));
+                const m = all.find((c) => c.slug === slug);
+                return m ? m.name : null;
+              }}
             />
           </div>
         )}
