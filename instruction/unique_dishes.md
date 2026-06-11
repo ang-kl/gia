@@ -262,3 +262,74 @@ Spec rules:
 - **Closed by ms/ja/th pass (6):** Klang BKT (→ Tier S, Warisan Negara) · patin tempoyak (→ Tier S, JKKN + Temerloh MPT) · saba-zushi (→ Tier S, MAFF) · miso ramen (founder shop, ja) · monjayaki (official association, ja) · khao soi history (corroborated).
 - **Still `[TO VERIFY]` (rows excluded from city-plates.js until confirmed):** NLB chilli-crab article · Tourism Johor page + laksa Johor + mee bandung rows · banana leaf page · Penang cendol · TAT boat-noodle + sai ua rows · barramundi row · lamington SLQ · Auckland hāngī row · Tourism Melaka rows.
 - **Lesson:** the local-language pass found **stronger authorities** (two national heritage registries + a ministry inventory + founder shops) that the English web never surfaced.
+
+## 20. Vietnam pass (v0.62.36 — operator: "curate vn") — 7 cities
+
+**Primary truth tier-map for VN:** MOCST national ICH list (S) > EU PDO register (S) >
+[vietnamtourism.gov.vn](https://vietnamtourism.gov.vn) / vietnam.travel (A) > Michelin Guide VN (B,
+cite never scrape) > TasteAtlas (B) > Wikipedia (C). Local-language = vi (diacritics fold in the
+matcher, so Phở ↔ pho both verify).
+
+### 20.1 Hanoi 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Phở Hà Nội | city-icon | style-home; **origin disputed vs Nam Định — both named** | **MOCST national ICH, Aug 2024** ([VietnamPlus](https://en.vietnamplus.vn/pho-of-hanoi-nam-dinh-recognised-as-national-intangible-cultural-heritage-post291802.vnp)) (S) |
+| Bún chả | city-icon | style-home (Bourdain–Obama 2016 corroboration) | vietnam.travel (A) |
+| Chả cá Lã Vọng | city-icon | birthplace — named-after-shop (Đoàn family, 1870s; street renamed after the dish) | TasteAtlas cite (B) |
+
+### 20.2 Ho Chi Minh City 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Bánh mì Sài Gòn | city-icon | birthplace of the FILLED sandwich — Hòa Mã bakery, District 3, **1958** (founder-shop evidence, still trading) | [Wikipedia Bánh mì](https://en.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC) (C, founder-shop D) |
+| Cơm tấm | city-icon | style-home (broken-rice farmers' grain → Saigon signature) | Michelin Guide VN cite (B) |
+| Hủ tiếu Nam Vang | regional | **honest adapted-import** — the name says Phnom Penh | TasteAtlas cite (B) |
+
+### 20.3 Da Nang 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Mì Quảng | regional | style-home Quảng Nam (Da Nang's province until 1997) | **MOCST national ICH, Aug 2024** + [Michelin](https://guide.michelin.com/vn/en/article/features/what-is-mi-quang) (S/B) |
+| Bún chả cá | — | `[TO VERIFY]` — Da Nang fish-cake noodle; no Tier-A source found yet → **excluded from data** | — |
+
+### 20.4 Hue 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Bún bò Huế | city-icon | birthplace (city in the name) | **MOCST national ICH, Jun 2025** ([VietnamPlus](https://en.vietnamplus.vn/bun-bo-hue-recognised-as-national-intangible-cultural-heritage-post322757.vnp)) (S) |
+| Cơm hến | city-icon | birthplace — Cồn Hến islet, Perfume River | vietnam.travel (A) |
+
+### 20.5 Hoi An 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Cao lầu | city-icon | birthplace — **cannot be made elsewhere** (Bà Lễ well water + Chàm Islands tree ash) | [vietnamtourism.gov.vn](https://vietnamtourism.gov.vn/en/post/7813) (A→S, national authority) |
+| Bánh bao bánh vạc (White rose) | city-icon | birthplace — one-family recipe >100 yrs, single workshop supplies the town | TasteAtlas cite (B) |
+
+### 20.6 Nha Trang 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Nem nướng Nha Trang | regional | style-home, Ninh Hòa roots (honest: regional, not city-unique) | TasteAtlas cite (B) |
+| Bún sứa | — | `[TO VERIFY]` — jellyfish noodle soup; needs a Tier-A source → **excluded from data** | — |
+
+### 20.7 Phu Quoc 🇻🇳
+| dish | tier | claim | source |
+|---|---|---|---|
+| Nước mắm Phú Quốc | city-icon | place-named — **EU PDO 2012, first in SE Asia** + MOCST ICH craft 2021 | [Wikipedia/PDO register](https://en.wikipedia.org/wiki/Phu_Quoc_fish_sauce) (S) |
+| Gỏi cá trích | city-icon | style-home — fishermen's herring salad, eaten with the PDO sauce | TasteAtlas cite (B) |
+
+### 20.8 Honesty notes
+- **Dalat dropped** — no entry in city-centroids.js to key on (same rule as Malacca).
+- Phở origin is **disputed** (Hanoi style-home vs Nam Định birthplace): both named in the claim AND
+  the 📜 history, per the pavlova/BKT precedent.
+- Hủ tiếu Nam Vang is listed as an honest **adapted-import** — the dish name itself credits
+  Phnom Penh.
+- 2 rows stay `[TO VERIFY]` and are **excluded from city-plates.js**: bún chả cá (Da Nang),
+  bún sứa (Nha Trang).
+
+### 20.9 vi-language pass (operator: "did you include local language")
+- Names/local script were vi from the start (Vietnamese is Latin-script; diacritics preserved, the
+  matcher folds them so phở ↔ pho both verify). The SOURCE pass was initially English-only — the
+  vi pass then surfaced the stronger authorities, exactly as the ms/ja/th lesson predicted:
+  - **Phở Hà Nội** → **Quyết định số 2328/QĐ-BVHTTDL (9/8/2024)**, announced 29/11/2024 at the
+    Hanoi Culinary Culture Festival — [Sở VHTT Hà Nội](https://sovhtt.hanoi.gov.vn/cong-bo-quyet-dinh-ghi-danh-pho-ha-noi-la-di-san-van-hoa-phi-vat-the-quoc-gia/) (S, vi).
+  - **Bún bò Huế** → **Quyết định số 2203/QĐ-BVHTTDL (27/6/2025)**, "Tri thức dân gian về Bún bò
+    Huế" — [Cổng TTĐT Chính phủ](https://baochinhphu.vn/tri-thuc-dan-gian-ve-bun-bo-hue-duoc-cong-nhan-di-san-van-hoa-phi-vat-the-quoc-gia-102250705162116955.htm) (S, vi);
+    notes the Vân Cù / Ô Sa noodle-village craft lineage.
+  - Both registry rows now cite the vi decision FIRST, the en outlet second.

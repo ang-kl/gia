@@ -332,6 +332,143 @@ const CITY_PLATES = Object.freeze({
         },
         sources: [{ name: 'Wikipedia', lang: 'en' }] }
     ]
+  },
+
+  // ── Vietnam (v0.62.36 curation pass — operator: "curate vn") ──────────
+  // Tier-S anchors: MOCST national ICH inscriptions (Phở Hà Nội + Phở Nam
+  // Định + Mì Quảng, Aug 2024; Bún bò Huế, Jun 2025; Phú Quốc fish-sauce
+  // craft, 2021) and the EU PDO (Phú Quốc nước mắm, 2012 — first in SE
+  // Asia). vietnamtourism.gov.vn = the national tourism authority (Tier A).
+  'Hanoi': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Phở Hà Nội', local: 'Phở Hà Nội', tier: 'city-icon', claim: 'style-home (origin-claim vs Nam Định)', differsFrom: "Nam Định's beef-heavier, fish-sauce-forward original claim",
+        history: {
+          en: 'Inscribed in Vietnam’s national intangible cultural heritage list (Aug 2024) alongside Phở Nam Định — the rival birthplace claim. The Hanoi style: a clear, restrained beef broth. Both claimants are named; neither wins here.',
+          fr: 'Inscrit au patrimoine culturel immatériel national du Vietnam (août 2024) aux côtés du Phở Nam Định — la revendication rivale. Le style de Hanoï : un bouillon de bœuf clair et sobre.'
+        },
+        sources: [
+          { name: 'MOCST Quyết định 2328/QĐ-BVHTTDL (9/8/2024) — Sở VHTT Hà Nội', url: 'https://sovhtt.hanoi.gov.vn/cong-bo-quyet-dinh-ghi-danh-pho-ha-noi-la-di-san-van-hoa-phi-vat-the-quoc-gia/', lang: 'vi' },
+          { name: 'VietnamPlus (en)', url: 'https://en.vietnamplus.vn/pho-of-hanoi-nam-dinh-recognised-as-national-intangible-cultural-heritage-post291802.vnp', lang: 'en' }
+        ] },
+      { dish: 'Bún chả', local: 'Bún chả', tier: 'city-icon', claim: 'style-home',
+        history: {
+          en: 'Hanoi’s lunchtime grill: charcoal pork patties and belly in a sweet-sour fish-sauce bath, rice vermicelli and herbs alongside. The dish Anthony Bourdain shared with President Obama in Hanoi, 2016.',
+          fr: 'Le grill de midi de Hanoï : porc grillé au charbon dans un bain de nuoc-mâm aigre-doux, vermicelles de riz et herbes. Le plat partagé par Bourdain et Obama à Hanoï en 2016.'
+        },
+        sources: [{ name: 'Vietnam tourism (vietnam.travel)', lang: 'en' }] },
+      { dish: 'Chả cá Lã Vọng', local: 'Chả cá Lã Vọng', tier: 'city-icon', claim: 'birthplace (named-after-shop)',
+        history: {
+          en: 'Turmeric-marinated river fish sizzled tableside with dill and scallions — created by the Đoàn family’s shop in the 1870s; the street it stood on was renamed Chả Cá street after the dish.',
+          fr: 'Poisson de rivière au curcuma saisi à table avec aneth et oignons verts — créé par la famille Đoàn dans les années 1870 ; la rue fut rebaptisée rue Chả Cá d’après le plat.'
+        },
+        sources: [{ name: 'TasteAtlas (cited, not scraped)', lang: 'en' }] }
+    ]
+  },
+
+  'Ho Chi Minh City': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Bánh mì Sài Gòn', local: 'Bánh mì Sài Gòn', tier: 'city-icon', claim: 'birthplace (of the filled sandwich)',
+        history: {
+          en: 'The baguette came with the French; Saigon made it a meal. Hòa Mã bakery (District 3, 1958) is credited as the first to pack the fillings INTO the bread for workers to carry — the bánh mì thịt was born here.',
+          fr: 'La baguette est venue avec les Français ; Saïgon en a fait un repas. La boulangerie Hòa Mã (1958) fut la première à garnir le pain — le bánh mì thịt est né ici.'
+        },
+        sources: [{ name: 'Bánh mì history (Hòa Mã 1958)', url: 'https://en.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC', lang: 'en' }] },
+      { dish: 'Cơm tấm', local: 'Cơm tấm', tier: 'city-icon', claim: 'style-home',
+        history: {
+          en: 'Broken rice — once the cheap fractured grains farmers kept for themselves — turned Saigon signature: grilled pork chop, shredded pork skin, steamed egg cake, fish-sauce dressing. Best at dawn or after midnight.',
+          fr: 'Le riz brisé — autrefois les grains cassés que gardaient les fermiers — devenu signature de Saïgon : côtelette grillée, couenne effilochée, flan d’œuf, sauce nuoc-mâm.'
+        },
+        sources: [{ name: 'Michelin Guide Vietnam (cited)', lang: 'en' }] },
+      { dish: 'Hủ tiếu Nam Vang', local: 'Hủ tiếu Nam Vang', tier: 'regional', claim: 'adapted-from (Phnom Penh)', differsFrom: 'the Phnom Penh original it is named after (Nam Vang = Phnom Penh)',
+        history: {
+          en: 'An honest import: the name says Phnom Penh. Khmer–Teochew noodle soup carried up the Mekong, re-seasoned by Saigon’s Chinese quarter into its own pork-and-prawn morning ritual.',
+          fr: 'Un import assumé : le nom dit Phnom Penh. Soupe khmère-teochew remontée le long du Mékong, réassaisonnée par le quartier chinois de Saïgon en rituel matinal porc-crevettes.'
+        },
+        sources: [{ name: 'TasteAtlas (cited, not scraped)', lang: 'en' }] }
+    ]
+  },
+
+  'Da Nang': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Mì Quảng', local: 'Mì Quảng', tier: 'regional', claim: 'style-home (Quảng Nam)', differsFrom: 'phở — barely-there turmeric broth, wide rice noodles, sesame rice cracker',
+        history: {
+          en: 'Named for Quảng Nam — the province Da Nang belonged to until 1997. Turmeric-stained noodles, a scant intense broth, peanuts and a sesame cracker. Inscribed in the national intangible cultural heritage list (Aug 2024).',
+          fr: 'Nommé d’après le Quảng Nam — la province de Da Nang jusqu’en 1997. Nouilles au curcuma, bouillon réduit et intense, cacahuètes. Inscrit au patrimoine immatériel national (août 2024).'
+        },
+        sources: [{ name: 'MOCST national ICH (via Michelin Guide VN)', url: 'https://guide.michelin.com/vn/en/article/features/what-is-mi-quang', lang: 'en' }] }
+    ]
+  },
+
+  'Hue': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Bún bò Huế', local: 'Bún bò Huế', tier: 'city-icon', claim: 'birthplace (city in the name)',
+        history: {
+          en: 'The old imperial capital’s answer to phở: lemongrass-and-shrimp-paste beef broth, thick round noodles. “The Folk Knowledge of Bún Bò Huế” was inscribed in Vietnam’s national intangible cultural heritage list in June 2025.',
+          fr: 'La réponse de l’ancienne capitale impériale au phở : bouillon de bœuf à la citronnelle et pâte de crevette, grosses nouilles rondes. Inscrit au patrimoine immatériel national en juin 2025.'
+        },
+        sources: [
+          { name: 'MOCST Quyết định 2203/QĐ-BVHTTDL (27/6/2025) — Cổng TTĐT Chính phủ', url: 'https://baochinhphu.vn/tri-thuc-dan-gian-ve-bun-bo-hue-duoc-cong-nhan-di-san-van-hoa-phi-vat-the-quoc-gia-102250705162116955.htm', lang: 'vi' },
+          { name: 'VietnamPlus (en)', url: 'https://en.vietnamplus.vn/bun-bo-hue-recognised-as-national-intangible-cultural-heritage-post322757.vnp', lang: 'en' }
+        ] },
+      { dish: 'Cơm hến', local: 'Cơm hến', tier: 'city-icon', claim: 'birthplace (Cồn Hến islet)',
+        history: {
+          en: 'Cold leftover rice under a heap of tiny basket clams dredged from the Perfume River’s Cồn Hến islet, with fermented shrimp paste, peanuts, pork crackling and the clam broth on the side. Peasant food the court learned to love.',
+          fr: 'Riz froid sous un monticule de petites palourdes du banc Cồn Hến de la rivière des Parfums, pâte de crevette fermentée, cacahuètes, et le bouillon de palourdes à part.'
+        },
+        sources: [{ name: 'Vietnam tourism (vietnam.travel)', lang: 'en' }] }
+    ]
+  },
+
+  'Hoi An': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Cao lầu', local: 'Cao lầu', tier: 'city-icon', claim: 'birthplace (cannot be made elsewhere)',
+        history: {
+          en: 'The one Vietnamese noodle dish that genuinely cannot leave home: the noodles are alkalised with ash from Chàm Islands trees and water drawn from the centuries-old Bà Lễ well. Char siu-style pork, greens, crisp croutons — a trading-port synthesis.',
+          fr: 'Le seul plat de nouilles vietnamien qui ne peut pas quitter sa ville : nouilles alcalinisées à la cendre des îles Chàm et à l’eau du puits ancestral Bà Lễ. Porc laqué, herbes, croûtons.'
+        },
+        sources: [{ name: 'Vietnam National Tourism (vietnamtourism.gov.vn)', url: 'https://vietnamtourism.gov.vn/en/post/7813', lang: 'en' }] },
+      { dish: 'White rose dumplings', local: 'Bánh bao bánh vạc', tier: 'city-icon', claim: 'birthplace (one-family recipe)',
+        history: {
+          en: 'Translucent shrimp dumplings pleated like roses — made by one Hội An family for over a century; most restaurants in town buy from that single workshop. Eat them where they were born.',
+          fr: 'Raviolis translucides aux crevettes plissés comme des roses — faits par une seule famille de Hội An depuis plus d’un siècle ; la plupart des restaurants s’y fournissent.'
+        },
+        sources: [{ name: 'TasteAtlas (cited, not scraped)', lang: 'en' }] }
+    ]
+  },
+
+  'Nha Trang': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Nem nướng Nha Trang', local: 'Nem nướng Nha Trang', tier: 'regional', claim: 'style-home (Ninh Hòa roots)',
+        history: {
+          en: 'Grilled pork sausage rolled at the table in rice paper with green banana, starfruit and herbs, dunked in a thick fermented dipping sauce — Khánh Hòa’s signature, carried into Nha Trang from nearby Ninh Hòa.',
+          fr: 'Saucisse de porc grillée roulée à table dans la galette de riz avec banane verte, carambole et herbes, trempée dans une sauce épaisse — la signature du Khánh Hòa, venue de Ninh Hòa.'
+        },
+        sources: [{ name: 'TasteAtlas (cited, not scraped)', lang: 'en' }] }
+    ]
+  },
+
+  'Phu Quoc': {
+    country: 'VN',
+    dishes: [
+      { dish: 'Nước mắm Phú Quốc', local: 'Nước mắm Phú Quốc', tier: 'city-icon', claim: 'place-named (EU PDO)',
+        history: {
+          en: 'The island’s black-anchovy fish sauce, barrel-fermented for a year-plus. EU Protected Designation of Origin since 2012 — the first Southeast Asian product ever — and a national intangible cultural heritage craft since 2021. Visit a barrel house.',
+          fr: 'Le nuoc-mâm d’anchois noirs de l’île, fermenté en fût plus d’un an. AOP européenne depuis 2012 — première d’Asie du Sud-Est — et patrimoine immatériel national depuis 2021.'
+        },
+        sources: [{ name: 'EU PDO register / MOCST ICH 2021', url: 'https://en.wikipedia.org/wiki/Phu_Quoc_fish_sauce', lang: 'en' }] },
+      { dish: 'Gỏi cá trích', local: 'Gỏi cá trích', tier: 'city-icon', claim: 'style-home (fishermen’s dish)',
+        history: {
+          en: 'Raw herring tossed with coconut, lime and onion, rolled in rice paper — the island fishermen’s daily catch eaten with the local fish sauce. The pairing is the point: PDO nước mắm, metres from the boats.',
+          fr: 'Hareng cru au coco, citron vert et oignon, roulé dans la galette de riz — le plat des pêcheurs de l’île, avec le nuoc-mâm local AOP, à quelques mètres des bateaux.'
+        },
+        sources: [{ name: 'TasteAtlas (cited, not scraped)', lang: 'en' }] }
+    ]
   }
 });
 

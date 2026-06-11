@@ -43,6 +43,21 @@ describe('city-plates — schema invariants (the source-of-truth rules)', () => 
     expect(sg.claim.toLowerCase()).toContain('claim');
   });
 
+  it('VN pass (v0.62.36): phở names both claimants; Tier-S rows carry their ICH/PDO source', () => {
+    const pho = cp.platesForCity('Hanoi').dishes.find((d) => /Phở/.test(d.dish));
+    expect(pho.claim).toMatch(/Nam Định/);
+    expect(pho.history.en).toMatch(/Nam Định/);
+    const bbh = cp.platesForCity('Hue').dishes.find((d) => /Bún bò Huế/.test(d.dish));
+    // vi-language pass: the MOCST decision number is the FIRST source.
+    expect(bbh.sources[0].name).toMatch(/2203\/QĐ-BVHTTDL/);
+    expect(bbh.sources[0].lang).toBe('vi');
+    expect(pho.sources[0].name).toMatch(/2328\/QĐ-BVHTTDL/);
+    const mam = cp.platesForCity('Phu Quoc').dishes.find((d) => /Nước mắm/.test(d.dish));
+    expect(mam.claim).toMatch(/PDO/);
+    const caolau = cp.platesForCity('Hoi An').dishes.find((d) => /Cao lầu/.test(d.dish));
+    expect(caolau.sources[0].url).toMatch(/vietnamtourism\.gov\.vn/);
+  });
+
   it('the honesty test: Putrajaya is honestEmpty with only regional/national rows', () => {
     const p = cp.platesForCity('Putrajaya');
     expect(p.honestEmpty).toBe(true);
@@ -53,6 +68,9 @@ describe('city-plates — schema invariants (the source-of-truth rules)', () => 
 describe('city-plates — geo lookup (platesNear)', () => {
   it('resolves the curated city for known centroids; null far away', () => {
     expect(cp.platesNear(43.0618, 141.3545)?.city).toBe('Sapporo');
+    expect(cp.platesNear(21.0285, 105.8542)?.city).toBe('Hanoi');        // VN pass
+    expect(cp.platesNear(10.8231, 106.6297)?.city).toBe('Ho Chi Minh City');
+    expect(cp.platesNear(15.8801, 108.3380)?.city).toBe('Hoi An');       // ≠ Da Nang (~27 km)
     expect(cp.platesNear(2.9264, 101.6964)?.city).toBe('Putrajaya');
     expect(cp.platesNear(-27.4698, 153.0251)?.city).toBe('Brisbane');
     expect(cp.platesNear(0, 150)).toBe(null);          // open ocean
