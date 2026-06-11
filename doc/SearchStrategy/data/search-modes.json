@@ -120,6 +120,7 @@
     "6. New pill (base only): recency ≤183d + rating >3.0/unrated; stamp strict/fill band.",
     "7. Rating floor: skipped for durian/pastry (soft 3.7); else applyRatingFloor(ratingPref); New relaxes numeric → 3.0; never empties.",
     "8. Sort: durian ≥3.7 first → recency band → distance. Slice (first tap 6, then 12).",
-    "9. Overall 20s deadline guards the whole route — degraded-200 before any gateway 502."
+    "9. Overall 20s deadline guards the whole route — degraded-200 before any gateway 502.",
+    "10. JB anchoring rule (v0.62.18): a search is anchored by COORDINATES + a geofence, never the bare place name/phrase (a name can match a same-branded outfit elsewhere). A registered JB sub-location pick (Legoland/Bukit Indah/CBD/Southkey/Mt Austin, detected by coords) tightens the radius to ~6 km (≤12 km widen) so results are near the pick, not the 30 km metro; a region=JB anchor outside the Johor extent is flagged."
   ]
 }

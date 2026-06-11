@@ -99,6 +99,47 @@ function insideSgBbox(input) {
   return lat <= latMax;
 }
 
+// v0.62.18 — JB focus points (server mirror of web/cuisine/src/v2/lib/
+// jb-focus-points.js). The 5 registered JB sub-location quick-pick chips.
+// Used so the cuisine-search route can detect a deliberate sub-location
+// pick (the searchCenter sits ON a focus point) and tighten the radius
+// (operator: a Legoland pick must show eateries NEAR Legoland, not the
+// whole 30 km JB metro where the dense CBD floods the results).
+const JB_FOCUS_POINTS = Object.freeze([
+  Object.freeze({ key: 'legoland',   lat: 1.4296, lng: 103.6321 }),
+  Object.freeze({ key: 'bukitIndah', lat: 1.4773, lng: 103.6645 }),
+  Object.freeze({ key: 'cbd',        lat: 1.4927, lng: 103.7414 }),
+  Object.freeze({ key: 'southkey',   lat: 1.4912, lng: 103.7665 }),
+  Object.freeze({ key: 'mtAustin',   lat: 1.5252, lng: 103.7935 })
+]);
+// Returns the focus-point key when the coordinate sits within `toleranceM`
+// of a registered focus point (the chips carry exact hardcoded coords, so a
+// 400 m tolerance identifies a chip pick — or a user standing at the spot),
+// else null. Anchors the search by COORDINATES, never by the place name.
+function jbFocusNear(input, toleranceM = 400) {
+  if (!input) return null;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  for (const f of JB_FOCUS_POINTS) {
+    if (haversineMeters({ lat, lng }, { lat: f.lat, lng: f.lng }) <= toleranceM) return f.key;
+  }
+  return null;
+}
+
+// v0.62.18 — Johor state extent (lat 1.20–2.55, lng 102.50–104.50), matching
+// the client coords-to-country JB bbox. A region='JB' search whose anchor
+// falls OUTSIDE this box is incoherent — a place name resolved to a similar
+// outfit elsewhere should never anchor a "Johor Bahru" search (operator:
+// "all resolution of address cannot be company name / phrase — may be
+// confused with a similar outfit elsewhere"). Defence-in-depth on top of the
+// MY-restricted autocomplete + the 150 km JB_FALLBACK downgrade.
+function insideJohorExtent(input) {
+  if (!input) return false;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  return lat >= 1.20 && lat <= 2.55 && lng >= 102.50 && lng <= 104.50;
+}
+
 // Substring match (case-insensitive). The Malaysian state name comes
 // back as "Johor" from the Google Geocode `administrative_area_level_1`
 // component; using `includes` survives stray punctuation / suffixes
@@ -327,6 +368,9 @@ module.exports = {
   JB_ADMIN_KEYWORDS,
   SG_BBOX,
   insideSgBbox,
+  JB_FOCUS_POINTS,
+  jbFocusNear,
+  insideJohorExtent,
   FEATURE_KIND,
   ALWAYS_ALLOWED,
   SG_ONLY,

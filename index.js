@@ -14469,6 +14469,33 @@ async function cacheBotUsername() {
             searchRadius = effectiveOtherCap;
           }
         }
+        // v0.62.18 — JB FOCUS-POINT tight radius (operator: "Legoland still
+        // spilt out as far away eateries"). When a JB search is anchored ON a
+        // registered sub-location focus point (Legoland / Bukit Indah / CBD /
+        // Southkey / Mt Austin — detected by COORDS, never the name), the 30 km
+        // JB-metro radius floods the dense CBD into a Legoland search. Bound a
+        // focus pick to a tight ring (6 km start, ≤12 km widen ceiling) so the
+        // results are genuinely NEAR the picked spot. Non-focus JB searches
+        // (plain pill / device GPS elsewhere in JB) keep the 30 km behaviour.
+        if (isJB) {
+          const lmFocus = require('./location-mode');
+          const focusKey = lmFocus.jbFocusNear(searchCenter);
+          if (focusKey) {
+            const FOCUS_RADIUS_M = 6000;
+            const FOCUS_CAP_M = 12000;
+            const prevRadius = searchRadius;
+            searchRadius = Math.min(searchRadius, FOCUS_RADIUS_M);
+            anchorCap = FOCUS_CAP_M;   // ladder/outer-ring may widen to here only
+            console.log(`[Cuisine-TMA] D784 JB focus='${focusKey}' tight radius ${prevRadius}m → ${searchRadius}m (cap ${anchorCap}m) — near-pick, not the 30km metro`);
+          }
+          // v0.62.18 — C: Johor-extent guard. A region='JB' anchor that falls
+          // OUTSIDE the Johor state extent is incoherent (a same-named place
+          // resolved elsewhere). The MY-restricted autocomplete + the 150 km
+          // JB_FALLBACK normally prevent this; log it so a leak is visible.
+          if (!lmFocus.insideJohorExtent(searchCenter)) {
+            console.warn(`[Cuisine-TMA] D785 JB-guard: searchCenter ${searchCenter.lat?.toFixed?.(4)},${searchCenter.lng?.toFixed?.(4)} is OUTSIDE the Johor extent for a region=JB search (possible name/phrase mis-resolution)`);
+          }
+        }
         // v0.61.129 — O-20: Tell-me box place-anchor detection. When
         // the typed text names a Singapore place (MRT, hawker centre,
         // STB precinct, or a geocodable landmark) — either standalone
