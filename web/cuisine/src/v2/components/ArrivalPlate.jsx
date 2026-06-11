@@ -17,11 +17,26 @@ const TIER_LABEL = {
   'national-classic': { en: 'national classic', fr: 'classique national' }
 };
 
+// v0.62.37 — country label for the "More local classics" section (the
+// overlay-fed list is national-level, so it's labelled by COUNTRY, honestly —
+// never passed off as city-unique).
+const COUNTRY_LABEL = {
+  SG: { en: 'Singapore',   fr: 'singapouriens' },
+  MY: { en: 'Malaysian',   fr: 'malaisiens' },
+  TH: { en: 'Thai',        fr: 'thaïlandais' },
+  JP: { en: 'Japanese',    fr: 'japonais' },
+  VN: { en: 'Vietnamese',  fr: 'vietnamiens' },
+  AU: { en: 'Australian',  fr: 'australiens' },
+  NZ: { en: 'New Zealand', fr: 'néo-zélandais' }
+};
+
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
+  // v0.62.37 — the "More local classics" sub-section (overlay-fed, names only).
+  const [classicsOpen, setClassicsOpen] = useState(false);
   // New city → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setFactIdx(null); }, [plate?.city]);
+  useEffect(() => { setOpen(false); setFactIdx(null); setClassicsOpen(false); }, [plate?.city]);
 
   if (!plate || !Array.isArray(plate.dishes) || plate.dishes.length === 0) return null;
   const fr = lang === 'fr';
@@ -97,6 +112,43 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
               )}
             </React.Fragment>
           ))}
+
+          {/* v0.62.37 — "More local classics" (operator pick A): the country's
+              NATION_OVERLAY iconic dishes, names only — no 📜 (curated-only
+              rule). Labelled by COUNTRY, honestly — these are national, not
+              city-unique. Tap a chip → the same dish search as the rows. */}
+          {Array.isArray(plate.classics) && plate.classics.length > 0 && (() => {
+            const cl = (COUNTRY_LABEL[plate.country] || {})[fr ? 'fr' : 'en'] || plate.country;
+            return (
+              <div className="border-t border-tg-border/40">
+                <button
+                  type="button"
+                  className="w-full text-left py-2.5 min-h-[44px] flex items-center gap-1"
+                  aria-expanded={classicsOpen}
+                  onClick={() => setClassicsOpen(!classicsOpen)}
+                >
+                  <span aria-hidden className="text-tg-hint">{classicsOpen ? '▾' : '▸'}</span>
+                  <span className="flex-1">
+                    {fr ? `Autres classiques ${cl}` : `More ${cl} classics`}
+                    <span className="text-tg-hint"> ({plate.classics.length})</span>
+                  </span>
+                </button>
+                {classicsOpen && (
+                  <div className="max-h-64 overflow-y-auto pb-2 flex flex-wrap gap-1.5">
+                    {plate.classics.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
+                        aria-label={(fr ? 'Chercher ' : 'Search ') + name}
+                        onClick={() => { if (onTryDish) onTryDish(name); }}
+                      >{name}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>

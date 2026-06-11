@@ -452,6 +452,22 @@ export default function ResultPanel({
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
             </div>
           )}
+          {/* v0.62.37 — ⭐ Recommend summary (D792): how many of the visible
+              places serve one of this city's unique dishes. Only renders when
+              the server tagged venues (the ⭐ Recommend filter was on) and
+              this isn't a dish-search list (the E-split owns those). */}
+          {(() => {
+            const tagged = cardsToShow.filter((v) => v && v.cityDish && v.cityDish.dish).length;
+            const isDishList = cardsToShow.some((v) => v && v.dishEvidence !== undefined);
+            if (!tagged || isDishList) return null;
+            return (
+              <div className="px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
+                {lang === 'fr'
+                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} servent un classique local`
+                  : `⭐ ${tagged} of ${cardsToShow.length} places here serve a local classic`}
+              </div>
+            );
+          })()}
           {(() => {
             // v0.62.6 — Michelin city-grouped display (display layer only).
             // When the visible batch carries awardCity (Michelin, multi-city

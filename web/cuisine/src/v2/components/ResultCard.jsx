@@ -305,6 +305,19 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               </>
             );
           })()}
+          {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
+              mentions one of the anchored city's unique dishes. Tier in
+              WORDS, no colour signal — colour-blind safe. Only present when
+              the ⭐ Recommend filter was on for this search. */}
+          {venue.cityDish && venue.cityDish.dish && (
+            <div className="text-[12px] text-tg-text mt-1 leading-snug">
+              ⭐ <span className="font-medium">{(() => {
+                const t2 = venue.cityDish.tier;
+                if (lang === 'fr') return t2 === 'city-icon' ? 'Icône de la ville' : t2 === 'regional' ? 'Classique régional' : 'Classique national';
+                return t2 === 'city-icon' ? 'City icon' : t2 === 'regional' ? 'Regional classic' : 'National classic';
+              })()}</span> · {venue.cityDish.dish}
+            </div>
+          )}
           {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
           {typeof venue.recentReview === 'string' && venue.recentReview.trim() && (
             <div className="flex items-start gap-1 text-[11px] text-tg-hint mt-1 leading-snug italic">

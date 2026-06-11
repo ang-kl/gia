@@ -16268,6 +16268,33 @@ async function cacheBotUsername() {
             console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length} (reviewDishes=${discHadDishes} noVerifiedMention=${discNoMatch})`);
           } catch (err) { console.warn('[Cuisine-Search] curated-try fill failed (non-fatal):', err.message); }
         }
+        // v0.62.37 — D792 city-classic tie-in (operator: "after the search
+        // result then check if there are special dishes ties to these cuisine
+        // or city's unique dishes"). The cuisine half is D786 above; THIS is
+        // the city half: when the anchor sits in a curated Arrival-Plate city,
+        // tag venues whose own evidence (name first, then reviews/editorial —
+        // the D790b honest ladder, CJK/diacritics folded) mentions one of the
+        // city's unique dishes. Pure in-memory; fail-open; no API spend.
+        // Gated on the ⭐ Recommend quick-filter (operator: "checkbox
+        // 'Recommend' … uncheck default. if check, wired to the dishes,
+        // overlay, cities unique dishes") — OFF means the search behaves
+        // exactly as before v0.62.37.
+        if (!specialMode && filters && filters.recommend === true) {
+          try {
+            const cpD792 = require('./city-plates');
+            const plateD792 = cpD792.platesNear(lat, lng);
+            if (plateD792 && Array.isArray(plateD792.dishes) && plateD792.dishes.length) {
+              const ddCity = require('./discovery-dish');
+              let cityTagged = 0;
+              for (const v of top) {
+                if (!v) continue;
+                const hit = ddCity.findCityPlateDish(v, plateD792.dishes);
+                if (hit) { v.cityDish = { dish: hit.dish, tier: hit.tier }; cityTagged++; }
+              }
+              if (cityTagged) console.log(`[Cuisine-Search] D792 city-classic city=${plateD792.city} tagged=${cityTagged}/${top.length}`);
+            }
+          } catch (err) { console.warn('[Cuisine-Search] D792 city-classic tag failed (non-fatal):', err.message); }
+        }
         // v0.62.32 — Arrival Plate E-split: tag per-venue dish evidence for a
         // curated-dish search. Honest ladder: 'name' (the venue is named
         // after the dish) > 'reviews' (its own reviews/summary mention it,

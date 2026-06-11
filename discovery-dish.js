@@ -275,3 +275,30 @@ function isKnownDishName(text) {
 }
 
 module.exports.isKnownDishName = isKnownDishName;
+
+// ── city-plate tie-in (v0.62.37, D792) ───────────────────────────────────────
+//
+// findCityPlateDish(venue, plateDishes) → { dish, tier, evidence } | null
+//   evidence: 'name'    (the venue is named after the dish — strongest)
+//           | 'reviews' (the venue's own reviews / editorial mention it)
+// The SAME honest ladder as the D790b dish-search tag, applied to the anchored
+// city's CITY_PLATES rows on every search. The romanised `dish` and the
+// native-script `local` both count as evidence; the returned name is always
+// the romanised curated one (the client matches it back to the plate row).
+function findCityPlateDish(venue, plateDishes) {
+  if (!venue || !Array.isArray(plateDishes) || !plateDishes.length) return null;
+  const nameHay = norm(venue.name);
+  const fullHay = venueEvidenceText(venue);
+  for (const row of plateDishes) {
+    if (!row || !row.dish) continue;
+    const candidates = [row.dish, ...(row.local && row.local !== row.dish ? [row.local] : [])];
+    for (const cand of candidates) {
+      const needle = norm(cand);
+      if (needle.length < minNeedleLen(needle)) continue;   // CJK ≥2 / Latin ≥4
+      if (nameHay && nameHay.includes(needle)) return { dish: row.dish, tier: row.tier, evidence: 'name' };
+      if (fullHay && fullHay.includes(needle)) return { dish: row.dish, tier: row.tier, evidence: 'reviews' };
+    }
+  }
+  return null;
+}
+module.exports.findCityPlateDish = findCityPlateDish;

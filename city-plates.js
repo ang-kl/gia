@@ -472,11 +472,70 @@ const CITY_PLATES = Object.freeze({
   }
 });
 
-// platesForCity('Sapporo') → { city, country, honestEmpty?, dishes } | null
+// v0.62.37 — "More local classics" (operator pick A): the country's
+// NATION_OVERLAY iconicDishes ride the plate payload as a names-only list.
+// No 📜 history on these (curated-only rule); tapping one fires the dish
+// search. NATION_OVERLAY stays read-only (standing rule).
+const COUNTRY_OVERLAY_SLUG = Object.freeze({
+  SG: 'singaporean', MY: 'malaysian', TH: 'thai', JP: 'japanese',
+  VN: 'vietnamese', AU: 'australian', NZ: 'new-zealand'
+});
+
+// Lazy-required like place-search-variance: keep this module a pure data
+// registry until the overlay is actually needed.
+let _nationOverlay = null;
+
+// Diacritic/case fold for the classics-vs-plate dedupe (plate dish names in
+// the comparison are romanised — no CJK handling needed here).
+function _fold(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+}
+
+// classicsForCountry('SG') → ['chilli crab', …] | null (no overlay coverage).
+function classicsForCountry(countryCode) {
+  try {
+    const slug = COUNTRY_OVERLAY_SLUG[String(countryCode || '').toUpperCase()];
+    if (!slug) return null;
+    if (!_nationOverlay) _nationOverlay = require('./nation-overlay');
+    const o = _nationOverlay.NATION_OVERLAY[slug];
+    if (!o || !Array.isArray(o.iconicDishes)) return null;
+    // Uniq by fold — the SG overlay lists "teh tarik" twice (food + drink
+    // entries); duplicate names would collide as React chip keys.
+    const seen = new Set();
+    const names = o.iconicDishes
+      .map((d) => (typeof d === 'string' ? d : (d && d.name) || ''))
+      .filter((name) => {
+        const f = _fold(name);
+        if (!f || seen.has(f)) return false;
+        seen.add(f);
+        return true;
+      });
+    return names.length ? names : null;
+  } catch {
+    return null;   // fail-open: plate renders without the classics section
+  }
+}
+
+// Drop classics that duplicate one of the city's own curated rows — either
+// direction of containment ("Laksa (Katong)" suppresses bare "laksa").
+function _classicsForEntry(entry) {
+  const all = classicsForCountry(entry.country);
+  if (!all) return null;
+  const plateFolded = entry.dishes.map((d) => _fold(d.dish));
+  const out = all.filter((name) => {
+    const f = _fold(name);
+    return f && !plateFolded.some((p) => p.includes(f) || f.includes(p));
+  });
+  return out.length ? out : null;
+}
+
+// platesForCity('Sapporo') → { city, country, honestEmpty?, dishes, classics? } | null
 function platesForCity(cityName) {
   if (!cityName) return null;
   const entry = CITY_PLATES[cityName];
-  return entry ? { city: cityName, ...entry } : null;
+  if (!entry) return null;
+  const classics = _classicsForEntry(entry);
+  return { city: cityName, ...entry, ...(classics ? { classics } : {}) };
 }
 
 // platesNear(lat,lng) → plate of the nearest curated city within PLATE_MATCH_KM,
@@ -507,4 +566,4 @@ function allPlateDishNames() {
   return out;
 }
 
-module.exports = { CITY_PLATES, PLATE_MATCH_KM, platesForCity, platesNear, allPlateDishNames };
+module.exports = { CITY_PLATES, PLATE_MATCH_KM, platesForCity, platesNear, allPlateDishNames, classicsForCountry };

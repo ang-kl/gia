@@ -94,3 +94,39 @@ describe('dish-name guard — plate dishes can never become place anchors', () =
     expect(dd.isKnownDishName('Restoran Dapur Mars patin tempoyak')).toBe(false); // ≥2 extra tokens → venue name
   });
 });
+
+describe('v0.62.37 — overlay classics + D792 city tie-in', () => {
+  it('classicsForCountry: SG >150, MY ≥28, unknown → null', () => {
+    expect(cp.classicsForCountry('SG').length).toBeGreaterThan(150);
+    expect(cp.classicsForCountry('MY').length).toBeGreaterThanOrEqual(28);
+    expect(cp.classicsForCountry('XX')).toBe(null);
+  });
+
+  it('plate classics dedupe the curated rows (no bare chicken-rice next to Hainanese chicken rice)', () => {
+    const sg = cp.platesForCity('Singapore');
+    expect(Array.isArray(sg.classics)).toBe(true);
+    const folded = sg.classics.map((s) => s.toLowerCase());
+    expect(folded.some((s) => s.includes('chicken rice'))).toBe(false);
+  });
+
+  it('honestEmpty Putrajaya still carries the national classics list', () => {
+    const pj = cp.platesNear(2.9264, 101.6964);
+    expect(pj.honestEmpty).toBe(true);
+    expect(pj.classics.length).toBeGreaterThan(20);
+  });
+
+  it('findCityPlateDish: name > reviews ladder against the Hoi An plate; misses stay null', () => {
+    const hoian = cp.platesForCity('Hoi An').dishes;
+    expect(dd.findCityPlateDish({ name: 'Cao Lầu Bá Lễ' }, hoian))
+      .toEqual({ dish: 'Cao lầu', tier: 'city-icon', evidence: 'name' });
+    expect(dd.findCityPlateDish({ name: 'Random Eatery', reviews: [{ text: 'the cao lau here is the real deal' }] }, hoian))
+      .toEqual({ dish: 'Cao lầu', tier: 'city-icon', evidence: 'reviews' });
+    expect(dd.findCityPlateDish({ name: 'Pizza Corner', reviews: [{ text: 'great margherita' }] }, hoian)).toBe(null);
+    expect(dd.findCityPlateDish(null, hoian)).toBe(null);
+  });
+
+  it('overlay classics names are already guarded dish names (spot checks)', () => {
+    expect(dd.isKnownDishName('bak chor mee')).toBe(true);
+    expect(dd.isKnownDishName('kaya toast')).toBe(true);
+  });
+});

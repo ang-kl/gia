@@ -23,6 +23,11 @@ const PRIMARY = [
 const OVERFLOW = [
   { key: 'openNow',     i18n: 'filter.openNow',     icon: '🟢' },
   { key: 'vegetarian',  i18n: 'filter.vegetarian',  icon: '🥗' },
+  // v0.62.37 — Recommend (operator: "checkbox 'Recommend' next to
+  // vegetarian, uncheck default"; follow-up: NO ⭐ on the chip — the label
+  // is the plain word). Wires the search to the dish layer — cuisine
+  // special dishes (overlay) + the city's unique dishes.
+  { key: 'recommend',   i18n: 'filter.recommend',   icon: '' },
   { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' }
 ];
 const PRICES = ['$', '$$', '$$$'];
@@ -246,7 +251,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
                   <span lang="ar" dir="rtl"
                     className={`font-bold ${isActive ? 'text-tg-accent-text' : 'text-emerald-600'}`}>حلال</span>
                 ) : (
-                  <><span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}</>
+                  <>{f.icon ? <span className="mr-0.5">{f.icon}</span> : null}{labelFor(f.key, f.i18n)}</>
                 )}
               </Chip>
             </span>
@@ -285,7 +290,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
           {OVERFLOW.map((f) => (
             <Chip key={f.key} active={!!filters[f.key]} onClick={() => toggle(f.key)}
               ariaLabel={`${labelFor(f.key, f.i18n)} ${filters[f.key] ? '(on)' : '(off)'}`}>
-              <span className="mr-0.5">{f.icon}</span>{labelFor(f.key, f.i18n)}
+              {f.icon ? <span className="mr-0.5">{f.icon}</span> : null}{labelFor(f.key, f.i18n)}
             </Chip>
           ))}
           {PRICES.map((p) => (

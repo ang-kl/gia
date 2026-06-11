@@ -118,6 +118,14 @@ const STRINGS = {
   'filter.openNow':            { en: 'Open now', fr: 'Ouvert maintenant' },
   'filter.halal':              { en: 'Halal', fr: 'Halal' },
   'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
+  // v0.62.37 — ⭐ Recommend (capital R per operator): wires the search to the
+  // dish layer (cuisine special dishes + the city's unique dishes). The
+  // 7-second explainer below shows on check.
+  'filter.recommend':          { en: 'Recommend', fr: 'Recommander' },
+  'filter.recommend.hint':     {
+    en: '⭐ Recommend: highlights places whose own reviews serve this cuisine’s special dishes or this city’s unique dishes.',
+    fr: '⭐ Recommander : met en avant les lieux dont les avis mentionnent les plats phares de cette cuisine ou les plats uniques de la ville.'
+  },
   'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
   'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
   // v0.60.165 — 🐾 Pet allowed chip. Strict mode shows only Places

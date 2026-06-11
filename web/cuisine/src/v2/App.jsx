@@ -438,6 +438,10 @@ export default function App() {
   // v0.62.32 — Arrival Plate: the curated what-to-try card for the
   // anchored city, supplied by the server alongside the saved location.
   const [arrivalPlate, setArrivalPlate] = useState(null);
+  // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
+  // will show in few 7 seconds what is this 'Recommend' means").
+  const [recommendHint, setRecommendHint] = useState(false);
+  const recommendHintTimerRef = useRef(null);
   // v0.61.371 — keep locationAnchorRef in sync so the mount-time location
   // sync (declared above, before this state) can read the CURRENT anchor and
   // hold an explicit pick instead of following the device off it.
@@ -695,6 +699,9 @@ export default function App() {
         // invalidated. Included here alongside the other quick-filter
         // flags so the dirty-detection treats Pet-allowed identically.
         petFriendly: !!s.filters?.petFriendly,
+        // v0.62.37 — ⭐ Recommend in the signature so toggling it dirties
+        // the snap + invalidates the page cache (the v0.60.166 lesson).
+        recommend: !!s.filters?.recommend,
         prices: [...(s.filters?.prices || [])].sort()
       },
       region: s.region || 'SG'
@@ -2498,6 +2505,7 @@ export default function App() {
   const filterCount = (state.filters.newlyOpened ? 1 : 0) + (state.filters.openNow ? 1 : 0)
     + (state.filters.halal ? 1 : 0)
     + (state.filters.vegetarian ? 1 : 0) + (state.filters.homeBased ? 1 : 0)
+    + (state.filters.recommend ? 1 : 0)   // v0.62.37 — ⭐ Recommend (the v0.60.166 lesson)
     + (state.filters.petFriendly ? 1 : 0)
     + (state.filters.prices?.length || 0);
   const canClear = state.cuisines.length > 0 || filterCount > 0;
@@ -2515,6 +2523,7 @@ export default function App() {
     if (state.filters?.openNow)     items.push(t('filter.openNow', lang));
     if (state.filters?.halal)       items.push(t('filter.halal', lang));
     if (state.filters?.vegetarian)  items.push(t('filter.vegetarian', lang));
+    if (state.filters?.recommend)   items.push(t('filter.recommend', lang));  // v0.62.37
     if (state.filters?.homeBased)   items.push(t('filter.homeBased', lang));
     if (state.filters?.newlyOpened) items.push(t('filter.newlyOpened', lang));
     // v0.60.166 — petFriendly missing from the v0.60.165 criteria
@@ -3249,9 +3258,27 @@ export default function App() {
         )}
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
+            {/* v0.62.37 — operator: tapping ⭐ Recommend shows a ~7-second
+                explainer of what it does. Blue accent, words only. */}
+            {recommendHint && (
+              <div className="rounded-xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+                {t('filter.recommend.hint', lang)}
+              </div>
+            )}
             <QuickFilters
               filters={state.filters}
-              onChange={(f) => setState((s) => ({ ...s, filters: f }))}
+              onChange={(f) => {
+                // v0.62.37 — ⭐ Recommend checked → arm the 7 s explainer.
+                if (f.recommend && !state.filters?.recommend) {
+                  setRecommendHint(true);
+                  if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
+                  recommendHintTimerRef.current = setTimeout(() => setRecommendHint(false), 7000);
+                } else if (!f.recommend && recommendHint) {
+                  setRecommendHint(false);
+                  if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
+                }
+                setState((s) => ({ ...s, filters: f }));
+              }}
               specialModeActive={!!state.specialMode}
               ratingPref={ratingPref}
               // v0.61.429 — Michelin / Bib Gourmand is a curated awards list;
@@ -3557,6 +3584,7 @@ export default function App() {
             const f = state.filters || {};
             if (f.halal) parts.push(lang === 'fr' ? 'Halal' : 'Halal');
             if (f.vegetarian) parts.push(lang === 'fr' ? 'Végétarien' : 'Vegetarian');
+            if (f.recommend) parts.push(lang === 'fr' ? 'Recommander' : 'Recommend');  // v0.62.37
             if (f.openNow) parts.push(lang === 'fr' ? 'Ouvert' : 'Open now');
             if (f.homeBased) parts.push(lang === 'fr' ? 'À domicile' : 'Home-based');
             if (f.petFriendly) parts.push(lang === 'fr' ? 'Animaux acceptés' : 'Pet-friendly');
