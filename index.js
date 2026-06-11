@@ -9497,14 +9497,33 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.195, which is why every tap re-hit Places ×12 and felt slow). 24h
   // TTL keyed by the stable curated id. Operator wants faster loads; the
   // ≤24h staleness is the accepted trade (the refresh job keeps meta current).
-  const MICH_PLACE_TTL_S = 24 * 60 * 60;
+  // v0.62.x — cost reduction (operator: "reduce Google Places (New) cost").
+  // Two changes to the cache that was otherwise re-billing the Atmosphere SKU:
+  //   (1) SUCCESS TTL 24h → 7d. The curated Michelin list is static and an
+  //       established awardee's core Place data rarely moves; openNow is
+  //       recomputed from regularOpeningHours client-side, so the staleness
+  //       that matters is negligible. ~7× fewer cold re-fetches.
+  //   (2) NEGATIVE cache: previously only SUCCESS was cached (`if (placesData)`),
+  //       so any entry Places can't resolve (poorly-indexed Bib Gourmand, name
+  //       mismatches, closures) re-fired a billed text-search on EVERY tap,
+  //       forever. Cache the miss under a sentinel for a shorter 12h TTL so a
+  //       known-unresolvable entry isn't re-queried each tap (a fresh entry
+  //       that later gets indexed recovers within 12h).
+  const MICH_PLACE_TTL_S = 7 * 24 * 60 * 60;
+  const MICH_PLACE_MISS_TTL_S = 12 * 60 * 60;
   const FIELD_MASK_BY_ID = FIELD_MASK.replace(/places\./g, '');   // details GET drops the `places.` prefix
   async function resolveEntryPlace(entry) {
     const cacheKey = `michelin:place:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
     if (redis && redis.isOpen) {
       try {
         const cached = await redis.get(cacheKey);
-        if (cached) { cacheHits++; return JSON.parse(cached); }
+        if (cached) {
+          cacheHits++;
+          const parsed = JSON.parse(cached);
+          // Negative-cache sentinel → a previously-unresolvable entry. Return
+          // null without re-billing Places.
+          return (parsed && parsed.__michMiss) ? null : parsed;
+        }
       } catch { /* fall through to live resolve */ }
     }
     cacheMisses++;
@@ -9544,8 +9563,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
     }
-    if (placesData && redis && redis.isOpen) {
-      try { await redis.setEx(cacheKey, MICH_PLACE_TTL_S, JSON.stringify(placesData)); } catch { /* best-effort */ }
+    if (redis && redis.isOpen) {
+      try {
+        // v0.62.x — cache the MISS too (sentinel, shorter TTL) so an
+        // unresolvable entry stops re-billing a text-search every tap.
+        await redis.setEx(
+          cacheKey,
+          placesData ? MICH_PLACE_TTL_S : MICH_PLACE_MISS_TTL_S,
+          JSON.stringify(placesData || { __michMiss: 1 })
+        );
+      } catch { /* best-effort */ }
     }
     return placesData;
   }
