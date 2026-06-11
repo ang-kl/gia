@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-11 from a snapshot of all 976 pull requests (#1–#976).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-12 from a snapshot of all 990 pull requests (#1–#990).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 976 total — 966 merged, 10 closed without merge.
+- **PRs:** 990 total — 980 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #989 · 2026-06-11 08:19:18 · _v0.62.27: Places cost — negative-cache failed Michelin lookups + 7d success TTL_
+- **Latest:** #1003 · 2026-06-11 23:00:14 · _v0.62.40: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 644 |
+| feature | 657 |
 | fix | 129 |
 | docs | 66 |
 | copy | 43 |
 | prompt-tune | 42 |
-| refactor | 27 |
+| refactor | 28 |
 | test | 15 |
 | infra | 10 |
 
@@ -26,12 +26,12 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 314 |
-| Core / misc | 145 |
-| Docs / vault | 82 |
+| Cuisine Picker | 317 |
+| Core / misc | 146 |
+| Docs / vault | 85 |
 | Transport / carpark | 61 |
-| Recognised lists | 53 |
-| Search / free-text | 52 |
+| Recognised lists | 56 |
+| Search / free-text | 54 |
 | Hawker NEA | 52 |
 | /hidden surprise | 42 |
 | Infra / setup | 32 |
@@ -40,8 +40,8 @@
 | Weather | 19 |
 | Commands / chat UX | 16 |
 | Language / i18n | 14 |
-| Menu hub | 13 |
-| Maps / geo / location | 12 |
+| Menu hub | 14 |
+| Maps / geo / location | 13 |
 | Privacy / legal | 9 |
 | Oversight / usage stats | 8 |
 | Buddy / sharing | 5 |
@@ -1028,6 +1028,20 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 987 | merged | 2026-06-11 07:25:58 | 0.62.25 | fix | Recognised lists | Fix: Michelin — reachable George Town jump + deadline no longer burns the walk | ## Two operator-reported Michelin defects, one PR ### (A) George Town unreachable after finishing Kuala Lumpur — *"I thought we settled this"* v0.61.445 deliberately scoped the Michelin walk to **one city** (so the map never has to frame… | 7 files — index.js, TMA:cuisine, doc, package | cuisine | doc/vault |
 | 988 | merged | 2026-06-11 07:38:27 | 0.62.26 | feature | Core / misc | Add: explicit country pick anchors to the capital (not nearest city to a stale pin) | ## What & why You reported selecting a country should land on the **capital**, but saw **Johor** for Malaysia and **Fukuoka** for Japan — and asked if it was your ChatID. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 | 989 | merged | 2026-06-11 08:19:18 | 0.62.27 | feature | Recognised lists | Add: Places cost — negative-cache failed Michelin lookups + 7d success TTL | ## Context — Places (New) cost audit You asked to reduce Places spend, with Gemini's FieldMask / Session-Token / Cache suggestions. | 5 files — index.js, doc, package | — | Redis/state; doc/vault |
+| 990 | merged | 2026-06-11 08:57:41 | 0.62.28 | feature | Docs / vault | Add: Vibe Coding Record refresh — PRs #965-#989 (951 → 976 records) | ## What The per-PR doc-upkeep step (standing rule). | 11 files — doc, package, public/ | — | Redis/state; doc/vault |
+| 991 | merged | 2026-06-11 09:58:04 | 0.62.29 | feature | Recognised lists | Add: foodie discovery — evidence-verified national-dish Try fill | Operator: use **NATION_OVERLAY / COOKING_METHODS / CUISINE_FAMILY** in the cuisine recommendation so a foodie discovers unfamiliar-cuisine dishes (*"as a Chinese — European new dishes or African national dishes; highly-rated restaurants… | 11 files — index.js, cuisine-family.js, discovery-dish.js, tests, doc, package, public/ | — | Redis/state; tests; doc/vault |
+| 992 | merged | 2026-06-11 12:12:11 |  | feature | Core / misc | Add files via upload | Add files via upload | 1 file — log/ | — | — |
+| 993 | merged | 2026-06-11 12:32:31 | 0.62.30 | feature | Cuisine Picker | Add: location lock (explicit-pick latch) + Try-line patin tempoyak + D786 visibility | Operator: *"we have problem again to lock the location. | 10 files — index.js, discovery-dish.js, nation-overlay.js, TMA:cuisine, TMA:menu, tests, doc, package | cuisine+menu | tests; doc/vault |
+| 994 | merged | 2026-06-11 13:34:52 | 0.62.31 | feature | Recognised lists | Add: hardening from the adversarial review of the last 8 PRs | Operator: *"see the last 8 PR — can you do it better, explain."* Adversarial self-review of #978–#993 (every claim re-verified against code) found **3 confirmed defects + 4 weaknesses in my own shipped work**. | 17 files — index.js, discovery-dish.js, location-cache.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, package | cuisine+menu+hawker+transport+oversight | tests; doc/vault |
+| 995 | merged | 2026-06-11 17:11:56 | 0.62.32 | refactor | Cuisine Picker | Refactor: Arrival Plate — curated what-to-try per city, 📜 fact-cards, evidence-split dish results, dish-name geocode guard | ## What The operator-approved **Arrival Plate** build (UI picks: Screen 1 = **A** compact collapsed banner, Screen 2 = **E** hard ✔ Confirmed / ? | 11 files — index.js, city-plates.js, discovery-dish.js, TMA:cuisine, tests, doc, package, instruction/ | cuisine | tests; doc/vault |
+| 996 | merged | 2026-06-11 17:39:09 | 0.62.33 | feature | Cuisine Picker | Add: Arrival Plate — wipe card synchronously on city switch + visibility-refresh plate sync | ## What Fixes the operator's deployed-surface report on v0.62.32: *"i switch from putrajaya to Hanoi, the what to try here is still the old dishes … the card should be wipe clean."* ## Root cause (two holes) 1. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 997 | merged | 2026-06-11 18:08:57 | 0.62.34 | feature | Menu hub | Add: D791 post-search location consistency check — re-push the committed pick when the server label drifts | ## What Operator (VN>HCM screenshot): *"After the result is displayed, should check if location is still set to the location. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 998 | merged | 2026-06-11 18:24:36 | 0.62.35 | feature | Maps / geo / location | Add: boot auto-detect respects labelled picks — kill the bare label-wiping set-location write | ## What The operator's Railway log pinned the long-suspected first-load corruptor: three bare `[set-location] chat=… → 1.2722,103.8112` writes (label-less, region-less SG device coords) each **replacing** the labelled `"Ho Chi Minh City"… | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 999 | merged | 2026-06-11 18:41:37 | 0.62.36 | feature | Recognised lists | Add: Vietnam Arrival-Plate curation — 7 cities, 14 dishes, Tier-S sourced | ## What The Vietnam curation pass (operator: *"curate vn"*) — same source-of-truth method as the original 14 cities: Tier-S government heritage first, local-language (vi) names, honest tiers, disputed origins name both claimants, `[TO… | 6 files — city-plates.js, tests, doc, package, instruction/ | — | tests; doc/vault |
+| 1000 | merged | 2026-06-11 19:20:51 | 0.62.37 | feature | Search / free-text | Add: ⭐ Recommend filter — overlay classics on the Arrival Plate + post-search city-dish tie-in (D792) | ## What Operator spec (3 messages): surface the overlay's depth (*"so few… use the national_dish table and overlay table"*) + a post-search tie-in to *"both cuisine special dishes as well as cities' unique dishes"* + *"a checkbox… | 14 files — index.js, city-plates.js, discovery-dish.js, TMA:cuisine, tests, doc, package | cuisine | privacy; tests; doc/vault |
+| 1001 | merged | 2026-06-11 22:06:48 | 0.62.38 | feature | Search / free-text | Add: full curation pass — 105 new city entries (126 cities / 279 dish rows), local-language-first | ## What The operator's full build-out: *"build up the remaining count… unique dishes/dessert/way of eating per city, check back/validate sources, use authorised sources… primary focus is local-language first then english… don't leave out… | 7 files — city-plates.js, TMA:cuisine, tests, doc, package, instruction/ | cuisine | tests; doc/vault |
+| 1002 | merged | 2026-06-11 22:48:59 | 0.62.39 | feature | Docs / vault | Add: vault/v0.62.37 snapshot (165 entries) | ## What Commits the `vault/v0.62.37/` snapshot taken by the operator's `/fork vault` task — the full tree of merged main at v0.62.37 (165 entries, ~185 MB, `vault/` itself excluded), mirroring the `vault/v0.61.378` pattern. | 3 files — doc, package | — | doc/vault |
+| 1003 | merged | 2026-06-11 23:00:14 | 0.62.40 | feature | Docs / vault | Add: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word | ## What Operator refinements from live-Hanoi screenshots (the v0.62.38 stack working in production): 1. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 
