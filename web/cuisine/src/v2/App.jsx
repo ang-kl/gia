@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
-import { CITIES_BY_COUNTRY } from './lib/cities.js';
+import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from './lib/location-sync.js';
@@ -2140,7 +2140,12 @@ export default function App() {
           countryName: r.michelinSummary.countryName || null,
           countryFlag: r.michelinSummary.countryFlag || '',
           // v0.61.445 — other-city Michelin count (walk is now city-scoped).
-          nationRemaining: Number.isFinite(r.michelinSummary.nationRemaining) ? r.michelinSummary.nationRemaining : null
+          nationRemaining: Number.isFinite(r.michelinSummary.nationRemaining) ? r.michelinSummary.nationRemaining : null,
+          // v0.62.x — tappable other-city jumps: [{city,count}] + ISO country
+          // code so the nudge can re-anchor to George Town etc. (was dead
+          // state before — nationRemaining was never rendered).
+          otherCities: Array.isArray(r.michelinSummary.otherCities) ? r.michelinSummary.otherCities : null,
+          countryCode: r.michelinSummary.countryCode || null
         });
       } else {
         setMichelinRemaining(null);
@@ -3454,6 +3459,24 @@ export default function App() {
           onCityJump={(group) => {
             const pins = pinsOf(group?.venues);
             if (pins.length) setFitPins({ pins, token: 'jump:' + (group.city || '') + ':' + Date.now() });
+          }}
+          /* v0.62.x — OTHER curated cities in this country (e.g. George Town
+             when anchored at Kuala Lumpur). Rendered as tappable nudges that
+             re-anchor to that city and search — the reachable path that
+             v0.61.445's city-scoped walk always implied but never wired.
+             Shown even when the in-city walk is exhausted. */
+          michelinOtherCities={michelinRemaining?.otherCities || null}
+          onMichelinCityJump={(cityName) => {
+            const cc = michelinRemaining?.countryCode;
+            const hit = cc ? findCity(cc, cityName) : null;
+            if (!hit) return;
+            // Re-anchor (commits anchor + region + persists) then search at the
+            // new city explicitly, mirroring a LocationField committed pick.
+            onLocationSelect({
+              lat: hit.lat, lng: hit.lng, label: cityName, fly: true,
+              radiusCapM: cityRadiusCapM(hit, cc)
+            });
+            runSearch(state, { lat: hit.lat, lng: hit.lng });
           }}
           warmStartSeed={warmStartSeed}
           comboInfo={comboInfo}

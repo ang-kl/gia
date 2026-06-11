@@ -9372,10 +9372,27 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // the other-city count rides the summary as a hint ("N more across 🇲🇾"),
   // reachable by picking that city, not by paging the current one.
   let michOtherCityRemaining = 0;
+  // v0.62.x — operator: after finishing the in-city walk (e.g. Kuala Lumpur)
+  // the OTHER curated city in this country (e.g. George Town, 37 entries) was
+  // unreachable — v0.61.445 scoped the walk to one city but the compensating
+  // "pick that city" path was never wired (the client received `nationRemaining`
+  // as dead state). Capture the per-city breakdown of the OTHER cities here,
+  // BEFORE `ordered` is narrowed to the selected city, so the TMA can render a
+  // tappable "📍 N more in <City>" jump that re-anchors there.
+  let michOtherCities = [];
   if (michSelectedCity) {
     const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
     const inCity = ordered.filter(_inCity);
     michOtherCityRemaining = Math.max(0, ordered.length - inCity.length);
+    const byCity = new Map();
+    for (const e of ordered) {
+      const c = e.city ? String(e.city) : '';
+      if (!c || c.toLowerCase() === michSelectedCity.toLowerCase()) continue;
+      byCity.set(c, (byCity.get(c) || 0) + 1);
+    }
+    michOtherCities = [...byCity.entries()]
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count);
     ordered = inCity;
   }
   // (No extra sort needed for the no-city national fallback: `ordered` is
@@ -10101,6 +10118,19 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // operator-reported "Michelin List stuck at one when tap search":
   // v0.60.198's seen-set walk-through was reading undefined every
   // tap, so the set never grew and every tap returned the same 12.
+  // v0.62.x — operator: "After 3 taps of Michelin Singapore it shows zero,
+  // there are 130." Root cause: when the route's 20s deadline (index.js
+  // ~14168) fires mid-resolution it answers with a DEGRADED empty payload
+  // (`{ venues: [], degraded: true }`) — but this handler kept running and
+  // STILL advanced the walk seen-set below, silently burning the 12 unseen
+  // entries the user never received. A few slow taps in a row therefore read
+  // as "zero" while the walk paged deep into the 130. Guard it: if the
+  // response is already out, do NOT record (preserve the batch for the next
+  // tap) and do NOT double-send.
+  if (res.headersSent) {
+    console.warn(`[Michelin] deadline already responded — preserving walk (NOT recording ${slice.length} unseen entries so the next tap re-serves them)`);
+    return res;
+  }
   const newKeys = slice.map((e) => michelinWalk.entryKey(e)).filter(Boolean);
   await michelinWalk.recordWalk(redis, csChatId, walkHash, newKeys);
   const totalServedThisWalk = walkState.seen.size + newKeys.length;
@@ -10158,6 +10188,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   try {
     await require('./translate-name').attachNameReadings(filteredVenues, michCC, michDeviceLang, redis);
   } catch (e) { /* non-fatal */ }
+  // v0.62.x — the name-enrichment above is network-bound and can push a slow
+  // tap past the 20s deadline. If it fired in that window the degraded empty
+  // payload is already out, so skip the double-send (the walk was recorded
+  // above — acceptable; the dominant slow path is Places resolution, guarded
+  // before recordWalk).
+  if (res.headersSent) {
+    console.warn('[Michelin] deadline responded during name-enrichment — skipping double-send');
+    return res;
+  }
   return res.json({
     venues: filteredVenues,
     cached: false,
@@ -10199,6 +10238,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // hint. The walk is city-scoped (no cross-city bleed); this is shown so
       // the user knows more exist elsewhere in the country (pick that city).
       ...(michSelectedCity && michOtherCityRemaining > 0 ? { nationRemaining: michOtherCityRemaining } : {}),
+      // v0.62.x — per-city breakdown of the OTHER curated cities + the ISO
+      // country code, so the TMA can render a TAPPABLE "📍 N more in <City>"
+      // jump (resolved to coords client-side via cities.js findCity) instead
+      // of the dead-state count. Shown even when the in-city walk is exhausted.
+      ...(michSelectedCity && michOtherCities.length ? { otherCities: michOtherCities } : {}),
+      ...(michCountryCC ? { countryCode: michCountryCC } : {}),
       ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
