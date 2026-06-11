@@ -457,14 +457,22 @@ export default function ResultPanel({
               the server tagged venues (the ⭐ Recommend filter was on) and
               this isn't a dish-search list (the E-split owns those). */}
           {(() => {
-            const tagged = cardsToShow.filter((v) => v && v.cityDish && v.cityDish.dish).length;
+            const taggedVenues = cardsToShow.filter((v) => v && v.cityDish && v.cityDish.dish);
+            const tagged = taggedVenues.length;
             const isDishList = cardsToShow.some((v) => v && v.dishEvidence !== undefined);
             if (!tagged || isDishList) return null;
+            // v0.62.40 — operator: "we need to specify what local dish in the
+            // search results area." Name the distinct tagged dish(es) in the
+            // header instead of the generic "a local classic".
+            const dishes = [...new Set(taggedVenues.map((v) => v.cityDish.dish))];
+            const dishLabel = dishes.length <= 2
+              ? dishes.join(lang === 'fr' ? ' et ' : ' & ')
+              : `${dishes.slice(0, 2).join(', ')} +${dishes.length - 2}`;
             return (
               <div className="px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
                 {lang === 'fr'
-                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} servent un classique local`
-                  : `⭐ ${tagged} of ${cardsToShow.length} places here serve a local classic`}
+                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} servent ${dishLabel}`
+                  : `⭐ ${tagged} of ${cardsToShow.length} places here serve ${dishLabel}`}
               </div>
             );
           })()}

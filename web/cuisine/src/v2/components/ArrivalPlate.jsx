@@ -89,7 +89,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 >
                   <span className="font-medium">{d.dish}</span>
                   {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                  <span className="text-tg-hint"> — {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier}</span>
+                  {/* v0.62.40 — operator: the tier word on the row "is
+                      meaningless; has to tap to list which eateries offer
+                      this dish". Row now shows the ACTION instead; the tier
+                      + claim stay inside the 📜 fact card where they have
+                      context. */}
+                  <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
                 </button>
                 <button
                   type="button"
