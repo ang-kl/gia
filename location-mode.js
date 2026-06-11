@@ -75,6 +75,71 @@ const JB_CBD = Object.freeze({ lat: 1.4927, lng: 103.7414 });
 // fallback. v0.61.279 extracted from two inline copies (Register O-26).
 const JB_FALLBACK_THRESHOLD_M = 150000;
 
+// v0.62.17 — server-side SPLIT Singapore bbox, mirroring the client
+// (web/cuisine/src/v2/lib/coords-to-country.js `_inSgBbox`, v0.61.281).
+// The cuisine-search route's old inline flat box (lat 1.15–1.50, lng
+// 103.6–104.1) over-claimed JB sub-locations (Legoland 1.4296/103.6321,
+// Bukit Indah 1.4773/103.6645, Southkey 1.4912/103.7665) as "inside SG",
+// so a region='JB' search snapped their picked coords to JB_CBD and the
+// results landed far from the chip. The west-of-strait carve-out fixes
+// it: west of lng 103.70 the SG north cap drops to lat 1.42 (Tuas), so
+// Iskandar Puteri / Legoland / Bukit Indah classify as JB, not SG.
+const SG_BBOX = Object.freeze({
+  LAT_MIN: 1.15, LAT_MAX: 1.47,          // east/central cap (Woodlands/Sembawang ~1.45)
+  LNG_MIN: 103.55, LNG_MAX: 104.10,
+  LNG_WEST_THRESHOLD: 103.70, LAT_MAX_WEST: 1.42  // west-of-strait tighter cap
+});
+function insideSgBbox(input) {
+  if (!input) return false;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat < SG_BBOX.LAT_MIN) return false;
+  if (lng < SG_BBOX.LNG_MIN || lng > SG_BBOX.LNG_MAX) return false;
+  const latMax = (lng < SG_BBOX.LNG_WEST_THRESHOLD) ? SG_BBOX.LAT_MAX_WEST : SG_BBOX.LAT_MAX;
+  return lat <= latMax;
+}
+
+// v0.62.18 — JB focus points (server mirror of web/cuisine/src/v2/lib/
+// jb-focus-points.js). The 5 registered JB sub-location quick-pick chips.
+// Used so the cuisine-search route can detect a deliberate sub-location
+// pick (the searchCenter sits ON a focus point) and tighten the radius
+// (operator: a Legoland pick must show eateries NEAR Legoland, not the
+// whole 30 km JB metro where the dense CBD floods the results).
+const JB_FOCUS_POINTS = Object.freeze([
+  Object.freeze({ key: 'legoland',   lat: 1.4296, lng: 103.6321 }),
+  Object.freeze({ key: 'bukitIndah', lat: 1.4773, lng: 103.6645 }),
+  Object.freeze({ key: 'cbd',        lat: 1.4927, lng: 103.7414 }),
+  Object.freeze({ key: 'southkey',   lat: 1.4912, lng: 103.7665 }),
+  Object.freeze({ key: 'mtAustin',   lat: 1.5252, lng: 103.7935 })
+]);
+// Returns the focus-point key when the coordinate sits within `toleranceM`
+// of a registered focus point (the chips carry exact hardcoded coords, so a
+// 400 m tolerance identifies a chip pick — or a user standing at the spot),
+// else null. Anchors the search by COORDINATES, never by the place name.
+function jbFocusNear(input, toleranceM = 400) {
+  if (!input) return null;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  for (const f of JB_FOCUS_POINTS) {
+    if (haversineMeters({ lat, lng }, { lat: f.lat, lng: f.lng }) <= toleranceM) return f.key;
+  }
+  return null;
+}
+
+// v0.62.18 — Johor state extent (lat 1.20–2.55, lng 102.50–104.50), matching
+// the client coords-to-country JB bbox. A region='JB' search whose anchor
+// falls OUTSIDE this box is incoherent — a place name resolved to a similar
+// outfit elsewhere should never anchor a "Johor Bahru" search (operator:
+// "all resolution of address cannot be company name / phrase — may be
+// confused with a similar outfit elsewhere"). Defence-in-depth on top of the
+// MY-restricted autocomplete + the 150 km JB_FALLBACK downgrade.
+function insideJohorExtent(input) {
+  if (!input) return false;
+  const { lat, lng } = input;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  return lat >= 1.20 && lat <= 2.55 && lng >= 102.50 && lng <= 104.50;
+}
+
 // Substring match (case-insensitive). The Malaysian state name comes
 // back as "Johor" from the Google Geocode `administrative_area_level_1`
 // component; using `includes` survives stray punctuation / suffixes
@@ -301,6 +366,11 @@ module.exports = {
   JB_CBD,
   JB_FALLBACK_THRESHOLD_M,
   JB_ADMIN_KEYWORDS,
+  SG_BBOX,
+  insideSgBbox,
+  JB_FOCUS_POINTS,
+  jbFocusNear,
+  insideJohorExtent,
   FEATURE_KIND,
   ALWAYS_ALLOWED,
   SG_ONLY,

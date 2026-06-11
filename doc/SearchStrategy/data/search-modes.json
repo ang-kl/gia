@@ -1,0 +1,126 @@
+{
+  "version": "0.62.15",
+  "title": "Cuisine TMA — Search Decision Tree",
+  "subtitle": "How every search mode composes, and which one wins when they collide.",
+  "generatedNote": "Single source of truth. The hosted mind-map (search-strategy.html), the canonical doc (search-strategy.md), and the combination test matrix (__tests__/search-mode-matrix.test.js) all read THIS file. Edit here, regenerate, re-test.",
+
+  "dimensions": [
+    {
+      "key": "michelin",
+      "label": "Michelin / Bib Gourmand",
+      "input": "'michelin' present in cuisines[]",
+      "values": ["on", "off"],
+      "gates": "Everything: rating, New, quick-filters, special-mode are all ignored.",
+      "gatedBy": "Nothing — top of the tree.",
+      "citation": "index.js 14525 / 14606 (early-return to handleMichelinSearch)",
+      "behavior": "Returns a curated, pre-vetted list (stars + Bib tiers shuffled). Other cuisine chips only RE-RANK; they are not hard filters."
+    },
+    {
+      "key": "fruits",
+      "label": "Fruits (special-mode)",
+      "input": "specialMode = 'fruits'",
+      "values": ["on", "off"],
+      "gates": "halal (auto-off), homeBased (skipped), New (skipped).",
+      "gatedBy": "Michelin.",
+      "citation": "special-mode.js 41-57 (global, NOT belt-gated)",
+      "behavior": "Fruit stalls / juice. Rating floor from ratingPref STILL applies (unlike durian)."
+    },
+    {
+      "key": "durian",
+      "label": "Durian (special-mode)",
+      "input": "specialMode = 'durian'",
+      "values": ["on", "off"],
+      "gates": "rating floor (SKIPPED — soft 3.7), halal (auto-off), homeBased (skipped), New (skipped).",
+      "gatedBy": "Michelin; belt gate (SG/MY/ID/TH/PH/BN/VN only).",
+      "citation": "index.js 15816-15834 (durian soft-rating); special-mode.js 52-57 (belt gate)",
+      "behavior": "Soft 3.7 — keep ALL stalls (incl. <3.7 and unrated); ≥3.7/unrated ordered first; TMA shows the soft-rating notice."
+    },
+    {
+      "key": "durian-pastry",
+      "label": "Durian Pastry (special-mode)",
+      "input": "specialMode = 'durian-pastry'",
+      "values": ["on", "off"],
+      "gates": "rating floor (SKIPPED — soft 3.7), halal (auto-off), homeBased, New.",
+      "gatedBy": "Michelin; belt gate (SG/MY/ID/TH/PH/BN/VN only).",
+      "citation": "index.js 15816-15834; special-mode.js 52",
+      "behavior": "Durian puffs / cakes / mochi. Same soft-rating as durian. Requires a pastry signal in name."
+    },
+    {
+      "key": "new",
+      "label": "New (newly-opened pill)",
+      "input": "filters.newlyOpened = true",
+      "values": ["on", "off"],
+      "gates": "Relaxes a numeric rating floor down to 3.0.",
+      "gatedBy": "Michelin (ignored); special-mode (skipped).",
+      "citation": "index.js 15624-15673 (recency band); 15824-15826 (floor relax)",
+      "behavior": "Keeps venues ≤183 days old; rated venues must be >3.0 OR unrated; strict (≤109d) pages ahead of fill (110-183d)."
+    },
+    {
+      "key": "rating",
+      "label": "Rating preference",
+      "input": "ratingPref",
+      "values": ["any", "no-rating (unrated)", "3.7 (default)", "1.0–5.0"],
+      "gates": "—",
+      "gatedBy": "Michelin (ignored); durian/durian-pastry (skipped); New (relaxes numeric → 3.0).",
+      "citation": "rating-pref.js 72-77; venue-filters.js applyRatingFloor (never-empty)",
+      "behavior": "any → keep all; no-rating → keep unrated/low-review; numeric → floor (never empties the pool — demotes, not drops)."
+    },
+    {
+      "key": "quick-filters",
+      "label": "Quick filters (combo)",
+      "input": "filters.{halal, openNow, vegetarian, homeBased, petFriendly, prices}",
+      "values": ["any subset"],
+      "gates": "—",
+      "gatedBy": "Michelin (all ignored); special-mode (halal auto-off, homeBased skipped; others apply).",
+      "citation": "QuickFilters.jsx 149-150 (halal auto-off); index.js 14869 (homeBased skip)",
+      "behavior": "Stack on a base/special-mode search. Under Michelin they are ignored entirely."
+    }
+  ],
+
+  "precedence": [
+    {
+      "winner": "michelin",
+      "tier": 1,
+      "rule": "If 'michelin' is selected, return the curated list and IGNORE special-mode, New, rating, and quick-filters.",
+      "citation": "index.js 14525 / 14606"
+    },
+    {
+      "winner": "special-mode",
+      "tier": 2,
+      "rule": "Else if specialMode is set (and passes the belt gate for durian): seeds override cuisines; durian/durian-pastry skip the rating floor (soft 3.7); halal auto-off; homeBased + New are skipped.",
+      "citation": "index.js 14843-14869, 15816-15834"
+    },
+    {
+      "winner": "base",
+      "tier": 3,
+      "rule": "Else (cuisine / free-text): ratingPref floor AND the New pill both apply; New relaxes a numeric floor to 3.0; quick-filters apply.",
+      "citation": "index.js 15624-15673, 15824-15826"
+    }
+  ],
+
+  "conflicts": [
+    { "pair": "Michelin + special-mode", "resolution": "michelin", "note": "Michelin early-returns before the special-mode branch is reached." },
+    { "pair": "Michelin + New", "resolution": "michelin", "note": "Curated list has no recency filter." },
+    { "pair": "Michelin + rating", "resolution": "michelin", "note": "Rating pill is UI-disabled under Michelin; no floor applied." },
+    { "pair": "Michelin + quick-filter", "resolution": "michelin", "note": "Filters ignored; cuisine chips only re-rank." },
+    { "pair": "Durian + rating", "resolution": "special-mode", "note": "Soft 3.7 — durian skips the floor entirely." },
+    { "pair": "Durian + New", "resolution": "skip", "note": "New recency block does not run in special-mode." },
+    { "pair": "Durian/Fruits + Halal", "resolution": "auto-off", "note": "Halal is auto-cleared in special-mode (most stalls uncertified; avoids an empty list)." },
+    { "pair": "Special-mode + homeBased", "resolution": "skip", "note": "homeBased modifier is skipped when specialMode is set." },
+    { "pair": "New + numeric rating (>3.0)", "resolution": "relax-3.0", "note": "New relaxes the floor to 3.0 so newly-opened 3.0–3.7 venues show." },
+    { "pair": "Fruits + rating", "resolution": "base", "note": "Fruits (unlike durian) keeps the ratingPref floor." }
+  ],
+
+  "tree": [
+    "1. Resolve location & context (lat/lng, region, country, radius, ratingPref).",
+    "2. Michelin selected? → curated list, ignore all else. [END]",
+    "3. specialMode set? → belt gate (durian/pastry); seeds override; halal auto-off; homeBased + New skipped.",
+    "4. Run Places discover (+ widen, + zero-result generic fallback) — all budget-guarded.",
+    "5. special-mode keyword post-filter + chain name-dedup.",
+    "6. New pill (base only): recency ≤183d + rating >3.0/unrated; stamp strict/fill band.",
+    "7. Rating floor: skipped for durian/pastry (soft 3.7); else applyRatingFloor(ratingPref); New relaxes numeric → 3.0; never empties.",
+    "8. Sort: durian ≥3.7 first → recency band → distance. Slice (first tap 6, then 12).",
+    "9. Overall 20s deadline guards the whole route — degraded-200 before any gateway 502.",
+    "10. JB anchoring rule (v0.62.18): a search is anchored by COORDINATES + a geofence, never the bare place name/phrase (a name can match a same-branded outfit elsewhere). A registered JB sub-location pick (Legoland/Bukit Indah/CBD/Southkey/Mt Austin, detected by coords) tightens the radius to ~6 km (≤12 km widen) so results are near the pick, not the 30 km metro; a region=JB anchor outside the Johor extent is flagged."
+  ]
+}

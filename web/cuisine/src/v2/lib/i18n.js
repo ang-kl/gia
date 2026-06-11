@@ -146,6 +146,10 @@ const STRINGS = {
                                  fr: '🍉 Peu de résultats à proximité. Affichage des établissements liés aux fruits les plus proches.' },
   'special.durian.limited':    { en: '🥥 Limited durian sellers nearby. Showing the closest relevant matches.',
                                  fr: '🥥 Peu de vendeurs de durian à proximité. Affichage des résultats les plus proches.' },
+  // v0.62.14 — durian soft-rating: we prefer 3.7★+ but a durian stall is a
+  // durian stall, so lower-rated / unrated stalls are shown too (after the good ones).
+  'special.durian.softRating': { en: '🥥 Durian stalls: we list 3.7★+ first, but also show lower-rated and unrated stalls — a durian stall is a durian stall.',
+                                 fr: '🥥 Stands de durian : nous listons d’abord 3,7★+, mais affichons aussi les stands moins bien notés ou sans note — un stand de durian reste un stand de durian.' },
   // v0.61.397 — operator: durian / fruits / durian-pastry only make sense in
   // the SE-Asian durian belt; the server blocks them elsewhere and the panel
   // shows this in place of the generic empty-state. Belt = SG/MY/ID/TH/PH/BN/VN.
@@ -197,6 +201,13 @@ const STRINGS = {
   'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'No rating', fr: 'Sans note' },
 
+  // ----- Zero-result reason notices (v0.62.13) — make an empty list EVIDENT -----
+  'zero.allSeen':              { en: 'No new places to show here — tap 🔍 again to refresh the list.',
+                                 fr: 'Plus de nouveaux lieux ici — touchez 🔍 pour rafraîchir la liste.' },
+  'zero.noMatchCriteria':      { en: 'No matches for this cuisine + filter combo — try removing a filter or a cuisine.',
+                                 fr: 'Aucune correspondance pour cette combinaison cuisine + filtre — retirez un filtre ou une cuisine.' },
+  'zero.noVenuesNearby':       { en: 'No rated places found nearby — try a wider area or a different spot.',
+                                 fr: 'Aucun lieu noté à proximité — élargissez la zone ou changez d’endroit.' },
   // ----- Michelin zero/miss notices (v0.61.437) -----
   'michelin.noList':           { en: 'No Michelin Guide covers this country yet — pick another country or deselect ✳️ Michelin.',
                                  fr: "Aucun Guide Michelin ne couvre encore ce pays — choisissez un autre pays ou désélectionnez ✳️ Michelin." },

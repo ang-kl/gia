@@ -12074,7 +12074,9 @@ async function cacheBotUsername() {
     // set the variable to lock it.
     const VIBE_DOC_FILES = {
       'vibe-journal.html': 'text/html; charset=utf-8',
-      'vibe-journal.json': 'application/json; charset=utf-8'
+      'vibe-journal.json': 'application/json; charset=utf-8',
+      // v0.62.15 — the Search Decision Tree mind-map (doc/SearchStrategy).
+      'search-strategy.html': 'text/html; charset=utf-8'
     };
     function vibeJournalKeyFromReq(req) {
       const fromQuery = req.query && typeof req.query.key === 'string' ? req.query.key : '';
@@ -12866,11 +12868,10 @@ async function cacheBotUsername() {
         // discovery centred there. Operator 2026-05-14: "Can I set the
         // location at Pontian or Desaru? Apparently, jump to the
         // central area in Johor as set location."
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — split SG bbox (see the cuisine-search copy below):
+        // honours JB sub-location picks (Legoland / Bukit Indah / Southkey)
+        // instead of snapping them to JB_CBD.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.60.165 — JB default radius widened 18 km → 30 km per
         // operator request. Tight 18 km only covered JB city proper;
@@ -14157,6 +14158,25 @@ async function cacheBotUsername() {
       // catch-all; this layer kills machine-speed amplification.
       makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 500 }),
       async (req, res) => {
+      // v0.62.15 — OVERALL request deadline (operator: JB+durian "https 502").
+      // A 502 is a GATEWAY error: the route never returned before the proxy
+      // gave up (a hang past ~30-60s), not a thrown error — the catch below
+      // can't help it. JB+durian stacks sequential Places latency (3-page
+      // discover + special-mode widen + the zero-result generic fallback +
+      // the post-search local-name / name-reading enrichments). Self-cap at
+      // 20s: if the body is still running, answer with a degraded-200 (same
+      // shape as the D705 path) so the gateway always gets a response first →
+      // it can NEVER 502. The timer is unref'd (never holds the process) and
+      // every real exit is guarded by res.headersSent so we never double-send.
+      const _searchStart = Date.now();
+      const _elapsed = () => Date.now() - _searchStart;
+      const _SEARCH_DEADLINE_MS = 20000;
+      const _searchDeadline = setTimeout(() => {
+        if (res.headersSent) return;
+        console.warn(`[Cuisine-Search] D706 deadline-degraded (>${_SEARCH_DEADLINE_MS}ms — returning early to avoid a gateway 502)`);
+        try { res.status(200).json({ venues: [], degraded: true, exhausted: false }); } catch { /* response already in flight */ }
+      }, _SEARCH_DEADLINE_MS);
+      if (typeof _searchDeadline.unref === 'function') _searchDeadline.unref();
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
         // city only, not the whole state of Johor or Malaysia). For JB
@@ -14374,11 +14394,14 @@ async function cacheBotUsername() {
         // the anchor do the geo work. Legacy 'MY-PUT' aliased to
         // 'OTHER' for back-compat with anchors written before v0.61.185.
         const isOther = region === 'OTHER' || region === 'MY-PUT';
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — use the SPLIT SG bbox (location-mode.insideSgBbox,
+        // mirroring the client's v0.61.281 carve-out) instead of the old
+        // inline flat box (lat 1.15–1.50 / lng 103.6–104.1). The flat box
+        // over-claimed JB sub-locations (Legoland / Bukit Indah / Southkey)
+        // as "inside SG", so picking those chips snapped the search to
+        // JB_CBD and the results landed far from the pin. The split box
+        // classifies them as JB → the picked coords are honoured.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         // v0.61.129 — O-20: the Tell-me box place-anchor detection
         // below may override searchCenter, so this is `let`.
         let searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
@@ -14454,6 +14477,33 @@ async function cacheBotUsername() {
           if (searchRadius > effectiveOtherCap) {
             console.log(`[Cuisine-TMA] D781 OTHER radius ceiling ${searchRadius}m → ${effectiveOtherCap}m (region=OTHER, anchorCap=${anchorCap || 'none'})`);
             searchRadius = effectiveOtherCap;
+          }
+        }
+        // v0.62.18 — JB FOCUS-POINT tight radius (operator: "Legoland still
+        // spilt out as far away eateries"). When a JB search is anchored ON a
+        // registered sub-location focus point (Legoland / Bukit Indah / CBD /
+        // Southkey / Mt Austin — detected by COORDS, never the name), the 30 km
+        // JB-metro radius floods the dense CBD into a Legoland search. Bound a
+        // focus pick to a tight ring (6 km start, ≤12 km widen ceiling) so the
+        // results are genuinely NEAR the picked spot. Non-focus JB searches
+        // (plain pill / device GPS elsewhere in JB) keep the 30 km behaviour.
+        if (isJB) {
+          const lmFocus = require('./location-mode');
+          const focusKey = lmFocus.jbFocusNear(searchCenter);
+          if (focusKey) {
+            const FOCUS_RADIUS_M = 6000;
+            const FOCUS_CAP_M = 12000;
+            const prevRadius = searchRadius;
+            searchRadius = Math.min(searchRadius, FOCUS_RADIUS_M);
+            anchorCap = FOCUS_CAP_M;   // ladder/outer-ring may widen to here only
+            console.log(`[Cuisine-TMA] D784 JB focus='${focusKey}' tight radius ${prevRadius}m → ${searchRadius}m (cap ${anchorCap}m) — near-pick, not the 30km metro`);
+          }
+          // v0.62.18 — C: Johor-extent guard. A region='JB' anchor that falls
+          // OUTSIDE the Johor state extent is incoherent (a same-named place
+          // resolved elsewhere). The MY-restricted autocomplete + the 150 km
+          // JB_FALLBACK normally prevent this; log it so a leak is visible.
+          if (!lmFocus.insideJohorExtent(searchCenter)) {
+            console.warn(`[Cuisine-TMA] D785 JB-guard: searchCenter ${searchCenter.lat?.toFixed?.(4)},${searchCenter.lng?.toFixed?.(4)} is OUTSIDE the Johor extent for a region=JB search (possible name/phrase mis-resolution)`);
           }
         }
         // v0.61.129 — O-20: Tell-me box place-anchor detection. When
@@ -14853,8 +14903,15 @@ async function cacheBotUsername() {
           // v0.61.395 — Track A: pass the venue country so buildSeeds appends
           // the local-language durian seeds for foreign-script countries
           // (ドリアンパフ etc. in Tokyo) that the English-only seeds under-recall.
-          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: requestCountry });
-          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
+          // v0.62.15 — use the RESOLVED special-mode country (smCountry), NOT
+          // the raw requestCountry. For a JB search requestCountry is often
+          // 'SG'/null (the device anchor), so the v0.62.14 Malay seeds
+          // (kedai/gerai/pasar durian) were never appended → JB durian
+          // under-recalled. smCountry is 'MY' for JB / MY-PUT, so JB + MY-PUT
+          // now correctly get the Malay local seeds.
+          const seedCountry = smCountry || requestCountry;
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: seedCountry });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${seedCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
         }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens
@@ -15380,6 +15437,14 @@ async function cacheBotUsername() {
         let specialModeFinalRadiusM = searchRadius;
         let specialModeRelaxed = false;   // v0.61.416 — generic-term fallback fired
         if (specialMode) {
+          // v0.62.15 — budget guard (A2): the widen fires EXTRA sequential
+          // Places passes. Skip it once we're past ~14s so the optional recall
+          // boost never pushes the request into the gateway-502 zone (the
+          // 20s deadline above is the hard backstop; this avoids ever hitting
+          // it). The base pool + name-dedup below still run.
+          if (_elapsed() > 14000) {
+            console.warn(`[Cuisine-Search] specialMode widen skipped (budget: ${_elapsed()}ms elapsed)`);
+          } else {
           try {
             const { widenSpecialMode } = require('./cuisine-special-mode-widen');
             const sm = require('./special-mode');
@@ -15407,6 +15472,7 @@ async function cacheBotUsername() {
           } catch (err) {
             console.warn(`[Cuisine-Search] specialMode widening failed (non-fatal): ${err.message}`);
           }
+          }   // v0.62.15 — end widen budget-guard else
           // v0.61.145 — operator-flagged regression: durian search
           // result list was showing the same chain (e.g. "Golden
           // Moments") multiple times. Root cause: Places returns
@@ -15442,7 +15508,7 @@ async function cacheBotUsername() {
           // haystack). Still durian-only — a durian word must appear. Fruits is
           // excluded (global + already broad). Fires only on 0, so working
           // searches are untouched.
-          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0) {
+          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0 && _elapsed() < 15000) {
             try {
               const smFb = require('./special-mode');
               const vfFb = require('./venue-filters');
@@ -15818,7 +15884,13 @@ async function cacheBotUsername() {
         // the pref was resolved ONCE up front (effRatingPref: request
         // override → Redis → guarded default) so it matches the criteria
         // hash exactly and costs no second Redis read here.
-        {
+        // v0.62.14 — DURIAN soft-rating (operator: "unhinge the 3.7"). A durian
+        // stall is a durian stall regardless of stars — Google shows 2.5★ ones.
+        // For durian / durian-pastry, DON'T hard-floor: keep ALL (incl. <3.7 +
+        // unrated); the >=3.7/unrated picks are ordered FIRST below and a notice
+        // explains "we look for 3.7★+ but also show lower-rated / unrated stalls".
+        const durianSoftRating = (specialMode === 'durian' || specialMode === 'durian-pastry');
+        if (!durianSoftRating) {
           const beforeFloor = venues.length;
           // v0.62.x — the unified newness rule floors rated venues at >3.0 (see
           // newness-criteria.js). On the New pill that >3.0 bar was already
@@ -15833,6 +15905,8 @@ async function cacheBotUsername() {
           if (venues.length !== beforeFloor) {
             console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
           }
+        } else {
+          console.log(`[Cuisine-Search] durian soft-rating: floor skipped, kept all ${venues.length} (>=3.7/unrated ordered first)`);
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
@@ -15846,8 +15920,19 @@ async function cacheBotUsername() {
         // fill band only surfaces once the strict band can't fill the page.
         // Distance stays the within-band tiebreak. `_recencyBand` is undefined
         // off the New pill → comparator collapses to pure distance (unchanged).
+        // v0.62.14 — durian soft-rating order: >=3.7 / unrated stalls page
+        // first, <3.7 stalls fill after (operator: prefer 3.7★+ but still show
+        // the rest). Pref 0 = keep-first, 1 = below-bar.
+        const _durianPref = (v) => {
+          const r = Number(v.rating);
+          return (!Number.isFinite(r) || r === 0 || r >= 3.7) ? 0 : 1;
+        };
         if (!skipCacheForShuffle) {
           trulyUnseen.sort((a, b) => {
+            if (durianSoftRating) {
+              const pa = _durianPref(a), pb = _durianPref(b);
+              if (pa !== pb) return pa - pb;
+            }
             const ba = a._recencyBand === 'fill' ? 1 : 0;
             const bb = b._recencyBand === 'fill' ? 1 : 0;
             if (ba !== bb) return ba - bb;
@@ -16321,8 +16406,32 @@ async function cacheBotUsername() {
           // on the New pill (filters.newlyOpened); absent on other searches.
           if (v._recencyBand) v.recencyBand = v._recencyBand;
         }
+        // v0.62.13 — operator: a zero result must be EVIDENT (justified by the
+        // criteria, not a silent empty). Classify WHY the page is empty so the
+        // TMA can explain it AND so a SPURIOUS zero (the per-criteria seen-set
+        // filtering the whole pool on the first tap) is distinguishable from a
+        // genuine "no match for this cuisine+filter combo".
+        let zeroReason = null;
+        if (dedupedTop.length === 0) {
+          const hasCriteria = (Array.isArray(cuisines) && cuisines.length > 0)
+            || (filters && Object.values(filters).some(Boolean))
+            || (typeof req.body?.freeText === 'string' && req.body.freeText.trim().length > 0);
+          if (venues.length === 0) {
+            // The post-floor pool itself is empty: genuinely nothing matched.
+            zeroReason = hasCriteria ? 'no-match-criteria' : 'no-venues-nearby';
+          } else if (unseenInCriteria.length === 0) {
+            // Pool HAD venues, but the per-criteria seen-set removed them all —
+            // the stale-seen first-tap bug (no criteria set, yet zero).
+            zeroReason = 'all-seen-criteria';
+          } else if (trulyUnseen.length === 0) {
+            zeroReason = 'all-seen-session';
+          } else {
+            zeroReason = 'filtered';
+          }
+          console.log(`[Cuisine-Search] ZERO reason=${zeroReason} pool=${venues.length} unseenCrit=${unseenInCriteria.length} trulyUnseen=${trulyUnseen.length} seen=${seen.size} sessionSeen=${sessionSeen.size} hasCriteria=${hasCriteria} cuisines=${(cuisines||[]).length} filters=${JSON.stringify(filters||{})}`);
+        }
         const payload = {
-          venues: dedupedTop, exhausted: dedupExhausted, sessionFull,
+          venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
@@ -16357,6 +16466,15 @@ async function cacheBotUsername() {
           // v0.61.416 — surface the generic-term fallback so the TMA / logs can
           // note results came from a broadened "durian" search (strict was 0).
           if (specialModeRelaxed) payload.specialModeRelaxed = true;
+          // v0.62.14 — durian soft-rating notice: tell the user we preferred
+          // 3.7★+ but also surfaced lower-rated / unrated stalls (a durian stall
+          // is a durian stall). Only when the page actually holds a below-bar one.
+          if (durianSoftRating && dedupedTop.some((v) => {
+            const r = Number(v.rating);
+            return Number.isFinite(r) && r > 0 && r < 3.7;
+          })) {
+            payload.durianRatingNotice = true;
+          }
         }
         // v0.61.129 — O-20: surface the Tell-me-detected place anchor
         // so the TMA can render "Searching near <X>" above the result
@@ -16439,8 +16557,12 @@ async function cacheBotUsername() {
         try {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
+        clearTimeout(_searchDeadline);
+        if (res.headersSent) return;   // v0.62.15 — the 20s deadline already answered
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
+        clearTimeout(_searchDeadline);
+        if (res.headersSent) return;   // v0.62.15 — deadline-degraded already sent
         console.error('[Error] /api/cuisine/search failed:', err.message);
         try {
           const vlog = require('./verbose-log');

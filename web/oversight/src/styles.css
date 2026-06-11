@@ -8,6 +8,8 @@ body { -webkit-font-smoothing: antialiased; }
 /* stronger contrast for hint/secondary text (matches the other TMAs). */
 :root {
   --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
+  /* v0.62.16: see note above --tg-hint — visible-in-dark border. */
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 38%, var(--tg-bg, #0e0e10) 62%);
 }
 
 /* tablet/desktop centered column (matches the other TMAs). */
