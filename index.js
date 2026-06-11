@@ -9378,6 +9378,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     michOtherCityRemaining = Math.max(0, ordered.length - inCity.length);
     ordered = inCity;
   }
+  // (No extra sort needed for the no-city national fallback: `ordered` is
+  // already 3★ → 2★ → 1★ → Bib by construction — TIER_ORDER sort at the
+  // `stars` build above, bib appended after. A v0.62.19 re-sort here was
+  // withdrawn as a no-op per Codex P2 review on PR #975.)
   // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
   // is combined with Michelin, surface the curated-tag matches FIRST (stable,
   // preserving the tier / city order within each group), then the rest of the
