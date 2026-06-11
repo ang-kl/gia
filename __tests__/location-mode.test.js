@@ -19,7 +19,9 @@ const {
   classifyByCountry,
   classifyLocation,
   isFeatureAllowed,
-  insideSgBbox
+  insideSgBbox,
+  jbFocusNear,
+  insideJohorExtent
 } = require('../location-mode');
 
 // Well-known anchors used across the cases. Coordinates are the
@@ -274,5 +276,42 @@ describe('insideSgBbox — west-of-strait carve-out (JB sub-locations are NOT SG
     expect(insideSgBbox(null)).toBe(false);
     expect(insideSgBbox({})).toBe(false);
     expect(insideSgBbox({ lat: 'x', lng: 1 })).toBe(false);
+  });
+});
+
+// v0.62.18 — JB focus-point tight-radius + Johor-extent guard.
+describe('jbFocusNear — detect a JB sub-location pick by coords', () => {
+  it('matches each registered focus point on its exact coords', () => {
+    expect(jbFocusNear({ lat: 1.4296, lng: 103.6321 })).toBe('legoland');
+    expect(jbFocusNear({ lat: 1.4773, lng: 103.6645 })).toBe('bukitIndah');
+    expect(jbFocusNear({ lat: 1.4927, lng: 103.7414 })).toBe('cbd');
+    expect(jbFocusNear({ lat: 1.4912, lng: 103.7665 })).toBe('southkey');
+    expect(jbFocusNear({ lat: 1.5252, lng: 103.7935 })).toBe('mtAustin');
+  });
+
+  it('tolerates a small offset (≤400 m) but not a far coord', () => {
+    expect(jbFocusNear({ lat: 1.4296 + 0.0025, lng: 103.6321 })).toBe('legoland'); // ~280 m
+    expect(jbFocusNear({ lat: 1.51, lng: 103.76 })).toBe(null);                     // ~2 km off
+    expect(jbFocusNear({ lat: 1.3048, lng: 103.8318 })).toBe(null);                 // Orchard SG
+  });
+
+  it('defensive on bad input', () => {
+    expect(jbFocusNear(null)).toBe(null);
+    expect(jbFocusNear({})).toBe(null);
+    expect(jbFocusNear({ lat: 'x', lng: 1 })).toBe(null);
+  });
+});
+
+describe('insideJohorExtent — coarse Johor-state bbox guard', () => {
+  it('true inside the Johor extent, false for KL / overseas', () => {
+    expect(insideJohorExtent({ lat: 1.4296, lng: 103.6321 })).toBe(true);  // Legoland
+    expect(insideJohorExtent({ lat: 1.4927, lng: 103.7414 })).toBe(true);  // JB CBD
+    expect(insideJohorExtent({ lat: 3.139, lng: 101.687 })).toBe(false);   // Kuala Lumpur
+    expect(insideJohorExtent({ lat: 33.81, lng: -117.92 })).toBe(false);   // Legoland California
+  });
+
+  it('defensive on bad input', () => {
+    expect(insideJohorExtent(null)).toBe(false);
+    expect(insideJohorExtent({ lat: 'x', lng: 1 })).toBe(false);
   });
 });
