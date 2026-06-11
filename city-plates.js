@@ -499,9 +499,17 @@ function classicsForCountry(countryCode) {
     if (!_nationOverlay) _nationOverlay = require('./nation-overlay');
     const o = _nationOverlay.NATION_OVERLAY[slug];
     if (!o || !Array.isArray(o.iconicDishes)) return null;
+    // Uniq by fold — the SG overlay lists "teh tarik" twice (food + drink
+    // entries); duplicate names would collide as React chip keys.
+    const seen = new Set();
     const names = o.iconicDishes
       .map((d) => (typeof d === 'string' ? d : (d && d.name) || ''))
-      .filter(Boolean);
+      .filter((name) => {
+        const f = _fold(name);
+        if (!f || seen.has(f)) return false;
+        seen.add(f);
+        return true;
+      });
     return names.length ? names : null;
   } catch {
     return null;   // fail-open: plate renders without the classics section
