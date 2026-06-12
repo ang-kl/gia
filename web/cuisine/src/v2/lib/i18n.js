@@ -205,9 +205,13 @@ const STRINGS = {
   'rating.anyRating':          { en: 'Any rating', fr: 'Toutes les notes' },
   'rating.anyRatingHint':      { en: 'No minimum', fr: 'Aucun minimum' },
   'rating.goodPlus':           { en: 'Good+', fr: 'Bien+' },
-  'rating.setRating':          { en: 'Set rating', fr: 'Définir la note' },
+  'rating.setRating':          { en: 'Set as', fr: 'Définir' },
   'rating.custom':             { en: 'Custom', fr: 'Personnalisée' },
-  'rating.customHint':         { en: 'Choose 1.0 to 5.0', fr: 'Choisir 1.0 à 5.0' },
+  'rating.customHint':         { en: '1.0 to 5.0', fr: '1.0 à 5.0' },
+  // v0.62.x — operator: on app open / return from idle, remind which Google-
+  // rating floor is active. {label} = "Good+ ≥ 3.7 ⭐" / "Unrated" / "≥ 4.5 ⭐".
+  'rating.reminder':           { en: "⭐ Google Rating for eateries is set to '{label}'",
+                                 fr: "⭐ Note Google des restaurants définie sur '{label}'" },
   'rating.save':               { en: 'Save', fr: 'Enregistrer' },
   'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'Unrated', fr: 'Non noté' },

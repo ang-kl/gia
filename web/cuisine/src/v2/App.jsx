@@ -81,6 +81,16 @@ function fabBgFg(active) {
 // useful "City, Country" label is always available immediately, with
 // no API call; the caller optionally upgrades the device label with a
 // reverse-geocoded street/area name when that async result lands.
+// v0.62.x — human label for a rating-pref token, for the open/idle reminder
+// toast: '3.7' → "Good+ ≥ 3.7 ⭐", 'unrated'/'any' → their pill labels, any
+// other numeric floor → "≥ X ⭐".
+function ratingReminderLabel(v, lang) {
+  if (v === 'unrated') return t('rating.pillNoRating', lang);
+  if (v === 'any') return t('rating.anyRating', lang);
+  if (v === '3.7') return `${t('rating.goodPlus', lang)} ≥ 3.7 ⭐`;
+  return `≥ ${v} ⭐`;
+}
+
 function placeLabel({ lat, lng, name } = {}) {
   const clean = (s) => (typeof s === 'string' ? s.trim() : '');
   const name0 = clean(name);
@@ -434,6 +444,33 @@ export default function App() {
   // the '3.7' default before the fetch resolves. While false, the search
   // omits ratingPref and the server falls back to the Redis pref.
   const [ratingLoaded, setRatingLoaded] = useState(false);
+  // v0.62.x — operator: "whenever I return from idle or run the Cuisine,
+  // remind the user 'Google Rating for Eateries are set Good+ ≥ 3.7⭐'".
+  // Holds the pref TOKEN to announce ('3.7' | 'any' | 'unrated' | '4.5'…);
+  // rendered as a bottom toast (mirrors locMoveNote), auto-dismissed ~7 s.
+  const [ratingReminder, setRatingReminder] = useState(null);
+  useEffect(() => {
+    if (!ratingReminder) return undefined;
+    const id = setTimeout(() => setRatingReminder(null), 7000);
+    return () => clearTimeout(id);
+  }, [ratingReminder]);
+  // Return-from-idle trigger: the TMA was hidden ≥2 min and came back. The
+  // 2-min floor keeps quick app-flips (e.g. copying an address) quiet.
+  const ratingPrefReminderRef = useRef('3.7');
+  useEffect(() => { ratingPrefReminderRef.current = ratingPref; }, [ratingPref]);
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    let hiddenAt = null;
+    const onVis = () => {
+      if (document.hidden) { hiddenAt = Date.now(); return; }
+      if (hiddenAt && Date.now() - hiddenAt >= 120000) {
+        setRatingReminder(ratingPrefReminderRef.current);
+      }
+      hiddenAt = null;
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
   // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
   // delivers the first 5 suggestions. Mirrors the searchHintActive
   // pattern below for the floating 🔍 FAB.
@@ -1084,9 +1121,15 @@ export default function App() {
     let cancelled = false;
     (async () => {
       const r = await fetchRatingPref();
-      if (cancelled || !r?.ratingPref) return;
-      setRatingPref((prev) => (prev === r.ratingPref ? prev : r.ratingPref));
-      setRatingLoaded(true);
+      if (cancelled) return;
+      if (r?.ratingPref) {
+        setRatingPref((prev) => (prev === r.ratingPref ? prev : r.ratingPref));
+        setRatingLoaded(true);
+      }
+      // v0.62.x — app-open reminder of the active rating floor (operator:
+      // "whenever I … run the Cuisine"). On a failed fetch announce the
+      // local '3.7' default — that IS the server's effective default.
+      setRatingReminder(r?.ratingPref || '3.7');
     })();
     return () => { cancelled = true; };
   }, []);
@@ -2898,6 +2941,22 @@ export default function App() {
             className="pointer-events-auto max-w-sm rounded-2xl border border-amber-500/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
           >
             {locMoveNote.text}
+          </button>
+        </div>
+      )}
+      {/* v0.62.x — rating-floor reminder toast (operator): on app open and on
+          return from ≥2 min idle, announce the active Google-rating floor,
+          e.g. "⭐ Google Rating for eateries is set to 'Good+ ≥ 3.7 ⭐'".
+          Sits a step above the locMoveNote slot so the two never overlap.
+          Tap to dismiss; auto-hides after 7 s. */}
+      {ratingReminder && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
+          <button
+            type="button"
+            onClick={() => setRatingReminder(null)}
+            className="pointer-events-auto max-w-sm rounded-2xl border border-tg-accent/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
+          >
+            {tn('rating.reminder', lang, { label: ratingReminderLabel(ratingReminder, lang) })}
           </button>
         </div>
       )}
