@@ -14,6 +14,8 @@ import { CITIES_BY_COUNTRY } from './cities.js';
 import { coordsToCountry } from './coords-to-country.js';
 import { startLocationSync } from './location-sync.js';
 import { deviceId } from './device-id.js';
+// v0.62.x — idle-return rating reset (operator): shared floor → Good+ 3.7.
+import { saveRatingPref } from './api.js';
 
 // v0.61.123 — tiles that don't work outside Singapore. When the user
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
@@ -90,6 +92,30 @@ const FOOTER_CHIPS = [
 
 export default function App() {
   const lang = useLocale();
+  // v0.62.x — operator: returning from ≥2 min idle into the MENU TMA also
+  // resets the shared Google-rating floor to Good+ 3.7 (G3, operator-
+  // confirmed: a custom rating lasts for the session only) and announces it
+  // with the same pop-up copy as the Cuisine TMA. Tap / 7 s to dismiss.
+  const [ratingResetNote, setRatingResetNote] = useState(false);
+  useEffect(() => {
+    if (!ratingResetNote) return undefined;
+    const id = setTimeout(() => setRatingResetNote(false), 7000);
+    return () => clearTimeout(id);
+  }, [ratingResetNote]);
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    let hiddenAt = null;
+    const onVis = () => {
+      if (document.hidden) { hiddenAt = Date.now(); return; }
+      if (hiddenAt && Date.now() - hiddenAt >= 120000) {
+        saveRatingPref('3.7'); // fire-and-forget; helper swallows failures
+        setRatingResetNote(true);
+      }
+      hiddenAt = null;
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
   // v0.60.60 — track at-bottom for the scroll FAB navigation
   // standardised across all four TMAs.
   const [atBottom, setAtBottom] = useState(false);
@@ -640,6 +666,19 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
+      {/* v0.62.x — idle-return rating-reset pop-up (same copy as Cuisine). */}
+      {ratingResetNote && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
+          <button
+            type="button"
+            onClick={() => setRatingResetNote(false)}
+            className="pointer-events-auto max-w-sm rounded-2xl border border-tg-accent/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
+          >
+            <div className="font-semibold">{t('rating.resetTitle', lang)}</div>
+            <div className="mt-0.5 text-tg-hint">{t('rating.resetBody', lang)}</div>
+          </button>
+        </div>
+      )}
       {/* v0.61.274 — same coherence modal as the Cuisine TMA. */}
       {coherenceMismatch && (
         <div

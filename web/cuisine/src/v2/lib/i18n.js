@@ -208,10 +208,19 @@ const STRINGS = {
   'rating.setRating':          { en: 'Set as', fr: 'Définir' },
   'rating.custom':             { en: 'Custom', fr: 'Personnalisée' },
   'rating.customHint':         { en: '1.0 to 5.0', fr: '1.0 à 5.0' },
-  // v0.62.x — operator: on app open / return from idle, remind which Google-
-  // rating floor is active. {label} = "Good+ ≥ 3.7 ⭐" / "Unrated" / "≥ 4.5 ⭐".
-  'rating.reminder':           { en: "⭐ Google Rating for eateries is set to '{label}'",
-                                 fr: "⭐ Note Google des restaurants définie sur '{label}'" },
+  // v0.62.x — operator pop-up copy (amended): every fresh entry / ≥2 min
+  // idle-return RESETS the rating to the Good+ 3.7 default (G3 decision:
+  // a custom rating lasts for the session only). Three messages:
+  'rating.resetTitle':         { en: 'Rating reset: Good+ ≥ 3.7⭐',
+                                 fr: 'Note réinitialisée : Bien+ ≥ 3.7⭐' },
+  'rating.resetBody':          { en: 'Showing eateries with generally good Google ratings.',
+                                 fr: 'Affiche les restaurants généralement bien notés sur Google.' },
+  'rating.savedToast':         { en: 'Search rating updated',
+                                 fr: 'Note de recherche mise à jour' },
+  'rating.introTitle':         { en: 'Rating set to Good+ ≥ 3.7⭐',
+                                 fr: 'Note définie sur Bien+ ≥ 3.7⭐' },
+  'rating.introBody':          { en: 'Change it anytime if you want more or fewer eateries.',
+                                 fr: 'Modifiez-la à tout moment pour plus ou moins de restaurants.' },
   'rating.save':               { en: 'Save', fr: 'Enregistrer' },
   'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
   'rating.pillNoRating':       { en: 'Unrated', fr: 'Non noté' },

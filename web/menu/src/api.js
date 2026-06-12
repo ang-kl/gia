@@ -28,6 +28,14 @@ async function _postJson(url, body) {
   return await r.json();
 }
 
+// v0.62.x — operator: an idle-return into the MENU TMA also resets the
+// shared Google-rating floor to the Good+ 3.7 default. Same store the
+// Cuisine TMA panel + chat /rating use (rating-pref:<chatId> in Redis).
+export async function saveRatingPref(ratingPref) {
+  try { return await _postJson('/api/cuisine/rating-pref', { ratingPref }); }
+  catch { return null; }
+}
+
 // v0.61.269 — autocomplete-on-keystroke. POST { input, lat, lng,
 // countryCode } → { suggestions: [{ placeId, primaryText,
 // secondaryText }] }. Backed by /api/cuisine/place-autocomplete

@@ -145,7 +145,14 @@ const STRINGS = {
   'loc.other.confirmHeader':   { en: 'Found in {flag} {country}:',
                                  fr: 'Trouvé en {flag} {country} :' },
   'loc.other.cancel':          { en: '✕ Cancel · type again',
-                                 fr: '✕ Annuler · réessayer' }
+                                 fr: '✕ Annuler · réessayer' },
+  // v0.62.x — operator: returning from ≥2 min idle into the Menu TMA also
+  // resets the shared Google-rating floor to Good+ 3.7 and announces it
+  // (same copy as the Cuisine TMA's reset pop-up).
+  'rating.resetTitle':         { en: 'Rating reset: Good+ ≥ 3.7⭐',
+                                 fr: 'Note réinitialisée : Bien+ ≥ 3.7⭐' },
+  'rating.resetBody':          { en: 'Showing eateries with generally good Google ratings.',
+                                 fr: 'Affiche les restaurants généralement bien notés sur Google.' }
 };
 
 export function t(key, lang) {

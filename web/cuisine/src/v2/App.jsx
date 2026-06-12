@@ -81,16 +81,6 @@ function fabBgFg(active) {
 // useful "City, Country" label is always available immediately, with
 // no API call; the caller optionally upgrades the device label with a
 // reverse-geocoded street/area name when that async result lands.
-// v0.62.x — human label for a rating-pref token, for the open/idle reminder
-// toast: '3.7' → "Good+ ≥ 3.7 ⭐", 'unrated'/'any' → their pill labels, any
-// other numeric floor → "≥ X ⭐".
-function ratingReminderLabel(v, lang) {
-  if (v === 'unrated') return t('rating.pillNoRating', lang);
-  if (v === 'any') return t('rating.anyRating', lang);
-  if (v === '3.7') return `${t('rating.goodPlus', lang)} ≥ 3.7 ⭐`;
-  return `≥ ${v} ⭐`;
-}
-
 function placeLabel({ lat, lng, name } = {}) {
   const clean = (s) => (typeof s === 'string' ? s.trim() : '');
   const name0 = clean(name);
@@ -444,33 +434,43 @@ export default function App() {
   // the '3.7' default before the fetch resolves. While false, the search
   // omits ratingPref and the server falls back to the Redis pref.
   const [ratingLoaded, setRatingLoaded] = useState(false);
-  // v0.62.x — operator: "whenever I return from idle or run the Cuisine,
-  // remind the user 'Google Rating for Eateries are set Good+ ≥ 3.7⭐'".
-  // Holds the pref TOKEN to announce ('3.7' | 'any' | 'unrated' | '4.5'…);
-  // rendered as a bottom toast (mirrors locMoveNote), auto-dismissed ~7 s.
+  // v0.62.x — operator pop-up set (amended copy + G3 decision via
+  // AskUserQuestion: idle-return ACTUALLY resets the rating): every fresh
+  // entry and every ≥2 min idle-return resets the rating to the Good+ 3.7
+  // default — a custom rating lasts for the session only. { kind } is one of
+  // 'reset' (idle/entry), 'intro' (first time on this device) or 'saved'
+  // (after the panel's Save). Bottom toast, auto-dismissed ~7 s.
   const [ratingReminder, setRatingReminder] = useState(null);
   useEffect(() => {
     if (!ratingReminder) return undefined;
     const id = setTimeout(() => setRatingReminder(null), 7000);
     return () => clearTimeout(id);
   }, [ratingReminder]);
-  // Return-from-idle trigger: the TMA was hidden ≥2 min and came back. The
-  // 2-min floor keeps quick app-flips (e.g. copying an address) quiet.
+  // Reset the pref to the Good+ default, persisting only when it actually
+  // changes (keeps Redis + chat /rating in agreement without no-op POSTs).
   const ratingPrefReminderRef = useRef('3.7');
   useEffect(() => { ratingPrefReminderRef.current = ratingPref; }, [ratingPref]);
+  const resetRatingToDefault = React.useCallback(() => {
+    if (ratingPrefReminderRef.current !== '3.7') saveRatingPref('3.7').catch(() => {});
+    setRatingPref('3.7');
+    setRatingLoaded(true);
+  }, []);
+  // Return-from-idle trigger: hidden ≥2 min, then visible again. The 2-min
+  // floor keeps quick app-flips (e.g. copying an address) quiet.
   useEffect(() => {
     if (typeof document === 'undefined') return undefined;
     let hiddenAt = null;
     const onVis = () => {
       if (document.hidden) { hiddenAt = Date.now(); return; }
       if (hiddenAt && Date.now() - hiddenAt >= 120000) {
-        setRatingReminder(ratingPrefReminderRef.current);
+        resetRatingToDefault();
+        setRatingReminder({ kind: 'reset' });
       }
       hiddenAt = null;
     };
     document.addEventListener('visibilitychange', onVis);
     return () => document.removeEventListener('visibilitychange', onVis);
-  }, []);
+  }, [resetRatingToDefault]);
   // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
   // delivers the first 5 suggestions. Mirrors the searchHintActive
   // pattern below for the floating 🔍 FAB.
@@ -1122,14 +1122,23 @@ export default function App() {
     (async () => {
       const r = await fetchRatingPref();
       if (cancelled) return;
-      if (r?.ratingPref) {
-        setRatingPref((prev) => (prev === r.ratingPref ? prev : r.ratingPref));
-        setRatingLoaded(true);
-      }
-      // v0.62.x — app-open reminder of the active rating floor (operator:
-      // "whenever I … run the Cuisine"). On a failed fetch announce the
-      // local '3.7' default — that IS the server's effective default.
-      setRatingReminder(r?.ratingPref || '3.7');
+      // v0.62.x — G3 (operator-confirmed): a fresh ENTRY resets the rating to
+      // the Good+ 3.7 default, persisting over any stale saved value so chat
+      // /rating agrees. The fetch is still awaited first so the persist only
+      // fires when the saved value genuinely differed.
+      if (r?.ratingPref && r.ratingPref !== '3.7') saveRatingPref('3.7').catch(() => {});
+      setRatingPref('3.7');
+      setRatingLoaded(true);
+      // First time on this device → the intro pop-up ("Rating set to … Change
+      // it anytime"); afterwards every entry shows the reset pop-up instead.
+      let intro = false;
+      try {
+        if (typeof localStorage !== 'undefined' && !localStorage.getItem('gia.rating.introSeen')) {
+          intro = true;
+          localStorage.setItem('gia.rating.introSeen', '1');
+        }
+      } catch { /* storage disabled → treat as a returning user */ }
+      setRatingReminder({ kind: intro ? 'intro' : 'reset' });
     })();
     return () => { cancelled = true; };
   }, []);
@@ -2944,11 +2953,12 @@ export default function App() {
           </button>
         </div>
       )}
-      {/* v0.62.x — rating-floor reminder toast (operator): on app open and on
-          return from ≥2 min idle, announce the active Google-rating floor,
-          e.g. "⭐ Google Rating for eateries is set to 'Good+ ≥ 3.7 ⭐'".
-          Sits a step above the locMoveNote slot so the two never overlap.
-          Tap to dismiss; auto-hides after 7 s. */}
+      {/* v0.62.x — rating pop-ups (operator's amended copy): 'reset' on entry
+          / ≥2 min idle-return ("Rating reset: Good+ ≥ 3.7⭐ — Showing eateries
+          with generally good Google ratings."), 'intro' first time on this
+          device ("Rating set to … Change it anytime …"), 'saved' after Save
+          ("Search rating updated"). Sits a step above the locMoveNote slot so
+          the two never overlap. Tap to dismiss; auto-hides after 7 s. */}
       {ratingReminder && (
         <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
           <button
@@ -2956,7 +2966,18 @@ export default function App() {
             onClick={() => setRatingReminder(null)}
             className="pointer-events-auto max-w-sm rounded-2xl border border-tg-accent/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
           >
-            {tn('rating.reminder', lang, { label: ratingReminderLabel(ratingReminder, lang) })}
+            {ratingReminder.kind === 'saved' ? (
+              t('rating.savedToast', lang)
+            ) : (
+              <>
+                <div className="font-semibold">
+                  {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang)}
+                </div>
+                <div className="mt-0.5 text-tg-hint">
+                  {t(ratingReminder.kind === 'intro' ? 'rating.introBody' : 'rating.resetBody', lang)}
+                </div>
+              </>
+            )}
           </button>
         </div>
       )}
@@ -3450,6 +3471,9 @@ export default function App() {
                 setRatingPref(value);
                 setRatingLoaded(true);
                 saveRatingPref(value).catch(() => {});
+                // v0.62.x — operator: confirm the commit with a brief
+                // "Search rating updated" toast.
+                setRatingReminder({ kind: 'saved' });
               }}
             />
             {/* v0.61.29 — LocationField moved out of this collapsed
