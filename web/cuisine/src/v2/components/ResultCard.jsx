@@ -120,6 +120,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         name: venue.name,
         nameLocal: venue.nameLocal,
         nameReading: venue.nameReading, // v0.61.382 — readable foreign-name line
+        nameGloss: venue.nameGloss,      // v0.62.x item 7 — meaning of a foreign-lang name
         area: venue.area,
         lat: venue.lat,
         lng: venue.lng,
@@ -193,6 +194,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               never replacing it. 🔤 marks "how to read it" (icon, not colour). */}
           {venue.nameReading && (
             <div className="text-[11px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
+          )}
+          {/* v0.62.x item 7 — device-language MEANING of a foreign-language
+              (Latin-script) name, e.g. "Tầm vị" → "(seeking flavour)". Gemini,
+              server-side, cached. Next row in brackets, never replacing. */}
+          {venue.nameGloss && (
+            <div className="text-[11px] text-tg-hint leading-tight truncate">({venue.nameGloss})</div>
           )}
           {/* v0.60.45 — restaurant type line. Sourced from
               michelinCuisineLabel (when present) or Places API

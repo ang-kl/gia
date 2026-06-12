@@ -16648,6 +16648,13 @@ async function cacheBotUsername() {
         try {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
+        // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
+        // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
+        // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised
+        // paid call (G4) for this feature.
+        try {
+          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, deviceLang, redis);
+        } catch (e) { /* non-fatal — names just stay un-glossed */ }
         clearTimeout(_searchDeadline);
         // v0.62.x — Stage 2: finish the NDJSON stream. The base event already
         // went out (fast cards); now emit one patch per venue carrying ONLY
