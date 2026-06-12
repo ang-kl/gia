@@ -76,12 +76,43 @@ describe('integration — real curated cuisines', () => {
     const grouped = groups.flatMap((g) => g.dishes).length;
     expect(headliners.length + grouped).toBe(ov.iconicDishes.length);   // nothing dropped
   });
+  it('Georgian Phase 2: native-script `local` + headliner `note` carry through', () => {
+    const ov = getNationOverlay('georgian');
+    const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);
+    // headliners are curated with both a native name and a one-line history.
+    for (const h of headliners) {
+      expect(typeof h.local).toBe('string');
+      expect(h.local.length).toBeGreaterThan(0);
+      expect(h.note && (h.note.en || h.note.fr)).toBeTruthy();
+    }
+    expect(headliners[0].local).toBe('ხაჭაპური აჭარული');
+    // native names survive the grouping onto the chips too (e.g. lobio → ლობიო).
+    const allGrouped = groups.flatMap((g) => g.dishes);
+    const lobio = allGrouped.find((d) => d.dish === 'lobio');
+    expect(lobio && lobio.local).toBe('ლობიო');
+    // a names-only cuisine dish (no curation) must NOT gain empty local/note keys.
+    const plain = groupCuisineDishes([{ name: 'x', kind: 'food' }]).headliners[0];
+    expect(plain.local).toBeUndefined();
+    expect(plain.note).toBeUndefined();
+  });
   it('Japanese (30 dishes): noodles + seafood groups present, every dish placed', () => {
     const ov = getNationOverlay('japanese');
     const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);
     const slugs = groups.map((g) => g.group);
     expect(slugs).toContain('noodles');
     expect(headliners.length + groups.flatMap((g) => g.dishes).length).toBe(ov.iconicDishes.length);
+  });
+  it('Japanese Phase 2b: native `local` on every dish; chip-level notes carry', () => {
+    const ov = getNationOverlay('japanese');
+    for (const d of ov.iconicDishes) expect(d.local, d.name).toBeTruthy();
+    const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);
+    expect(headliners[0].local).toBe('寿司');
+    expect(headliners[0].note && headliners[0].note.en).toBeTruthy();
+    // a non-headliner with a curated note keeps it on the chip (drives the split-chip 📜)
+    const all = groups.flatMap((g) => g.dishes);
+    const tako = all.find((d) => d.dish === 'takoyaki');
+    expect(tako && tako.local).toBe('たこ焼き');
+    expect(tako && tako.note && tako.note.fr).toContain('Osaka');
   });
   it('Singaporean (164 dishes): "other" stays a small minority', () => {
     const ov = getNationOverlay('singaporean');
