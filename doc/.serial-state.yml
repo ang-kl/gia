@@ -1,8 +1,8 @@
 counters:
-  commit: 720
-  build: 442
+  commit: 721
+  build: 443
   documents:
-    journal: 703
+    journal: 704
     builder: 3
     persona: 4
     feature: 53
