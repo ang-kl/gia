@@ -79,7 +79,7 @@ const { runHealthCheck } = require('./ver');
 // v0.60.209 — shared dish-name guard. Single source of truth for the
 // "is this a real dish/dessert name?" criteria behind every "Try"
 // line (Cuisine TMA, Copy, Copy to, /s, free-text).
-const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE } = require('./dish-name');
+const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE, DESCRIPTOR_RE: DISH_DESCRIPTOR_RE } = require('./dish-name');
 const weather = require('./weather');
 const carpark = require('./carpark');
 const transport = require('./transport');
@@ -9987,7 +9987,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           if (typeof s !== 'string') return false;
           const t = s.trim();
           if (t.length < 3 || t.length > 40) return false;
-          return !MICH_CATEGORY_BLOCK.test(t);
+          // v0.62.x — also reject vague marketing-descriptor phrases
+          // ("Northern Vietnamese heritage set menu", "Seasonal … course")
+          // the LLM narration sometimes returns instead of a real dish name.
+          return !MICH_CATEGORY_BLOCK.test(t) && !DISH_DESCRIPTOR_RE.test(t);
         };
         for (const v of needsNarrate) {
           const n = narrated[v.placeId];
@@ -16309,6 +16312,7 @@ async function cacheBotUsername() {
         // after the dish) > 'reviews' (its own reviews/summary mention it,
         // incl. native script via the same norm) > null ("ask first"). Pure
         // in-memory text checks against already-fetched data — no API spend.
+        let dishSearchEmpty = false;
         if (dishQueryTerm) {
           try {
             const ddEv = require('./discovery-dish');
@@ -16325,6 +16329,29 @@ async function cacheBotUsername() {
             const evRank = (v) => (v.dishEvidence === 'name' ? 0 : v.dishEvidence === 'reviews' ? 1 : 2);
             top.sort((a, b) => evRank(a) - evRank(b));
             console.log(`[Cuisine-Search] D790b dish-evidence "${dishQueryTerm.slice(0, 40)}": name=${evName} reviews=${evReviews} askFirst=${top.length - evName - evReviews}`);
+            // v0.62.x item 10 — RELEVANCE GATE. The tag above only RANKED;
+            // it never dropped, so a tapped dish bled far-away (Bangkok 986 km)
+            // + off-cuisine (Chinese noodle shop) venues. Now: drop FAR (beyond
+            // ~5× the radius / 50 km) + OFF-CUISINE (no dish evidence and the
+            // venue's primaryType is a different specific cuisine, or — when the
+            // searched cuisine has no Google type — a generic spot = pure noise).
+            // Conservative: only drops what's provably wrong; honest-empty when
+            // nothing real remains (better than padding with noise).
+            try {
+              const { gateDishVenues } = require('./dish-search-gate');
+              const maxKm = Math.max((searchRadius / 1000) * 5, 50);
+              for (const v of top) {
+                if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
+                  v._distKm = transport.haversineM(searchCenter.lat, searchCenter.lng, v.lat, v.lng) / 1000;
+                }
+              }
+              const _gateSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
+              const gated = gateDishVenues(top, { cuisineSlugs: _gateSlugs, maxKm });
+              console.log(`[Cuisine-Search] D793 dish-gate "${dishQueryTerm.slice(0, 40)}": kept=${gated.kept.length} far=${gated.droppedFar} offCuisine=${gated.droppedCuisine} maxKm=${maxKm.toFixed(0)}`);
+              top.length = 0;
+              top.push(...gated.kept);
+              if (gated.empty) dishSearchEmpty = true;
+            } catch (err) { console.warn('[Cuisine-Search] dish-gate failed (non-fatal):', err.message); }
           } catch (err) { console.warn('[Cuisine-Search] dish-evidence tag failed (non-fatal):', err.message); }
         }
         // v0.62.x — progressive-results Stage 2: when the client opts in
@@ -16488,6 +16515,9 @@ async function cacheBotUsername() {
         } catch (err) { console.warn('[Cuisine-Search] cuisine order-plate build failed (non-fatal):', err.message); }
         const payload = {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
+          // v0.62.x item 10 — the tapped dish had no verified spot (after the
+          // distance + off-cuisine gate); the TMA shows an honest empty state.
+          ...(dishSearchEmpty ? { dishSearchEmpty: dishQueryTerm } : {}),
           ...(cuisineOrderPlate ? { cuisinePlate: cuisineOrderPlate } : {}),
           // v0.62.32 — set when the free text was a curated dish: tells the
           // TMA to render the Confirmed/Ask-first (E) split using each
@@ -16618,6 +16648,13 @@ async function cacheBotUsername() {
         try {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
+        // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
+        // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
+        // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised
+        // paid call (G4) for this feature.
+        try {
+          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, deviceLang, redis);
+        } catch (e) { /* non-fatal — names just stay un-glossed */ }
         clearTimeout(_searchDeadline);
         // v0.62.x — Stage 2: finish the NDJSON stream. The base event already
         // went out (fast cards); now emit one patch per venue carrying ONLY

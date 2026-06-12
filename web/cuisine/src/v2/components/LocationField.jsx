@@ -1312,12 +1312,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
       </div>
       )}
       {/* v0.61.236 — collapse back to compact pill after a city pick. */}
-      {/* v0.61.267 — when expanded but the user has an anchor, surface
-          a hint row + "collapse" affordance below the form. */}
+      {/* v0.61.267 — when expanded but the user has an anchor, surface a hint
+          row below the form. v0.62.x — the redundant "collapse" link was
+          removed (operator: duplicates the pill above; the picker still
+          collapses by tapping the pill). The "· N nearby" count stays as
+          result feedback. */}
       {!showCompact && anchor?.name && !_isCountryOnly(anchor.name) && anchor.name !== 'Unnamed' && (
         <div className="text-[11px] text-tg-hint truncate px-1">
           📍 {anchor.name}{suffix ? ` · ${suffix}` : ''}
-          {' '}<button type="button" onClick={() => setExpanded(false)} className="text-tg-accent underline">collapse</button>
         </div>
       )}
     </div>

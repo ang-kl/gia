@@ -288,7 +288,8 @@ describe('currency-format — formatPriceRangeForVenue', () => {
     const r = await formatPriceRangeForVenue(
       { currencyCode: 'SGD', start: 25, end: 40 }, 'SG', 'JP', mockRedis
     );
-    expect(r).toBe('S$25–40 (≈¥2839–4542)');
+    // v0.62.x — thousands separators on the integer part (operator request).
+    expect(r).toBe('S$25–40 (≈¥2,839–4,542)');
   });
 
   // v0.62.6 — baseline currencies now keep an approximate conversion through an
@@ -317,7 +318,8 @@ describe('currency-format — formatPriceRangeForVenue', () => {
     const r = await formatPriceRangeForVenue(
       { currencyCode: 'VND', start: 300000, end: 400000 }, 'VN', 'SG', mockRedis
     );
-    expect(r).toBe('₫300000–400000 (≈S$15.46–20.62)');
+    // v0.62.x — thousands separators on the native VND amount (operator request).
+    expect(r).toBe('₫300,000–400,000 (≈S$15.46–20.62)');
   });
 
   it('omits parens when user country is unknown (null)', async () => {

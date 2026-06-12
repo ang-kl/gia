@@ -120,6 +120,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         name: venue.name,
         nameLocal: venue.nameLocal,
         nameReading: venue.nameReading, // v0.61.382 — readable foreign-name line
+        nameGloss: venue.nameGloss,      // v0.62.x item 7 — meaning of a foreign-lang name
         area: venue.area,
         lat: venue.lat,
         lng: venue.lng,
@@ -193,6 +194,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               never replacing it. 🔤 marks "how to read it" (icon, not colour). */}
           {venue.nameReading && (
             <div className="text-[11px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
+          )}
+          {/* v0.62.x item 7 — device-language MEANING of a foreign-language
+              (Latin-script) name, e.g. "Tầm vị" → "(seeking flavour)". Gemini,
+              server-side, cached. Next row in brackets, never replacing. */}
+          {venue.nameGloss && (
+            <div className="text-[11px] text-tg-hint leading-tight truncate">({venue.nameGloss})</div>
           )}
           {/* v0.60.45 — restaurant type line. Sourced from
               michelinCuisineLabel (when present) or Places API
@@ -288,18 +295,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               : [];
             return (
               <>
+                {/* v0.62.x — primary + secondary dishes on ONE row (operator):
+                    "🍲 Try · {primary} • {secondary} • …". The secondary dishes
+                    stay text-tg-hint as a "more from the menu" annotation. */}
                 {primaryDish && (
                   <div className="text-[12px] text-tg-text mt-1 leading-snug">
                     🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
-                  </div>
-                )}
-                {restDishes.length > 0 && (
-                  // v0.60.159 — font size bumped 11px → 12px to match the
-                  // "🍴 Try" line above, per operator: "font size different".
-                  // Color kept as text-tg-hint so the line still reads as
-                  // a secondary "more from the menu" annotation.
-                  <div className="text-[12px] text-tg-hint mt-0.5 leading-snug">
-                    {restDishes.join(' · ')}
+                    {restDishes.length > 0 && (
+                      <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
+                    )}
                   </div>
                 )}
               </>
@@ -344,20 +348,19 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           )}
         </div>
       </div>
-      <div className="flex gap-1.5 mt-1">
+      {/* v0.62.x — Maps + Copy + social-profile brand buttons share ONE
+          wrapping row (operator). Socials (max 3, priority IG → TikTok →
+          Facebook → X → YouTube → Threads) are lazy-fetched and render
+          nothing until present, so the row simply shows Maps + Copy first. */}
+      <div className="flex flex-wrap gap-1.5 mt-1">
         <button type="button" onClick={openMaps}
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
         <button type="button" onClick={copy} disabled={copying}
           className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
           {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
         </button>
+        <SocialButtons profiles={socialProfiles} bare />
       </div>
-      {/* v0.61.225 — social-profile brand buttons (max 3, priority
-          IG → TikTok → Facebook → X → YouTube → Threads). Renders
-          nothing when the lazy-fetched lookup turns up empty or is
-          still in flight, so the card height is stable for venues
-          without socials. */}
-      <SocialButtons profiles={socialProfiles} />
       {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
           below the Maps + Copy buttons when /api/cuisine/search
           attached michelinCategory to the venue payload.

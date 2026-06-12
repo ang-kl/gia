@@ -5,8 +5,9 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { foodGroupFor, groupCuisineDishes, GROUP_LABEL } = require('../dish-food-group.js');
+const { foodGroupFor, groupCuisineDishes, groupDishNames, GROUP_LABEL } = require('../dish-food-group.js');
 const { getNationOverlay } = require('../nation-overlay.js');
+const { platesForCity, classicsForCountry } = require('../city-plates.js');
 
 describe('foodGroupFor', () => {
   it('reads drinks straight off the kind flag (no guessing)', () => {
@@ -113,6 +114,34 @@ describe('integration — real curated cuisines', () => {
     const tako = all.find((d) => d.dish === 'takoyaki');
     expect(tako && tako.local).toBe('たこ焼き');
     expect(tako && tako.note && tako.note.fr).toContain('Osaka');
+  });
+  it('groupDishNames: flat names → ascending sections, drinks caught, "other" last', () => {
+    const groups = groupDishNames(['nasi lemak', 'kopi', 'teh tarik', 'char kway teow', 'cendol', 'satay']);
+    // every input placed, none dropped
+    expect(groups.flatMap((g) => g.dishes.length).reduce((a, b) => a + b, 0)).toBe(6);
+    // kopi + teh tarik bucket to drinks via keyword rules (no kind flag available)
+    const drink = groups.find((g) => g.group === 'drink');
+    expect(drink && drink.dishes.map((d) => d.dish)).toEqual(expect.arrayContaining(['kopi', 'teh tarik']));
+    // ascending by size; 'other' (if any) always last
+    if (groups.some((g) => g.group === 'other')) expect(groups[groups.length - 1].group).toBe('other');
+    for (let i = 1; i < groups.length; i++) {
+      if (groups[i].group === 'other') break;
+      expect(groups[i].dishes.length).toBeGreaterThanOrEqual(groups[i - 1].dishes.length);
+    }
+    expect(groupDishNames([])).toEqual([]);
+    expect(groupDishNames(null)).toEqual([]);
+  });
+  it('city plate: classics grouped server-side into ascending food-group sections', () => {
+    const plate = platesForCity('Singapore');
+    expect(Array.isArray(plate.classicGroups)).toBe(true);
+    // grouping is a partition of plate.classics — nothing added or lost
+    const grouped = plate.classicGroups.flatMap((g) => g.dishes).length;
+    expect(grouped).toBe(plate.classics.length);
+    // sections carry bilingual labels + 'other' last
+    for (const g of plate.classicGroups) expect(g.label.en && g.label.fr).toBeTruthy();
+    expect(plate.classicGroups[plate.classicGroups.length - 1].group).toBe('other');
+    // city-unique `dishes` (the headliner rows) are untouched by the grouping
+    expect(Array.isArray(plate.dishes) && plate.dishes.length).toBeTruthy();
   });
   it('Singaporean (164 dishes): "other" stays a small minority', () => {
     const ov = getNationOverlay('singaporean');

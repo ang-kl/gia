@@ -283,6 +283,18 @@ const NO_CENTS = new Set([
   'UGX', 'VUV', 'XAF', 'XOF', 'XPF'
 ]);
 
+// v0.62.x — thousands separators on the INTEGER part only (operator:
+// "₫100000–200000" should read "₫100,000–200,000"). Applied to both the
+// native amount and the parenthetical conversion. Any decimals (2 dp) are
+// preserved untouched; small numbers (S$1–20) are unaffected.
+function _groupThousands(str) {
+  const s = String(str);
+  const dot = s.indexOf('.');
+  const intPart = dot === -1 ? s : s.slice(0, dot);
+  const rest = dot === -1 ? '' : s.slice(dot);
+  return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + rest;
+}
+
 // convAmount(n, userCurrency) — apply the +2.8% markup and ROUND UP:
 // whole numbers for no-cents currencies, otherwise to 2 dp. Returns the
 // formatted string for the parenthetical conversion.
@@ -290,13 +302,13 @@ function convAmount(n, userCurrency) {
   if (!Number.isFinite(n)) return '';
   const m = n * FX_MARKUP;
   const cur = String(userCurrency || '').toUpperCase();
-  if (NO_CENTS.has(cur)) return String(Math.ceil(m));
-  return (Math.ceil(m * 100) / 100).toFixed(2);
+  if (NO_CENTS.has(cur)) return _groupThousands(String(Math.ceil(m)));
+  return _groupThousands((Math.ceil(m * 100) / 100).toFixed(2));
 }
 
 function fmtNative(n) {
   if (!Number.isFinite(n)) return '';
-  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+  return _groupThousands(Number.isInteger(n) ? String(n) : n.toFixed(2));
 }
 
 // formatPriceRangeForVenue(priceRange, venueCountry, userCountry, redis)

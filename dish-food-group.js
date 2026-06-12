@@ -108,6 +108,18 @@ function slimDish(d) {
   return o;
 }
 
+// Sort food-group sections ASCENDING by dish count; 'other' always last;
+// stable tie-break by GROUP_ORDER. Shared by groupCuisineDishes (cuisine plate)
+// and groupDishNames (city plate's "More local classics").
+function sortGroupsAscending(groups) {
+  return groups.sort((a, b) => {
+    if (a.group === 'other') return 1;
+    if (b.group === 'other') return -1;
+    if (a.dishes.length !== b.dishes.length) return a.dishes.length - b.dishes.length;
+    return GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group);
+  });
+}
+
 // Build the grouped structure the cuisine plate renders. Input: the cuisine's
 // iconicDishes ([{ name, kind, local?, note? }]). Output:
 //   { headliners: [{ dish, local?, note? }],  // first `headCount` (default 3)
@@ -123,19 +135,34 @@ function groupCuisineDishes(iconicDishes, headCount = 3) {
     if (!buckets.has(g)) buckets.set(g, []);
     buckets.get(g).push(slimDish(d));
   }
-  const groups = [...buckets.entries()].map(([group, ds]) => ({
+  const groups = sortGroupsAscending([...buckets.entries()].map(([group, ds]) => ({
     group,
     label: GROUP_LABEL[group] || GROUP_LABEL.other,
     dishes: ds,
-  }));
-  // Ascending by size; 'other' always last; stable tie-break by GROUP_ORDER.
-  groups.sort((a, b) => {
-    if (a.group === 'other') return 1;
-    if (b.group === 'other') return -1;
-    if (a.dishes.length !== b.dishes.length) return a.dishes.length - b.dishes.length;
-    return GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group);
-  });
+  })));
   return { headliners, groups };
 }
 
-module.exports = { foodGroupFor, groupCuisineDishes, GROUP_ORDER, GROUP_LABEL };
+// v0.62.x — group a FLAT names-only list (the city plate's "More local
+// classics", which is the country overlay's iconic dishes by NAME) into the
+// same ascending food-group sections, so a long classics list (SG 164, MY ~40)
+// reads as organised sections instead of one scrolling chip wall. No headliners
+// (the city-unique dishes already sit above as the plate's headliner rows).
+// `kind` is unknown here (names only) so drinks are caught by the keyword rules
+// (kopi/teh/matcha/…). Returns [{ group, label:{en,fr}, dishes:[{ dish }] }].
+function groupDishNames(names) {
+  const list = Array.isArray(names) ? names.filter((n) => typeof n === 'string' && n.trim()) : [];
+  const buckets = new Map();
+  for (const name of list) {
+    const g = foodGroupFor(name);
+    if (!buckets.has(g)) buckets.set(g, []);
+    buckets.get(g).push({ dish: name });
+  }
+  return sortGroupsAscending([...buckets.entries()].map(([group, ds]) => ({
+    group,
+    label: GROUP_LABEL[group] || GROUP_LABEL.other,
+    dishes: ds,
+  })));
+}
+
+module.exports = { foodGroupFor, groupCuisineDishes, groupDishNames, GROUP_ORDER, GROUP_LABEL };
