@@ -438,6 +438,10 @@ export default function App() {
   // v0.62.32 — Arrival Plate: the curated what-to-try card for the
   // anchored city, supplied by the server alongside the saved location.
   const [arrivalPlate, setArrivalPlate] = useState(null);
+  // v0.62.x — cuisine "What to order" plate (from the search response when a
+  // single cuisine is selected). Takes precedence over the geo city plate so
+  // selecting Georgian shows Georgian dishes, not the city's classics.
+  const [cuisinePlate, setCuisinePlate] = useState(null);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -2161,6 +2165,9 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
+      // v0.62.x — cuisine "What to order" plate (single-cuisine searches);
+      // null on combo/no-cuisine → falls back to the geo city plate.
+      setCuisinePlate(r.cuisinePlate || null);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
       setComboInfo(r.comboInfo || null);
       // v0.60.128 — "misrepresented dish" note (null unless the Tell-me
@@ -2390,6 +2397,7 @@ export default function App() {
         countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
       });
       setVenues(r.venues || []);
+      setCuisinePlate(r.cuisinePlate || null);   // v0.62.x — clear/refresh the cuisine plate on NL queries too
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
       // v0.62.34 — D791 post-search location consistency check (the
@@ -3113,9 +3121,11 @@ export default function App() {
           banner under the location field; expands to curated what-to-try
           rows with 📜 fact-cards. Tapping a dish fires the dish search via
           freeTextOverride (no state race). Hidden while a search streams. */}
-      {arrivalPlate && !loading && (
+      {/* v0.62.x — cuisine "What to order" plate replaces the geo city plate
+          when a cuisine is selected (operator: SG → Georgian → Georgian dishes). */}
+      {(cuisinePlate || arrivalPlate) && !loading && (
         <ArrivalPlate
-          plate={arrivalPlate}
+          plate={cuisinePlate || arrivalPlate}
           lang={lang}
           onTryDish={(dish) => {
             setNlText(dish);

@@ -16446,8 +16446,40 @@ async function cacheBotUsername() {
           }
           console.log(`[Cuisine-Search] ZERO reason=${zeroReason} pool=${venues.length} unseenCrit=${unseenInCriteria.length} trulyUnseen=${trulyUnseen.length} seen=${seen.size} sessionSeen=${sessionSeen.size} hasCriteria=${hasCriteria} cuisines=${(cuisines||[]).length} filters=${JSON.stringify(filters||{})}`);
         }
+        // v0.62.x — cuisine "What to order" plate (operator: "select Georgian
+        // in SG → show unique Georgian dishes before I pick an eatery"). When
+        // exactly ONE non-Michelin/non-special cuisine is selected, build the
+        // grouped order-plate from that cuisine's curated NATION_OVERLAY dishes
+        // (names) + touristExplainer, organised by food group (first 3
+        // headliners, then ascending-size sections — see dish-food-group.js).
+        // Cuisine-keyed, replacing the geo city plate client-side. Pure
+        // in-memory; no Places spend; fail-open.
+        let cuisineOrderPlate = null;
+        try {
+          const _cuiSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
+          if (!specialMode && _cuiSlugs.length === 1) {
+            const slug = _cuiSlugs[0];
+            const ov = require('./nation-overlay').getNationOverlay(slug);
+            if (ov && Array.isArray(ov.iconicDishes) && ov.iconicDishes.length) {
+              const { groupCuisineDishes } = require('./dish-food-group');
+              const grouped = groupCuisineDishes(ov.iconicDishes);
+              const label = slug.split('-').map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+              cuisineOrderPlate = {
+                mode: 'cuisine',
+                cuisineSlug: slug,
+                cuisineLabel: label,
+                flag: ov.flag || '',
+                explainer: ov.touristExplainer || null,
+                populationLow: ov.populationInSG === 'low',
+                headliners: grouped.headliners,
+                groups: grouped.groups,
+              };
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-Search] cuisine order-plate build failed (non-fatal):', err.message); }
         const payload = {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
+          ...(cuisineOrderPlate ? { cuisinePlate: cuisineOrderPlate } : {}),
           // v0.62.32 — set when the free text was a curated dish: tells the
           // TMA to render the Confirmed/Ask-first (E) split using each
           // venue's dishEvidence tag.
