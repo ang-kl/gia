@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-11",
-  "count": 976,
+  "generated": "2026-06-12",
+  "count": 990,
   "records": [
     {
       "pr": 1,
@@ -27868,6 +27868,443 @@
         "doc/vault"
       ],
       "title": "v0.62.27: Places cost — negative-cache failed Michelin lookups + 7d success TTL",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 990,
+      "status": "merged",
+      "merged": "2026-06-11 08:57:41",
+      "day": "2026-06-11",
+      "version": "0.62.28",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Vibe Coding Record refresh — PRs #965-#989 (951 → 976 records)",
+      "approach": "## What The per-PR doc-upkeep step (standing rule).",
+      "codeImpact": "11 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.28: Vibe Coding Record refresh — PRs #965-#989 (951 → 976 records)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 991,
+      "status": "merged",
+      "merged": "2026-06-11 09:58:04",
+      "day": "2026-06-11",
+      "version": "0.62.29",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: foodie discovery — evidence-verified national-dish Try fill",
+      "approach": "Operator: use **NATION_OVERLAY / COOKING_METHODS / CUISINE_FAMILY** in the cuisine recommendation so a foodie discovers unfamiliar-cuisine dishes (*\"as a Chinese — European new dishes or African national dishes; highly-rated restaurants…",
+      "codeImpact": "11 files — index.js, cuisine-family.js, discovery-dish.js, tests, doc, package, public/",
+      "modules": [
+        "tests",
+        "cuisine-family.js",
+        "discovery-dish.js",
+        "doc",
+        "index.js",
+        "package",
+        "public/"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.29: foodie discovery — evidence-verified national-dish Try fill",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 992,
+      "status": "merged",
+      "merged": "2026-06-11 12:12:11",
+      "day": "2026-06-11",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 993,
+      "status": "merged",
+      "merged": "2026-06-11 12:32:31",
+      "day": "2026-06-11",
+      "version": "0.62.30",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: location lock (explicit-pick latch) + Try-line patin tempoyak + D786 visibility",
+      "approach": "Operator: *\"we have problem again to lock the location.",
+      "codeImpact": "10 files — index.js, discovery-dish.js, nation-overlay.js, TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "discovery-dish.js",
+        "doc",
+        "index.js",
+        "nation-overlay.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.30: location lock (explicit-pick latch) + Try-line patin tempoyak + D786 visibility",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 994,
+      "status": "merged",
+      "merged": "2026-06-11 13:34:52",
+      "day": "2026-06-11",
+      "version": "0.62.31",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: hardening from the adversarial review of the last 8 PRs",
+      "approach": "Operator: *\"see the last 8 PR — can you do it better, explain.\"* Adversarial self-review of #978–#993 (every claim re-verified against code) found **3 confirmed defects + 4 weaknesses in my own shipped work**.",
+      "codeImpact": "17 files — index.js, discovery-dish.js, location-cache.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, package",
+      "modules": [
+        "tests",
+        "discovery-dish.js",
+        "doc",
+        "index.js",
+        "location-cache.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 17,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.31: hardening from the adversarial review of the last 8 PRs",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 995,
+      "status": "merged",
+      "merged": "2026-06-11 17:11:56",
+      "day": "2026-06-11",
+      "version": "0.62.32",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Cuisine Picker",
+      "intent": "Refactor: Arrival Plate — curated what-to-try per city, 📜 fact-cards, evidence-split dish results, dish-name geocode guard",
+      "approach": "## What The operator-approved **Arrival Plate** build (UI picks: Screen 1 = **A** compact collapsed banner, Screen 2 = **E** hard ✔ Confirmed / ?",
+      "codeImpact": "11 files — index.js, city-plates.js, discovery-dish.js, TMA:cuisine, tests, doc, package, instruction/",
+      "modules": [
+        "tests",
+        "city-plates.js",
+        "discovery-dish.js",
+        "doc",
+        "index.js",
+        "instruction/",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.32: Arrival Plate — curated what-to-try per city, 📜 fact-cards, evidence-split dish results, dish-name geocode guard",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 996,
+      "status": "merged",
+      "merged": "2026-06-11 17:39:09",
+      "day": "2026-06-11",
+      "version": "0.62.33",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Arrival Plate — wipe card synchronously on city switch + visibility-refresh plate sync",
+      "approach": "## What Fixes the operator's deployed-surface report on v0.62.32: *\"i switch from putrajaya to Hanoi, the what to try here is still the old dishes … the card should be wipe clean.\"* ## Root cause (two holes) 1.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.33: Arrival Plate — wipe card synchronously on city switch + visibility-refresh plate sync",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 997,
+      "status": "merged",
+      "merged": "2026-06-11 18:08:57",
+      "day": "2026-06-11",
+      "version": "0.62.34",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Menu hub",
+      "intent": "Add: D791 post-search location consistency check — re-push the committed pick when the server label drifts",
+      "approach": "## What Operator (VN>HCM screenshot): *\"After the result is displayed, should check if location is still set to the location.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.34: D791 post-search location consistency check — re-push the committed pick when the server label drifts",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 998,
+      "status": "merged",
+      "merged": "2026-06-11 18:24:36",
+      "day": "2026-06-11",
+      "version": "0.62.35",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: boot auto-detect respects labelled picks — kill the bare label-wiping set-location write",
+      "approach": "## What The operator's Railway log pinned the long-suspected first-load corruptor: three bare `[set-location] chat=… → 1.2722,103.8112` writes (label-less, region-less SG device coords) each **replacing** the labelled `\"Ho Chi Minh City\"…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.35: boot auto-detect respects labelled picks — kill the bare label-wiping set-location write",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 999,
+      "status": "merged",
+      "merged": "2026-06-11 18:41:37",
+      "day": "2026-06-11",
+      "version": "0.62.36",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Vietnam Arrival-Plate curation — 7 cities, 14 dishes, Tier-S sourced",
+      "approach": "## What The Vietnam curation pass (operator: *\"curate vn\"*) — same source-of-truth method as the original 14 cities: Tier-S government heritage first, local-language (vi) names, honest tiers, disputed origins name both claimants, `[TO…",
+      "codeImpact": "6 files — city-plates.js, tests, doc, package, instruction/",
+      "modules": [
+        "tests",
+        "city-plates.js",
+        "doc",
+        "instruction/",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.36: Vietnam Arrival-Plate curation — 7 cities, 14 dishes, Tier-S sourced",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1000,
+      "status": "merged",
+      "merged": "2026-06-11 19:20:51",
+      "day": "2026-06-11",
+      "version": "0.62.37",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: ⭐ Recommend filter — overlay classics on the Arrival Plate + post-search city-dish tie-in (D792)",
+      "approach": "## What Operator spec (3 messages): surface the overlay's depth (*\"so few… use the national_dish table and overlay table\"*) + a post-search tie-in to *\"both cuisine special dishes as well as cities' unique dishes\"* + *\"a checkbox…",
+      "codeImpact": "14 files — index.js, city-plates.js, discovery-dish.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "city-plates.js",
+        "discovery-dish.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.37: ⭐ Recommend filter — overlay classics on the Arrival Plate + post-search city-dish tie-in (D792)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1001,
+      "status": "merged",
+      "merged": "2026-06-11 22:06:48",
+      "day": "2026-06-11",
+      "version": "0.62.38",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: full curation pass — 105 new city entries (126 cities / 279 dish rows), local-language-first",
+      "approach": "## What The operator's full build-out: *\"build up the remaining count… unique dishes/dessert/way of eating per city, check back/validate sources, use authorised sources… primary focus is local-language first then english… don't leave out…",
+      "codeImpact": "7 files — city-plates.js, TMA:cuisine, tests, doc, package, instruction/",
+      "modules": [
+        "tests",
+        "city-plates.js",
+        "doc",
+        "instruction/",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.38: full curation pass — 105 new city entries (126 cities / 279 dish rows), local-language-first",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1002,
+      "status": "merged",
+      "merged": "2026-06-11 22:48:59",
+      "day": "2026-06-11",
+      "version": "0.62.39",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: vault/v0.62.37 snapshot (165 entries)",
+      "approach": "## What Commits the `vault/v0.62.37/` snapshot taken by the operator's `/fork vault` task — the full tree of merged main at v0.62.37 (165 entries, ~185 MB, `vault/` itself excluded), mirroring the `vault/v0.61.378` pattern.",
+      "codeImpact": "3 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.39: vault/v0.62.37 snapshot (165 entries)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1003,
+      "status": "merged",
+      "merged": "2026-06-11 23:00:14",
+      "day": "2026-06-11",
+      "version": "0.62.40",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word",
+      "approach": "## What Operator refinements from live-Hanoi screenshots (the v0.62.38 stack working in production): 1.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.40: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false

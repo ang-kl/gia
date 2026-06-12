@@ -452,6 +452,30 @@ export default function ResultPanel({
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
             </div>
           )}
+          {/* v0.62.37 — ⭐ Recommend summary (D792): how many of the visible
+              places serve one of this city's unique dishes. Only renders when
+              the server tagged venues (the ⭐ Recommend filter was on) and
+              this isn't a dish-search list (the E-split owns those). */}
+          {(() => {
+            const taggedVenues = cardsToShow.filter((v) => v && v.cityDish && v.cityDish.dish);
+            const tagged = taggedVenues.length;
+            const isDishList = cardsToShow.some((v) => v && v.dishEvidence !== undefined);
+            if (!tagged || isDishList) return null;
+            // v0.62.40 — operator: "we need to specify what local dish in the
+            // search results area." Name the distinct tagged dish(es) in the
+            // header instead of the generic "a local classic".
+            const dishes = [...new Set(taggedVenues.map((v) => v.cityDish.dish))];
+            const dishLabel = dishes.length <= 2
+              ? dishes.join(lang === 'fr' ? ' et ' : ' & ')
+              : `${dishes.slice(0, 2).join(', ')} +${dishes.length - 2}`;
+            return (
+              <div className="px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
+                {lang === 'fr'
+                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} ${tagged > 1 ? 'servent' : 'sert'} ${dishLabel}`
+                  : `⭐ ${tagged} of ${cardsToShow.length} places here serve ${dishLabel}`}
+              </div>
+            );
+          })()}
           {(() => {
             // v0.62.6 — Michelin city-grouped display (display layer only).
             // When the visible batch carries awardCity (Michelin, multi-city
@@ -497,8 +521,27 @@ export default function ResultPanel({
               // search never stamps awardCity.)
               const showFillDivider = v.recencyBand === 'fill'
                 && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
+              // v0.62.32 — Arrival Plate E-split (operator UI pick E): on a
+              // dish search the server stamps dishEvidence per venue
+              // ('name' | 'reviews' | null) and sorts confirmed-first. Render
+              // hard section headers — shape + words, never colour alone.
+              const hasEvidence = v.dishEvidence === 'name' || v.dishEvidence === 'reviews';
+              const prev = i > 0 ? cardsToShow[i - 1] : null;
+              const prevHasEvidence = prev && (prev.dishEvidence === 'name' || prev.dishEvidence === 'reviews');
+              const showConfirmedHeader = hasEvidence && i === 0;
+              const showAskFirstHeader = v.dishEvidence === null && (i === 0 || prevHasEvidence);
               return (
                 <React.Fragment key={v.placeId || i}>
+                  {showConfirmedHeader && (
+                    <div className="px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
+                      {lang === 'fr' ? '✔ Confirmé — les avis le mentionnent' : '✔ Confirmed — reviews mention it'}
+                    </div>
+                  )}
+                  {showAskFirstHeader && (
+                    <div className="px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20">
+                      {lang === 'fr' ? "? À vérifier — demandez s'ils le servent" : '? Ask first — check if they serve it'}
+                    </div>
+                  )}
                   {showFillDivider && (
                     <div className="px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20">
                       {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}

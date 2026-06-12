@@ -764,3 +764,17 @@
 987	doc/.serial-state.yml,doc/Journal/journal-0_62_23-11_06_26-1457.md,doc/Journal/journal-0_62_25-11_06_26-1522.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ResultPanel.jsx
 988	doc/.serial-state.yml,doc/Journal/journal-0_62_25-11_06_26-1522.md,doc/Journal/journal-0_62_26-11_06_26-1535.md,package.json,web/cuisine/src/v2/components/LocationField.jsx
 989	doc/.serial-state.yml,doc/Journal/journal-0_62_26-11_06_26-1535.md,doc/Journal/journal-0_62_27-11_06_26-1551.md,index.js,package.json
+990	doc/.serial-state.yml,doc/Journal/journal-0_62_27-11_06_26-1551.md,doc/Journal/journal-0_62_28-11_06_26-1643.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+991	__tests__/discovery-dish.test.js,cuisine-family.js,discovery-dish.js,doc/.serial-state.yml,doc/Journal/journal-0_62_29-11_06_26-1755.md,doc/SearchStrategy/data/search-modes.json,doc/SearchStrategy/search-strategy.md,index.js,package-lock.json,package.json,public/doc/search-strategy.html
+992	log/logs.1781179792568.json
+993	__tests__/discovery-dish.test.js,discovery-dish.js,doc/.serial-state.yml,doc/Journal/journal-0_62_30-11_06_26-2030.md,index.js,nation-overlay.js,package-lock.json,package.json,web/cuisine/src/v2/App.jsx,web/menu/src/App.jsx
+994	__tests__/discovery-dish.test.js,discovery-dish.js,doc/.serial-state.yml,doc/Journal/journal-0_62_31-11_06_26-2130.md,index.js,location-cache.js,package-lock.json,package.json,web/cuisine/src/styles.css,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/api.js,web/hawker/src/styles.css,web/menu/src/App.jsx,web/menu/src/i18n.js,web/menu/src/styles.css,web/oversight/src/styles.css,web/transport/src/styles.css
+995	__tests__/city-plates.test.js,city-plates.js,discovery-dish.js,doc/.serial-state.yml,doc/Journal/journal-0_62_32-12_06_26-0050.md,index.js,instruction/unique_dishes.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ArrivalPlate.jsx,web/cuisine/src/v2/components/ResultPanel.jsx
+996	doc/.serial-state.yml,doc/Journal/journal-0_62_33-12_06_26-0140.md,package.json,web/cuisine/src/v2/App.jsx
+997	doc/.serial-state.yml,doc/Journal/journal-0_62_34-12_06_26-0220.md,package.json,web/cuisine/src/v2/App.jsx
+998	doc/.serial-state.yml,doc/Journal/journal-0_62_35-12_06_26-0300.md,package.json,web/cuisine/src/v2/App.jsx
+999	__tests__/city-plates.test.js,city-plates.js,doc/.serial-state.yml,doc/Journal/journal-0_62_36-12_06_26-0340.md,instruction/unique_dishes.md,package.json
+1000	__tests__/city-plates.test.js,city-plates.js,discovery-dish.js,doc/.serial-state.yml,doc/Journal/journal-0_62_37-12_06_26-0410.md,index.js,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ArrivalPlate.jsx,web/cuisine/src/v2/components/QuickFilters.jsx,web/cuisine/src/v2/components/ResultCard.jsx,web/cuisine/src/v2/components/ResultPanel.jsx,web/cuisine/src/v2/lib/i18n.js,web/cuisine/src/v2/lib/state.js
+1001	__tests__/city-plates.test.js,city-plates.js,doc/.serial-state.yml,doc/Journal/journal-0_62_38-12_06_26-0540.md,instruction/unique_dishes.md,package.json,web/cuisine/src/v2/components/ArrivalPlate.jsx
+1002	doc/.serial-state.yml,doc/Journal/journal-0_62_39-12_06_26-0610.md,package.json
+1003	doc/.serial-state.yml,doc/Journal/journal-0_62_40-12_06_26-0640.md,package.json,web/cuisine/src/v2/components/ArrivalPlate.jsx,web/cuisine/src/v2/components/ResultPanel.jsx
