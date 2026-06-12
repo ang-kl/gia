@@ -76,7 +76,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
           <span className="flex-1">
             <b>{fr ? 'À commander en' : 'What to order in'} {title}:</b>{' '}
             {open
-              ? (fr ? 'touchez un plat pour le chercher' : 'tap a dish to search it')
+              ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
               : headliners.map((h) => h.dish).join(', ') + (groups.length ? '…' : '')}
           </span>
           <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
@@ -102,7 +102,6 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   >
                     <span className="font-medium">{d.dish}</span>
                     {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                    <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
                   </button>
                   {d.note && (
                     <button
@@ -206,7 +205,9 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
         <span aria-hidden>🍽</span>
         <span className="flex-1">
           <b>{fr ? 'À goûter ici' : 'What to try here'}:</b>{' '}
-          {open ? (fr ? 'touchez un plat pour le chercher' : 'tap a dish to search it') : names.join(', ')}
+          {open
+            ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
+            : names.join(', ')}
         </span>
         <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
       </button>
@@ -231,12 +232,15 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 >
                   <span className="font-medium">{d.dish}</span>
                   {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                  {/* v0.62.40 — operator: the tier word on the row "is
-                      meaningless; has to tap to list which eateries offer
-                      this dish". Row now shows the ACTION instead; the tier
-                      + claim stay inside the 📜 fact card where they have
-                      context. */}
-                  <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
+                  {/* v0.62.x — device-language gloss for native dish names
+                      (operator: translate/explain e.g. "Phở Hà Nội" →
+                      "Hanoi beef noodle soup"). Curated short {en,fr} in
+                      city-plates.js; the long history stays in the 📜 card.
+                      The per-row "find eateries" affordance was removed — the
+                      header now explains the tap action once. */}
+                  {d.gloss && (d.gloss.en || d.gloss.fr) && (
+                    <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
+                  )}
                 </button>
                 <button
                   type="button"

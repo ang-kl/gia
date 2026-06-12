@@ -59,7 +59,10 @@ const LABELS = {
 const PRIORITY = ['instagram', 'tiktok', 'facebook', 'x', 'youtube', 'threads'];
 const MAX_BUTTONS = 3;
 
-export default function SocialButtons({ profiles }) {
+// v0.62.x — `bare`: when set, return just the brand buttons (no wrapper
+// <div>) so the parent can place them on the SAME row as the Maps/Copy
+// buttons (operator). Default keeps the standalone row for back-compat.
+export default function SocialButtons({ profiles, bare = false }) {
   if (!profiles || typeof profiles !== 'object') return null;
   const picks = [];
   for (const key of PRIORITY) {
@@ -79,20 +82,19 @@ export default function SocialButtons({ profiles }) {
     }
   }
 
-  return (
-    <div className="flex gap-1.5 mt-1">
-      {picks.map(({ network, url }) => (
-        <button
-          key={network}
-          type="button"
-          onClick={(e) => open(e, url)}
-          aria-label={LABELS[network]}
-          title={LABELS[network]}
-          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg flex items-center justify-center"
-        >
-          {ICONS[network]}
-        </button>
-      ))}
-    </div>
-  );
+  const buttons = picks.map(({ network, url }) => (
+    <button
+      key={network}
+      type="button"
+      onClick={(e) => open(e, url)}
+      aria-label={LABELS[network]}
+      title={LABELS[network]}
+      className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg flex items-center justify-center"
+    >
+      {ICONS[network]}
+    </button>
+  ));
+
+  if (bare) return <>{buttons}</>;
+  return <div className="flex gap-1.5 mt-1">{buttons}</div>;
 }
