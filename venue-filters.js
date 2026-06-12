@@ -166,30 +166,24 @@ function isRainSensitiveVenue(v) {
 //     a thin area with no such venues falls back to the input → >0).
 const RATING_FLOOR = 3.7;
 const RATING_FLOOR_EXEMPT_MAX_REVIEWS = 5;
-// "New / unreviewed" proxy for the unrated-only mode. A venue with fewer
-// than this many Google reviews has no settled rating yet — it's effectively
-// new, regardless of whatever provisional rating it shows. Broader than the
-// floor's 5-review exemption because here we WANT to surface the new ones,
-// not merely spare them from the floor.
-const UNRATED_MODE_MAX_REVIEWS = 10;
 function applyRatingFloor(venues, opts = {}) {
   if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
   const mode = opts.mode || 'floor';
   // "any rating" — operator's no-minimum mode. Keep everything.
   if (mode === 'off' || mode === 'any') return venues;
-  // "No rating" — operator's new-or-unrated mode. Keep venues with no
-  // Google rating (null / 0) OR that are new / barely-reviewed (few
-  // reviews, even if a provisional rating > 0 shows). Guarded: never empty
-  // the list (a thin area with none falls back to the input → still >0).
+  // "Unrated" — operator: "New or no reviews yet". Keep ONLY venues with no
+  // Google star rating yet. v0.62.x bugfix: the prior version also kept
+  // barely-reviewed venues that DID show a star rating (< UNRATED_MODE_MAX_
+  // REVIEWS), and fell back to the FULL (rated) list when none were unrated —
+  // so "Unrated" surfaced rated restaurants (operator: "I select 'no ratings'
+  // but two restaurants with ratings appear"). Now strict: a venue with any
+  // star rating > 0 is excluded, and an empty result stays empty (honest) —
+  // never a fallback to the rated set.
   if (mode === 'unrated') {
-    const newOrUnrated = venues.filter((v) => {
+    return venues.filter((v) => {
       const r = Number(v && v.rating);
-      if (!Number.isFinite(r) || r <= 0) return true;                  // null / no rating
-      const n = Number(v && v.userRatingCount);
-      if (Number.isFinite(n) && n < UNRATED_MODE_MAX_REVIEWS) return true; // new / barely-reviewed
-      return false;
+      return !Number.isFinite(r) || r <= 0;   // no Google star rating
     });
-    return newOrUnrated.length ? newOrUnrated : venues;
   }
   // 'floor' (default) — guarded ≥floor with unrated/few-review exemptions.
   const floor = Number.isFinite(opts.floor) ? opts.floor : RATING_FLOOR;

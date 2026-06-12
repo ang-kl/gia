@@ -1,0 +1,100 @@
+name: Auto Fetch Railway Logs
+
+# Operator (12-06 '26): collect prod logs every 15 minutes into logs/ so a
+# "location drift" report from ANY ChatID can be reconstructed (pairs with the
+# default-on [LocDrift] telemetry in index.js). Uses the Railway public GraphQL
+# API (backboard) with secrets.RAILWAY_API_KEY.
+#
+# NOTE: scheduled workflows only run from the DEFAULT branch (main), so this is
+# inert on PR branches until merged.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'    # every 15 minutes (UTC)
+  workflow_dispatch:           # manual run from the Actions tab (use this to test)
+
+permissions:
+  contents: write              # the job commits the fetched log file back to main
+
+concurrency:
+  group: fetch-logs            # never let two fetches race the push
+  cancel-in-progress: false
+
+env:
+  RAILWAY_API: https://backboard.railway.com/graphql/v2
+  PROJECT_ID: 5fc70f51-c629-4d1b-861c-56ad81071d20
+  ENVIRONMENT_ID: cdfa2ad0-259b-4631-9dda-cd761d45e5ae
+  # Cuisine/Express app service (emits [Cuisine-Search] / [set-location] /
+  # [LocDrift]). Swap for another serviceId to capture a different service.
+  SERVICE_ID: f9a39516-757d-4698-a32e-dc9de7b6e5a0
+  WINDOW_MIN: 20               # minutes back to fetch (slight overlap absorbs cron jitter)
+
+jobs:
+  fetch-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Calculate time window
+        id: time
+        run: |
+          UNTIL_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          SINCE_TIME=$(date -u -d "${WINDOW_MIN} minutes ago" +"%Y-%m-%dT%H:%M:%SZ")
+          STAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")   # colon-free for the filename
+          {
+            echo "since=$SINCE_TIME"
+            echo "until=$UNTIL_TIME"
+            echo "file=logs/log-${STAMP}.json"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Fetch logs from Railway
+        id: fetch
+        env:
+          RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RAILWAY_API_KEY:-}" ]; then
+            echo "RAILWAY_API_KEY not set — skipping (add it in repo Settings → Secrets)."
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          mkdir -p logs
+
+          # 1) Resolve the service's latest deployment id (it changes per deploy).
+          DEP_BODY=$(jq -n --arg pid "$PROJECT_ID" --arg eid "$ENVIRONMENT_ID" --arg sid "$SERVICE_ID" \
+            '{query:"query($input: DeploymentListInput!){deployments(first:1,input:$input){edges{node{id status}}}}",
+              variables:{input:{projectId:$pid,environmentId:$eid,serviceId:$sid}}}')
+          DEP_RESP=$(curl -sS --max-time 60 -X POST "$RAILWAY_API" \
+            -H "Authorization: Bearer $RAILWAY_API_KEY" -H "Content-Type: application/json" \
+            --data "$DEP_BODY")
+          DID=$(echo "$DEP_RESP" | jq -r '.data.deployments.edges[0].node.id // empty')
+          if [ -z "$DID" ]; then
+            echo "Could not resolve deployment id. API said:"; echo "$DEP_RESP"
+            exit 1
+          fi
+          echo "Latest deployment: $DID"
+
+          # 2) Fetch that deployment's logs within the window.
+          LOG_BODY=$(jq -n --arg did "$DID" --arg s "${{ steps.time.outputs.since }}" --arg e "${{ steps.time.outputs.until }}" \
+            '{query:"query($d:String!,$s:DateTime,$e:DateTime){deploymentLogs(deploymentId:$d,startDate:$s,endDate:$e,limit:5000){timestamp message severity tags{deploymentId serviceId}}}",
+              variables:{d:$did,s:$s,e:$e}}')
+          curl -sS --max-time 90 -X POST "$RAILWAY_API" \
+            -H "Authorization: Bearer $RAILWAY_API_KEY" -H "Content-Type: application/json" \
+            --data "$LOG_BODY" > "${{ steps.time.outputs.file }}"
+
+          ROWS=$(jq -r '.data.deploymentLogs | length // 0' "${{ steps.time.outputs.file }}" 2>/dev/null || echo 0)
+          echo "Fetched $ROWS log rows into ${{ steps.time.outputs.file }}"
+          echo "rows=$ROWS" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push logs
+        if: steps.fetch.outputs.skip != '1' && steps.fetch.outputs.rows != '0'
+        run: |
+          set -euo pipefail
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add "${{ steps.time.outputs.file }}"
+          git commit -m "logs: ${{ steps.time.outputs.since }} → ${{ steps.time.outputs.until }} (service ${SERVICE_ID})"
+          git pull --rebase --autostash origin main
+          git push origin main
