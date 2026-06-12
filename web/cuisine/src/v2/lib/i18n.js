@@ -197,6 +197,7 @@ const STRINGS = {
 
   // ----- Rating pill + panel (v0.61.426) -----
   'rating.title':              { en: 'Minimum rating', fr: 'Note minimale' },
+  'rating.refineHeader':       { en: 'Refine Google Rating', fr: 'Affiner la note Google' },
   'rating.openPanel':          { en: 'Open rating options', fr: 'Ouvrir les options de note' },
   'rating.closePanel':         { en: 'Close rating options', fr: 'Fermer les options de note' },
   'rating.noRating':           { en: 'Unrated', fr: 'Non noté' },
