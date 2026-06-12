@@ -216,6 +216,10 @@ const STRINGS = {
                                  fr: 'Aucune correspondance pour cette combinaison cuisine + filtre — retirez un filtre ou une cuisine.' },
   'zero.noVenuesNearby':       { en: 'No rated places found nearby — try a wider area or a different spot.',
                                  fr: 'Aucun lieu noté à proximité — élargissez la zone ou changez d’endroit.' },
+  // v0.62.x item 10 — honest-empty for a tapped dish: nothing nearby has
+  // verified evidence of serving it (after the distance + off-cuisine gate).
+  'zero.dishNoSpot':           { en: 'No spot nearby has verified evidence of this dish — try another dish, or search a city where the cuisine is common.',
+                                 fr: 'Aucun établissement à proximité n’a de preuve vérifiée de ce plat — essayez un autre plat ou une ville où cette cuisine est courante.' },
   // ----- Michelin zero/miss notices (v0.61.437) -----
   'michelin.noList':           { en: 'No Michelin Guide covers this country yet — pick another country or deselect ✳️ Michelin.',
                                  fr: "Aucun Guide Michelin ne couvre encore ce pays — choisissez un autre pays ou désélectionnez ✳️ Michelin." },

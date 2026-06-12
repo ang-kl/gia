@@ -2168,7 +2168,9 @@ export default function App() {
         }
         const zr = r.zeroReason;
         setZeroReasonKey(
-          (zr === 'all-seen-criteria' || zr === 'all-seen-session') ? 'zero.allSeen'
+          // v0.62.x item 10 — a tapped dish gated to empty wins the message.
+          r.dishSearchEmpty ? 'zero.dishNoSpot'
+          : (zr === 'all-seen-criteria' || zr === 'all-seen-session') ? 'zero.allSeen'
           : (zr === 'no-venues-nearby') ? 'zero.noVenuesNearby'
           : (zr === 'no-match-criteria' || zr === 'filtered') ? 'zero.noMatchCriteria'
           : null
