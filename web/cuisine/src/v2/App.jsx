@@ -2941,8 +2941,8 @@ export default function App() {
           </div>
           <div className="text-[13px] text-tg-hint leading-snug mb-4">
             {frr
-              ? 'Cette page doit être lancée depuis le bot Telegram (bouton de menu). Le lien direct / la session expirée ne sont pas authentifiés.'
-              : "This page must be launched from the Telegram bot (its menu button). A direct link or an expired session isn't signed in."}
+              ? "Impossible de vérifier votre session Telegram. Relancez Soleat depuis le bouton de menu du bot, ou réessayez dans un instant. (Si le problème persiste pour tout le monde, c'est côté serveur — prévenez-nous.)"
+              : "Couldn't verify your Telegram session. Reopen Soleat from the bot's menu button, or try again in a moment. (If this is happening for everyone, it's a server-side issue — let us know.)"}
           </div>
           <button
             type="button"

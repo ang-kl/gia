@@ -123,6 +123,15 @@ const useWebhook = Boolean(webhookDomain);
 const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || crypto.randomBytes(16).toString('hex');
 
 // 1. Setup Clients
+// v0.62.x — operator outage ("bot down for everyone"): a missing/blank
+// TELEGRAM_BOT_TOKEN makes the bot fail to connect AND every TMA initData
+// verification 401 (twa-auth needs the same token to recompute the HMAC). Log
+// it LOUDLY at boot so the root cause is one glance at the Railway logs, not an
+// investigation. (A WRONG token still surfaces as node-telegram-bot-api
+// polling_error / webhook 401 via the handlers below.)
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  console.error('[BOOT] FATAL: TELEGRAM_BOT_TOKEN is not set — the bot cannot connect to Telegram and EVERY Mini App call will return 401 (twa-auth). Set TELEGRAM_BOT_TOKEN in the environment and redeploy.');
+}
 const bot = new TelegramBot(
   process.env.TELEGRAM_BOT_TOKEN,
   useWebhook ? {} : { polling: true }
