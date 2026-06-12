@@ -20,6 +20,9 @@
 // Lazy-required inside platesNear: place-search-variance pulls axios at load
 // time; this module stays a pure data registry until geo lookup is needed.
 let _nearestCityForAnchor = null;
+// Lazy-required in platesForCity to group the "More local classics" by food
+// group (v0.62.x — "group the whole city plate").
+let _dishFoodGroup = null;
 
 // How close (km) the anchor must be to the city centroid for the plate to
 // show. Generous metro scale; Putrajaya↔KL are ~25 km apart so 25 keeps
@@ -5388,7 +5391,21 @@ function platesForCity(cityName) {
   const entry = CITY_PLATES[cityName];
   if (!entry) return null;
   const classics = _classicsForEntry(entry);
-  return { city: cityName, ...entry, ...(classics ? { classics } : {}) };
+  // v0.62.x — group the long "More local classics" list into ascending food-group
+  // sections (the city-unique `dishes` above stay as the headliner rows). Fail-open.
+  let classicGroups = null;
+  if (classics) {
+    try {
+      if (!_dishFoodGroup) _dishFoodGroup = require('./dish-food-group');
+      const g = _dishFoodGroup.groupDishNames(classics);
+      if (Array.isArray(g) && g.length) classicGroups = g;
+    } catch { classicGroups = null; }
+  }
+  return {
+    city: cityName, ...entry,
+    ...(classics ? { classics } : {}),
+    ...(classicGroups ? { classicGroups } : {}),
+  };
 }
 
 // platesNear(lat,lng) → plate of the nearest curated city within PLATE_MATCH_KM,

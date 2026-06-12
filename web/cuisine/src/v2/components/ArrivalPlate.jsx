@@ -272,7 +272,9 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
           {/* v0.62.37 — "More local classics" (operator pick A): the country's
               NATION_OVERLAY iconic dishes, names only — no 📜 (curated-only
               rule). Labelled by COUNTRY, honestly — these are national, not
-              city-unique. Tap a chip → the same dish search as the rows. */}
+              city-unique. Tap a chip → the same dish search as the rows.
+              v0.62.x — grouped into ascending food-group sections server-side
+              (plate.classicGroups) so a long list reads organised, not a wall. */}
           {Array.isArray(plate.classics) && plate.classics.length > 0 && (() => {
             const cl = (COUNTRY_LABEL[plate.country] || {})[fr ? 'fr' : 'en'] || plate.country;
             return (
@@ -289,7 +291,32 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     <span className="text-tg-hint"> ({plate.classics.length})</span>
                   </span>
                 </button>
-                {classicsOpen && (
+                {/* v0.62.x — "group the whole city plate": when the server has
+                    grouped the classics by food group (plate.classicGroups), show
+                    ascending-size labelled sections; else fall back to the flat
+                    chip wall (back-compat / overlay-less countries). */}
+                {classicsOpen && Array.isArray(plate.classicGroups) && plate.classicGroups.length > 0 ? (
+                  <div className="max-h-72 overflow-y-auto pb-2">
+                    {plate.classicGroups.map((g) => (
+                      <div key={g.group} className="pt-1 pb-0.5">
+                        <div className="text-tg-hint text-[11px] pb-1">
+                          {(fr ? g.label.fr : g.label.en)} <span className="opacity-70">({g.dishes.length})</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {g.dishes.map((d) => (
+                            <button
+                              key={d.dish}
+                              type="button"
+                              className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
+                              aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
+                              onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                            >{d.dish}</button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : classicsOpen && (
                   <div className="max-h-64 overflow-y-auto pb-2 flex flex-wrap gap-1.5">
                     {plate.classics.map((name) => (
                       <button
