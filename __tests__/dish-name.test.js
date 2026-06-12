@@ -67,3 +67,25 @@ describe('CATEGORY_RE', () => {
     expect(CATEGORY_RE.test('Dessert Platter')).toBe(false);
   });
 });
+
+// v0.62.x — operator (Hanoi/VN Michelin screenshot): vague LLM marketing
+// phrases leaked onto the Try line. They must be rejected as non-dishes…
+describe('isDishName — rejects vague marketing-descriptor phrases (item 9)', () => {
+  for (const bad of [
+    'Northern Vietnamese heritage set menu',
+    'Nostalgic regional speciality',
+    'Seasonal northern Vietnamese course',
+    'Southern Vietnamese street snack plate',
+    'Curated tasting menu',
+    'Chef selection',
+  ]) {
+    it(`rejects "${bad}"`, () => expect(isDishName(bad)).toBe(false));
+  }
+  // …while genuine dish names that merely look long stay valid.
+  for (const ok of [
+    'Bánh xèo', 'Phở Hà Nội', 'Fish Head Curry', 'Dessert Platter',
+    'Combo Set', 'Hainanese chicken rice', 'Char kway teow',
+  ]) {
+    it(`keeps "${ok}"`, () => expect(isDishName(ok)).toBe(true));
+  }
+});

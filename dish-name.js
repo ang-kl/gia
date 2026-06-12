@@ -39,6 +39,17 @@ const CATEGORY_WORDS = [
 ];
 const CATEGORY_RE = new RegExp(`^(?:${CATEGORY_WORDS.join('|')})$`, 'i');
 
+// v0.62.x — vague marketing / category PHRASES that read as a description,
+// not a dish NAME. Operator screenshot (Hanoi/VN Michelin): the Try line
+// surfaced LLM filler like "Northern Vietnamese heritage set menu",
+// "Nostalgic regional speciality", "Seasonal northern Vietnamese course",
+// "Southern Vietnamese street snack plate" — 35–38 chars, multi-word, so
+// they slipped past CATEGORY_RE (bare-word only) and the 40-char cap. These
+// markers never appear in a genuine dish name, so a substring hit rejects
+// the candidate. Tuned to spare real items ("Combo Set", "Dessert Platter",
+// "Fish Head Curry" — none contain these markers).
+const DESCRIPTOR_RE = /\b(?:heritage|nostalgic|seasonal|artisanal|regional|degustation|special(?:i?ty|ities)|offerings?)\b|\b(?:set|tasting|degustation)\s+menu\b|\bstreet\s+(?:food|snack|eats)\b|\bsnack\s+plate\b|\b(?:course|courses|fare|selection|spread)\b/i;
+
 // A candidate whose LAST token is a connector / stop-word is a
 // captured sentence fragment ("desserts which", "the chicken was",
 // "Restaurant Fiz and what"), not a dish name. v0.60.222 — added the
@@ -48,12 +59,13 @@ const TRAILING_STOPWORD_RE = /\b(which|that|what|whats|why|how|who|whom|whose|wa
 
 // True when `s` is a plausible dish / dessert NAME fit for a "Try"
 // line. Length-bounded (3–40 chars), not a bare category word, not a
-// trailing-stop-word fragment.
+// vague marketing-descriptor phrase, not a trailing-stop-word fragment.
 function isDishName(s) {
   if (typeof s !== 'string') return false;
   const t = s.trim();
   if (t.length < 3 || t.length > 40) return false;
   if (CATEGORY_RE.test(t)) return false;
+  if (DESCRIPTOR_RE.test(t)) return false;
   if (TRAILING_STOPWORD_RE.test(t)) return false;
   return true;
 }
@@ -64,4 +76,4 @@ function filterDishNames(arr) {
   return (Array.isArray(arr) ? arr : []).filter(isDishName);
 }
 
-module.exports = { isDishName, filterDishNames, CATEGORY_RE, CATEGORY_WORDS };
+module.exports = { isDishName, filterDishNames, CATEGORY_RE, CATEGORY_WORDS, DESCRIPTOR_RE };

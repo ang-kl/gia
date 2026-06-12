@@ -79,7 +79,7 @@ const { runHealthCheck } = require('./ver');
 // v0.60.209 — shared dish-name guard. Single source of truth for the
 // "is this a real dish/dessert name?" criteria behind every "Try"
 // line (Cuisine TMA, Copy, Copy to, /s, free-text).
-const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE } = require('./dish-name');
+const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE, DESCRIPTOR_RE: DISH_DESCRIPTOR_RE } = require('./dish-name');
 const weather = require('./weather');
 const carpark = require('./carpark');
 const transport = require('./transport');
@@ -9987,7 +9987,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           if (typeof s !== 'string') return false;
           const t = s.trim();
           if (t.length < 3 || t.length > 40) return false;
-          return !MICH_CATEGORY_BLOCK.test(t);
+          // v0.62.x — also reject vague marketing-descriptor phrases
+          // ("Northern Vietnamese heritage set menu", "Seasonal … course")
+          // the LLM narration sometimes returns instead of a real dish name.
+          return !MICH_CATEGORY_BLOCK.test(t) && !DISH_DESCRIPTOR_RE.test(t);
         };
         for (const v of needsNarrate) {
           const n = narrated[v.placeId];
