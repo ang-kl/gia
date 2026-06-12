@@ -127,14 +127,37 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 )}
               </React.Fragment>
             ))}
-            {/* food-group sections, ascending size; dish chips → same search */}
-            {groups.map((g) => (
+            {/* food-group sections, ascending size; dish chips → same search.
+                v0.62.x Phase 2b — chips whose dish carries a curated `note`
+                become a SPLIT chip: name → search, 📜 → fact card rendered
+                full-width under the section (factIdx keyed group:dish). */}
+            {groups.map((g) => {
+              const openDish = g.dishes.find((d) => d.note && factIdx === g.group + ':' + d.dish);
+              return (
               <div key={g.group} className="border-t border-tg-border/40 pt-1.5 pb-1">
                 <div className="text-tg-hint text-[11px] pb-1">
                   {(fr ? g.label.fr : g.label.en)} <span className="opacity-70">({g.dishes.length})</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {g.dishes.map((d) => (
+                  {g.dishes.map((d) => d.note ? (
+                    <span key={d.dish} className="inline-flex items-stretch rounded-xl border border-tg-hint/40 overflow-hidden">
+                      <button
+                        type="button"
+                        className="min-h-[40px] pl-2.5 pr-1.5 text-left"
+                        aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
+                        onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                      >
+                        <span>{d.dish}</span>
+                        {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                      </button>
+                      <button
+                        type="button"
+                        className="min-h-[40px] px-2 border-l border-tg-hint/30 text-[13px]"
+                        aria-label={(fr ? 'Histoire de ' : 'History of ') + d.dish}
+                        onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
+                      >📜</button>
+                    </span>
+                  ) : (
                     <button
                       key={d.dish}
                       type="button"
@@ -147,8 +170,20 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     </button>
                   ))}
                 </div>
+                {openDish && (
+                  <button
+                    type="button"
+                    className="w-full text-left mt-1.5 mb-0.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2"
+                    aria-label={fr ? 'Fermer' : 'Close'}
+                    onClick={() => setFactIdx(null)}
+                  >
+                    <div className="font-semibold">📜 {openDish.dish}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
+                    <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
+                    <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
+                  </button>
+                )}
               </div>
-            ))}
+            );})}
           </div>
         )}
       </div>

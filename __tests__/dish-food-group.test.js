@@ -102,6 +102,18 @@ describe('integration — real curated cuisines', () => {
     expect(slugs).toContain('noodles');
     expect(headliners.length + groups.flatMap((g) => g.dishes).length).toBe(ov.iconicDishes.length);
   });
+  it('Japanese Phase 2b: native `local` on every dish; chip-level notes carry', () => {
+    const ov = getNationOverlay('japanese');
+    for (const d of ov.iconicDishes) expect(d.local, d.name).toBeTruthy();
+    const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);
+    expect(headliners[0].local).toBe('寿司');
+    expect(headliners[0].note && headliners[0].note.en).toBeTruthy();
+    // a non-headliner with a curated note keeps it on the chip (drives the split-chip 📜)
+    const all = groups.flatMap((g) => g.dishes);
+    const tako = all.find((d) => d.dish === 'takoyaki');
+    expect(tako && tako.local).toBe('たこ焼き');
+    expect(tako && tako.note && tako.note.fr).toContain('Osaka');
+  });
   it('Singaporean (164 dishes): "other" stays a small minority', () => {
     const ov = getNationOverlay('singaporean');
     const { groups } = groupCuisineDishes(ov.iconicDishes);

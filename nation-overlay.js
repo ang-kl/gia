@@ -646,37 +646,66 @@ const NATION_OVERLAY = {
     aliases: ['japanese', 'japan', 'nihon', 'nippon', 'jp', 'washoku'],
     populationInSG: 'high',
 
+    // v0.62.x Phase 2b — second fully-curated cuisine (after Georgian): native
+    // Japanese `local` on every dish + one-line `note` histories on the
+    // headliners and best-known dishes (the per-dish 📜 card on the plate).
     iconicDishes: [
-      F('sushi'),                                                 // umbrella — nigiri, maki, gunkan, chirashi
-      F('sashimi'),
-      F('omakase'),                                               // chef-choice tasting menu
-      F('chirashi don'),
-      F('tonkotsu ramen'),                                        // pork-bone broth, Hakata-Fukuoka style
-      F('miso ramen'),                                            // miso-based broth, Sapporo origin
-      F('shio ramen'),                                            // salt broth, light + clear
-      F('tsukemen'),                                              // dipping ramen
-      F('tempura'),
-      F('tonkatsu'),                                              // breaded pork cutlet
-      F('chicken katsu'),
-      F('katsu curry'),
-      F('japanese curry rice'),
-      F('gyoza'),                                                 // pan-fried dumpling
-      F('takoyaki'),                                              // octopus balls, Osaka street food
-      F('okonomiyaki'),                                           // savoury pancake, Hiroshima/Osaka variants
-      F('yakitori'),                                              // grilled chicken skewers
-      F('yakiniku'),                                              // grilled meat (Korean-Japanese)
-      F('shabu shabu'),                                           // hot pot
-      F('sukiyaki'),                                              // sweet soy hot pot
-      F('unagi don'),                                             // grilled eel rice bowl
-      F('oyakodon'),                                              // chicken + egg rice bowl
-      F('katsudon'),                                              // pork katsu + egg rice bowl
-      F('gyudon'),                                                // beef rice bowl
-      F('soba'),                                                  // buckwheat noodle, hot or cold
-      F('udon'),                                                  // thick wheat noodle
-      F('onigiri'),                                               // rice ball
-      F('mochi'),                                                 // glutinous rice cake (incl. daifuku)
-      D('sake',                        []),                        // rice wine
-      D('matcha',                      [])                         // powdered green tea
+      F('sushi', [], { local: '寿司', note: {                      // umbrella — nigiri, maki, gunkan, chirashi
+        en: 'Vinegared rice paired with seafood — born as Edo-period street fast food (nigiri, Tokyo, ~1820s). Umbrella for nigiri, maki, gunkan and chirashi.',
+        fr: 'Riz vinaigré marié aux produits de la mer — né street food de l’époque d’Edo (nigiri, Tokyo, ~1820). Terme-parapluie : nigiri, maki, gunkan, chirashi.' } }),
+      F('sashimi', [], { local: '刺身', note: {
+        en: 'Sliced raw fish served without rice — the knife-work, the cut and the day’s freshness ARE the dish; soy and wasabi only support.',
+        fr: 'Poisson cru tranché servi sans riz — le travail du couteau, la coupe et la fraîcheur du jour SONT le plat ; soja et wasabi en simple soutien.' } }),
+      F('omakase', [], { local: 'おまかせ', note: {                 // chef-choice tasting menu
+        en: '"I leave it to you" — a chef’s-choice progression at the counter, built on the morning’s market. Trusting the itamae is the point.',
+        fr: '« Je m’en remets à vous » — un menu au comptoir composé par le chef selon le marché du matin. Faire confiance à l’itamae, c’est tout le propos.' } }),
+      F('chirashi don', [], { local: 'ちらし丼' }),
+      F('tonkotsu ramen', [], { local: '豚骨ラーメン', note: {      // pork-bone broth, Hakata-Fukuoka style
+        en: 'Pork bones boiled for hours into a milky, collagen-rich broth — Hakata (Fukuoka) style, thin straight noodles, kaedama noodle refills.',
+        fr: 'Os de porc bouillis des heures en un bouillon laiteux riche en collagène — style Hakata (Fukuoka), nouilles fines et droites, resucée kaedama.' } }),
+      F('miso ramen', [], { local: '味噌ラーメン' }),               // miso-based broth, Sapporo origin
+      F('shio ramen', [], { local: '塩ラーメン' }),                 // salt broth, light + clear
+      F('tsukemen', [], { local: 'つけ麺' }),                       // dipping ramen
+      F('tempura', [], { local: '天ぷら', note: {
+        en: 'Frying arrived with the Portuguese (16th c.); Edo street stalls refined it into a feather-light batter flash-fried over sesame oil.',
+        fr: 'La friture est arrivée avec les Portugais (XVIᵉ s.) ; les échoppes d’Edo l’ont raffinée en une pâte aérienne saisie à l’huile de sésame.' } }),
+      F('tonkatsu', [], { local: 'とんかつ' }),                     // breaded pork cutlet
+      F('chicken katsu', [], { local: 'チキンカツ' }),
+      F('katsu curry', [], { local: 'カツカレー' }),
+      F('japanese curry rice', [], { local: 'カレーライス' }),
+      F('gyoza', [], { local: '餃子' }),                            // pan-fried dumpling
+      F('takoyaki', [], { local: 'たこ焼き', note: {                // octopus balls, Osaka street food
+        en: 'Osaka street food (Endō Aizō, 1935): molten wheat-batter balls around octopus, flipped with a pick, brushed with sauce, mayo and dancing bonito flakes.',
+        fr: 'Street food d’Osaka (Endō Aizō, 1935) : billes de pâte fondantes autour de poulpe, retournées au pic, nappées de sauce, mayo et copeaux de bonite dansants.' } }),
+      F('okonomiyaki', [], { local: 'お好み焼き', note: {           // savoury pancake, Hiroshima/Osaka variants
+        en: '"Grill what you like" — the savoury cabbage pancake. Osaka mixes everything into the batter; Hiroshima layers it, noodles included.',
+        fr: '« Grillez ce qui vous plaît » — la crêpe salée au chou. Osaka mélange tout à la pâte ; Hiroshima superpose, nouilles comprises.' } }),
+      F('yakitori', [], { local: '焼き鳥', note: {                  // grilled chicken skewers
+        en: 'Chicken skewered cut by cut — thigh, skin, meatball (tsukune), even cartilage — grilled over binchotan charcoal, seasoned shio (salt) or tare (glaze).',
+        fr: 'Poulet embroché morceau par morceau — cuisse, peau, boulette (tsukune), même cartilage — grillé au charbon binchotan, assaisonné shio (sel) ou tare (laque).' } }),
+      F('yakiniku', [], { local: '焼肉' }),                         // grilled meat (Korean-Japanese)
+      F('shabu shabu', [], { local: 'しゃぶしゃぶ' }),              // hot pot
+      F('sukiyaki', [], { local: 'すき焼き', note: {                // sweet soy hot pot
+        en: 'Thin-sliced beef seared tableside in sweet soy warishita, then dipped in raw egg — the dish that taught Meiji-era Japan to eat beef.',
+        fr: 'Fines tranches de bœuf saisies à table dans le warishita soja-sucré, puis trempées dans l’œuf cru — le plat qui a appris au Japon de Meiji à manger du bœuf.' } }),
+      F('unagi don', [], { local: 'うな丼' }),                      // grilled eel rice bowl
+      F('oyakodon', [], { local: '親子丼', note: {                  // chicken + egg rice bowl
+        en: 'The "parent-and-child bowl": chicken and egg simmered together in sweet dashi over rice — codified at Tamahide, Tokyo, 1891.',
+        fr: 'Le « bol parent-enfant » : poulet et œuf mijotés ensemble dans un dashi sucré sur riz — codifié chez Tamahide, Tokyo, 1891.' } }),
+      F('katsudon', [], { local: 'カツ丼' }),                       // pork katsu + egg rice bowl
+      F('gyudon', [], { local: '牛丼' }),                           // beef rice bowl
+      F('soba', [], { local: '蕎麦', note: {                        // buckwheat noodle, hot or cold
+        en: 'Buckwheat noodles, Edo’s everyday meal — hot in broth or chilled on a zaru tray with dipping sauce. Slurping is correct form.',
+        fr: 'Nouilles de sarrasin, le quotidien d’Edo — chaudes en bouillon ou froides sur claie zaru avec sauce. Aspirer bruyamment est la bonne manière.' } }),
+      F('udon', [], { local: 'うどん' }),                           // thick wheat noodle
+      F('onigiri', [], { local: 'おにぎり' }),                      // rice ball
+      F('mochi', [], { local: '餅' }),                              // glutinous rice cake (incl. daifuku)
+      D('sake', [], { local: '日本酒', note: {                      // rice wine
+        en: 'Brewed (not distilled) rice wine, graded by how far the rice is polished — junmai, ginjō, daiginjō. Served warm or chilled by style.',
+        fr: 'Alcool de riz brassé (non distillé), classé selon le polissage du riz — junmai, ginjō, daiginjō. Servi tiède ou frais selon le style.' } }),
+      D('matcha', [], { local: '抹茶', note: {                      // powdered green tea
+        en: 'Shade-grown tea leaves stone-ground to powder and whisked with hot water — the heart of the tea ceremony, long before it was a latte.',
+        fr: 'Feuilles de thé d’ombre moulues à la pierre et fouettées à l’eau chaude — le cœur de la cérémonie du thé, bien avant le latte.' } })
     ],
 
     sharedWithNeighbors: [
