@@ -21,7 +21,7 @@ import { factBody, deviceFactLang } from '../lib/fun-facts.js';
 
 const DEFAULT_MIN_MS = 3000;
 
-export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN_MS }) {
+export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN_MS, onStop }) {
   const [lang] = useLocale();
   // Local `shown` state lets us hold the modal on screen past the
   // caller's `visible=false` flip until min-display elapses.
@@ -132,6 +132,17 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
             </span>
           )}
         </div>
+        {/* v0.62.x — operator: some find the rotating-eateries wait annoying.
+            🛑 Stop loading aborts the in-flight search; whatever already
+            streamed in stays on screen. */}
+        {onStop && (
+          <div className="flex justify-center mt-2.5">
+            <button type="button" onClick={onStop}
+              className="px-3 py-1 rounded-full border border-tg-border text-[11px] text-tg-text hover:bg-tg-bg pointer-events-auto">
+              {tr('funfact.stop', lang)}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

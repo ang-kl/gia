@@ -113,10 +113,48 @@ export function _pickFact({ ctxTags, lastSeen, factsList = facts, rng = Math.ran
   return matched[idx] || null;
 }
 
+// v0.62.x — operator: include the curated 📜 DISH explanations in the loading
+// pop-up's fun-fact rotation, but ONLY for the current cuisine/city. The dish
+// histories live on the active plate (arrivalPlate = the city's classics /
+// cuisinePlate = the selected cuisine's dishes), each dish carrying a curated
+// `note.{en,fr}`. Shape them as fun-fact records so pickFunFact can mix them in.
+// Because they come from the CURRENT plate they're inherently cuisine/city
+// scoped; pickFunFact additionally tags them with the live ctx tags.
+export function dishFactsFromPlate(plate) {
+  if (!plate || typeof plate !== 'object') return [];
+  const collected = [];
+  const take = (d) => {
+    if (d && d.dish && d.note && (d.note.en || d.note.fr)) collected.push(d);
+  };
+  (Array.isArray(plate.headliners) ? plate.headliners : []).forEach(take);
+  (Array.isArray(plate.groups) ? plate.groups : []).forEach((g) => {
+    (g && Array.isArray(g.dishes) ? g.dishes : []).forEach(take);
+  });
+  const seen = new Set();
+  const out = [];
+  for (const d of collected) {
+    const key = String(d.dish).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const name = (d.local && d.local !== d.dish) ? `${d.dish} · ${d.local}` : d.dish;
+    out.push({
+      id: `dish:${key}`,
+      tags: [],
+      source: 'Soleat',
+      en: `${name} — ${d.note.en || d.note.fr}`,
+      fr: `${name} — ${d.note.fr || d.note.en}`
+    });
+  }
+  return out;
+}
+
 // Public: pick a fact for the given search context, update lastSeen,
 // return the fact (or null if `facts` is empty for some reason).
 //   ctx = { cuisines: string[], region: 'SG'|'JB'|'OTHER'|'__NONE__', countryPref: 'SG'|'MY'|... }
-export function pickFunFact(ctx) {
+// v0.62.x — `extraFacts` (dish explanations from the active plate) are mixed
+// into the pool and tagged with the live ctx so they rank as cuisine/city
+// matches (Tier 1/2) instead of only the Tier-3 fallback.
+export function pickFunFact(ctx, extraFacts = []) {
   const cuisines = Array.isArray(ctx?.cuisines) ? ctx.cuisines : [];
   const region = typeof ctx?.region === 'string' ? ctx.region : '';
   const cc = typeof ctx?.countryPref === 'string' ? ctx.countryPref : '';
@@ -125,8 +163,12 @@ export function pickFunFact(ctx) {
     region.toLowerCase(),
     cc.toLowerCase()
   ].filter(Boolean);
+  const taggedExtra = (Array.isArray(extraFacts) ? extraFacts : [])
+    .filter((f) => f && f.id)
+    .map((f) => ({ ...f, tags: [...(Array.isArray(f.tags) ? f.tags : []), ...tags] }));
+  const factsList = taggedExtra.length ? [...taggedExtra, ...facts] : facts;
   const lastSeen = _readLastSeen();
-  const fact = _pickFact({ ctxTags: tags, lastSeen });
+  const fact = _pickFact({ ctxTags: tags, lastSeen, factsList });
   if (fact && fact.id) {
     _writeLastSeen([...lastSeen.filter((id) => id !== fact.id), fact.id]);
   }

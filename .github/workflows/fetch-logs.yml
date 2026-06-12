@@ -1,6 +1,6 @@
 name: Auto Fetch Railway Logs
 
-# Operator (12-06 '26): collect prod logs every 15 minutes into logs/ so a
+# Operator (12-06 '26): collect prod logs hourly into log/ (JSON) so a
 # "location drift" report from ANY ChatID can be reconstructed (pairs with the
 # default-on [LocDrift] telemetry in index.js). Uses the Railway public GraphQL
 # API (backboard) with secrets.RAILWAY_API_KEY.
@@ -10,7 +10,7 @@ name: Auto Fetch Railway Logs
 
 on:
   schedule:
-    - cron: '*/15 * * * *'    # every 15 minutes (UTC)
+    - cron: '0 * * * *'        # hourly, top of the hour (UTC)
   workflow_dispatch:           # manual run from the Actions tab (use this to test)
 
 permissions:
@@ -27,7 +27,7 @@ env:
   # Cuisine/Express app service (emits [Cuisine-Search] / [set-location] /
   # [LocDrift]). Swap for another serviceId to capture a different service.
   SERVICE_ID: f9a39516-757d-4698-a32e-dc9de7b6e5a0
-  WINDOW_MIN: 20               # minutes back to fetch (slight overlap absorbs cron jitter)
+  WINDOW_MIN: 65               # minutes back to fetch (slight overlap absorbs cron jitter)
 
 jobs:
   fetch-and-upload:
@@ -46,7 +46,7 @@ jobs:
           {
             echo "since=$SINCE_TIME"
             echo "until=$UNTIL_TIME"
-            echo "file=logs/log-${STAMP}.json"
+            echo "file=log/log-${STAMP}.json"
           } >> "$GITHUB_OUTPUT"
 
       - name: Fetch logs from Railway
@@ -60,7 +60,7 @@ jobs:
             echo "skip=1" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          mkdir -p logs
+          mkdir -p log
 
           # 1) Resolve the service's latest deployment id (it changes per deploy).
           DEP_BODY=$(jq -n --arg pid "$PROJECT_ID" --arg eid "$ENVIRONMENT_ID" --arg sid "$SERVICE_ID" \

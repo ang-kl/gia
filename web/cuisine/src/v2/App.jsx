@@ -13,7 +13,7 @@ import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 import { groupByAwardCity, initialFitPins, pinsOf } from './lib/michelin-city-groups.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
 import FunFactModal from './components/FunFactModal.jsx';
-import { pickFunFact } from './lib/fun-facts.js';
+import { pickFunFact, dishFactsFromPlate } from './lib/fun-facts.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -334,6 +334,20 @@ export default function App() {
   // (user search w/ unchanged criteria) → "refreshing same filters…".
   const [loadingReason, setLoadingReason] = useState('initial');
   const [rotatingIndex, setRotatingIndex] = useState(0);
+  // v0.62.x — operator "🛑 Stop loading": holds the in-flight search's
+  // AbortController so the loading pop-up's Stop button can cancel the stream.
+  const searchAbortRef = useRef(null);
+  // v0.62.x — the active plate (cuisinePlate || arrivalPlate), mirrored into a
+  // ref so the fun-fact picker (effect declared above the plate states) can
+  // read the current dish explanations without a temporal-dead-zone reference.
+  const activePlateRef = useRef(null);
+  // Abort the in-flight search (if any) and drop the loading overlay. Whatever
+  // base/patched venues already streamed in stay on screen.
+  const stopLoading = React.useCallback(() => {
+    try { searchAbortRef.current?.abort(); } catch { /* already settled */ }
+    searchAbortRef.current = null;
+    setLoading(false);
+  }, []);
   // v0.61.50 — cycle the 6 rotating loading titles every 1.5 s while a
   // user-triggered search with changed criteria is in flight.
   useEffect(() => {
@@ -362,18 +376,23 @@ export default function App() {
     if (loadingReason !== 'rotating') { setFunFact(null); return undefined; }
     const pick = () => {
       try {
+        // v0.62.x — operator: mix the 📜 DISH explanations of the CURRENT plate
+        // (cuisine plate if a cuisine is selected, else the city plate) into the
+        // rotation — cuisine/city-scoped by construction. Read via a ref since
+        // the plate states are declared below this effect.
+        const extra = dishFactsFromPlate(activePlateRef.current);
         const fact = pickFunFact({
           cuisines: state.cuisines,
           region: state.region,
           countryPref: state.countryPref
-        });
+        }, extra);
         if (fact) setFunFact(fact);
       } catch { /* swallow — never break the search on a modal-pick error */ }
     };
     let intervalId = null;
     const startId = setTimeout(() => {
       pick();
-      intervalId = setInterval(pick, 15000); // re-trigger every 15 s
+      intervalId = setInterval(pick, 10000); // v0.62.x — operator: rotate every 10 s
     }, 1500);
     return () => { clearTimeout(startId); if (intervalId) clearInterval(intervalId); };
   }, [loading, loadingReason, state.cuisines, state.region, state.countryPref]);
@@ -447,6 +466,9 @@ export default function App() {
   // single cuisine is selected). Takes precedence over the geo city plate so
   // selecting Georgian shows Georgian dishes, not the city's classics.
   const [cuisinePlate, setCuisinePlate] = useState(null);
+  // v0.62.x — mirror the active plate into activePlateRef so the loading
+  // fun-fact picker can surface its 📜 dish explanations (declared above).
+  useEffect(() => { activePlateRef.current = cuisinePlate || arrivalPlate; }, [cuisinePlate, arrivalPlate]);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -2051,6 +2073,11 @@ export default function App() {
     // is rolled into this complete disable.
     const autoResetOnLowCount = false;
     setLoading(true); setError(null);
+    // v0.62.x — fresh AbortController so the loading pop-up's 🛑 Stop button can
+    // cancel this stream; abort any prior in-flight search first.
+    try { searchAbortRef.current?.abort(); } catch { /* none in flight */ }
+    const searchAbort = new AbortController();
+    searchAbortRef.current = searchAbort;
     try {
       const r = await searchCuisine({
         lat: center.lat, lng: center.lng,
@@ -2088,6 +2115,7 @@ export default function App() {
       // half-painted list. The awaited `r` is still the full final payload,
       // so all the post-processing below is unchanged.
       opts?.boot ? undefined : {
+        signal: searchAbort.signal,   // v0.62.x — 🛑 Stop loading
         onBase: (ev) => {
           if (Array.isArray(ev?.venues)) {
             setVenues(ev.venues);
@@ -2382,6 +2410,11 @@ export default function App() {
       // v0.62.34 — D791 post-search location consistency check (see helper).
       reassertPickAfterSearch(snap);
     } catch (err) {
+      // v0.62.x — 🛑 Stop loading: a user-aborted stream is not an error.
+      // Keep whatever base/patched venues already streamed in; just stop.
+      if (err && (err.name === 'AbortError' || searchAbort.signal.aborted)) {
+        return;
+      }
       setError(err.message); setVenues([]); setMisrepNote(null); setCookMethodPivot(null); setQuestionDeclined(false);
       // v0.61.130 — clear the v0.61.129 pills on error so a stale
       // "📍 Searching near Tiong Bahru" doesn't sit above an empty
@@ -2977,7 +3010,7 @@ export default function App() {
           has been picked (1.5 s into a rotating search); the modal
           itself enforces a 3 s on-screen minimum so a fast search
           doesn't yank it mid-sentence. */}
-      <FunFactModal fact={funFact} visible={loading && !!funFact} />
+      <FunFactModal fact={funFact} visible={loading && !!funFact} onStop={stopLoading} />
 
       {/* v0.61.322 — the three coherence modals (extracted above into
           `locationModals`, shared with the splash-gate early-return). */}
@@ -3465,6 +3498,16 @@ export default function App() {
                 <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
                 <span>{t('loading.initial', lang)}</span>
               </div>
+            )}
+            {/* v0.62.x — operator: some find the rotating-eateries wait
+                annoying. Offer a 🛑 Stop loading on user-initiated searches
+                (the abortable 'rotating' stream); keeps whatever already
+                streamed in. Not shown for the boot/'initial' warm-start. */}
+            {loadingReason === 'rotating' && (
+              <button type="button" onClick={stopLoading}
+                className="mt-3 px-3 py-1 rounded-full border border-tg-border text-[11px] text-tg-text hover:bg-tg-bg">
+                {t('loading.stop', lang)}
+              </button>
             )}
           </div>
         </div>
