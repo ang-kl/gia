@@ -11,6 +11,13 @@ export function initData() {
   return tg()?.initData || '';
 }
 
+// v0.62.x — true only when launched inside Telegram with a signed initData.
+// Used by the boot guard to show a "reopen from Telegram" screen instead of
+// firing doomed (401) requests when opened outside Telegram.
+export function hasInitData() {
+  return !!(tg()?.initData);
+}
+
 // v0.27.2: ISO 639-1 from Telegram. Falls back to navigator language
 // then 'en'. Used to localise the cuisine accordion + category headers.
 export function getLanguage() {

@@ -53,6 +53,16 @@ function deviceLang() {
   return _deviceLang;
 }
 
+// v0.62.x — tag HTTP errors so callers can distinguish an auth failure
+// (empty/expired Telegram initData → 401) from any other transport error,
+// and surface a clear "reopen from Telegram" screen instead of a blank app.
+function httpErr(status) {
+  const e = new Error(`HTTP ${status}`);
+  e.status = status;
+  if (status === 401) e.code = 'AUTH';
+  return e;
+}
+
 async function postJson(url, body) {
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
@@ -64,7 +74,7 @@ async function postJson(url, body) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...body, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
     });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (!r.ok) throw httpErr(r.status);
     const json = await r.json();
     vlog.noteServerHint(json);
     if (vlog.isEnabled()) {
@@ -100,7 +110,7 @@ async function postJsonStream(url, body, { onBase, onPatch } = {}) {
     headers: { 'Content-Type': 'application/json', Accept: 'application/x-ndjson, application/json' },
     body: JSON.stringify({ ...body, stream: true, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
   });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  if (!r.ok) throw httpErr(r.status);
   const ctype = (r.headers.get('Content-Type') || '').toLowerCase();
   const reportOk = () => {
     if (!vlog.isEnabled()) return;
@@ -187,7 +197,7 @@ async function getJson(url) {
         'X-Device-Id': deviceId() || ''
       }
     });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (!r.ok) throw httpErr(r.status);
     const json = await r.json();
     vlog.noteServerHint(json);
     if (vlog.isEnabled()) {
@@ -328,7 +338,7 @@ export async function fetchSocialProfiles({ placeId, name, address, websiteUri }
       body: JSON.stringify({ placeId, name, address, websiteUri, initData: initData() }),
       signal
     });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (!r.ok) throw httpErr(r.status);
     const json = await r.json();
     vlog.noteServerHint(json);
     if (vlog.isEnabled()) {
