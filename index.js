@@ -14023,6 +14023,24 @@ async function cacheBotUsername() {
         // "Search area set to …" notify can fire only on an actual area change.
         const prevLoc = await getUserLocation(redis, String(userId), opts.deviceId).catch(() => null);
         const setOut = await setUserLocation(redis, String(userId), lat, lng, opts);
+        // v0.62.x — location-drift telemetry (operator: solve drift across every
+        // ChatID; default ON, LOC_DRIFT_LOG=0 to silence). One line per write.
+        try {
+          const { logLocDrift, r5 } = require('./loc-drift-log');
+          let movedM = null;
+          if (prevLoc && Number.isFinite(prevLoc.lat) && Number.isFinite(prevLoc.lng)) {
+            const { haversineMeters } = require('./location-mode');
+            movedM = Math.round(haversineMeters({ lat: prevLoc.lat, lng: prevLoc.lng }, { lat, lng }));
+          }
+          logLocDrift('set-location', {
+            chat: String(userId), dev: opts.deviceId || null,
+            from: prevLoc ? [r5(prevLoc.lat), r5(prevLoc.lng)] : null,
+            to: [r5(lat), r5(lng)], moved_m: movedM,
+            label: opts.label || null, region: opts.region || null,
+            country: opts.country || null, cap_m: opts.radiusCapM || null,
+            ambient: !!opts.ambient, kept: !!(setOut && setOut.kept)
+          });
+        } catch { /* telemetry is best-effort */ }
         if (setOut && setOut.kept) {
           // The guard held — report the kept pick so the client knows nothing moved.
           return res.json({ ok: true, kept: true, label: setOut.label });
@@ -14554,12 +14572,14 @@ async function cacheBotUsername() {
         // O-23 progressive radius widening pass below doesn't have
         // to re-read user-location.
         let anchorCap = null;
+        let capSource = 'none'; // v0.62.x — drift telemetry: where anchorCap came from
         try {
           if (csChatId) {
             const ulPayload = await getUserLocation(redis, csChatId).catch(() => null);
             const cap = ulPayload?.radiusCapM;
             if (Number.isFinite(cap) && cap > 0) {
               anchorCap = cap;
+              capSource = 'explicit';
               if (searchRadius > cap) {
                 console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
                 searchRadius = cap;
@@ -14583,6 +14603,7 @@ async function cacheBotUsername() {
             const cityCap = nearestCityRadiusM(searchCenter.lat, searchCenter.lng);
             if (Number.isFinite(cityCap) && cityCap > 0) {
               anchorCap = cityCap;
+              capSource = 'city-default';
               console.log(`[Cuisine-TMA] D777b anchorCap city-default ${cityCap}m (nearest-city radiusM, no explicit cap)`);
             }
           } catch (err) { console.warn('[Cuisine-TMA] city-default cap failed:', err.message); }
@@ -14606,7 +14627,23 @@ async function cacheBotUsername() {
             console.log(`[Cuisine-TMA] D781 OTHER radius ceiling ${searchRadius}m → ${effectiveOtherCap}m (region=OTHER, anchorCap=${anchorCap || 'none'})`);
             searchRadius = effectiveOtherCap;
           }
+          if (capSource === 'none') capSource = 'other-default';
+          if (!Number.isFinite(anchorCap) || anchorCap <= 0) anchorCap = effectiveOtherCap;
         }
+        // v0.62.x — location-drift telemetry: the anchor actually searched, the
+        // radius/cap, and WHERE the cap came from. A free-text OTHER pick stores
+        // no cap → capSource='city-default' with a wide radius is the signature
+        // of "Putrajaya pick, results spilled toward KL". Default ON.
+        try {
+          const { logLocDrift, r5 } = require('./loc-drift-log');
+          logLocDrift('search-anchor', {
+            chat: csChatId || null,
+            center: [r5(searchCenter?.lat), r5(searchCenter?.lng)],
+            region: isOther ? 'OTHER' : (isJB ? 'JB' : 'SG'),
+            radius_m: searchRadius, cap_m: Number.isFinite(anchorCap) ? anchorCap : null,
+            cap_src: capSource
+          });
+        } catch { /* telemetry is best-effort */ }
         // v0.62.18 — JB FOCUS-POINT tight radius (operator: "Legoland still
         // spilt out as far away eateries"). When a JB search is anchored ON a
         // registered sub-location focus point (Legoland / Bukit Indah / CBD /
