@@ -381,10 +381,11 @@ export async function warmStart({ lat, lng, region, lang }) {
 // the server uses it for both regionCode + includedRegionCodes.
 // `region` ('SG' | 'JB') is kept for backwards-compat with the
 // legacy SG/JB toggle.
-export async function placeAutocomplete({ input, lat, lng, region, countryCode }) {
+export async function placeAutocomplete({ input, lat, lng, region, countryCode, radiusM }) {
   return postJson('/api/cuisine/place-autocomplete', {
     input, lat, lng, region,
-    ...(countryCode ? { countryCode } : {})
+    ...(countryCode ? { countryCode } : {}),
+    ...(Number.isFinite(radiusM) ? { radiusM } : {})
   });
 }
 

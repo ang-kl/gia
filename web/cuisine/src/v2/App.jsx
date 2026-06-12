@@ -2573,6 +2573,7 @@ export default function App() {
       // response (.then below) re-fills it when the new city is curated;
       // a failed/missed persist now leaves the card EMPTY, not stale.
       setArrivalPlate(null);
+      setCuisinePlate(null);   // v0.62.x — wipe the cuisine plate on a pick too
       // v0.61.354 — a city change from the OTHER dropdown is a PREVIEW:
       // set selectedCityLocation + fly the map there, but DON'T commit the
       // search anchor (positive control). The search re-anchors only on 🔍
@@ -3150,6 +3151,12 @@ export default function App() {
             // pill; only on a provable `false` — never while the catalogue
             // is still loading).
             explicitPickRef.current = true;   // v0.61.438 — F2: dropdown pick is explicit
+            // v0.62.x — operator: "the city dishes should clear once country
+            // and city is change." A country switch invalidates the old city's
+            // plate (e.g. VN/Hanoi dishes lingering over MY/Putrajaya), so wipe
+            // BOTH plates here too — the city pick + next search re-fill them.
+            setArrivalPlate(null);
+            setCuisinePlate(null);
             setState((s) => {
               const allowed = michelinAllowedFor('OTHER', code, catalogue);
               const nextCuisines = allowed === false
