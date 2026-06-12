@@ -471,7 +471,7 @@ export default function ResultPanel({
             return (
               <div className="px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
                 {lang === 'fr'
-                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} servent ${dishLabel}`
+                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} ${tagged > 1 ? 'servent' : 'sert'} ${dishLabel}`
                   : `⭐ ${tagged} of ${cardsToShow.length} places here serve ${dishLabel}`}
               </div>
             );
