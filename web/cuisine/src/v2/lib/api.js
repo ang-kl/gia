@@ -99,7 +99,7 @@ async function postJson(url, body) {
 // answers with plain JSON (e.g. a 30s cache hit) — or a WebView/proxy that
 // buffers the whole NDJSON body into one chunk — both reassemble to the
 // identical payload.
-async function postJsonStream(url, body, { onBase, onPatch } = {}) {
+async function postJsonStream(url, body, { onBase, onPatch, signal } = {}) {
   const { createNdjsonDecoder, applyPatchFields, assembleFinal } = await import('./ndjson.js');
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   const dr = deviceRegion();
@@ -108,7 +108,8 @@ async function postJsonStream(url, body, { onBase, onPatch } = {}) {
   const r = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/x-ndjson, application/json' },
-    body: JSON.stringify({ ...body, stream: true, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() })
+    body: JSON.stringify({ ...body, stream: true, ...(dr ? { deviceRegion: dr } : {}), ...(dl ? { deviceLang: dl } : {}), ...(did ? { deviceId: did } : {}), initData: initData() }),
+    signal   // v0.62.x — operator "🛑 Stop loading": abort the in-flight stream
   });
   if (!r.ok) throw httpErr(r.status);
   const ctype = (r.headers.get('Content-Type') || '').toLowerCase();
@@ -231,7 +232,7 @@ export async function fetchCatalogue() {
 // progressive NDJSON stream. Omitting them keeps the original single-shot
 // JSON behaviour. Either way the returned Promise resolves with the full
 // final payload, so existing call sites are unaffected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }, { onBase, onPatch } = {}) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }, { onBase, onPatch, signal } = {}) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
@@ -270,7 +271,7 @@ export async function searchCuisine({ lat, lng, cuisines, filters, region, lang,
     body.ratingPref = ratingPref;
   }
   if (onBase || onPatch) {
-    return postJsonStream('/api/cuisine/search', body, { onBase, onPatch });
+    return postJsonStream('/api/cuisine/search', body, { onBase, onPatch, signal });
   }
   return postJson('/api/cuisine/search', body);
 }

@@ -414,7 +414,9 @@ const STRINGS = {
   'funfact.curating':          { en: 'Still curating…',
                                  fr: 'Recherche en cours…' },
   'funfact.sourceLabel':       { en: 'Source',
-                                 fr: 'Source' }
+                                 fr: 'Source' },
+  'funfact.stop':              { en: '🛑 Stop loading', fr: '🛑 Arrêter le chargement' },
+  'loading.stop':              { en: '🛑 Stop loading', fr: '🛑 Arrêter le chargement' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];
