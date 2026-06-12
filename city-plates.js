@@ -2125,7 +2125,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "way-of-eating (Krabi tidal flats — dog conch)",
         "history": {
           "en": "Dog conch briefly boiled so the snail's 'foot' pokes from the shell — diners pull it free and dip it in fiery seafood sauce. Harvested on Krabi's tidal flats, it is the province's most distinctive table ritual.",
-          "fr": "Conques bouillies brièvement pour que le « pied » de l'escargot dépasse de la coquille — on l'extrait et on le trempe dans une sauce pimentée. Récoltées sur les estrans de Krabi, le rituel de table le plus distinctif de la province."
+          "fr": "Conques bouillies brièvement pour que le « pied » de l'escargot dépasse de la coquille — on l'extrait et on le trempe dans une sauce pimentée. Récoltées sur les estrans de Krabi, elles constituent le rituel de table le plus distinctif de la province."
         },
         "sources": [
           {
@@ -2299,7 +2299,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "way-of-eating (Korea's first permanent market, 1905)",
         "history": {
           "en": "At Gwangjang, Korea's first permanent market opened in 1905, freshly ground mung beans are fried into crisp bindaetteok at open stalls. The pancake traces to Hwanghae-do tradition, but eating it hot off the griddle with makgeolli amid market bustle is a distinctly Seoul ritual.",
-          "fr": "Au marché Gwangjang, premier marché permanent de Corée (1905), le haricot mungo fraîchement moulu devient des galettes bindaetteok croustillantes. La déguster brûlante au comptoir, avec du makgeolli, est un rituel typiquement séoulien."
+          "fr": "Au marché Gwangjang, premier marché permanent de Corée (1905), le haricot mungo fraîchement moulu devient des galettes bindaetteok croustillantes. Les déguster brûlantes au comptoir, avec du makgeolli, est un rituel typiquement séoulien."
         },
         "sources": [
           {
@@ -2401,7 +2401,7 @@ const CITY_PLATES = Object.freeze({
         "differsFrom": "Chinese zhajiangmian (Shandong) — Korean version uses sweet caramelised chunjang",
         "history": {
           "en": "Korea's beloved black-bean noodle was born in Incheon's Chinatown, where Shandong migrants adapted zhajiangmian after the port opened in 1883. Gonghwachun restaurant popularised it for dock labourers; its brick building, a registered cultural heritage, now houses the Jjajangmyeon Museum.",
-          "fr": "Ces nouilles à la sauce de soja noire sont nées dans le Chinatown d'Incheon, où des migrants du Shandong adaptèrent le zhajiangmian après l'ouverture du port en 1883. Le restaurant Gonghwachun les popularisa ; son bâtiment classé abrite aujourd'hui le musée du Jjajangmyeon."
+          "fr": "Ces nouilles à la pâte de haricots noirs sont nées dans le Chinatown d'Incheon, où des migrants du Shandong adaptèrent le zhajiangmian après l'ouverture du port en 1883. Le restaurant Gonghwachun les popularisa ; son bâtiment classé abrite aujourd'hui le musée du Jjajangmyeon."
         },
         "sources": [
           {
@@ -2727,7 +2727,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "national ICH — founder lineages Bianyifang (1416) and Quanjude (1864)",
         "history": {
           "en": "Imperial-era roast duck with lacquer-crisp skin, sliced tableside and wrapped in pancakes with scallion and sweet bean sauce. Both founder shops' techniques — Quanjude's open hung-oven (1864) and Bianyifang's closed oven (1416) — are inscribed national intangible cultural heritage.",
-          "fr": "Canard laqué d'héritage impérial à la peau croustillante, tranché en salle et roulé dans des crêpes avec oignon nouveau et sauce de soja sucrée. Les techniques des deux maisons fondatrices, Quanjude (1864) et Bianyifang (1416), sont au patrimoine immatériel national."
+          "fr": "Canard laqué d'héritage impérial à la peau croustillante, tranché en salle et roulé dans des crêpes avec oignon nouveau et sauce de haricots sucrée. Les techniques des deux maisons fondatrices, Quanjude (1864) et Bianyifang (1416), sont au patrimoine immatériel national."
         },
         "sources": [
           {
@@ -2853,7 +2853,7 @@ const CITY_PLATES = Object.freeze({
         "differsFrom": "Hainanese chicken rice — served plain with ginger-scallion oil, no rice-centric plate",
         "history": {
           "en": "Whole chicken poached gently then plunged cold, served at room temperature with ginger-scallion oil so the unseasoned flesh and jelly-line skin speak for themselves. Its Cantonese technique joined Guangzhou's municipal intangible heritage list in 2022.",
-          "fr": "Poulet entier poché doucement puis saisi à froid, servi tiède avec une huile gingembre-ciboule, pour laisser parler la chair nature et la peau gélifiée. Sa technique cantonaise figure depuis 2022 au patrimoine immatériel municipal de Canton."
+          "fr": "Poulet entier poché doucement puis saisi à froid, servi à température ambiante avec une huile gingembre-ciboule, pour laisser parler la chair nature et la peau gélifiée. Sa technique cantonaise figure depuis 2022 au patrimoine immatériel municipal de Canton."
         },
         "sources": [
           {
@@ -3167,7 +3167,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "shared Minnan classic (Xiamen ↔ Quanzhou ↔ Taiwan — all named)",
         "history": {
           "en": "Plump local 'pearl' oysters folded with sweet-potato starch, egg and garlic chives, fried into a lacy-edged omelette — briny inside, crisp outside. A Minnan coastal classic shared with Quanzhou and Taiwan, but a fixture of every Xiamen night market.",
-          "fr": "Petites huîtres « perles » locales mêlées à de la fécule de patate douce, des œufs et de la ciboule ail, frites en omelette dentelée — iodée dedans, croustillante dehors. Classique côtier minnan partagé avec Quanzhou et Taïwan."
+          "fr": "Petites huîtres « perles » locales mêlées à de la fécule de patate douce, des œufs et de la ciboule de Chine, frites en omelette dentelée — iodée dedans, croustillante dehors. Classique côtier minnan partagé avec Quanzhou et Taïwan."
         },
         "sources": [
           {
@@ -3507,7 +3507,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "East Java heritage (WBTb honours Rawon Nguling, Probolinggo); Surabaya its flagship stage",
         "history": {
           "en": "Jet-black beef soup coloured by keluak nut, an East Javanese heritage dish whose WBTb listing honours Rawon Nguling of Probolinggo. Surabaya is its most famous stage, home to legendary stalls like Rawon Setan and Rawon Kalkulator (since 1975).",
-          "fr": "Soupe de bœuf noire colorée par la noix de keluak, plat patrimonial du Java oriental dont l'inscription WBTb honore le Rawon Nguling de Probolinggo. Surabaya en est la scène la plus célèbre, avec des adresses légendaires comme Rawon Setan (depuis 1975)."
+          "fr": "Soupe de bœuf noire colorée par la noix de keluak, plat patrimonial du Java oriental dont l'inscription WBTb honore le Rawon Nguling de Probolinggo. Surabaya en est la scène la plus célèbre, avec des adresses légendaires comme Rawon Setan et Rawon Kalkulator (depuis 1975)."
         },
         "sources": [
           {
@@ -3651,7 +3651,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "origin-claim: created 1977 by Hanna Budimulya of Juwana, Pati — Pati and Semarang both claim it",
         "history": {
           "en": "Milkfish pressure-cooked with garlic, turmeric and salt until its notorious bones turn edible — devised in 1977 by Hanna Budimulya, a home cook from Juwana, Pati, and made famous as Semarang's signature souvenir. Pati and Semarang both claim the dish.",
-          "fr": "Chano cuit sous pression avec ail, curcuma et sel jusqu'à ce que ses arêtes deviennent comestibles — créé en 1977 par Hanna Budimulya, de Juwana (Pati), rendu célèbre comme souvenir emblématique de Semarang. Pati et Semarang revendiquent le plat."
+          "fr": "Chanos cuit sous pression avec ail, curcuma et sel jusqu'à ce que ses arêtes deviennent comestibles — créé en 1977 par Hanna Budimulya, de Juwana (Pati), rendu célèbre comme souvenir emblématique de Semarang. Pati et Semarang revendiquent le plat."
         },
         "sources": [
           {
@@ -4184,7 +4184,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "Yokohama-born (Chinese-restaurant staff meals)",
         "history": {
           "en": "Yokohama's home-grown noodle: ramen crowned with a hot, starch-thickened stir-fry of bean sprouts, cabbage and pork. It started as a cheap staff meal in the city's Chinese restaurants, then spread across Kanagawa as everyday soul food, documented in the national MAFF heritage database.",
-          "fr": "La nouille maison de Yokohama : un ramen couronné d'un sauté lié à l'amidon de pousses de soja, chou et porc. Né comme repas du personnel des restaurants chinois, répandu dans tout Kanagawa, recensé par le ministère MAFF."
+          "fr": "La nouille maison de Yokohama : un ramen couronné d'un sauté de pousses de soja, chou et porc, lié à l'amidon. Né comme repas du personnel des restaurants chinois, répandu dans tout Kanagawa, recensé par le ministère MAFF."
         },
         "sources": [
           {
@@ -4330,7 +4330,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "way-of-eating — Japan's only legally protected open-air stalls (2013 Yatai Basic Ordinance)",
         "history": {
           "en": "Eating shoulder-to-shoulder at an open-air yatai stall — ramen, yakitori, oden under lantern light — is Fukuoka's defining ritual. Uniquely in Japan, the city legalised and protects this culture through its 2013 Yatai Basic Ordinance, licensing stalls on public roads as civic heritage.",
-          "fr": "Manger coude à coude dans un yatai en plein air — ramen, yakitori, oden sous les lanternes — est le rituel fondateur de Fukuoka. Cas unique au Japon, la ville protège cette culture par son ordonnance de 2013, licenciant les étals sur la voie publique."
+          "fr": "Manger coude à coude dans un yatai en plein air — ramen, yakitori, oden sous les lanternes — est le rituel fondateur de Fukuoka. Cas unique au Japon, la ville protège cette culture par son ordonnance de 2013, délivrant des licences aux étals sur la voie publique."
         },
         "sources": [
           {
@@ -4834,7 +4834,7 @@ const CITY_PLATES = Object.freeze({
         "claim": "origin-claim: Sydney (Moors, 1985) ↔ Auckland ↔ Wellington (1989) — Melbourne's claim is the espresso culture that perfected it, all named",
         "history": {
           "en": "Espresso with velvety microfoam, the standard order of Melbourne's laneway cafés. Its invention is a trans-Tasman dispute between Sydney (1985), Auckland and Wellington claimants; Melbourne's genuine claim is the postwar Italian espresso culture that perfected it.",
-          "fr": "Un espresso à la microémulsion de lait veloutée, commande type des cafés des ruelles de Melbourne. Son invention oppose Sydney (1985), Auckland et Wellington ; la vraie revendication de Melbourne est la culture espresso italienne d'après-guerre qui l'a perfectionné."
+          "fr": "Un espresso à la micro-mousse de lait veloutée, commande type des cafés des ruelles de Melbourne. Son invention oppose Sydney (1985), Auckland et Wellington ; la vraie revendication de Melbourne est la culture espresso italienne d'après-guerre qui l'a perfectionné."
         },
         "sources": [
           {
