@@ -32,7 +32,7 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
-import { tg } from '../api/tg.js';
+import { tg, hasInitData } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
 
 // v0.61.362 — countries the Cuisine OTHER picker can represent. The
@@ -133,6 +133,11 @@ export default function App() {
   // dispatched by LocaleToggle.
   const [lang] = useLocale();
   const [catalogue, setCatalogue] = useState(null);
+  // v0.62.x — auth guard. True when the Mini App was opened WITHOUT a valid
+  // Telegram initData (outside Telegram, or a stale >24h launch) → every API
+  // call 401s. Instead of a blank app silently 401-storming, show a clear
+  // "reopen from Telegram" screen. Server auth is unchanged (still enforced).
+  const [authBlocked, setAuthBlocked] = useState(false);
   // v0.61.445 — per-country+city Michelin cuisine coverage (from /catalogue):
   // { cc: { all:[…], byCity:{ "<City>":[…] } } }. Greys uncovered cuisine
   // chips under Michelin. Absent cc (e.g. SG) → fail open.
@@ -438,6 +443,10 @@ export default function App() {
   // v0.62.32 — Arrival Plate: the curated what-to-try card for the
   // anchored city, supplied by the server alongside the saved location.
   const [arrivalPlate, setArrivalPlate] = useState(null);
+  // v0.62.x — cuisine "What to order" plate (from the search response when a
+  // single cuisine is selected). Takes precedence over the geo city plate so
+  // selecting Georgian shows Georgian dishes, not the city's classics.
+  const [cuisinePlate, setCuisinePlate] = useState(null);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -714,12 +723,23 @@ export default function App() {
     // tags `_vlog: true`). Idempotent — multiple mounts won't double-
     // attach.
     import('./lib/vlog.js').then((vlog) => vlog.installGlobalHandlers()).catch(() => {});
+    // v0.62.x — opened outside Telegram (no signed initData) → every call will
+    // 401. Surface the guard screen immediately and DON'T fire the doomed
+    // mount calls (stops the 401-storm in the server logs).
+    if (!hasInitData()) {
+      setAuthBlocked(true);
+      return;
+    }
     fetchCatalogue()
       .then((d) => {
         setCatalogue(d.categories || []);
         setMichelinCuisinesByCC(d.michelinCuisinesByCC || {});
       })
-      .catch((err) => console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err));
+      .catch((err) => {
+        // Expired/invalid initData (non-empty but rejected) → 401 here too.
+        if (err?.code === 'AUTH') setAuthBlocked(true);
+        console.warn('[Cuisine-TMA-v2] catalogue fetch failed:', err);
+      });
     // v0.60.146 — wipe the per-Cuisine-TMA session clipboard (the
     // 80-cap session-seen SET + the page-history LIST) on every TMA
     // launch. Reset is explicit so the user gets a fresh list every
@@ -2161,6 +2181,9 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
+      // v0.62.x — cuisine "What to order" plate (single-cuisine searches);
+      // null on combo/no-cuisine → falls back to the geo city plate.
+      setCuisinePlate(r.cuisinePlate || null);
       // v0.60.82 — capture combo metadata; null when single/no cuisine
       setComboInfo(r.comboInfo || null);
       // v0.60.128 — "misrepresented dish" note (null unless the Tell-me
@@ -2390,6 +2413,7 @@ export default function App() {
         countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
       });
       setVenues(r.venues || []);
+      setCuisinePlate(r.cuisinePlate || null);   // v0.62.x — clear/refresh the cuisine plate on NL queries too
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
       // v0.62.34 — D791 post-search location consistency check (the
@@ -2903,6 +2927,35 @@ export default function App() {
     );
   }
 
+  // v0.62.x — auth guard screen: shown when the Mini App has no valid Telegram
+  // initData (opened outside Telegram, or a stale >24h launch). Clear, actionable
+  // copy instead of a blank app + silent 401 storm. Server auth is untouched.
+  if (authBlocked) {
+    const frr = lang === 'fr';
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 text-center text-tg-text bg-tg-bg">
+        <div className="max-w-xs">
+          <div className="text-4xl mb-3" aria-hidden>🍽️🔒</div>
+          <div className="font-semibold mb-2">
+            {frr ? 'Ouvrez Soleat depuis Telegram' : 'Open Soleat from Telegram'}
+          </div>
+          <div className="text-[13px] text-tg-hint leading-snug mb-4">
+            {frr
+              ? "Impossible de vérifier votre session Telegram. Relancez Soleat depuis le bouton de menu du bot, ou réessayez dans un instant. (Si le problème persiste pour tout le monde, c'est côté serveur — prévenez-nous.)"
+              : "Couldn't verify your Telegram session. Reopen Soleat from the bot's menu button, or try again in a moment. (If this is happening for everyone, it's a server-side issue — let us know.)"}
+          </div>
+          <button
+            type="button"
+            className="px-4 py-2 rounded-xl border border-tg-border text-[13px]"
+            onClick={() => { try { window.location.reload(); } catch { /* noop */ } }}
+          >
+            {frr ? 'Réessayer' : 'Try again'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
@@ -3113,9 +3166,11 @@ export default function App() {
           banner under the location field; expands to curated what-to-try
           rows with 📜 fact-cards. Tapping a dish fires the dish search via
           freeTextOverride (no state race). Hidden while a search streams. */}
-      {arrivalPlate && !loading && (
+      {/* v0.62.x — cuisine "What to order" plate replaces the geo city plate
+          when a cuisine is selected (operator: SG → Georgian → Georgian dishes). */}
+      {(cuisinePlate || arrivalPlate) && !loading && (
         <ArrivalPlate
-          plate={arrivalPlate}
+          plate={cuisinePlate || arrivalPlate}
           lang={lang}
           onTryDish={(dish) => {
             setNlText(dish);

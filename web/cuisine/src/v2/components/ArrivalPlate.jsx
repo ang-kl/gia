@@ -44,11 +44,90 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
   // v0.62.37 — the "More local classics" sub-section (overlay-fed, names only).
   const [classicsOpen, setClassicsOpen] = useState(false);
-  // New city → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setFactIdx(null); setClassicsOpen(false); }, [plate?.city]);
+  // New city / cuisine → collapse + close any bubble.
+  useEffect(() => { setOpen(false); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
+
+  const fr = lang === 'fr';
+
+  // v0.62.x — CUISINE "What to order" mode (operator: select Georgian in SG →
+  // the unique Georgian dishes to discover BEFORE picking an eatery). Driven
+  // by the selected cuisine's curated NATION_OVERLAY dishes, grouped by food
+  // group (3 headliners, then ascending-size sections) so a 30-dish cuisine
+  // doesn't jam-pack. Names only (no per-dish 📜 yet) + a cuisine-level
+  // explainer. Replaces the geo city plate when a cuisine is selected.
+  if (plate && plate.mode === 'cuisine') {
+    const headliners = Array.isArray(plate.headliners) ? plate.headliners : [];
+    const groups = Array.isArray(plate.groups) ? plate.groups : [];
+    if (!headliners.length && !groups.length) return null;
+    const title = `${plate.flag ? plate.flag + ' ' : ''}${plate.cuisineLabel || plate.cuisineSlug}`;
+    const explainer = plate.explainer && (fr ? plate.explainer.fr : plate.explainer.en);
+    return (
+      <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <button
+          type="button"
+          className="w-full text-left flex items-start gap-1 min-h-[28px]"
+          aria-expanded={open}
+          aria-label={(fr ? 'À commander en ' : 'What to order in ') + (plate.cuisineLabel || plate.cuisineSlug)}
+          onClick={() => { setOpen(!open); setFactIdx(null); }}
+        >
+          <span aria-hidden>🍽</span>
+          <span className="flex-1">
+            <b>{fr ? 'À commander en' : 'What to order in'} {title}:</b>{' '}
+            {open
+              ? (fr ? 'touchez un plat pour le chercher' : 'tap a dish to search it')
+              : headliners.map((h) => h.dish).join(', ') + (groups.length ? '…' : '')}
+          </span>
+          <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
+        </button>
+
+        {open && (
+          <div className="mt-1.5 flex flex-col">
+            {explainer && <div className="text-tg-hint pb-1.5">📜 {explainer}</div>}
+            {plate.populationLow && (
+              <div className="text-tg-hint pb-1.5">
+                {fr ? 'Peu d’adresses ici — voici les classiques à connaître.' : 'Few spots here — these are the classics to know.'}
+              </div>
+            )}
+            {/* headliners — full tappable rows */}
+            {headliners.map((d) => (
+              <div key={d.dish} className="flex items-center gap-1.5 border-t border-tg-border/40">
+                <button
+                  type="button"
+                  className="flex-1 text-left py-2.5 min-h-[44px]"
+                  aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
+                  onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                >
+                  <span className="font-medium">{d.dish}</span>
+                  <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
+                </button>
+              </div>
+            ))}
+            {/* food-group sections, ascending size; dish chips → same search */}
+            {groups.map((g) => (
+              <div key={g.group} className="border-t border-tg-border/40 pt-1.5 pb-1">
+                <div className="text-tg-hint text-[11px] pb-1">
+                  {(fr ? g.label.fr : g.label.en)} <span className="opacity-70">({g.dishes.length})</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {g.dishes.map((d) => (
+                    <button
+                      key={d.dish}
+                      type="button"
+                      className="min-h-[40px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
+                      aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
+                      onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                    >{d.dish}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (!plate || !Array.isArray(plate.dishes) || plate.dishes.length === 0) return null;
-  const fr = lang === 'fr';
   const names = plate.dishes.map((d) => d.dish);
 
   return (
