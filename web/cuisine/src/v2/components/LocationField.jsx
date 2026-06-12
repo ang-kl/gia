@@ -1119,7 +1119,10 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           input: trimmed,
           lat: biasLat || undefined,
           lng: biasLng || undefined,
-          countryCode: country.code
+          countryCode: country.code,
+          // v0.62.x — when a city is picked, tighten the bias to its radius so
+          // "IOI City Mall" in Putrajaya outranks "IOI Mall Puchong" near KL.
+          radiusM: cityHit ? cityRadiusCapM(cityHit, country.code) : undefined
         });
         setSuggestions(r?.suggestions || []);
         setSuggestionsQuery(trimmed);

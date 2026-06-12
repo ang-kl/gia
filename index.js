@@ -13158,10 +13158,17 @@ async function cacheBotUsername() {
         // (not just the JB→MY / default→SG switch), accept an
         // optional `countryCode` (ISO 3166-1 alpha-2). When valid,
         // it overrides the legacy region→country mapping below.
-        const { input, lat, lng, region = 'SG', countryCode } = req.body || {};
+        const { input, lat, lng, region = 'SG', countryCode, radiusM } = req.body || {};
         if (!input || typeof input !== 'string' || input.trim().length < 2) {
           return res.json({ suggestions: [] });
         }
+        // v0.62.x — operator: entering "IOI City Mall" with Putrajaya selected
+        // drifted to KL. The bias was a flat 50 km, but Putrajaya is ~12 km from
+        // the more-prominent "IOI Mall Puchong" near KL, so the wrong mall won.
+        // When the client passes the picked city's radius cap, tighten the bias
+        // to it (clamped 3–50 km) so same-city places outrank a famous neighbour.
+        const biasRadius = (Number.isFinite(radiusM) && radiusM >= 3000 && radiusM <= 50000)
+          ? radiusM : 50000;
         const cleanInput = input.trim().slice(0, 80).toLowerCase();
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
@@ -13178,7 +13185,7 @@ async function cacheBotUsername() {
         // v0.61.267 — cache key now keyed on effectiveCountry instead
         // of region so a "MY autocomplete biased near KL" doesn't
         // share a slot with a "MY autocomplete biased near JB".
-        const cacheKey = `placeauto:v2:${effectiveCountry}:${gLat}:${gLng}:${cleanInput}`;
+        const cacheKey = `placeauto:v2:${effectiveCountry}:${gLat}:${gLng}:r${Math.round(biasRadius / 1000)}:${cleanInput}`;
         try {
           if (redis.isOpen) {
             const cached = await redis.get(cacheKey);
@@ -13196,7 +13203,7 @@ async function cacheBotUsername() {
           body.locationBias = {
             circle: {
               center: { latitude: lat, longitude: lng },
-              radius: 50000
+              radius: biasRadius
             }
           };
         }
