@@ -7,9 +7,47 @@ import {
   factBody,
   totalFunFacts,
   clearFunFactHistory,
-  deviceFactLang
+  deviceFactLang,
+  dishFactsFromPlate
 } from '../web/cuisine/src/v2/lib/fun-facts.js';
 import facts from '../web/cuisine/src/v2/data/fun-facts.js';
+
+describe('dishFactsFromPlate — 📜 dish explanations as fun facts (v0.62.x)', () => {
+  const plate = {
+    headliners: [
+      { dish: 'Phở', local: 'Phở Hà Nội', note: { en: 'Hanoi beef noodle soup.', fr: 'Soupe de nouilles au bœuf.' } },
+      { dish: 'NoNote' }, // skipped — no note
+    ],
+    groups: [
+      { dishes: [
+        { dish: 'Bún chả', note: { en: 'Grilled pork with noodles.' } },
+        { dish: 'Phở', note: { en: 'dup — dropped' } }, // duplicate dish → deduped
+      ] },
+    ],
+  };
+  it('extracts one fact per noted dish, deduped, with name baked into the body', () => {
+    const out = dishFactsFromPlate(plate);
+    expect(out.map((f) => f.id)).toEqual(['dish:phở', 'dish:bún chả']);
+    expect(out[0].en).toBe('Phở · Phở Hà Nội — Hanoi beef noodle soup.');
+    expect(out[1].fr).toBe('Bún chả — Grilled pork with noodles.'); // fr falls back to en
+    expect(out[0].source).toBe('Soleat');
+  });
+  it('tolerates a null / shapeless plate', () => {
+    expect(dishFactsFromPlate(null)).toEqual([]);
+    expect(dishFactsFromPlate({})).toEqual([]);
+  });
+  it('pickFunFact mixes a dish fact in (tagged to the live ctx) and can return it', () => {
+    const extra = dishFactsFromPlate(plate);
+    // Force the dish facts to be the only candidates by clearing history + a
+    // deterministic rng — but simplest: assert a dish id is reachable.
+    const picks = new Set();
+    for (let i = 0; i < 40; i++) {
+      const f = pickFunFact({ cuisines: ['pho'], region: 'OTHER', countryPref: 'VN' }, extra);
+      if (f) picks.add(f.id);
+    }
+    expect([...picks].some((id) => id.startsWith('dish:'))).toBe(true);
+  });
+});
 
 describe('fun-facts data contract', () => {
   it('exports 72 facts (40 SG-NLB + 12 MY-regional + 12 anti-repeat variety + 8 v0.61.383 global)', () => {

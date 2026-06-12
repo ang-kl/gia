@@ -13,7 +13,7 @@ import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 import { groupByAwardCity, initialFitPins, pinsOf } from './lib/michelin-city-groups.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
 import FunFactModal from './components/FunFactModal.jsx';
-import { pickFunFact } from './lib/fun-facts.js';
+import { pickFunFact, dishFactsFromPlate } from './lib/fun-facts.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
 // list when state.region !== 'SG'. Operator's PLATFORM REFRACTORING
@@ -337,6 +337,10 @@ export default function App() {
   // v0.62.x — operator "🛑 Stop loading": holds the in-flight search's
   // AbortController so the loading pop-up's Stop button can cancel the stream.
   const searchAbortRef = useRef(null);
+  // v0.62.x — the active plate (cuisinePlate || arrivalPlate), mirrored into a
+  // ref so the fun-fact picker (effect declared above the plate states) can
+  // read the current dish explanations without a temporal-dead-zone reference.
+  const activePlateRef = useRef(null);
   // Abort the in-flight search (if any) and drop the loading overlay. Whatever
   // base/patched venues already streamed in stay on screen.
   const stopLoading = React.useCallback(() => {
@@ -372,11 +376,16 @@ export default function App() {
     if (loadingReason !== 'rotating') { setFunFact(null); return undefined; }
     const pick = () => {
       try {
+        // v0.62.x — operator: mix the 📜 DISH explanations of the CURRENT plate
+        // (cuisine plate if a cuisine is selected, else the city plate) into the
+        // rotation — cuisine/city-scoped by construction. Read via a ref since
+        // the plate states are declared below this effect.
+        const extra = dishFactsFromPlate(activePlateRef.current);
         const fact = pickFunFact({
           cuisines: state.cuisines,
           region: state.region,
           countryPref: state.countryPref
-        });
+        }, extra);
         if (fact) setFunFact(fact);
       } catch { /* swallow — never break the search on a modal-pick error */ }
     };
@@ -457,6 +466,9 @@ export default function App() {
   // single cuisine is selected). Takes precedence over the geo city plate so
   // selecting Georgian shows Georgian dishes, not the city's classics.
   const [cuisinePlate, setCuisinePlate] = useState(null);
+  // v0.62.x — mirror the active plate into activePlateRef so the loading
+  // fun-fact picker can surface its 📜 dish explanations (declared above).
+  useEffect(() => { activePlateRef.current = cuisinePlate || arrivalPlate; }, [cuisinePlate, arrivalPlate]);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
