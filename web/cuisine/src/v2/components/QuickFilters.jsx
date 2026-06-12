@@ -106,7 +106,7 @@ function RatingOption({ checked, onSelect, label, hint }) {
       <span className="mt-0.5"><RadioDot checked={checked} /></span>
       <span className="flex flex-col">
         <span className={`text-xs text-tg-text ${checked ? 'font-medium' : ''}`}>{label}</span>
-        {hint && <span className="text-[0.6rem] leading-snug text-tg-hint">{hint}</span>}
+        {hint && <span className="text-[0.6rem] italic leading-snug text-tg-hint">{hint}</span>}
       </span>
     </button>
   );
@@ -306,34 +306,32 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
         // relabels + the value persists to Redis, shared with /rating).
         // v0.61.428 — operator: pair the choices two-per-row to shorten the
         // panel, explanations wrapped in a smaller font.
-        // v0.61.429 — operator layout: row 1 = No rating | Any ⭐ rating;
-        // row 2 = ⭐ ≥ 3.7 | [custom box]. The ⭐ marks the star-rating
-        // options; "No rating" (the no-star choice) carries none. The custom
-        // cell is just the input box (tap / focus selects it).
+        // v0.62.x — operator layout: four stacked choices —
+        //   ○ Unrated      / New or no reviews yet (italic hint)
+        //   ○ Any rating   / No minimum (italic hint)
+        //   ○ Good+  ≥ 3.7
+        //   ○ Set rating   [Choose 1.0 to 5.0] field box
         <div role="radiogroup" aria-label={tr('rating.title', lang)}
           className="flex flex-col gap-1.5 px-2 py-2 rounded-md border border-tg-border bg-tg-card">
-          <div className="grid grid-cols-2 gap-1.5">
-            <RatingOption checked={ratingSel === 'unrated'} onSelect={() => chooseRating('unrated')}
-              label={tr('rating.noRating', lang)} hint={tr('rating.noRatingHint', lang)} />
-            <RatingOption checked={ratingSel === 'any'} onSelect={() => chooseRating('any')}
-              label={`${tr('rating.anyRating', lang)} ⭐`} hint={tr('rating.anyRatingHint', lang)} />
-          </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
-              label={`⭐ ≥ ${RATING_PRESET}`} hint={null} />
-            {/* Custom floor = just the input box (⭐ ≥ [ ]). Tapping the cell
-                OR focusing the field selects it; constrained 1.0–5.0. */}
-            <label className={`flex items-center gap-1 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
-              <span aria-hidden className="text-xs text-tg-hint whitespace-nowrap">⭐ ≥</span>
-              <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
-                value={ratingCustom}
-                placeholder={tr('rating.customHint', lang)}
-                onFocus={() => chooseRating('custom')}
-                onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
-                aria-label={`${tr('rating.custom', lang)} — ${tr('rating.customHint', lang)}`}
-                className="w-full min-w-0 px-2 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
-            </label>
-          </div>
+          <RatingOption checked={ratingSel === 'unrated'} onSelect={() => chooseRating('unrated')}
+            label={tr('rating.noRating', lang)} hint={tr('rating.noRatingHint', lang)} />
+          <RatingOption checked={ratingSel === 'any'} onSelect={() => chooseRating('any')}
+            label={tr('rating.anyRating', lang)} hint={tr('rating.anyRatingHint', lang)} />
+          <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
+            label={`${tr('rating.goodPlus', lang)}  ≥ ${RATING_PRESET}`} hint={null} />
+          {/* Set rating — radio dot + label + the 1.0–5.0 field box. Tapping
+              the row OR focusing the field selects it. */}
+          <label className={`flex items-center gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+            <RadioDot checked={ratingSel === 'custom'} />
+            <span className={`text-xs text-tg-text whitespace-nowrap ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.setRating', lang)}</span>
+            <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
+              value={ratingCustom}
+              placeholder={tr('rating.customHint', lang)}
+              onFocus={() => chooseRating('custom')}
+              onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
+              aria-label={`${tr('rating.setRating', lang)} — ${tr('rating.customHint', lang)}`}
+              className="flex-1 min-w-0 px-2 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
+          </label>
           {/* Save — red "Save" until tapped, then bright green "✓ Saved".
               The label change carries the state without relying on colour
               (operator is red-green colour-blind). Small rounded rectangle. */}

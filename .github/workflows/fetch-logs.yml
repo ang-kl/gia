@@ -1,25 +1,23 @@
 name: Auto Fetch Railway Logs
 
-# Operator (12-06 '26): collect prod logs into log/ on a schedule so a
+# Operator (12-06 '26): collect prod logs every 15 minutes into logs/ so a
 # "location drift" report from ANY ChatID can be reconstructed (pairs with the
 # default-on [LocDrift] telemetry in index.js). Uses the Railway public GraphQL
 # API (backboard) with secrets.RAILWAY_API_KEY.
 #
 # NOTE: scheduled workflows only run from the DEFAULT branch (main), so this is
-# inert on PR branches until merged. The operator asked for "one hour intervals"
-# (the pasted template's */15 is overridden here); flip the cron below to
-# '*/15 * * * *' + WINDOW_MIN=20 if you want 15-minute granularity instead.
+# inert on PR branches until merged.
 
 on:
   schedule:
-    - cron: '0 * * * *'      # hourly, top of the hour (UTC)
-  workflow_dispatch:          # manual run from the Actions tab (use this to test)
+    - cron: '*/15 * * * *'    # every 15 minutes (UTC)
+  workflow_dispatch:           # manual run from the Actions tab (use this to test)
 
 permissions:
-  contents: write             # the job commits the fetched log file back to main
+  contents: write              # the job commits the fetched log file back to main
 
 concurrency:
-  group: fetch-railway-logs   # never let two fetches race the push
+  group: fetch-logs            # never let two fetches race the push
   cancel-in-progress: false
 
 env:
@@ -29,7 +27,7 @@ env:
   # Cuisine/Express app service (emits [Cuisine-Search] / [set-location] /
   # [LocDrift]). Swap for another serviceId to capture a different service.
   SERVICE_ID: f9a39516-757d-4698-a32e-dc9de7b6e5a0
-  WINDOW_MIN: 65              # minutes back to fetch (slight overlap absorbs cron jitter)
+  WINDOW_MIN: 20               # minutes back to fetch (slight overlap absorbs cron jitter)
 
 jobs:
   fetch-and-upload:
@@ -48,7 +46,7 @@ jobs:
           {
             echo "since=$SINCE_TIME"
             echo "until=$UNTIL_TIME"
-            echo "file=log/log-${STAMP}.json"
+            echo "file=logs/log-${STAMP}.json"
           } >> "$GITHUB_OUTPUT"
 
       - name: Fetch logs from Railway
@@ -62,7 +60,7 @@ jobs:
             echo "skip=1" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          mkdir -p log
+          mkdir -p logs
 
           # 1) Resolve the service's latest deployment id (it changes per deploy).
           DEP_BODY=$(jq -n --arg pid "$PROJECT_ID" --arg eid "$ENVIRONMENT_ID" --arg sid "$SERVICE_ID" \
