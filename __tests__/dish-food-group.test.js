@@ -76,6 +76,25 @@ describe('integration — real curated cuisines', () => {
     const grouped = groups.flatMap((g) => g.dishes).length;
     expect(headliners.length + grouped).toBe(ov.iconicDishes.length);   // nothing dropped
   });
+  it('Georgian Phase 2: native-script `local` + headliner `note` carry through', () => {
+    const ov = getNationOverlay('georgian');
+    const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);
+    // headliners are curated with both a native name and a one-line history.
+    for (const h of headliners) {
+      expect(typeof h.local).toBe('string');
+      expect(h.local.length).toBeGreaterThan(0);
+      expect(h.note && (h.note.en || h.note.fr)).toBeTruthy();
+    }
+    expect(headliners[0].local).toBe('ხაჭაპური აჭარული');
+    // native names survive the grouping onto the chips too (e.g. lobio → ლობიო).
+    const allGrouped = groups.flatMap((g) => g.dishes);
+    const lobio = allGrouped.find((d) => d.dish === 'lobio');
+    expect(lobio && lobio.local).toBe('ლობიო');
+    // a names-only cuisine dish (no curation) must NOT gain empty local/note keys.
+    const plain = groupCuisineDishes([{ name: 'x', kind: 'food' }]).headliners[0];
+    expect(plain.local).toBeUndefined();
+    expect(plain.note).toBeUndefined();
+  });
   it('Japanese (30 dishes): noodles + seafood groups present, every dish placed', () => {
     const ov = getNationOverlay('japanese');
     const { headliners, groups } = groupCuisineDishes(ov.iconicDishes);

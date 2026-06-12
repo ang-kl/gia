@@ -33,8 +33,17 @@
 
 // Convenience helpers — most iconicDishes entries are food with no
 // shared claimants. Reduce object-literal noise.
-const F = (name, sharedWith = []) => ({ name, kind: 'food',  sharedWith });
-const D = (name, sharedWith = []) => ({ name, kind: 'drink', sharedWith });
+//
+// v0.62.x Phase 2 — optional 3rd arg `extra` carries the cuisine-plate depth:
+//   { local: 'ხაჭაპური',  note: { en: '…', fr: '…' } }
+// `local` = the dish's native-script name; `note` = a one-line curated history
+// (≤ ~140 chars), surfaced as the per-dish 📜 fact card on the "What to order"
+// plate. Omitted on the vast majority of entries (names-only) — purely additive
+// and back-compatible: callers that pass only (name[, sharedWith]) are unchanged.
+const F = (name, sharedWith = [], extra = null) =>
+  extra ? { name, kind: 'food',  sharedWith, ...extra } : { name, kind: 'food',  sharedWith };
+const D = (name, sharedWith = [], extra = null) =>
+  extra ? { name, kind: 'drink', sharedWith, ...extra } : { name, kind: 'drink', sharedWith };
 
 // Shorthand for sharedWithNeighbors[] entries — the canonical interpretation
 // list lives in AMBIGUOUS_DISHES (gemini-client.js); we just pin the alias.
@@ -2528,13 +2537,70 @@ const NATION_OVERLAY = {
     flag: '🇬🇪',
     aliases: ['georgian', 'georgia', 'sakartvelo'],
     populationInSG: 'low',
+    // v0.62.x Phase 2 — Georgian is the operator's exemplar cuisine ("I select
+    // Georgian in SG → show me what to order"), so it's the first fully-curated
+    // proof set: native-script `local` on every dish + a one-line `note` history
+    // on the headliners and best-known dishes (rendered as the per-dish 📜 card).
     iconicDishes: [
-      F('khachapuri adjaruli'), F('khinkali'), F('satsivi'), F('lobio'),
-      F('mtsvadi'), F('chakapuli'), F('chakhokhbili'), F('phali'), F('badrijani nigvzit'),
-      F('churchkhela'), F('tonis puri'), F('ostri'), F('khinkali kalakuri'),
-      F('elarji'), F('gebzhalia'), F('kuchmachi'), F('imeretian khachapuri'),
-      F('mchadi'), F('walnut-paste pkhali'), F('georgian wine qvevri'),
-      F('ajika')
+      F('khachapuri adjaruli', [], { local: 'ხაჭაპური აჭარული', note: {
+        en: 'The boat-shaped Adjarian khachapuri: a molten sulguni-cheese bread topped with a raw egg yolk and butter — stir it in, then tear off the crust ends to dip.',
+        fr: 'Le khachapuri adjare en forme de barque : pain au fromage sulguni fondu, coiffé d’un jaune d’œuf cru et de beurre — mélangez, puis trempez-y les pointes de croûte.' } }),
+      F('khinkali', [], { local: 'ხინკალი', note: {
+        en: 'Twisted soup dumplings filled with spiced meat. Hold the doughy topknot, bite a small hole, sip the broth, then eat — the knot ("kudi") is left on the plate, counted.',
+        fr: 'Raviolis-soupe torsadés à la viande épicée. Tenez le chignon de pâte, mordez un trou, aspirez le bouillon — le nœud (« kudi ») reste dans l’assiette, et on les compte.' } }),
+      F('satsivi', [], { local: 'საცივი', note: {
+        en: 'Poached turkey or chicken in a cold walnut-and-spice sauce (garlic, coriander, blue fenugreek). The centerpiece of the New Year supra feast, served chilled.',
+        fr: 'Dinde ou poulet poché en sauce froide aux noix et épices (ail, coriandre, fenugrec bleu). Pièce maîtresse du supra du Nouvel An, servie fraîche.' } }),
+      F('lobio', [], { local: 'ლობიო', note: {
+        en: 'Spiced red-kidney-bean stew, often served bubbling in a clay pot (lobio ketsze) with cornbread (mchadi) and pickles — the everyday Georgian comfort dish.',
+        fr: 'Ragoût de haricots rouges épicés, souvent servi dans un pot d’argile avec du pain de maïs (mchadi) et des pickles — le plat réconfort géorgien du quotidien.' } }),
+      F('mtsvadi', [], { local: 'მწვადი', note: {
+        en: 'Georgian shashlik: chunks of pork or veal skewered and grilled over smouldering grapevine cuttings, then often rested under raw onion and pomegranate.',
+        fr: 'Le chachlik géorgien : morceaux de porc ou de veau grillés en brochette sur des sarments de vigne, puis reposés sous oignon cru et grenade.' } }),
+      F('chakapuli', [], { local: 'ჩაქაფული', note: {
+        en: 'A bright spring stew of lamb or veal simmered with tarragon, sour green plums (tkemali) and white wine — the taste of the Georgian Easter table.',
+        fr: 'Ragoût printanier d’agneau ou de veau mijoté à l’estragon, aux prunes vertes acides (tkemali) et au vin blanc — le goût de la table de Pâques géorgienne.' } }),
+      F('chakhokhbili', [], { local: 'ჩახოხბილი', note: {
+        en: 'Chicken braised down with tomatoes and a fistful of fresh herbs. The name comes from "khokhobi" (pheasant), the bird the dish was originally built around.',
+        fr: 'Poulet mijoté aux tomates et à une poignée d’herbes fraîches. Le nom vient de « khokhobi » (faisan), l’oiseau d’origine du plat.' } }),
+      F('phali', [], { local: 'ფხალი', note: {
+        en: 'Vegetable pâtés — spinach, beet leaf or cabbage minced with a walnut-garlic-herb paste, rolled into balls and crowned with pomegranate seeds.',
+        fr: 'Pâtés de légumes — épinard, feuille de betterave ou chou hachés à la pâte de noix, ail et herbes, roulés en boules et parsemés de grains de grenade.' } }),
+      F('badrijani nigvzit', [], { local: 'ბადრიჯანი ნიგვზით', note: {
+        en: 'Fried eggplant strips rolled around a garlicky walnut paste and finished with pomegranate — the classic Georgian appetiser.',
+        fr: 'Lamelles d’aubergine frites roulées autour d’une pâte de noix à l’ail, parsemées de grenade — l’entrée géorgienne classique.' } }),
+      F('churchkhela', [], { local: 'ჩურჩხელა', note: {
+        en: 'The "Georgian Snickers": walnuts threaded on string and dipped repeatedly in thickened grape must (tatara) until candle-shaped, then dried for weeks.',
+        fr: 'Le « Snickers géorgien » : noix enfilées sur un fil et trempées dans un moût de raisin épaissi (tatara) jusqu’à former un cierge, puis séchées des semaines.' } }),
+      F('tonis puri', [], { local: 'თონის პური', note: {
+        en: 'Canoe-shaped bread slapped onto the wall of a tone (a deep clay well-oven) and peeled off blistered and hot — Georgia’s everyday loaf.',
+        fr: 'Pain en forme de pirogue plaqué sur la paroi d’un tone (four-puits en argile) puis décollé, cloqué et brûlant — le pain quotidien géorgien.' } }),
+      F('ostri', [], { local: 'ოსტრი' }),
+      F('khinkali kalakuri', [], { local: 'ხინკალი ქალაქური', note: {
+        en: '"City-style" khinkali — filled with a mix of pork and beef plus herbs and broth, as opposed to the plain meat "mountain" (mtiuluri) dumplings.',
+        fr: 'Khinkali « à la ville » — farce de porc et bœuf mêlés, herbes et bouillon, par opposition aux raviolis « de montagne » (mtiuluri) à la viande seule.' } }),
+      F('elarji', [], { local: 'ელარჯი', note: {
+        en: 'A Megrelian cornmeal porridge cooked with so much sulguni cheese it pulls into long elastic strands — eaten by hand, pulled apart at the table.',
+        fr: 'Bouillie de maïs mégrélienne cuite avec tant de fromage sulguni qu’elle file en longs fils élastiques — mangée à la main, étirée à table.' } }),
+      F('gebzhalia', [], { local: 'გებჟალია', note: {
+        en: 'Megrelian rolls of fresh sulguni cheese bathed in a cool minted yogurt-and-mint sauce — a refreshing cheese-on-cheese starter.',
+        fr: 'Rouleaux mégréliens de sulguni frais nappés d’une sauce fraîche au yaourt et à la menthe — une entrée fromagère rafraîchissante.' } }),
+      F('kuchmachi', [], { local: 'კუჭმაჭი', note: {
+        en: 'Warm spiced offal — liver, heart and gizzards — tossed with walnuts, garlic and pomegranate; rich, peppery and traditionally a supra dish.',
+        fr: 'Abats épicés tièdes — foie, cœur, gésiers — sautés aux noix, ail et grenade ; riche, poivré, traditionnellement servi au supra.' } }),
+      F('imeretian khachapuri', [], { local: 'იმერული ხაჭაპური', note: {
+        en: 'The round, flat everyday khachapuri from Imereti: a disc of dough sealed around sulguni-imeruli cheese and griddled — the template all other variants riff on.',
+        fr: 'Le khachapuri rond et plat d’Imérétie : disque de pâte scellé autour du fromage sulguni-imeruli et cuit à la plancha — le modèle de toutes les variantes.' } }),
+      F('mchadi', [], { local: 'მჭადი', note: {
+        en: 'Dense little cornbread griddle-cakes, unleavened and slightly crisp — the standard partner to lobio and cheese across western Georgia.',
+        fr: 'Petites galettes de pain de maïs denses, sans levain et légèrement croustillantes — l’accompagnement habituel du lobio et du fromage en Géorgie occidentale.' } }),
+      F('walnut-paste pkhali', [], { local: 'ფხალი' }),
+      F('georgian wine qvevri', [], { local: 'ქვევრი', note: {
+        en: 'Wine fermented and aged in egg-shaped clay qvevri buried underground — an 8,000-year-old method that is UNESCO-listed and the root of Georgia’s "cradle of wine" claim.',
+        fr: 'Vin fermenté et élevé dans des qvevri d’argile en forme d’œuf enterrés — méthode vieille de 8 000 ans, inscrite à l’UNESCO, racine du « berceau du vin » géorgien.' } }),
+      F('ajika', [], { local: 'აჯიკა', note: {
+        en: 'A fiery paste of red (or green) hot peppers pounded with garlic, coriander and blue fenugreek — Georgia’s all-purpose table condiment.',
+        fr: 'Pâte ardente de piments rouges (ou verts) pilés avec ail, coriandre et fenugrec bleu — le condiment géorgien à tout faire.' } })
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [

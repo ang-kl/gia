@@ -98,20 +98,30 @@ function foodGroupFor(name, kind) {
   return 'other';
 }
 
+// v0.62.x Phase 2 — carry the curated depth (native-script `local` + one-line
+// `note` history) onto each rendered dish so the plate can show native names and
+// the per-dish 📜 fact card. Names-only dishes (the majority) just get `{ dish }`.
+function slimDish(d) {
+  const o = { dish: d.name };
+  if (d.local) o.local = d.local;
+  if (d.note && (d.note.en || d.note.fr)) o.note = d.note;
+  return o;
+}
+
 // Build the grouped structure the cuisine plate renders. Input: the cuisine's
-// iconicDishes ([{ name, kind }]). Output:
-//   { headliners: [{ dish }],  // first `headCount` (default 3), curated order
-//     groups: [{ group, label:{en,fr}, dishes:[{ dish }] }] }  // ascending size
+// iconicDishes ([{ name, kind, local?, note? }]). Output:
+//   { headliners: [{ dish, local?, note? }],  // first `headCount` (default 3)
+//     groups: [{ group, label:{en,fr}, dishes:[{ dish, local?, note? }] }] }
 // Headliner dishes are EXCLUDED from the groups (shown once, at the top).
 function groupCuisineDishes(iconicDishes, headCount = 3) {
   const dishes = Array.isArray(iconicDishes) ? iconicDishes.filter((d) => d && d.name) : [];
-  const headliners = dishes.slice(0, headCount).map((d) => ({ dish: d.name }));
+  const headliners = dishes.slice(0, headCount).map(slimDish);
   const rest = dishes.slice(headCount);
   const buckets = new Map();
   for (const d of rest) {
     const g = foodGroupFor(d.name, d.kind);
     if (!buckets.has(g)) buckets.set(g, []);
-    buckets.get(g).push({ dish: d.name });
+    buckets.get(g).push(slimDish(d));
   }
   const groups = [...buckets.entries()].map(([group, ds]) => ({
     group,

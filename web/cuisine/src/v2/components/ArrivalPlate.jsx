@@ -53,8 +53,10 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   // the unique Georgian dishes to discover BEFORE picking an eatery). Driven
   // by the selected cuisine's curated NATION_OVERLAY dishes, grouped by food
   // group (3 headliners, then ascending-size sections) so a 30-dish cuisine
-  // doesn't jam-pack. Names only (no per-dish 📜 yet) + a cuisine-level
-  // explainer. Replaces the geo city plate when a cuisine is selected.
+  // doesn't jam-pack. Phase 2 adds the curated depth: every dish shows its
+  // native-script name when curated, and each headliner carries a 📜 fact card
+  // (one-line history, CURATED in nation-overlay.js — never LLM at runtime).
+  // Replaces the geo city plate when a cuisine is selected.
   if (plate && plate.mode === 'cuisine') {
     const headliners = Array.isArray(plate.headliners) ? plate.headliners : [];
     const groups = Array.isArray(plate.groups) ? plate.groups : [];
@@ -88,19 +90,42 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 {fr ? 'Peu d’adresses ici — voici les classiques à connaître.' : 'Few spots here — these are the classics to know.'}
               </div>
             )}
-            {/* headliners — full tappable rows */}
-            {headliners.map((d) => (
-              <div key={d.dish} className="flex items-center gap-1.5 border-t border-tg-border/40">
-                <button
-                  type="button"
-                  className="flex-1 text-left py-2.5 min-h-[44px]"
-                  aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                  onClick={() => { if (onTryDish) onTryDish(d.dish); }}
-                >
-                  <span className="font-medium">{d.dish}</span>
-                  <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
-                </button>
-              </div>
+            {/* headliners — full tappable rows (+ native name & 📜 history card) */}
+            {headliners.map((d, i) => (
+              <React.Fragment key={d.dish}>
+                <div className="flex items-center gap-1.5 border-t border-tg-border/40">
+                  <button
+                    type="button"
+                    className="flex-1 text-left py-2.5 min-h-[44px]"
+                    aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
+                    onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                  >
+                    <span className="font-medium">{d.dish}</span>
+                    {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                    <span className="text-tg-hint"> — 🔍 {fr ? 'voir les adresses' : 'find eateries'}</span>
+                  </button>
+                  {d.note && (
+                    <button
+                      type="button"
+                      className="px-2 py-2.5 min-h-[44px] min-w-[44px] text-[14px]"
+                      aria-label={(fr ? 'Histoire de ' : 'History of ') + d.dish}
+                      onClick={() => setFactIdx(factIdx === 'h' + i ? null : 'h' + i)}
+                    >📜</button>
+                  )}
+                </div>
+                {d.note && factIdx === 'h' + i && (
+                  <button
+                    type="button"
+                    className="w-full text-left mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2"
+                    aria-label={fr ? 'Fermer' : 'Close'}
+                    onClick={() => setFactIdx(null)}
+                  >
+                    <div className="font-semibold">📜 {d.dish}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                    <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                    <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
+                  </button>
+                )}
+              </React.Fragment>
             ))}
             {/* food-group sections, ascending size; dish chips → same search */}
             {groups.map((g) => (
@@ -116,7 +141,10 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                       className="min-h-[40px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
                       aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                       onClick={() => { if (onTryDish) onTryDish(d.dish); }}
-                    >{d.dish}</button>
+                    >
+                      <span>{d.dish}</span>
+                      {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                    </button>
                   ))}
                 </div>
               </div>
