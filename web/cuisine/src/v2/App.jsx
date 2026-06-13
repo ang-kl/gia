@@ -3565,10 +3565,12 @@ export default function App() {
       {loading && !funFact && (
         <div
           aria-busy="true"
-          className="fixed inset-0 z-50 bg-tg-bg/60 flex items-center justify-center cursor-wait"
+          className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center px-4 cursor-wait"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="rounded-2xl border border-tg-border bg-tg-card p-4 text-xs text-tg-text shadow-lg text-center max-w-[280px]">
+          {/* v0.62.x — operator: the pop-up "looks 90s". Modernised: blurred
+              scrim, rounded-3xl card, softer ring + shadow, roomier padding. */}
+          <div className="w-full max-w-[320px] rounded-3xl border border-tg-border/60 bg-tg-card/95 px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/10 backdrop-blur text-center">
             {loadingReason === 'rotating' ? (
               <>
                 <div className="font-semibold">{t('loading.head', lang)}</div>
@@ -3597,13 +3599,16 @@ export default function App() {
               </>
             )}
             {/* v0.62.x — operator: EVERY loading pop-up carries the 🛑 Stop
-                pill (small font, 0.5px amber/red border). It aborts the
-                in-flight search (when one is streaming) and drops the overlay;
-                on the boot warm-start it just dismisses the wait. */}
-            <button type="button" onClick={stopLoading}
-              className="mt-3 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
-              {t('loading.stop', lang)}
-            </button>
+                curating pill (small font, 0.5px amber/red border), on its own
+                LAST line, flush RIGHT. Aborts the in-flight search (when one is
+                streaming) and drops the overlay; on the boot warm-start it just
+                dismisses the wait. */}
+            <div className="mt-3 flex justify-end">
+              <button type="button" onClick={stopLoading}
+                className="px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
+                {t('loading.stop', lang)}
+              </button>
+            </div>
           </div>
         </div>
       )}
