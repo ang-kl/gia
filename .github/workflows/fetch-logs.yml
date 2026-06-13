@@ -61,31 +61,47 @@ jobs:
             exit 0
           fi
           mkdir -p log
+          SINCE="${{ steps.time.outputs.since }}"
+          UNTIL="${{ steps.time.outputs.until }}"
+          FILE="${{ steps.time.outputs.file }}"
 
-          # 1) Resolve the service's latest deployment id (it changes per deploy).
+          # 1) Resolve the service's latest 5 deployments. deploymentLogs is
+          #    scoped to ONE deployment, and a fresh redeploy (e.g. just after a
+          #    merge) has NO logs in a 65-min-back window — those belong to the
+          #    PREVIOUS deployment. So we fetch the last few and merge, which
+          #    covers the window across any recent redeploy.
           DEP_BODY=$(jq -n --arg pid "$PROJECT_ID" --arg eid "$ENVIRONMENT_ID" --arg sid "$SERVICE_ID" \
-            '{query:"query($input: DeploymentListInput!){deployments(first:1,input:$input){edges{node{id status}}}}",
+            '{query:"query($input: DeploymentListInput!){deployments(first:5,input:$input){edges{node{id createdAt}}}}",
               variables:{input:{projectId:$pid,environmentId:$eid,serviceId:$sid}}}')
           DEP_RESP=$(curl -sS --max-time 60 -X POST "$RAILWAY_API" \
             -H "Authorization: Bearer $RAILWAY_API_KEY" -H "Content-Type: application/json" \
             --data "$DEP_BODY")
-          DID=$(echo "$DEP_RESP" | jq -r '.data.deployments.edges[0].node.id // empty')
-          if [ -z "$DID" ]; then
-            echo "Could not resolve deployment id. API said:"; echo "$DEP_RESP"
+          DIDS=$(echo "$DEP_RESP" | jq -r '.data.deployments.edges[].node.id // empty')
+          if [ -z "$DIDS" ]; then
+            echo "Could not resolve any deployment. API said:"; echo "$DEP_RESP"
             exit 1
           fi
-          echo "Latest deployment: $DID"
 
-          # 2) Fetch that deployment's logs within the window.
-          LOG_BODY=$(jq -n --arg did "$DID" --arg s "${{ steps.time.outputs.since }}" --arg e "${{ steps.time.outputs.until }}" \
-            '{query:"query($d:String!,$s:DateTime,$e:DateTime){deploymentLogs(deploymentId:$d,startDate:$s,endDate:$e,limit:5000){timestamp message severity tags{deploymentId serviceId}}}",
-              variables:{d:$did,s:$s,e:$e}}')
-          curl -sS --max-time 90 -X POST "$RAILWAY_API" \
-            -H "Authorization: Bearer $RAILWAY_API_KEY" -H "Content-Type: application/json" \
-            --data "$LOG_BODY" > "${{ steps.time.outputs.file }}"
+          # 2) Fetch each deployment's logs in the window; accumulate the rows.
+          echo '[]' > /tmp/all.json
+          for DID in $DIDS; do
+            LOG_BODY=$(jq -n --arg did "$DID" --arg s "$SINCE" --arg e "$UNTIL" \
+              '{query:"query($d:String!,$s:DateTime,$e:DateTime){deploymentLogs(deploymentId:$d,startDate:$s,endDate:$e,limit:5000){timestamp message severity tags{deploymentId serviceId}}}",
+                variables:{d:$did,s:$s,e:$e}}')
+            R=$(curl -sS --max-time 90 -X POST "$RAILWAY_API" \
+              -H "Authorization: Bearer $RAILWAY_API_KEY" -H "Content-Type: application/json" \
+              --data "$LOG_BODY")
+            echo "$R" | jq -c '.data.deploymentLogs // []' > /tmp/one.json 2>/dev/null || echo '[]' > /tmp/one.json
+            N=$(jq 'length' /tmp/one.json)
+            echo "  deployment $DID → $N rows"
+            jq -s '.[0] + .[1]' /tmp/all.json /tmp/one.json > /tmp/merged.json && mv /tmp/merged.json /tmp/all.json
+          done
 
-          ROWS=$(jq -r '.data.deploymentLogs | length // 0' "${{ steps.time.outputs.file }}" 2>/dev/null || echo 0)
-          echo "Fetched $ROWS log rows into ${{ steps.time.outputs.file }}"
+          # 3) Sort by timestamp, wrap with the window, write the file.
+          jq --arg s "$SINCE" --arg e "$UNTIL" \
+            '{since:$s, until:$e, count:length, logs:sort_by(.timestamp)}' /tmp/all.json > "$FILE"
+          ROWS=$(jq -r '.count // 0' "$FILE")
+          echo "Fetched $ROWS log rows (merged across deployments) into $FILE"
           echo "rows=$ROWS" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push logs
