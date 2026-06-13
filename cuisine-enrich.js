@@ -121,6 +121,10 @@ async function enrichSlow(top, ctx) {
   const pipelineMod = require('./pipeline');
   const dropDrinks = pipelineMod.shouldFilterDrinks(ctx.cuisineQueries);
   const redis = ctx.redis;
+  // v0.62.x — per-phase timing instrumentation (operator: "Load failed" =
+  // enrichSlow blew the 20s D706 deadline). One summary line at the end pins
+  // the dominant cost. `_last` deltas measure each sequential phase in turn.
+  const _t = {}; let _last = Date.now(); const _t0all = _last;
   // v0.57.31 — LTA-carpark crowd signal (one fetch per 500 m grid cell).
   try {
     const { attachCrowdSignals } = require('./crowd-signal');
@@ -128,6 +132,7 @@ async function enrichSlow(top, ctx) {
   } catch (err) {
     console.warn('[Cuisine-Search] crowd-signal attach failed:', err.message);
   }
+  _t.crowd = Date.now() - _last; _last = Date.now();
   // v0.61.152/154 — translate the nationality-preferred review into the
   // user's device language.
   try {
@@ -141,6 +146,7 @@ async function enrichSlow(top, ctx) {
   } catch (err) {
     console.warn('[Cuisine-Search] translate-enrich failed:', err.message);
   }
+  _t.translate = Date.now() - _last; _last = Date.now();
   // Redis place-reviews cache fallback for venues without inline reviews.
   try {
     if (redis.isOpen) {
@@ -161,6 +167,7 @@ async function enrichSlow(top, ctx) {
   } catch (err) {
     console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
   }
+  _t.reviewCache = Date.now() - _last; _last = Date.now();
   // v0.60.226 — regex-first dish sourcing with a cached Gemini fallback for
   // the venues regex left empty (per-venue Redis cache incl. negatives).
   try {
@@ -236,6 +243,7 @@ async function enrichSlow(top, ctx) {
   } catch (err) {
     console.warn('[Cuisine-Search] Gemini dish extraction failed:', err.message);
   }
+  _t.dishes = Date.now() - _last; _last = Date.now();
   // Review finalise — MUST run after translate/fallback/Gemini (they read
   // v.reviews; the "ago" label must match the FINAL recentReview).
   for (const v of top) {
@@ -258,19 +266,28 @@ async function enrichSlow(top, ctx) {
     delete v.regularPeriods;
     delete v.reviews;
   }
+  _t.finalise = Date.now() - _last; _last = Date.now();
   // v0.58.52 — TRANSIT + DRIVE minutes (Routes API). Best-effort.
   try {
     const { enrichTravelTimes } = require('./travel-times');
     await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top);
   } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
+  _t.travel = Date.now() - _last; _last = Date.now();
   try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {
     console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
   }
+  _t.sanctuary = Date.now() - _last; _last = Date.now();
   // v0.59.0 — footfall (BestTime). Dormant without key.
   try {
     const { attachFootfallSignals } = require('./footfall-signal');
     await attachFootfallSignals(redis, top);
   } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
+  _t.footfall = Date.now() - _last;
+  // v0.62.x — one-line phase breakdown so the next "Load failed" log pinpoints
+  // the dominant cost (Gemini dishes vs Claude sanctuary vs BestTime vs Routes).
+  console.log(`[Cuisine-Enrich] D707 enrichSlow timings (${Array.isArray(top) ? top.length : 0}v): `
+    + Object.entries(_t).map(([k, v]) => `${k}=${v}ms`).join(' ')
+    + ` total=${Date.now() - _t0all}ms`);
 }
 
 module.exports = { reviewText, extractDishes, enrichFast, enrichSlow, FOUR_MONTHS_MS };
