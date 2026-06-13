@@ -39,6 +39,11 @@ describe('nearestCityForAnchor with the new table', () => {
 });
 
 describe('density-tiered radiusM (v0.61.441)', () => {
+  it('Tight satellites cap at 15 km (Putrajaya / Cyberjaya — Klang Valley south cluster)', () => {
+    for (const city of ['Putrajaya', 'Cyberjaya']) {
+      expect(CITY_CENTROIDS[city].radiusM, city).toBe(15000);
+    }
+  });
   it('Dense cores cap at 30 km (SG / JB / Iskandar / Batam)', () => {
     for (const city of ['Singapore', 'Johor Bahru', 'Iskandar Puteri', 'Batam']) {
       expect(CITY_CENTROIDS[city].radiusM, city).toBe(30000);
@@ -56,7 +61,7 @@ describe('density-tiered radiusM (v0.61.441)', () => {
   });
   it('no city keeps the old flat 40 km', () => {
     for (const c of Object.values(CITY_CENTROIDS)) {
-      expect([30000, 45000, 60000]).toContain(c.radiusM);
+      expect([15000, 30000, 45000, 60000]).toContain(c.radiusM);
     }
   });
 });
@@ -66,6 +71,12 @@ describe('nearestCityRadiusM', () => {
     expect(psv.nearestCityRadiusM(1.293, 103.852)).toBe(30000);   // Singapore → Dense
     expect(psv.nearestCityRadiusM(3.134, 101.686)).toBe(45000);   // KL → Major
     expect(psv.nearestCityRadiusM(1.4817, 110.3323)).toBe(60000); // Kuching → Sparse
+  });
+  it('caps the logged Putrajaya drift pin at 15 km, not the KL 45 km (12-06 regression)', () => {
+    // The exact set-location from log/logs.1781315803421.json (chat 313940231):
+    // a Putrajaya pin that previously fell back to the 45 km city-default and
+    // spilled venues toward central KL / Petaling Jaya.
+    expect(psv.nearestCityRadiusM(2.96957, 101.71218)).toBe(15000);
   });
   it('returns null for invalid coords', () => {
     expect(psv.nearestCityRadiusM(NaN, NaN)).toBe(null);

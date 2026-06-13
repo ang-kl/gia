@@ -169,7 +169,10 @@ const _RAW_CENTROIDS = Object.freeze({
 // v0.61.441 — density-tuned per-city search-radius ceiling (replaces the
 // flat 40 km). Feeds the cuisine-search `anchorCap` city-default: when no
 // explicit per-anchor radiusCapM was picked, the concentric-ring fetch +
-// ladder are capped here. Three tiers:
+// ladder are capped here. Four tiers:
+//   - TIGHT   15 km — compact satellite cities that sit close to a much
+//                     larger metro: the 45 km MAJOR default would bleed the
+//                     neighbouring metro's whole food scene into the search.
 //   - DENSE   30 km — packed urban cores where 30 km already spans the
 //                     whole food scene (and keeps SG out of JB / vice-versa).
 //   - SPARSE  60 km — secondary / island / resort / border towns where the
@@ -177,6 +180,17 @@ const _RAW_CENTROIDS = Object.freeze({
 //   - MAJOR   45 km — everything else (the default: large metros).
 // Tiering is applied programmatically so the 139-row literal above stays a
 // single source of coordinates; only the radiusM is overridden here.
+// v0.62.x — TIGHT_15KM (operator log 12-06 '26: a Putrajaya pick spilled
+// toward KL). Putrajaya + Cyberjaya are a compact admin/tech cluster ~20 km
+// SOUTH of the KL core; from a Putrajaya pin the 45 km MAJOR cap reaches
+// central KL (22.6 km), Petaling Jaya (20.9 km) and Shah Alam (22.8 km),
+// dragging the whole Klang Valley into an in-city search. A 15 km ceiling
+// keeps the Putrajaya–Cyberjaya cluster (Cyberjaya is 2.5 km away) while
+// excluding the KL core. This is the city-default fill only — a deliberately
+// picked radiusCapM still wins (index.js anchor-cap block).
+const TIGHT_15KM = new Set([
+  'Putrajaya', 'Cyberjaya'
+]);
 const DENSE_30KM = new Set([
   'Singapore', 'Johor Bahru', 'Iskandar Puteri', 'Batam'
 ]);
@@ -206,6 +220,7 @@ const SPARSE_60KM = new Set([
 ]);
 
 function _radiusForCity(city) {
+  if (TIGHT_15KM.has(city)) return 15000;
   if (DENSE_30KM.has(city)) return 30000;
   if (SPARSE_60KM.has(city)) return 60000;
   return 45000;
