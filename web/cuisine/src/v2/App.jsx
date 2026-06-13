@@ -2958,8 +2958,11 @@ export default function App() {
           with generally good Google ratings."), 'intro' first time on this
           device ("Rating set to … Change it anytime …"), 'saved' after Save
           ("Search rating updated"). Sits a step above the locMoveNote slot so
-          the two never overlap. Tap to dismiss; auto-hides after 7 s. */}
-      {ratingReminder && (
+          the two never overlap. Tap to dismiss; auto-hides after 7 s.
+          v0.62.x — on RELAUNCH the reset/intro copy is shown INSIDE the initial
+          loading overlay (below "Please wait…"), so suppress this toast while
+          that overlay is up to avoid the duplicate. */}
+      {ratingReminder && !(loading && !funFact && loadingReason !== 'rotating' && loadingReason !== 'refresh' && ratingReminder.kind !== 'saved') && (
         <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
           <button
             type="button"
@@ -3577,21 +3580,30 @@ export default function App() {
               /* v0.61.409 — operator: "the spinning hourglass be within the
                  message". The ⏳ now animates inline beside the loading copy;
                  the separate bottom hourglass in the results list is removed. */
-              <div className="flex items-center justify-center gap-2">
-                <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
-                <span>{t('loading.initial', lang)}</span>
-              </div>
+              <>
+                <div className="flex items-center justify-center gap-2">
+                  <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
+                  <span>{t('loading.initial', lang)}</span>
+                </div>
+                {/* v0.62.x — operator: on relaunch, show the rating-reset (or
+                    first-run intro) copy on the next line, under the "Please
+                    wait while loading random eateries…" message. */}
+                {ratingReminder && ratingReminder.kind !== 'saved' && (
+                  <div className="mt-2">
+                    <div className="font-semibold">{t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang)}</div>
+                    <div className="mt-0.5 text-tg-hint">{t(ratingReminder.kind === 'intro' ? 'rating.introBody' : 'rating.resetBody', lang)}</div>
+                  </div>
+                )}
+              </>
             )}
-            {/* v0.62.x — operator: some find the rotating-eateries wait
-                annoying. Offer a 🛑 Stop loading on user-initiated searches
-                (the abortable 'rotating' stream); keeps whatever already
-                streamed in. Not shown for the boot/'initial' warm-start. */}
-            {loadingReason === 'rotating' && (
-              <button type="button" onClick={stopLoading}
-                className="mt-3 px-3 py-1 rounded-full border border-tg-border text-[11px] text-tg-text hover:bg-tg-bg">
-                {t('loading.stop', lang)}
-              </button>
-            )}
+            {/* v0.62.x — operator: EVERY loading pop-up carries the 🛑 Stop
+                pill (small font, 0.5px amber/red border). It aborts the
+                in-flight search (when one is streaming) and drops the overlay;
+                on the boot warm-start it just dismisses the wait. */}
+            <button type="button" onClick={stopLoading}
+              className="mt-3 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
+              {t('loading.stop', lang)}
+            </button>
           </div>
         </div>
       )}
