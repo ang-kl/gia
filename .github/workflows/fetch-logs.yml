@@ -106,26 +106,16 @@ jobs:
 
       - name: Commit and push logs
         if: steps.fetch.outputs.skip != '1' && steps.fetch.outputs.rows != '0'
-        env:
-          LOG_BRANCH: railway-logs
         run: |
           set -euo pipefail
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          # main is a PROTECTED branch (4 required CI checks) — a bot push is
-          # rejected (GH006). So commit the log file onto a dedicated, un-
-          # protected LOG_BRANCH instead. The fetched file lives in log/ as an
-          # UNTRACKED file, so it survives the branch switch below; we then add
-          # + commit + push it there. main stays clean.
-          FILE="${{ steps.time.outputs.file }}"
-          git fetch origin "$LOG_BRANCH" || true
-          if git show-ref --verify --quiet "refs/remotes/origin/$LOG_BRANCH"; then
-            git checkout -B "$LOG_BRANCH" "origin/$LOG_BRANCH"
-          else
-            git checkout -B "$LOG_BRANCH"   # first run — fork it off main
-          fi
-          git add -f "$FILE"
+          # Push the log file to log/ on main (operator's choice). main is a
+          # PROTECTED branch with 4 required status checks, so for this raw bot
+          # push to succeed the `github-actions[bot]` actor MUST be on the branch
+          # ruleset's bypass list (Settings → Rules/Branches → allow Actions to
+          # bypass required checks). Without that, the push is rejected (GH006).
+          git add "${{ steps.time.outputs.file }}"
           git commit -m "logs: ${{ steps.time.outputs.since }} → ${{ steps.time.outputs.until }} (service ${SERVICE_ID})"
-          # Re-sync in case a concurrent run advanced the branch, then push.
-          git pull --rebase --autostash origin "$LOG_BRANCH" || true
-          git push origin "$LOG_BRANCH"
+          git pull --rebase --autostash origin main
+          git push origin main
