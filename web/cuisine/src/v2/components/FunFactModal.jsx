@@ -137,8 +137,9 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
             streamed in stays on screen. */}
         {onStop && (
           <div className="flex justify-center mt-2.5">
+            {/* v0.62.x — operator: small font, 0.5px amber/red border pill. */}
             <button type="button" onClick={onStop}
-              className="px-3 py-1 rounded-full border border-tg-border text-[11px] text-tg-text hover:bg-tg-bg pointer-events-auto">
+              className="px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
               {tr('funfact.stop', lang)}
             </button>
           </div>
