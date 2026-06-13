@@ -15500,13 +15500,18 @@ async function cacheBotUsername() {
         // Sri Lankan/Pakistani (South Asian), Italian/Spanish/Greek/
         // French/British/German/Austrian/Swiss/Portuguese/Scandinavian/
         // European/Mediterranean (European, incl. broad catch-alls).
+        // v0.62.x — Australasian (australian / new-zealand): an "Australian"
+        // search in Putrajaya surfaced a Spanish/Iberico "Southern European
+        // Deli" (no gate → Places loose-matched it to a Western venue). The
+        // gate now drops the generic-Western false positive.
         const GEMINI_CACHE_KEYS = new Set([
           'durian', 'durian-pastry', 'fruits',
           'russian', 'polish', 'ukrainian', 'czech', 'hungarian', 'bulgarian', 'romanian',
           'japanese', 'korean',
           'north-indian', 'south-indian', 'bengali', 'gujarati', 'nepalese', 'sri-lankan', 'pakistani',
           'italian', 'spanish', 'greek', 'french', 'british', 'german', 'austrian', 'swiss',
-          'portuguese', 'scandinavian', 'european', 'mediterranean'
+          'portuguese', 'scandinavian', 'european', 'mediterranean',
+          'australian', 'new-zealand'
         ]);
         let geminiCacheKey = null;
         if (specialMode && GEMINI_CACHE_KEYS.has(specialMode)) {

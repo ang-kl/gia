@@ -290,6 +290,23 @@ const PROMPT_CONFIG = {
     sells: 'serves MEDITERRANEAN CUISINE broadly (olive-oil-and-fish based — could be Greek, Italian, Spanish, Lebanese, Turkish, Israeli, North African coastal — a kitchen that identifies as Mediterranean in style, not a purely Northern-European or non-coastal restaurant)',
     focusItem: 'Mediterranean food',
     mentionContext: 'Mediterranean mention in reviews'
+  },
+  // v0.62.x — Australasian (operator: an "Australian" search in Putrajaya
+  // surfaced a Spanish/Iberico "Southern European Deli" because Australian
+  // has no relevance gate and Places matches it loosely to generic Western
+  // venues). Both prompts explicitly reject the generic-Western / steakhouse /
+  // European false positive that grilled-meat menus trigger.
+  'australian': {
+    directory: 'Australian cuisine directory',
+    sells: 'serves AUSTRALIAN CUISINE specifically (modern Australian / "Mod Oz"; Aussie pub fare — meat pie, sausage roll, chicken parma, snags / barbecue; brunch & flat-white café culture, smashed avo; lamingtons, pavlova, Vegemite; native bush-tucker — a kitchen that identifies as Australian, NOT a generic Western / European / Spanish / Mediterranean / steakhouse / deli that merely grills meat or serves Iberico/charcuterie)',
+    focusItem: 'Australian food',
+    mentionContext: 'Australian mention in reviews'
+  },
+  'new-zealand': {
+    directory: 'New Zealand cuisine directory',
+    sells: 'serves NEW ZEALAND CUISINE specifically (hāngī, kiwi pub fare, green-lipped mussels, whitebait fritters, lamb roasts, pavlova, hokey pokey, modern NZ bistro cooking, flat-white café culture — a kitchen that identifies as New Zealand / Kiwi, NOT a generic Western / Australian / European restaurant)',
+    focusItem: 'New Zealand food',
+    mentionContext: 'New Zealand mention in reviews'
   }
 };
 

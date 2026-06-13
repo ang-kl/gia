@@ -116,6 +116,18 @@ describe('durian-gemini-verifier — helpers', () => {
     expect(fruitPrompt).toContain('FRESH DURIAN FRUIT');
     expect(pastryPrompt).toContain('DURIAN-FLAVORED PASTRIES');
   });
+
+  // v0.62.x — the Australasian gate (operator: an "Australian" search in
+  // Putrajaya returned a Spanish/Iberico "Southern European Deli"). The prompt
+  // must build AND explicitly reject the generic-Western false positive.
+  it('_buildPrompt supports australian + new-zealand and rejects generic Western', () => {
+    const au = _buildPrompt('australian', [{ id: 1, name: 'Z', primaryType: 'restaurant', address: '', reviewSnippets: [] }]);
+    const nz = _buildPrompt('new-zealand', [{ id: 1, name: 'Z', primaryType: 'restaurant', address: '', reviewSnippets: [] }]);
+    expect(au).toContain('AUSTRALIAN CUISINE');
+    expect(au).toMatch(/NOT a generic Western/i);           // the reject caveat is present
+    expect(au).toMatch(/Iberico|deli|steakhouse/i);          // the exact false positive the gate must catch
+    expect(nz).toContain('NEW ZEALAND CUISINE');
+  });
 });
 
 describe('durian-gemini-verifier — verifyKeptVenues', () => {
