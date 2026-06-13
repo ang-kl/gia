@@ -1,0 +1,1213 @@
+{
+  "since": "2026-06-13T00:22:47Z",
+  "until": "2026-06-13T01:27:47Z",
+  "count": 134,
+  "logs": [
+    {
+      "timestamp": "2026-06-13T00:24:36.473987169Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:24:36.473991918Z",
+      "message": "[Pulse] Status updated at 8:24:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:29:36.635171330Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:29:36.635175340Z",
+      "message": "[Pulse] Status updated at 8:29:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:34:36.821405402Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:34:36.821410752Z",
+      "message": "[Pulse] Status updated at 8:34:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:39:36.988578861Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:39:36.988583651Z",
+      "message": "[Pulse] Status updated at 8:39:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:44:37.091373521Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:44:37.091377581Z",
+      "message": "[Pulse] Status updated at 8:44:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:49:37.258918345Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:49:37.258922335Z",
+      "message": "[Pulse] Status updated at 8:49:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:54:37.338192726Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:54:37.338199006Z",
+      "message": "[Pulse] Status updated at 8:54:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:59:37.664210512Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T00:59:37.664222522Z",
+      "message": "[Pulse] Status updated at 8:59:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:27.807013295Z",
+      "message": "[country-pref] chat=313940231 → MY",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:28.867171779Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:28.867176589Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[2.96957,101.71218],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:28.876649013Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=2.9696,101.7122 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:28.876652613Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:30.285744151Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 53 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:30.295087275Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 53 → 53 (≤45000m of set location)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:30.300574938Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=ae36e3bb",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:32.810282641Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:33.013605801Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:33.183503855Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:33.720927531Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:33.720933301Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:33.776606284Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:34.594514449Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:03:34.636443641Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:04:44.649560567Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:04:44.649565287Z",
+      "message": "[Pulse] Status updated at 9:04:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:24.699252016Z",
+      "message": "[country-pref] chat=313940231 → MY",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:24.987174800Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:24.987187770Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[2.96957,101.71218],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:24.987190940Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=2.9696,101.7122 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:24.987194190Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:26.291715611Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 55 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:26.291722281Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 55 → 55 (≤45000m of set location)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:26.299225939Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=ae36e3bb",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:28.752802540Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:28.985843473Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:29.134689435Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:29.572535977Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:29.582965339Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:29.720490150Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:30.165947449Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:07:30.200970137Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:09:40.260730223Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:09:40.260734783Z",
+      "message": "[Pulse] Status updated at 9:09:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:38.660208330Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487115008Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487119143Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487123436Z",
+      "message": "> soleat@0.62.62 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487127100Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487130840Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.487134801Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.503042582Z",
+      "message": "[Updates] deleteWebHook failed (non-fatal): ETELEGRAM: 429 Too Many Requests: retry after 5",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:39.646184633Z",
+      "message": "[Fatal] setWebHook failed: ETELEGRAM: 429 Too Many Requests: retry after 5",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:40.598396741Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:40.611882472Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:40.611885488Z",
+      "message": "> soleat@0.62.62 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:40.611888423Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:40.611891209Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:41.078007261Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:44.028753348Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:44.105154516Z",
+      "message": "[Updates] deleteWebHook failed (non-fatal): ETELEGRAM: 502 Bad Gateway",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:44.493187570Z",
+      "message": "[Fatal] setWebHook failed: ETELEGRAM: 502 Bad Gateway",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.500150742Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.500158266Z",
+      "message": "> soleat@0.62.62 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.500162083Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.500165709Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.500179620Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:45.725549180Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:50.288786892Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:50.288791862Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:50.288795112Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:50.288797692Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:50.288800192Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-13T00_04_30_903Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "89dd6a09-6296-4814-bb8b-d8b9865ade3f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:51.579601692Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:10:51.720829196Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:01.541640008Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:01.541643134Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:01.541646633Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:02.094672501Z",
+      "message": "[Pulse] Status updated at 9:11:02 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:02.549328453Z",
+      "message": "[Vibe] Cached 5 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:02.549337110Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:02.549341313Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:11:02.549344796Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:16:02.785998981Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:16:02.786001869Z",
+      "message": "[Pulse] Status updated at 9:16:02 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611058321Z",
+      "message": "[country-pref] chat=313940231 → MY",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611061247Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611064128Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[2.96957,101.71218],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611066875Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=2.9696,101.7122 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611069821Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611072674Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 53 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611075638Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 53 → 53 (≤45000m of set location)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:32.611078556Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=ae36e3bb",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:34.651314505Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:34.813534012Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:34.947158281Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:35.614728534Z",
+      "message": "vibe-summary LLM call failed",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:36.717097419Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:19:36.744126318Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.003463654Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.003468287Z",
+      "message": "[Pulse] Status updated at 9:21:02 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.134844959Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412281835Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412304245Z",
+      "message": "> soleat@0.62.63 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412307763Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412311092Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412316931Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412321723Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.412333816Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:07.447886488Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:09.980731018Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.015018243Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.036800197Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.590785447Z",
+      "message": "[Pulse] Status updated at 9:21:10 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.719881499Z",
+      "message": "[Vibe] Cached 5 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.727215365Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.727219372Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:10.727222657Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.266958358Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.266962151Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.266965125Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.266968100Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.266970813Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-13T01_10_45_199Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:21:11.722392102Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b234c116-00b3-42c8-a7c4-95844de78d30",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:26:11.357648211Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T01:26:11.357652997Z",
+      "message": "[Pulse] Status updated at 9:26:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "bb7f2ca6-49f7-4c5c-a123-a05f9e5497ef",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
