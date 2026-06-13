@@ -3570,7 +3570,14 @@ export default function App() {
         >
           {/* v0.62.x — operator: the pop-up "looks 90s". Modernised: blurred
               scrim, rounded-3xl card, softer ring + shadow, roomier padding. */}
-          <div className="w-full max-w-[320px] rounded-3xl border border-tg-border/60 bg-tg-card/95 px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/10 backdrop-blur text-center">
+          {/* v0.62.x — operator: "make it opaque". The first-load overlay's
+              frosted `bg-tg-card/95` + card-level `backdrop-blur` + faint 60%
+              border let the map bleed through, so the first load looked
+              translucent while the FunFactModal "Did you know?" card was solid.
+              Match that card: fully-opaque `bg-tg-card`, bold 2px accent frame,
+              `ring-tg-accent/30`, no card backdrop-blur (the wrapper scrim still
+              blurs the page behind). */}
+          <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-center">
             {loadingReason === 'rotating' ? (
               <>
                 <div className="font-semibold">{t('loading.head', lang)}</div>
