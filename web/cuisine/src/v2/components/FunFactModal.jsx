@@ -136,8 +136,9 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
             🛑 Stop loading aborts the in-flight search; whatever already
             streamed in stays on screen. */}
         {onStop && (
-          <div className="flex justify-center mt-2.5">
-            {/* v0.62.x — operator: small font, 0.5px amber/red border pill. */}
+          /* v0.62.x — operator: 🛑 Stop curating pill on its own LAST line,
+             flush RIGHT, small font, 0.5px amber/red border. */
+          <div className="flex justify-end mt-2.5">
             <button type="button" onClick={onStop}
               className="px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
               {tr('funfact.stop', lang)}

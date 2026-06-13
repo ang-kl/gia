@@ -112,11 +112,12 @@ jobs:
           set -euo pipefail
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          # main is a PROTECTED branch (4 required CI checks) — a bot push is
-          # rejected (GH006). So commit the log file onto a dedicated, un-
-          # protected LOG_BRANCH instead. The fetched file lives in log/ as an
-          # UNTRACKED file, so it survives the branch switch below; we then add
-          # + commit + push it there. main stays clean.
+          # main is a PROTECTED branch (4 required checks) — a bot push there is
+          # rejected (GH006) and a per-bot bypass is fiddly. So commit the log
+          # file onto a dedicated, UNPROTECTED LOG_BRANCH instead (operator's
+          # choice). The fetched file lives in log/ as an UNTRACKED file, so it
+          # survives the branch switch; we add + commit + push it there. main
+          # stays clean. Browse at github.com/<owner>/<repo>/tree/railway-logs/log
           FILE="${{ steps.time.outputs.file }}"
           git fetch origin "$LOG_BRANCH" || true
           if git show-ref --verify --quiet "refs/remotes/origin/$LOG_BRANCH"; then
@@ -126,6 +127,5 @@ jobs:
           fi
           git add -f "$FILE"
           git commit -m "logs: ${{ steps.time.outputs.since }} → ${{ steps.time.outputs.until }} (service ${SERVICE_ID})"
-          # Re-sync in case a concurrent run advanced the branch, then push.
           git pull --rebase --autostash origin "$LOG_BRANCH" || true
           git push origin "$LOG_BRANCH"
