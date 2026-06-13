@@ -43,12 +43,12 @@ jobs:
     # Don't loop on the workflow's own commit.
     if: github.event.head_commit.message == null || !contains(github.event.head_commit.message, '[durian-variance auto-commit]')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Need write token so the auto-commit step can push back.
           token: ${{ github.token }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm

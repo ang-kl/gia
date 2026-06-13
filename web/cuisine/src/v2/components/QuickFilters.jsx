@@ -97,13 +97,14 @@ function RadioDot({ checked }) {
 }
 
 // One mutually-exclusive rating choice — a ≥44px tappable cell. Used in a
-// 2-up grid (v0.61.428), so the dot top-aligns and the hint wraps in a
-// smaller font beneath the label.
+// 2-up grid (v0.61.428), so a cell WITH a hint top-aligns its dot (the hint
+// wraps beneath the label); a hint-less cell (Good+) centres the dot + label
+// vertically (v0.62.x operator alignment fix).
 function RatingOption({ checked, onSelect, label, hint }) {
   return (
     <button type="button" role="radio" aria-checked={checked} onClick={onSelect}
-      className={`flex items-start gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border text-left transition-colors ${checked ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
-      <span className="mt-0.5"><RadioDot checked={checked} /></span>
+      className={`flex ${hint ? 'items-start' : 'items-center'} gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border text-left transition-colors ${checked ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+      <span className={hint ? 'mt-0.5' : ''}><RadioDot checked={checked} /></span>
       <span className="flex flex-col">
         <span className={`text-xs text-tg-text ${checked ? 'font-medium' : ''}`}>{label}</span>
         {hint && <span className="text-[0.6rem] italic leading-snug text-tg-hint">{hint}</span>}
@@ -321,21 +322,19 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
           <div className="grid grid-cols-2 gap-1.5 items-stretch">
             <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
               label={`${tr('rating.goodPlus', lang)}  ≥ ${RATING_PRESET}`} hint={null} />
-            {/* Set rating — radio dot + label on top, the 1.0–5.0 field below so
-                the box gets the full half-cell width. Tapping the cell OR
-                focusing the field selects it. */}
-            <label className={`flex flex-col gap-1 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
-              <span className="flex items-center gap-2">
-                <RadioDot checked={ratingSel === 'custom'} />
-                <span className={`text-xs text-tg-text whitespace-nowrap ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.setRating', lang)}</span>
-              </span>
+            {/* Set as — ONE line: radio dot + "Set as" + the 1.0–5.0 field
+                (v0.62.x operator: shrink the box; both Good+ and Set as are
+                single-line). Tapping the cell OR focusing the field selects it. */}
+            <label className={`flex items-center gap-1.5 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+              <RadioDot checked={ratingSel === 'custom'} />
+              <span className={`text-xs text-tg-text whitespace-nowrap ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.setRating', lang)}</span>
               <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
                 value={ratingCustom}
                 placeholder={tr('rating.customHint', lang)}
                 onFocus={() => chooseRating('custom')}
                 onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
                 aria-label={`${tr('rating.setRating', lang)} — ${tr('rating.customHint', lang)}`}
-                className="w-full min-w-0 px-2 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
+                className="flex-1 min-w-0 px-1.5 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
             </label>
           </div>
           {/* Save — red "Save" until tapped, then bright green "✓ Saved".
