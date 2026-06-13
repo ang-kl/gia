@@ -1,0 +1,1771 @@
+{
+  "since": "2026-06-13T15:14:25Z",
+  "until": "2026-06-13T16:19:25Z",
+  "count": 196,
+  "logs": [
+    {
+      "timestamp": "2026-06-13T15:14:33.699256146Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:14:33.699259286Z",
+      "message": "[Pulse] Status updated at 11:14:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:19:33.814890068Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:19:33.814893688Z",
+      "message": "[Pulse] Status updated at 11:19:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:24:33.954843835Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:24:33.954856215Z",
+      "message": "[Pulse] Status updated at 11:24:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227447097Z",
+      "message": "[country-pref] chat=313940231 → MY",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227450587Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":2.9695683897517817,\"lng\":101.71217715703894,\"cuisines\":[],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"OTHER\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227453647Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 15000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227457657Z",
+      "message": "[Cuisine-TMA] D781 OTHER radius ceiling 20000m → 15000m (region=OTHER, anchorCap=15000)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227461857Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[2.96957,101.71218],\"region\":\"OTHER\",\"radius_m\":15000,\"cap_m\":15000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227465267Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=2.9696,101.7122 radius=15000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227468837Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227472607Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 55 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227475977Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 55 → 39 (≤15000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:14.227479836Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=57c2d46d",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.322701592Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.322707982Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2121ms translate=1ms reviewCache=3ms dishes=6009ms finalise=0ms travel=216ms sanctuary=1125ms footfall=2154ms total=11629ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.375103444Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.380155098Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.380161548Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.380165738Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":13080,\"venues\":6,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":1,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.637891968Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":13344,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.892750059Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":254,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:22.940221607Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":258,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:23.164768132Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":255,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:23.580679129Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":453,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:23.838215701Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":252,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:24.052989673Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":253,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:26.932323655Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":3584,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:30.326801690Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:31.136291990Z",
+      "message": "[Pulse] Status updated at 11:29:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:39.390558044Z",
+      "message": "[footfall] besttime resolved=0/1",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:39.651727246Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/nl-query\",\"ms\":3966,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:39.897522679Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":256,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:29:40.917879107Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":1240,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917804568Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-autocomplete\",\"ms\":354,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917809148Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-autocomplete\",\"ms\":327,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917812268Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-autocomplete\",\"ms\":316,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917815397Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-autocomplete\",\"ms\":324,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917818187Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-resolve\",\"ms\":324,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917821127Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"c5c833e38fb1419ebd37efdad09e487c\",\"from\":[2.96957,101.71218],\"to\":[3.03272,101.6188],\"moved_m\":12522,\"label\":\"Puchong\",\"region\":\"OTHER\",\"country\":\"MY\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917824347Z",
+      "message": "[set-location] chat=313940231 → 3.0327,101.6188 label=\"Puchong\" MY OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917827507Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/set-location\",\"ms\":264,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:10.917830607Z",
+      "message": "[set-location] search-area notify chat=313940231 label=\"Puchong\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.432384065Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":3.0327151999999997,\"lng\":101.618802,\"cuisines\":[\"durian\"],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"OTHER\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.439750744Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.439758454Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[3.03272,101.6188],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.439762463Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"durian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=3.0327,101.6188 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.439765673Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Durian Fruits\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.781660709Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 17 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.781669609Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 17 → 16",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:13.798482833Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (durian): 16 → 16  (dropped=0 unrelated, unlabeled=1 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418080540Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (durian): batched=1, labels written=1, dropped=0 unrelated (16 → 16)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418083040Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 16 → 16 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418085380Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 16 → 15",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418088280Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=2 radiusM=15000 satisfied=true from=15 to=5",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418090920Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-12 seenBefore=0 hash=8aebc909",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:14.418093190Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=durian country=MY unfamiliar=false filled=0/12 (reviewDishes=2 noVerifiedMention=10)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:22.791966569Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.398604197Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.398608416Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2381ms translate=1ms reviewCache=3ms dishes=6003ms finalise=0ms travel=193ms sanctuary=2462ms footfall=2946ms total=13989ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.455196494Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=12 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.455199514Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.455202084Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.455205034Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":14997,\"venues\":12,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":2,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.684256552Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":15259,\"ok\":true,\"stream\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.932082423Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":253,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.969034826Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":254,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.969039145Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":256,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.972837224Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":259,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.976644842Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":260,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.976647942Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":259,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.976650882Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":264,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.976721831Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":265,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.977032057Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":264,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.980650118Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":264,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.980653678Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":266,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.980656618Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":266,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:28.980659468Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":266,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966003922Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":3.0327151999999997,\"lng\":101.618802,\"cuisines\":[\"durian\"],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"OTHER\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966010072Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966014122Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[3.03272,101.6188],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966018132Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"durian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=3.0327,101.6188 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966021802Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Durian Fruits\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966025052Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 17 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966028002Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 17 → 16",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966030832Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (durian): 16 → 16  (dropped=0 unrelated, unlabeled=0 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966034742Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 16 → 16 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966038862Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 16 → 15",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966043182Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=13-15 seenBefore=12 hash=8aebc909",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:48.966046572Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=durian country=MY unfamiliar=false filled=0/3 (reviewDishes=0 noVerifiedMention=3)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.453587113Z",
+      "message": "[footfall] besttime resolved=0/3",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.453591633Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (3v): crowd=2168ms translate=0ms reviewCache=2ms dishes=3611ms finalise=0ms travel=168ms sanctuary=1294ms footfall=223ms total=7466ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.496114615Z",
+      "message": "[Cuisine-Search] D704 returning 3 venues to client (poolCount=15 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.496119725Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.496122325Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.496125895Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":7544,\"venues\":3,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":3,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:52.795260723Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":7847,\"ok\":true,\"stream\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:53.057432636Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":262,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:53.057435486Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":262,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:53.075817595Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":265,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:53.371147594Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":572,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.650126940Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":3.0327151999999997,\"lng\":101.618802,\"cuisines\":[\"durian\"],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"OTHER\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.653640291Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.653645971Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[3.03272,101.6188],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.653648691Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"durian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=3.0327,101.6188 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.653651321Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Durian Fruits\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.671631364Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 17 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.671635594Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 17 → 16",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.671884511Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 16 → 16 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.671886851Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (durian): 16 → 16  (dropped=0 unrelated, unlabeled=0 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680954631Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 16 → 15",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680960751Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=16-15 seenBefore=15 hash=8aebc909",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680964511Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=durian country=MY unfamiliar=false filled=0/0 (reviewDishes=0 noVerifiedMention=0)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680968491Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (0v): crowd=0ms translate=0ms reviewCache=0ms dishes=0ms finalise=0ms travel=0ms sanctuary=0ms footfall=0ms total=0ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680971851Z",
+      "message": "[Cuisine-Search] ZERO reason=all-seen-criteria pool=15 unseenCrit=0 trulyUnseen=0 seen=15 sessionSeen=21 hasCriteria=true cuisines=1 filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680975200Z",
+      "message": "[Cuisine-Search] D704 returning 0 venues to client (poolCount=15 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.680978230Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1794}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.684583631Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1794}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:58.684587541Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":37,\"venues\":0,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":0,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.049654613Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":3.0327151999999997,\"lng\":101.618802,\"cuisines\":[\"durian\"],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"OTHER\",\"freeTextLen\":0,\"resetSeen\":true,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.049661663Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":394,\"ok\":true,\"stream\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.049665813Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.049669593Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[3.03272,101.6188],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.080646342Z",
+      "message": "[Cuisine-Search] resetSeen for chat 313940231",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.080656551Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"durian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=3.0327,101.6188 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.080661311Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Durian Fruits\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.348358985Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":311,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.357271857Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 17 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.357282867Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 17 → 16",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.362965014Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (durian): 16 → 16  (dropped=0 unrelated, unlabeled=0 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.362970014Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 16 → 16 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.371700158Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 16 → 15",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.371705038Z",
+      "message": "[Cuisine-Search] D791 nearby-refetch 20000m → 25000m (have 0/12 fresh, cap=45000)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.641193182Z",
+      "message": "[Cuisine-Search] D791 nearby-refetch 25000m → 45000m (have 1/12 fresh, cap=45000)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.974837610Z",
+      "message": "[Cuisine-Search] D791 outer-ring re-fetch +1 fresh (fetches=2, to 45000m); unseen now 1",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.974841720Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=2 radiusM=15000 satisfied=false from=1 to=0",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.974845150Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-1 seenBefore=0 hash=8aebc909",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:30:59.984850280Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=durian country=MY unfamiliar=false filled=0/1 (reviewDishes=0 noVerifiedMention=1)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:08.253654257Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.934831687Z",
+      "message": "[footfall] besttime resolved=0/1",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.934835037Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (1v): crowd=2263ms translate=0ms reviewCache=3ms dishes=6004ms finalise=0ms travel=123ms sanctuary=1272ms footfall=282ms total=9947ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.951393354Z",
+      "message": "[Cuisine-Search] D704 returning 1 venues to client (poolCount=1 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.956659986Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.958556266Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:09.958560096Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":10915,\"venues\":1,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":4,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:10.312712078Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":11270,\"ok\":true,\"stream\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:10.582444740Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":250,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:10.994774492Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":649,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999171107Z",
+      "message": "[NL-Query] D772 brand-name prepended — \"79 durian\" + [\"Durian Fruits\"]",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999174976Z",
+      "message": "[NL-Query] rating-floor ≥3.7: 8 → 6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999177966Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999180426Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/nl-query\",\"ms\":8585,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999182976Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":252,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999185426Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":250,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999187646Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":254,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:30.999189836Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":258,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:31.297494075Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":245,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:31.441182134Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":607,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:31.685484216Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":367,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:36.745004393Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":256,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:31:36.994783255Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":253,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:16.997782343Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":357,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:19.671532932Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-autocomplete\",\"ms\":327,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:22.287288378Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/place-resolve\",\"ms\":325,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:22.303776707Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"c5c833e38fb1419ebd37efdad09e487c\",\"from\":[3.03272,101.6188],\"to\":[3.07214,101.68972],\"moved_m\":9013,\"label\":\"97 Durian (Sri Petaling)\",\"region\":\"OTHER\",\"country\":\"MY\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:22.303781107Z",
+      "message": "[set-location] chat=313940231 → 3.0721,101.6897 label=\"97 Durian (Sri Petaling)\" MY OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:22.553305972Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/set-location\",\"ms\":261,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:22.652317833Z",
+      "message": "[set-location] search-area notify chat=313940231 label=\"97 Durian (Sri Petaling)\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:28.962314261Z",
+      "message": "[NL-Query] D772 brand-name prepended — \"97 Durian (Sri Petaling)\" + [\"Durian Fruits\"]",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:36.665159949Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":267,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:36.946630175Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":253,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:37.481860660Z",
+      "message": "[footfall] besttime resolved=0/1",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:32:37.750281190Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/nl-query\",\"ms\":9629,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:33:57.759717387Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":74223,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:33:57.759719907Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":74153,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:33:57.759722817Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":312,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:34:37.757045807Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:34:37.757050577Z",
+      "message": "[Pulse] Status updated at 11:34:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:39:37.878156520Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:39:37.878159780Z",
+      "message": "[Pulse] Status updated at 11:39:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:44:37.994451257Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:44:37.994455097Z",
+      "message": "[Pulse] Status updated at 11:44:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:49:38.280712825Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:49:38.280717405Z",
+      "message": "[Pulse] Status updated at 11:49:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:54:38.426694064Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:54:38.426697914Z",
+      "message": "[Pulse] Status updated at 11:54:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:59:38.507526659Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T15:59:38.507530229Z",
+      "message": "[Pulse] Status updated at 11:59:31 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:04:39.324066905Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:04:39.324071395Z",
+      "message": "[Pulse] Status updated at 12:04:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:09:39.406921821Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:09:39.406926321Z",
+      "message": "[Pulse] Status updated at 12:09:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:14:39.714408280Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-13T16:14:39.714411689Z",
+      "message": "[Pulse] Status updated at 12:14:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3f47298f-bda1-45b8-b2e4-89c88383e359",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
