@@ -3577,7 +3577,9 @@ export default function App() {
               Match that card: fully-opaque `bg-tg-card`, bold 2px accent frame,
               `ring-tg-accent/30`, no card backdrop-blur (the wrapper scrim still
               blurs the page behind). */}
-          <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-center">
+          {/* v0.62.x — operator: overlay text is LEFT-justified; the 🛑 Stop
+              pill stays RIGHT-justified (its own row below, `justify-end`). */}
+          <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
             {loadingReason === 'rotating' ? (
               <>
                 <div className="font-semibold">{t('loading.head', lang)}</div>
@@ -3590,7 +3592,7 @@ export default function App() {
                  message". The ⏳ now animates inline beside the loading copy;
                  the separate bottom hourglass in the results list is removed. */
               <>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-start gap-2">
                   <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
                   {/* v0.62.x — operator: blink the trailing U+2026 ellipsis. The
                       glyph lives here (not in the i18n string) so only the
