@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-12';   // v0.62.40 refresh: PRs #990-#1003 (foodie discovery Try-line, location lock + D787, adversarial-review hardening, the Arrival Plate arc [registry + E-split + fact-cards + dish-name guard], plate-wipe + D791 post-search check + boot label-wipe kill, VN curation, ⭐ Recommend filter + overlay classics, the 105-city full curation pass [126 cities/279 rows], vault v0.62.37, live-Hanoi affordance refinements)
+const GEN_DATE = '2026-06-13';   // v0.62.69 refresh: PRs #1004-#1022 (VibeCodingRecord catch-up regen, French audit, URGENT TMA auth guard, the "What to order" cuisine plate arc [Phase 2/2b + city-plate grouping + bug sweep + plate-clear], the rating-filter rework [Refine Google Rating panel + session-scoped reset + boot-overlay copy], the [LocDrift] telemetry + Railway log-collector workflow [hourly → log/, railway-logs branch, cross-deployment merge], the loading-overlay arc [🛑 Stop-curating pill + 10s rotation + modernised then opaque pop-up], and the Putrajaya/Cyberjaya 15km geo-cap drift fix)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

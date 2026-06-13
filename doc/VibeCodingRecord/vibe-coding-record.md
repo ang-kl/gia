@@ -1,45 +1,45 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-12 from a snapshot of all 990 pull requests (#1–#990).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-13 from a snapshot of all 1009 pull requests (#1–#1009).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 990 total — 980 merged, 10 closed without merge.
+- **PRs:** 1009 total — 999 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1003 · 2026-06-11 23:00:14 · _v0.62.40: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word_
+- **Latest:** #1022 · 2026-06-13 06:50:01 · _fix(cuisine-tma): make first-load overlay opaque to match the fun-fact card (v0.62.69)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 657 |
-| fix | 129 |
+| feature | 666 |
+| fix | 134 |
 | docs | 66 |
-| copy | 43 |
+| copy | 44 |
 | prompt-tune | 42 |
 | refactor | 28 |
 | test | 15 |
-| infra | 10 |
+| infra | 14 |
 
 ### By feature / UX area
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 317 |
-| Core / misc | 146 |
-| Docs / vault | 85 |
+| Cuisine Picker | 328 |
+| Core / misc | 149 |
+| Docs / vault | 86 |
 | Transport / carpark | 61 |
 | Recognised lists | 56 |
 | Search / free-text | 54 |
 | Hawker NEA | 52 |
 | /hidden surprise | 42 |
-| Infra / setup | 32 |
+| Infra / setup | 35 |
 | Pipeline / discovery | 27 |
 | /eat /drink flow | 20 |
 | Weather | 19 |
 | Commands / chat UX | 16 |
-| Language / i18n | 14 |
+| Language / i18n | 15 |
 | Menu hub | 14 |
 | Maps / geo / location | 13 |
 | Privacy / legal | 9 |
@@ -1042,6 +1042,25 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1001 | merged | 2026-06-11 22:06:48 | 0.62.38 | feature | Search / free-text | Add: full curation pass — 105 new city entries (126 cities / 279 dish rows), local-language-first | ## What The operator's full build-out: *"build up the remaining count… unique dishes/dessert/way of eating per city, check back/validate sources, use authorised sources… primary focus is local-language first then english… don't leave out… | 7 files — city-plates.js, TMA:cuisine, tests, doc, package, instruction/ | cuisine | tests; doc/vault |
 | 1002 | merged | 2026-06-11 22:48:59 | 0.62.39 | feature | Docs / vault | Add: vault/v0.62.37 snapshot (165 entries) | ## What Commits the `vault/v0.62.37/` snapshot taken by the operator's `/fork vault` task — the full tree of merged main at v0.62.37 (165 entries, ~185 MB, `vault/` itself excluded), mirroring the `vault/v0.61.378` pattern. | 3 files — doc, package | — | doc/vault |
 | 1003 | merged | 2026-06-11 23:00:14 | 0.62.40 | feature | Docs / vault | Add: ⭐ summary names the dish; plate rows show '🔍 find eateries' instead of the tier word | ## What Operator refinements from live-Hanoi screenshots (the v0.62.38 stack working in production): 1. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1004 | merged | 2026-06-11 23:32:43 | 0.62.41 | feature | Docs / vault | Add: VibeCodingRecord catch-up regen — PRs #990–#1003 (990 records) | ## What Regenerates `doc/VibeCodingRecord/` per the standing rule (operator: *"Vibe journal"*): appends PRs **#990–#1003** (the foodie-discovery → location-lock → adversarial-hardening → Arrival-Plate arc → ⭐ Recommend → 105-city full… | 10 files — doc, package, public/ | — | doc/vault |
+| 1005 | merged | 2026-06-12 01:55:40 | 0.62.42 | fix | Language / i18n | Fix: French audit — 12 fixes across 283 history pairs + UI strings (3 critical) | ## What Operator: *"do you need to inspect on FR translation?"* → full audit (their pick 1). | 5 files — city-plates.js, TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1006 | merged | 2026-06-12 03:53:49 | 0.62.44 | feature | Cuisine Picker | Add: URGENT TMA auth guard (open-from-Telegram screen) + cuisine "What to order" plate Phase 1 | ## ⚠️ Urgent: TMA auth guard (v0.62.44) — the headline of this PR **Symptom:** a real iPhone hit `[twa-auth] 401` on **every** TMA mount call (`/catalogue`, `/session/start`, `/search`, `/user-location`, …) → blank app + a 401 storm in… | 12 files — index.js, dish-food-group.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1007 | merged | 2026-06-12 04:43:18 | 0.62.45 | feature | Cuisine Picker | Add: 46: cuisine "What to order" plate — Phase 2 + 2b (native dish names + 📜 history cards, Georgian & Japanese curated) | ## What & why Phase 1 (#1006) surfaced a selected cuisine's iconic dishes as a pre-eatery **"What to order"** plate, but **names-only**. | 8 files — dish-food-group.js, nation-overlay.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1008 | merged | 2026-06-12 07:25:58 | 0.62.47 | fix | Cuisine Picker | Fix: 51: city-plate grouping + Cuisine TMA bug sweep (items 2–10; item 1 separate) | ## Context Branch carries the city-plate grouping (v0.62.47) plus the operator's 10-item screenshot **bug sweep**. | 22 files — index.js, city-plates.js, currency-format.js, dish-food-group.js, dish-name.js, dish-search-gate.js, name-gloss.js, TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1009 | merged | 2026-06-12 07:42:02 | 0.62.52 | fix | Cuisine Picker | Fix: clear city plate on country/city change + tighten place-autocomplete bias (bugs 11–12) | ## Context Two operator bugs from the Putrajaya screenshot (post-#1008), plus item 1 (BP LRT) closed as **diagnosis-only**. | 8 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; privacy; doc/vault |
+| 1010 | merged | 2026-06-12 08:27:17 |  | feature | Core / misc | Add files via upload | Add files via upload | 1 file — log/ | — | — |
+| 1011 | merged | 2026-06-12 21:59:15 |  | feature | Core / misc | Add files via upload | Add files via upload | 1 file — log/ | — | — |
+| 1012 | merged | 2026-06-12 22:45:17 | 0.62.53 | infra | Cuisine Picker | 54: [LocDrift] telemetry + 15-min log workflow + rating-filter rework & Unrated bugfix | ## What's in this PR ### 1. | 12 files — index.js, loc-drift-log.js, venue-filters.js, TMA:cuisine, tests, doc, ci, package | cuisine | privacy; tests; doc/vault |
+| 1013 | merged | 2026-06-12 23:07:25 | 0.62.55 | feature | Cuisine Picker | Add: 57: log collector hourly→log/ · 🛑 Stop loading · 10s rotation · 📜 dish explanations in wait pop-up | ## A. | 10 files — TMA:cuisine, tests, doc, ci, package | cuisine | tests; doc/vault |
+| 1014 | merged | 2026-06-12 23:10:14 | 0.62.58 | feature | Cuisine Picker | Add: rating panel — "Refine Google Rating" header + 2×2 layout | ## Context Operator (rating panel screenshot): combine the options into two rows of two and add a header. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1015 | merged | 2026-06-13 00:01:04 | 0.62.59 | feature | Cuisine Picker | Add: 61: actions→v5 · rating-panel polish · session-scoped rating + amended pop-ups (Cuisine & Menu) | ## A. | 12 files — TMA:cuisine, TMA:menu, doc, ci, package | cuisine+menu | doc/vault |
+| 1016 | merged | 2026-06-13 01:06:29 | 0.62.62 | infra | Infra / setup | log fetch → dedicated railway-logs branch (main is protected) | ## Context The operator added the `RAILWAY_API_KEY` secret and re-ran *Auto Fetch Railway Logs*. | 4 files — doc, ci, package | — | doc/vault |
+| 1017 | merged | 2026-06-13 01:17:14 | 0.62.63 | copy | Cuisine Picker | Reword: rating-reset copy in boot overlay + 🛑 Stop pill on every loading pop-up | ## Context Operator: (1) on relaunch, show the rating-reset copy on the next line under "Please wait while loading random eateries…"; (2) the 🛑 Stop button should be on **every** loading pop-up, as a small pill with a 0.5px red/yellow… | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1018 | merged | 2026-06-13 01:24:48 | 0.62.64 | infra | Infra / setup | log fetch merges logs across latest deployments (fixes empty-window after redeploy) | ## Context You re-ran *Auto Fetch Railway Logs* (runs #4/#5) — both went **green but committed nothing**. | 4 files — doc, ci, package | — | doc/vault |
+| 1019 | merged | 2026-06-13 02:09:23 | 0.62.66 | infra | Cuisine Picker | 67: "Stop curating" pill + modern pop-up · log fetch → railway-logs branch | ## A. | 7 files — TMA:cuisine, doc, ci, package | cuisine | doc/vault |
+| 1020 | merged | 2026-06-13 02:15:33 |  | feature | Core / misc | Add files via upload | Add files via upload | 1 file — log/ | — | — |
+| 1021 | merged | 2026-06-13 05:56:43 | 0.62.68 | fix | Infra / setup | Fix: tight 15km cap for Putrajaya/Cyberjaya — stop Klang Valley drift to KL (v0.62.68) | ## What & why Closes the location-drift surfaced in the operator's Railway log (`log/logs.1781315803421.json`, 12-06 '26, `chat 313940231`): ``` [LocDrift] set-location label:"Putrajaya" cap_m:null [LocDrift] search-anchor… | 5 files — city-centroids.js, tests, doc, package | — | tests; doc/vault |
+| 1022 | merged | 2026-06-13 06:50:01 | 0.62.69 | fix | Cuisine Picker | Fix: make first-load overlay opaque to match the fun-fact card (v0.62.69) | ## What & why Operator: the **first load** showed a translucent pop-up while the later **"Did you know?"** card was solid — they didn't match. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 
