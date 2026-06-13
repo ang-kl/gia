@@ -426,16 +426,18 @@ const STRINGS = {
   // v0.61.285 — FunFactModal strings. Replaces the static rotating
   // "still loading" titles during the cuisine-search wait window
   // with a floating NLB-sourced SG food-history fact (40 curated).
-  'funfact.header':            { en: 'Did you know?',
-                                 fr: 'Le saviez-vous ?' },
-  'funfact.curating':          { en: 'Still curating…',
-                                 fr: 'Recherche en cours…' },
+  // v0.62.x — operator: fact-card header "💡 Food fact" (was "Did you know?").
+  'funfact.header':            { en: 'Food fact',
+                                 fr: 'Info gourmande' },
+  // v0.62.x — operator: footer label "••• Finding eateries…" (was "Still curating…"),
+  // matching the first-load overlay copy.
+  'funfact.curating':          { en: 'Finding eateries…',
+                                 fr: 'Recherche de restaurants…' },
   'funfact.sourceLabel':       { en: 'Source',
                                  fr: 'Source' },
-  // v0.62.x — operator: "[Stop search]" on the first-load overlay. Both stop
-  // buttons (loading overlay + fun-fact card) renamed in step so the affordance
-  // reads identically wherever it appears. 🛑 retained.
-  'funfact.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' },
+  // v0.62.x — operator: per-screen stop labels — the first-load overlay reads
+  // "🛑 Stop search"; the (compact, 3-column) fact-card footer reads "🛑 Stop".
+  'funfact.stop':              { en: '🛑 Stop', fr: '🛑 Arrêter' },
   'loading.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' }
 };
 
