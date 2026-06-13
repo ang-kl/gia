@@ -3598,12 +3598,15 @@ export default function App() {
                   <span>{t('loading.initial', lang)}<span aria-hidden className="animate-blink">{'…'}</span></span>
                 </div>
                 {/* v0.62.x — operator: on relaunch, show the rating-reset (or
-                    first-run intro) copy on the next line, under the "Please
-                    wait while loading random eateries…" message. */}
+                    first-run intro) copy on the next line, under the "Finding
+                    eateries…" message.
+                    v0.62.72 — operator: drop the grey body sub-line here ("Showing
+                    eateries with generally good Google ratings." / intro equivalent);
+                    the title alone is enough on the loading overlay. The standalone
+                    bottom rating toast (above, ~line 2966) keeps its body line. */}
                 {ratingReminder && ratingReminder.kind !== 'saved' && (
                   <div className="mt-2">
                     <div className="font-semibold">{t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang)}</div>
-                    <div className="mt-0.5 text-tg-hint">{t(ratingReminder.kind === 'intro' ? 'rating.introBody' : 'rating.resetBody', lang)}</div>
                   </div>
                 )}
               </>
