@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-12",
-  "count": 990,
+  "generated": "2026-06-13",
+  "count": 1009,
   "records": [
     {
       "pr": 1,
@@ -28308,6 +28308,568 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 1004,
+      "status": "merged",
+      "merged": "2026-06-11 23:32:43",
+      "day": "2026-06-11",
+      "version": "0.62.41",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: VibeCodingRecord catch-up regen — PRs #990–#1003 (990 records)",
+      "approach": "## What Regenerates `doc/VibeCodingRecord/` per the standing rule (operator: *\"Vibe journal\"*): appends PRs **#990–#1003** (the foodie-discovery → location-lock → adversarial-hardening → Arrival-Plate arc → ⭐ Recommend → 105-city full…",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.41: VibeCodingRecord catch-up regen — PRs #990–#1003 (990 records)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1005,
+      "status": "merged",
+      "merged": "2026-06-12 01:55:40",
+      "day": "2026-06-12",
+      "version": "0.62.42",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Language / i18n",
+      "intent": "Fix: French audit — 12 fixes across 283 history pairs + UI strings (3 critical)",
+      "approach": "## What Operator: *\"do you need to inspect on FR translation?\"* → full audit (their pick 1).",
+      "codeImpact": "5 files — city-plates.js, TMA:cuisine, doc, package",
+      "modules": [
+        "city-plates.js",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.42: French audit — 12 fixes across 283 history pairs + UI strings (3 critical)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1006,
+      "status": "merged",
+      "merged": "2026-06-12 03:53:49",
+      "day": "2026-06-12",
+      "version": "0.62.44",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: URGENT TMA auth guard (open-from-Telegram screen) + cuisine \"What to order\" plate Phase 1",
+      "approach": "## ⚠️ Urgent: TMA auth guard (v0.62.44) — the headline of this PR **Symptom:** a real iPhone hit `[twa-auth] 401` on **every** TMA mount call (`/catalogue`, `/session/start`, `/search`, `/user-location`, …) → blank app + a 401 storm in…",
+      "codeImpact": "12 files — index.js, dish-food-group.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "dish-food-group.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.44: URGENT TMA auth guard (open-from-Telegram screen) + cuisine \"What to order\" plate Phase 1",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1007,
+      "status": "merged",
+      "merged": "2026-06-12 04:43:18",
+      "day": "2026-06-12",
+      "version": "0.62.45",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: 46: cuisine \"What to order\" plate — Phase 2 + 2b (native dish names + 📜 history cards, Georgian & Japanese curated)",
+      "approach": "## What & why Phase 1 (#1006) surfaced a selected cuisine's iconic dishes as a pre-eatery **\"What to order\"** plate, but **names-only**.",
+      "codeImpact": "8 files — dish-food-group.js, nation-overlay.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "dish-food-group.js",
+        "doc",
+        "nation-overlay.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.45–46: cuisine \"What to order\" plate — Phase 2 + 2b (native dish names + 📜 history cards, Georgian & Japanese curated)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1008,
+      "status": "merged",
+      "merged": "2026-06-12 07:25:58",
+      "day": "2026-06-12",
+      "version": "0.62.47",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: 51: city-plate grouping + Cuisine TMA bug sweep (items 2–10; item 1 separate)",
+      "approach": "## Context Branch carries the city-plate grouping (v0.62.47) plus the operator's 10-item screenshot **bug sweep**.",
+      "codeImpact": "22 files — index.js, city-plates.js, currency-format.js, dish-food-group.js, dish-name.js, dish-search-gate.js, name-gloss.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "city-plates.js",
+        "currency-format.js",
+        "dish-food-group.js",
+        "dish-name.js",
+        "dish-search-gate.js",
+        "doc",
+        "index.js",
+        "name-gloss.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 22,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.47–51: city-plate grouping + Cuisine TMA bug sweep (items 2–10; item 1 separate)",
+      "reworkCue": false,
+      "reworkOf": 1007,
+      "burst": true
+    },
+    {
+      "pr": 1009,
+      "status": "merged",
+      "merged": "2026-06-12 07:42:02",
+      "day": "2026-06-12",
+      "version": "0.62.52",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: clear city plate on country/city change + tighten place-autocomplete bias (bugs 11–12)",
+      "approach": "## Context Two operator bugs from the Putrajaya screenshot (post-#1008), plus item 1 (BP LRT) closed as **diagnosis-only**.",
+      "codeImpact": "8 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.52: clear city plate on country/city change + tighten place-autocomplete bias (bugs 11–12)",
+      "reworkCue": false,
+      "reworkOf": 1008,
+      "burst": true
+    },
+    {
+      "pr": 1010,
+      "status": "merged",
+      "merged": "2026-06-12 08:27:17",
+      "day": "2026-06-12",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1011,
+      "status": "merged",
+      "merged": "2026-06-12 21:59:15",
+      "day": "2026-06-12",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1012,
+      "status": "merged",
+      "merged": "2026-06-12 22:45:17",
+      "day": "2026-06-12",
+      "version": "0.62.53",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Cuisine Picker",
+      "intent": "54: [LocDrift] telemetry + 15-min log workflow + rating-filter rework & Unrated bugfix",
+      "approach": "## What's in this PR ### 1.",
+      "codeImpact": "12 files — index.js, loc-drift-log.js, venue-filters.js, TMA:cuisine, tests, doc, ci, package",
+      "modules": [
+        "ci",
+        "tests",
+        "doc",
+        "index.js",
+        "loc-drift-log.js",
+        "package",
+        "venue-filters.js",
+        "TMA:cuisine"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.53–54: [LocDrift] telemetry + 15-min log workflow + rating-filter rework & Unrated bugfix",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1013,
+      "status": "merged",
+      "merged": "2026-06-12 23:07:25",
+      "day": "2026-06-12",
+      "version": "0.62.55",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: 57: log collector hourly→log/ · 🛑 Stop loading · 10s rotation · 📜 dish explanations in wait pop-up",
+      "approach": "## A.",
+      "codeImpact": "10 files — TMA:cuisine, tests, doc, ci, package",
+      "modules": [
+        "ci",
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.55–57: log collector hourly→log/ · 🛑 Stop loading · 10s rotation · 📜 dish explanations in wait pop-up",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1014,
+      "status": "merged",
+      "merged": "2026-06-12 23:10:14",
+      "day": "2026-06-12",
+      "version": "0.62.58",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: rating panel — \"Refine Google Rating\" header + 2×2 layout",
+      "approach": "## Context Operator (rating panel screenshot): combine the options into two rows of two and add a header.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.58: rating panel — \"Refine Google Rating\" header + 2×2 layout",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1015,
+      "status": "merged",
+      "merged": "2026-06-13 00:01:04",
+      "day": "2026-06-13",
+      "version": "0.62.59",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: 61: actions→v5 · rating-panel polish · session-scoped rating + amended pop-ups (Cuisine & Menu)",
+      "approach": "## A.",
+      "codeImpact": "12 files — TMA:cuisine, TMA:menu, doc, ci, package",
+      "modules": [
+        "ci",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.59–61: actions→v5 · rating-panel polish · session-scoped rating + amended pop-ups (Cuisine & Menu)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1016,
+      "status": "merged",
+      "merged": "2026-06-13 01:06:29",
+      "day": "2026-06-13",
+      "version": "0.62.62",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Infra / setup",
+      "intent": "log fetch → dedicated railway-logs branch (main is protected)",
+      "approach": "## Context The operator added the `RAILWAY_API_KEY` secret and re-ran *Auto Fetch Railway Logs*.",
+      "codeImpact": "4 files — doc, ci, package",
+      "modules": [
+        "ci",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.62: log fetch → dedicated railway-logs branch (main is protected)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1017,
+      "status": "merged",
+      "merged": "2026-06-13 01:17:14",
+      "day": "2026-06-13",
+      "version": "0.62.63",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Cuisine Picker",
+      "intent": "Reword: rating-reset copy in boot overlay + 🛑 Stop pill on every loading pop-up",
+      "approach": "## Context Operator: (1) on relaunch, show the rating-reset copy on the next line under \"Please wait while loading random eateries…\"; (2) the 🛑 Stop button should be on **every** loading pop-up, as a small pill with a 0.5px red/yellow…",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.63: rating-reset copy in boot overlay + 🛑 Stop pill on every loading pop-up",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1018,
+      "status": "merged",
+      "merged": "2026-06-13 01:24:48",
+      "day": "2026-06-13",
+      "version": "0.62.64",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Infra / setup",
+      "intent": "log fetch merges logs across latest deployments (fixes empty-window after redeploy)",
+      "approach": "## Context You re-ran *Auto Fetch Railway Logs* (runs #4/#5) — both went **green but committed nothing**.",
+      "codeImpact": "4 files — doc, ci, package",
+      "modules": [
+        "ci",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.64: log fetch merges logs across latest deployments (fixes empty-window after redeploy)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1019,
+      "status": "merged",
+      "merged": "2026-06-13 02:09:23",
+      "day": "2026-06-13",
+      "version": "0.62.66",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Cuisine Picker",
+      "intent": "67: \"Stop curating\" pill + modern pop-up · log fetch → railway-logs branch",
+      "approach": "## A.",
+      "codeImpact": "7 files — TMA:cuisine, doc, ci, package",
+      "modules": [
+        "ci",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.66–67: \"Stop curating\" pill + modern pop-up · log fetch → railway-logs branch",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1020,
+      "status": "merged",
+      "merged": "2026-06-13 02:15:33",
+      "day": "2026-06-13",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "1 file — log/",
+      "modules": [
+        "log/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1021,
+      "status": "merged",
+      "merged": "2026-06-13 05:56:43",
+      "day": "2026-06-13",
+      "version": "0.62.68",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Infra / setup",
+      "intent": "Fix: tight 15km cap for Putrajaya/Cyberjaya — stop Klang Valley drift to KL (v0.62.68)",
+      "approach": "## What & why Closes the location-drift surfaced in the operator's Railway log (`log/logs.1781315803421.json`, 12-06 '26, `chat 313940231`): ``` [LocDrift] set-location label:\"Putrajaya\" cap_m:null [LocDrift] search-anchor…",
+      "codeImpact": "5 files — city-centroids.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "city-centroids.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "fix(geo): tight 15km cap for Putrajaya/Cyberjaya — stop Klang Valley drift to KL (v0.62.68)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1022,
+      "status": "merged",
+      "merged": "2026-06-13 06:50:01",
+      "day": "2026-06-13",
+      "version": "0.62.69",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: make first-load overlay opaque to match the fun-fact card (v0.62.69)",
+      "approach": "## What & why Operator: the **first load** showed a translucent pop-up while the later **\"Did you know?\"** card was solid — they didn't match.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "fix(cuisine-tma): make first-load overlay opaque to match the fun-fact card (v0.62.69)",
+      "reworkCue": false,
+      "reworkOf": 1019,
+      "burst": true
     }
   ]
 }

@@ -108,43 +108,41 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
         <p className="text-[13px] leading-snug text-tg-text whitespace-pre-line">
           {body}
         </p>
-        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-tg-border">
-          <span className="text-[10px] text-tg-hint inline-flex items-center gap-1">
-            <span className="inline-flex gap-0.5" aria-hidden="true">
+        {/* v0.62.x — operator: single footer row below the divider, three
+            columns spread — "••• Finding eateries…" · "Source: Wikipedia" ·
+            [🛑 Stop]. The Stop button moved up from its own line into this row.
+            Logic unchanged (operator: "don't change the logic"). */}
+        <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-tg-border">
+          <span className="text-[10px] text-tg-hint inline-flex items-center gap-1 min-w-0">
+            <span className="inline-flex gap-0.5 shrink-0" aria-hidden="true">
               <span className="inline-block w-1 h-1 rounded-full bg-tg-hint animate-pulse" />
               <span className="inline-block w-1 h-1 rounded-full bg-tg-hint animate-pulse" style={{ animationDelay: '150ms' }} />
               <span className="inline-block w-1 h-1 rounded-full bg-tg-hint animate-pulse" style={{ animationDelay: '300ms' }} />
             </span>
-            {tr('funfact.curating', lang)}
+            <span className="truncate">{tr('funfact.curating', lang)}</span>
           </span>
           {fact.sourceUrl ? (
             <a
               href={fact.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-tg-hint underline decoration-dotted hover:text-tg-text"
+              className="text-[10px] text-tg-hint underline decoration-dotted hover:text-tg-text shrink-0 pointer-events-auto"
             >
               {tr('funfact.sourceLabel', lang)}: {sourceLabel}
             </a>
           ) : (
-            <span className="text-[10px] text-tg-hint">
+            <span className="text-[10px] text-tg-hint shrink-0">
               {tr('funfact.sourceLabel', lang)}: {sourceLabel}
             </span>
           )}
-        </div>
-        {/* v0.62.x — operator: some find the rotating-eateries wait annoying.
-            🛑 Stop loading aborts the in-flight search; whatever already
-            streamed in stays on screen. */}
-        {onStop && (
-          /* v0.62.x — operator: 🛑 Stop curating pill on its own LAST line,
-             flush RIGHT, small font, 0.5px amber/red border. */
-          <div className="flex justify-end mt-2.5">
+          {/* Stop aborts the in-flight search; whatever already streamed stays. */}
+          {onStop && (
             <button type="button" onClick={onStop}
-              className="px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
+              className="shrink-0 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
               {tr('funfact.stop', lang)}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

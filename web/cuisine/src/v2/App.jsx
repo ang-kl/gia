@@ -3592,15 +3592,21 @@ export default function App() {
               <>
                 <div className="flex items-center justify-center gap-2">
                   <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
-                  <span>{t('loading.initial', lang)}</span>
+                  {/* v0.62.x — operator: blink the trailing U+2026 ellipsis. The
+                      glyph lives here (not in the i18n string) so only the
+                      ellipsis animates while "Finding eateries" stays steady. */}
+                  <span>{t('loading.initial', lang)}<span aria-hidden className="animate-blink">{'…'}</span></span>
                 </div>
                 {/* v0.62.x — operator: on relaunch, show the rating-reset (or
-                    first-run intro) copy on the next line, under the "Please
-                    wait while loading random eateries…" message. */}
+                    first-run intro) copy on the next line, under the "Finding
+                    eateries…" message.
+                    v0.62.72 — operator: drop the grey body sub-line here ("Showing
+                    eateries with generally good Google ratings." / intro equivalent);
+                    the title alone is enough on the loading overlay. The standalone
+                    bottom rating toast (above, ~line 2966) keeps its body line. */}
                 {ratingReminder && ratingReminder.kind !== 'saved' && (
                   <div className="mt-2">
                     <div className="font-semibold">{t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang)}</div>
-                    <div className="mt-0.5 text-tg-hint">{t(ratingReminder.kind === 'intro' ? 'rating.introBody' : 'rating.resetBody', lang)}</div>
                   </div>
                 )}
               </>

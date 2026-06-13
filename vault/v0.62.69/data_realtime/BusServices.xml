@@ -1,0 +1,188 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:georss="http://www.georss.org/georss" xmlns:gml="http://www.opengis.net/gml" xml:base="http://datamall2.mytransport.sg/ltaodataservice">
+    <id>http://schemas.datacontract.org/2004/07/</id>
+    <title />
+    <updated>2018-3-15T22:8:34Z</updated>
+    <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices" />
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>118</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>65009</d:OriginCode>
+                <d:DestinationCode>97009</d:DestinationCode>
+                <d:AM_Peak_Freq>06-08</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>08-15</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>10-12</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>11-15</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>118</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>2</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>97009</d:OriginCode>
+                <d:DestinationCode>65009</d:DestinationCode>
+                <d:AM_Peak_Freq>10</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>10-12</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>05-11</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>10-15</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>118A</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>65199</d:OriginCode>
+                <d:DestinationCode>96119</d:DestinationCode>
+                <d:AM_Peak_Freq>14-16</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>-</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>-</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>-</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>118B</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>96111</d:OriginCode>
+                <d:DestinationCode>65191</d:DestinationCode>
+                <d:AM_Peak_Freq>-</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>-</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>30</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>-</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>119</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>65009</d:OriginCode>
+                <d:DestinationCode>65009</d:DestinationCode>
+                <d:AM_Peak_Freq>16-08</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>18-12</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>17-12</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>15-17</d:PM_Offpeak_Freq>
+                <d:LoopDesc>Hougang St 21</d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>12</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>1</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>77009</d:OriginCode>
+                <d:DestinationCode>10499</d:DestinationCode>
+                <d:AM_Peak_Freq>09</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>09-14</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>09-10</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>11-13</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+    <entry>
+        <id>http://datamall2.mytransport.sg/ltaodataservice/BusServices()</id>
+        <category term="DataMall2.Models.BusStop.LocationInfo" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+        <link rel="edit" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <link rel="self" href="http://datamall2.mytransport.sg/ltaodataservice/BusServices()" />
+        <title />
+        <updated>2018-3-15T22:8:34Z</updated>
+        <author>
+            <name />
+        </author>
+        <content type="application/xml">
+            <m:properties>
+                <d:ServiceNo>12</d:ServiceNo>
+                <d:Operator>GAS</d:Operator>
+                <d:Direction>2</d:Direction>
+                <d:Category>TRUNK</d:Category>
+                <d:OriginCode>10499</d:OriginCode>
+                <d:DestinationCode>77009</d:DestinationCode>
+                <d:AM_Peak_Freq>10</d:AM_Peak_Freq>
+                <d:AM_Offpeak_Freq>08-15</d:AM_Offpeak_Freq>
+                <d:PM_Peak_Freq>08-14</d:PM_Peak_Freq>
+                <d:PM_Offpeak_Freq>10-14</d:PM_Offpeak_Freq>
+                <d:LoopDesc></d:LoopDesc>
+            </m:properties>
+        </content>
+    </entry>
+</feed>

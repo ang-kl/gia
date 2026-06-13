@@ -5,6 +5,13 @@
 html, body, #root { height: 100%; }
 body { -webkit-font-smoothing: antialiased; }
 
+/* v0.62.x — operator: blink the trailing "…" (U+2026) on the first-load
+   "Finding eateries…" overlay. A smooth opacity blink reads as a live
+   "thinking" pulse without the harsh on/off flicker. Applied via a plain
+   class (not a Tailwind utility) so JIT purging never strips it. */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.animate-blink { animation: blink 1.1s ease-in-out infinite; }
+
 /* v0.57.14: stronger contrast for hint/secondary text. Telegram's
    themeParams.hint_color is often a low-contrast gray (#98989f-ish)
    that fails partial-color-blindness readability. Derive --tg-hint

@@ -211,8 +211,8 @@ const STRINGS = {
   // v0.62.x — operator pop-up copy (amended): every fresh entry / ≥2 min
   // idle-return RESETS the rating to the Good+ 3.7 default (G3 decision:
   // a custom rating lasts for the session only). Three messages:
-  'rating.resetTitle':         { en: 'Rating reset: Good+ ≥ 3.7⭐',
-                                 fr: 'Note réinitialisée : Bien+ ≥ 3.7⭐' },
+  'rating.resetTitle':         { en: 'Rating reset to Good+ ≥ 3.7⭐',
+                                 fr: 'Note réinitialisée à Bien+ ≥ 3.7⭐' },
   'rating.resetBody':          { en: 'Showing eateries with generally good Google ratings.',
                                  fr: 'Affiche les restaurants généralement bien notés sur Google.' },
   'rating.savedToast':         { en: 'Search rating updated',
@@ -346,8 +346,11 @@ const STRINGS = {
   // v0.61.409 — leading ⏳ removed; the overlay card now renders a SPINNING
   // hourglass within the message (operator: "the spinning hourglass be within
   // the message"). Keeping it in the string too would double the glyph.
-  'loading.initial':           { en: 'Please wait while loading random eateries…',
-                                 fr: 'Chargement de restaurants aléatoires…' },
+  // v0.62.x — operator: "Finding eateries…" with the trailing U+2026 ellipsis
+  // BLINKING. The ellipsis is rendered as a separate `animate-blink` span in
+  // App.jsx (like the inline ⏳), so it is intentionally absent from the string.
+  'loading.initial':           { en: 'Finding eateries',
+                                 fr: 'Recherche de restaurants' },
   'loading.refresh':           { en: '📑 Refreshing results with the same filters…',
                                  fr: '📑 Actualisation des résultats avec les mêmes filtres…' },
   'loading.head':              { en: 'Loading…', fr: 'Chargement…' },
@@ -423,14 +426,19 @@ const STRINGS = {
   // v0.61.285 — FunFactModal strings. Replaces the static rotating
   // "still loading" titles during the cuisine-search wait window
   // with a floating NLB-sourced SG food-history fact (40 curated).
-  'funfact.header':            { en: 'Did you know?',
-                                 fr: 'Le saviez-vous ?' },
-  'funfact.curating':          { en: 'Still curating…',
-                                 fr: 'Recherche en cours…' },
+  // v0.62.x — operator: fact-card header "💡 Food fact" (was "Did you know?").
+  'funfact.header':            { en: 'Food fact',
+                                 fr: 'Info gourmande' },
+  // v0.62.x — operator: footer label "••• Finding eateries…" (was "Still curating…"),
+  // matching the first-load overlay copy.
+  'funfact.curating':          { en: 'Finding eateries…',
+                                 fr: 'Recherche de restaurants…' },
   'funfact.sourceLabel':       { en: 'Source',
                                  fr: 'Source' },
-  'funfact.stop':              { en: '🛑 Stop curating', fr: '🛑 Arrêter la sélection' },
-  'loading.stop':              { en: '🛑 Stop curating', fr: '🛑 Arrêter la sélection' }
+  // v0.62.x — operator: per-screen stop labels — the first-load overlay reads
+  // "🛑 Stop search"; the (compact, 3-column) fact-card footer reads "🛑 Stop".
+  'funfact.stop':              { en: '🛑 Stop', fr: '🛑 Arrêter' },
+  'loading.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' }
 };
 
 export const SUPPORTED_LOCALES = ['en', 'fr'];
