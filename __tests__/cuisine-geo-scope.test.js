@@ -111,10 +111,13 @@ describe('OTHER region — pure distance cap, no country-keyword gate', () => {
     expect(r.venues.map((x) => x.name).sort()).toEqual(['edge', 'near']);   // no keyword needed; 'far' beyond 45km dropped
   });
 
-  it('demoteNeverEmpty keeps the (nearest) pool when the cap would empty it', async () => {
+  it('OTHER is floor-free: when every venue is beyond the cap, returns empty (honest zero, not a cross-country result)', async () => {
+    // v0.62.x — the OTHER geofence no longer floors the pre-filter pool back in.
+    // Showing a foreign-city/far venue (the Kapitan-in-SG leak) is worse than an
+    // honest empty, which the caller renders as the zeroReason "none nearby" copy.
     const venues = [v(50000, { name: 'a' }), v(60000, { name: 'b' }), v(70000, { name: 'c' })];
     const r = await scopeVenuesByRegion({ venues, isOther: true, anchorCap: 40000, lat: 3, lng: 101, ...deps() });
-    expect(r.venues.length).toBe(3);   // never empty — keeps the coord-pinned pool
+    expect(r.venues.length).toBe(0);   // all beyond 40km → honest empty
   });
 
   it('falls back to OTHER default 40 km when no anchorCap/searchRadius', async () => {
@@ -130,9 +133,17 @@ describe('defensive', () => {
     expect(r.venues).toEqual([]);
   });
 
-  it('a venue with null distanceM passes the cap (kept)', async () => {
+  it('OTHER drops a venue with null distanceM (fail-closed) — coordless cannot be confirmed in a foreign-city cap', async () => {
+    // v0.62.x — Kapitan (SG, Maxwell Chambers) leaked into a Putrajaya search this
+    // way: it reached the cap with distanceM=null and the old fail-open kept it.
     const venues = [v(null, { name: 'noDist' }), v(10000, { name: 'near' })];
     const r = await scopeVenuesByRegion({ venues, isOther: true, anchorCap: 40000, lat: 3, lng: 101, ...deps() });
+    expect(r.venues.map((x) => x.name)).toEqual(['near']);   // coordless 'noDist' excluded
+  });
+
+  it('SG still KEEPS a null-distanceM venue (curated coordless venues are genuinely local there)', async () => {
+    const venues = [v(null, { name: 'noDist' }), v(10000, { name: 'near' })];
+    const r = await scopeVenuesByRegion({ venues, isOther: false, isJB: false, anchorCap: 40000, lat: 1.3, lng: 103.8, ...deps() });
     expect(r.venues.map((x) => x.name).sort()).toEqual(['near', 'noDist']);
   });
 

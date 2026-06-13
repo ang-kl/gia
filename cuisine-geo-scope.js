@@ -122,9 +122,18 @@ async function scopeVenuesByRegion({
   if (jbFallbackToOther || isOther) {
     const cap = resolveCap(anchorCap, searchRadius, OTHER_DEFAULT_CAP_M);
     const beforeOther = out.length;
-    const kept = out.filter((v) => withinCap(v, cap));
-    out = floor(kept, out);
-    log(`[Cuisine-Search] D703d OTHER-scope ${beforeOther} → ${out.length} (≤${cap}m of set location)`);
+    // v0.62.x — FAIL CLOSED + NO never-empty floor for the OTHER geofence.
+    // Old behaviour leaked a Singapore venue (Kapitan, Maxwell Chambers ~330 km)
+    // into a Putrajaya "Russian" search two ways at once: (a) `withinCap` passed
+    // venues whose `distanceM` was null (a strong far Places text-match that
+    // arrived without a usable distance), and (b) when the cap cleared the pool,
+    // `demoteNeverEmpty` resurfaced the whole pre-filter set. A foreign-city
+    // geofence must require a FINITE, in-range distance, and an honest empty
+    // (→ the caller's zeroReason "none nearby" copy) beats a cross-country
+    // result. SG/JB keep the permissive `withinCap` + floor — coordless curated
+    // venues there are genuinely local.
+    out = out.filter((v) => Number.isFinite(v.distanceM) && v.distanceM <= cap);
+    log(`[Cuisine-Search] D703d OTHER-scope ${beforeOther} → ${out.length} (≤${cap}m of set location; coordless / out-of-range excluded)`);
   } else if (!isJB) {
     // 3) SG — concentric distance cap, minus cross-border Johor bleed.
     const cap = resolveCap(anchorCap, searchRadius, SG_DEFAULT_CAP_M);
