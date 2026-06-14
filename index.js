@@ -16087,7 +16087,13 @@ async function cacheBotUsername() {
         // For durian / durian-pastry, DON'T hard-floor: keep ALL (incl. <3.7 +
         // unrated); the >=3.7/unrated picks are ordered FIRST below and a notice
         // explains "we look for 3.7★+ but also show lower-rated / unrated stalls".
-        const durianSoftRating = (specialMode === 'durian' || specialMode === 'durian-pastry');
+        // v0.62.79 — also relax the ≥3.7 floor when "durian" is picked as a
+        // PLAIN cuisine (operator: 97 Durian & other genuine stalls rate <3.7
+        // yet are "worth it"; a durian stall is a durian stall). Previously the
+        // soft-rating only applied to the durian SPECIAL mode, so the cuisine
+        // path floored real stalls out. Same soft order (≥3.7 first).
+        const durianSoftRating = (specialMode === 'durian' || specialMode === 'durian-pastry'
+          || (Array.isArray(cuisines) && cuisines.some((c) => String(c || '').toLowerCase() === 'durian')));
         if (!durianSoftRating) {
           const beforeFloor = venues.length;
           // v0.62.x — the unified newness rule floors rated venues at >3.0 (see
@@ -16107,7 +16113,7 @@ async function cacheBotUsername() {
           console.log(`[Cuisine-Search] durian soft-rating: floor skipped, kept all ${venues.length} (>=3.7/unrated ordered first)`);
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
-        const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
+        let trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
         // v0.61.441 — nearest-first ordering (concentric rings). The pool was
         // distance-sorted upstream, but the outer-ring re-fetch below appends
         // out-of-order venues, so (re)sort here defensively. Skip for shuffle
@@ -16214,6 +16220,25 @@ async function cacheBotUsername() {
             }
           } catch (err) {
             console.warn('[Cuisine-Search] outer-ring re-fetch failed (non-fatal):', err.message);
+          }
+        }
+        // v0.62.79 — SMALL-POOL RECYCLE (operator: durian near Putrajaya "keeps
+        // getting 1 or zero"). A sparse curated pool (≤ one page) gets exhausted
+        // by the per-SESSION seen-set after a couple taps → the page becomes a
+        // dead `all-seen-session` zero, and the client's resetSeen retry only
+        // clears the per-CRITERIA seen, never the session-seen — so it stays
+        // zero forever. For such a small pool, re-serving it (nearest-first)
+        // beats an empty list. Gated to ≤ FOLLOW_UP_SLICE so LARGE pools keep
+        // the genuine "you've seen them all → change criteria" terminal state.
+        if (trulyUnseen.length === 0 && !skipCacheForShuffle
+            && venues.length > 0 && venues.length <= FOLLOW_UP_SLICE) {
+          const recyclePool = (unseenInCriteria.length ? unseenInCriteria : venues)
+            .filter((v) => v && v.placeId)
+            .slice()
+            .sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+          if (recyclePool.length) {
+            trulyUnseen = recyclePool;
+            console.log(`[Cuisine-Search] D793 small-pool recycle: all-seen → re-serving ${recyclePool.length} (pool≤${FOLLOW_UP_SLICE}; beats a dead all-seen zero)`);
           }
         }
         const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
