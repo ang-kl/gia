@@ -3592,47 +3592,60 @@ export default function App() {
           {/* v0.62.x — operator: overlay text is LEFT-justified; the 🛑 Stop
               pill stays RIGHT-justified (its own row below, `justify-end`). */}
           <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card pl-5 pr-3 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
-            {/* v0.62.84 — operator: the 🛑 Stop pill aligns to the LAST text row
-                (`items-end` → the "Rating reset…" row when present), two sizes
-                smaller, and hugs the right border (card pr trimmed + tight gap). */}
-            <div className="flex items-end justify-between gap-2">
-              <div className="min-w-0 flex-1 text-left">
-                {loadingReason === 'rotating' ? (
-                  <>
-                    <div className="font-semibold">{t('loading.head', lang)}</div>
-                    <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
-                  </>
-                ) : loadingReason === 'refresh' ? (
-                  t('loading.refresh', lang)
-                ) : (
-                  <>
-                    {/* v0.62.84 — operator: no ⏳ hourglass; the blinking dots
-                        (one at a time, staggered) are the only motion. */}
-                    <div>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
-                      <span className="animate-blink">.</span>
-                      <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
-                      <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
-                    </span></div>
-                    {/* v0.62.82 — the ⭐ twinkles (✨→🌟→⭐→💫) via <AnimatedStar/>;
-                        the glyph is stripped from the i18n title. */}
-                    {ratingReminder && ratingReminder.kind !== 'saved' && (
-                      <div className="mt-2 font-semibold">
-                        {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
-                        <AnimatedStar />
-                      </div>
-                    )}
-                  </>
-                )}
-                {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
+            {loadingReason === 'refresh' ? (
+              /* v0.62.87 — operator: the refresh copy is ONE full-width row (it
+                 must not wrap around the pill); the 🛑 Stop pill sits BELOW it,
+                 flush right. */
+              <>
+                <div>{t('loading.refresh', lang)}</div>
                 {streamFirstName && (
                   <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
                 )}
+                <div className="mt-2 flex justify-end">
+                  <button type="button" onClick={stopLoading}
+                    className="shrink-0 px-1.5 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+                    {t('loading.stop', lang)}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* v0.62.87 — operator: the 🛑 Stop pill is VERTICALLY CENTRED beside
+                 the text (items-center), not bottom-aligned; tighter pill. */
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 text-left">
+                  {loadingReason === 'rotating' ? (
+                    <>
+                      <div className="font-semibold">{t('loading.head', lang)}</div>
+                      <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
+                    </>
+                  ) : (
+                    <>
+                      {/* v0.62.84 — no ⏳; the blinking dots (one at a time) are the only motion. */}
+                      <div>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
+                        <span className="animate-blink">.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
+                      </span></div>
+                      {/* v0.62.82 — the ⭐ twinkles (✨→🌟→⭐→💫) via <AnimatedStar/>. */}
+                      {ratingReminder && ratingReminder.kind !== 'saved' && (
+                        <div className="mt-2 font-semibold">
+                          {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
+                          <AnimatedStar />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
+                  {streamFirstName && (
+                    <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
+                  )}
+                </div>
+                <button type="button" onClick={stopLoading}
+                  className="shrink-0 px-1.5 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+                  {t('loading.stop', lang)}
+                </button>
               </div>
-              <button type="button" onClick={stopLoading}
-                className="shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg">
-                {t('loading.stop', lang)}
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
